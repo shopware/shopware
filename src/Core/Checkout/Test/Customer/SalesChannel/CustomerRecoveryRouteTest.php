@@ -20,6 +20,7 @@ use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
+ *
  * @group store-api
  */
 #[Package('customer-order')]

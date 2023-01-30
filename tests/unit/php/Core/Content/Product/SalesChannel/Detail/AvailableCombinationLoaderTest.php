@@ -15,6 +15,7 @@ use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Content\Product\SalesChannel\Detail\AvailableCombinationLoader
  */
 class AvailableCombinationLoaderTest extends TestCase

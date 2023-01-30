@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  * @package business-ops
  *
  * @internal
+ *
  * @covers \Shopware\Core\Content\Rule\RuleCollection
  */
 class RuleCollectionTest extends TestCase

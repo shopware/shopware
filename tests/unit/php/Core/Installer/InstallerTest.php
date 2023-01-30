@@ -9,6 +9,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Installer\Installer
  */
 class InstallerTest extends TestCase

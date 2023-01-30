@@ -17,6 +17,7 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
 
 /**
  * @internal
+ *
  * @phpstan-import-type OpenApiSpec from DefinitionService
  */
 #[Package('core')]

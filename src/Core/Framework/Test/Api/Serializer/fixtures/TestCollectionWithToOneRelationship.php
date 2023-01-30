@@ -455,7 +455,7 @@ class TestCollectionWithToOneRelationship extends SerializationFixture
     }
 
     /**
-     * @return array<array<string,mixed>>
+     * @return array<array<string, mixed>>
      */
     protected function getJsonFixtures(): array
     {

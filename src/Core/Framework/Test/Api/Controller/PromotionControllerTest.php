@@ -43,7 +43,6 @@ class PromotionControllerTest extends TestCase
      * create a new promotion with the minimum-required
      * data with our API.
      *
-     * @test
      * @group promotions
      *
      * @throws InconsistentCriteriaIdsException
@@ -78,7 +77,6 @@ class PromotionControllerTest extends TestCase
      * This test verifies that we can read the details of our
      * promotion using the API
      *
-     * @test
      * @group promotions
      */
     public function testReadPromotion(): void
@@ -108,7 +106,6 @@ class PromotionControllerTest extends TestCase
      * This test verifies that we can read the list data of our
      * promotions using the API
      *
-     * @test
      * @group promotions
      */
     public function testReadPromotionList(): void
@@ -142,7 +139,6 @@ class PromotionControllerTest extends TestCase
      * with the API. In this test we update the name
      * and verify if the new values is stored in the database.
      *
-     * @test
      * @group promotions
      */
     public function testPatchPromotion(): void
@@ -175,7 +171,6 @@ class PromotionControllerTest extends TestCase
      * that only has 1 discount. then we load it from the database and
      * check if no more discounts exist.
      *
-     * @test
      * @group promotions
      */
     public function testDeletePromotionDiscount(): void
@@ -204,7 +199,6 @@ class PromotionControllerTest extends TestCase
      * new values. We change the type and value and then load it from
      * the database and see if it has been correctly updated.
      *
-     * @test
      * @group promotions
      *
      * @throws InconsistentCriteriaIdsException
@@ -240,7 +234,6 @@ class PromotionControllerTest extends TestCase
      * using our client, and finally verify if no more promotions exist
      * in the database for this ID.
      *
-     * @test
      * @group promotions
      */
     public function testDeletePromotion(): void

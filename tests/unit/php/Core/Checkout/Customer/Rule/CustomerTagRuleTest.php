@@ -15,7 +15,9 @@ use Symfony\Component\Validator\Constraints\Choice;
  * @package business-ops
  *
  * @internal
+ *
  * @group rules
+ *
  * @covers \Shopware\Core\Checkout\Customer\Rule\CustomerTagRule
  */
 class CustomerTagRuleTest extends TestCase

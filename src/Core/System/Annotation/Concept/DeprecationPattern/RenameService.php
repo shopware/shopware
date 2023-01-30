@@ -7,7 +7,9 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @Annotation
+ *
  * @Target("CLASS")
+ *
  * @DeprecationPattern
  *
  * To rename a service that is registered in the DIC it is necessary to create a new Class with the new name of the service.

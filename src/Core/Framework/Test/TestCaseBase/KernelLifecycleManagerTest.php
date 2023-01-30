@@ -7,6 +7,7 @@ use Shopware\Core\Kernel;
 
 /**
  * @internal
+ *
  * @group skip-paratest
  */
 class KernelLifecycleManagerTest extends TestCase

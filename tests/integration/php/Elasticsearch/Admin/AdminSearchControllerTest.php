@@ -19,6 +19,7 @@ use Symfony\Component\HttpFoundation\Request;
  * @package system-settings
  *
  * @internal
+ *
  * @group skip-paratest
  */
 class AdminSearchControllerTest extends TestCase

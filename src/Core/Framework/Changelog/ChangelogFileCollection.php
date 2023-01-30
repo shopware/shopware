@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Struct\Collection;
 
 /**
  * @internal
+ *
  * @extends Collection<ChangelogFile>
  */
 #[Package('core')]

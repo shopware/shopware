@@ -9,6 +9,7 @@ use Shopware\Core\Migration\V6_5\Migration1661505878ChangeDefaultValueOfShipping
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_5\Migration1661505878ChangeDefaultValueOfShippingMethodActiveField
  */
 class Migration1661505878ChangeDefaultValueOfShippingMethodActiveFieldTest extends TestCase

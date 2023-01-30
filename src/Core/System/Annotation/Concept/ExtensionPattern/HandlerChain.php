@@ -6,7 +6,9 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @Annotation
+ *
  * @Target("CLASS")
+ *
  * @ExtensionPattern
  *
  * The HandlerChain pattern is very similar to the `\Shopware\Core\System\Annotation\Concept\ExtensionPattern\Handler` pattern.

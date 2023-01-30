@@ -9,6 +9,7 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1615802866ElasticsearchStreamFieldMigration
  */
 class Migration1615802866ElasticsearchStreamFieldMigrationTest extends TestCase

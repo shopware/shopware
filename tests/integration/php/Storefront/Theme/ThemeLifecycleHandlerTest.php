@@ -33,6 +33,7 @@ use Shopware\Tests\Integration\Storefront\Theme\fixtures\SimpleTheme\SimpleTheme
 
 /**
  * @internal
+ *
  * @covers \Shopware\Storefront\Theme\ThemeLifecycleHandler
  */
 class ThemeLifecycleHandlerTest extends TestCase

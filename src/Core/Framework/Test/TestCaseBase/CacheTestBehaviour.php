@@ -9,6 +9,7 @@ trait CacheTestBehaviour
 {
     /**
      * @before
+     *
      * @after
      */
     public function clearCacheData(): void

@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
+ *
  * @group slow
  * @group skip-paratest
  */

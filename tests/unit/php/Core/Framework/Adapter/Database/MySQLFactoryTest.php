@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Framework\Adapter\Database\MySQLFactory
  */
 class MySQLFactoryTest extends TestCase

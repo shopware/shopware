@@ -12,6 +12,7 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1650981517RemoveShopwareId
  */
 class Migration1650981517RemoveShopwareIdTest extends TestCase

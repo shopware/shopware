@@ -19,6 +19,7 @@ use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Storefront\Framework\Routing\StorefrontResponse
  */
 class StorefrontResponseTest extends TestCase

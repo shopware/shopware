@@ -9,6 +9,7 @@ use Shopware\Core\Migration\V6_3\Migration1608624028RemoveDefaultSalesChannelAss
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_3\Migration1608624028RemoveDefaultSalesChannelAssignmentForCustomerRecoveryEvent
  */
 class Migration1608624028RemoveDefaultSalesChannelAssignmentForCustomerRecoveryEventTest extends TestCase

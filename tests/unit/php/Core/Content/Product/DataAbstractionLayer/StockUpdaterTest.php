@@ -30,6 +30,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Content\Product\DataAbstractionLayer\StockUpdater
  */
 class StockUpdaterTest extends TestCase

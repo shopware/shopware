@@ -31,6 +31,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * @internal
+ *
  * @group slow
  * @group skip-paratest
  */

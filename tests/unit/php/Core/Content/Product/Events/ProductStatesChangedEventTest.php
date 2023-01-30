@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Context;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Content\Product\Events\ProductStatesChangedEvent
  */
 class ProductStatesChangedEventTest extends TestCase

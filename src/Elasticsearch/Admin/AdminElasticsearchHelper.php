@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
+ *
  * @final
  */
 #[Package('system-settings')]

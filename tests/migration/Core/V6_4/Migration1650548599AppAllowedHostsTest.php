@@ -9,6 +9,7 @@ use Shopware\Core\Migration\V6_4\Migration1650548599AppAllowedHosts;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1650548599AppAllowedHosts
  */
 class Migration1650548599AppAllowedHostsTest extends TestCase

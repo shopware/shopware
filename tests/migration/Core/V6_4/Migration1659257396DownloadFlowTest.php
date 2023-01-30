@@ -14,6 +14,7 @@ use Shopware\Core\Migration\V6_4\Migration1659257396DownloadFlow;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1659257396DownloadFlow
  */
 class Migration1659257396DownloadFlowTest extends TestCase

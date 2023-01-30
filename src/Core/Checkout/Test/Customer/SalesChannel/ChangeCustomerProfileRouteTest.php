@@ -17,6 +17,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Checkout\Customer\SalesChannel\ChangeCustomerProfileRoute
  */
 #[Package('customer-order')]

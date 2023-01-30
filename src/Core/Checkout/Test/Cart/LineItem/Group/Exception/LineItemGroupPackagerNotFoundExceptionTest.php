@@ -16,7 +16,6 @@ class LineItemGroupPackagerNotFoundExceptionTest extends TestCase
      * This test verifies that our provided code is correctly
      * visible in the resulting exception message.
      *
-     * @test
      * @group lineitemgroup
      */
     public function testCodeInMessage(): void
@@ -29,7 +28,6 @@ class LineItemGroupPackagerNotFoundExceptionTest extends TestCase
     /**
      * This test verifies that our error code is correct
      *
-     * @test
      * @group lineitemgroup
      */
     public function testErrorCode(): void
@@ -42,7 +40,6 @@ class LineItemGroupPackagerNotFoundExceptionTest extends TestCase
     /**
      * This test verifies that our error code is correct
      *
-     * @test
      * @group lineitemgroup
      */
     public function testStatusCode(): void

@@ -36,6 +36,7 @@ use Shopware\Tests\Unit\Common\Stubs\DataAbstractionLayer\StaticEntityRepository
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceCalculator
  */
 class ProductPriceCalculatorTest extends TestCase

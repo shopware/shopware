@@ -10,6 +10,7 @@ use Shopware\Core\Migration\V6_4\Migration1672164687FixTypoInUserRecoveryPasswor
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1672164687FixTypoInUserRecoveryPasswordResetMail
  *
  * @package system-settings

@@ -233,6 +233,6 @@ class MatchAllLineItemsRuleTest extends TestCase
      */
     private function createLineItemWithCategories(array $categoryIds): LineItem
     {
-        return ($this->createLineItem())->setPayloadValue('categoryIds', $categoryIds);
+        return $this->createLineItem()->setPayloadValue('categoryIds', $categoryIds);
     }
 }

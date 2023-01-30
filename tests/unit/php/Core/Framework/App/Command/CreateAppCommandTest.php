@@ -11,6 +11,7 @@ use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Framework\App\Command\CreateAppCommand
  */
 class CreateAppCommandTest extends TestCase

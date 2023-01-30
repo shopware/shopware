@@ -23,6 +23,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
+ *
  * @group slow
  */
 class ProductListingTest extends TestCase

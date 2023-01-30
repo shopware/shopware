@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Content\Mail\Service\MailAttachmentsConfig
  */
 class MailAttachmentsConfigTest extends TestCase

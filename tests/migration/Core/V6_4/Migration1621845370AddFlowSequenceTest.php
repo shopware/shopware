@@ -9,6 +9,7 @@ use Shopware\Core\Migration\V6_4\Migration1642732351AddAppFlowActionId;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1621845370AddFlowSequence
  */
 class Migration1621845370AddFlowSequenceTest extends TestCase

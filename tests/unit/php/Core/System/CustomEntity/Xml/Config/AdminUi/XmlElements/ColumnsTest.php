@@ -10,6 +10,7 @@ use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Columns;
  * @package content
  *
  * @internal
+ *
  * @covers \Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Columns
  */
 class ColumnsTest extends TestCase

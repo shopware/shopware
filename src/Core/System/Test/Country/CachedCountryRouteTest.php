@@ -31,6 +31,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
+ *
  * @group cache
  * @group store-api
  */

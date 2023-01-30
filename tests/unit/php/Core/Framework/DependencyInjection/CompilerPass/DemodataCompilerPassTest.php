@@ -11,6 +11,7 @@ use Symfony\Component\DependencyInjection\Definition;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Framework\DependencyInjection\CompilerPass\DemodataCompilerPass
  */
 class DemodataCompilerPassTest extends TestCase

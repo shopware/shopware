@@ -25,6 +25,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
  * @internal
+ *
  * @group skip-paratest
  */
 class ExtensionLoaderTest extends TestCase

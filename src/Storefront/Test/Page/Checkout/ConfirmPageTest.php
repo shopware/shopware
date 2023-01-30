@@ -20,6 +20,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPage
  */
 class ConfirmPageTest extends TestCase

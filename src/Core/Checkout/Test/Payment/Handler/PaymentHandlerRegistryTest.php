@@ -68,6 +68,7 @@ class PaymentHandlerRegistryTest extends TestCase
 
     /**
      * @param array<class-string<PaymentHandlerInterface>> $handlerInstances
+     *
      * @dataProvider paymentMethodDataProvider
      */
     public function testGetAsyncHandler(string $handlerName, string $handlerClass, array $handlerInstances): void
@@ -84,6 +85,7 @@ class PaymentHandlerRegistryTest extends TestCase
 
     /**
      * @param array<class-string<PaymentHandlerInterface>> $handlerInstances
+     *
      * @dataProvider paymentMethodDataProvider
      */
     public function testGetSyncHandler(string $handlerName, string $handlerClass, array $handlerInstances): void
@@ -100,6 +102,7 @@ class PaymentHandlerRegistryTest extends TestCase
 
     /**
      * @param array<class-string<PaymentHandlerInterface>> $handlerInstances
+     *
      * @dataProvider paymentMethodDataProvider
      */
     public function testGetPreparedHandler(string $handlerName, string $handlerClass, array $handlerInstances): void
@@ -116,6 +119,7 @@ class PaymentHandlerRegistryTest extends TestCase
 
     /**
      * @param array<class-string<PaymentHandlerInterface>> $handlerInstances
+     *
      * @dataProvider paymentMethodDataProvider
      */
     public function testGetRefundHandler(string $handlerName, string $handlerClass, array $handlerInstances): void

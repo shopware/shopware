@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
  * @package merchant-services
  *
  * @internal
+ *
  * @covers \Shopware\Core\Framework\Store\Exception\StoreSignatureValidationException
  */
 class StoreSignatureValidationExceptionTest extends TestCase

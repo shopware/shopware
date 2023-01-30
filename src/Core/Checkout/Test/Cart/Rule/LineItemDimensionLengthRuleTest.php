@@ -15,6 +15,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
+ *
  * @group rules
  */
 #[Package('business-ops')]

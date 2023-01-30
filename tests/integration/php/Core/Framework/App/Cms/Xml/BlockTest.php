@@ -76,6 +76,7 @@ class BlockTest extends TestCase
 
     /**
      * @param array<string, mixed> $expectedEntityArray
+     *
      * @dataProvider provideEntityArrays
      */
     public function testToEntityArray(int $i, array $expectedEntityArray): void

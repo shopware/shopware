@@ -21,6 +21,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
  * @internal
+ *
  * @group store-api
  * @group cart
  */

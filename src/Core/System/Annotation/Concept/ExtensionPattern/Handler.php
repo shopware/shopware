@@ -6,7 +6,9 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @Annotation
+ *
  * @Target("CLASS")
+ *
  * @ExtensionPattern
  *
  * Services marked with the Handler annotation are designed to be extended by adding a (tagged service)[https://symfony.com/doc/current/service_container/tags.html#reference-tagged-services] implementing a specific interface.

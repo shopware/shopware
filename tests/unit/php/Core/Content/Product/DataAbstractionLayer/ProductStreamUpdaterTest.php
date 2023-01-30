@@ -20,6 +20,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Content\Product\DataAbstractionLayer\ProductStreamUpdater
  */
 class ProductStreamUpdaterTest extends TestCase

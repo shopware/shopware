@@ -19,6 +19,7 @@ use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigEntity;
  * @package merchant-services
  *
  * @internal
+ *
  * @covers \Shopware\Core\Framework\Store\Authentication\FrwRequestOptionsProvider
  */
 class FrwRequestOptionsProviderTest extends TestCase

@@ -233,7 +233,7 @@ class HappyPathValidator implements ValidatorInterface
                 }
 
                 break;
-            // unknown constraint
+                // unknown constraint
             default:
                 return false;
         }

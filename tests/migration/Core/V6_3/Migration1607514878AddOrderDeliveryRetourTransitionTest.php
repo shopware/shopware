@@ -8,6 +8,7 @@ use Shopware\Core\Migration\V6_3\Migration1607514878AddOrderDeliveryRetourTransi
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_3\Migration1607514878AddOrderDeliveryRetourTransition
  */
 class Migration1607514878AddOrderDeliveryRetourTransitionTest extends TestCase

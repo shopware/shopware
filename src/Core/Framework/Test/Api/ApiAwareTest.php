@@ -15,6 +15,7 @@ use Shopware\Storefront\Theme\ThemeDefinition;
 
 /**
  * @internal
+ *
  * @group skip-paratest
  */
 class ApiAwareTest extends TestCase

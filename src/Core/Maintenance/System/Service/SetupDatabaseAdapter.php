@@ -8,6 +8,7 @@ use Shopware\Core\Kernel;
 
 /**
  * @internal
+ *
  * @codeCoverageIgnore - Is tested by integration test, does not make sense to unit test
  * as the sole purpose of this class is to abstract DB interactions during setup
  */

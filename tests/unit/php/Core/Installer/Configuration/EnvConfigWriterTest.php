@@ -9,6 +9,7 @@ use Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Installer\Configuration\EnvConfigWriter
  */
 class EnvConfigWriterTest extends TestCase

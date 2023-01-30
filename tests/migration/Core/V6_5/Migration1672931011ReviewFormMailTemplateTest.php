@@ -14,6 +14,7 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_5\Migration1672931011ReviewFormMailTemplate
  */
 class Migration1672931011ReviewFormMailTemplateTest extends TestCase

@@ -39,6 +39,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  * @package merchant-services
  *
  * @internal
+ *
  * @covers \Shopware\Core\Framework\Store\Services\FirstRunWizardService
  */
 class FirstRunWizardServiceTest extends TestCase

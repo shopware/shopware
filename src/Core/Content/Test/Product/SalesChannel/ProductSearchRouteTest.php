@@ -27,6 +27,7 @@ use function sprintf;
 
 /**
  * @internal
+ *
  * @group store-api
  */
 class ProductSearchRouteTest extends TestCase
@@ -177,6 +178,7 @@ class ProductSearchRouteTest extends TestCase
 
     /**
      * @depends testIndexing
+     *
      * @dataProvider searchOrCases
      */
     public function testSearchOr(string $term, array $expected, array $services): void
@@ -192,6 +194,7 @@ class ProductSearchRouteTest extends TestCase
 
     /**
      * @depends testIndexing
+     *
      * @dataProvider searchAndCases
      */
     public function testSearchAnd(string $term, array $expected, array $services): void
@@ -355,6 +358,7 @@ class ProductSearchRouteTest extends TestCase
 
     /**
      * @dataProvider searchTestCases
+     *
      * @depends testIndexing
      */
     public function testProductSearch(string $productNumber, array $searchTerms, ?string $languageId, array $services): void

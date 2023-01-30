@@ -11,6 +11,7 @@ use Shopware\Core\Migration\V6_5\Migration1669298267AddIconCacheDefaultValue;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_5\Migration1669298267AddIconCacheDefaultValue
  */
 class Migration1669298267AddIconCacheDefaultValueTest extends TestCase

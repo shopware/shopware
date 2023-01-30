@@ -32,6 +32,7 @@ use Shopware\Storefront\Checkout\Shipping\BlockedShippingMethodSwitcher;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade
  */
 class StorefrontCartFacadeTest extends TestCase

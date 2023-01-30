@@ -24,6 +24,7 @@ use Symfony\Component\HttpFoundation\Request;
  * @package checkout
  *
  * @internal
+ *
  * @group store-api
  */
 class ShippingMethodRouteTest extends TestCase

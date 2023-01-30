@@ -11,6 +11,7 @@ use Symfony\Component\Dotenv\Dotenv;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Maintenance\System\Command\SystemSetupCommand
  */
 class SystemSetupCommandTest extends TestCase

@@ -67,6 +67,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Checkout\Cart\Order\OrderConverter
  */
 class OrderConverterTest extends TestCase

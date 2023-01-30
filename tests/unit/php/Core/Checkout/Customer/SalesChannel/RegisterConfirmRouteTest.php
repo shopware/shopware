@@ -29,6 +29,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * @package customer-order
  *
  * @internal
+ *
  * @covers \Shopware\Core\Checkout\Customer\SalesChannel\RegisterConfirmRoute
  */
 class RegisterConfirmRouteTest extends TestCase

@@ -493,7 +493,7 @@ class ApiController extends AbstractController
 
             $criteria->addFilter(
                 new EqualsFilter(
-                //add filter to parent value: prices.productId = SW1
+                    //add filter to parent value: prices.productId = SW1
                     $definition->getEntityName() . '.' . $foreignKey->getPropertyName(),
                     $parent['value']
                 )
@@ -516,7 +516,7 @@ class ApiController extends AbstractController
 
             $criteria->addFilter(
                 new EqualsFilter(
-                //filter inverse association to parent value:  manufacturer.products.id = SW1
+                    //filter inverse association to parent value:  manufacturer.products.id = SW1
                     sprintf('%s.%s.id', $definition->getEntityName(), $reverse->getPropertyName()),
                     $parent['value']
                 )
@@ -539,7 +539,7 @@ class ApiController extends AbstractController
 
             $criteria->addFilter(
                 new EqualsFilter(
-                //filter inverse association to parent value:  order_customer.order_id = xxxx
+                    //filter inverse association to parent value:  order_customer.order_id = xxxx
                     sprintf('%s.%s.id', $definition->getEntityName(), $reverse->getPropertyName()),
                     $parent['value']
                 )

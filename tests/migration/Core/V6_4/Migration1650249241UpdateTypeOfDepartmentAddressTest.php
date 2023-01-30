@@ -10,6 +10,7 @@ use Shopware\Core\Migration\V6_4\Migration1650249241UpdateTypeOfDepartmentAddres
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1650249241UpdateTypeOfDepartmentAddress
  */
 class Migration1650249241UpdateTypeOfDepartmentAddressTest extends TestCase

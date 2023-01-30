@@ -34,6 +34,7 @@ use Symfony\Contracts\Cache\CacheInterface;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Checkout\Shipping\SalesChannel\CachedShippingMethodRoute
  */
 class CachedShippingMethodRouteTest extends TestCase

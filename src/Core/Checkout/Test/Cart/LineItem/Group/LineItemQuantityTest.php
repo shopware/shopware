@@ -16,7 +16,6 @@ class LineItemQuantityTest extends TestCase
      * This test verifies that our property is correctly
      * assigned and returned in its getter.
      *
-     * @test
      * @group lineitemgroup
      */
     public function testPropertyLineItemId(): void
@@ -30,7 +29,6 @@ class LineItemQuantityTest extends TestCase
      * This test verifies that our property is correctly
      * assigned and returned in its getter.
      *
-     * @test
      * @group lineitemgroup
      */
     public function testPropertQuantity(): void
@@ -44,7 +42,6 @@ class LineItemQuantityTest extends TestCase
      * This test verifies that its possible
      * to adjust the quantity value of this object.
      *
-     * @test
      * @group lineitemgroup
      */
     public function testSetQuantity(): void

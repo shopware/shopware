@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Content\Product\ProductVariationBuilder
  */
 class ProductVariationBuilderTest extends TestCase

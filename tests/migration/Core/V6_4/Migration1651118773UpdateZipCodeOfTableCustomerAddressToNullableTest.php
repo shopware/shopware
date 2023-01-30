@@ -9,6 +9,7 @@ use Shopware\Core\Migration\V6_4\Migration1651118773UpdateZipCodeOfTableCustomer
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1651118773UpdateZipCodeOfTableCustomerAddressToNullable
  */
 class Migration1651118773UpdateZipCodeOfTableCustomerAddressToNullableTest extends TestCase

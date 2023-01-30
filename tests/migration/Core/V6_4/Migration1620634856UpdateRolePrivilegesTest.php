@@ -11,6 +11,7 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1620634856UpdateRolePrivileges
  */
 class Migration1620634856UpdateRolePrivilegesTest extends TestCase

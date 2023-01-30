@@ -11,6 +11,7 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_5\Migration1672934282ReviewFormSendFlow
  */
 class Migration1672934282ReviewFormSendFlowTest extends TestCase

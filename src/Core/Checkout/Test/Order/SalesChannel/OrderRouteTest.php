@@ -53,6 +53,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
+ *
  * @group slow
  * @group store-api
  */

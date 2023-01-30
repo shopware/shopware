@@ -16,6 +16,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
  * @package business-ops
  *
  * @internal
+ *
  * @covers \Shopware\Core\Framework\Rule\SalesChannelRule
  */
 class SalesChannelRuleTest extends TestCase

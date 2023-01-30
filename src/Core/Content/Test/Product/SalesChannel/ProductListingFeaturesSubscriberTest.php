@@ -263,6 +263,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
 
     /**
      * @dataProvider searchSortingProvider
+     *
      * @group slow
      *
      * @param array<string, string> $expectedFields

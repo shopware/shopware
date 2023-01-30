@@ -30,6 +30,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Framework\Demodata\Command\DemodataCommand
  */
 class DemodataCommandTest extends TestCase

@@ -75,7 +75,7 @@ class PrefixFilesystem implements FilesystemOperator
                 }
                 // @codeCoverageIgnoreStart
                 return $info;
-            // @codeCoverageIgnoreEnd
+                // @codeCoverageIgnoreEnd
             },
             $this->filesystem->listContents($location, $deep)->toArray()
         ));

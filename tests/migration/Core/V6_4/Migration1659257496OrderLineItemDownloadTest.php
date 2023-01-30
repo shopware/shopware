@@ -10,6 +10,7 @@ use Shopware\Core\Migration\V6_4\Migration1659257496OrderLineItemDownload;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1659257496OrderLineItemDownload
  */
 class Migration1659257496OrderLineItemDownloadTest extends TestCase

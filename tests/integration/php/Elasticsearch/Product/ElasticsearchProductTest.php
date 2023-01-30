@@ -86,6 +86,7 @@ use function array_combine;
 
 /**
  * @internal
+ *
  * @group skip-paratest
  *
  * @package system-settings
@@ -478,6 +479,7 @@ class ElasticsearchProductTest extends TestCase
 
     /**
      * @depends testIndexing
+     *
      * @dataProvider multiFilterWithOneToManyRelationProvider
      *
      * @param array<string> $expectedProducts
@@ -1767,6 +1769,7 @@ class ElasticsearchProductTest extends TestCase
 
     /**
      * @depends      testIndexing
+     *
      * @dataProvider dateHistogramProvider
      */
     public function testDateHistogram(DateHistogramCase $case, IdsCollection $data): void
@@ -3162,6 +3165,7 @@ class ElasticsearchProductTest extends TestCase
 
     /**
      * @depends testIndexing
+     *
      * @dataProvider rangeAggregationDataProvider
      *
      * @param array<int, array<string, string|float>> $rangesDefinition

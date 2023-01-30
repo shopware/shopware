@@ -16,6 +16,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
+ *
  * @group rules
  */
 #[Package('business-ops')]
@@ -161,6 +162,6 @@ class LineItemTaxationRuleTest extends TestCase
 
     private function createLineItemWithTaxId(string $taxId): LineItem
     {
-        return ($this->createLineItem())->setPayloadValue('taxId', $taxId);
+        return $this->createLineItem()->setPayloadValue('taxId', $taxId);
     }
 }

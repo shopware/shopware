@@ -21,6 +21,7 @@ use Shopware\Storefront\Theme\ThemeService;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Storefront\Theme\ThemeLifecycleHandler
  */
 class ThemeLifecycleHandlerTest extends TestCase

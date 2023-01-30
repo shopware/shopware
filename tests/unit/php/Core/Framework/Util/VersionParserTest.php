@@ -8,6 +8,7 @@ use Shopware\Core\Kernel;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Framework\Util\VersionParser
  */
 class VersionParserTest extends TestCase

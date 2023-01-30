@@ -25,6 +25,7 @@ use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 
 /**
  * @internal
+ *
  * @group slow
  * @group skip-paratest
  */

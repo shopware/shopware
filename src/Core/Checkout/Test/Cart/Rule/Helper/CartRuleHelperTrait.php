@@ -34,7 +34,7 @@ trait CartRuleHelperTrait
         ?float $length = null,
         int $stock = 9999
     ): LineItem {
-        return ($this->createLineItem(LineItem::PRODUCT_LINE_ITEM_TYPE, $quantity))->setDeliveryInformation(
+        return $this->createLineItem(LineItem::PRODUCT_LINE_ITEM_TYPE, $quantity)->setDeliveryInformation(
             new DeliveryInformation(
                 $stock,
                 $weight,
@@ -55,12 +55,12 @@ trait CartRuleHelperTrait
 
     protected function createContainerLineItem(LineItemCollection $childLineItemCollection): LineItem
     {
-        return ($this->createLineItem('container-type'))->setChildren($childLineItemCollection);
+        return $this->createLineItem('container-type')->setChildren($childLineItemCollection);
     }
 
     protected function createLineItemWithPrice(string $type, float $price, ?ListPrice $listPrice = null): LineItem
     {
-        return ($this->createLineItem($type))->setPrice(
+        return $this->createLineItem($type)->setPrice(
             new CalculatedPrice(
                 $price,
                 $price,

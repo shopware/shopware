@@ -19,6 +19,7 @@ use Shopware\Core\System\Tax\TaxCollection;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\System\SalesChannel\SalesChannelContext
  */
 class SalesChannelContextTest extends TestCase

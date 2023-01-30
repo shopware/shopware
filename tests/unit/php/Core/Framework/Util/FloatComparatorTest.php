@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Util\FloatComparator;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Framework\Util\FloatComparator
  */
 class FloatComparatorTest extends TestCase

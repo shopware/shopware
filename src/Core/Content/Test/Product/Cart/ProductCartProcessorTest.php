@@ -314,6 +314,7 @@ class ProductCartProcessorTest extends TestCase
      * @param array{type: string} $testedFeature
      * @param array<string, mixed> $productData
      * @param array{type: string, value: array{price: string}, label: string} $expectedFeature
+     *
      * @group slow
      */
     public function testProductFeaturesContainCorrectInformation(array $testedFeature, array $productData, array $expectedFeature): void
@@ -591,6 +592,7 @@ class ProductCartProcessorTest extends TestCase
 
     /**
      * @dataProvider productDeliverabilityProvider
+     *
      * @group slow
      */
     public function testProcessCartShouldReturnFixedQuantity(int $minPurchase, int $purchaseSteps, int $maxPurchase, int $quantity, int $quantityExpected, ?string $errorKey): void

@@ -8,6 +8,7 @@ use Symfony\Component\Finder\Finder;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1624967118updateMailTemplatesWithOptionalSalutation
  */
 class Migration1624967118updateMailTemplatesWithOptionalSalutationTest extends TestCase

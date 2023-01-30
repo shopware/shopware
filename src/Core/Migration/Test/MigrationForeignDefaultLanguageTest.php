@@ -15,6 +15,7 @@ use Shopware\Core\Migration\V6_3\Migration1536233560BasicData;
 
 /**
  * @internal
+ *
  * @group slow
  */
 #[Package('core')]

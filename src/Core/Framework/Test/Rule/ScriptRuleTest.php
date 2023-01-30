@@ -68,6 +68,7 @@ class ScriptRuleTest extends TestCase
      * @runInSeparateProcess
      *
      * @param array<string, string> $values
+     *
      * @dataProvider scriptProvider
      */
     public function testRuleScriptExecution(string $path, array $values, bool $expectedTrue): void
@@ -98,6 +99,7 @@ class ScriptRuleTest extends TestCase
 
     /**
      * @runInSeparateProcess
+     *
      * @depends testRuleScriptExecution
      */
     public function testRuleScriptIsCached(): void
@@ -119,6 +121,7 @@ class ScriptRuleTest extends TestCase
 
     /**
      * @runInSeparateProcess
+     *
      * @depends testRuleScriptIsCached
      */
     public function testCachedRuleScriptIsInvalidated(): void

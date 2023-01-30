@@ -18,6 +18,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\System\SalesChannel\Context\SalesChannelContextService
  */
 class SalesChannelContextServiceTest extends TestCase

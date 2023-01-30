@@ -10,6 +10,7 @@ use Shopware\Core\Migration\V6_4\Migration1648031636AddPositionFieldToShippingMe
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1648031636AddPositionFieldToShippingMethod
  */
 class Migration1648031636AddPositionFieldToShippingMethodTest extends TestCase

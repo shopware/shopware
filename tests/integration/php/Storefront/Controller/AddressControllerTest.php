@@ -92,7 +92,7 @@ class AddressControllerTest extends TestCase
 
     public function testCreateBillingAddressIsNewSelectedAddress(): void
     {
-        [$customerId, ] = $this->createCustomers();
+        [$customerId] = $this->createCustomers();
 
         $context = $this->getContainer()
             ->get(SalesChannelContextFactory::class)
@@ -128,7 +128,7 @@ class AddressControllerTest extends TestCase
 
     public function testCreateShippingAddressIsNewSelectedAddress(): void
     {
-        [$customerId, ] = $this->createCustomers();
+        [$customerId] = $this->createCustomers();
 
         $context = $this->getContainer()
             ->get(SalesChannelContextFactory::class)

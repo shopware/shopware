@@ -48,7 +48,6 @@ class PromotionExclusionIndexerTest extends TestCase
     /**
      * tests that a update of promotion exclusions is written in excluded promotions too
      *
-     * @test
      * @group promotions
      */
     public function testUpsertPromotionIndexerLogic(): void
@@ -80,7 +79,6 @@ class PromotionExclusionIndexerTest extends TestCase
      * has been deleted. No reference on the deleted entity may be in any exclusions of
      * other promotions
      *
-     * @test
      * @group promotions
      */
     public function testDeletePromotionIndexerLogic(): void

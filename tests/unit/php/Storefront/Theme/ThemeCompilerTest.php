@@ -42,6 +42,7 @@ use Symfony\Component\Messenger\Stamp\DelayStamp;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Storefront\Theme\ThemeCompiler
  */
 class ThemeCompilerTest extends TestCase

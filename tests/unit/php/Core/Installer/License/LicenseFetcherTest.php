@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Installer\License\LicenseFetcher
  */
 class LicenseFetcherTest extends TestCase

@@ -17,6 +17,7 @@ use Twig\Environment;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Installer\Controller\RequirementsController
  */
 class RequirementsControllerTest extends TestCase

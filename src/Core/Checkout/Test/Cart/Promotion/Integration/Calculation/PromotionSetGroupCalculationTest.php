@@ -192,7 +192,6 @@ class PromotionSetGroupCalculationTest extends TestCase
      * We give 50 EUR fixed price for the whole package, which means the customer has to
      * pay 50 EUR + product 2.
      *
-     * @test
      * @group promotions
      *
      * @throws CartException

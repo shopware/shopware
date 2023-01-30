@@ -10,6 +10,7 @@ use Shopware\Core\Migration\V6_4\Migration1655730949AddIsRunningColumnToProductE
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1655730949AddIsRunningColumnToProductExport
  */
 class Migration1655730949AddIsRunningColumnToProductExportTest extends TestCase

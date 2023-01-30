@@ -10,6 +10,7 @@ use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Tab;
  * @package content
  *
  * @internal
+ *
  * @covers \Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Tab
  */
 class TabTest extends TestCase

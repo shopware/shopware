@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
+ *
  * @phpstan-import-type SequenceData from Migration1648803451FixInvalidMigrationOfBusinessEventToFlow
  */
 #[Package('core')]

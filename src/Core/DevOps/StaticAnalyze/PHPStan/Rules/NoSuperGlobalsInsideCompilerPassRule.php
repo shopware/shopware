@@ -13,6 +13,7 @@ use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 
 /**
  * @internal
+ *
  * @implements Rule<ArrayDimFetch>
  */
 #[Package('core')]

@@ -9,6 +9,7 @@ use Shopware\Core\Migration\V6_4\Migration1630074081AddDeleteCascadeToImportExpo
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1630074081AddDeleteCascadeToImportExportLogTable
  */
 class Migration1630074081AddDeleteCascadeToImportExportLogTableTest extends TestCase

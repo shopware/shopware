@@ -29,6 +29,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\PasswordFieldSerializer
  */
 class PasswordFieldSerializerTest extends TestCase

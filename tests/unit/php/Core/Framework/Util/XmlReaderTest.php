@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Util\XmlReader;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Framework\Util\XmlReader
  */
 class XmlReaderTest extends TestCase

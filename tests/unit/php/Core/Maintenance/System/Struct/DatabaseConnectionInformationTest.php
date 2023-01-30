@@ -9,6 +9,7 @@ use Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation
  */
 class DatabaseConnectionInformationTest extends TestCase

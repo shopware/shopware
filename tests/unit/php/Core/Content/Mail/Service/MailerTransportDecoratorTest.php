@@ -20,6 +20,7 @@ use Symfony\Component\Mime\Email;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Content\Mail\Service\MailerTransportDecorator
  */
 class MailerTransportDecoratorTest extends TestCase

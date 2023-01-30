@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
+ *
  * @group cache
  */
 class HttpCacheKeyGeneratorTest extends TestCase

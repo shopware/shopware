@@ -18,6 +18,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
  * @package merchant-services
  *
  * @internal
+ *
  * @covers \Shopware\Core\Framework\Store\Services\StoreSessionExpiredMiddleware
  */
 class StoreSessionExpiredMiddlewareTest extends TestCase

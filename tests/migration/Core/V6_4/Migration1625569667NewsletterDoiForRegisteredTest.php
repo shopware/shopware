@@ -10,6 +10,7 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1625569667NewsletterDoiForRegistered
  */
 class Migration1625569667NewsletterDoiForRegisteredTest extends TestCase

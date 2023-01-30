@@ -13,6 +13,7 @@ use Symfony\Component\Mime\Email;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Content\Mail\Service\Mail
  */
 class MailTest extends TestCase

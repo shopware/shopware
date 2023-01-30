@@ -13,6 +13,7 @@ use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
+ *
  * @group slow
  */
 class AdminProductStreamControllerTest extends TestCase

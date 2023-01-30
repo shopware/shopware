@@ -22,6 +22,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewSaveRoute
  */
 class ProductReviewSaveRouteTest extends TestCase

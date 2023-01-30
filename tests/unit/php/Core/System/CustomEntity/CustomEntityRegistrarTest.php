@@ -21,6 +21,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  * @internal
  *
  * @package core
+ *
  * @covers \Shopware\Core\System\CustomEntity\CustomEntityRegistrar
  */
 class CustomEntityRegistrarTest extends TestCase

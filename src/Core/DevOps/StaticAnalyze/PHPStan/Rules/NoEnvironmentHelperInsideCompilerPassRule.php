@@ -15,6 +15,7 @@ use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 
 /**
  * @internal
+ *
  * @implements Rule<StaticCall>
  */
 #[Package('core')]

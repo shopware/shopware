@@ -10,6 +10,7 @@ use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Entity as A
  * @package content
  *
  * @internal
+ *
  * @covers \Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\AdminUi
  */
 class AdminUiTest extends TestCase

@@ -9,6 +9,7 @@ use Shopware\Core\Migration\V6_4\Migration1635388654CreateIncrementTable;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1635388654CreateIncrementTable
  */
 class Migration1635388654CreateIncrementTableTest extends TestCase

@@ -20,6 +20,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * @package business-ops
  *
  * @internal
+ *
  * @covers \Shopware\Core\Content\Flow\Rule\FlowRuleScopeBuilder
  */
 class FlowRuleScopeBuilderTest extends TestCase

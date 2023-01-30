@@ -26,6 +26,7 @@ use Symfony\Component\Routing\RequestContext;
 
 /**
  * @internal
+ *
  * @group slow
  */
 class StorefrontRoutingTest extends TestCase

@@ -31,6 +31,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * @package customer-order
  *
  * @internal
+ *
  * @covers \Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute
  */
 class NewsletterSubscribeRouteTest extends TestCase

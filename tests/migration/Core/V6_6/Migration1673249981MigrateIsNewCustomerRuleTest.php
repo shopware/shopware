@@ -11,6 +11,7 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_6\Migration1673249981MigrateIsNewCustomerRule
  */
 class Migration1673249981MigrateIsNewCustomerRuleTest extends TestCase

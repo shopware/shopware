@@ -27,6 +27,7 @@ trait StoreClientBehaviour
 
     /**
      * @after
+     *
      * @before
      */
     public function resetStoreMock(): void

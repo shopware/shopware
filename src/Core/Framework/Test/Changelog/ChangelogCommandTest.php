@@ -18,6 +18,7 @@ use function file_get_contents;
 
 /**
  * @internal
+ *
  * @group skip-paratest
  */
 class ChangelogCommandTest extends TestCase

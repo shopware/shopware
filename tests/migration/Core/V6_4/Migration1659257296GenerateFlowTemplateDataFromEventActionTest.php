@@ -12,6 +12,7 @@ use Shopware\Core\Migration\V6_4\Migration1659257296GenerateFlowTemplateDataFrom
  * @package business-ops
  *
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1659257296GenerateFlowTemplateDataFromEventAction
  */
 class Migration1659257296GenerateFlowTemplateDataFromEventActionTest extends TestCase

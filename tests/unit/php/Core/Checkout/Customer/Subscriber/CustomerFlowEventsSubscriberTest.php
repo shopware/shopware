@@ -23,6 +23,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * @package business-ops
  *
  * @internal
+ *
  * @covers \Shopware\Core\Checkout\Customer\Subscriber\CustomerFlowEventsSubscriber
  */
 class CustomerFlowEventsSubscriberTest extends TestCase

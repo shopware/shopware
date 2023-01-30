@@ -16,7 +16,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * @package business-ops
  *
  * @internal
+ *
  * @group rules
+ *
  * @covers \Shopware\Core\Checkout\Customer\Rule\CampaignCodeRule
  */
 class CampaignCodeRuleTest extends TestCase

@@ -9,6 +9,7 @@ use Shopware\Core\Installer\Finish\UniqueIdGenerator;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Installer\Finish\Notifier
  */
 class NotifierTest extends TestCase

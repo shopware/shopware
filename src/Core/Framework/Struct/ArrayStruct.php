@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @template-covariant TKey
  * @template-covariant TValue
+ *
  * @implements \ArrayAccess<string|int, mixed>
  */
 #[Package('core')]

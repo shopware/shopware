@@ -10,6 +10,7 @@ use Shopware\Core\Migration\V6_4\Migration1638514913RemovedUnusedVarsInMailTempl
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1638514913RemovedUnusedVarsInMailTemplates
  */
 class Migration1638514913RemovedUnusedVarsInMailTemplatesTest extends TestCase

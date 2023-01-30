@@ -15,6 +15,7 @@ use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
 /**
  * @Annotation
+ *
  * @Target({"PROPERTY", "METHOD", "ANNOTATION"})
  */
 #[Package('customer-order')]

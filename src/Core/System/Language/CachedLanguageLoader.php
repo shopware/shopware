@@ -8,6 +8,7 @@ use Symfony\Contracts\Cache\CacheInterface;
 
 /**
  * @internal
+ *
  * @phpstan-import-type LanguageData from LanguageLoaderInterface
  */
 #[Package('core')]

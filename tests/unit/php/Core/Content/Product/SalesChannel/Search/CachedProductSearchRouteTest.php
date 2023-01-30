@@ -33,6 +33,7 @@ use Symfony\Contracts\Cache\CacheInterface;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Content\Product\SalesChannel\Search\CachedProductSearchRoute
  */
 class CachedProductSearchRouteTest extends TestCase

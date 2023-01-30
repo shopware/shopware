@@ -47,6 +47,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  * @package customer-order
  *
  * @internal
+ *
  * @group store-api
  */
 class RegisterRouteTest extends TestCase

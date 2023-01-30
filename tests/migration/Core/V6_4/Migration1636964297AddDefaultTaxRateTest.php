@@ -11,6 +11,7 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1636964297AddDefaultTaxRate
  */
 class Migration1636964297AddDefaultTaxRateTest extends TestCase

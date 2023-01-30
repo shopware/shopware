@@ -14,7 +14,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * @package business-ops
  *
  * @internal
+ *
  * @group rules
+ *
  * @covers \Shopware\Core\Checkout\Customer\Rule\DaysSinceLastLoginRule
  * @covers \Shopware\Core\Framework\Rule\Container\DaysSinceRule
  */

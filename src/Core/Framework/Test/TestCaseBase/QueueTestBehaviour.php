@@ -16,6 +16,7 @@ trait QueueTestBehaviour
 {
     /**
      * @before
+     *
      * @after
      */
     public function clearQueue(): void

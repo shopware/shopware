@@ -19,6 +19,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
  * @internal
+ *
  * @group rules
  */
 #[Package('business-ops')]
@@ -218,6 +219,6 @@ class LineItemInCategoryRuleTest extends TestCase
      */
     private function createLineItemWithCategories(array $categoryIds): LineItem
     {
-        return ($this->createLineItem())->setPayloadValue('categoryIds', $categoryIds);
+        return $this->createLineItem()->setPayloadValue('categoryIds', $categoryIds);
     }
 }

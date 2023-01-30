@@ -48,7 +48,7 @@ class PhpSyntaxExtension extends AbstractExtension
     public function getFilters()
     {
         return [
-            new TwigFilter('intval', /** @param mixed $var */ function (mixed $var): int {
+            new TwigFilter('intval', function (mixed $var): int {
                 if (\is_int($var)) {
                     return $var;
                 }
@@ -57,7 +57,7 @@ class PhpSyntaxExtension extends AbstractExtension
 
                 return (int) $var;
             }),
-            new TwigFilter('floatval', /** @param mixed $var */ function (mixed $var): float {
+            new TwigFilter('floatval', function (mixed $var): float {
                 if (\is_float($var)) {
                     return $var;
                 }
@@ -66,7 +66,7 @@ class PhpSyntaxExtension extends AbstractExtension
 
                 return (float) $var;
             }),
-            new TwigFilter('strval', /** @param mixed $var */ function (mixed $var): string {
+            new TwigFilter('strval', function (mixed $var): string {
                 if (\is_string($var)) {
                     return $var;
                 }
@@ -75,7 +75,7 @@ class PhpSyntaxExtension extends AbstractExtension
 
                 return (string) $var;
             }),
-            new TwigFilter('boolval', /** @param mixed $var */ function (mixed $var): bool {
+            new TwigFilter('boolval', function (mixed $var): bool {
                 if (\is_bool($var)) {
                     return $var;
                 }
@@ -99,7 +99,7 @@ class PhpSyntaxExtension extends AbstractExtension
                     }
                 }
             ),
-            new TwigFilter('md5', /** @param mixed $var */ function (mixed $var) {
+            new TwigFilter('md5', function (mixed $var) {
                 if (\is_array($var)) {
                     $var = \json_encode($var, \JSON_THROW_ON_ERROR);
                 }

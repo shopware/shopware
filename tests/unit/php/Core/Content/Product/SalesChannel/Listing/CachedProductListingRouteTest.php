@@ -35,6 +35,7 @@ use Symfony\Contracts\Cache\CacheInterface;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Content\Product\SalesChannel\Listing\CachedProductListingRoute
  */
 class CachedProductListingRouteTest extends TestCase

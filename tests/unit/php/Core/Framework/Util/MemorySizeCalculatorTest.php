@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Util\MemorySizeCalculator;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Framework\Util\MemorySizeCalculator
  */
 class MemorySizeCalculatorTest extends TestCase

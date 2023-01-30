@@ -10,6 +10,7 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1627983652AddOrderExportProfile
  */
 class Migration1627983652AddOrderExportProfileTest extends TestCase

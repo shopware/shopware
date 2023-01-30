@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Framework\DataAbstractionLayer\Util\AfterSort
  */
 class AfterSortTest extends TestCase
@@ -182,6 +183,7 @@ class AfterSortTest extends TestCase
 
 /**
  * @internal
+ *
  * @extends EntityCollection<TestEntity>
  */
 class AfterSortCollection extends EntityCollection

@@ -11,6 +11,7 @@ use function sprintf;
 
 /**
  * @internal
+ *
  * @group slow
  */
 class DynamicPrimaryKeyChangeTest extends TestCase

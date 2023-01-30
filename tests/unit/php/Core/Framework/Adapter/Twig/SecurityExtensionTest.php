@@ -10,6 +10,7 @@ use Twig\Loader\ArrayLoader;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Framework\Adapter\Twig\SecurityExtension
  */
 class SecurityExtensionTest extends TestCase

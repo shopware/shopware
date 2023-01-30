@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Context;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Content\Product\Events\ProductStatesBeforeChangeEvent
  */
 class ProductStatesBeforeChangeEventTest extends TestCase

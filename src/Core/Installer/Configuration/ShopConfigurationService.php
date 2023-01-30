@@ -12,8 +12,10 @@ use Shopware\Core\Maintenance\System\Service\ShopConfigurator;
 
 /**
  * @internal
+ *
  * @codeCoverageIgnore - Is tested by integration test, does not make sense to unit test
  * as the sole purpose of this class is to configure the DB according to the configuration
+ *
  * @phpstan-import-type Shop from ShopConfigurationController
  */
 #[Package('core')]

@@ -11,6 +11,7 @@ use Shopware\Core\Migration\V6_4\Migration1667731399AdminElasticsearchIndexTask;
  * @package core
  *
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1667731399AdminElasticsearchIndexTask
  */
 class Migration1667731399AdminElasticsearchIndexTaskTest extends TestCase

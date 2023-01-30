@@ -27,7 +27,9 @@ class StoreApiTestRoute extends AbstractStoreApiTestRoute
      *      summary="An internal Route",
      *      operationId="readInternalTest",
      *      tags={"Store API", "Test"},
+     *
      *      @OA\Parameter(name="Api-Basic-Parameters"),
+     *
      *      @OA\Response(
      *          response="200",
      *          description="Success"

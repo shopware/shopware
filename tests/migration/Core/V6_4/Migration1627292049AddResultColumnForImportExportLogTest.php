@@ -11,6 +11,7 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1627292049AddResultColumnForImportExportLog
  */
 class Migration1627292049AddResultColumnForImportExportLogTest extends TestCase

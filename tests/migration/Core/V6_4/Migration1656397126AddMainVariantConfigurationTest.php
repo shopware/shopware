@@ -10,6 +10,7 @@ use Shopware\Core\Migration\V6_4\Migration1656397126AddMainVariantConfiguration;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1656397126AddMainVariantConfiguration
  */
 class Migration1656397126AddMainVariantConfigurationTest extends TestCase

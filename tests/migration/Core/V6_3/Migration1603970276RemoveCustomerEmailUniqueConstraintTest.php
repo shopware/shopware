@@ -8,6 +8,7 @@ use Shopware\Core\Migration\V6_3\Migration1603970276RemoveCustomerEmailUniqueCon
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_3\Migration1603970276RemoveCustomerEmailUniqueConstraint
  */
 class Migration1603970276RemoveCustomerEmailUniqueConstraintTest extends TestCase

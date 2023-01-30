@@ -50,7 +50,6 @@ class PromotionAbsoluteCalculationTest extends TestCase
      * We add a product and also an absolute promotion.
      * Our final price should then be as expected.
      *
-     * @test
      * @group promotions
      *
      * @throws CartException
@@ -88,7 +87,6 @@ class PromotionAbsoluteCalculationTest extends TestCase
      * The standard value of discount would be 15, but our currency price value is 30
      * Our cart should have a total value of 70,00 (and not 85 as standard) in the end.
      *
-     * @test
      * @group promotions
      */
     public function testAbsoluteDiscountWithCurrencyPriceValues(): void

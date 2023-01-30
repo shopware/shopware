@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPriceAccessorBuilder
  */
 class CheapestPriceAccessorBuilderTest extends TestCase

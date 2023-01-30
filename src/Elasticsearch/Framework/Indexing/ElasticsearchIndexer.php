@@ -31,6 +31,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * @internal
+ *
  * @final
  */
 #[AsMessageHandler]

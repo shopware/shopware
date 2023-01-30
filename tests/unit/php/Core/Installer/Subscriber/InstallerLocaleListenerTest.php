@@ -13,6 +13,7 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Installer\Subscriber\InstallerLocaleListener
  */
 class InstallerLocaleListenerTest extends TestCase

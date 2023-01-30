@@ -9,6 +9,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\System\SalesChannel\Event\SalesChannelContextCreatedEvent
  */
 class SalesChannelContextCreatedEventTest extends TestCase

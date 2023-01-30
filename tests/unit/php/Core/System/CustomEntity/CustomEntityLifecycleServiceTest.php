@@ -17,6 +17,7 @@ use Shopware\Core\System\CustomEntity\Xml\Entity;
  * @package content
  *
  * @internal
+ *
  * @covers \Shopware\Core\System\CustomEntity\CustomEntityLifecycleService
  */
 class CustomEntityLifecycleServiceTest extends TestCase

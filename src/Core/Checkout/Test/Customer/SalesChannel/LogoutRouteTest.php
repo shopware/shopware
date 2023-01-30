@@ -25,6 +25,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
  * @internal
+ *
  * @group store-api
  */
 #[Package('customer-order')]

@@ -50,6 +50,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
+ *
  * @group slow
  */
 class ProductRepositoryTest extends TestCase
@@ -2945,6 +2946,7 @@ class ProductRepositoryTest extends TestCase
 
     /**
      * @dataProvider customFieldVariantsProvider
+     *
      * @group slow
      *
      * @param array<string, mixed> $translations

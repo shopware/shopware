@@ -7,6 +7,7 @@ use Shopware\Core\Installer\Requirements\IniConfigReader;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Installer\Requirements\IniConfigReader
  */
 class IniConfigReaderTest extends TestCase

@@ -8,6 +8,7 @@ use Shopware\Core\Migration\V6_4\Migration1631703921MigrateLineItemsInCartRule;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1631703921MigrateLineItemsInCartRule
  */
 class Migration1631703921MigrateLineItemsInCartRuleTest extends TestCase

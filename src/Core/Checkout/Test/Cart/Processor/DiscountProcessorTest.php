@@ -40,6 +40,7 @@ class DiscountProcessorTest extends TestCase
 
     /**
      * @param array<LineItem> $items
+     *
      * @dataProvider processorProvider
      */
     public function testProcessor(array $items, ?CalculatedPrice $expected): void

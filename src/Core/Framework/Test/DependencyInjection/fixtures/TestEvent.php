@@ -51,6 +51,6 @@ class TestEvent extends Event implements FlowEventAware
         return (new EventDataCollection())
             ->add('customer', new EntityType(CustomerDefinition::class))
             ->add('order', new EntityType(OrderDefinition::class))
-            ;
+        ;
     }
 }

@@ -12,6 +12,7 @@ use Shopware\Core\Migration\V6_4\Migration1610439375AddEUStatesAsDefaultForIntra
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1610439375AddEUStatesAsDefaultForIntraCommunityDeliveryLabel
  */
 class Migration1610439375AddEUStatesAsDefaultForIntraCommunityDeliveryLabelTest extends TestCase

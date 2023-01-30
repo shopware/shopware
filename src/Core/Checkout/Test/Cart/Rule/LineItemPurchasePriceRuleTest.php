@@ -24,6 +24,7 @@ use Symfony\Component\Validator\Constraints\Type;
 
 /**
  * @internal
+ *
  * @group rules
  */
 #[Package('business-ops')]
@@ -330,7 +331,7 @@ class LineItemPurchasePriceRuleTest extends TestCase
         float $purchasePriceNet = 0,
         float $purchasePriceGross = 0
     ): LineItem {
-        return ($this->createLineItem())->setPayloadValue(
+        return $this->createLineItem()->setPayloadValue(
             'purchasePrices',
             json_encode(new Price(
                 Defaults::CURRENCY,

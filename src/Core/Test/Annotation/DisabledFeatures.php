@@ -6,7 +6,9 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
+ *
  * @Annotation
+ *
  * @Target({"METHOD", "CLASS"})
  */
 #[Package('core')]

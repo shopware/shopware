@@ -16,6 +16,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 /**
  * @internal
+ *
  * @group cache
  *
  * @covers \Shopware\Core\Framework\Adapter\Cache\CacheInvalidationSubscriber

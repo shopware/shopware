@@ -15,6 +15,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
+ *
  * @group rules
  */
 #[Package('business-ops')]
@@ -191,7 +192,7 @@ class LineItemCustomFieldRuleTest extends TestCase
      */
     private function createLineItemWithCustomFields(array $customFields = []): LineItem
     {
-        return ($this->createLineItem())->setPayloadValue('customFields', $customFields);
+        return $this->createLineItem()->setPayloadValue('customFields', $customFields);
     }
 
     /**

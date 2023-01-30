@@ -10,6 +10,7 @@ trait RequestStackTestBehaviour
 {
     /**
      * @before
+     *
      * @after
      *
      * @return array<Request>

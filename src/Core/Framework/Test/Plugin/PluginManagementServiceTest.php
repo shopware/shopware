@@ -21,6 +21,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
  * @internal
+ *
  * @group slow
  * @group skip-paratest
  */

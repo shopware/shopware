@@ -52,6 +52,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
+ *
  * @group slow
  * @group skip-paratest
  */

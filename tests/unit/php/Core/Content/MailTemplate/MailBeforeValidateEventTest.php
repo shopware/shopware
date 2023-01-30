@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeValidateEvent
  *
  * @package system-settings

@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
+ *
  * @group slow
  */
 class UserConfigControllerTest extends TestCase

@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 
 /**
  * @internal
+ *
  * @group slow
  */
 class RateLimiterTest extends TestCase

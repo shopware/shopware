@@ -17,6 +17,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
  * @internal
+ *
  * @group store-api
  */
 class ProductListRouteTest extends TestCase

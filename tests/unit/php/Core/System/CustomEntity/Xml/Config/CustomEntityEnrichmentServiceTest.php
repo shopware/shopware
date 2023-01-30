@@ -17,6 +17,7 @@ use Symfony\Component\HttpFoundation\Response;
  * @package content
  *
  * @internal
+ *
  * @covers \Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityEnrichmentService
  * @covers \Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityConfigurationException
  */

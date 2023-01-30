@@ -124,7 +124,7 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
                 );
 
                 // url contains the base path and the base url
-                    // base url /shopware/public/de
+                // base url /shopware/public/de
                 $rewrite = ltrim($salesChannelBaseUrl, '/') . $generated;
 
                 break;

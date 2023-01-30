@@ -11,6 +11,7 @@ use function array_filter;
 
 /**
  * @Annotation
+ *
  * @Target({"PROPERTY", "METHOD", "ANNOTATION"})
  */
 #[Package('customer-order')]

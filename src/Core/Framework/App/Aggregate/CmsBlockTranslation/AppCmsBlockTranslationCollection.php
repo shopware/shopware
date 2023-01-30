@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
+ *
  * @extends EntityCollection<AppCmsBlockTranslationEntity>
  */
 #[Package('content')]

@@ -32,7 +32,6 @@ class LineItemGroupPriceDescSorterTest extends TestCase
      * be old keys in the SetGroup entities in the database of shops, that
      * try to execute a sorter that does not exist anymore with this key.
      *
-     * @test
      * @group lineitemgroup
      */
     public function testKey(): void
@@ -45,7 +44,6 @@ class LineItemGroupPriceDescSorterTest extends TestCase
      * We add 3 items with different item prices and test that
      * the sorted list comes in the correct order.
      *
-     * @test
      * @group lineitemgroup
      */
     public function testSortPriceDESC(): void
@@ -70,7 +68,6 @@ class LineItemGroupPriceDescSorterTest extends TestCase
      * This test verifies that our item with PRICE null is sorted
      * after all other items.
      *
-     * @test
      * @group lineitemgroup
      */
     public function testSortWithPriceNullA(): void
@@ -94,7 +91,6 @@ class LineItemGroupPriceDescSorterTest extends TestCase
      * This test verifies that our item with PRICE null is sorted
      * after all other items.
      *
-     * @test
      * @group lineitemgroup
      */
     public function testSortWithPriceNullB(): void

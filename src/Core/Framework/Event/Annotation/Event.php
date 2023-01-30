@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @Annotation
+ *
  * @Target("ALL")
  */
 #[Package('business-ops')]

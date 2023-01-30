@@ -41,6 +41,7 @@ use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
+ *
  * @group slow
  * @group skip-paratest
  */

@@ -11,9 +11,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 class PreResetExcludedSearchTermEvent extends Event implements ShopwareEvent
 {
     /**
-     * @param string $searchConfigId
      * @param array<string> $excludedTerms
-     * @param Context $context
      */
     public function __construct(
         private string $searchConfigId,

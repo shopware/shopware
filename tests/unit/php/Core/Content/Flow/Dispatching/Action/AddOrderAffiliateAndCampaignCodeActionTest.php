@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  * @package business-ops
  *
  * @internal
+ *
  * @covers \Shopware\Core\Content\Flow\Dispatching\Action\AddOrderAffiliateAndCampaignCodeAction
  */
 class AddOrderAffiliateAndCampaignCodeActionTest extends TestCase

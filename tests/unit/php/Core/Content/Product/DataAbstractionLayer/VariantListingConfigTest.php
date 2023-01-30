@@ -7,6 +7,7 @@ use Shopware\Core\Content\Product\DataAbstractionLayer\VariantListingConfig;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Content\Product\DataAbstractionLayer\VariantListingConfig
  */
 class VariantListingConfigTest extends TestCase

@@ -14,7 +14,9 @@ use Symfony\Component\Validator\Constraints\Type;
  * @package business-ops
  *
  * @internal
+ *
  * @group rules
+ *
  * @covers \Shopware\Core\Checkout\Customer\Rule\CustomerLoggedInRule
  */
 class CustomerLoggedInRuleTest extends TestCase

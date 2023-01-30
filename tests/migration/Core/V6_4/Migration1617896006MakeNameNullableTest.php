@@ -10,6 +10,7 @@ use Shopware\Core\Migration\V6_4\Migration1617896006MakeNameNullable;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1617896006MakeNameNullable
  */
 class Migration1617896006MakeNameNullableTest extends TestCase

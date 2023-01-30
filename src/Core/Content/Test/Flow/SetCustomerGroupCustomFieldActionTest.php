@@ -44,6 +44,7 @@ class SetCustomerGroupCustomFieldActionTest extends TestCase
      * @param array<int, mixed>|null $existedData
      * @param array<int, mixed>|null $updateData
      * @param array<int, mixed>|null $expectData
+     *
      * @dataProvider createDataProvider
      */
     public function testCreateCustomFieldForCustomerGroup(string $option, ?array $existedData, ?array $updateData, ?array $expectData): void

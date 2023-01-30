@@ -8,6 +8,7 @@ use Shopware\Core\Migration\V6_3\Migration1604499476AddDefaultSettingConfigValue
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_3\Migration1604499476AddDefaultSettingConfigValueForContactForm
  */
 class Migration1604499476AddDefaultSettingConfigValueForContactFormTest extends TestCase

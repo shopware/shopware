@@ -10,6 +10,7 @@ use Shopware\Core\Installer\Configuration\AdminConfigurationService;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Installer\Configuration\AdminConfigurationService
  */
 class AdminConfigurationServiceTest extends TestCase

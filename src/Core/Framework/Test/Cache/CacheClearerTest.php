@@ -15,6 +15,7 @@ use Symfony\Component\Finder\Finder;
 
 /**
  * @internal
+ *
  * @group skip-paratest
  * @group slow
  */

@@ -30,6 +30,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Checkout\Payment\SalesChannel\SortedPaymentMethodRoute
  */
 class SortedPaymentMethodRouteTest extends TestCase

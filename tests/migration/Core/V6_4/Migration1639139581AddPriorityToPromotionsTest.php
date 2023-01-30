@@ -9,6 +9,7 @@ use Shopware\Core\Migration\V6_4\Migration1639139581AddPriorityToPromotions;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1639139581AddPriorityToPromotions
  */
 class Migration1639139581AddPriorityToPromotionsTest extends TestCase

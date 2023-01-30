@@ -45,7 +45,9 @@ class DeprecatedAnnotationsTest extends TestCase
 
     /**
      * @Entity("product")
+     *
      * @NoStore()
+     *
      * @HttpCache(maxAge=360, states={"logged-in", "cart-filled"})
      */
     private function testMethod(): void

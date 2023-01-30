@@ -31,6 +31,7 @@ use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
  * @package merchant-services
  *
  * @internal
+ *
  * @covers \Shopware\Core\Framework\Store\Api\FirstRunWizardController
  */
 class FirstRunWizardControllerTest extends TestCase

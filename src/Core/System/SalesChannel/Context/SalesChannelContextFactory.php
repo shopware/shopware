@@ -167,6 +167,7 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
     /**
      * @group not-deterministic
      * NEXT-21735 - This is covered randomly
+     *
      * @codeCoverageIgnore
      *
      * @param array<string, mixed> $options
@@ -262,6 +263,7 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
      *
      * @group not-deterministic
      * NEXT-21735 - This is covered randomly
+     *
      * @codeCoverageIgnore
      */
     private function getCashRounding(BaseContext $context, ShippingLocation $shippingLocation): array

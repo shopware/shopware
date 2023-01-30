@@ -51,6 +51,7 @@ class WishlistControllerTest extends TestCase
 
     /**
      * @before
+     *
      * @after
      */
     public function clearFlashBag(): void

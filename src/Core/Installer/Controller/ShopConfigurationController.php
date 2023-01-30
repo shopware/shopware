@@ -17,6 +17,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * @internal
+ *
  * @phpstan-type Shop array{name: string, locale: string, currency: string, additionalCurrencies: null|list<string>, country: string, email: string, host: string, basePath: string, schema: string, blueGreenDeployment: bool}
  * @phpstan-type AdminUser array{email: string, username: string, firstName: string, lastName: string, password: string}
  */

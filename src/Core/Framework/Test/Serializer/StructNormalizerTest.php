@@ -217,6 +217,7 @@ class TestStruct extends Struct
 
 /**
  * @internal
+ *
  * @extends Collection<TestStruct>
  */
 class TestStructCollection extends Collection

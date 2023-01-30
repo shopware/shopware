@@ -9,6 +9,7 @@ use Shopware\Tests\Unit\Core\System\Snippet\Mock\MockSnippetFile;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\System\Snippet\Files\SnippetFileCollection
  */
 class SnippetFileCollectionTest extends TestCase

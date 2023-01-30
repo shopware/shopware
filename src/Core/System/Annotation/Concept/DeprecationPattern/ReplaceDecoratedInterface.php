@@ -7,7 +7,9 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @Annotation
+ *
  * @Target("CLASS", "INTERFACE")
+ *
  * @DeprecationPattern
  *
  * The ReplaceDecoratedInterface pattern is used every time you have to change an interface, that is designed to be used with service decoration.

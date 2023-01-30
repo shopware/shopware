@@ -19,7 +19,9 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
+ *
  * @group slow
+ *
  * @covers \Shopware\Core\Migration\V6_3\Migration1590758953ProductFeatureSet
  *
  * @phpstan-type DbColumn array{name: string, type: Type, notnull: bool}

@@ -30,6 +30,7 @@ use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
 /**
  * @internal
+ *
  * @group store-api
  */
 #[Package('customer-order')]

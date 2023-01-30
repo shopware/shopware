@@ -397,6 +397,7 @@ class PromotionItemBuilderTest extends TestCase
      * be available on "amount" discounts...so no percentage...
      *
      * @group promotions
+     *
      * @dataProvider getDefaultCurrencyDataProvider
      *
      * @throws CartException

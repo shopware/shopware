@@ -9,6 +9,7 @@ use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\CardField;
  * @package content
  *
  * @internal
+ *
  * @covers \Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\CardField
  */
 class CardFieldTest extends TestCase

@@ -50,6 +50,7 @@ class SalesChannelRepositoryFacadeTest extends TestCase
 
     /**
      * @param array<string, array<int, mixed>> $criteria
+     *
      * @dataProvider testCases
      */
     public function testFacade(array $criteria, string $method, IdsCollection $ids, callable $expectation): void

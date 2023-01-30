@@ -158,6 +158,7 @@ class FeatureTest extends TestCase
      * @covers \Shopware\Core\Framework\Feature
      *
      * @DisabledFeatures(features={"v6.5.0.0"})
+     *
      * @dataProvider callSilentIfInactiveProvider
      */
     public function testCallSilentIfInactiveProvider(string $majorVersion, string $deprecatedMessage, \Closure $assertion): void

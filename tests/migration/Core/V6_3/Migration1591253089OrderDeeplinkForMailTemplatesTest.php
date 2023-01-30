@@ -9,6 +9,7 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_3\Migration1591253089OrderDeeplinkForMailTemplates
  */
 class Migration1591253089OrderDeeplinkForMailTemplatesTest extends TestCase

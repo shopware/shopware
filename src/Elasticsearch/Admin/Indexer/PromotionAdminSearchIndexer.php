@@ -18,6 +18,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
+ *
  * @final
  */
 #[Package('system-settings')]

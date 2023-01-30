@@ -34,6 +34,7 @@ use Symfony\Contracts\Cache\CacheInterface;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\System\Salutation\SalesChannel\CachedSalutationRoute
  */
 class CachedSalutationRouteTest extends TestCase

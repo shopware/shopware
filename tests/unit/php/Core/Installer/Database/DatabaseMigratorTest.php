@@ -14,6 +14,7 @@ use Shopware\Core\Maintenance\System\Service\SetupDatabaseAdapter;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Installer\Database\DatabaseMigrator
  */
 class DatabaseMigratorTest extends TestCase

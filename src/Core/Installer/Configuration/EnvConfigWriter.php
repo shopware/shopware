@@ -10,6 +10,7 @@ use Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation;
 
 /**
  * @internal
+ *
  * @phpstan-import-type Shop from ShopConfigurationController
  */
 #[Package('core')]

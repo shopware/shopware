@@ -6,7 +6,9 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @Annotation
+ *
  * @Target("CLASS")
+ *
  * @ExtensionPattern
  *
  * Services marked with the decoratable annotation are designed to be extended via (service decoration)[https://symfony.com/doc/current/service_container/service_decoration.html].

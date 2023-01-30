@@ -10,6 +10,7 @@ use Shopware\Core\Migration\V6_4\Migration1639122665AddCustomEntities;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1639122665AddCustomEntities
  */
 class Migration1639122665AddCustomEntitiesTest extends TestCase

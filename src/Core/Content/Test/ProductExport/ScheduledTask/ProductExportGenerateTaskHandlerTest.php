@@ -27,6 +27,7 @@ use Symfony\Component\Messenger\TraceableMessageBus;
 
 /**
  * @internal
+ *
  * @group slow
  */
 class ProductExportGenerateTaskHandlerTest extends TestCase

@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Promotion\Api\PromotionActionController;
  * @internal
  *
  * @package checkout
+ *
  * @covers \Shopware\Core\Checkout\Promotion\Api\PromotionActionController
  */
 class PromotionActionControllerTest extends TestCase

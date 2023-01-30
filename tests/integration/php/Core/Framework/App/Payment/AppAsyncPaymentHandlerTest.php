@@ -23,6 +23,7 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTest
 
     /**
      * @group quarantined
+     *
      * @dataProvider dataProviderFinalize
      */
     public function testPay(string $finalizeFunction): void

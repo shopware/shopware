@@ -20,7 +20,9 @@ use Shopware\Core\System\Salutation\SalutationEntity;
  * @package business-ops
  *
  * @internal
+ *
  * @group rules
+ *
  * @covers \Shopware\Core\Checkout\Customer\Rule\CustomerSalutationRule
  */
 class CustomerSalutationRuleTest extends TestCase

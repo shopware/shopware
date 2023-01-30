@@ -120,6 +120,7 @@ class JsonApiEncoderTest extends TestCase
 
     /**
      * @param mixed $input
+     *
      * @dataProvider emptyInputProvider
      */
     public function testEncodeWithEmptyInput($input): void
@@ -312,6 +313,7 @@ class JsonApiEncoderTest extends TestCase
     /**
      * @param array<mixed> $input
      * @param array<mixed>|\stdClass|null $output
+     *
      * @dataProvider customFieldsProvider
      */
     public function testCustomFields(array $input, $output): void

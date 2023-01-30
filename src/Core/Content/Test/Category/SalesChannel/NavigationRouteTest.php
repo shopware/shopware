@@ -11,6 +11,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
  * @internal
+ *
  * @group store-api
  */
 class NavigationRouteTest extends TestCase

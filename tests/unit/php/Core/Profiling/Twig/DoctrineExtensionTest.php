@@ -7,6 +7,7 @@ use Shopware\Core\Profiling\Twig\DoctrineExtension;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Profiling\Twig\DoctrineExtension
  */
 class DoctrineExtensionTest extends TestCase

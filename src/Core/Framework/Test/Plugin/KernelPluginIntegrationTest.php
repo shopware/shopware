@@ -31,6 +31,7 @@ use Symfony\Bundle\FrameworkBundle\Test\TestContainer;
 
 /**
  * @internal
+ *
  * @group slow
  * @group skip-paratest
  */

@@ -26,6 +26,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
  * @internal
+ *
  * @group rules
  */
 #[Package('business-ops')]

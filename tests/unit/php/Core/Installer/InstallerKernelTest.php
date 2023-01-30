@@ -13,6 +13,7 @@ use Symfony\Bundle\TwigBundle\TwigBundle;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Installer\InstallerKernel
  */
 class InstallerKernelTest extends TestCase

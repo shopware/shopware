@@ -27,6 +27,7 @@ class RatingMatrixTest extends TestCase
      * check that matrix calculates correctly
      *
      * @dataProvider getRatings
+     *
      * @group reviews
      */
     public function testMatrixCalculation(float $expectedScore, int $reviewCounts, float $total, array $aggregation): void

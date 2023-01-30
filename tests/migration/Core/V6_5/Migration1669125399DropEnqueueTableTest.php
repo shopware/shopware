@@ -8,6 +8,7 @@ use Shopware\Core\Migration\V6_5\Migration1669125399DropEnqueueTable;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_5\Migration1669125399DropEnqueueTable
  */
 class Migration1669125399DropEnqueueTableTest extends TestCase

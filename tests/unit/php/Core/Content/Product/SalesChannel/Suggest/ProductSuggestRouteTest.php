@@ -24,6 +24,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestRoute
  */
 class ProductSuggestRouteTest extends TestCase

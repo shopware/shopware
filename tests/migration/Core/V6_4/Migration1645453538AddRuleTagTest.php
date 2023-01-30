@@ -9,6 +9,7 @@ use Shopware\Core\Migration\V6_4\Migration1645453538AddRuleTag;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1645453538AddRuleTag
  */
 class Migration1645453538AddRuleTagTest extends TestCase

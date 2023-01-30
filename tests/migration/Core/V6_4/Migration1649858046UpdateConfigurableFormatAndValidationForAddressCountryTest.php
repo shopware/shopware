@@ -11,6 +11,7 @@ use Shopware\Core\Migration\V6_4\Migration1649858046UpdateConfigurableFormatAndV
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1649858046UpdateConfigurableFormatAndValidationForAddressCountry
  */
 class Migration1649858046UpdateConfigurableFormatAndValidationForAddressCountryTest extends TestCase

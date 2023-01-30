@@ -11,6 +11,7 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1623305620ChangeSalutationIdNullable
  */
 class Migration1623305620ChangeSalutationIdNullableTest extends TestCase

@@ -17,6 +17,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
+ *
  * @group rules
  */
 #[Package('business-ops')]
@@ -174,6 +175,6 @@ class LineItemOfManufacturerRuleTest extends TestCase
 
     private function createLineItemWithManufacturer(string $manufacturerId): LineItem
     {
-        return ($this->createLineItem())->setPayloadValue('manufacturerId', $manufacturerId);
+        return $this->createLineItem()->setPayloadValue('manufacturerId', $manufacturerId);
     }
 }

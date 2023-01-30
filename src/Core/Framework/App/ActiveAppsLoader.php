@@ -11,6 +11,7 @@ use Symfony\Contracts\Service\ResetInterface;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ *
  * @phpstan-type App array{name: string, path: string, author: string|null}
  */
 #[Package('core')]

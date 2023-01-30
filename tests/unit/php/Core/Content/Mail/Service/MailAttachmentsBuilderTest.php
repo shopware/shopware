@@ -23,6 +23,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Content\Mail\Service\MailAttachmentsBuilder
  */
 class MailAttachmentsBuilderTest extends TestCase

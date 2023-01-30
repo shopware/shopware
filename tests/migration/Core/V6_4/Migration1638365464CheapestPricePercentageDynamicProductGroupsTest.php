@@ -9,6 +9,7 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1638365464CheapestPricePercentageDynamicProductGroups
  */
 class Migration1638365464CheapestPricePercentageDynamicProductGroupsTest extends TestCase

@@ -34,6 +34,7 @@ use Symfony\Contracts\Cache\CacheInterface;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\System\Country\SalesChannel\CachedCountryRoute
  */
 class CachedCountryRouteTest extends TestCase

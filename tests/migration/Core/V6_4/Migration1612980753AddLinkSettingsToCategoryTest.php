@@ -13,6 +13,7 @@ use Shopware\Core\Migration\V6_4\Migration1612980753AddLinkSettingsToCategory;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1612980753AddLinkSettingsToCategory
  */
 class Migration1612980753AddLinkSettingsToCategoryTest extends TestCase

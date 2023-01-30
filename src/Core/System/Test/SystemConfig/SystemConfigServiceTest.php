@@ -63,6 +63,7 @@ class SystemConfigServiceTest extends TestCase
 
     /**
      * @param array<mixed>|bool|int|float|string|null $expected
+     *
      * @dataProvider setGetDifferentTypesProvider
      */
     public function testSetGetDifferentTypes($expected): void
@@ -92,6 +93,7 @@ class SystemConfigServiceTest extends TestCase
 
     /**
      * @param array<mixed>|bool|int|float|string|null $writtenValue
+     *
      * @dataProvider getStringProvider
      */
     public function testGetString($writtenValue, string $expected): void
@@ -125,6 +127,7 @@ class SystemConfigServiceTest extends TestCase
 
     /**
      * @param array<mixed>|bool|int|float|string|null $writtenValue
+     *
      * @dataProvider getIntProvider
      */
     public function testGetInt($writtenValue, int $expected): void
@@ -158,6 +161,7 @@ class SystemConfigServiceTest extends TestCase
 
     /**
      * @param array<mixed>|bool|int|float|string|null $writtenValue
+     *
      * @dataProvider getFloatProvider
      */
     public function testGetFloat($writtenValue, float $expected): void
@@ -192,6 +196,7 @@ class SystemConfigServiceTest extends TestCase
 
     /**
      * @param array<mixed>|bool|int|float|string|null $writtenValue
+     *
      * @dataProvider getBoolProvider
      */
     public function testGetBool($writtenValue, bool $expected): void

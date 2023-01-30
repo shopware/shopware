@@ -9,6 +9,7 @@ use Shopware\Core\System\CustomEntity\Xml\Config\ConfigXmlElement;
  * @package content
  *
  * @internal
+ *
  * @covers \Shopware\Core\System\CustomEntity\Xml\Config\ConfigXmlElement
  */
 class ConfigXmlElementTest extends TestCase

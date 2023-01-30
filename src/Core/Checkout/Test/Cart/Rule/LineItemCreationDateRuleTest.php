@@ -20,6 +20,7 @@ use Symfony\Component\Validator\Constraints\Type;
 
 /**
  * @internal
+ *
  * @group rules
  */
 #[Package('business-ops')]
@@ -231,6 +232,6 @@ class LineItemCreationDateRuleTest extends TestCase
 
     private function createLineItemWithCreatedDate(string $createdAt): LineItem
     {
-        return ($this->createLineItem())->setPayloadValue(self::PAYLOAD_KEY, $createdAt);
+        return $this->createLineItem()->setPayloadValue(self::PAYLOAD_KEY, $createdAt);
     }
 }

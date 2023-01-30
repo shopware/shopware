@@ -24,6 +24,7 @@ use Twig\Environment;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Installer\Controller\ShopConfigurationController
  */
 class ShopConfigurationControllerTest extends TestCase

@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Test\TestDataCollection;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\RangeAggregation
  */
 class RangeAggregationTest extends TestCase

@@ -123,7 +123,7 @@ describe('User: Test crud operations', () => {
         cy.awaitAndCheckNotification('User "Abraham Allison " deleted.');
     });
 
-    it('@settings: update existing user', { tags: ['pa-system-settings'] }, () => {
+    it('@settings: update existing user', { tags: ['pa-system-settings', 'quarantined'] }, () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/oauth/token`,

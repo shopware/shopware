@@ -164,7 +164,7 @@ export default {
                 .then((paymentMethod) => {
                     this.paymentMethod = paymentMethod;
 
-                    if (!paymentMethod || !hasOwnProperty(paymentMethod, 'mediaId')) {
+                    if (!paymentMethod || !hasOwnProperty(paymentMethod, 'mediaId') || !paymentMethod.mediaId) {
                         return;
                     }
 

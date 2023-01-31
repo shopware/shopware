@@ -146,4 +146,48 @@ describe('Form country state select plugin', () => {
         expect(document.querySelector('[data-input-name="zipcodeInput"]').hasAttribute('required')).toBe(true);
         expect(document.querySelector('#zipcodeLabel').classList.contains('d-none')).toBe(false);
     });
+
+    it('should remove space around at country state label name when the state required', () => {
+        template = `
+            <form id="registerForm" action="/register" method="post">
+                <div class="register-shipping">
+                    <div class="row g-2">
+                        <div class="form-group">
+                            <label class="form-label">Land*</label>
+                            <select class="country-select form-select" required="required" data-initial-country-id="31e1ac8809c744c38c4d99bfe9a50aa8">
+                                <option selected="selected" value="31e1ac8809c744c38c4d99bfe9a50aa8" data-zipcode-required="" data-vat-id-required="" data-state-required="">Deutschland</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="shippingAddressAddressCountryState"> Bundesland </label>
+                            <select class="country-state-select form-select" data-initial-country-state-id="">
+                                <option value="" selected="selected" data-placeholder-option="true">Bundesland auswählen ...</option>
+                                <option value="0490081418be4255b87731afc953e901">Hamburg</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        `;
+
+        document.body.innerHTML = template;
+
+        const plugin = createPlugin();
+
+        plugin._client.post = jest.fn((url, _, callback) => {
+            const response = {
+                countryId: '31e1ac8809c744c38c4d99bfe9a50aa8',
+                states: [{ id: '0490081418be4255b87731afc953e901', translated: { name: 'Hamburg' }}],
+                stateRequired: true,
+            };
+
+            callback(JSON.stringify(response));
+        });
+
+        expect(document.querySelector('[for="shippingAddressAddressCountryState"]').textContent).toBe(' Bundesland ');
+
+        plugin.requestStateData('31e1ac8809c744c38c4d99bfe9a50aa8', '0490081418be4255b87731afc953e901', true);
+
+        expect(document.querySelector('[for="shippingAddressAddressCountryState"]').textContent).toBe('Bundesland*');
+    });
 });

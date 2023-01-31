@@ -189,15 +189,15 @@ function updateRequiredState(countryStateSelect, stateRequired, placeholderQuery
         placeholder.setAttribute('disabled', 'disabled');
         countryStateSelect.setAttribute('required', 'required');
 
-        if (label.innerText.substr(-1, 1) !== '*') {
-            label.innerText = `${label.innerText}*`;
+        if (label.textContent && label.textContent.substr(-1, 1) !== '*') {
+            label.textContent = `${label.textContent.trim()}*`;
         }
 
         return;
     }
 
-    if (label.innerText && label.innerText.substr(-1, 1) === '*') {
-        label.innerText = label.innerText.substr(0, label.innerText.length -1);
+    if (label.textContent && label.textContent.substr(-1, 1) === '*') {
+        label.textContent = label.textContent.substr(0, label.textContent.length -1);
     }
 
     placeholder.removeAttribute('disabled');

@@ -30,10 +30,19 @@ class DownloadController extends StorefrontController
 
     /**
      * @Since("6.4.19.0")
-     * @Route("/account/order/download/{orderId}/{downloadId}", name="frontend.account.order.single.download", methods={"GET"}, defaults={"_loginRequired"=true, "_loginRequiredAllowGuest"=true})
+     * @Route("/account/order/download/{orderId}/{downloadId}", name="frontend.account.order.single.download", methods={"GET"})
      */
     public function downloadFile(Request $request, SalesChannelContext $context): Response
     {
+        if (!$context->getCustomer()) {
+            return $this->redirectToRoute(
+                'frontend.account.order.single.page',
+                [
+                    'deepLinkCode' => $request->get('deepLinkCode', false),
+                ]
+            );
+        }
+
         return $this->downloadRoute->load($request, $context);
     }
 }

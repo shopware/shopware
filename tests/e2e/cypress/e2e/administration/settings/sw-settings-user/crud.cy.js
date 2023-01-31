@@ -172,7 +172,7 @@ describe('User: Test crud operations', () => {
             .should('have.value', 'changed@shopware.com');
     });
 
-    it('@settings: can not create a user with an invalid field', { tags: ['pa-system-settings'] }, () => {
+    it('@settings: can not create a user with an invalid field', { tags: ['pa-system-settings', 'quarantined'] }, () => {
         // Requests we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/user`,

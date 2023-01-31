@@ -638,4 +638,24 @@ describe('module/sw-product/page/sw-product-list', () => {
 
         wrapper.vm.searchRankingService.getSearchFieldsByEntity.mockRestore();
     });
+
+    it('should push to a new route when editing items', async () => {
+        wrapper.vm.$router.push = jest.fn();
+        await wrapper.setData({
+            selection: {
+                foo: { states: ['is-download'] },
+            },
+        });
+
+        await wrapper.vm.onBulkEditItems();
+        expect(wrapper.vm.$router.push).toHaveBeenCalledWith(expect.objectContaining({
+            name: 'sw.bulk.edit.product',
+            params: expect.objectContaining({
+                parentId: 'null',
+                includesDigital: true,
+            }),
+        }));
+
+        wrapper.vm.$router.push.mockRestore();
+    });
 });

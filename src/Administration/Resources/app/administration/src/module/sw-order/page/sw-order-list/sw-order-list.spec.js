@@ -297,4 +297,27 @@ describe('src/module/sw-order/page/sw-order-list', () => {
         const firstRow = wrapper.findAll('.sw-data-grid__cell .sw-data-grid__cell-content');
         expect(firstRow.at(21).text()).toEqual('Paid');
     });
+
+    it('should push to a new route when editing items', async () => {
+        wrapper.vm.$router.push = jest.fn();
+        await wrapper.setData({
+            $refs: {
+                orderGrid: {
+                    selection: {
+                        foo: { deliveries: [] },
+                    },
+                },
+            },
+        });
+
+        await wrapper.vm.onBulkEditItems();
+        expect(wrapper.vm.$router.push).toHaveBeenCalledWith(expect.objectContaining({
+            name: 'sw.bulk.edit.order',
+            params: expect.objectContaining({
+                excludeDelivery: true
+            }),
+        }));
+
+        wrapper.vm.$router.push.mockRestore();
+    });
 });

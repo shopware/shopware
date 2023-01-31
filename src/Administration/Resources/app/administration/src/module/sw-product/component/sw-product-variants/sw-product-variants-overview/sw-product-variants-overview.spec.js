@@ -95,6 +95,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         global.activeAclRoles = [];
 
         const product = {
+            id: '72bfaf5d90214ce592715a9649d8760a',
             media: []
         };
         product.getEntityName = () => 'T-Shirt';
@@ -371,5 +372,30 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         const previewItems = wrapper.find('.sw-data-grid__cell--downloads').findAll('.sw-media-compact-upload-v2__preview-item');
         expect(previewItems).toHaveLength(2);
         expect(previewItems.at(1).find('.sw-context-menu-item').text()).toEqual('example.png');
+    });
+
+    it('should push to a new route when editing items', async () => {
+        const wrapper = await createWrapper();
+        wrapper.vm.$router.push = jest.fn();
+        await wrapper.setData({
+            $refs: {
+                variantGrid: {
+                    selection: {
+                        foo: { states: ['is-download'] },
+                    },
+                },
+            },
+        });
+
+        await wrapper.vm.onEditItems();
+        expect(wrapper.vm.$router.push).toHaveBeenCalledWith(expect.objectContaining({
+            name: 'sw.bulk.edit.product',
+            params: expect.objectContaining({
+                parentId: '72bfaf5d90214ce592715a9649d8760a',
+                includesDigital: true,
+            }),
+        }));
+
+        wrapper.vm.$router.push.mockRestore();
     });
 });

@@ -415,10 +415,15 @@ Component.register('sw-product-list', {
         },
 
         onBulkEditItems() {
+            const includesDigital = Object.values(this.selection).filter((product) => {
+                return product.states.includes('is-download');
+            }).length > 0;
+
             this.$router.push({
                 name: 'sw.bulk.edit.product',
                 params: {
                     parentId: 'null',
+                    includesDigital,
                 },
             });
         },

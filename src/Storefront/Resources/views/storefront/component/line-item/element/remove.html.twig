@@ -4,8 +4,14 @@
     {% endif %}
 
     {% block component_line_item_remove_form %}
+        {% set loaderOptions = {
+            skipLoadingIndicator: true
+        } %}
+
         <form action="{{ path('frontend.checkout.line-item.delete', { 'id': lineItem.id } ) }}"
               method="post"
+              data-form-submit-loader="true"
+              data-form-submit-loader-options="{{ loaderOptions|json_encode }}"
               class="{% if displayMode === 'offcanvas' %}js-offcanvas-cart-remove-product{% endif %}">
 
             {% block component_line_item_remove_redirect %}

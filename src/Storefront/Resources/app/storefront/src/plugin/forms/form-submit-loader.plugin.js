@@ -1,6 +1,7 @@
 import DomAccess from 'src/helper/dom-access.helper';
 import ButtonLoadingIndicator from 'src/utility/loading-indicator/button-loading-indicator.util';
 import Plugin from 'src/plugin-system/plugin.class';
+import {INDICATOR_POSITION} from 'src/utility/loading-indicator/loading-indicator.util';
 
 /**
  * this plugin shows a loading indicator on the
@@ -9,8 +10,22 @@ import Plugin from 'src/plugin-system/plugin.class';
  * @package content
  */
 export default class FormSubmitLoaderPlugin extends Plugin {
+
+    /**
+     * @type {{formWrapperSelector: string, indicatorPosition: string, skipLoadingIndicator: boolean}}
+     */
     static options = {
         formWrapperSelector: 'body',
+
+        /**
+         * Possible values: before|after|inner
+         */
+        indicatorPosition: INDICATOR_POSITION.BEFORE,
+
+        /**
+         * If true, the loading indicator will not show
+         */
+        skipLoadingIndicator: false,
     };
 
     init() {
@@ -82,14 +97,20 @@ export default class FormSubmitLoaderPlugin extends Plugin {
     _onFormSubmit() {
         // Abort when form.validation.plugin is active and form is not valid.
         // The validation plugin handles the submit itself in this case
-        if(this._validationPluginActive) {
+        if (this._validationPluginActive) {
             if (this.el.checkValidity() === false) {
                 return;
             }
         }
         // show loading indicator in submit buttons
         this._submitButtons.forEach((submitButton) => {
-            const loader = new ButtonLoadingIndicator(submitButton);
+            if (this.options.skipLoadingIndicator) {
+                submitButton.disabled = true
+
+                return;
+            }
+
+            const loader = new ButtonLoadingIndicator(submitButton, this.options.indicatorPosition);
             loader.create();
         });
 

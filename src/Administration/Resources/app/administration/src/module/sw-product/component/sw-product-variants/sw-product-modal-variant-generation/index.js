@@ -271,6 +271,9 @@ export default {
 
                 if (item.productStates.includes('is-download')) {
                     item.maxPurchase = 1;
+                    item.minPurchase = 1;
+                    item.isCloseout = false;
+                    item.shippingFree = false;
                 }
 
                 const mediaIds = [];

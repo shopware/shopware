@@ -85,8 +85,20 @@ Component.register('sw-bulk-edit-order', {
             return hasFieldsChanged || hasCustomFieldsChanged;
         },
 
+        restrictedFields() {
+            let restrictedFields = [];
+
+            if (this.$route.params.excludeDelivery) {
+                restrictedFields = restrictedFields.concat([
+                    'orderDeliveries',
+                ]);
+            }
+
+            return restrictedFields;
+        },
+
         statusFormFields() {
-            return [
+            const fields = [
                 {
                     name: 'orderTransactions',
                     config: {
@@ -135,6 +147,10 @@ Component.register('sw-bulk-edit-order', {
                     },
                 },
             ];
+
+            return fields.filter((field) => {
+                return !this.restrictedFields.includes(field.name);
+            });
         },
 
         documentsFormFields() {
@@ -209,7 +225,7 @@ Component.register('sw-bulk-edit-order', {
                 const { orders, orderTransactions, orderDeliveries, statusMails } = value;
                 this.isStatusSelected = (orders.isChanged && orders.value)
                     || (orderTransactions.isChanged && orderTransactions.value)
-                    || (orderDeliveries.isChanged && orderDeliveries.value);
+                    || (orderDeliveries?.isChanged && orderDeliveries.value);
 
                 this.isStatusMailsSelected = statusMails.isChanged;
             },
@@ -517,7 +533,7 @@ Component.register('sw-bulk-edit-order', {
             if (this.bulkEditData.orderTransactions.isChanged) {
                 promises.push(this.fetchStatusOptions('orderTransactions.order.id'));
             }
-            if (this.bulkEditData.orderDeliveries.isChanged) {
+            if (this.bulkEditData.orderDeliveries?.isChanged) {
                 promises.push(this.fetchStatusOptions('orderDeliveries.order.id'));
             }
             if (this.bulkEditData.orders.isChanged) {

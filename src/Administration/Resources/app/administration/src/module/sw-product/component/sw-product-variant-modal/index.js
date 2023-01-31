@@ -675,10 +675,16 @@ Component.register('sw-product-variant-modal', {
 
         async onEditItems() {
             await this.$nextTick();
+
+            const includesDigital = Object.values(this.$refs.variantGrid.selection).filter((product) => {
+                return product.states.includes('is-download');
+            }).length > 0;
+
             this.$router.push({
                 name: 'sw.bulk.edit.product',
                 params: {
                     parentId: this.productEntity.id,
+                    includesDigital,
                 },
             });
         },

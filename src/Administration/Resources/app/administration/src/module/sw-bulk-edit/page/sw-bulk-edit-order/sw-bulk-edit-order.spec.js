@@ -780,4 +780,18 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         expect(wrapper.vm.fetchStatusOptions).toHaveBeenCalledWith('orders.id');
         wrapper.vm.fetchStatusOptions.mockRestore();
     });
+
+    it('should restrict fields on including orders without delivery', async () => {
+        wrapper = await createWrapper();
+
+        expect(wrapper.vm.statusFormFields.length).toEqual(5);
+        expect(wrapper.vm.statusFormFields[1].name).toEqual('orderDeliveries');
+
+        wrapper.vm.$router.push({ name: 'sw.bulk.edit.order', params: { parentId: 'null', excludeDelivery: true } });
+
+        await flushPromises();
+
+        expect(wrapper.vm.statusFormFields.length).toEqual(4);
+        expect(wrapper.vm.statusFormFields[1].name).not.toEqual('orderDeliveries');
+    });
 });

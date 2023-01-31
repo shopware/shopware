@@ -581,7 +581,17 @@ Component.register('sw-order-list', {
 
         async onBulkEditItems() {
             await this.$nextTick();
-            this.$router.push({ name: 'sw.bulk.edit.order' });
+
+            const excludeDelivery = Object.values(this.$refs.orderGrid.selection).filter((order) => {
+                return !order.deliveries[0];
+            }).length > 0;
+
+            this.$router.push({
+                name: 'sw.bulk.edit.order',
+                params: {
+                    excludeDelivery,
+                },
+            });
         },
 
         transaction(item) {

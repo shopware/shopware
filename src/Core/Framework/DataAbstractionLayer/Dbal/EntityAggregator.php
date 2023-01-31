@@ -148,7 +148,7 @@ class EntityAggregator implements EntityAggregatorInterface
             $escapedTable = EntityDefinitionQueryHelper::escape($table);
             $scoreQuery = new QueryBuilder($this->connection);
 
-            $scoreQuery = $this->criteriaQueryBuilder->build($scoreQuery, $definition, $scoreCritera, $context, $paths);
+            $scoreQuery = $this->criteriaQueryBuilder->build($scoreQuery, $definition, $scoreCriteria, $context, $paths);
             $pks = $definition->getFields()->filterByFlag(PrimaryKey::class)->map(fn (StorageAware $f) => $f->getStorageName());
 
             $join = '';

@@ -3,9 +3,13 @@
 namespace Shopware\Core\Framework\Rule;
 
 use Shopware\Core\Framework\Adapter\Twig\Extension\ComparisonExtension;
+use Shopware\Core\Framework\Adapter\Twig\Extension\PcreExtension;
 use Shopware\Core\Framework\Adapter\Twig\Extension\PhpSyntaxExtension;
+use Shopware\Core\Framework\Adapter\Twig\Filter\ReplaceRecursiveFilter;
+use Shopware\Core\Framework\Adapter\Twig\SecurityExtension;
 use Shopware\Core\Framework\Adapter\Twig\TwigEnvironment;
 use Shopware\Core\Framework\App\Event\Hooks\AppScriptConditionHook;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Debugging\Debug;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Script\Exception\ScriptExecutionFailedException;
@@ -20,13 +24,12 @@ use Twig\Error\SyntaxError;
 use Twig\Extension\DebugExtension;
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('business-ops')]
 class ScriptRule extends Rule
 {
-    public const RULE_NAME = 'scriptRule';
+    final public const RULE_NAME = 'scriptRule';
 
     protected string $script = '';
 
@@ -52,7 +55,7 @@ class ScriptRule extends Rule
 
     public function match(RuleScope $scope): bool
     {
-        $context = array_merge(['scope' => $scope], $this->values);
+        $context = [...['scope' => $scope], ...$this->values];
         $lastModified = $this->lastModified ?? $scope->getCurrentTime();
         $name = $this->identifier ?? $this->getName();
 
@@ -87,9 +90,14 @@ class ScriptRule extends Rule
 
         $twig->addExtension(new PhpSyntaxExtension());
         $twig->addExtension(new ComparisonExtension());
+        $twig->addExtension(new PcreExtension());
+        $twig->addExtension(new ReplaceRecursiveFilter());
+
         if ($this->debug) {
             $twig->addExtension(new DebugExtension());
         }
+
+        $twig->addExtension(new SecurityExtension([]));
 
         $hook = new AppScriptConditionHook($scope->getContext());
 
@@ -126,7 +134,7 @@ class ScriptRule extends Rule
     private function render(TwigEnvironment $twig, Script $script, Hook $hook, string $name, array $context): bool
     {
         if (!$this->traces) {
-            return filter_var(trim($twig->render($name, $context)), \FILTER_VALIDATE_BOOLEAN);
+            return filter_var(trim((string) $twig->render($name, $context)), \FILTER_VALIDATE_BOOLEAN);
         }
 
         $match = false;

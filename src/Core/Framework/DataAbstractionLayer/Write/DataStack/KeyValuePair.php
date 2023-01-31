@@ -2,14 +2,15 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 class KeyValuePair
 {
-    public function __construct(private string $key, private mixed $value, private bool $isRaw)
+    public function __construct(private readonly string $key, private mixed $value, private bool $isRaw)
     {
     }
 

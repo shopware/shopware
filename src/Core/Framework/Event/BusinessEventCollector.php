@@ -3,32 +3,17 @@
 namespace Shopware\Core\Framework\Event;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package business-ops
- */
+#[Package('business-ops')]
 class BusinessEventCollector
 {
     /**
-     * @var BusinessEventRegistry
-     */
-    private $registry;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
      * @internal
      */
-    public function __construct(
-        BusinessEventRegistry $registry,
-        EventDispatcherInterface $eventDispatcher
-    ) {
-        $this->registry = $registry;
-        $this->eventDispatcher = $eventDispatcher;
+    public function __construct(private readonly BusinessEventRegistry $registry, private readonly EventDispatcherInterface $eventDispatcher)
+    {
     }
 
     public function collect(Context $context): BusinessEventCollectorResponse
@@ -51,9 +36,7 @@ class BusinessEventCollector
 
         $result = $event->getCollection();
 
-        $result->sort(function (BusinessEventDefinition $a, BusinessEventDefinition $b) {
-            return $a->getName() <=> $b->getName();
-        });
+        $result->sort(fn (BusinessEventDefinition $a, BusinessEventDefinition $b) => $a->getName() <=> $b->getName());
 
         return $result;
     }
@@ -70,7 +53,7 @@ class BusinessEventCollector
             throw new \RuntimeException(sprintf('Event %s is not a business event', $class));
         }
 
-        $name = $name ?? $instance->getName();
+        $name ??= $instance->getName();
         if (!$name) {
             return null;
         }

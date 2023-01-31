@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Routing;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\InvalidRouteScopeException;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -11,16 +12,15 @@ use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class RouteScopeListener implements EventSubscriberInterface
 {
     /**
      * @var RouteScopeWhitelistInterface[]
      */
-    private array $whitelists;
+    private readonly array $whitelists;
 
     /**
      * @internal
@@ -28,8 +28,8 @@ class RouteScopeListener implements EventSubscriberInterface
      * @param iterable<RouteScopeWhitelistInterface> $whitelists
      */
     public function __construct(
-        private RouteScopeRegistry $routeScopeRegistry,
-        private RequestStack $requestStack,
+        private readonly RouteScopeRegistry $routeScopeRegistry,
+        private readonly RequestStack $requestStack,
         iterable $whitelists
     ) {
         $this->whitelists = \is_array($whitelists) ? $whitelists : iterator_to_array($whitelists);
@@ -81,7 +81,7 @@ class RouteScopeListener implements EventSubscriberInterface
             return null;
         }
 
-        return \get_class($controller);
+        return $controller::class;
     }
 
     private function isWhitelistedController(ControllerEvent $event): bool

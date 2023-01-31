@@ -3,16 +3,16 @@
 namespace Shopware\Core\Migration\V6_4;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class Migration1623305620ChangeSalutationIdNullable extends MigrationStep
 {
-    public const TABLES = [
+    final public const TABLES = [
         'customer_address',
         'customer',
         'order_customer',
@@ -31,9 +31,7 @@ SQL;
 
     public function update(Connection $connection): void
     {
-        $sql = array_map(static function (string $table): string {
-            return sprintf(self::TEMPLATE, $table);
-        }, self::TABLES);
+        $sql = array_map(static fn (string $table): string => sprintf(self::TEMPLATE, $table), self::TABLES);
 
         $connection->executeStatement(implode('', $sql));
     }

@@ -5,31 +5,19 @@ namespace Shopware\Core\Framework\App\Event;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\ShopwareEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 use Shopware\Core\Framework\Webhook\Hookable;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
- *
- * @package core
  */
+#[Package('core')]
 abstract class AppChangedEvent extends Event implements ShopwareEvent, Hookable
 {
-    /**
-     * @var AppEntity
-     */
-    private $app;
-
-    /**
-     * @var Context
-     */
-    private $context;
-
-    public function __construct(AppEntity $app, Context $context)
+    public function __construct(private readonly AppEntity $app, private readonly Context $context)
     {
-        $this->app = $app;
-        $this->context = $context;
     }
 
     abstract public function getName(): string;

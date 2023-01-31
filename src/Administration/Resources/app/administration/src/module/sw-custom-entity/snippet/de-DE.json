@@ -1,0 +1,15 @@
+{
+    "sw-custom-entity": {
+        "general": {
+            "mainMenuItemGeneral": "Individuelle Entitäten",
+            "emptyState": "Noch keine Individuellen Entitäten vorhanden",
+            "emptyStateSubline": "Hier kannst Du Individuelle Entitäten verwalten."
+        },
+        "detail": {
+            "tabs": {
+                "layout": "Layout",
+                "seo": "SEO"
+            }
+        }
+    }
+}

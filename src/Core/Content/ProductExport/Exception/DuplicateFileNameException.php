@@ -2,12 +2,11 @@
 
 namespace Shopware\Core\Content\ProductExport\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @package inventory
- */
+#[Package('sales-channel')]
 class DuplicateFileNameException extends ShopwareHttpException
 {
     public function __construct(string $number, ?\Throwable $e = null)

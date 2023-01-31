@@ -2,15 +2,13 @@
 
 namespace Shopware\Core\Content\Product;
 
-use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use function array_values;
 
-/**
- * @package inventory
- */
+#[Package('inventory')]
 class ProductVariationBuilder extends AbstractProductVariationBuilder
 {
     public function getDecorated(): AbstractProductVariationBuilder
@@ -45,7 +43,7 @@ class ProductVariationBuilder extends AbstractProductVariationBuilder
         });
 
         // fallback - simply take all option names unordered
-        $names = array_map(static function (PropertyGroupOptionEntity $option) {
+        $names = array_map(static function (Entity $option) {
             if (!$option->get('group')) {
                 return [];
             }
@@ -57,7 +55,7 @@ class ProductVariationBuilder extends AbstractProductVariationBuilder
         }, $options);
 
         $product->assign([
-            'variation' => array_values($names),
+            'variation' => array_values(\array_filter($names)),
         ]);
     }
 }

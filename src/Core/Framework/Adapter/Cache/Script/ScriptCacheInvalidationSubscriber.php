@@ -3,21 +3,18 @@
 namespace Shopware\Core\Framework\Adapter\Cache\Script;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class ScriptCacheInvalidationSubscriber implements EventSubscriberInterface
 {
-    private ScriptExecutor $scriptExecutor;
-
-    public function __construct(ScriptExecutor $scriptExecutor)
+    public function __construct(private readonly ScriptExecutor $scriptExecutor)
     {
-        $this->scriptExecutor = $scriptExecutor;
     }
 
     public static function getSubscribedEvents(): array

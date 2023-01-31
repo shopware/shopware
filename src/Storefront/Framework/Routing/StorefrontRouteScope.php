@@ -2,17 +2,16 @@
 
 namespace Shopware\Storefront\Framework\Routing;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\AbstractRouteScope;
 use Shopware\Core\Framework\Routing\SalesChannelContextRouteScopeDependant;
 use Shopware\Core\SalesChannelRequest;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class StorefrontRouteScope extends AbstractRouteScope implements SalesChannelContextRouteScopeDependant
 {
-    public const ID = 'storefront';
+    final public const ID = 'storefront';
 
     /**
      * @var array<string>

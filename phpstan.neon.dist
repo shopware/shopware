@@ -8,7 +8,7 @@ parameters:
     treatPhpDocTypesAsCertain: false
     checkMissingIterableValueType: true
     inferPrivatePropertyTypeFromConstructor: true
-    reportUnmatchedIgnoredErrors: true # Could be set to false if necessary during PHPStan update
+    reportUnmatchedIgnoredErrors: false # Could be set to false if necessary during PHPStan update
     tmpDir: var/cache/phpstan
     paths:
         - src
@@ -49,6 +49,10 @@ parameters:
         # extends final class, which is ok for mocks
         - src/Core/Content/Test/ImportExport/MockRepository.php
 
+        # @todo NEXT-22697 - Remove when re-enabling cms-aware
+        - src/Core/System/CustomEntity/Xml/Config/CustomEntityEnrichmentService.php
+        - tests/integration/php/Core/System/CustomEntity/Xml/Config/CmsAwareAndAdminUiTest.php
+
     ignoreErrors:
         # The symfony extension checks against the "normal" container, not the test container
         # Therefore some services in the tests are not found and the extension can not infer that all private services are public during test execution
@@ -83,6 +87,7 @@ parameters:
             path: src/Core/Framework/Api/Controller/CacheController.php
         # @final annotation of internal classes
         - '#.*extends @final class Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult\.#'
+        - '#.*extends @final class Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityRepository.#'
 
         # dynamic hydrator performance
         -

@@ -139,7 +139,7 @@ EOF;
 
         $fieldException = $ex->getExceptions()[0];
 
-        static::assertEquals(WriteConstraintViolationException::class, \get_class($fieldException));
+        static::assertEquals(WriteConstraintViolationException::class, $fieldException::class);
         static::assertEquals('/0/price', $fieldException->getPath());
         static::assertEquals('/0/net', $fieldException->getViolations()->get(0)->getPropertyPath());
     }
@@ -218,7 +218,7 @@ EOF;
         static::assertCount(1, $ex->getExceptions());
 
         $fieldException = $ex->getExceptions()[0];
-        static::assertEquals(WriteConstraintViolationException::class, \get_class($fieldException));
+        static::assertEquals(WriteConstraintViolationException::class, $fieldException::class);
         static::assertEquals('/0/price', $fieldException->getPath());
     }
 
@@ -243,7 +243,7 @@ EOF;
         $entityId = $this->connection->fetchOne('SELECT entity_id FROM version_commit_data WHERE id = :id', ['id' => Uuid::fromHexToBytes($id)]);
         static::assertNotEmpty($entityId);
 
-        $entityId = json_decode($entityId, true);
+        $entityId = json_decode((string) $entityId, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals(
             $data['entityId'],
@@ -280,17 +280,17 @@ EOF;
         static::assertCount(3, $ex->getExceptions());
 
         $fieldException = $ex->getExceptions()[0];
-        static::assertEquals(WriteConstraintViolationException::class, \get_class($fieldException));
+        static::assertEquals(WriteConstraintViolationException::class, $fieldException::class);
         static::assertEquals('/0/data', $fieldException->getPath());
         static::assertEquals('/gross', $fieldException->getViolations()->get(0)->getPropertyPath());
 
         $fieldException = $ex->getExceptions()[1];
-        static::assertEquals(WriteConstraintViolationException::class, \get_class($fieldException));
+        static::assertEquals(WriteConstraintViolationException::class, $fieldException::class);
         static::assertEquals('/0/data/foo', $fieldException->getPath());
         static::assertEquals('/bar', $fieldException->getViolations()->get(0)->getPropertyPath());
 
         $fieldException = $ex->getExceptions()[2];
-        static::assertEquals(WriteConstraintViolationException::class, \get_class($fieldException));
+        static::assertEquals(WriteConstraintViolationException::class, $fieldException::class);
         static::assertEquals('/0/data/foo/baz', $fieldException->getPath());
         static::assertEquals('/deep', $fieldException->getViolations()->get(0)->getPropertyPath());
     }
@@ -353,10 +353,7 @@ EOF;
         try {
             $result = $repo->search($this->registerDefinition(JsonDefinition::class), $criteria, $context);
             static::assertEmpty($result->getIds());
-        } catch (Exception $exception) {
-            // mysql throws an exception on invalid path
-            static::assertTrue(true);
-        } catch (\Doctrine\DBAL\ArrayParameters\Exception $exception) {
+        } catch (Exception|\Doctrine\DBAL\ArrayParameters\Exception) {
             // mysql throws an exception on invalid path
             static::assertTrue(true);
         }

@@ -13,6 +13,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -23,9 +24,7 @@ use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
-/**
- * @package business-ops
- */
+#[Package('business-ops')]
 trait OrderActionTrait
 {
     use IntegrationTestBehaviour;
@@ -36,12 +35,12 @@ trait OrderActionTrait
 
     private TestDataCollection $ids;
 
-    private ?EntityRepository $customerRepository;
+    private ?EntityRepository $customerRepository = null;
 
     private function createCustomerAndLogin(?string $email = null, ?string $password = null): void
     {
-        $email = $email ?? (Uuid::randomHex() . '@example.com');
-        $password = $password ?? 'shopware';
+        $email ??= Uuid::randomHex() . '@example.com';
+        $password ??= 'shopware';
         $this->prepareCustomer($password, $email);
 
         $this->login($email, $password);

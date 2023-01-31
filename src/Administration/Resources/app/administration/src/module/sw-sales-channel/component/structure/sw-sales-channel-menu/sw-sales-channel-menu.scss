@@ -60,6 +60,11 @@
 
         .sw-context-button__button {
             color: $color-white !important;
+
+            .sw-icon.icon--regular-ellipsis-v {
+                width: 20px;
+                height: 20px;
+            }
         }
     }
 

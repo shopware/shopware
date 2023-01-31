@@ -28,18 +28,12 @@ class RequestTransformerTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    public const LOCALE_DE_DE_ISO = 'de-DE';
-    public const LOCALE_EN_GB_ISO = 'en-GB';
+    final public const LOCALE_DE_DE_ISO = 'de-DE';
+    final public const LOCALE_EN_GB_ISO = 'en-GB';
 
-    /**
-     * @var RequestTransformer
-     */
-    private $requestTransformer;
+    private RequestTransformer $requestTransformer;
 
-    /**
-     * @var string
-     */
-    private $deLanguageId;
+    private string $deLanguageId;
 
     protected function setUp(): void
     {

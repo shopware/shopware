@@ -8,23 +8,19 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Storefront\Theme\ThemeCollection;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class DatabaseAvailableThemeProvider extends AbstractAvailableThemeProvider
 {
-    private EntityRepository $salesChannelRepository;
-
     /**
      * @internal
      */
-    public function __construct(EntityRepository $salesChannelRepository)
+    public function __construct(private readonly EntityRepository $salesChannelRepository)
     {
-        $this->salesChannelRepository = $salesChannelRepository;
     }
 
     public function getDecorated(): AbstractAvailableThemeProvider

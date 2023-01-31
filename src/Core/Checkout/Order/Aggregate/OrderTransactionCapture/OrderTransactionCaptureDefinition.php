@@ -12,8 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
@@ -21,14 +19,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StateMachineStateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateDefinition;
 
-/**
- * @package customer-order
- */
+#[Package('customer-order')]
 class OrderTransactionCaptureDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'order_transaction_capture';
+    final public const ENTITY_NAME = 'order_transaction_capture';
 
     public function getEntityName(): string
     {
@@ -68,7 +65,6 @@ class OrderTransactionCaptureDefinition extends EntityDefinition
             (new OneToManyAssociationField('refunds', OrderTransactionCaptureRefundDefinition::class, 'capture_id'))->addFlags(new ApiAware(), new CascadeDelete()),
 
             (new StringField('external_reference', 'externalReference'))->addFlags(new ApiAware()),
-            (new FloatField('totalAmount', 'totalAmount'))->addFlags(new ApiAware(), new Runtime()),
             (new CalculatedPriceField('amount', 'amount'))->addFlags(new ApiAware(), new Required()),
             (new CustomFields())->addFlags(new ApiAware()),
         ]);

@@ -3,20 +3,15 @@
 namespace Shopware\Elasticsearch\Framework\Indexing;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 
 /**
- * @package core
- *
  * @phpstan-import-type Offset from IterableQuery
  */
+#[Package('core')]
 class IndexerOffset
 {
-    /**
-     * @var array<string>
-     */
-    protected array $languages;
-
     /**
      * @var array<string>
      */
@@ -27,16 +22,9 @@ class IndexerOffset
      */
     protected array $allDefinitions;
 
-    protected ?int $timestamp;
+    protected ?string $languageId = null;
 
-    /**
-     * @var Offset|null
-     */
-    protected ?array $lastId;
-
-    protected ?string $languageId;
-
-    protected ?string $definition;
+    protected ?string $definition = null;
 
     /**
      * @param list<string> $languages
@@ -44,13 +32,11 @@ class IndexerOffset
      * @param Offset|null $lastId
      */
     public function __construct(
-        array $languages,
+        protected array $languages,
         iterable $definitions,
-        ?int $timestamp,
-        ?array $lastId = null
+        protected ?int $timestamp,
+        protected ?array $lastId = null
     ) {
-        $this->languages = $languages;
-
         $mapping = [];
         /** @var AbstractElasticsearchDefinition $definition */
         foreach ($definitions as $definition) {
@@ -59,9 +45,6 @@ class IndexerOffset
 
         $this->allDefinitions = $mapping;
         $this->definitions = $mapping;
-
-        $this->timestamp = $timestamp;
-        $this->lastId = $lastId;
 
         $this->setNextLanguage();
         $this->setNextDefinition();

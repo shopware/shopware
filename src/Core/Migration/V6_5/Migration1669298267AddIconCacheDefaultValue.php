@@ -4,17 +4,17 @@ namespace Shopware\Core\Migration\V6_5;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 class Migration1669298267AddIconCacheDefaultValue extends MigrationStep
 {
-    public const CONFIG_KEY = 'core.storefrontSettings.iconCache';
+    final public const CONFIG_KEY = 'core.storefrontSettings.iconCache';
 
     public function getCreationTimestamp(): int
     {

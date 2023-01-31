@@ -240,9 +240,9 @@ class RateLimiterTest extends TestCase
                 );
 
             $response = $this->browser->getResponse()->getContent();
-            $response = json_decode((string) $response, true);
 
             if ($i >= 3) {
+                $response = json_decode((string) $response, true, 512, \JSON_THROW_ON_ERROR);
                 static::assertIsArray($response);
                 static::assertArrayHasKey('errors', $response);
                 static::assertEquals(429, $response['errors'][0]['status']);

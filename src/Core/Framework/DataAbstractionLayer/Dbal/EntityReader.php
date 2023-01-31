@@ -19,7 +19,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyIdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
@@ -32,6 +31,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -39,22 +39,22 @@ use function array_filter;
 
 /**
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 class EntityReader implements EntityReaderInterface
 {
-    public const INTERNAL_MAPPING_STORAGE = 'internal_mapping_storage';
-    public const FOREIGN_KEYS = 'foreignKeys';
-    public const MANY_TO_MANY_LIMIT_QUERY = 'many_to_many_limit_query';
+    final public const INTERNAL_MAPPING_STORAGE = 'internal_mapping_storage';
+    final public const FOREIGN_KEYS = 'foreignKeys';
+    final public const MANY_TO_MANY_LIMIT_QUERY = 'many_to_many_limit_query';
 
     public function __construct(
-        private Connection $connection,
-        private EntityHydrator $hydrator,
-        private EntityDefinitionQueryHelper $queryHelper,
-        private SqlQueryParser $parser,
-        private CriteriaQueryBuilder $criteriaQueryBuilder,
-        private LoggerInterface $logger
+        private readonly Connection $connection,
+        private readonly EntityHydrator $hydrator,
+        private readonly EntityDefinitionQueryHelper $queryHelper,
+        private readonly SqlQueryParser $parser,
+        private readonly CriteriaQueryBuilder $criteriaQueryBuilder,
+        private readonly LoggerInterface $logger,
+        private readonly CriteriaFieldsResolver $criteriaFieldsResolver
     ) {
     }
 
@@ -69,7 +69,7 @@ class EntityReader implements EntityReaderInterface
         /** @var EntityCollection<Entity> $collectionClass */
         $collectionClass = $definition->getCollectionClass();
 
-        $fields = $this->buildCriteriaFields($criteria, $definition);
+        $fields = $this->criteriaFieldsResolver->resolve($criteria, $definition);
 
         return $this->_read(
             $criteria,
@@ -89,6 +89,7 @@ class EntityReader implements EntityReaderInterface
 
     /**
      * @param EntityCollection<Entity> $collection
+     * @param array<string,mixed> $partial
      *
      * @return EntityCollection<Entity>
      */
@@ -110,7 +111,7 @@ class EntityReader implements EntityReaderInterface
 
         if ($partial !== []) {
             $fields = $definition->getFields()->filter(function (Field $field) use (&$partial) {
-                if ($field->getFlag(PrimaryKey::class) || $field instanceof ManyToManyIdField) {
+                if ($field->getFlag(PrimaryKey::class)) {
                     $partial[$field->getPropertyName()] = [];
 
                     return true;
@@ -141,6 +142,9 @@ class EntityReader implements EntityReaderInterface
         return $collection;
     }
 
+    /**
+     * @param array<string,mixed> $partial
+     */
     private function joinBasic(
         EntityDefinition $definition,
         Context $context,
@@ -274,6 +278,11 @@ class EntityReader implements EntityReaderInterface
         }
     }
 
+    /**
+     * @param array<string,mixed> $partial
+     *
+     * @return list<array<string,mixed>>
+     */
     private function fetch(Criteria $criteria, EntityDefinition $definition, Context $context, FieldCollection $fields, array $partial = []): array
     {
         $table = $definition->getEntityName();
@@ -300,6 +309,7 @@ class EntityReader implements EntityReaderInterface
 
     /**
      * @param EntityCollection<Entity> $collection
+     * @param array<string,mixed> $partial
      */
     private function loadManyToMany(
         Criteria $criteria,
@@ -374,6 +384,8 @@ class EntityReader implements EntityReaderInterface
 
     /**
      * @param EntityCollection<Entity> $collection
+     *
+     * @return array<string>
      */
     private function collectManyToManyIds(EntityCollection $collection, AssociationField $association): array
     {
@@ -395,6 +407,7 @@ class EntityReader implements EntityReaderInterface
 
     /**
      * @param EntityCollection<Entity> $collection
+     * @param array<string,mixed> $partial
      */
     private function loadOneToMany(
         Criteria $criteria,
@@ -428,6 +441,7 @@ class EntityReader implements EntityReaderInterface
 
     /**
      * @param EntityCollection<Entity> $collection
+     * @param array<string,mixed> $partial
      */
     private function loadOneToManyWithoutPagination(
         EntityDefinition $definition,
@@ -456,11 +470,9 @@ class EntityReader implements EntityReaderInterface
         $isInheritanceAware = $definition->isInheritanceAware() && $context->considerInheritance();
 
         if ($isInheritanceAware) {
-            $parentIds = array_values(array_filter($collection->map(function (Entity $entity) {
-                return $entity->get('parentId');
-            })));
+            $parentIds = array_values(array_filter($collection->map(fn (Entity $entity) => $entity->get('parentId'))));
 
-            $ids = array_unique(array_merge($ids, $parentIds));
+            $ids = array_unique([...$ids, ...$parentIds]);
         }
 
         $fieldCriteria->addFilter(new EqualsAnyFilter($propertyAccessor, $ids));
@@ -528,6 +540,7 @@ class EntityReader implements EntityReaderInterface
 
     /**
      * @param EntityCollection<Entity> $collection
+     * @param array<string,mixed> $partial
      */
     private function loadOneToManyWithPagination(
         EntityDefinition $definition,
@@ -560,11 +573,9 @@ class EntityReader implements EntityReaderInterface
         $isInheritanceAware = $definition->isInheritanceAware() && $context->considerInheritance();
 
         if ($isInheritanceAware) {
-            $parentIds = array_values(array_filter($collection->map(function (Entity $entity) {
-                return $entity->get('parentId');
-            })));
+            $parentIds = array_values(array_filter($collection->map(fn (Entity $entity) => $entity->get('parentId'))));
 
-            $ids = array_unique(array_merge($ids, $parentIds));
+            $ids = array_unique([...$ids, ...$parentIds]);
         }
 
         $fieldCriteria->addFilter(new EqualsAnyFilter($propertyAccessor, $ids));
@@ -638,6 +649,7 @@ class EntityReader implements EntityReaderInterface
 
     /**
      * @param EntityCollection<Entity> $collection
+     * @param array<string,mixed> $partial
      */
     private function loadManyToManyOverExtension(
         Criteria $criteria,
@@ -686,6 +698,7 @@ class EntityReader implements EntityReaderInterface
 
     /**
      * @param EntityCollection<Entity> $collection
+     * @param array<string,mixed> $partial
      */
     private function loadManyToManyWithCriteria(
         Criteria $fieldCriteria,
@@ -788,7 +801,7 @@ class EntityReader implements EntityReaderInterface
 
         $ids = [];
         foreach ($mapping as &$row) {
-            $row = array_filter(explode(',', $row));
+            $row = array_filter(explode(',', (string) $row));
             foreach ($row as $id) {
                 $ids[] = $id;
             }
@@ -843,6 +856,8 @@ class EntityReader implements EntityReaderInterface
 
     /**
      * @param EntityCollection<Entity> $collection
+     *
+     * @return array<string,string[]>
      */
     private function fetchPaginatedOneToManyMapping(
         EntityDefinition $definition,
@@ -901,7 +916,7 @@ class EntityReader implements EntityReaderInterface
             --$i;
 
             // Strip the ASC/DESC at the end of the sort
-            $query->addSelect(\sprintf('%s as sort_%s', substr($sorting, 0, -4), $i));
+            $query->addSelect(\sprintf('%s as sort_%s', substr((string) $sorting, 0, -4), $i));
         }
 
         $root = EntityDefinitionQueryHelper::escape($definition->getEntityName());
@@ -933,9 +948,7 @@ class EntityReader implements EntityReaderInterface
         $wrapper->andWhere($root . '.id IN (:rootIds)');
 
         $bytes = $collection->map(
-            function (Entity $entity) {
-                return Uuid::fromHexToBytes($entity->getUniqueIdentifier());
-            }
+            fn (Entity $entity) => Uuid::fromHexToBytes($entity->getUniqueIdentifier())
         );
 
         if ($definition->isInheritanceAware() && $context->considerInheritance()) {
@@ -967,7 +980,7 @@ class EntityReader implements EntityReaderInterface
 
         $grouped = [];
         foreach ($rows as $row) {
-            $id = $row['id'];
+            $id = (string) $row['id'];
 
             if (!isset($grouped[$id])) {
                 $grouped[$id] = [];
@@ -977,7 +990,7 @@ class EntityReader implements EntityReaderInterface
                 continue;
             }
 
-            $grouped[$id][] = $row['child_id'];
+            $grouped[$id][] = (string) $row['child_id'];
         }
 
         return $grouped;
@@ -1080,6 +1093,7 @@ class EntityReader implements EntityReaderInterface
 
     /**
      * @param EntityCollection<Entity> $collection
+     * @param array<string,mixed> $partial
      */
     private function loadToOne(
         AssociationField $association,
@@ -1162,6 +1176,7 @@ class EntityReader implements EntityReaderInterface
 
     /**
      * @param EntityCollection<Entity> $collection
+     * @param array<string,mixed> $partial
      *
      * @return EntityCollection<Entity>
      */
@@ -1204,50 +1219,5 @@ class EntityReader implements EntityReaderInterface
         }
 
         return $collection;
-    }
-
-    private function addAssociationsToCriteriaFields(Criteria $criteria, array &$fields): void
-    {
-        if ($fields === []) {
-            return;
-        }
-
-        foreach ($criteria->getAssociations() as $fieldName => $fieldCriteria) {
-            if (!isset($fields[$fieldName])) {
-                $fields[$fieldName] = [];
-            }
-
-            $this->addAssociationsToCriteriaFields($fieldCriteria, $fields[$fieldName]);
-        }
-    }
-
-    private function buildCriteriaFields(Criteria $criteria, EntityDefinition $definition): array
-    {
-        if (empty($criteria->getFields())) {
-            return [];
-        }
-
-        $fields = [];
-
-        $this->addAssociationsToCriteriaFields($criteria, $fields);
-
-        foreach ($criteria->getFields() as $field) {
-            $association = EntityDefinitionQueryHelper::getFieldsOfAccessor($definition, $field, true);
-
-            if ($association !== [] && $association[0] instanceof AssociationField) {
-                $criteria->addAssociation($field);
-            }
-
-            $pointer = &$fields;
-            foreach (explode('.', $field) as $part) {
-                if (!isset($pointer[$part])) {
-                    $pointer[$part] = [];
-                }
-
-                $pointer = &$pointer[$part];
-            }
-        }
-
-        return $fields;
     }
 }

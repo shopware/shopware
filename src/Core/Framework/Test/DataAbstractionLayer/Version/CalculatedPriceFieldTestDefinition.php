@@ -16,7 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
  */
 class CalculatedPriceFieldTestDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'calculated_price_field_test';
+    final public const ENTITY_NAME = 'calculated_price_field_test';
 
     public static function getCreateTable(): string
     {

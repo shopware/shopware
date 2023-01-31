@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Customer\Rule;
 
 use Shopware\Core\Checkout\CheckoutRuleScope;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
@@ -10,25 +11,17 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-/**
- * @package business-ops
- */
+#[Package('business-ops')]
 class LastNameRule extends Rule
 {
-    public const RULE_NAME = 'customerLastName';
-
-    protected ?string $lastName;
-
-    protected string $operator;
+    final public const RULE_NAME = 'customerLastName';
 
     /**
      * @internal
      */
-    public function __construct(string $operator = self::OPERATOR_EQ, ?string $lastName = null)
+    public function __construct(protected string $operator = self::OPERATOR_EQ, protected ?string $lastName = null)
     {
         parent::__construct();
-        $this->operator = $operator;
-        $this->lastName = $lastName;
     }
 
     public function match(RuleScope $scope): bool

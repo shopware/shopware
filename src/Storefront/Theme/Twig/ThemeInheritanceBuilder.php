@@ -2,22 +2,18 @@
 
 namespace Shopware\Storefront\Theme\Twig;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class ThemeInheritanceBuilder implements ThemeInheritanceBuilderInterface
 {
-    private StorefrontPluginRegistryInterface $themeRegistry;
-
     /**
      * @internal
      */
-    public function __construct(StorefrontPluginRegistryInterface $themeRegistry)
+    public function __construct(private readonly StorefrontPluginRegistryInterface $themeRegistry)
     {
-        $this->themeRegistry = $themeRegistry;
     }
 
     /**

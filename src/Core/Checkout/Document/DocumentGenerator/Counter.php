@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Checkout\Document\DocumentGenerator;
 
-/**
- * @package customer-order
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('customer-order')]
 class Counter
 {
     private int $counter = 0;

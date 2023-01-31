@@ -4,7 +4,6 @@ namespace Shopware\Storefront\Test\Framework\Routing;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
-use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -15,6 +14,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Event\StorefrontRenderEvent;
 use Shopware\Storefront\Framework\Routing\StorefrontSubscriber;
+use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\KernelEvents;
 
@@ -126,24 +126,6 @@ class StorefrontSubscriberTest extends TestCase
 
     public function testSubscribedEvents(): void
     {
-        $featureAll = $_SERVER['FEATURE_ALL'] ?? null;
-
-        if (isset($featureAll)) {
-            unset($_SERVER['FEATURE_ALL']);
-        }
-
-        $defaultVar = $_SERVER['v6_5_0_0'] ?? null;
-
         static::assertCount(2, (array) StorefrontSubscriber::getSubscribedEvents()[KernelEvents::EXCEPTION]);
-
-        if ($defaultVar !== null) {
-            $_SERVER['V6_5_0_0'] = $defaultVar;
-        } else {
-            unset($_SERVER['V6_5_0_0']);
-        }
-
-        if (isset($featureAll)) {
-            $_SERVER['FEATURE_ALL'] = $featureAll;
-        }
     }
 }

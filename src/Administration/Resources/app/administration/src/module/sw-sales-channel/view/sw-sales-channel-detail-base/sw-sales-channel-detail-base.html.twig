@@ -180,7 +180,7 @@
             :variant="disabledCountryVariant"
             :title="$tc('global.default.' + disabledCountryVariant)"
         >
-            <span v-html="buildDisabledAlert('sw-sales-channel.detail.warningDisabledCountries', disabledCountries)"></span>
+            <span v-html="buildDisabledPaymentAlert('sw-sales-channel.detail.warningDisabledCountries', disabledCountries)"></span>
         </sw-alert>
         {% endblock %}
 
@@ -304,6 +304,7 @@
         <sw-radio-field
             v-model="salesChannel.taxCalculationType"
             :label="$tc('sw-sales-channel.detail.labelTaxCalculation')"
+            :help-text="helpTextTaxCalculation"
             block
             class="sw-sales-channel-detail__tax-calculation"
             identification="taxCalculation"

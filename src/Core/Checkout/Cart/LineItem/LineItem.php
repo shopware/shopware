@@ -8,35 +8,29 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\Framework\Uuid\Uuid;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class LineItem extends Struct
 {
-    public const CREDIT_LINE_ITEM_TYPE = 'credit';
-    public const PRODUCT_LINE_ITEM_TYPE = 'product';
-    public const CUSTOM_LINE_ITEM_TYPE = 'custom';
-    public const PROMOTION_LINE_ITEM_TYPE = 'promotion';
-    public const DISCOUNT_LINE_ITEM = 'discount';
-    public const CONTAINER_LINE_ITEM = 'container';
+    final public const CREDIT_LINE_ITEM_TYPE = 'credit';
+    final public const PRODUCT_LINE_ITEM_TYPE = 'product';
+    final public const CUSTOM_LINE_ITEM_TYPE = 'custom';
+    final public const PROMOTION_LINE_ITEM_TYPE = 'promotion';
+    final public const DISCOUNT_LINE_ITEM = 'discount';
+    final public const CONTAINER_LINE_ITEM = 'container';
 
     /**
      * @var array<mixed>
      */
     protected array $payload = [];
 
-    protected string $id;
-
-    protected ?string $referencedId = null;
-
     protected ?string $label = null;
 
     protected int $quantity;
-
-    protected string $type;
 
     protected ?PriceDefinitionInterface $priceDefinition = null;
 
@@ -75,18 +69,26 @@ class LineItem extends Struct
     protected ?string $dataContextHash = null;
 
     /**
+     * Used as a unique id to identify a line item over multiple nested levels
+     */
+    protected string $uniqueIdentifier;
+
+    /**
+     * @var array<int, string>
+     */
+    protected array $states = [];
+
+    /**
      * @throws CartException
      */
-    public function __construct(string $id, string $type, ?string $referencedId = null, int $quantity = 1)
+    public function __construct(protected string $id, protected string $type, protected ?string $referencedId = null, int $quantity = 1)
     {
-        $this->id = $id;
-        $this->type = $type;
+        $this->uniqueIdentifier = Uuid::randomHex();
         $this->children = new LineItemCollection();
 
         if ($quantity < 1) {
             throw CartException::invalidQuantity($quantity);
         }
-        $this->referencedId = $referencedId;
         $this->quantity = $quantity;
     }
 
@@ -466,6 +468,34 @@ class LineItem extends Struct
     public function setDataContextHash(?string $dataContextHash): void
     {
         $this->dataContextHash = $dataContextHash;
+    }
+
+    public function getUniqueIdentifier(): string
+    {
+        return $this->uniqueIdentifier;
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    public function getStates(): array
+    {
+        return $this->states;
+    }
+
+    /**
+     * @param array<int, string> $states
+     */
+    public function setStates(array $states): LineItem
+    {
+        $this->states = $states;
+
+        return $this;
+    }
+
+    public function hasState(string $state): bool
+    {
+        return \in_array($state, $this->states, true);
     }
 
     /**

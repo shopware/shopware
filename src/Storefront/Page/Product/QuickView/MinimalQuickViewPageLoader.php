@@ -5,33 +5,20 @@ namespace Shopware\Storefront\Page\Product\QuickView;
 use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractProductDetailRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class MinimalQuickViewPageLoader
 {
     /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
-     * @var AbstractProductDetailRoute
-     */
-    private $productRoute;
-
-    /**
      * @internal
      */
-    public function __construct(EventDispatcherInterface $eventDispatcher, AbstractProductDetailRoute $productRoute)
+    public function __construct(private readonly EventDispatcherInterface $eventDispatcher, private readonly AbstractProductDetailRoute $productRoute)
     {
-        $this->eventDispatcher = $eventDispatcher;
-        $this->productRoute = $productRoute;
     }
 
     /**

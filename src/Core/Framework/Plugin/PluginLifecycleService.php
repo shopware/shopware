@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Migration\MigrationSource;
@@ -42,32 +43,37 @@ use Shopware\Core\Framework\Plugin\Requirement\Exception\RequirementStackExcepti
 use Shopware\Core\Framework\Plugin\Requirement\RequirementsValidator;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Kernel;
+use Shopware\Core\System\CustomEntity\CustomEntityLifecycleService;
+use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
+use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class PluginLifecycleService
 {
-    public const STATE_SKIP_ASSET_BUILDING = 'skip-asset-building';
+    final public const STATE_SKIP_ASSET_BUILDING = 'skip-asset-building';
 
     public function __construct(
-        private EntityRepository $pluginRepo,
+        private readonly EntityRepository $pluginRepo,
         private EventDispatcherInterface $eventDispatcher,
-        private KernelPluginCollection $pluginCollection,
+        private readonly KernelPluginCollection $pluginCollection,
         private ContainerInterface $container,
-        private MigrationCollectionLoader $migrationLoader,
-        private AssetService $assetInstaller,
-        private CommandExecutor $executor,
-        private RequirementsValidator $requirementValidator,
-        private CacheItemPoolInterface $restartSignalCachePool,
-        private string $shopwareVersion,
-        private SystemConfigService $systemConfigService
+        private readonly MigrationCollectionLoader $migrationLoader,
+        private readonly AssetService $assetInstaller,
+        private readonly CommandExecutor $executor,
+        private readonly RequirementsValidator $requirementValidator,
+        private readonly CacheItemPoolInterface $restartSignalCachePool,
+        private readonly string $shopwareVersion,
+        private readonly SystemConfigService $systemConfigService,
+        private readonly CustomEntityPersister $customEntityPersister,
+        private readonly CustomEntitySchemaUpdater $customEntitySchemaUpdater,
+        private readonly CustomEntityLifecycleService $customEntityLifecycleService
     ) {
     }
 
@@ -76,6 +82,7 @@ class PluginLifecycleService
      */
     public function installPlugin(PluginEntity $plugin, Context $shopwareContext): InstallContext
     {
+        $pluginData = [];
         $pluginBaseClass = $this->getPluginBaseClass($plugin->getBaseClass());
         $pluginVersion = $plugin->getVersion();
 
@@ -124,6 +131,7 @@ class PluginLifecycleService
         $this->systemConfigService->savePluginConfiguration($pluginBaseClass, true);
 
         $pluginBaseClass->install($installContext);
+        $this->customEntityLifecycleService->updatePlugin($plugin->getId(), $plugin->getPath() ?? '');
 
         $this->runMigrations($installContext);
 
@@ -190,15 +198,13 @@ class PluginLifecycleService
 
         if (!$uninstallContext->keepUserData()) {
             $pluginBaseClass->removeMigrations();
-        }
-
-        if (!$uninstallContext->keepUserData()) {
             $this->systemConfigService->deletePluginConfiguration($pluginBaseClass);
         }
 
+        $pluginId = $plugin->getId();
         $this->updatePluginData(
             [
-                'id' => $plugin->getId(),
+                'id' => $pluginId,
                 'active' => false,
                 'installedAt' => null,
             ],
@@ -206,6 +212,10 @@ class PluginLifecycleService
         );
         $plugin->setActive(false);
         $plugin->setInstalledAt(null);
+
+        if (!$uninstallContext->keepUserData()) {
+            $this->removeCustomEntities($plugin->getId());
+        }
 
         $this->eventDispatcher->dispatch(new PluginPostUninstallEvent($plugin, $uninstallContext));
 
@@ -256,7 +266,7 @@ class PluginLifecycleService
             if ($plugin->getActive()) {
                 try {
                     $this->deactivatePlugin($plugin, $shopwareContext);
-                } catch (\Throwable $deactivateException) {
+                } catch (\Throwable) {
                     $this->updatePluginData(
                         [
                             'id' => $plugin->getId(),
@@ -274,6 +284,7 @@ class PluginLifecycleService
             $this->assetInstaller->copyAssetsFromBundle($pluginBaseClassString);
         }
 
+        $this->customEntityLifecycleService->updatePlugin($plugin->getId(), $plugin->getPath() ?? '');
         $this->runMigrations($updateContext);
 
         $updateVersion = $updateContext->getUpdatePluginVersion();
@@ -455,6 +466,12 @@ class PluginLifecycleService
         return $deactivateContext;
     }
 
+    private function removeCustomEntities(string $pluginId): void
+    {
+        $this->customEntityPersister->update([], PluginEntity::class, $pluginId);
+        $this->customEntitySchemaUpdater->update();
+    }
+
     private function getPluginBaseClass(string $pluginBaseClassString): Plugin
     {
         $baseClass = $this->pluginCollection->get($pluginBaseClassString);
@@ -541,14 +558,14 @@ class PluginLifecycleService
         /*
          * Reboot kernel with $plugin active=true.
          *
-         * All other Requests wont have this plugin active until its updated in the db
+         * All other Requests won't have this plugin active until it's updated in the db
          */
         $tmpStaticPluginLoader = new StaticKernelPluginLoader($pluginLoader->getClassLoader(), $pluginDir, $plugins);
         $kernel->reboot(null, $tmpStaticPluginLoader);
 
         try {
             $newContainer = $kernel->getContainer();
-        } catch (\LogicException $e) {
+        } catch (\LogicException) {
             // If symfony throws an exception when calling getContainer on a not booted kernel and catch it here
             throw new \RuntimeException('Failed to reboot the kernel');
         }
@@ -585,9 +602,7 @@ class PluginLifecycleService
      */
     private function getEntities(array $plugins, Context $context): EntitySearchResult
     {
-        $names = array_map(static function (Plugin $plugin) {
-            return $plugin->getName();
-        }, $plugins);
+        $names = array_map(static fn (Plugin $plugin) => $plugin->getName(), $plugins);
 
         return $this->pluginRepo->search(
             (new Criteria())->addFilter(new EqualsAnyFilter('name', $names)),

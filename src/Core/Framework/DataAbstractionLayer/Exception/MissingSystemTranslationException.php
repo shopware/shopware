@@ -9,12 +9,10 @@ use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 
-/**
- * @package core
- */
+#[\Shopware\Core\Framework\Log\Package('core')]
 class MissingSystemTranslationException extends WriteConstraintViolationException
 {
-    public const VIOLATION_MISSING_SYSTEM_TRANSLATION = 'MISSING-SYSTEM-TRANSLATION';
+    final public const VIOLATION_MISSING_SYSTEM_TRANSLATION = 'MISSING-SYSTEM-TRANSLATION';
 
     public function __construct(string $path = '')
     {

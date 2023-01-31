@@ -9,13 +9,13 @@ use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemPropertyRule;
 use Shopware\Core\Checkout\Test\Cart\Rule\Helper\CartRuleHelperTrait;
 use Shopware\Core\Checkout\Test\Cart\Rule\Helper\CartRuleScopeCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('business-ops')]
 class LineItemPropertyRuleTest extends TestCase
 {
     use CartRuleHelperTrait;
@@ -79,9 +79,7 @@ class LineItemPropertyRuleTest extends TestCase
             new CartRuleScopeCase('Merge case', true, new LineItemPropertyRule(['green']), [$mergeCase]),
         ];
 
-        return array_map(static function ($case) {
-            return [$case];
-        }, $cases);
+        return array_map(static fn ($case) => [$case], $cases);
     }
 
     /**

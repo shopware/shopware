@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Plugin\Command;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -10,13 +11,11 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 
-/**
- * @package core
- */
 #[AsCommand(
     name: 'plugin:create',
     description: 'Creates a new plugin',
 )]
+#[Package('core')]
 class PluginCreateCommand extends Command
 {
     private string $composerTemplate = <<<EOL
@@ -84,17 +83,11 @@ EOL;
 EOL;
 
     /**
-     * @var string
-     */
-    private $projectDir;
-
-    /**
      * @internal
      */
-    public function __construct(string $projectDir)
+    public function __construct(private readonly string $projectDir)
     {
         parent::__construct();
-        $this->projectDir = $projectDir;
     }
 
     /**
@@ -104,8 +97,7 @@ EOL;
     {
         $this
             ->addArgument('name', InputArgument::OPTIONAL)
-            ->addOption('create-config', 'c', InputOption::VALUE_NONE, 'Create config.xml')
-            ->setDescription('Creates a plugin skeleton');
+            ->addOption('create-config', 'c', InputOption::VALUE_NONE, 'Create config.xml');
     }
 
     /**
@@ -120,7 +112,7 @@ EOL;
             $name = $this->getHelper('question')->ask($input, $output, $question);
         }
 
-        $name = ucfirst($name);
+        $name = ucfirst((string) $name);
 
         $directory = $this->projectDir . '/custom/plugins/' . $name;
 

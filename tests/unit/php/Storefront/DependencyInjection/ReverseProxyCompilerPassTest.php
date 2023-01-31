@@ -184,11 +184,8 @@ class PluginService
  */
 class DummyService
 {
-    private object $gateway;
-
-    public function __construct(object $gateway)
+    public function __construct(private readonly object $gateway)
     {
-        $this->gateway = $gateway;
     }
 
     public function get(): object

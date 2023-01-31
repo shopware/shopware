@@ -5,6 +5,7 @@ namespace Shopware\Core\Maintenance\SalesChannel\Command;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\Language\LanguageCollection;
@@ -20,23 +21,18 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * @package core
- *
  * @internal should be used over the CLI only
  */
 #[AsCommand(
     name: 'sales-channel:list',
     description: 'Lists all sales channels',
 )]
+#[Package('core')]
 class SalesChannelListCommand extends Command
 {
-    private EntityRepository $salesChannelRepository;
-
     public function __construct(
-        EntityRepository $salesChannelRepository
+        private readonly EntityRepository $salesChannelRepository
     ) {
-        $this->salesChannelRepository = $salesChannelRepository;
-
         parent::__construct();
     }
 
@@ -89,16 +85,10 @@ class SalesChannelListCommand extends Command
                 $salesChannel->getActive() ? 'active' : 'inactive',
                 $salesChannel->isMaintenance() ? 'on' : 'off',
                 $language->getName(),
-                $languages->map(function (LanguageEntity $language) {
-                    return $language->getName();
-                }),
+                $languages->map(fn (LanguageEntity $language) => $language->getName()),
                 $currency->getName(),
-                $currencies->map(function (CurrencyEntity $currency) {
-                    return $currency->getName();
-                }),
-                $domains->map(function (SalesChannelDomainEntity $domain) {
-                    return $domain->getUrl();
-                }),
+                $currencies->map(fn (CurrencyEntity $currency) => $currency->getName()),
+                $domains->map(fn (SalesChannelDomainEntity $domain) => $domain->getUrl()),
             ];
         }
 
@@ -121,10 +111,7 @@ class SalesChannelListCommand extends Command
             $json[] = $jsonItem;
         }
 
-        $encoded = json_encode($json);
-        if ($encoded === false) {
-            return self::FAILURE;
-        }
+        $encoded = json_encode($json, \JSON_THROW_ON_ERROR);
 
         $output->write($encoded);
 

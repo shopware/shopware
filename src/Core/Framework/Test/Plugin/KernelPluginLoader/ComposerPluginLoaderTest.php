@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\ComposerPluginLoader;
 use Shopware\Core\Framework\Plugin\Util\PluginFinder;
 use Shopware\Core\Framework\Test\Plugin\PluginIntegrationTestBehaviour;
+use SwagTestComposerLoaded\SwagTestComposerLoaded;
 
 /**
  * @internal
@@ -117,7 +118,7 @@ class ComposerPluginLoaderTest extends TestCase
         $entry = $loader->getPluginInfos()[0];
 
         static::assertSame('SwagTestComposerLoaded', $entry['name']);
-        static::assertSame('SwagTestComposerLoaded\SwagTestComposerLoaded', $entry['baseClass']);
+        static::assertSame(SwagTestComposerLoaded::class, $entry['baseClass']);
         static::assertTrue($entry['active']);
     }
 }

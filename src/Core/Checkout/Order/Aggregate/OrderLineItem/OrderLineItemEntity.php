@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Order\Aggregate\OrderLineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\OrderDeliveryPositionCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItemDownload\OrderLineItemDownloadCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefundPosition\OrderTransactionCaptureRefundPositionCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
@@ -13,10 +14,9 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package customer-order
- */
+#[Package('customer-order')]
 class OrderLineItemEntity extends Entity
 {
     use EntityIdTrait;
@@ -45,7 +45,7 @@ class OrderLineItemEntity extends Entity
     /**
      * @internal
      */
-    protected ?string $promotionId;
+    protected ?string $promotionId = null;
 
     /**
      * @var int
@@ -157,9 +157,16 @@ class OrderLineItemEntity extends Entity
     protected ?OrderTransactionCaptureRefundPositionCollection $orderTransactionCaptureRefundPositions = null;
 
     /**
+     * @var array<int, string>
+     */
+    protected array $states = [];
+
+    protected ?OrderLineItemDownloadCollection $downloads = null;
+
+    /**
      * @internal
      */
-    protected ?PromotionEntity $promotion;
+    protected ?PromotionEntity $promotion = null;
 
     public function getOrderId(): string
     {
@@ -301,11 +308,17 @@ class OrderLineItemEntity extends Entity
         $this->priceDefinition = $priceDefinition;
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     public function getPayload(): ?array
     {
         return $this->payload;
     }
 
+    /**
+     * @param array<string, mixed>|null $payload
+     */
     public function setPayload(?array $payload): void
     {
         $this->payload = $payload;
@@ -451,5 +464,31 @@ class OrderLineItemEntity extends Entity
     public function setPromotion(?PromotionEntity $promotion): void
     {
         $this->promotion = $promotion;
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    public function getStates(): array
+    {
+        return $this->states;
+    }
+
+    /**
+     * @param array<int, string> $states
+     */
+    public function setStates(array $states): void
+    {
+        $this->states = $states;
+    }
+
+    public function getDownloads(): ?OrderLineItemDownloadCollection
+    {
+        return $this->downloads;
+    }
+
+    public function setDownloads(OrderLineItemDownloadCollection $downloads): void
+    {
+        $this->downloads = $downloads;
     }
 }

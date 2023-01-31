@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Theme\ConfigLoader\AbstractConfigLoader;
 use Shopware\Storefront\Theme\Event\ThemeAssignedEvent;
@@ -18,44 +19,14 @@ use Shopware\Storefront\Theme\Exception\InvalidThemeException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class ThemeService
 {
-    private StorefrontPluginRegistryInterface $extensionRegistry;
-
-    private EntityRepository $themeRepository;
-
-    private EntityRepository $themeSalesChannelRepository;
-
-    private ThemeCompilerInterface $themeCompiler;
-
-    private EventDispatcherInterface $dispatcher;
-
-    private AbstractConfigLoader $configLoader;
-
-    private Connection $connection;
-
     /**
      * @internal
      */
-    public function __construct(
-        StorefrontPluginRegistryInterface $extensionRegistry,
-        EntityRepository $themeRepository,
-        EntityRepository $themeSalesChannelRepository,
-        ThemeCompilerInterface $themeCompiler,
-        EventDispatcherInterface $dispatcher,
-        AbstractConfigLoader $configLoader,
-        Connection $connection
-    ) {
-        $this->extensionRegistry = $extensionRegistry;
-        $this->themeRepository = $themeRepository;
-        $this->themeSalesChannelRepository = $themeSalesChannelRepository;
-        $this->themeCompiler = $themeCompiler;
-        $this->dispatcher = $dispatcher;
-        $this->configLoader = $configLoader;
-        $this->connection = $connection;
+    public function __construct(private readonly StorefrontPluginRegistryInterface $extensionRegistry, private readonly EntityRepository $themeRepository, private readonly EntityRepository $themeSalesChannelRepository, private readonly ThemeCompilerInterface $themeCompiler, private readonly EventDispatcherInterface $dispatcher, private readonly AbstractConfigLoader $configLoader, private readonly Connection $connection)
+    {
     }
 
     /**
@@ -215,9 +186,7 @@ class ThemeService
         }
 
         /** @var ThemeEntity $baseTheme */
-        $baseTheme = $themes->filter(function (ThemeEntity $themeEntry) {
-            return $themeEntry->getTechnicalName() === StorefrontPluginRegistry::BASE_THEME_NAME;
-        })->first();
+        $baseTheme = $themes->filter(fn (ThemeEntity $themeEntry) => $themeEntry->getTechnicalName() === StorefrontPluginRegistry::BASE_THEME_NAME)->first();
 
         $baseThemeConfig = $this->mergeStaticConfig($baseTheme);
 
@@ -250,7 +219,7 @@ class ThemeService
             }
         }
 
-        $configFields = json_decode((string) json_encode($configFields), true);
+        $configFields = json_decode((string) json_encode($configFields, \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
 
         if ($translate && !empty($labels)) {
             $configFields = $this->translateLabels($configFields, $labels);
@@ -367,9 +336,7 @@ class ThemeService
     private function getParentThemeIds(EntitySearchResult $themes, ThemeEntity $mainTheme, array $parentThemes = []): array
     {
         foreach ($this->getConfigInheritance($mainTheme) as $parentThemeName) {
-            $parentTheme = $themes->filter(function (ThemeEntity $themeEntry) use ($parentThemeName) {
-                return $themeEntry->getTechnicalName() === str_replace('@', '', $parentThemeName);
-            })->first();
+            $parentTheme = $themes->filter(fn (ThemeEntity $themeEntry) => $themeEntry->getTechnicalName() === str_replace('@', '', (string) $parentThemeName))->first();
 
             if ($parentTheme instanceof ThemeEntity && !\array_key_exists($parentTheme->getId(), $parentThemes)) {
                 $parentThemes[$parentTheme->getId()] = $parentTheme;
@@ -381,9 +348,7 @@ class ThemeService
         }
 
         if ($mainTheme->getParentThemeId()) {
-            $parentTheme = $themes->filter(function (ThemeEntity $themeEntry) use ($mainTheme) {
-                return $themeEntry->getId() === $mainTheme->getParentThemeId();
-            })->first();
+            $parentTheme = $themes->filter(fn (ThemeEntity $themeEntry) => $themeEntry->getId() === $mainTheme->getParentThemeId())->first();
 
             if ($parentTheme instanceof ThemeEntity && !\array_key_exists($parentTheme->getId(), $parentThemes)) {
                 $parentThemes[$parentTheme->getId()] = $parentTheme;

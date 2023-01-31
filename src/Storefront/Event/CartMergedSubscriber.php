@@ -3,30 +3,22 @@
 namespace Shopware\Storefront\Event;
 
 use Shopware\Core\Checkout\Cart\Event\CartMergedEvent;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * @internal
- *
- * @package storefront
  */
+#[Package('storefront')]
 class CartMergedSubscriber implements EventSubscriberInterface
 {
-    private TranslatorInterface $translator;
-
-    private RequestStack $requestStack;
-
     /**
      * @internal
      */
-    public function __construct(
-        TranslatorInterface $translator,
-        RequestStack $requestStack
-    ) {
-        $this->translator = $translator;
-        $this->requestStack = $requestStack;
+    public function __construct(private readonly TranslatorInterface $translator, private readonly RequestStack $requestStack)
+    {
     }
 
     public static function getSubscribedEvents(): array

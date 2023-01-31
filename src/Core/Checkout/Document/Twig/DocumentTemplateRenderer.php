@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Document\Event\DocumentTemplateRendererParameterEvent
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -16,36 +17,14 @@ use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 
-/**
- * @package customer-order
- */
+#[Package('customer-order')]
 class DocumentTemplateRenderer
 {
-    private TemplateFinder $templateFinder;
-
-    private Environment $twig;
-
-    private Translator $translator;
-
-    private AbstractSalesChannelContextFactory $contextFactory;
-
-    private EventDispatcherInterface $eventDispatcher;
-
     /**
      * @internal
      */
-    public function __construct(
-        TemplateFinder $templateFinder,
-        Environment $twig,
-        Translator $translator,
-        AbstractSalesChannelContextFactory $contextFactory,
-        EventDispatcherInterface $eventDispatcher
-    ) {
-        $this->templateFinder = $templateFinder;
-        $this->twig = $twig;
-        $this->translator = $translator;
-        $this->contextFactory = $contextFactory;
-        $this->eventDispatcher = $eventDispatcher;
+    public function __construct(private readonly TemplateFinder $templateFinder, private readonly Environment $twig, private readonly Translator $translator, private readonly AbstractSalesChannelContextFactory $contextFactory, private readonly EventDispatcherInterface $eventDispatcher)
+    {
     }
 
     /**

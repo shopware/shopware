@@ -22,8 +22,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundExcepti
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -35,46 +35,15 @@ use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @package customer-order
- *
- * @Route(defaults={"_routeScope"={"store-api"}})
- */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Package('customer-order')]
 class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
 {
-    private EntityRepository $orderRepository;
-
-    private AbstractPaymentMethodRoute $paymentRoute;
-
-    private OrderService $orderService;
-
-    private OrderConverter $orderConverter;
-
-    private CartRuleLoader $cartRuleLoader;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private InitialStateIdLoader $initialStateIdLoader;
-
     /**
      * @internal
      */
-    public function __construct(
-        OrderService $orderService,
-        EntityRepository $orderRepository,
-        AbstractPaymentMethodRoute $paymentRoute,
-        OrderConverter $orderConverter,
-        CartRuleLoader $cartRuleLoader,
-        EventDispatcherInterface $eventDispatcher,
-        InitialStateIdLoader $initialStateIdLoader
-    ) {
-        $this->orderService = $orderService;
-        $this->orderRepository = $orderRepository;
-        $this->paymentRoute = $paymentRoute;
-        $this->orderConverter = $orderConverter;
-        $this->cartRuleLoader = $cartRuleLoader;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->initialStateIdLoader = $initialStateIdLoader;
+    public function __construct(private readonly OrderService $orderService, private readonly EntityRepository $orderRepository, private readonly AbstractPaymentMethodRoute $paymentRoute, private readonly OrderConverter $orderConverter, private readonly CartRuleLoader $cartRuleLoader, private readonly EventDispatcherInterface $eventDispatcher, private readonly InitialStateIdLoader $initialStateIdLoader)
+    {
     }
 
     public function getDecorated(): AbstractSetPaymentOrderRoute
@@ -82,10 +51,7 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
         throw new DecorationPatternException(self::class);
     }
 
-    /**
-     * @Since("6.2.0.0")
-     * @Route(path="/store-api/order/payment", name="store-api.order.set-payment", methods={"POST"}, defaults={"_loginRequired"=true, "_loginRequiredAllowGuest"=true})
-     */
+    #[Route(path: '/store-api/order/payment', name: 'store-api.order.set-payment', methods: ['POST'], defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true])]
     public function setPayment(Request $request, SalesChannelContext $context): SetPaymentOrderRouteResponse
     {
         $paymentMethodId = (string) $request->request->get('paymentMethodId');
@@ -199,7 +165,7 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
                     );
 
                     return true;
-                } catch (IllegalTransitionException $exception) {
+                } catch (IllegalTransitionException) {
                     // if we can't reopen the last transaction with a matching payment method
                     // we have to create a new transaction and cancel the previous one
                 }

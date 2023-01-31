@@ -37,7 +37,7 @@
                     ref="sw-order-line-item-grid"
                     :order="order"
                     :context="versionContext"
-                    :editable="isEditing"
+                    :editable="acl.can('order.editor')"
                     @item-delete="recalculateAndReload"
                     @item-edit="recalculateAndReload"
                     @existing-item-edit="saveAndRecalculate"
@@ -77,11 +77,11 @@
                                         disabled: taxStatus === 'tax-free'
                                     }"
                                     type="number"
-                                    :editable="isEditing"
+                                    :editable="acl.can('order.editor')"
                                     :value="delivery.shippingCosts.totalPrice"
                                     @value-change="onShippingChargeEdited"
                                 >
-                                    {{ delivery.shippingCosts.totalPrice | currency(order.currency.translated.shortName) }}
+                                    {{ delivery.shippingCosts.totalPrice | currency(order.currency.translated.shortName, order.totalRounding.decimals) }}
                                 </sw-order-saveable-field>
                             </dd>
                         </template>
@@ -91,7 +91,7 @@
                                 {{ $tc('sw-order.detailBase.discountLabelShippingCosts') }}
                             </dt>
                             <dd :key="`delivery-discount-dd-${index}`">
-                                {{ delivery.shippingCosts.totalPrice | currency(order.currency.translated.shortName) }}
+                                {{ delivery.shippingCosts.totalPrice | currency(order.currency.translated.shortName, order.totalRounding.decimals) }}
                             </dd>
                         </template>
                         {% endblock %}
@@ -112,7 +112,7 @@
                                     {{ $tc('sw-order.detailBase.summaryLabelTaxes', 1, { taxRate: calculatedTax.taxRate }) }}
                                 </dt>
                                 <dd :key="`sorted-calculated-taxes-dd-${index}`">
-                                    {{ calculatedTax.tax | currency(order.currency.translated.shortName) }}
+                                    {{ calculatedTax.tax | currency(order.currency.translated.shortName, order.totalRounding.decimals) }}
                                 </dd>
                             </template>
                         </template>
@@ -122,10 +122,10 @@
                         {% block sw_order_detail_general_line_items_summary_amount_total %}
                         <template v-if="taxStatus !== 'tax-free'">
                             <dt><strong>{{ $tc('sw-order.detailBase.summaryLabelAmountTotal') }}</strong></dt>
-                            <dd><strong>{{ orderTotal | currency(order.currency.shortName) }}</strong></dd>
+                            <dd><strong>{{ orderTotal | currency(order.currency.shortName, order.totalRounding.decimals) }}</strong></dd>
                             <template v-if="displayRounded">
                                 <dt><strong>{{ $tc('sw-order.detailBase.summaryLabelAmountTotalRounded') }}</strong></dt>
-                                <dd><strong>{{ order.price.totalPrice | currency(order.currency.shortName) }}</strong></dd>
+                                <dd><strong>{{ order.price.totalPrice | currency(order.currency.shortName, order.totalRounding.decimals) }}</strong></dd>
                             </template>
                         </template>
                         {% endblock %}
@@ -134,7 +134,7 @@
                         {% block sw_order_detail_general_line_items_summary_amount_free_tax %}
                         <template v-if="taxStatus === 'tax-free'">
                             <dt><strong>{{ $tc('sw-order.detailBase.summaryLabelAmount') }}</strong></dt>
-                            <dd><strong>{{ order.price.totalPrice | currency(order.currency.translated.shortName) }}</strong></dd>
+                            <dd><strong>{{ order.price.totalPrice | currency(order.currency.translated.shortName, order.totalRounding.decimals) }}</strong></dd>
                         </template>
                         {% endblock %}
                     {% endblock %}

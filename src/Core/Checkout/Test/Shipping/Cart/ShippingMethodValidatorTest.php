@@ -16,21 +16,21 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Shipping\Cart\Error\ShippingMethodBlockedError;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * @package checkout
- *
  * @internal
  */
+#[Package('checkout')]
 class ShippingMethodValidatorTest extends TestCase
 {
     public function testValidateWithEmptyCart(): void
     {
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
 
         $validator = new DeliveryValidator();
         $errors = new ErrorCollection();
@@ -43,7 +43,7 @@ class ShippingMethodValidatorTest extends TestCase
     {
         $deliveryTime = $this->generateDeliveryTimeDummy();
 
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
         $context = $this->createMock(SalesChannelContext::class);
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId('1');
@@ -70,7 +70,7 @@ class ShippingMethodValidatorTest extends TestCase
 
     public function testValidateWithEmptyRules(): void
     {
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
         $context = $this->createMock(SalesChannelContext::class);
 
         $deliveryTime = $this->generateDeliveryTimeDummy();
@@ -99,7 +99,7 @@ class ShippingMethodValidatorTest extends TestCase
 
     public function testValidateWithAvailabilityRules(): void
     {
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
         $context = $this->createMock(SalesChannelContext::class);
 
         $deliveryTime = $this->generateDeliveryTimeDummy();
@@ -130,7 +130,7 @@ class ShippingMethodValidatorTest extends TestCase
 
     public function testValidateWithNotMatchingRules(): void
     {
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
         $context = $this->createMock(SalesChannelContext::class);
 
         $deliveryTime = $this->generateDeliveryTimeDummy();
@@ -164,7 +164,7 @@ class ShippingMethodValidatorTest extends TestCase
 
     public function testValidateWithMultiDeliveries(): void
     {
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
         $context = $this->createMock(SalesChannelContext::class);
 
         $deliveryTime = $this->generateDeliveryTimeDummy();

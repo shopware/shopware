@@ -26,25 +26,13 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  */
 class ProductReviewSaveRouteTest extends TestCase
 {
-    /**
-     * @var MockObject|EntityRepository
-     */
-    private $repository;
+    private MockObject&EntityRepository $repository;
 
-    /**
-     * @var MockObject|DataValidator
-     */
-    private $validator;
+    private MockObject&DataValidator $validator;
 
-    /**
-     * @var MockObject|SystemConfigService
-     */
-    private $config;
+    private MockObject&SystemConfigService $config;
 
-    /**
-     * @var MockObject|EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private MockObject&EventDispatcherInterface $eventDispatcher;
 
     private ProductReviewSaveRoute $route;
 

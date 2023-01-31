@@ -5,6 +5,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable import/no-named-default */
 import type { default as Bottle, Decorator } from 'bottlejs';
+import type { Route } from 'vue-router';
 import type VueRouter from 'vue-router';
 import type FeatureService from 'src/app/service/feature.service';
 import type { LoginService } from 'src/core/service/login.service';
@@ -36,6 +37,9 @@ import type { PaymentOverviewCardState } from './module/sw-settings-payment/stat
 import type { SwOrderState } from './module/sw-order/state/order.store';
 import type AclService from './app/service/acl.service';
 import type { ShopwareAppsState } from './app/state/shopware-apps.store';
+import type EntityValidationService from './app/service/entity-validation.service';
+import type CustomEntityDefinitionService from './app/service/custom-entity-definition.service';
+import type CmsPageTypeService from './module/sw-cms/service/cms-page-type.service';
 import type { SdkLocationState } from './app/state/sdk-location.store';
 import type StoreContextService from './core/service/api/store-context.api.service';
 import type OrderStateMachineApiService from './core/service/api/order-state-machine.api.service';
@@ -111,9 +115,12 @@ declare global {
         feature: FeatureService,
         menuService: $TSFixMe,
         privileges: $TSFixMe,
+        customEntityDefinitionService: CustomEntityDefinitionService,
+        cmsPageTypeService: CmsPageTypeService,
         acl: AclService,
         jsonApiParserService: $TSFixMe,
         validationService: $TSFixMe,
+        entityValidationService: EntityValidationService,
         timezoneService: $TSFixMe,
         ruleConditionDataProviderService: $TSFixMe,
         productStreamConditionService: $TSFixMe,
@@ -208,6 +215,7 @@ declare global {
             languageId: string,
             currentLocale: string|null,
         },
+        swCategoryDetail: $TSFixMe,
         menuItem: MenuItemState,
         extensionSdkModules: ExtensionSdkModuleState,
         extensionMainModules: MainModuleState,
@@ -293,7 +301,9 @@ declare module 'vue-router' {
  */
 declare module 'vue/types/vue' {
     interface Vue extends ServiceContainer {
-        $router: VueRouter
+        $createTitle: (identifier?: string|null) => string,
+        $router: VueRouter,
+        $route: Route,
     }
 }
 

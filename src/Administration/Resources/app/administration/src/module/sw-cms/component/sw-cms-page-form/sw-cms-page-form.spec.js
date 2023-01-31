@@ -20,7 +20,7 @@ async function createWrapper() {
                 template: '<div></div>'
             },
             'sw-card': {
-                template: '<div class="sw-card"><slot /></div>',
+                template: '<div class="sw-card"><slot /><slot name="header-right"></slot></div>',
                 props: ['title']
             },
             'sw-cms-el-config-text': {
@@ -102,5 +102,14 @@ describe('module/sw-cms/component/sw-cms-page-form', () => {
         const blockNameText = wrapper.find('.sw-cms-page-form__block-card').props('title');
 
         expect(blockNameText).toBe('BLOCK NAME');
+    });
+
+    it('display the device active in viewport', async () => {
+        const wrapper = await createWrapper();
+        const formDeviceActions = wrapper.find('.sw-cms-page-form__device-actions');
+        const blockFormDeviceActions = wrapper.find('.sw-cms-page-form__block-device-actions');
+
+        expect(formDeviceActions.exists()).toBeTruthy();
+        expect(blockFormDeviceActions.exists()).toBeTruthy();
     });
 });

@@ -1,13 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Framework\App\AppLifecycle;
+namespace Shopware\Tests\Unit\Core\Framework\App\Lifecycle;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Snippet\AppAdministrationSnippetPersister;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleCollection;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
-use Shopware\Core\Framework\Api\Acl\Role\AclRoleEntity;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppDefinition;
 use Shopware\Core\Framework\App\AppEntity;
@@ -22,6 +21,7 @@ use Shopware\Core\Framework\App\Lifecycle\Persister\PaymentMethodPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\RuleConditionPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\ScriptPersister;
+use Shopware\Core\Framework\App\Lifecycle\Persister\TaxProviderPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\TemplatePersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\WebhookPersister;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
@@ -34,7 +34,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
+use Shopware\Core\System\CustomEntity\CustomEntityLifecycleService;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageDefinition;
@@ -109,6 +109,7 @@ class AppLifecycleTest extends TestCase
             [
                 [
                     'id' => Uuid::randomHex(),
+                    'path' => '',
                 ],
             ],
             [
@@ -123,7 +124,7 @@ class AppLifecycleTest extends TestCase
         yield 'Snippets are given' => [
             'manifest' => Manifest::createFromXmlFile(__DIR__ . '/../_fixtures/manifest.xml'),
             'appRepository' => $this->getAppRepositoryMock($appEntities),
-            'aclRoleRepository' => $this->getAclRoleRepositoryMock($this->getAclRoleCollection()),
+            'aclRoleRepository' => $this->getAclRoleRepositoryMock(new AclRoleCollection()),
             'appAdministrationSnippetPersister' => $this->getAppAdministrationSnippetPersisterMock($appEntities[2], $this->getSnippets()),
             'languageRepository' => $this->getLanguageRepositoryMock($this->getLanguageCollection(
                 [
@@ -139,8 +140,8 @@ class AppLifecycleTest extends TestCase
         yield 'No snippets are given' => [
             'manifest' => Manifest::createFromXmlFile(__DIR__ . '/../_fixtures/manifest.xml'),
             'appRepository' => $this->getAppRepositoryMock($appEntities),
-            'aclRoleRepository' => $this->getAclRoleRepositoryMock($this->getAclRoleCollection()),
-            'appAdministrationSnippetPersister' => $this->getAppAdministrationSnippetPersisterMock($appEntities[2], []),
+            'aclRoleRepository' => $this->getAclRoleRepositoryMock(new AclRoleCollection()),
+            'appAdministrationSnippetPersister' => $this->getAppAdministrationSnippetPersisterMock($appEntities[2]),
             'languageRepository' => $this->getLanguageRepositoryMock($this->getLanguageCollection(
                 [
                     [
@@ -149,7 +150,7 @@ class AppLifecycleTest extends TestCase
                     ],
                 ]
             )),
-            'appLoader' => $this->getAppLoaderMock([]),
+            'appLoader' => $this->getAppLoaderMock(),
         ];
     }
 
@@ -163,6 +164,7 @@ class AppLifecycleTest extends TestCase
             [
                 [
                     'id' => $appId,
+                    'path' => '',
                 ],
             ],
             [
@@ -184,7 +186,7 @@ class AppLifecycleTest extends TestCase
         yield 'Snippets are given' => [
             'manifest' => Manifest::createFromXmlFile(__DIR__ . '/../_fixtures/manifest.xml'),
             'appRepository' => $this->getAppRepositoryMock($appEntities),
-            'aclRoleRepository' => $this->getAclRoleRepositoryMock($this->getAclRoleCollection()),
+            'aclRoleRepository' => $this->getAclRoleRepositoryMock(new AclRoleCollection()),
             'appAdministrationSnippetPersister' => $this->getAppAdministrationSnippetPersisterMock($appEntities[2], $this->getSnippets()),
             'languageRepository' => $this->getLanguageRepositoryMock($this->getLanguageCollection(
                 [
@@ -200,8 +202,8 @@ class AppLifecycleTest extends TestCase
         yield 'No snippets are given' => [
             'manifest' => Manifest::createFromXmlFile(__DIR__ . '/../_fixtures/manifest.xml'),
             'appRepository' => $this->getAppRepositoryMock($appEntities),
-            'aclRoleRepository' => $this->getAclRoleRepositoryMock($this->getAclRoleCollection()),
-            'appAdministrationSnippetPersister' => $this->getAppAdministrationSnippetPersisterMock($appEntities[2], []),
+            'aclRoleRepository' => $this->getAclRoleRepositoryMock(new AclRoleCollection()),
+            'appAdministrationSnippetPersister' => $this->getAppAdministrationSnippetPersisterMock($appEntities[2]),
             'languageRepository' => $this->getLanguageRepositoryMock($this->getLanguageCollection(
                 [
                     [
@@ -210,7 +212,7 @@ class AppLifecycleTest extends TestCase
                     ],
                 ]
             )),
-            'appLoader' => $this->getAppLoaderMock([]),
+            'appLoader' => $this->getAppLoaderMock(),
         ];
     }
 
@@ -230,6 +232,7 @@ class AppLifecycleTest extends TestCase
             $this->createMock(ScriptPersister::class),
             $this->createMock(WebhookPersister::class),
             $this->createMock(PaymentMethodPersister::class),
+            $this->createMock(TaxProviderPersister::class),
             $this->createMock(RuleConditionPersister::class),
             $this->createMock(CmsBlockPersister::class),
             $appLoader,
@@ -244,11 +247,11 @@ class AppLifecycleTest extends TestCase
             $this->createMock(AssetService::class),
             $this->createMock(ScriptExecutor::class),
             __DIR__,
-            $this->createMock(CustomEntityPersister::class),
-            $this->createMock(CustomEntitySchemaUpdater::class),
             $this->createMock(Connection::class),
             $this->createMock(FlowActionPersister::class),
             $appAdministrationSnippetPersisterMock,
+            $this->createMock(CustomEntitySchemaUpdater::class),
+            $this->createMock(CustomEntityLifecycleService::class),
         );
     }
 
@@ -368,23 +371,6 @@ class AppLifecycleTest extends TestCase
             ->willReturn($entitySearchResult);
 
         return $aclRoleRepository;
-    }
-
-    /**
-     * @param array<int, array<string, mixed>> $aclRoleEntities
-     */
-    private function getAclRoleCollection(array $aclRoleEntities = []): AclRoleCollection
-    {
-        $entities = [];
-
-        foreach ($aclRoleEntities as $entity) {
-            $aclRoleEntity = new AclRoleEntity();
-            $aclRoleEntity->assign($entity);
-
-            $entities[] = $aclRoleEntity;
-        }
-
-        return new AclRoleCollection($entities);
     }
 
     /**

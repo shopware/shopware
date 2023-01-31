@@ -158,7 +158,8 @@
         </service>
 
         <service id="Shopware\Core\Checkout\Payment\SalesChannel\SortedPaymentMethodRoute" decorates="Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute" decoration-priority="-2000" public="true">
-            <argument type="service" id="Shopware\Core\Checkout\Payment\SalesChannel\SortedPaymentMethodRoute.inner"/>
+            <argument type="service" id=".inner"/>
+            <argument type="service" id="Shopware\Core\Framework\Script\Execution\ScriptExecutor"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Payment\SalesChannel\HandlePaymentMethodRoute" public="true">

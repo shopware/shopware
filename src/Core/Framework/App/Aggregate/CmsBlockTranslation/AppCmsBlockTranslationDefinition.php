@@ -7,15 +7,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package content
- *
  * @internal
  */
+#[Package('content')]
 class AppCmsBlockTranslationDefinition extends EntityTranslationDefinition
 {
-    public const ENTITY_NAME = 'app_cms_block_translation';
+    final public const ENTITY_NAME = 'app_cms_block_translation';
 
     public function getEntityName(): string
     {

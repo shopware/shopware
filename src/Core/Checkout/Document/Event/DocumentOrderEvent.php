@@ -5,30 +5,17 @@ namespace Shopware\Core\Checkout\Document\Event;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @package customer-order
- */
+#[Package('customer-order')]
 abstract class DocumentOrderEvent extends Event
 {
-    private OrderCollection $orders;
-
-    /**
-     * @var DocumentGenerateOperation[]
-     */
-    private array $operations;
-
-    private Context $context;
-
     /**
      * @param DocumentGenerateOperation[] $operations
      */
-    public function __construct(OrderCollection $orders, Context $context, array $operations = [])
+    public function __construct(private readonly OrderCollection $orders, private readonly Context $context, private readonly array $operations = [])
     {
-        $this->orders = $orders;
-        $this->context = $context;
-        $this->operations = $operations;
     }
 
     /**

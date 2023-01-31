@@ -53,7 +53,9 @@ async function createWrapper({ cmsBlockRegistry } = { cmsBlockRegistry: null }) 
         namespaced: true,
         state: {
             isSystemDefaultLanguage: true,
-            currentPageType: 'product_list'
+            currentPageType: 'product_list',
+            selectedBlock: {},
+            selectedSection: {}
         }
     });
 
@@ -127,6 +129,7 @@ async function createWrapper({ cmsBlockRegistry } = { cmsBlockRegistry: null }) 
             'sw-checkbox-field': true,
             'sw-collapse': await Shopware.Component.build('sw-collapse'),
             'sw-icon': true,
+            'sw-cms-visibility-config': true
         },
         provide: {
             repositoryFactory: {
@@ -180,6 +183,19 @@ async function createWrapper({ cmsBlockRegistry } = { cmsBlockRegistry: null }) 
                     };
                 },
                 isBlockAllowedInPageType: (name, pageType) => name.startsWith(pageType)
+            },
+            cmsPageTypeService: {
+                getTypes: () => {
+                    return [{
+                        name: 'page',
+                    }, {
+                        name: 'landingpage',
+                    }, {
+                        name: 'product_list',
+                    }, {
+                        name: 'product_detail',
+                    }];
+                }
             }
         }
     });
@@ -358,7 +374,7 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
 
         await flushPromises();
 
-        const layoutTypeSelect = wrapper.get('sw-select-field-stub[label="sw-cms.detail.label.pageType"]');
+        const layoutTypeSelect = wrapper.get('sw-select-field-stub[label="sw-cms.detail.label.pageTypeSelection"]');
 
         expect(layoutTypeSelect.attributes()['tooltip-message'])
             .toBe('sw-cms.detail.tooltip.cannotSelectProductPageLayout');
@@ -376,8 +392,7 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
             }
         });
 
-
-        const layoutTypeSelect = wrapper.find('sw-select-field-stub[label="sw-cms.detail.label.pageType"]');
+        const layoutTypeSelect = wrapper.find('sw-select-field-stub[label="sw-cms.detail.label.pageTypeSelection"]');
         const productPageOption = wrapper.find('option[value="product_detail"]');
 
         expect(layoutTypeSelect.attributes().disabled).toBeFalsy();

@@ -24,15 +24,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\Tag\TagDefinition;
 
-/**
- * @package content
- */
+#[Package('content')]
 class LandingPageDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'landing_page';
+    final public const ENTITY_NAME = 'landing_page';
 
     public function getEntityName(): string
     {

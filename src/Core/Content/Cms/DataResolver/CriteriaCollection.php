@@ -4,23 +4,23 @@ namespace Shopware\Core\Content\Cms\DataResolver;
 
 use Shopware\Core\Content\Cms\Exception\DuplicateCriteriaKeyException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package content
- *
  * @implements \IteratorAggregate<string, array<string, Criteria>>
  */
+#[Package('content')]
 class CriteriaCollection implements \IteratorAggregate
 {
     /**
      * @var array<string, array<string, Criteria>>
      */
-    private $elements = [];
+    private array $elements = [];
 
     /**
      * @var bool[]
      */
-    private $keys = [];
+    private array $keys = [];
 
     public function add(string $key, string $definition, Criteria $criteria): void
     {

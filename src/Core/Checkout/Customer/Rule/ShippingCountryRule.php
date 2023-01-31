@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Customer\Rule;
 
 use Shopware\Core\Checkout\CheckoutRuleScope;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
@@ -11,30 +12,19 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\Country\CountryDefinition;
 
-/**
- * @package business-ops
- */
+#[Package('business-ops')]
 class ShippingCountryRule extends Rule
 {
-    public const RULE_NAME = 'customerShippingCountry';
-
-    /**
-     * @var list<string>|null
-     */
-    protected ?array $countryIds;
-
-    protected string $operator;
+    final public const RULE_NAME = 'customerShippingCountry';
 
     /**
      * @internal
      *
      * @param list<string>|null $countryIds
      */
-    public function __construct(string $operator = self::OPERATOR_EQ, ?array $countryIds = null)
+    public function __construct(protected string $operator = self::OPERATOR_EQ, protected ?array $countryIds = null)
     {
         parent::__construct();
-        $this->operator = $operator;
-        $this->countryIds = $countryIds;
     }
 
     /**

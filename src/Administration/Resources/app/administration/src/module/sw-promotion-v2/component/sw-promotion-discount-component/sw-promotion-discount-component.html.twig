@@ -68,7 +68,6 @@
     <template v-if="!shippingScope && discount.considerAdvancedRules === true">
         <div v-if="!isSetGroup">
             <sw-promotion-v2-rule-select
-                v-if="feature.isActive('FEATURE_NEXT_18215')"
                 v-model="discount.discountRules"
                 class="sw-promotion-discount-component__select-discount-rules"
                 :local-mode="discount.isNew()"
@@ -78,18 +77,6 @@
                 :disabled="isEditingDisabled"
                 :restricted-rules="restrictedRules"
                 :restriction-snippet="promotionDiscountSnippet"
-            />
-
-            {# @deprecated tag:v6.5.0 - component `sw-promotion-rule-select` will be removed, use `sw-promotion-v2-rule-select` instead #}
-            <sw-promotion-rule-select
-                v-else
-                v-model="discount.discountRules"
-                class="sw-promotion-discount-component__select-discount-rules"
-                :local-mode="discount.isNew()"
-                :criteria="ruleFilter"
-                :label="$tc('sw-promotion.detail.main.discounts.labelRules')"
-                :placeholder="$tc('sw-promotion.detail.main.discounts.placeholder')"
-                :disabled="isEditingDisabled"
             />
         </div>
 

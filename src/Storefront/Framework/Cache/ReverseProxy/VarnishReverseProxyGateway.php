@@ -7,35 +7,23 @@ use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Exception\TransferException;
 use GuzzleHttp\Pool;
 use GuzzleHttp\Psr7\Request;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @package storefront
- *
  * @see https://github.com/varnish/varnish-modules/blob/master/src/vmod_xkey.vcc
  */
+#[Package('storefront')]
 class VarnishReverseProxyGateway extends AbstractReverseProxyGateway
 {
-    /**
-     * @var array<string>
-     */
-    private array $hosts;
-
-    private Client $client;
-
-    private int $concurrency;
-
     /**
      * @internal
      *
      * @param string[] $hosts
      */
-    public function __construct(array $hosts, int $concurrency, Client $client)
+    public function __construct(private readonly array $hosts, private readonly int $concurrency, private readonly Client $client)
     {
-        $this->hosts = $hosts;
-        $this->concurrency = $concurrency;
-        $this->client = $client;
     }
 
     public function getDecorated(): AbstractReverseProxyGateway

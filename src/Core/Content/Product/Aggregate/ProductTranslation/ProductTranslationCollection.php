@@ -3,12 +3,12 @@
 namespace Shopware\Core\Content\Product\Aggregate\ProductTranslation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<ProductTranslationEntity>
- *
- * @package inventory
  */
+#[Package('inventory')]
 class ProductTranslationCollection extends EntityCollection
 {
     /**
@@ -16,16 +16,12 @@ class ProductTranslationCollection extends EntityCollection
      */
     public function getProductIds(): array
     {
-        return $this->fmap(function (ProductTranslationEntity $productTranslation) {
-            return $productTranslation->getProductId();
-        });
+        return $this->fmap(fn (ProductTranslationEntity $productTranslation) => $productTranslation->getProductId());
     }
 
     public function filterByProductId(string $id): self
     {
-        return $this->filter(function (ProductTranslationEntity $productTranslation) use ($id) {
-            return $productTranslation->getProductId() === $id;
-        });
+        return $this->filter(fn (ProductTranslationEntity $productTranslation) => $productTranslation->getProductId() === $id);
     }
 
     /**
@@ -33,16 +29,12 @@ class ProductTranslationCollection extends EntityCollection
      */
     public function getLanguageIds(): array
     {
-        return $this->fmap(function (ProductTranslationEntity $productTranslation) {
-            return $productTranslation->getLanguageId();
-        });
+        return $this->fmap(fn (ProductTranslationEntity $productTranslation) => $productTranslation->getLanguageId());
     }
 
     public function filterByLanguageId(string $id): self
     {
-        return $this->filter(function (ProductTranslationEntity $productTranslation) use ($id) {
-            return $productTranslation->getLanguageId() === $id;
-        });
+        return $this->filter(fn (ProductTranslationEntity $productTranslation) => $productTranslation->getLanguageId() === $id);
     }
 
     public function getApiAlias(): string

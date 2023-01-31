@@ -3,14 +3,14 @@
 namespace Shopware\Core\Framework\Test\Rule;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\Framework\Rule\WeekdayRule;
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('business-ops')]
 class WeekdayRuleTest extends TestCase
 {
     public function testMatchForCurrentDay(): void

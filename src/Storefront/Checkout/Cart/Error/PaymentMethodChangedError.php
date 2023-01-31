@@ -3,24 +3,17 @@
 namespace Shopware\Storefront\Checkout\Cart\Error;
 
 use Shopware\Core\Checkout\Cart\Error\Error;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class PaymentMethodChangedError extends Error
 {
     private const KEY = 'payment-method-changed';
 
-    private string $oldPaymentMethodName;
-
-    private string $newPaymentMethodName;
-
     public function __construct(
-        string $oldPaymentMethodName,
-        string $newPaymentMethodName
+        private readonly string $oldPaymentMethodName,
+        private readonly string $newPaymentMethodName
     ) {
-        $this->oldPaymentMethodName = $oldPaymentMethodName;
-        $this->newPaymentMethodName = $newPaymentMethodName;
         $this->message = \sprintf(
             '%s payment is not available for your current cart, the payment was changed to %s',
             $oldPaymentMethodName,

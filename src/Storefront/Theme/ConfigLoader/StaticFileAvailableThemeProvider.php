@@ -5,24 +5,20 @@ namespace Shopware\Storefront\Theme\ConfigLoader;
 
 use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use const JSON_THROW_ON_ERROR;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class StaticFileAvailableThemeProvider extends AbstractAvailableThemeProvider
 {
-    public const THEME_INDEX = 'theme-config/index.json';
-
-    private FilesystemOperator $filesystem;
+    final public const THEME_INDEX = 'theme-config/index.json';
 
     /**
      * @internal
      */
-    public function __construct(FilesystemOperator $filesystem)
+    public function __construct(private readonly FilesystemOperator $filesystem)
     {
-        $this->filesystem = $filesystem;
     }
 
     public function getDecorated(): AbstractAvailableThemeProvider

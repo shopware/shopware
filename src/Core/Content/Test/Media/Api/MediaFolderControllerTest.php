@@ -23,10 +23,7 @@ class MediaFolderControllerTest extends TestCase
      */
     private $mediaFolderRepo;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     /**
      * @var EntityRepository
@@ -53,7 +50,7 @@ class MediaFolderControllerTest extends TestCase
             $url
         );
         $response = $this->getBrowser()->getResponse();
-        $responseData = json_decode((string) $response->getContent(), true);
+        $responseData = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals(404, $response->getStatusCode());
         static::assertEquals('CONTENT__MEDIA_FOLDER_NOT_FOUND', $responseData['errors'][0]['code']);

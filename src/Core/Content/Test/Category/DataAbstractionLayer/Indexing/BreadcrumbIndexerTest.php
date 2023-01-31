@@ -24,10 +24,7 @@ class BreadcrumbIndexerTest extends TestCase
      */
     private $repository;
 
-    /**
-     * @var string
-     */
-    private $deLanguageId;
+    private string $deLanguageId;
 
     protected function setUp(): void
     {

@@ -80,9 +80,7 @@ class RegisteredIndexerSubscriberTest extends TestCase
         $indexerRegistery
             ->expects(static::exactly(2))
             ->method('getIndexer')
-            ->willReturnCallback(static function (string $name) use ($productIndexer) {
-                return $name === 'product.indexer' ? $productIndexer : null;
-            });
+            ->willReturnCallback(static fn (string $name) => $name === 'product.indexer' ? $productIndexer : null);
 
         $indexerRegistery->expects(static::once())->method('sendIndexingMessage')->with(['product.indexer'], ['search', 'other-stuff']);
 

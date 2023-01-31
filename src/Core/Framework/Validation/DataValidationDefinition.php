@@ -2,36 +2,26 @@
 
 namespace Shopware\Core\Framework\Validation;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraint;
 
-/**
- * @package core
- */
+#[Package('core')]
 class DataValidationDefinition
 {
-    /**
-     * @var array
-     */
-    private $properties = [];
+    private array $properties = [];
 
     /**
      * @var DataValidationDefinition[]
      */
-    private $subDefinitions = [];
+    private array $subDefinitions = [];
 
     /**
      * @var DataValidationDefinition[]
      */
-    private $listDefinitions = [];
+    private array $listDefinitions = [];
 
-    /**
-     * @var string
-     */
-    private $name;
-
-    public function __construct(string $name = '')
+    public function __construct(private readonly string $name = '')
     {
-        $this->name = $name;
     }
 
     public function add(string $name, Constraint ...$constraints): self

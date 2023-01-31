@@ -9,40 +9,19 @@ use Shopware\Core\Checkout\Cart\Event\BeforeCartMergeEvent;
 use Shopware\Core\Checkout\Cart\Event\CartMergedEvent;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelContextRestoredEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package core
- */
+#[Package('core')]
 class CartRestorer
 {
-    private AbstractSalesChannelContextFactory $factory;
-
-    private SalesChannelContextPersister $contextPersister;
-
-    private CartService $cartService;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private CartRuleLoader $cartRuleLoader;
-
     /**
      * @internal
      */
-    public function __construct(
-        AbstractSalesChannelContextFactory $factory,
-        SalesChannelContextPersister $contextPersister,
-        CartService $cartService,
-        CartRuleLoader $cartRuleLoader,
-        EventDispatcherInterface $eventDispatcher
-    ) {
-        $this->factory = $factory;
-        $this->contextPersister = $contextPersister;
-        $this->cartService = $cartService;
-        $this->cartRuleLoader = $cartRuleLoader;
-        $this->eventDispatcher = $eventDispatcher;
+    public function __construct(private readonly AbstractSalesChannelContextFactory $factory, private readonly SalesChannelContextPersister $contextPersister, private readonly CartService $cartService, private readonly CartRuleLoader $cartRuleLoader, private readonly EventDispatcherInterface $eventDispatcher)
+    {
     }
 
     public function restore(string $customerId, SalesChannelContext $currentContext): SalesChannelContext
@@ -93,9 +72,7 @@ class CartRestorer
 
     private function mergeCart(Cart $customerCart, Cart $guestCart, SalesChannelContext $customerContext): Cart
     {
-        $mergeableLineItems = $guestCart->getLineItems()->filter(function (LineItem $item) use ($customerCart) {
-            return ($item->getQuantity() > 0 && $item->isStackable()) || !$customerCart->has($item->getId());
-        });
+        $mergeableLineItems = $guestCart->getLineItems()->filter(fn (LineItem $item) => ($item->getQuantity() > 0 && $item->isStackable()) || !$customerCart->has($item->getId()));
 
         $this->eventDispatcher->dispatch(new BeforeCartMergeEvent(
             $customerCart,

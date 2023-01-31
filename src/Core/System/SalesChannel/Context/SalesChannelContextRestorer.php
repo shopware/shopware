@@ -15,45 +15,20 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelContextRestorerOrderCriteriaEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package core
- */
+#[Package('core')]
 class SalesChannelContextRestorer
 {
-    private AbstractSalesChannelContextFactory $factory;
-
-    private CartRuleLoader $cartRuleLoader;
-
-    private OrderConverter $orderConverter;
-
-    private EntityRepository $orderRepository;
-
-    private Connection $connection;
-
-    private EventDispatcherInterface $eventDispatcher;
-
     /**
      * @internal
      */
-    public function __construct(
-        AbstractSalesChannelContextFactory $factory,
-        CartRuleLoader $cartRuleLoader,
-        OrderConverter $orderConverter,
-        EntityRepository $orderRepository,
-        Connection $connection,
-        EventDispatcherInterface $eventDispatcher
-    ) {
-        $this->factory = $factory;
-        $this->cartRuleLoader = $cartRuleLoader;
-        $this->orderConverter = $orderConverter;
-        $this->orderRepository = $orderRepository;
-        $this->connection = $connection;
-        $this->eventDispatcher = $eventDispatcher;
+    public function __construct(private readonly AbstractSalesChannelContextFactory $factory, private readonly CartRuleLoader $cartRuleLoader, private readonly OrderConverter $orderConverter, private readonly EntityRepository $orderRepository, private readonly Connection $connection, private readonly EventDispatcherInterface $eventDispatcher)
+    {
     }
 
     /**

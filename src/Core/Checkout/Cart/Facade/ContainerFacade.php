@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Cart\Facade\Traits\ItemsRemoveTrait;
 use Shopware\Core\Checkout\Cart\Facade\Traits\SurchargeTrait;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
@@ -22,9 +23,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * @script-service cart_manipulation
  *
  * @internal
- *
- * @package checkout
  */
+#[Package('checkout')]
 class ContainerFacade extends ItemFacade
 {
     use DiscountTrait;
@@ -35,11 +35,7 @@ class ContainerFacade extends ItemFacade
     use ItemsCountTrait;
     use ItemsIteratorTrait;
 
-    private LineItem $item;
-
-    private CartFacadeHelper $helper;
-
-    private SalesChannelContext $context;
+    private readonly LineItem $item;
 
     /**
      * @internal

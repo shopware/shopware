@@ -22,6 +22,7 @@ export default {
     data() {
         return {
             tax: null,
+            taxProviders: null,
             sortBy: 'position',
             isLoading: false,
             sortDirection: 'ASC',
@@ -29,6 +30,7 @@ export default {
             showDeleteModal: false,
             defaultTaxRateId: null,
             selectedDefaultTaxRateId: null,
+            showSortingModal: false,
         };
     },
 
@@ -41,6 +43,24 @@ export default {
     computed: {
         taxRepository() {
             return this.repositoryFactory.create('tax');
+        },
+        taxProviderRepository() {
+            return this.repositoryFactory.create('tax_provider');
+        },
+        taxProviderCriteria() {
+            const criteria = new Criteria(this.page, this.limit);
+
+            criteria.addSorting(
+                Criteria.sort('priority', 'ASC'),
+            );
+
+            return criteria;
+        },
+        showChangePriority() {
+            return this.taxProviders?.length > 1;
+        },
+        noTaxProvidersFound() {
+            return this.taxProviders?.length < 1;
         },
     },
 
@@ -71,6 +91,17 @@ export default {
             }).catch(() => {
                 this.isLoading = false;
             });
+
+            this.loadTaxProviders();
+        },
+
+        editLink(taxProviderId) {
+            return {
+                name: 'sw.settings.tax.tax_provider.detail',
+                params: {
+                    id: taxProviderId,
+                },
+            };
         },
 
         onChangeLanguage(languageId) {
@@ -153,6 +184,7 @@ export default {
                 property: 'default',
                 inlineEdit: 'boolean',
                 label: 'sw-settings-tax.list.columnDefault',
+                align: 'center',
             }];
         },
 
@@ -177,6 +209,33 @@ export default {
                 .getValues('core.tax')
                 .then(response => response['core.tax.defaultTaxRate'] ?? null)
                 .catch(() => null);
+        },
+
+        loadTaxProviders() {
+            this.isLoading = true;
+
+            this.taxProviderRepository.search(this.taxProviderCriteria).then((items) => {
+                this.taxProviders = items;
+            }).finally(() => {
+                this.isLoading = false;
+            });
+        },
+
+        onChangeTaxProviderActive(taxProvider) {
+            taxProvider.active = !taxProvider.active;
+
+            this.taxProviderRepository.save(taxProvider, Shopware.Context.api)
+                .then(() => {
+                    const state = taxProvider.active ? 'active' : 'inactive';
+
+                    this.createNotificationSuccess({
+                        message: this.$tc(
+                            `sw-settings-tax.list.taxProvider.statusChangedSuccess.${state}`,
+                            0,
+                            { name: taxProvider.translated.name },
+                        ),
+                    });
+                });
         },
     },
 };

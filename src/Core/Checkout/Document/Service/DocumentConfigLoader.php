@@ -10,14 +10,14 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Contracts\Service\ResetInterface;
 
 /**
- * @package customer-order
- *
  * @internal
  */
+#[Package('customer-order')]
 final class DocumentConfigLoader implements EventSubscriberInterface, ResetInterface
 {
     /**
@@ -25,14 +25,11 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
      */
     private array $configs = [];
 
-    private EntityRepository $documentConfigRepository;
-
     /**
      * @internal
      */
-    public function __construct(EntityRepository $documentConfigRepository)
+    public function __construct(private readonly EntityRepository $documentConfigRepository)
     {
-        $this->documentConfigRepository = $documentConfigRepository;
     }
 
     public static function getSubscribedEvents(): array
@@ -59,13 +56,11 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
 
         $globalConfig = $documentConfigs->filterByProperty('global', true)->first();
 
-        $salesChannelConfig = $documentConfigs->filter(function (DocumentBaseConfigEntity $config) {
-            return $config->getSalesChannels()->count() > 0;
-        })->first();
+        $salesChannelConfig = $documentConfigs->filter(fn (DocumentBaseConfigEntity $config) => $config->getSalesChannels()->count() > 0)->first();
 
         $config = DocumentConfigurationFactory::createConfiguration([], $globalConfig, $salesChannelConfig);
 
-        $this->configs[$documentType] = $this->configs[$documentType] ?? [];
+        $this->configs[$documentType] ??= [];
 
         return $this->configs[$documentType][$salesChannelId] = $config;
     }

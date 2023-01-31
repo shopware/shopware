@@ -12,32 +12,19 @@ use Shopware\Core\Checkout\Payment\Exception\RefundException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownRefundException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownRefundHandlerException;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class PaymentRefundProcessor
 {
     private const TABLE_ALIAS = 'refund';
 
-    private Connection $connection;
-
-    private OrderTransactionCaptureRefundStateHandler $stateHandler;
-
-    private PaymentHandlerRegistry $paymentHandlerRegistry;
-
     /**
      * @internal
      */
-    public function __construct(
-        Connection $connection,
-        OrderTransactionCaptureRefundStateHandler $stateHandler,
-        PaymentHandlerRegistry $paymentHandlerRegistry
-    ) {
-        $this->connection = $connection;
-        $this->stateHandler = $stateHandler;
-        $this->paymentHandlerRegistry = $paymentHandlerRegistry;
+    public function __construct(private readonly Connection $connection, private readonly OrderTransactionCaptureRefundStateHandler $stateHandler, private readonly PaymentHandlerRegistry $paymentHandlerRegistry)
+    {
     }
 
     public function processRefund(string $refundId, Context $context): void

@@ -6,33 +6,21 @@ use Shopware\Core\Framework\App\Event\AppActivatedEvent;
 use Shopware\Core\Framework\App\Event\AppChangedEvent;
 use Shopware\Core\Framework\App\Event\AppDeactivatedEvent;
 use Shopware\Core\Framework\App\Event\AppUpdatedEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\AbstractStorefrontPluginConfigurationFactory;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * @internal
- *
- * @package storefront
  */
+#[Package('storefront')]
 class ThemeAppLifecycleHandler implements EventSubscriberInterface
 {
-    private StorefrontPluginRegistryInterface $themeRegistry;
-
-    private AbstractStorefrontPluginConfigurationFactory $themeConfigFactory;
-
-    private ThemeLifecycleHandler $themeLifecycleHandler;
-
     /**
      * @internal
      */
-    public function __construct(
-        StorefrontPluginRegistryInterface $themeRegistry,
-        AbstractStorefrontPluginConfigurationFactory $themeConfigFactory,
-        ThemeLifecycleHandler $themeLifecycleHandler
-    ) {
-        $this->themeRegistry = $themeRegistry;
-        $this->themeConfigFactory = $themeConfigFactory;
-        $this->themeLifecycleHandler = $themeLifecycleHandler;
+    public function __construct(private readonly StorefrontPluginRegistryInterface $themeRegistry, private readonly AbstractStorefrontPluginConfigurationFactory $themeConfigFactory, private readonly ThemeLifecycleHandler $themeLifecycleHandler)
+    {
     }
 
     public static function getSubscribedEvents(): array

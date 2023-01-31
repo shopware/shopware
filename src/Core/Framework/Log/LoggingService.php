@@ -7,18 +7,17 @@ use Shopware\Core\Framework\Event\FlowLogEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class LoggingService implements EventSubscriberInterface
 {
     /**
      * @internal
      */
     public function __construct(
-        private string $environment,
-        private Logger $logger
+        private readonly string $environment,
+        private readonly Logger $logger
     ) {
     }
 

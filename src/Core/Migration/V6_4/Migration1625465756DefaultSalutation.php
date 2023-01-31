@@ -5,23 +5,23 @@ namespace Shopware\Core\Migration\V6_4;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\Traits\ImportTranslationsTrait;
 use Shopware\Core\Migration\Traits\Translations;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class Migration1625465756DefaultSalutation extends MigrationStep
 {
     use ImportTranslationsTrait;
 
-    public const SALUTATION_KEY = 'undefined';
-    public const SALUTATION_DISPLAY_NAME_EN = '';
-    public const SALUTATION_DISPLAY_NAME_DE = '';
+    final public const SALUTATION_KEY = 'undefined';
+    final public const SALUTATION_DISPLAY_NAME_EN = '';
+    final public const SALUTATION_DISPLAY_NAME_DE = '';
     private const DEFAULT_SALUTATION_ID = 'ed643807c9f84cc8b50132ea3ccb1c3b';
 
     public function getCreationTimestamp(): int
@@ -39,7 +39,7 @@ class Migration1625465756DefaultSalutation extends MigrationStep
 
         try {
             $connection->insert('salutation', $salutation);
-        } catch (UniqueConstraintViolationException $exception) {
+        } catch (UniqueConstraintViolationException) {
             // Already exists, skip translation insertion too
             return;
         }

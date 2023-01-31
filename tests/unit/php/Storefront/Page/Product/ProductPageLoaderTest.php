@@ -15,6 +15,7 @@ use Shopware\Core\Content\Cms\Aggregate\CmsSection\CmsSectionEntity;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotCollection;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\CmsPageEntity;
+use Shopware\Core\Content\Product\SalesChannel\CrossSelling\ProductCrossSellingRoute;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRouteResponse;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
@@ -29,6 +30,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\Tax\TaxCollection;
 use Shopware\Storefront\Page\GenericPageLoader;
 use Shopware\Storefront\Page\Product\ProductPageLoader;
+use Shopware\Storefront\Page\Product\Review\ProductReviewLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -43,7 +45,7 @@ class ProductPageLoaderTest extends TestCase
     {
         $productId = Uuid::randomHex();
         $request = new Request([], [], ['productId' => $productId]);
-        $salesChannelContext = $this->getSalesChannelContext('salesChannelId');
+        $salesChannelContext = $this->getSalesChannelContext();
         $reviews = $this->getCmsSlotConfig();
 
         $productPageLoader = $this->getProductPageLoaderWithProduct($productId, $reviews, $request, $salesChannelContext);
@@ -53,7 +55,7 @@ class ProductPageLoaderTest extends TestCase
         /** @phpstan-ignore-next-line $slot */
         $slot = $page->getCmsPage()->getSections()->first()->getBlocks()->first()->getSlots()->first()->getSlot();
 
-        static::assertEquals($reviews, json_decode($slot, true));
+        static::assertEquals($reviews, json_decode((string) $slot, true, 512, \JSON_THROW_ON_ERROR));
     }
 
     /**
@@ -82,7 +84,9 @@ class ProductPageLoaderTest extends TestCase
         return new ProductPageLoader(
             $this->createMock(GenericPageLoader::class),
             $this->createMock(EventDispatcherInterface::class),
-            $productDetailRouteMock
+            $productDetailRouteMock,
+            $this->createMock(ProductReviewLoader::class),
+            $this->createMock(ProductCrossSellingRoute::class)
         );
     }
 
@@ -100,10 +104,10 @@ class ProductPageLoaderTest extends TestCase
         return $product;
     }
 
-    private function getSalesChannelContext(string $salesChanelId): SalesChannelContext
+    private function getSalesChannelContext(): SalesChannelContext
     {
         $salesChannelEntity = new SalesChannelEntity();
-        $salesChannelEntity->setId($salesChanelId);
+        $salesChannelEntity->setId('salesChannelId');
 
         return new SalesChannelContext(
             Context::createDefaultContext(),

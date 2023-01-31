@@ -2,11 +2,10 @@
 
 namespace Shopware\Core\Framework\App\ScheduledTask;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 
-/**
- * @package core
- */
+#[Package('core')]
 class UpdateAppsTask extends ScheduledTask
 {
     public static function getTaskName(): string

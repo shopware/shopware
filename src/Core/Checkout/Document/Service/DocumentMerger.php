@@ -15,34 +15,17 @@ use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 
-/**
- * @package customer-order
- */
+#[Package('customer-order')]
 final class DocumentMerger
 {
-    private EntityRepository $documentRepository;
-
-    private Fpdi $fpdi;
-
-    private MediaService $mediaService;
-
-    private DocumentGenerator $documentGenerator;
-
     /**
      * @internal
      */
-    public function __construct(
-        EntityRepository $documentRepository,
-        MediaService $mediaService,
-        DocumentGenerator $documentGenerator,
-        Fpdi $fpdi
-    ) {
-        $this->documentRepository = $documentRepository;
-        $this->mediaService = $mediaService;
-        $this->fpdi = $fpdi;
-        $this->documentGenerator = $documentGenerator;
+    public function __construct(private readonly EntityRepository $documentRepository, private readonly MediaService $mediaService, private readonly DocumentGenerator $documentGenerator, private readonly Fpdi $fpdi)
+    {
     }
 
     /**
@@ -76,9 +59,7 @@ final class DocumentMerger
                 return null;
             }
 
-            $fileBlob = $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($documentMediaId): string {
-                return $this->mediaService->loadFile($documentMediaId, $context);
-            });
+            $fileBlob = $context->scope(Context::SYSTEM_SCOPE, fn (Context $context): string => $this->mediaService->loadFile($documentMediaId, $context));
 
             $renderedDocument = new RenderedDocument('', '', $fileName);
             $renderedDocument->setContent($fileBlob);
@@ -97,9 +78,7 @@ final class DocumentMerger
 
             $config = DocumentConfigurationFactory::createConfiguration($document->getConfig());
 
-            $media = $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($documentMediaId): string {
-                return $this->mediaService->loadFileStream($documentMediaId, $context)->getContents();
-            });
+            $media = $context->scope(Context::SYSTEM_SCOPE, fn (Context $context): string => $this->mediaService->loadFileStream($documentMediaId, $context)->getContents());
 
             $numPages = $this->fpdi->setSourceFile(StreamReader::createByString($media));
 

@@ -162,6 +162,9 @@ async function createWrapper({ privileges = [] }) {
                 },
                 lineItems: [],
                 taxStatus: '',
+                itemRounding: {
+                    decimals: 2
+                }
             },
             context: {
                 authToken: {

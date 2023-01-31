@@ -11,21 +11,18 @@ use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomEntity\Schema\DynamicEntityDefinition;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class CustomEntityRegistrar
 {
-    private ContainerInterface $container;
-
-    public function __construct(ContainerInterface $container)
+    public function __construct(private readonly ContainerInterface $container)
     {
-        $this->container = $container;
     }
 
     public function register(): void
@@ -36,12 +33,12 @@ class CustomEntityRegistrar
 
         try {
             $entities = $this->container->get(Connection::class)->fetchAllAssociative('
-                SELECT custom_entity.name, custom_entity.fields
+                SELECT custom_entity.name, custom_entity.fields, custom_entity.flags
                 FROM custom_entity
                     LEFT JOIN app ON app.id = custom_entity.app_id
                 WHERE custom_entity.app_id IS NULL OR app.active = 1
             ');
-        } catch (Exception $e) {
+        } catch (Exception) {
             // kernel booted without database connection, or booted for migration and custom entity table not created yet
             return;
         }
@@ -50,9 +47,10 @@ class CustomEntityRegistrar
         $registry = $this->container->get(DefinitionInstanceRegistry::class);
 
         foreach ($entities as $entity) {
-            $fields = json_decode($entity['fields'], true, 512, \JSON_THROW_ON_ERROR);
+            $fields = json_decode((string) $entity['fields'], true, 512, \JSON_THROW_ON_ERROR);
+            $flags = json_decode((string) $entity['flags'], true, 512, \JSON_THROW_ON_ERROR) ?? [];
 
-            $definition = DynamicEntityDefinition::create($entity['name'], $fields, $this->container);
+            $definition = DynamicEntityDefinition::create($entity['name'], $fields, $flags, $this->container);
 
             $definitions[] = $definition;
 

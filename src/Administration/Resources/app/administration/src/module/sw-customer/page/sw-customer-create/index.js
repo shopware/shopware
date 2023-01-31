@@ -5,6 +5,8 @@ import CUSTOMER from '../../constant/sw-customer.constant';
  * @package customer-order
  */
 
+const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
+const { ShopwareError } = Shopware.Classes;
 const { Mixin } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -30,12 +32,22 @@ export default {
             isSaveSuccessful: false,
             salesChannels: null,
             isLoading: false,
+            /**
+             * @deprecated tag:v6.6.0 - errorEmailCustomer Will be removed due to unused
+            * */
             errorEmailCustomer: null,
+            /**
+             * @deprecated tag:v6.6.0 - defaultMinPasswordLength will be removed due to unused
+             * */
             defaultMinPasswordLength: null,
         };
     },
 
     computed: {
+        ...mapPropertyErrors('address', [
+            'company',
+        ]),
+
         customerRepository() {
             return this.repositoryFactory.create('customer');
         },
@@ -45,6 +57,9 @@ export default {
                 this.address.company?.trim().length : true;
         },
 
+        /**
+         * @deprecated tag:v6.6.0 - validPasswordField will be removed due to unused
+         * */
         validPasswordField() {
             return this.customer.password?.trim().length >= this.defaultMinPasswordLength;
         },
@@ -58,6 +73,19 @@ export default {
                         this.customer.boundSalesChannelId = salesChannelId;
                     }
                 });
+        },
+
+        'customer.accountType'(value) {
+            if (value === CUSTOMER.ACCOUNT_TYPE_BUSINESS || !this.addressCompanyError) {
+                return;
+            }
+
+            Shopware.State.dispatch(
+                'error/removeApiError',
+                {
+                    expression: `customer_address.${this.address.id}.company`,
+                },
+            );
         },
     },
 
@@ -84,8 +112,6 @@ export default {
             this.customer.defaultShippingAddressId = this.address.id;
             this.customer.password = '';
             this.customer.vatIds = [];
-
-            this.getDefaultRegistrationConfig();
         },
 
         saveFinish() {
@@ -105,75 +131,59 @@ export default {
                 email,
                 boundSalesChannelId,
             }).then((emailIsValid) => {
-                if (this.errorEmailCustomer) {
-                    Shopware.State.dispatch(
-                        'error/addApiError',
-                        {
-                            expression: `customer.${this.customer.id}.email`,
-                            error: null,
-                        },
-                    );
-                }
-
                 return emailIsValid;
             }).catch((exception) => {
                 Shopware.State.dispatch(
                     'error/addApiError',
                     {
                         expression: `customer.${this.customer.id}.email`,
-                        error: exception.response.data.errors[0],
+                        error: new ShopwareError(exception.response.data.errors[0]),
                     },
                 );
             });
         },
 
-        onSave() {
+        async onSave() {
             this.isLoading = true;
 
-            if (!this.validPasswordField) {
-                this.createNotificationError({
-                    message: this.$tc('sw-customer.detail.notificationPasswordLengthErrorMessage'),
-                });
+            let hasError = false;
+            const res = await this.validateEmail();
+            if (!res || !res.isValid) {
+                hasError = true;
+            }
 
+            this.isSaveSuccessful = false;
+            let numberRangePromise = Promise.resolve();
+            if (this.customerNumberPreview === this.customer.customerNumber) {
+                numberRangePromise = this.numberRangeService
+                    .reserve('customer', this.customer.salesChannelId).then((response) => {
+                        this.customerNumberPreview = 'reserved';
+                        this.customer.customerNumber = response.number;
+                    });
+            }
+
+            if (!this.validCompanyField) {
+                this.createErrorMessageForCompanyField();
+                hasError = true;
+            }
+
+            if (hasError) {
+                this.createNotificationError({
+                    message: this.$tc('sw-customer.detail.messageSaveError'),
+                });
                 this.isLoading = false;
                 return false;
             }
 
-            return this.validateEmail().then((res) => {
-                if (!res || !res.isValid) {
+            return numberRangePromise.then(() => {
+                return this.customerRepository.save(this.customer).then(() => {
+                    this.isLoading = false;
+                    this.isSaveSuccessful = true;
+                }).catch(() => {
                     this.createNotificationError({
                         message: this.$tc('sw-customer.detail.messageSaveError'),
                     });
                     this.isLoading = false;
-
-                    return Promise.reject(new Error('The given email already exists.'));
-                }
-
-                this.isSaveSuccessful = false;
-                let numberRangePromise = Promise.resolve();
-                if (this.customerNumberPreview === this.customer.customerNumber) {
-                    numberRangePromise = this.numberRangeService
-                        .reserve('customer', this.customer.salesChannelId).then((response) => {
-                            this.customerNumberPreview = 'reserved';
-                            this.customer.customerNumber = response.number;
-                        });
-                }
-
-                if (!this.validCompanyField) {
-                    this.createErrorMessageForCompanyField();
-                    return false;
-                }
-
-                return numberRangePromise.then(() => {
-                    this.customerRepository.save(this.customer).then(() => {
-                        this.isLoading = false;
-                        this.isSaveSuccessful = true;
-                    }).catch(() => {
-                        this.createNotificationError({
-                            message: this.$tc('sw-customer.detail.messageSaveError'),
-                        });
-                        this.isLoading = false;
-                    });
                 });
             });
         },
@@ -202,6 +212,9 @@ export default {
             });
         },
 
+        /**
+         * @deprecated tag:v6.6.0 - getDefaultRegistrationConfig will be removed due to unused
+         * */
         getDefaultRegistrationConfig() {
             this.systemConfigApiService.getValues('core.register').then((response) => {
                 this.defaultMinPasswordLength = response['core.register.minPasswordLength'];

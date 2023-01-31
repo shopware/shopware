@@ -8,10 +8,9 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package content
- */
+#[Package('content')]
 class CmsSectionEntity extends Entity
 {
     use EntityIdTrait;
@@ -91,6 +90,11 @@ class CmsSectionEntity extends Entity
      * @var string|null
      */
     protected $cmsPageVersionId;
+
+    /**
+     * @var array<string, bool>|null
+     */
+    protected $visibility;
 
     public function getType(): string
     {
@@ -240,5 +244,21 @@ class CmsSectionEntity extends Entity
     public function setCmsPageVersionId(?string $cmsPageVersionId): void
     {
         $this->cmsPageVersionId = $cmsPageVersionId;
+    }
+
+    /**
+     * @return array<string, bool>|null
+     */
+    public function getVisibility(): ?array
+    {
+        return $this->visibility;
+    }
+
+    /**
+     * @param array<string, bool>|null $visibility
+     */
+    public function setVisibility(?array $visibility): void
+    {
+        $this->visibility = $visibility;
     }
 }

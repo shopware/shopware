@@ -2,47 +2,54 @@
 
 namespace Shopware\Elasticsearch\Profiler;
 
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\DataCollector\DataCollector as BaseDataCollector;
 
 /**
- * @package core
  * @phpstan-import-type RequestInfo from ClientProfiler
  */
+#[Package('core')]
 class DataCollector extends BaseDataCollector
 {
-    private bool $enabled;
-
-    private ClientProfiler $client;
-
     /**
      * @internal
      */
-    public function __construct(bool $enabled, ClientProfiler $client)
+    public function __construct(private readonly bool $enabled, private readonly bool $adminEnabled, private readonly ClientProfiler $client, private readonly ClientProfiler $adminClient)
     {
-        $this->client = $client;
-        $this->enabled = $enabled;
     }
 
     public function collect(Request $request, Response $response, ?\Throwable $exception = null): void
     {
+        $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
+        $enabled = $this->enabled;
+        $client = $this->client;
+
+        if ($context instanceof Context && $context->getSource() instanceof AdminApiSource) {
+            $enabled = $this->adminEnabled;
+            $client = $this->adminClient;
+        }
+
         $this->data = [
-            'enabled' => $this->enabled,
-            'requests' => $this->client->getCalledRequests(),
+            'enabled' => $enabled,
+            'requests' => $client->getCalledRequests(),
             'time' => 0,
         ];
 
-        foreach ($this->client->getCalledRequests() as $calledRequest) {
-            $this->data['time'] += $calledRequest['time'];
-        }
-
-        if (!$this->enabled) {
+        if (!$enabled) {
             return;
         }
 
-        $this->data['clusterInfo'] = $this->client->cluster()->health();
-        $this->data['indices'] = $this->client->cat()->indices();
+        foreach ($client->getCalledRequests() as $calledRequest) {
+            $this->data['time'] += $calledRequest['time'];
+        }
+
+        $this->data['clusterInfo'] = $client->cluster()->health();
+        $this->data['indices'] = $client->cat()->indices();
     }
 
     public function getName(): string
@@ -54,6 +61,7 @@ class DataCollector extends BaseDataCollector
     {
         $this->data = [];
         $this->client->resetRequests();
+        $this->adminClient->resetRequests();
     }
 
     public function getTime(): float
@@ -69,7 +77,7 @@ class DataCollector extends BaseDataCollector
 
     public function getRequestAmount(): int
     {
-        return \count($this->data['requests']);
+        return is_countable($this->data['requests']) ? \count($this->data['requests']) : 0;
     }
 
     /**
@@ -94,5 +102,10 @@ class DataCollector extends BaseDataCollector
     public function getIndices(): array
     {
         return $this->data['indices'];
+    }
+
+    public function isEnabled(): bool
+    {
+        return (bool) $this->data['enabled'];
     }
 }

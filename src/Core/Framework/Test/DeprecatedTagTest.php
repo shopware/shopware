@@ -5,15 +5,15 @@ namespace Shopware\Core\Framework\Test;
 use Composer\InstalledVersions;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Kernel;
 use Symfony\Component\Finder\Finder;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class DeprecatedTagTest extends TestCase
 {
     /**
@@ -52,8 +52,6 @@ class DeprecatedTagTest extends TestCase
 
     public function testSourceFilesForWrongDeprecatedAnnotations(): void
     {
-        static::markTestSkipped('NEXT-24288 - Re-enable before 6.5.0.0 RC1');
-
         $finder = new Finder();
         $finder->in($this->rootDir)
             ->files()

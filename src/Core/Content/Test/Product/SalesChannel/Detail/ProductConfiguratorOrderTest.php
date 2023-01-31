@@ -38,11 +38,6 @@ class ProductConfiguratorOrderTest extends TestCase
     private $salesChannelProductRepository;
 
     /**
-     * @var string
-     */
-    private $productId;
-
-    /**
      * @var SalesChannelContext
      */
     private $context;
@@ -90,7 +85,10 @@ class ProductConfiguratorOrderTest extends TestCase
         static::assertEquals(['f', 'e', 'd', 'c', 'b', 'a'], $groupNames);
     }
 
-    private static function ashuffle(array &$a)
+    /**
+     * @param array<string, string> $a
+     */
+    private static function ashuffle(array &$a): bool
     {
         $keys = array_keys($a);
         shuffle($keys);
@@ -103,6 +101,12 @@ class ProductConfiguratorOrderTest extends TestCase
         return true;
     }
 
+    /**
+     * @param array<string>|null $groupPositionOrder
+     * @param array<string>|null $configuratorGroupConfigOrder
+     *
+     * @return array<int, string|null>
+     */
     private function getOrder(?array $groupPositionOrder = null, ?array $configuratorGroupConfigOrder = null): array
     {
         // create product with property groups and 1 variant and get its configurator settings
@@ -171,7 +175,9 @@ class ProductConfiguratorOrderTest extends TestCase
                 'active' => true,
                 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => true]],
                 'configuratorSettings' => $configuratorSettings,
-                'configuratorGroupConfig' => $configuratorGroupConfig,
+                'variantListingConfig' => [
+                    'configuratorGroupConfig' => $configuratorGroupConfig,
+                ],
                 'visibilities' => [
                     [
                         'salesChannelId' => TestDefaults::SALES_CHANNEL,
@@ -185,10 +191,7 @@ class ProductConfiguratorOrderTest extends TestCase
                 'stock' => 10,
                 'active' => true,
                 'parentId' => $productId,
-                'options' => array_map(function (array $group) {
-                    // Assign first option from each group
-                    return ['id' => $group[0]];
-                }, $optionIds),
+                'options' => array_map(fn (array $group) => ['id' => $group[0]], $optionIds),
             ],
         ];
 
@@ -200,10 +203,8 @@ class ProductConfiguratorOrderTest extends TestCase
 
         // get ordered PropertyGroupCollection
         $groups = $this->loader->load($salesChannelProduct, $this->context);
+        $propertyGroupNames = array_map(fn (PropertyGroupEntity $propertyGroupEntity) => $propertyGroupEntity->getName(), $groups->getElements());
 
-        // return array of group names
-        return array_values(array_map(function (PropertyGroupEntity $propertyGroupEntity) {
-            return $propertyGroupEntity->getName();
-        }, $groups->getElements()));
+        return array_values($propertyGroupNames);
     }
 }

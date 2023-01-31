@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Framework\Cache;
 
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 use Shopware\Storefront\Framework\Cache\Event\HttpCacheHitEvent;
 use Shopware\Storefront\Framework\Cache\Event\HttpCacheItemWrittenEvent;
@@ -15,34 +16,17 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\HttpCache\StoreInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class CacheStore implements StoreInterface
 {
-    public const TAG_HEADER = 'sw-cache-tags';
-
-    private TagAwareAdapterInterface $cache;
+    final public const TAG_HEADER = 'sw-cache-tags';
 
     /**
      * @var array<string, bool>
      */
     private array $locks = [];
 
-    private CacheStateValidator $stateValidator;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    /**
-     * @var AbstractCacheTracer<StoreApiResponse>
-     */
-    private AbstractCacheTracer $tracer;
-
-    private AbstractHttpCacheKeyGenerator $cacheKeyGenerator;
-
-    private MaintenanceModeResolver $maintenanceResolver;
-
-    private string $sessionName;
+    private readonly string $sessionName;
 
     /**
      * @internal
@@ -51,20 +35,14 @@ class CacheStore implements StoreInterface
      * @param array<string, mixed> $sessionOptions
      */
     public function __construct(
-        TagAwareAdapterInterface $cache,
-        CacheStateValidator $stateValidator,
-        EventDispatcherInterface $eventDispatcher,
-        AbstractCacheTracer $tracer,
-        AbstractHttpCacheKeyGenerator $cacheKeyGenerator,
-        MaintenanceModeResolver $maintenanceModeResolver,
+        private readonly TagAwareAdapterInterface $cache,
+        private readonly CacheStateValidator $stateValidator,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly AbstractCacheTracer $tracer,
+        private readonly AbstractHttpCacheKeyGenerator $cacheKeyGenerator,
+        private readonly MaintenanceModeResolver $maintenanceResolver,
         array $sessionOptions
     ) {
-        $this->cache = $cache;
-        $this->stateValidator = $stateValidator;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->tracer = $tracer;
-        $this->cacheKeyGenerator = $cacheKeyGenerator;
-        $this->maintenanceResolver = $maintenanceModeResolver;
         $this->sessionName = $sessionOptions['name'] ?? 'session-';
     }
 
@@ -107,7 +85,7 @@ class CacheStore implements StoreInterface
         }
 
         if ($response instanceof StorefrontResponse) {
-            $response->setData(null);
+            $response->setData([]);
             $response->setContext(null);
         }
 
@@ -115,12 +93,12 @@ class CacheStore implements StoreInterface
 
         $tags = array_filter($tags, static function (string $tag): bool {
             // remove tag for global theme cache, http cache will be invalidate for each key which gets accessed in the request
-            if (strpos($tag, 'theme-config') !== false) {
+            if (str_contains($tag, 'theme-config')) {
                 return false;
             }
 
             // remove tag for global config cache, http cache will be invalidate for each key which gets accessed in the request
-            if (strpos($tag, 'system-config') !== false) {
+            if (str_contains($tag, 'system-config')) {
                 return false;
             }
 

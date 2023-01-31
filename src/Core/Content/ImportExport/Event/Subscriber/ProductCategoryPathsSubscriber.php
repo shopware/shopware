@@ -12,15 +12,15 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Contracts\Service\ResetInterface;
 
 /**
  * @internal
- *
- * @package system-settings
  */
+#[Package('system-settings')]
 class ProductCategoryPathsSubscriber implements EventSubscriberInterface, ResetInterface
 {
     /**
@@ -31,14 +31,14 @@ class ProductCategoryPathsSubscriber implements EventSubscriberInterface, ResetI
     /**
      * @internal
      */
-    public function __construct(private EntityRepository $categoryRepository, private SyncServiceInterface $syncService)
+    public function __construct(private readonly EntityRepository $categoryRepository, private readonly SyncServiceInterface $syncService)
     {
     }
 
     /**
      * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             ImportExportBeforeImportRecordEvent::class => 'categoryPathsToAssignment',
@@ -55,7 +55,7 @@ class ProductCategoryPathsSubscriber implements EventSubscriberInterface, ResetI
         }
 
         $result = [];
-        $categoriesPaths = explode('|', $row['category_paths']);
+        $categoriesPaths = explode('|', (string) $row['category_paths']);
         $newCategoriesPayload = [];
 
         foreach ($categoriesPaths as $path) {

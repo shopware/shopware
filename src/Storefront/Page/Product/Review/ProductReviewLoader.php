@@ -14,15 +14,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Page\StorefrontSearchResult;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class ProductReviewLoader
 {
     private const LIMIT = 10;
@@ -30,24 +29,10 @@ class ProductReviewLoader
     private const FILTER_LANGUAGE = 'filter-language';
 
     /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
-     * @var AbstractProductReviewRoute
-     */
-    private $route;
-
-    /**
      * @internal
      */
-    public function __construct(
-        AbstractProductReviewRoute $route,
-        EventDispatcherInterface $eventDispatcher
-    ) {
-        $this->eventDispatcher = $eventDispatcher;
-        $this->route = $route;
+    public function __construct(private readonly AbstractProductReviewRoute $route, private readonly EventDispatcherInterface $eventDispatcher)
+    {
     }
 
     /**
@@ -149,6 +134,7 @@ class ProductReviewLoader
 
     private function handlePointsAggregation(Request $request, Criteria $criteria, SalesChannelContext $context): void
     {
+        $reviewFilters = [];
         $points = $request->get('points', []);
 
         if (\is_array($points) && \count($points) > 0) {

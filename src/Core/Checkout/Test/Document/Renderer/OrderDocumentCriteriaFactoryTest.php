@@ -5,13 +5,13 @@ namespace Shopware\Core\Checkout\Test\Document\Renderer;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\Renderer\OrderDocumentCriteriaFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package customer-order
- *
  * @internal
  */
+#[Package('customer-order')]
 class OrderDocumentCriteriaFactoryTest extends TestCase
 {
     public function testCreate(): void

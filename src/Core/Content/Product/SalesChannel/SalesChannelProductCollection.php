@@ -3,10 +3,9 @@
 namespace Shopware\Core\Content\Product\SalesChannel;
 
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package inventory
- */
+#[Package('inventory')]
 class SalesChannelProductCollection extends ProductCollection
 {
     public function getExpectedClass(): string

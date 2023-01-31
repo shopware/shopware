@@ -85,7 +85,7 @@ class Migration1610965670RemoveDeprecatedColumnsTest extends TestCase
     /**
      * @return array<string, mixed>|false
      */
-    private function getColumnInfo(string $table, string $column)
+    private function getColumnInfo(string $table, string $column): array|false
     {
         $database = $this->connection->fetchOne('SELECT DATABASE();');
 
@@ -106,7 +106,7 @@ class Migration1610965670RemoveDeprecatedColumnsTest extends TestCase
     /**
      * @return array<string, mixed>|false
      */
-    private function getTriggerInfo(string $triggerName)
+    private function getTriggerInfo(string $triggerName): array|false
     {
         $database = $this->connection->fetchOne('SELECT DATABASE();');
 

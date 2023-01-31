@@ -3,13 +3,13 @@
 namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class Migration1591052278AddPropertyAndOptionIdsToProductProfile extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -26,7 +26,7 @@ class Migration1591052278AddPropertyAndOptionIdsToProductProfile extends Migrati
 
         if ($id) {
             $mapping = $this->getProductMapping();
-            $connection->update('import_export_profile', ['mapping' => json_encode($mapping)], ['id' => $id]);
+            $connection->update('import_export_profile', ['mapping' => json_encode($mapping, \JSON_THROW_ON_ERROR)], ['id' => $id]);
         }
     }
 

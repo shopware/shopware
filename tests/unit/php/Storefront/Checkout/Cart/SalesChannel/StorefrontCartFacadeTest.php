@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Storefront\Checkout\Cart\SalesChannel;
 
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartCalculator;
 use Shopware\Core\Checkout\Cart\CartPersister;
@@ -65,7 +66,7 @@ class StorefrontCartFacadeTest extends TestCase
 
         $cartFacade = $this->getStorefrontCartFacade(
             $cart,
-            [$this, 'callbackShippingMethodSwitcherReturnFallbackMethod']
+            $this->callbackShippingMethodSwitcherReturnFallbackMethod(...)
         );
         $returnedCart = $cartFacade->get('', $salesChannelContext);
 
@@ -98,8 +99,8 @@ class StorefrontCartFacadeTest extends TestCase
 
         $cartFacade = $this->getStorefrontCartFacade(
             $cart,
-            [$this, 'callbackShippingMethodSwitcherReturnOriginalMethod'],
-            [$this, 'callbackPaymentMethodSwitcherReturnFallbackMethod']
+            $this->callbackShippingMethodSwitcherReturnOriginalMethod(...),
+            $this->callbackPaymentMethodSwitcherReturnFallbackMethod(...)
         );
         $returnedCart = $cartFacade->get('', $salesChannelContext);
 
@@ -133,8 +134,8 @@ class StorefrontCartFacadeTest extends TestCase
 
         $cartFacade = $this->getStorefrontCartFacade(
             $cart,
-            [$this, 'callbackShippingMethodSwitcherReturnFallbackMethod'],
-            [$this, 'callbackPaymentMethodSwitcherReturnFallbackMethod']
+            $this->callbackShippingMethodSwitcherReturnFallbackMethod(...),
+            $this->callbackPaymentMethodSwitcherReturnFallbackMethod(...)
         );
         $returnedCart = $cartFacade->get('', $salesChannelContext);
 
@@ -234,8 +235,8 @@ class StorefrontCartFacadeTest extends TestCase
 
         $cartFacade = $this->getStorefrontCartFacade(
             $cart,
-            [$this, 'callbackShippingMethodSwitcherUnswitchableCart'],
-            [$this, 'callbackPaymentMethodSwitcherUnswitchableCart']
+            $this->callbackShippingMethodSwitcherUnswitchableCart(...),
+            $this->callbackPaymentMethodSwitcherUnswitchableCart(...)
         );
         $returnedCart = $cartFacade->get('', $salesChannelContext);
 
@@ -254,6 +255,36 @@ class StorefrontCartFacadeTest extends TestCase
         $controlCart = $this->getCart();
         $controlCart->setErrors($this->getCartErrorCollection(true, true));
         static::assertEquals($controlCart, $returnedCart);
+    }
+
+    public function testCartServiceIsCalledTaxedAndWithNoCaching(): void
+    {
+        $cartService = static::createMock(CartService::class);
+        $cartService
+            ->expects(static::once())
+            ->method('getCart')
+            ->with(
+                'token',
+                static::isInstanceOf(SalesChannelContext::class),
+                false,
+                true
+            );
+
+        $cartFacade = new StorefrontCartFacade(
+            $cartService,
+            static::createMock(BlockedShippingMethodSwitcher::class),
+            static::createMock(BlockedPaymentMethodSwitcher::class),
+            static::createMock(ContextSwitchRoute::class),
+            static::createMock(CartCalculator::class),
+            static::createMock(AbstractCartPersister::class),
+        );
+
+        $cartFacade->get(
+            'token',
+            static::createMock(SalesChannelContext::class),
+            false,
+            true
+        );
     }
 
     public function callbackShippingMethodSwitcherReturnOriginalMethod(ErrorCollection $errors, SalesChannelContext $salesChannelContext): ShippingMethodEntity
@@ -354,21 +385,23 @@ class StorefrontCartFacadeTest extends TestCase
 
     private function getCart(): Cart
     {
-        $cart = new Cart('cart-name', 'cart-token');
+        $cart = new Cart('cart-token');
         $cart->add(
             (new LineItem('line-item-id-1', 'line-item-type-1'))
                 ->setPrice(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()))
                 ->setLabel('line-item-label-1')
+                ->assign(['uniqueIdentifier' => 'line-item-id-1'])
         )->add(
             (new LineItem('line-item-id-2', 'line-item-type-2'))
                 ->setPrice(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()))
                 ->setLabel('line-item-label-2')
+                ->assign(['uniqueIdentifier' => 'line-item-id-2'])
         );
 
         return $cart;
     }
 
-    private function getCartErrorCollection(bool $blockShippingMethod = false, bool $blockPaymentMethod = false, bool $changedShippingMethod = false, bool $changedPaymentMethod = false): ErrorCollection
+    private function getCartErrorCollection(bool $blockShippingMethod = false, bool $blockPaymentMethod = false): ErrorCollection
     {
         $cartErrors = new ErrorCollection();
         if ($blockShippingMethod) {
@@ -388,24 +421,6 @@ class StorefrontCartFacadeTest extends TestCase
             );
         }
 
-        if ($changedShippingMethod) {
-            $cartErrors->add(
-                new ShippingMethodChangedError(
-                    'original-shipping-method-name',
-                    'changed-shipping-method-name'
-                )
-            );
-        }
-
-        if ($changedPaymentMethod) {
-            $cartErrors->add(
-                new PaymentMethodChangedError(
-                    'original-payment-method-name',
-                    'changed-payment-method-name'
-                )
-            );
-        }
-
         return $cartErrors;
     }
 
@@ -415,10 +430,10 @@ class StorefrontCartFacadeTest extends TestCase
         $cartService->method('getCart')->willReturn($cart);
 
         $blockedShippingMethodSwitcher = $this->createMock(BlockedShippingMethodSwitcher::class);
-        $blockedShippingMethodSwitcher->method('switch')->willReturnCallback($shippingSwitcherCallbackMethod ?? [$this, 'callbackShippingMethodSwitcherReturnOriginalMethod']);
+        $blockedShippingMethodSwitcher->method('switch')->willReturnCallback($shippingSwitcherCallbackMethod ?? $this->callbackShippingMethodSwitcherReturnOriginalMethod(...));
 
         $blockedPaymentMethodSwitcher = $this->createMock(BlockedPaymentMethodSwitcher::class);
-        $blockedPaymentMethodSwitcher->method('switch')->willReturnCallback($paymentSwitcherCallbackMethod ?? [$this, 'callbackPaymentMethodSwitcherReturnOriginalMethod']);
+        $blockedPaymentMethodSwitcher->method('switch')->willReturnCallback($paymentSwitcherCallbackMethod ?? $this->callbackPaymentMethodSwitcherReturnOriginalMethod(...));
 
         $contextSwitchRoute = $this->createMock(ContextSwitchRoute::class);
 
@@ -438,7 +453,7 @@ class StorefrontCartFacadeTest extends TestCase
     }
 
     /**
-     * @return MockObject|SalesChannelContext
+     * @return MockObject&SalesChannelContext
      */
     private function getSalesChannelContext(): MockObject
     {

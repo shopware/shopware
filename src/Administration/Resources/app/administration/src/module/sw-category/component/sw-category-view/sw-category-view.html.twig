@@ -48,7 +48,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_category_view_tabs_products %}
         <sw-tabs-item
-            v-show="isPage"
+            v-show="isPage && !isCustomEntity"
             class="sw-category-detail__tab-products"
             :route="{ name: 'sw.category.detail.products' }"
             :title="$tc('sw-category.view.products')"
@@ -56,6 +56,15 @@
             {{ $tc('sw-category.view.products') }}
         </sw-tabs-item>
         {% endblock %}
+
+        <sw-tabs-item
+            v-show="isCustomEntity"
+            class="sw-category-detail__tab-custom-entity"
+            :route="{ name: 'sw.category.detail.customEntity' }"
+            :title="$tc('sw-category.view.customEntity')"
+        >
+            {{ $tc('sw-category.view.customEntity') }}
+        </sw-tabs-item>
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_category_view_tabs_cms %}

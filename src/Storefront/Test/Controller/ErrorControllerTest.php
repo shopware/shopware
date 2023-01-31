@@ -32,10 +32,7 @@ class ErrorControllerTest extends TestCase
 
     private ErrorController $controller;
 
-    /**
-     * @var string
-     */
-    private $domain = 'http://kyln.shopware';
+    private string $domain = 'http://kyln.shopware';
 
     public function setUp(): void
     {

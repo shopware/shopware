@@ -404,17 +404,12 @@ class QueryStringParserTest extends TestCase
 
     private function negateOperator(string $operator): string
     {
-        switch ($operator) {
-            case RangeFilter::LT:
-                return RangeFilter::GT;
-            case RangeFilter::GT:
-                return RangeFilter::LT;
-            case RangeFilter::LTE:
-                return RangeFilter::GTE;
-            case RangeFilter::GTE:
-                return RangeFilter::LTE;
-            default:
-                return $operator;
-        }
+        return match ($operator) {
+            RangeFilter::LT => RangeFilter::GT,
+            RangeFilter::GT => RangeFilter::LT,
+            RangeFilter::LTE => RangeFilter::GTE,
+            RangeFilter::GTE => RangeFilter::LTE,
+            default => $operator,
+        };
     }
 }

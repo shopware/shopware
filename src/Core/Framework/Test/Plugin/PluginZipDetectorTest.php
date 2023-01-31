@@ -12,10 +12,7 @@ use Shopware\Core\Framework\Plugin\Util\ZipUtils;
  */
 class PluginZipDetectorTest extends TestCase
 {
-    /**
-     * @var PluginZipDetector
-     */
-    private $zipDetector;
+    private PluginZipDetector $zipDetector;
 
     protected function setUp(): void
     {

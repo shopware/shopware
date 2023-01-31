@@ -3,20 +3,20 @@
 namespace Shopware\Core\Migration\V6_4;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Migration\Traits\MailUpdate;
 use Shopware\Core\Migration\Traits\UpdateMailTrait;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class Migration1624967118updateMailTemplatesWithOptionalSalutation extends MigrationStep
 {
     use UpdateMailTrait;
 
-    public const MAIL_TYPE_DIRS = [
+    final public const MAIL_TYPE_DIRS = [
         'order_confirmation_mail',
         'order_delivery.state.cancelled',
         'order_delivery.state.returned',
@@ -60,15 +60,13 @@ class Migration1624967118updateMailTemplatesWithOptionalSalutation extends Migra
      */
     public static function getUpdates(): array
     {
-        return \array_map(static function (string $mailTypeDirectory): MailUpdate {
-            return new MailUpdate(
-                $mailTypeDirectory,
-                (string) \file_get_contents(\sprintf('%s/../Fixtures/mails/%s/en-plain.html.twig', __DIR__, $mailTypeDirectory)),
-                (string) \file_get_contents(\sprintf('%s/../Fixtures/mails/%s/en-html.html.twig', __DIR__, $mailTypeDirectory)),
-                (string) \file_get_contents(\sprintf('%s/../Fixtures/mails/%s/de-plain.html.twig', __DIR__, $mailTypeDirectory)),
-                (string) \file_get_contents(\sprintf('%s/../Fixtures/mails/%s/de-html.html.twig', __DIR__, $mailTypeDirectory))
-            );
-        }, self::MAIL_TYPE_DIRS);
+        return \array_map(static fn (string $mailTypeDirectory): MailUpdate => new MailUpdate(
+            $mailTypeDirectory,
+            (string) \file_get_contents(\sprintf('%s/../Fixtures/mails/%s/en-plain.html.twig', __DIR__, $mailTypeDirectory)),
+            (string) \file_get_contents(\sprintf('%s/../Fixtures/mails/%s/en-html.html.twig', __DIR__, $mailTypeDirectory)),
+            (string) \file_get_contents(\sprintf('%s/../Fixtures/mails/%s/de-plain.html.twig', __DIR__, $mailTypeDirectory)),
+            (string) \file_get_contents(\sprintf('%s/../Fixtures/mails/%s/de-html.html.twig', __DIR__, $mailTypeDirectory))
+        ), self::MAIL_TYPE_DIRS);
     }
 
     public function updateDestructive(Connection $connection): void

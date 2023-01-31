@@ -126,7 +126,9 @@ global.console.error = (...args) => {
         }
 
         if (typeof allowedError.msg === 'string') {
-            silenceError = args[0].includes(allowedError.msg);
+            if (typeof args[0] === 'string') {
+                silenceError = args[0].includes(allowedError.msg);
+            }
 
             return;
         }

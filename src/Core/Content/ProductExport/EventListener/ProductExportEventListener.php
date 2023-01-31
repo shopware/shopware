@@ -8,22 +8,22 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @package inventory
- *
  * @internal
  */
+#[Package('sales-channel')]
 class ProductExportEventListener implements EventSubscriberInterface
 {
     /**
      * @internal
      */
     public function __construct(
-        private EntityRepository $productExportRepository,
-        private ProductExportFileHandlerInterface $productExportFileHandler,
-        private FilesystemOperator $fileSystem
+        private readonly EntityRepository $productExportRepository,
+        private readonly ProductExportFileHandlerInterface $productExportFileHandler,
+        private readonly FilesystemOperator $fileSystem
     ) {
     }
 

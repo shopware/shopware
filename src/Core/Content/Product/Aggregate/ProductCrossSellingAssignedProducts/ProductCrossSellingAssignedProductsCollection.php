@@ -3,12 +3,12 @@
 namespace Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<ProductCrossSellingAssignedProductsEntity>
- *
- * @package inventory
  */
+#[Package('inventory')]
 class ProductCrossSellingAssignedProductsCollection extends EntityCollection
 {
     public function getExpectedClass(): string
@@ -26,15 +26,11 @@ class ProductCrossSellingAssignedProductsCollection extends EntityCollection
      */
     public function getProductIds(): array
     {
-        return $this->fmap(function (ProductCrossSellingAssignedProductsEntity $entity) {
-            return $entity->getProductId();
-        });
+        return $this->fmap(fn (ProductCrossSellingAssignedProductsEntity $entity) => $entity->getProductId());
     }
 
     public function sortByPosition(): void
     {
-        $this->sort(function (ProductCrossSellingAssignedProductsEntity $a, ProductCrossSellingAssignedProductsEntity $b) {
-            return $a->getPosition() <=> $b->getPosition();
-        });
+        $this->sort(fn (ProductCrossSellingAssignedProductsEntity $a, ProductCrossSellingAssignedProductsEntity $b) => $a->getPosition() <=> $b->getPosition());
     }
 }

@@ -71,6 +71,7 @@ export default {
             'email',
             'username',
             'localeId',
+            'password',
         ]),
 
         identifier() {

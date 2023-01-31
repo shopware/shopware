@@ -4,9 +4,13 @@ namespace Shopware\Core\Framework\Script\Execution;
 
 use Psr\Log\LoggerInterface;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Adapter\Twig\Extension\PcreExtension;
 use Shopware\Core\Framework\Adapter\Twig\Extension\PhpSyntaxExtension;
+use Shopware\Core\Framework\Adapter\Twig\Filter\ReplaceRecursiveFilter;
+use Shopware\Core\Framework\Adapter\Twig\SecurityExtension;
 use Shopware\Core\Framework\Adapter\Twig\TwigEnvironment;
 use Shopware\Core\Framework\App\Event\Hooks\AppLifecycleHook;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Debugging\Debug;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Script\Exception\NoHookServiceFactoryException;
@@ -21,38 +25,16 @@ use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Twig\Environment;
 use Twig\Extension\DebugExtension;
 
-/**
- * @package core
- */
+#[Package('core')]
 class ScriptExecutor
 {
     public static bool $isInScriptExecutionContext = false;
 
-    private LoggerInterface $logger;
-
-    private ScriptLoader $loader;
-
-    private ScriptTraces $traces;
-
-    private ContainerInterface $container;
-
-    private TranslationExtension $translationExtension;
-
     /**
      * @internal
      */
-    public function __construct(
-        ScriptLoader $loader,
-        LoggerInterface $logger,
-        ScriptTraces $traces,
-        ContainerInterface $container,
-        TranslationExtension $translationExtension
-    ) {
-        $this->logger = $logger;
-        $this->loader = $loader;
-        $this->traces = $traces;
-        $this->container = $container;
-        $this->translationExtension = $translationExtension;
+    public function __construct(private readonly ScriptLoader $loader, private readonly LoggerInterface $logger, private readonly ScriptTraces $traces, private readonly ContainerInterface $container, private readonly TranslationExtension $translationExtension)
+    {
     }
 
     public function execute(Hook $hook): void
@@ -64,7 +46,7 @@ class ScriptExecutor
         if ($hook instanceof InterfaceHook) {
             throw new \RuntimeException(sprintf(
                 'Tried to execute InterfaceHook "%s", butInterfaceHooks should not be executed, execute the functions of the hook instead',
-                \get_class($hook)
+                $hook::class
             ));
         }
 
@@ -161,6 +143,9 @@ class ScriptExecutor
 
         $twig->addExtension(new PhpSyntaxExtension());
         $twig->addExtension($this->translationExtension);
+        $twig->addExtension(new SecurityExtension([]));
+        $twig->addExtension(new PcreExtension());
+        $twig->addExtension(new ReplaceRecursiveFilter());
 
         if ($script->getTwigOptions()['debug'] ?? false) {
             $twig->addExtension(new DebugExtension());

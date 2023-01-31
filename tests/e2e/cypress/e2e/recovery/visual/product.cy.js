@@ -25,7 +25,7 @@ describe('Product: Visual tests', () => {
         }).as('calculatePrice');
 
         // Add basic data to product
-        cy.get('a[href="#/sw/product/create"]').click();
+        cy.get('a[href="#/sw/product/create?creationStates=is-physical"]').click();
 
         cy.get('input[name=sw-field--product-name]').typeAndCheck('Product with file upload image');
 

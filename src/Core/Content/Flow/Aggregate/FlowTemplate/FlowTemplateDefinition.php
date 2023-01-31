@@ -9,13 +9,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package business-ops
- */
+#[Package('business-ops')]
 class FlowTemplateDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'flow_template';
+    final public const ENTITY_NAME = 'flow_template';
 
     public function getEntityName(): string
     {

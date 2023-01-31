@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Api\Command;
 
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -12,35 +13,24 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * @package core
- */
 #[AsCommand(
     name: 'framework:schema',
     description: 'Dumps the schema of the given entity',
 )]
+#[Package('core')]
 class DumpSchemaCommand extends Command
 {
     /**
-     * @var DefinitionService
-     */
-    private $definitionService;
-
-    /**
      * @internal
      */
-    public function __construct(DefinitionService $definitionService)
+    public function __construct(private readonly DefinitionService $definitionService)
     {
         parent::__construct();
-
-        $this->definitionService = $definitionService;
     }
 
     protected function configure(): void
     {
-        $this
-            ->setDescription('Dumps the api definition to a json file.')
-            ->addArgument('outfile', InputArgument::REQUIRED, 'Path to the output file. "-" writes to stdout.')
+        $this->addArgument('outfile', InputArgument::REQUIRED, 'Path to the output file. "-" writes to stdout.')
             ->addOption(
                 'schema-format',
                 's',

@@ -9,6 +9,7 @@ use Shopware\Administration\Snippet\SnippetFinder;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
+use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Framework\Test\Adapter\Twig\fixtures\BundleFixture;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Kernel;
@@ -38,7 +39,7 @@ class SnippetFinderTest extends TestCase
         $loader = $this->createMock(ClassLoader::class);
         $loader->method('findFile')->willReturn(__DIR__);
 
-        $kernelPluginLoader = new Plugin\KernelPluginLoader\StaticKernelPluginLoader(
+        $kernelPluginLoader = new StaticKernelPluginLoader(
             $loader,
             null,
             [

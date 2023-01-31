@@ -9,14 +9,14 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 
 /**
  * @internal
- *
- * @package system-settings
  */
+#[Package('system-settings')]
 class PriceSerializerTest extends TestCase
 {
     use KernelTestBehaviour;

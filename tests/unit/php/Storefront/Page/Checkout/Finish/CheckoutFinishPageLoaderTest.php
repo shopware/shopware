@@ -262,14 +262,14 @@ class CheckoutFinishPageLoaderTest extends TestCase
                 $request,
                 $this->getContextWithDummyCustomer(),
             );
-        } catch (OrderException $e) {
-        } catch (\Exception $e) {
+        } catch (OrderException) {
+        } catch (\Exception) {
             static::fail('Not an expected Exception');
         }
     }
 
     /**
-     * @return SalesChannelContext|MockObject
+     * @return SalesChannelContext&MockObject
      */
     private function getContextWithDummyCustomer(): SalesChannelContext
     {

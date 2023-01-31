@@ -5,10 +5,19 @@
     :class="customBlockClass"
     :style="blockStyles"
 >
+    <sw-cms-visibility-toggle
+        v-if="isVisible"
+        :text="toggleButtonText"
+        :is-collapsed="isCollapsed"
+        :class="expandedClass"
+        @toggle="toggleVisibility"
+    />
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_block_content %}
     <div
+        v-if="!isCollapsed || !isVisible"
         class="sw-cms-block__content"
+        :class="expandedClass"
         :style="blockPadding"
     >
         <slot>

@@ -3,12 +3,13 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @package core
  * @extends Collection<Field>
  */
+#[Package('core')]
 class FieldCollection extends Collection
 {
     public function compile(DefinitionInstanceRegistry $registry): CompiledFieldCollection

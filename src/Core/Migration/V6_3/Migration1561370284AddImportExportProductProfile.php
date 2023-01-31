@@ -4,14 +4,14 @@ namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class Migration1561370284AddImportExportProductProfile extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -53,7 +53,7 @@ class Migration1561370284AddImportExportProductProfile extends MigrationStep
             'file_type' => 'text/csv',
             'delimiter' => ';',
             'enclosure' => '"',
-            'mapping' => json_encode($mapping),
+            'mapping' => json_encode($mapping, \JSON_THROW_ON_ERROR),
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
     }

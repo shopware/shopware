@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Content\Flow\Exception;
 
-/**
- * @package business-ops
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('business-ops')]
 class CustomerDeletedException extends \Exception
 {
     public function __construct(string $orderId)

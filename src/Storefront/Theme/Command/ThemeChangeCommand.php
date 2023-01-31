@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
@@ -20,42 +21,27 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-/**
- * @package storefront
- */
 #[AsCommand(
     name: 'theme:change',
     description: 'Change the active theme for a sales channel',
 )]
+#[Package('storefront')]
 class ThemeChangeCommand extends Command
 {
-    private ThemeService $themeService;
-
-    private StorefrontPluginRegistryInterface $pluginRegistry;
-
-    private EntityRepository $salesChannelRepository;
-
-    private Context $context;
+    private readonly Context $context;
 
     private SymfonyStyle $io;
-
-    private EntityRepository $themeRepository;
 
     /**
      * @internal
      */
     public function __construct(
-        ThemeService $themeService,
-        StorefrontPluginRegistryInterface $pluginRegistry,
-        EntityRepository $salesChannelRepository,
-        EntityRepository $themeRepository
+        private readonly ThemeService $themeService,
+        private readonly StorefrontPluginRegistryInterface $pluginRegistry,
+        private readonly EntityRepository $salesChannelRepository,
+        private readonly EntityRepository $themeRepository
     ) {
         parent::__construct();
-
-        $this->themeService = $themeService;
-        $this->pluginRegistry = $pluginRegistry;
-        $this->salesChannelRepository = $salesChannelRepository;
-        $this->themeRepository = $themeRepository;
         $this->context = Context::createDefaultContext();
     }
 
@@ -124,7 +110,9 @@ class ThemeChangeCommand extends Command
 
         /** @var SalesChannelEntity $salesChannel */
         foreach ($selectedSalesChannel as $salesChannel) {
-            $this->io->writeln(sprintf('Set and compiling theme "%s" (%s) as new theme for sales channel "%s"', $themeName, $theme->getId(), $salesChannel->getName()));
+            $this->io->writeln(
+                sprintf('Set and compiling theme "%s" (%s) as new theme for sales channel "%s"', $themeName, $theme->getId(), $salesChannel->getName())
+            );
 
             $this->themeService->assignTheme(
                 $theme->getId(),
@@ -137,6 +125,9 @@ class ThemeChangeCommand extends Command
         return self::SUCCESS;
     }
 
+    /**
+     * @return array<string>
+     */
     protected function getSalesChannelChoices(SalesChannelCollection $salesChannels): array
     {
         $choices = [];
@@ -148,6 +139,9 @@ class ThemeChangeCommand extends Command
         return $choices;
     }
 
+    /**
+     * @return array<string>
+     */
     protected function getThemeChoices(): array
     {
         $choices = [];

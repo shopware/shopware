@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Script\Api;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\Awareness\HookServiceFactory;
 use Shopware\Core\Framework\Script\Execution\Awareness\SalesChannelContextAware;
 use Shopware\Core\Framework\Script\Execution\Hook;
@@ -11,19 +12,12 @@ use Symfony\Component\Routing\RouterInterface;
 
 /**
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 class ScriptResponseFactoryFacadeHookFactory extends HookServiceFactory
 {
-    private RouterInterface $router;
-
-    private ?ScriptController $scriptController;
-
-    public function __construct(RouterInterface $router, ?ScriptController $scriptController)
+    public function __construct(private readonly RouterInterface $router, private readonly ?ScriptController $scriptController)
     {
-        $this->router = $router;
-        $this->scriptController = $scriptController;
     }
 
     public function factory(Hook $hook, Script $script): ScriptResponseFactoryFacade

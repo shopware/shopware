@@ -23,10 +23,7 @@ class ProductExportControllerTest extends TestCase
     use IntegrationTestBehaviour;
     use AdminApiTestBehaviour;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     protected function setUp(): void
     {
@@ -52,7 +49,7 @@ class ProductExportControllerTest extends TestCase
             'fileName' => 'test.csv',
             'accessKey' => 'test',
             'currencyId' => Defaults::CURRENCY,
-        ]);
+        ], \JSON_THROW_ON_ERROR);
 
         if (!$content) {
             $content = '';
@@ -89,7 +86,7 @@ class ProductExportControllerTest extends TestCase
             'fileName' => 'test.csv',
             'accessKey' => 'test',
             'currencyId' => Defaults::CURRENCY,
-        ]);
+        ], \JSON_THROW_ON_ERROR);
 
         if (!$content) {
             $content = '';
@@ -124,7 +121,7 @@ class ProductExportControllerTest extends TestCase
             'fileName' => 'test.csv',
             'accessKey' => 'test',
             'currencyId' => Defaults::CURRENCY,
-        ]);
+        ], \JSON_THROW_ON_ERROR);
 
         if (!$content) {
             $content = '';
@@ -168,7 +165,7 @@ class ProductExportControllerTest extends TestCase
             'fileName' => 'test.csv',
             'accessKey' => 'test',
             'currencyId' => Defaults::CURRENCY,
-        ]);
+        ], \JSON_THROW_ON_ERROR);
 
         if (!$content) {
             $content = '';
@@ -205,7 +202,7 @@ class ProductExportControllerTest extends TestCase
             'fileName' => 'test.csv',
             'accessKey' => 'test',
             'currencyId' => Defaults::CURRENCY,
-        ]);
+        ], \JSON_THROW_ON_ERROR);
 
         if (!$content) {
             $content = '';
@@ -249,7 +246,7 @@ class ProductExportControllerTest extends TestCase
             'fileName' => 'test.csv',
             'accessKey' => 'test',
             'currencyId' => Defaults::CURRENCY,
-        ]);
+        ], \JSON_THROW_ON_ERROR);
 
         if (!$content) {
             $content = '';

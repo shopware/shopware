@@ -130,9 +130,9 @@ export default {
             default: null,
             validator(givenValue) {
                 return [
-                    'day',
-                    'hour',
                     'minute',
+                    'hour',
+                    'day',
                 ].includes(givenValue);
             },
         },
@@ -231,7 +231,7 @@ export default {
             const adminLocaleLanguage = Shopware.State.getters.adminLocaleLanguage;
 
             // get all available languages in "apexcharts/dist/locales/**.json"
-            const languageFiles = require.context('../../../../../node_modules/apexcharts/dist/locales', false, /.json/);
+            const languageFiles = require.context('apexcharts/dist/locales', false, /.json/);
 
             // change string from "./en.json" to "en"
             const allowedLocales = languageFiles.keys()
@@ -357,11 +357,11 @@ export default {
 
         setDateTime(date) {
             switch (this.fillEmptyValues) {
-                case 'hour':
-                    date.setMinutes(0, 0, 0);
-                    break;
                 case 'minute':
                     date.setSeconds(0, 0);
+                    break;
+                case 'hour':
+                    date.setMinutes(0, 0, 0);
                     break;
                 case 'day':
                 default:

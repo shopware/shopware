@@ -99,7 +99,7 @@ describe('Product: Bulk edit variants', () => {
 
         cy.get('.sw-product-detail__tab-variants').click();
         cy.get('.sw-empty-state.sw-product-detail-variants__generated-variants-empty-state').should('be.visible');
-        cy.contains('.sw-button--ghost', 'Start variant generator').click();
+        cy.contains('.sw-button--ghost', 'Generate variants').should('be.visible').click();
         cy.get('.sw-product-modal-variant-generation').should('be.visible');
         page.generateVariants('Color', [0, 1], 2);
         cy.get('.sw-product-variants__generate-action').should('be.visible');

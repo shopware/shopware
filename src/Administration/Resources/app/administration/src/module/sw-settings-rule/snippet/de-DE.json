@@ -107,7 +107,8 @@
         "promotionDiscountRules": "Rabattaktion-Produktregeln",
         "promotionGroupRules": "Rabattaktion-Setgruppenregeln",
         "shippingMethodAvailabilityRule": "Versandart-Verfügbarkeitsregeln",
-        "flows": "Flow-Builders"
+        "flows": "Flow-Builders",
+        "taxProviders": "Steuerservice-Anbieter"
       },
       "typeHasNoAssociations": "Keine Regeln zugewiesen",
       "hasNoAssociations": "Diese Regel wird nicht verwendet",

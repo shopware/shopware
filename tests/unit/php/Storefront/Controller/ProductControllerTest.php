@@ -46,44 +46,23 @@ use Symfony\Component\Validator\ConstraintViolationList;
  */
 class ProductControllerTest extends TestCase
 {
-    /**
-     * @var MockObject|ProductPageLoader
-     */
-    private $productPageLoaderMock;
+    private MockObject&ProductPageLoader $productPageLoaderMock;
 
     private SalesChannelProductEntity $productEntity;
 
     private ProductPage $productPage;
 
-    /**
-     * @var MockObject|FindProductVariantRoute
-     */
-    private $findVariantRouteMock;
+    private MockObject&FindProductVariantRoute $findVariantRouteMock;
 
-    /**
-     * @var MockObject|SeoUrlPlaceholderHandlerInterface
-     */
-    private $seoUrlPlaceholderHandlerMock;
+    private MockObject&SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandlerMock;
 
-    /**
-     * @var MockObject|MinimalQuickViewPageLoader
-     */
-    private $minimalQuickViewPageLoaderMock;
+    private MockObject&MinimalQuickViewPageLoader $minimalQuickViewPageLoaderMock;
 
-    /**
-     * @var MockObject|AbstractProductReviewSaveRoute
-     */
-    private $productReviewSaveRouteMock;
+    private MockObject&AbstractProductReviewSaveRoute $productReviewSaveRouteMock;
 
-    /**
-     * @var MockObject|SystemConfigService
-     */
-    private $systemConfigServiceMock;
+    private MockObject&SystemConfigService $systemConfigServiceMock;
 
-    /**
-     * @var MockObject|ProductReviewLoader
-     */
-    private $productReviewLoaderMock;
+    private MockObject&ProductReviewLoader $productReviewLoaderMock;
 
     private ProductControllerTestClass $controller;
 
@@ -163,7 +142,7 @@ class ProductControllerTest extends TestCase
         $request = new Request(
             [
                 'switched' => $ids->get('element'),
-                'options' => json_encode($options),
+                'options' => json_encode($options, \JSON_THROW_ON_ERROR),
             ]
         );
 
@@ -385,20 +364,14 @@ class ProductControllerTest extends TestCase
  */
 class ProductControllerTestClass extends ProductController
 {
-    /**
-     * @var mixed
-     */
-    public $renderStorefrontView;
+    public string $renderStorefrontView;
 
     /**
-     * @var mixed
+     * @var array<mixed>
      */
-    public $renderStorefrontParameters;
+    public array $renderStorefrontParameters;
 
-    /**
-     * @var Hook
-     */
-    public $calledHook;
+    public Hook $calledHook;
 
     public string $forwardToRoute;
 

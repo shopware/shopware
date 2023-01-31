@@ -5,7 +5,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_promotion_v2_cart_condition_form_rules_field %}
     <sw-promotion-v2-rule-select
-        v-if="feature.isActive('FEATURE_NEXT_18215') && promotion"
+        v-if="promotion"
         v-model="promotion.cartRules"
         class="sw-promotion-v2-cart-condition-form__rule-select-cart"
         :local-mode="promotion.isNew()"
@@ -14,18 +14,6 @@
         :placeholder="$tc('sw-promotion-v2.detail.conditions.preConditions.placeholderCartConditionSelect')"
         :rule-scope="['checkout', 'global', 'lineItem']"
         rule-aware-group-key="cartPromotions"
-        :disabled="isEditingDisabled"
-    />
-
-    {# @deprecated tag:v6.5.0 - use sw-promotion-v2-rule-select instead #}
-    <sw-promotion-rule-select
-        v-else-if="!feature.isActive('FEATURE_NEXT_18215') && promotion"
-        v-model="promotion.cartRules"
-        class="sw-promotion-v2-cart-condition-form__rule-select-cart"
-        :label="$tc('sw-promotion-v2.detail.conditions.preConditions.labelCartConditionSelect')"
-        :placeholder="$tc('sw-promotion-v2.detail.conditions.preConditions.placeholderCartConditionSelect')"
-        :criteria="ruleFilter"
-        :rule-scope="['cart']"
         :disabled="isEditingDisabled"
     />
     {% endblock %}
@@ -96,7 +84,6 @@
                 columns="1fr 1fr"
                 gap="0px 30px"
             >
-
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_promotion_v2_cart_condition_setgroup_mode_field %}
                 <sw-select-field
@@ -131,7 +118,6 @@
                 columns="1fr 1fr"
                 gap="0px 30px"
             >
-
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_promotion_v2_cart_condition_setgroup_sorting_field %}
                 <sw-select-field
@@ -160,7 +146,6 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_promotion_v2_cart_condition_setgroup_rules_field %}
                 <sw-promotion-v2-rule-select
-                    v-if="feature.isActive('FEATURE_NEXT_18215')"
                     v-model="group.setGroupRules"
                     class="sw-promotion-v2-cart-condition-form__setgroup-rules"
                     :label="$tc('sw-promotion-v2.detail.conditions.setgroups.labelRules')"
@@ -169,16 +154,6 @@
                     :rule-scope="['checkout', 'global', 'lineItem']"
                     :disabled="isEditingDisabled"
                     rule-aware-group-key="promotionSetGroups"
-                />
-
-                {# @deprecated tag:v6.5.0 - use sw-promotion-v2-rule-select instead #}
-                <sw-promotion-rule-select
-                    v-else
-                    v-model="group.setGroupRules"
-                    class="sw-promotion-v2-cart-condition-form__setgroup-rules"
-                    :label="$tc('sw-promotion-v2.detail.conditions.setgroups.labelRules')"
-                    :criteria="ruleFilter"
-                    :disabled="isEditingDisabled"
                 />
                 {% endblock %}
 

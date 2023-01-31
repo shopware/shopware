@@ -10,27 +10,20 @@ use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
-/**
- * @package sales-channel
- */
+#[Package('sales-channel')]
 class LandingPageSeoUrlRoute implements SeoUrlRouteInterface
 {
-    public const ROUTE_NAME = 'frontend.landing.page';
-    public const DEFAULT_TEMPLATE = '{{ landingPage.translated.url }}';
-
-    /**
-     * @var LandingPageDefinition
-     */
-    private $landingPageDefinition;
+    final public const ROUTE_NAME = 'frontend.landing.page';
+    final public const DEFAULT_TEMPLATE = '{{ landingPage.translated.url }}';
 
     /**
      * @internal
      */
-    public function __construct(LandingPageDefinition $landingPageDefinition)
+    public function __construct(private readonly LandingPageDefinition $landingPageDefinition)
     {
-        $this->landingPageDefinition = $landingPageDefinition;
     }
 
     public function getConfig(): SeoUrlRouteConfig

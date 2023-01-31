@@ -7,6 +7,7 @@ use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Exception\TransferException;
 use GuzzleHttp\Pool;
 use GuzzleHttp\Psr7\Request;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Symfony\Component\HttpFoundation\Response;
 use function array_chunk;
@@ -15,47 +16,24 @@ use function func_get_arg;
 use function implode;
 use function sprintf;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class FastlyReverseProxyGateway extends AbstractReverseProxyGateway
 {
     private const API_URL = 'https://api.fastly.com';
     private const MAX_TAG_INVALIDATION = 256;
-
-    protected Client $client;
-
-    protected string $serviceId;
-
-    protected string $apiKey;
-
-    protected string $softPurge;
-
-    protected int $concurrency;
-
-    protected string $tagPrefix;
 
     /**
      * @var array<string, string>
      */
     private array $tagBuffer = [];
 
-    private string $instanceTag;
-
-    private string $appUrl;
+    private readonly string $appUrl;
 
     /**
      * @internal
      */
-    public function __construct(Client $client, string $serviceId, string $apiKey, string $softPurge, int $concurrency, string $tagPrefix, string $instanceTag, string $appUrl)
+    public function __construct(protected Client $client, protected string $serviceId, protected string $apiKey, protected string $softPurge, protected int $concurrency, protected string $tagPrefix, private readonly string $instanceTag, string $appUrl)
     {
-        $this->client = $client;
-        $this->serviceId = $serviceId;
-        $this->apiKey = $apiKey;
-        $this->softPurge = $softPurge;
-        $this->concurrency = $concurrency;
-        $this->tagPrefix = $tagPrefix;
-        $this->instanceTag = $instanceTag;
         $this->appUrl = (string) preg_replace('/^https?:\/\//', '', $appUrl);
     }
 
@@ -163,8 +141,6 @@ class FastlyReverseProxyGateway extends AbstractReverseProxyGateway
 
         $prefix = $this->tagPrefix;
 
-        return array_map(static function (string $tag) use ($prefix) {
-            return $prefix . $tag;
-        }, $tags);
+        return array_map(static fn (string $tag) => $prefix . $tag, $tags);
     }
 }

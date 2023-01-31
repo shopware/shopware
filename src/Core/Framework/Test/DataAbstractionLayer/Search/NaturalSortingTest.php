@@ -46,9 +46,7 @@ class NaturalSortingTest extends TestCase
         $data = [
             'id' => $groupId,
             'name' => 'Content',
-            'options' => array_map(static function ($name) {
-                return ['name' => $name];
-            }, $naturalOrder),
+            'options' => array_map(static fn ($name) => ['name' => $name], $naturalOrder),
         ];
 
         $context = Context::createDefaultContext();
@@ -67,9 +65,7 @@ class NaturalSortingTest extends TestCase
         static::assertCount(\count($naturalOrder), $options);
 
         //extract names to compare them
-        $actual = $options->map(static function (PropertyGroupOptionEntity $option) {
-            return $option->getName();
-        });
+        $actual = $options->map(static fn (PropertyGroupOptionEntity $option) => $option->getName());
 
         static::assertEquals($rawOrder, array_values($actual));
 
@@ -79,9 +75,7 @@ class NaturalSortingTest extends TestCase
         $criteria->addSorting(new FieldSorting('property_group_option.name', FieldSorting::ASCENDING, true));
 
         $options = $this->optionRepository->search($criteria, $context);
-        $actual = $options->map(static function (PropertyGroupOptionEntity $option) {
-            return $option->getName();
-        });
+        $actual = $options->map(static fn (PropertyGroupOptionEntity $option) => $option->getName());
 
         static::assertEquals($naturalOrder, array_values($actual));
     }

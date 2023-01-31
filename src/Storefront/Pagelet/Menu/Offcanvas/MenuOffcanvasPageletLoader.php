@@ -5,36 +5,20 @@ namespace Shopware\Storefront\Pagelet\Menu\Offcanvas;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Content\Category\Service\NavigationLoaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
-use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Decoratable;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @package storefront
- *
- * @Decoratable()
- */
+#[Package('storefront')]
 class MenuOffcanvasPageletLoader implements MenuOffcanvasPageletLoaderInterface
 {
     /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
-     * @var NavigationLoaderInterface
-     */
-    private $navigationLoader;
-
-    /**
      * @internal
      */
-    public function __construct(EventDispatcherInterface $eventDispatcher, NavigationLoaderInterface $navigationLoader)
+    public function __construct(private readonly EventDispatcherInterface $eventDispatcher, private readonly NavigationLoaderInterface $navigationLoader)
     {
-        $this->eventDispatcher = $eventDispatcher;
-        $this->navigationLoader = $navigationLoader;
     }
 
     /**

@@ -238,6 +238,10 @@ class ElasticsearchProductDefinitionTest extends TestCase
                     ],
                 ],
                 'customSearchKeywords' => self::SEARCHABLE_MAPPING,
+                'states' => [
+                    'type' => 'keyword',
+                    'normalizer' => 'sw_lowercase_normalizer',
+                ],
             ],
             'dynamic_templates' => [
                 ['cheapest_price' => [

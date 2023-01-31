@@ -10,18 +10,18 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\RuntimeFieldInCriteri
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @final
- *
- * @package core
  */
+#[Package('core')]
 class ApiCriteriaValidator
 {
     /**
      * @internal
      */
-    public function __construct(private DefinitionInstanceRegistry $registry)
+    public function __construct(private readonly DefinitionInstanceRegistry $registry)
     {
     }
 
@@ -44,7 +44,7 @@ class ApiCriteriaValidator
                     throw new ApiProtectionException($accessor);
                 }
 
-                if (!$flag->isSourceAllowed(\get_class($context->getSource()))) {
+                if (!$flag->isSourceAllowed($context->getSource()::class)) {
                     throw new ApiProtectionException($accessor);
                 }
 

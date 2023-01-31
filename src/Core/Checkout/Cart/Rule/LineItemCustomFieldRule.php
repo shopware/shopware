@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
@@ -12,19 +13,10 @@ use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
-/**
- * @package business-ops
- */
+#[Package('business-ops')]
 class LineItemCustomFieldRule extends Rule
 {
-    public const RULE_NAME = 'cartLineItemCustomField';
-
-    protected string $operator;
-
-    /**
-     * @var array<string, mixed>
-     */
-    protected array $renderedField;
+    final public const RULE_NAME = 'cartLineItemCustomField';
 
     /**
      * @var string|int|float|bool|null
@@ -36,12 +28,9 @@ class LineItemCustomFieldRule extends Rule
      *
      * @internal
      */
-    public function __construct(string $operator = self::OPERATOR_EQ, array $renderedField = [])
+    public function __construct(protected string $operator = self::OPERATOR_EQ, protected array $renderedField = [])
     {
         parent::__construct();
-
-        $this->operator = $operator;
-        $this->renderedField = $renderedField;
     }
 
     /**
@@ -113,22 +102,15 @@ class LineItemCustomFieldRule extends Rule
             return false;
         }
 
-        switch ($this->operator) {
-            case self::OPERATOR_NEQ:
-                return $actual !== $expected;
-            case self::OPERATOR_GTE:
-                return $actual >= $expected;
-            case self::OPERATOR_LTE:
-                return $actual <= $expected;
-            case self::OPERATOR_EQ:
-                return $actual === $expected;
-            case self::OPERATOR_GT:
-                return $actual > $expected;
-            case self::OPERATOR_LT:
-                return $actual < $expected;
-            default:
-                throw new UnsupportedOperatorException($this->operator, self::class);
-        }
+        return match ($this->operator) {
+            self::OPERATOR_NEQ => $actual !== $expected,
+            self::OPERATOR_GTE => $actual >= $expected,
+            self::OPERATOR_LTE => $actual <= $expected,
+            self::OPERATOR_EQ => $actual === $expected,
+            self::OPERATOR_GT => $actual > $expected,
+            self::OPERATOR_LT => $actual < $expected,
+            default => throw new UnsupportedOperatorException($this->operator, self::class),
+        };
     }
 
     /**

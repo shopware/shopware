@@ -2,16 +2,13 @@
 
 namespace Shopware\Storefront\Theme\StorefrontPluginConfiguration;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class StorefrontPluginConfiguration extends Struct
 {
     protected ?array $themeConfig = [];
-
-    protected string $technicalName;
 
     protected ?string $name = null;
 
@@ -49,9 +46,8 @@ class StorefrontPluginConfiguration extends Struct
     /**
      * @internal
      */
-    public function __construct(string $technicalName)
+    public function __construct(protected string $technicalName)
     {
-        $this->technicalName = $technicalName;
         $this->styleFiles = new FileCollection();
         $this->scriptFiles = new FileCollection();
     }

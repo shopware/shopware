@@ -14,18 +14,15 @@ class SalesChannelTestHook extends Hook implements SalesChannelContextAware
 {
     use SalesChannelContextAwareTrait;
 
-    private string $name;
-
     private static array $serviceIds;
 
     /**
      * @param array<string> $serviceIds
      */
-    public function __construct(string $name, SalesChannelContext $context, array $data = [], array $serviceIds = [])
+    public function __construct(private readonly string $name, SalesChannelContext $context, array $data = [], array $serviceIds = [])
     {
         parent::__construct($context->getContext());
         $this->salesChannelContext = $context;
-        $this->name = $name;
         self::$serviceIds = $serviceIds;
 
         foreach ($data as $key => $value) {

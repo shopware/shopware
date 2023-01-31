@@ -5,38 +5,28 @@ namespace Shopware\Core\System\SalesChannel\Context;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelContextTokenChangeEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package core
- */
+#[Package('core')]
 class SalesChannelContextPersister
 {
-    private Connection $connection;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private string $lifetimeInterval;
-
-    private AbstractCartPersister $cartPersister;
+    private readonly string $lifetimeInterval;
 
     /**
      * @internal
      */
     public function __construct(
-        Connection $connection,
-        EventDispatcherInterface $eventDispatcher,
-        AbstractCartPersister $cartPersister,
+        private readonly Connection $connection,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly AbstractCartPersister $cartPersister,
         ?string $lifetimeInterval = 'P1D'
     ) {
-        $this->connection = $connection;
-        $this->eventDispatcher = $eventDispatcher;
         $this->lifetimeInterval = $lifetimeInterval ?? 'P1D';
-        $this->cartPersister = $cartPersister;
     }
 
     /**
@@ -58,7 +48,7 @@ class SalesChannelContextPersister
                 VALUES (:token, :payload, :salesChannelId, :customerId, :updatedAt)',
             [
                 'token' => $token,
-                'payload' => json_encode($parameters),
+                'payload' => json_encode($parameters, \JSON_THROW_ON_ERROR),
                 'salesChannelId' => $salesChannelId ? Uuid::fromHexToBytes($salesChannelId) : null,
                 'customerId' => $customerId ? Uuid::fromHexToBytes($customerId) : null,
                 'updatedAt' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -149,7 +139,7 @@ class SalesChannelContextPersister
         $updatedAt = new \DateTimeImmutable($context['updated_at']);
         $expiredTime = $updatedAt->add(new \DateInterval($this->lifetimeInterval));
 
-        $payload = array_filter(json_decode($context['payload'], true));
+        $payload = array_filter(json_decode((string) $context['payload'], true, 512, \JSON_THROW_ON_ERROR));
         $now = new \DateTimeImmutable();
         if ($expiredTime < $now) {
             // context is expired
@@ -191,7 +181,7 @@ class SalesChannelContextPersister
                 ->setParameter('preserveTokens', $preserveTokens, Connection::PARAM_STR_ARRAY);
         }
 
-        $qb->execute();
+        $qb->executeStatement();
     }
 
     /**

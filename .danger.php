@@ -325,6 +325,26 @@ return (new Config())
             );
         }
     })
+    ->useRule(function (Context $context): void {
+        $addedFiles = $context->platform->pullRequest->getFiles()->filterStatus(File::STATUS_ADDED);
+
+        $addedLegacyTests = [];
+
+        foreach ($addedFiles->matches('src/**/*Test.php') as $file) {
+            $content = $file->getContent();
+
+            if (str_contains($content, 'extends TestCase')) {
+                $addedLegacyTests[] = $file->name;
+            }
+        }
+
+        if (count($addedLegacyTests) > 0) {
+            $context->failure(
+                'Don\'t add new testcases in the `/src` folder, for new tests write "real" unit tests under `tests/unit` and if needed a few meaningful integration tests under `tests/integration`: <br/>'
+                . print_r($addedLegacyTests, true)
+            );
+        }
+    })
     ->after(function (Context $context): void {
         if ($context->platform instanceof Github && $context->hasFailures()) {
             $context->platform->addLabels('Incomplete');

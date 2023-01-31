@@ -45,6 +45,12 @@ export default {
             required: false,
             default: false,
         },
+
+        type: {
+            type: String,
+            required: false,
+            default: '',
+        },
     },
 
     data() {
@@ -52,8 +58,7 @@ export default {
             customer: {},
             currentAddress: null,
             customerAddressCustomFieldSets: null,
-            billingAddressId: null,
-            orderAddressId: cloneDeep(this.addressId),
+            orderAddressId: cloneDeep(this.address?.id),
         };
     },
 
@@ -120,10 +125,14 @@ export default {
 
         modalTitle() {
             return this.$tc(
-                `sw-order.addressSelection.${this.currentAddress._isNew
+                `sw-order.addressSelection.${this.currentAddress?._isNew
                     ? 'modalTitleEditAddress'
                     : 'modalTitleSelectAddress'}`,
             );
+        },
+
+        selectedAddressId() {
+            return this.address?.customerAddressId ?? this.addressId;
         },
     },
 
@@ -235,7 +244,11 @@ export default {
         },
 
         onAddressChange(customerAddressId) {
-            this.$emit('change-address', { orderAddressId: this.addressId, customerAddressId });
+            this.$emit('change-address', {
+                orderAddressId: this.addressId,
+                customerAddressId,
+                type: this.type,
+            });
         },
 
         getCustomer() {

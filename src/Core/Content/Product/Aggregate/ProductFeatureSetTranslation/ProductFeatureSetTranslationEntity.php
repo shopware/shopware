@@ -4,10 +4,9 @@ namespace Shopware\Core\Content\Product\Aggregate\ProductFeatureSetTranslation;
 
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package inventory
- */
+#[Package('inventory')]
 class ProductFeatureSetTranslationEntity extends TranslationEntity
 {
     /**

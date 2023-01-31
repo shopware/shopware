@@ -2,22 +2,15 @@
 
 namespace Shopware\Core\Framework\Plugin\Event;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @package core
- */
+#[Package('core')]
 abstract class PluginLifecycleEvent extends Event
 {
-    /**
-     * @var PluginEntity
-     */
-    private $plugin;
-
-    public function __construct(PluginEntity $plugin)
+    public function __construct(private readonly PluginEntity $plugin)
     {
-        $this->plugin = $plugin;
     }
 
     public function getPlugin(): PluginEntity

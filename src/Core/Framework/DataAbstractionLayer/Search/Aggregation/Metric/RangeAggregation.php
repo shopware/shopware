@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * Allow to aggregate data on predefined ranges values
@@ -10,9 +11,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
  * Bound are computed as in the elasticsearch range aggregation :
  *    the "from" will be compared with greater than or equal
  *    the "to" will be compared with lower than
- *
- * @package core
  */
+#[Package('core')]
 final class RangeAggregation extends Aggregation
 {
     /**
@@ -60,9 +60,6 @@ final class RangeAggregation extends Aggregation
 
     /**
      * Build a range dynamic key using $from and $to bound
-     *
-     * @param ?float $from
-     * @param ?float $to
      */
     protected function buildRangeKey(?float $from = null, ?float $to = null): string
     {

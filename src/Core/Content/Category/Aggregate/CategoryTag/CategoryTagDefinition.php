@@ -10,14 +10,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Tag\TagDefinition;
 
-/**
- * @package content
- */
+#[Package('content')]
 class CategoryTagDefinition extends MappingEntityDefinition
 {
-    public const ENTITY_NAME = 'category_tag';
+    final public const ENTITY_NAME = 'category_tag';
 
     public function getEntityName(): string
     {

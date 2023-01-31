@@ -4,13 +4,13 @@ namespace Shopware\Core\DevOps\System\Command;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * @package core
  * @psalm-import-type Params from DriverManager
  * @psalm-import-type OverrideParams from DriverManager
  */
@@ -18,17 +18,12 @@ use Symfony\Component\Console\Output\OutputInterface;
     name: 'system:restore',
     description: 'Restores the database from a file',
 )]
+#[Package('core')]
 class SystemRestoreDatabaseCommand extends Command
 {
-    private string $defaultDirectory;
-
-    private Connection $connection;
-
-    public function __construct(string $defaultDirectory, Connection $connection)
+    public function __construct(private readonly string $defaultDirectory, private readonly Connection $connection)
     {
         parent::__construct();
-        $this->defaultDirectory = $defaultDirectory;
-        $this->connection = $connection;
     }
 
     public function execute(InputInterface $input, OutputInterface $output): int

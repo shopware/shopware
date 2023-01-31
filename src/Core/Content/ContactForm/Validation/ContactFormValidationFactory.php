@@ -3,11 +3,11 @@
 namespace Shopware\Core\Content\ContactForm\Validation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
-use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Decoratable;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Validator\Constraints\Email;
@@ -15,36 +15,19 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package content
- * @Decoratable
- */
+#[Package('content')]
 class ContactFormValidationFactory implements DataValidationFactoryInterface
 {
     /**
      * The regex to check if string contains an url
      */
-    public const DOMAIN_NAME_REGEX = '/((https?:\/\/))/';
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
-     * @var SystemConfigService
-     */
-    private $systemConfigService;
+    final public const DOMAIN_NAME_REGEX = '/((https?:\/\/))/';
 
     /**
      * @internal
      */
-    public function __construct(
-        EventDispatcherInterface $eventDispatcher,
-        SystemConfigService $systemConfigService
-    ) {
-        $this->eventDispatcher = $eventDispatcher;
-        $this->systemConfigService = $systemConfigService;
+    public function __construct(private readonly EventDispatcherInterface $eventDispatcher, private readonly SystemConfigService $systemConfigService)
+    {
     }
 
     public function create(SalesChannelContext $context): DataValidationDefinition

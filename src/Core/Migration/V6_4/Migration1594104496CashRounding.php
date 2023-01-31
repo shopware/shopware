@@ -3,13 +3,13 @@
 namespace Shopware\Core\Migration\V6_4;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class Migration1594104496CashRounding extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -138,7 +138,7 @@ CREATE TABLE IF NOT EXISTS `currency_country_rounding` (
 
             $connection->executeStatement(
                 'UPDATE currency SET item_rounding = :rounding, total_rounding = :rounding WHERE id = :id',
-                ['id' => $currency['id'], 'rounding' => json_encode($rounding)]
+                ['id' => $currency['id'], 'rounding' => json_encode($rounding, \JSON_THROW_ON_ERROR)]
             );
         }
 

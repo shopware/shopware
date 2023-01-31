@@ -1,4 +1,11 @@
 .sw-product-detail-variants {
+    &__generated-variants.sw-card {
+        .sw-card__content,
+        .sw-tabs__custom-content {
+            padding: 0;
+        }
+    }
+
     .sw-card__configurator .sw-card__content {
         padding: 0;
         background: #f8f9fa;

@@ -6,24 +6,17 @@ use Shopware\Core\Content\Product\SalesChannel\Detail\ProductConfiguratorLoader;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class ProductPageConfiguratorLoader extends ProductConfiguratorLoader
 {
     /**
-     * @var ProductConfiguratorLoader
-     */
-    private $loader;
-
-    /**
      * @internal
      */
-    public function __construct(ProductConfiguratorLoader $decorated)
+    public function __construct(private readonly ProductConfiguratorLoader $loader)
     {
-        $this->loader = $decorated;
     }
 
     /**

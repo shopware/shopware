@@ -31,7 +31,7 @@ class PaymentMethodValidatorTest extends TestCase
     public function setUp(): void
     {
         $this->validator = new PaymentMethodValidator();
-        $this->cart = new Cart('cart-name', 'cart-token');
+        $this->cart = new Cart('cart-token');
     }
 
     public function testValidateWithoutErrors(): void
@@ -41,7 +41,7 @@ class PaymentMethodValidatorTest extends TestCase
 
         $this->validator->validate($this->cart, $errors, $context);
 
-        static::assertCount(0, $errors);
+        static::assertCount(0, $errors, \print_r($errors, true));
     }
 
     public function testValidatePaymentMethodIsInactive(): void
@@ -56,7 +56,7 @@ class PaymentMethodValidatorTest extends TestCase
         static::assertCount(1, $errors);
         $error = $errors->get('payment-method-blocked-');
         static::assertNotNull($error);
-        static::assertStringContainsString('inactive', $error->getMessage());
+        static::assertStringContainsString('inactive', $error->getMessage(), print_r($error->getMessage(), true));
     }
 
     public function testValidatePaymentMethodNotAvailableInSalesChannel(): void
@@ -115,8 +115,11 @@ class PaymentMethodValidatorTest extends TestCase
         $salesChannel = new SalesChannelEntity();
         $salesChannel->setPaymentMethodIds(['payment-method-id']);
 
+        $base = Context::createDefaultContext();
+        $base->setRuleIds(['payment-method-availability-rule-id']);
+
         return new SalesChannelContext(
-            Context::createDefaultContext(),
+            $base,
             'token',
             null,
             $salesChannel,
@@ -128,8 +131,7 @@ class PaymentMethodValidatorTest extends TestCase
             $this->createMock(ShippingLocation::class),
             null,
             $this->createMock(CashRoundingConfig::class),
-            $this->createMock(CashRoundingConfig::class),
-            ['payment-method-availability-rule-id'],
+            $this->createMock(CashRoundingConfig::class)
         );
     }
 }

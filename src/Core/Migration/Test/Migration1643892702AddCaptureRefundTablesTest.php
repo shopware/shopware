@@ -8,14 +8,14 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCapture\OrderTransactionCaptureDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTransactionCaptureRefundDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefundPosition\OrderTransactionCaptureRefundPositionDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Migration\V6_4\Migration1643892702AddCaptureRefundTables;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class Migration1643892702AddCaptureRefundTablesTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -78,7 +78,7 @@ class Migration1643892702AddCaptureRefundTablesTest extends TestCase
 
         try {
             $this->connection->executeQuery($sql);
-        } catch (Exception $exception) {
+        } catch (Exception) {
             return false;
         }
 

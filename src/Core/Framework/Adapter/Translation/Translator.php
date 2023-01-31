@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
@@ -25,38 +26,21 @@ use Symfony\Contracts\Translation\LocaleAwareInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Contracts\Translation\TranslatorTrait;
 
-/**
- * @package core
- */
+#[Package('core')]
 class Translator extends AbstractTranslator
 {
     use TranslatorTrait;
-
-    /**
-     * @var TranslatorInterface|TranslatorBagInterface|WarmableInterface
-     */
-    private $translator;
-
-    private RequestStack $requestStack;
-
-    private CacheInterface $cache;
 
     /**
      * @var array<string, MessageCatalogueInterface>
      */
     private array $isCustomized = [];
 
-    private MessageFormatterInterface $formatter;
-
-    private SnippetService $snippetService;
-
     private ?string $snippetSetId = null;
 
     private ?string $salesChannelId = null;
 
     private ?string $localeBeforeInject = null;
-
-    private string $environment;
 
     /**
      * @var array<string, bool>
@@ -68,40 +52,24 @@ class Translator extends AbstractTranslator
      */
     private array $traces = [];
 
-    private EntityRepository $snippetSetRepository;
-
     /**
      * @var array<string, string>
      */
     private array $snippets = [];
 
-    private LanguageLocaleCodeProvider $languageLocaleProvider;
-
     /**
      * @internal
      */
-    public function __construct(
-        TranslatorInterface $translator,
-        RequestStack $requestStack,
-        CacheInterface $cache,
-        MessageFormatterInterface $formatter,
-        SnippetService $snippetService,
-        string $environment,
-        EntityRepository $snippetSetRepository,
-        LanguageLocaleCodeProvider $languageLocaleProvider
-    ) {
-        $this->translator = $translator;
-        $this->requestStack = $requestStack;
-        $this->cache = $cache;
-        $this->formatter = $formatter;
-        $this->snippetService = $snippetService;
-        $this->environment = $environment;
-        $this->snippetSetRepository = $snippetSetRepository;
-        $this->languageLocaleProvider = $languageLocaleProvider;
+    public function __construct(private readonly TranslatorInterface $translator, private readonly RequestStack $requestStack, private readonly CacheInterface $cache, private readonly MessageFormatterInterface $formatter, private readonly SnippetService $snippetService, private readonly string $environment, private readonly EntityRepository $snippetSetRepository, private readonly LanguageLocaleCodeProvider $languageLocaleProvider)
+    {
     }
 
     public static function buildName(string $id): string
     {
+        if (\strpbrk($id, (string) ItemInterface::RESERVED_CHARACTERS) !== false) {
+            $id = \str_replace(\str_split((string) ItemInterface::RESERVED_CHARACTERS, 1), '_r_', $id);
+        }
+
         return 'translator.' . $id;
     }
 
@@ -166,7 +134,7 @@ class Translator extends AbstractTranslator
     /**
      * @param array<string, string> $parameters
      */
-    public function trans($id, array $parameters = [], ?string $domain = null, ?string $locale = null): string
+    public function trans(string $id, array $parameters = [], ?string $domain = null, ?string $locale = null): string
     {
         if ($domain === null) {
             $domain = 'messages';
@@ -347,7 +315,7 @@ class Translator extends AbstractTranslator
     {
         try {
             return $this->languageLocaleProvider->getLocaleForLanguageId(Defaults::LANGUAGE_SYSTEM);
-        } catch (ConnectionException $_) {
+        } catch (ConnectionException) {
             // this allows us to use the translator even if there's no db connection yet
             return 'en-GB';
         }

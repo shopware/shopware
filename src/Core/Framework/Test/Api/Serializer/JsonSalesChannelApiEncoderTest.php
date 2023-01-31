@@ -75,7 +75,7 @@ class JsonSalesChannelApiEncoderTest extends TestCase
         $encoder = $this->getContainer()->get(JsonApiEncoder::class);
         $actual = $encoder->encode(new Criteria(), $definition, $fixture->getInput(), SerializationFixture::SALES_CHANNEL_API_BASE_URL);
 
-        $actual = json_decode($actual, true);
+        $actual = json_decode((string) $actual, true, 512, \JSON_THROW_ON_ERROR);
 
         // remove extensions from test
         $actual = $this->arrayRemove($actual, 'extensions');
@@ -107,7 +107,7 @@ class JsonSalesChannelApiEncoderTest extends TestCase
         // TODO: WTF? Why does it now have a self link
         // static::assertStringContainsString('"links":{}', $actual);
 
-        $this->assertValues($fixture->getSalesChannelJsonApiFixtures(), json_decode($actual, true));
+        $this->assertValues($fixture->getSalesChannelJsonApiFixtures(), json_decode((string) $actual, true, 512, \JSON_THROW_ON_ERROR));
     }
 
     /**
@@ -134,7 +134,7 @@ class JsonSalesChannelApiEncoderTest extends TestCase
         static::assertStringNotContainsString('"attributes":[]', $actual);
         static::assertStringContainsString('"attributes":{}', $actual);
 
-        $this->assertValues($fixture->getSalesChannelJsonApiFixtures(), json_decode($actual, true));
+        $this->assertValues($fixture->getSalesChannelJsonApiFixtures(), json_decode((string) $actual, true, 512, \JSON_THROW_ON_ERROR));
     }
 
     private function arrayRemove($haystack, string $keyToRemove): array

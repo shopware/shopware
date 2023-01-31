@@ -4,11 +4,10 @@ namespace Shopware\Core\Content\Cms\SalesChannel\Struct;
 
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-/**
- * @package content
- */
+#[Package('content')]
 class BuyBoxStruct extends Struct
 {
     /**

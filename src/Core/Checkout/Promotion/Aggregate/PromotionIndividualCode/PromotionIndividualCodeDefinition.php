@@ -12,13 +12,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class PromotionIndividualCodeDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'promotion_individual_code';
+    final public const ENTITY_NAME = 'promotion_individual_code';
 
     public function getEntityName(): string
     {

@@ -11,33 +11,33 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\AggregationParser;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\StateAwareTrait;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * @final
- *
- * @package core
  */
+#[Package('core')]
 class Criteria extends Struct implements \Stringable
 {
     use StateAwareTrait;
-    public const STATE_ELASTICSEARCH_AWARE = 'elasticsearchAware';
+    final public const STATE_ELASTICSEARCH_AWARE = 'elasticsearchAware';
 
     /**
      * no total count will be selected. Should be used if no pagination required (fastest)
      */
-    public const TOTAL_COUNT_MODE_NONE = 0;
+    final public const TOTAL_COUNT_MODE_NONE = 0;
 
     /**
      * exact total count will be selected. Should be used if an exact pagination is required (slow)
      */
-    public const TOTAL_COUNT_MODE_EXACT = 1;
+    final public const TOTAL_COUNT_MODE_EXACT = 1;
 
     /**
      * fetches limit * 5 + 1. Should be used if pagination can work with "next page exists" (fast)
      */
-    public const TOTAL_COUNT_MODE_NEXT_PAGES = 2;
+    final public const TOTAL_COUNT_MODE_NEXT_PAGES = 2;
 
     /**
      * @var FieldSorting[]
@@ -200,10 +200,7 @@ class Criteria extends Struct implements \Stringable
      */
     public function hasEqualsFilter($field): bool
     {
-        return \count(array_filter($this->filters, static function (Filter $filter) use ($field) {
-            /* EqualsFilter $filter */
-            return $filter instanceof EqualsFilter && $filter->getField() === $field;
-        })) > 0;
+        return \count(array_filter($this->filters, static fn (Filter $filter) /* EqualsFilter $filter */ => $filter instanceof EqualsFilter && $filter->getField() === $field)) > 0;
     }
 
     /**

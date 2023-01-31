@@ -18,13 +18,14 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 trait PluginTestsHelper
 {
     protected function createPluginService(
+        string $pluginDir,
+        string $projectDir,
         EntityRepository $pluginRepo,
         EntityRepository $languageRepo,
-        string $projectDir,
         PluginFinder $pluginFinder
     ): PluginService {
         return new PluginService(
-            __DIR__ . '/_fixture/plugins',
+            $pluginDir,
             $projectDir,
             $pluginRepo,
             $languageRepo,
@@ -58,16 +59,14 @@ trait PluginTestsHelper
 
     abstract protected function getContainer(): ContainerInterface;
 
-    private function addTestPluginToKernel(string $pluginName, bool $active = false): void
+    private function addTestPluginToKernel(string $testPluginBaseDir, string $pluginName, bool $active = false): void
     {
-        $testPluginBaseDir = __DIR__ . '/_fixture/plugins/' . $pluginName;
-        /** @var class-string<Plugin> $class */
-        $class = '\\' . $pluginName . '\\' . $pluginName;
-
         require_once $testPluginBaseDir . '/src/' . $pluginName . '.php';
 
         /** @var KernelPluginCollection $pluginCollection */
         $pluginCollection = $this->getContainer()->get(KernelPluginCollection::class);
+        /** @var class-string<Plugin> $class */
+        $class = '\\' . $pluginName . '\\' . $pluginName;
         $plugin = new $class($active, $testPluginBaseDir);
         $pluginCollection->add($plugin);
 

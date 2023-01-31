@@ -48,8 +48,10 @@ Component.register('sw-condition-operator-select', {
             },
             set(operator) {
                 if (!this.condition.value) {
+                    // eslint-disable-next-line vue/no-mutating-props
                     this.condition.value = {};
                 }
+                // eslint-disable-next-line vue/no-mutating-props
                 this.condition.value = { ...this.condition.value, operator };
             },
         },

@@ -5,11 +5,10 @@ namespace Shopware\Core\Framework\Adapter\Filesystem\Adapter;
 use League\Flysystem\FilesystemAdapter;
 use League\Flysystem\Local\LocalFilesystemAdapter;
 use League\Flysystem\UnixVisibility\PortableVisibilityConverter;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-/**
- * @package core
- */
+#[Package('core')]
 class LocalFactory implements AdapterFactoryInterface
 {
     public function create(array $config): FilesystemAdapter

@@ -3,22 +3,21 @@
 namespace Shopware\Core\Framework\Adapter\Filesystem\Plugin;
 
 use League\Flysystem\FilesystemOperator;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
+#[Package('core')]
 class CopyBatch
 {
     public static function copy(FilesystemOperator $filesystem, CopyBatchInput ...$files): void
     {
         foreach ($files as $batchInput) {
-            if (\is_resource($batchInput->getSourceFile())) {
-                $handle = $batchInput->getSourceFile();
-            } else {
-                $handle = fopen($batchInput->getSourceFile(), 'rb');
-            }
+            $handle = $batchInput->getSourceFile();
 
             foreach ($batchInput->getTargetFiles() as $targetFile) {
+                if (!\is_resource($batchInput->getSourceFile())) {
+                    $handle = fopen($batchInput->getSourceFile(), 'rb');
+                }
+
                 $filesystem->writeStream($targetFile, $handle);
             }
 

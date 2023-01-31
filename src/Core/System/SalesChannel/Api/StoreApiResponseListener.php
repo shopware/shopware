@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\SalesChannel\Api;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -9,20 +10,16 @@ use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class StoreApiResponseListener implements EventSubscriberInterface
 {
-    private StructEncoder $encoder;
-
     /**
      * @internal
      */
-    public function __construct(StructEncoder $encoder)
+    public function __construct(private readonly StructEncoder $encoder)
     {
-        $this->encoder = $encoder;
     }
 
     public static function getSubscribedEvents(): array

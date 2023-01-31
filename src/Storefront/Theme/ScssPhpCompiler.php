@@ -4,12 +4,12 @@ namespace Shopware\Storefront\Theme;
 
 use ScssPhp\ScssPhp\Compiler;
 use ScssPhp\ScssPhp\OutputStyle;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package storefront
- *
  * @internal - may be changed in the future
  */
+#[Package('storefront')]
 class ScssPhpCompiler extends AbstractScssCompiler
 {
     private Compiler $compiler;
@@ -17,7 +17,7 @@ class ScssPhpCompiler extends AbstractScssCompiler
     /**
      * @var array<string, mixed>|null
      */
-    private ?array $cacheOptions;
+    private readonly ?array $cacheOptions;
 
     /**
      * @param array<string, mixed>|null $cacheOptions
@@ -52,10 +52,5 @@ class ScssPhpCompiler extends AbstractScssCompiler
         $this->reset(); // Reset compiler for multiple usage
 
         return $css;
-    }
-
-    public function filesHandledInternal(): bool
-    {
-        return false;
     }
 }

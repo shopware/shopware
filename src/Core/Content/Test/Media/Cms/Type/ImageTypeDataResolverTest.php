@@ -36,15 +36,9 @@ class ImageTypeDataResolverTest extends TestCase
 
     private const FIXTURES_DIRECTORY = '/../../fixtures/';
 
-    /**
-     * @var ImageCmsElementResolver
-     */
-    private $imageResolver;
+    private ImageCmsElementResolver $imageResolver;
 
-    /**
-     * @var FilesystemOperator
-     */
-    private $publicFilesystem;
+    private FilesystemOperator $publicFilesystem;
 
     protected function setUp(): void
     {
@@ -332,7 +326,7 @@ class ImageTypeDataResolverTest extends TestCase
         $slot = new CmsSlotEntity();
         $slot->setUniqueIdentifier('id');
         $slot->setType('image');
-        $slot->setConfig(json_decode(json_encode($fieldConfig), true));
+        $slot->setConfig(json_decode(json_encode($fieldConfig, \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR));
         $slot->setFieldConfig($fieldConfig);
 
         $this->imageResolver->enrich($slot, $resolverContext, $result);

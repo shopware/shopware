@@ -3,25 +3,21 @@
 namespace Shopware\Core\Checkout\Customer\Validation\Constraint;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 use Symfony\Component\Validator\Exception\UnexpectedValueException;
 
-/**
- * @package customer-order
- */
+#[Package('customer-order')]
 class CustomerVatIdentificationValidator extends ConstraintValidator
 {
-    private Connection $connection;
-
     /**
      * @internal
      */
-    public function __construct(Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     public function validate(mixed $vatIds, Constraint $constraint): void
@@ -49,7 +45,7 @@ class CustomerVatIdentificationValidator extends ConstraintValidator
         $regex = '/^' . $vatPattern . '$/i';
 
         foreach ($vatIds as $vatId) {
-            if (!preg_match($regex, $vatId)) {
+            if (!preg_match($regex, (string) $vatId)) {
                 $this->context->buildViolation($constraint->message)
                     ->setParameter('{{ vatId }}', $this->formatValue($vatId))
                     ->setCode(CustomerVatIdentification::VAT_ID_FORMAT_NOT_CORRECT)

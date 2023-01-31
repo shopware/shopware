@@ -6,6 +6,7 @@ use Defuse\Crypto\Key;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\DriverManager;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Maintenance\System\Service\JwtCertificateGenerator;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -19,28 +20,18 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Dotenv\Command\DotenvDumpCommand;
 
 /**
- * @package core
- *
  * @internal should be used over the CLI only
  */
 #[AsCommand(
     name: 'system:setup',
     description: 'Setup the system',
 )]
+#[Package('core')]
 class SystemSetupCommand extends Command
 {
-    private string $projectDir;
-
-    private JwtCertificateGenerator $jwtCertificateGenerator;
-
-    private DotenvDumpCommand $dumpEnvCommand;
-
-    public function __construct(string $projectDir, JwtCertificateGenerator $jwtCertificateGenerator, DotenvDumpCommand $dumpEnvCommand)
+    public function __construct(private readonly string $projectDir, private readonly JwtCertificateGenerator $jwtCertificateGenerator, private readonly DotenvDumpCommand $dumpEnvCommand)
     {
         parent::__construct();
-        $this->projectDir = $projectDir;
-        $this->jwtCertificateGenerator = $jwtCertificateGenerator;
-        $this->dumpEnvCommand = $dumpEnvCommand;
     }
 
     protected function configure(): void
@@ -63,6 +54,10 @@ class SystemSetupCommand extends Command
             ->addOption('es-hosts', null, InputOption::VALUE_OPTIONAL, 'Elasticsearch Hosts', $this->getDefault('OPENSEARCH_URL', 'elasticsearch:9200'))
             ->addOption('es-indexing-enabled', null, InputOption::VALUE_OPTIONAL, 'Elasticsearch Indexing enabled', $this->getDefault('SHOPWARE_ES_INDEXING_ENABLED', '0'))
             ->addOption('es-index-prefix', null, InputOption::VALUE_OPTIONAL, 'Elasticsearch Index prefix', $this->getDefault('SHOPWARE_ES_INDEX_PREFIX', 'sw'))
+            ->addOption('admin-es-hosts', null, InputOption::VALUE_OPTIONAL, 'Admin Elasticsearch Hosts', $this->getDefault('ADMIN_OPENSEARCH_URL', 'elasticsearch:9200'))
+            ->addOption('admin-es-index-prefix', null, InputOption::VALUE_OPTIONAL, 'Admin Elasticsearch Index prefix', $this->getDefault('SHOPWARE_ADMIN_ES_INDEX_PREFIX', 'sw-admin'))
+            ->addOption('admin-es-enabled', null, InputOption::VALUE_OPTIONAL, 'Admin Elasticsearch Enabled', $this->getDefault('SHOPWARE_ADMIN_ES_ENABLED', '0'))
+            ->addOption('admin-es-refresh-indices', null, InputOption::VALUE_OPTIONAL, 'Admin Elasticsearch Refresh Indices', $this->getDefault('SHOPWARE_ADMIN_ES_REFRESH_INDICES', '0'))
             ->addOption('http-cache-enabled', null, InputOption::VALUE_OPTIONAL, 'Http-Cache enabled', $this->getDefault('SHOPWARE_HTTP_CACHE_ENABLED', '1'))
             ->addOption('http-cache-ttl', null, InputOption::VALUE_OPTIONAL, 'Http-Cache TTL', $this->getDefault('SHOPWARE_HTTP_DEFAULT_TTL', '7200'))
             ->addOption('cdn-strategy', null, InputOption::VALUE_OPTIONAL, 'CDN Strategy', $this->getDefault('SHOPWARE_CDN_STRATEGY_DEFAULT', 'id'))
@@ -75,12 +70,16 @@ class SystemSetupCommand extends Command
         /** @var array<string, string> $env */
         $env = [
             'APP_ENV' => $input->getOption('app-env'),
-            'APP_URL' => trim($input->getOption('app-url')), /* @phpstan-ignore-line */
+            'APP_URL' => trim((string) $input->getOption('app-url')),
             'DATABASE_URL' => $input->getOption('database-url'),
             'OPENSEARCH_URL' => $input->getOption('es-hosts'),
             'SHOPWARE_ES_ENABLED' => $input->getOption('es-enabled'),
             'SHOPWARE_ES_INDEXING_ENABLED' => $input->getOption('es-indexing-enabled'),
             'SHOPWARE_ES_INDEX_PREFIX' => $input->getOption('es-index-prefix'),
+            'ADMIN_OPENSEARCH_URL' => $input->getOption('admin-es-hosts'),
+            'SHOPWARE_ADMIN_ES_INDEX_PREFIX' => $input->getOption('admin-es-index-prefix'),
+            'SHOPWARE_ADMIN_ES_ENABLED' => $input->getOption('admin-es-enabled'),
+            'SHOPWARE_ADMIN_ES_REFRESH_INDICES' => $input->getOption('admin-es-refresh-indices'),
             'SHOPWARE_HTTP_CACHE_ENABLED' => $input->getOption('http-cache-enabled'),
             'SHOPWARE_HTTP_DEFAULT_TTL' => $input->getOption('http-cache-ttl'),
             'SHOPWARE_CDN_STRATEGY_DEFAULT' => $input->getOption('cdn-strategy'),
@@ -121,7 +120,7 @@ class SystemSetupCommand extends Command
         if (!$input->getOption('force') && file_exists($this->projectDir . '/.env')) {
             $io->comment('Instance has already been set-up. To start over, please delete your .env file.');
 
-            return 0;
+            return Command::SUCCESS;
         }
 
         if (!$input->isInteractive()) {
@@ -132,7 +131,7 @@ class SystemSetupCommand extends Command
 
             $this->createEnvFile($input, $io, $env);
 
-            return 0;
+            return Command::SUCCESS;
         }
 
         $io->section('Application information');
@@ -169,7 +168,7 @@ class SystemSetupCommand extends Command
         do {
             try {
                 $exception = null;
-                $env = array_merge($env, $this->getDsn($input, $io));
+                $env = [...$env, ...$this->getDsn($input, $io)];
             } catch (\Throwable $e) {
                 $exception = $e;
                 $io->error($exception->getMessage());
@@ -182,7 +181,7 @@ class SystemSetupCommand extends Command
 
         $this->createEnvFile($input, $io, $env);
 
-        return 0;
+        return Command::SUCCESS;
     }
 
     /**
@@ -213,7 +212,7 @@ class SystemSetupCommand extends Command
         $dsnWithoutDb = sprintf(
             'mysql://%s:%s@%s:%d',
             $dbUser,
-            rawurlencode($dbPass),
+            rawurlencode((string) $dbPass),
             $dbHost,
             $dbPort
         );

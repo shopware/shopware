@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -22,10 +23,9 @@ use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 use function json_decode;
 
 /**
- * @package customer-order
- *
  * @internal
  */
+#[Package('customer-order')]
 class CustomerTokenSubscriberTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -59,7 +59,7 @@ class CustomerTokenSubscriberTest extends TestCase
         $this->customerRepository->update([
             [
                 'id' => $customerId,
-                'password' => 'fooo',
+                'password' => 'fooo12345',
             ],
         ], Context::createDefaultContext());
 
@@ -69,7 +69,7 @@ class CustomerTokenSubscriberTest extends TestCase
                 'billingAddressId' => null,
                 'shippingAddressId' => null,
             ],
-            json_decode($this->connection->fetchOne('SELECT payload FROM sales_channel_api_context WHERE token = "test"'), true)
+            json_decode((string) $this->connection->fetchOne('SELECT payload FROM sales_channel_api_context WHERE token = "test"'), true, 512, \JSON_THROW_ON_ERROR)
         );
     }
 
@@ -106,7 +106,7 @@ class CustomerTokenSubscriberTest extends TestCase
         $this->customerRepository->update([
             [
                 'id' => $customerId,
-                'password' => 'fooo',
+                'password' => 'fooo12345',
             ],
         ], Context::createDefaultContext());
 
@@ -116,7 +116,7 @@ class CustomerTokenSubscriberTest extends TestCase
             [
                 'customerId' => '1234',
             ],
-            json_decode($this->connection->fetchOne('SELECT payload FROM sales_channel_api_context WHERE token = ?', [$newToken]), true)
+            json_decode((string) $this->connection->fetchOne('SELECT payload FROM sales_channel_api_context WHERE token = ?', [$newToken]), true, 512, \JSON_THROW_ON_ERROR)
         );
     }
 

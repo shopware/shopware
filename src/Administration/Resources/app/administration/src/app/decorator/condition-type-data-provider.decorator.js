@@ -523,6 +523,20 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         group: 'customer',
     });
 
+    ruleConditionService.addCondition('customerSalutation', {
+        component: 'sw-condition-generic',
+        label: 'global.sw-condition.condition.customerSalutationRule',
+        scopes: ['checkout'],
+        group: 'customer',
+    });
+
+    ruleConditionService.addCondition('cartLineItemProductStates', {
+        component: 'sw-condition-generic-line-item',
+        label: 'global.sw-condition.condition.lineItemProductStates',
+        scopes: ['lineItem'],
+        group: 'item',
+    });
+
     ruleConditionService.addCondition('orderTag', {
         component: 'sw-condition-generic',
         label: 'global.sw-condition.condition.orderTagRule',
@@ -538,7 +552,10 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
                 'customerIsActive',
                 'orderTag',
             ],
-            equalsAny: ruleConditionService.getRestrictionsByGroup('customer'),
+            equalsAny: [
+                ...ruleConditionService.getRestrictionsByGroup('customer'),
+                'alwaysValid',
+            ],
             snippet: 'sw-restricted-rules.restrictedAssignment.personaPromotions',
         },
     );
@@ -551,7 +568,10 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
                 'customerIsActive',
                 'orderTag',
             ],
-            equalsAny: ruleConditionService.getRestrictionsByGroup('customer'),
+            equalsAny: [
+                ...ruleConditionService.getRestrictionsByGroup('customer'),
+                'alwaysValid',
+            ],
             snippet: 'sw-restricted-rules.restrictedAssignment.orderPromotions',
         },
     );
@@ -748,12 +768,12 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
     );
 
     ruleConditionService.addAwarenessConfiguration(
-        'flowTrigger.checkout.customer.double_opt_in_registration',
+        'flowTrigger.checkout.customer.double_opt_in_guest_order',
         {
             notEquals: ruleConditionService.getRestrictionsByGroup('cart', 'item', 'promotion'),
             equalsAny: ruleConditionService.getRestrictionsByGroup('general', 'customer'),
             scopes: ['global', 'customer'],
-            snippet: 'global.businessEvents.checkout_customer_double_opt_in_registration',
+            snippet: 'global.businessEvents.checkout_customer_double_opt_in_guest_order',
         },
     );
 

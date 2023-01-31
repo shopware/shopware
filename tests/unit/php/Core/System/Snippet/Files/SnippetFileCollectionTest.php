@@ -94,15 +94,11 @@ class SnippetFileCollectionTest extends TestCase
 
         $resultDe = array_filter(/**
          * @param array<string, bool|string> $item
-         */ $result, function (array $item) {
-            return $item['iso'] === 'de-DE';
-        });
+         */ $result, fn (array $item) => $item['iso'] === 'de-DE');
 
         $resultEn = array_filter(/**
          * @param array<string, bool|string> $item
-         */ $result, function (array $item) {
-            return $item['iso'] === 'en-GB';
-        });
+         */ $result, fn (array $item) => $item['iso'] === 'en-GB');
 
         static::assertCount(2, $resultDe);
         static::assertCount(1, $resultEn);

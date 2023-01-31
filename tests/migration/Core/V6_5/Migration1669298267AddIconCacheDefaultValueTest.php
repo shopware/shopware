@@ -5,7 +5,7 @@ namespace Shopware\Tests\Migration\Core\V6_5;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_5\Migration1669298267AddIconCacheDefaultValue;
 
@@ -15,11 +15,9 @@ use Shopware\Core\Migration\V6_5\Migration1669298267AddIconCacheDefaultValue;
  */
 class Migration1669298267AddIconCacheDefaultValueTest extends TestCase
 {
-    use KernelTestBehaviour;
-
     public function testInsertValue(): void
     {
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = KernelLifecycleManager::getConnection();
 
         if (\is_string($id = $this->getId($connection))) {
             $sql = 'DELETE FROM `system_config` WHERE `id` = ?;';
@@ -40,7 +38,7 @@ class Migration1669298267AddIconCacheDefaultValueTest extends TestCase
 
     public function testUpdateValue(): void
     {
-        $connection = $this->getContainer()->get(Connection::class);
+        $connection = KernelLifecycleManager::getConnection();
 
         if (\is_string($id = $this->getId($connection))) {
             $sql = 'UPDATE `system_config` SET `configuration_value` = ?, `configuration_key` = \'core.storefrontSettings.iconCache\' WHERE `id` = ?;';
@@ -78,7 +76,7 @@ class Migration1669298267AddIconCacheDefaultValueTest extends TestCase
             return $value;
         }
 
-        return json_decode($value, true)['_value'];
+        return json_decode((string) $value, true, 512, \JSON_THROW_ON_ERROR)['_value'];
     }
 
     private function getId(Connection $connection): string|bool

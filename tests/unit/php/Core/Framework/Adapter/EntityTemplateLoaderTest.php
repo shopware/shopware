@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Framework\Adapter\Twig;
+namespace Shopware\Tests\Unit\Core\Framework\Adapter;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -17,7 +17,7 @@ use Twig\Source;
 class EntityTemplateLoaderTest extends TestCase
 {
     /**
-     * @var Connection|MockObject
+     * @var Connection&MockObject
      */
     private Connection $connectionMock;
 

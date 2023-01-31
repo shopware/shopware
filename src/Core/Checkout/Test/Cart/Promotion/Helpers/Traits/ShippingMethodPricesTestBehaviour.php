@@ -5,10 +5,9 @@ namespace Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 trait ShippingMethodPricesTestBehaviour
 {
     /**

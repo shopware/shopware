@@ -14,31 +14,22 @@ use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\App\Exception\AppNotFoundException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @package core
- */
+#[Package('core')]
 class ApiRequestContextResolver implements RequestContextResolverInterface
 {
     use RouteScopeCheckTrait;
 
-    private Connection $connection;
-
-    private RouteScopeRegistry $routeScopeRegistry;
-
     /**
      * @internal
      */
-    public function __construct(
-        Connection $connection,
-        RouteScopeRegistry $routeScopeRegistry
-    ) {
-        $this->connection = $connection;
-        $this->routeScopeRegistry = $routeScopeRegistry;
+    public function __construct(private readonly Connection $connection, private readonly RouteScopeRegistry $routeScopeRegistry)
+    {
     }
 
     public function resolve(Request $request): void
@@ -316,7 +307,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
 
         $list = [];
         foreach ($permissions as $privileges) {
-            $privileges = json_decode((string) $privileges, true);
+            $privileges = json_decode((string) $privileges, true, 512, \JSON_THROW_ON_ERROR);
             $list = array_merge($list, $privileges);
         }
 
@@ -333,7 +324,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
             throw new \RuntimeException(sprintf('No cash rounding for currency "%s" found', $currencyId));
         }
 
-        $rounding = json_decode($rounding['item_rounding'], true);
+        $rounding = json_decode((string) $rounding['item_rounding'], true, 512, \JSON_THROW_ON_ERROR);
 
         return new CashRoundingConfig(
             (int) $rounding['decimals'],
@@ -359,7 +350,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
             return null;
         }
 
-        return json_decode($privileges, true);
+        return json_decode((string) $privileges, true, 512, \JSON_THROW_ON_ERROR);
     }
 
     private function fetchIntegrationPermissions(string $integrationId): array
@@ -375,7 +366,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
 
         $list = [];
         foreach ($permissions as $privileges) {
-            $privileges = json_decode((string) $privileges, true);
+            $privileges = json_decode((string) $privileges, true, 512, \JSON_THROW_ON_ERROR);
             $list = array_merge($list, $privileges);
         }
 

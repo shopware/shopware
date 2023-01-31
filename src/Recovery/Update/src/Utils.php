@@ -187,19 +187,19 @@ class Utils
 
         $parameters = [\PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES \'UTF8MB4\''];
 
-        if (isset($_ENV['DATABASE_SSL_CA'])) {
+        if (!empty($_ENV['DATABASE_SSL_CA'])) {
             $parameters[\PDO::MYSQL_ATTR_SSL_CA] = $_ENV['DATABASE_SSL_CA'];
         }
 
-        if (isset($_ENV['DATABASE_SSL_CERT'])) {
+        if (!empty($_ENV['DATABASE_SSL_CERT'])) {
             $parameters[\PDO::MYSQL_ATTR_SSL_CERT] = $_ENV['DATABASE_SSL_CERT'];
         }
 
-        if (isset($_ENV['DATABASE_SSL_KEY'])) {
+        if (!empty($_ENV['DATABASE_SSL_KEY'])) {
             $parameters[\PDO::MYSQL_ATTR_SSL_KEY] = $_ENV['DATABASE_SSL_KEY'];
         }
 
-        if (isset($_ENV['DATABASE_SSL_DONT_VERIFY_SERVER_CERT'])) {
+        if (!empty($_ENV['DATABASE_SSL_DONT_VERIFY_SERVER_CERT'])) {
             $parameters[\PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = false;
         }
 

@@ -3,73 +3,37 @@
 namespace Shopware\Core\Checkout\Test\Cart\Promotion\Helpers;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 
 /**
- * @package checkout
- *
  * @internal
  */
+#[Package('checkout')]
 class PromotionFixtureBuilder
 {
-    /**
-     * @var SalesChannelContext
-     */
-    private $context;
+    private readonly SalesChannelContext $context;
 
-    /**
-     * @var EntityRepository
-     */
-    private $promotionRepository;
+    private ?string $code = null;
 
-    /**
-     * @var EntityRepository
-     */
-    private $promotionSetgroupRepository;
+    private array $dataSetGroups;
 
-    /**
-     * @var EntityRepository
-     */
-    private $promotionDiscountRepository;
-
-    /**
-     * @var string
-     */
-    private $promotionId;
-
-    /**
-     * @var string|null
-     */
-    private $code;
-
-    /**
-     * @var array
-     */
-    private $dataSetGroups;
-
-    /**
-     * @var array
-     */
-    private $dataDiscounts;
+    private array $dataDiscounts;
 
     public function __construct(
-        string $promotionId,
+        private readonly string $promotionId,
         AbstractSalesChannelContextFactory $salesChannelContextFactory,
-        EntityRepository $promotionRepository,
-        EntityRepository $promotionSetgroupRepository,
-        EntityRepository $promotionDiscountRepository
+        private readonly EntityRepository $promotionRepository,
+        private readonly EntityRepository $promotionSetgroupRepository,
+        private readonly EntityRepository $promotionDiscountRepository
     ) {
-        $this->promotionId = $promotionId;
         $this->dataSetGroups = [];
         $this->dataDiscounts = [];
 
         $this->context = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
-        $this->promotionRepository = $promotionRepository;
-        $this->promotionSetgroupRepository = $promotionSetgroupRepository;
-        $this->promotionDiscountRepository = $promotionDiscountRepository;
     }
 
     public function setCode(string $code): PromotionFixtureBuilder

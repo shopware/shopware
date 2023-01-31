@@ -8,13 +8,13 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('business-ops')]
 class LineItemRuleTest extends TestCase
 {
     public function testRuleMatch(): void
@@ -30,7 +30,7 @@ class LineItemRuleTest extends TestCase
             $rule->match(new LineItemScope($lineItem, $context))
         );
 
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
         $cart->add($lineItem);
 
         static::assertTrue(
@@ -51,7 +51,7 @@ class LineItemRuleTest extends TestCase
             $rule->match(new LineItemScope($lineItem, $context))
         );
 
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
         $cart->add($lineItem);
 
         static::assertFalse(

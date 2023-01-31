@@ -999,7 +999,7 @@ class EntityReaderTest extends TestCase
                 'lastName' => 'Test',
                 'customerNumber' => 'A',
                 'salutationId' => $this->getValidSalutationId(),
-                'password' => 'A',
+                'password' => 'shopware',
                 'email' => 'test@test.com' . $id,
                 'defaultShippingAddressId' => $defaultAddressId,
                 'defaultBillingAddressId' => $defaultAddressId,
@@ -1048,7 +1048,7 @@ class EntityReaderTest extends TestCase
                 'lastName' => 'Test',
                 'customerNumber' => 'A',
                 'salutationId' => $this->getValidSalutationId(),
-                'password' => 'A',
+                'password' => 'shopware',
                 'email' => 'test@test.com' . $id,
                 'defaultShippingAddressId' => $defaultAddressId,
                 'defaultBillingAddressId' => $defaultAddressId,
@@ -1101,7 +1101,7 @@ class EntityReaderTest extends TestCase
             'lastName' => 'Test',
             'customerNumber' => 'A',
             'salutationId' => $this->getValidSalutationId(),
-            'password' => 'A',
+            'password' => 'shopware',
             'email' => 'test@example.com',
             'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
@@ -1200,7 +1200,7 @@ class EntityReaderTest extends TestCase
             'firstName' => 'Test',
             'lastName' => 'Test',
             'customerNumber' => 'A',
-            'password' => 'A',
+            'password' => 'shopware',
             'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
             'group' => ['name' => 'test'],
@@ -1325,7 +1325,7 @@ class EntityReaderTest extends TestCase
                 'lastName' => 'Test',
                 'customerNumber' => 'A',
                 'salutationId' => $this->getValidSalutationId(),
-                'password' => 'A',
+                'password' => 'shopware',
                 'email' => 'test@test.com' . Uuid::randomHex(),
                 'defaultShippingAddressId' => $defaultAddressId,
                 'defaultBillingAddressId' => $defaultAddressId,
@@ -1351,9 +1351,7 @@ class EntityReaderTest extends TestCase
         static::assertNotNull($customer->getAddresses());
         static::assertCount(3, $customer->getAddresses());
 
-        $streets = $customer->getAddresses()->map(function (CustomerAddressEntity $e) {
-            return $e->getStreet();
-        });
+        $streets = $customer->getAddresses()->map(fn (CustomerAddressEntity $e) => $e->getStreet());
         static::assertEquals(['A', 'B', 'D'], array_values($streets));
 
         $criteria = new Criteria([$id]);
@@ -1365,9 +1363,7 @@ class EntityReaderTest extends TestCase
         static::assertNotNull($customer->getAddresses());
         static::assertCount(3, $customer->getAddresses());
 
-        $streets = $customer->getAddresses()->map(function (CustomerAddressEntity $e) {
-            return $e->getStreet();
-        });
+        $streets = $customer->getAddresses()->map(fn (CustomerAddressEntity $e) => $e->getStreet());
         static::assertEquals(['X', 'E', 'D'], array_values($streets));
     }
 
@@ -1397,7 +1393,7 @@ class EntityReaderTest extends TestCase
                 'lastName' => 'Test',
                 'customerNumber' => 'A',
                 'salutationId' => $this->getValidSalutationId(),
-                'password' => 'A',
+                'password' => 'shopware',
                 'email' => 'test@test.com' . Uuid::randomHex(),
                 'defaultShippingAddressId' => $defaultAddressId,
                 'defaultBillingAddressId' => $defaultAddressId,
@@ -2247,9 +2243,7 @@ class EntityReaderTest extends TestCase
 
         $seoUrlCollection = $result->getSeoUrls();
         static::assertNotNull($seoUrlCollection);
-        $urls = $seoUrlCollection->map(function (SeoUrlEntity $e) {
-            return $e->getSeoPathInfo();
-        });
+        $urls = $seoUrlCollection->map(fn (SeoUrlEntity $e) => $e->getSeoPathInfo());
 
         static::assertSame($expected, array_values($urls));
     }

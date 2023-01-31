@@ -5,17 +5,16 @@ namespace Shopware\Core\Content\ImportExport;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package system-settings
- */
+#[Package('system-settings')]
 class ImportExportProfileEntity extends Entity
 {
     use EntityIdTrait;
 
-    public const TYPE_IMPORT = 'import';
-    public const TYPE_EXPORT = 'export';
-    public const TYPE_IMPORT_EXPORT = 'import-export';
+    final public const TYPE_IMPORT = 'import';
+    final public const TYPE_EXPORT = 'export';
+    final public const TYPE_IMPORT_EXPORT = 'import-export';
 
     /**
      * @var string|null

@@ -6,13 +6,13 @@ use Lcobucci\JWT\Configuration;
 use League\OAuth2\Server\CryptKey;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Payment\Cart\Token\JWTConfigurationFactory;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
- * @package checkout
- *
  * @internal
  */
+#[Package('checkout')]
 class JWTConfigurationFactoryTest extends TestCase
 {
     use IntegrationTestBehaviour;

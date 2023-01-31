@@ -8,16 +8,16 @@ use Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Migration\V6_4\Migration1632215760MoveDataFromEventActionToFlow;
 use Shopware\Core\Migration\V6_4\Migration1648803451FixInvalidMigrationOfBusinessEventToFlow;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class Migration1648803451FixInvalidMigrationOfBusinessEventToFlowTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -45,6 +45,7 @@ class Migration1648803451FixInvalidMigrationOfBusinessEventToFlowTest extends Te
 
     public function testMigrateSimpleEventActionToFlow(): void
     {
+        $data = [];
         $this->createMailTemplate();
         $ruleIds = $this->connection->fetchAllAssociative('SELECT LOWER(HEX(id)) as id FROM rule LIMIT 2');
 
@@ -72,9 +73,7 @@ class Migration1648803451FixInvalidMigrationOfBusinessEventToFlowTest extends Te
         $flowsSequence = $this->connection->fetchAllAssociative('SELECT * from `flow_sequence`');
 
         static::assertCount(4, $flowsSequence);
-        $actionSequence = array_values(array_filter($flowsSequence, function ($sequence) {
-            return $sequence['action_name'] !== null;
-        }));
+        $actionSequence = array_values(array_filter($flowsSequence, fn ($sequence) => $sequence['action_name'] !== null));
 
         static::assertCount(2, $actionSequence);
         static::assertNotEquals($actionSequence[0]['parent_id'], $actionSequence[1]['parent_id']);
@@ -94,9 +93,7 @@ class Migration1648803451FixInvalidMigrationOfBusinessEventToFlowTest extends Te
 
         static::assertCount(3, $flowsSequence);
 
-        $saleChannelCondition = array_values(array_filter($flowsSequence, function ($sequence) {
-            return $sequence['action_name'] === null && $sequence['parent_id'] === null;
-        }))[0];
+        $saleChannelCondition = array_values(array_filter($flowsSequence, fn ($sequence) => $sequence['action_name'] === null && $sequence['parent_id'] === null))[0];
 
         $saleChannelRule = $this->connection->fetchOne(
             'SELECT 1 FROM `sales_channel_rule` WHERE `rule_id` = :ruleId',
@@ -106,14 +103,10 @@ class Migration1648803451FixInvalidMigrationOfBusinessEventToFlowTest extends Te
         );
         static::assertEquals(1, $saleChannelRule);
 
-        $ruleSequence = array_values(array_filter($flowsSequence, function ($sequence) {
-            return $sequence['action_name'] === null && $sequence['parent_id'] !== null;
-        }))[0];
+        $ruleSequence = array_values(array_filter($flowsSequence, fn ($sequence) => $sequence['action_name'] === null && $sequence['parent_id'] !== null))[0];
         static::assertEquals($ruleSequence['parent_id'], $saleChannelCondition['id']);
 
-        $actionSequence = array_values(array_filter($flowsSequence, function ($sequence) {
-            return $sequence['action_name'] !== null && $sequence['parent_id'] !== null;
-        }))[0];
+        $actionSequence = array_values(array_filter($flowsSequence, fn ($sequence) => $sequence['action_name'] !== null && $sequence['parent_id'] !== null))[0];
 
         static::assertEquals($actionSequence['parent_id'], $ruleSequence['id']);
     }

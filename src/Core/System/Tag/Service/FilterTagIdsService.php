@@ -12,30 +12,18 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Tag\Struct\FilteredTagIdsStruct;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- *
- * @package business-ops
  */
+#[Package('business-ops')]
 class FilterTagIdsService
 {
-    private EntityDefinition $tagDefinition;
-
-    private Connection $connection;
-
-    private CriteriaQueryBuilder $criteriaQueryBuilder;
-
-    public function __construct(
-        EntityDefinition $tagDefinition,
-        Connection $connection,
-        CriteriaQueryBuilder $criteriaQueryBuilder
-    ) {
-        $this->tagDefinition = $tagDefinition;
-        $this->connection = $connection;
-        $this->criteriaQueryBuilder = $criteriaQueryBuilder;
+    public function __construct(private readonly EntityDefinition $tagDefinition, private readonly Connection $connection, private readonly CriteriaQueryBuilder $criteriaQueryBuilder)
+    {
     }
 
     public function filterIds(Request $request, Criteria $criteria, Context $context): FilteredTagIdsStruct
@@ -94,9 +82,7 @@ class FilterTagIdsService
     private function addEmptyFilter(QueryBuilder $query): void
     {
         /** @var ManyToManyAssociationField[] $manyToManyFields */
-        $manyToManyFields = $this->tagDefinition->getFields()->filter(function (Field $field) {
-            return $field instanceof ManyToManyAssociationField;
-        });
+        $manyToManyFields = $this->tagDefinition->getFields()->filter(fn (Field $field) => $field instanceof ManyToManyAssociationField);
 
         foreach ($manyToManyFields as $manyToManyField) {
             $mappingTable = EntityDefinitionQueryHelper::escape($manyToManyField->getMappingDefinition()->getEntityName());
@@ -129,9 +115,7 @@ class FilterTagIdsService
     private function addAssignmentFilter(QueryBuilder $query, array $assignments): void
     {
         /** @var ManyToManyAssociationField[] $manyToManyFields */
-        $manyToManyFields = $this->tagDefinition->getFields()->filter(function (Field $field) use ($assignments) {
-            return $field instanceof ManyToManyAssociationField && \in_array($field->getPropertyName(), $assignments, true);
-        });
+        $manyToManyFields = $this->tagDefinition->getFields()->filter(fn (Field $field) => $field instanceof ManyToManyAssociationField && \in_array($field->getPropertyName(), $assignments, true));
 
         if (\count($manyToManyFields) === 0) {
             return;

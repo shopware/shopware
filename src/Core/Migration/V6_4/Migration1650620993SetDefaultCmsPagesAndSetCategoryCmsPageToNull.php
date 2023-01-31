@@ -6,14 +6,14 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class Migration1650620993SetDefaultCmsPagesAndSetCategoryCmsPageToNull extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -53,7 +53,7 @@ class Migration1650620993SetDefaultCmsPagesAndSetCategoryCmsPageToNull extends M
         $connection->insert('system_config', [
             'id' => Uuid::randomBytes(),
             'configuration_key' => $key,
-            'configuration_value' => json_encode(['_value' => $value]),
+            'configuration_value' => json_encode(['_value' => $value], \JSON_THROW_ON_ERROR),
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
     }

@@ -6,36 +6,24 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\Annotation\Entity;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route(defaults={"_routeScope"={"store-api"}})
- *
- * @package system-settings
- */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Package('system-settings')]
 class CountryStateRoute extends AbstractCountryStateRoute
 {
-    private EntityRepository $countryStateRepository;
-
     /**
      * @internal
      */
-    public function __construct(
-        EntityRepository $countryStateRepository
-    ) {
-        $this->countryStateRepository = $countryStateRepository;
+    public function __construct(private readonly EntityRepository $countryStateRepository)
+    {
     }
 
-    /**
-     * @Since("6.4.14.0")
-     * @Entity("country")
-     * @Route("/store-api/country-state/{countryId}", name="store-api.country.state", methods={"GET", "POST"})
-     */
+    #[Route(path: '/store-api/country-state/{countryId}', name: 'store-api.country.state', methods: ['GET', 'POST'], defaults: ['_entity' => 'country'])]
     public function load(string $countryId, Request $request, Criteria $criteria, SalesChannelContext $context): CountryStateRouteResponse
     {
         $criteria->addFilter(

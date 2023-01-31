@@ -3,12 +3,11 @@
 namespace Shopware\Core\System\Country\SalesChannel;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
-/**
- * @package system-settings
- */
+#[Package('system-settings')]
 class CountryRouteResponse extends StoreApiResponse
 {
     /**

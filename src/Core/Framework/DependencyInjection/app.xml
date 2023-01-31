@@ -97,6 +97,10 @@
             <argument type="service" id="Shopware\Core\Content\Media\MediaService"/>
         </service>
 
+        <service id="Shopware\Core\Framework\App\Lifecycle\Persister\TaxProviderPersister">
+            <argument type="service" id="tax_provider.repository"/>
+        </service>
+
         <service id="Shopware\Core\Framework\App\Lifecycle\Persister\RuleConditionPersister">
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\ScriptFileReader"/>
             <argument type="service" id="app_script_condition.repository"/>
@@ -125,6 +129,12 @@
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\RuleConditionPersister"/>
         </service>
 
+        <service id="Shopware\Core\Framework\App\AppPayloadServiceHelper">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder"/>
+            <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
+        </service>
+
         <service id="Shopware\Core\Framework\App\ActiveAppsLoader">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLoader"/>
@@ -140,18 +150,16 @@
             <argument type="service" id="payment_method.repository"/>
         </service>
 
-        <service id="Shopware\Core\Framework\App\Payment\Payload\PayloadService">
-            <argument type="service" id="Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+        <service id="Shopware\Core\Framework\App\Payment\Payload\PaymentPayloadService">
+            <argument type="service" id="Shopware\Core\Framework\App\AppPayloadServiceHelper"/>
             <argument type="service" id="shopware.app_system.guzzle"/>
-            <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
             <argument type="string">%env(APP_URL)%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\App\Payment\Handler\AppPaymentHandler">
             <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
             <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
-            <argument type="service" id="Shopware\Core\Framework\App\Payment\Payload\PayloadService"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Payment\Payload\PaymentPayloadService"/>
             <argument type="service" id="order_transaction_capture_refund.repository"/>
             <tag name="shopware.payment.method.prepared"/>
             <tag name="shopware.payment.method.refund"/>
@@ -192,6 +200,7 @@
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\ScriptPersister"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\WebhookPersister"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\PaymentMethodPersister"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\TaxProviderPersister"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\RuleConditionPersister"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\CmsBlockPersister"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLoader"/>
@@ -206,11 +215,11 @@
             <argument type="service" id="Shopware\Core\Framework\Plugin\Util\AssetService"/>
             <argument type="service" id="Shopware\Core\Framework\Script\Execution\ScriptExecutor"/>
             <argument type="string">%kernel.project_dir%</argument>
-            <argument type="service" id="Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister"/>
-            <argument type="service" id="Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\FlowActionPersister"/>
             <argument type="service" id="Shopware\Administration\Snippet\AppAdministrationSnippetPersister" on-invalid="null"/>
+            <argument type="service" id="Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater"/>
+            <argument type="service" id="Shopware\Core\System\CustomEntity\CustomEntityLifecycleService"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\AppLifecycleIterator">
@@ -253,7 +262,7 @@
             <argument type="service" id="Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchemaValidator"/>
         </service>
 
-        <service id="shopware.app_system.guzzle" class="GuzzleHttp\Client">
+        <service id="shopware.app_system.guzzle" class="GuzzleHttp\Client" lazy="true">
             <argument type="collection">
                 <argument key="timeout">5</argument>
                 <argument key="connect_timeout">1</argument>

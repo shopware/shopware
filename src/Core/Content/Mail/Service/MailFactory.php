@@ -3,28 +3,21 @@
 namespace Shopware\Core\Content\Mail\Service;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-/**
- * @package system-settings
- */
+#[Package('system-settings')]
 class MailFactory extends AbstractMailFactory
 {
     /**
-     * @var ValidatorInterface
-     */
-    private $validator;
-
-    /**
      * @internal
      */
-    public function __construct(ValidatorInterface $validator)
+    public function __construct(private readonly ValidatorInterface $validator)
     {
-        $this->validator = $validator;
     }
 
     /**

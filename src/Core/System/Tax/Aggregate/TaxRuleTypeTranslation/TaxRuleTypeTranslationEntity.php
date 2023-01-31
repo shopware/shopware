@@ -3,11 +3,10 @@
 namespace Shopware\Core\System\Tax\Aggregate\TaxRuleTypeTranslation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Tax\Aggregate\TaxRuleType\TaxRuleTypeEntity;
 
-/**
- * @package customer-order
- */
+#[Package('customer-order')]
 class TaxRuleTypeTranslationEntity extends TranslationEntity
 {
     /**

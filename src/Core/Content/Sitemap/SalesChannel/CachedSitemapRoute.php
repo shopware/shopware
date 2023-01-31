@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
-use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,34 +18,11 @@ use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package sales-channel
- *
- * @Route(defaults={"_routeScope"={"store-api"}})
- */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Package('sales-channel')]
 class CachedSitemapRoute extends AbstractSitemapRoute
 {
-    public const ALL_TAG = 'sitemap-route';
-
-    private AbstractSitemapRoute $decorated;
-
-    private CacheInterface $cache;
-
-    private EntityCacheKeyGenerator $generator;
-
-    /**
-     * @var AbstractCacheTracer<SitemapRouteResponse>
-     */
-    private AbstractCacheTracer $tracer;
-
-    /**
-     * @var array<string>
-     */
-    private array $states;
-
-    private EventDispatcherInterface $dispatcher;
-
-    private SystemConfigService $config;
+    final public const ALL_TAG = 'sitemap-route';
 
     /**
      * @internal
@@ -53,22 +30,8 @@ class CachedSitemapRoute extends AbstractSitemapRoute
      *  @param AbstractCacheTracer<SitemapRouteResponse> $tracer
      *  @param array<string> $states
      */
-    public function __construct(
-        AbstractSitemapRoute $decorated,
-        CacheInterface $cache,
-        EntityCacheKeyGenerator $generator,
-        AbstractCacheTracer $tracer,
-        EventDispatcherInterface $dispatcher,
-        array $states,
-        SystemConfigService $config
-    ) {
-        $this->decorated = $decorated;
-        $this->cache = $cache;
-        $this->generator = $generator;
-        $this->tracer = $tracer;
-        $this->states = $states;
-        $this->dispatcher = $dispatcher;
-        $this->config = $config;
+    public function __construct(private readonly AbstractSitemapRoute $decorated, private readonly CacheInterface $cache, private readonly EntityCacheKeyGenerator $generator, private readonly AbstractCacheTracer $tracer, private readonly EventDispatcherInterface $dispatcher, private readonly array $states, private readonly SystemConfigService $config)
+    {
     }
 
     public static function buildName(string $id): string
@@ -81,10 +44,7 @@ class CachedSitemapRoute extends AbstractSitemapRoute
         return $this->decorated;
     }
 
-    /**
-     * @Since("6.3.2.0")
-     * @Route(path="/store-api/sitemap", name="store-api.sitemap", methods={"GET", "POST"})
-     */
+    #[Route(path: '/store-api/sitemap', name: 'store-api.sitemap', methods: ['GET', 'POST'])]
     public function load(Request $request, SalesChannelContext $context): SitemapRouteResponse
     {
         if ($context->hasState(...$this->states)) {
@@ -105,9 +65,7 @@ class CachedSitemapRoute extends AbstractSitemapRoute
         $value = $this->cache->get($key, function (ItemInterface $item) use ($request, $context) {
             $name = self::buildName($context->getSalesChannelId());
 
-            $response = $this->tracer->trace($name, function () use ($request, $context) {
-                return $this->getDecorated()->load($request, $context);
-            });
+            $response = $this->tracer->trace($name, fn () => $this->getDecorated()->load($request, $context));
 
             $item->tag($this->generateTags($response, $request, $context));
 

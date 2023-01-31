@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Framework\Struct;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
- * @package core
  * @template TElement
  * @implements \IteratorAggregate<array-key, TElement>
  */
+#[Package('core')]
 abstract class Collection extends Struct implements \IteratorAggregate, \Countable
 {
     /**
@@ -123,8 +125,11 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
     /**
      * @param class-string $class
      *
+     * tag v6.6.0 Return type will be natively typed to `static`
+     *
      * @return static
      */
+    #[\ReturnTypeWillChange]
     public function filterInstance(string $class)
     {
         return $this->filter(static function ($item) use ($class) {
@@ -133,16 +138,22 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
     }
 
     /**
+     * tag v6.6.0 Return type will be natively typed to `static`
+     *
      * @return static
      */
+    #[\ReturnTypeWillChange]
     public function filter(\Closure $closure)
     {
         return $this->createNew(array_filter($this->elements, $closure));
     }
 
     /**
+     * tag v6.6.0 Return type will be natively typed to `static`
+     *
      * @return static
      */
+    #[\ReturnTypeWillChange]
     public function slice(int $offset, ?int $length = null)
     {
         return $this->createNew(\array_slice($this->elements, $offset, $length, true));
@@ -217,8 +228,11 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
     /**
      * @param iterable<TElement> $elements
      *
+     * tag v6.6.0 Return type will be natively typed to `static`
+     *
      * @return static
      */
+    #[\ReturnTypeWillChange]
     protected function createNew(iterable $elements = [])
     {
         return new static($elements);

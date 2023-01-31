@@ -2,13 +2,13 @@
 
 namespace Shopware\Core\Profiling;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Profiling\Integration\ProfilerInterface;
 
 /**
- * @package core
- *
  * @internal experimental atm
  */
+#[Package('core')]
 class Profiler
 {
     /**

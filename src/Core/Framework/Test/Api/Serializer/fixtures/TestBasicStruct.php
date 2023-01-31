@@ -3,6 +3,8 @@
 namespace Shopware\Core\Framework\Test\Api\Serializer\fixtures;
 
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 
 /**
@@ -10,7 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
  */
 class TestBasicStruct extends SerializationFixture
 {
-    public function getInput()
+    public function getInput(): EntityCollection|Entity
     {
         $media = new MediaEntity();
         $media->setId('1d23c1b015bf43fb97e89008cf42d6fe');

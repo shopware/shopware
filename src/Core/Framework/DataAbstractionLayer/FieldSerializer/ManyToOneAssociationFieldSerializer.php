@@ -12,19 +12,19 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\ExpectedArrayException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 class ManyToOneAssociationFieldSerializer implements FieldSerializerInterface
 {
     /**
      * @internal
      */
-    public function __construct(private WriteCommandExtractor $writeExtractor)
+    public function __construct(private readonly WriteCommandExtractor $writeExtractor)
     {
     }
 
@@ -40,7 +40,7 @@ class ManyToOneAssociationFieldSerializer implements FieldSerializerInterface
                 sprintf(
                     'Could not find reference field "%s" from definition "%s"',
                     $field->getReferenceField(),
-                    \get_class($field->getReferenceDefinition())
+                    $field->getReferenceDefinition()::class
                 )
             );
         }
@@ -60,7 +60,7 @@ class ManyToOneAssociationFieldSerializer implements FieldSerializerInterface
                 sprintf(
                     'Could not find FK field "%s" from field "%s"',
                     $field->getStorageName(),
-                    \get_class($parameters->getDefinition())
+                    $parameters->getDefinition()::class
                 )
             );
         }

@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\Terms
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Store\Exception\ExtensionInstallException;
 use Shopware\Core\Framework\Store\Exception\ExtensionNotFoundException;
@@ -21,46 +22,13 @@ use Shopware\Core\Framework\Store\Exception\ExtensionThemeStillInUseException;
 use Shopware\Core\Framework\Store\Exception\ExtensionUpdateRequiresConsentAffirmationException;
 
 /**
- * @package merchant-services
- *
  * @internal - only for use by the app-system
  */
+#[Package('merchant-services')]
 class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
 {
-    private StoreClient $storeClient;
-
-    private AbstractAppLifecycle $appLifecycle;
-
-    private EntityRepository $appRepository;
-
-    private EntityRepository $salesChannelRepository;
-
-    private ?EntityRepository $themeRepository;
-
-    private AppStateService $appStateService;
-
-    private AbstractAppLoader $appLoader;
-
-    private AppConfirmationDeltaProvider $appDeltaService;
-
-    public function __construct(
-        StoreClient $storeClient,
-        AbstractAppLoader $appLoader,
-        AbstractAppLifecycle $appLifecycle,
-        EntityRepository $appRepository,
-        EntityRepository $salesChannelRepository,
-        ?EntityRepository $themeRepository,
-        AppStateService $appStateService,
-        AppConfirmationDeltaProvider $appDeltaService
-    ) {
-        $this->storeClient = $storeClient;
-        $this->appLifecycle = $appLifecycle;
-        $this->appRepository = $appRepository;
-        $this->salesChannelRepository = $salesChannelRepository;
-        $this->themeRepository = $themeRepository;
-        $this->appStateService = $appStateService;
-        $this->appLoader = $appLoader;
-        $this->appDeltaService = $appDeltaService;
+    public function __construct(private readonly StoreClient $storeClient, private readonly AbstractAppLoader $appLoader, private readonly AbstractAppLifecycle $appLifecycle, private readonly EntityRepository $appRepository, private readonly EntityRepository $salesChannelRepository, private readonly ?EntityRepository $themeRepository, private readonly AppStateService $appStateService, private readonly AppConfirmationDeltaProvider $appDeltaService)
+    {
     }
 
     public function installExtension(string $technicalName, Context $context): void
@@ -78,7 +46,7 @@ class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
     {
         try {
             $app = $this->getAppByName($technicalName, $context);
-        } catch (ExtensionNotFoundException $e) {
+        } catch (ExtensionNotFoundException) {
             return;
         }
 

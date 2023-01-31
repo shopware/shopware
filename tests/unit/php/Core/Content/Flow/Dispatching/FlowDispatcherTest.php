@@ -33,25 +33,11 @@ class FlowDispatcherTest extends TestCase
 {
     private TestDataCollection $ids;
 
-    /**
-     * @var MockObject|ContainerInterface
-     */
-    private $container;
+    private MockObject&ContainerInterface $container;
 
-    /**
-     * @var MockObject|EventDispatcherInterface
-     */
-    private $dispatcher;
+    private MockObject&EventDispatcherInterface $dispatcher;
 
-    /**
-     * @var MockObject|LoggerInterface
-     */
-    private $logger;
-
-    /**
-     * @var MockObject|FlowFactory
-     */
-    private $flowFactory;
+    private MockObject&FlowFactory $flowFactory;
 
     private FlowDispatcher $flowDispatcher;
 
@@ -60,10 +46,10 @@ class FlowDispatcherTest extends TestCase
         $this->ids = new TestDataCollection();
         $this->container = $this->createMock(ContainerInterface::class);
         $this->dispatcher = $this->createMock(EventDispatcherInterface::class);
-        $this->logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createMock(LoggerInterface::class);
         $this->flowFactory = $this->createMock(FlowFactory::class);
 
-        $this->flowDispatcher = new FlowDispatcher($this->dispatcher, $this->logger, $this->flowFactory);
+        $this->flowDispatcher = new FlowDispatcher($this->dispatcher, $logger, $this->flowFactory);
         $this->flowDispatcher->setContainer($this->container);
     }
 
@@ -231,7 +217,7 @@ class FlowDispatcherTest extends TestCase
             ->willReturn($flows);
 
         $flowExecutor = $this->createMock(FlowExecutor::class);
-        $flowExecutor->expects(static::exactly(\count($flows['state_enter.order.state.in_progress'])))
+        $flowExecutor->expects(static::exactly(is_countable($flows['state_enter.order.state.in_progress']) ? \count($flows['state_enter.order.state.in_progress']) : 0))
             ->method('execute');
 
         $this->container->expects(static::exactly(2))

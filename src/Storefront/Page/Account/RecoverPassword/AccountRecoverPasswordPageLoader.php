@@ -7,6 +7,7 @@ use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
@@ -15,28 +16,14 @@ use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @package customer-order
- */
+#[Package('customer-order')]
 class AccountRecoverPasswordPageLoader
 {
-    private GenericPageLoaderInterface $genericLoader;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private CustomerRecoveryIsExpiredRoute $recoveryIsExpiredRoute;
-
     /**
      * @internal
      */
-    public function __construct(
-        GenericPageLoaderInterface $genericLoader,
-        EventDispatcherInterface $eventDispatcher,
-        CustomerRecoveryIsExpiredRoute $recoveryIsExpiredRoute
-    ) {
-        $this->genericLoader = $genericLoader;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->recoveryIsExpiredRoute = $recoveryIsExpiredRoute;
+    public function __construct(private readonly GenericPageLoaderInterface $genericLoader, private readonly EventDispatcherInterface $eventDispatcher, private readonly CustomerRecoveryIsExpiredRoute $recoveryIsExpiredRoute)
+    {
     }
 
     /**
@@ -49,7 +36,6 @@ class AccountRecoverPasswordPageLoader
     {
         $page = $this->genericLoader->load($request, $context);
 
-        /** @var AccountRecoverPasswordPage $page */
         $page = AccountRecoverPasswordPage::createFrom($page);
         $page->setHash($hash);
 

@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Test\Controller;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Storefront\Controller\FormController;
@@ -15,9 +16,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- *
- * @package content
  */
+#[Package('content')]
 class FormControllerTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;
@@ -147,7 +147,7 @@ class FormControllerTest extends TestCase
         $responseContent = $response->getContent();
         $content = (array) json_decode((string) $responseContent, false, 512, \JSON_THROW_ON_ERROR);
         $type = $content[0]->type;
-        $messageCount = mb_substr_count($content[0]->alert, '<li>');
+        $messageCount = mb_substr_count((string) $content[0]->alert, '<li>');
 
         static::assertInstanceOf(JsonResponse::class, $response);
         static::assertSame(200, $response->getStatusCode());

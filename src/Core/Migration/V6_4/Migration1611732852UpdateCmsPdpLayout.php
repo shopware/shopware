@@ -4,14 +4,14 @@ namespace Shopware\Core\Migration\V6_4;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class Migration1611732852UpdateCmsPdpLayout extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -51,59 +51,42 @@ class Migration1611732852UpdateCmsPdpLayout extends MigrationStep
         ', ['cmsBlockId' => $blockIds], ['cmsBlockId' => Connection::PARAM_STR_ARRAY]);
 
         foreach ($slots as $slot) {
-            switch ($slot['type']) {
-                case 'product-name':
-                    $configData = [
-                        'content' => ['value' => 'product.name', 'source' => 'mapped'],
-                        'verticalAlign' => ['value' => null, 'source' => 'static'],
-                    ];
-
-                    break;
-                case 'manufacturer-logo':
-                    $configData = [
-                        'displayMode' => ['source' => 'static', 'value' => 'cover'],
-                        'media' => ['value' => 'product.manufacturer.media', 'source' => 'mapped'],
-                        'minHeight' => ['value' => null, 'source' => 'static'],
-                        'newTab' => ['value' => true, 'source' => 'static'],
-                        'url' => ['value' => null, 'source' => 'static'],
-                        'verticalAlign' => ['value' => null, 'source' => 'static'],
-                    ];
-
-                    break;
-                case 'image-gallery':
-                    $configData = [
-                        'displayMode' => ['value' => 'standard', 'source' => 'static'],
-                        'fullScreen' => ['value' => false, 'source' => 'static'],
-                        'galleryPosition' => ['value' => 'left', 'source' => 'static'],
-                        'minHeight' => ['value' => '430px', 'source' => 'static'],
-                        'navigationArrows' => ['value' => 'inside', 'source' => 'static'],
-                        'navigationDots' => ['value' => null, 'source' => 'static'],
-                        'sliderItems' => ['value' => 'product.media', 'source' => 'mapped'],
-                        'verticalAlign' => ['value' => null, 'source' => 'static'],
-                        'zoom' => ['value' => false, 'source' => 'static'],
-                    ];
-
-                    break;
-                case 'buy-box':
-                case 'product-description-reviews':
-                    $configData = [
-                        'product' => ['value' => null, 'source' => 'static'],
-                        'alignment' => ['value' => null, 'source' => 'static'],
-                    ];
-
-                    break;
-                case 'cross-selling':
-                    $configData = [
-                        'boxLayout' => ['source' => 'static', 'value' => 'standard'],
-                        'displayMode' => ['source' => 'static', 'value' => 'standard'],
-                        'elMinWidth' => ['value' => '200px', 'source' => 'static'],
-                        'product' => ['value' => null, 'source' => 'static'],
-                    ];
-
-                    break;
-                default:
-                    $configData = [];
-            }
+            $configData = match ($slot['type']) {
+                'product-name' => [
+                    'content' => ['value' => 'product.name', 'source' => 'mapped'],
+                    'verticalAlign' => ['value' => null, 'source' => 'static'],
+                ],
+                'manufacturer-logo' => [
+                    'displayMode' => ['source' => 'static', 'value' => 'cover'],
+                    'media' => ['value' => 'product.manufacturer.media', 'source' => 'mapped'],
+                    'minHeight' => ['value' => null, 'source' => 'static'],
+                    'newTab' => ['value' => true, 'source' => 'static'],
+                    'url' => ['value' => null, 'source' => 'static'],
+                    'verticalAlign' => ['value' => null, 'source' => 'static'],
+                ],
+                'image-gallery' => [
+                    'displayMode' => ['value' => 'standard', 'source' => 'static'],
+                    'fullScreen' => ['value' => false, 'source' => 'static'],
+                    'galleryPosition' => ['value' => 'left', 'source' => 'static'],
+                    'minHeight' => ['value' => '430px', 'source' => 'static'],
+                    'navigationArrows' => ['value' => 'inside', 'source' => 'static'],
+                    'navigationDots' => ['value' => null, 'source' => 'static'],
+                    'sliderItems' => ['value' => 'product.media', 'source' => 'mapped'],
+                    'verticalAlign' => ['value' => null, 'source' => 'static'],
+                    'zoom' => ['value' => false, 'source' => 'static'],
+                ],
+                'buy-box', 'product-description-reviews' => [
+                    'product' => ['value' => null, 'source' => 'static'],
+                    'alignment' => ['value' => null, 'source' => 'static'],
+                ],
+                'cross-selling' => [
+                    'boxLayout' => ['source' => 'static', 'value' => 'standard'],
+                    'displayMode' => ['source' => 'static', 'value' => 'standard'],
+                    'elMinWidth' => ['value' => '200px', 'source' => 'static'],
+                    'product' => ['value' => null, 'source' => 'static'],
+                ],
+                default => [],
+            };
 
             if (empty($configData)) {
                 return;
@@ -115,7 +98,7 @@ class Migration1611732852UpdateCmsPdpLayout extends MigrationStep
                 WHERE cms_slot_id = :slotId
             ', [
                 'slotId' => $slot['id'],
-                'config' => json_encode($configData),
+                'config' => json_encode($configData, \JSON_THROW_ON_ERROR),
             ]);
         }
     }

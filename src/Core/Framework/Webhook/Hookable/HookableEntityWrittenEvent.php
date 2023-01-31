@@ -5,22 +5,15 @@ namespace Shopware\Core\Framework\Webhook\Hookable;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 use Shopware\Core\Framework\Webhook\Hookable;
 
-/**
- * @package core
- */
+#[Package('core')]
 class HookableEntityWrittenEvent implements Hookable
 {
-    /**
-     * @var EntityWrittenEvent
-     */
-    private $event;
-
-    private function __construct(EntityWrittenEvent $event)
+    private function __construct(private readonly EntityWrittenEvent $event)
     {
-        $this->event = $event;
     }
 
     public static function fromWrittenEvent(

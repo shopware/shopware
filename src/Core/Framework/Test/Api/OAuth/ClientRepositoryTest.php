@@ -9,9 +9,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -25,7 +25,9 @@ class ClientRepositoryTest extends TestCase
 
     public function testLoginFailsForInactiveApp(): void
     {
-        $this->loadAppsFromDir(__DIR__ . '/../../App/Manifest/_fixtures/test', false);
+        $fixturesPath = __DIR__ . '/../../../../../../tests/integration/php/Core/Framework/App/Manifest/_fixtures/test';
+
+        $this->loadAppsFromDir($fixturesPath, false);
 
         $browser = $this->createClient();
         $app = $this->fetchApp('test');

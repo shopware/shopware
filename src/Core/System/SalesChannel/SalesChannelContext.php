@@ -12,17 +12,15 @@ use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\StateAwareTrait;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\Exception\ContextPermissionsLockedException;
-use Shopware\Core\System\SalesChannel\Exception\ContextRulesLockedException;
 use Shopware\Core\System\Tax\Exception\TaxNotFoundException;
 use Shopware\Core\System\Tax\TaxCollection;
 
-/**
- * @package core
- */
+#[Package('core')]
 class SalesChannelContext extends Struct
 {
     use StateAwareTrait;
@@ -75,21 +73,6 @@ class SalesChannelContext extends Struct
     protected $shippingLocation;
 
     /**
-     * @var string[]
-     */
-    protected $rulesIds;
-
-    /**
-     * @var array<string, string[]>
-     */
-    protected array $areaRuleIds;
-
-    /**
-     * @var bool
-     */
-    protected $rulesLocked = false;
-
-    /**
      * @var mixed[]
      */
     protected $permissions = [];
@@ -105,30 +88,14 @@ class SalesChannelContext extends Struct
     protected $context;
 
     /**
-     * @var CashRoundingConfig
-     */
-    private $itemRounding;
-
-    /**
-     * @var CashRoundingConfig
-     */
-    private $totalRounding;
-
-    /**
-     * @var string|null
-     */
-    private $domainId;
-
-    /**
      * @internal
      *
-     * @param array<string> $rulesIds
      * @param array<string, string[]> $areaRuleIds
      */
     public function __construct(
         Context $baseContext,
         string $token,
-        ?string $domainId,
+        private ?string $domainId,
         SalesChannelEntity $salesChannel,
         CurrencyEntity $currency,
         CustomerGroupEntity $currentCustomerGroup,
@@ -137,10 +104,9 @@ class SalesChannelContext extends Struct
         ShippingMethodEntity $shippingMethod,
         ShippingLocation $shippingLocation,
         ?CustomerEntity $customer,
-        CashRoundingConfig $itemRounding,
-        CashRoundingConfig $totalRounding,
-        array $rulesIds = [],
-        array $areaRuleIds = []
+        private CashRoundingConfig $itemRounding,
+        private CashRoundingConfig $totalRounding,
+        protected array $areaRuleIds = []
     ) {
         $this->currentCustomerGroup = $currentCustomerGroup;
         $this->currency = $currency;
@@ -150,13 +116,8 @@ class SalesChannelContext extends Struct
         $this->paymentMethod = $paymentMethod;
         $this->shippingMethod = $shippingMethod;
         $this->shippingLocation = $shippingLocation;
-        $this->rulesIds = $rulesIds;
-        $this->areaRuleIds = $areaRuleIds;
         $this->token = $token;
         $this->context = $baseContext;
-        $this->itemRounding = $itemRounding;
-        $this->totalRounding = $totalRounding;
-        $this->domainId = $domainId;
     }
 
     public function getCurrentCustomerGroup(): CustomerGroupEntity
@@ -235,7 +196,7 @@ class SalesChannelContext extends Struct
      */
     public function getRuleIds(): array
     {
-        return $this->rulesIds;
+        return $this->getContext()->getRuleIds();
     }
 
     /**
@@ -243,12 +204,7 @@ class SalesChannelContext extends Struct
      */
     public function setRuleIds(array $ruleIds): void
     {
-        if ($this->rulesLocked) {
-            throw new ContextRulesLockedException();
-        }
-
-        $this->rulesIds = array_filter(array_values($ruleIds));
-        $this->getContext()->setRuleIds($this->rulesIds);
+        $this->getContext()->setRuleIds($ruleIds);
     }
 
     /**
@@ -295,7 +251,7 @@ class SalesChannelContext extends Struct
 
     public function lockRules(): void
     {
-        $this->rulesLocked = true;
+        $this->getContext()->lockRules();
     }
 
     public function lockPermissions(): void

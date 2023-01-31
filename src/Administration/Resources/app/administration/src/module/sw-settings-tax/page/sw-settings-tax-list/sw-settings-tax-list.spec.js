@@ -6,7 +6,7 @@ Shopware.Component.register('sw-settings-tax-list', swSettingsTaxList);
 /**
  * @package customer-order
  */
-async function createWrapper(privileges = []) {
+async function createWrapper(privileges = [], additionalOptions = {}) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
@@ -22,8 +22,27 @@ async function createWrapper(privileges = []) {
         },
         provide: {
             repositoryFactory: {
-                create: () => ({
+                create: (entity) => ({
                     search: () => {
+                        if (entity === 'tax_provider') {
+                            if (additionalOptions.hasOwnProperty('taxProviders')) {
+                                return Promise.resolve(additionalOptions.taxProviders);
+                            }
+
+                            return Promise.resolve([
+                                {
+                                    translated: {
+                                        name: 'TaxProvider one'
+                                    }
+                                },
+                                {
+                                    translated: {
+                                        name: 'TaxProvider two'
+                                    }
+                                }
+                            ]);
+                        }
+
                         return Promise.resolve([
                             {
                                 name: 'Standard rate'
@@ -101,7 +120,18 @@ async function createWrapper(privileges = []) {
             'sw-search-bar': true,
             'sw-icon': true,
             'sw-button': true,
-            'sw-modal': true
+            'sw-modal': true,
+            'router-link': true,
+            'sw-switch-field': true,
+            'sw-button-process': {
+                template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>'
+            },
+            'sw-skeleton': true,
+            'sw-skeleton-bar': true,
+            'sw-settings-tax-provider-sorting-modal': true,
+            'sw-empty-state': {
+                template: '<div class="sw-empty-state"></div>'
+            },
         }
     });
 }
@@ -194,5 +224,101 @@ describe('module/sw-settings-tax/page/sw-settings-tax-list', () => {
 
         expect(entityListing.exists()).toBeTruthy();
         expect(entityListing.attributes()['allow-inline-edit']).toBeFalsy();
+    });
+
+    it('should be able to edit a tax provider', async () => {
+        const wrapper = await createWrapper([
+            'tax.editor'
+        ]);
+        await wrapper.vm.$nextTick();
+
+        const editMenuItem = wrapper.find('.sw-tax-provider__show-detail-link');
+
+        expect(editMenuItem.attributes().disabled).toBeFalsy();
+    });
+
+    it('should not be able to edit a tax provider', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.vm.$nextTick();
+
+        const editMenuItem = wrapper.find('.sw-tax-provider__show-detail-link');
+
+        expect(editMenuItem.attributes().disabled).toBeTruthy();
+    });
+
+    it('should render button change priority for tax providers', async () => {
+        const wrapper = await createWrapper([
+            'tax.editor'
+        ]);
+        await wrapper.vm.$nextTick();
+
+
+        const changePriorityButton = wrapper.find('.sw-settings-tax-provider-list-button__change-priority');
+
+        expect(wrapper.vm.showChangePriority).toBe(true);
+        expect(changePriorityButton.exists()).toBeTruthy();
+        expect(wrapper.vm.showSortingModal).toBe(false);
+
+        await changePriorityButton.trigger('click');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.showSortingModal).toBe(true);
+    });
+
+    it('should not render button change priority for tax providers', async () => {
+        const optionalTaxProviders = {
+            taxProviders: [
+                {
+                    translated: {
+                        name: 'TaxProvider one'
+                    }
+                },
+            ]
+        };
+        const wrapper = await createWrapper([
+            'tax.editor',
+        ], optionalTaxProviders);
+        await wrapper.vm.$nextTick();
+
+        const changePriorityButton = wrapper.find('.sw-settings-tax-provider-list-button__change-priority');
+
+        expect(changePriorityButton.exists()).toBeFalsy();
+    });
+
+    it('should be able to change tax provider active status', async () => {
+        const wrapper = await createWrapper([
+            'tax.editor'
+        ]);
+        await wrapper.vm.$nextTick();
+
+        const taxProviderActive = wrapper.find(
+            'sw-switch-field-stub[label="sw-settings-tax.list.taxProvider.labelActive"]'
+        );
+
+        expect(taxProviderActive.attributes().disabled).toBeFalsy();
+    });
+
+    it('should not be able to change tax provider active status', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.vm.$nextTick();
+
+        const taxProviderActive = wrapper.find(
+            'sw-switch-field-stub[label="sw-settings-tax.list.taxProvider.labelActive"]'
+        );
+
+        expect(taxProviderActive.attributes().disabled).toBeTruthy();
+    });
+
+    it('should render an empty state tax providers', async () => {
+        const optionalTaxProviders = {
+            taxProviders: []
+        };
+        const wrapper = await createWrapper([
+            'tax.editor',
+        ], optionalTaxProviders);
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.noTaxProvidersFound).toBeTruthy();
+        expect(wrapper.find('.sw-empty-state').exists()).toBeTruthy();
     });
 });

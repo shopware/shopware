@@ -54,7 +54,7 @@ class OrderPersisterTest extends TestCase
 
     public function testSave(): void
     {
-        $cart = new Cart('A', Uuid::randomHex());
+        $cart = new Cart(Uuid::randomHex());
         $cart->add(
             (new LineItem('test', 'test'))
                 ->setPrice(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()))
@@ -103,7 +103,7 @@ class OrderPersisterTest extends TestCase
 
     public function testSaveWithMissingLabel(): void
     {
-        $cart = new Cart('A', 'a-b-c');
+        $cart = new Cart('a-b-c');
         $cart->add(
             (new LineItem('test', LineItem::CREDIT_LINE_ITEM_TYPE))
                 ->setPriceDefinition(new AbsolutePriceDefinition(1))
@@ -151,10 +151,7 @@ class OrderPersisterTest extends TestCase
         return $customer;
     }
 
-    /**
-     * @return MockObject|SalesChannelContext
-     */
-    private function getSalesChannelContext()
+    private function getSalesChannelContext(): MockObject&SalesChannelContext
     {
         $customer = $this->getCustomer();
         $salesChannel = new SalesChannelEntity();

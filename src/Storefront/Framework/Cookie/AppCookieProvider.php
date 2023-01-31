@@ -9,29 +9,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
+#[Package('core')]
 class AppCookieProvider implements CookieProviderInterface
 {
     /**
-     * @var CookieProviderInterface
-     */
-    private $inner;
-
-    /**
-     * @var EntityRepository
-     */
-    private $appRepository;
-
-    /**
      * @internal
      */
-    public function __construct(CookieProviderInterface $inner, EntityRepository $appRepository)
+    public function __construct(private readonly CookieProviderInterface $inner, private readonly EntityRepository $appRepository)
     {
-        $this->inner = $inner;
-        $this->appRepository = $appRepository;
     }
 
     /**

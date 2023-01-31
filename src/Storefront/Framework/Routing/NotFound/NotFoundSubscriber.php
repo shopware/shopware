@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Framework\Routing\NotFound;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
@@ -27,60 +28,20 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
- *
- * @package storefront
  */
+#[Package('storefront')]
 class NotFoundSubscriber implements EventSubscriberInterface
 {
     private const ALL_TAG = 'error-page';
     private const SYSTEM_CONFIG_KEY = 'core.basicInformation.http404Page';
-
-    private ErrorController $controller;
-
-    private RequestStack $requestStack;
-
-    private SalesChannelContextServiceInterface $contextService;
-
-    private bool $kernelDebug;
-
-    private CacheInterface $cache;
-
-    /**
-     * @var AbstractCacheTracer<Response>
-     */
-    private AbstractCacheTracer $cacheTracer;
-
-    private EntityCacheKeyGenerator $generator;
-
-    private CacheInvalidator $cacheInvalidator;
-
-    private EventDispatcherInterface $eventDispatcher;
 
     /**
      * @internal
      *
      * @param AbstractCacheTracer<Response> $cacheTracer
      */
-    public function __construct(
-        ErrorController $controller,
-        RequestStack $requestStack,
-        SalesChannelContextServiceInterface $contextService,
-        bool $kernelDebug,
-        CacheInterface $cache,
-        AbstractCacheTracer $cacheTracer,
-        EntityCacheKeyGenerator $generator,
-        CacheInvalidator $cacheInvalidator,
-        EventDispatcherInterface $eventDispatcher
-    ) {
-        $this->controller = $controller;
-        $this->requestStack = $requestStack;
-        $this->contextService = $contextService;
-        $this->kernelDebug = $kernelDebug;
-        $this->cache = $cache;
-        $this->cacheTracer = $cacheTracer;
-        $this->generator = $generator;
-        $this->cacheInvalidator = $cacheInvalidator;
-        $this->eventDispatcher = $eventDispatcher;
+    public function __construct(private readonly ErrorController $controller, private readonly RequestStack $requestStack, private readonly SalesChannelContextServiceInterface $contextService, private bool $kernelDebug, private readonly CacheInterface $cache, private readonly AbstractCacheTracer $cacheTracer, private readonly EntityCacheKeyGenerator $generator, private readonly CacheInvalidator $cacheInvalidator, private readonly EventDispatcherInterface $eventDispatcher)
+    {
     }
 
     public static function getSubscribedEvents(): array
@@ -145,7 +106,7 @@ class NotFoundSubscriber implements EventSubscriberInterface
 
             $item->tag($this->generateTags($name, $event->getRequest(), $context));
 
-            $response->setData(null);
+            $response->setData([]);
             $response->setContext(null);
 
             return $response;
@@ -180,7 +141,7 @@ class NotFoundSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @return list<string>
+     * @return array<string>
      */
     private function generateTags(string $name, Request $request, SalesChannelContext $context): array
     {

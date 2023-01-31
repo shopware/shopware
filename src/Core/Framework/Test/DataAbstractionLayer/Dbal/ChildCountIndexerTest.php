@@ -27,10 +27,7 @@ class ChildCountIndexerTest extends TestCase
      */
     private $categoryRepository;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     /**
      * @var ChildCountUpdater

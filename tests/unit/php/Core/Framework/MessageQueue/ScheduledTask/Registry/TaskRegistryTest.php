@@ -1,7 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Framework\MessageQueue\ScheduledTask\Scheduler;
+namespace Shopware\Tests\Unit\Core\Framework\MessageQueue\ScheduledTask\Registry;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cleanup\CleanupCartTask;
 use Shopware\Core\Framework\Adapter\Cache\InvalidateCacheTask;
@@ -25,7 +26,7 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 class TaskRegistryTest extends TestCase
 {
     /**
-     * @var EntityRepository&\PHPUnit\Framework\MockObject\MockObject
+     * @var EntityRepository&MockObject
      */
     private EntityRepository $scheduleTaskRepository;
 

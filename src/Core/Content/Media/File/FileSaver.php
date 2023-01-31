@@ -28,67 +28,35 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
-/**
- * @package content
- */
+#[Package('content')]
 class FileSaver
 {
-    private EntityRepository $mediaRepository;
-
-    private FilesystemOperator $filesystemPublic;
-
-    private UrlGeneratorInterface $urlGenerator;
-
-    private ThumbnailService $thumbnailService;
-
-    private FileNameValidator $fileNameValidator;
-
-    private MessageBusInterface $messageBus;
-
-    private MetadataLoader $metadataLoader;
-
-    private TypeDetector $typeDetector;
-
-    private FilesystemOperator $filesystemPrivate;
-
-    /**
-     * @var list<string>
-     */
-    private array $allowedExtensions;
-
-    private EventDispatcherInterface $eventDispatcher;
+    private readonly FileNameValidator $fileNameValidator;
 
     /**
      * @internal
      *
      * @param list<string> $allowedExtensions
+     * @param list<string> $privateAllowedExtensions
      */
     public function __construct(
-        EntityRepository $mediaRepository,
-        FilesystemOperator $filesystemPublic,
-        FilesystemOperator $filesystemPrivate,
-        UrlGeneratorInterface $urlGenerator,
-        ThumbnailService $thumbnailService,
-        MetadataLoader $metadataLoader,
-        TypeDetector $typeDetector,
-        MessageBusInterface $messageBus,
-        EventDispatcherInterface $eventDispatcher,
-        array $allowedExtensions
+        private readonly EntityRepository $mediaRepository,
+        private readonly FilesystemOperator $filesystemPublic,
+        private readonly FilesystemOperator $filesystemPrivate,
+        private readonly UrlGeneratorInterface $urlGenerator,
+        private readonly ThumbnailService $thumbnailService,
+        private readonly MetadataLoader $metadataLoader,
+        private readonly TypeDetector $typeDetector,
+        private readonly MessageBusInterface $messageBus,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly array $allowedExtensions,
+        private readonly array $privateAllowedExtensions
     ) {
-        $this->mediaRepository = $mediaRepository;
-        $this->filesystemPublic = $filesystemPublic;
-        $this->filesystemPrivate = $filesystemPrivate;
-        $this->urlGenerator = $urlGenerator;
-        $this->thumbnailService = $thumbnailService;
         $this->fileNameValidator = new FileNameValidator();
-        $this->metadataLoader = $metadataLoader;
-        $this->typeDetector = $typeDetector;
-        $this->messageBus = $messageBus;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->allowedExtensions = $allowedExtensions;
     }
 
     /**
@@ -113,7 +81,8 @@ class FileSaver
             $context
         );
 
-        $this->validateFileExtension($mediaFile, $mediaId);
+        $this->validateFileExtension($mediaFile, $mediaId, $currentMedia->isPrivate());
+
         $this->removeOldMediaData($currentMedia, $context);
 
         $mediaType = $this->typeDetector->detect($mediaFile);
@@ -141,8 +110,9 @@ class FileSaver
     {
         $destination = $this->validateFileName($destination);
         $currentMedia = $this->findMediaById($mediaId, $context);
+        $fileExtension = $currentMedia->getFileExtension();
 
-        if (!$currentMedia->hasFile() || !$currentMedia->getFileExtension()) {
+        if (!$currentMedia->hasFile() || !$fileExtension) {
             throw new MissingFileException($mediaId);
         }
 
@@ -153,7 +123,7 @@ class FileSaver
         $this->ensureFileNameIsUnique(
             $currentMedia,
             $destination,
-            $currentMedia->getFileExtension(),
+            $fileExtension,
             $context
         );
 
@@ -172,17 +142,14 @@ class FileSaver
                 $this->urlGenerator->getRelativeMediaUrl($updatedMedia),
                 $this->getFileSystem($currentMedia)
             );
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             throw new CouldNotRenameFileException($currentMedia->getId(), (string) $currentMedia->getFileName());
         }
 
         foreach ($currentMedia->getThumbnails() ?? [] as $thumbnail) {
             try {
-                $renamedFiles = array_merge(
-                    $renamedFiles,
-                    $this->renameThumbnail($thumbnail, $currentMedia, $updatedMedia)
-                );
-            } catch (\Exception $e) {
+                $renamedFiles = [...$renamedFiles, ...$this->renameThumbnail($thumbnail, $currentMedia, $updatedMedia)];
+            } catch (\Exception) {
                 $this->rollbackRenameAction($currentMedia, $renamedFiles);
             }
         }
@@ -197,7 +164,7 @@ class FileSaver
             $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($updateData): void {
                 $this->mediaRepository->update([$updateData], $context);
             });
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             $this->rollbackRenameAction($currentMedia, $renamedFiles);
         }
     }
@@ -233,7 +200,7 @@ class FileSaver
 
         try {
             $this->getFileSystem($media)->delete($oldMediaFilePath);
-        } catch (UnableToDeleteFile $e) {
+        } catch (UnableToDeleteFile) {
             //nth
         }
 
@@ -249,7 +216,9 @@ class FileSaver
         $path = $this->urlGenerator->getRelativeMediaUrl($media);
 
         try {
-            $this->getFileSystem($media)->writeStream($path, $stream);
+            if (\is_resource($stream)) {
+                $this->getFileSystem($media)->writeStream($path, $stream);
+            }
         } finally {
             // The Google Cloud Storage filesystem closes the stream even though it should not. To prevent a fatal
             // error, we therefore need to check whether the stream has been closed yet.
@@ -360,15 +329,15 @@ class FileSaver
     /**
      * @throws FileExtensionNotSupportedException
      */
-    private function validateFileExtension(MediaFile $mediaFile, string $mediaId): void
+    private function validateFileExtension(MediaFile $mediaFile, string $mediaId, bool $isPrivate = false): void
     {
-        $event = new MediaFileExtensionWhitelistEvent($this->allowedExtensions);
+        $event = new MediaFileExtensionWhitelistEvent($isPrivate ? $this->privateAllowedExtensions : $this->allowedExtensions);
         $this->eventDispatcher->dispatch($event);
 
         $fileExtension = mb_strtolower($mediaFile->getFileExtension());
 
         foreach ($event->getWhitelist() as $extension) {
-            if ($fileExtension === mb_strtolower($extension)) {
+            if ($fileExtension === mb_strtolower((string) $extension)) {
                 return;
             }
         }
@@ -393,12 +362,18 @@ class FileSaver
         );
 
         foreach ($mediaWithRelatedFileName as $media) {
-            if ($media->hasFile() && $destination === $media->getFileName()) {
-                throw new DuplicatedMediaFileNameException(
-                    $destination,
-                    $fileExtension
-                );
+            if (
+                !$media->hasFile()
+                || $destination !== $media->getFileName()
+                || $media->isPrivate() !== $currentMedia->isPrivate()
+            ) {
+                continue;
             }
+
+            throw new DuplicatedMediaFileNameException(
+                $destination,
+                $fileExtension
+            );
         }
     }
 

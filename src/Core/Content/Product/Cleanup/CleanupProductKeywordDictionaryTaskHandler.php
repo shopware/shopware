@@ -4,15 +4,15 @@ namespace Shopware\Core\Content\Product\Cleanup;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
  * @internal
- *
- * @package inventory
  */
 #[AsMessageHandler(handles: CleanupProductKeywordDictionaryTask::class)]
+#[Package('inventory')]
 
 final class CleanupProductKeywordDictionaryTaskHandler extends ScheduledTaskHandler
 {
@@ -21,7 +21,7 @@ final class CleanupProductKeywordDictionaryTaskHandler extends ScheduledTaskHand
      */
     public function __construct(
         EntityRepository $repository,
-        private Connection $connection
+        private readonly Connection $connection
     ) {
         parent::__construct($repository);
     }

@@ -24,13 +24,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentFkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TreePathField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package content
- */
+#[Package('content')]
 class MediaFolderDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'media_folder';
+    final public const ENTITY_NAME = 'media_folder';
 
     public function getEntityName(): string
     {

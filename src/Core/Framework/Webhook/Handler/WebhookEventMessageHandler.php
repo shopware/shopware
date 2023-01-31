@@ -8,16 +8,16 @@ use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteTypeIntendException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
- * @package core
- *
  * @internal
  */
 #[AsMessageHandler]
+#[Package('core')]
 final class WebhookEventMessageHandler
 {
     private const TIMEOUT = 20;
@@ -27,9 +27,9 @@ final class WebhookEventMessageHandler
      * @internal
      */
     public function __construct(
-        private Client $client,
-        private EntityRepository $webhookRepository,
-        private EntityRepository $webhookEventLogRepository
+        private readonly Client $client,
+        private readonly EntityRepository $webhookRepository,
+        private readonly EntityRepository $webhookEventLogRepository
     ) {
     }
 
@@ -44,7 +44,7 @@ final class WebhookEventMessageHandler
         $payload['timestamp'] = $timestamp;
 
         /** @var string $jsonPayload */
-        $jsonPayload = json_encode($payload);
+        $jsonPayload = json_encode($payload, \JSON_THROW_ON_ERROR);
 
         $headers = ['Content-Type' => 'application/json',
             'sw-version' => $shopwareVersion, ];
@@ -118,7 +118,7 @@ final class WebhookEventMessageHandler
                 $payload = array_merge($payload, [
                     'responseContent' => [
                         'headers' => $response->getHeaders(),
-                        'body' => \json_decode($response->getBody()->getContents(), true),
+                        'body' => \json_decode($response->getBody()->getContents(), true, 512, \JSON_THROW_ON_ERROR),
                     ],
                     'responseStatusCode' => $response->getStatusCode(),
                     'responseReasonPhrase' => $response->getReasonPhrase(),
@@ -127,7 +127,7 @@ final class WebhookEventMessageHandler
 
             $this->webhookEventLogRepository->update([$payload], $context);
 
-            throw new \RuntimeException(\sprintf('Message %s failed', static::class));
+            throw new \RuntimeException(\sprintf('Message %s failed with error: %s', static::class, $e->getMessage()), $e->getCode(), $e);
         }
     }
 }

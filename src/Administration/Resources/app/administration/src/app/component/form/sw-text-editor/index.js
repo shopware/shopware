@@ -376,6 +376,7 @@ Component.register('sw-text-editor', {
             this.content = this.value;
 
             if (!this.$options.buttonConfig) {
+                // eslint-disable-next-line vue/no-mutating-props
                 this.buttonConfig.push({
                     type: 'table',
                     title: this.$tc('sw-text-editor-toolbar.title.insert-table'),
@@ -386,6 +387,7 @@ Component.register('sw-text-editor', {
                 });
 
                 if (!this.isInlineEdit) {
+                    // eslint-disable-next-line vue/no-mutating-props
                     this.buttonConfig.push({
                         type: 'codeSwitch',
                         title: this.$tc('sw-text-editor-toolbar.title.code-switch'),
@@ -421,6 +423,7 @@ Component.register('sw-text-editor', {
 
                     dataMappingButton.children = buttonConfigs;
 
+                    // eslint-disable-next-line vue/no-mutating-props
                     this.buttonConfig.push(dataMappingButton);
                 }
             }
@@ -517,6 +520,7 @@ Component.register('sw-text-editor', {
             Object.keys(this.buttonConfig).forEach(
                 (key) => {
                     if (this.buttonConfig[key].type === 'foreColor') {
+                        // eslint-disable-next-line vue/no-mutating-props
                         this.buttonConfig[key].value = '';
                     }
                 },

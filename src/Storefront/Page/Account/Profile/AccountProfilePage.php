@@ -2,12 +2,11 @@
 
 namespace Shopware\Storefront\Page\Account\Profile;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Salutation\SalutationCollection;
 use Shopware\Storefront\Page\Page;
 
-/**
- * @package customer-order
- */
+#[Package('customer-order')]
 class AccountProfilePage extends Page
 {
     /**

@@ -5,34 +5,19 @@ namespace Shopware\Core\Content\Product\Cart;
 use Shopware\Core\Content\Product\Events\ProductGatewayCriteriaEvent;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package inventory
- */
+#[Package('inventory')]
 class ProductGateway implements ProductGatewayInterface
 {
     /**
-     * @var SalesChannelRepository
-     */
-    private $repository;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
      * @internal
      */
-    public function __construct(
-        SalesChannelRepository $repository,
-        EventDispatcherInterface $eventDispatcher
-    ) {
-        $this->repository = $repository;
-        $this->eventDispatcher = $eventDispatcher;
+    public function __construct(private readonly SalesChannelRepository $repository, private readonly EventDispatcherInterface $eventDispatcher)
+    {
     }
 
     public function get(array $ids, SalesChannelContext $context): ProductCollection

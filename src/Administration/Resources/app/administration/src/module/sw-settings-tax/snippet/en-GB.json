@@ -16,10 +16,30 @@
       "contextMenuDelete": "Delete",
       "messageDeleteSuccess": "Tax \"{name}\" has been deleted.",
       "buttonCancel": "Cancel",
-      "buttonDelete": "Delete"
+      "buttonDelete": "Delete",
+      "taxCardTitle": "Taxes",
+      "taxProvider": {
+        "cardTitle": "Tax provider",
+        "changePriorityButton": "Change priority",
+        "editDetailsLink": "Edit details",
+        "labelActive": "Active",
+        "messageEmptyTitle":  "No tax provider found",
+        "statusChangedSuccess": {
+          "active": "Tax provider \"{name}\" is now active.",
+          "inactive": "Tax provider \"{name}\" is now inactive."
+        },
+        "sorting-modal": {
+          "modalTitle": "Change tax calculation priority",
+          "subTitle": "Use drag & drop to order from top to bottom. Top entry has the highest priority.",
+          "saveSuccessful": "Tax provider priorities has been saved.",
+          "errorMessage": "An error occurred while saving."
+        }
+      }
     },
     "detail": {
       "textHeadline": "New tax rate",
+      "taxProviderInfoTitle": "Tax providers may override your tax rates",
+      "taxProviderInfoText": "Tax providers have a higher priority than fixed tax rates. Any fixed tax rate set here may thus be overwritten.",
       "titleCard": "Settings",
       "labelName": "Name",
       "labelDefaultTaxRate": "Tax rate",
@@ -49,6 +69,16 @@
       "createStateDescription": "Save this tax rate first, then add more countries.",
       "textDeleteConfirm": "Are you sure you want to delete this country: \"{name}\"?",
       "placeholderStates": "Add states..."
+    },
+    "taxProviderDetail": {
+      "textHeadline": "Tax provider",
+      "infoTitle": "Final tax calculation in checkout only",
+      "infoText": "This may affect your shopping cart rules. Check shipping methods, availability rules and similar.",
+      "cardTitleSettings": "Settings",
+      "cardTitleAvailability": "Availability",
+      "labelPosition": "Position",
+      "labelActive": "Active",
+      "placeholderAvailabilityRule": "Choose availability rule..."
     }
   },
   "sw-privileges": {

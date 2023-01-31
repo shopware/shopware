@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -18,21 +19,19 @@ use Symfony\Component\Routing\Exception\RouteNotFoundException;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 
-/**
- * @package system-settings
- */
+#[Package('system-settings')]
 class UserRecoveryService
 {
     /**
      * @internal
      */
     public function __construct(
-        private EntityRepository $userRecoveryRepo,
-        private EntityRepository $userRepo,
-        private RouterInterface $router,
-        private EventDispatcherInterface $dispatcher,
-        private SalesChannelContextService $salesChannelContextService,
-        private EntityRepository $salesChannelRepository,
+        private readonly EntityRepository $userRecoveryRepo,
+        private readonly EntityRepository $userRepo,
+        private readonly RouterInterface $router,
+        private readonly EventDispatcherInterface $dispatcher,
+        private readonly SalesChannelContextService $salesChannelContextService,
+        private readonly EntityRepository $salesChannelRepository,
     ) {
     }
 
@@ -71,7 +70,7 @@ class UserRecoveryService
 
         try {
             $url = $this->router->generate('administration.index', [], UrlGeneratorInterface::ABSOLUTE_URL);
-        } catch (RouteNotFoundException $e) {
+        } catch (RouteNotFoundException) {
             // fallback if admin bundle is not installed, the url should work once the bundle is installed
             $url = EnvironmentHelper::getVariable('APP_URL') . '/admin';
         }

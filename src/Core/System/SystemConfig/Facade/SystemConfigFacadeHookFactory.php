@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\SystemConfig\Facade;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\Awareness\HookServiceFactory;
 use Shopware\Core\Framework\Script\Execution\Awareness\SalesChannelContextAware;
 use Shopware\Core\Framework\Script\Execution\Hook;
@@ -11,22 +12,15 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
  * @internal
- *
- * @package system-settings
  */
+#[Package('system-settings')]
 class SystemConfigFacadeHookFactory extends HookServiceFactory
 {
-    private SystemConfigService $systemConfigService;
-
-    private Connection $connection;
-
     /**
      * @internal
      */
-    public function __construct(SystemConfigService $systemConfigService, Connection $connection)
+    public function __construct(private readonly SystemConfigService $systemConfigService, private readonly Connection $connection)
     {
-        $this->systemConfigService = $systemConfigService;
-        $this->connection = $connection;
     }
 
     public function getName(): string

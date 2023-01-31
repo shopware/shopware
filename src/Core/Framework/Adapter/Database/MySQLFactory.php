@@ -5,18 +5,25 @@ namespace Shopware\Core\Framework\Adapter\Database;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Connections\PrimaryReadReplicaConnection;
+use Doctrine\DBAL\Driver\Middleware;
 use Doctrine\DBAL\DriverManager;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class MySQLFactory
 {
-    public static function create(): Connection
+    /**
+     * @param array<Middleware> $middlewares
+     */
+    public static function create(array $middlewares = []): Connection
     {
+        $config = (new Configuration())
+            ->setMiddlewares($middlewares);
+
         $url = (string) EnvironmentHelper::getVariable('DATABASE_URL', getenv('DATABASE_URL'));
         if ($url === '') {
             $url = 'mysql://root:shopware@127.0.0.1:3306/shopware';
@@ -59,6 +66,6 @@ class MySQLFactory
             }
         }
 
-        return DriverManager::getConnection($parameters, new Configuration());
+        return DriverManager::getConnection($parameters, $config);
     }
 }

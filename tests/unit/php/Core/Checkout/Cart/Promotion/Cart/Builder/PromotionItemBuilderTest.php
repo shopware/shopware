@@ -62,7 +62,7 @@ class PromotionItemBuilderTest extends TestCase
      */
     public function testLineItemType(): void
     {
-        $currencyFactor = mt_rand() / mt_getrandmax();
+        $currencyFactor = random_int(0, mt_getrandmax()) / mt_getrandmax();
 
         $builder = new PromotionItemBuilder();
 
@@ -93,7 +93,7 @@ class PromotionItemBuilderTest extends TestCase
     {
         $builder = new PromotionItemBuilder();
 
-        $currencyFactor = mt_rand() / mt_getrandmax();
+        $currencyFactor = random_int(0, mt_getrandmax()) / mt_getrandmax();
 
         $discount = new PromotionDiscountEntity();
         $discount->setId('D5');
@@ -120,7 +120,7 @@ class PromotionItemBuilderTest extends TestCase
     public function testLineItemReferenceId(): void
     {
         $discount = new PromotionDiscountEntity();
-        $currencyFactor = mt_rand() / mt_getrandmax();
+        $currencyFactor = random_int(0, mt_getrandmax()) / mt_getrandmax();
 
         $discount->setId('D5');
         $discount->setType(PromotionDiscountEntity::TYPE_PERCENTAGE);
@@ -146,7 +146,7 @@ class PromotionItemBuilderTest extends TestCase
     {
         $builder = new PromotionItemBuilder();
 
-        $currencyFactor = mt_rand() / mt_getrandmax();
+        $currencyFactor = random_int(0, mt_getrandmax()) / mt_getrandmax();
 
         $discount = new PromotionDiscountEntity();
         $discount->setId('D5');
@@ -175,7 +175,7 @@ class PromotionItemBuilderTest extends TestCase
     {
         $builder = new PromotionItemBuilder();
 
-        $currencyFactor = mt_rand() / mt_getrandmax();
+        $currencyFactor = random_int(0, mt_getrandmax()) / mt_getrandmax();
 
         $discount = new PromotionDiscountEntity();
         $discount->setId('D5');
@@ -200,7 +200,7 @@ class PromotionItemBuilderTest extends TestCase
     {
         $builder = new PromotionItemBuilder();
 
-        $currencyFactor = mt_rand() / mt_getrandmax();
+        $currencyFactor = random_int(0, mt_getrandmax()) / mt_getrandmax();
 
         $discount = new PromotionDiscountEntity();
         $discount->setId('D5');
@@ -239,7 +239,7 @@ class PromotionItemBuilderTest extends TestCase
      */
     public function testDiscountTargetFilterIfDiscountRulesShouldBeIgnored(): void
     {
-        $currencyFactor = mt_rand() / mt_getrandmax();
+        $currencyFactor = random_int(0, mt_getrandmax()) / mt_getrandmax();
 
         $builder = new PromotionItemBuilder();
 
@@ -279,7 +279,7 @@ class PromotionItemBuilderTest extends TestCase
     {
         $builder = new PromotionItemBuilder();
 
-        $currencyFactor = mt_rand() / mt_getrandmax();
+        $currencyFactor = random_int(0, mt_getrandmax()) / mt_getrandmax();
 
         $discount = new PromotionDiscountEntity();
         $discount->setId('D5');
@@ -307,7 +307,7 @@ class PromotionItemBuilderTest extends TestCase
     {
         $builder = new PromotionItemBuilder();
 
-        $currencyFactor = mt_rand() / mt_getrandmax();
+        $currencyFactor = random_int(0, mt_getrandmax()) / mt_getrandmax();
         $standardDiscountValue = 50;
         $currencyDiscountValue = 10;
 
@@ -352,7 +352,7 @@ class PromotionItemBuilderTest extends TestCase
     {
         $builder = new PromotionItemBuilder();
 
-        $currencyFactor = mt_rand() / mt_getrandmax();
+        $currencyFactor = random_int(0, mt_getrandmax()) / mt_getrandmax();
         $standardDiscountValue = 50;
         $currencyDiscountValue = 10;
 

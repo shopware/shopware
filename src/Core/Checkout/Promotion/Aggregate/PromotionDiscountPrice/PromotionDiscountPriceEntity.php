@@ -5,11 +5,10 @@ namespace Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscountPrice;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Currency\CurrencyEntity;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class PromotionDiscountPriceEntity extends Entity
 {
     use EntityIdTrait;

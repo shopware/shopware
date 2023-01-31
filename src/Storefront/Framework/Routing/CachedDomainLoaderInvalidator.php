@@ -4,30 +4,27 @@ namespace Shopware\Storefront\Framework\Routing;
 
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * @internal
- *
- * @package storefront
  */
+#[Package('storefront')]
 class CachedDomainLoaderInvalidator implements EventSubscriberInterface
 {
-    private CacheInvalidator $logger;
-
     /**
      * @internal
      */
-    public function __construct(CacheInvalidator $logger)
+    public function __construct(private readonly CacheInvalidator $logger)
     {
-        $this->logger = $logger;
     }
 
     /**
      * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             EntityWrittenContainerEvent::class => [

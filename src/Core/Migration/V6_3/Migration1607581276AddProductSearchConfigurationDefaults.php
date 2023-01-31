@@ -7,16 +7,16 @@ use Shopware\Core\Content\Product\Aggregate\ProductSearchConfig\ProductSearchCon
 use Shopware\Core\Content\Product\Aggregate\ProductSearchConfigField\ProductSearchConfigFieldDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\Traits\ImportTranslationsTrait;
 use Shopware\Core\Migration\Traits\Translations;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class Migration1607581276AddProductSearchConfigurationDefaults extends MigrationStep
 {
     use ImportTranslationsTrait;
@@ -55,13 +55,13 @@ class Migration1607581276AddProductSearchConfigurationDefaults extends Migration
                 'id' => $searchConfigDeId,
                 'and_logic' => 1,
                 'min_search_length' => 2,
-                'excluded_terms' => json_encode($deStopwords),
+                'excluded_terms' => json_encode($deStopwords, \JSON_THROW_ON_ERROR),
             ],
             [
                 'id' => $searchConfigEnId,
                 'and_logic' => 1,
                 'min_search_length' => 2,
-                'excluded_terms' => $enLanguageId ? json_encode($enStopwords) : null,
+                'excluded_terms' => $enLanguageId ? json_encode($enStopwords, \JSON_THROW_ON_ERROR) : null,
             ]
         );
 
@@ -75,10 +75,7 @@ class Migration1607581276AddProductSearchConfigurationDefaults extends Migration
         }
 
         if ($writeResult->hasWrittenGermanTranslations()) {
-            $defaultSearchData = array_merge(
-                $defaultSearchData,
-                $this->getConfigFieldDefaultData($searchConfigDeId, $createdAt)
-            );
+            $defaultSearchData = [...$defaultSearchData, ...$this->getConfigFieldDefaultData($searchConfigDeId, $createdAt)];
         }
 
         $queue = new MultiInsertQueryQueue($connection, 250);

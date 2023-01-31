@@ -7,20 +7,20 @@ use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
- * @package content
- *
  * @internal
  */
 #[AsMessageHandler]
+#[Package('content')]
 final class GenerateThumbnailsHandler
 {
     /**
      * @internal
      */
-    public function __construct(private ThumbnailService $thumbnailService, private EntityRepository $mediaRepository)
+    public function __construct(private readonly ThumbnailService $thumbnailService, private readonly EntityRepository $mediaRepository)
     {
     }
 

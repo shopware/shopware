@@ -9,6 +9,7 @@ use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterUnsubscribeR
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -17,40 +18,14 @@ use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @package customer-order
- */
+#[Package('customer-order')]
 class NewsletterAccountPageletLoader
 {
-    private EventDispatcherInterface $eventDispatcher;
-
-    private AbstractNewsletterSubscribeRoute $newsletterSubscribeRoute;
-
-    private AbstractNewsletterUnsubscribeRoute $newsletterUnsubscribeRoute;
-
-    private AbstractAccountNewsletterRecipientRoute $newsletterRecipientRoute;
-
-    private Translator $translator;
-
-    private SystemConfigService $systemConfigService;
-
     /**
      * @internal
      */
-    public function __construct(
-        EventDispatcherInterface $eventDispatcher,
-        AbstractNewsletterSubscribeRoute $newsletterSubscribeRoute,
-        AbstractNewsletterUnsubscribeRoute $newsletterUnsubscribeRoute,
-        AbstractAccountNewsletterRecipientRoute $newsletterRecipientRoute,
-        Translator $translator,
-        SystemConfigService $systemConfigService
-    ) {
-        $this->eventDispatcher = $eventDispatcher;
-        $this->newsletterSubscribeRoute = $newsletterSubscribeRoute;
-        $this->newsletterUnsubscribeRoute = $newsletterUnsubscribeRoute;
-        $this->newsletterRecipientRoute = $newsletterRecipientRoute;
-        $this->translator = $translator;
-        $this->systemConfigService = $systemConfigService;
+    public function __construct(private readonly EventDispatcherInterface $eventDispatcher, private readonly AbstractNewsletterSubscribeRoute $newsletterSubscribeRoute, private readonly AbstractNewsletterUnsubscribeRoute $newsletterUnsubscribeRoute, private readonly AbstractAccountNewsletterRecipientRoute $newsletterRecipientRoute, private readonly Translator $translator, private readonly SystemConfigService $systemConfigService)
+    {
     }
 
     public function load(
@@ -144,7 +119,7 @@ class NewsletterAccountPageletLoader
                     ],
                 ]
             );
-        } catch (\Exception $exception) {
+        } catch (\Exception) {
             $newsletterAccountPagelet->setSuccess(false);
             $newsletterAccountPagelet->setMessages(
                 [
@@ -176,7 +151,7 @@ class NewsletterAccountPageletLoader
                     ],
                 ]
             );
-        } catch (\Exception $exception) {
+        } catch (\Exception) {
             $newsletterAccountPagelet->setSuccess(false);
             $newsletterAccountPagelet->setMessages(
                 [

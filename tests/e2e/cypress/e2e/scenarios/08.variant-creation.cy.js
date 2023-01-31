@@ -97,7 +97,7 @@ describe('Create a variant product using default customer and buy it via cash on
 
         cy.get('.sw-product-variants__generate-action').click();
         cy.get('.sw-product-modal-variant-generation').should('be.visible');
-        page.generateVariants('Color', [0, 1, 3], 6);
+        page.generateVariants('Color', [0, 1, 2], 6);
         cy.get('.sw-product-modal-variant-generation').should('not.exist');
         cy.get('.sw-product-variants-overview').should('be.visible');
 

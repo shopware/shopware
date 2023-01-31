@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\User\UserEntity;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -23,17 +24,16 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 /**
  * @internal We might break this in v6.2
  *
- * @phpstan-type Config array{mapping?: ?list<array<string, mixed>>, updateBy?: ?array<string, mixed>, parameters?: ?array<string, mixed>}
- *
- * @package system-settings
+ * @phpstan-type Config array{mapping?: ?array<array<string, mixed>>, updateBy?: ?array<string, mixed>, parameters?: ?array<string, mixed>}
  */
+#[Package('system-settings')]
 class ImportExportService
 {
     public function __construct(
-        private EntityRepository $logRepository,
-        private EntityRepository $userRepository,
-        private EntityRepository $profileRepository,
-        private AbstractFileService $fileService
+        private readonly EntityRepository $logRepository,
+        private readonly EntityRepository $userRepository,
+        private readonly EntityRepository $profileRepository,
+        private readonly AbstractFileService $fileService
     ) {
     }
 
@@ -65,9 +65,8 @@ class ImportExportService
         }
 
         $fileEntity = $this->fileService->storeFile($context, $expireDate, null, $originalFileName, $activity, $destinationPath);
-        $logEntity = $this->createLog($context, $activity, $fileEntity, $profileEntity, $config);
 
-        return $logEntity;
+        return $this->createLog($context, $activity, $fileEntity, $profileEntity, $config);
     }
 
     /**
@@ -94,9 +93,8 @@ class ImportExportService
 
         $fileEntity = $this->fileService->storeFile($context, $expireDate, $file->getPathname(), $file->getClientOriginalName(), ImportExportLogEntity::ACTIVITY_IMPORT);
         $activity = $dryRun ? ImportExportLogEntity::ACTIVITY_DRYRUN : ImportExportLogEntity::ACTIVITY_IMPORT;
-        $logEntity = $this->createLog($context, $activity, $fileEntity, $profileEntity, $config);
 
-        return $logEntity;
+        return $this->createLog($context, $activity, $fileEntity, $profileEntity, $config);
     }
 
     public function cancel(Context $context, string $logId): void
@@ -115,9 +113,8 @@ class ImportExportService
 
     public function getProgress(string $logId, int $offset): Progress
     {
-        /** @var ImportExportLogEntity|null $current */
         $current = $this->logRepository->search(new Criteria([$logId]), Context::createDefaultContext())->first();
-        if ($current === null) {
+        if (!$current instanceof ImportExportLogEntity) {
             throw new \RuntimeException('ImportExportLog "' . $logId . '" not found');
         }
 
@@ -136,7 +133,7 @@ class ImportExportService
     }
 
     /**
-     * @param list<array<mixed>>|null $result
+     * @param array<array<mixed>>|null $result
      */
     public function saveProgress(Progress $progress, ?array $result = null): void
     {
@@ -212,9 +209,7 @@ class ImportExportService
         }
 
         $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($logEntity): void {
-            $logData = array_filter($logEntity->jsonSerialize(), function ($value) {
-                return $value !== null;
-            });
+            $logData = array_filter($logEntity->jsonSerialize(), fn ($value) => $value !== null);
             $this->logRepository->create([$logData], $context);
         });
 
@@ -232,7 +227,7 @@ class ImportExportService
     /**
      * @param Config $config
      *
-     * @return array{mapping: ?list<array<string, mixed>>, updateBy: ?array<string, mixed>, parameters: ?array<string, mixed>}
+     * @return Config
      */
     private function getConfig(ImportExportProfileEntity $profileEntity, array $config): array
     {

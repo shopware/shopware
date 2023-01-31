@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Page\Search;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\Awareness\SalesChannelContextAwareTrait;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\PageLoadedHook;
@@ -11,23 +12,19 @@ use Shopware\Storefront\Page\PageLoadedHook;
  *
  * @hook-use-case data_loading
  *
- * @package system-settings
- *
  * @since 6.4.8.0
  */
+#[Package('system-settings')]
 class SearchWidgetLoadedHook extends PageLoadedHook
 {
     use SalesChannelContextAwareTrait;
 
-    public const HOOK_NAME = 'search-widget-loaded';
+    final public const HOOK_NAME = 'search-widget-loaded';
 
-    private SearchPage $page;
-
-    public function __construct(SearchPage $page, SalesChannelContext $context)
+    public function __construct(private readonly SearchPage $page, SalesChannelContext $context)
     {
         parent::__construct($context->getContext());
         $this->salesChannelContext = $context;
-        $this->page = $page;
     }
 
     public function getName(): string

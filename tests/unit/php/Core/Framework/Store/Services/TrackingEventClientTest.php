@@ -66,7 +66,7 @@ class TrackingEventClientTest extends TestCase
                 ],
                 'event' => 'Tracking event fired and returned',
             ],
-            \json_decode($lastRequest->getBody()->getContents(), true)
+            \json_decode($lastRequest->getBody()->getContents(), true, 512, \JSON_THROW_ON_ERROR)
         );
     }
 
@@ -97,7 +97,7 @@ class TrackingEventClientTest extends TestCase
                 ],
                 'event' => 'Tracking event fired and returned on request exception',
             ],
-            \json_decode($lastRequest->getBody()->getContents(), true)
+            \json_decode($lastRequest->getBody()->getContents(), true, 512, \JSON_THROW_ON_ERROR)
         );
     }
 }

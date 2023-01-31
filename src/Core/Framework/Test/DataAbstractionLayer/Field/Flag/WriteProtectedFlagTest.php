@@ -115,7 +115,7 @@ EOF;
         static::assertEquals('This field is write-protected.', $this->getValidationExceptionMessage($ex));
 
         $fieldException = $ex->getExceptions()[0];
-        static::assertEquals(WriteConstraintViolationException::class, \get_class($fieldException));
+        static::assertEquals(WriteConstraintViolationException::class, $fieldException::class);
         static::assertEquals('/0/protected', $fieldException->getPath());
     }
 
@@ -183,7 +183,7 @@ EOF;
         static::assertEquals('This field is write-protected.', $this->getValidationExceptionMessage($ex, 'relation'));
 
         $fieldException = $ex->getExceptions()[0];
-        static::assertEquals(WriteConstraintViolationException::class, \get_class($fieldException));
+        static::assertEquals(WriteConstraintViolationException::class, $fieldException::class);
         static::assertEquals('/0/relation', $fieldException->getPath());
     }
 
@@ -236,7 +236,7 @@ EOF;
         static::assertEquals('This field is write-protected.', $this->getValidationExceptionMessage($ex, 'wp'));
 
         $fieldException = $ex->getExceptions()[0];
-        static::assertEquals(WriteConstraintViolationException::class, \get_class($fieldException));
+        static::assertEquals(WriteConstraintViolationException::class, $fieldException::class);
         static::assertEquals('/0/wp', $fieldException->getPath());
     }
 
@@ -292,7 +292,7 @@ EOF;
         static::assertEquals('This field is write-protected.', $this->getValidationExceptionMessage($ex, 'relations'));
 
         $fieldException = $ex->getExceptions()[0];
-        static::assertEquals(WriteConstraintViolationException::class, \get_class($fieldException));
+        static::assertEquals(WriteConstraintViolationException::class, $fieldException::class);
         static::assertEquals('/0/relations', $fieldException->getPath());
     }
 
@@ -344,7 +344,7 @@ EOF;
         static::assertEquals('This field is write-protected.', $this->getValidationExceptionMessage($ex));
 
         $fieldException = $ex->getExceptions()[0];
-        static::assertEquals(WriteConstraintViolationException::class, \get_class($fieldException));
+        static::assertEquals(WriteConstraintViolationException::class, $fieldException::class);
         static::assertEquals('/0/protected', $fieldException->getPath());
     }
 

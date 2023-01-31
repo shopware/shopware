@@ -62,7 +62,7 @@ describe('module/sw-customer/page/sw-customer-card', () => {
         expect(accountTypeSelect.exists()).toBeTruthy();
     });
 
-    it('should display company and vat fields when switching to business type', async () => {
+    it('should vat fields when switching to business type', async () => {
         const wrapper = await createWrapper();
         await wrapper.setProps({
             editMode: true,
@@ -75,7 +75,7 @@ describe('module/sw-customer/page/sw-customer-card', () => {
         expect(wrapper.find('[label="sw-customer.card.labelVatId"]').exists()).toBeTruthy();
     });
 
-    it('should hide company and vat fields when switching to private type', async () => {
+    it('should hide vat fields when switching to private type', async () => {
         const wrapper = await createWrapper();
         await wrapper.setProps({
             editMode: true,
@@ -84,7 +84,7 @@ describe('module/sw-customer/page/sw-customer-card', () => {
                 accountType: 'private'
             },
         });
-        expect(wrapper.find('[label="sw-customer.card.labelCompany"]').exists()).toBeFalsy();
+
         expect(wrapper.find('[label="sw-customer.card.labelVatId"]').exists()).toBeFalsy();
     });
 });

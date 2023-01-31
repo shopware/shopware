@@ -2,11 +2,17 @@
 
 namespace Shopware\Core\Framework\Struct;
 
-/**
- * @package core
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 trait CreateFromTrait
 {
+    /**
+     * tag:v6.6.0 - Return type will be changed to native type `static`
+     *
+     * @return static
+     */
+    #[\ReturnTypeWillChange]
     public static function createFrom(Struct $object)
     {
         try {

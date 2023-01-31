@@ -4,15 +4,15 @@ namespace Shopware\Core\Migration\V6_4;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainDefinition;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class Migration1620820321AddDefaultDomainForHeadlessSaleschannel extends MigrationStep
 {
     public function getCreationTimestamp(): int

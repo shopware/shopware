@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use OpenSearch\Client;
 use Shopware\Core\Framework\Increment\Exception\IncrementGatewayNotFoundException;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Framework\ElasticsearchOutdatedIndexDetector;
 use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexingMessage;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -14,33 +15,19 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-/**
- * @package core
- */
 #[AsCommand(
     name: 'es:reset',
     description: 'Reset the elasticsearch index',
 )]
+#[Package('core')]
 class ElasticsearchResetCommand extends Command
 {
-    private ElasticsearchOutdatedIndexDetector $detector;
-
-    private Client $client;
-
-    private Connection $connection;
-
-    private IncrementGatewayRegistry $gatewayRegistry;
-
     /**
      * @internal
      */
-    public function __construct(Client $client, ElasticsearchOutdatedIndexDetector $detector, Connection $connection, IncrementGatewayRegistry $gatewayRegistry)
+    public function __construct(private readonly Client $client, private readonly ElasticsearchOutdatedIndexDetector $detector, private readonly Connection $connection, private readonly IncrementGatewayRegistry $gatewayRegistry)
     {
         parent::__construct();
-        $this->detector = $detector;
-        $this->client = $client;
-        $this->connection = $connection;
-        $this->gatewayRegistry = $gatewayRegistry;
     }
 
     /**
@@ -48,8 +35,6 @@ class ElasticsearchResetCommand extends Command
      */
     protected function configure(): void
     {
-        $this
-            ->setDescription('Resets Elasticsearch indexing');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -74,7 +59,7 @@ class ElasticsearchResetCommand extends Command
         try {
             $gateway = $this->gatewayRegistry->get(IncrementGatewayRegistry::MESSAGE_QUEUE_POOL);
             $gateway->reset('message_queue_stats', ElasticsearchIndexingMessage::class);
-        } catch (IncrementGatewayNotFoundException $exception) {
+        } catch (IncrementGatewayNotFoundException) {
             // In case message_queue pool is disabled
         }
 

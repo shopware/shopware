@@ -2,19 +2,13 @@
 
 namespace Shopware\Storefront\Theme\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class ThemeAssignmentException extends ShopwareHttpException
 {
-    /**
-     * @var array<string, string>
-     */
-    private array $assignedSalesChannels;
-
     /**
      * @param array<string, array<int, string>> $themeSalesChannel
      * @param array<string, array<int, string>> $childThemeSalesChannel
@@ -24,11 +18,9 @@ class ThemeAssignmentException extends ShopwareHttpException
         string $themeName,
         array $themeSalesChannel,
         array $childThemeSalesChannel,
-        array $assignedSalesChannels,
+        private readonly array $assignedSalesChannels,
         ?\Throwable $e = null
     ) {
-        $this->assignedSalesChannels = $assignedSalesChannels;
-
         $parameters = ['themeName' => $themeName];
         $message = 'Unable to deactivate or uninstall theme "{{ themeName }}".';
         $message .= ' Remove the following assignments between theme and sales channel assignments: {{ assignments }}.';

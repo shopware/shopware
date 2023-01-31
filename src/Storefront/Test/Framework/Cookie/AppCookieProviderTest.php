@@ -2,10 +2,10 @@
 
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Framework\Cookie\AppCookieProvider;
 use Shopware\Storefront\Framework\Cookie\CookieProviderInterface;
+use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 
 /**
  * @internal
@@ -15,15 +15,9 @@ class AppCookieProviderTest extends TestCase
     use IntegrationTestBehaviour;
     use AppSystemTestBehaviour;
 
-    /**
-     * @var CookieProviderInterface|MockObject
-     */
-    private $baseProvider;
+    private MockObject&CookieProviderInterface $baseProvider;
 
-    /**
-     * @var AppCookieProvider
-     */
-    private $appCookieProvider;
+    private AppCookieProvider $appCookieProvider;
 
     public function setUp(): void
     {
@@ -109,9 +103,7 @@ class AppCookieProviderTest extends TestCase
         static::assertCount(1, $result);
         static::assertEquals('cookie.groupRequired', $result[0]['snippet_name']);
         static::assertCount(3, $result[0]['entries']);
-        usort($result[0]['entries'], function (array $a, array $b): int {
-            return $a['snippet_name'] <=> $b['snippet_name'];
-        });
+        usort($result[0]['entries'], fn (array $a, array $b): int => $a['snippet_name'] <=> $b['snippet_name']);
 
         static::assertEquals([
             [
@@ -141,9 +133,7 @@ class AppCookieProviderTest extends TestCase
         static::assertCount(1, $result);
         static::assertEquals('App Cookies', $result[0]['snippet_name']);
         static::assertCount(3, $result[0]['entries']);
-        usort($result[0]['entries'], function (array $a, array $b): int {
-            return $a['snippet_name'] <=> $b['snippet_name'];
-        });
+        usort($result[0]['entries'], fn (array $a, array $b): int => $a['snippet_name'] <=> $b['snippet_name']);
 
         static::assertEquals([
             [

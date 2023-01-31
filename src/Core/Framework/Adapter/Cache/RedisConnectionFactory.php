@@ -2,15 +2,14 @@
 
 namespace Shopware\Core\Framework\Adapter\Cache;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Cache\Adapter\RedisAdapter;
 use Symfony\Component\Cache\Traits\RedisClusterProxy;
 use Symfony\Component\Cache\Traits\RedisProxy;
 
-/**
- * @package core
- * Used to create new Redis connection based on a connection dsn.
- * Existing connections are reused if there are any.
- */
+#[Package('core
+Used to create new Redis connection based on a connection dsn.
+Existing connections are reused if there are any.')]
 class RedisConnectionFactory
 {
     /**
@@ -23,16 +22,14 @@ class RedisConnectionFactory
     /**
      * @internal
      */
-    public function __construct(private ?string $prefix = null)
+    public function __construct(private readonly ?string $prefix = null)
     {
     }
 
     /**
      * @param array<string, mixed> $options
-     *
-     * @return \Redis|\RedisArray|\RedisCluster|RedisClusterProxy|RedisProxy
      */
-    public function create(string $dsn, array $options = [])
+    public function create(string $dsn, array $options = []): \Redis|\RedisArray|\RedisCluster|RedisClusterProxy|RedisProxy
     {
         $configHash = md5(json_encode($options, \JSON_THROW_ON_ERROR));
         $key = $dsn . $configHash . $this->prefix;

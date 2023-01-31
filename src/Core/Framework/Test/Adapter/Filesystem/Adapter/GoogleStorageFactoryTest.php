@@ -18,7 +18,7 @@ class GoogleStorageFactoryTest extends TestCase
 
         $config = [
             'projectId' => 'TestGoogleStorage',
-            'keyFile' => json_decode(file_get_contents(__DIR__ . '/fixtures/keyfile.json'), true),
+            'keyFile' => json_decode(file_get_contents(__DIR__ . '/fixtures/keyfile.json'), true, 512, \JSON_THROW_ON_ERROR),
             'bucket' => 'TestBucket',
             'root' => '/',
         ];

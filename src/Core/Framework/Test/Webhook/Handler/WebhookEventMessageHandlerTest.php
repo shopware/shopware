@@ -9,12 +9,12 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Test\App\GuzzleTestClientBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Handler\WebhookEventMessageHandler;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
+use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
 
 /**
  * @internal
@@ -87,7 +87,7 @@ class WebhookEventMessageHandlerTest extends TestCase
         $request = $this->getLastRequest();
         static::assertInstanceOf(RequestInterface::class, $request);
         $payload = $request->getBody()->getContents();
-        $body = json_decode($payload);
+        $body = json_decode($payload, null, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals('POST', $request->getMethod());
         static::assertEquals($body->body, 'payload');
@@ -169,7 +169,7 @@ class WebhookEventMessageHandlerTest extends TestCase
         $request = $this->getLastRequest();
         static::assertInstanceOf(RequestInterface::class, $request);
         $payload = $request->getBody()->getContents();
-        $body = json_decode($payload);
+        $body = json_decode($payload, null, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals('POST', $request->getMethod());
         static::assertEquals($body->body, 'payload');

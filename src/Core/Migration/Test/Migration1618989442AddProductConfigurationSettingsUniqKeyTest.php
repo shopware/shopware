@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -21,12 +22,11 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 
 /**
- * @package core
- *
  * @internal
  * NEXT-21735 - Not deterministic due to SalesChannelContextFactory
  * @group not-deterministic
  */
+#[Package('core')]
 class Migration1618989442AddProductConfigurationSettingsUniqKeyTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -192,6 +192,13 @@ class Migration1618989442AddProductConfigurationSettingsUniqKeyTest extends Test
                 DROP INDEX `uniq.product_configurator_setting.prod_id.vers_id.prop_group_id`
             ');
         }
+
+        if ($this->hasNewIndex()) {
+            $this->connection->executeStatement('
+                ALTER TABLE `product_configurator_setting`
+                DROP INDEX `uniq.product_configurator_setting.p_id.vers_id.prop_group_id.cS`
+            ');
+        }
     }
 
     private function hasIndex(): bool
@@ -199,6 +206,14 @@ class Migration1618989442AddProductConfigurationSettingsUniqKeyTest extends Test
         return (bool) $this->connection->executeQuery('
             SHOW INDEXES IN `product_configurator_setting`
             WHERE `Key_name` = \'uniq.product_configurator_setting.prod_id.vers_id.prop_group_id\'
+        ')->fetchOne();
+    }
+
+    private function hasNewIndex(): bool
+    {
+        return (bool) $this->connection->executeQuery('
+            SHOW INDEXES IN `product_configurator_setting`
+            WHERE `Key_name` = \'uniq.product_configurator_setting.p_id.vers_id.prop_group_id.cS\'
         ')->fetchOne();
     }
 
@@ -275,10 +290,7 @@ class Migration1618989442AddProductConfigurationSettingsUniqKeyTest extends Test
                 'stock' => 10,
                 'active' => true,
                 'parentId' => $productId,
-                'options' => array_map(function (array $group) {
-                    // Assign first option from each group
-                    return ['id' => $group[0]];
-                }, $optionIds),
+                'options' => array_map(fn (array $group) => ['id' => $group[0]], $optionIds),
             ],
         ];
 

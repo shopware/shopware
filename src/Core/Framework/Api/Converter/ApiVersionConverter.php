@@ -10,23 +10,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationFiel
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
+#[Package('core')]
 class ApiVersionConverter
 {
     /**
-     * @var ConverterRegistry
-     */
-    private $converterRegistry;
-
-    /**
      * @internal
      */
-    public function __construct(ConverterRegistry $converterRegistry)
+    public function __construct(private readonly ConverterRegistry $converterRegistry)
     {
-        $this->converterRegistry = $converterRegistry;
     }
 
     public function convertEntity(EntityDefinition $definition, Entity $entity): array
@@ -36,9 +29,7 @@ class ApiVersionConverter
 
     public function convertPayload(EntityDefinition $definition, array $payload, ApiConversionException $conversionException, string $pointer = ''): array
     {
-        $toOneFields = $definition->getFields()->filter(function (Field $field) {
-            return $field instanceof OneToOneAssociationField || $field instanceof ManyToOneAssociationField;
-        });
+        $toOneFields = $definition->getFields()->filter(fn (Field $field) => $field instanceof OneToOneAssociationField || $field instanceof ManyToOneAssociationField);
 
         /** @var OneToOneAssociationField|OneToManyAssociationField $field */
         foreach ($toOneFields as $field) {
@@ -54,9 +45,7 @@ class ApiVersionConverter
             );
         }
 
-        $toManyFields = $definition->getFields()->filter(function (Field $field) {
-            return $field instanceof OneToManyAssociationField || $field instanceof ManyToManyAssociationField;
-        });
+        $toManyFields = $definition->getFields()->filter(fn (Field $field) => $field instanceof OneToManyAssociationField || $field instanceof ManyToManyAssociationField);
 
         /** @var OneToManyAssociationField|ManyToManyAssociationField $field */
         foreach ($toManyFields as $field) {

@@ -5,12 +5,11 @@ namespace Shopware\Core\Maintenance\System\Service;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Maintenance\System\Exception\DatabaseSetupException;
 use Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation;
 
-/**
- * @package core
- */
+#[Package('core')]
 class DatabaseConnectionFactory
 {
     /**
@@ -37,7 +36,7 @@ class DatabaseConnectionFactory
         $mariaDBRequiredVersion = '10.3.22';
 
         $version = $connection->fetchOne('SELECT VERSION()');
-        if (\mb_stripos($version, 'mariadb') !== false) {
+        if (\mb_stripos((string) $version, 'mariadb') !== false) {
             if (version_compare($version, $mariaDBRequiredVersion, '<')) {
                 throw new DatabaseSetupException(sprintf(
                     'Your database server is running MariaDB %s, but Shopware 6 requires at least MariaDB %s OR MySQL %s',

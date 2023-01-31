@@ -8,14 +8,14 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Services\FirstRunWizardService;
 use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigEntity;
 
 /**
- * @package merchant-services
- *
  * @internal
  */
+#[Package('merchant-services')]
 class FrwRequestOptionsProvider extends AbstractStoreRequestOptionsProvider
 {
     private const SHOPWARE_TOKEN_HEADER = 'X-Shopware-Token';
@@ -39,7 +39,7 @@ class FrwRequestOptionsProvider extends AbstractStoreRequestOptionsProvider
     private function getFrwUserToken(Context $context): ?string
     {
         if (!$context->getSource() instanceof AdminApiSource) {
-            throw new InvalidContextSourceException(AdminApiSource::class, \get_class($context->getSource()));
+            throw new InvalidContextSourceException(AdminApiSource::class, $context->getSource()::class);
         }
 
         /** @var AdminApiSource $contextSource */

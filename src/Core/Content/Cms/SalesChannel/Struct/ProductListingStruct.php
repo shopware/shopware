@@ -3,11 +3,10 @@
 namespace Shopware\Core\Content\Cms\SalesChannel\Struct;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-/**
- * @package content
- */
+#[Package('content')]
 class ProductListingStruct extends Struct
 {
     /**

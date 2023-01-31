@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Session\Attribute\AttributeBag;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBag;
 use Symfony\Component\HttpFoundation\Session\SessionBagInterface;
@@ -10,10 +11,9 @@ use Symfony\Component\HttpFoundation\Session\Storage\MetadataBag;
 use Symfony\Component\HttpFoundation\Session\Storage\SessionStorageInterface;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class TestSessionStorage implements SessionStorageInterface
 {
     private static array $data = [];

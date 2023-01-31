@@ -5,29 +5,25 @@ namespace Shopware\Core\Checkout\Order\Aggregate\OrderLineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package customer-order
- *
  * @extends EntityCollection<OrderLineItemEntity>
  */
+#[Package('customer-order')]
 class OrderLineItemCollection extends EntityCollection
 {
     /**
-     * @return list<string>
+     * @return array<string>
      */
     public function getOrderIds(): array
     {
-        return $this->fmap(function (OrderLineItemEntity $orderLineItem) {
-            return $orderLineItem->getOrderId();
-        });
+        return $this->fmap(fn (OrderLineItemEntity $orderLineItem) => $orderLineItem->getOrderId());
     }
 
     public function filterByOrderId(string $id): self
     {
-        return $this->filter(function (OrderLineItemEntity $orderLineItem) use ($id) {
-            return $orderLineItem->getOrderId() === $id;
-        });
+        return $this->filter(fn (OrderLineItemEntity $orderLineItem) => $orderLineItem->getOrderId() === $id);
     }
 
     public function sortByCreationDate(string $sortDirection = FieldSorting::ASCENDING): void
@@ -43,9 +39,7 @@ class OrderLineItemCollection extends EntityCollection
 
     public function sortByPosition(): void
     {
-        $this->sort(function (OrderLineItemEntity $a, OrderLineItemEntity $b) {
-            return $a->getPosition() <=> $b->getPosition();
-        });
+        $this->sort(fn (OrderLineItemEntity $a, OrderLineItemEntity $b) => $a->getPosition() <=> $b->getPosition());
     }
 
     /**
@@ -54,12 +48,9 @@ class OrderLineItemCollection extends EntityCollection
     public function getPayloadsProperty(string $property): array
     {
         return $this->fmap(function (OrderLineItemEntity $lineItem) use ($property) {
-            if ($lineItem->getPayload() === null) {
-                return null;
-            }
-
-            if (\array_key_exists($property, $lineItem->getPayload())) {
-                return $lineItem->getPayload()[$property];
+            $payload = $lineItem->getPayload() ?? [];
+            if (\array_key_exists($property, $payload)) {
+                return $payload[$property];
             }
 
             return null;
@@ -68,9 +59,35 @@ class OrderLineItemCollection extends EntityCollection
 
     public function filterByType(string $type): self
     {
-        return $this->filter(function (OrderLineItemEntity $lineItem) use ($type) {
-            return $lineItem->getType() === $type;
-        });
+        return $this->filter(fn (OrderLineItemEntity $lineItem) => $lineItem->getType() === $type);
+    }
+
+    /**
+     * @return OrderLineItemEntity[]
+     */
+    public function filterGoodsFlat(): array
+    {
+        $lineItems = $this->buildFlat($this);
+
+        $filtered = [];
+        foreach ($lineItems as $lineItem) {
+            if ($lineItem->getGood()) {
+                $filtered[] = $lineItem;
+            }
+        }
+
+        return $filtered;
+    }
+
+    public function hasLineItemWithState(string $state): bool
+    {
+        foreach ($this->buildFlat($this) as $lineItem) {
+            if (\in_array($state, $lineItem->getStates(), true)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function getApiAlias(): string
@@ -81,14 +98,33 @@ class OrderLineItemCollection extends EntityCollection
     public function getPrices(): PriceCollection
     {
         return new PriceCollection(
-            array_filter(array_map(static function (OrderLineItemEntity $orderLineItem) {
-                return $orderLineItem->getPrice();
-            }, array_values($this->getElements())))
+            array_filter(array_map(static fn (OrderLineItemEntity $orderLineItem) => $orderLineItem->getPrice(), array_values($this->getElements())))
         );
     }
 
     protected function getExpectedClass(): string
     {
         return OrderLineItemEntity::class;
+    }
+
+    /**
+     * @return OrderLineItemEntity[]
+     */
+    private function buildFlat(?OrderLineItemCollection $lineItems): array
+    {
+        $flat = [];
+        if (!$lineItems) {
+            return $flat;
+        }
+
+        foreach ($lineItems as $lineItem) {
+            $flat[] = $lineItem;
+
+            foreach ($this->buildFlat($lineItem->getChildren()) as $nest) {
+                $flat[] = $nest;
+            }
+        }
+
+        return $flat;
     }
 }

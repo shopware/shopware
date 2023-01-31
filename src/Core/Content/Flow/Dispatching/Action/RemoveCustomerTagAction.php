@@ -7,22 +7,19 @@ use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Event\CustomerAware;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('business-ops')]
 class RemoveCustomerTagAction extends FlowAction implements DelayableAction
 {
-    private EntityRepository $customerTagRepository;
-
     /**
      * @internal
      */
-    public function __construct(EntityRepository $customerTagRepository)
+    public function __construct(private readonly EntityRepository $customerTagRepository)
     {
-        $this->customerTagRepository = $customerTagRepository;
     }
 
     public static function getName(): string
@@ -62,12 +59,10 @@ class RemoveCustomerTagAction extends FlowAction implements DelayableAction
             return;
         }
 
-        $tags = array_map(static function ($tagId) use ($customerId) {
-            return [
-                'customerId' => $customerId,
-                'tagId' => $tagId,
-            ];
-        }, $tagIds);
+        $tags = array_map(static fn ($tagId) => [
+            'customerId' => $customerId,
+            'tagId' => $tagId,
+        ], $tagIds);
 
         $this->customerTagRepository->delete($tags, $context);
     }

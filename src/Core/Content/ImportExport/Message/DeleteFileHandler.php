@@ -4,20 +4,20 @@ namespace Shopware\Core\Content\ImportExport\Message;
 
 use League\Flysystem\FilesystemOperator;
 use League\Flysystem\UnableToDeleteFile;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
  * @internal
- *
- * @package system-settings
  */
 #[AsMessageHandler]
+#[Package('system-settings')]
 final class DeleteFileHandler
 {
     /**
      * @internal
      */
-    public function __construct(private FilesystemOperator $filesystem)
+    public function __construct(private readonly FilesystemOperator $filesystem)
     {
     }
 
@@ -26,7 +26,7 @@ final class DeleteFileHandler
         foreach ($message->getFiles() as $file) {
             try {
                 $this->filesystem->delete($file);
-            } catch (UnableToDeleteFile $e) {
+            } catch (UnableToDeleteFile) {
                 //ignore file is already deleted
             }
         }

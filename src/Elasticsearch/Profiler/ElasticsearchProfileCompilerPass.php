@@ -3,14 +3,13 @@
 namespace Shopware\Elasticsearch\Profiler;
 
 use OpenSearch\Client;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 
-/**
- * @package core
- */
+#[Package('core')]
 class ElasticsearchProfileCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void
@@ -30,5 +29,13 @@ class ElasticsearchProfileCompilerPass implements CompilerPassInterface
         $clientDecorator->setDecoratedService(Client::class);
 
         $container->setDefinition('shopware.es.profiled.client', $clientDecorator);
+
+        $adminClientDecorator = new Definition(ClientProfiler::class);
+        $adminClientDecorator->setArguments([
+            new Reference('shopware.es.profiled.adminClient.inner'),
+        ]);
+        $adminClientDecorator->setDecoratedService('admin.openSearch.client');
+
+        $container->setDefinition('shopware.es.profiled.adminClient', $adminClientDecorator);
     }
 }

@@ -5,20 +5,17 @@ namespace Shopware\Core\Checkout\Payment\Cart\PaymentHandler;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\App\Payment\Handler\AppAsyncPaymentHandler;
 use Shopware\Core\Framework\App\Payment\Handler\AppSyncPaymentHandler;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\Service\ServiceProviderInterface;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class PaymentHandlerRegistry
 {
     /**
      * @var array<string, PaymentHandlerInterface>
      */
     private array $handlers = [];
-
-    private Connection $connection;
 
     /**
      * @internal
@@ -33,10 +30,8 @@ class PaymentHandlerRegistry
         ServiceProviderInterface $asyncHandlers,
         ServiceProviderInterface $preparedHandlers,
         ServiceProviderInterface $refundHandlers,
-        Connection $connection
+        private readonly Connection $connection
     ) {
-        $this->connection = $connection;
-
         foreach (\array_keys($syncHandlers->getProvidedServices()) as $serviceId) {
             $handler = $syncHandlers->get($serviceId);
             $this->handlers[(string) $serviceId] = $handler;

@@ -5,10 +5,9 @@ namespace Shopware\Core\Checkout\Cart\Order\Transformer;
 use Shopware\Core\Checkout\Cart\Transaction\Struct\Transaction;
 use Shopware\Core\Checkout\Cart\Transaction\Struct\TransactionCollection;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class TransactionTransformer
 {
     public static function transformCollection(

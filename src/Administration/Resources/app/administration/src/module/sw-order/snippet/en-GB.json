@@ -46,7 +46,8 @@
       "messageRecalculationError": "An error occurred while calculating the price: <br>",
       "messageSaveError": "An error occurred during saving",
       "messageShippingNotAvailable": "Delivery to the selected country not possible.",
-      "labelManualOrder": "Created by admin"
+      "labelManualOrder": "Created by admin",
+      "textUnsavedOrderWarning": "There are unsaved changes. Please save the order before leaving this page."
     },
     "create": {
       "textNewOrder": "New order",
@@ -380,6 +381,9 @@
         "automaticPromotion":  "automatically applied",
         "labelToggleAutomaticPromotions": "Disable automatically applied promotions"
       }
+    },
+    "documentTab": {
+      "tooltipSaveBeforeCreateDocument": "Order is unsaved. Please save the order before creating a document"
     },
     "documentModal": {
       "modalTitle": "Create document",

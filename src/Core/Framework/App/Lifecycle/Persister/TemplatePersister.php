@@ -10,28 +10,16 @@ use Shopware\Core\Framework\App\Template\TemplateEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
- *
- * @package core
  */
+#[Package('core')]
 class TemplatePersister
 {
-    private AbstractTemplateLoader $templateLoader;
-
-    private EntityRepository $templateRepository;
-
-    private EntityRepository $appRepository;
-
-    public function __construct(
-        AbstractTemplateLoader $templateLoader,
-        EntityRepository $templateRepository,
-        EntityRepository $appRepository
-    ) {
-        $this->templateLoader = $templateLoader;
-        $this->templateRepository = $templateRepository;
-        $this->appRepository = $appRepository;
+    public function __construct(private readonly AbstractTemplateLoader $templateLoader, private readonly EntityRepository $templateRepository, private readonly EntityRepository $appRepository)
+    {
     }
 
     public function updateTemplates(Manifest $manifest, string $appId, Context $context): void
@@ -74,9 +62,7 @@ class TemplatePersister
         $ids = $toBeRemoved->getIds();
 
         if (!empty($ids)) {
-            $ids = array_map(static function (string $id): array {
-                return ['id' => $id];
-            }, array_values($ids));
+            $ids = array_map(static fn (string $id): array => ['id' => $id], array_values($ids));
 
             $this->templateRepository->delete($ids, $context);
         }

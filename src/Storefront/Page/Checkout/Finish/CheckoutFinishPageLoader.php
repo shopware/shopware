@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaI
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Profiling\Profiler;
@@ -20,28 +21,14 @@ use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class CheckoutFinishPageLoader
 {
-    private EventDispatcherInterface $eventDispatcher;
-
-    private GenericPageLoaderInterface $genericLoader;
-
-    private AbstractOrderRoute $orderRoute;
-
     /**
      * @internal
      */
-    public function __construct(
-        EventDispatcherInterface $eventDispatcher,
-        GenericPageLoaderInterface $genericLoader,
-        AbstractOrderRoute $orderRoute
-    ) {
-        $this->eventDispatcher = $eventDispatcher;
-        $this->genericLoader = $genericLoader;
-        $this->orderRoute = $orderRoute;
+    public function __construct(private readonly EventDispatcherInterface $eventDispatcher, private readonly GenericPageLoaderInterface $genericLoader, private readonly AbstractOrderRoute $orderRoute)
+    {
     }
 
     /**
@@ -124,7 +111,7 @@ class CheckoutFinishPageLoader
             $searchResult = $this->orderRoute
                 ->load(new Request(), $salesChannelContext, $criteria)
                 ->getOrders();
-        } catch (InvalidUuidException $e) {
+        } catch (InvalidUuidException) {
             throw OrderException::orderNotFound($orderId);
         }
 

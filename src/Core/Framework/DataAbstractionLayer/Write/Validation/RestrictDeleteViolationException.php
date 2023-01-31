@@ -3,18 +3,17 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write\Validation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @package core
- */
+#[Package('core')]
 class RestrictDeleteViolationException extends ShopwareHttpException
 {
     /**
      * @var RestrictDeleteViolation[]
      */
-    private $restrictions;
+    private readonly array $restrictions;
 
     /**
      * @param RestrictDeleteViolation[] $restrictions

@@ -6,12 +6,11 @@ use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Content\ImportExport\Exception\FileNotReadableException;
 use Shopware\Core\Content\Sitemap\Event\SitemapFilterOpenTagEvent;
 use Shopware\Core\Content\Sitemap\Struct\Url;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package sales-channel
- */
+#[Package('sales-channel')]
 class SitemapHandle implements SitemapHandleInterface
 {
     private const MAX_URLS = 49999;
@@ -21,12 +20,6 @@ class SitemapHandle implements SitemapHandleInterface
      * @var array<string>
      */
     private array $tmpFiles = [];
-
-    private FilesystemOperator $filesystem;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private SalesChannelContext $context;
 
     /**
      * @var resource
@@ -43,15 +36,12 @@ class SitemapHandle implements SitemapHandleInterface
      * @internal
      */
     public function __construct(
-        FilesystemOperator $filesystem,
-        SalesChannelContext $context,
-        EventDispatcherInterface $eventDispatcher,
+        private readonly FilesystemOperator $filesystem,
+        private readonly SalesChannelContext $context,
+        private readonly EventDispatcherInterface $eventDispatcher,
         ?string $domain = null
     ) {
         $this->setDomainName($domain);
-        $this->filesystem = $filesystem;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->context = $context;
 
         $filePath = $this->getTmpFilePath($context);
         $this->openGzip($filePath);
@@ -146,7 +136,7 @@ class SitemapHandle implements SitemapHandleInterface
     {
         try {
             $files = $this->filesystem->listContents($this->getPath($this->context));
-        } catch (\Throwable $e) {
+        } catch (\Throwable) {
             // Folder does not exists
             return;
         }

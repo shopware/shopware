@@ -152,8 +152,7 @@ class RecalculationServiceTest extends TestCase
         $convertedCart = $this->getContainer()->get(OrderConverter::class)
             ->convertToCart($order, $this->context);
 
-        // check name and token
-        static::assertEquals(OrderConverter::CART_TYPE, $convertedCart->getName());
+        // check token
         static::assertNotEquals($cart->getToken(), $convertedCart->getToken());
         static::assertTrue(Uuid::isValid($convertedCart->getToken()));
 
@@ -167,8 +166,7 @@ class RecalculationServiceTest extends TestCase
             }
             ++$idx;
         }
-        // set name and token to be equal for further comparison
-        $cart->setName($convertedCart->getName());
+        // set token to be equal for further comparison
         $cart->setToken($convertedCart->getToken());
 
         // transactions are currently not supported so they are excluded for comparison
@@ -209,6 +207,21 @@ class RecalculationServiceTest extends TestCase
         $cart->setRuleIds([]);
         // The behaviour will be set during the process, therefore we remove it here
         $cart->setBehavior(null);
+
+        // unique identifier is set at runtime to be random uuid
+        foreach ($convertedCart->getLineItems()->getFlat() as $lineItem) {
+            $lineItem->assign(['uniqueIdentifier' => 'foo']);
+        }
+
+        foreach ($convertedCart->getDeliveries() as $delivery) {
+            foreach ($delivery->getPositions() as $position) {
+                $position->getLineItem()->assign(['uniqueIdentifier' => 'foo']);
+
+                foreach ($position->getLineItem()->getChildren()->getFlat() as $lineItem) {
+                    $lineItem->assign(['uniqueIdentifier' => 'foo']);
+                }
+            }
+        }
 
         static::assertEquals($cart, $convertedCart);
     }
@@ -1147,7 +1160,7 @@ class RecalculationServiceTest extends TestCase
 
     private function generateDemoCart(?string $productId1 = null, ?string $productId2 = null): Cart
     {
-        $cart = new Cart('A', 'a-b-c');
+        $cart = new Cart('a-b-c');
 
         $cart = $this->addProduct($cart, $productId1 ?? Uuid::randomHex());
 
@@ -1189,6 +1202,8 @@ class RecalculationServiceTest extends TestCase
         $lineItem = $this->getContainer()->get(ProductLineItemFactory::class)
             ->create($id);
 
+        $lineItem->assign(['uniqueIdentifier' => 'foo']);
+
         $cart->add($lineItem);
 
         $cart = $this->getContainer()->get(Processor::class)
@@ -1229,7 +1244,7 @@ class RecalculationServiceTest extends TestCase
         $response = $this->getBrowser()->getResponse();
 
         static::assertEquals(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
-        $content = json_decode((string) $response->getContent(), true);
+        $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         $versionId = $content['versionId'];
         static::assertEquals($orderId, $content['id']);
         static::assertEquals('order', $content['entity']);
@@ -1345,7 +1360,7 @@ class RecalculationServiceTest extends TestCase
             [
                 'HTTP_' . PlatformRequest::HEADER_VERSION_ID => $versionId,
             ],
-            (string) json_encode($data)
+            (string) json_encode($data, \JSON_THROW_ON_ERROR)
         );
         $response = $this->getBrowser()->getResponse();
 
@@ -1417,7 +1432,7 @@ class RecalculationServiceTest extends TestCase
             [
                 'HTTP_' . PlatformRequest::HEADER_VERSION_ID => $versionId,
             ],
-            (string) json_encode($data)
+            (string) json_encode($data, \JSON_THROW_ON_ERROR)
         );
         $response = $this->getBrowser()->getResponse();
 
@@ -1470,7 +1485,7 @@ class RecalculationServiceTest extends TestCase
             [
                 'HTTP_' . PlatformRequest::HEADER_VERSION_ID => $versionId,
             ],
-            (string) json_encode($data)
+            (string) json_encode($data, \JSON_THROW_ON_ERROR)
         );
         $response = $this->getBrowser()->getResponse();
 
@@ -1490,7 +1505,7 @@ class RecalculationServiceTest extends TestCase
 
         static::assertNotNull($promotionItem);
 
-        $content = json_decode((string) $response->getContent(), true);
+        $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertCount(1, $content['errors']);
 
         $errors = array_values($content['errors']);
@@ -1539,7 +1554,7 @@ class RecalculationServiceTest extends TestCase
 
         static::assertEquals($promotionItem->getPayload()['promotionId'], $promotionId);
 
-        $content = json_decode((string) $response->getContent(), true);
+        $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertCount(1, $content['errors']);
 
         $errors = array_values($content['errors']);

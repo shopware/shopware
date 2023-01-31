@@ -24,38 +24,22 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\ChangeSetAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('business-ops')]
 class RuleAreaUpdater implements EventSubscriberInterface
 {
-    private Connection $connection;
-
-    private RuleDefinition $definition;
-
-    private RuleConditionRegistry $conditionRegistry;
-
-    private CacheInvalidator $cacheInvalidator;
-
     /**
      * @internal
      */
-    public function __construct(
-        Connection $connection,
-        RuleDefinition $definition,
-        RuleConditionRegistry $conditionRegistry,
-        CacheInvalidator $cacheInvalidator
-    ) {
-        $this->connection = $connection;
-        $this->definition = $definition;
-        $this->conditionRegistry = $conditionRegistry;
-        $this->cacheInvalidator = $cacheInvalidator;
+    public function __construct(private readonly Connection $connection, private readonly RuleDefinition $definition, private readonly RuleConditionRegistry $conditionRegistry, private readonly CacheInvalidator $cacheInvalidator)
+    {
     }
 
     public static function getSubscribedEvents(): array
@@ -159,7 +143,7 @@ class RuleAreaUpdater implements EventSubscriberInterface
             }
 
             $update->execute([
-                'areas' => json_encode(array_values($areas)),
+                'areas' => json_encode(array_values($areas), \JSON_THROW_ON_ERROR),
                 'id' => Uuid::fromHexToBytes($id),
             ]);
         }
@@ -297,9 +281,7 @@ class RuleAreaUpdater implements EventSubscriberInterface
     private function getForeignKeyFields(EntityDefinition $definition): array
     {
         /** @var FkField[] $fields */
-        $fields = $definition->getFields()->filterInstance(FkField::class)->filter(function (FkField $fk): bool {
-            return $fk->getReferenceDefinition()->getEntityName() === $this->definition->getEntityName();
-        })->getElements();
+        $fields = $definition->getFields()->filterInstance(FkField::class)->filter(fn (FkField $fk): bool => $fk->getReferenceDefinition()->getEntityName() === $this->definition->getEntityName())->getElements();
 
         return $fields;
     }
@@ -309,11 +291,7 @@ class RuleAreaUpdater implements EventSubscriberInterface
      */
     private function getAssociationEntities(): array
     {
-        return $this->getAssociationFields()->filter(function (AssociationField $associationField): bool {
-            return $associationField instanceof OneToManyAssociationField;
-        })->map(function (AssociationField $field): string {
-            return $field->getReferenceDefinition()->getEntityName();
-        });
+        return $this->getAssociationFields()->filter(fn (AssociationField $associationField): bool => $associationField instanceof OneToManyAssociationField)->map(fn (AssociationField $field): string => $field->getReferenceDefinition()->getEntityName());
     }
 
     private function getAssociationDefinitionByEntity(CompiledFieldCollection $collection, string $entityName): ?EntityDefinition

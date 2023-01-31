@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -15,9 +16,8 @@ use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 
 /**
  * @internal
- *
- * @package system-settings
  */
+#[Package('system-settings')]
 class ImportExportFileRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -32,10 +32,7 @@ class ImportExportFileRepositoryTest extends TestCase
      */
     private $connection;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     protected function setUp(): void
     {
@@ -59,7 +56,7 @@ class ImportExportFileRepositoryTest extends TestCase
         static::assertEquals($id, $record['id']);
         static::assertEquals($expect['originalName'], $record['original_name']);
         static::assertEquals($expect['path'], $record['path']);
-        static::assertEquals(strtotime($expect['expireDate']), strtotime($record['expire_date']));
+        static::assertEquals(strtotime((string) $expect['expireDate']), strtotime((string) $record['expire_date']));
         static::assertEquals($expect['size'], $record['size']);
         static::assertEquals($expect['accessToken'], $record['access_token']);
     }
@@ -98,7 +95,7 @@ class ImportExportFileRepositoryTest extends TestCase
             $expect = $data[$record['id']];
             static::assertEquals($expect['originalName'], $record['original_name']);
             static::assertEquals($expect['path'], $record['path']);
-            static::assertEquals(strtotime($expect['expireDate']), strtotime($record['expire_date']));
+            static::assertEquals(strtotime((string) $expect['expireDate']), strtotime((string) $record['expire_date']));
             static::assertEquals($expect['size'], $record['size']);
             static::assertEquals($expect['accessToken'], $record['access_token']);
             unset($data[$record['id']]);
@@ -132,9 +129,7 @@ class ImportExportFileRepositoryTest extends TestCase
                 }
             }
 
-            $missingPropertyPaths = array_map(function ($property) {
-                return '/' . $property;
-            }, $requiredProperties);
+            $missingPropertyPaths = array_map(fn ($property) => '/' . $property, $requiredProperties);
 
             static::assertEquals($missingPropertyPaths, $foundViolations);
         }
@@ -195,7 +190,7 @@ class ImportExportFileRepositoryTest extends TestCase
             $expect = $data[$record['id']];
             static::assertEquals($expect['originalName'], $record['original_name']);
             static::assertEquals($expect['path'], $record['path']);
-            static::assertEquals(strtotime($expect['expireDate']), strtotime($record['expire_date']));
+            static::assertEquals(strtotime((string) $expect['expireDate']), strtotime((string) $record['expire_date']));
             static::assertEquals($expect['size'], $record['size']);
             static::assertEquals($expect['accessToken'], $record['access_token']);
             unset($data[$record['id']]);
@@ -204,6 +199,7 @@ class ImportExportFileRepositoryTest extends TestCase
 
     public function testImportExportFileUpdatePartial(): void
     {
+        $upsertData = [];
         $data = $this->prepareImportExportFileTestData();
         $properties = array_keys(array_pop($data));
 
@@ -237,7 +233,7 @@ class ImportExportFileRepositoryTest extends TestCase
             $expect = $data[$record['id']];
             static::assertEquals($expect['originalName'], $record['original_name']);
             static::assertEquals($expect['path'], $record['path']);
-            static::assertEquals(strtotime($expect['expireDate']), strtotime($record['expire_date']));
+            static::assertEquals(strtotime((string) $expect['expireDate']), strtotime((string) $record['expire_date']));
             static::assertEquals($expect['size'], $record['size']);
             static::assertEquals($expect['accessToken'], $record['access_token']);
             unset($data[$record['id']]);

@@ -8,24 +8,17 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class PromotionGateway implements PromotionGatewayInterface
 {
     /**
-     * @var EntityRepository
-     */
-    private $promotionRepository;
-
-    /**
      * @internal
      */
-    public function __construct(EntityRepository $promotionRepository)
+    public function __construct(private readonly EntityRepository $promotionRepository)
     {
-        $this->promotionRepository = $promotionRepository;
     }
 
     /**

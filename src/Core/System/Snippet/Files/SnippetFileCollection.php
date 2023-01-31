@@ -2,14 +2,14 @@
 
 namespace Shopware\Core\System\Snippet\Files;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\System\Snippet\Exception\InvalidSnippetFileException;
 
 /**
  * @extends Collection<AbstractSnippetFile>
- *
- * @package system-settings
  */
+#[Package('system-settings')]
 class SnippetFileCollection extends Collection
 {
     /**
@@ -45,9 +45,7 @@ class SnippetFileCollection extends Collection
      */
     public function getFilesArray(bool $isBase = true): array
     {
-        return array_filter($this->toArray(), function ($file) use ($isBase) {
-            return $file['isBase'] === $isBase;
-        });
+        return array_filter($this->toArray(), fn ($file) => $file['isBase'] === $isBase);
     }
 
     /**
@@ -115,9 +113,7 @@ class SnippetFileCollection extends Collection
         $filePath = realpath($filePath);
 
         $filesWithMatchingPath = $this->filter(
-            static function (AbstractSnippetFile $file) use ($filePath): bool {
-                return realpath($file->getPath()) === $filePath;
-            }
+            static fn (AbstractSnippetFile $file): bool => realpath($file->getPath()) === $filePath
         );
 
         return $filesWithMatchingPath->count() > 0;

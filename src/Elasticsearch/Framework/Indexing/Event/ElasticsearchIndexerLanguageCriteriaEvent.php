@@ -5,21 +5,14 @@ namespace Shopware\Elasticsearch\Framework\Indexing\Event;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\ShopwareEvent;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @package core
- */
+#[Package('core')]
 class ElasticsearchIndexerLanguageCriteriaEvent extends Event implements ShopwareEvent
 {
-    private Criteria $criteria;
-
-    private Context $context;
-
-    public function __construct(Criteria $criteria, Context $context)
+    public function __construct(private readonly Criteria $criteria, private readonly Context $context)
     {
-        $this->criteria = $criteria;
-        $this->context = $context;
     }
 
     public function getContext(): Context

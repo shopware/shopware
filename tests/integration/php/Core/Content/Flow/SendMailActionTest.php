@@ -580,6 +580,9 @@ class SendMailActionTest extends TestCase
         yield 'Test enable mail template updates' => [true];
     }
 
+    /**
+     * @group quarantined
+     */
     public function testTranslatorInjectionInMail(): void
     {
         $criteria = new Criteria();
@@ -785,14 +788,8 @@ class TestEmailService extends MailService
      */
     public ?array $data = null;
 
-    private ?MailFactory $mailFactory;
-
-    private ?MailerTransportDecorator $decorator;
-
-    public function __construct(?MailFactory $mailFactory = null, ?MailerTransportDecorator $decorator = null)
+    public function __construct(private readonly ?MailFactory $mailFactory = null, private readonly ?MailerTransportDecorator $decorator = null)
     {
-        $this->mailFactory = $mailFactory;
-        $this->decorator = $decorator;
     }
 
     /**

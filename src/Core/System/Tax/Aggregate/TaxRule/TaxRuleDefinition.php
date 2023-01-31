@@ -14,16 +14,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Tax\Aggregate\TaxRuleType\TaxRuleTypeDefinition;
 use Shopware\Core\System\Tax\TaxDefinition;
 
-/**
- * @package customer-order
- */
+#[Package('customer-order')]
 class TaxRuleDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'tax_rule';
+    final public const ENTITY_NAME = 'tax_rule';
 
     public function getEntityName(): string
     {

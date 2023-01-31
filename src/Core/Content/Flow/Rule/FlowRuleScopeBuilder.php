@@ -8,24 +8,15 @@ use Shopware\Core\Checkout\Cart\Delivery\DeliveryBuilder;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\Service\ResetInterface;
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('business-ops')]
 class FlowRuleScopeBuilder implements ResetInterface
 {
-    private OrderConverter $orderConverter;
-
-    private DeliveryBuilder $deliveryBuilder;
-
-    /**
-     * @var iterable<CartDataCollectorInterface>
-     */
-    private iterable $collectors;
-
     /**
      * @var array<string, FlowRuleScope>
      */
@@ -34,11 +25,8 @@ class FlowRuleScopeBuilder implements ResetInterface
     /**
      * @param iterable<CartDataCollectorInterface> $collectors
      */
-    public function __construct(OrderConverter $orderConverter, DeliveryBuilder $deliveryBuilder, iterable $collectors)
+    public function __construct(private readonly OrderConverter $orderConverter, private readonly DeliveryBuilder $deliveryBuilder, private readonly iterable $collectors)
     {
-        $this->orderConverter = $orderConverter;
-        $this->deliveryBuilder = $deliveryBuilder;
-        $this->collectors = $collectors;
     }
 
     public function reset(): void

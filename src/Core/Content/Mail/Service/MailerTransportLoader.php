@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Mail\Service;
 use Doctrine\DBAL\Exception\DriverException;
 use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Mailer\Transport;
 use Symfony\Component\Mailer\Transport\Dsn;
@@ -14,36 +15,15 @@ use Symfony\Component\Mailer\Transport\Transports;
 
 /**
  * @internal
- *
- * @package system-settings
  */
+#[Package('system-settings')]
 class MailerTransportLoader
 {
-    private Transport $envBasedTransport;
-
-    private SystemConfigService $configService;
-
-    private MailAttachmentsBuilder $attachmentsBuilder;
-
-    private FilesystemOperator $filesystem;
-
-    private EntityRepository $documentRepository;
-
     /**
      * @internal
      */
-    public function __construct(
-        Transport $envBasedTransport,
-        SystemConfigService $configService,
-        MailAttachmentsBuilder $attachmentsBuilder,
-        FilesystemOperator $filesystem,
-        EntityRepository $documentRepository
-    ) {
-        $this->envBasedTransport = $envBasedTransport;
-        $this->configService = $configService;
-        $this->attachmentsBuilder = $attachmentsBuilder;
-        $this->filesystem = $filesystem;
-        $this->documentRepository = $documentRepository;
+    public function __construct(private readonly Transport $envBasedTransport, private readonly SystemConfigService $configService, private readonly MailAttachmentsBuilder $attachmentsBuilder, private readonly FilesystemOperator $filesystem, private readonly EntityRepository $documentRepository)
+    {
     }
 
     /**
@@ -71,7 +51,7 @@ class MailerTransportLoader
             if ($transportConfig === '') {
                 return $this->createTransportUsingDSN($dsn);
             }
-        } catch (DriverException $e) {
+        } catch (DriverException) {
             // We don't have a database connection right now
             return $this->createTransportUsingDSN($dsn);
         }

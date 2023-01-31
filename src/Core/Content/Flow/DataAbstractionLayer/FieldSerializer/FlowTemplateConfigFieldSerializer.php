@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerial
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\Constraint\Uuid;
 use Symfony\Component\Validator\Constraints\Collection;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -16,10 +17,9 @@ use Symfony\Component\Validator\Constraints\Optional;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('business-ops')]
 class FlowTemplateConfigFieldSerializer extends JsonFieldSerializer
 {
     public function encode(
@@ -49,15 +49,13 @@ class FlowTemplateConfigFieldSerializer extends JsonFieldSerializer
 
         $sequences = $value['sequences'];
 
-        $value['sequences'] = array_map(function ($item) {
-            return array_merge([
-                'parentId' => null,
-                'ruleId' => null,
-                'position' => 1,
-                'displayGroup' => 1,
-                'trueCase' => 0,
-            ], $item);
-        }, $sequences);
+        $value['sequences'] = array_map(fn ($item) => array_merge([
+            'parentId' => null,
+            'ruleId' => null,
+            'position' => 1,
+            'displayGroup' => 1,
+            'trueCase' => 0,
+        ], $item), $sequences);
 
         yield $field->getStorageName() => JsonFieldSerializer::encodeJson($value);
     }

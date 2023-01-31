@@ -8,31 +8,18 @@ use Lcobucci\JWT\UnencryptedToken;
 use League\OAuth2\Server\AuthorizationValidators\AuthorizationValidatorInterface;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use Psr\Http\Message\ServerRequestInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 
-/**
- * @package core
- */
+#[Package('core')]
 class BearerTokenValidator implements AuthorizationValidatorInterface
 {
-    private Connection $connection;
-
-    private AuthorizationValidatorInterface $decorated;
-
-    private Configuration $configuration;
-
     /**
      * @internal
      */
-    public function __construct(
-        AuthorizationValidatorInterface $decorated,
-        Connection $connection,
-        Configuration $configuration
-    ) {
-        $this->decorated = $decorated;
-        $this->connection = $connection;
-        $this->configuration = $configuration;
+    public function __construct(private readonly AuthorizationValidatorInterface $decorated, private readonly Connection $connection, private readonly Configuration $configuration)
+    {
     }
 
     /**
@@ -77,7 +64,7 @@ class BearerTokenValidator implements AuthorizationValidatorInterface
             return;
         }
 
-        $lastUpdatedPasswordAt = strtotime($lastUpdatedPasswordAt);
+        $lastUpdatedPasswordAt = strtotime((string) $lastUpdatedPasswordAt);
 
         if ($tokenIssuedAt->getTimestamp() <= $lastUpdatedPasswordAt) {
             throw OAuthServerException::accessDenied('Access token is expired');

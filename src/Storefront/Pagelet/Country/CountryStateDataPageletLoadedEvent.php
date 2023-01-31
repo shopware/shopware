@@ -2,20 +2,16 @@
 
 namespace Shopware\Storefront\Pagelet\Country;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Pagelet\PageletLoadedEvent;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class CountryStateDataPageletLoadedEvent extends PageletLoadedEvent
 {
-    protected CountryStateDataPagelet $pagelet;
-
-    public function __construct(CountryStateDataPagelet $pagelet, SalesChannelContext $salesChannelContext, Request $request)
+    public function __construct(protected CountryStateDataPagelet $pagelet, SalesChannelContext $salesChannelContext, Request $request)
     {
-        $this->pagelet = $pagelet;
         parent::__construct($salesChannelContext, $request);
     }
 

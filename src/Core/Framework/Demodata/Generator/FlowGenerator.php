@@ -26,18 +26,18 @@ use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Event\BusinessEventDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 class FlowGenerator implements DemodataGeneratorInterface
 {
     /**
-     * @var array<string, list<string>>
+     * @var array<string, array<string>>
      */
     private array $ids = [];
 
@@ -59,10 +59,10 @@ class FlowGenerator implements DemodataGeneratorInterface
      * @internal
      */
     public function __construct(
-        private Connection $connection,
-        private DefinitionInstanceRegistry $registry,
-        private BusinessEventCollector $eventCollector,
-        private FlowActionCollector $flowActionCollector
+        private readonly Connection $connection,
+        private readonly DefinitionInstanceRegistry $registry,
+        private readonly BusinessEventCollector $eventCollector,
+        private readonly FlowActionCollector $flowActionCollector
     ) {
     }
 
@@ -108,7 +108,7 @@ class FlowGenerator implements DemodataGeneratorInterface
                 'active' => true,
             ];
 
-            $sequenceTreeCount = rand(1, $maxSequenceTree);
+            $sequenceTreeCount = random_int(1, $maxSequenceTree);
 
             $sequences = new FlowSequenceCollection();
 
@@ -117,7 +117,7 @@ class FlowGenerator implements DemodataGeneratorInterface
 
                 $displayGroup = $t + 1;
 
-                $sequenceCount = rand(1, $maxSequencePerTree);
+                $sequenceCount = random_int(1, $maxSequencePerTree);
 
                 $sequence = new FlowSequenceEntity();
                 $sequence->setId(Uuid::randomHex());
@@ -180,11 +180,9 @@ class FlowGenerator implements DemodataGeneratorInterface
                 }
             }
 
-            $sequences = json_decode((string) json_encode($sequences->jsonSerialize()), true);
+            $sequences = json_decode((string) json_encode($sequences->jsonSerialize(), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
 
-            $sequences = array_map(function (array $sequence) {
-                return array_filter($sequence);
-            }, $sequences);
+            $sequences = array_map(fn (array $sequence) => array_filter($sequence), $sequences);
 
             $flow['sequences'] = $sequences;
             $payload[] = $flow;
@@ -222,7 +220,6 @@ class FlowGenerator implements DemodataGeneratorInterface
 
         $randomRuleId = $this->faker->randomElement($ruleIds);
 
-        /** @var FlowSequenceEntity $sequence */
         $sequence = FlowSequenceEntity::createFrom($parent);
         $sequence->setId(Uuid::randomHex());
         $sequence->setParentId($parent->getId());
@@ -233,9 +230,7 @@ class FlowGenerator implements DemodataGeneratorInterface
             'actionName' => null,
         ]);
 
-        $this->ids['rule'] = array_filter($ruleIds, function ($ruleId) use ($randomRuleId) {
-            return $ruleId !== $randomRuleId;
-        });
+        $this->ids['rule'] = array_filter($ruleIds, fn ($ruleId) => $ruleId !== $randomRuleId);
 
         return $sequence;
     }
@@ -244,7 +239,6 @@ class FlowGenerator implements DemodataGeneratorInterface
     {
         $actions = $this->getActions();
 
-        /** @var FlowSequenceEntity $sequence */
         $sequence = FlowSequenceEntity::createFrom($parent);
 
         /** @var FlowActionDefinition $action */
@@ -316,7 +310,7 @@ class FlowGenerator implements DemodataGeneratorInterface
     }
 
     /**
-     * @return list<string>
+     * @return array<string>
      */
     private function getIds(string $table): array
     {
@@ -330,7 +324,7 @@ class FlowGenerator implements DemodataGeneratorInterface
     }
 
     /**
-     * @return array<string, array{id: string}>
+     * @return non-empty-array<string, array{id: string}>
      */
     private function getTags(): array
     {
@@ -338,7 +332,7 @@ class FlowGenerator implements DemodataGeneratorInterface
             return $this->tags;
         }
 
-        /** @var array<string, array{id: string}> $result */
+        /** @var non-empty-array<string, array{id: string}> $result */
         $result = $this->connection->fetchAllKeyValue('SELECT LOWER(HEX(id)), name as id FROM tag LIMIT 500');
 
         return $this->tags = $result;
@@ -356,62 +350,54 @@ class FlowGenerator implements DemodataGeneratorInterface
     {
         $tagIds = $this->getTags();
 
-        switch ($action) {
-            case RemoveOrderTagAction::getName():
-            case AddOrderTagAction::getName():
-                return [
-                    'entity' => 'order',
-                    'tagIds' => $this->faker->randomElements($tagIds, rand(1, \count($tagIds))),
-                ];
-            case AddCustomerTagAction::getName():
-                return [
-                    'entity' => 'customer',
-                    'tagIds' => $this->faker->randomElements($tagIds, rand(1, \count($tagIds))),
-                ];
-            case RemoveCustomerTagAction::getName():
-                return [
-                    'entity' => 'customer',
-                    'tagIds' => $this->faker->randomElements($tagIds, rand(1, \count($tagIds))),
-                ];
-            case GenerateDocumentAction::getName():
-                return [
-                    'documentType' => 'invoice',
-                    'documentRangerType' => 'document_invoice',
-                ];
-            case SendMailAction::getName():
-                return [
-                    'mailTemplateId' => $this->faker->randomElement($this->getIds('mail_template')),
-                ];
-            case SetOrderStateAction::getName():
-                return [
-                    'order' => $this->faker->randomElement([
-                        OrderStates::STATE_OPEN,
-                        OrderStates::STATE_IN_PROGRESS,
-                        OrderStates::STATE_CANCELLED,
-                        OrderStates::STATE_COMPLETED,
-                    ]),
-                    'order_delivery' => $this->faker->randomElement([
-                        OrderDeliveryStates::STATE_OPEN,
-                        OrderDeliveryStates::STATE_SHIPPED,
-                        OrderDeliveryStates::STATE_PARTIALLY_RETURNED,
-                        OrderDeliveryStates::STATE_PARTIALLY_SHIPPED,
-                        OrderDeliveryStates::STATE_RETURNED,
-                    ]),
-                    'order_transaction' => $this->faker->randomElement([
-                        OrderTransactionStates::STATE_OPEN,
-                        OrderTransactionStates::STATE_IN_PROGRESS,
-                        OrderTransactionStates::STATE_AUTHORIZED,
-                        OrderTransactionStates::STATE_FAILED,
-                        OrderTransactionStates::STATE_PARTIALLY_PAID,
-                        OrderTransactionStates::STATE_PARTIALLY_REFUNDED,
-                        OrderTransactionStates::STATE_REFUNDED,
-                        OrderTransactionStates::STATE_REMINDED,
-                        OrderTransactionStates::STATE_PAID,
-                        OrderTransactionStates::STATE_CANCELLED,
-                    ]),
-                ];
-            default:
-                return [];
-        }
+        return match ($action) {
+            RemoveOrderTagAction::getName(), AddOrderTagAction::getName() => [
+                'entity' => 'order',
+                'tagIds' => $this->faker->randomElements($tagIds, random_int(1, \count($tagIds))),
+            ],
+            AddCustomerTagAction::getName() => [
+                'entity' => 'customer',
+                'tagIds' => $this->faker->randomElements($tagIds, random_int(1, \count($tagIds))),
+            ],
+            RemoveCustomerTagAction::getName() => [
+                'entity' => 'customer',
+                'tagIds' => $this->faker->randomElements($tagIds, random_int(1, \count($tagIds))),
+            ],
+            GenerateDocumentAction::getName() => [
+                'documentType' => 'invoice',
+                'documentRangerType' => 'document_invoice',
+            ],
+            SendMailAction::getName() => [
+                'mailTemplateId' => $this->faker->randomElement($this->getIds('mail_template')),
+            ],
+            SetOrderStateAction::getName() => [
+                'order' => $this->faker->randomElement([
+                    OrderStates::STATE_OPEN,
+                    OrderStates::STATE_IN_PROGRESS,
+                    OrderStates::STATE_CANCELLED,
+                    OrderStates::STATE_COMPLETED,
+                ]),
+                'order_delivery' => $this->faker->randomElement([
+                    OrderDeliveryStates::STATE_OPEN,
+                    OrderDeliveryStates::STATE_SHIPPED,
+                    OrderDeliveryStates::STATE_PARTIALLY_RETURNED,
+                    OrderDeliveryStates::STATE_PARTIALLY_SHIPPED,
+                    OrderDeliveryStates::STATE_RETURNED,
+                ]),
+                'order_transaction' => $this->faker->randomElement([
+                    OrderTransactionStates::STATE_OPEN,
+                    OrderTransactionStates::STATE_IN_PROGRESS,
+                    OrderTransactionStates::STATE_AUTHORIZED,
+                    OrderTransactionStates::STATE_FAILED,
+                    OrderTransactionStates::STATE_PARTIALLY_PAID,
+                    OrderTransactionStates::STATE_PARTIALLY_REFUNDED,
+                    OrderTransactionStates::STATE_REFUNDED,
+                    OrderTransactionStates::STATE_REMINDED,
+                    OrderTransactionStates::STATE_PAID,
+                    OrderTransactionStates::STATE_CANCELLED,
+                ]),
+            ],
+            default => [],
+        };
     }
 }

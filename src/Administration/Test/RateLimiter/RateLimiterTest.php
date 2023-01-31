@@ -60,7 +60,7 @@ class RateLimiterTest extends TestCase
         for ($i = 0; $i <= 10; ++$i) {
             $client->request('POST', $url, [], [], [], (string) json_encode($data));
 
-            $response = json_decode((string) $client->getResponse()->getContent(), true);
+            $response = json_decode((string) $client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
             if ($i >= 10) {
                 static::assertArrayHasKey('errors', $response);

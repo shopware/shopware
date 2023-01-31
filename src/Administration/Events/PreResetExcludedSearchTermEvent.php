@@ -4,24 +4,19 @@ namespace Shopware\Administration\Events;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\ShopwareEvent;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @package administration
- */
+#[Package('administration')]
 class PreResetExcludedSearchTermEvent extends Event implements ShopwareEvent
 {
-    private string $searchConfigId;
-
-    private array $excludedTerms;
-
-    private Context $context;
-
-    public function __construct(string $searchConfigId, array $excludedTerms, Context $context)
+    /**
+     * @param string $searchConfigId
+     * @param array<string> $excludedTerms
+     * @param Context $context
+     */
+    public function __construct(private string $searchConfigId, private array $excludedTerms, private Context $context)
     {
-        $this->searchConfigId = $searchConfigId;
-        $this->excludedTerms = $excludedTerms;
-        $this->context = $context;
     }
 
     public function getSearchConfigId(): string
@@ -34,11 +29,17 @@ class PreResetExcludedSearchTermEvent extends Event implements ShopwareEvent
         $this->searchConfigId = $searchConfigId;
     }
 
+    /**
+     * @return array<string>
+     */
     public function getExcludedTerms(): array
     {
         return $this->excludedTerms;
     }
 
+    /**
+     * @param array<string> $excludedTerms
+     */
     public function setExcludedTerms(array $excludedTerms): void
     {
         $this->excludedTerms = $excludedTerms;

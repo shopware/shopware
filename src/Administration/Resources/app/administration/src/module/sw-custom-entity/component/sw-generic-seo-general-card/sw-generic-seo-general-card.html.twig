@@ -1,0 +1,55 @@
+<sw-card
+    class="sw-generic-seo-general-card"
+    position-identifier="sw-generic-seo-general-card"
+    :title="$tc('sw-landing-page.base.seo.titleGeneralInformation')"
+>
+    <sw-text-field
+        class="sw-generic-seo-general-card__seo-meta-title-input"
+        maxlength="255"
+        :value="seoMetaTitle"
+        :label="$tc('sw-landing-page.base.seo.labelMetaTitle')"
+        :help-text="$tc('sw-landing-page.base.seo.helpTextMetaTitle')"
+        :placeholder="$tc('sw-landing-page.base.seo.placeholderMetaTitle')"
+        @input="emitSeoMetaTitle"
+    />
+
+    <sw-text-field
+        class="sw-generic-seo-general-card__seo-url-input"
+        maxlength="255"
+        :value="seoUrl"
+        :label="$tc('sw-landing-page.base.seo.labelUrl')"
+        :placeholder="$tc('sw-landing-page.base.seo.placeholderUrl')"
+        @input="emitSeoUrl"
+    />
+
+    <sw-textarea-field
+        class="sw-generic-seo-general-card__seo-meta-description-input"
+        :value="seoMetaDescription"
+        maxlength="255"
+        :label="$tc('sw-landing-page.base.seo.labelMetaDescription')"
+        :help-text="$tc('sw-landing-page.base.seo.helpTextMetaDescription')"
+        :placeholder="$tc('sw-landing-page.base.seo.placeholderMetaDescription')"
+        @input="emitSeoMetaDescription"
+    />
+
+    <div class="sw-generic-seo-general-card__google-preview-container">
+        <div class="sw-generic-seo-general-card__google-preview-header">
+            {{ $tc('sw-landing-page.base.seo.searchResultPreview') }}
+        </div>
+
+        <div class="sw-generic-seo-general-card__google-preview">
+            <a
+                class="sw-generic-seo-general-card__google-preview-link"
+                href="#"
+            >
+                https://www.example.com &gt; {{ seoUrl }}
+            </a>
+            <h3 class="sw-generic-seo-general-card__google-preview-title">
+                {{ seoMetaTitle }}
+            </h3>
+            <p class="sw-generic-seo-general-card__google-preview-description">
+                {{ seoMetaDescription }}
+            </p>
+        </div>
+    </div>
+</sw-card>

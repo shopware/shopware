@@ -20,7 +20,7 @@ class DatabaseCleanTestExtension implements BeforeTestHook, AfterTestHook
     /**
      * @var array<mixed>
      */
-    private $lastDataPoint = [];
+    private array $lastDataPoint = [];
 
     public function executeBeforeTest(string $test): void
     {

@@ -4,36 +4,30 @@ namespace Shopware\Core\Framework\Log\Monolog;
 
 use Monolog\Handler\AbstractHandler;
 use Monolog\Handler\HandlerInterface;
+use Monolog\LogRecord;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class AnnotatePackageHandler extends AbstractHandler
 {
-    private HandlerInterface $handler;
-
-    private RequestStack $requestStack;
-
     /**
      * @internal
      */
-    public function __construct(HandlerInterface $handler, RequestStack $requestStack)
+    public function __construct(private readonly HandlerInterface $handler, private readonly RequestStack $requestStack)
     {
         parent::__construct();
-        $this->handler = $handler;
-        $this->requestStack = $requestStack;
     }
 
-    public function handle(array $record): bool
+    public function handle(LogRecord $record): bool
     {
         $packages = [];
 
-        $exception = $record['context']['exception'] ?? null;
+        $exception = $record->context['exception'] ?? null;
         if ($exception instanceof \ErrorException && str_starts_with($exception->getMessage(), 'User Deprecated:')) {
             return $this->handler->handle($record);
         }
@@ -47,7 +41,7 @@ class AnnotatePackageHandler extends AbstractHandler
                 $packages['entrypoint'] = $package;
             }
 
-            if ($package = Package::getPackageName(\get_class($exception))) {
+            if ($package = Package::getPackageName($exception::class)) {
                 $packages['exception'] = $package;
             }
 
@@ -57,7 +51,18 @@ class AnnotatePackageHandler extends AbstractHandler
         }
 
         if ($packages !== []) {
-            $record['context'][Package::PACKAGE_TRACE_ATTRIBUTE_KEY] = $packages;
+            $context = $record->context;
+            $context[Package::PACKAGE_TRACE_ATTRIBUTE_KEY] = $packages;
+
+            $record = new LogRecord(
+                $record->datetime,
+                $record->channel,
+                $record->level,
+                $record->message,
+                $context,
+                $record->extra,
+                $record->formatted
+            );
         }
 
         return $this->handler->handle($record);
@@ -74,7 +79,7 @@ class AnnotatePackageHandler extends AbstractHandler
             return null;
         }
 
-        [$controllerClass, $_] = explode('::', $controller);
+        [$controllerClass, $_] = explode('::', (string) $controller);
 
         $package = Package::getPackageName($controllerClass);
         // try parent class if no package attribute was found

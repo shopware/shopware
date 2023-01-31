@@ -3,21 +3,19 @@
 namespace Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
 /**
- * @package sales-channel
- *
  * @extends EntityCollection<SalesChannelTypeEntity>
  */
+#[Package('sales-channel')]
 class SalesChannelTypeCollection extends EntityCollection
 {
     public function getSalesChannels(): SalesChannelCollection
     {
         return new SalesChannelCollection(
-            $this->fmap(function (SalesChannelTypeEntity $salesChannel) {
-                return $salesChannel->getSalesChannels();
-            })
+            $this->fmap(fn (SalesChannelTypeEntity $salesChannel) => $salesChannel->getSalesChannels())
         );
     }
 

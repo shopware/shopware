@@ -19,13 +19,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class PromotionDiscountDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'promotion_discount';
+    final public const ENTITY_NAME = 'promotion_discount';
 
     public function getEntityName(): string
     {

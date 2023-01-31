@@ -3,10 +3,9 @@
 namespace Shopware\Core\Content\Sitemap\Event;
 
 use Shopware\Core\Framework\Adapter\Cache\StoreApiRouteCacheKeyEvent;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package sales-channel
- */
+#[Package('sales-channel')]
 class SitemapRouteCacheKeyEvent extends StoreApiRouteCacheKeyEvent
 {
 }

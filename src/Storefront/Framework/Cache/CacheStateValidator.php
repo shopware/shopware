@@ -2,22 +2,20 @@
 
 namespace Shopware\Storefront\Framework\Cache;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class CacheStateValidator implements CacheStateValidatorInterface
 {
-    private array $states;
-
     /**
      * @internal
+     *
+     * @param list<string> $states
      */
-    public function __construct(array $states)
+    public function __construct(private readonly array $states)
     {
-        $this->states = $states;
     }
 
     public function isValid(Request $request, Response $response): bool

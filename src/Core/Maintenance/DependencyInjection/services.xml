@@ -66,7 +66,7 @@
 
         <service id="Shopware\Core\Maintenance\System\Service\AppUrlVerifier">
             <argument type="service" id="shopware.maintenance.client"/>
-            <argument type="service" id="app.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument>%kernel.environment%</argument>
             <argument>%env(bool:APP_URL_CHECK_DISABLED)%</argument>
         </service>

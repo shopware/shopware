@@ -240,6 +240,7 @@ Component.register('sw-condition-tree', {
                 0,
             );
 
+            // eslint-disable-next-line vue/no-mutating-props
             this.initialConditions.push(rootContainer);
 
             rootNodes.forEach(root => { root.parentId = rootContainer.id; });

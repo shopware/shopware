@@ -29,7 +29,9 @@ describe('Product: Test variants', () => {
 
         cy.get('.sw-product-detail__tab-variants').click();
         cy.get(page.elements.loader).should('not.exist');
-        cy.contains('.sw-button--ghost', 'Generate variants').click();
+        cy.contains('.sw-button--ghost', 'Generate variants')
+            .should('be.visible')
+            .click();
 
         // Add another group to create a multidimensional variant
         cy.get('.sw-product-modal-variant-generation').should('be.visible');
@@ -58,7 +60,7 @@ describe('Product: Test variants', () => {
             .should('be.visible');
     });
 
-    it.only('@base @catalogue: test multidimensional variant with restrictions', { tags: ['pa-inventory'] }, () => {
+    it('@base @catalogue: test multidimensional variant with restrictions', { tags: ['pa-inventory'] }, () => {
         const page = new ProductPageObject();
         const optionsIndicator = '' +
             '.sw-property-search__tree-selection__column-items-selected.sw-grid-column--right span';
@@ -131,12 +133,10 @@ describe('Product: Test variants', () => {
         cy.contains('.sw-product-variants-configurator-restrictions .sw-label', 'L').should('be.visible');
 
         // Generate variants with restrictions
-        cy.get('.sw-product-variant-generation__generate-action').click();
-        cy.get('.sw-product-modal-variant-generation__notification-modal').should('be.visible');
-        cy.contains('.sw-product-modal-variant-generation__notification-modal .sw-modal__body',
-            '5 variants will be added');
-        cy.get('.sw-product-modal-variant-generation__notification-modal .sw-button--primary')
-            .click();
+        cy.get('.sw-product-variant-generation__next-action').click();
+        cy.get('.sw-product-modal-variant-generation__upload_files').should('be.visible');
+        cy.get('.sw-product-modal-variant-generation__infoBox').contains(new RegExp(`5 variants will be added`));
+        cy.get('.sw-product-modal-variant-generation__upload_files .sw-button--primary').click();
 
         cy.wait('@combinationCall')
             .its('response.statusCode').should('equal', 200);

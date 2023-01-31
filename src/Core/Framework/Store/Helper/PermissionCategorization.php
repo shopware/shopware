@@ -105,6 +105,7 @@ use Shopware\Core\Framework\App\Aggregate\AppTranslation\AppTranslationDefinitio
 use Shopware\Core\Framework\App\AppDefinition;
 use Shopware\Core\Framework\App\Template\TemplateDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\VersionDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateDefinition;
 use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Currency\CurrencyDefinition;
@@ -150,10 +151,9 @@ use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryDefinition;
 use Shopware\Core\System\User\UserDefinition;
 
 /**
- * @package merchant-services
- *
  * @internal
  */
+#[Package('merchant-services')]
 class PermissionCategorization
 {
     private const CATEGORY_APP = 'app';

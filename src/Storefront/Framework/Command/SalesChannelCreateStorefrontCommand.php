@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Maintenance\SalesChannel\Command\SalesChannelCreateCommand;
 use Shopware\Core\Maintenance\SalesChannel\Service\SalesChannelCreator;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -16,29 +17,24 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * @final
- *
- * @package storefront
  */
 #[AsCommand(
     name: 'sales-channel:create:storefront',
     description: 'Creates a new storefront sales channel',
 )]
+#[Package('storefront')]
 class SalesChannelCreateStorefrontCommand extends SalesChannelCreateCommand
 {
-    private EntityRepository $snippetSetRepository;
-
     /**
      * @internal
      */
     public function __construct(
-        EntityRepository $snippetSetRepository,
+        private readonly EntityRepository $snippetSetRepository,
         SalesChannelCreator $salesChannelCreator
     ) {
         parent::__construct(
             $salesChannelCreator
         );
-
-        $this->snippetSetRepository = $snippetSetRepository;
     }
 
     protected function configure(): void

@@ -3,10 +3,9 @@
 namespace Shopware\Core\Content\ImportExport\Processing\Writer;
 
 use Shopware\Core\Content\ImportExport\Struct\Config;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package system-settings
- */
+#[Package('system-settings')]
 class XmlFileWriter extends AbstractFileWriter
 {
     public function append(Config $config, array $data, int $index): void
@@ -44,10 +43,7 @@ class XmlFileWriter extends AbstractFileWriter
         }
     }
 
-    /**
-     * @param bool|float|int|string $scalar
-     */
-    private function toString($scalar): string
+    private function toString(bool|float|int|string $scalar): string
     {
         if (\is_bool($scalar)) {
             return $scalar ? '1' : '0';

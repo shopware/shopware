@@ -5,28 +5,25 @@ namespace Shopware\Core\Content\Media\Metadata;
 use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaType\MediaType;
 use Shopware\Core\Content\Media\Metadata\MetadataLoader\MetadataLoaderInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Handler;
 
 /**
- * @package content
  * @Handler(
  *     servcieTag="shopware.metadata.loader",
  *     handlerInterface="MetadataLoaderInterface"
  * )
  */
+#[Package('content')]
 class MetadataLoader
 {
     /**
-     * @var MetadataLoaderInterface[]
-     */
-    private $metadataLoader;
-
-    /**
      * @internal
+     *
+     * @param MetadataLoaderInterface[] $metadataLoader
      */
-    public function __construct(iterable $metadataLoader)
+    public function __construct(private readonly iterable $metadataLoader)
     {
-        $this->metadataLoader = $metadataLoader;
     }
 
     public function loadFromFile(MediaFile $mediaFile, MediaType $mediaType): ?array

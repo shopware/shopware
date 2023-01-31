@@ -2,12 +2,9 @@
 
 namespace Shopware\Core\Content\Media\File;
 
-use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Decoratable;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package content
- * @Decoratable
- */
+#[Package('content')]
 class FileUrlValidator implements FileUrlValidatorInterface
 {
     public function isValid(string $source): bool
@@ -19,7 +16,7 @@ class FileUrlValidator implements FileUrlValidatorInterface
 
         $ip = gethostbyname($host);
 
-        if (strpos($ip, '[') !== false) {
+        if (str_contains($ip, '[')) {
             return $this->validateIpv6(trim($ip, '[]'));
         }
 

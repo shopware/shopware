@@ -128,13 +128,13 @@ class FeatureTest extends TestCase
         $currentConfig = array_keys(Feature::getAll(false));
         $featureFlags = array_keys($this->getContainer()->getParameter('shopware.feature.flags'));
 
-        static::assertEquals(\array_map([Feature::class, 'normalizeName'], $featureFlags), \array_map([Feature::class, 'normalizeName'], $currentConfig));
+        static::assertEquals(\array_map(Feature::normalizeName(...), $featureFlags), \array_map(Feature::normalizeName(...), $currentConfig));
 
         self::setUpFixtures();
         $featureFlags = array_merge($featureFlags, $this->fixtureFlags);
 
         $configAfterRegistration = array_keys(Feature::getAll(false));
-        static::assertEquals(\array_map([Feature::class, 'normalizeName'], $featureFlags), \array_map([Feature::class, 'normalizeName'], $configAfterRegistration));
+        static::assertEquals(\array_map(Feature::normalizeName(...), $featureFlags), \array_map(Feature::normalizeName(...), $configAfterRegistration));
     }
 
     public function testTwigFeatureFlag(): void
@@ -199,7 +199,7 @@ class FeatureTest extends TestCase
         Feature::registerFeatures($features);
 
         /** @var array<string, array{name?: string, default?: boolean, major?: boolean, description?: string}> $registeredFeatures */
-        $registeredFeatures = array_merge(array_keys(Feature::getAll(false)), ['FEATURE_NEXT_102']);
+        $registeredFeatures = [...array_keys(Feature::getAll(false)), ...['FEATURE_NEXT_102']];
         Feature::registerFeatures($registeredFeatures);
 
         $actualFeatures = Feature::getRegisteredFeatures();

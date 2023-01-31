@@ -1,7 +1,7 @@
 import template from './sw-advanced-selection-rule.html.twig';
 import './sw-advanced-selection-rule.scss';
 
-const { Component, Feature } = Shopware;
+const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
@@ -210,9 +210,7 @@ Component.register('sw-advanced-selection-rule', {
                 'tags',
             ];
 
-            if (this.feature.isActive('FEATURE_NEXT_18215')) {
-                associations.push('conditions');
-            }
+            associations.push('conditions');
 
             return associations;
         },
@@ -243,7 +241,7 @@ Component.register('sw-advanced-selection-rule', {
 
     methods: {
         getColumnClass(item) {
-            if (!Feature.isActive('FEATURE_NEXT_18215') && !this.restrictedRuleIds.includes(item.id)) {
+            if (!this.restrictedRuleIds.includes(item.id)) {
                 return '';
             }
 
@@ -256,10 +254,6 @@ Component.register('sw-advanced-selection-rule', {
                     message: this.restrictedRuleIdsTooltipLabel,
                     disabled: false,
                 };
-            }
-
-            if (!this.feature.isActive('FEATURE_NEXT_18215')) {
-                return { message: '', disabled: true };
             }
 
             return this.ruleConditionDataProviderService.getRestrictedRuleTooltipConfig(
@@ -275,10 +269,6 @@ Component.register('sw-advanced-selection-rule', {
 
             const insideRestrictedRuleIds = this.restrictedRuleIds.includes(item.id);
 
-            if (!this.feature.isActive('FEATURE_NEXT_18215')) {
-                return insideRestrictedRuleIds;
-            }
-
             const isRuleRestricted = this.ruleConditionDataProviderService.isRuleRestricted(
                 item.conditions,
                 this.ruleAwareGroupKey,
@@ -288,7 +278,7 @@ Component.register('sw-advanced-selection-rule', {
         },
 
         isRecordSelectable(item) {
-            if (!Feature.isActive('FEATURE_NEXT_18215') && !this.restrictedRuleIds.includes(item.id)) {
+            if (!this.restrictedRuleIds.includes(item.id)) {
                 return {};
             }
 

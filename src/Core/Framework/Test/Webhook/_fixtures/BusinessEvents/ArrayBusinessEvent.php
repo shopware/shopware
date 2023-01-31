@@ -19,7 +19,7 @@ class ArrayBusinessEvent implements FlowEventAware, BusinessEventEncoderTestInte
     /**
      * @var TaxEntity[]
      */
-    private $taxes;
+    private readonly array $taxes;
 
     public function __construct(TaxCollection $taxes)
     {

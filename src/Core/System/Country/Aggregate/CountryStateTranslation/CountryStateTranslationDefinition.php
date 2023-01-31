@@ -8,14 +8,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateDefinition;
 
-/**
- * @package system-settings
- */
+#[Package('system-settings')]
 class CountryStateTranslationDefinition extends EntityTranslationDefinition
 {
-    public const ENTITY_NAME = 'country_state_translation';
+    final public const ENTITY_NAME = 'country_state_translation';
 
     public function getEntityName(): string
     {

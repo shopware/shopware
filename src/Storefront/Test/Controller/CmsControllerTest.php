@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Test\Controller;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
@@ -11,9 +12,8 @@ use Shopware\Storefront\Page\Cms\CmsPageLoadedHook;
 
 /**
  * @internal
- *
- * @package content
  */
+#[Package('content')]
 class CmsControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;

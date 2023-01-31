@@ -10,23 +10,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package content
- */
+#[Package('content')]
 abstract class FileNameProvider
 {
     /**
-     * @var EntityRepository
-     */
-    private $mediaRepository;
-
-    /**
      * @internal
      */
-    public function __construct(EntityRepository $mediaRepository)
+    public function __construct(private readonly EntityRepository $mediaRepository)
     {
-        $this->mediaRepository = $mediaRepository;
     }
 
     public function provide(

@@ -6,22 +6,16 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
- *
- * @package core
  */
+#[Package('core')]
 class TemplateStateService
 {
-    /**
-     * @var EntityRepository
-     */
-    private $templateRepo;
-
-    public function __construct(EntityRepository $templateRepo)
+    public function __construct(private readonly EntityRepository $templateRepo)
     {
-        $this->templateRepo = $templateRepo;
     }
 
     public function activateAppTemplates(string $appId, Context $context): void
@@ -33,9 +27,7 @@ class TemplateStateService
         /** @var array<string> $templates */
         $templates = $this->templateRepo->searchIds($criteria, $context)->getIds();
 
-        $updateSet = array_map(function (string $id) {
-            return ['id' => $id, 'active' => true];
-        }, $templates);
+        $updateSet = array_map(fn (string $id) => ['id' => $id, 'active' => true], $templates);
 
         $this->templateRepo->update($updateSet, $context);
     }
@@ -49,9 +41,7 @@ class TemplateStateService
         /** @var array<string> $templates */
         $templates = $this->templateRepo->searchIds($criteria, $context)->getIds();
 
-        $updateSet = array_map(function (string $id) {
-            return ['id' => $id, 'active' => false];
-        }, $templates);
+        $updateSet = array_map(fn (string $id) => ['id' => $id, 'active' => false], $templates);
 
         $this->templateRepo->update($updateSet, $context);
     }

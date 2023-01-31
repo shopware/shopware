@@ -21,27 +21,15 @@ use Shopware\Core\Framework\Uuid\Uuid;
  */
 class SetCustomerCustomFieldActionTest extends TestCase
 {
-    /**
-     * @var MockObject|Connection
-     */
-    private $connection;
+    private Connection&MockObject $connection;
 
-    /**
-     * @var MockObject|EntityRepository
-     */
-    private $repository;
+    private MockObject&EntityRepository $repository;
 
-    /**
-     * @var MockObject|EntitySearchResult
-     */
-    private $entitySearchResult;
+    private MockObject&EntitySearchResult $entitySearchResult;
 
     private SetCustomerCustomFieldAction $action;
 
-    /**
-     * @var MockObject|StorableFlow
-     */
-    private $flow;
+    private MockObject&StorableFlow $flow;
 
     public function setUp(): void
     {

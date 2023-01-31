@@ -3,20 +3,15 @@
 namespace Shopware\Core\Checkout\Promotion\Cart\Error;
 
 use Shopware\Core\Checkout\Cart\Error\Error;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class PromotionExcludedError extends Error
 {
     private const KEY = 'promotion-excluded';
 
-    protected string $name;
-
-    public function __construct(string $name)
+    public function __construct(protected string $name)
     {
-        $this->name = $name;
-
         $this->message = sprintf('Promotion %s was excluded for cart.', $this->name);
 
         parent::__construct($this->message);

@@ -10,13 +10,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 class WriteCommandQueue
 {
     /**
@@ -40,9 +40,7 @@ class WriteCommandQueue
 
         sort($primaryKey);
 
-        $primaryKey = array_map(static function ($id) {
-            return Uuid::fromBytesToHex($id);
-        }, $primaryKey);
+        $primaryKey = array_map(static fn ($id) => Uuid::fromBytesToHex($id), $primaryKey);
 
         $hash = $senderIdentification->getEntityName() . ':' . md5(json_encode($primaryKey, \JSON_THROW_ON_ERROR));
 
@@ -107,16 +105,14 @@ class WriteCommandQueue
 
         foreach ($commands as $command) {
             if (!$command instanceof $class) {
-                throw new WriteTypeIntendException($definition, $class, \get_class($command));
+                throw new WriteTypeIntendException($definition, $class, $command::class);
             }
         }
     }
 
     public function getCommandsForEntity(EntityDefinition $definition, array $primaryKey): array
     {
-        $primaryKey = array_map(static function ($id) {
-            return Uuid::fromBytesToHex($id);
-        }, $primaryKey);
+        $primaryKey = array_map(static fn ($id) => Uuid::fromBytesToHex($id), $primaryKey);
 
         sort($primaryKey);
 

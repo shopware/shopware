@@ -6,25 +6,16 @@ use League\Flysystem\FilesystemOperator;
 use League\Flysystem\UnableToDeleteFile;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package inventory
- */
+#[Package('sales-channel')]
 class ProductExportFileHandler implements ProductExportFileHandlerInterface
 {
-    private FilesystemOperator $fileSystem;
-
-    private string $exportDirectory;
-
     /**
      * @internal
      */
-    public function __construct(
-        FilesystemOperator $fileSystem,
-        string $exportDirectory
-    ) {
-        $this->fileSystem = $fileSystem;
-        $this->exportDirectory = $exportDirectory;
+    public function __construct(private readonly FilesystemOperator $fileSystem, private readonly string $exportDirectory)
+    {
     }
 
     public function getFilePath(ProductExportEntity $productExport, bool $partialGeneration = false): string
@@ -82,7 +73,7 @@ class ProductExportFileHandler implements ProductExportFileHandlerInterface
 
         try {
             $this->fileSystem->delete($partialFilePath);
-        } catch (UnableToDeleteFile $e) {
+        } catch (UnableToDeleteFile) {
             return false;
         }
 

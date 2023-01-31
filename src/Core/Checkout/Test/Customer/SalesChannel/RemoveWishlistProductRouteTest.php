@@ -24,25 +24,13 @@ class RemoveWishlistProductRouteTest extends TestCase
     use IntegrationTestBehaviour;
     use CustomerTestTrait;
 
-    /**
-     * @var KernelBrowser
-     */
-    private $browser;
+    private KernelBrowser $browser;
 
-    /**
-     * @var TestDataCollection
-     */
-    private $ids;
+    private TestDataCollection $ids;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
-    /**
-     * @var string
-     */
-    private $customerId;
+    private string $customerId;
 
     /**
      * @var SystemConfigService
@@ -104,7 +92,7 @@ class RemoveWishlistProductRouteTest extends TestCase
                 '/store-api/customer/wishlist/delete/' . $productId
             );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
         static::assertTrue($response['success']);
@@ -123,7 +111,7 @@ class RemoveWishlistProductRouteTest extends TestCase
                 'DELETE',
                 '/store-api/customer/wishlist/delete/' . $productData[0]
             );
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         $errors = $response['errors'][0];
         static::assertSame(403, $this->browser->getResponse()->getStatusCode());
         static::assertEquals('CHECKOUT__WISHLIST_IS_NOT_ACTIVATED', $errors['code']);
@@ -141,7 +129,7 @@ class RemoveWishlistProductRouteTest extends TestCase
                 'DELETE',
                 '/store-api/customer/wishlist/delete/' . $productId
             );
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         $errors = $response['errors'][0];
         static::assertSame(403, $this->browser->getResponse()->getStatusCode());
@@ -159,7 +147,7 @@ class RemoveWishlistProductRouteTest extends TestCase
                 'DELETE',
                 '/store-api/customer/wishlist/delete/' . $productId
             );
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         $errors = $response['errors'][0];
         static::assertSame(404, $this->browser->getResponse()->getStatusCode());
         static::assertEquals('CHECKOUT__WISHLIST_NOT_FOUND', $errors['code']);
@@ -178,7 +166,7 @@ class RemoveWishlistProductRouteTest extends TestCase
                 'DELETE',
                 '/store-api/customer/wishlist/delete/' . $productId
             );
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         $errors = $response['errors'][0];
         static::assertSame(404, $this->browser->getResponse()->getStatusCode());
         static::assertEquals('CHECKOUT__WISHLIST_PRODUCT_NOT_FOUND', $errors['code']);

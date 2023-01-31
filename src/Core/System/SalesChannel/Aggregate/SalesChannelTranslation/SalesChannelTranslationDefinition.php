@@ -10,14 +10,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
-/**
- * @package sales-channel
- */
+#[Package('sales-channel')]
 class SalesChannelTranslationDefinition extends EntityTranslationDefinition
 {
-    public const ENTITY_NAME = 'sales_channel_translation';
+    final public const ENTITY_NAME = 'sales_channel_translation';
 
     public function getEntityName(): string
     {

@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
@@ -28,11 +29,10 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
 /**
- * @package customer-order
- *
  * @internal
  * @group store-api
  */
+#[Package('customer-order')]
 class LoginRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -63,11 +63,11 @@ class LoginRouteTest extends TestCase
                 '/store-api/account/login',
                 [
                     'email' => 'foo',
-                    'password' => 'foo',
+                    'password' => 'foo12345',
                 ]
             );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
         static::assertSame('Unauthorized', $response['errors'][0]['title']);
@@ -83,7 +83,7 @@ class LoginRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
         static::assertSame('CHECKOUT__CUSTOMER_AUTH_BAD_CREDENTIALS', $response['errors'][0]['code']);
@@ -256,9 +256,9 @@ class LoginRouteTest extends TestCase
 
         $salesChannelContext2 = $this->createSalesChannelContext($this->ids->get('context-2'), [], $customerId, $this->ids->get('sales-channel-2'));
 
-        $this->createCart($this->ids->get('context-1'), 'cart-1');
+        $this->createCart($this->ids->get('context-1'));
 
-        $this->createCart($this->ids->get('context-2'), 'cart-2');
+        $this->createCart($this->ids->get('context-2'));
 
         $loginRoute = $this->getContainer()->get(LoginRoute::class);
 
@@ -272,16 +272,13 @@ class LoginRouteTest extends TestCase
 
         $cartService = $this->getContainer()->get(CartService::class);
 
-        $cartFromSalesChannel1 = $cartService->getCart($responseSalesChannel1->getToken(), $salesChannelContext1, 'cart-1', false);
-        $cartFromSalesChannel2 = $cartService->getCart($responseSalesChannel2->getToken(), $salesChannelContext2, 'cart-2', false);
+        $cartFromSalesChannel1 = $cartService->getCart($responseSalesChannel1->getToken(), $salesChannelContext1, false);
+        $cartFromSalesChannel2 = $cartService->getCart($responseSalesChannel2->getToken(), $salesChannelContext2, false);
 
         static::assertNotEquals($cartFromSalesChannel1->getToken(), $cartFromSalesChannel2->getToken());
-        static::assertNotEquals($cartFromSalesChannel1->getName(), $cartFromSalesChannel2->getName());
-        static::assertEquals('cart-1', $cartFromSalesChannel1->getName());
-        static::assertEquals('cart-2', $cartFromSalesChannel2->getName());
     }
 
-    private function createCart(string $contextToken, ?string $cartName = CartService::SALES_CHANNEL): void
+    private function createCart(string $contextToken): void
     {
         $connection = $this->getContainer()->get(Connection::class);
 
@@ -297,8 +294,7 @@ class LoginRouteTest extends TestCase
 
         $connection->insert('cart', [
             'token' => $contextToken,
-            'name' => $cartName,
-            $column => serialize(new Cart((string) $cartName, $contextToken)),
+            $column => serialize(new Cart($contextToken)),
             'line_item_count' => 1,
             'rule_ids' => json_encode([]),
             'currency_id' => Uuid::fromHexToBytes(Defaults::CURRENCY),
@@ -312,7 +308,7 @@ class LoginRouteTest extends TestCase
     }
 
     /**
-     * @param array<mixed> $salesChannelData
+     * @param array<string, mixed> $salesChannelData
      */
     private function createSalesChannelContext(string $contextToken, array $salesChannelData, ?string $customerId, ?string $salesChannelId = null): SalesChannelContext
     {

@@ -90,6 +90,7 @@ import GuestWishlistPagePlugin from 'src/plugin/wishlist/guest-wishlist-page.plu
 import FadingPlugin from 'src/plugin/fading/fading.plugin';
 import BasicCaptchaPlugin from 'src/plugin/captcha/basic-captcha.plugin';
 import AjaxModalPlugin from 'src/plugin/ajax-modal/ajax-modal.plugin';
+import QuantitySelectorPlugin from 'src/plugin/quantity-selector/quantity-selector.plugin';
 
 window.eventEmitter = new NativeEventEmitter();
 window.bootstrap = bootstrap;
@@ -159,6 +160,7 @@ PluginManager.register('CmsGdprVideoElement', CmsGdprVideoElement, '[data-cms-gd
 PluginManager.register('BuyBox', BuyBoxPlugin, '[data-buy-box]');
 PluginManager.register('Fading', FadingPlugin, '[data-fading]');
 PluginManager.register('BasicCaptcha', BasicCaptchaPlugin, '[data-basic-captcha]');
+PluginManager.register('QuantitySelector', QuantitySelectorPlugin, '[data-quantity-selector]');
 
 /** @deprecated tag:v6.6.0 - Using selector [data-bs-toggle="modal"][data-url] to open AjaxModal is deprecated. Use selector [data-ajax-modal][data-url] instead. */
 PluginManager.register('AjaxModal', AjaxModalPlugin, '[data-bs-toggle="modal"][data-url]');

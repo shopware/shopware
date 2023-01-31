@@ -21,7 +21,7 @@ class BenchExtension implements ExtensionInterface
     public function load(Container $container): void
     {
         if (!isset($this->resolver)) {
-            throw new \Exception(__CLASS__ . '::configure must be called before running the load method');
+            throw new \Exception(self::class . '::configure must be called before running the load method');
         }
 
         $_SERVER['APP_ENV'] = 'test';
@@ -46,9 +46,7 @@ class BenchExtension implements ExtensionInterface
         // TODO: Resolve autoloading to [Commercial]/tests/performance/bench so native phpbench `core.extensions` can be used
         $fixturePath = $bootstrapper->getProjectDir() . '/custom/plugins/SwagCommercial/tests/performance/bench/Common';
         $symfonyContainer = KernelLifecycleManager::getKernel()->getContainer();
-        $container->register('symfony-container', function () use ($symfonyContainer) {
-            return $symfonyContainer;
-        });
+        $container->register('symfony-container', fn () => $symfonyContainer);
         $runGroup = $this->getRunGroup();
         $originalClasses = get_declared_classes();
         foreach ($this->findFixtures($fixturePath) as $fixtureFile) {
@@ -56,7 +54,7 @@ class BenchExtension implements ExtensionInterface
             $declared = get_declared_classes();
             /** @var string $currentFixtureClass */
             $currentFixtureClass = end($declared);
-            if (strpos($currentFixtureClass, 'Fixture.php') === false) {
+            if (!str_contains($currentFixtureClass, 'Fixture.php')) {
                 $currentFixtureClass = $declared[\count($declared) - 2];
             }
 
@@ -81,11 +79,9 @@ class BenchExtension implements ExtensionInterface
     }
 
     /**
-     * @param mixed $default
-     *
      * @return mixed
      */
-    public static function parseEnvVar(string $varName, $default = false)
+    public static function parseEnvVar(string $varName, mixed $default = false)
     {
         if (isset($_SERVER[$varName])) {
             return filter_var($_SERVER[$varName], \FILTER_VALIDATE_BOOLEAN);
@@ -117,7 +113,7 @@ class BenchExtension implements ExtensionInterface
             return $this->runGroup;
         }
         foreach ($GLOBALS['argv'] as $inputArg) {
-            if (\preg_match('/^--group=([\-\w]+)/', $inputArg, $matches) === 1) {
+            if (\preg_match('/^--group=([\-\w]+)/', (string) $inputArg, $matches) === 1) {
                 $this->runGroup = $matches[1];
 
                 break;

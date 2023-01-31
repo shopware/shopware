@@ -21,65 +21,29 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaI
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\OrderAware;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('business-ops')]
 class SendMailAction extends FlowAction implements DelayableAction
 {
-    public const ACTION_NAME = MailTemplateActions::MAIL_TEMPLATE_MAIL_SEND_ACTION;
-    public const MAIL_CONFIG_EXTENSION = 'mail-attachments';
+    final public const ACTION_NAME = MailTemplateActions::MAIL_TEMPLATE_MAIL_SEND_ACTION;
+    final public const MAIL_CONFIG_EXTENSION = 'mail-attachments';
     private const RECIPIENT_CONFIG_ADMIN = 'admin';
     private const RECIPIENT_CONFIG_CUSTOM = 'custom';
     private const RECIPIENT_CONFIG_CONTACT_FORM_MAIL = 'contactFormMail';
 
-    private EntityRepository $mailTemplateRepository;
-
-    private LoggerInterface $logger;
-
-    private AbstractMailService $emailService;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private EntityRepository $mailTemplateTypeRepository;
-
-    private Translator $translator;
-
-    private Connection $connection;
-
-    private LanguageLocaleCodeProvider $languageLocaleProvider;
-
-    private bool $updateMailTemplate;
-
     /**
      * @internal
      */
-    public function __construct(
-        AbstractMailService $emailService,
-        EntityRepository $mailTemplateRepository,
-        LoggerInterface $logger,
-        EventDispatcherInterface $eventDispatcher,
-        EntityRepository $mailTemplateTypeRepository,
-        Translator $translator,
-        Connection $connection,
-        LanguageLocaleCodeProvider $languageLocaleProvider,
-        bool $updateMailTemplate
-    ) {
-        $this->mailTemplateRepository = $mailTemplateRepository;
-        $this->logger = $logger;
-        $this->emailService = $emailService;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->mailTemplateTypeRepository = $mailTemplateTypeRepository;
-        $this->translator = $translator;
-        $this->connection = $connection;
-        $this->languageLocaleProvider = $languageLocaleProvider;
-        $this->updateMailTemplate = $updateMailTemplate;
+    public function __construct(private readonly AbstractMailService $emailService, private readonly EntityRepository $mailTemplateRepository, private readonly LoggerInterface $logger, private readonly EventDispatcherInterface $eventDispatcher, private readonly EntityRepository $mailTemplateTypeRepository, private readonly Translator $translator, private readonly Connection $connection, private readonly LanguageLocaleCodeProvider $languageLocaleProvider, private readonly bool $updateMailTemplate)
+    {
     }
 
     public static function getName(): string
@@ -112,12 +76,12 @@ class SendMailAction extends FlowAction implements DelayableAction
         }
 
         if (!$flow->hasStore(MailAware::MAIL_STRUCT) || !$flow->hasStore(MailAware::SALES_CHANNEL_ID)) {
-            throw new MailEventConfigurationException('Not have data from MailAware', \get_class($flow));
+            throw new MailEventConfigurationException('Not have data from MailAware', $flow::class);
         }
 
         $eventConfig = $flow->getConfig();
         if (empty($eventConfig['recipient'])) {
-            throw new MailEventConfigurationException('The recipient value in the flow action configuration is missing.', \get_class($flow));
+            throw new MailEventConfigurationException('The recipient value in the flow action configuration is missing.', $flow::class);
         }
 
         if (!isset($eventConfig['mailTemplateId'])) {
@@ -176,7 +140,12 @@ class SendMailAction extends FlowAction implements DelayableAction
             );
         }
 
-        $this->send($data, $flow->getContext(), $flow->data(), $extension, $injectedTranslator);
+        $templateData = [
+            'eventName' => $flow->getName(),
+            ...$flow->data(),
+        ];
+
+        $this->send($data, $flow->getContext(), $templateData, $extension, $injectedTranslator);
     }
 
     /**
@@ -196,7 +165,7 @@ class SendMailAction extends FlowAction implements DelayableAction
                 . $e->getMessage() . "\n"
                 . 'Error Code:' . $e->getCode() . "\n"
                 . "Template data: \n"
-                . json_encode($data->all()) . "\n"
+                . json_encode($data->all(), \JSON_THROW_ON_ERROR) . "\n"
             );
         }
 

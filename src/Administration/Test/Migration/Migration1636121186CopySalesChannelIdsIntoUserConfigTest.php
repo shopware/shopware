@@ -57,7 +57,7 @@ class Migration1636121186CopySalesChannelIdsIntoUserConfigTest extends TestCase
         foreach ($configs as $locale => $config) {
             $language = $this->languages[$locale];
 
-            $actual = json_decode($config);
+            $actual = json_decode((string) $config, null, 512, \JSON_THROW_ON_ERROR);
             $expected = \array_slice($expectedIds[$language], 0, self::MAX_RESULTS);
 
             static::assertSame($expected, $actual);
@@ -76,7 +76,7 @@ class Migration1636121186CopySalesChannelIdsIntoUserConfigTest extends TestCase
             $language = $this->languages[$locale];
 
             $names = $this->fetchSalesChannelNames(
-                Uuid::fromHexToBytesList(json_decode($config)),
+                Uuid::fromHexToBytesList(json_decode((string) $config, null, 512, \JSON_THROW_ON_ERROR)),
                 Uuid::fromHexToBytes($language)
             );
 

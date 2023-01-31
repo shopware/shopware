@@ -4,34 +4,23 @@ namespace Shopware\Core\Content\Media\Api;
 
 use Shopware\Core\Content\Media\MediaFolderService;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @package content
- * @Route(defaults={"_routeScope"={"api"}})
- */
+#[Route(defaults: ['_routeScope' => ['api']])]
+#[Package('content')]
 class MediaFolderController extends AbstractController
 {
     /**
-     * @var MediaFolderService
-     */
-    private $dissolveFolderService;
-
-    /**
      * @internal
      */
-    public function __construct(MediaFolderService $dissolveFolderService)
+    public function __construct(private readonly MediaFolderService $dissolveFolderService)
     {
-        $this->dissolveFolderService = $dissolveFolderService;
     }
 
-    /**
-     * @Since("6.0.0.0")
-     * @Route("/api/_action/media-folder/{folderId}/dissolve", name="api.action.media-folder.dissolve", methods={"POST"})
-     */
+    #[Route(path: '/api/_action/media-folder/{folderId}/dissolve', name: 'api.action.media-folder.dissolve', methods: ['POST'])]
     public function dissolve(string $folderId, Context $context): Response
     {
         $this->dissolveFolderService->dissolve($folderId, $context);

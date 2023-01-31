@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Api\EventListener\Authentication;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\SalesChannelNotFoundException;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\Framework\Routing\RouteScopeCheckTrait;
@@ -18,26 +19,17 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 class SalesChannelAuthenticationListener implements EventSubscriberInterface
 {
     use RouteScopeCheckTrait;
 
-    private Connection $connection;
-
-    private RouteScopeRegistry $routeScopeRegistry;
-
     /**
      * @internal
      */
-    public function __construct(
-        Connection $connection,
-        RouteScopeRegistry $routeScopeRegistry
-    ) {
-        $this->connection = $connection;
-        $this->routeScopeRegistry = $routeScopeRegistry;
+    public function __construct(private readonly Connection $connection, private readonly RouteScopeRegistry $routeScopeRegistry)
+    {
     }
 
     public static function getSubscribedEvents(): array

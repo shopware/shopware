@@ -11,19 +11,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
- *
- * @package administration
  */
+#[Package('administration')]
 class NotificationService
 {
-    private EntityRepository $notificationRepository;
-
-    public function __construct(EntityRepository $notificationRepository)
+    public function __construct(private readonly EntityRepository $notificationRepository)
     {
-        $this->notificationRepository = $notificationRepository;
     }
 
     public function createNotification(array $data, Context $context): void
@@ -37,7 +34,7 @@ class NotificationService
     {
         $source = $context->getSource();
         if (!$source instanceof AdminApiSource) {
-            throw new InvalidContextSourceException(AdminApiSource::class, \get_class($context->getSource()));
+            throw new InvalidContextSourceException(AdminApiSource::class, $context->getSource()::class);
         }
 
         $criteria = new Criteria();

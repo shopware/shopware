@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -16,10 +17,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 
 /**
- * @package checkout
- *
  * @internal
  */
+#[Package('checkout')]
 class LineItemFactoryRegistryTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -96,7 +96,7 @@ class LineItemFactoryRegistryTest extends TestCase
         $lineItem = new LineItem($id, LineItem::PRODUCT_LINE_ITEM_TYPE, Uuid::randomHex(), 1);
         $lineItem->setStackable(false);
 
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
         $cart->add($lineItem);
 
         $this->expectException(CartException::class);
@@ -110,7 +110,7 @@ class LineItemFactoryRegistryTest extends TestCase
         $lineItem = new LineItem($id, LineItem::PRODUCT_LINE_ITEM_TYPE, Uuid::randomHex(), 1);
         $lineItem->setStackable(true);
 
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
         $cart->add($lineItem);
 
         $this->service->update($cart, ['id' => $id, 'quantity' => 2], $this->context);
@@ -128,7 +128,7 @@ class LineItemFactoryRegistryTest extends TestCase
 
     public function testCreateCustomWithoutPermission(): void
     {
-        static::expectException(CartException::class);
+        $this->expectException(CartException::class);
 
         $this->service->create(['type' => 'custom', 'referencedId' => 'test'], $this->context);
     }

@@ -3,28 +3,21 @@
 namespace Shopware\Storefront\Theme\StorefrontPluginConfiguration;
 
 use Shopware\Core\Framework\Bundle;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Storefront\Framework\ThemeInterface;
 use Shopware\Storefront\Theme\Exception\InvalidThemeBundleException;
 use Shopware\Storefront\Theme\Exception\ThemeCompileException;
 use Symfony\Component\Finder\Finder;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfigurationFactory
 {
     /**
-     * @var string
-     */
-    private $projectDir;
-
-    /**
      * @internal
      */
-    public function __construct(string $projectDir)
+    public function __construct(private readonly string $projectDir)
     {
-        $this->projectDir = $projectDir;
     }
 
     public function getDecorated(): AbstractStorefrontPluginConfigurationFactory
@@ -234,7 +227,7 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
 
     private function stripProjectDir(string $path): string
     {
-        if (\strpos($path, $this->projectDir) === 0) {
+        if (str_starts_with($path, $this->projectDir)) {
             return substr($path, \strlen($this->projectDir) + 1);
         }
 

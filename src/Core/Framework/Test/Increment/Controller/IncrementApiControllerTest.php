@@ -55,7 +55,7 @@ class IncrementApiControllerTest extends TestCase
 
         static::assertSame(200, $client->getResponse()->getStatusCode());
 
-        $entries = json_decode($client->getResponse()->getContent(), true);
+        $entries = json_decode($client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('foo', $entries);
         static::assertEquals(2, $entries['foo']['count']);
@@ -71,7 +71,7 @@ class IncrementApiControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $client->getResponse()->getStatusCode());
 
-        $errors = json_decode($client->getResponse()->getContent(), true)['errors'];
+        $errors = json_decode($client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR)['errors'];
 
         static::assertEquals('Argument cluster is missing or invalid', $errors[0]['detail']);
     }
@@ -88,7 +88,7 @@ class IncrementApiControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode());
 
-        $errors = json_decode($client->getResponse()->getContent(), true)['errors'];
+        $errors = json_decode($client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR)['errors'];
 
         static::assertEquals('Increment gateway for pool "unknown-pool" was not found.', $errors[0]['detail']);
     }
@@ -105,7 +105,7 @@ class IncrementApiControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
 
-        $entries = json_decode($client->getResponse()->getContent(), true);
+        $entries = json_decode($client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertTrue($entries['success']);
 
@@ -134,7 +134,7 @@ class IncrementApiControllerTest extends TestCase
 
         static::assertSame(200, $client->getResponse()->getStatusCode());
 
-        $entries = json_decode($client->getResponse()->getContent(), true);
+        $entries = json_decode($client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertTrue($entries['success']);
 
@@ -166,7 +166,7 @@ class IncrementApiControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
 
-        $entries = json_decode($client->getResponse()->getContent(), true);
+        $entries = json_decode($client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertTrue($entries['success']);
 
@@ -193,7 +193,7 @@ class IncrementApiControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
 
-        $entries = json_decode($client->getResponse()->getContent(), true);
+        $entries = json_decode($client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertTrue($entries['success']);
 
@@ -207,7 +207,7 @@ class IncrementApiControllerTest extends TestCase
         $client = $this->getBrowser();
         $client->request('GET', $url);
 
-        $entries = json_decode($client->getResponse()->getContent(), true);
+        $entries = json_decode($client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
         static::assertArrayHasKey('foo', $entries);

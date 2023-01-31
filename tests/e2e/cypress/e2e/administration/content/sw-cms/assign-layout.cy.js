@@ -251,7 +251,7 @@ describe('CMS: Test assignment of layouts to categories and shop pages', () => {
         // Verify layout in storefront
         cy.visit('/');
         cy.get('.footer-contact-form').scrollIntoView();
-        cy.get('.footer-contact-form a[title="contact form"]').click();
+        cy.get('.footer-contact-form a[title="Contact form"]').click();
         cy.get('.modal .modal-dialog').should('be.visible');
         cy.contains('.modal .modal-dialog .modal-body .cms-block h2', 'Lorem Ipsum dolor sit amet');
     });

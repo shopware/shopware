@@ -3,12 +3,12 @@
 namespace Shopware\Core\Framework\Store\Services;
 
 use GuzzleHttp\ClientInterface;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package merchant-services
- *
  * @internal
  */
+#[Package('merchant-services')]
 class TrackingEventClient
 {
     public function __construct(
@@ -39,7 +39,7 @@ class TrackingEventClient
             $response = $this->client->request('POST', '/swplatform/tracking/events', ['json' => $payload]);
 
             return json_decode($response->getBody()->getContents(), true, flags: \JSON_THROW_ON_ERROR);
-        } catch (\Exception $e) {
+        } catch (\Exception) {
         }
 
         return null;

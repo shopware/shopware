@@ -4,17 +4,17 @@ namespace Shopware\Core\Framework\App\Manifest\Xml;
 
 use Shopware\Core\Framework\App\Manifest\Xml\CustomFieldTypes\CustomFieldType;
 use Shopware\Core\Framework\App\Manifest\Xml\CustomFieldTypes\CustomFieldTypeFactory;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal only for use by the app-system
- *
- * @package core
  */
+#[Package('core')]
 class RuleCondition extends XmlElement
 {
-    public const TRANSLATABLE_FIELDS = ['name'];
+    final public const TRANSLATABLE_FIELDS = ['name'];
 
-    public const REQUIRED_FIELDS = [
+    final public const REQUIRED_FIELDS = [
         'identifier',
         'name',
         'script',
@@ -63,9 +63,7 @@ class RuleCondition extends XmlElement
             );
         }
 
-        $data['config'] = array_map(static function (CustomFieldType $field) {
-            return $field->toEntityPayload();
-        }, $this->constraints);
+        $data['config'] = array_map(static fn (CustomFieldType $field) => $field->toEntityPayload(), $this->constraints);
 
         return $data;
     }
@@ -126,9 +124,7 @@ class RuleCondition extends XmlElement
         if ($child->tagName === 'constraints') {
             $values[$child->tagName] = self::parseChildNodes(
                 $child,
-                static function (\DOMElement $element): CustomFieldType {
-                    return CustomFieldTypeFactory::createFromXml($element);
-                }
+                static fn (\DOMElement $element): CustomFieldType => CustomFieldTypeFactory::createFromXml($element)
             );
 
             return $values;

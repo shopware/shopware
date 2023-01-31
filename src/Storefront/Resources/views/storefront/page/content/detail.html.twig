@@ -17,6 +17,26 @@
                 {% set sectionClasses = ['bg-color']|merge(sectionClasses) %}
             {% endif %}
 
+            {% if section.visibility is null %}
+                {% set visibility = {
+                    mobile: true,
+                    tablet: true,
+                    desktop: true
+                } %}
+            {% else %}
+                {% set visibility = section.visibility %}
+            {% endif %}
+
+            {% if not visibility.mobile %}
+                {% set sectionClasses = ['hidden-mobile']|merge(sectionClasses) %}
+            {% endif %}
+            {% if not visibility.tablet %}
+                {% set sectionClasses = ['hidden-tablet']|merge(sectionClasses) %}
+            {% endif %}
+            {% if not visibility.desktop %}
+                {% set sectionClasses = ['hidden-desktop']|merge(sectionClasses) %}
+            {% endif %}
+
             {% block page_content_section %}
                 <div class="cms-section {{ sectionClasses|join(' ') }}"
                      style="{% if sectionBgColor %}background-color: {{ sectionBgColor }};{% endif %}{% if sectionBgImg %}background-image: url({{ sectionBgImg }});background-size: {{ section.backgroundMediaMode }};{% endif %}">

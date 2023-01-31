@@ -41,56 +41,27 @@ use Symfony\Component\Messenger\MessageBusInterface;
  */
 class ElasticsearchIndexerTest extends TestCase
 {
-    /**
-     * @var Connection&MockObject
-     */
-    private $connection;
+    private Connection&MockObject $connection;
 
-    /**
-     * @var ElasticsearchHelper&MockObject
-     */
-    private $helper;
+    private MockObject&ElasticsearchHelper $helper;
 
     private ElasticsearchRegistry $registry;
 
-    /**
-     * @var IndexCreator&MockObject
-     */
-    private $indexCreator;
+    private MockObject&IndexCreator $indexCreator;
 
-    /**
-     * @var IteratorFactory&MockObject
-     */
-    private $iteratorFactory;
+    private MockObject&IteratorFactory $iteratorFactory;
 
-    /**
-     * @var Client&MockObject
-     */
-    private $client;
+    private Client&MockObject $client;
 
-    /**
-     * @var EntityRepository&MockObject
-     */
-    private $currencyRepository;
+    private MockObject&EntityRepository $currencyRepository;
 
-    /**
-     * @var EntityRepository&MockObject
-     */
-    private $languageRepository;
+    private MockObject&EntityRepository $languageRepository;
 
-    /**
-     * @var MessageBusInterface
-     */
-    private $bus;
+    private MessageBusInterface $bus;
 
     private LanguageEntity $language1;
 
-    private LanguageEntity $language2;
-
-    /**
-     * @var IndicesNamespace&MockObject
-     */
-    private $indices;
+    private IndicesNamespace&MockObject $indices;
 
     public function setUp(): void
     {
@@ -110,13 +81,13 @@ class ElasticsearchIndexerTest extends TestCase
         $this->language1->setId(Defaults::LANGUAGE_SYSTEM);
         $this->language1->setUniqueIdentifier(Defaults::LANGUAGE_SYSTEM);
 
-        $this->language2 = new LanguageEntity();
-        $this->language2->setId('2');
-        $this->language2->setUniqueIdentifier('2');
+        $language2 = new LanguageEntity();
+        $language2->setId('2');
+        $language2->setUniqueIdentifier('2');
 
         $this->languageRepository
             ->method('search')
-            ->willReturn(new EntitySearchResult('language', 1, new LanguageCollection([$this->language1, $this->language2]), null, new Criteria(), Context::createDefaultContext()));
+            ->willReturn(new EntitySearchResult('language', 1, new LanguageCollection([$this->language1, $language2]), null, new Criteria(), Context::createDefaultContext()));
 
         $this->indices = $this->createMock(IndicesNamespace::class);
         $this->client->method('indices')->willReturn($this->indices);
@@ -423,7 +394,7 @@ class ElasticsearchIndexerTest extends TestCase
 
     private function getIndexer(?LoggerInterface $logger = null): ElasticsearchIndexer
     {
-        $logger = $logger ?? new NullLogger();
+        $logger ??= new NullLogger();
 
         return new ElasticsearchIndexer(
             $this->connection,

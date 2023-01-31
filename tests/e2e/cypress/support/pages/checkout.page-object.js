@@ -59,7 +59,7 @@ export default class CheckoutPageObject {
             paymentMethods: '.payment-method',
             paymentMethodsCollapseContainer: '.payment-methods > .collapse',
             paymentMethodsCollapseTrigger: '.payment-methods > .confirm-checkout-collapse-trigger',
-            paymentFormConfirm: '#changeShippingForm',
+            paymentFormConfirm: '#changePaymentForm',
 
             // shipping method
             shippingMethodsContainer: '.shipping-methods',

@@ -38,15 +38,9 @@ use Symfony\Contracts\Cache\CacheInterface;
  */
 class CachedPaymentMethodRouteTest extends TestCase
 {
-    /**
-     * @var AbstractPaymentMethodRoute&MockObject
-     */
-    private $decorated;
+    private MockObject&AbstractPaymentMethodRoute $decorated;
 
-    /**
-     * @var CacheInterface&MockObject
-     */
-    private $cache;
+    private MockObject&CacheInterface $cache;
 
     private EventDispatcher $eventDispatcher;
 

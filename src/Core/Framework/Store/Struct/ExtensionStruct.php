@@ -3,20 +3,20 @@
 namespace Shopware\Core\Framework\Store\Struct;
 
 use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
- * @package merchant-services
- *
  * @codeCoverageIgnore
  */
+#[Package('merchant-services')]
 class ExtensionStruct extends Struct
 {
-    public const EXTENSION_TYPE_APP = 'app';
-    public const EXTENSION_TYPE_PLUGIN = 'plugin';
-    public const SOURCE_LOCAL = 'local';
-    public const SOURCE_STORE = 'store';
+    final public const EXTENSION_TYPE_APP = 'app';
+    final public const EXTENSION_TYPE_PLUGIN = 'plugin';
+    final public const SOURCE_LOCAL = 'local';
+    final public const SOURCE_STORE = 'store';
 
     protected ?int $id = null;
 

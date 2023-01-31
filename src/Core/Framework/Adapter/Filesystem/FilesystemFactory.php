@@ -10,18 +10,17 @@ use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Filesystem\Adapter\AdapterFactoryInterface;
 use Shopware\Core\Framework\Adapter\Filesystem\Exception\AdapterFactoryNotFoundException;
 use Shopware\Core\Framework\Adapter\Filesystem\Exception\DuplicateFilesystemFactoryException;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-/**
- * @package core
- */
+#[Package('core')]
 class FilesystemFactory
 {
     /**
      * @var AdapterFactoryInterface[]
      */
-    private iterable $adapterFactories;
+    private readonly iterable $adapterFactories;
 
     /**
      * @internal

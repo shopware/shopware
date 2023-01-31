@@ -5,10 +5,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ReferenceVersionFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\VersionDefinition;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
+#[Package('core')]
 class ReferenceVersionField extends FkField
 {
     /**
@@ -33,7 +32,7 @@ class ReferenceVersionField extends FkField
             $entity = (new $definition())->getEntityName();
         }
 
-        $storageName = $storageName ?? ($entity . '_version_id');
+        $storageName ??= $entity . '_version_id';
 
         $propertyName = explode('_', $storageName);
         $propertyName = array_map('ucfirst', $propertyName);

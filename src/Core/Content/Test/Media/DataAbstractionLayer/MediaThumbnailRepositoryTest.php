@@ -36,9 +36,7 @@ class MediaThumbnailRepositoryTest extends TestCase
         $thumbnailIds = $this->getContainer()->get('media_thumbnail.repository')
             ->searchIds(new Criteria(), Context::createDefaultContext());
 
-        $delete = \array_values(\array_map(static function ($id) {
-            return ['id' => $id];
-        }, $thumbnailIds->getIds()));
+        $delete = \array_values(\array_map(static fn ($id) => ['id' => $id], $thumbnailIds->getIds()));
 
         $this->getContainer()->get('media_thumbnail.repository')->delete($delete, Context::createDefaultContext());
         $this->runWorker();

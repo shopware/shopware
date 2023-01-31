@@ -26,41 +26,6 @@ describe('Order: Create credit note', () => {
     it('@base @order: create credit note', {tags: ['pa-customers-orders']}, () => {
         const page = new OrderPageObject();
 
-        cy.intercept({
-            url: `**/${Cypress.env('apiPath')}/_action/order/**/recalculate`,
-            method: 'POST',
-        }).as('orderRecalculateCall');
-
-        cy.intercept({
-            url: `**/${Cypress.env('apiPath')}/_action/order/document/invoice/create`,
-            method: 'POST',
-        }).as('createInvoice');
-
-        cy.intercept({
-            url: `**/${Cypress.env('apiPath')}/_action/order/document/credit_note/create`,
-            method: 'POST',
-        }).as('createCreditNote');
-
-        cy.intercept({
-            url: `**/${Cypress.env('apiPath')}/_action/order/**/document/invoice/preview*`,
-            method: 'GET',
-        }).as('onPreview');
-
-        cy.intercept({
-            url: `**/${Cypress.env('apiPath')}/search/document-type`,
-            method: 'POST',
-        }).as('getDocumentTypes');
-
-        cy.intercept({
-            url: `**/${Cypress.env('apiPath')}/_action/version/merge/order/**`,
-            method: 'POST',
-        }).as('orderSaveCall');
-
-        cy.intercept({
-            url: `**/${Cypress.env('apiPath')}/search/order`,
-            method: 'POST',
-        }).as('orderSearchCall');
-
         cy.contains(`${page.elements.dataGridRow}--0`, 'Mustermann, Max');
         cy.clickContextMenuItem(
             '.sw-order-list__order-view-action',
@@ -78,12 +43,33 @@ describe('Order: Create credit note', () => {
         );
 
         cy.get(`${page.elements.dataGridRow}--0 > .sw-data-grid__cell--label`).dblclick();
+
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/_action/order/**/recalculate`,
+            method: 'POST',
+        }).as('orderRecalculateCall');
+
         cy.get('#sw-field--item-label').type('Discount 100 Euro');
         cy.get('#sw-field--item-priceDefinition-price').clearTypeAndCheck('-100');
+
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/search/order`,
+            method: 'POST',
+        }).as('orderSearchCall');
 
         cy.get(page.elements.dataGridInlineEditSave).click();
         cy.wait('@orderRecalculateCall').its('response.statusCode').should('equal', 204);
         cy.wait('@orderSearchCall').its('response.statusCode').should('equal', 200);
+
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/_action/version/merge/order/**`,
+            method: 'POST',
+        }).as('orderSaveCall');
+
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/search/order`,
+            method: 'POST',
+        }).as('orderSearchCall');
 
         cy.get(page.elements.smartBarSave).click();
         cy.wait('@orderSaveCall').its('response.statusCode').should('equal', 204);
@@ -108,6 +94,11 @@ describe('Order: Create credit note', () => {
             .click();
 
         // Generate preview
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/_action/order/**/document/invoice/preview*`,
+            method: 'GET',
+        }).as('onPreview');
+
         cy.get(page.elements.tabs.documents.documentSettingsModal).should('be.visible');
         cy.get('#sw-field--documentConfig-documentComment').type('New invoice');
         cy.get('.sw-order-document-settings-modal__preview-button').click();
@@ -115,6 +106,11 @@ describe('Order: Create credit note', () => {
         cy.wait('@onPreview').its('response.statusCode').should('equal', 200);
 
         // Generate invoice
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/_action/order/document/invoice/create`,
+            method: 'POST',
+        }).as('createInvoice');
+
         cy.get(page.elements.tabs.documents.documentSettingsModal).should('be.visible');
         cy.get('#sw-field--documentConfig-documentComment').type('New invoice');
         cy.get(`${page.elements.tabs.documents.documentSettingsModal} .sw-order-document-settings-modal__create`).should('not.be.disabled').click();
@@ -139,6 +135,11 @@ describe('Order: Create credit note', () => {
         cy.get('.sw-order-document-settings-credit-note-modal__invoice-select .sw-block-field__block select').select(1);
         cy.get('#sw-field--documentConfig-documentComment').type('Always get a credit note');
 
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/_action/order/document/credit_note/create`,
+            method: 'POST',
+        }).as('createCreditNote');
+
         cy.get('.sw-modal__footer .sw-order-document-settings-modal__create')
             .should('be.visible')
             .should('not.be.disabled')
@@ -146,6 +147,11 @@ describe('Order: Create credit note', () => {
 
         // Wait for the credit note to be created
         cy.wait('@createCreditNote').its('response.statusCode').should('equal', 200);
+
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/search/document-type`,
+            method: 'POST',
+        }).as('getDocumentTypes');
 
         // Reloading the page is necessary to get rid off the view reloading after several $nextTicks
         cy.reload();

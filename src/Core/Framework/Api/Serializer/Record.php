@@ -4,10 +4,9 @@ namespace Shopware\Core\Framework\Api\Serializer;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
+#[Package('core')]
 class Record implements \JsonSerializable
 {
     /**
@@ -129,12 +128,12 @@ class Record implements \JsonSerializable
         }
 
         // if links are empty it should be decoded as empty object instead of empty array: https://jsonapi.org/format/#document-links
-        if (\count($vars['links']) === 0) {
+        if ((is_countable($vars['links']) ? \count($vars['links']) : 0) === 0) {
             $vars['links'] = new \stdClass();
         }
 
         // if attributes are empty it should be decoded as empty object instead of empty array: https://jsonapi.org/format/#document-resource-object-attributes
-        if (\count($vars['attributes']) === 0) {
+        if ((is_countable($vars['attributes']) ? \count($vars['attributes']) : 0) === 0) {
             $vars['attributes'] = new \stdClass();
         }
 

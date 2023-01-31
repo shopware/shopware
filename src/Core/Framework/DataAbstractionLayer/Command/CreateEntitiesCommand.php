@@ -5,47 +5,31 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Command;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityGenerator;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * @package core
- */
 #[AsCommand(
     name: 'dal:create:entities',
     description: 'Creates the entity classes',
 )]
+#[Package('core')]
 class CreateEntitiesCommand extends Command
 {
-    /**
-     * @var EntityGenerator
-     */
-    private $entityGenerator;
-
-    /**
-     * @var DefinitionInstanceRegistry
-     */
-    private $registry;
-
-    /**
-     * @var string
-     */
-    private $dir;
+    private readonly string $dir;
 
     /**
      * @internal
      */
     public function __construct(
-        EntityGenerator $entityGenerator,
-        DefinitionInstanceRegistry $registry,
+        private readonly EntityGenerator $entityGenerator,
+        private readonly DefinitionInstanceRegistry $registry,
         string $rootDir
     ) {
         parent::__construct();
-        $this->registry = $registry;
         $this->dir = $rootDir . '/../schema/';
-        $this->entityGenerator = $entityGenerator;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

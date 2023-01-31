@@ -147,6 +147,21 @@ async function createWrapper(privileges = ['user_config:read', 'user_config:crea
                     return privileges.includes(identifier);
                 }
             },
+            cmsPageTypeService: {
+                getTypes: () => [{
+                    name: 'page',
+                    title: 'page',
+                }, {
+                    name: 'landingpage',
+                    title: 'landingpage',
+                }],
+                getType: (type) => {
+                    return {
+                        name: type,
+                        title: type,
+                    };
+                }
+            },
         },
         data: () => {
             return {
@@ -165,6 +180,25 @@ describe('module/sw-cms/page/sw-cms-list', () => {
         await flushPromises();
 
         expect(wrapper.vm).toBeTruthy();
+    });
+
+    it('should show the right list of pageTypes for the filters', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.vm.sortPageTypes).toStrictEqual([
+            {
+                value: '',
+                name: 'sw-cms.sorting.labelSortByAllPages',
+                active: true
+            }, {
+                name: 'page',
+                value: 'page',
+            }, {
+                name: 'landingpage',
+                value: 'landingpage',
+            },
+        ]);
     });
 
     it('should open the media modal when user clicks on edit preview image', async () => {
@@ -935,7 +969,6 @@ describe('module/sw-cms/page/sw-cms-list', () => {
         expect(listItems.at(2).props('isDefault')).toBe(false);
         expect(listItems.at(3).props('isDefault')).toBe(false);
     });
-
 
     it('should reset after canceling setting a default layout', async () => {
         const someOtherID = 'someOtherID';

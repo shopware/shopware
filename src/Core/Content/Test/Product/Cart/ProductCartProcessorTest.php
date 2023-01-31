@@ -38,13 +38,13 @@ class ProductCartProcessorTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    public const TEST_LANGUAGE_LOCALE_CODE = 'sw-AG';
-    public const TEST_LANGUAGE_ID = 'cc72c24b82684d72a4ce91054da264bf';
-    public const TEST_LOCALE_ID = 'cf735c44dc7b4428bb3870fe4ffea2df';
-    public const CUSTOM_FIELD_ID = '24c8b3e8cacc4bf2a743b8c5a7522a33';
-    public const PURCHASE_STEP_QUANTITY_ERROR_KEY = 'purchase-steps-quantity';
-    public const MIN_ORDER_QUANTITY_ERROR_KEY = 'min-order-quantity';
-    public const PRODUCT_STOCK_REACHED_ERROR_KEY = 'product-stock-reached';
+    final public const TEST_LANGUAGE_LOCALE_CODE = 'sw-AG';
+    final public const TEST_LANGUAGE_ID = 'cc72c24b82684d72a4ce91054da264bf';
+    final public const TEST_LOCALE_ID = 'cf735c44dc7b4428bb3870fe4ffea2df';
+    final public const CUSTOM_FIELD_ID = '24c8b3e8cacc4bf2a743b8c5a7522a33';
+    final public const PURCHASE_STEP_QUANTITY_ERROR_KEY = 'purchase-steps-quantity';
+    final public const MIN_ORDER_QUANTITY_ERROR_KEY = 'min-order-quantity';
+    final public const PRODUCT_STOCK_REACHED_ERROR_KEY = 'product-stock-reached';
 
     private IdsCollection $ids;
 
@@ -107,7 +107,7 @@ class ProductCartProcessorTest extends TestCase
         $update = ['id' => $this->ids->get('product'), 'name' => 'update'];
         $this->getContainer()->get('product.repository')->upsert([$update], $context->getContext());
 
-        $cart = $this->cartService->getCart($context->getToken(), $this->getContext(), CartService::SALES_CHANNEL, false);
+        $cart = $this->cartService->getCart($context->getToken(), $this->getContext(), false);
 
         $lineItem = $cart->get($this->ids->get('product'));
         static::assertInstanceOf(LineItem::class, $lineItem);
@@ -183,7 +183,7 @@ class ProductCartProcessorTest extends TestCase
     }
 
     /**
-     * @return \Traversable<string, array<bool|int>>
+     * @return \Traversable<string, array{0: bool, 1: int}>
      */
     public function advancedPricingProvider(): \Traversable
     {
@@ -290,7 +290,7 @@ class ProductCartProcessorTest extends TestCase
 
         static::assertInstanceOf(LineItem::class, $lineItem);
         $payload = $lineItem->getPayload();
-        $purchasePrices = json_decode($payload['purchasePrices']);
+        $purchasePrices = json_decode((string) $payload['purchasePrices'], null, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(Defaults::CURRENCY, $purchasePrices->currencyId);
         static::assertSame(7.5, $purchasePrices->gross);
         static::assertSame(5, $purchasePrices->net);
@@ -311,9 +311,9 @@ class ProductCartProcessorTest extends TestCase
     /**
      * @dataProvider productFeatureProdiver
      *
-     * @param array<string, mixed> $testedFeature
-     * @param array<mixed> $productData
-     * @param array<mixed> $expectedFeature
+     * @param array{type: string} $testedFeature
+     * @param array<string, mixed> $productData
+     * @param array{type: string, value: array{price: string}, label: string} $expectedFeature
      * @group slow
      */
     public function testProductFeaturesContainCorrectInformation(array $testedFeature, array $productData, array $expectedFeature): void
@@ -324,9 +324,9 @@ class ProductCartProcessorTest extends TestCase
             $this->createCustomField([]);
         }
 
-        $this->createProduct(array_merge([
+        $this->createProduct([...[
             'featureSet' => $this->createFeatureSet([$testedFeature]),
-        ], $productData));
+        ], ...$productData]);
 
         $cart = $this->getProductCart();
         $lineItem = $cart->get($this->ids->get('product'));
@@ -347,7 +347,11 @@ class ProductCartProcessorTest extends TestCase
     }
 
     /**
-     * @return array<array<array<string, array<mixed>|float|int|string|null>>>
+     * @return array{
+     *     0: array{type: string},
+     *     1: array<string, mixed>,
+     *     2: array{type: string, value: mixed, label: string}
+     *     }[]
      */
     public function productFeatureProdiver(): array
     {
@@ -628,7 +632,7 @@ class ProductCartProcessorTest extends TestCase
     }
 
     /**
-     * @return array<string, array<int|string>>
+     * @return array<string, array{0: int, 1: int, 2: int, 3: int, 4: int, 5: string}>
      */
     public function productDeliverabilityProvider(): array
     {
@@ -760,7 +764,7 @@ class ProductCartProcessorTest extends TestCase
         $update = ['id' => $this->ids->get('product'), 'active' => false];
         $this->getContainer()->get('product.repository')->upsert([$update], $context->getContext());
 
-        $cart = $this->cartService->getCart($context->getToken(), $this->getContext(), CartService::SALES_CHANNEL, false);
+        $cart = $this->cartService->getCart($context->getToken(), $this->getContext(), false);
 
         $lineItem = $cart->get($this->ids->get('product'));
         static::assertNull($lineItem);
@@ -774,7 +778,7 @@ class ProductCartProcessorTest extends TestCase
 
         $this->getContainer()->get('product.repository')->delete([['id' => $this->ids->get('product')]], $context->getContext());
 
-        $cart = $this->cartService->getCart($context->getToken(), $this->getContext(), CartService::SALES_CHANNEL, false);
+        $cart = $this->cartService->getCart($context->getToken(), $this->getContext(), false);
 
         $lineItem = $cart->get($this->ids->get('product'));
         static::assertNull($lineItem);
@@ -875,7 +879,7 @@ class ProductCartProcessorTest extends TestCase
     }
 
     /**
-     * @param array<mixed>|null $features
+     * @param array{type: string}[]|null $features
      *
      * @return array<string, mixed>
      */

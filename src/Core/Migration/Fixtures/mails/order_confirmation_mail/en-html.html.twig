@@ -115,9 +115,11 @@ You may use this link to edit your order, change the payment method or make addi
     {% endif %}
     <br>
 
-    <strong>Selected shipping type:</strong> {{ delivery.shippingMethod.translated.name }}<br>
-    {{ delivery.shippingMethod.translated.description }}<br>
-    <br>
+    {% if delivery %}
+        <strong>Selected shipping type:</strong> {{ delivery.shippingMethod.translated.name }}<br>
+        {{ delivery.shippingMethod.translated.description }}<br>
+        <br>
+    {% endif %}
 
     {% set billingAddress = order.addresses.get(order.billingAddressId) %}
     <strong>Billing address:</strong><br>
@@ -128,13 +130,15 @@ You may use this link to edit your order, change the payment method or make addi
     {{ billingAddress.country.translated.name }}<br>
     <br>
 
-    <strong>Shipping address:</strong><br>
-    {{ delivery.shippingOrderAddress.company }}<br>
-    {{ delivery.shippingOrderAddress.firstName }} {{ delivery.shippingOrderAddress.lastName }}<br>
-    {{ delivery.shippingOrderAddress.street }} <br>
-    {{ delivery.shippingOrderAddress.zipcode}} {{ delivery.shippingOrderAddress.city }}<br>
-    {{ delivery.shippingOrderAddress.country.translated.name }}<br>
-    <br>
+    {% if delivery %}
+        <strong>Shipping address:</strong><br>
+        {{ delivery.shippingOrderAddress.company }}<br>
+        {{ delivery.shippingOrderAddress.firstName }} {{ delivery.shippingOrderAddress.lastName }}<br>
+        {{ delivery.shippingOrderAddress.street }} <br>
+        {{ delivery.shippingOrderAddress.zipcode}} {{ delivery.shippingOrderAddress.city }}<br>
+        {{ delivery.shippingOrderAddress.country.translated.name }}<br>
+        <br>
+    {% endif %}
     {% if order.orderCustomer.vatIds %}
         Your VAT-ID: {{ order.orderCustomer.vatIds|first }}
         In case of a successful order and if you are based in one of the EU countries, you will receive your goods exempt from turnover tax.<br>

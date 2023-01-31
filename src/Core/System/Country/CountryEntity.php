@@ -8,15 +8,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TaxFreeConfig;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateCollection;
 use Shopware\Core\System\Country\Aggregate\CountryTranslation\CountryTranslationCollection;
 use Shopware\Core\System\Currency\Aggregate\CurrencyCountryRounding\CurrencyCountryRoundingCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleCollection;
 
-/**
- * @package system-settings
- */
+#[Package('system-settings')]
 class CountryEntity extends Entity
 {
     use EntityIdTrait;
@@ -127,9 +126,9 @@ class CountryEntity extends Entity
 
     protected bool $checkAdvancedPostalCodePattern;
 
-    protected ?string $advancedPostalCodePattern;
+    protected ?string $advancedPostalCodePattern = null;
 
-    protected ?string $defaultPostalCodePattern;
+    protected ?string $defaultPostalCodePattern = null;
 
     /**
      * @var array<array<string, array<string, string>>>

@@ -8,6 +8,7 @@ const { Utils, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { format, array } = Utils;
 const { mapGetters, mapState } = Shopware.Component.getComponentHelper();
+const { cloneDeep } = Shopware.Utils.object;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -53,7 +54,6 @@ export default {
     computed: {
         ...mapGetters('swOrderDetail', [
             'isLoading',
-            'isEditing',
         ]),
 
         ...mapState('swOrderDetail', [
@@ -87,7 +87,7 @@ export default {
         },
 
         shippingCostsDetail() {
-            const calcTaxes = this.sortByTaxRate(this.order.shippingCosts.calculatedTaxes);
+            const calcTaxes = this.sortByTaxRate(cloneDeep(this.order.shippingCosts.calculatedTaxes));
             const formattedTaxes = `${calcTaxes.map(
                 calcTax => `${this.$tc('sw-order.detailBase.shippingCostsTax', 0, {
                     taxRate: calcTax.taxRate,
@@ -99,7 +99,8 @@ export default {
         },
 
         sortedCalculatedTaxes() {
-            return this.sortByTaxRate(this.order.price.calculatedTaxes).filter(price => price.tax !== 0);
+            return this.sortByTaxRate(cloneDeep(this.order.price.calculatedTaxes))
+                .filter(price => price.tax !== 0);
         },
 
         transactionOptionPlaceholder() {

@@ -8,6 +8,7 @@ use Shopware\Core\Framework\App\Manifest\Exception\ManifestNotFoundException;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Validation\ManifestValidator;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -18,30 +19,17 @@ use Symfony\Component\Finder\Finder;
 
 /**
  * @internal only for use by the app-system
- *
- * @package core
  */
 #[AsCommand(
     name: 'app:validate',
     description: 'Validates an app',
 )]
+#[Package('core')]
 class ValidateAppCommand extends Command
 {
-    /**
-     * @var ManifestValidator
-     */
-    private $manifestValidator;
-
-    /**
-     * @var string
-     */
-    private $appDir;
-
-    public function __construct(string $appDir, ManifestValidator $manifestValidator)
+    public function __construct(private readonly string $appDir, private readonly ManifestValidator $manifestValidator)
     {
         parent::__construct();
-        $this->appDir = $appDir;
-        $this->manifestValidator = $manifestValidator;
     }
 
     public function execute(InputInterface $input, OutputInterface $output): int
@@ -100,12 +88,7 @@ class ValidateAppCommand extends Command
 
     protected function configure(): void
     {
-        $this->setDescription('Check manifests for errors')
-            ->addArgument(
-                'name',
-                InputArgument::OPTIONAL,
-                'The name of the app, has also to be the name of the folder under which the app can be found under custom/apps.'
-            );
+        $this->addArgument('name', InputArgument::OPTIONAL, 'The name of the app, has also to be the name of the folder under which the app can be found under custom/apps.');
     }
 
     /**

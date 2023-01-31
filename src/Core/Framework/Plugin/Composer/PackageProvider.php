@@ -6,11 +6,10 @@ use Composer\IO\IOInterface;
 use Composer\Package\CompletePackageInterface;
 use Composer\Package\Loader\ValidatingArrayLoader;
 use Composer\Util\ConfigValidator;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\PluginComposerJsonInvalidException;
 
-/**
- * @package core
- */
+#[Package('core')]
 class PackageProvider
 {
     /**
@@ -22,7 +21,7 @@ class PackageProvider
         $validator = new ConfigValidator($composerIO);
 
         [$errors, $publishErrors, $warnings] = $validator->validate($composerJsonPath, ValidatingArrayLoader::CHECK_ALL, 0);
-        $errors = array_merge($errors, $publishErrors);
+        $errors = [...$errors, ...$publishErrors];
         if (\count($errors) !== 0) {
             throw new PluginComposerJsonInvalidException($composerJsonPath, $errors);
         }

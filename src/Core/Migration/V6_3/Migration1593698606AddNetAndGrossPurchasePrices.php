@@ -4,13 +4,13 @@ namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class Migration1593698606AddNetAndGrossPurchasePrices extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -34,7 +34,7 @@ class Migration1593698606AddNetAndGrossPurchasePrices extends MigrationStep
     {
         $rows = $connection->fetchAllAssociative('SELECT id, value FROM rule_condition WHERE type = "cartLineItemPurchasePrice"');
         foreach ($rows as $row) {
-            $conditionValue = json_decode($row['value']);
+            $conditionValue = json_decode((string) $row['value'], null, 512, \JSON_THROW_ON_ERROR);
             if (property_exists($conditionValue, 'isNet')) {
                 continue;
             }
@@ -43,7 +43,7 @@ class Migration1593698606AddNetAndGrossPurchasePrices extends MigrationStep
             $connection->executeStatement(
                 'UPDATE rule_condition SET value = :conditionValue WHERE id = :id',
                 [
-                    'conditionValue' => json_encode($conditionValue),
+                    'conditionValue' => json_encode($conditionValue, \JSON_THROW_ON_ERROR),
                     'id' => $row['id'],
                 ]
             );

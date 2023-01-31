@@ -13,13 +13,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package content
- */
+#[Package('content')]
 class MediaThumbnailSizeDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'media_thumbnail_size';
+    final public const ENTITY_NAME = 'media_thumbnail_size';
 
     public function getEntityName(): string
     {

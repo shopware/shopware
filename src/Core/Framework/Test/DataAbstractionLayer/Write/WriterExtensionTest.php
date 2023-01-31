@@ -97,9 +97,7 @@ class WriterExtensionTest extends TestCase
 
         /** @var EntityCollection<ArrayEntity> $productExtensions */
         $productExtensions = $product->getExtension('oneToMany');
-        $productExtensions->sort(static function (ArrayEntity $a, ArrayEntity $b) {
-            return $a->get('name') <=> $b->get('name');
-        });
+        $productExtensions->sort(static fn (ArrayEntity $a, ArrayEntity $b) => $a->get('name') <=> $b->get('name'));
 
         static::assertInstanceOf(EntityCollection::class, $productExtensions);
         static::assertCount(2, $productExtensions);
@@ -131,9 +129,7 @@ class WriterExtensionTest extends TestCase
 
         /** @var EntityCollection<ArrayEntity> $productExtensions */
         $productExtensions = $product->getExtension('oneToMany');
-        $productExtensions->sort(static function (ArrayEntity $a, ArrayEntity $b) {
-            return $a->get('name') <=> $b->get('name');
-        });
+        $productExtensions->sort(static fn (ArrayEntity $a, ArrayEntity $b) => $a->get('name') <=> $b->get('name'));
 
         static::assertInstanceOf(EntityCollection::class, $productExtensions);
         static::assertCount(2, $productExtensions);

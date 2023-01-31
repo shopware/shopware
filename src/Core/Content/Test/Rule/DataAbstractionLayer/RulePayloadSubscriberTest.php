@@ -13,6 +13,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Container\OrRule;
 use Shopware\Core\Framework\Rule\Rule;
@@ -21,10 +22,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('business-ops')]
 class RulePayloadSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -34,20 +34,11 @@ class RulePayloadSubscriberTest extends TestCase
      */
     private $connection;
 
-    /**
-     * @var RulePayloadSubscriber
-     */
-    private $rulePayloadSubscriber;
+    private RulePayloadSubscriber $rulePayloadSubscriber;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
-    /**
-     * @var RulePayloadUpdater|MockObject
-     */
-    private $updater;
+    private MockObject&RulePayloadUpdater $updater;
 
     /**
      * @var RuleDefinition

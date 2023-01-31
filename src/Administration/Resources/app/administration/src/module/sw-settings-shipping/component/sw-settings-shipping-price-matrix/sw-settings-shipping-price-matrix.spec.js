@@ -56,7 +56,6 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
     });
 
     it('should add conditions association', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_18215'];
         const wrapper = await createWrapper();
         const ruleFilterCriteria = wrapper.vm.ruleFilterCriteria;
         const shippingRuleFilterCriteria = wrapper.vm.shippingRuleFilterCriteria;

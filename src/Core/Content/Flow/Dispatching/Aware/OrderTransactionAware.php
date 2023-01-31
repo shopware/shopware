@@ -3,10 +3,9 @@
 namespace Shopware\Core\Content\Flow\Dispatching\Aware;
 
 use Shopware\Core\Framework\Event\FlowEventAware;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package business-ops
- */
+#[Package('business-ops')]
 interface OrderTransactionAware extends FlowEventAware
 {
     public const ORDER_TRANSACTION_ID = 'orderTransactionId';

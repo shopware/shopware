@@ -6,16 +6,16 @@ use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Statement;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Profiling\Doctrine\DebugStack;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class NullConnection extends Connection
 {
-    public const EXCEPTION_MESSAGE = 'Write operations are not supported when using executeQuery.';
+    final public const EXCEPTION_MESSAGE = 'Write operations are not supported when using executeQuery.';
 
     private Connection $originalConnection;
 

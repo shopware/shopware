@@ -13,7 +13,6 @@ use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin;
-use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -41,9 +40,11 @@ use Shopware\Storefront\Theme\Subscriber\ThemeCompilerEnrichScssVarSubscriber;
 use Shopware\Storefront\Theme\ThemeCompiler;
 use Shopware\Storefront\Theme\ThemeFileImporter;
 use Shopware\Storefront\Theme\ThemeFileResolver;
+use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 use Symfony\Component\Asset\UrlPackage;
 use Symfony\Component\Asset\VersionStrategy\EmptyVersionStrategy;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Messenger\MessageBus;
 
 /**
  * @internal
@@ -83,7 +84,9 @@ class ThemeCompilerTest extends TestCase
             $this->getContainer()->get(CacheInvalidator::class),
             new MD5ThemePathBuilder(),
             $this->getContainer()->getParameter('kernel.project_dir'),
-            $this->getContainer()->get(ScssPhpCompiler::class)
+            $this->getContainer()->get(ScssPhpCompiler::class),
+            new MessageBus(),
+            0
         );
     }
 
@@ -422,7 +425,9 @@ PHP_EOL;
             $this->createMock(CacheInvalidator::class),
             new MD5ThemePathBuilder(),
             $this->getContainer()->getParameter('kernel.project_dir'),
-            $this->getContainer()->get(ScssPhpCompiler::class)
+            $this->getContainer()->get(ScssPhpCompiler::class),
+            new MessageBus(),
+            0
         );
 
         $config = new StorefrontPluginConfiguration('test');
@@ -516,7 +521,7 @@ PHP_EOL;
             $this->eventDispatcher->removeSubscriber($subscriber);
         }
 
-        static::assertSame(trim($expectedCssOutput), trim($actual));
+        static::assertSame(trim($expectedCssOutput), trim((string) $actual));
     }
 
     public function testOutputsOnlyExpectedCssWhenUsingFeatureFlagFunction(): void
@@ -576,7 +581,7 @@ PHP_EOL;
             Context::createDefaultContext()
         );
 
-        static::assertSame(trim($expectedCssOutput), trim($actual));
+        static::assertSame(trim($expectedCssOutput), trim((string) $actual));
     }
 
     public function testVendorImportFiles(): void
@@ -621,7 +626,7 @@ PHP_EOL;
             Context::createDefaultContext()
         );
 
-        static::assertSame(trim($expectedCssOutput), trim($actual));
+        static::assertSame(trim($expectedCssOutput), trim((string) $actual));
     }
 
     /**

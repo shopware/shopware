@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\SalesChannel\ChangeCustomerProfileRoute;
 use Shopware\Core\Checkout\Customer\Validation\CustomerValidationFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -15,12 +16,10 @@ use Shopware\Core\System\SalesChannel\SuccessResponse;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
- * @package customer-order
- *
  * @internal
- *
  * @covers \Shopware\Core\Checkout\Customer\SalesChannel\ChangeCustomerProfileRoute
  */
+#[Package('customer-order')]
 class ChangeCustomerProfileRouteTest extends TestCase
 {
     public function testCustomFieldsGetPassed(): void

@@ -2,36 +2,20 @@
 
 namespace Shopware\Core\Framework\Api\Sync;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-/**
- * @package core
- */
+#[Package('core')]
 class SyncOperation extends Struct
 {
-    public const ACTION_UPSERT = 'upsert';
-    public const ACTION_DELETE = 'delete';
-
-    protected string $entity;
-
-    /**
-     * @var array<int, mixed>
-     */
-    protected array $payload;
-
-    protected string $action;
-
-    protected string $key;
+    final public const ACTION_UPSERT = 'upsert';
+    final public const ACTION_DELETE = 'delete';
 
     /**
      * @param array<int, mixed> $payload
      */
-    public function __construct(string $key, string $entity, string $action, array $payload)
+    public function __construct(protected string $key, protected string $entity, protected string $action, protected array $payload)
     {
-        $this->entity = $entity;
-        $this->payload = $payload;
-        $this->action = $action;
-        $this->key = $key;
     }
 
     public function getEntity(): string

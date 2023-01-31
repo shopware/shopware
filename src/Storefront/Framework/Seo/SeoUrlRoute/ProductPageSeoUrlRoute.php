@@ -11,27 +11,20 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
-/**
- * @package sales-channel
- */
+#[Package('sales-channel')]
 class ProductPageSeoUrlRoute implements SeoUrlRouteInterface
 {
-    public const ROUTE_NAME = 'frontend.detail.page';
-    public const DEFAULT_TEMPLATE = '{{ product.translated.name }}/{{ product.productNumber }}';
-
-    /**
-     * @var ProductDefinition
-     */
-    private $productDefinition;
+    final public const ROUTE_NAME = 'frontend.detail.page';
+    final public const DEFAULT_TEMPLATE = '{{ product.translated.name }}/{{ product.productNumber }}';
 
     /**
      * @internal
      */
-    public function __construct(ProductDefinition $productDefinition)
+    public function __construct(private readonly ProductDefinition $productDefinition)
     {
-        $this->productDefinition = $productDefinition;
     }
 
     public function getConfig(): SeoUrlRouteConfig

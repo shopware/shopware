@@ -3,23 +3,20 @@
 namespace Shopware\Core\Checkout\Cart\Facade;
 
 use Shopware\Core\Checkout\Cart\Hook\CartAware;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Exception\HookInjectionException;
 use Shopware\Core\Framework\Script\Execution\Awareness\HookServiceFactory;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Script\Execution\Script;
 
 /**
- * @package checkout
- *
  * @internal
  */
+#[Package('checkout')]
 class CartFacadeHookFactory extends HookServiceFactory
 {
-    private CartFacadeHelper $helper;
-
-    public function __construct(CartFacadeHelper $helper)
+    public function __construct(private readonly CartFacadeHelper $helper)
     {
-        $this->helper = $helper;
     }
 
     public function factory(Hook $hook, Script $script): CartFacade

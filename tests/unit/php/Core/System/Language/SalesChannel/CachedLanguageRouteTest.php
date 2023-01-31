@@ -38,15 +38,9 @@ use Symfony\Contracts\Cache\CacheInterface;
  */
 class CachedLanguageRouteTest extends TestCase
 {
-    /**
-     * @var AbstractLanguageRoute&MockObject
-     */
-    private $decorated;
+    private MockObject&AbstractLanguageRoute $decorated;
 
-    /**
-     * @var CacheInterface&MockObject
-     */
-    private $cache;
+    private MockObject&CacheInterface $cache;
 
     private EventDispatcher $eventDispatcher;
 

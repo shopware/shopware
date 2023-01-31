@@ -2,9 +2,9 @@
 
 namespace Shopware\Storefront\Event\RouteRequest;
 
-/**
- * @package storefront
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('storefront')]
 class CurrencyRouteRequestEvent extends RouteRequestEvent
 {
 }

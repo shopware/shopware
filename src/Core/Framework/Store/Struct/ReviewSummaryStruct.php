@@ -2,11 +2,12 @@
 
 namespace Shopware\Core\Framework\Store\Struct;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
- * @package merchant-services
- *
  * @codeCoverageIgnore
  */
+#[Package('merchant-services')]
 class ReviewSummaryStruct extends StoreStruct
 {
     /**

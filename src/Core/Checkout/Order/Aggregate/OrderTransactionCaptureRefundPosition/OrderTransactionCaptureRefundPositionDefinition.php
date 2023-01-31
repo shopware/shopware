@@ -11,21 +11,18 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package customer-order
- */
+#[Package('customer-order')]
 class OrderTransactionCaptureRefundPositionDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'order_transaction_capture_refund_position';
+    final public const ENTITY_NAME = 'order_transaction_capture_refund_position';
 
     public function getEntityName(): string
     {
@@ -67,7 +64,6 @@ class OrderTransactionCaptureRefundPositionDefinition extends EntityDefinition
             (new StringField('reason', 'reason'))->addFlags(new ApiAware()),
             (new IntField('quantity', 'quantity'))->addFlags(new ApiAware()),
             (new CalculatedPriceField('amount', 'amount'))->addFlags(new ApiAware(), new Required()),
-            (new FloatField('refundPrice', 'refundPrice'))->addFlags(new ApiAware(), new Runtime()),
             (new CustomFields())->addFlags(new ApiAware()),
         ]);
     }

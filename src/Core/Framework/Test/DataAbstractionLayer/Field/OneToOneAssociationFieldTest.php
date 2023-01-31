@@ -40,15 +40,9 @@ class OneToOneAssociationFieldTest extends TestCase
      */
     private $connection;
 
-    /**
-     * @var EntityRepository
-     */
-    private $repository;
+    private EntityRepository $repository;
 
-    /**
-     * @var EntityRepository
-     */
-    private $subRepository;
+    private EntityRepository $subRepository;
 
     protected function setUp(): void
     {

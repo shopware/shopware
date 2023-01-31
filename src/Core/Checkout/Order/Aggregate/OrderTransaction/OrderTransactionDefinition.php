@@ -20,14 +20,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StateMachineStateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateDefinition;
 
-/**
- * @package customer-order
- */
+#[Package('customer-order')]
 class OrderTransactionDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'order_transaction';
+    final public const ENTITY_NAME = 'order_transaction';
 
     public function getEntityName(): string
     {

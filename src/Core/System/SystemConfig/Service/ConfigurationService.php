@@ -10,56 +10,23 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\Exception\BundleConfigNotFoundException;
 use Shopware\Core\System\SystemConfig\Exception\ConfigurationNotFoundException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 
-/**
- * @package system-settings
- */
+#[Package('system-settings')]
 class ConfigurationService
 {
-    /**
-     * @var iterable
-     */
-    private $bundles;
-
-    /**
-     * @var ConfigReader
-     */
-    private $configReader;
-
-    /**
-     * @var AbstractAppLoader
-     */
-    private $appLoader;
-
-    /**
-     * @var EntityRepository
-     */
-    private $appRepository;
-
-    private SystemConfigService $systemConfigService;
-
     /**
      * @internal
      *
      * @param BundleInterface[] $bundles
      */
-    public function __construct(
-        iterable $bundles,
-        ConfigReader $configReader,
-        AbstractAppLoader $appLoader,
-        EntityRepository $appRepository,
-        SystemConfigService $systemConfigService
-    ) {
-        $this->bundles = $bundles;
-        $this->configReader = $configReader;
-        $this->appLoader = $appLoader;
-        $this->appRepository = $appRepository;
-        $this->systemConfigService = $systemConfigService;
+    public function __construct(private readonly iterable $bundles, private readonly ConfigReader $configReader, private readonly AbstractAppLoader $appLoader, private readonly EntityRepository $appRepository, private readonly SystemConfigService $systemConfigService)
+    {
     }
 
     /**
@@ -138,7 +105,7 @@ class ConfigurationService
             $this->getConfiguration($domain, $context);
 
             return true;
-        } catch (\InvalidArgumentException | ConfigurationNotFoundException | BundleConfigNotFoundException $e) {
+        } catch (\InvalidArgumentException | ConfigurationNotFoundException | BundleConfigNotFoundException) {
             return false;
         }
     }

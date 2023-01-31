@@ -5,20 +5,20 @@ namespace Shopware\Core\Migration\V6_3;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetDefinition;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\InheritanceUpdaterTrait;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class Migration1590758953ProductFeatureSet extends MigrationStep
 {
     use InheritanceUpdaterTrait;
 
-    public const TRANSLATIONS = [
+    final public const TRANSLATIONS = [
         'en-GB' => [
             'name' => 'Default',
             'description' => 'Default template displaying the product\'s price per scale unit',

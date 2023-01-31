@@ -8,28 +8,27 @@ use Shopware\Core\Checkout\Cart\Event\CartVerifyPersistEvent;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Cache\Traits\RedisClusterProxy;
 use Symfony\Component\Cache\Traits\RedisProxy;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class RedisCartPersister extends AbstractCartPersister
 {
-    public const PREFIX = 'cart-persister-';
+    final public const PREFIX = 'cart-persister-';
 
     /**
      * @internal
      */
     public function __construct(
-        private \Redis|\RedisArray|\RedisCluster|RedisClusterProxy|RedisProxy $redis,
-        private EventDispatcherInterface $eventDispatcher,
-        private CartSerializationCleaner $cartSerializationCleaner,
-        private bool $compress,
-        private int $expireDays
+        private readonly \Redis|\RedisArray|\RedisCluster|RedisClusterProxy|RedisProxy $redis,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly CartSerializationCleaner $cartSerializationCleaner,
+        private readonly bool $compress,
+        private readonly int $expireDays
     ) {
     }
 
@@ -49,7 +48,7 @@ class RedisCartPersister extends AbstractCartPersister
 
         try {
             $value = \unserialize($value);
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             throw CartException::tokenNotFound($token);
         }
 
@@ -104,7 +103,7 @@ class RedisCartPersister extends AbstractCartPersister
     {
         try {
             $cart = $this->load($oldToken, $context);
-        } catch (CartTokenNotFoundException $e) {
+        } catch (CartTokenNotFoundException) {
             return;
         }
 
@@ -138,7 +137,6 @@ class RedisCartPersister extends AbstractCartPersister
             // used for migration
             'token' => $cart->getToken(),
             'customer_id' => $context->getCustomerId(),
-            'name' => $cart->getName(),
             'rule_ids' => $context->getRuleIds(),
             'currency_id' => $context->getCurrency()->getId(),
             'shipping_method_id' => $context->getShippingMethod()->getId(),

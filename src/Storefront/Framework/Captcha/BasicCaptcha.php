@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Framework\Captcha;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -10,27 +11,19 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class BasicCaptcha extends AbstractCaptcha
 {
-    public const CAPTCHA_NAME = 'basicCaptcha';
-    public const CAPTCHA_REQUEST_PARAMETER = 'shopware_basic_captcha_confirm';
-    public const BASIC_CAPTCHA_SESSION = 'basic_captcha_session';
-    public const INVALID_CAPTCHA_CODE = 'captcha.basic-captcha-invalid';
-
-    private RequestStack $requestStack;
-
-    private SystemConfigService $systemConfigService;
+    final public const CAPTCHA_NAME = 'basicCaptcha';
+    final public const CAPTCHA_REQUEST_PARAMETER = 'shopware_basic_captcha_confirm';
+    final public const BASIC_CAPTCHA_SESSION = 'basic_captcha_session';
+    final public const INVALID_CAPTCHA_CODE = 'captcha.basic-captcha-invalid';
 
     /**
      * @internal
      */
-    public function __construct(RequestStack $requestStack, SystemConfigService $systemConfigService)
+    public function __construct(private readonly RequestStack $requestStack, private readonly SystemConfigService $systemConfigService)
     {
-        $this->requestStack = $requestStack;
-        $this->systemConfigService = $systemConfigService;
     }
 
     /**
@@ -72,7 +65,7 @@ class BasicCaptcha extends AbstractCaptcha
             return false;
         }
 
-        return strtolower($basicCaptchaValue) === strtolower($captchaSession);
+        return strtolower((string) $basicCaptchaValue) === strtolower((string) $captchaSession);
     }
 
     /**

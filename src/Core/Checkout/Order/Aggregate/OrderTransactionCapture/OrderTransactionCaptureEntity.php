@@ -8,11 +8,10 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTr
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\StateMachine\StateMachineEntity;
 
-/**
- * @package customer-order
- */
+#[Package('customer-order')]
 class OrderTransactionCaptureEntity extends Entity
 {
     use EntityIdTrait;
@@ -23,8 +22,6 @@ class OrderTransactionCaptureEntity extends Entity
     protected string $stateId;
 
     protected ?string $externalReference = null;
-
-    protected float $totalAmount;
 
     protected CalculatedPrice $amount;
 
@@ -62,16 +59,6 @@ class OrderTransactionCaptureEntity extends Entity
     public function setExternalReference(?string $externalReference): void
     {
         $this->externalReference = $externalReference;
-    }
-
-    public function getTotalAmount(): float
-    {
-        return $this->totalAmount;
-    }
-
-    public function setTotalAmount(float $totalAmount): void
-    {
-        $this->totalAmount = $totalAmount;
     }
 
     public function getAmount(): CalculatedPrice

@@ -19,7 +19,7 @@ use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\Sim
  */
 class SimpleExtendedDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'simple_extended';
+    final public const ENTITY_NAME = 'simple_extended';
 
     public function getEntityName(): string
     {

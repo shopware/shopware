@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Content\Product\DataAbstractionLayer\AnyProductStockUpdateFilterTest;
+namespace Shopware\Tests\Unit\Core\Content\Product\DataAbstractionLayer\StockUpdate;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\DataAbstractionLayer\StockUpdate\StockUpdateFilterProvider;

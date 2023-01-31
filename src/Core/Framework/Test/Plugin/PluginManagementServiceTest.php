@@ -41,10 +41,7 @@ class PluginManagementServiceTest extends TestCase
      */
     private $filesystem;
 
-    /**
-     * @var string
-     */
-    private $cacheDir;
+    private string $cacheDir;
 
     protected function setUp(): void
     {
@@ -141,9 +138,10 @@ class PluginManagementServiceTest extends TestCase
     private function getPluginService(): PluginService
     {
         return $this->createPluginService(
+            __DIR__ . '/_fixture/plugins',
+            $this->getContainer()->getParameter('kernel.project_dir'),
             $this->getContainer()->get('plugin.repository'),
             $this->getContainer()->get('language.repository'),
-            $this->getContainer()->getParameter('kernel.project_dir'),
             $this->getContainer()->get(PluginFinder::class)
         );
     }

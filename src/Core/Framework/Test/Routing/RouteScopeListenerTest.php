@@ -48,7 +48,7 @@ class RouteScopeListenerTest extends TestCase
         $event = $this->createEvent($request);
         /** @var ProfilerController $profilerController */
         $profilerController = $this->getContainer()->get('web_profiler.controller.profiler');
-        $event->setController([$profilerController, 'panelAction']);
+        $event->setController($profilerController->panelAction(...));
 
         $listener->checkScope($event);
     }

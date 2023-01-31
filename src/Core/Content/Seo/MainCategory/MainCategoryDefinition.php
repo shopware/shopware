@@ -13,14 +13,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
-/**
- * @package sales-channel
- */
+#[Package('sales-channel')]
 class MainCategoryDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'main_category';
+    final public const ENTITY_NAME = 'main_category';
 
     public function getEntityName(): string
     {

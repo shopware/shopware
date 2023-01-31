@@ -6,17 +6,17 @@ use Doctrine\DBAL\Connection;
 use OpenSearch\Client;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexAliasSwitchedEvent;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
- * @package core
- *
  * @internal
  */
 #[AsMessageHandler(handles: CreateAliasTask::class)]
+#[Package('core')]
 final class CreateAliasTaskHandler extends ScheduledTaskHandler
 {
     /**
@@ -26,11 +26,11 @@ final class CreateAliasTaskHandler extends ScheduledTaskHandler
      */
     public function __construct(
         EntityRepository $scheduledTaskRepository,
-        private Client $client,
-        private Connection $connection,
-        private ElasticsearchHelper $elasticsearchHelper,
-        private array $config,
-        private EventDispatcherInterface $eventDispatcher
+        private readonly Client $client,
+        private readonly Connection $connection,
+        private readonly ElasticsearchHelper $elasticsearchHelper,
+        private readonly array $config,
+        private readonly EventDispatcherInterface $eventDispatcher
     ) {
         parent::__construct($scheduledTaskRepository);
     }

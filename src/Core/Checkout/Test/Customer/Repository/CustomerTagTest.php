@@ -8,15 +8,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\TestDefaults;
 
 /**
- * @package customer-order
- *
  * @internal
  */
+#[Package('customer-order')]
 class CustomerTagTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -133,6 +133,9 @@ class CustomerTagTest extends TestCase
         static::assertContains($id2, $ids->getIds());
     }
 
+    /**
+     * @param array<int, array<string, string>> $tags
+     */
     private function createCustomer(string $id, array $tags): void
     {
         $data = [
@@ -150,7 +153,7 @@ class CustomerTagTest extends TestCase
             'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
             'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'email' => Uuid::randomHex() . '@example.com',
-            'password' => 'not',
+            'password' => 'not12345',
             'lastName' => 'not',
             'firstName' => 'not',
             'salutationId' => $this->getValidSalutationId(),

@@ -2,15 +2,12 @@
 
 namespace Shopware\Storefront\Theme;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class ThemeConfigValueAccessor
 {
-    private AbstractResolvedConfigLoader $themeConfigLoader;
-
     /**
      * @var array<string, mixed>
      */
@@ -29,9 +26,8 @@ class ThemeConfigValueAccessor
     /**
      * @internal
      */
-    public function __construct(AbstractResolvedConfigLoader $themeConfigLoader)
+    public function __construct(private readonly AbstractResolvedConfigLoader $themeConfigLoader)
     {
-        $this->themeConfigLoader = $themeConfigLoader;
     }
 
     public static function buildName(string $key): string

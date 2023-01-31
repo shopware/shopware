@@ -86,6 +86,9 @@
                 },
                 "profiler": {
                   "$ref": "#/definitions/profiler"
+                },
+                "twig": {
+                    "$ref": "#/definitions/twig"
                 }
             },
             "title": "Shopware"
@@ -111,6 +114,19 @@
                 }
             },
             "title": "Enabled profiler, available since 6.4.11.0"
+        },
+        "twig": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "allowed_php_functions": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
         },
         "mail": {
             "type": "object",
@@ -452,6 +468,20 @@
                     "items": {
                         "type": "string"
                     }
+                },
+                "private_allowed_extensions": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "private_local_download_strategy": {
+                    "enum": [
+                        "php",
+                        "x-sendfile",
+                        "x-accel"
+                    ],
+                    "type": "string"
                 }
             },
             "title": "Filesystem"
@@ -600,6 +630,12 @@
                     "items": {
                         "type": "string"
                     }
+                },
+                "exclude_events": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             },
             "title": "Logger"
@@ -660,27 +696,6 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
-                "csrf": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "properties": {
-                        "enabled": {
-                            "type": "boolean",
-                            "default": true,
-                            "title": "Toggles CSRF"
-                        },
-                        "mode": {
-                            "type": "string",
-                            "enum": [
-                                "ajax",
-                                "twig"
-                            ],
-                            "default": "twig",
-                            "title": "CSRF implementation type"
-                        }
-                    },
-                    "title": "CSRF configuration for the PHP storefront"
-                },
                 "reverse_proxy": {
                     "type": "object",
                     "additionalProperties": false,
@@ -812,6 +827,11 @@
                         },
                         "available_theme_provider": {
                             "type": "string"
+                        },
+                        "file_delete_delay": {
+                            "type": "integer",
+                            "description": "Delay in seconds until old theme files will be deleted after a new theme compile",
+                            "default": 900
                         }
                     },
                     "title": "Theme loader configuration"
@@ -861,6 +881,33 @@
                         "custom_fields_mapping": {
                             "type": ["object", "null"],
                             "title": "Custom Field Mapping of Product"
+                        }
+                    }
+                },
+                "administration": {
+                    "title": "Admin elasticsearch",
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "hosts": {
+                            "type": "string",
+                            "description": "Admin Elasticsearch Hosts",
+                            "default": "localhost:9200"
+                        },
+                        "enabled": {
+                            "type": "boolean",
+                            "description": "Admin Elasticsearch Enabled",
+                            "default": false
+                        },
+                        "refresh_indices": {
+                            "type": "boolean",
+                            "description": "Admin Elasticsearch Refresh Indices",
+                            "default": false
+                        },
+                        "index_prefix": {
+                            "type": "string",
+                            "description": "Admin Elasticsearch Index Prefix",
+                            "default": "sw-admin"
                         }
                     }
                 },

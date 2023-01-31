@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Framework\Twig;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -10,23 +11,14 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Twig\Extension\AbstractExtension;
 use Twig\Extension\GlobalsInterface;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class TemplateDataExtension extends AbstractExtension implements GlobalsInterface
 {
     /**
-     * @var RequestStack
-     */
-    private $requestStack;
-
-    /**
      * @internal
      */
-    public function __construct(
-        RequestStack $requestStack
-    ) {
-        $this->requestStack = $requestStack;
+    public function __construct(private readonly RequestStack $requestStack)
+    {
     }
 
     /**
@@ -74,7 +66,7 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
         }
 
         $matches = [];
-        preg_match('/Controller\\\\(\w+)Controller::?(\w+)$/', $controller, $matches);
+        preg_match('/Controller\\\\(\w+)Controller::?(\w+)$/', (string) $controller, $matches);
 
         if ($matches) {
             $controllerInfo->setName($matches[1]);

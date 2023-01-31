@@ -2,12 +2,11 @@
 
 namespace Shopware\Core\Framework\Rule;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Util\FloatComparator;
 
-/**
- * @package business-ops
- */
+#[Package('business-ops')]
 class RuleComparison
 {
     public static function numeric(?float $itemValue, ?float $ruleValue, string $operator): bool
@@ -24,28 +23,15 @@ class RuleComparison
             return self::isNegativeOperator($operator);
         }
 
-        switch ($operator) {
-            case Rule::OPERATOR_GTE:
-                return FloatComparator::greaterThanOrEquals($itemValue, $ruleValue);
-
-            case Rule::OPERATOR_LTE:
-                return FloatComparator::lessThanOrEquals($itemValue, $ruleValue);
-
-            case Rule::OPERATOR_GT:
-                return FloatComparator::greaterThan($itemValue, $ruleValue);
-
-            case Rule::OPERATOR_LT:
-                return FloatComparator::lessThan($itemValue, $ruleValue);
-
-            case Rule::OPERATOR_EQ:
-                return FloatComparator::equals($itemValue, $ruleValue);
-
-            case Rule::OPERATOR_NEQ:
-                return FloatComparator::notEquals($itemValue, $ruleValue);
-
-            default:
-                throw new UnsupportedOperatorException($operator, self::class);
-        }
+        return match ($operator) {
+            Rule::OPERATOR_GTE => FloatComparator::greaterThanOrEquals($itemValue, $ruleValue),
+            Rule::OPERATOR_LTE => FloatComparator::lessThanOrEquals($itemValue, $ruleValue),
+            Rule::OPERATOR_GT => FloatComparator::greaterThan($itemValue, $ruleValue),
+            Rule::OPERATOR_LT => FloatComparator::lessThan($itemValue, $ruleValue),
+            Rule::OPERATOR_EQ => FloatComparator::equals($itemValue, $ruleValue),
+            Rule::OPERATOR_NEQ => FloatComparator::notEquals($itemValue, $ruleValue),
+            default => throw new UnsupportedOperatorException($operator, self::class),
+        };
     }
 
     public static function string(?string $itemValue, string $ruleValue, string $operator): bool
@@ -54,19 +40,12 @@ class RuleComparison
             $itemValue = '';
         }
 
-        switch ($operator) {
-            case Rule::OPERATOR_EQ:
-                return strcasecmp($ruleValue, $itemValue) === 0;
-
-            case Rule::OPERATOR_NEQ:
-                return strcasecmp($ruleValue, $itemValue) !== 0;
-
-            case Rule::OPERATOR_EMPTY:
-                return empty(trim($itemValue));
-
-            default:
-                throw new UnsupportedOperatorException($operator, self::class);
-        }
+        return match ($operator) {
+            Rule::OPERATOR_EQ => strcasecmp($ruleValue, $itemValue) === 0,
+            Rule::OPERATOR_NEQ => strcasecmp($ruleValue, $itemValue) !== 0,
+            Rule::OPERATOR_EMPTY => empty(trim($itemValue)),
+            default => throw new UnsupportedOperatorException($operator, self::class),
+        };
     }
 
     /**
@@ -78,16 +57,11 @@ class RuleComparison
             return false;
         }
 
-        switch ($operator) {
-            case Rule::OPERATOR_EQ:
-                return \in_array(mb_strtolower($itemValue), $ruleValue, true);
-
-            case Rule::OPERATOR_NEQ:
-                return !\in_array(mb_strtolower($itemValue), $ruleValue, true);
-
-            default:
-                throw new UnsupportedOperatorException($operator, self::class);
-        }
+        return match ($operator) {
+            Rule::OPERATOR_EQ => \in_array(mb_strtolower($itemValue), $ruleValue, true),
+            Rule::OPERATOR_NEQ => !\in_array(mb_strtolower($itemValue), $ruleValue, true),
+            default => throw new UnsupportedOperatorException($operator, self::class),
+        };
     }
 
     /**
@@ -106,46 +80,25 @@ class RuleComparison
 
         $diff = array_intersect($itemValue, $ruleValue);
 
-        switch ($operator) {
-            case Rule::OPERATOR_EQ:
-                return !empty($diff);
-            case Rule::OPERATOR_NEQ:
-                return empty($diff);
-            case Rule::OPERATOR_EMPTY:
-                return empty($itemValue);
-            default:
-                throw new UnsupportedOperatorException($operator, self::class);
-        }
+        return match ($operator) {
+            Rule::OPERATOR_EQ => !empty($diff),
+            Rule::OPERATOR_NEQ => empty($diff),
+            Rule::OPERATOR_EMPTY => empty($itemValue),
+            default => throw new UnsupportedOperatorException($operator, self::class),
+        };
     }
 
     public static function datetime(\DateTime $itemValue, \DateTime $ruleValue, string $operator): bool
     {
-        switch ($operator) {
-            case Rule::OPERATOR_EQ:
-                // due to the cs fixer that always adds ===
-                // its necessary to use the string when comparing, otherwise its never working
-                return $itemValue->format('Y-m-d H:i:s') === $ruleValue->format('Y-m-d H:i:s');
-
-            case Rule::OPERATOR_NEQ:
-                // due to the cs fixer that always adds ===
-                // its necessary to use the string when comparing, otherwise its never working
-                return $itemValue->format('Y-m-d H:i:s') !== $ruleValue->format('Y-m-d H:i:s');
-
-            case Rule::OPERATOR_GT:
-                return $itemValue > $ruleValue;
-
-            case Rule::OPERATOR_LT:
-                return $itemValue < $ruleValue;
-
-            case Rule::OPERATOR_GTE:
-                return $itemValue >= $ruleValue;
-
-            case Rule::OPERATOR_LTE:
-                return $itemValue <= $ruleValue;
-
-            default:
-                throw new UnsupportedOperatorException($operator, self::class);
-        }
+        return match ($operator) {
+            Rule::OPERATOR_EQ => $itemValue->format('Y-m-d H:i:s') === $ruleValue->format('Y-m-d H:i:s'),
+            Rule::OPERATOR_NEQ => $itemValue->format('Y-m-d H:i:s') !== $ruleValue->format('Y-m-d H:i:s'),
+            Rule::OPERATOR_GT => $itemValue > $ruleValue,
+            Rule::OPERATOR_LT => $itemValue < $ruleValue,
+            Rule::OPERATOR_GTE => $itemValue >= $ruleValue,
+            Rule::OPERATOR_LTE => $itemValue <= $ruleValue,
+            default => throw new UnsupportedOperatorException($operator, self::class),
+        };
     }
 
     public static function isNegativeOperator(string $operator): bool

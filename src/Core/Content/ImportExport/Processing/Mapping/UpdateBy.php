@@ -2,21 +2,14 @@
 
 namespace Shopware\Core\Content\ImportExport\Processing\Mapping;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-/**
- * @package system-settings
- */
+#[Package('system-settings')]
 class UpdateBy extends Struct
 {
-    protected string $entityName;
-
-    protected ?string $mappedKey;
-
-    public function __construct(string $entityName, ?string $mappedKey = null)
+    public function __construct(protected string $entityName, protected ?string $mappedKey = null)
     {
-        $this->entityName = $entityName;
-        $this->mappedKey = $mappedKey;
     }
 
     public function getEntityName(): string

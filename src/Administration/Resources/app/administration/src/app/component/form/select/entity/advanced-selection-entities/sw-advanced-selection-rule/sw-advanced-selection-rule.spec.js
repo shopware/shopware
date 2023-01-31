@@ -111,8 +111,6 @@ describe('components/sw-advanced-selection-product', () => {
     let selectionModal;
 
     beforeEach(async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_18215'];
-
         const data = await createWrapper();
         wrapper = data.wrapper;
         selectionModal = wrapper.findComponent({ name: 'sw-entity-advanced-selection-modal' });

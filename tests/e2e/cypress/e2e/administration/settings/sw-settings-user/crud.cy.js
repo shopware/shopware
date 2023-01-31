@@ -123,7 +123,7 @@ describe('User: Test crud operations', () => {
         cy.awaitAndCheckNotification('User "Abraham Allison " deleted.');
     });
 
-    it('@settings: update existing user', { tags: ['pa-system-settings'] }, () => {
+    it('@settings: update existing user', { tags: ['pa-system-settings', 'quarantined'] }, () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/oauth/token`,
@@ -172,7 +172,7 @@ describe('User: Test crud operations', () => {
             .should('have.value', 'changed@shopware.com');
     });
 
-    it('@settings: can not create a user with an invalid field', { tags: ['pa-system-settings'] }, () => {
+    it('@settings: can not create a user with an invalid field', { tags: ['pa-system-settings', 'quarantined'] }, () => {
         // Requests we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/user`,

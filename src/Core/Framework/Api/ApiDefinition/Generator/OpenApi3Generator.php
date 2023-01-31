@@ -12,43 +12,31 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
 
 /**
  * @internal
  * @phpstan-import-type OpenApiSpec from DefinitionService
- *
- * @package core
  */
+#[Package('core')]
 class OpenApi3Generator implements ApiDefinitionGeneratorInterface
 {
-    public const FORMAT = 'openapi-3';
+    final public const FORMAT = 'openapi-3';
 
-    private OpenApiSchemaBuilder $openApiBuilder;
-
-    private OpenApiPathBuilder $pathBuilder;
-
-    private OpenApiDefinitionSchemaBuilder $definitionSchemaBuilder;
-
-    private string $schemaPath;
-
-    private BundleSchemaPathCollection $bundleSchemaPathCollection;
+    private readonly string $schemaPath;
 
     /**
      * @param array{Framework: array{path: string}} $bundles
      */
     public function __construct(
-        OpenApiSchemaBuilder $openApiBuilder,
-        OpenApiPathBuilder $pathBuilder,
-        OpenApiDefinitionSchemaBuilder $definitionSchemaBuilder,
+        private readonly OpenApiSchemaBuilder $openApiBuilder,
+        private readonly OpenApiPathBuilder $pathBuilder,
+        private readonly OpenApiDefinitionSchemaBuilder $definitionSchemaBuilder,
         array $bundles,
-        BundleSchemaPathCollection $bundleSchemaPathCollection
+        private readonly BundleSchemaPathCollection $bundleSchemaPathCollection
     ) {
-        $this->openApiBuilder = $openApiBuilder;
-        $this->pathBuilder = $pathBuilder;
-        $this->definitionSchemaBuilder = $definitionSchemaBuilder;
         $this->schemaPath = $bundles['Framework']['path'] . '/Api/ApiDefinition/Generator/Schema/AdminApi';
-        $this->bundleSchemaPathCollection = $bundleSchemaPathCollection;
     }
 
     public function supports(string $format, string $api): bool
@@ -56,6 +44,11 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         return $format === self::FORMAT;
     }
 
+    /**
+     * @param array<string, EntityDefinition>|list<EntityDefinition&SalesChannelDefinitionInterface>  $definitions
+     *
+     * @return OpenApiSpec
+     */
     public function generate(array $definitions, string $api, string $apiType = DefinitionService::TypeJsonApi): array
     {
         $forSalesChannel = $this->containsSalesChannelDefinition($definitions);
@@ -70,15 +63,10 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 continue;
             }
 
-            switch ($apiType) {
-                case DefinitionService::TypeJson:
-                    $onlyFlat = true;
-
-                    break;
-                case DefinitionService::TypeJsonApi:
-                default:
-                    $onlyFlat = $this->shouldIncludeReferenceOnly($definition, $forSalesChannel);
-            }
+            $onlyFlat = match ($apiType) {
+                DefinitionService::TypeJson => true,
+                default => $this->shouldIncludeReferenceOnly($definition, $forSalesChannel),
+            };
 
             $schema = $this->definitionSchemaBuilder->getSchemaByDefinition(
                 $definition,
@@ -100,8 +88,8 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
             }
         }
 
-        $data = json_decode($openApi->toJson(), true);
-        $data['paths'] = $data['paths'] ?? [];
+        $data = json_decode($openApi->toJson(), true, 512, \JSON_THROW_ON_ERROR);
+        $data['paths'] ??= [];
 
         $schemaPaths = [$this->schemaPath];
         $schemaPaths = array_merge($schemaPaths, $this->bundleSchemaPathCollection->getSchemaPaths($api));
@@ -114,6 +102,11 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         return $finalSpecs;
     }
 
+    /**
+     * @param array<string, EntityDefinition>|list<EntityDefinition&SalesChannelDefinitionInterface> $definitions
+     *
+     * @return array<string, array{name: string, translatable: array<int|string, mixed>, properties: array<string, mixed>}>
+     */
     public function getSchema(array $definitions): array
     {
         $schemaDefinitions = [];
@@ -123,13 +116,17 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         ksort($definitions);
 
         foreach ($definitions as $definition) {
+            if (!$definition instanceof EntityDefinition) {
+                continue;
+            }
+
             if (preg_match('/_translation$/', $definition->getEntityName())) {
                 continue;
             }
 
             try {
                 $definition->getEntityName();
-            } catch (\Exception $e) {
+            } catch (\Exception) {
                 //mapping tables has no repository, skip them
                 continue;
             }
@@ -139,7 +136,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
             if ($schema === null) {
                 throw new \RuntimeException('Invalid schema detected. Aborting');
             }
-            $schema = json_decode($schema->toJson(), true);
+            $schema = json_decode($schema->toJson(), true, 512, \JSON_THROW_ON_ERROR);
             $schema = $schema['allOf'][1]['properties'];
 
             $relationships = [];
@@ -220,7 +217,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
     }
 
     /**
-     * @param list<EntityDefinition>|list<EntityDefinition&SalesChannelDefinitionInterface> $definitions
+     * @param array<string, EntityDefinition>|list<EntityDefinition&SalesChannelDefinitionInterface> $definitions
      */
     private function containsSalesChannelDefinition(array $definitions): bool
     {

@@ -2,14 +2,14 @@
 
 namespace Shopware\Core\Framework\Store\Struct;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @package merchant-services
- *
  * @codeCoverageIgnore
  * @extends Collection<StoreStruct>
  */
+#[Package('merchant-services')]
 abstract class StoreCollection extends Collection
 {
     public function __construct(iterable $elements = [])

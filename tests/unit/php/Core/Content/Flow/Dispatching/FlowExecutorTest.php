@@ -27,6 +27,7 @@ use Shopware\Core\Framework\App\FlowAction\AppFlowActionProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
 use Shopware\Core\Framework\Event\OrderAware;
+use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -240,10 +241,10 @@ class FlowExecutorTest extends TestCase
         $flow->setData(OrderAware::ORDER, $order);
 
         $scopeBuilder->method('build')->willReturn(
-            new FlowRuleScope($order, new Cart('test', 'test'), $this->createMock(SalesChannelContext::class))
+            new FlowRuleScope($order, new Cart('test'), $this->createMock(SalesChannelContext::class))
         );
 
-        $rule = new OrderTagRule(OrderTagRule::OPERATOR_EQ, [$tagId]);
+        $rule = new OrderTagRule(Rule::OPERATOR_EQ, [$tagId]);
         $ruleEntity = new RuleEntity();
         $ruleEntity->setId($ruleId);
         $ruleEntity->setPayload($rule);

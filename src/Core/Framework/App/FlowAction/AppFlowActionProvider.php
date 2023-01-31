@@ -8,21 +8,20 @@ use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\App\Exception\InvalidAppFlowActionVariableException;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\BusinessEventEncoder;
 
-/**
- * @package core
- */
+#[Package('core')]
 class AppFlowActionProvider
 {
     /**
      * @internal
      */
     public function __construct(
-        private Connection $connection,
-        private BusinessEventEncoder $businessEventEncoder,
-        private StringTemplateRenderer $templateRenderer
+        private readonly Connection $connection,
+        private readonly BusinessEventEncoder $businessEventEncoder,
+        private readonly StringTemplateRenderer $templateRenderer
     ) {
     }
 
@@ -40,27 +39,21 @@ class AppFlowActionProvider
         }
 
         $additionData = $this->businessEventEncoder->encodeData($flow->data(), $flow->stored());
-        $data = array_merge(
-            $flow->getConfig(),
-            $additionData
-        );
+        $data = [...$flow->getConfig(), ...$additionData];
 
         $configData = $this->resolveParamsData($flow->getConfig(), $data, $context, $appFlowActionId);
         /** @var array<string, mixed> $data */
-        $data = array_merge(
-            $configData,
-            $additionData
-        );
+        $data = [...$configData, ...$additionData];
 
         /** @var string $parameterData */
         $parameterData = $appFlowActionData['parameters'];
         /** @var array<string, string> $parameters */
-        $parameters = array_column(json_decode($parameterData, true), 'value', 'name');
+        $parameters = array_column(json_decode($parameterData, true, 512, \JSON_THROW_ON_ERROR), 'value', 'name');
 
         /** @var string $headersData */
         $headersData = $appFlowActionData['headers'];
         /** @var array<string, string> $headers */
-        $headers = array_column(json_decode($headersData, true), 'value', 'name');
+        $headers = array_column(json_decode($headersData, true, 512, \JSON_THROW_ON_ERROR), 'value', 'name');
 
         return [
             'payload' => $this->resolveParamsData($parameters, $data, $context, $appFlowActionId),

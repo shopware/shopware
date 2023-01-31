@@ -40,6 +40,9 @@ use Shopware\Core\Framework\Plugin\Requirement\RequirementsValidator;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
+use Shopware\Core\System\CustomEntity\CustomEntityLifecycleService;
+use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
+use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Cache\CacheItem;
 use Symfony\Component\DependencyInjection\Container;
@@ -54,45 +57,21 @@ class PluginLifecycleServiceTest extends TestCase
 {
     private PluginLifecycleService $pluginLifecycleService;
 
-    /**
-     * @var MockObject&EntityRepository
-     */
-    private $pluginRepoMock;
+    private MockObject&EntityRepository $pluginRepoMock;
 
-    /**
-     * @var MockObject&KernelPluginCollection
-     */
-    private $kernelPluginCollectionMock;
+    private MockObject&KernelPluginCollection $kernelPluginCollectionMock;
 
-    /**
-     * @var MockObject&Container
-     */
-    private $containerMock;
+    private MockObject&Container $containerMock;
 
-    /**
-     * @var MockObject&MigrationCollectionLoader
-     */
-    private $migrationLoaderMock;
+    private MockObject&MigrationCollectionLoader $migrationLoaderMock;
 
-    /**
-     * @var MockObject&RequirementsValidator
-     */
-    private $requirementsValidatorMock;
+    private MockObject&RequirementsValidator $requirementsValidatorMock;
 
-    /**
-     * @var MockObject&CacheItemPoolInterface
-     */
-    private $cacheItemPoolInterfaceMock;
+    private MockObject&CacheItemPoolInterface $cacheItemPoolInterfaceMock;
 
-    /**
-     * @var MockObject&Plugin
-     */
-    private $pluginMock;
+    private MockObject&Plugin $pluginMock;
 
-    /**
-     * @var MockObject&EventDispatcher
-     */
-    private $eventDispatcherMock;
+    private MockObject&EventDispatcher $eventDispatcherMock;
 
     public function setUp(): void
     {
@@ -101,12 +80,8 @@ class PluginLifecycleServiceTest extends TestCase
         $this->kernelPluginCollectionMock = $this->createMock(KernelPluginCollection::class);
         $this->containerMock = $this->createMock(Container::class);
         $this->migrationLoaderMock = $this->createMock(MigrationCollectionLoader::class);
-        $assetServiceMock = $this->createMock(AssetService::class);
-        $commandExecutorMock = $this->createMock(CommandExecutor::class);
         $this->requirementsValidatorMock = $this->createMock(RequirementsValidator::class);
         $this->cacheItemPoolInterfaceMock = $this->createMock(CacheItemPoolInterface::class);
-        $systemConfigServiceMock = $this->createMock(SystemConfigService::class);
-        $shopwareVersionString = Kernel::SHOPWARE_FALLBACK_VERSION;
         $this->pluginMock = $this->createMock(Plugin::class);
 
         $this->pluginMock->method('getNamespace')->willReturn('MockPlugin');
@@ -118,12 +93,15 @@ class PluginLifecycleServiceTest extends TestCase
             $this->kernelPluginCollectionMock,
             $this->containerMock,
             $this->migrationLoaderMock,
-            $assetServiceMock,
-            $commandExecutorMock,
+            $this->createMock(AssetService::class),
+            $this->createMock(CommandExecutor::class),
             $this->requirementsValidatorMock,
             $this->cacheItemPoolInterfaceMock,
-            $shopwareVersionString,
-            $systemConfigServiceMock
+            Kernel::SHOPWARE_FALLBACK_VERSION,
+            $this->createMock(SystemConfigService::class),
+            $this->createMock(CustomEntityPersister::class),
+            $this->createMock(CustomEntitySchemaUpdater::class),
+            $this->createMock(CustomEntityLifecycleService::class),
         );
     }
 
@@ -769,16 +747,10 @@ class PluginLifecycleServiceTest extends TestCase
 class FakeKernelPluginLoader extends Bundle
 {
     /**
-     * @var array<int, array<string, string|false>>
-     */
-    private array $pluginInfos;
-
-    /**
      * @param array<int, array<string, string|false>> $pluginInfos
      */
-    public function __construct(array $pluginInfos)
+    public function __construct(private readonly array $pluginInfos)
     {
-        $this->pluginInfos = $pluginInfos;
     }
 
     /**

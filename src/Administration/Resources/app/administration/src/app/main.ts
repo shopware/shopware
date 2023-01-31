@@ -43,6 +43,8 @@ import SearchRankingService from 'src/app/service/search-ranking.service';
 import SearchPreferencesService from 'src/app/service/search-preferences.service';
 import RecentlySearchService from 'src/app/service/recently-search.service';
 import UserActivityService from 'src/app/service/user-activity.service';
+import EntityValidationService from 'src/app/service/entity-validation.service';
+import CustomEntityDefinitionService from 'src/app/service/custom-entity-definition.service';
 
 /** Import Feature */
 import Feature from 'src/core/feature';
@@ -52,6 +54,9 @@ import 'src/app/decorator';
 
 /** Import global styles */
 import 'src/app/assets/scss/all.scss';
+
+import ChangesetGenerator from '../core/data/changeset-generator.data';
+import ErrorResolver from '../core/data/error-resolver.data';
 
 /** Application Bootstrapper */
 const { Application } = Shopware;
@@ -81,6 +86,9 @@ Application
     .addServiceProvider('feature', () => {
         return new FeatureService(Feature);
     })
+    .addServiceProvider('customEntityDefinitionService', () => {
+        return new CustomEntityDefinitionService();
+    })
     .addServiceProvider('menuService', () => {
         return new MenuService(factoryContainer.module);
     })
@@ -107,6 +115,14 @@ Application
     })
     .addServiceProvider('validationService', () => {
         return ValidationService;
+    })
+    .addServiceProvider('entityValidationService', () => {
+        return new EntityValidationService(
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+            Application.getContainer('factory').entityDefinition,
+            new ChangesetGenerator(),
+            new ErrorResolver(),
+        );
     })
     .addServiceProvider('timezoneService', () => {
         return new TimezoneService();

@@ -2,32 +2,25 @@
 
 namespace Shopware\Core\Framework\Plugin;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
 
-/**
- * @package core
- */
+#[Package('core')]
 class KernelPluginCollection
 {
     /**
-     * @var Plugin[]
-     */
-    private $plugins;
-
-    /**
      * @internal
      *
-     * @param Plugin[] $plugin
+     * @param Plugin[] $plugins
      */
-    public function __construct(array $plugin = [])
+    public function __construct(private array $plugins = [])
     {
-        $this->plugins = $plugin;
     }
 
     public function add(Plugin $plugin): void
     {
         /** @var string|false $class */
-        $class = \get_class($plugin);
+        $class = $plugin::class;
 
         if ($class === false) {
             return;
@@ -74,9 +67,7 @@ class KernelPluginCollection
             return [];
         }
 
-        return array_filter($this->plugins, static function (Plugin $plugin) {
-            return $plugin->isActive();
-        });
+        return array_filter($this->plugins, static fn (Plugin $plugin) => $plugin->isActive());
     }
 
     public function filter(\Closure $closure): KernelPluginCollection

@@ -44,6 +44,9 @@ async function createWrapper(privileges = []) {
             },
             appModulesService: {
                 fetchAppModules: () => Promise.resolve([])
+            },
+            customEntityDefinitionService: {
+                getMenuEntries: () => { return []; }
             }
         },
         methods: {

@@ -40,6 +40,6 @@ class StaticFileAvailableThemeProviderTest extends TestCase
 
         $fs = new Filesystem(new InMemoryFilesystemAdapter());
         $s = new StaticFileAvailableThemeProvider($fs);
-        $s->getDecorated(Context::createDefaultContext());
+        $s->getDecorated();
     }
 }

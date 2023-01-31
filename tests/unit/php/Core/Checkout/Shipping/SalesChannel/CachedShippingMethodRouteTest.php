@@ -38,15 +38,9 @@ use Symfony\Contracts\Cache\CacheInterface;
  */
 class CachedShippingMethodRouteTest extends TestCase
 {
-    /**
-     * @var AbstractShippingMethodRoute&MockObject
-     */
-    private $decorated;
+    private MockObject&AbstractShippingMethodRoute $decorated;
 
-    /**
-     * @var CacheInterface&MockObject
-     */
-    private $cache;
+    private MockObject&CacheInterface $cache;
 
     private EventDispatcher $eventDispatcher;
 

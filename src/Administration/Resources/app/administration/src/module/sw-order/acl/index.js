@@ -22,6 +22,7 @@ Shopware.Service('privileges')
             viewer: {
                 privileges: [
                     'order:read',
+                    'order:delete',
                     'order_address:read',
                     'sales_channel:read',
                     'order_customer:read',
@@ -53,6 +54,8 @@ Shopware.Service('privileges')
                     'user_config:update',
                     'customer:read',
                     'customer_address:read',
+                    'version:delete',
+                    'media_default_folder:read',
                 ],
                 dependencies: [],
             },
@@ -72,14 +75,15 @@ Shopware.Service('privileges')
                     'order_address:update',
                     'order_delivery:update',
                     'product:read',
+                    'product_download:read',
                     'property_group_option:read',
                     'property_group:read',
                     'product_visibility:read',
                     'order_line_item:update',
                     'order_line_item:create',
+                    'order_line_item:delete',
                     'salutation:read',
                     'order_address:create',
-                    'order:delete',
                 ],
                 dependencies: [
                     'order.viewer',

@@ -66,13 +66,10 @@ class NavigationPageSeoUrlRouteTest extends TestCase
         );
     }
 
-    /**
-     * @param string|bool $value
-     */
     private function assertEqualsFilter(
         EqualsFilter $equalsFilter,
         string $field,
-        $value
+        string|bool $value
     ): void {
         static::assertInstanceOf(EqualsFilter::class, $equalsFilter);
         static::assertEquals($field, $equalsFilter->getField());

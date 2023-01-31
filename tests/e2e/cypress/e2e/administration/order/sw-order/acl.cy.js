@@ -21,7 +21,7 @@ describe('Order: Test ACL privileges', () => {
             });
     });
 
-    it.only('@acl: can read order', { tags: ['pa-customers-orders'] }, () => {
+    it('@acl: can read order', { tags: ['pa-customers-orders'] }, () => {
         const page = new OrderPageObject();
 
         cy.loginAsUserWithPermissions([

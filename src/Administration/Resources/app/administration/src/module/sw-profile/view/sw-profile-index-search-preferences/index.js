@@ -59,6 +59,10 @@ export default {
                 return accumulator;
             }, []);
         },
+
+        adminEsEnable() {
+            return Shopware.Context.app.adminEsEnable ?? false;
+        },
     },
 
     created() {
@@ -70,8 +74,9 @@ export default {
     },
 
     methods: {
-        createdComponent() {
-            this.getDataSource();
+        async createdComponent() {
+            await this.getDataSource();
+            this.updateDataSource();
             this.addEventListeners();
         },
 
@@ -104,6 +109,18 @@ export default {
             this.$root.$off('sw-search-preferences-modal-close', this.getDataSource);
         },
 
+        updateDataSource() {
+            if (!this.adminEsEnable) {
+                return;
+            }
+
+            this.searchPreferences.forEach((searchPreference) => {
+                searchPreference.fields.forEach((field) => {
+                    field._searchable = true;
+                });
+            });
+        },
+
         getModuleTitle(entityName) {
             const module = Module.getModuleByEntityName(entityName);
 
@@ -121,9 +138,12 @@ export default {
         onSelect(event) {
             this.searchPreferences.forEach((searchPreference) => {
                 searchPreference._searchable = event;
-                searchPreference.fields.forEach((field) => {
-                    field._searchable = event;
-                });
+
+                if (!this.adminEsEnable) {
+                    searchPreference.fields.forEach((field) => {
+                        field._searchable = event;
+                    });
+                }
             });
         },
 
@@ -142,9 +162,12 @@ export default {
 
         resetSearchPreference(toReset, searchPreference) {
             searchPreference._searchable = toReset._searchable;
-            searchPreference.fields = searchPreference.fields.map((field) => {
-                return toReset.fields.find((item) => item.fieldName === field.fieldName) || field;
-            });
+
+            if (!this.adminEsEnable) {
+                searchPreference.fields = searchPreference.fields.map((field) => {
+                    return toReset.fields.find((item) => item.fieldName === field.fieldName) || field;
+                });
+            }
         },
     },
 };

@@ -4,10 +4,9 @@ namespace Shopware\Core\Checkout\Cart\Facade\Traits;
 
 use Shopware\Core\Checkout\Cart\Facade\ItemFacade;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 trait ItemsAddTrait
 {
     use ItemsGetTrait;

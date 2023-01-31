@@ -3,15 +3,14 @@
 namespace Shopware\Core\Checkout\Customer\Rule;
 
 use Shopware\Core\Checkout\CheckoutRuleScope;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Container\DaysSinceRule;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-/**
- * @package business-ops
- */
+#[Package('business-ops')]
 class DaysSinceLastLoginRule extends DaysSinceRule
 {
-    public const RULE_NAME = 'customerDaysSinceLastLogin';
+    final public const RULE_NAME = 'customerDaysSinceLastLogin';
 
     protected function getDate(RuleScope $scope): ?\DateTimeInterface
     {

@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\ConfigLoader\StaticFileConfigDumper;
 use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
 use Shopware\Storefront\Theme\ThemeEntity;
@@ -18,47 +19,29 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-/**
- * @package storefront
- */
 #[AsCommand(
     name: 'theme:dump',
     description: 'Dump the theme configuration',
 )]
+#[Package('storefront')]
 class ThemeDumpCommand extends Command
 {
-    private StorefrontPluginRegistryInterface$pluginRegistry;
-
-    private ThemeFileResolver $themeFileResolver;
-
-    private EntityRepository $themeRepository;
-
-    private string $projectDir;
-
-    private Context $context;
+    private readonly Context $context;
 
     private SymfonyStyle $io;
-
-    private StaticFileConfigDumper $staticFileConfigDumper;
 
     /**
      * @internal
      */
     public function __construct(
-        StorefrontPluginRegistryInterface $pluginRegistry,
-        ThemeFileResolver $themeFileResolver,
-        EntityRepository $themeRepository,
-        string $projectDir,
-        StaticFileConfigDumper $staticFileConfigDumper
+        private readonly StorefrontPluginRegistryInterface $pluginRegistry,
+        private readonly ThemeFileResolver $themeFileResolver,
+        private readonly EntityRepository $themeRepository,
+        private readonly string $projectDir,
+        private readonly StaticFileConfigDumper $staticFileConfigDumper
     ) {
         parent::__construct();
-
-        $this->pluginRegistry = $pluginRegistry;
-        $this->themeFileResolver = $themeFileResolver;
-        $this->themeRepository = $themeRepository;
-        $this->projectDir = $projectDir;
         $this->context = Context::createDefaultContext();
-        $this->staticFileConfigDumper = $staticFileConfigDumper;
     }
 
     protected function configure(): void

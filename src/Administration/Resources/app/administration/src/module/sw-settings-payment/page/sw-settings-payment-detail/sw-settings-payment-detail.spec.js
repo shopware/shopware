@@ -174,7 +174,6 @@ describe('module/sw-settings-payment/page/sw-settings-payment-detail', () => {
     });
 
     it('should add conditions association', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_18215'];
         const wrapper = await createWrapper();
         await wrapper.setData({
             paymentMethod: mockPaymentMethod,

@@ -3,13 +3,13 @@
 namespace Shopware\Core\Checkout\Customer\Exception;
 
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @package customer-order
- *
  * @deprecated tag:v6.6.0 Will be removed without replacement, not in use any more. Use `BadCredentialsException` or `CustomerOptinNotCompletedException` instead
  */
+#[Package('customer-order')]
 class InactiveCustomerException extends CustomerOptinNotCompletedException
 {
     public function __construct(string $id)
@@ -21,7 +21,7 @@ class InactiveCustomerException extends CustomerOptinNotCompletedException
     {
         Feature::triggerDeprecationOrThrow(
             'v6.6.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.6.0.0')
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0')
         );
 
         return 'CHECKOUT__CUSTOMER_IS_INACTIVE';
@@ -31,7 +31,7 @@ class InactiveCustomerException extends CustomerOptinNotCompletedException
     {
         Feature::triggerDeprecationOrThrow(
             'v6.6.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.6.0.0')
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0')
         );
 
         return Response::HTTP_UNAUTHORIZED;
@@ -41,7 +41,7 @@ class InactiveCustomerException extends CustomerOptinNotCompletedException
     {
         Feature::triggerDeprecationOrThrow(
             'v6.6.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.6.0.0')
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0')
         );
 
         return 'account.inactiveAccountAlert';

@@ -10,15 +10,15 @@ use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\BeforeDeleteEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\Event\BeforeSystemConfigChangedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @package content
- *
  * @internal
  */
+#[Package('content')]
 class CmsPageDefaultChangeSubscriber implements EventSubscriberInterface
 {
     /**
@@ -29,15 +29,11 @@ class CmsPageDefaultChangeSubscriber implements EventSubscriberInterface
         CategoryDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_CATEGORY,
     ];
 
-    private Connection $connection;
-
     /**
      * @internal
      */
-    public function __construct(
-        Connection $connection
-    ) {
-        $this->connection = $connection;
+    public function __construct(private readonly Connection $connection)
+    {
     }
 
     public static function getSubscribedEvents(): array
@@ -110,7 +106,7 @@ class CmsPageDefaultChangeSubscriber implements EventSubscriberInterface
             ]
         );
 
-        $config = json_decode($result, true);
+        $config = json_decode((string) $result, true, 512, \JSON_THROW_ON_ERROR);
 
         return $config['_value'];
     }
@@ -135,7 +131,7 @@ class CmsPageDefaultChangeSubscriber implements EventSubscriberInterface
         $defaultIds = [];
         foreach ($configurations as $configuration) {
             $configValue = $configuration['configuration_value'];
-            $config = json_decode($configValue, true);
+            $config = json_decode((string) $configValue, true, 512, \JSON_THROW_ON_ERROR);
 
             $defaultIds[] = $config['_value'];
         }

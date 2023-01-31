@@ -51,7 +51,7 @@ class ResponseTypeRegistryTest extends TestCase
         $response = $this->getDetailResponse($context, $id, '/api/category/' . $id, $accept, false);
 
         static::assertEquals($accept, $response->headers->get('content-type'));
-        $content = json_decode($response->getContent(), true);
+        $content = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertEquals($id, $content['data']['name']);
     }
 
@@ -64,7 +64,7 @@ class ResponseTypeRegistryTest extends TestCase
         $response = $this->getDetailResponse($context, $id, $self, $accept, false);
 
         static::assertEquals($accept, $response->headers->get('content-type'));
-        $content = json_decode($response->getContent(), true);
+        $content = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         $this->assertDetailJsonApiStructure($content);
         static::assertEquals($id, $content['data']['attributes']['name']);
@@ -81,7 +81,7 @@ class ResponseTypeRegistryTest extends TestCase
         $response = $this->getDetailResponse($context, $id, $self, $accept, false);
 
         static::assertEquals('application/vnd.api+json', $response->headers->get('content-type'));
-        $content = json_decode($response->getContent(), true);
+        $content = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         $this->assertDetailJsonApiStructure($content);
         static::assertEquals($id, $content['data']['attributes']['name']);
@@ -108,7 +108,7 @@ class ResponseTypeRegistryTest extends TestCase
         $response = $this->getListResponse($context, $id, $self, $accept);
 
         static::assertEquals($accept, $response->headers->get('content-type'));
-        $content = json_decode($response->getContent(), true);
+        $content = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         $this->assertDetailJsonApiStructure($content);
         static::assertNotEmpty($content['data']);
@@ -165,10 +165,7 @@ class ResponseTypeRegistryTest extends TestCase
         $this->setRequestAttributeHack($request, PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context);
     }
 
-    /**
-     * @param Context|int $value
-     */
-    private function setRequestAttributeHack(Request $request, string $key, $value): void
+    private function setRequestAttributeHack(Request $request, string $key, Context|int $value): void
     {
         $r = new \ReflectionProperty(Request::class, 'attributes');
         $r->setAccessible(true);

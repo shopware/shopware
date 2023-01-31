@@ -13,28 +13,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
- *
- * @package core
  */
+#[Package('core')]
 class ModuleLoader
 {
-    private EntityRepository $appRepository;
-
-    private ShopIdProvider $shopIdProvider;
-
-    private QuerySigner $querySigner;
-
-    public function __construct(
-        EntityRepository $appRepository,
-        ShopIdProvider $shopIdProvider,
-        QuerySigner $signer
-    ) {
-        $this->appRepository = $appRepository;
-        $this->shopIdProvider = $shopIdProvider;
-        $this->querySigner = $signer;
+    public function __construct(private readonly EntityRepository $appRepository, private readonly ShopIdProvider $shopIdProvider, private readonly QuerySigner $querySigner)
+    {
     }
 
     public function loadModules(Context $context): array
@@ -61,7 +49,7 @@ class ModuleLoader
     {
         try {
             $this->shopIdProvider->getShopId();
-        } catch (AppUrlChangeDetectedException $e) {
+        } catch (AppUrlChangeDetectedException) {
             return [];
         }
 

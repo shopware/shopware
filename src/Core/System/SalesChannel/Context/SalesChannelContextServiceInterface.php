@@ -2,13 +2,13 @@
 
 namespace Shopware\Core\System\SalesChannel\Context;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 interface SalesChannelContextServiceInterface
 {
     public function get(SalesChannelContextServiceParameters $parameters): SalesChannelContext;

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Maintenance\System\Service;
 
+use Doctrine\DBAL\Connection;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\TransferException;
 use GuzzleHttp\Psr7\Response;
@@ -9,11 +10,6 @@ use GuzzleHttp\RequestOptions;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Maintenance\System\Service\AppUrlVerifier;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -23,20 +19,14 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class AppUrlVerifierTest extends TestCase
 {
-    /**
-     * @var Client&MockObject
-     */
-    private $guzzleMock;
+    private Client&MockObject $guzzleMock;
 
-    /**
-     * @var EntityRepository&MockObject
-     */
-    private $appRepository;
+    private Connection&MockObject $connection;
 
     public function setUp(): void
     {
         $this->guzzleMock = $this->createMock(Client::class);
-        $this->appRepository = $this->createMock(EntityRepository::class);
+        $this->connection = $this->createMock(Connection::class);
     }
 
     public function testAppUrlReachableReturnsTrueIfAppEnvIsNotProd(): void
@@ -44,7 +34,7 @@ class AppUrlVerifierTest extends TestCase
         $this->guzzleMock->expects(static::never())
             ->method('get');
 
-        $verifier = new AppUrlVerifier($this->guzzleMock, $this->appRepository, 'dev', false);
+        $verifier = new AppUrlVerifier($this->guzzleMock, $this->connection, 'dev', false);
 
         static::assertTrue($verifier->isAppUrlReachable(new Request()));
     }
@@ -54,7 +44,7 @@ class AppUrlVerifierTest extends TestCase
         $this->guzzleMock->expects(static::never())
             ->method('get');
 
-        $verifier = new AppUrlVerifier($this->guzzleMock, $this->appRepository, 'prod', true);
+        $verifier = new AppUrlVerifier($this->guzzleMock, $this->connection, 'prod', true);
 
         static::assertTrue($verifier->isAppUrlReachable(new Request()));
     }
@@ -64,7 +54,7 @@ class AppUrlVerifierTest extends TestCase
         $this->guzzleMock->expects(static::never())
             ->method('get');
 
-        $verifier = new AppUrlVerifier($this->guzzleMock, $this->appRepository, 'prod', false);
+        $verifier = new AppUrlVerifier($this->guzzleMock, $this->connection, 'prod', false);
 
         $request = Request::create(EnvironmentHelper::getVariable('APP_URL') . '/api/_info/config');
 
@@ -86,7 +76,7 @@ class AppUrlVerifierTest extends TestCase
                 ]
             )->willReturn(new Response());
 
-        $verifier = new AppUrlVerifier($this->guzzleMock, $this->appRepository, 'prod', false);
+        $verifier = new AppUrlVerifier($this->guzzleMock, $this->connection, 'prod', false);
 
         $request = Request::create('http://some.host/api/_info/config');
         $request->headers->set('Authorization', 'Bearer Token');
@@ -109,7 +99,7 @@ class AppUrlVerifierTest extends TestCase
                 ]
             )->willReturn(new Response(404));
 
-        $verifier = new AppUrlVerifier($this->guzzleMock, $this->appRepository, 'prod', false);
+        $verifier = new AppUrlVerifier($this->guzzleMock, $this->connection, 'prod', false);
 
         $request = Request::create('http://some.host/api/_info/config');
         $request->headers->set('Authorization', 'Bearer Token');
@@ -132,7 +122,7 @@ class AppUrlVerifierTest extends TestCase
                 ]
             )->willThrowException(new TransferException());
 
-        $verifier = new AppUrlVerifier($this->guzzleMock, $this->appRepository, 'prod', false);
+        $verifier = new AppUrlVerifier($this->guzzleMock, $this->connection, 'prod', false);
 
         $request = Request::create('http://some.host/api/_info/config');
         $request->headers->set('Authorization', 'Bearer Token');
@@ -142,23 +132,23 @@ class AppUrlVerifierTest extends TestCase
 
     public function testAppsThatNeedAppUrlReturnFalseWithoutAppsThatRequireRegistration(): void
     {
-        $this->appRepository->expects(static::once())
-            ->method('searchIds')
-            ->willReturn(new IdSearchResult(0, [], new Criteria(), Context::createDefaultContext()));
+        $this->connection->expects(static::once())
+            ->method('fetchOne')
+            ->willReturn('0');
 
-        $verifier = new AppUrlVerifier($this->guzzleMock, $this->appRepository, 'prod', false);
+        $verifier = new AppUrlVerifier($this->guzzleMock, $this->connection, 'prod', false);
 
-        static::assertFalse($verifier->hasAppsThatNeedAppUrl(Context::createDefaultContext()));
+        static::assertFalse($verifier->hasAppsThatNeedAppUrl());
     }
 
     public function testAppsThatNeedAppUrlReturnTrueWithAppsThatRequireRegistration(): void
     {
-        $this->appRepository->expects(static::once())
-            ->method('searchIds')
-            ->willReturn(new IdSearchResult(1, [['primaryKey' => Uuid::randomHex(), 'data' => []]], new Criteria(), Context::createDefaultContext()));
+        $this->connection->expects(static::once())
+            ->method('fetchOne')
+            ->willReturn('1');
 
-        $verifier = new AppUrlVerifier($this->guzzleMock, $this->appRepository, 'prod', false);
+        $verifier = new AppUrlVerifier($this->guzzleMock, $this->connection, 'prod', false);
 
-        static::assertTrue($verifier->hasAppsThatNeedAppUrl(Context::createDefaultContext()));
+        static::assertTrue($verifier->hasAppsThatNeedAppUrl());
     }
 }

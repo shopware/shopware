@@ -3,13 +3,13 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * @final
- *
- * @package core
  */
+#[Package('core')]
 class Bucket extends Struct
 {
     public function __construct(protected ?string $key, protected int $count, protected ?AggregationResult $result)

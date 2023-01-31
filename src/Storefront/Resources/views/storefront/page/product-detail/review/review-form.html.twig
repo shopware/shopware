@@ -89,7 +89,7 @@
                                 <input type="text"
                                        class="form-control{% if formViolations.getViolations('/title') %} is-invalid{% endif %}"
                                        id="reviewTitle"
-                                       placeholder="{{ "detail.reviewFormTitlePlaceholder"|trans|striptags }}{{ "general.required"|trans|striptags }}"
+                                       placeholder="{{ "detail.reviewFormTitlePlaceholder"|trans|striptags }}"
                                        name="title"
                                        value="{{ data.get('title') }}"
                                        required="required"
@@ -120,6 +120,7 @@
                         <textarea class="form-control{% if formViolations.getViolations('/content') %} is-invalid{% endif %}"
                                   id="reviewContent"
                                   name="content"
+                                  placeholder="{{ "detail.reviewFormContentPlaceholder"|trans|striptags }}"
                                   required="required"
                                   minlength="40"
                                   rows="8">{% if data.get('content') is not empty %}{{ data.get('content') }}{% endif %}</textarea>

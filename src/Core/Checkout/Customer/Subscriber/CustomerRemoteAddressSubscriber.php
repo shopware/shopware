@@ -4,29 +4,21 @@ namespace Shopware\Core\Checkout\Customer\Subscriber;
 
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
- * @package customer-order
- *
  * @internal
  */
+#[Package('customer-order')]
 class CustomerRemoteAddressSubscriber implements EventSubscriberInterface
 {
-    private EntityRepository $customerRepository;
-
-    private RequestStack $requestStack;
-
     /**
      * @internal
      */
-    public function __construct(
-        EntityRepository $customerRepository,
-        RequestStack $requestStack
-    ) {
-        $this->customerRepository = $customerRepository;
-        $this->requestStack = $requestStack;
+    public function __construct(private readonly EntityRepository $customerRepository, private readonly RequestStack $requestStack)
+    {
     }
 
     public static function getSubscribedEvents(): array

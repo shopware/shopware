@@ -17,13 +17,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
  */
 class LayoutBuilder
 {
-    protected IdsCollection $ids;
-
     protected string $id;
 
     protected ?string $name;
-
-    protected string $type;
 
     /**
      * @var mixed[]
@@ -40,12 +36,10 @@ class LayoutBuilder
      */
     protected array $sections = [];
 
-    public function __construct(IdsCollection $ids, string $key, string $type = 'landingpage')
+    public function __construct(protected IdsCollection $ids, string $key, protected string $type = 'landingpage')
     {
-        $this->ids = $ids;
         $this->id = $this->ids->create($key);
         $this->name = $key;
-        $this->type = $type;
     }
 
     /**
@@ -213,7 +207,7 @@ class LayoutBuilder
     public function productHeading(?string $key = null, string $section = 'main'): self
     {
         $this->section($section);
-        $key = $key ?? Uuid::randomHex();
+        $key ??= Uuid::randomHex();
 
         $this->sections[$section]['blocks'][$key] = array_merge(
             [
@@ -233,7 +227,7 @@ class LayoutBuilder
     public function galleryBuybox(?string $key = null, string $section = 'main'): self
     {
         $this->section($section);
-        $key = $key ?? Uuid::randomHex();
+        $key ??= Uuid::randomHex();
         $this->sections[$section]['blocks'][$key] = array_merge(
             [
                 'type' => 'gallery-buybox',
@@ -252,7 +246,7 @@ class LayoutBuilder
     public function descriptionReviews(?string $key = null, string $section = 'main'): self
     {
         $this->section($section);
-        $key = $key ?? Uuid::randomHex();
+        $key ??= Uuid::randomHex();
         $this->sections[$section]['blocks'][$key] = array_merge(
             [
                 'type' => 'product-description-reviews',
@@ -270,7 +264,7 @@ class LayoutBuilder
     public function crossSelling(?string $key = null, string $section = 'main'): self
     {
         $this->section($section);
-        $key = $key ?? Uuid::randomHex();
+        $key ??= Uuid::randomHex();
         $this->sections[$section]['blocks'][$key] = array_merge(
             [
                 'type' => 'cross-selling',
@@ -287,7 +281,7 @@ class LayoutBuilder
 
     private function blockPosition(string $section): int
     {
-        return \count($this->sections[$section]['blocks']);
+        return is_countable($this->sections[$section]['blocks']) ? \count($this->sections[$section]['blocks']) : 0;
     }
 
     /**

@@ -47,17 +47,31 @@ Component.register('sw-page', {
     template,
 
     props: {
+        /**
+         * Toggles smart bar
+         */
         showSmartBar: {
             type: Boolean,
             // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
+        /**
+         * Toggles search bar
+         */
         showSearchBar: {
             type: Boolean,
             // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default: true,
+        },
+        /**
+         * Overrides the module color as the bottom-border-color of the page's smart bar
+         */
+        headerBorderColor: {
+            type: String,
+            required: false,
+            default: '',
         },
     },
 
@@ -74,7 +88,15 @@ Component.register('sw-page', {
 
     computed: {
         pageColor() {
-            return (this.module !== null) ? this.module.color : '#d8dde6';
+            if (this.headerBorderColor) {
+                return this.headerBorderColor;
+            }
+
+            if (this.module?.color) {
+                return this.module.color;
+            }
+
+            return '#d8dde6';
         },
 
         hasSideContentSlot() {

@@ -6,43 +6,27 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class CartConvertedEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
-    private SalesChannelContext $salesChannelContext;
-
-    private OrderConversionContext $conversionContext;
-
-    private Cart $cart;
-
-    /**
-     * @var array<mixed>
-     */
-    private array $originalConvertedCart;
-
     /**
      * @var array<mixed>
      */
     private array $convertedCart;
 
     /**
-     * @param array<mixed> $convertedCart
+     * @param array<mixed> $originalConvertedCart
      */
     public function __construct(
-        Cart $cart,
-        array $convertedCart,
-        SalesChannelContext $salesChannelContext,
-        OrderConversionContext $conversionContext
+        private readonly Cart $cart,
+        private readonly array $originalConvertedCart,
+        private readonly SalesChannelContext $salesChannelContext,
+        private readonly OrderConversionContext $conversionContext
     ) {
-        $this->salesChannelContext = $salesChannelContext;
-        $this->conversionContext = $conversionContext;
-        $this->cart = $cart;
-        $this->originalConvertedCart = $convertedCart;
-        $this->convertedCart = $convertedCart;
+        $this->convertedCart = $originalConvertedCart;
     }
 
     public function getContext(): Context

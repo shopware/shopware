@@ -9,14 +9,14 @@ use Shopware\Core\Checkout\Cart\LineItem\Group\ProductLineItemProvider;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Test\Cart\LineItem\Group\Helpers\Traits\LineItemTestFixtureBehaviour;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package checkout
- *
  * @internal
  */
+#[Package('checkout')]
 class ProductLineItemProviderTest extends TestCase
 {
     use LineItemTestFixtureBehaviour;
@@ -42,7 +42,7 @@ class ProductLineItemProviderTest extends TestCase
 
     public function testItThrowsDecorationPatternException(): void
     {
-        static::expectException(DecorationPatternException::class);
+        $this->expectException(DecorationPatternException::class);
 
         $this->provider->getDecorated();
     }
@@ -56,7 +56,7 @@ class ProductLineItemProviderTest extends TestCase
             new LineItem(Uuid::randomHex(), LineItem::CUSTOM_LINE_ITEM_TYPE),
         ];
 
-        $cart = new Cart('test', 'token');
+        $cart = new Cart('token');
         $cart->addLineItems(new LineItemCollection($items));
 
         return $cart;

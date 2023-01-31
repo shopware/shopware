@@ -9,29 +9,20 @@ use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Schema;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Lock\LockFactory;
 
 /**
  * @internal
  * @phpstan-import-type CustomEntityField from SchemaUpdater
- *
- * @package core
  */
+#[Package('core')]
 class CustomEntitySchemaUpdater
 {
     private const COMMENT = 'custom-entity-element';
 
-    private Connection $connection;
-
-    private LockFactory $lockFactory;
-
-    private SchemaUpdater $schemaUpdater;
-
-    public function __construct(Connection $connection, LockFactory $lockFactory, SchemaUpdater $schemaUpdater)
+    public function __construct(private readonly Connection $connection, private readonly LockFactory $lockFactory, private readonly SchemaUpdater $schemaUpdater)
     {
-        $this->connection = $connection;
-        $this->lockFactory = $lockFactory;
-        $this->schemaUpdater = $schemaUpdater;
     }
 
     public function update(): void

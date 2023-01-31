@@ -8,12 +8,10 @@ use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 
-/**
- * @package core
- */
+#[\Shopware\Core\Framework\Log\Package('core')]
 class MissingTranslationLanguageException extends WriteConstraintViolationException
 {
-    public const VIOLATION_MISSING_TRANSLATION_LANGUAGE = 'MISSING-TRANSLATION-LANGUAGE';
+    final public const VIOLATION_MISSING_TRANSLATION_LANGUAGE = 'MISSING-TRANSLATION-LANGUAGE';
 
     public function __construct(string $path, int $translationIndex)
     {

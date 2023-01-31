@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Theme\ConfigLoader;
 
 use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\Event\ThemeAssignedEvent;
 use Shopware\Storefront\Theme\Event\ThemeConfigChangedEvent;
 use Shopware\Storefront\Theme\Event\ThemeConfigResetEvent;
@@ -15,28 +16,15 @@ use const JSON_THROW_ON_ERROR;
 
 /**
  * @internal
- *
- * @package storefront
  */
+#[Package('storefront')]
 class StaticFileConfigDumper implements EventSubscriberInterface
 {
-    private AbstractConfigLoader $configLoader;
-
-    private FilesystemOperator $filesystem;
-
-    private AbstractAvailableThemeProvider $availableThemeProvider;
-
     /**
      * @internal
      */
-    public function __construct(
-        AbstractConfigLoader $configLoader,
-        AbstractAvailableThemeProvider $availableThemeProvider,
-        FilesystemOperator $filesystem
-    ) {
-        $this->configLoader = $configLoader;
-        $this->filesystem = $filesystem;
-        $this->availableThemeProvider = $availableThemeProvider;
+    public function __construct(private readonly AbstractConfigLoader $configLoader, private readonly AbstractAvailableThemeProvider $availableThemeProvider, private readonly FilesystemOperator $filesystem)
+    {
     }
 
     public static function getSubscribedEvents(): array

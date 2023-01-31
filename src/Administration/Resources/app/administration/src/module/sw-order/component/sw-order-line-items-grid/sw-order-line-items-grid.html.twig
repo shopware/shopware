@@ -8,7 +8,6 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_line_items_grid_actions %}
     <sw-container
-        v-show="editable"
         class="sw-order-line-items-grid__actions-container"
         columns="1fr auto"
         gap="16px"
@@ -39,7 +38,7 @@
                     class="sw-order-line-items-grid__actions-container-add-product-btn"
                     variant="ghost"
                     size="small"
-                    :disabled="!acl.can('order.editor')"
+                    :disabled="!editable"
                     @click="onInsertExistingItem"
                 >
                     {{ $tc('sw-order.detailBase.buttonAddProduct') }}
@@ -67,11 +66,11 @@
                     <sw-context-menu-item
                         v-tooltip.left="{
                             message: $tc('sw-privileges.tooltip.warning'),
-                            disabled: acl.can('order.editor'),
+                            disabled: editable,
                             showOnDisabledElements: true
                         }"
                         class="sw-order-line-items-grid__create-custom-item"
-                        :disabled="!acl.can('order.editor')"
+                        :disabled="!editable"
                         @click="onInsertBlankItem"
                     >
                         {{ $tc('sw-order.detailBase.buttonAddBlankProduct') }}
@@ -111,7 +110,7 @@
         :data-source="orderLineItems"
         :columns="getLineItemColumns"
         show-settings
-        :show-selection="editable && acl.can('order.editor')"
+        :show-selection="editable"
         :is-loading="isLoading"
         :allow-inline-edit="editable"
         :is-record-editable="(item) => !isPromotionItem(item)"
@@ -223,13 +222,14 @@
                 placeholder="0"
                 size="small"
                 :min="getMinItemPrice(item.id)"
+                :digits="order.itemRounding.decimals"
                 @change="checkItemPrice($event, item)"
             />
             {% endblock %}
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_line_items_grid_grid_columns_unit_price_content %}
-            <span v-else>{{ item.unitPrice | currency(order.currency.shortName) }}</span>
+            <span v-else>{{ item.unitPrice | currency(order.currency.shortName, order.itemRounding.decimals) }}</span>
             {% endblock %}
 
         </template>
@@ -242,7 +242,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_line_items_grid_grid_columns_total_price_content %}
             <span>
-                {{ item.totalPrice | currency(order.currency.shortName) }}
+                {{ item.totalPrice | currency(order.currency.shortName, order.itemRounding.decimals) }}
             </span>
             {% endblock %}
 
@@ -339,12 +339,12 @@
             <sw-context-menu-item
                 v-tooltip.left="{
                     message: $tc('sw-privileges.tooltip.warning'),
-                    disabled: acl.can('order.editor'),
+                    disabled: editable,
                     showOnDisabledElements: true
                 }"
                 variant="danger"
                 class="sw_order_line_items_grid-item__delete-action"
-                :disabled="!acl.can('order.editor')"
+                :disabled="!editable"
                 @click="onDeleteItem(item, itemIndex)"
             >
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

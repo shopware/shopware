@@ -32,14 +32,6 @@ E2E:
                     - "cypress/e2e/administration/sdk-plugin/**/*"
                     - "cypress/e2e/storefront/**/*"
                 BROWSER: 'chrome'
-                FEATURE_ALL: ["false", "major"]
-            # firefox
-            -   TEST_DIRECTORY:
-                    - "cypress/e2e/administration/settings/**/*"
-                    - "cypress/e2e/administration/catalogue/**/*,cypress/e2e/administration/media-marketing/**/*,cypress/e2e/administration/customer/**/*"
-                    - "cypress/e2e/administration/content/**/*,cypress/e2e/administration/general/**/*,cypress/e2e/administration/order/**/*,cypress/e2e/administration/rule-product-stream/**/*"
-                    - "cypress/e2e/storefront/**/*"
-                BROWSER: 'firefox'
                 FEATURE_ALL: 'false'
     before_script:
         - !reference [ .scripts, install-node, script ]

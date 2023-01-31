@@ -41,7 +41,7 @@ class EntitySearchResultTest extends TestCase
         $newInstance = $entitySearchResult->slice(2);
 
         static::assertSame(ArrayEntity::class, $newInstance->getEntity());
-        static::assertSame(ArrayEntity::class, \get_class($newInstance->first()));
+        static::assertSame(ArrayEntity::class, $newInstance->first()::class);
         static::assertSame(8, $newInstance->getTotal());
         static::assertSame($entitySearchResult->getAggregations(), $newInstance->getAggregations());
         static::assertSame($entitySearchResult->getCriteria(), $newInstance->getCriteria());
@@ -59,7 +59,7 @@ class EntitySearchResultTest extends TestCase
         });
 
         static::assertSame(ArrayEntity::class, $newInstance->getEntity());
-        static::assertSame(ArrayEntity::class, \get_class($newInstance->first()));
+        static::assertSame(ArrayEntity::class, $newInstance->first()::class);
         static::assertSame(4, $newInstance->getTotal());
         static::assertSame($entitySearchResult->getAggregations(), $newInstance->getAggregations());
         static::assertSame($entitySearchResult->getCriteria(), $newInstance->getCriteria());

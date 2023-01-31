@@ -7,15 +7,15 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
- * @package core
- *
  * @internal
  */
 #[AsMessageHandler(handles: DeleteCascadeAppsTask::class)]
+#[Package('core')]
 
 final class DeleteCascadeAppsHandler extends ScheduledTaskHandler
 {
@@ -26,8 +26,8 @@ final class DeleteCascadeAppsHandler extends ScheduledTaskHandler
      */
     public function __construct(
         EntityRepository $scheduledTaskRepository,
-        private EntityRepository $aclRoleRepository,
-        private EntityRepository $integrationRepository
+        private readonly EntityRepository $aclRoleRepository,
+        private readonly EntityRepository $integrationRepository
     ) {
         parent::__construct($scheduledTaskRepository);
     }

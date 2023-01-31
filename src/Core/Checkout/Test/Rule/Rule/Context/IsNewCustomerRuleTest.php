@@ -8,15 +8,15 @@ use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Rule\IsNewCustomerRule;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @deprecated tag:v6.6.0 - will be removed, use DaysSinceFirstLoginRuleTest instead
  *
- * @package business-ops
- *
  * @internal
  */
+#[Package('business-ops')]
 class IsNewCustomerRuleTest extends TestCase
 {
     public function testIsNewCustomer(): void
@@ -25,7 +25,7 @@ class IsNewCustomerRuleTest extends TestCase
 
         $rule = new IsNewCustomerRule();
 
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
 
         $customer = new CustomerEntity();
         $customer->setFirstLogin(new \DateTime());
@@ -47,7 +47,7 @@ class IsNewCustomerRuleTest extends TestCase
 
         $rule = new IsNewCustomerRule();
 
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
 
         $customer = new CustomerEntity();
         $customer->setFirstLogin(
@@ -73,7 +73,7 @@ class IsNewCustomerRuleTest extends TestCase
 
         $rule = new IsNewCustomerRule();
 
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
 
         $customer = new CustomerEntity();
         $customer->setFirstLogin(
@@ -99,7 +99,7 @@ class IsNewCustomerRuleTest extends TestCase
 
         $rule = new IsNewCustomerRule();
 
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
 
         $context = $this->createMock(SalesChannelContext::class);
 

@@ -41,6 +41,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Aggregate\PluginTranslation\PluginTranslationCollection;
 use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\System\Country\Aggregate\CountryStateTranslation\CountryStateTranslationCollection;
@@ -59,11 +60,10 @@ use Shopware\Core\System\Salutation\Aggregate\SalutationTranslation\SalutationTr
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateTranslationCollection;
 use Shopware\Core\System\StateMachine\StateMachineTranslationCollection;
 use Shopware\Core\System\Tax\Aggregate\TaxRuleTypeTranslation\TaxRuleTypeTranslationCollection;
+use Shopware\Core\System\TaxProvider\Aggregate\TaxProviderTranslation\TaxProviderTranslationCollection;
 use Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationCollection;
 
-/**
- * @package system-settings
- */
+#[Package('system-settings')]
 class LanguageEntity extends Entity
 {
     use EntityIdTrait;
@@ -373,6 +373,8 @@ class LanguageEntity extends Entity
      * @var AppFlowActionTranslationCollection|null
      */
     protected $appFlowActionTranslations;
+
+    protected ?TaxProviderTranslationCollection $taxProviderTranslations = null;
 
     public function getMailHeaderFooterTranslations(): ?MailHeaderFooterCollection
     {
@@ -1011,5 +1013,15 @@ class LanguageEntity extends Entity
     public function getApiAlias(): string
     {
         return 'language';
+    }
+
+    public function getTaxProviderTranslations(): ?TaxProviderTranslationCollection
+    {
+        return $this->taxProviderTranslations;
+    }
+
+    public function setTaxProviderTranslations(TaxProviderTranslationCollection $taxProviderTranslations): void
+    {
+        $this->taxProviderTranslations = $taxProviderTranslations;
     }
 }

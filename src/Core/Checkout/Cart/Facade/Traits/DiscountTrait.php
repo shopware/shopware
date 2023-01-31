@@ -11,11 +11,10 @@ use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\FloatComparator;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 trait DiscountTrait
 {
     private LineItemCollection $items;
@@ -33,7 +32,7 @@ trait DiscountTrait
      * @example add-absolute-discount/add-absolute-discount.twig Add an absolute discount to the cart.
      * @example add-simple-discount/add-simple-discount.twig Add a relative discount to the cart.
      */
-    public function discount(string $key, string $type, $value, string $label): DiscountFacade
+    public function discount(string $key, string $type, float|PriceCollection $value, string $label): DiscountFacade
     {
         $definition = $this->buildDiscountDefinition($type, $value, $key);
 

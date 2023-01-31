@@ -181,11 +181,8 @@ export default {
                 ],
             ));
 
-            if (this.feature.isActive('FEATURE_NEXT_18215')) {
-                criteria.addAssociation('conditions');
-            }
-
-            criteria.addSorting(Criteria.sort('name', 'ASC', false));
+            criteria.addAssociation('conditions')
+                .addSorting(Criteria.sort('name', 'ASC', false));
 
             return criteria;
         },
@@ -200,9 +197,7 @@ export default {
                 ],
             ));
 
-            if (this.feature.isActive('FEATURE_NEXT_18215')) {
-                criteria.addAssociation('conditions');
-            }
+            criteria.addAssociation('conditions');
 
             return criteria;
         },
@@ -276,26 +271,6 @@ export default {
             newShippingPrice.quantityEnd = null;
 
             this.shippingMethod.prices.push(newShippingPrice);
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - will be removed without replacement
-         */
-        countDecimalPlaces(value) {
-            const split = value.toString().split('.');
-
-            return split[1] ? split[1].length : 0;
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - will be removed without replacement
-         */
-        increaseWithDecimalPlaces(value) {
-            let decimalPlaces = this.countDecimalPlaces(value);
-            decimalPlaces = decimalPlaces === 0 ? 1 : decimalPlaces;
-
-            const increase = Number(`0.${'0'.repeat(decimalPlaces - 1)}1`);
-            return Number((value + increase).toFixed(decimalPlaces));
         },
 
         onSaveMainRule(ruleId) {

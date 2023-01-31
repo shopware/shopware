@@ -1,13 +1,16 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Log;
+namespace Shopware\Tests\Unit\Core\Framework\Log;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  *
  * @covers \Shopware\Core\Framework\Log\Package
+ *
+ * @package core
  */
 class PackageTest extends TestCase
 {
@@ -35,6 +38,8 @@ class PackageTest extends TestCase
 
 /**
  * @internal
+ *
+ * @package core
  */
 class NoPackage
 {
@@ -42,6 +47,8 @@ class NoPackage
 
 /**
  * @internal
+ *
+ * @package core
  */
 #[Package('test')]
 class WithPackage

@@ -137,7 +137,7 @@ class StockUpdaterTest extends TestCase
     /**
      * @param string[] $ids
      *
-     * @return MockObject|AbstractStockUpdateFilter
+     * @return MockObject&AbstractStockUpdateFilter
      */
     public function getStockUpdateFilterMock(array $ids): MockObject
     {
@@ -148,7 +148,7 @@ class StockUpdaterTest extends TestCase
     }
 
     /**
-     * @return MockObject|Connection
+     * @return MockObject&Connection
      */
     private function getConnectionMock(): MockObject
     {

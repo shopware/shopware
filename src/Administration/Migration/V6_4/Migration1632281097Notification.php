@@ -3,13 +3,13 @@
 namespace Shopware\Administration\Migration\V6_4;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class Migration1632281097Notification extends MigrationStep
 {
     public function getCreationTimestamp(): int

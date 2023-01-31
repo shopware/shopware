@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Struct\Serializer;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Symfony\Component\Serializer\Encoder\JsonDecode;
 use Symfony\Component\Serializer\Encoder\JsonEncode;
@@ -9,9 +10,7 @@ use Symfony\Component\Serializer\Exception\InvalidArgumentException;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
-/**
- * @package core
- */
+#[Package('core')]
 class StructNormalizer implements DenormalizerInterface, NormalizerInterface
 {
     /**
@@ -61,7 +60,7 @@ class StructNormalizer implements DenormalizerInterface, NormalizerInterface
         }
 
         if (!$this->isObject($data)) {
-            return array_map([$this, 'denormalize'], $data);
+            return array_map($this->denormalize(...), $data);
         }
 
         /** @var class-string<object> $class */
@@ -69,9 +68,7 @@ class StructNormalizer implements DenormalizerInterface, NormalizerInterface
         unset($data['_class']);
 
         //iterate arguments to resolve other serialized objects
-        $arguments = array_map(function ($argument) {
-            return $this->denormalize($argument);
-        }, $data);
+        $arguments = array_map(fn ($argument) => $this->denormalize($argument), $data);
 
         //create object instance
         return $this->createInstance($class, $arguments);

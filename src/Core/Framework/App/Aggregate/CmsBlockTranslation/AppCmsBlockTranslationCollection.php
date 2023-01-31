@@ -3,14 +3,13 @@
 namespace Shopware\Core\Framework\App\Aggregate\CmsBlockTranslation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package content
- *
  * @internal
- *
  * @extends EntityCollection<AppCmsBlockTranslationEntity>
  */
+#[Package('content')]
 class AppCmsBlockTranslationCollection extends EntityCollection
 {
     protected function getExpectedClass(): string

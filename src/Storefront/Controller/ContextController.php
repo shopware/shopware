@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -20,37 +20,20 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\RouterInterface;
 
 /**
- * @package storefront
- *
- * @Route(defaults={"_routeScope"={"storefront"}})
- *
  * @internal
  */
+#[Route(defaults: ['_routeScope' => ['storefront']])]
+#[Package('storefront')]
 class ContextController extends StorefrontController
 {
-    private AbstractContextSwitchRoute $contextSwitchRoute;
-
-    private RequestStack $requestStack;
-
-    private RouterInterface $router;
-
     /**
      * @internal
      */
-    public function __construct(
-        AbstractContextSwitchRoute $contextSwitchRoute,
-        RequestStack $requestStack,
-        RouterInterface $router
-    ) {
-        $this->contextSwitchRoute = $contextSwitchRoute;
-        $this->requestStack = $requestStack;
-        $this->router = $router;
+    public function __construct(private readonly AbstractContextSwitchRoute $contextSwitchRoute, private readonly RequestStack $requestStack, private readonly RouterInterface $router)
+    {
     }
 
-    /**
-     * @Since("6.0.0.0")
-     * @Route("/checkout/configure", name="frontend.checkout.configure", methods={"POST"}, options={"seo"="false"}, defaults={"XmlHttpRequest": true})
-     */
+    #[Route(path: '/checkout/configure', name: 'frontend.checkout.configure', options: ['seo' => false], defaults: ['XmlHttpRequest' => true], methods: ['POST'])]
     public function configure(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
     {
         $this->contextSwitchRoute->switchContext($data, $context);
@@ -58,10 +41,7 @@ class ContextController extends StorefrontController
         return $this->createActionResponse($request);
     }
 
-    /**
-     * @Since("6.0.0.0")
-     * @Route("/checkout/language", name="frontend.checkout.switch-language", methods={"POST"})
-     */
+    #[Route(path: '/checkout/language', name: 'frontend.checkout.switch-language', methods: ['POST'])]
     public function switchLanguage(Request $request, SalesChannelContext $context): RedirectResponse
     {
         if (!$request->request->has('languageId')) {
@@ -75,7 +55,7 @@ class ContextController extends StorefrontController
                 new RequestDataBag([SalesChannelContextService::LANGUAGE_ID => $languageId]),
                 $context
             );
-        } catch (ConstraintViolationException $e) {
+        } catch (ConstraintViolationException) {
             throw new LanguageNotFoundException($languageId);
         }
 
@@ -85,7 +65,7 @@ class ContextController extends StorefrontController
             $route = 'frontend.home.page';
         }
 
-        $params = $request->request->get('redirectParameters', '[]');
+        $params = $request->get('redirectParameters', '[]');
 
         if (\is_string($params)) {
             $params = json_decode($params, true);

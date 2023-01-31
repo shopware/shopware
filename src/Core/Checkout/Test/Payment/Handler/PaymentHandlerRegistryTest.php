@@ -25,14 +25,14 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Test\App\GuzzleTestClientBehaviour;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
 
 /**
- * @package checkout
- *
  * @internal
  */
+#[Package('checkout')]
 class PaymentHandlerRegistryTest extends TestCase
 {
     use GuzzleTestClientBehaviour;
@@ -67,6 +67,7 @@ class PaymentHandlerRegistryTest extends TestCase
     }
 
     /**
+     * @param array<class-string<PaymentHandlerInterface>> $handlerInstances
      * @dataProvider paymentMethodDataProvider
      */
     public function testGetAsyncHandler(string $handlerName, string $handlerClass, array $handlerInstances): void
@@ -82,6 +83,7 @@ class PaymentHandlerRegistryTest extends TestCase
     }
 
     /**
+     * @param array<class-string<PaymentHandlerInterface>> $handlerInstances
      * @dataProvider paymentMethodDataProvider
      */
     public function testGetSyncHandler(string $handlerName, string $handlerClass, array $handlerInstances): void
@@ -97,6 +99,7 @@ class PaymentHandlerRegistryTest extends TestCase
     }
 
     /**
+     * @param array<class-string<PaymentHandlerInterface>> $handlerInstances
      * @dataProvider paymentMethodDataProvider
      */
     public function testGetPreparedHandler(string $handlerName, string $handlerClass, array $handlerInstances): void
@@ -112,6 +115,7 @@ class PaymentHandlerRegistryTest extends TestCase
     }
 
     /**
+     * @param array<class-string<PaymentHandlerInterface>> $handlerInstances
      * @dataProvider paymentMethodDataProvider
      */
     public function testGetRefundHandler(string $handlerName, string $handlerClass, array $handlerInstances): void
@@ -129,6 +133,7 @@ class PaymentHandlerRegistryTest extends TestCase
     /**
      * @dataProvider appPaymentMethodUrlProvider
      *
+     * @param array<string, mixed> $appPaymentData
      * @param class-string<object> $expectedHandler
      */
     public function testAppResolve(array $appPaymentData, string $expectedHandler): void
@@ -154,6 +159,9 @@ class PaymentHandlerRegistryTest extends TestCase
         static::assertInstanceOf($expectedHandler, $handler);
     }
 
+    /**
+     * @return array<string, array<string|class-string<PaymentHandlerInterface>|array<class-string<PaymentHandlerInterface>>>>
+     */
     public function paymentMethodDataProvider(): array
     {
         return [
@@ -200,6 +208,9 @@ class PaymentHandlerRegistryTest extends TestCase
         ];
     }
 
+    /**
+     * @return array<array<array<string>|bool|string>>
+     */
     public function appPaymentMethodUrlProvider(): iterable
     {
         yield [[], AppSyncPaymentHandler::class];

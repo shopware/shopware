@@ -2,7 +2,8 @@
  * @package content
  */
 import { shallowMount } from '@vue/test-utils';
-import swCmsLayoutModal from 'src/module/sw-cms/component/sw-cms-layout-modal';
+import 'src/app/component/data-grid/sw-data-grid';
+import swCmsLayoutModal from './index';
 
 Shopware.Component.register('sw-cms-layout-modal', swCmsLayoutModal);
 
@@ -60,6 +61,17 @@ async function createWrapper() {
                     };
                 },
                 saveValues: () => null
+            },
+            cmsPageTypeService: {
+                getType: () => {
+                    return {
+                        name: 'custom_entity_detail',
+                        icon: 'regular-tag',
+                        title: 'sw-cms.detail.label.pageType.customEntityDetail',
+                        class: ['sw-cms-create-wizard__page-type-custom-entity-detail'],
+                        hideInList: false,
+                    };
+                }
             }
         },
 
@@ -73,6 +85,7 @@ async function createWrapper() {
             'sw-sorting-select': true,
             'sw-pagination': true,
             'sw-checkbox-field': true,
+            'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
             'sw-cms-list-item': {
                 template: '<div class="sw-cms-list-item"></div>',
                 props: ['isDefault']
@@ -93,7 +106,7 @@ describe('module/sw-cms/component/sw-cms-layout-modal', () => {
             cmsPageTypes: ['page', 'landingpage', 'product_list']
         });
         await wrapper.vm.getList();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.cmsPageCriteria).toEqual(expect.objectContaining({
             filters: [
@@ -115,8 +128,7 @@ describe('module/sw-cms/component/sw-cms-layout-modal', () => {
             cmsPageTypes: []
         });
         await wrapper.vm.getList();
-        await wrapper.vm.$nextTick();
-
+        await flushPromises();
 
         expect(wrapper.vm.cmsPageCriteria).toEqual(expect.objectContaining({
             filters: []
@@ -129,10 +141,7 @@ describe('module/sw-cms/component/sw-cms-layout-modal', () => {
         global.activeAclRoles = ['system_config.read'];
 
         const wrapper = await createWrapper();
-
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
-
+        await flushPromises();
 
         expect(wrapper.vm.defaultProductId).toBe(defaultProductId);
         expect(wrapper.vm.defaultCategoryId).toBe(defaultCategoryId);
@@ -144,5 +153,14 @@ describe('module/sw-cms/component/sw-cms-layout-modal', () => {
         expect(listItems.at(0).props('isDefault')).toBe(false);
         expect(listItems.at(1).props('isDefault')).toBe(true);
         expect(listItems.at(2).props('isDefault')).toBe(true);
+    });
+
+    it('should return the correct page type', async () => {
+        const wrapper = await createWrapper();
+        wrapper.vm.listMode = 'list';
+        await flushPromises();
+
+        const typeCell = wrapper.find('.sw-data-grid__cell--type > .sw-data-grid__cell-content');
+        expect(typeCell.text()).toBe('sw-cms.detail.label.pageType.customEntityDetail');
     });
 });

@@ -12,14 +12,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
-/**
- * @package system-settings
- */
+#[Package('system-settings')]
 class SystemConfigDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'system_config';
+    final public const ENTITY_NAME = 'system_config';
 
     public function getEntityName(): string
     {

@@ -4,13 +4,13 @@ namespace Shopware\Core\Migration\V6_5;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Document\Renderer\StornoRenderer;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 class Migration1668435503ChangeStornoDocumentTranslationName extends MigrationStep
 {
     public function getCreationTimestamp(): int

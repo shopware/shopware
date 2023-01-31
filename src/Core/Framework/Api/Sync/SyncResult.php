@@ -2,38 +2,19 @@
 
 namespace Shopware\Core\Framework\Api\Sync;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-/**
- * @package core
- */
+#[Package('core')]
 class SyncResult extends Struct
 {
-    /**
-     * @var array<array<int, mixed>>
-     */
-    protected array $data = [];
-
-    /**
-     * @var array<array<int, mixed>>
-     */
-    protected array $deleted = [];
-
-    /**
-     * @var array<array<int, mixed>>
-     */
-    protected array $notFound = [];
-
     /**
      * @param array<array<int, mixed>> $data
      * @param array<array<int, mixed>> $notFound
      * @param array<array<int, mixed>> $deleted
      */
-    public function __construct(array $data, array $notFound = [], array $deleted = [])
+    public function __construct(protected array $data, protected array $notFound = [], protected array $deleted = [])
     {
-        $this->data = $data;
-        $this->notFound = $notFound;
-        $this->deleted = $deleted;
     }
 
     /**

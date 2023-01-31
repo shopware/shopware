@@ -4,11 +4,10 @@ namespace Shopware\Core\System\Locale\Aggregate\LocaleTranslation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Locale\LocaleEntity;
 
-/**
- * @package system-settings
- */
+#[Package('system-settings')]
 class LocaleTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;

@@ -43,5 +43,9 @@ export default {
         isPage() {
             return this.type !== 'folder' && this.type !== 'link';
         },
+
+        isCustomEntity() {
+            return this.type === 'custom_entity';
+        },
     },
 };

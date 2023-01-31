@@ -3,7 +3,9 @@
 <sw-modal
     :title="title"
     :variant="variant"
+    :closable="isClosable"
     class="sw-first-run-wizard-modal"
+    @modal-close="closeModal"
 >
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_first_run_wizard_modal_content %}
@@ -56,9 +58,15 @@
                     @frw-redirect="redirect"
                     @frw-set-title="setTitle"
                     @frw-finish="finishFRW"
+                    @extension-activated="onExtensionActivated"
                 />
             </div>
             {% endblock %}
+
+            <sw-loader
+                v-if="showLoader"
+                class="sw-first-run-wizard-modal__loader"
+            />
         </sw-container>
     </div>
     {% endblock %}

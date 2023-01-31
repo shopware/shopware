@@ -20,6 +20,7 @@ use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\MailTemplateTestBehaviour;
@@ -37,10 +38,9 @@ use Shopware\Storefront\Controller\AccountOrderController;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
- * @package checkout
- *
  * @internal
  */
+#[Package('checkout')]
 class CartServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -96,12 +96,12 @@ class CartServiceTest extends TestCase
         $cartService = $this->getContainer()->get(CartService::class);
 
         $token = Uuid::randomHex();
-        $newCart = $cartService->createNew($token, __METHOD__);
+        $newCart = $cartService->createNew($token);
 
         static::assertInstanceOf(CartCreatedEvent::class, $caughtEvent);
         static::assertSame($newCart, $caughtEvent->getCart());
         static::assertSame($newCart, $cartService->getCart($token, $this->getSalesChannelContext()));
-        static::assertNotSame($newCart, $cartService->createNew($token, __METHOD__));
+        static::assertNotSame($newCart, $cartService->createNew($token));
     }
 
     public function testLineItemAddedEventFired(): void
@@ -433,7 +433,7 @@ class CartServiceTest extends TestCase
             ];
 
             $salesChannelRepository->update([$data], $context);
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             //ignore if domain already exists
         }
     }

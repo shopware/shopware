@@ -540,7 +540,7 @@ json
         $result = $service->getList(2, 3, Context::createDefaultContext(), [], []);
         static::assertSame(5, $result['total']);
         static::assertCount(2, $result['data']);
-        $data = array_merge($data, $result['data']);
+        $data = [...$data, ...$result['data']];
 
         $result = $service->getList(4, 3, Context::createDefaultContext(), [], []);
         static::assertSame(5, $result['total']);

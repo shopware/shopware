@@ -5,6 +5,7 @@ namespace Shopware\Core\System\Test\Country\SalesChannel;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -22,9 +23,8 @@ use Symfony\Component\HttpFoundation\Request;
  * @internal
  * @group cache
  * @group store-api
- *
- * @package system-settings
  */
+#[Package('system-settings')]
 class CachedCountryStateRouteTest extends TestCase
 {
     use KernelTestBehaviour;

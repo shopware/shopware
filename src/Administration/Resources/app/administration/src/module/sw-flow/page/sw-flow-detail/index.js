@@ -564,20 +564,5 @@ export default {
                 sequences,
             );
         },
-
-        /**
-         * @deprecated tag:v6.6.0 will be removed. use rearrangeArrayObjects in flowBuilderService instead
-         */
-        rearrangeSequences(sequences) {
-            return sequences.reduce((accumulator, currentSequence) => {
-                const parent = accumulator.find(x => x.id === currentSequence.parentId);
-                let index = accumulator.indexOf(parent);
-
-                index = index !== -1 ? index + 1 : 0;
-                accumulator.splice(index, 0, currentSequence);
-
-                return accumulator;
-            }, []);
-        },
     },
 };

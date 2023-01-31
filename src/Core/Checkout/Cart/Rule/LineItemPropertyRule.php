@@ -3,35 +3,25 @@
 namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-/**
- * @package business-ops
- */
+#[Package('business-ops')]
 class LineItemPropertyRule extends Rule
 {
-    public const RULE_NAME = 'cartLineItemProperty';
-
-    /**
-     * @var list<string>
-     */
-    protected array $identifiers;
-
-    protected string $operator;
+    final public const RULE_NAME = 'cartLineItemProperty';
 
     /**
      * @param list<string> $identifiers
      *
      * @internal
      */
-    public function __construct(array $identifiers = [], string $operator = self::OPERATOR_EQ)
+    public function __construct(protected array $identifiers = [], protected string $operator = self::OPERATOR_EQ)
     {
         parent::__construct();
-        $this->identifiers = $identifiers;
-        $this->operator = $operator;
     }
 
     public function match(RuleScope $scope): bool

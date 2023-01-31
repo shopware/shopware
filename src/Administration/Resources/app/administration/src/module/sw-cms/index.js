@@ -1,4 +1,6 @@
+import CmsPageTypeService from './service/cms-page-type.service';
 import defaultSearchConfiguration from './default-search-configuration';
+import initCmsPageTypes from './init/cmsPageTypes.init';
 import './service/cms.service';
 import './service/cmsDataResolver.service';
 import './service/cms-block-favorites.service';
@@ -10,6 +12,15 @@ import './blocks';
 import './elements';
 import './component';
 import './acl';
+
+/**
+ * @private
+ */
+Shopware.Service().register('cmsPageTypeService', () => {
+    return new CmsPageTypeService();
+});
+
+initCmsPageTypes();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Component.register('sw-cms-list', () => import('./page/sw-cms-list'));
@@ -53,7 +64,7 @@ Shopware.Module.register('sw-cms', {
         },
         create: {
             component: 'sw-cms-create',
-            path: 'create/:type/:id',
+            path: 'create/:type?/:id?',
             meta: {
                 parentPath: 'sw.cms.index',
                 privilege: 'cms.creator',

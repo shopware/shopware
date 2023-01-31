@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Api\Controller;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Controller\CustomSnippetFormatController;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
@@ -18,12 +19,12 @@ use Twig\Environment;
 class CustomSnippetFormatControllerTest extends TestCase
 {
     /**
-     * @var KernelPluginCollection&\PHPUnit\Framework\MockObject\MockObject
+     * @var KernelPluginCollection&MockObject
      */
     private KernelPluginCollection $pluginCollection;
 
     /**
-     * @var Environment&\PHPUnit\Framework\MockObject\MockObject
+     * @var Environment&MockObject
      */
     private Environment $twig;
 

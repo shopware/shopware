@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Checkout\Cart\LineItem\Group;
 
-/**
- * @package checkout
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('checkout')]
 class LineItemGroupBuilderResult
 {
     /**
@@ -92,7 +92,7 @@ class LineItemGroupBuilderResult
         }
 
         foreach ($this->results as $groupResult) {
-            if (\count($groupResult['total']) > 0) {
+            if ((is_countable($groupResult['total']) ? \count($groupResult['total']) : 0) > 0) {
                 return true;
             }
         }

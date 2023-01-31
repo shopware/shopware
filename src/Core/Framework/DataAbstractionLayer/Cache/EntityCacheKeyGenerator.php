@@ -4,11 +4,10 @@ declare(strict_types=1);
 namespace Shopware\Core\Framework\DataAbstractionLayer\Cache;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package core
- */
+#[Package('core')]
 class EntityCacheKeyGenerator
 {
     public static function buildCmsTag(string $id): string
@@ -40,7 +39,7 @@ class EntityCacheKeyGenerator
             $context->getVersionId(),
             $context->getCurrencyId(),
             $ruleIds,
-        ]));
+        ], \JSON_THROW_ON_ERROR));
     }
 
     public function getCriteriaHash(Criteria $criteria): string
@@ -58,6 +57,6 @@ class EntityCacheKeyGenerator
             $criteria->getGroupFields(),
             $criteria->getAggregations(),
             $criteria->getAssociations(),
-        ]));
+        ], \JSON_THROW_ON_ERROR));
     }
 }

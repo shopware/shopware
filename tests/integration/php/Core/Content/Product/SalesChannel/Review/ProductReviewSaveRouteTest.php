@@ -55,7 +55,7 @@ class ProductReviewSaveRouteTest extends TestCase
 
         static::assertEquals(403, $response->getStatusCode());
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals($response['errors'][0]['code'], 'CHECKOUT__CUSTOMER_NOT_LOGGED_IN');
     }
@@ -72,9 +72,8 @@ class ProductReviewSaveRouteTest extends TestCase
         ]);
 
         $response = $this->browser->getResponse();
-        $content = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
-        static::assertEquals(204, $response->getStatusCode(), print_r($content, true));
+        static::assertEquals(204, $response->getStatusCode(), print_r($this->browser->getResponse()->getContent(), true));
 
         $this->assertReviewCount(1);
     }
@@ -93,9 +92,8 @@ class ProductReviewSaveRouteTest extends TestCase
         ]);
 
         $response = $this->browser->getResponse();
-        $content = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
-        static::assertEquals(204, $response->getStatusCode(), print_r($content, true));
+        static::assertEquals(204, $response->getStatusCode(), print_r($this->browser->getResponse()->getContent(), true));
 
         $this->assertReviewCount(1);
 
@@ -117,7 +115,7 @@ class ProductReviewSaveRouteTest extends TestCase
 
         static::assertEquals(400, $response->getStatusCode());
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals($response['errors'][0]['source']['pointer'], '/title');
         static::assertEquals($response['errors'][1]['source']['pointer'], '/content');
@@ -151,7 +149,7 @@ class ProductReviewSaveRouteTest extends TestCase
         $response = $this->browser->getResponse();
 
         static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
-        $content = json_decode((string) $response->getContent(), true);
+        $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame('VIOLATION::ENTITY_DOES_NOT_EXISTS', $content['errors'][0]['code']);
     }

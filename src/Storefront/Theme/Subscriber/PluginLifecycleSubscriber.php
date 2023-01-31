@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Theme\Subscriber;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Event\PluginLifecycleEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostActivateEvent;
@@ -23,42 +24,21 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * @internal
- *
- * @package storefront
  */
+#[Package('storefront')]
 class PluginLifecycleSubscriber implements EventSubscriberInterface
 {
-    private StorefrontPluginRegistryInterface $storefrontPluginRegistry;
-
-    private string $projectDirectory;
-
-    private AbstractStorefrontPluginConfigurationFactory $pluginConfigurationFactory;
-
-    private ThemeLifecycleHandler $themeLifecycleHandler;
-
-    private ThemeLifecycleService $themeLifecycleService;
-
     /**
      * @internal
      */
-    public function __construct(
-        StorefrontPluginRegistryInterface $storefrontPluginRegistry,
-        string $projectDirectory,
-        AbstractStorefrontPluginConfigurationFactory $pluginConfigurationFactory,
-        ThemeLifecycleHandler $themeLifecycleHandler,
-        ThemeLifecycleService $themeLifecycleService
-    ) {
-        $this->storefrontPluginRegistry = $storefrontPluginRegistry;
-        $this->projectDirectory = $projectDirectory;
-        $this->pluginConfigurationFactory = $pluginConfigurationFactory;
-        $this->themeLifecycleHandler = $themeLifecycleHandler;
-        $this->themeLifecycleService = $themeLifecycleService;
+    public function __construct(private readonly StorefrontPluginRegistryInterface $storefrontPluginRegistry, private readonly string $projectDirectory, private readonly AbstractStorefrontPluginConfigurationFactory $pluginConfigurationFactory, private readonly ThemeLifecycleHandler $themeLifecycleHandler, private readonly ThemeLifecycleService $themeLifecycleService)
+    {
     }
 
     /**
      * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             PluginPostActivateEvent::class => 'pluginPostActivate',
@@ -100,10 +80,7 @@ class PluginLifecycleSubscriber implements EventSubscriberInterface
         );
     }
 
-    /**
-     * @param PluginPreDeactivateEvent|PluginPreUninstallEvent $event
-     */
-    public function pluginDeactivateAndUninstall($event): void
+    public function pluginDeactivateAndUninstall(PluginPreDeactivateEvent|PluginPreUninstallEvent $event): void
     {
         if ($this->skipCompile($event->getContext()->getContext())) {
             return;
@@ -139,7 +116,7 @@ class PluginLifecycleSubscriber implements EventSubscriberInterface
 
         if (!$plugin instanceof Plugin) {
             throw new \RuntimeException(
-                sprintf('Plugin class "%s" must extend "%s"', \get_class($plugin), Plugin::class)
+                sprintf('Plugin class "%s" must extend "%s"', $plugin::class, Plugin::class)
             );
         }
 

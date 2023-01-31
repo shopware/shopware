@@ -2,23 +2,15 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @package core
- */
+#[Package('core')]
 class InvalidFilterQueryException extends ShopwareHttpException
 {
-    /**
-     * @var string
-     */
-    private $path;
-
-    public function __construct(string $message, string $path = '')
+    public function __construct(string $message, private readonly string $path = '')
     {
-        $this->path = $path;
-
         parent::__construct('{{ message }}', ['message' => $message]);
     }
 

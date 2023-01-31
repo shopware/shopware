@@ -3,17 +3,16 @@
 namespace Shopware\Core\Installer\Configuration;
 
 use Defuse\Crypto\Key;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Installer\Controller\ShopConfigurationController;
 use Shopware\Core\Installer\Finish\UniqueIdGenerator;
 use Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation;
 
 /**
- * @package core
- *
  * @internal
- *
  * @phpstan-import-type Shop from ShopConfigurationController
  */
+#[Package('core')]
 class EnvConfigWriter
 {
     private const FLEX_DOTENV = <<<'EOT'
@@ -49,6 +48,10 @@ SHOPWARE_ES_ENABLED=0
 SHOPWARE_ES_INDEXING_ENABLED=0
 SHOPWARE_ES_INDEX_PREFIX=sw
 SHOPWARE_ES_THROW_EXCEPTION=1
+ADMIN_OPENSEARCH_URL=http://localhost:9200
+SHOPWARE_ADMIN_ES_INDEX_PREFIX=sw-admin
+SHOPWARE_ADMIN_ES_ENABLED=0
+SHOPWARE_ADMIN_ES_REFRESH_INDICES=0
 ###< shopware/elasticsearch ###
 
 ###> shopware/storefront ###
@@ -58,14 +61,8 @@ SHOPWARE_HTTP_DEFAULT_TTL=7200
 ###< shopware/storefront ###
 EOT;
 
-    private string $projectDir;
-
-    private UniqueIdGenerator $idGenerator;
-
-    public function __construct(string $projectDir, UniqueIdGenerator $idGenerator)
+    public function __construct(private readonly string $projectDir, private readonly UniqueIdGenerator $idGenerator)
     {
-        $this->projectDir = $projectDir;
-        $this->idGenerator = $idGenerator;
     }
 
     /**
@@ -97,14 +94,28 @@ EOT;
         $newEnv[] = 'APP_SECRET=' . $secret;
         $newEnv[] = 'APP_URL=' . $shop['schema'] . '://' . $shop['host'] . $shop['basePath'];
         $newEnv[] = 'DATABASE_URL=' . $info->asDsn();
-        $newEnv[] = 'DATABASE_SSL_CA=' . $info->getSslCaPath();
-        $newEnv[] = 'DATABASE_SSL_CERT=' . $info->getSslCertPath();
-        $newEnv[] = 'DATABASE_SSL_KEY=' . $info->getSslCertKeyPath();
-        $newEnv[] = 'DATABASE_SSL_DONT_VERIFY_SERVER_CERT=' . ($info->getSslDontVerifyServerCert() ? '1' : '');
+
+        if (!empty($info->getSslCaPath())) {
+            $newEnv[] = 'DATABASE_SSL_CA=' . $info->getSslCaPath();
+        }
+
+        if (!empty($info->getSslCertPath())) {
+            $newEnv[] = 'DATABASE_SSL_CERT=' . $info->getSslCertPath();
+        }
+
+        if (!empty($info->getSslCertKeyPath())) {
+            $newEnv[] = 'DATABASE_SSL_KEY=' . $info->getSslCertKeyPath();
+        }
+
+        if ($info->getSslDontVerifyServerCert() !== null) {
+            $newEnv[] = 'DATABASE_SSL_DONT_VERIFY_SERVER_CERT=' . ($info->getSslDontVerifyServerCert() ? '1' : '');
+        }
+
         $newEnv[] = 'COMPOSER_HOME=' . $this->projectDir . '/var/cache/composer';
         $newEnv[] = 'INSTANCE_ID=' . $uniqueId;
         $newEnv[] = 'BLUE_GREEN_DEPLOYMENT=' . (int) $shop['blueGreenDeployment'];
         $newEnv[] = 'OPENSEARCH_URL=http://localhost:9200';
+        $newEnv[] = 'ADMIN_OPENSEARCH_URL=http://localhost:9200';
 
         file_put_contents($this->projectDir . '/.env.local', implode("\n", $newEnv));
 

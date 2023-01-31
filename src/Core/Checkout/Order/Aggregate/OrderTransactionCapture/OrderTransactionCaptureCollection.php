@@ -3,12 +3,12 @@
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCapture;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package customer-order
- *
  * @extends EntityCollection<OrderTransactionCaptureEntity>
  */
+#[Package('customer-order')]
 class OrderTransactionCaptureCollection extends EntityCollection
 {
     public function getApiAlias(): string

@@ -6,23 +6,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
+#[Package('core')]
 class WriteResultMerger
 {
     /**
-     * @var DefinitionInstanceRegistry
-     */
-    private $definitionRegistry;
-
-    /**
      * @internal
      */
-    public function __construct(DefinitionInstanceRegistry $definitionRegistry)
+    public function __construct(private readonly DefinitionInstanceRegistry $definitionRegistry)
     {
-        $this->definitionRegistry = $definitionRegistry;
     }
 
     public function mergeWriteResults(
@@ -92,11 +85,10 @@ class WriteResultMerger
 
     /**
      * @param EntityWriteResult[] $writeResults
-     * @param array|string        $entityKey
      *
      * @return EntityWriteResult[]
      */
-    private function findWriteResultByPrimaryKey(array $writeResults, $entityKey): array
+    private function findWriteResultByPrimaryKey(array $writeResults, array|string $entityKey): array
     {
         return array_filter($writeResults, static function (EntityWriteResult $result) use ($entityKey): bool {
             $primaryKey = $result->getPrimaryKey();

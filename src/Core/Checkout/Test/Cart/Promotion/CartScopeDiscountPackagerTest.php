@@ -13,14 +13,14 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountLineItem;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\ScopePackager\CartScopeDiscountPackager;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * @package checkout
- *
  * @internal
  */
+#[Package('checkout')]
 class CartScopeDiscountPackagerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -33,7 +33,7 @@ class CartScopeDiscountPackagerTest extends TestCase
      */
     public function testBuildPackages(array $items, array $expected): void
     {
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
         $cart->setLineItems(new LineItemCollection($items));
 
         $packager = $this->getContainer()->get(CartScopeDiscountPackager::class);
@@ -50,9 +50,7 @@ class CartScopeDiscountPackagerTest extends TestCase
 
         $package = $packages->first();
 
-        $ids = $package->getMetaData()->map(function (LineItemQuantity $item) {
-            return $item->getLineItemId();
-        });
+        $ids = $package->getMetaData()->map(fn (LineItemQuantity $item) => $item->getLineItemId());
 
         static::assertEquals($expected, $ids);
     }

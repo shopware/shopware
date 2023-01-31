@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Language\Rule;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
@@ -11,31 +12,19 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\Language\LanguageDefinition;
 
-/**
- * @package business-ops
- */
+#[Package('business-ops')]
 class LanguageRule extends Rule
 {
-    public const RULE_NAME = 'language';
-
-    /**
-     * @var list<string>|null
-     */
-    protected ?array $languageIds;
-
-    protected string $operator;
+    final public const RULE_NAME = 'language';
 
     /**
      * @internal
      *
      * @param list<string>|null $languageIds
      */
-    public function __construct(string $operator = self::OPERATOR_EQ, ?array $languageIds = null)
+    public function __construct(protected string $operator = self::OPERATOR_EQ, protected ?array $languageIds = null)
     {
         parent::__construct();
-
-        $this->operator = $operator;
-        $this->languageIds = $languageIds;
     }
 
     /**

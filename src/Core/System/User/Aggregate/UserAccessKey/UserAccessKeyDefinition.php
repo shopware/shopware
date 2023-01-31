@@ -13,14 +13,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PasswordField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\User\UserDefinition;
 
-/**
- * @package system-settings
- */
+#[Package('system-settings')]
 class UserAccessKeyDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'user_access_key';
+    final public const ENTITY_NAME = 'user_access_key';
 
     public function getEntityName(): string
     {

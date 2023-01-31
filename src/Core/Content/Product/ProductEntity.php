@@ -10,6 +10,7 @@ use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\ProductCrossSellingAssignedProductsCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductDownload\ProductDownloadCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
@@ -29,17 +30,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetCollection;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\System\Tag\TagCollection;
 use Shopware\Core\System\Tax\TaxEntity;
 use Shopware\Core\System\Unit\UnitEntity;
 
-/**
- * @package inventory
- */
-class ProductEntity extends Entity
+#[Package('inventory')]
+class ProductEntity extends Entity implements \Stringable
 {
     use EntityIdTrait;
     use EntityCustomFieldsTrait;
@@ -270,27 +269,6 @@ class ProductEntity extends Entity
     protected $variantRestrictions;
 
     /**
-     * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
-     *
-     * @var array<string>|null
-     */
-    protected $configuratorGroupConfig;
-
-    /**
-     * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
-     *
-     * @var string|null
-     */
-    protected $mainVariantId;
-
-    /**
-     * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
-     *
-     * @var bool|null
-     */
-    protected $displayParent;
-
-    /**
      * @var VariantListingConfig|null
      */
     protected $variantListingConfig;
@@ -505,12 +483,19 @@ class ProductEntity extends Entity
      */
     protected $streams;
 
+    protected ?ProductDownloadCollection $downloads = null;
+
+    /**
+     * @var array<int, string>
+     */
+    protected array $states = [];
+
     public function __construct()
     {
         $this->prices = new ProductPriceCollection();
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         return (string) $this->getName();
     }
@@ -1245,72 +1230,6 @@ class ProductEntity extends Entity
         $this->variantRestrictions = $variantRestrictions;
     }
 
-    /**
-     * @return array<string>|null
-     */
-    public function getConfiguratorGroupConfig(): ?array
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
-        );
-
-        return $this->configuratorGroupConfig;
-    }
-
-    /**
-     * @param array<string>|null $configuratorGroupConfig
-     */
-    public function setConfiguratorGroupConfig(?array $configuratorGroupConfig): void
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
-        );
-
-        $this->configuratorGroupConfig = $configuratorGroupConfig;
-    }
-
-    public function getMainVariantId(): ?string
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
-        );
-
-        return $this->mainVariantId;
-    }
-
-    public function setMainVariantId(?string $mainVariantId): void
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
-        );
-
-        $this->mainVariantId = $mainVariantId;
-    }
-
-    public function getDisplayParent(): ?bool
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
-        );
-
-        return $this->displayParent;
-    }
-
-    public function setDisplayParent(?bool $displayParent): void
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
-        );
-
-        $this->displayParent = $displayParent;
-    }
-
     public function getVariantListingConfig(): ?VariantListingConfig
     {
         return $this->variantListingConfig;
@@ -1567,5 +1486,31 @@ class ProductEntity extends Entity
     public function setCategoryIds(?array $categoryIds): void
     {
         $this->categoryIds = $categoryIds;
+    }
+
+    public function getDownloads(): ?ProductDownloadCollection
+    {
+        return $this->downloads;
+    }
+
+    public function setDownloads(ProductDownloadCollection $downloads): void
+    {
+        $this->downloads = $downloads;
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    public function getStates(): array
+    {
+        return $this->states;
+    }
+
+    /**
+     * @param array<int, string> $states
+     */
+    public function setStates(array $states): void
+    {
+        $this->states = $states;
     }
 }

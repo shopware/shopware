@@ -3,28 +3,23 @@
 namespace Shopware\Core\Content\Category\SalesChannel;
 
 use Shopware\Core\Content\Category\CategoryCollection;
+use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Routing\Annotation\Entity;
-use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @package content
- * @Route(defaults={"_routeScope"={"store-api"}})
- */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Package('content')]
 class TreeBuildingNavigationRoute extends AbstractNavigationRoute
 {
-    private AbstractNavigationRoute $decorated;
-
     /**
      * @internal
      */
-    public function __construct(AbstractNavigationRoute $decorated)
+    public function __construct(private readonly AbstractNavigationRoute $decorated)
     {
-        $this->decorated = $decorated;
     }
 
     public function getDecorated(): AbstractNavigationRoute
@@ -32,11 +27,7 @@ class TreeBuildingNavigationRoute extends AbstractNavigationRoute
         return $this->decorated;
     }
 
-    /**
-     * @Since("6.2.0.0")
-     * @Entity("category")
-     * @Route("/store-api/navigation/{activeId}/{rootId}", name="store-api.navigation", methods={"GET", "POST"})
-     */
+    #[Route(path: '/store-api/navigation/{activeId}/{rootId}', name: 'store-api.navigation', methods: ['GET', 'POST'], defaults: ['_entity' => 'payment_method'])]
     public function load(string $activeId, string $rootId, Request $request, SalesChannelContext $context, Criteria $criteria): NavigationRouteResponse
     {
         $activeId = $this->resolveAliasId($activeId, $context->getSalesChannel());
@@ -56,6 +47,9 @@ class TreeBuildingNavigationRoute extends AbstractNavigationRoute
         return new NavigationRouteResponse($categories);
     }
 
+    /**
+     * @param CategoryEntity[] $categories
+     */
     private function buildTree(?string $parentId, array $categories): CategoryCollection
     {
         $children = new CategoryCollection();

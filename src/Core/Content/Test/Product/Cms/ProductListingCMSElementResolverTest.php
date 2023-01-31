@@ -31,10 +31,7 @@ class ProductListingCMSElementResolverTest extends TestCase
      */
     private $productListingCMSElementResolver;
 
-    /**
-     * @var SalesChannelContext
-     */
-    private $salesChannelContext;
+    private SalesChannelContext $salesChannelContext;
 
     protected function setUp(): void
     {
@@ -149,9 +146,7 @@ class ProductListingCMSElementResolverTest extends TestCase
         /** @var ProductListingResult $listing */
         $listing = $data->getListing();
 
-        $actualSortings = $listing->getAvailableSortings()->map(function (ProductSortingEntity $actualSorting) {
-            return $actualSorting->getKey();
-        });
+        $actualSortings = $listing->getAvailableSortings()->map(fn (ProductSortingEntity $actualSorting) => $actualSorting->getKey());
 
         $availableSortings = array_keys($availableSortings);
 
@@ -196,9 +191,7 @@ class ProductListingCMSElementResolverTest extends TestCase
         /** @var ProductListingResult $listing */
         $listing = $data->getListing();
 
-        $actualSortings = $listing->getAvailableSortings()->map(function (ProductSortingEntity $actualSorting) {
-            return $actualSorting->getKey();
-        });
+        $actualSortings = $listing->getAvailableSortings()->map(fn (ProductSortingEntity $actualSorting) => $actualSorting->getKey());
 
         $actualSortings = array_values($actualSortings);
 

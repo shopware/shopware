@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -16,27 +17,19 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * @package core
- */
 #[AsCommand(
     name: 'plugin:list',
     description: 'Lists all plugins',
 )]
+#[Package('core')]
 class PluginListCommand extends Command
 {
     /**
-     * @var EntityRepository
-     */
-    private $pluginRepo;
-
-    /**
      * @internal
      */
-    public function __construct(EntityRepository $pluginRepo)
+    public function __construct(private readonly EntityRepository $pluginRepo)
     {
         parent::__construct();
-        $this->pluginRepo = $pluginRepo;
     }
 
     /**
@@ -44,9 +37,7 @@ class PluginListCommand extends Command
      */
     protected function configure(): void
     {
-        $this
-            ->setDescription('Show a list of available plugins.')
-            ->addOption('json', null, InputOption::VALUE_NONE, 'Return result as json of plugin entities')
+        $this->addOption('json', null, InputOption::VALUE_NONE, 'Return result as json of plugin entities')
             ->addOption('filter', 'f', InputOption::VALUE_REQUIRED, 'Filter the plugin list to a given term');
     }
 

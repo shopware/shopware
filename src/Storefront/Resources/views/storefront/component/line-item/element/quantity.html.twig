@@ -29,11 +29,15 @@
 
                     {% if showQuantitySelect and lineItem.quantityInformation and lineItem.stackable and nestingLevel < 1 %}
                         {% block component_line_item_quantity_select_form %}
+                            {% set autoSubmitOptions = {
+                                delayChangeEvent: 800,
+                            } %}
                             <form action="{{ path('frontend.checkout.line-item.change-quantity', { 'id': lineItem.id }) }}"
                                   class="line-item-quantity-container"
                                   method="post"
                                   {% if displayMode == 'default' %}
                                   data-form-auto-submit="true"
+                                  data-form-auto-submit-options="{{ autoSubmitOptions|json_encode }}"
                                   {% endif %}
                             >
 
@@ -45,34 +49,25 @@
 
                                 {% set selectQuantityThreshold = 100 %}
                                 {% block component_line_item_quantity_select %}
-                                    {# @deprecated tag:v6.5.0 - Numeric quantity input with additional plus/minus controls will be the default. #}
-                                    {% if (maxQuantity - quantityInformation.minPurchase) / quantityInformation.purchaseSteps > selectQuantityThreshold %}
-                                        {% block component_line_item_quantity_select_input %}
+                                    {% block component_line_item_quantity_select_input %}
+                                        <div class="input-group line-item-quantity-group quantity-selector-group" data-quantity-selector="true">
+                                                <button type="button" class="btn btn-outline-light btn-minus js-btn-minus">
+                                                        {% sw_icon 'minus' style {'size': 'xs'}  %}
+                                                </button>
                                             <input
                                                 type="number"
                                                 name="quantity"
-                                                class="form-control quantity-input-{{ lineItem.id }} {% if displayMode === 'offcanvas' %} js-offcanvas-cart-change-quantity-number{% endif %}"
+                                                class="form-control js-quantity-selector quantity-selector-group-input quantity-input-{{ lineItem.id }} {% if displayMode === 'offcanvas' %} js-offcanvas-cart-change-quantity-number{% endif %}"
                                                 min="{{ quantityInformation.minPurchase }}"
                                                 max="{{ maxQuantity }}"
                                                 step="{{ quantityInformation.purchaseSteps }}"
                                                 value="{{ lineItem.quantity }}"
                                             />
+                                                <button type="button" class="btn btn-outline-light btn-plus js-btn-plus">
+                                                        {% sw_icon 'plus' style {'size': 'xs'} %}
+                                                </button>
                                         {% endblock %}
-                                    {% else %}
-                                        {% block component_line_item_quantity_select_select %}
-                                            <select name="quantity"
-                                                class="form-select quantity-select-{{ lineItem.id }}{% if displayMode === 'offcanvas' %} js-offcanvas-cart-change-quantity{% endif %}">
-                                                {% for quantity in range(quantityInformation.minPurchase, maxQuantity, quantityInformation.purchaseSteps) %}
-                                                    {% block component_line_item_quantity_select_option %}
-                                                        <option value="{{ quantity }}"
-                                                            {% if quantity == lineItem.quantity %} selected="selected"{% endif %}>
-                                                            {{ quantity }}
-                                                        </option>
-                                                    {% endblock %}
-                                                {% endfor %}
-                                            </select>
-                                        {% endblock %}
-                                    {% endif %}
+                                    </div>
                                 {% endblock %}
                             </form>
                         {% endblock %}

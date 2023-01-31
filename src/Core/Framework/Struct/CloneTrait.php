@@ -2,14 +2,14 @@
 
 namespace Shopware\Core\Framework\Struct;
 
-/**
- * @package core
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 trait CloneTrait
 {
     public function __clone()
     {
-        /** @var array<string, object|array> $variables */
+        /** @var array<string, object|array<mixed>> $variables */
         $variables = get_object_vars($this);
         foreach ($variables as $key => $value) {
             if (\is_object($value)) {
@@ -20,6 +20,11 @@ trait CloneTrait
         }
     }
 
+    /**
+     * @param array<mixed> $array
+     *
+     * @return array<mixed>
+     */
     private function cloneArray(array $array): array
     {
         $newValue = [];

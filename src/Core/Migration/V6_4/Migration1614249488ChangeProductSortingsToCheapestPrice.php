@@ -3,13 +3,13 @@
 namespace Shopware\Core\Migration\V6_4;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class Migration1614249488ChangeProductSortingsToCheapestPrice extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -41,7 +41,7 @@ class Migration1614249488ChangeProductSortingsToCheapestPrice extends MigrationS
             }
 
             $id = $sorting['id'];
-            $fields = json_decode($sorting['fields'], true);
+            $fields = json_decode((string) $sorting['fields'], true, 512, \JSON_THROW_ON_ERROR);
             $update = false;
 
             foreach ($fields as &$field) {
@@ -62,7 +62,7 @@ class Migration1614249488ChangeProductSortingsToCheapestPrice extends MigrationS
                         SET fields = :fields
                         WHERE id = :id
                     ',
-                    ['fields' => json_encode($fields), 'id' => $id]
+                    ['fields' => json_encode($fields, \JSON_THROW_ON_ERROR), 'id' => $id]
                 );
             }
         }
@@ -73,7 +73,7 @@ class Migration1614249488ChangeProductSortingsToCheapestPrice extends MigrationS
         $elements = $connection->fetchAllAssociative('SELECT cms_slot_id, cms_slot_version_id, language_id, config FROM cms_slot_translation WHERE config LIKE \'%listingPrices%\'');
 
         foreach ($elements as $element) {
-            $config = json_decode($element['config'], true);
+            $config = json_decode((string) $element['config'], true, 512, \JSON_THROW_ON_ERROR);
 
             if (!isset($config['productStreamSorting'])) {
                 continue;
@@ -91,7 +91,7 @@ class Migration1614249488ChangeProductSortingsToCheapestPrice extends MigrationS
             }
 
             $connection->executeStatement('UPDATE cms_slot_translation SET config = :config WHERE cms_slot_id = :id AND cms_slot_version_id = :version AND language_id = :language', [
-                'config' => json_encode($config),
+                'config' => json_encode($config, \JSON_THROW_ON_ERROR),
                 'id' => $element['cms_slot_id'],
                 'version' => $element['cms_slot_version_id'],
                 'language' => $element['language_id'],

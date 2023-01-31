@@ -7,21 +7,17 @@ use Shopware\Core\Content\Cms\DataResolver\CriteriaCollection;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\TextStruct;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 
-/**
- * @package content
- */
+#[Package('content')]
 class TextCmsElementResolver extends AbstractCmsElementResolver
 {
-    private HtmlSanitizer $sanitizer;
-
     /**
      * @internal
      */
-    public function __construct(HtmlSanitizer $sanitizer)
+    public function __construct(private readonly HtmlSanitizer $sanitizer)
     {
-        $this->sanitizer = $sanitizer;
     }
 
     public function getType(): string

@@ -8,20 +8,16 @@ use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\FlowEventAware;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package business-ops
- */
+#[Package('business-ops')]
 class CustomerRecoveryStorer extends FlowStorer
 {
-    private EntityRepository $customerRecoveryRepository;
-
     /**
      * @internal
      */
-    public function __construct(EntityRepository $customerRecoveryRepository)
+    public function __construct(private readonly EntityRepository $customerRecoveryRepository)
     {
-        $this->customerRecoveryRepository = $customerRecoveryRepository;
     }
 
     /**
@@ -48,7 +44,7 @@ class CustomerRecoveryStorer extends FlowStorer
 
         $storable->lazy(
             CustomerRecoveryAware::CUSTOMER_RECOVERY,
-            [$this, 'load'],
+            $this->load(...),
             [$storable->getStore(CustomerRecoveryAware::CUSTOMER_RECOVERY_ID), $storable->getContext()]
         );
     }
@@ -58,8 +54,9 @@ class CustomerRecoveryStorer extends FlowStorer
      */
     public function load(array $args): ?CustomerRecoveryEntity
     {
-        list($id, $context) = $args;
+        [$id, $context] = $args;
         $criteria = new Criteria([$id]);
+        $criteria->addAssociation('customer.salutation');
 
         $customerRecovery = $this->customerRecoveryRepository->search($criteria, $context)->get($id);
 

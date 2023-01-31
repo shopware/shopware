@@ -28,7 +28,7 @@ class ProductUpdaterTest extends TestCase
 
         $indexer->expects(static::once())->method('updateIds')->with($definition, ['id1', 'id2']);
 
-        $event = new ProductIndexerEvent(['id1', 'id2'], [], [], Context::createDefaultContext());
+        $event = new ProductIndexerEvent(['id1', 'id2'], Context::createDefaultContext());
 
         $updater = new ProductUpdater($indexer, $definition);
         $updater->update($event);

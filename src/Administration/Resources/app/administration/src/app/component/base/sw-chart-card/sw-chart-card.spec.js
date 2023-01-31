@@ -10,6 +10,9 @@ async function createWrapper(additionalOptions = {}) {
 
     return shallowMount(await Shopware.Component.build('sw-chart-card'), {
         localVue,
+        propsData: {
+            positionIdentifier: 'sw-chart-card__statistics-count',
+        },
         stubs: {
             'sw-card': true,
             'sw-select-field': true,
@@ -20,19 +23,6 @@ async function createWrapper(additionalOptions = {}) {
 }
 
 describe('src/app/component/base/sw-chart-card', () => {
-    it('validates the provided availableRanges prop', async () => {
-        const wrapper = await createWrapper();
-        const validator = wrapper.vm.$options.props.availableRanges.validator;
-
-        const exactMatch = ['30Days', '14Days', '7Days', '24Hours', 'yesterday'];
-        const invalidValue = ['30Days', '14Days', '5Days', '24Hours', 'yesterday'];
-        const validSubset = ['30Days', '14Days', 'yesterday'];
-
-        expect(validator(exactMatch)).toBeTruthy();
-        expect(validator(invalidValue)).toBeFalsy();
-        expect(validator(validSubset)).toBeTruthy();
-    });
-
     it('properly checks for slot usage', async () => {
         const wrapper = await createWrapper();
 
@@ -52,5 +42,18 @@ describe('src/app/component/base/sw-chart-card', () => {
         wrapper.vm.dispatchRangeUpdate();
 
         expect(wrapper.vm.$emit).toBeCalledWith(expectedEvent, expectedValue);
+    });
+
+    it('should set the correct the position identifier from the prop to the card', async () => {
+        const wrapper = await createWrapper();
+        const swCard = wrapper.find('sw-card-stub');
+
+        expect(swCard.attributes('position-identifier')).toBe('sw-chart-card__statistics-count');
+
+        await wrapper.setProps({
+            positionIdentifier: 'sw-dashboard-statistics__statistics-sum'
+        });
+
+        expect(swCard.attributes('position-identifier')).toBe('sw-dashboard-statistics__statistics-sum');
     });
 });

@@ -20,14 +20,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\RemoteAddressField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Salutation\SalutationDefinition;
 
-/**
- * @package customer-order
- */
+#[Package('customer-order')]
 class OrderCustomerDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'order_customer';
+    final public const ENTITY_NAME = 'order_customer';
 
     public function getEntityName(): string
     {

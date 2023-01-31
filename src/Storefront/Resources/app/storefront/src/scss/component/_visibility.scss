@@ -1,0 +1,17 @@
+@include media-breakpoint-down(md) {
+    .hidden-mobile {
+        display: none;
+    }
+}
+
+@include media-breakpoint-only(md) {
+    .hidden-tablet {
+        display: none;
+    }
+}
+
+@include media-breakpoint-up(lg) {
+    .hidden-desktop {
+        display: none;
+    }
+}

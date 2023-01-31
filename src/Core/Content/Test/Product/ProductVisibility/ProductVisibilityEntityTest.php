@@ -16,15 +16,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
- *
- * @package inventory
  */
+#[Package('inventory')]
 class ProductVisibilityEntityTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -34,15 +34,9 @@ class ProductVisibilityEntityTest extends TestCase
      */
     protected $productRepository;
 
-    /**
-     * @var string
-     */
-    private $salesChannelId1;
+    private string $salesChannelId1;
 
-    /**
-     * @var string
-     */
-    private $salesChannelId2;
+    private string $salesChannelId2;
 
     /**
      * @var EntityRepository
@@ -123,9 +117,7 @@ class ProductVisibilityEntityTest extends TestCase
         static::assertInstanceOf(ProductEntity::class, $product);
 
         $ids = $visibilities->map(
-            function (ProductVisibilityEntity $visibility) {
-                return ['id' => $visibility->getId()];
-            }
+            fn (ProductVisibilityEntity $visibility) => ['id' => $visibility->getId()]
         );
 
         $container = $this->visibilityRepository->delete(array_values($ids), $context);

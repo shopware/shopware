@@ -1,0 +1,63 @@
+<div class="sw-category-detail-custom-entity">
+    <template v-if="category">
+        <sw-card
+            v-if="!Array.isArray(customEntityAssignments)"
+            :title="$tc('sw-category.base.customEntity.cardTitle')"
+            position-identifier="category-detail-custom-entity"
+            class="sw-category-detail-custom-entity__selection-container"
+        >
+            <sw-entity-single-select
+                class="sw-category-detail-custom-entity__assignment"
+                :value="category.customEntityTypeId"
+                :label="$tc('sw-category.base.customEntity.assignment.label')"
+                :help-text="$tc('sw-category.base.customEntity.assignment.helpText')"
+                :disabled="!acl.can('category.editor')"
+                :criteria="customEntityCriteria"
+                entity="custom_entity"
+                required
+                @change="onEntityChange"
+            />
+        </sw-card>
+
+        <sw-many-to-many-assignment-card
+            v-else
+            :entity-collection="customEntityAssignments"
+            :title="$tc('sw-category.base.customEntity.cardTitle')"
+            :columns="customEntityColumns"
+            :local-mode="category.isNew()"
+            label-property="cmsAwareTitle"
+            :criteria="sortingCriteria"
+            :select-label="$tc('sw-category.base.customEntity.instanceAssignment.label')"
+            :placeholder="$tc('sw-category.base.customEntity.instanceAssignment.placeholder')"
+            @change="onAssignmentChange"
+        >
+            <template #prepend-select>
+                <sw-entity-single-select
+                    class="sw-category-detail-custom-entity__assignment"
+                    :value="category.customEntityTypeId"
+                    :label="$tc('sw-category.base.customEntity.assignment.label')"
+                    :help-text="$tc('sw-category.base.customEntity.assignment.helpText')"
+                    :disabled="!acl.can('category.editor')"
+                    :criteria="customEntityCriteria"
+                    entity="custom_entity"
+                    required
+                    @change="onEntityChange"
+                />
+            </template>
+
+            <template #empty-state>
+                <sw-empty-state
+                    :title="$tc('sw-category.base.customEntity.instanceAssignment.emptyState.title')"
+                    :absolute="false"
+                >
+                    <template #icon>
+                        <img
+                            :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
+                            alt="$tc('sw-category.base.customEntity.instanceAssignment.emptyState.title')"
+                        >
+                    </template>
+                </sw-empty-state>
+            </template>
+        </sw-many-to-many-assignment-card>
+    </template>
+</div>

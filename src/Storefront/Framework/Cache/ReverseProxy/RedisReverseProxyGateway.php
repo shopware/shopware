@@ -7,39 +7,14 @@ use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Exception\TransferException;
 use GuzzleHttp\Pool;
 use GuzzleHttp\Psr7\Request;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Symfony\Component\HttpFoundation\Response;
 use function sprintf;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class RedisReverseProxyGateway extends AbstractReverseProxyGateway
 {
-    /**
-     * @var array{'method': string, 'headers': array<string, string>}
-     */
-    protected array $singlePurge;
-
-    /**
-     * @var array{'method': string, 'headers': array<string, string>, 'urls': array<string>}
-     */
-    protected array $entirePurge;
-
-    /**
-     * @var array<string>
-     */
-    private array $hosts;
-
-    private Client $client;
-
-    private int $concurrency;
-
-    /**
-     * @var \Redis|\RedisCluster
-     */
-    private $redis;
-
     private string $keyScript = <<<LUA
 local list = {}
 
@@ -66,14 +41,8 @@ LUA;
      * @param array{'method': string, 'headers': array<string, string>} $singlePurge
      * @param array{'method': string, 'headers': array<string, string>, 'urls': array<string>} $entirePurge
      */
-    public function __construct(array $hosts, array $singlePurge, array $entirePurge, int $concurrency, $redis, Client $client)
+    public function __construct(private readonly array $hosts, protected array $singlePurge, protected array $entirePurge, private readonly int $concurrency, private $redis, private readonly Client $client)
     {
-        $this->hosts = $hosts;
-        $this->client = $client;
-        $this->concurrency = $concurrency;
-        $this->redis = $redis;
-        $this->singlePurge = $singlePurge;
-        $this->entirePurge = $entirePurge;
     }
 
     /**

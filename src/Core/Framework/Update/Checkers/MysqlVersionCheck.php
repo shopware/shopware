@@ -3,24 +3,17 @@
 namespace Shopware\Core\Framework\Update\Checkers;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Update\Struct\ValidationResult;
 
-/**
- * @package system-settings
- */
+#[Package('system-settings')]
 class MysqlVersionCheck implements CheckerInterface
 {
     /**
-     * @var Connection
-     */
-    private $connection;
-
-    /**
      * @internal
      */
-    public function __construct(Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     public function supports(string $check): bool

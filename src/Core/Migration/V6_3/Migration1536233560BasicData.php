@@ -25,15 +25,15 @@ use Shopware\Core\Content\Newsletter\Event\NewsletterRegisterEvent;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class Migration1536233560BasicData extends MigrationStep
 {
     /**
@@ -208,23 +208,19 @@ class Migration1536233560BasicData extends MigrationStep
 
     private function createCountry(Connection $connection): void
     {
-        $languageDE = function (string $countryId, string $name) {
-            return [
-                'language_id' => Uuid::fromHexToBytes($this->getDeDeLanguageId()),
-                'name' => $name,
-                'country_id' => $countryId,
-                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-            ];
-        };
+        $languageDE = fn (string $countryId, string $name) => [
+            'language_id' => Uuid::fromHexToBytes($this->getDeDeLanguageId()),
+            'name' => $name,
+            'country_id' => $countryId,
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ];
 
-        $languageEN = static function (string $countryId, string $name) {
-            return [
-                'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
-                'name' => $name,
-                'country_id' => $countryId,
-                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-            ];
-        };
+        $languageEN = static fn (string $countryId, string $name) => [
+            'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
+            'name' => $name,
+            'country_id' => $countryId,
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ];
 
         $deId = Uuid::randomBytes();
         $connection->insert('country', ['id' => $deId, 'iso' => 'DE', 'position' => 1, 'iso3' => 'DEU', 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
@@ -1018,9 +1014,7 @@ class Migration1536233560BasicData extends MigrationStep
     private function getMediaFolderName(string $entity): string
     {
         $capitalizedEntityParts = array_map(
-            static function ($part) {
-                return ucfirst($part);
-            },
+            static fn ($part) => ucfirst((string) $part),
             explode('_', $entity)
         );
 
@@ -1865,7 +1859,7 @@ class Migration1536233560BasicData extends MigrationStep
         foreach ($definitionMailTypes as $typeName => $mailType) {
             $availableEntities = null;
             if (\array_key_exists('availableEntities', $mailType)) {
-                $availableEntities = json_encode($mailType['availableEntities']);
+                $availableEntities = json_encode($mailType['availableEntities'], \JSON_THROW_ON_ERROR);
             }
 
             $connection->insert(
@@ -2142,7 +2136,7 @@ class Migration1536233560BasicData extends MigrationStep
                 'action_name' => MailTemplateActions::MAIL_TEMPLATE_MAIL_SEND_ACTION,
                 'config' => json_encode([
                     'mail_template_type_id' => $this->getMailTypeMapping()[MailTemplateTypes::MAILTYPE_ORDER_CONFIRM]['id'],
-                ]),
+                ], \JSON_THROW_ON_ERROR),
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );
@@ -2315,7 +2309,7 @@ class Migration1536233560BasicData extends MigrationStep
                 'action_name' => MailTemplateActions::MAIL_TEMPLATE_MAIL_SEND_ACTION,
                 'config' => json_encode([
                     'mail_template_type_id' => $this->getMailTypeMapping()[MailTemplateTypes::MAILTYPE_CUSTOMER_REGISTER]['id'],
-                ]),
+                ], \JSON_THROW_ON_ERROR),
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );
@@ -2328,7 +2322,7 @@ class Migration1536233560BasicData extends MigrationStep
                 'action_name' => MailTemplateActions::MAIL_TEMPLATE_MAIL_SEND_ACTION,
                 'config' => json_encode([
                     'mail_template_type_id' => $this->getMailTypeMapping()['newsletterDoubleOptIn']['id'],
-                ]),
+                ], \JSON_THROW_ON_ERROR),
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );
@@ -2341,7 +2335,7 @@ class Migration1536233560BasicData extends MigrationStep
                 'action_name' => MailTemplateActions::MAIL_TEMPLATE_MAIL_SEND_ACTION,
                 'config' => json_encode([
                     'mail_template_type_id' => $this->getMailTypeMapping()['newsletterRegister']['id'],
-                ]),
+                ], \JSON_THROW_ON_ERROR),
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );

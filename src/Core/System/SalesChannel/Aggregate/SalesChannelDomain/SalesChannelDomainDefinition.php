@@ -16,17 +16,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetDefinition;
 
-/**
- * @package sales-channel
- */
+#[Package('sales-channel')]
 class SalesChannelDomainDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'sales_channel_domain';
+    final public const ENTITY_NAME = 'sales_channel_domain';
 
     public function getEntityName(): string
     {

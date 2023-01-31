@@ -23,9 +23,9 @@
     }
 
     .sw-settings-document-detail__company-address-checkbox {
-        margin-top: 22px;
         grid-column-start: 1;
         grid-column-end: 3;
+        height: 100%;
     }
 
     .sw-settings-document-detail__field_delivery_countries {
@@ -37,6 +37,12 @@
     }
 
     .sw-field--checkbox .sw-field--checkbox__content {
-        align-items: start;
+        align-items: center;
+        height: 100%;
+    }
+
+    .sw-field--text,
+    .sw-field--checkbox {
+        margin-bottom: 22px;
     }
 }

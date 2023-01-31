@@ -5,32 +5,23 @@ namespace Shopware\Core\Checkout\Promotion\Api;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupPackagerInterface;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupServiceRegistry;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupSorterInterface;
-use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @package checkout
- *
- * @Route(defaults={"_routeScope"={"api"}})
- */
+#[Route(defaults: ['_routeScope' => ['api']])]
+#[Package('checkout')]
 class PromotionActionController extends AbstractController
 {
-    private LineItemGroupServiceRegistry $serviceRegistry;
-
     /**
      * @internal
      */
-    public function __construct(LineItemGroupServiceRegistry $serviceRegistry)
+    public function __construct(private readonly LineItemGroupServiceRegistry $serviceRegistry)
     {
-        $this->serviceRegistry = $serviceRegistry;
     }
 
-    /**
-     * @Since("6.0.0.0")
-     * @Route("/api/_action/promotion/setgroup/packager", name="api.action.promotion.setgroup.packager", methods={"GET"}, defaults={"_acl"={"promotion.viewer"}})
-     */
+    #[Route(path: '/api/_action/promotion/setgroup/packager', name: 'api.action.promotion.setgroup.packager', methods: ['GET'], defaults: ['_acl' => ['promotion.viewer']])]
     public function getSetGroupPackagers(): JsonResponse
     {
         $packagerKeys = [];
@@ -43,10 +34,7 @@ class PromotionActionController extends AbstractController
         return new JsonResponse($packagerKeys);
     }
 
-    /**
-     * @Since("6.0.0.0")
-     * @Route("/api/_action/promotion/setgroup/sorter", name="api.action.promotion.setgroup.sorter", methods={"GET"}, defaults={"_acl"={"promotion.viewer"}})
-     */
+    #[Route(path: '/api/_action/promotion/setgroup/sorter', name: 'api.action.promotion.setgroup.sorter', methods: ['GET'], defaults: ['_acl' => ['promotion.viewer']])]
     public function getSetGroupSorters(): JsonResponse
     {
         $sorterKeys = [];

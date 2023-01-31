@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Store\Authentication\StoreRequestOptionsProvider;
@@ -32,15 +33,14 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @package merchant-services
- *
  * @internal
  * @final
  */
+#[Package('merchant-services')]
 class FirstRunWizardService
 {
-    public const USER_CONFIG_KEY_FRW_USER_TOKEN = 'core.frw.userToken';
-    public const USER_CONFIG_VALUE_FRW_USER_TOKEN = 'frwUserToken';
+    final public const USER_CONFIG_KEY_FRW_USER_TOKEN = 'core.frw.userToken';
+    final public const USER_CONFIG_VALUE_FRW_USER_TOKEN = 'frwUserToken';
 
     private const TRACKING_EVENT_FRW_STARTED = 'First Run Wizard started';
     private const TRACKING_EVENT_FRW_FINISHED = 'First Run Wizard finished';
@@ -289,7 +289,7 @@ class FirstRunWizardService
     {
         try {
             $this->filesystem->write($validationRequest->getFileName(), $validationRequest->getContent());
-        } catch (UnableToWriteFile $e) {
+        } catch (UnableToWriteFile) {
             throw new LicenseDomainVerificationException($domain);
         }
     }

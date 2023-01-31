@@ -4,7 +4,8 @@ namespace Shopware\Core\Framework\Api\EventListener;
 
 use Composer\InstalledVersions;
 use Composer\Semver\Semver;
-use Shopware\Core\Framework\Api\Exception\ExceptionFailedException;
+use Shopware\Core\Framework\Api\Exception\ExpectationFailedException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\PlatformRequest;
@@ -17,9 +18,8 @@ use Symfony\Component\HttpKernel\KernelEvents;
  * @internal
  *
  * @phpstan-type PluginData array{'composerName': string, 'active': bool, 'version': string}
- *
- * @package core
  */
+#[Package('core')]
 class ExpectationSubscriber implements EventSubscriberInterface
 {
     private const SHOPWARE_CORE_PACKAGES = [
@@ -30,22 +30,13 @@ class ExpectationSubscriber implements EventSubscriberInterface
         'shopware/storefront',
     ];
 
-    private string $shopwareVersion;
-
-    /**
-     * @var list<PluginData>
-     */
-    private array $plugins;
-
     /**
      * @internal
      *
      * @param list<PluginData> $plugins
      */
-    public function __construct(string $shopwareVersion, array $plugins)
+    public function __construct(private readonly string $shopwareVersion, private readonly array $plugins)
     {
-        $this->shopwareVersion = $shopwareVersion;
-        $this->plugins = $plugins;
     }
 
     public static function getSubscribedEvents(): array
@@ -73,7 +64,7 @@ class ExpectationSubscriber implements EventSubscriberInterface
         $expectations = $this->checkPackages($request);
 
         if (\count($expectations)) {
-            throw new ExceptionFailedException($expectations);
+            throw new ExpectationFailedException($expectations);
         }
     }
 
@@ -108,7 +99,7 @@ class ExpectationSubscriber implements EventSubscriberInterface
             } else {
                 try {
                     $installedVersion = InstalledVersions::getPrettyVersion($name);
-                } catch (\OutOfBoundsException $e) {
+                } catch (\OutOfBoundsException) {
                     $fails[] = sprintf('Requested package: %s is not available', $name);
 
                     continue;

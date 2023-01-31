@@ -4,11 +4,10 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Exception;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
-/**
- * @package core
- */
+#[Package('core')]
 class ParentFieldForeignKeyConstraintMissingException extends ShopwareHttpException
 {
     public function __construct(EntityDefinition $definition, Field $parentField)
@@ -18,7 +17,7 @@ class ParentFieldForeignKeyConstraintMissingException extends ShopwareHttpExcept
             [
                 'definition' => $definition->getEntityName(),
                 'propertyName' => $parentField->getPropertyName(),
-                'propertyClass' => \get_class($parentField),
+                'propertyClass' => $parentField::class,
             ]
         );
     }

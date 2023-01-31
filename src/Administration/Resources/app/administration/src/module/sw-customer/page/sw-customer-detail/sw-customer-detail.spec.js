@@ -23,35 +23,34 @@ async function createWrapper(privileges = []) {
                 }
             }
         },
-        provide: { repositoryFactory: {
-            create: () => {
-                return {
-                    get: () => Promise.resolve({
-                        id: 'test',
-                        requestedGroup: {
-                            translated: {
-                                name: 'Test'
+        provide: {
+            repositoryFactory: {
+                create: () => {
+                    return {
+                        get: () => Promise.resolve({
+                            id: 'test',
+                            requestedGroup: {
+                                translated: {
+                                    name: 'Test'
+                                }
                             }
-                        }
-                    })
-                };
-            }
-        },
-        acl: {
-            can: (identifier) => {
-                if (!identifier) { return true; }
+                        })
+                    };
+                }
+            },
+            acl: {
+                can: (identifier) => {
+                    if (!identifier) { return true; }
 
-                return privileges.includes(identifier);
-            }
+                    return privileges.includes(identifier);
+                }
+            },
+            customerGroupRegistrationService: {
+                accept: jest.fn().mockResolvedValue(true),
+                decline: jest.fn().mockResolvedValue(true)
+            },
+            customerValidationService: {},
         },
-        customerGroupRegistrationService: {
-            accept: jest.fn().mockResolvedValue(true),
-            decline: jest.fn().mockResolvedValue(true)
-        },
-        customerValidationService: {},
-        systemConfigApiService: {
-            getValues: () => Promise.resolve([])
-        } },
         propsData: {
             customerEditMode: false,
             customerId: 'test',
@@ -196,7 +195,7 @@ describe('module/sw-customer/page/sw-customer-detail', () => {
 
         expect(notificationMock).toBeCalledTimes(1);
         expect(notificationMock).toHaveBeenCalledWith({
-            message: 'sw-customer.error.COMPANY_IS_REQUIRED'
+            message: 'sw-customer.detail.messageSaveError'
         });
 
         wrapperWithPrivileges.vm.createNotificationError.mockRestore();

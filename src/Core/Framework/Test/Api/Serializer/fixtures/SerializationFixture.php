@@ -17,7 +17,7 @@ abstract class SerializationFixture
     /**
      * @return EntityCollection<Entity>|Entity
      */
-    abstract public function getInput();
+    abstract public function getInput(): EntityCollection|Entity;
 
     public function getAdminJsonApiFixtures(): array
     {

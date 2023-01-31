@@ -2,61 +2,33 @@
 
 namespace Shopware\Core\Framework\Webhook\Message;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
 
-/**
- * @package core
- */
+#[Package('core')]
 class WebhookEventMessage implements AsyncMessageInterface
 {
-    private array $payload;
-
-    private ?string $appId;
-
-    private string $webhookId;
-
-    private string $url;
-
-    private string $shopwareVersion;
-
-    private string $webhookEventId;
-
-    private ?string $secret;
-
-    /**
-     * @depretacted tag:v6.5.0 - This will be required in the future
-     **/
-    private ?string $languageId;
-
-    /**
-     * @depretacted tag:v6.5.0 - This will be required in the future
-     **/
-    private ?string $userLocale;
-
     /**
      * @internal
      * @depretacted tag:v6.5.0 - Parameters $languageId and $userLocale will be required
      **/
     public function __construct(
-        string $webhookEventId,
-        array $payload,
-        ?string $appId,
-        string $webhookId,
-        string $shopwareVersion,
-        string $url,
-        ?string $secret = null,
-        ?string $languageId = null,
-        ?string $userLocale = null
+        private readonly string $webhookEventId,
+        private readonly array $payload,
+        private readonly ?string $appId,
+        private readonly string $webhookId,
+        private readonly string $shopwareVersion,
+        private readonly string $url,
+        private readonly ?string $secret = null,
+        /**
+         * @depretacted tag:v6.5.0 - This will be required in the future
+         **/
+        private readonly ?string $languageId = null,
+        /**
+         * @depretacted tag:v6.5.0 - This will be required in the future
+         **/
+        private readonly ?string $userLocale = null
     ) {
-        $this->webhookEventId = $webhookEventId;
-        $this->payload = $payload;
-        $this->appId = $appId;
-        $this->webhookId = $webhookId;
-        $this->shopwareVersion = $shopwareVersion;
-        $this->url = $url;
-        $this->secret = $secret;
-        $this->languageId = $languageId;
-        $this->userLocale = $userLocale;
     }
 
     public function getPayload(): array

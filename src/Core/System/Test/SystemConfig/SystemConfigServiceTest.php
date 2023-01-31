@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ConfigJsonField;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -21,9 +22,8 @@ use function json_encode;
 
 /**
  * @internal
- *
- * @package system-settings
  */
+#[Package('system-settings')]
 class SystemConfigServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -384,7 +384,7 @@ class SystemConfigServiceTest extends TestCase
             $inserts->addInsert('system_config', [
                 'id' => Uuid::randomBytes(),
                 'configuration_key' => (string) $i,
-                'configuration_value' => json_encode([ConfigJsonField::STORAGE_KEY => $i]),
+                'configuration_value' => json_encode([ConfigJsonField::STORAGE_KEY => $i], \JSON_THROW_ON_ERROR),
                 'sales_channel_id' => null,
                 'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]);

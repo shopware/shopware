@@ -3,13 +3,13 @@
 namespace Shopware\Core\Migration\V6_4;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class Migration1636362839FlowBuilderGenerateMultipleDoc extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -34,7 +34,7 @@ class Migration1636362839FlowBuilderGenerateMultipleDoc extends MigrationStep
                     'newConfig' => json_encode(
                         [
                             'documentTypes' => [
-                                json_decode($actionGenerateDoc['config'], true),
+                                json_decode((string) $actionGenerateDoc['config'], true, 512, \JSON_THROW_ON_ERROR),
                             ],
                         ],
                         2

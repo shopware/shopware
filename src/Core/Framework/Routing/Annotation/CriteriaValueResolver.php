@@ -6,20 +6,19 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Controller\ValueResolverInterface;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 
-/**
- * @package core
- */
+#[Package('core')]
 class CriteriaValueResolver implements ValueResolverInterface
 {
     /**
      * @internal
      */
-    public function __construct(private DefinitionInstanceRegistry $registry, private RequestCriteriaBuilder $criteriaBuilder)
+    public function __construct(private readonly DefinitionInstanceRegistry $registry, private readonly RequestCriteriaBuilder $criteriaBuilder)
     {
     }
 
@@ -29,12 +28,13 @@ class CriteriaValueResolver implements ValueResolverInterface
             return;
         }
 
-        $annotation = $request->attributes->get('_entity');
+        /** @var string|null $entity */
+        $entity = $request->attributes->get(PlatformRequest::ATTRIBUTE_ENTITY);
 
-        if (!$annotation instanceof Entity) {
+        if (!$entity) {
             $route = $request->attributes->get('_route');
 
-            throw new \RuntimeException('Missing @Entity annotation for route: ' . $route);
+            throw new \RuntimeException('Missing _entity route default for route: ' . $route);
         }
 
         $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
@@ -44,13 +44,11 @@ class CriteriaValueResolver implements ValueResolverInterface
             throw new \RuntimeException('Missing context for route ' . $route);
         }
 
-        $criteria = $this->criteriaBuilder->handleRequest(
+        yield $this->criteriaBuilder->handleRequest(
             $request,
             new Criteria(),
-            $this->registry->getByEntityName($annotation->getValue()),
+            $this->registry->getByEntityName($entity),
             $context
         );
-
-        yield $criteria;
     }
 }

@@ -59,7 +59,7 @@
                     class="sw-category-layout-card__desc-subheadline"
                     :class="{ 'is--empty': !cmsPage }"
                 >
-                    {{ cmsPage ? cmsPageTypes[cmsPage.type] : $tc('sw-category.base.cms.defaultDesc') }}
+                    {{ pageTypeTitle }}
                 </div>
                 {% endblock %}
 
@@ -90,7 +90,7 @@
                     :disabled="!acl.can('category.editor')"
                     @click="openInPagebuilder"
                 >
-                    {{ cmsPage ? $tc('sw-category.base.cms.editInPagebuilder'): $tc('sw-category.base.cms.editInPagebuilderEmpty') }}
+                    {{ cmsPage ? $tc('sw-category.base.cms.editInPagebuilder') : $tc('sw-category.base.cms.editInPagebuilderEmpty') }}
                 </sw-button>
                 {% endblock %}
 

@@ -3,12 +3,12 @@
 namespace Shopware\Core\Framework\App\Manifest\Xml;
 
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal only for use by the app-system
- *
- * @package core
  */
+#[Package('core')]
 class Permissions extends XmlElement
 {
     /**
@@ -148,11 +148,9 @@ class Permissions extends XmlElement
 
         $privilegeValues = [];
         foreach ($grantedPrivileges as $resource => $privileges) {
-            $newPrivileges = array_map(static function (string $privilege) use ($resource): string {
-                return $resource . ':' . $privilege;
-            }, $privileges);
+            $newPrivileges = array_map(static fn (string $privilege): string => $resource . ':' . $privilege, $privileges);
 
-            $privilegeValues = array_merge($privilegeValues, $newPrivileges);
+            $privilegeValues = [...$privilegeValues, ...$newPrivileges];
         }
 
         return array_merge($privilegeValues, $this->additionalPrivileges);

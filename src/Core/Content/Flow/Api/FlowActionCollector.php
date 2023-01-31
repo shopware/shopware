@@ -9,35 +9,19 @@ use Shopware\Core\Framework\App\Aggregate\FlowAction\AppFlowActionEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package business-ops
- */
+#[Package('business-ops')]
 class FlowActionCollector
 {
-    /**
-     * @var iterable<FlowAction>
-     */
-    protected iterable $actions;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private EntityRepository $appFlowActionRepo;
-
     /**
      * @internal
      *
      * @param iterable<FlowAction> $actions
      */
-    public function __construct(
-        iterable $actions,
-        EventDispatcherInterface $eventDispatcher,
-        EntityRepository $appFlowActionRepo
-    ) {
-        $this->actions = $actions;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->appFlowActionRepo = $appFlowActionRepo;
+    public function __construct(protected iterable $actions, private readonly EventDispatcherInterface $eventDispatcher, private readonly EntityRepository $appFlowActionRepo)
+    {
     }
 
     public function collect(Context $context): FlowActionCollectorResponse

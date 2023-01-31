@@ -3,11 +3,10 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
-/**
- * @package customer-order
- */
+#[Package('customer-order')]
 class CustomerGroupRegistrationSettingsRouteResponse extends StoreApiResponse
 {
     /**

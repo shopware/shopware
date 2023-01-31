@@ -30,55 +30,18 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class RecalculationService
 {
-    protected EntityRepository $orderRepository;
-
-    protected OrderConverter $orderConverter;
-
-    protected CartService $cartService;
-
-    protected EntityRepository $productRepository;
-
-    protected EntityRepository $orderAddressRepository;
-
-    protected EntityRepository $customerAddressRepository;
-
-    protected Processor $processor;
-
-    private CartRuleLoader $cartRuleLoader;
-
-    private PromotionItemBuilder $promotionItemBuilder;
-
     /**
      * @internal
      */
-    public function __construct(
-        EntityRepository $orderRepository,
-        OrderConverter $orderConverter,
-        CartService $cartService,
-        EntityRepository $productRepository,
-        EntityRepository $orderAddressRepository,
-        EntityRepository $customerAddressRepository,
-        Processor $processor,
-        CartRuleLoader $cartRuleLoader,
-        PromotionItemBuilder $promotionItemBuilder
-    ) {
-        $this->orderRepository = $orderRepository;
-        $this->orderConverter = $orderConverter;
-        $this->cartService = $cartService;
-        $this->productRepository = $productRepository;
-        $this->orderAddressRepository = $orderAddressRepository;
-        $this->customerAddressRepository = $customerAddressRepository;
-        $this->processor = $processor;
-        $this->cartRuleLoader = $cartRuleLoader;
-        $this->promotionItemBuilder = $promotionItemBuilder;
+    public function __construct(protected EntityRepository $orderRepository, protected OrderConverter $orderConverter, protected CartService $cartService, protected EntityRepository $productRepository, protected EntityRepository $orderAddressRepository, protected EntityRepository $customerAddressRepository, protected Processor $processor, private readonly CartRuleLoader $cartRuleLoader, private readonly PromotionItemBuilder $promotionItemBuilder)
+    {
     }
 
     /**
@@ -334,7 +297,7 @@ class RecalculationService
     private function fetchOrder(string $orderId, Context $context): ?OrderEntity
     {
         $criteria = (new Criteria([$orderId]))
-            ->addAssociation('lineItems')
+            ->addAssociation('lineItems.downloads')
             ->addAssociation('transactions')
             ->addAssociation('deliveries.shippingMethod')
             ->addAssociation('deliveries.positions.orderLineItem')

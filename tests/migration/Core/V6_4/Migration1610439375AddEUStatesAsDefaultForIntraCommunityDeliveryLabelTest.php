@@ -31,13 +31,13 @@ class Migration1610439375AddEUStatesAsDefaultForIntraCommunityDeliveryLabelTest 
 
         $listInvoiceData = $this->getListInvoiceData();
         foreach ($listInvoiceData as $invoiceData) {
-            $invoiceConfig = json_decode($invoiceData['config'], true);
+            $invoiceConfig = json_decode($invoiceData['config'], true, 512, \JSON_THROW_ON_ERROR);
             unset($invoiceConfig['deliveryCountries']);
 
             $this->connection->executeStatement(
                 'UPDATE `document_base_config` SET `config` = :invoiceData WHERE `id` = :documentConfigId',
                 [
-                    'invoiceData' => json_encode($invoiceConfig),
+                    'invoiceData' => json_encode($invoiceConfig, \JSON_THROW_ON_ERROR),
                     'documentConfigId' => $invoiceData['id'],
                 ]
             );
@@ -55,7 +55,7 @@ class Migration1610439375AddEUStatesAsDefaultForIntraCommunityDeliveryLabelTest 
         )->fetchFirstColumn();
 
         foreach ($listInvoiceData as $invoiceData) {
-            $invoiceConfig = json_decode($invoiceData['config'], true);
+            $invoiceConfig = json_decode($invoiceData['config'], true, 512, \JSON_THROW_ON_ERROR);
 
             $actual = $invoiceConfig['deliveryCountries'];
             sort($actual);
@@ -72,13 +72,13 @@ class Migration1610439375AddEUStatesAsDefaultForIntraCommunityDeliveryLabelTest 
         $listInvoiceData = $this->getListInvoiceData();
 
         foreach ($listInvoiceData as $invoiceData) {
-            $invoiceConfig = json_decode($invoiceData['config'], true);
+            $invoiceConfig = json_decode($invoiceData['config'], true, 512, \JSON_THROW_ON_ERROR);
             unset($invoiceConfig['deliveryCountries']);
 
             $this->connection->executeStatement(
                 'UPDATE `document_base_config` SET `config` = :invoiceData WHERE `id` = :documentConfigId',
                 [
-                    'invoiceData' => json_encode($invoiceConfig),
+                    'invoiceData' => json_encode($invoiceConfig, \JSON_THROW_ON_ERROR),
                     'documentConfigId' => $invoiceData['id'],
                 ]
             );
@@ -132,7 +132,7 @@ class Migration1610439375AddEUStatesAsDefaultForIntraCommunityDeliveryLabelTest 
                     'id' => Uuid::randomBytes(),
                     'name' => 'test invoice',
                     'document_type_id' => $documentTypeId,
-                    'config' => json_encode($config),
+                    'config' => json_encode($config, \JSON_THROW_ON_ERROR),
                     'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 ]
             );

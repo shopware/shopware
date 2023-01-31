@@ -2,14 +2,14 @@
 
 namespace Shopware\Core\Test\Annotation;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
- * @package core
- *
  * @internal
  * @Annotation
- *
  * @Target({"METHOD", "CLASS"})
  */
+#[Package('core')]
 final class DisabledFeatures
 {
     /**

@@ -13,35 +13,19 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  *
  * @phpstan-type MailAttachments array<int, array{id?: string, content: string, fileName: string, mimeType: string|null}>
- *
- * @package system-settings
  */
+#[Package('system-settings')]
 class MailAttachmentsBuilder
 {
-    private MediaService $mediaService;
-
-    private EntityRepository $mediaRepository;
-
-    private DocumentGenerator $documentGenerator;
-
-    private Connection $connection;
-
-    public function __construct(
-        MediaService $mediaService,
-        EntityRepository $mediaRepository,
-        DocumentGenerator $documentGenerator,
-        Connection $connection
-    ) {
-        $this->mediaService = $mediaService;
-        $this->mediaRepository = $mediaRepository;
-        $this->documentGenerator = $documentGenerator;
-        $this->connection = $connection;
+    public function __construct(private readonly MediaService $mediaService, private readonly EntityRepository $mediaRepository, private readonly DocumentGenerator $documentGenerator, private readonly Connection $connection)
+    {
     }
 
     /**

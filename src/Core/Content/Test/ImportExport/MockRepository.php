@@ -12,12 +12,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal can only be used in test setups where bypass finals is activated
- *
- * @package system-settings
  */
+#[Package('system-settings')]
 class MockRepository extends EntityRepository
 {
     public $createCalls = 0;
@@ -26,14 +26,8 @@ class MockRepository extends EntityRepository
 
     public $upsertCalls = 0;
 
-    /**
-     * @var EntityDefinition
-     */
-    private $definition;
-
-    public function __construct(EntityDefinition $definition)
+    public function __construct(private readonly EntityDefinition $definition)
     {
-        $this->definition = $definition;
     }
 
     public function getDefinition(): EntityDefinition

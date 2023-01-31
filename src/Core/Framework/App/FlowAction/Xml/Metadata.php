@@ -3,21 +3,21 @@
 namespace Shopware\Core\Framework\App\FlowAction\Xml;
 
 use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 class Metadata extends XmlElement
 {
-    public const TRANSLATABLE_FIELDS = [
+    final public const TRANSLATABLE_FIELDS = [
         'label',
         'description',
         'headline',
     ];
 
-    public const REQUIRED_FIELDS = [
+    final public const REQUIRED_FIELDS = [
         'label',
         'name',
         'url',
@@ -154,7 +154,7 @@ class Metadata extends XmlElement
     }
 
     /**
-     * @return array<string, mixed>
+     * @return array<mixed>
      */
     private static function parse(\DOMElement $element): array
     {

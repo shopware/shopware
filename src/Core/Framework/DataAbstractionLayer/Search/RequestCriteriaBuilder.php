@@ -22,11 +22,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\CountSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @package core
- */
+#[Package('core')]
 class RequestCriteriaBuilder
 {
     private const TOTAL_COUNT_MODE_MAPPING = [
@@ -39,10 +38,10 @@ class RequestCriteriaBuilder
      * @internal
      */
     public function __construct(
-        private AggregationParser $aggregationParser,
-        private ApiCriteriaValidator $validator,
-        private CriteriaArrayConverter $converter,
-        private ?int $maxLimit = null
+        private readonly AggregationParser $aggregationParser,
+        private readonly ApiCriteriaValidator $validator,
+        private readonly CriteriaArrayConverter $converter,
+        private readonly ?int $maxLimit = null
     ) {
     }
 
@@ -195,13 +194,13 @@ class RequestCriteriaBuilder
             $naturalSorting = $sort['naturalSorting'] ?? false;
             $type = $sort['type'] ?? '';
 
-            if (strcasecmp($order, 'desc') === 0) {
+            if (strcasecmp((string) $order, 'desc') === 0) {
                 $order = FieldSorting::DESCENDING;
             } else {
                 $order = FieldSorting::ASCENDING;
             }
 
-            $class = strcasecmp($type, 'count') === 0 ? CountSorting::class : FieldSorting::class;
+            $class = strcasecmp((string) $type, 'count') === 0 ? CountSorting::class : FieldSorting::class;
 
             $sortings[] = new $class(
                 $this->buildFieldName($definition, $sort['field']),

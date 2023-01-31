@@ -4,14 +4,14 @@ namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class Migration1575010262AddCmsFormLayouts extends MigrationStep
 {
     private const CONTACT = 'contact';
@@ -36,6 +36,7 @@ class Migration1575010262AddCmsFormLayouts extends MigrationStep
 
     private function addDefaultContactFormLayout(Connection $connection, string $formType, string $formTypeDe): void
     {
+        $slotTranslations = [];
         $languageEn = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
         $languageDe = $this->getLanguageDeId($connection);
         $versionId = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);

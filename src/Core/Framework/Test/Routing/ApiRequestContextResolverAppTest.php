@@ -11,10 +11,10 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
@@ -26,9 +26,11 @@ class ApiRequestContextResolverAppTest extends TestCase
     use AdminApiTestBehaviour;
     use AppSystemTestBehaviour;
 
+    private static string $fixturesPath = __DIR__ . '/../../../../../tests/integration/php/Core/Framework/App/Manifest/_fixtures';
+
     public function testCanReadWithPermission(): void
     {
-        $this->loadAppsFromDir(__DIR__ . '/../App/Manifest/_fixtures/test');
+        $this->loadAppsFromDir(self::$fixturesPath . '/test');
 
         $browser = $this->createClient();
         $this->authorizeBrowserWithIntegrationByAppName($this->getBrowser(), 'test');
@@ -42,7 +44,7 @@ class ApiRequestContextResolverAppTest extends TestCase
 
     public function testCantReadWithoutPermission(): void
     {
-        $this->loadAppsFromDir(__DIR__ . '/../App/Manifest/_fixtures/test');
+        $this->loadAppsFromDir(self::$fixturesPath . '/test');
 
         $browser = $this->createClient();
         $this->authorizeBrowserWithIntegrationByAppName($browser, 'test');
@@ -54,7 +56,7 @@ class ApiRequestContextResolverAppTest extends TestCase
 
     public function testCantReadWithoutAnyPermission(): void
     {
-        $this->loadAppsFromDir(__DIR__ . '/../App/Manifest/_fixtures/minimal');
+        $this->loadAppsFromDir(self::$fixturesPath . '/minimal');
 
         $browser = $this->createClient();
         $this->authorizeBrowserWithIntegrationByAppName($browser, 'minimal');
@@ -69,7 +71,7 @@ class ApiRequestContextResolverAppTest extends TestCase
         $productId = Uuid::randomHex();
         $context = Context::createDefaultContext();
 
-        $this->loadAppsFromDir(__DIR__ . '/../App/Manifest/_fixtures/minimal');
+        $this->loadAppsFromDir(self::$fixturesPath . '/minimal');
 
         $browser = $this->createClient();
         $this->authorizeBrowserWithIntegrationByAppName($browser, 'minimal');
@@ -86,7 +88,7 @@ class ApiRequestContextResolverAppTest extends TestCase
 
         static::assertIsString($response->getContent());
         static::assertEquals(403, $response->getStatusCode(), $response->getContent());
-        $data = json_decode($response->getContent(), true);
+        $data = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertEquals(MissingPrivilegeException::MISSING_PRIVILEGE_ERROR, $data['errors'][0]['code']);
     }
 
@@ -97,7 +99,7 @@ class ApiRequestContextResolverAppTest extends TestCase
         $productId = Uuid::randomHex();
         $context = Context::createDefaultContext();
 
-        $this->loadAppsFromDir(__DIR__ . '/../App/Manifest/_fixtures/test');
+        $this->loadAppsFromDir(self::$fixturesPath . '/test');
 
         $browser = $this->createClient();
         $this->authorizeBrowserWithIntegrationByAppName($browser, 'test');
@@ -128,7 +130,7 @@ class ApiRequestContextResolverAppTest extends TestCase
 
         $productRepository->create([$this->getProductData($productId, $context)], $context);
 
-        $this->loadAppsFromDir(__DIR__ . '/../App/Manifest/_fixtures/test');
+        $this->loadAppsFromDir(self::$fixturesPath . '/test');
 
         $browser = $this->createClient();
         $this->authorizeBrowserWithIntegrationByAppName($browser, 'test');
@@ -174,7 +176,7 @@ class ApiRequestContextResolverAppTest extends TestCase
         $browser->request('POST', '/api/oauth/token', $authPayload);
 
         static::assertIsString($browser->getResponse()->getContent());
-        $data = json_decode($browser->getResponse()->getContent(), true);
+        $data = json_decode($browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         if (!\array_key_exists('access_token', $data)) {
             throw new \RuntimeException(

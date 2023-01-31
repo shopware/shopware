@@ -21,31 +21,31 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
- * @package content
- *
  * @internal
  */
+#[Package('content')]
 class MediaDeletionSubscriber implements EventSubscriberInterface
 {
-    public const SYNCHRONE_FILE_DELETE = 'synchrone-file-delete';
+    final public const SYNCHRONE_FILE_DELETE = 'synchrone-file-delete';
 
     /**
      * @internal
      */
     public function __construct(
-        private UrlGeneratorInterface $urlGenerator,
-        private EventDispatcherInterface $dispatcher,
-        private EntityRepository $thumbnailRepository,
-        private MessageBusInterface $messageBus,
-        private DeleteFileHandler $deleteFileHandler,
-        private Connection $connection,
-        private EntityRepository $mediaRepository
+        private readonly UrlGeneratorInterface $urlGenerator,
+        private readonly EventDispatcherInterface $dispatcher,
+        private readonly EntityRepository $thumbnailRepository,
+        private readonly MessageBusInterface $messageBus,
+        private readonly DeleteFileHandler $deleteFileHandler,
+        private readonly Connection $connection,
+        private readonly EntityRepository $mediaRepository
     ) {
     }
 
@@ -75,26 +75,31 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
         }
 
         if ($event->getDefinition()->getEntityName() === MediaDefinition::ENTITY_NAME) {
-            $event->getCriteria()->addFilter(new EqualsFilter('private', false));
-
-            return;
+            $event->getCriteria()->addFilter(
+                new MultiFilter('OR', [
+                    new EqualsFilter('private', false),
+                    new MultiFilter('AND', [
+                        new EqualsFilter('private', true),
+                        new EqualsFilter('mediaFolder.defaultFolder.entity', 'product_download'),
+                    ]),
+                ])
+            );
         }
     }
 
     public function beforeDelete(BeforeDeleteEvent $event): void
     {
-        $affected = $event->getIds(MediaThumbnailDefinition::ENTITY_NAME);
-
+        $affected = array_values($event->getIds(MediaThumbnailDefinition::ENTITY_NAME));
         if (!empty($affected)) {
             $this->handleThumbnailDeletion($event, $affected, $event->getContext());
         }
 
-        $affected = $event->getIds(MediaFolderDefinition::ENTITY_NAME);
+        $affected = array_values($event->getIds(MediaFolderDefinition::ENTITY_NAME));
         if (!empty($affected)) {
             $this->handleFolderDeletion($affected, $event->getContext());
         }
 
-        $affected = $event->getIds(MediaDefinition::ENTITY_NAME);
+        $affected = array_values($event->getIds(MediaDefinition::ENTITY_NAME));
         if (!empty($affected)) {
             $this->handleMediaDeletion($affected, $event->getContext());
         }
@@ -105,9 +110,7 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
      */
     private function handleMediaDeletion(array $affected, Context $context): void
     {
-        $media = $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($affected) {
-            return $this->mediaRepository->search(new Criteria($affected), $context);
-        });
+        $media = $context->scope(Context::SYSTEM_SCOPE, fn (Context $context) => $this->mediaRepository->search(new Criteria($affected), $context));
 
         $privatePaths = [];
         $publicPaths = [];
@@ -183,9 +186,9 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
 
         $nested = $this->fetchChildrenIds($children);
 
-        $children = \array_merge($children, $nested);
+        $children = [...$children, ...$nested];
 
-        return \array_merge($ids, $children, $nested);
+        return [...$ids, ...$children, ...$nested];
     }
 
     /**

@@ -32,6 +32,8 @@
             <argument type="service" id="Shopware\Storefront\Theme\AbstractThemePathBuilder"/>
             <argument>%kernel.project_dir%</argument>
             <argument type="service" id="Shopware\Storefront\Theme\ScssPhpCompiler"/>
+            <argument type="service" id="messenger.bus.shopware"/>
+            <argument>%storefront.theme.file_delete_delay%</argument>
         </service>
 
         <service id="Shopware\Storefront\Theme\ThemeFileImporter">
@@ -66,7 +68,7 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
-        <service id="Shopware\Storefront\Theme\ResolvedConfigLoader">
+        <service id="Shopware\Storefront\Theme\ResolvedConfigLoader" lazy="true">
             <argument type="service" id="media.repository"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeService"/>
         </service>
@@ -110,7 +112,18 @@
             <argument type="service" id="media.repository"/>
         </service>
 
+        <service id="Shopware\Storefront\Theme\SeedingThemePathBuilder" lazy="true">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+        </service>
+
         <service id="Shopware\Storefront\Theme\MD5ThemePathBuilder"/>
+
+        <service id="Shopware\Storefront\Theme\Message\DeleteThemeFilesHandler">
+            <argument type="service" id="shopware.filesystem.theme"/>
+            <argument type="service" id="Shopware\Storefront\Theme\AbstractThemePathBuilder"/>
+
+            <tag name="messenger.message_handler" />
+        </service>
 
         <service id="Shopware\Storefront\Theme\ConfigLoader\StaticFileConfigLoader">
             <argument type="service" id="shopware.filesystem.private"/>
@@ -127,7 +140,7 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service id="shopware.asset.theme" class="Shopware\Storefront\Theme\ThemeAssetPackage">
+        <service id="shopware.asset.theme" class="Shopware\Storefront\Theme\ThemeAssetPackage" lazy="true">
             <argument type="collection">
                 <argument>%shopware.filesystem.theme.url%</argument>
             </argument>

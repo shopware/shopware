@@ -6,15 +6,15 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- *
- * @package system-settings
  */
+#[Package('system-settings')]
 class ImportExportProfileApiTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
@@ -29,10 +29,7 @@ class ImportExportProfileApiTest extends TestCase
      */
     private $connection;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     protected function setUp(): void
     {
@@ -52,7 +49,7 @@ class ImportExportProfileApiTest extends TestCase
 
         // do API calls
         foreach ($data as $entry) {
-            $this->getBrowser()->request('POST', $this->prepareRoute(), [], [], [], json_encode($entry));
+            $this->getBrowser()->request('POST', $this->prepareRoute(), [], [], [], json_encode($entry, \JSON_THROW_ON_ERROR));
             $response = $this->getBrowser()->getResponse();
             static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
         }
@@ -72,7 +69,7 @@ class ImportExportProfileApiTest extends TestCase
             static::assertSame($expect['fileType'], $record['file_type']);
             static::assertSame($expect['delimiter'], $record['delimiter']);
             static::assertSame($expect['enclosure'], $record['enclosure']);
-            static::assertEquals(json_encode($expect['mapping']), $record['mapping']);
+            static::assertEquals(json_encode($expect['mapping'], \JSON_THROW_ON_ERROR), $record['mapping']);
             unset($data[$record['id']]);
         }
     }
@@ -105,7 +102,7 @@ class ImportExportProfileApiTest extends TestCase
             $response = $this->getBrowser()->getResponse();
             static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
-            $content = json_decode($response->getContent());
+            $content = json_decode($response->getContent(), null, 512, \JSON_THROW_ON_ERROR);
 
             // Prepare expected data.
             $expectData = [];
@@ -125,7 +122,7 @@ class ImportExportProfileApiTest extends TestCase
                 static::assertSame($expect['fileType'], $importExportProfile->fileType);
                 static::assertSame($expect['delimiter'], $importExportProfile->delimiter);
                 static::assertSame($expect['enclosure'], $importExportProfile->enclosure);
-                static::assertEquals(json_decode(json_encode($expect['mapping'])), $importExportProfile->mapping);
+                static::assertEquals(json_decode(json_encode($expect['mapping'], \JSON_THROW_ON_ERROR), null, 512, \JSON_THROW_ON_ERROR), $importExportProfile->mapping);
             }
         }
     }
@@ -147,7 +144,7 @@ class ImportExportProfileApiTest extends TestCase
 
             $this->getBrowser()->request('PATCH', $this->prepareRoute() . $id, [], [], [
                 'HTTP_ACCEPT' => 'application/json',
-            ], json_encode($data[$idx]));
+            ], json_encode($data[$idx], \JSON_THROW_ON_ERROR));
             $response = $this->getBrowser()->getResponse();
             static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
         }
@@ -158,7 +155,7 @@ class ImportExportProfileApiTest extends TestCase
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
-        $content = json_decode($response->getContent());
+        $content = json_decode($response->getContent(), null, 512, \JSON_THROW_ON_ERROR);
 
         // Compare expected and received data.
         static::assertSame($num, $content->total);
@@ -172,7 +169,7 @@ class ImportExportProfileApiTest extends TestCase
             static::assertSame($expect['fileType'], $importExportProfile->fileType);
             static::assertSame($expect['delimiter'], $importExportProfile->delimiter);
             static::assertSame($expect['enclosure'], $importExportProfile->enclosure);
-            static::assertEquals(json_decode(json_encode($expect['mapping'])), $importExportProfile->mapping);
+            static::assertEquals(json_decode(json_encode($expect['mapping'], \JSON_THROW_ON_ERROR), null, 512, \JSON_THROW_ON_ERROR), $importExportProfile->mapping);
         }
     }
 
@@ -198,7 +195,7 @@ class ImportExportProfileApiTest extends TestCase
 
             $this->getBrowser()->request('PATCH', $this->prepareRoute() . $id, [], [], [
                 'HTTP_ACCEPT' => 'application/json',
-            ], json_encode($data[$idx]));
+            ], json_encode($data[$idx], \JSON_THROW_ON_ERROR));
             $response = $this->getBrowser()->getResponse();
             static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
 
@@ -208,7 +205,7 @@ class ImportExportProfileApiTest extends TestCase
             $response = $this->getBrowser()->getResponse();
             static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
-            $content = json_decode($response->getContent(), true);
+            $content = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
             $importExportProfile = $content['data'];
             $expect = $expectData[$id];
@@ -246,7 +243,7 @@ class ImportExportProfileApiTest extends TestCase
             static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
             // compare deatils with expected
-            $content = json_decode($response->getContent());
+            $content = json_decode($response->getContent(), null, 512, \JSON_THROW_ON_ERROR);
             static::assertSame($expect['name'], $content->data->name);
             static::assertSame($expect['label'], $content->data->label);
             static::assertEquals($expect['systemDefault'], (bool) $content->data->systemDefault);
@@ -254,7 +251,7 @@ class ImportExportProfileApiTest extends TestCase
             static::assertSame($expect['fileType'], $content->data->fileType);
             static::assertSame($expect['delimiter'], $content->data->delimiter);
             static::assertSame($expect['enclosure'], $content->data->enclosure);
-            static::assertEquals(json_decode(json_encode($expect['mapping'])), $content->data->mapping);
+            static::assertEquals(json_decode(json_encode($expect['mapping'], \JSON_THROW_ON_ERROR), null, 512, \JSON_THROW_ON_ERROR), $content->data->mapping);
         }
     }
 
@@ -286,20 +283,20 @@ class ImportExportProfileApiTest extends TestCase
                 $filter['filter'][$key] = $invalidData[$key];
                 $this->getBrowser()->request('POST', $this->prepareRoute(true), [], [], [
                     'HTTP_ACCEPT' => 'application/json',
-                ], json_encode($filter));
+                ], json_encode($filter, \JSON_THROW_ON_ERROR));
                 $response = $this->getBrowser()->getResponse();
                 static::assertSame(Response::HTTP_OK, $response->getStatusCode());
-                $content = json_decode($response->getContent());
+                $content = json_decode($response->getContent(), null, 512, \JSON_THROW_ON_ERROR);
                 static::assertSame(0, $content->total);
 
                 // Search call
                 $filter['filter'][$key] = $value;
                 $this->getBrowser()->request('POST', $this->prepareRoute(true), [], [], [
                     'HTTP_ACCEPT' => 'application/json',
-                ], json_encode($filter));
+                ], json_encode($filter, \JSON_THROW_ON_ERROR));
                 $response = $this->getBrowser()->getResponse();
                 static::assertSame(Response::HTTP_OK, $response->getStatusCode());
-                $content = json_decode($response->getContent());
+                $content = json_decode($response->getContent(), null, 512, \JSON_THROW_ON_ERROR);
                 static::assertSame(1, $content->total);
             }
         }

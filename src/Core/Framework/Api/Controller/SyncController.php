@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Api\Sync\SyncOperation;
 use Shopware\Core\Framework\Api\Sync\SyncResult;
 use Shopware\Core\Framework\Api\Sync\SyncServiceInterface;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -18,39 +18,28 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Encoder\DecoderInterface;
 
-/**
- * @Route(defaults={"_routeScope"={"api"}})
- *
- * @package core
- */
+#[Route(defaults: ['_routeScope' => ['api']])]
+#[Package('core')]
 class SyncController extends AbstractController
 {
-    public const ACTION_UPSERT = 'upsert';
-    public const ACTION_DELETE = 'delete';
-
-    private DecoderInterface $serializer;
-
-    private SyncServiceInterface $syncService;
+    final public const ACTION_UPSERT = 'upsert';
+    final public const ACTION_DELETE = 'delete';
 
     /**
      * @internal
      */
-    public function __construct(SyncServiceInterface $syncService, DecoderInterface $serializer)
+    public function __construct(private readonly SyncServiceInterface $syncService, private readonly DecoderInterface $serializer)
     {
-        $this->serializer = $serializer;
-        $this->syncService = $syncService;
     }
 
     /**
-     * @Since("6.0.0.0")
-     * @Route("/api/_action/sync", name="api.action.sync", methods={"POST"})
-     *
      * @throws ConnectionException
      * @throws InvalidSyncOperationException
      */
+    #[Route(path: '/api/_action/sync', name: 'api.action.sync', methods: ['POST'])]
     public function sync(Request $request, Context $context): JsonResponse
     {
-        $indexingSkips = array_filter(explode(',', $request->headers->get(PlatformRequest::HEADER_INDEXING_SKIP, '')));
+        $indexingSkips = array_filter(explode(',', (string) $request->headers->get(PlatformRequest::HEADER_INDEXING_SKIP, '')));
 
         $behavior = new SyncBehavior(
             $request->headers->get(PlatformRequest::HEADER_INDEXING_BEHAVIOR),
@@ -67,9 +56,7 @@ class SyncController extends AbstractController
             $operations[] = new SyncOperation((string) $key, $operation['entity'], $operation['action'], $operation['payload']);
         }
 
-        $result = $context->scope(Context::CRUD_API_SCOPE, function (Context $context) use ($operations, $behavior): SyncResult {
-            return $this->syncService->sync($operations, $context, $behavior);
-        });
+        $result = $context->scope(Context::CRUD_API_SCOPE, fn (Context $context): SyncResult => $this->syncService->sync($operations, $context, $behavior));
 
         return $this->createResponse($result, Response::HTTP_OK);
     }

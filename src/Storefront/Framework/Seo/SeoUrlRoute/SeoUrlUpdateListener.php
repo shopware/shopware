@@ -13,35 +13,26 @@ use Shopware\Core\Content\Product\ProductEvents;
 use Shopware\Core\Content\Seo\SeoUrlUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @package sales-channel
- *
  * @internal
  */
+#[Package('sales-channel')]
 class SeoUrlUpdateListener implements EventSubscriberInterface
 {
-    public const CATEGORY_SEO_URL_UPDATER = 'category.seo-url';
-    public const PRODUCT_SEO_URL_UPDATER = 'product.seo-url';
-    public const LANDING_PAGE_SEO_URL_UPDATER = 'landing_page.seo-url';
-
-    private SeoUrlUpdater $seoUrlUpdater;
-
-    private Connection $connection;
-
-    private EntityIndexerRegistry $indexerRegistry;
+    final public const CATEGORY_SEO_URL_UPDATER = 'category.seo-url';
+    final public const PRODUCT_SEO_URL_UPDATER = 'product.seo-url';
+    final public const LANDING_PAGE_SEO_URL_UPDATER = 'landing_page.seo-url';
 
     /**
      * @internal
      */
-    public function __construct(SeoUrlUpdater $seoUrlUpdater, Connection $connection, EntityIndexerRegistry $indexerRegistry)
+    public function __construct(private readonly SeoUrlUpdater $seoUrlUpdater, private readonly Connection $connection, private readonly EntityIndexerRegistry $indexerRegistry)
     {
-        $this->seoUrlUpdater = $seoUrlUpdater;
-        $this->connection = $connection;
-        $this->indexerRegistry = $indexerRegistry;
     }
 
     public function detectSalesChannelEntryPoints(EntityWrittenContainerEvent $event): void
@@ -60,7 +51,7 @@ class SeoUrlUpdateListener implements EventSubscriberInterface
     /**
      * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             ProductEvents::PRODUCT_INDEXER_EVENT => 'updateProductUrls',

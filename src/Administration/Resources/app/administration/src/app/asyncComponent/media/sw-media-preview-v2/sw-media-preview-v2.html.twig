@@ -40,14 +40,14 @@
                 @click="$emit('click')"
                 @error="showEvent"
             >
-            <sw-icon
+            <img
                 v-else
                 class="sw-media-preview-v2__item"
-                name="multicolor-file-thumbnail-broken"
-                multicolor
-            />
+                :src="placeholderIconPath | asset"
+                :alt="mimeType"
+            >
             <sw-icon
-                v-if="mediaIsPrivate"
+                v-if="mediaIsPrivate && lockIsVisible"
                 class="sw-media-preview-v2__locked-icon sw-icon--small"
                 name="regular-lock"
                 multicolor
@@ -58,6 +58,12 @@
         <template v-else-if="isPlayable && mimeTypeGroup === 'video'">
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_media_preview_v2_file_type_video %}
+            <img
+                v-if="mediaIsPrivate"
+                class="sw-media-preview-v2__item"
+                :src="placeholderIconPath | asset"
+                :alt="mimeType"
+            >
             <!-- eslint-disable-next-line vuejs-accessibility/media-has-caption -->
             <video
                 :controls="showControls"
@@ -72,7 +78,7 @@
                 {{ $tc('global.sw-media-preview-v2.fallbackVideoTagSupport') }}
             </video>
             <button
-                v-if="!showControls"
+                v-if="!showControls && !mediaIsPrivate"
                 class="sw-media-preview-v2__play-button"
                 @click="onPlayClick"
             >
@@ -83,7 +89,7 @@
                 />
             </button>
             <sw-icon
-                v-if="mediaIsPrivate"
+                v-if="mediaIsPrivate && lockIsVisible"
                 class="sw-media-preview-v2__locked-icon sw-icon--small"
                 name="regular-lock"
                 multicolor
@@ -94,12 +100,11 @@
         <template v-else-if="isPlayable && mimeTypeGroup === 'audio'">
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_media_preview_v2_file_type_audio %}
-            <sw-icon
-                name="multicolor-file-thumbnail-mp3"
+            <img
                 class="sw-media-preview-v2__item"
-                size="80%"
-                multicolor
-            />
+                :src="placeholderIconPath | asset"
+                :alt="mimeType"
+            >
             <!-- eslint-disable-next-line vuejs-accessibility/media-has-caption -->
             <audio
                 :controls="showControls"
@@ -125,7 +130,7 @@
                 />
             </button>
             <sw-icon
-                v-if="mediaIsPrivate"
+                v-if="mediaIsPrivate && lockIsVisible"
                 class="sw-media-preview-v2__locked-icon sw-icon--small"
                 name="regular-lock"
                 multicolor
@@ -138,7 +143,7 @@
                 :src="previewUrl"
                 class="sw-media-preview-v2__item"
                 draggable="false"
-                alt=""
+                :alt="mimeType"
                 @error="removeUrlPreview"
             >
         </template>
@@ -146,14 +151,14 @@
         <template v-else>
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_media_preview_v2_file_type_placeholder %}
-            <sw-icon
+            <img
                 class="sw-media-preview-v2__item sw-media-preview-v2__placeholder"
-                :name="placeholderIcon"
-                multicolor
-            />
+                :src="placeholderIconPath | asset"
+                :alt="mimeType"
+            >
             {% endblock %}
             <sw-icon
-                v-if="mediaIsPrivate"
+                v-if="mediaIsPrivate && lockIsVisible"
                 class="sw-media-preview-v2__locked-icon sw-icon--small"
                 name="regular-lock"
                 multicolor

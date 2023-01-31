@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Cart\CartSerializationCleaner;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_4\Migration1648709176CartCompression;
@@ -17,12 +18,11 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\Test\TestDefaults;
 
 /**
- * @package core
- *
  * @internal
  * NEXT-21735 - Not deterministic due to SalesChannelContextFactory
  * @group not-deterministic
  */
+#[Package('core')]
 class Migration1648709176CartCompressionTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -40,7 +40,7 @@ class Migration1648709176CartCompressionTest extends TestCase
         $this->restoreOldColumn();
 
         $token = Uuid::randomHex();
-        $cart = new Cart('test', $token);
+        $cart = new Cart($token);
         $cart->add(new LineItem('test', 'test'));
 
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)->create($token, TestDefaults::SALES_CHANNEL);
@@ -62,7 +62,7 @@ class Migration1648709176CartCompressionTest extends TestCase
      */
     public function testCompression(CartPersister $saver, CartPersister $loader): void
     {
-        $origin = new Cart('shopware', 'existing');
+        $origin = new Cart('existing');
 
         $origin->addLineItems(new LineItemCollection([
             new LineItem(Uuid::randomHex(), LineItem::PRODUCT_LINE_ITEM_TYPE, Uuid::randomHex(), 1),

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig\Extension;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Util\FloatComparator;
@@ -9,24 +10,19 @@ use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class ComparisonExtension extends AbstractExtension
 {
     public function getFunctions(): array
     {
         return [
-            new TwigFunction('compare', [$this, 'compare']),
+            new TwigFunction('compare', $this->compare(...)),
         ];
     }
 
-    /**
-     * @param mixed $value
-     * @param mixed $comparable
-     */
-    public function compare(string $operator, $value, $comparable): bool
+    public function compare(string $operator, mixed $value, mixed $comparable): bool
     {
         switch ($operator) {
             case Rule::OPERATOR_EMPTY:
@@ -50,10 +46,7 @@ class ComparisonExtension extends AbstractExtension
         return $this->compareMixed($operator, $value, $comparable);
     }
 
-    /**
-     * @param mixed $value
-     */
-    private function compareArray(string $operator, $value, array $comparable): bool
+    private function compareArray(string $operator, mixed $value, array $comparable): bool
     {
         if (!\is_array($value)) {
             $value = [$value];
@@ -61,71 +54,36 @@ class ComparisonExtension extends AbstractExtension
 
         $matches = array_intersect($value, $comparable);
 
-        switch ($operator) {
-            case Rule::OPERATOR_EQ:
-                return !empty($matches);
-
-            case Rule::OPERATOR_NEQ:
-                return empty($matches);
-
-            default:
-                throw new UnsupportedOperatorException($operator, self::class);
-        }
+        return match ($operator) {
+            Rule::OPERATOR_EQ => !empty($matches),
+            Rule::OPERATOR_NEQ => empty($matches),
+            default => throw new UnsupportedOperatorException($operator, self::class),
+        };
     }
 
-    /**
-     * @param mixed $value
-     * @param mixed $comparable
-     */
-    private function compareMixed(string $operator, $value, $comparable): bool
+    private function compareMixed(string $operator, mixed $value, mixed $comparable): bool
     {
-        switch ($operator) {
-            case Rule::OPERATOR_EQ:
-                return $value === $comparable;
-
-            case Rule::OPERATOR_NEQ:
-                return $value !== $comparable;
-
-            case Rule::OPERATOR_GTE:
-                return $value >= $comparable;
-
-            case Rule::OPERATOR_LTE:
-                return $value <= $comparable;
-
-            case Rule::OPERATOR_GT:
-                return $value > $comparable;
-
-            case Rule::OPERATOR_LT:
-                return $value < $comparable;
-
-            default:
-                throw new UnsupportedOperatorException($operator, self::class);
-        }
+        return match ($operator) {
+            Rule::OPERATOR_EQ => $value === $comparable,
+            Rule::OPERATOR_NEQ => $value !== $comparable,
+            Rule::OPERATOR_GTE => $value >= $comparable,
+            Rule::OPERATOR_LTE => $value <= $comparable,
+            Rule::OPERATOR_GT => $value > $comparable,
+            Rule::OPERATOR_LT => $value < $comparable,
+            default => throw new UnsupportedOperatorException($operator, self::class),
+        };
     }
 
     private function compareNumeric(string $operator, float $value, float $comparable): bool
     {
-        switch ($operator) {
-            case Rule::OPERATOR_EQ:
-                return FloatComparator::equals($value, $comparable);
-
-            case Rule::OPERATOR_NEQ:
-                return FloatComparator::notEquals($value, $comparable);
-
-            case Rule::OPERATOR_GTE:
-                return FloatComparator::greaterThanOrEquals($value, $comparable);
-
-            case Rule::OPERATOR_LTE:
-                return FloatComparator::lessThanOrEquals($value, $comparable);
-
-            case Rule::OPERATOR_GT:
-                return FloatComparator::greaterThan($value, $comparable);
-
-            case Rule::OPERATOR_LT:
-                return FloatComparator::lessThan($value, $comparable);
-
-            default:
-                throw new UnsupportedOperatorException($operator, self::class);
-        }
+        return match ($operator) {
+            Rule::OPERATOR_EQ => FloatComparator::equals($value, $comparable),
+            Rule::OPERATOR_NEQ => FloatComparator::notEquals($value, $comparable),
+            Rule::OPERATOR_GTE => FloatComparator::greaterThanOrEquals($value, $comparable),
+            Rule::OPERATOR_LTE => FloatComparator::lessThanOrEquals($value, $comparable),
+            Rule::OPERATOR_GT => FloatComparator::greaterThan($value, $comparable),
+            Rule::OPERATOR_LT => FloatComparator::lessThan($value, $comparable),
+            default => throw new UnsupportedOperatorException($operator, self::class),
+        };
     }
 }

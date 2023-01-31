@@ -7,21 +7,21 @@ use Shopware\Core\Content\ImportExport\Exception\ProcessingException;
 use Shopware\Core\Content\ImportExport\ImportExportFactory;
 use Shopware\Core\Content\ImportExport\Struct\Progress;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * @internal
- *
- * @package system-settings
  */
 #[AsMessageHandler]
+#[Package('system-settings')]
 final class ImportExportHandler
 {
     /**
      * @internal
      */
-    public function __construct(private MessageBusInterface $messageBus, private ImportExportFactory $importExportFactory)
+    public function __construct(private readonly MessageBusInterface $messageBus, private readonly ImportExportFactory $importExportFactory)
     {
     }
 

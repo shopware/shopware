@@ -13,6 +13,8 @@ use Symfony\Component\RateLimiter\Storage\CacheStorage;
 /**
  * @internal
  *
+ * @phpstan-import-type RateLimiterConfig from RateLimiterFactory
+ *
  * @covers \Shopware\Core\Framework\RateLimiter\Policy\SystemConfigLimiter
  */
 class SystemConfigLimiterTest extends TestCase
@@ -23,7 +25,7 @@ class SystemConfigLimiterTest extends TestCase
     private array $cache;
 
     /**
-     * @var array<string, bool|string|array<int, array<string, string|int>>>
+     * @var RateLimiterConfig
      */
     private array $config;
 
@@ -73,7 +75,7 @@ class SystemConfigLimiterTest extends TestCase
 
     public function testLimitWithNoDomain(): void
     {
-        // for phpstan
+        static::assertArrayHasKey('limits', $this->config);
         static::assertIsArray($this->config['limits']);
 
         unset($this->config['limits'][0]['domain']);
@@ -105,7 +107,7 @@ class SystemConfigLimiterTest extends TestCase
      */
     private function createLimiter(array $domainLimits): LimiterInterface
     {
-        // for phpstan
+        static::assertArrayHasKey('limits', $this->config);
         static::assertIsArray($this->config['limits']);
 
         $systemConfig = $this->createMock(SystemConfigService::class);

@@ -15,7 +15,7 @@ export default class ErrorResolver {
     }
 
     /**
-     * @deprecated tag:v6.6.0.0 - Default param errors will be last
+     * @deprecated tag:v6.6.0 - Default param errors will be last
      * @param errors
      * @param changeset
      */
@@ -162,11 +162,12 @@ export default class ErrorResolver {
     }
 
     buildAssociationChangeset(entity, changeset, error, associationName) {
-        if (!Shopware.Utils.object.hasOwnProperty(changeset, associationName)) {
+        if (!changeset || !Shopware.Utils.object.hasOwnProperty(changeset, associationName)) {
             Shopware.State.dispatch('error/addApiError', {
                 expression: this.getErrorPath(entity, associationName),
                 error: new this.ShopwareError(error),
             });
+            return [];
         }
 
         return changeset[associationName].map((associationChange) => {

@@ -147,6 +147,54 @@
                     }
                 ]
             }
+        },
+        "/order/download/{orderId}/{downloadId}": {
+            "get": {
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Download a purchased file",
+                "description": "Download a file included in the given order and with the given id. Access must be granted.",
+                "operationId": "orderDownloadFile",
+                "parameters": [
+                    {
+                        "name": "orderId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    },
+                    {
+                        "name": "downloadId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "An arbitrary binary file.",
+                        "content": {
+                            "application/octet-stream": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
         }
     }
 }

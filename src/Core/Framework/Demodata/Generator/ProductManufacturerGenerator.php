@@ -7,21 +7,21 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- *
- * @package inventory
  */
+#[Package('inventory')]
 class ProductManufacturerGenerator implements DemodataGeneratorInterface
 {
     /**
      * @internal
      */
     public function __construct(
-        private EntityWriterInterface $writer,
-        private ProductManufacturerDefinition $productManufacturerDefinition
+        private readonly EntityWriterInterface $writer,
+        private readonly ProductManufacturerDefinition $productManufacturerDefinition
     ) {
     }
 

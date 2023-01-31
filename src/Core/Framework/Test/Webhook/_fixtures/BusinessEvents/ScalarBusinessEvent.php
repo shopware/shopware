@@ -12,25 +12,13 @@ use Shopware\Core\Framework\Event\FlowEventAware;
  */
 class ScalarBusinessEvent implements FlowEventAware, BusinessEventEncoderTestInterface
 {
-    /**
-     * @var string
-     */
-    private $string = 'string';
+    private string $string = 'string';
 
-    /**
-     * @var bool
-     */
-    private $bool = true;
+    private bool $bool = true;
 
-    /**
-     * @var int
-     */
-    private $int = 3;
+    private int $int = 3;
 
-    /**
-     * @var float
-     */
-    private $float = 1.3;
+    private float $float = 1.3;
 
     public static function getAvailableData(): EventDataCollection
     {

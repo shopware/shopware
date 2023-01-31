@@ -56,7 +56,7 @@ trait AdminApiTestBehaviour
                 ['ids' => $this->apiIntegrations],
                 ['ids' => Connection::PARAM_STR_ARRAY]
             );
-        } catch (\Exception $ex) {
+        } catch (\Exception) {
             //nth
         }
 
@@ -150,7 +150,7 @@ trait AdminApiTestBehaviour
             $aclRole = [
                 'id' => $aclRoleId,
                 'name' => 'testPermissions',
-                'privileges' => json_encode($aclPermissions),
+                'privileges' => json_encode($aclPermissions, \JSON_THROW_ON_ERROR),
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ];
             $connection->insert('acl_role', $aclRole);
@@ -184,7 +184,7 @@ trait AdminApiTestBehaviour
 
         /** @var string $content */
         $content = $browser->getResponse()->getContent();
-        $data = json_decode($content, true);
+        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
         if (!\array_key_exists('access_token', $data)) {
             throw new \RuntimeException(
@@ -228,7 +228,7 @@ trait AdminApiTestBehaviour
                 'label' => 'test integration',
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]);
-        } catch (UniqueConstraintViolationException $e) {
+        } catch (UniqueConstraintViolationException) {
             // update the access keys in case the integration already existed
             $connection->update('integration', [
                 'access_key' => $accessKey,
@@ -250,7 +250,7 @@ trait AdminApiTestBehaviour
 
         /** @var string $content */
         $content = $browser->getResponse()->getContent();
-        $data = json_decode($content, true);
+        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
         if (!\array_key_exists('access_token', $data)) {
             throw new \RuntimeException(

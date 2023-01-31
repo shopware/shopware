@@ -2,21 +2,19 @@
 
 namespace Shopware\Core\Content\Seo;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
- * @package sales-channel
- *
  * @phpstan-import-type ResolvedSeoUrl from AbstractSeoResolver
  */
+#[Package('sales-channel')]
 class EmptyPathInfoResolver extends AbstractSeoResolver
 {
-    private AbstractSeoResolver $decorated;
-
     /**
      * @internal
      */
-    public function __construct(AbstractSeoResolver $decorated)
+    public function __construct(private readonly AbstractSeoResolver $decorated)
     {
-        $this->decorated = $decorated;
     }
 
     public function getDecorated(): AbstractSeoResolver

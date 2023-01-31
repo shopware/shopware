@@ -5,22 +5,18 @@ namespace Shopware\Core\Content\Product\SalesChannel\Detail;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-/**
- * @package inventory
- */
+#[Package('inventory')]
 class AvailableCombinationLoader extends AbstractAvailableCombinationLoader
 {
-    private Connection $connection;
-
     /**
      * @internal
      */
-    public function __construct(Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     public function getDecorated(): AbstractAvailableCombinationLoader
@@ -60,9 +56,9 @@ class AvailableCombinationLoader extends AbstractAvailableCombinationLoader
         $result = new AvailableCombinationResult();
 
         foreach ($combinations as $combination) {
-            $options = json_decode($combination['options'], true);
-
-            if (!$options) {
+            try {
+                $options = json_decode((string) $combination['options'], true, 512, \JSON_THROW_ON_ERROR);
+            } catch (\JsonException) {
                 continue;
             }
 

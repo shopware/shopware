@@ -70,7 +70,8 @@ describe('module/sw-product/component/sw-product-category-form', () => {
                                         }
                                     }
                                 }
-                            }
+                            },
+                            creationStates: 'is-physical'
                         }
                     }
                 })

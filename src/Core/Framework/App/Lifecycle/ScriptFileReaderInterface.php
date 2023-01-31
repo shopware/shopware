@@ -2,11 +2,12 @@
 
 namespace Shopware\Core\Framework\App\Lifecycle;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
  * @internal only for use by the app-system, overridden for the cloud env
- *
- * @package core
  */
+#[Package('core')]
 interface ScriptFileReaderInterface
 {
     /**

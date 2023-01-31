@@ -3,10 +3,9 @@
 namespace Shopware\Core\System\Country\Event;
 
 use Shopware\Core\Framework\Adapter\Cache\StoreApiRouteCacheKeyEvent;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package system-settings
- */
+#[Package('system-settings')]
 class CountryStateRouteCacheKeyEvent extends StoreApiRouteCacheKeyEvent
 {
 }

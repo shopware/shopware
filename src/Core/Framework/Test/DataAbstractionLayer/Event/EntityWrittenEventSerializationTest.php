@@ -23,11 +23,11 @@ class EntityWrittenEventSerializationTest extends TestCase
         $container = $this->writeTestProduct();
         $event = $container->getEventByEntityName(ProductDefinition::ENTITY_NAME);
 
-        $encoded = json_encode($event);
+        $encoded = json_encode($event, \JSON_THROW_ON_ERROR);
         static::assertNotFalse($encoded);
         static::assertJson($encoded);
 
-        $encoded = json_encode($container);
+        $encoded = json_encode($container, \JSON_THROW_ON_ERROR);
         static::assertNotFalse($encoded);
         static::assertJson($encoded);
     }

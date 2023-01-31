@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\RateLimiter\Policy;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\RateLimiter\LimiterStateInterface;
 use Symfony\Component\RateLimiter\Util\TimeUtil;
 
@@ -9,35 +10,25 @@ use Symfony\Component\RateLimiter\Util\TimeUtil;
  * @internal
  *
  * @phpstan-type TimeBackoffLimit array{limit: int, interval: string}
- *
- * @package core
  */
+#[Package('core')]
 class TimeBackoff implements LimiterStateInterface
 {
-    private string $id;
-
-    /**
-     * @var list<TimeBackoffLimit>
-     */
-    private array $limits;
-
     private int $attempts;
 
     private int $timer;
 
     private int $expiresAt;
 
-    private int $unthrottledAttempts;
+    private readonly int $unthrottledAttempts;
 
     private string $stringLimits;
 
     /**
      * @param list<TimeBackoffLimit> $limits
      */
-    public function __construct(string $id, array $limits, ?int $timer = null)
+    public function __construct(private readonly string $id, private array $limits, ?int $timer = null)
     {
-        $this->id = $id;
-        $this->limits = $limits;
         $this->attempts = 0;
         $this->timer = $timer ?? time();
         $this->unthrottledAttempts = min(array_column($this->limits, 'limit')) ?: 0;
@@ -52,11 +43,12 @@ class TimeBackoff implements LimiterStateInterface
 
     public function __wakeup(): void
     {
-        if (($limits = \json_decode($this->stringLimits, true)) === null) {
-            throw new \BadMethodCallException('Cannot unserialize ' . __CLASS__);
+        try {
+            $this->limits = json_decode($this->stringLimits, true, 512, \JSON_THROW_ON_ERROR);
+        } catch (\JsonException) {
+            throw new \BadMethodCallException('Cannot unserialize ' . self::class);
         }
 
-        $this->limits = $limits;
         unset($this->stringLimits);
     }
 

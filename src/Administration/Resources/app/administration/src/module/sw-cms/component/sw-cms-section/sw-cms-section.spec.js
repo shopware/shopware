@@ -3,8 +3,10 @@
  */
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
+import swCmsVisibilityToggle from 'src/module/sw-cms/component/sw-cms-visibility-toggle';
 import swCmsSection from 'src/module/sw-cms/component/sw-cms-section';
 
+Shopware.Component.register('sw-cms-visibility-toggle', swCmsVisibilityToggle);
 Shopware.Component.register('sw-cms-section', swCmsSection);
 
 async function createWrapper() {
@@ -20,7 +22,8 @@ async function createWrapper() {
                 sectionPosition: 'main',
                 type: 'foo-bar'
             },
-            isSystemDefaultLanguage: true
+            isSystemDefaultLanguage: true,
+            currentCmsDeviceView: 'desktop',
         }
     });
 
@@ -58,7 +61,8 @@ async function createWrapper() {
             'sw-cms-section-actions': true,
             'sw-cms-block': true,
             'sw-cms-block-foo-bar': true,
-            'sw-cms-stage-add-block': true
+            'sw-cms-stage-add-block': true,
+            'sw-cms-visibility-toggle': await Shopware.Component.build('sw-cms-visibility-toggle'),
         },
         provide: {
             repositoryFactory: {},
@@ -115,5 +119,53 @@ describe('module/sw-cms/component/sw-cms-section', () => {
         cmsStageAddBlocks.wrappers.forEach(cmsStageAddBlock => {
             expect(cmsStageAddBlock.exists()).toBeFalsy();
         });
+    });
+
+    it('the visibility toggle wrapper should exist and be visible', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setProps({
+            section: {
+                ...wrapper.props().section,
+                visibility: {
+                    mobile: true,
+                    tablet: true,
+                    desktop: false,
+                }
+            }
+        });
+
+        expect(wrapper.find('.sw-cms-visibility-toggle-wrapper').exists()).toBeTruthy();
+    });
+
+    it('should be able to collapsed or expanded', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setProps({
+            section: {
+                ...wrapper.props().section,
+                visibility: {
+                    mobile: true,
+                    tablet: true,
+                    desktop: false,
+                }
+            }
+        });
+
+        expect(wrapper.find('.sw-cms-visibility-toggle-wrapper').classes()).not.toContain('is--expanded');
+        await wrapper.find('.sw-cms-visibility-toggle__button').trigger('click');
+        expect(wrapper.find('.sw-cms-visibility-toggle-wrapper').classes()).toContain('is--expanded');
+    });
+
+    it('the visibility toggle wrapper should not exist', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.find('.sw-cms-visibility-toggle-wrapper').exists()).toBeFalsy();
+    });
+
+    it('the `visibility` property should not be empty', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.props().section.visibility).toStrictEqual({ desktop: true, mobile: true, tablet: true });
     });
 });

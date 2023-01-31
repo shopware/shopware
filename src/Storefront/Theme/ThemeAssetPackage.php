@@ -3,32 +3,25 @@
 namespace Shopware\Storefront\Theme;
 
 use Shopware\Core\Framework\Adapter\Asset\FallbackUrlPackage;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Symfony\Component\Asset\VersionStrategy\VersionStrategyInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class ThemeAssetPackage extends FallbackUrlPackage
 {
-    private RequestStack $requestStack;
-
-    private AbstractThemePathBuilder $themePathBuilder;
-
     /**
      * @internal
      */
     public function __construct(
         $baseUrls,
         VersionStrategyInterface $versionStrategy,
-        RequestStack $requestStack,
-        AbstractThemePathBuilder $themePathBuilder
+        private readonly RequestStack $requestStack,
+        private readonly AbstractThemePathBuilder $themePathBuilder
     ) {
         parent::__construct($baseUrls, $versionStrategy);
-        $this->requestStack = $requestStack;
-        $this->themePathBuilder = $themePathBuilder;
     }
 
     public function getUrl(string $path): string

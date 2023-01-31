@@ -4,26 +4,19 @@ namespace Shopware\Core\Content\ImportExport\Processing\Writer;
 
 use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Content\ImportExport\Struct\Config;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package system-settings
- */
+#[Package('system-settings')]
 abstract class AbstractFileWriter extends AbstractWriter
 {
-    /**
-     * @var FilesystemOperator
-     */
-    protected $filesystem;
+    protected FilesystemOperator $filesystem;
 
     /**
      * @var resource
      */
     protected $tempFile;
 
-    /**
-     * @var string
-     */
-    protected $tempPath;
+    protected string $tempPath;
 
     /**
      * @var resource

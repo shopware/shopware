@@ -5,42 +5,19 @@ namespace Shopware\Core\Content\Mail\Service;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
- *
- * @package system-settings
  */
+#[Package('system-settings')]
 class MailAttachmentsConfig
 {
-    private Context $context;
-
-    private MailTemplateEntity $mailTemplate;
-
-    private MailSendSubscriberConfig $extension;
-
-    /**
-     * @var mixed[]
-     */
-    private array $eventConfig;
-
-    private ?string $orderId;
-
     /**
      * @param mixed[] $eventConfig
      */
-    public function __construct(
-        Context $context,
-        MailTemplateEntity $mailTemplate,
-        MailSendSubscriberConfig $extension,
-        array $eventConfig,
-        ?string $orderId
-    ) {
-        $this->context = $context;
-        $this->mailTemplate = $mailTemplate;
-        $this->extension = $extension;
-        $this->eventConfig = $eventConfig;
-        $this->orderId = $orderId;
+    public function __construct(private Context $context, private MailTemplateEntity $mailTemplate, private MailSendSubscriberConfig $extension, private array $eventConfig, private ?string $orderId)
+    {
     }
 
     public function getContext(): Context

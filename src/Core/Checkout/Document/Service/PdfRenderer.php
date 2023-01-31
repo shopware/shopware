@@ -6,10 +6,9 @@ use Dompdf\Adapter\CPDF;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package customer-order
- */
+#[Package('customer-order')]
 final class PdfRenderer
 {
     public const FILE_EXTENSION = 'pdf';
@@ -28,13 +27,6 @@ final class PdfRenderer
         $options = new Options();
         $options->setIsRemoteEnabled(true);
         $options->setIsHtml5ParserEnabled(true);
-        $options->setHttpContext([
-            'ssl' => [
-                'verify_peer' => false,
-                'verify_peer_name' => false,
-                'allow_self_signed' => true,
-            ],
-        ]);
 
         $dompdf->setOptions($options);
         $dompdf->setPaper($document->getPageSize(), $document->getPageOrientation());
@@ -74,7 +66,7 @@ final class PdfRenderer
 
         foreach ($pdf->objects as &$o) {
             if ($o['t'] === 'contents') {
-                $o['c'] = str_replace($search, $replace, $o['c']);
+                $o['c'] = str_replace($search, $replace, (string) $o['c']);
             }
         }
     }

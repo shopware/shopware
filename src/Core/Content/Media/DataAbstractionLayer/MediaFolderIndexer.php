@@ -13,47 +13,22 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ChildCountUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\TreeUpdater;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package content
- */
+#[Package('content')]
 class MediaFolderIndexer extends EntityIndexer
 {
-    public const CHILD_COUNT_UPDATER = 'media_folder.child-count';
-    public const TREE_UPDATER = 'media_folder.tree';
-
-    private IteratorFactory $iteratorFactory;
-
-    private EntityRepository $folderRepository;
-
-    private Connection $connection;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private ChildCountUpdater $childCountUpdater;
-
-    private TreeUpdater $treeUpdater;
+    final public const CHILD_COUNT_UPDATER = 'media_folder.child-count';
+    final public const TREE_UPDATER = 'media_folder.tree';
 
     /**
      * @internal
      */
-    public function __construct(
-        IteratorFactory $iteratorFactory,
-        EntityRepository $repository,
-        Connection $connection,
-        EventDispatcherInterface $eventDispatcher,
-        ChildCountUpdater $childCountUpdater,
-        TreeUpdater $treeUpdater
-    ) {
-        $this->iteratorFactory = $iteratorFactory;
-        $this->folderRepository = $repository;
-        $this->connection = $connection;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->childCountUpdater = $childCountUpdater;
-        $this->treeUpdater = $treeUpdater;
+    public function __construct(private readonly IteratorFactory $iteratorFactory, private readonly EntityRepository $folderRepository, private readonly Connection $connection, private readonly EventDispatcherInterface $eventDispatcher, private readonly ChildCountUpdater $childCountUpdater, private readonly TreeUpdater $treeUpdater)
+    {
     }
 
     public function getName(): string

@@ -44,10 +44,7 @@ class CartRestorerTest extends TestCase
      */
     private $connection;
 
-    /**
-     * @var CartRestorer
-     */
-    private $cartRestorer;
+    private CartRestorer $cartRestorer;
 
     /**
      * @var CartService
@@ -57,7 +54,7 @@ class CartRestorerTest extends TestCase
     /**
      * @var array<string, Event>
      */
-    private $events;
+    private array $events;
 
     /**
      * @var \Closure
@@ -74,10 +71,7 @@ class CartRestorerTest extends TestCase
      */
     private $contextPersister;
 
-    /**
-     * @var string
-     */
-    private $customerId;
+    private string $customerId;
 
     public function setUp(): void
     {
@@ -89,7 +83,7 @@ class CartRestorerTest extends TestCase
         $this->events = [];
 
         $this->callbackFn = function (Event $event): void {
-            $this->events[\get_class($event)] = $event;
+            $this->events[$event::class] = $event;
         };
 
         $this->contextPersister = $this->getContainer()->get(SalesChannelContextPersister::class);
@@ -136,7 +130,7 @@ class CartRestorerTest extends TestCase
 
         $this->contextPersister->save($currentContextToken, [], $currentContext->getSalesChannel()->getId(), $this->customerId);
 
-        $cart = new Cart('test', $currentContextToken);
+        $cart = new Cart($currentContextToken);
 
         $cart->add(new LineItem(Uuid::randomHex(), LineItem::CUSTOM_LINE_ITEM_TYPE));
         $this->getContainer()->get(CartPersister::class)->save($cart, $currentContext);
@@ -161,7 +155,7 @@ class CartRestorerTest extends TestCase
 
         $this->contextPersister->save($customerContextToken, [], $customerContext->getSalesChannel()->getId(), $this->customerId);
 
-        $cart = new Cart('test', $customerContextToken);
+        $cart = new Cart($customerContextToken);
 
         $productId = $this->createProduct($customerContext->getContext());
 
@@ -197,7 +191,7 @@ class CartRestorerTest extends TestCase
         $currentContext = $this->createSalesChannelContext($currentContextToken);
 
         // Create Guest cart
-        $cart = new Cart('guest-cart', $currentContextToken);
+        $cart = new Cart($currentContextToken);
 
         $productId1 = $this->createProduct($currentContext->getContext());
         $productId2 = $this->createProduct($currentContext->getContext());
@@ -221,7 +215,7 @@ class CartRestorerTest extends TestCase
 
         $this->contextPersister->save($customerToken, [], $currentContext->getSalesChannel()->getId(), $this->customerId);
 
-        $cart = new Cart('customer-cart', $customerToken);
+        $cart = new Cart($customerToken);
 
         $savedLineItem = new LineItem($productId2, LineItem::PRODUCT_LINE_ITEM_TYPE, $productId2);
         $savedLineItemQuantity = 4;
@@ -259,7 +253,6 @@ class CartRestorerTest extends TestCase
 
         static::assertNotNull($cartMergedEvent->getPreviousCart());
         static::assertEquals(1, $cartMergedEvent->getPreviousCart()->getLineItems()->count());
-        static::assertEquals($cartMergedEvent->getCart()->getName(), $cartMergedEvent->getPreviousCart()->getName());
         static::assertEquals($cartMergedEvent->getCart()->getToken(), $cartMergedEvent->getPreviousCart()->getToken());
 
         static::assertNotNull($p1 = $restoreCart->getLineItems()->get($productId1));
@@ -275,7 +268,7 @@ class CartRestorerTest extends TestCase
         $currentContext = $this->createSalesChannelContext($currentContextToken);
 
         // Create Guest cart
-        $cart = new Cart('guest-cart', $currentContextToken);
+        $cart = new Cart($currentContextToken);
 
         $productId1 = $this->createProduct($currentContext->getContext());
         $productId2 = $this->createProduct($currentContext->getContext());
@@ -299,7 +292,7 @@ class CartRestorerTest extends TestCase
 
         $this->contextPersister->save($customerToken, [], $currentContext->getSalesChannel()->getId(), $this->customerId);
 
-        $cart = new Cart('customer-cart', $customerToken);
+        $cart = new Cart($customerToken);
 
         $this->getContainer()->get(CartPersister::class)->save($cart, $customerContext);
 
@@ -319,7 +312,6 @@ class CartRestorerTest extends TestCase
 
         static::assertNotNull($event->getPreviousCart());
         static::assertEquals(0, $event->getPreviousCart()->getLineItems()->count());
-        static::assertEquals($event->getCart()->getName(), $event->getPreviousCart()->getName());
         static::assertEquals($event->getCart()->getToken(), $event->getPreviousCart()->getToken());
 
         static::assertNotNull($p1 = $restoreCart->getLineItems()->get($productId1));
@@ -374,6 +366,7 @@ class CartRestorerTest extends TestCase
 
     private function createSalesChannelContext(string $contextToken, ?string $customerId = null): SalesChannelContext
     {
+        $salesChannelData = [];
         if ($customerId) {
             $salesChannelData[SalesChannelContextService::CUSTOMER_ID] = $customerId;
         }

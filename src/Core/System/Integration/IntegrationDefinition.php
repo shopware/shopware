@@ -18,14 +18,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PasswordField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Integration\Aggregate\IntegrationRole\IntegrationRoleDefinition;
 
-/**
- * @package system-settings
- */
+#[Package('system-settings')]
 class IntegrationDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'integration';
+    final public const ENTITY_NAME = 'integration';
 
     public function getEntityName(): string
     {

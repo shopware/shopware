@@ -13,6 +13,9 @@ use Shopware\Storefront\Migration\V6_4\Migration1641476963ThemeDependentIds;
  */
 class Migration1641476963ThemeDependentIdsTest extends TestCase
 {
+    /**
+     * @phpstan-ignore-next-line remove when test skip is removed
+     */
     private Connection $connection;
 
     public function setUp(): void
@@ -25,6 +28,7 @@ class Migration1641476963ThemeDependentIdsTest extends TestCase
     {
         static::markTestSkipped('Flaky coverage');
 
+        /** @phpstan-ignore-next-line remove when test skip is removed */
         $migration = new Migration1641476963ThemeDependentIds();
         $migration->update($this->connection);
 

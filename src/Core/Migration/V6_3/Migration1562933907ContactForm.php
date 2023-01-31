@@ -7,14 +7,14 @@ use Shopware\Core\Content\ContactForm\Event\ContactFormEvent;
 use Shopware\Core\Content\MailTemplate\MailTemplateActions;
 use Shopware\Core\Content\MailTemplate\MailTemplateTypes;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class Migration1562933907ContactForm extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -87,7 +87,7 @@ class Migration1562933907ContactForm extends MigrationStep
                 'id' => Uuid::randomBytes(),
                 'event_name' => ContactFormEvent::EVENT_NAME,
                 'action_name' => MailTemplateActions::MAIL_TEMPLATE_MAIL_SEND_ACTION,
-                'config' => json_encode(['mail_template_type_id' => $contactFormEmailTemplate['id']]),
+                'config' => json_encode(['mail_template_type_id' => $contactFormEmailTemplate['id']], \JSON_THROW_ON_ERROR),
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );

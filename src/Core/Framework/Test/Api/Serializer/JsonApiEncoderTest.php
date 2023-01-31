@@ -148,7 +148,7 @@ class JsonApiEncoderTest extends TestCase
         $definition = $this->getContainer()->get($definitionClass);
         $encoder = $this->getContainer()->get(JsonApiEncoder::class);
         $actual = $encoder->encode(new Criteria(), $definition, $fixture->getInput(), SerializationFixture::API_BASE_URL);
-        $actual = json_decode($actual, true);
+        $actual = json_decode((string) $actual, true, 512, \JSON_THROW_ON_ERROR);
 
         // remove extensions from test
         $actual = $this->arrayRemove($actual, 'extensions');
@@ -178,7 +178,7 @@ class JsonApiEncoderTest extends TestCase
         static::assertStringNotContainsString('"links":[]', $actual);
         static::assertStringContainsString('"links":{}', $actual);
 
-        $this->assertValues($fixture->getAdminJsonApiFixtures(), json_decode($actual, true));
+        $this->assertValues($fixture->getAdminJsonApiFixtures(), json_decode((string) $actual, true, 512, \JSON_THROW_ON_ERROR));
     }
 
     /**
@@ -205,7 +205,7 @@ class JsonApiEncoderTest extends TestCase
         static::assertStringNotContainsString('"attributes":[]', $actual);
         static::assertStringContainsString('"attributes":{}', $actual);
 
-        $this->assertValues($fixture->getAdminJsonApiFixtures(), json_decode($actual, true));
+        $this->assertValues($fixture->getAdminJsonApiFixtures(), json_decode((string) $actual, true, 512, \JSON_THROW_ON_ERROR));
     }
 
     public function testEncodeEntityWithToOneEntityExtension(): void
@@ -240,7 +240,7 @@ class JsonApiEncoderTest extends TestCase
         $product = $this->productRepository->search($criteria, Context::createDefaultContext())->get($productId);
         $encoder = $this->getContainer()->get(JsonApiEncoder::class);
         $encodedResponse = $encoder->encode(new Criteria(), $productDefinition, $product, SerializationFixture::API_BASE_URL);
-        $actual = json_decode($encodedResponse, true);
+        $actual = json_decode((string) $encodedResponse, true, 512, \JSON_THROW_ON_ERROR);
 
         foreach ($actual['included'] as $included) {
             if ($included['type'] !== 'extension') {
@@ -289,7 +289,7 @@ class JsonApiEncoderTest extends TestCase
         $product = $this->productRepository->search($criteria, Context::createDefaultContext())->get($productId);
         $encoder = $this->getContainer()->get(JsonApiEncoder::class);
         $encodedResponse = $encoder->encode(new Criteria(), $productDefinition, $product, SerializationFixture::API_BASE_URL);
-        $actual = json_decode($encodedResponse, true);
+        $actual = json_decode((string) $encodedResponse, true, 512, \JSON_THROW_ON_ERROR);
 
         foreach ($actual['included'] as $included) {
             if ($included['type'] !== 'extension') {
@@ -315,7 +315,7 @@ class JsonApiEncoderTest extends TestCase
         $struct->setUniqueIdentifier(Uuid::randomHex());
         $struct->assign($input);
 
-        $actual = json_decode($encoder->encode(new Criteria(), $definition, $struct, SerializationFixture::API_BASE_URL));
+        $actual = json_decode((string) $encoder->encode(new Criteria(), $definition, $struct, SerializationFixture::API_BASE_URL), null, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals($output, $actual->data->attributes->customFields);
     }

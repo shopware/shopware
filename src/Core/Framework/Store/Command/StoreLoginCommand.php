@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Exception\StoreApiException;
 use Shopware\Core\Framework\Store\Exception\StoreInvalidCredentialsException;
 use Shopware\Core\Framework\Store\Services\StoreClient;
@@ -21,31 +22,20 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 
 /**
- * @package merchant-services
- *
  * @internal
  */
 #[AsCommand(
     name: 'store:login',
     description: 'Login to the store',
 )]
+#[Package('merchant-services')]
 class StoreLoginCommand extends Command
 {
-    private StoreClient $storeClient;
-
-    private SystemConfigService $configService;
-
-    private EntityRepository $userRepository;
-
     public function __construct(
-        StoreClient $storeClient,
-        EntityRepository $userRepository,
-        SystemConfigService $configService
+        private readonly StoreClient $storeClient,
+        private readonly EntityRepository $userRepository,
+        private readonly SystemConfigService $configService
     ) {
-        $this->storeClient = $storeClient;
-        $this->userRepository = $userRepository;
-        $this->configService = $configService;
-
         parent::__construct();
     }
 
@@ -112,6 +102,6 @@ class StoreLoginCommand extends Command
 
         $io->success('Successfully logged in.');
 
-        return Command::SUCCESS;
+        return (int) Command::SUCCESS;
     }
 }

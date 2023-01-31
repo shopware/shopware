@@ -3,12 +3,11 @@
 namespace Shopware\Storefront\Framework\Twig\Extension;
 
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Framework\Log\Package;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class UrlEncodingTwigFilter extends AbstractExtension
 {
     /**
@@ -17,8 +16,8 @@ class UrlEncodingTwigFilter extends AbstractExtension
     public function getFilters()
     {
         return [
-            new TwigFilter('sw_encode_url', [$this, 'encodeUrl']),
-            new TwigFilter('sw_encode_media_url', [$this, 'encodeMediaUrl']),
+            new TwigFilter('sw_encode_url', $this->encodeUrl(...)),
+            new TwigFilter('sw_encode_media_url', $this->encodeMediaUrl(...)),
         ];
     }
 

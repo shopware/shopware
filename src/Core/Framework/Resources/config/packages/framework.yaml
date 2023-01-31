@@ -63,7 +63,3 @@ framework:
 
         routing:
             'Shopware\Core\Framework\MessageQueue\AsyncMessageInterface': async
-
-sensio_framework_extra:
-    router:
-        annotations: false

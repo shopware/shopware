@@ -5,30 +5,18 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Doctrine;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\RetryableException;
 use Doctrine\DBAL\Statement;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
+#[Package('core')]
 class RetryableQuery
 {
-    /**
-     * @var Connection|null
-     */
-    private $connection;
-
-    private Statement $query;
-
-    public function __construct(Connection $connection, Statement $query)
+    public function __construct(private readonly ?Connection $connection, private readonly Statement $query)
     {
-        $this->connection = $connection;
-        $this->query = $query;
     }
 
     public function execute(array $params = []): int
     {
-        return self::retry($this->connection, function () use ($params) {
-            return $this->query->executeStatement($params);
-        }, 0);
+        return self::retry($this->connection, fn () => $this->query->executeStatement($params), 0);
     }
 
     public static function retryable(Connection $connection, \Closure $closure)

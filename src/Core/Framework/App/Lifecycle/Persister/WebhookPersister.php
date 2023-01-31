@@ -7,24 +7,18 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\WebhookCollection;
 use Shopware\Core\Framework\Webhook\WebhookEntity;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
- *
- * @package core
  */
+#[Package('core')]
 class WebhookPersister
 {
-    /**
-     * @var EntityRepository
-     */
-    private $webhookRepository;
-
-    public function __construct(EntityRepository $webhookRepository)
+    public function __construct(private readonly EntityRepository $webhookRepository)
     {
-        $this->webhookRepository = $webhookRepository;
     }
 
     public function updateWebhooks(Manifest $manifest, string $appId, string $defaultLocale, Context $context): void
@@ -89,9 +83,7 @@ class WebhookPersister
             return;
         }
 
-        $ids = array_map(static function (string $id): array {
-            return ['id' => $id];
-        }, array_values($ids));
+        $ids = array_map(static fn (string $id): array => ['id' => $id], array_values($ids));
 
         $this->webhookRepository->delete($ids, $context);
     }

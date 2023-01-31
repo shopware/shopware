@@ -2,21 +2,14 @@
 
 namespace Shopware\Elasticsearch\Framework\Indexing\Event;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 
-/**
- * @package core
- */
+#[Package('core')]
 class ElasticsearchIndexCreatedEvent
 {
-    private string $indexName;
-
-    private AbstractElasticsearchDefinition $definition;
-
-    public function __construct(string $indexName, AbstractElasticsearchDefinition $definition)
+    public function __construct(private readonly string $indexName, private readonly AbstractElasticsearchDefinition $definition)
     {
-        $this->indexName = $indexName;
-        $this->definition = $definition;
     }
 
     public function getIndexName(): string

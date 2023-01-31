@@ -21,6 +21,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
 use Shopware\Core\Framework\Validation\Constraint\Uuid;
 use Symfony\Component\Validator\Constraints\All;
@@ -30,27 +31,14 @@ use Symfony\Component\Validator\Constraints\Type;
 
 /**
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 class RuleConditionPersister
 {
     private const CONDITION_SCRIPT_DIR = '/rule-conditions/';
 
-    private ScriptFileReaderInterface $scriptReader;
-
-    private EntityRepository $appScriptConditionRepository;
-
-    private EntityRepository $appRepository;
-
-    public function __construct(
-        ScriptFileReaderInterface $scriptReader,
-        EntityRepository $appScriptConditionRepository,
-        EntityRepository $appRepository
-    ) {
-        $this->scriptReader = $scriptReader;
-        $this->appScriptConditionRepository = $appScriptConditionRepository;
-        $this->appRepository = $appRepository;
+    public function __construct(private readonly ScriptFileReaderInterface $scriptReader, private readonly EntityRepository $appScriptConditionRepository, private readonly EntityRepository $appRepository)
+    {
     }
 
     public function updateConditions(Manifest $manifest, string $appId, string $defaultLocale, Context $context): void
@@ -105,9 +93,7 @@ class RuleConditionPersister
         /** @var array<string> $scripts */
         $scripts = $this->appScriptConditionRepository->searchIds($criteria, $context)->getIds();
 
-        $updateSet = array_map(function (string $id) {
-            return ['id' => $id, 'active' => true];
-        }, $scripts);
+        $updateSet = array_map(fn (string $id) => ['id' => $id, 'active' => true], $scripts);
 
         $this->appScriptConditionRepository->update($updateSet, $context);
     }
@@ -121,9 +107,7 @@ class RuleConditionPersister
         /** @var array<string> $scripts */
         $scripts = $this->appScriptConditionRepository->searchIds($criteria, $context)->getIds();
 
-        $updateSet = array_map(function (string $id) {
-            return ['id' => $id, 'active' => false];
-        }, $scripts);
+        $updateSet = array_map(fn (string $id) => ['id' => $id, 'active' => false], $scripts);
 
         $this->appScriptConditionRepository->update($updateSet, $context);
     }
@@ -145,9 +129,7 @@ class RuleConditionPersister
         $ids = $toBeRemoved->getIds();
 
         if (!empty($ids)) {
-            $ids = array_map(static function (string $id): array {
-                return ['id' => $id];
-            }, array_values($ids));
+            $ids = array_map(static fn (string $id): array => ['id' => $id], array_values($ids));
 
             $this->appScriptConditionRepository->delete($ids, $context);
         }

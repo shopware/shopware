@@ -34,7 +34,10 @@ class PluginLifecycleSubscriberTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->addTestPluginToKernel('SwagTest');
+        $this->addTestPluginToKernel(
+            __DIR__ . '/../../../../Core/Framework/Test/Plugin/_fixture/plugins/SwagTest',
+            'SwagTest'
+        );
     }
 
     public function testDoesNotAddPluginStorefrontConfigurationToConfigurationCollectionIfItIsAddedAlready(): void

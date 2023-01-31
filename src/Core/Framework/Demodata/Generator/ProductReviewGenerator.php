@@ -9,22 +9,22 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 class ProductReviewGenerator implements DemodataGeneratorInterface
 {
     /**
      * @internal
      */
     public function __construct(
-        private EntityWriterInterface $writer,
-        private ProductReviewDefinition $productReviewDefinition,
-        private Connection $connection
+        private readonly EntityWriterInterface $writer,
+        private readonly ProductReviewDefinition $productReviewDefinition,
+        private readonly Connection $connection
     ) {
     }
 

@@ -26,42 +26,22 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * @package customer-order
- *
  * @final
  */
+#[Package('customer-order')]
 class DocumentGenerator
 {
-    private DocumentRendererRegistry $rendererRegistry;
-
-    private PdfRenderer $pdfRenderer;
-
-    private MediaService $mediaService;
-
-    private EntityRepository $documentRepository;
-
-    private Connection $connection;
-
     /**
      * @internal
      */
-    public function __construct(
-        DocumentRendererRegistry $rendererRegistry,
-        PdfRenderer $pdfRenderer,
-        MediaService $mediaService,
-        EntityRepository $documentRepository,
-        Connection $connection
-    ) {
-        $this->rendererRegistry = $rendererRegistry;
-        $this->pdfRenderer = $pdfRenderer;
-        $this->mediaService = $mediaService;
-        $this->documentRepository = $documentRepository;
-        $this->connection = $connection;
+    public function __construct(private readonly DocumentRendererRegistry $rendererRegistry, private readonly PdfRenderer $pdfRenderer, private readonly MediaService $mediaService, private readonly EntityRepository $documentRepository, private readonly Connection $connection)
+    {
     }
 
     public function readDocument(string $documentId, Context $context, string $deepLinkCode = ''): ?RenderedDocument
@@ -94,9 +74,7 @@ class DocumentGenerator
         /** @var MediaEntity $documentMedia */
         $documentMedia = $document->getDocumentMediaFile();
 
-        $fileBlob = $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($documentMediaId): string {
-            return $this->mediaService->loadFile($documentMediaId, $context);
-        });
+        $fileBlob = $context->scope(Context::SYSTEM_SCOPE, fn (Context $context): string => $this->mediaService->loadFile($documentMediaId, $context));
 
         $fileName = $documentMedia->getFileName() . '.' . $documentMedia->getFileExtension();
         $contentType = $documentMedia->getMimeType();
@@ -215,9 +193,7 @@ class DocumentGenerator
             throw new DocumentGenerationException('Parameter "fileName" is missing');
         }
 
-        $mediaId = $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($fileName, $mediaFile): string {
-            return $this->mediaService->saveMediaFile($mediaFile, $fileName, $context, 'document');
-        });
+        $mediaId = $context->scope(Context::SYSTEM_SCOPE, fn (Context $context): string => $this->mediaService->saveMediaFile($mediaFile, $fileName, $context, 'document'));
 
         $this->connection->executeStatement(
             'UPDATE `document` SET `updated_at` = :now, `document_media_file_id` = :mediaId WHERE `id` = :id',
@@ -329,16 +305,14 @@ class DocumentGenerator
             return null;
         }
 
-        return $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($document): string {
-            return $this->mediaService->saveFile(
-                $this->pdfRenderer->render($document),
-                $document->getFileExtension(),
-                $this->pdfRenderer->getContentType(),
-                $document->getName(),
-                $context,
-                'document'
-            );
-        });
+        return $context->scope(Context::SYSTEM_SCOPE, fn (Context $context): string => $this->mediaService->saveFile(
+            $this->pdfRenderer->render($document),
+            $document->getFileExtension(),
+            $this->pdfRenderer->getContentType(),
+            $document->getName(),
+            $context,
+            'document'
+        ));
     }
 
     private function getReferenceId(string $orderId, string $invoiceNumber): string

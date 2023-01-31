@@ -8,35 +8,14 @@ use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Serialize
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-/**
- * @package system-settings
- */
+#[Package('system-settings')]
 class EntityPipe extends AbstractPipe
 {
-    private SerializerRegistry $serializerRegistry;
-
-    private DefinitionInstanceRegistry $definitionInstanceRegistry;
-
-    private ?EntityDefinition $definition;
-
-    private ?AbstractEntitySerializer $entitySerializer;
-
-    private ?PrimaryKeyResolver $primaryKeyResolver;
-
-    public function __construct(
-        DefinitionInstanceRegistry $definitionInstanceRegistry,
-        SerializerRegistry $serializerRegistry,
-        ?EntityDefinition $definition = null,
-        ?AbstractEntitySerializer $entitySerializer = null,
-        ?PrimaryKeyResolver $primaryKeyResolver = null
-    ) {
-        $this->serializerRegistry = $serializerRegistry;
-        $this->definitionInstanceRegistry = $definitionInstanceRegistry;
-        $this->definition = $definition;
-        $this->entitySerializer = $entitySerializer;
-        $this->primaryKeyResolver = $primaryKeyResolver;
+    public function __construct(private readonly DefinitionInstanceRegistry $definitionInstanceRegistry, private readonly SerializerRegistry $serializerRegistry, private ?EntityDefinition $definition = null, private ?AbstractEntitySerializer $entitySerializer = null, private readonly ?PrimaryKeyResolver $primaryKeyResolver = null)
+    {
     }
 
     /**
@@ -62,9 +41,8 @@ class EntityPipe extends AbstractPipe
 
     private function loadConfig(Config $config): void
     {
-        $this->definition = $this->definition
-            ?? $this->definitionInstanceRegistry->getByEntityName($config->get('sourceEntity') ?? '');
+        $this->definition ??= $this->definitionInstanceRegistry->getByEntityName($config->get('sourceEntity') ?? '');
 
-        $this->entitySerializer = $this->entitySerializer ?? $this->serializerRegistry->getEntity($this->definition->getEntityName());
+        $this->entitySerializer ??= $this->serializerRegistry->getEntity($this->definition->getEntityName());
     }
 }

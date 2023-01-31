@@ -12,13 +12,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package customer-order
- */
+#[Package('customer-order')]
 class CustomerGroupTranslationDefinition extends EntityTranslationDefinition
 {
-    public const ENTITY_NAME = 'customer_group_translation';
+    final public const ENTITY_NAME = 'customer_group_translation';
 
     public function getEntityName(): string
     {

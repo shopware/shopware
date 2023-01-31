@@ -2,15 +2,14 @@
 
 namespace Shopware\Core\Installer\Requirements\Struct;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @package core
- *
  * @internal
- *
  * @extends Collection<RequirementCheck>
  */
+#[Package('core')]
 class RequirementsCheckCollection extends Collection
 {
     public function getExpectedClass(): ?string
@@ -30,9 +29,7 @@ class RequirementsCheckCollection extends Collection
 
     public function hasError(): bool
     {
-        return $this->filter(static function (RequirementCheck $check): bool {
-            return $check->getStatus() === RequirementCheck::STATUS_ERROR;
-        })->first() !== null;
+        return $this->filter(static fn (RequirementCheck $check): bool => $check->getStatus() === RequirementCheck::STATUS_ERROR)->first() !== null;
     }
 
     public function hasPathError(): bool

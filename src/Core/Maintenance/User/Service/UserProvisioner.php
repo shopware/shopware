@@ -4,22 +4,20 @@ namespace Shopware\Core\Maintenance\User\Service;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\PasswordField;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\PasswordFieldSerializer;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-/**
- * @package core
- */
+#[Package('core')]
 class UserProvisioner
 {
-    private Connection $connection;
-
     /**
      * @internal
      */
-    public function __construct(Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     /**
@@ -31,7 +29,13 @@ class UserProvisioner
             throw new \RuntimeException(sprintf('User with username "%s" already exists.', $username));
         }
 
-        $password = $password ?? Random::getAlphanumericString(8);
+        $minPasswordLength = $this->getAdminPasswordMinLength();
+
+        if ($password && \strlen($password) < $minPasswordLength) {
+            throw new \InvalidArgumentException(sprintf('The password length cannot be shorter than %s characters.', $minPasswordLength));
+        }
+
+        $password = $password ?? Random::getAlphanumericString(max($minPasswordLength, 8));
 
         $userPayload = [
             'id' => Uuid::randomBytes(),
@@ -74,5 +78,25 @@ class UserProvisioner
                 ->setParameter('id', Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM))
                 ->execute()
                 ->fetchOne();
+    }
+
+    private function getAdminPasswordMinLength(): int
+    {
+        $configKey = PasswordFieldSerializer::CONFIG_MIN_LENGTH_FOR[PasswordField::FOR_ADMIN];
+
+        $result = $this->connection->fetchOne(
+            'SELECT configuration_value FROM system_config WHERE configuration_key = :configKey AND sales_channel_id is NULL;',
+            [
+                'configKey' => $configKey,
+            ]
+        );
+
+        if ($result === false) {
+            return 0;
+        }
+
+        $config = json_decode($result, true);
+
+        return $config['_value'] ?? 0;
     }
 }

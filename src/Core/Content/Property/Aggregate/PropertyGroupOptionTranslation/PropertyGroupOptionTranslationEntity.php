@@ -5,10 +5,9 @@ namespace Shopware\Core\Content\Property\Aggregate\PropertyGroupOptionTranslatio
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package inventory
- */
+#[Package('inventory')]
 class PropertyGroupOptionTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;

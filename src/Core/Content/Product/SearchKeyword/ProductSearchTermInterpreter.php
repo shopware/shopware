@@ -11,37 +11,20 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\AbstractToke
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchPattern;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTerm;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\TokenizerInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\ArrayNormalizer;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-/**
- * @package inventory
- */
+#[Package('inventory')]
 class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterface
 {
     private const RELEVANT_KEYWORD_COUNT = 8;
 
-    private Connection $connection;
-
-    private TokenizerInterface $tokenizer;
-
-    private LoggerInterface $logger;
-
-    private AbstractTokenFilter $tokenFilter;
-
     /**
      * @internal
      */
-    public function __construct(
-        Connection $connection,
-        TokenizerInterface $tokenizer,
-        LoggerInterface $logger,
-        AbstractTokenFilter $tokenFilter
-    ) {
-        $this->connection = $connection;
-        $this->tokenizer = $tokenizer;
-        $this->logger = $logger;
-        $this->tokenFilter = $tokenFilter;
+    public function __construct(private readonly Connection $connection, private readonly TokenizerInterface $tokenizer, private readonly LoggerInterface $logger, private readonly AbstractTokenFilter $tokenFilter)
+    {
     }
 
     public function interpret(string $word, Context $context): SearchPattern
@@ -268,9 +251,7 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
             $scoring[$match] = $score / 10;
         }
 
-        uasort($scoring, function ($a, $b) {
-            return $b <=> $a;
-        });
+        uasort($scoring, fn ($a, $b) => $b <=> $a);
 
         return $scoring;
     }

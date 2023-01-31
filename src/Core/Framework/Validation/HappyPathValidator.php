@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Framework\Validation;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\Constraint\Uuid;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\Collection;
@@ -20,21 +21,16 @@ use Symfony\Component\Validator\Mapping\MetadataInterface;
 use Symfony\Component\Validator\Validator\ContextualValidatorInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-/**
- * @package core
- * calling into the validator machinery has a considerable overhead. Doing that thousands of time is notable.
- * this validator implements a subset of the functionality and calls into the real validator if needed.
- */
+#[Package('core
+calling into the validator machinery has a considerable overhead. Doing that thousands of time is notable.
+this validator implements a subset of the functionality and calls into the real validator if needed.')]
 class HappyPathValidator implements ValidatorInterface
 {
-    private ValidatorInterface $inner;
-
     /**
      * @internal
      */
-    public function __construct(ValidatorInterface $inner)
+    public function __construct(private readonly ValidatorInterface $inner)
     {
-        $this->inner = $inner;
     }
 
     /**
@@ -155,7 +151,7 @@ class HappyPathValidator implements ValidatorInterface
                 $types = (array) $constraint->type;
 
                 foreach ($types as $type) {
-                    $type = strtolower($type);
+                    $type = strtolower((string) $type);
                     $type = $type === 'boolean' ? 'bool' : $type;
                     $isFunction = 'is_' . $type;
                     $ctypeFunction = 'ctype_' . $type;
@@ -217,7 +213,7 @@ class HappyPathValidator implements ValidatorInterface
                     $existsInArrayAccess = $value instanceof \ArrayAccess && $value->offsetExists($field);
 
                     if ($existsInArray || $existsInArrayAccess) {
-                        if (\count($fieldConstraint->constraints) > 0) {
+                        if ((is_countable($fieldConstraint->constraints) ? \count($fieldConstraint->constraints) : 0) > 0) {
                             /** @var array|\ArrayAccess<string|int,mixed> $value */
                             if (!$this->validateConstraint($value[$field], $fieldConstraint->constraints)) {
                                 return false;

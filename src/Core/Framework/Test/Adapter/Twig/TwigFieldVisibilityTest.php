@@ -34,9 +34,7 @@ class TwigFieldVisibilityTest extends TestCase
         foreach ($definitionRegistry->getDefinitions() as $definition) {
             /** @var CompiledFieldCollection $internalFields */
             $internalFields = $definition->getFields()
-                ->filter(function (Field $field): bool {
-                    return !$field->is(ApiAware::class);
-                });
+                ->filter(fn (Field $field): bool => !$field->is(ApiAware::class));
 
             foreach ($internalFields as $field) {
                 $this->testAccessibilityForField($definition, $field->getPropertyName(), $definition->getEntityClass());
@@ -83,7 +81,7 @@ class TwigFieldVisibilityTest extends TestCase
                 sprintf(
                     'It was possible to call getter for property %s on entity %s, but the property is not ApiAware, therefore access to that property in twig contexts is prohibited, please ensure to call the `$this->checkIfPropertyAccessIsAllowed("propertyName")` in the getter of that property.',
                     $propertyName,
-                    \get_class($entity)
+                    $entity::class
                 )
             );
         } else {
@@ -106,7 +104,7 @@ class TwigFieldVisibilityTest extends TestCase
                 sprintf(
                     'It was possible to call getter for property %s on entity %s, but the property is not ApiAware, therefore access to that property in twig contexts is prohibited, please ensure to call the `$this->checkIfPropertyAccessIsAllowed("propertyName")` in the getter of that property.',
                     $propertyName,
-                    \get_class($entity)
+                    $entity::class
                 )
             );
         } else {

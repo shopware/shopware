@@ -20,20 +20,11 @@ use Symfony\Component\Config\Util\XmlUtils;
  */
 class ActionTest extends TestCase
 {
-    /**
-     * @var MockObject|Parameters
-     */
-    private $parameters;
+    private MockObject&Parameters $parameters;
 
-    /**
-     * @var MockObject|Config
-     */
-    private $config;
+    private MockObject&Config $config;
 
-    /**
-     * @var MockObject|Headers
-     */
-    private $headers;
+    private MockObject&Headers $headers;
 
     private Action $action;
 

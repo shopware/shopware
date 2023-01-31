@@ -10,13 +10,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package inventory
- */
+#[Package('inventory')]
 class PropertyGroupOptionTranslationDefinition extends EntityTranslationDefinition
 {
-    public const ENTITY_NAME = 'property_group_option_translation';
+    final public const ENTITY_NAME = 'property_group_option_translation';
 
     public function getEntityName(): string
     {

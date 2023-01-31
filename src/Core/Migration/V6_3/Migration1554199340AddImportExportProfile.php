@@ -4,14 +4,14 @@ namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class Migration1554199340AddImportExportProfile extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -150,7 +150,7 @@ class Migration1554199340AddImportExportProfile extends MigrationStep
     {
         $result = [];
         foreach ($connection->fetchAllAssociative('SELECT * FROM payment_method') as $row) {
-            $key = mb_substr((string) mb_strrchr($row['handler_identifier'], '\\'), 1);
+            $key = mb_substr((string) mb_strrchr((string) $row['handler_identifier'], '\\'), 1);
             $key = str_replace('payment', '', mb_strtolower($key));
             $result[$key] = Uuid::fromBytesToHex($row['id']);
         }
@@ -163,25 +163,15 @@ class Migration1554199340AddImportExportProfile extends MigrationStep
      */
     private function getValueSubstitutions(Connection $connection, string $propertyName): array
     {
-        switch ($propertyName) {
-            case 'groupId':
-                return $this->getCustomerGroupMap();
-            case 'defaultBillingAddress.salutationId':
-            case 'defaultShippingAddress.salutationId':
-            case 'salutationId':
-                return $this->getSalutationMap($connection);
-            case 'defaultPaymentMethodId':
-                return $this->getPaymentMethodMap($connection);
-            case 'salesChannelId':
-                return $this->getSalesChannelMap();
-            case 'defaultBillingAddress.countryId':
-            case 'defaultShippingAddress.countryId':
-                return $this->getCountryMap($connection);
-            case 'guest':
-                return $this->getBooleanMap();
-        }
-
-        return [];
+        return match ($propertyName) {
+            'groupId' => $this->getCustomerGroupMap(),
+            'defaultBillingAddress.salutationId', 'defaultShippingAddress.salutationId', 'salutationId' => $this->getSalutationMap($connection),
+            'defaultPaymentMethodId' => $this->getPaymentMethodMap($connection),
+            'salesChannelId' => $this->getSalesChannelMap(),
+            'defaultBillingAddress.countryId', 'defaultShippingAddress.countryId' => $this->getCountryMap($connection),
+            'guest' => $this->getBooleanMap(),
+            default => [],
+        };
     }
 
     /**

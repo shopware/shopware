@@ -8,19 +8,20 @@ use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRec
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @package customer-order
- *
  * @internal
  */
+#[Package('customer-order')]
 class NewsletterControllerTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;
@@ -64,6 +65,10 @@ class NewsletterControllerTest extends TestCase
 
     public function testRegisterNewsletterForCustomerDoi(): void
     {
+        $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
+        static::assertNotNull($systemConfigService);
+        $systemConfigService->set('core.newsletter.doubleOptInRegistered', true);
+
         $browser = $this->login();
         $data = [
             'option' => 'subscribe',
@@ -120,7 +125,7 @@ class NewsletterControllerTest extends TestCase
             $_SERVER['APP_URL'] . '/account/login',
             $this->tokenize('frontend.account.login', [
                 'username' => $customer->getEmail(),
-                'password' => 'test',
+                'password' => 'test12345',
             ])
         );
         $response = $browser->getResponse();
@@ -157,7 +162,7 @@ class NewsletterControllerTest extends TestCase
             'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
             'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'email' => 'nltest@example.com',
-            'password' => 'test',
+            'password' => 'test12345',
             'title' => 'Dr.',
             'firstName' => 'Max',
             'lastName' => 'Mustermann',

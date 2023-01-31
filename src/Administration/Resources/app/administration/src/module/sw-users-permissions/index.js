@@ -7,6 +7,7 @@ import './acl';
 Shopware.Component.register('sw-users-permissions', () => import('./page/sw-users-permissions'));
 Shopware.Component.register('sw-users-permissions-user-listing', () => import('./components/sw-users-permissions-user-listing'));
 Shopware.Component.register('sw-users-permissions-role-listing', () => import('./components/sw-users-permissions-role-listing'));
+Shopware.Component.register('sw-users-permissions-configuration', () => import('./components/sw-users-permissions-configuration'));
 Shopware.Component.register('sw-users-permissions-additional-permissions', () => import('./components/sw-users-permissions-additional-permissions'));
 Shopware.Component.register('sw-users-permissions-permissions-grid', () => import('./components/sw-users-permissions-permissions-grid'));
 Shopware.Component.register('sw-users-permissions-detailed-permissions-grid', () => import('./components/sw-users-permissions-detailed-permissions-grid'));

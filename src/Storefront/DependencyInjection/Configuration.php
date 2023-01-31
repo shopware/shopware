@@ -2,15 +2,14 @@
 
 namespace Shopware\Storefront\DependencyInjection;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\ConfigLoader\DatabaseAvailableThemeProvider;
 use Shopware\Storefront\Theme\ConfigLoader\DatabaseConfigLoader;
-use Shopware\Storefront\Theme\MD5ThemePathBuilder;
+use Shopware\Storefront\Theme\SeedingThemePathBuilder;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class Configuration implements ConfigurationInterface
 {
     public function getConfigTreeBuilder(): TreeBuilder
@@ -60,9 +59,10 @@ class Configuration implements ConfigurationInterface
                 ->arrayNode('theme')
                     ->children()
                         ->scalarNode('config_loader_id')->defaultValue(DatabaseConfigLoader::class)->end()
-                        ->scalarNode('theme_path_builder_id')->defaultValue(MD5ThemePathBuilder::class)->end()
+                        ->scalarNode('theme_path_builder_id')->defaultValue(SeedingThemePathBuilder::class)->end()
                         ->scalarNode('available_theme_provider')->defaultValue(DatabaseAvailableThemeProvider::class)->end()
-                    ->end()
+                        ->integerNode('file_delete_delay')->defaultValue(900)->end()
+            ->end()
                 ->end()
             ->end();
 

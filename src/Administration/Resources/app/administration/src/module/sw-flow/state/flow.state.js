@@ -144,7 +144,6 @@ export default {
             state.customFields = customField;
         },
 
-        /* @internal (flag:FEATURE_NEXT_18215) */
         setRestrictedRules(state, rules) {
             state.restrictedRules = rules;
         },
@@ -252,7 +251,6 @@ export default {
             commit('removeTriggerEvent');
         },
 
-        /* @internal (flag:FEATURE_NEXT_18215) */
         setRestrictedRules({ commit }, id) {
             Shopware.Service('ruleConditionDataProviderService')
                 .getRestrictedRules(`flowTrigger.${id}`)

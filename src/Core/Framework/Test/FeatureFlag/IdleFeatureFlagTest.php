@@ -14,7 +14,7 @@ class IdleFeatureFlagTest extends TestCase
 {
     use KernelTestBehaviour;
 
-    public const EXCLUDED_DIRS = [
+    final public const EXCLUDED_DIRS = [
         'Docs',
         'Core/Framework/Test/FeatureFlag',
         'Administration/Resources/app/administration/node_modules',
@@ -23,7 +23,7 @@ class IdleFeatureFlagTest extends TestCase
         'Storefront/Resources/app/storefront/test/e2e/node_modules',
     ];
 
-    public const EXCLUDE_BY_FLAG = [
+    final public const EXCLUDE_BY_FLAG = [
         'FEATURE_NEXT_1',
         'FEATURE_NEXT_2',
         'FEATURE_NEXT_101',

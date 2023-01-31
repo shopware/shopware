@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Content\Mail\Service;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Mail\Service\AbstractMailSender;
 use Shopware\Core\Content\Mail\Service\MailFactory;
 use Shopware\Core\Content\Mail\Service\MailService;
@@ -48,7 +49,8 @@ class MailServiceTest extends TestCase
             $this->getContainer()->get('sales_channel.repository'),
             $this->getContainer()->get(SystemConfigService::class),
             $this->getContainer()->get('event_dispatcher'),
-            $this->createMock(UrlGeneratorInterface::class)
+            $this->createMock(UrlGeneratorInterface::class),
+            $this->createMock(LoggerInterface::class)
         );
         $data = [
             'senderName' => 'Foo & Bar',
@@ -64,7 +66,7 @@ class MailServiceTest extends TestCase
             MailBeforeValidateEvent::class,
             function (MailBeforeValidateEvent $event): void {
                 $event->setTemplateData(
-                    array_merge($event->getTemplateData(), ['plugin-value' => true])
+                    [...$event->getTemplateData(), ...['plugin-value' => true]]
                 );
             }
         );
@@ -120,7 +122,8 @@ class MailServiceTest extends TestCase
             $this->getContainer()->get('sales_channel.repository'),
             $systemConfig,
             $this->createMock(EventDispatcher::class),
-            $this->createMock(UrlGeneratorInterface::class)
+            $this->createMock(UrlGeneratorInterface::class),
+            $this->createMock(LoggerInterface::class)
         );
 
         $salesChannel = $this->createSalesChannel();
@@ -171,7 +174,8 @@ class MailServiceTest extends TestCase
             $this->getContainer()->get('sales_channel.repository'),
             $this->getContainer()->get(SystemConfigService::class),
             $eventDispatcher,
-            $this->createMock(UrlGeneratorInterface::class)
+            $this->createMock(UrlGeneratorInterface::class),
+            $this->createMock(LoggerInterface::class)
         );
 
         $salesChannel = $this->createSalesChannel();
@@ -211,7 +215,8 @@ class MailServiceTest extends TestCase
             $this->getContainer()->get('sales_channel.repository'),
             $this->getContainer()->get(SystemConfigService::class),
             $this->createMock(EventDispatcher::class),
-            $this->createMock(UrlGeneratorInterface::class)
+            $this->createMock(UrlGeneratorInterface::class),
+            $this->createMock(LoggerInterface::class)
         );
 
         $salesChannel = $this->createSalesChannel();
@@ -257,7 +262,8 @@ class MailServiceTest extends TestCase
             $this->getContainer()->get('sales_channel.repository'),
             $this->getContainer()->get(SystemConfigService::class),
             $this->createMock(EventDispatcher::class),
-            $this->createMock(UrlGeneratorInterface::class)
+            $this->createMock(UrlGeneratorInterface::class),
+            $this->createMock(LoggerInterface::class)
         );
 
         $salesChannel = $this->createSalesChannel();

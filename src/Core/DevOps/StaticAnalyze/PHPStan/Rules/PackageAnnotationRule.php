@@ -8,32 +8,20 @@ use PHPStan\Node\InClassNode;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @implements Rule<InClassNode>
  *
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 class PackageAnnotationRule implements Rule
 {
     /**
      * @internal
      */
     public const PRODUCT_AREA_MAPPING = [
-        'core' => [
-            '/Shopware\\\\Core\\\\Framework\\\\(Adapter|Api|App|Changelog|DataAbstractionLayer|Demodata|DependencyInjection)\\\\/',
-            '/Shopware\\\\Core\\\\Framework\\\\(Increment|Log|MessageQueue|Migration|Parameter|Plugin|RateLimiter|Script|Routing|Struct|Util|Uuid|Validation|Webhook)\\\\/',
-            '/Shopware\\\\Core\\\\DevOps\\\\/',
-            '/Shopware\\\\Core\\\\Installer\\\\/',
-            '/Shopware\\\\Core\\\\Maintenance\\\\/',
-            '/Shopware\\\\Core\\\\Migration\\\\/',
-            '/Shopware\\\\Core\\\\Profiling\\\\/',
-            '/Shopware\\\\Elasticsearch\\\\/',
-            '/Shopware\\\\Core\\\\System\\\\(Annotation|CustomEntity|DependencyInjection|SystemConfig)\\\\/',
-            '/Shopware\\\\.*\\\\(DataAbstractionLayer)\\\\/',
-        ],
         'business-ops' => [
             '/Shopware\\\\.*\\\\(Rule|Flow|ProductStream)\\\\/',
             '/Shopware\\\\Core\\\\Framework\\\\(Event)\\\\/',
@@ -91,7 +79,21 @@ class PackageAnnotationRule implements Rule
         ],
         'storefront' => [
             '/Shopware\\\\Storefront\\\\Theme\\\\/',
-            '/Shopware\\\\Storefront\\\\(DependencyInjection|Migration|Event|Exception|Framework|Theme|Test)\\\\/',
+            '/Shopware\\\\Storefront\\\\Controller\\\\/',
+            '/Shopware\\\\Storefront\\\\(DependencyInjection|Migration|Event|Exception|Framework|Test)\\\\/',
+        ],
+        'core' => [
+            '/Shopware\\\\Core\\\\Framework\\\\(Adapter|Api|App|Changelog|DataAbstractionLayer|Demodata|DependencyInjection)\\\\/',
+            '/Shopware\\\\Core\\\\Framework\\\\(Increment|Log|MessageQueue|Migration|Parameter|Plugin|RateLimiter|Script|Routing|Struct|Util|Uuid|Validation|Webhook)\\\\/',
+            '/Shopware\\\\Core\\\\DevOps\\\\/',
+            '/Shopware\\\\Core\\\\Installer\\\\/',
+            '/Shopware\\\\Core\\\\Maintenance\\\\/',
+            '/Shopware\\\\Core\\\\Migration\\\\/',
+            '/Shopware\\\\Core\\\\Profiling\\\\/',
+            '/Shopware\\\\Elasticsearch\\\\/',
+            '/Shopware\\\\Docs\\\\/',
+            '/Shopware\\\\Core\\\\System\\\\(Annotation|CustomEntity|DependencyInjection|SystemConfig)\\\\/',
+            '/Shopware\\\\.*\\\\(DataAbstractionLayer)\\\\/',
         ],
         'administration' => [
             '/Shopware\\\\Administration\\\\/',
@@ -114,40 +116,44 @@ class PackageAnnotationRule implements Rule
             return [];
         }
 
+        $area = $this->getProductArea($node);
+
         if ($this->hasPackageAnnotation($node)) {
             return [];
         }
 
-        return [];
-
-        // will be activated in a separate MR
-//        return [sprintf('This class is missing the "@package" annotation (recommendation: %s)', $this->getProductArea($node) ?? 'unknown')];
+        return [sprintf('This class is missing the "@package" annotation (recommendation: %s)', $area ?? 'unknown')];
     }
 
-//    private function getProductArea(InClassNode $node): ?string
-//    {
-//        $namespace = $node->getClassReflection()->getName();
-//
-//        foreach (self::PRODUCT_AREA_MAPPING as $area => $regexes) {
-//            foreach ($regexes as $regex) {
-//                if (preg_match($regex, $namespace)) {
-//                    return $area;
-//                }
-//            }
-//        }
-//
-//        return null;
-//    }
+    private function getProductArea(InClassNode $node): ?string
+    {
+        $namespace = $node->getClassReflection()->getName();
+
+        foreach (self::PRODUCT_AREA_MAPPING as $area => $regexes) {
+            foreach ($regexes as $regex) {
+                if (preg_match($regex, $namespace)) {
+                    return $area;
+                }
+            }
+        }
+
+        return null;
+    }
 
     private function hasPackageAnnotation(InClassNode $class): bool
     {
-        $doc = $class->getDocComment();
+        foreach ($class->getOriginalNode()->attrGroups as $group) {
+            $attribute = $group->attrs[0];
 
-        if ($doc === null) {
-            return false;
+            /** @var Node\Name\FullyQualified $name */
+            $name = $attribute->name;
+
+            if ($name->toString() === Package::class) {
+                return true;
+            }
         }
 
-        return \str_contains($doc->getText(), '@package');
+        return false;
     }
 
     private function isTestClass(InClassNode $node): bool

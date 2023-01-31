@@ -24,6 +24,8 @@ shopware:
         asset:
         sitemap:
         allowed_extensions: ["jpg", "jpeg", "png", "webp", "gif", "svg", "bmp", "tiff", "tif", "eps", "webm", "mkv", "flv", "ogv", "ogg", "mov", "mp4", "avi", "wmv", "pdf", "aac", "mp3", "wav", "flac", "oga", "wma", "txt", "doc", "ico"]
+        private_allowed_extensions: ["jpg", "jpeg", "png", "webp", "gif", "svg", "bmp", "tiff", "tif", "eps", "webm", "mkv", "flv", "ogv", "ogg", "mov", "mp4", "avi", "wmv", "pdf", "aac", "mp3", "wav", "flac", "oga", "wma", "txt", "doc", "ico", "zip", "rar"]
+        private_local_download_strategy: "php"
 
     cdn:
         url: ''
@@ -226,6 +228,9 @@ shopware:
         file_rotation_count: 14
         exclude_exception:
             - League\OAuth2\Server\Exception\OAuthServerException
+        exclude_events:
+            - user.recovery.request
+            - customer.recovery.request
 
     cache:
         redis_prefix: '%env(REDIS_PREFIX)%'
@@ -250,3 +255,6 @@ shopware:
             country_state_route: []
             salutation_route: []
             sitemap_route: []
+
+    twig:
+        allowed_php_functions: []

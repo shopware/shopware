@@ -3,11 +3,10 @@
 namespace Shopware\Core\Checkout\Cart\SalesChannel;
 
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class CartResponse extends StoreApiResponse
 {
     /**

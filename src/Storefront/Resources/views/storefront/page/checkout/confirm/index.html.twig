@@ -40,13 +40,11 @@
 
                         {% block page_checkout_confirm_revocation_notice %}
                             <p class="revocation-notice">
+                                {# @deprecated tag:v6.6.0 - Block page_checkout_confirm_revocation_notice_link is deprecated. Use outer block page_checkout_confirm_revocation_notice instead. #}
                                 {% block page_checkout_confirm_revocation_notice_link %}
-                                    <a href="{{ path('frontend.cms.page',{ id: config('core.basicInformation.revocationPage') }) }}"
-                                       data-bs-toggle="modal"
-                                       title="{{ "checkout.confirmRevocationNotice"|trans|striptags }}"
-                                       data-url="{{ path('frontend.cms.page',{ id: config('core.basicInformation.revocationPage') }) }}">
-                                        {{ "checkout.confirmRevocationNotice"|trans|sw_sanitize }}
-                                    </a>
+                                    {{ "checkout.confirmRevocationNotice"|trans({
+                                        '%url%': path('frontend.cms.page',{ id: config('core.basicInformation.revocationPage') })
+                                    })|raw }}
                                 {% endblock %}
                             </p>
                         {% endblock %}
@@ -72,6 +70,28 @@
                                 {% endblock %}
                             </div>
                         {% endblock %}
+
+                        {% block page_checkout_confirm_revocation_control %}
+                            {% if page.showRevocation() %}
+                                <div class="{{ formCheckboxWrapperClass }}">
+                                    {% block page_checkout_confirm_revocation_control_checkbox %}
+                                        <input type="checkbox"
+                                               class="checkout-confirm-revocation-checkbox form-check-input{% if formViolations.getViolations('/revocation') is not empty %} is-invalid{% endif %}"
+                                               required="required"
+                                               id="revocation"
+                                               form="confirmOrderForm"
+                                               name="revocation"/>
+                                    {% endblock %}
+
+                                    {% block page_checkout_confirm_revocation_control_label %}
+                                        <label for="revocation"
+                                               class="checkout-confirm-revocation-label custom-control-label">
+                                            {{ "checkout.confirmRevocationTerms"|trans() }}
+                                        </label>
+                                    {% endblock %}
+                                </div>
+                            {% endif %}
+                        {% endblock %}
                     </div>
                 </div>
             </div>
@@ -93,9 +113,12 @@
                     {% endblock %}
 
                     {% block page_checkout_confirm_shipping %}
-                        <div class="col-sm-6 confirm-shipping">
-                            {% sw_include '@Storefront/storefront/page/checkout/confirm/confirm-shipping.html.twig' %}
-                        </div>
+                        {% set PHYSICAL_STATE = constant('Shopware\\Core\\Content\\Product\\State::IS_PHYSICAL') %}
+                        {% if page.cart.lineItems.hasLineItemWithState(PHYSICAL_STATE) %}
+                            <div class="col-sm-6 confirm-shipping">
+                                {% sw_include '@Storefront/storefront/page/checkout/confirm/confirm-shipping.html.twig' %}
+                            </div>
+                        {% endif %}
                     {% endblock %}
                 </div>
             </div>

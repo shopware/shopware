@@ -3,25 +3,18 @@
 namespace Shopware\Storefront\Framework\Twig;
 
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Framework\Twig\TokenParser\IconTokenParser;
 use Twig\Extension\AbstractExtension;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class IconExtension extends AbstractExtension
 {
     /**
-     * @var TemplateFinder
-     */
-    private $finder;
-
-    /**
      * @internal
      */
-    public function __construct(TemplateFinder $finder)
+    public function __construct(private readonly TemplateFinder $finder)
     {
-        $this->finder = $finder;
     }
 
     public function getTokenParsers(): array

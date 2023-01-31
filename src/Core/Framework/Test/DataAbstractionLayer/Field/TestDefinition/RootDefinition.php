@@ -24,7 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
  */
 class RootDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'root';
+    final public const ENTITY_NAME = 'root';
 
     public function getEntityName(): string
     {
@@ -46,7 +46,7 @@ class RootDefinition extends EntityDefinition
  */
 class SubDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'root_sub';
+    final public const ENTITY_NAME = 'root_sub';
 
     public function getEntityName(): string
     {
@@ -68,7 +68,7 @@ class SubDefinition extends EntityDefinition
  */
 class SubCascadeDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'root_sub_cascade';
+    final public const ENTITY_NAME = 'root_sub_cascade';
 
     public function getEntityName(): string
     {
@@ -90,7 +90,7 @@ class SubCascadeDefinition extends EntityDefinition
  */
 class SubManyDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'root_sub_many';
+    final public const ENTITY_NAME = 'root_sub_many';
 
     public function getEntityName(): string
     {

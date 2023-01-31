@@ -5,6 +5,31 @@ elasticsearch:
     hosts: "%env(string:OPENSEARCH_URL)%"
     index_prefix: "%env(string:SHOPWARE_ES_INDEX_PREFIX)%"
     throw_exception: "%env(string:SHOPWARE_ES_THROW_EXCEPTION)%"
+    administration:
+        hosts: "%env(string:ADMIN_OPENSEARCH_URL)%"
+        enabled: "%env(bool:SHOPWARE_ADMIN_ES_ENABLED)%"
+        refresh_indices: "%env(bool:SHOPWARE_ADMIN_ES_REFRESH_INDICES)%"
+        index_prefix: "%env(string:SHOPWARE_ADMIN_ES_INDEX_PREFIX)%"
+        index_settings:
+            number_of_shards: 3
+            number_of_replicas: 3
+            'mapping.total_fields.limit': 50000
+            'mapping.nested_fields.limit': 500
+            'mapping.nested_objects.limit': 1000000
+        analysis:
+            normalizer:
+                sw_lowercase_normalizer:
+                    type: custom
+                    filter: [ 'lowercase' ]
+        dynamic_templates:
+            - keywords:
+                match_mapping_type: string
+                mapping:
+                    type: keyword
+                    normalizer: sw_lowercase_normalizer
+                    fields:
+                        text:
+                            type: text
     product:
         custom_fields_mapping:
     ssl:
@@ -48,4 +73,8 @@ parameters:
     env(OPENSEARCH_URL): ""
     env(SHOPWARE_ES_INDEX_PREFIX): "sw"
     env(SHOPWARE_ES_THROW_EXCEPTION): "1"
+    env(SHOPWARE_ADMIN_ES_ENABLED): ""
+    env(ADMIN_OPENSEARCH_URL): ""
+    env(SHOPWARE_ADMIN_ES_INDEX_PREFIX): "sw-admin"
+    env(SHOPWARE_ADMIN_ES_REFRESH_INDICES): ""
     env(SHOPWARE_ES_INDEXING_BATCH_SIZE): 100

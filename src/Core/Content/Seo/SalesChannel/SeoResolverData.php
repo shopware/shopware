@@ -3,16 +3,15 @@
 namespace Shopware\Core\Content\Seo\SalesChannel;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package sales-channel
- */
+#[Package('sales-channel')]
 class SeoResolverData
 {
     /**
      * @var array<string, mixed>
      */
-    private $entityMap = [];
+    private array $entityMap = [];
 
     public function add(string $entityName, Entity $entity): void
     {

@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\System\Snippet\Filter;
 
-/**
- * @package system-settings
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('system-settings')]
 class AddedFilter extends AbstractFilter implements SnippetFilterInterface
 {
     /**
@@ -23,7 +23,7 @@ class AddedFilter extends AbstractFilter implements SnippetFilterInterface
         $result = [];
         foreach ($snippets as $setId => $set) {
             foreach ($set['snippets'] as $translationKey => $snippet) {
-                if (mb_strpos($snippet['author'], 'user/') !== 0) {
+                if (mb_strpos((string) $snippet['author'], 'user/') !== 0) {
                     continue;
                 }
 

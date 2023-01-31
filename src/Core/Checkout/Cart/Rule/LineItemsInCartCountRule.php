@@ -2,18 +2,17 @@
 
 namespace Shopware\Core\Checkout\Cart\Rule;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-/**
- * @package business-ops
- */
+#[Package('business-ops')]
 class LineItemsInCartCountRule extends Rule
 {
-    public const RULE_NAME = 'cartLineItemsInCartCount';
+    final public const RULE_NAME = 'cartLineItemsInCartCount';
 
     protected int $count;
 

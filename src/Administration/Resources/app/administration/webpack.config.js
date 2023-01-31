@@ -34,6 +34,7 @@ crypto.createHash = algorithm => cryptoOrigCreateHash(algorithm === 'md4' ? 'sha
 /* eslint-disable */
 
 const buildOnlyExtensions = process.env.SHOPWARE_ADMIN_BUILD_ONLY_EXTENSIONS === '1';
+const openBrowserForWatch = process.env.DISABLE_DEVSERVER_OPEN  !== '1';
 
 const flagsPath = path.join(process.env.PROJECT_ROOT, 'var', 'config_js_features.json');
 let featureFlags = {};
@@ -500,7 +501,7 @@ const coreConfig = {
                     host: process.env.HOST,
                     port: process.env.PORT,
                     disableHostCheck: true,
-                    open: true,
+                    open: openBrowserForWatch,
                     proxy: {
                         '/api': {
                             target: process.env.APP_URL,

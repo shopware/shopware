@@ -5,20 +5,19 @@ namespace Shopware\Core\Content\Seo;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Seo\Hreflang\HreflangCollection;
 use Shopware\Core\Content\Seo\Hreflang\HreflangStruct;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Routing\RouterInterface;
 
-/**
- * @package sales-channel
- */
+#[Package('sales-channel')]
 class HreflangLoader implements HreflangLoaderInterface
 {
     /**
      * @internal
      */
     public function __construct(
-        private RouterInterface $router,
-        private Connection $connection
+        private readonly RouterInterface $router,
+        private readonly Connection $connection
     ) {
     }
 

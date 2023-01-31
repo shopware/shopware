@@ -14,52 +14,23 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ChildCountUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\TreeUpdater;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package content
- */
+#[Package('content')]
 class CategoryIndexer extends EntityIndexer
 {
-    public const CHILD_COUNT_UPDATER = 'category.child-count';
-    public const TREE_UPDATER = 'category.tree';
-    public const BREADCRUMB_UPDATER = 'category.breadcrumb';
-
-    private IteratorFactory $iteratorFactory;
-
-    private Connection $connection;
-
-    private EntityRepository $repository;
-
-    private ChildCountUpdater $childCountUpdater;
-
-    private TreeUpdater $treeUpdater;
-
-    private CategoryBreadcrumbUpdater $breadcrumbUpdater;
-
-    private EventDispatcherInterface $eventDispatcher;
+    final public const CHILD_COUNT_UPDATER = 'category.child-count';
+    final public const TREE_UPDATER = 'category.tree';
+    final public const BREADCRUMB_UPDATER = 'category.breadcrumb';
 
     /**
      * @internal
      */
-    public function __construct(
-        Connection $connection,
-        IteratorFactory $iteratorFactory,
-        EntityRepository $repository,
-        ChildCountUpdater $childCountUpdater,
-        TreeUpdater $treeUpdater,
-        CategoryBreadcrumbUpdater $breadcrumbUpdater,
-        EventDispatcherInterface $eventDispatcher
-    ) {
-        $this->iteratorFactory = $iteratorFactory;
-        $this->repository = $repository;
-        $this->childCountUpdater = $childCountUpdater;
-        $this->treeUpdater = $treeUpdater;
-        $this->breadcrumbUpdater = $breadcrumbUpdater;
-        $this->connection = $connection;
-        $this->eventDispatcher = $eventDispatcher;
+    public function __construct(private readonly Connection $connection, private readonly IteratorFactory $iteratorFactory, private readonly EntityRepository $repository, private readonly ChildCountUpdater $childCountUpdater, private readonly TreeUpdater $treeUpdater, private readonly CategoryBreadcrumbUpdater $breadcrumbUpdater, private readonly EventDispatcherInterface $eventDispatcher)
+    {
     }
 
     public function getName(): string

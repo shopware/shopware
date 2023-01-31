@@ -11,6 +11,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\Event\OrderAware;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Exception\IllegalTransitionException;
@@ -18,13 +19,12 @@ use Shopware\Core\System\StateMachine\Exception\StateMachineNotFoundException;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('business-ops')]
 class SetOrderStateAction extends FlowAction implements DelayableAction
 {
-    public const FORCE_TRANSITION = 'force_transition';
+    final public const FORCE_TRANSITION = 'force_transition';
 
     private const ORDER = 'order';
 
@@ -32,23 +32,11 @@ class SetOrderStateAction extends FlowAction implements DelayableAction
 
     private const ORDER_TRANSACTION = 'order_transaction';
 
-    private Connection $connection;
-
-    private LoggerInterface $logger;
-
-    private OrderService $orderService;
-
     /**
      * @internal
      */
-    public function __construct(
-        Connection $connection,
-        LoggerInterface $logger,
-        OrderService $orderService
-    ) {
-        $this->connection = $connection;
-        $this->logger = $logger;
-        $this->orderService = $orderService;
+    public function __construct(private readonly Connection $connection, private readonly LoggerInterface $logger, private readonly OrderService $orderService)
+    {
     }
 
     public static function getName(): string

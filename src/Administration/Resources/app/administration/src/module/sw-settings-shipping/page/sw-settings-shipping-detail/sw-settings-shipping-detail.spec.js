@@ -144,7 +144,6 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-detail', () => {
     });
 
     it('should add conditions association', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_18215'];
         const wrapper = await createWrapper();
         const criteria = wrapper.vm.ruleFilter;
 

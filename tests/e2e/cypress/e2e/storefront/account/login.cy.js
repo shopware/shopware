@@ -84,7 +84,7 @@ describe('Account: Login as customer', () => {
 
         // Logout
         cy.get('button#accountWidget').click();
-        cy.get('.account-aside-footer').contains('Logout').click();
+        cy.get('.account-aside-footer').contains('Log out').click();
 
         // Login
         cy.get('#loginMail').typeAndCheckStorefront('test@example.com');

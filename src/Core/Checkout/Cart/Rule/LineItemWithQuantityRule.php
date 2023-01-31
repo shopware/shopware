@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
@@ -11,29 +12,17 @@ use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\Framework\Validation\Constraint\Uuid;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
-/**
- * @package business-ops
- */
+#[Package('business-ops')]
 class LineItemWithQuantityRule extends Rule
 {
-    public const RULE_NAME = 'cartLineItemWithQuantity';
-
-    protected ?string $id;
-
-    protected ?int $quantity;
-
-    protected string $operator;
+    final public const RULE_NAME = 'cartLineItemWithQuantity';
 
     /**
      * @internal
      */
-    public function __construct(string $operator = self::OPERATOR_EQ, ?string $id = null, ?int $quantity = null)
+    public function __construct(protected string $operator = self::OPERATOR_EQ, protected ?string $id = null, protected ?int $quantity = null)
     {
         parent::__construct();
-
-        $this->operator = $operator;
-        $this->id = $id;
-        $this->quantity = $quantity;
     }
 
     /**

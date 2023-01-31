@@ -11,20 +11,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Contracts\Service\ResetInterface;
 
-/**
- * @package core
- */
+#[Package('core')]
 class CustomerSerializer extends EntitySerializer implements ResetInterface
 {
-    private EntityRepository $customerGroupRepository;
-
-    private EntityRepository $paymentMethodRepository;
-
-    private EntityRepository $salesChannelRepository;
-
     /**
      * @var array<string>|null[]
      */
@@ -43,14 +36,8 @@ class CustomerSerializer extends EntitySerializer implements ResetInterface
     /**
      * @internal
      */
-    public function __construct(
-        EntityRepository $customerGroupRepository,
-        EntityRepository $paymentMethodRepository,
-        EntityRepository $salesChannelRepository
-    ) {
-        $this->customerGroupRepository = $customerGroupRepository;
-        $this->paymentMethodRepository = $paymentMethodRepository;
-        $this->salesChannelRepository = $salesChannelRepository;
+    public function __construct(private readonly EntityRepository $customerGroupRepository, private readonly EntityRepository $paymentMethodRepository, private readonly EntityRepository $salesChannelRepository)
+    {
     }
 
     /**

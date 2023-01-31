@@ -4,18 +4,17 @@ namespace Shopware\Core\System\StateMachine\Event;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 use Shopware\Core\System\StateMachine\StateMachineEntity;
 use Shopware\Core\System\StateMachine\Transition;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class StateMachineStateChangeEvent extends Event
 {
-    public const STATE_MACHINE_TRANSITION_SIDE_ENTER = 'state_enter';
-    public const STATE_MACHINE_TRANSITION_SIDE_LEAVE = 'state_leave';
+    final public const STATE_MACHINE_TRANSITION_SIDE_ENTER = 'state_enter';
+    final public const STATE_MACHINE_TRANSITION_SIDE_LEAVE = 'state_leave';
 
     /**
      * @var Context
@@ -57,11 +56,6 @@ class StateMachineStateChangeEvent extends Event
      */
     protected $transition;
 
-    /**
-     * @var MailRecipientStruct|null
-     */
-    private $mailRecipientStruct;
-
     public function __construct(
         Context $context,
         string $transitionSide,
@@ -69,7 +63,7 @@ class StateMachineStateChangeEvent extends Event
         StateMachineEntity $stateMachine,
         StateMachineStateEntity $previousState,
         StateMachineStateEntity $nextState,
-        ?MailRecipientStruct $mailRecipientStruct = null
+        private readonly ?MailRecipientStruct $mailRecipientStruct = null
     ) {
         $this->context = $context;
         $this->stateMachine = $stateMachine;
@@ -77,7 +71,6 @@ class StateMachineStateChangeEvent extends Event
         $this->previousState = $previousState;
         $this->nextState = $nextState;
         $this->transition = $transition;
-        $this->mailRecipientStruct = $mailRecipientStruct;
 
         if ($this->transitionSide === static::STATE_MACHINE_TRANSITION_SIDE_ENTER) {
             $this->stateName = $this->nextState->getTechnicalName();

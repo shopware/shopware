@@ -3,34 +3,21 @@
 namespace Shopware\Core\Content\Mail\Service;
 
 use Shopware\Core\Content\MailTemplate\Exception\MailTransportFailedException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Mailer\Envelope;
 use Symfony\Component\Mailer\Mailer;
 use Symfony\Component\Mime\Email;
 
-/**
- * @package system-settings
- */
+#[Package('system-settings')]
 class MailSender extends AbstractMailSender
 {
     /**
-     * @var Mailer
-     */
-    private $mailer;
-
-    /**
-     * @var SystemConfigService
-     */
-    private $configService;
-
-    /**
      * @internal
      */
-    public function __construct(Mailer $mailer, SystemConfigService $configService)
+    public function __construct(private readonly Mailer $mailer, private readonly SystemConfigService $configService)
     {
-        $this->mailer = $mailer;
-        $this->configService = $configService;
     }
 
     public function getDecorated(): AbstractMailSender

@@ -2,13 +2,13 @@
 
 namespace Shopware\Core\Framework\Store\Services;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Exception\StoreSignatureValidationException;
 
 /**
- * @package merchant-services
- *
  * @internal
  */
+#[Package('merchant-services')]
 class OpenSSLVerifier
 {
     private string $publicKeyPath;
@@ -38,6 +38,7 @@ class OpenSSLVerifier
 
     public function isValid(string $message, string $signature): bool
     {
+        $errors = [];
         $pubkeyid = $this->getKey();
 
         $signature = base64_decode($signature, true);
@@ -62,6 +63,7 @@ class OpenSSLVerifier
 
     private function getKey(): \OpenSSLAsymmetricKey
     {
+        $errors = [];
         if ($this->keyResource !== null) {
             return $this->keyResource;
         }

@@ -11,6 +11,7 @@
 
         <service id="Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="cache.object"/>
         </service>
 
         <service id="Shopware\Core\System\CustomEntity\CustomEntityDefinition">
@@ -39,5 +40,6 @@
         </service>
 
         <service id="Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchemaValidator"/>
+        <service id="Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\AdminUiXmlSchemaValidator"/>
     </services>
 </container>

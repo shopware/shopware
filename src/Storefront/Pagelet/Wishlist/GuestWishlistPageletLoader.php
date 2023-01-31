@@ -8,40 +8,23 @@ use Shopware\Core\Content\Product\SalesChannel\AbstractProductListRoute;
 use Shopware\Core\Content\Product\SalesChannel\ProductListResponse;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class GuestWishlistPageletLoader
 {
     private const LIMIT = 100;
 
-    private EventDispatcherInterface $eventDispatcher;
-
-    private AbstractProductListRoute $productListRoute;
-
-    private SystemConfigService $systemConfigService;
-
-    private AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory;
-
     /**
      * @internal
      */
-    public function __construct(
-        AbstractProductListRoute $productListRoute,
-        SystemConfigService $systemConfigService,
-        EventDispatcherInterface $eventDispatcher,
-        AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory
-    ) {
-        $this->productListRoute = $productListRoute;
-        $this->systemConfigService = $systemConfigService;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->productCloseoutFilterFactory = $productCloseoutFilterFactory;
+    public function __construct(private readonly AbstractProductListRoute $productListRoute, private readonly SystemConfigService $systemConfigService, private readonly EventDispatcherInterface $eventDispatcher, private readonly AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory)
+    {
     }
 
     public function load(Request $request, SalesChannelContext $context): GuestWishlistPagelet
@@ -81,9 +64,7 @@ class GuestWishlistPageletLoader
             throw new \InvalidArgumentException('Argument $productIds is not an array');
         }
 
-        $productIds = array_filter($productIds, static function ($productId) {
-            return Uuid::isValid($productId);
-        });
+        $productIds = array_filter($productIds, static fn ($productId) => Uuid::isValid($productId));
 
         $criteria->setLimit(self::LIMIT);
         $criteria->setIds($productIds);

@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -21,10 +22,9 @@ use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\Messenger\TraceableMessageBus;
 
 /**
- * @package customer-order
- *
  * @internal
  */
+#[Package('customer-order')]
 class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -196,15 +196,11 @@ class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
     public function createDataProvider(): \Generator
     {
         yield 'Email Newsletter Recipient Not Registered' => [
-            function (Context $context, string $email): array {
-                return [];
-            },
-            function (Criteria $criteria, string $email): Criteria {
-                return $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
-                    new EqualsFilter('email', $email),
-                    new EqualsFilter('email', 'ytn@shopware.com'),
-                ]));
-            },
+            fn (Context $context, string $email): array => [],
+            fn (Criteria $criteria, string $email): Criteria => $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
+                new EqualsFilter('email', $email),
+                new EqualsFilter('email', 'ytn@shopware.com'),
+            ])),
         ];
 
         yield 'Email Newsletter Recipient Registered' => [
@@ -215,9 +211,7 @@ class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
                     $newsletterRecipientId,
                 ];
             },
-            function (Criteria $criteria, array $ids): Criteria {
-                return $criteria->setIds($ids);
-            },
+            fn (Criteria $criteria, array $ids): Criteria => $criteria->setIds($ids),
         ];
 
         yield 'Email Newsletter Recipient Registered Multiple' => [
@@ -232,9 +226,7 @@ class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
                     $newsletterRecipientId2,
                 ];
             },
-            function (Criteria $criteria, array $ids): Criteria {
-                return $criteria->setIds($ids);
-            },
+            fn (Criteria $criteria, array $ids): Criteria => $criteria->setIds($ids),
         ];
     }
 

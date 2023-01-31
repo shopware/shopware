@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -16,10 +17,9 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParamete
 use Shopware\Core\Test\TestDefaults;
 
 /**
- * @package customer-order
- *
  * @internal
  */
+#[Package('customer-order')]
 class AccountServiceTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;
@@ -208,7 +208,7 @@ class AccountServiceTest extends TestCase
         ?string $customerId = null,
         ?string $createdAt = null,
     ): string {
-        $customerId = $customerId ?? Uuid::randomHex();
+        $customerId ??= Uuid::randomHex();
         $addressId = Uuid::randomHex();
 
         $customer = [

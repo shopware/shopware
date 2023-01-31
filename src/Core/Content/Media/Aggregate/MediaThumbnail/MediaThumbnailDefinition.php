@@ -17,13 +17,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package content
- */
+#[Package('content')]
 class MediaThumbnailDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'media_thumbnail';
+    final public const ENTITY_NAME = 'media_thumbnail';
 
     public function getEntityName(): string
     {

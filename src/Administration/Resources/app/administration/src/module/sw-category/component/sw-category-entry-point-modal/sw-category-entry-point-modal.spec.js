@@ -47,6 +47,25 @@ async function createWrapper() {
         },
         propsData: {
             salesChannelCollection
+        },
+        provide: {
+            cmsPageTypeService: {
+                getTypes: () => {
+                    return [{
+                        name: 'page',
+                        title: 'page',
+                    }, {
+                        name: 'landingpage',
+                        title: 'landingpage',
+                    }, {
+                        name: 'product_list',
+                        title: 'product_list',
+                    }, {
+                        name: 'product_detail',
+                        title: 'product_detail',
+                    }];
+                }
+            }
         }
     });
 }

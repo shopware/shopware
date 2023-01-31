@@ -260,6 +260,7 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-24512 - Replace element modal icon sizing](/changelog/release-6-5-0-0/2023-01-19-replace-element-modal-icon-sizing.md)
 *  [NEXT-21203 - Remove psalm dependency](/changelog/release-6-5-0-0/2023-01-20-remove-psalm-dependency.md)
 *  [NEXT-25050 - Update meteor icon kit](/changelog/release-6-5-0-0/2023-01-23-update-meteor-icon-kit.md)
+*  [NEXT-25174 - Update Monolog](/changelog/release-6-5-0-0/2023-01-30-update-monolog.md)
 
 ## 6.4.19.0
 *  [NEXT-22617 - Admin users can mark CMS blocks and CMS elements as favorites](/changelog/release-6-4-19-0/2022-05-31-cms-favorites.md) ([Joshua Behrens](https://github.com/JoshuaBehrens))

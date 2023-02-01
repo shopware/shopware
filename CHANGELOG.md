@@ -270,7 +270,7 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-25306 - Remove unused DebugStack class](/changelog/release-6-5-0-0/2023-02-07-remove-debugstack-class.md)
 *  [NEXT-25062 - Fix DeliveryPosition taxes override LineItem taxes](/changelog/release-6-5-0-0/2023-01-26-fix-deliveryposition-taxes-override-lineitem-taxes.md)
 *  [NEXT-25306 - Fix quick opening and closing of OffCanvas cart](/changelog/release-6-5-0-0/2023-01-26-fix-offcanvas-timings.md)
-
+*  [NEXT-25212 - Update deliver ordered product downloads flow template](/changelog/release-6-5-0-0/2023-02-01-update-deliver-ordered-product-downloads-flow-template.md)
 
 ## 6.4.20.0 
 *  [NEXT-24983 - Make user activity tab overarching](/changelog/release-6-4-20-0/2023-01-30-make-user-activity-tab-overarching.md)

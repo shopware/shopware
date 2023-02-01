@@ -25,6 +25,7 @@ use Shopware\Core\Framework\Validation\DataBag\QueryDataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
+use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 /**
  * @package merchant-services
@@ -52,7 +53,9 @@ class FirstRunWizardControllerTest extends TestCase
         $this->firstRunWizardService->expects(static::once())
             ->method('startFrw');
 
-        static::assertEquals(new JsonResponse(), $this->controller->frwStart($this->createContext()));
+        $response = $this->controller->frwStart($this->createContext());
+
+        static::assertSame(SymfonyResponse::HTTP_OK, $response->getStatusCode());
     }
 
     public function testTryingToStartFrwFails(): void
@@ -228,7 +231,9 @@ class FirstRunWizardControllerTest extends TestCase
         $this->firstRunWizardService->expects(static::once())
             ->method('frwLogin');
 
-        static::assertEquals(new JsonResponse(), $this->controller->frwLogin($requestDataBag, $this->createContext()));
+        $response = $this->controller->frwLogin($requestDataBag, $this->createContext());
+
+        static::assertSame(SymfonyResponse::HTTP_OK, $response->getStatusCode());
     }
 
     public function testTryToLoginWithFrwWithoutShopwareId(): void
@@ -376,10 +381,9 @@ class FirstRunWizardControllerTest extends TestCase
         $this->firstRunWizardService->expects(static::once())
             ->method('upgradeAccessToken');
 
-        static::assertEquals(
-            new JsonResponse(),
-            $this->controller->frwFinish(new QueryDataBag(['failed' => 'true']), $this->createContext())
-        );
+        $response = $this->controller->frwFinish(new QueryDataBag(['failed' => 'true']), $this->createContext());
+
+        static::assertEquals(SymfonyResponse::HTTP_OK, $response->getStatusCode());
     }
 
     public function testFinishFrwWithoutFailedParam(): void
@@ -389,10 +393,9 @@ class FirstRunWizardControllerTest extends TestCase
         $this->firstRunWizardService->expects(static::once())
             ->method('upgradeAccessToken');
 
-        static::assertEquals(
-            new JsonResponse(),
-            $this->controller->frwFinish(new QueryDataBag([]), $this->createContext())
-        );
+        $response = $this->controller->frwFinish(new QueryDataBag([]), $this->createContext());
+
+        static::assertEquals(SymfonyResponse::HTTP_OK, $response->getStatusCode());
     }
 
     public function testFinishFrwButUpgradingAccessTokenFails(): void
@@ -404,10 +407,9 @@ class FirstRunWizardControllerTest extends TestCase
             ->method('upgradeAccessToken')
             ->willThrowException(new \Exception($exceptionMessage));
 
-        static::assertEquals(
-            new JsonResponse(),
-            $this->controller->frwFinish(new QueryDataBag(['failed' => 'false']), $this->createContext())
-        );
+        $response = $this->controller->frwFinish(new QueryDataBag(['failed' => 'false']), $this->createContext());
+
+        static::assertEquals(SymfonyResponse::HTTP_OK, $response->getStatusCode());
     }
 
     private function decodeJsonResponse(JsonResponse $response): mixed

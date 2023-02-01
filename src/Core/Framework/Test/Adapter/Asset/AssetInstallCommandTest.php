@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Adapter\Asset;
+namespace Shopware\Core\Framework\Test\Adapter\Asset;
 
 use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\TestCase;

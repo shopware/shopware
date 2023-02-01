@@ -6,7 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\IndexerQueuer;
 use Shopware\Core\Framework\Store\Event\FirstRunWizardFinishedEvent;
-use Shopware\Core\Framework\Update\Event\UpdatePreFinishEvent;
+use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -28,7 +28,7 @@ class RegisteredIndexerSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            UpdatePreFinishEvent::class => 'runRegisteredIndexers',
+            UpdatePostFinishEvent::class => 'runRegisteredIndexers',
             FirstRunWizardFinishedEvent::class => 'runRegisteredIndexers',
         ];
     }

@@ -26,7 +26,7 @@ describe('Product Search: Test crud operations', () => {
         });
     });
 
-    it('@settings: create and update excluded terms', { tags: ['pa-system-settings'] }, () => {
+    it('@settings: create and update excluded terms', { tags: ['quarantined', 'pa-system-settings'] }, () => {
         const page = new SettingsPageObject();
 
         cy.intercept({
@@ -86,7 +86,7 @@ describe('Product Search: Test crud operations', () => {
             });
     });
 
-    it('@settings: delete excluded terms', { tags: ['pa-system-settings'] }, () => {
+    it('@settings: delete excluded terms', { tags: ['quarantined', 'pa-system-settings'] }, () => {
         const page = new SettingsPageObject();
 
         cy.intercept({

@@ -99,6 +99,11 @@
             <argument type="service" id="notification.repository"/>
         </service>
 
+        <service id="Shopware\Administration\Notification\Subscriber\UpdateSubscriber">
+            <argument type="service" id="Shopware\Administration\Notification\NotificationService" />
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Shopware\Administration\Service\AdminSearcher">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
         </service>

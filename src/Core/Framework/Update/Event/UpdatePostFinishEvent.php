@@ -8,6 +8,8 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('system-settings')]
 class UpdatePostFinishEvent extends UpdateEvent
 {
+    private string $postUpdateMessage = '';
+
     public function __construct(
         Context $context,
         private readonly string $oldVersion,
@@ -24,5 +26,15 @@ class UpdatePostFinishEvent extends UpdateEvent
     public function getNewVersion(): string
     {
         return $this->newVersion;
+    }
+
+    public function getPostUpdateMessage(): string
+    {
+        return $this->postUpdateMessage;
+    }
+
+    public function appendPostUpdateMessage(string $postUpdateMessage): void
+    {
+        $this->postUpdateMessage .= \PHP_EOL . $postUpdateMessage . \PHP_EOL;
     }
 }

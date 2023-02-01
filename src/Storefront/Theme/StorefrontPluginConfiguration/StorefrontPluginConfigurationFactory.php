@@ -79,7 +79,7 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
                 );
             }
 
-            /** @var array $data */
+            /** @var array<string, mixed> $data */
             $data = json_decode($fileContent, true);
             if (json_last_error() !== \JSON_ERROR_NONE) {
                 throw new ThemeCompileException(
@@ -142,7 +142,8 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
                 sprintf(
                     'Got exception while parsing theme config. Exception message "%s"',
                     $e->getMessage()
-                )
+                ),
+                $e
             );
         }
 
@@ -176,6 +177,11 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
         return $fileCollection;
     }
 
+    /**
+     * @param array<int, string> $files
+     *
+     * @return array<int, string>
+     */
     private function addBasePathToArray(array $files, string $basePath): array
     {
         array_walk($files, function (&$path) use ($basePath): void {
@@ -193,6 +199,9 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
         return $basePath . \DIRECTORY_SEPARATOR . $path;
     }
 
+    /**
+     * @return array<int, string>
+     */
     private function getFilesInDir(string $path): array
     {
         if (!is_dir($path)) {
@@ -209,6 +218,9 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
         return $files;
     }
 
+    /**
+     * @return array<int, string>
+     */
     private function getScssEntryFileInDir(string $path): array
     {
         if (!is_dir($path)) {
@@ -234,6 +246,9 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
         return $path;
     }
 
+    /**
+     * @param array<int, string|array<string, array<string, array<int, string>>>> $styles
+     */
     private function resolveStyleFiles(array $styles, string $basePath, StorefrontPluginConfiguration $config): void
     {
         $fileCollection = new FileCollection();

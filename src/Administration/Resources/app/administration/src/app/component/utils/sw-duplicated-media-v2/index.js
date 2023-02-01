@@ -204,6 +204,7 @@ Component.register('sw-duplicated-media-v2', {
                         [
                             Criteria.equals('fileName', this.currentTask.fileName),
                             Criteria.equals('fileExtension', this.currentTask.extension),
+                            Criteria.equals('private', this.currentTask.isPrivate),
                         ],
                     ),
                 );
@@ -296,6 +297,7 @@ Component.register('sw-duplicated-media-v2', {
                     [
                         Criteria.equals('fileName', uploadTask.fileName),
                         Criteria.equals('fileExtension', uploadTask.extension),
+                        Criteria.equals('private', uploadTask.isPrivate),
                     ]));
 
             const searchResult = await this.mediaRepository.search(criteria, Context.api);
@@ -326,6 +328,7 @@ Component.register('sw-duplicated-media-v2', {
                     [
                         Criteria.equals('fileName', uploadTask.fileName),
                         Criteria.equals('fileExtension', uploadTask.extension),
+                        Criteria.equals('private', uploadTask.isPrivate),
                     ]));
 
             const searchResult = await this.mediaRepository.search(criteria, Context.api);

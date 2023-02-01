@@ -373,7 +373,7 @@ Component.register('sw-media-upload-v2', {
 
             try {
                 fileInfo = fileReader.getNameAndExtensionFromUrl(url);
-            } catch {
+            } catch (error) {
                 this.createNotificationError({
                     title: this.$tc('global.default.error'),
                     message: this.$tc('global.sw-media-upload-v2.notification.invalidUrl.message'),
@@ -389,7 +389,12 @@ Component.register('sw-media-upload-v2', {
             const targetEntity = this.getMediaEntityForUpload();
 
             await this.mediaRepository.save(targetEntity, Context.api);
-            this.mediaService.addUpload(this.uploadTag, { src: url, targetId: targetEntity.id, ...fileInfo });
+            this.mediaService.addUpload(this.uploadTag, {
+                src: url,
+                targetId: targetEntity.id,
+                isPrivate: targetEntity.private,
+                ...fileInfo,
+            });
 
             this.useFileUpload();
         },
@@ -433,7 +438,7 @@ Component.register('sw-media-upload-v2', {
                 const targetEntity = this.getMediaEntityForUpload();
                 syncEntities.push(targetEntity);
 
-                return { src: fileHandle, targetId: targetEntity.id, fileName, extension };
+                return { src: fileHandle, targetId: targetEntity.id, fileName, extension, isPrivate: targetEntity.private };
             });
 
             await this.mediaRepository.saveAll(syncEntities, Context.api);

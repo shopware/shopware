@@ -126,7 +126,7 @@ Component.register('sw-text-editor-toolbar', {
                     this.setToolbarPosition();
                 }, 16);
 
-                document.querySelector('#app').addEventListener('scroll', this.scrollEventHandler, true);
+                document.addEventListener('scroll', this.scrollEventHandler, true);
 
                 this.$device.onResize({
                     listener: this.setToolbarPosition,
@@ -173,14 +173,17 @@ Component.register('sw-text-editor-toolbar', {
             document.removeEventListener('scroll', this.scrollEventListener, true);
             document.removeEventListener('mouseup', this.onMouseUp);
 
-            this.$emit('destroyed-el');
-        },
-
-        beforeUnmountedComponent() {
             if (this.$el?.parentElement?.contains(this.$el)) {
                 this.$el.parentElement.removeChild(this.$el);
             }
+
+            this.$emit('destroyed-el');
         },
+
+        /*
+         * @deprecated tag:v6.6.0 - Will be removed
+         */
+        beforeUnmountedComponent() {},
 
         onMouseUp(event) {
             const path = [];

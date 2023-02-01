@@ -170,7 +170,7 @@
         .sw-meteor-page__smart-bar-module-icon {
             grid-area: icon;
             align-self: start;
-            margin-right: 12px;
+            margin-right: 16px;
         }
 
         .sw-meteor-page__smart-bar-header {
@@ -184,10 +184,8 @@
                 @include truncate;
 
                 color: #0c1f34;
-
-                // 1,5 x font-size
-                line-height: 42px;
-                font-size: $font-size-3xl;
+                line-height: 1.2;
+                font-size: $font-size-xl;
                 margin-right: 8px;
                 margin-bottom: 0;
                 min-width: 20%;
@@ -216,6 +214,11 @@
 
         .sw-button {
             margin: 6px 4px;
+            border: 1px solid $color-gray-300;
+
+            &:first-child {
+                margin-left: 0;
+            }
         }
     }
 }

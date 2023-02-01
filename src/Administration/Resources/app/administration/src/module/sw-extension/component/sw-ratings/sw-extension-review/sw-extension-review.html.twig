@@ -10,12 +10,18 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_review_stars %}
-    <sw-extension-rating-stars :rating="review.rating" />
+    <sw-extension-rating-stars
+        :rating="review.rating"
+        :size="12"
+    />
     {% endblock %}
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_review_text %}
-    <p v-if="review.text">
+    <p
+        v-if="review.text"
+        class="sw-extension-review__text"
+    >
         {{ review.text }}
     </p>
     {% endblock %}

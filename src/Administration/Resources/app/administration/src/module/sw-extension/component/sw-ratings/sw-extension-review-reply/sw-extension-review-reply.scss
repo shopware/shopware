@@ -2,9 +2,9 @@
 
 .sw-extension-review-reply {
     background: $color-gray-100;
-    border-radius: 4px;
-    margin: 24px 0;
-    padding: 25px;
+    border-radius: $border-radius-md;
+    margin: 16px 0;
+    padding: 24px;
 
     &__head {
         line-height: 17px;

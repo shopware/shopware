@@ -72,6 +72,7 @@
     "flatpickr": "4.6.13",
     "fork-ts-checker-webpack-plugin": "6.5.2",
     "fs-extra": "^10.1.0",
+    "html2canvas": "^1.4.1",
     "inter-ui": "^3.19.3",
     "jest-environment-jsdom": "^29.3.1",
     "jest-jasmine2": "29.3.1",

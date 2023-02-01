@@ -38,6 +38,16 @@ class FilesystemFactory
     /**
      * @param array<mixed> $config
      */
+    public function privateFactory(array $config): FilesystemOperator
+    {
+        $config['private'] = true;
+
+        return $this->factory($config);
+    }
+
+    /**
+     * @param array<mixed> $config
+     */
     public function factory(array $config): FilesystemOperator
     {
         $config = $this->resolveFilesystemConfig($config);
@@ -57,7 +67,7 @@ class FilesystemFactory
             Config::OPTION_DIRECTORY_VISIBILITY => $config['visibility'],
         ];
 
-        if ($config['visibility'] === Visibility::PUBLIC) {
+        if (!$config['private']) {
             $fsOptions['public_url'] = $config['url'] ?? $this->getFallbackUrl();
         }
 
@@ -109,11 +119,12 @@ class FilesystemFactory
         $options = new OptionsResolver();
 
         $options->setRequired(['type']);
-        $options->setDefined(['config', 'visibility', 'disable_asserts', 'url']);
+        $options->setDefined(['config', 'visibility', 'disable_asserts', 'url', 'private']);
 
         $options->setDefault('config', []);
         $options->setDefault('visibility', Visibility::PUBLIC);
         $options->setDefault('disable_asserts', false);
+        $options->setDefault('private', false);
 
         $options->setAllowedTypes('type', 'string');
         $options->setAllowedTypes('config', 'array');

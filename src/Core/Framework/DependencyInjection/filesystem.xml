@@ -16,12 +16,12 @@
         </service>
 
         <service class="League\Flysystem\FilesystemOperator" id="shopware.filesystem.private" public="true">
-            <factory service="Shopware\Core\Framework\Adapter\Filesystem\FilesystemFactory" method="factory"/>
+            <factory service="Shopware\Core\Framework\Adapter\Filesystem\FilesystemFactory" method="privateFactory"/>
             <argument>%shopware.filesystem.private%</argument>
         </service>
 
         <service class="League\Flysystem\FilesystemOperator" id="shopware.filesystem.temp" public="true">
-            <factory service="Shopware\Core\Framework\Adapter\Filesystem\FilesystemFactory" method="factory"/>
+            <factory service="Shopware\Core\Framework\Adapter\Filesystem\FilesystemFactory" method="privateFactory"/>
             <argument>%shopware.filesystem.temp%</argument>
         </service>
 

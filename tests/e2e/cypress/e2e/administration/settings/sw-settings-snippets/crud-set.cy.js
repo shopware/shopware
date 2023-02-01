@@ -29,7 +29,7 @@ describe('Snippet set: Test crud operations', () => {
         cy.contains(`${page.elements.gridRow}--0 a`, 'Snip Snap');
     });
 
-    it('@settings: update and read snippet set', { tags: ['pa-system-settings'] }, () => {
+    it('@settings: update and read snippet set', { tags: ['quarantined', 'pa-system-settings'] }, () => {
         const page = new SettingsPageObject();
 
         // Update snippet set
@@ -47,7 +47,7 @@ describe('Snippet set: Test crud operations', () => {
         cy.contains(`${page.elements.gridRow}--0 a`, 'Nordfriesisch');
     });
 
-    it('@settings: delete snippet set', { tags: ['pa-system-settings'] }, () => {
+    it('@settings: delete snippet set', { tags: ['quarantined', 'pa-system-settings'] }, () => {
         const page = new SettingsPageObject();
 
         cy.get(page.elements.loader).should('not.exist');

@@ -247,7 +247,9 @@
     },
     "sw-time-ago": {
       "justNow": "Just now",
-      "minutesAgo": "One minute ago | {minutesAgo} minutes ago"
+      "minutesAgo": "One minute ago | {minutesAgo} minutes ago",
+      "aboutNow": "About now",
+      "minutesFromNow": "One minute from now | {minutesFromNow} minutes from now"
     },
     "sw-media-field": {
       "labelToggleSearchExisting": "Search media...",

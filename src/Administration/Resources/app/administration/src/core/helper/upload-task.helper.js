@@ -8,7 +8,7 @@
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class UploadTask {
-    constructor({ uploadTag, src, targetId, fileName, extension = 'dat' }) {
+    constructor({ uploadTag, src, targetId, fileName, extension = 'dat', isPrivate = false }) {
         this.running = false;
         this.src = src;
         this.uploadTag = uploadTag;
@@ -16,5 +16,6 @@ export default class UploadTask {
         this.fileName = fileName;
         this.extension = extension;
         this.error = null;
+        this.isPrivate = isPrivate;
     }
 }

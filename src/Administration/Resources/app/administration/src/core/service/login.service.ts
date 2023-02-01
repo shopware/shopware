@@ -3,6 +3,8 @@
  */
 
 import { CookieStorage } from 'cookie-storage';
+import html2canvas from 'html2canvas';
+import type VueRouter from 'vue-router';
 
 interface AuthObject {
     access: string,
@@ -26,7 +28,7 @@ export interface LoginService {
     getToken: () => string,
     getBearerAuthentication: <K extends keyof AuthObject>(section: K) => AuthObject[K],
     setBearerAuthentication: ({ access, refresh, expiry }: AuthObject) => AuthObject,
-    logout: () => boolean,
+    logout: (isInactivityLogout: boolean, shouldRedirect: boolean) => boolean,
     isLoggedIn: () => boolean,
     addOnTokenChangedListener: (listener: () => void) => void,
     addOnLogoutListener: (listener: () => void) => void,
@@ -73,7 +75,7 @@ export default function createLoginService(
      */
     function verifyUserToken(password: string): Promise<string> {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        return verifyUserByUsername(Shopware.State.get('session').currentUser.username as string, password)
+        return verifyUserByUsername(Shopware.State.get('session').currentUser.username, password)
             .then(({ access }) => {
                 if (Shopware.Utils.types.isString(access)) {
                     return access;
@@ -99,6 +101,10 @@ export default function createLoginService(
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             baseURL: context.apiPath!,
         }).then((response) => {
+            if (typeof document !== 'undefined' && typeof document.cookie !== 'undefined') {
+                cookieStorage.setItem('lastActivity', `${Math.round(+new Date() / 1000)}`);
+            }
+
             const auth = setBearerAuthentication({
                 access: response.data.access_token,
                 refresh: response.data.refresh_token,
@@ -229,7 +235,10 @@ export default function createLoginService(
             bearerAuth = authObject;
         }
 
-        notifyOnTokenChangedListener(authObject);
+        if (isLoggedIn()) {
+            notifyOnTokenChangedListener(authObject);
+        }
+
         context.authToken = authObject;
 
         autoRefreshToken(expiry);
@@ -247,7 +256,8 @@ export default function createLoginService(
         }
 
         if (lastActivityOverThreshold()) {
-            logout();
+            logout(true);
+
             return;
         }
 
@@ -264,7 +274,7 @@ export default function createLoginService(
      * @private
      */
     function lastActivityOverThreshold(): boolean {
-        const lastActivity = Shopware.Context.app.lastActivity;
+        const lastActivity = Number(cookieStorage.getItem('lastActivity'));
 
         // (Current time in seconds) - 25 minutes
         // 25 minutes + half the 10-minute expiry = 30 minute threshold
@@ -305,7 +315,12 @@ export default function createLoginService(
     /**
      * Clears the cookie stored bearer authentication object.
      */
-    function logout(): boolean {
+    function logout(isInactivityLogout = false, shouldRedirect = true): boolean {
+        // token got already removed? avoid duplicate navigation and early return
+        if (!getToken()) {
+            return false;
+        }
+
         if (typeof document !== 'undefined' && typeof document.cookie !== 'undefined') {
             cookieStorage.removeItem(storageKey);
         }
@@ -314,6 +329,28 @@ export default function createLoginService(
         bearerAuth = null;
 
         notifyOnLogoutListener();
+
+        // @ts-expect-error
+        const $router = Shopware.Application.getApplicationRoot().$router as null|VueRouter;
+        if ($router) {
+            sessionStorage.setItem('sw-admin-previous-route', JSON.stringify({
+                fullPath: $router.currentRoute.fullPath,
+                name: $router.currentRoute.name,
+            }));
+
+            if (isInactivityLogout && shouldRedirect) {
+                // @ts-expect-error - The app element exists
+                void html2canvas(document.querySelector('#app'), { scale: 0.1 }).then(canvas => {
+                    window.localStorage.setItem('inactivityBackground', canvas.toDataURL('image/jpeg'));
+
+                    window.localStorage.setItem('lastKnownUser', Shopware.State.get('session').currentUser.username);
+
+                    void $router.push({ name: 'sw.inactivity.login.index' });
+                });
+            } else {
+                void $router.push({ name: 'sw.login.index' });
+            }
+        }
 
         return true;
     }

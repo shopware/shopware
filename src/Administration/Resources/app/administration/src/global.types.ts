@@ -210,7 +210,7 @@ declare global {
         paymentOverviewCardState: PaymentOverviewCardState,
         swOrder: SwOrderState,
         session: {
-            currentUser: $TSFixMe,
+            currentUser: EntitySchema.Entities['user'],
             userPending: boolean,
             languageId: string,
             currentLocale: string|null,

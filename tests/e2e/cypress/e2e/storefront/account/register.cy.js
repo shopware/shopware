@@ -30,7 +30,7 @@ describe('Account: Register via account menu', () => {
         cy.get('input[name="billingAddress[zipcode]"]').type('9876');
         cy.get('input[name="billingAddress[city]"]').type('Anytown');
 
-        cy.get('select[name="billingAddress[countryId]"]').select('USA');
+        cy.get('select[name="billingAddress[countryId]"]').select('United States of America');
         cy.get('select[name="billingAddress[countryStateId]"').should('be.visible');
 
         cy.get('select[name="billingAddress[countryStateId]"]').select('Ohio');
@@ -386,7 +386,7 @@ describe('Account: Register via account menu', () => {
         cy.get('input[name="billingAddress[zipcode]"]').type('9876');
         cy.get('input[name="billingAddress[city]"]').type('Anytown');
 
-        cy.get('select[name="billingAddress[countryId]"]').select('USA');
+        cy.get('select[name="billingAddress[countryId]"]').select('United States of America');
         cy.get('select[name="billingAddress[countryStateId]"').should('be.visible');
 
         cy.get(`${page.elements.registerSubmit} [type="submit"]`).click();
@@ -437,7 +437,7 @@ describe('Account: Register via account menu', () => {
         cy.get('input[name="billingAddress[zipcode]"]').type('9876');
         cy.get('input[name="billingAddress[city]"]').type('Anytown');
 
-        cy.get('select[name="billingAddress[countryId]"]').select('USA');
+        cy.get('select[name="billingAddress[countryId]"]').select('United States of America');
         cy.get('select[name="billingAddress[countryStateId]"').should('be.visible');
 
         cy.get('select[name="billingAddress[countryStateId]"]').select('Ohio');
@@ -615,11 +615,53 @@ describe('Account: Register via account menu', () => {
         cy.get('[data-form-validation-length-text]').contains('9').should('be.visible');
     });
 
-    it('@base @login: Register commercial customer with country state required', { tags: ['pa-customers-orders'] }, () => {
-        cy.createDefaultSalesChannel({
-            'id': '00000000000000000000000000000001',
-            'name': 'SalesChannel #1',
-            'accessKey': 'SWSCWLRRZJR2ZE05VMYYVGT1W1',
+    it('@base @login: Register commercial customer with country state required', { tags: ['pa-customers-orders'] }, async () => {
+        const data = {
+            id: '00000000000000000000000000000001',
+            name: 'SalesChannel #1',
+            accessKey: 'SWSCWLRRZJR2ZE05VMYYVGT1W1',
+        };
+
+        cy.searchViaAdminApi({
+            endpoint: 'payment-method',
+            data: {
+                field: 'name',
+                value: 'Invoice',
+            },
+        }).then((paymentMethod) => {
+            data.paymentMethodId = paymentMethod.id;
+
+            return cy.searchViaAdminApi({
+                endpoint: 'shipping-method',
+                data: {
+                    field: 'name',
+                    value: 'Standard',
+                },
+            });
+        }).then((shippingMethod) => {
+            data.shippingMethodId = shippingMethod.id;
+
+            return cy.searchViaAdminApi({
+                endpoint: 'category',
+                data: {
+                    field: 'name',
+                    value: 'Home',
+                },
+            });
+        }).then((category) => {
+            data.navigationCategoryId = category.id;
+
+            return cy.searchViaAdminApi({
+                endpoint: 'country',
+                data: {
+                    field: 'iso3',
+                    value: 'USA',
+                },
+            });
+        }).then((country) => {
+            data.countryId = country.id;
+
+            return cy.createDefaultFixture('sales-channel', data);
         });
 
         let page = new SettingsPageObject();

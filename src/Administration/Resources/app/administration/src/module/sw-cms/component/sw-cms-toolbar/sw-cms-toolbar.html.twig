@@ -34,6 +34,9 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_toolbar_actions %}
     <div class="sw-cms-toolbar__actions">
+
+        <sw-app-actions />
+
         <slot name="actions">
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_toolbar_slot_actions %}{% endblock %}

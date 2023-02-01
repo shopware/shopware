@@ -6,15 +6,15 @@
 
     &__grid {
         display: grid;
-        grid-template-columns: 50px auto;
+        grid-template-columns: 72px auto;
         grid-template-rows: auto auto;
-        column-gap: 18px;
+        column-gap: 24px;
     }
 
     &__progress-bars {
         display: grid;
         grid-template-columns: auto 1fr;
-        grid-gap: 13px;
+        grid-gap: 12px;
         align-items: center;
         font-size: $font-size-xxs;
 
@@ -33,7 +33,7 @@
 
     &__rows {
         display: grid;
-        grid-auto-rows: 13px;
+        grid-auto-rows: 16px;
         grid-gap: 4px;
         align-items: center;
     }

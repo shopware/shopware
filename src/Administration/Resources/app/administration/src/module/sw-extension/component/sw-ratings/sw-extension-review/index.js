@@ -24,7 +24,12 @@ export default {
 
     computed: {
         lastChangeDate() {
-            return this.review.lastChangeDate !== null ? date(this.review.lastChangeDate) : null;
+            return this.review.lastChangeDate !== null ? date(this.review.lastChangeDate, {
+                month: 'numeric',
+                year: 'numeric',
+                hour: undefined,
+                minute: undefined,
+            }) : null;
         },
 
         reviewHasReplies() {

@@ -226,8 +226,8 @@
           "labelRating": "No ratings | {numberOfRatings} rating | {numberOfRatings} ratings"
         },
         "sw-extension-review": {
-          "labelLastChangeDate": "By {author} on {lastChangeDate}",
-          "labelExtensionVersion": "Extension version {extensionVersion}"
+          "labelLastChangeDate": "{author}, {lastChangeDate}",
+          "labelExtensionVersion": "Version: {extensionVersion}"
         },
         "sw-extension-ratings-card": {
           "cardTitle": "Ratings and reviews",

@@ -71,7 +71,7 @@
         "dompdf/dompdf": "2.0.2",
         "erusev/parsedown-extra": "0.8.1",
         "ezyang/htmlpurifier": "~4.16",
-        "guzzlehttp/guzzle": "~7.4.5",
+        "guzzlehttp/guzzle": "~7.5.0",
         "guzzlehttp/psr7": "^2.4",
         "lcobucci/jwt": "^4.2",
         "league/flysystem": "~3.10.3",

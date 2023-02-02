@@ -4,40 +4,18 @@ namespace Shopware\Core\Checkout\Document\Struct;
 
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
+#[Package('customer-order')]
 final class DocumentGenerateOperation extends Struct
 {
-    protected string $orderId;
-
-    protected string $fileType;
-
-    protected array $config;
-
-    protected bool $static;
-
-    protected ?string $referencedDocumentId;
-
-    protected bool $preview;
-
     protected ?string $documentId = null;
 
     protected string $orderVersionId = Defaults::LIVE_VERSION;
 
-    public function __construct(
-        string $orderId,
-        string $fileType = FileTypes::PDF,
-        array $config = [],
-        ?string $referencedDocumentId = null,
-        bool $static = false,
-        bool $preview = false
-    ) {
-        $this->orderId = $orderId;
-        $this->fileType = $fileType;
-        $this->config = $config;
-        $this->referencedDocumentId = $referencedDocumentId;
-        $this->static = $static;
-        $this->preview = $preview;
+    public function __construct(protected string $orderId, protected string $fileType = FileTypes::PDF, protected array $config = [], protected ?string $referencedDocumentId = null, protected bool $static = false, protected bool $preview = false)
+    {
     }
 
     public function getOrderId(): string

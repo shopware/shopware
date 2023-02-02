@@ -33,7 +33,7 @@ Custom skin styling for navigation flyout which opens on hover over the main nav
 
 .navigation-flyout-link {
     @include transition(padding 0.25s cubic-bezier(0, 0.77, 0.33, 1));
-    color: $gray-800;
+    color: $body-color;
     font-size: $font-size-lg;
     margin: 0 $spacer;
     padding: $spacer-xs 0;

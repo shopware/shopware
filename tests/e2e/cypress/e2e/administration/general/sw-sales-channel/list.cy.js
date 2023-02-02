@@ -2,51 +2,52 @@
 
 describe('Sales Channel: Test list', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                cy.createDefaultSalesChannel({
-                    'id': '00000000000000000000000000000001',
-                    'name': 'SalesChannel #1',
-                    'accessKey': 'SWSCWLRRZJR2ZE05VMYYVGT1W1',
-                    'maintenance': true
-                });
-                cy.createDefaultSalesChannel({
-                    'id': '00000000000000000000000000000002',
-                    'name': 'SalesChannel #2',
-                    'accessKey': 'SWSCWLRRZJR2ZE05VMYYVGT1W2',
-                    'maintenance': true
-                });
-                cy.createDefaultSalesChannel({
-                    'id': '00000000000000000000000000000003',
-                    'name': 'SalesChannel #3',
-                    'accessKey': 'SWSCWLRRZJR2ZE05VMYYVGT1W3',
-                    'active': false
-                });
-                cy.createDefaultSalesChannel({
-                    'id': '00000000000000000000000000000004',
-                    'name': 'SalesChannel #4',
-                    'accessKey': 'SWSCWLRRZJR2ZE05VMYYVGT1W4',
-                    'active': false
-                });
-
-                cy.createProductFixture({
-                    'name': 'Product #1',
-                    'productNumber': 'SW001'
-                });
-                cy.createProductFixture({
-                    'name': 'Product #2',
-                    'productNumber': 'SW002'
-                });
-                cy.createProductFixture({
-                    'name': 'Product #3',
-                    'productNumber': 'SW003'
-                });
-            })
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/sales/channel/list`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
+        cy.createDefaultSalesChannel({
+            'id': '00000000000000000000000000000001',
+            'name': 'SalesChannel #1',
+            'accessKey': 'SWSCWLRRZJR2ZE05VMYYVGT1W1',
+            'maintenance': true,
+        }).then(() => {
+            return cy.createDefaultSalesChannel({
+                'id': '00000000000000000000000000000002',
+                'name': 'SalesChannel #2',
+                'accessKey': 'SWSCWLRRZJR2ZE05VMYYVGT1W2',
+                'maintenance': true,
             });
+        }).then(() => {
+            return cy.createDefaultSalesChannel({
+                'id': '00000000000000000000000000000003',
+                'name': 'SalesChannel #3',
+                'accessKey': 'SWSCWLRRZJR2ZE05VMYYVGT1W3',
+                'active': false,
+            });
+        }).then(() => {
+            return cy.createDefaultSalesChannel({
+                'id': '00000000000000000000000000000004',
+                'name': 'SalesChannel #4',
+                'accessKey': 'SWSCWLRRZJR2ZE05VMYYVGT1W4',
+                'active': false,
+            });
+        }).then(() => {
+            return cy.createProductFixture({
+                'name': 'Product #1',
+                'productNumber': 'SW001',
+            });
+        }).then(() => {
+            cy.createProductFixture({
+                'name': 'Product #2',
+                'productNumber': 'SW002',
+            });
+        }).then(() => {
+            return cy.createProductFixture({
+                'name': 'Product #3',
+                'productNumber': 'SW003',
+            });
+        }).then(() => {
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/sales/channel/list`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+        });
     });
 
     it('@base @general: open listing page', { tags: ['pa-sales-channels'] }, () => {

@@ -9,38 +9,32 @@ use Shopware\Core\Checkout\Customer\Event\PasswordRecoveryUrlEvent;
 use Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
  * @group store-api
  */
+#[Package('customer-order')]
 class SendPasswordRecoveryMailRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
-    /**
-     * @var \Symfony\Bundle\FrameworkBundle\KernelBrowser
-     */
-    private $browser;
+    private KernelBrowser $browser;
 
-    /**
-     * @var TestDataCollection
-     */
-    private $ids;
+    private TestDataCollection $ids;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $customerRepository;
+    private EntityRepository $customerRepository;
 
     protected function setUp(): void
     {
@@ -65,7 +59,7 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
         static::assertSame('CHECKOUT__CUSTOMER_NOT_FOUND', $response['errors'][0]['code']);
@@ -83,7 +77,7 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
         static::assertSame('VIOLATION::NO_SUCH_CHOICE_ERROR', $response['errors'][0]['code']);
@@ -106,7 +100,7 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
 
         static::assertSame(400, $this->browser->getResponse()->getStatusCode());
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame('VIOLATION::NO_SUCH_CHOICE_ERROR', $response['errors'][0]['code']);
     }
@@ -130,7 +124,7 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
 
         static::assertSame(404, $this->browser->getResponse()->getStatusCode());
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame('CHECKOUT__CUSTOMER_NOT_FOUND', $response['errors'][0]['code']);
     }
@@ -236,7 +230,7 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
     private function addDomain(string $url): void
     {
         $snippetSetId = $this->getContainer()->get(Connection::class)
-            ->fetchColumn('SELECT LOWER(HEX(id)) FROM snippet_set LIMIT 1');
+            ->fetchOne('SELECT LOWER(HEX(id)) FROM snippet_set LIMIT 1');
 
         $domain = [
             'salesChannelId' => $this->ids->create('sales-channel'),

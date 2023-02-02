@@ -5,8 +5,9 @@ namespace Shopware\Core\Content\Flow\Dispatching\Storer;
 use Shopware\Core\Content\Flow\Dispatching\Aware\MessageAware;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Framework\Event\FlowEventAware;
-use Symfony\Component\Mime\Email;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('business-ops')]
 class MessageStorer extends FlowStorer
 {
     /**
@@ -20,7 +21,7 @@ class MessageStorer extends FlowStorer
             return $stored;
         }
 
-        $stored[MessageAware::MESSAGE] = $event->getMessage()->serialize();
+        $stored[MessageAware::MESSAGE] = \serialize($event->getMessage());
 
         return $stored;
     }
@@ -31,8 +32,7 @@ class MessageStorer extends FlowStorer
             return;
         }
 
-        $mail = new Email();
-        $mail->unserialize($storable->getStore(MessageAware::MESSAGE));
+        $mail = \unserialize($storable->getStore(MessageAware::MESSAGE));
 
         $storable->setData(MessageAware::MESSAGE, $mail);
     }

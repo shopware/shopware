@@ -4,67 +4,18 @@ namespace Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStora
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\NumberRange\NumberRangeEntity;
 
-/**
- * @deprecated tag:v6.5.0 - reason:class-hierarchy-change - won't implement IncrementStorageInterface anymore, use AbstractIncrementStorage instead
- */
-class IncrementSqlStorage extends AbstractIncrementStorage implements IncrementStorageInterface
+#[Package('checkout')]
+class IncrementSqlStorage extends AbstractIncrementStorage
 {
-    /**
-     * @deprecated tag:v6.5.0 property will be removed as it is unused
-     */
-    protected string $connectorId = 'standard_pattern_connector';
-
-    private Connection $connection;
-
     /**
      * @internal
      */
-    public function __construct(Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
-        $this->connection = $connection;
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 will be removed use `reserve()` instead
-     */
-    public function pullState(NumberRangeEntity $configuration): string
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'IncrementSqlStorage::reserve()')
-        );
-
-        $config = [
-            'id' => $configuration->getId(),
-            'start' => $configuration->getStart(),
-            'pattern' => $configuration->getPattern() ?? '',
-        ];
-
-        return (string) $this->reserve($config);
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 will be removed use `preview()` instead
-     */
-    public function getNext(NumberRangeEntity $configuration): string
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'IncrementSqlStorage::preview()')
-        );
-
-        $config = [
-            'id' => $configuration->getId(),
-            'start' => $configuration->getStart(),
-            'pattern' => $configuration->getPattern() ?? '',
-        ];
-
-        return (string) $this->preview($config);
     }
 
     public function reserve(array $config): int
@@ -72,7 +23,7 @@ class IncrementSqlStorage extends AbstractIncrementStorage implements IncrementS
         $start = $config['start'] ?? 1;
         $varname = Uuid::randomHex();
         $stateId = Uuid::randomBytes();
-        $this->connection->executeUpdate(
+        $this->connection->executeStatement(
             'INSERT `number_range_state` (`id`, `last_value`, `number_range_id`, `created_at`) VALUES (:stateId, :value, :id, :createdAt)
                 ON DUPLICATE KEY UPDATE
                 `last_value` = @nr' . $varname . ' := IF(`last_value`+1 > :value, `last_value`+1, :value)',
@@ -84,9 +35,9 @@ class IncrementSqlStorage extends AbstractIncrementStorage implements IncrementS
             ]
         );
 
-        $stmt = $this->connection->executeQuery('SELECT @nr' . $varname);
+        $result = $this->connection->executeQuery('SELECT @nr' . $varname);
 
-        $lastNumber = $stmt->fetchColumn();
+        $lastNumber = $result->fetchOne();
 
         if (!$lastNumber) {
             return $start;
@@ -97,13 +48,13 @@ class IncrementSqlStorage extends AbstractIncrementStorage implements IncrementS
 
     public function preview(array $config): int
     {
-        $stmt = $this->connection->executeQuery(
+        $result = $this->connection->executeQuery(
             'SELECT `last_value` FROM `number_range_state` WHERE number_range_id = :id',
             [
                 'id' => Uuid::fromHexToBytes($config['id']),
             ]
         );
-        $lastNumber = $stmt->fetchColumn();
+        $lastNumber = $result->fetchOne();
 
         $start = $config['start'] ?? 1;
 
@@ -130,7 +81,7 @@ class IncrementSqlStorage extends AbstractIncrementStorage implements IncrementS
     public function set(string $configurationId, int $value): void
     {
         $stateId = Uuid::randomBytes();
-        $this->connection->executeUpdate(
+        $this->connection->executeStatement(
             'INSERT `number_range_state` (`id`, `last_value`, `number_range_id`, `created_at`) VALUES (:stateId, :value, :id, :createdAt)
                 ON DUPLICATE KEY UPDATE
                 `last_value` = :value',

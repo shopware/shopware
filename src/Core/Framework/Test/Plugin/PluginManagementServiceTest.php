@@ -41,10 +41,7 @@ class PluginManagementServiceTest extends TestCase
      */
     private $filesystem;
 
-    /**
-     * @var string
-     */
-    private $cacheDir;
+    private string $cacheDir;
 
     protected function setUp(): void
     {
@@ -134,16 +131,17 @@ class PluginManagementServiceTest extends TestCase
             $this->getPluginService(),
             $this->filesystem,
             $this->getCacheClearer(),
-            $this->getContainer()->get('shopware.store_client')
+            $this->getContainer()->get('shopware.store_download_client')
         );
     }
 
     private function getPluginService(): PluginService
     {
         return $this->createPluginService(
+            __DIR__ . '/_fixture/plugins',
+            $this->getContainer()->getParameter('kernel.project_dir'),
             $this->getContainer()->get('plugin.repository'),
             $this->getContainer()->get('language.repository'),
-            $this->getContainer()->getParameter('kernel.project_dir'),
             $this->getContainer()->get(PluginFinder::class)
         );
     }

@@ -1,0 +1,75 @@
+<sw-page
+    :header-border-color="entityAccentColor"
+    class="sw-generic-custom-entity-list"
+>
+    <template #search-bar>
+        <sw-search-bar
+            :key="customEntityName"
+            :initial-search-type="customEntityName"
+            :initial-search="term"
+            :entity-search-color="entityAccentColor"
+            @search="onSearch"
+        />
+    </template>
+
+    <template #smart-bar-header>
+        <h2 class="sw-generic-custom-entity-list__title">
+            {{ $tc(`${customEntityName}.moduleTitle`) }}
+
+            <span v-if="!isLoading">
+                ({{ total }})
+            </span>
+        </h2>
+    </template>
+
+    <template #smart-bar-actions>
+        <sw-button
+            class="sw-generic-custom-entity-list__button-add"
+            :router-link="{ name: 'sw.custom.entity.create' }"
+            variant="primary"
+        >
+            {{ $tc('global.default.add') }}
+        </sw-button>
+    </template>
+
+    <template #language-switch>
+        <sw-language-switch @on-change="onChangeLanguage" />
+    </template>
+
+    <template #content>
+        <div class="sw-generic-custom-entity-list__content">
+            <sw-entity-listing
+                v-if="!isLoading && customEntityDefinition && customEntityInstances.length > 0"
+                class="sw-generic-custom-entity-list__content-list"
+                :repository="customEntityRepository"
+                :items="customEntityInstances"
+                :allow-inline-edit="false"
+                :allow-column-edit="false"
+                :columns="columnConfig"
+                :sort-by="sortBy"
+                :sort-direction="sortDirection"
+                :natural-sorting="naturalSorting"
+                :criteria-limit="limit"
+                :disable-data-fetching="true"
+                :is-loading="isLoading"
+                @column-sort="onColumnSort"
+                @page-change="onPageChange"
+                @update-records="onUpdateRecords"
+            />
+
+            <sw-empty-state
+                v-else
+                class="sw-generic-custom-entity-list__content-empty-state"
+                :title="emptyStateTitle"
+                :subline="emptyStateSubline"
+            >
+                <template #icon>
+                    <img
+                        :src="'/administration/static/img/empty-states/custom-entity-empty-state.svg' | asset"
+                        :alt="emptyStateTitle"
+                    >
+                </template>
+            </sw-empty-state>
+        </div>
+    </template>
+</sw-page>

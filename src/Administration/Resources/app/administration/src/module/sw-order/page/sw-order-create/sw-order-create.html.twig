@@ -60,7 +60,7 @@
     <template #content>
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_content_view %}
-        <sw-card-view v-if="feature.isActive('FEATURE_NEXT_7530')">
+        <sw-card-view>
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_create_content_tabs %}
             <sw-tabs
@@ -100,11 +100,6 @@
             {% endblock %}
         </sw-card-view>
         {% endblock %}
-
-        <router-view
-            v-if="!feature.isActive('FEATURE_NEXT_7530')"
-            @error="showError"
-        />
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_create_invalid_promotion_modal %}

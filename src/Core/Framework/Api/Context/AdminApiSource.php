@@ -2,32 +2,19 @@
 
 namespace Shopware\Core\Framework\Api\Context;
 
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 class AdminApiSource implements ContextSource
 {
-    /**
-     * @var string|null
-     */
-    private $userId;
+    public string $type = 'admin-api';
 
-    /**
-     * @var string|null
-     */
-    private $integrationId;
+    private bool $isAdmin;
 
-    /**
-     * @var bool
-     */
-    private $isAdmin;
+    private array $permissions = [];
 
-    /**
-     * @var array
-     */
-    private $permissions = [];
-
-    public function __construct(?string $userId, ?string $integrationId = null)
+    public function __construct(private readonly ?string $userId, private readonly ?string $integrationId = null)
     {
-        $this->userId = $userId;
-        $this->integrationId = $integrationId;
         $this->isAdmin = false;
     }
 

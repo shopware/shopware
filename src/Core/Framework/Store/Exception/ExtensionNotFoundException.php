@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\Framework\Store\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+#[Package('merchant-services')]
 class ExtensionNotFoundException extends ShopwareHttpException
 {
     public static function fromTechnicalName(string $technicalName): self

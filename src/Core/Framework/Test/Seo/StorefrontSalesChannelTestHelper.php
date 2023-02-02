@@ -6,7 +6,7 @@ use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -21,9 +21,9 @@ use Symfony\Component\DependencyInjection\Container;
 
 trait StorefrontSalesChannelTestHelper
 {
-    public function getBrowserWithLoggedInCustomer(bool $disableCsrf = true): KernelBrowser
+    public function getBrowserWithLoggedInCustomer(): KernelBrowser
     {
-        $browser = KernelLifecycleManager::createBrowser(KernelLifecycleManager::getKernel(), false, $disableCsrf);
+        $browser = KernelLifecycleManager::createBrowser(KernelLifecycleManager::getKernel(), false);
         $browser->setServerParameters([
             'HTTP_ACCEPT' => 'application/json',
         ]);
@@ -31,7 +31,7 @@ trait StorefrontSalesChannelTestHelper
         /** @var Container $container */
         $container = $this->getContainer();
 
-        /** @var EntityRepositoryInterface $salesChannelRepository */
+        /** @var EntityRepository $salesChannelRepository */
         $salesChannelRepository = $container->get('sales_channel.repository');
         /** @var SalesChannelEntity $salesChannel */
         $salesChannel = $salesChannelRepository->search(
@@ -44,13 +44,13 @@ trait StorefrontSalesChannelTestHelper
         $browser->setServerParameter('test-sales-channel-id', $salesChannel->getId());
 
         $customerId = Uuid::randomHex();
-        $this->createCustomerWithEmail($customerId, 'foo@foo.de', 'bar', $salesChannel);
+        $this->createCustomerWithEmail($customerId, 'foo@foo.de', 'bar12345', $salesChannel);
         $browser->request(
             'POST',
             $_SERVER['APP_URL'] . '/account/login',
             [
                 'username' => 'foo@foo.de',
-                'password' => 'bar',
+                'password' => 'bar12345',
             ]
         );
 
@@ -69,7 +69,7 @@ trait StorefrontSalesChannelTestHelper
         array $languageIds = [],
         ?string $categoryEntrypoint = null
     ): SalesChannelContext {
-        /** @var EntityRepositoryInterface $repo */
+        /** @var EntityRepository $repo */
         $repo = $this->getContainer()->get('sales_channel.repository');
         $languageIds[] = $defaultLanguageId;
         $languageIds = array_unique($languageIds);
@@ -121,7 +121,7 @@ trait StorefrontSalesChannelTestHelper
 
     public function updateSalesChannelNavigationEntryPoint(string $id, string $categoryId): void
     {
-        /** @var EntityRepositoryInterface $repo */
+        /** @var EntityRepository $repo */
         $repo = $this->getContainer()->get('sales_channel.repository');
 
         $repo->update([['id' => $id, 'navigationCategoryId' => $categoryId]], Context::createDefaultContext());
@@ -133,7 +133,7 @@ trait StorefrontSalesChannelTestHelper
         $container = $this->getContainer();
 
         $defaultBillingAddress = Uuid::randomHex();
-        /** @var EntityRepositoryInterface $customerRepository */
+        /** @var EntityRepository $customerRepository */
         $customerRepository = $container->get('customer.repository');
         $customerRepository->upsert(
             [

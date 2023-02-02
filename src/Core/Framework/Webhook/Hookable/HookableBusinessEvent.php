@@ -9,20 +9,16 @@ use Shopware\Core\Framework\Event\EventData\EntityCollectionType;
 use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\ObjectType;
 use Shopware\Core\Framework\Event\FlowEventAware;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 use Shopware\Core\Framework\Webhook\BusinessEventEncoder;
 use Shopware\Core\Framework\Webhook\Hookable;
 
+#[Package('core')]
 class HookableBusinessEvent implements Hookable
 {
-    private FlowEventAware $flowEventAware;
-
-    private BusinessEventEncoder $businessEventEncoder;
-
-    private function __construct(FlowEventAware $flowEventAware, BusinessEventEncoder $businessEventEncoder)
+    private function __construct(private readonly FlowEventAware $flowEventAware, private readonly BusinessEventEncoder $businessEventEncoder)
     {
-        $this->flowEventAware = $flowEventAware;
-        $this->businessEventEncoder = $businessEventEncoder;
     }
 
     public static function fromBusinessEvent(

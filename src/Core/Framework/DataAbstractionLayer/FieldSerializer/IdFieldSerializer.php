@@ -9,12 +9,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\Constraint\Uuid as UuidConstraint;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
  */
+#[Package('core')]
 class IdFieldSerializer extends AbstractFieldSerializer
 {
     public function normalize(Field $field, array $data, WriteParameterBag $parameters): array
@@ -51,7 +53,7 @@ class IdFieldSerializer extends AbstractFieldSerializer
         yield $field->getStorageName() => Uuid::fromHexToBytes($value);
     }
 
-    public function decode(Field $field, $value): ?string
+    public function decode(Field $field, mixed $value): ?string
     {
         if ($value === null) {
             return null;

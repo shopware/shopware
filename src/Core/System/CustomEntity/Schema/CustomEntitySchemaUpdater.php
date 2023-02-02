@@ -5,30 +5,24 @@ namespace Shopware\Core\System\CustomEntity\Schema;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Schema;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Lock\LockFactory;
 
 /**
  * @internal
  * @phpstan-import-type CustomEntityField from SchemaUpdater
  */
+#[Package('core')]
 class CustomEntitySchemaUpdater
 {
     private const COMMENT = 'custom-entity-element';
 
-    private Connection $connection;
-
-    private LockFactory $lockFactory;
-
-    private SchemaUpdater $schemaUpdater;
-
-    public function __construct(Connection $connection, LockFactory $lockFactory, SchemaUpdater $schemaUpdater)
+    public function __construct(private readonly Connection $connection, private readonly LockFactory $lockFactory, private readonly SchemaUpdater $schemaUpdater)
     {
-        $this->connection = $connection;
-        $this->lockFactory = $lockFactory;
-        $this->schemaUpdater = $schemaUpdater;
     }
 
     public function update(): void
@@ -37,7 +31,7 @@ class CustomEntitySchemaUpdater
             /** @var list<array{name: string, fields: string}> $tables */
             $tables = $this->connection->fetchAllAssociative('SELECT name, fields FROM custom_entity');
 
-            $schema = $this->getSchemaManager()->createSchema();
+            $schema = $this->getSchemaManager()->introspectSchema();
 
             $this->cleanup($schema);
 
@@ -71,13 +65,16 @@ class CustomEntitySchemaUpdater
             } catch (Exception $e) {
                 // there seems to be a timing issue in sql when dropping a foreign key which relates to an index.
                 // Sometimes the index exists no more when doctrine tries to drop it after dropping the foreign key.
-                if (!\str_contains($e->getMessage(), "An exception occurred while executing 'DROP INDEX IDX_")) {
+                if (!\str_contains($e->getMessage(), 'An exception occurred while executing \'DROP INDEX IDX_')) {
                     throw $e;
                 }
             }
         }
     }
 
+    /**
+     * @return AbstractSchemaManager<MySQLPlatform>
+     */
     private function getSchemaManager(): AbstractSchemaManager
     {
         $manager = $this->connection->getSchemaManager();

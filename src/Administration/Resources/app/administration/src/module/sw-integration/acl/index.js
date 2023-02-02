@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 Shopware.Service('privileges').addPrivilegeMappingEntry({
     category: 'permissions',
     parent: 'settings',
@@ -7,6 +10,7 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
             privileges: [
                 'integration:read',
                 'acl_role:read',
+                'app:read',
             ],
             dependencies: [],
         },

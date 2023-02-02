@@ -4,9 +4,14 @@ namespace Shopware\Storefront\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
+#[Package('core')]
 class Migration1552899789Theme extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -16,7 +21,7 @@ class Migration1552899789Theme extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate('
+        $connection->executeStatement('
             CREATE TABLE `theme` (
               `id` BINARY(16) NOT NULL,
               `technical_name` VARCHAR(255) NULL,
@@ -35,7 +40,7 @@ class Migration1552899789Theme extends MigrationStep
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
 
-        $connection->executeUpdate('
+        $connection->executeStatement('
             CREATE TABLE `theme_translation` (
               `theme_id` BINARY(16) NOT NULL,
               `language_id` BINARY(16) NOT NULL,
@@ -54,7 +59,7 @@ class Migration1552899789Theme extends MigrationStep
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
 
-        $connection->executeUpdate('
+        $connection->executeStatement('
             CREATE TABLE `theme_sales_channel` (
               `theme_id` BINARY(16) NOT NULL,
               `sales_channel_id` BINARY(16) NOT NULL,

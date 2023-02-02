@@ -6,24 +6,13 @@
              role="document">
             <div class="modal-content">
                 <div class="modal-header only-close">
-                    {# @deprecated tag:v6.5.0 - h5 will be changed to div because it causes incorrect semantics on all pages which include pseudo-modal.html.twig #}
-                    {% if feature('V6_5_0_0') %}
-                        <div class="modal-title js-pseudo-modal-template-title-element h5"></div>
-                    {% else %}
-                        <h5 class="modal-title js-pseudo-modal-template-title-element"></h5>
-                    {% endif %}
+                    <div class="modal-title js-pseudo-modal-template-title-element h5"></div>
 
                     <button type="button"
-                            class="{{ modalCloseBtnClass }} close"
-                            {{ dataBsDismissAttr }}="modal"
+                            class="btn-close close"
+                            data-bs-dismiss="modal"
                             aria-label="Close">
                         {% block product_detail_zoom_modal_close_button_content %}
-                            {# @deprecated tag:v6.5.0 - Bootstrap v5 creates "x" symbol automatically via SVG background #}
-                            {% if not feature('v6.5.0.0') %}
-                                <span aria-hidden="true">
-                                    {% sw_icon 'x' style { 'size': 'sm' } %}
-                                </span>
-                            {% endif %}
                         {% endblock %}
                     </button>
                 </div>

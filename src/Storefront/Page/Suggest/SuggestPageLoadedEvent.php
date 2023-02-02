@@ -2,10 +2,12 @@
 
 namespace Shopware\Storefront\Page\Suggest;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\PageLoadedEvent;
 use Symfony\Component\HttpFoundation\Request;
 
+#[Package('system-settings')]
 class SuggestPageLoadedEvent extends PageLoadedEvent
 {
     /**

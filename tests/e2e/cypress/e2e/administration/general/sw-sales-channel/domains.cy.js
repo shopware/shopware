@@ -4,16 +4,13 @@ import SalesChannelPageObject from '../../../../support/pages/module/sw-sales-ch
 
 describe('Sales Channel: Adding domains to a sales-channel', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                cy.openInitialPage(Cypress.env('admin'));
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
-            });
+        cy.openInitialPage(Cypress.env('admin'));
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/sales-channel-domain`,
-            method: 'POST'
+            method: 'POST',
         }).as('verifyDomain');
     });
 
@@ -48,7 +45,7 @@ describe('Sales Channel: Adding domains to a sales-channel', () => {
         cy.wait('@verifyDomain').its('response.statusCode').should('equal', 200);
 
         page.addExampleDomain();
-        cy.contains('.sw-block-field', 'Url').should('have.class', 'has--error');
+        cy.contains('.sw-block-field', 'URL').should('have.class', 'has--error');
     });
 
     it('@general: Can re-add a previously deleted domain', { tags: ['pa-sales-channels'] }, () => {

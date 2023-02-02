@@ -1,3 +1,6 @@
+/**
+ * @package content
+ */
 // / <reference types="Cypress" />
 
 import ProductPageObject from '../../../../support/pages/module/sw-product.page-object';
@@ -7,9 +10,6 @@ describe('Review: Test ACL privileges', () => {
         cy.window()
             .then((win) => {
                 win.location.href = 'about:blank';
-            })
-            .then(() => {
-                cy.loginViaApi();
             })
             .then(() => {
                 cy.createReviewFixture();
@@ -23,8 +23,8 @@ describe('Review: Test ACL privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'product',
-                role: 'viewer'
-            }
+                role: 'viewer',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/review/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -47,8 +47,8 @@ describe('Review: Test ACL privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'review',
-                role: 'viewer'
-            }
+                role: 'viewer',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/review/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -68,7 +68,7 @@ describe('Review: Test ACL privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/product-review/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveProperty');
 
         const page = new ProductPageObject();
@@ -76,11 +76,11 @@ describe('Review: Test ACL privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'review',
-                role: 'viewer'
+                role: 'viewer',
             }, {
                 key: 'review',
-                role: 'editor'
-            }
+                role: 'editor',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/review/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -104,7 +104,7 @@ describe('Review: Test ACL privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/product-review/*`,
-            method: 'delete'
+            method: 'delete',
         }).as('deleteData');
 
         const page = new ProductPageObject();
@@ -112,11 +112,11 @@ describe('Review: Test ACL privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'review',
-                role: 'viewer'
+                role: 'viewer',
             }, {
                 key: 'review',
-                role: 'deleter'
-            }
+                role: 'deleter',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/review/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -127,11 +127,11 @@ describe('Review: Test ACL privileges', () => {
         cy.clickContextMenuItem(
             `${page.elements.contextMenu}-item--danger`,
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.contains(`${page.elements.modal} p`,
-            'Are you sure you want to delete this item?'
+            'Are you sure you want to delete this item?',
         );
         cy.get(`${page.elements.modal}__footer ${page.elements.dangerButton}`).click();
 

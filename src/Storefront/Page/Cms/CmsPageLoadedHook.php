@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Page\Cms;
 
 use Shopware\Core\Content\Cms\CmsPageEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\Awareness\SalesChannelContextAwareTrait;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\PageLoadedHook;
@@ -14,19 +15,17 @@ use Shopware\Storefront\Page\PageLoadedHook;
  *
  * @since 6.4.8.0
  */
+#[Package('content')]
 class CmsPageLoadedHook extends PageLoadedHook
 {
     use SalesChannelContextAwareTrait;
 
-    public const HOOK_NAME = 'cms-page-loaded';
+    final public const HOOK_NAME = 'cms-page-loaded';
 
-    private CmsPageEntity $page;
-
-    public function __construct(CmsPageEntity $page, SalesChannelContext $context)
+    public function __construct(private readonly CmsPageEntity $page, SalesChannelContext $context)
     {
         parent::__construct($context->getContext());
         $this->salesChannelContext = $context;
-        $this->page = $page;
     }
 
     public function getName(): string

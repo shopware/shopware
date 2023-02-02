@@ -1,13 +1,8 @@
 // / <reference types="Cypress" />
 
 describe('Tax: Visual testing', () => {
-    // eslint-disable-next-line no-undef
     beforeEach(() => {
-        // Clean previous state and prepare Administration
-        cy.loginViaApi()
-            .then(() => {
-                cy.setLocaleToEnGb();
-            })
+        cy.setLocaleToEnGb()
             .then(() => {
                 cy.openInitialPage(Cypress.env('admin'));
                 cy.get('.sw-skeleton').should('not.exist');
@@ -18,13 +13,13 @@ describe('Tax: Visual testing', () => {
     it('@base @visual: check appearance of tax module', { tags: ['pa-customers-orders'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/tax`,
-            method: 'POST'
+            method: 'POST',
         }).as('getData');
 
         cy.get('.sw-dashboard-index__welcome-text').should('be.visible');
         cy.clickMainMenuItem({
             targetPath: '#/sw/settings/index',
-            mainMenuId: 'sw-settings'
+            mainMenuId: 'sw-settings',
         });
         cy.get('#sw-settings-tax').click();
         cy.wait('@getData')

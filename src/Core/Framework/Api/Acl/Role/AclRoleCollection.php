@@ -3,10 +3,12 @@
 namespace Shopware\Core\Framework\Api\Acl\Role;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<AclRoleEntity>
  */
+#[Package('core')]
 class AclRoleCollection extends EntityCollection
 {
     public function getApiAlias(): string

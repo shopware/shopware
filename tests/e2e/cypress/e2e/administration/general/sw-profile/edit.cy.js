@@ -2,24 +2,21 @@
 
 describe('Profile module', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                cy.intercept({
-                    url: `${Cypress.env('apiPath')}/_info/config`,
-                    method: 'GET'
-                }).as('infoCall');
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/_info/config`,
+            method: 'GET',
+        }).as('infoCall');
 
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/profile/index`);
+        cy.openInitialPage(`${Cypress.env('admin')}#/sw/profile/index`);
 
-                cy.wait('@infoCall');
+        cy.wait('@infoCall');
 
-                cy.contains('.smart-bar__header', 'Your profile');
-                cy.contains('.sw-card__title', 'Profile information');
-                cy.get('#sw-field--user-username').should('be.visible');
-                cy.get('.sw-loader').should('not.exist');
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
-            });
+        cy.contains('.smart-bar__header', 'Your profile');
+        cy.contains('.sw-card__title', 'Profile information');
+        cy.get('#sw-field--user-username').should('be.visible');
+        cy.get('.sw-loader').should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
     });
 
     it('@base @general: profile change email',  { tags: ['pa-system-settings'] }, () => {
@@ -90,14 +87,14 @@ describe('Profile module', () => {
     it('@base @general: profile change avatar',  { tags: ['pa-system-settings'] }, () => {
         cy.get('.sw-media-upload-v2 .sw-media-upload-v2__button')
             .eq(1)
-            .click()
+            .click();
 
         // Add avatar to profile
-        cy.get('#files')
+        cy.get('.sw-media-upload-v2__file-input')
             .attachFile({
                 filePath: 'img/sw-test-image.png',
                 fileName: 'sw-test-image.png',
-                mimeType: 'image/png'
+                mimeType: 'image/png',
             });
 
         cy.get('.sw-media-preview-v2__item')

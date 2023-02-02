@@ -8,11 +8,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Locale\LocaleDefinition;
 
+#[Package('system-settings')]
 class LocaleTranslationDefinition extends EntityTranslationDefinition
 {
-    public const ENTITY_NAME = 'locale_translation';
+    final public const ENTITY_NAME = 'locale_translation';
 
     public function getEntityName(): string
     {

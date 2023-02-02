@@ -2,20 +2,15 @@
 
 namespace Shopware\Core\Framework\Rule\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+#[Package('business-ops')]
 class UnsupportedValueException extends ShopwareHttpException
 {
-    protected string $type;
-
-    protected string $class;
-
-    public function __construct(string $type, string $class)
+    public function __construct(protected string $type, protected string $class)
     {
-        $this->type = $type;
-        $this->class = $class;
-
         parent::__construct(
             'Unsupported value of type {{ type }} in {{ class }}',
             ['type' => $type, 'class' => $class]

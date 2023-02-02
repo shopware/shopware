@@ -17,7 +17,7 @@ use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\Sim
  */
 class ComplexDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'complex';
+    final public const ENTITY_NAME = 'complex';
 
     public function getEntityName(): string
     {

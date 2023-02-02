@@ -10,37 +10,34 @@ describe('Tag: Test bulk merge', () => {
         const tagIdA = uuid().replace(/-/g, '');
         const tagIdB = uuid().replace(/-/g, '');
 
-        cy.loginViaApi()
-            .then(() => {
-                cy.createDefaultFixture('tax', {
-                    id: taxId
-                });
-            })
+        cy.createDefaultFixture('tax', {
+            id: taxId,
+        })
             .then(() => {
                 cy.createDefaultFixture('product', {
                     productNumber: 'RS-11111',
                     taxId,
-                    tags: [{ id: tagIdA, name: 'Example tag 1' }]
+                    tags: [{ id: tagIdA, name: 'Example tag 1' }],
                 }).then(() => {
                     cy.createDefaultFixture('product', {
                         productNumber: 'RS-22222',
                         taxId,
-                        tags: [{ name: 'Example tag 2' }]
+                        tags: [{ name: 'Example tag 2' }],
                     });
                 }).then(() => {
                     cy.createDefaultFixture('product', {
                         productNumber: 'RS-33333',
                         taxId,
-                        tags: [{ id: tagIdB, name: 'Example tag 3' }]
+                        tags: [{ id: tagIdB, name: 'Example tag 3' }],
                     });
                 });
             })
             .then(() => {
                 cy.createDefaultFixture('category', {
-                    tags: [{ id: tagIdA }]
+                    tags: [{ id: tagIdA }],
                 }).then(() => {
                     cy.createDefaultFixture('category', {
-                        tags: [{ id: tagIdB }]
+                        tags: [{ id: tagIdB }],
                     });
                 });
             })
@@ -57,7 +54,7 @@ describe('Tag: Test bulk merge', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/tag`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         // Select tags

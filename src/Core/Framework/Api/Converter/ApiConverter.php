@@ -2,8 +2,16 @@
 
 namespace Shopware\Core\Framework\Api\Converter;
 
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 abstract class ApiConverter
 {
+    /**
+     * @param array<string, mixed> $payload
+     *
+     * @return array<string, mixed>
+     */
     public function convert(string $entityName, array $payload): array
     {
         $converterFns = $this->getConverterFunctions();

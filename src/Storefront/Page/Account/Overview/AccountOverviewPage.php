@@ -4,9 +4,11 @@ namespace Shopware\Storefront\Page\Account\Overview;
 
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Page\Page;
 use Shopware\Storefront\Pagelet\Newsletter\Account\NewsletterAccountPagelet;
 
+#[Package('customer-order')]
 class AccountOverviewPage extends Page
 {
     /**
@@ -19,9 +21,6 @@ class AccountOverviewPage extends Page
      */
     protected $customer;
 
-    /**
-     * @internal (flag:FEATURE_NEXT_14001) remove comment on feature release
-     */
     protected NewsletterAccountPagelet $newsletterAccountPagelet;
 
     public function setNewestOrder(OrderEntity $order): void
@@ -44,17 +43,11 @@ class AccountOverviewPage extends Page
         $this->customer = $customer;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_14001) remove comment on feature release
-     */
     public function getNewsletterAccountPagelet(): NewsletterAccountPagelet
     {
         return $this->newsletterAccountPagelet;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_14001) remove comment on feature release
-     */
     public function setNewsletterAccountPagelet(NewsletterAccountPagelet $newsletterAccountPagelet): void
     {
         $this->newsletterAccountPagelet = $newsletterAccountPagelet;

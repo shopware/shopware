@@ -50,12 +50,12 @@ class MultiInsertQueryQueueTest extends TestCase
 
         $query->execute();
 
-        $actualA = $connection->fetchColumn('SELECT updated_at FROM `category` WHERE id = :id', ['id' => $catA]);
+        $actualA = $connection->fetchOne('SELECT updated_at FROM `category` WHERE id = :id', ['id' => $catA]);
 
         static::assertNotFalse($actualA);
         static::assertNull($actualA);
 
-        $actualB = $connection->fetchColumn('SELECT updated_at FROM `category` WHERE id = :id', ['id' => $catB]);
+        $actualB = $connection->fetchOne('SELECT updated_at FROM `category` WHERE id = :id', ['id' => $catB]);
 
         static::assertNotFalse($actualB);
         static::assertSame($date, $actualB);

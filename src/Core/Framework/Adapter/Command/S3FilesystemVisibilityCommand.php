@@ -2,58 +2,34 @@
 
 namespace Shopware\Core\Framework\Adapter\Command;
 
-use League\Flysystem\FilesystemInterface;
+use League\Flysystem\FilesystemOperator;
+use League\Flysystem\StorageAttributes;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
+use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand(
+    name: 's3:set-visibility',
+    description: 'Sets the visibility of all files in the s3 filesystem to public',
+)]
+#[Package('core')]
 class S3FilesystemVisibilityCommand extends Command
 {
-    protected static $defaultName = 's3:set-visibility';
-
-    /**
-     * @var FilesystemInterface
-     */
-    private $filesystemPrivate;
-
-    /**
-     * @var FilesystemInterface
-     */
-    private $filesystemPublic;
-
-    /**
-     * @var FilesystemInterface
-     */
-    private $filesystemTheme;
-
-    /**
-     * @var FilesystemInterface
-     */
-    private $filesystemSitemap;
-
-    /**
-     * @var FilesystemInterface
-     */
-    private $filesystemAsset;
-
     /**
      * @internal
      */
     public function __construct(
-        FilesystemInterface $filesystemPrivate,
-        FilesystemInterface $filesystemPublic,
-        FilesystemInterface $filesystemTheme,
-        FilesystemInterface $filesystemSitemap,
-        FilesystemInterface $filesystemAsset
+        private readonly FilesystemOperator $filesystemPrivate,
+        private readonly FilesystemOperator $filesystemPublic,
+        private readonly FilesystemOperator $filesystemTheme,
+        private readonly FilesystemOperator $filesystemSitemap,
+        private readonly FilesystemOperator $filesystemAsset
     ) {
         parent::__construct();
-        $this->filesystemPrivate = $filesystemPrivate;
-        $this->filesystemPublic = $filesystemPublic;
-        $this->filesystemTheme = $filesystemTheme;
-        $this->filesystemSitemap = $filesystemSitemap;
-        $this->filesystemAsset = $filesystemAsset;
     }
 
     /**
@@ -61,8 +37,6 @@ class S3FilesystemVisibilityCommand extends Command
      */
     protected function configure(): void
     {
-        $this
-            ->setDescription('Sets visibility for all objects in corresponding bucket of S3 storage.');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -73,7 +47,7 @@ class S3FilesystemVisibilityCommand extends Command
         $continue = $style->confirm('Continue?');
 
         if (!$continue) {
-            return 0;
+            return (int) Command::SUCCESS;
         }
 
         $style->comment('Setting visibility to private in private bucket.');
@@ -89,25 +63,22 @@ class S3FilesystemVisibilityCommand extends Command
 
         $style->info('Finished setting visibility of objects in all pre-defined buckets.');
 
-        return 0;
+        return (int) Command::SUCCESS;
     }
 
-    private function setVisibility(FilesystemInterface $filesystem, ShopwareStyle $style, string $visibility): void
+    private function setVisibility(FilesystemOperator $filesystem, ShopwareStyle $style, string $visibility): void
     {
-        $files = array_filter($filesystem->listContents('/', true), function (array $object): bool {
-            return $object['type'] === 'file';
-        });
+        $files = array_filter($filesystem->listContents('/', true)->toArray(), fn (StorageAttributes $object): bool => $object->type() === 'file');
         ProgressBar::setFormatDefinition('custom', '[%bar%] %current%/%max% -- %message%');
-        $progressBar = new ProgressBar($style, \count($files));
+        $progressBar = new ProgressBar($style, \count((array) $files));
         $progressBar->setFormat('custom');
+        $progressBar->setMessage('');
 
         foreach ($files as $file) {
-            if ($file['type'] === 'file') {
-                $filesystem->setVisibility($file['path'], $visibility);
+            $filesystem->setVisibility($file['path'], $visibility);
 
-                $progressBar->advance();
-                $progressBar->setMessage($file['path']);
-            }
+            $progressBar->advance();
+            $progressBar->setMessage($file['path']);
         }
 
         $progressBar->finish();

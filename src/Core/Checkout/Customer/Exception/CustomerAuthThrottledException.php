@@ -2,17 +2,15 @@
 
 namespace Shopware\Core\Checkout\Customer\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+#[Package('customer-order')]
 class CustomerAuthThrottledException extends ShopwareHttpException
 {
-    private int $waitTime;
-
-    public function __construct(int $waitTime, ?\Throwable $e = null)
+    public function __construct(private readonly int $waitTime, ?\Throwable $e = null)
     {
-        $this->waitTime = $waitTime;
-
         parent::__construct(
             'Customer auth throttled for {{ seconds }} seconds.',
             ['seconds' => $this->waitTime],

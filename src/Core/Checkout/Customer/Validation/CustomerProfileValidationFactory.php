@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Customer\Validation;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
 use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Decoratable;
@@ -17,6 +18,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 /**
  * @Decoratable
  */
+#[Package('customer-order')]
 class CustomerProfileValidationFactory implements DataValidationFactoryInterface
 {
     /**

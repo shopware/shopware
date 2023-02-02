@@ -8,9 +8,14 @@ use Shopware\Core\Content\ContactForm\Event\ContactFormEvent;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ContactFormDataAware;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Dispatching\Storer\ContactFormDataStorer;
-use Shopware\Core\Framework\Test\Event\TestBusinessEvent;
+use Shopware\Core\Content\Test\Flow\TestFlowBusinessEvent;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
+use Shopware\Core\Framework\Validation\DataBag\DataBag;
 
 /**
+ * @package business-ops
+ *
  * @internal
  *
  * @covers \Shopware\Core\Content\Flow\Dispatching\Storer\ContactFormDataStorer
@@ -26,7 +31,7 @@ class ContactFormDataStorerTest extends TestCase
 
     public function testStoreAware(): void
     {
-        $event = $this->getMockBuilder(ContactFormEvent::class)->disableOriginalConstructor()->getMock();
+        $event = new ContactFormEvent(Context::createDefaultContext(), '', new MailRecipientStruct([]), new DataBag());
         $stored = [];
         $stored = $this->storer->store($event, $stored);
         static::assertArrayHasKey(ContactFormDataAware::CONTACT_FORM_DATA, $stored);
@@ -34,7 +39,7 @@ class ContactFormDataStorerTest extends TestCase
 
     public function testStoreNotAware(): void
     {
-        $event = $this->createMock(TestBusinessEvent::class);
+        $event = $this->createMock(TestFlowBusinessEvent::class);
         $stored = [];
         $stored = $this->storer->store($event, $stored);
         static::assertArrayNotHasKey(ContactFormDataAware::CONTACT_FORM_DATA, $stored);
@@ -44,7 +49,7 @@ class ContactFormDataStorerTest extends TestCase
     {
         $contactFormData = ['test'];
 
-        /** @var MockObject|StorableFlow $storable */
+        /** @var MockObject&StorableFlow $storable */
         $storable = $this->createMock(StorableFlow::class);
 
         $storable->expects(static::exactly(1))
@@ -64,7 +69,7 @@ class ContactFormDataStorerTest extends TestCase
 
     public function testRestoreEmptyStored(): void
     {
-        /** @var MockObject|StorableFlow $storable */
+        /** @var MockObject&StorableFlow $storable */
         $storable = $this->createMock(StorableFlow::class);
 
         $storable->expects(static::exactly(1))

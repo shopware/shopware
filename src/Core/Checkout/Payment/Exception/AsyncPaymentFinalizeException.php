@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Checkout\Payment\Exception;
 
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('checkout')]
 class AsyncPaymentFinalizeException extends PaymentProcessException
 {
     public function __construct(string $orderTransactionId, string $errorMessage, ?\Throwable $e = null)

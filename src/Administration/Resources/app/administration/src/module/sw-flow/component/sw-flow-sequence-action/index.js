@@ -12,8 +12,11 @@ const { mapState, mapGetters } = Component.getComponentHelper();
 const { snakeCase } = utils.string;
 const { Criteria } = Shopware.Data;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-flow-sequence-action', {
+/**
+ * @private
+ * @package business-ops
+ */
+export default {
     template,
 
     inject: ['repositoryFactory', 'flowBuilderService', 'feature'],
@@ -36,7 +39,6 @@ Component.register('sw-flow-sequence-action', {
 
     data() {
         return {
-            showAddButton: true,
             fieldError: null,
             selectedAction: '',
             currentSequence: {},
@@ -79,7 +81,7 @@ Component.register('sw-flow-sequence-action', {
                 const appGroup = this.actionGroups.find(group => group === action?.app?.name);
                 if (!appGroup) {
                     groups.unshift({
-                        id: action?.app?.name[0].toLowerCase() + action?.app?.name.slice(1),
+                        id: `${action?.app?.name[0].toLowerCase()}${action?.app?.name.slice(1)}`,
                         label: action?.app?.label,
                     });
                 }
@@ -116,7 +118,12 @@ Component.register('sw-flow-sequence-action', {
         actionClasses() {
             return {
                 'is--stop-flow': !this.showAddAction,
+                'has--arrow': this.errorArrow,
             };
+        },
+
+        errorArrow() {
+            return !this.isValidAction(this.sequence) && this.sequence.actionName && this.sequence.trueBlock;
         },
 
         modalName() {
@@ -151,7 +158,8 @@ Component.register('sw-flow-sequence-action', {
             };
         },
 
-        ...mapState('swFlowState',
+        ...mapState(
+            'swFlowState',
             [
                 'invalidSequences',
                 'stateMachineState',
@@ -161,7 +169,9 @@ Component.register('sw-flow-sequence-action', {
                 'customFieldSets',
                 'customFields',
                 'triggerEvent',
-            ]),
+                'triggerActions',
+            ],
+        ),
         ...mapGetters('swFlowState', ['availableActions', 'actionGroups', 'sequences']),
     },
 
@@ -179,7 +189,6 @@ Component.register('sw-flow-sequence-action', {
 
     methods: {
         createdComponent() {
-            this.showAddButton = this.sequenceData.length > 1 || !!this.sequence?.actionName;
             this.getAppFlowAction();
         },
 
@@ -281,7 +290,6 @@ Component.register('sw-flow-sequence-action', {
             }
 
             this.removeFieldError();
-            this.toggleAddButton();
         },
 
         editAction(action) {
@@ -349,8 +357,20 @@ Component.register('sw-flow-sequence-action', {
             State.commit('swFlowState/updateSequence', { id: action.id, position: moveActionClone.position });
         },
 
-        onEditAction(sequence) {
-            if (!sequence?.actionName) {
+        onEditAction(sequence, target, key) {
+            if (sequence.actionName && sequence.actionName === ACTION.STOP_FLOW) {
+                return;
+            }
+
+            if (!this.$refs.contextButton[key]) {
+                return;
+            }
+
+            if (!sequence?.actionName || !target) {
+                return;
+            }
+
+            if (this.$refs.contextButton[key].$el.contains(target)) {
                 return;
             }
 
@@ -380,7 +400,7 @@ Component.register('sw-flow-sequence-action', {
                     iconRaw: appAction.icon,
                     value: appAction.name,
                     disabled: !appAction.app?.active,
-                    group: appAction.app?.name[0].toLowerCase() + appAction.app?.name.slice(1),
+                    group: `${appAction.app?.name[0].toLowerCase()}${appAction.app?.name.slice(1)}`,
                 };
             }
 
@@ -398,10 +418,6 @@ Component.register('sw-flow-sequence-action', {
             return this.appFlowActionRepository.search(criteria, Shopware.Context.api).then((response) => {
                 this.appFlowActions = response;
             });
-        },
-
-        toggleAddButton() {
-            this.showAddButton = !this.showAddButton;
         },
 
         sortByPosition(sequences) {
@@ -699,5 +715,13 @@ Component.register('sw-flow-sequence-action', {
 
             return actions;
         },
+
+        isValidAction(action) {
+            if (!this.triggerActions.length || !action.actionName) {
+                return true;
+            }
+
+            return this.triggerActions.find(item => item.name === action.actionName);
+        },
     },
-});
+};

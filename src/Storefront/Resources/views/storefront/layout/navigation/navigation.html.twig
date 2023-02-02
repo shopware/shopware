@@ -31,9 +31,6 @@
                                 {% set category = treeItem.category %}
                                 {% set name = category.translated.name %}
 
-                                {# @deprecated tag:v6.5.0 - Use "category.id" directly instead. #}
-                                {% set categorId = category.id %}
-
                                 {% block layout_main_navigation_menu_item %}
                                     {% if category.type == 'folder' %}
                                         <div class="nav-link main-navigation-link"

@@ -1,5 +1,8 @@
 <?php declare(strict_types=1);
 
+/**
+ * @package system-settings
+ */
 return [
     'title' => 'Shopware 6 – skrypt aktualizacyjny',
     'meta_text' => '<strong>Aktualizacja Shopware:</strong>',
@@ -56,4 +59,5 @@ return [
     'deleted_files' => '&nbsp;pliki usunięte z katalogów %d',
     'cache_clear_error' => 'Wystąpił błąd. Usuń ręcznie pamięć podręczną po zakończeniu aktualizacji.',
     'finish_update' => 'Zakończ aktualizację',
+    'version' => 'Version',
 ];

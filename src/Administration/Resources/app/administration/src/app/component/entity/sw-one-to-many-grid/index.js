@@ -1,8 +1,15 @@
+/**
+ * @package admin
+ */
+
 import template from './sw-one-to-many-grid.html.twig';
 
 const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 Component.extend('sw-one-to-many-grid', 'sw-data-grid', {
     template,
 
@@ -119,7 +126,10 @@ Component.extend('sw-one-to-many-grid', 'sw-data-grid', {
 
         load() {
             return this.repository.search(this.result.criteria, this.result.context)
-                .then(this.applyResult);
+                .then((response) => {
+                    this.applyResult(response);
+                    this.$emit('load-finish');
+                });
         },
 
         deleteItem(id) {

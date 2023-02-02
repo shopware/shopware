@@ -1,10 +1,14 @@
 import template from './sw-newsletter-recipient-list.html.twig';
 import './sw-newsletter-recipient-list.scss';
 
-const { Component, Mixin, Data: { Criteria, EntityCollection } } = Shopware;
+/**
+ * @package customer-order
+ */
+
+const { Mixin, Data: { Criteria, EntityCollection } } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-newsletter-recipient-list', {
+export default {
     template,
 
     inject: ['repositoryFactory', 'acl'],
@@ -216,4 +220,4 @@ Component.register('sw-newsletter-recipient-list', {
             }];
         },
     },
-});
+};

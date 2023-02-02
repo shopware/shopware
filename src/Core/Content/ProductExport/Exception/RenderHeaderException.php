@@ -3,7 +3,9 @@
 namespace Shopware\Core\Content\ProductExport\Exception;
 
 use Shopware\Core\Framework\Adapter\Twig\Exception\StringTemplateRenderingException;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('sales-channel')]
 class RenderHeaderException extends StringTemplateRenderingException
 {
 }

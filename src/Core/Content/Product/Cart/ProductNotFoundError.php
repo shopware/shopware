@@ -4,7 +4,9 @@ declare(strict_types=1);
 namespace Shopware\Core\Content\Product\Cart;
 
 use Shopware\Core\Checkout\Cart\Error\Error;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('inventory')]
 class ProductNotFoundError extends Error
 {
     /**
@@ -36,7 +38,7 @@ class ProductNotFoundError extends Error
 
     public function getLevel(): int
     {
-        return self::LEVEL_WARNING;
+        return self::LEVEL_ERROR;
     }
 
     public function blockOrder(): bool

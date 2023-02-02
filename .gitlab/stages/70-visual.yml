@@ -27,7 +27,7 @@ Percy:
         - composer run e2e:prepare
         - composer run e2e:admin:percy -- exec -- cypress run
             --browser chrome
-            --spec "cypress/**/visual.spec.js,cypress/**/percy-storefront-validation/*"
+            --spec "cypress/**/visual.*,cypress/**/percy-storefront-validation/*"
             --headless
     after_script:
         - mkdir $CI_PROJECT_DIR/var/log/e2e

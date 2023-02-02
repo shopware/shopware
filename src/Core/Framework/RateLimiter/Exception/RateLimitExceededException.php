@@ -2,18 +2,17 @@
 
 namespace Shopware\Core\Framework\RateLimiter\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+#[Package('core')]
 class RateLimitExceededException extends ShopwareHttpException
 {
-    private int $retryAfter;
+    private readonly int $now;
 
-    private int $now;
-
-    public function __construct(int $retryAfter, ?\Throwable $e = null)
+    public function __construct(private readonly int $retryAfter, ?\Throwable $e = null)
     {
-        $this->retryAfter = $retryAfter;
         $this->now = time();
 
         parent::__construct(

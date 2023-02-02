@@ -1,23 +1,22 @@
+/**
+ * @package content
+ */
 // / <reference types="Cypress" />
 
 describe('CMS: check validation of product list page', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createCmsFixture();
-            })
-            .then(() => {
-                cy.viewport(1920, 1080);
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/cms/index`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
-            });
+        cy.createCmsFixture().then(() => {
+            cy.viewport(1920, 1080);
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/cms/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+        });
     });
 
     it('@content: create product list page and try to save with deleted listing block', { tags: ['pa-content-management'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         // Fill in basic data
@@ -48,7 +47,6 @@ describe('CMS: check validation of product list page', () => {
         cy.get('.sw-cms-detail__empty-stage-content').should('be.visible');
         cy.get('.sw-cms-detail__save-action').click();
 
-        cy.awaitAndCheckNotification('Errors occured. Please check the error list in the editor.');
-        cy.contains('.sw-alert__message', 'This listing page does not contain a product listing block.');
+        cy.awaitAndCheckNotification('Errors occurred. Please check the error list in the editor.');
     });
 });

@@ -5,10 +5,12 @@ namespace Shopware\Core\Content\Test\Sitemap\ConfigHandler;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Sitemap\ConfigHandler\File;
 use Shopware\Core\Content\Sitemap\Service\ConfigHandler;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('sales-channel')]
 class FileTest extends TestCase
 {
     public function testAddLastModDate(): void

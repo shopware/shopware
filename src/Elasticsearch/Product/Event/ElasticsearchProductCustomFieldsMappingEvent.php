@@ -4,24 +4,17 @@ namespace Shopware\Elasticsearch\Product\Event;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\ShopwareEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 
+#[Package('core')]
 class ElasticsearchProductCustomFieldsMappingEvent implements ShopwareEvent
 {
     /**
-     * @var array<string, string>
-     */
-    protected array $mapping;
-
-    protected Context $context;
-
-    /**
      * @param array<string, string> $mapping
      */
-    public function __construct(array $mapping, Context $context)
+    public function __construct(protected array $mapping, protected Context $context)
     {
-        $this->mapping = $mapping;
-        $this->context = $context;
     }
 
     public function getContext(): Context

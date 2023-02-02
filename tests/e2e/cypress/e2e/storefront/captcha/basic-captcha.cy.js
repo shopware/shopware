@@ -1,5 +1,5 @@
 const selector = {
-    footerLinkContact: '.footer-contact-form a[data-toggle="modal"]',
+    footerLinkContact: '.footer-contact-form a[data-ajax-modal="true"]',
     formContact: 'form[action="/form/contact"]',
     formContactSalutation: '#form-Salutation',
     formContactFirstName: '#form-firstName',
@@ -16,7 +16,7 @@ const selector = {
     basicCaptchaRefreshIcon: '.basic-captcha-content-refresh-icon',
     formBasicCaptcha: '.basic-captcha input[name="shopware_basic_captcha_confirm"]',
     alertErrors: '.alert.alert-danger.alert-has-icon',
-}
+};
 
 describe('Basic captcha', () => {
     function openContactForm(callback) {
@@ -24,7 +24,7 @@ describe('Basic captcha', () => {
 
         cy.intercept({
             url: '/widgets/cms/*',
-            method: 'GET'
+            method: 'GET',
         }).as('contactFormRequest');
 
         cy.get(selector.footerLinkContact).click();
@@ -42,7 +42,7 @@ describe('Basic captcha', () => {
         return cy.authenticate().then((result) => {
             const requestConfig = {
                 headers: {
-                    Authorization: `Bearer ${result.access}`
+                    Authorization: `Bearer ${result.access}`,
                 },
                 method: 'POST',
                 url: `api/_action/system-config/batch`,
@@ -51,11 +51,11 @@ describe('Basic captcha', () => {
                         'core.basicInformation.activeCaptchasV2': {
                             'basicCaptcha': {
                                 'isActive': true,
-                                'name': 'basicCaptcha'
-                            }
-                        }
-                    }
-                }
+                                'name': 'basicCaptcha',
+                            },
+                        },
+                    },
+                },
             };
 
             return cy.request(requestConfig);
@@ -79,7 +79,7 @@ describe('Basic captcha', () => {
     function submitContactForm() {
         cy.intercept({
             url: '/form/contact',
-            method: 'POST'
+            method: 'POST',
         }).as('contactFormPostRequest');
 
         cy.get(selector.formContact).within(() => {
@@ -103,5 +103,5 @@ describe('Basic captcha', () => {
         submitContactForm();
 
         cy.get(selector.alertErrors).should('be.visible');
-    })
-})
+    });
+});

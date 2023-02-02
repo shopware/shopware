@@ -5,7 +5,6 @@ namespace Shopware\Core\Content\Test\MailTemplate\Service;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\DocumentEntity;
-use Shopware\Core\Checkout\Document\DocumentService;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
@@ -35,9 +34,9 @@ class AttachmentLoaderTest extends TestCase
     private DocumentGenerator $documentGenerator;
 
     /**
-     * @var MockObject|EventDispatcherInterface
+     * @var EventDispatcherInterface&MockObject
      */
-    private $eventDispatcherMock;
+    private EventDispatcherInterface $eventDispatcherMock;
 
     private SalesChannelContext $salesChannelContext;
 
@@ -51,7 +50,6 @@ class AttachmentLoaderTest extends TestCase
         $this->attachmentLoader = new AttachmentLoader(
             $this->getContainer()->get('document.repository'),
             $this->documentGenerator,
-            $this->getContainer()->get(DocumentService::class),
             $this->eventDispatcherMock
         );
 

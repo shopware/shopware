@@ -6,34 +6,28 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Dispatching\Action\RemoveOrderTagAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\Event\DelayAware;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Event\OrderAware;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
+ * @package business-ops
+ *
  * @internal
  * @covers \Shopware\Core\Content\Flow\Dispatching\Action\RemoveOrderTagAction
  */
 class RemoveOrderTagActionTest extends TestCase
 {
-    /**
-     * @var MockObject|EntityRepositoryInterface
-     */
-    private $repository;
+    private MockObject&EntityRepository $repository;
 
     private RemoveOrderTagAction $action;
 
-    /**
-     * @var MockObject|StorableFlow
-     */
-    private $flow;
+    private MockObject&StorableFlow $flow;
 
     public function setUp(): void
     {
-        $this->repository = $this->createMock(EntityRepositoryInterface::class);
+        $this->repository = $this->createMock(EntityRepository::class);
         $this->action = new RemoveOrderTagAction($this->repository);
 
         $this->flow = $this->createMock(StorableFlow::class);
@@ -42,25 +36,8 @@ class RemoveOrderTagActionTest extends TestCase
     public function testRequirements(): void
     {
         static::assertSame(
-            [OrderAware::class, DelayAware::class],
+            [OrderAware::class],
             $this->action->requirements()
-        );
-    }
-
-    public function testSubscribedEvents(): void
-    {
-        if (Feature::isActive('v6.5.0.0')) {
-            static::assertSame(
-                [],
-                RemoveOrderTagAction::getSubscribedEvents()
-            );
-
-            return;
-        }
-
-        static::assertSame(
-            ['action.remove.order.tag' => 'handle'],
-            RemoveOrderTagAction::getSubscribedEvents()
         );
     }
 
@@ -82,12 +59,10 @@ class RemoveOrderTagActionTest extends TestCase
         $this->flow->expects(static::once())->method('getConfig')->willReturn($config);
 
         $orderId = $this->flow->getStore(OrderAware::ORDER_ID);
-        $withData = array_map(function ($id) use ($orderId) {
-            return [
-                'orderId' => $orderId,
-                'tagId' => $id['id'],
-            ];
-        }, $expected);
+        $withData = array_map(fn ($id) => [
+            'orderId' => $orderId,
+            'tagId' => $id['id'],
+        ], $expected);
 
         $this->repository->expects(static::once())
             ->method('delete')

@@ -3,30 +3,14 @@
 namespace Shopware\Core\Content\ImportExport\Event;
 
 use Shopware\Core\Content\ImportExport\Struct\Config;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
+#[Package('system-settings')]
 class ImportExportBeforeExportRecordEvent extends Event
 {
-    /**
-     * @var Config
-     */
-    private $config;
-
-    /**
-     * @var array
-     */
-    private $record;
-
-    /**
-     * @var array
-     */
-    private $originalRecord;
-
-    public function __construct(Config $config, array $record, array $originalRecord)
+    public function __construct(private readonly Config $config, private array $record, private readonly array $originalRecord)
     {
-        $this->config = $config;
-        $this->record = $record;
-        $this->originalRecord = $originalRecord;
     }
 
     public function getRecord(): array

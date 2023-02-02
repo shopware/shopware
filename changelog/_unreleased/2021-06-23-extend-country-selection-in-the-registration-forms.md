@@ -1,7 +1,6 @@
 ---
 title: Extend country selection in the registration forms
 issue: NEXT-15723
-flag: FEATURE_NEXT_15707
 ---
 # Storefront
 * Added variable `disableNonShippableCountries` to `src/Storefront/Resources/views/storefront/component/address/address-form.html.twig`

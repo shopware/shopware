@@ -4,16 +4,14 @@ namespace Shopware\Core\Checkout\Test\Cart\Promotion\Integration\Calculation;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
-use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
-use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
-use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\PromotionFixtureBuilder;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionIntegrationTestBehaviour;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionTestFixtureBehaviour;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -24,17 +22,18 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * @internal
  */
+#[Package('checkout')]
 class PromotionSetGroupCalculationTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use PromotionTestFixtureBehaviour;
     use PromotionIntegrationTestBehaviour;
 
-    protected EntityRepositoryInterface $productRepository;
+    protected EntityRepository $productRepository;
 
     protected CartService $cartService;
 
-    protected EntityRepositoryInterface $promotionRepository;
+    protected EntityRepository $promotionRepository;
 
     private SalesChannelContext $context;
 
@@ -61,10 +60,7 @@ class PromotionSetGroupCalculationTest extends TestCase
      *
      * @group promotions
      *
-     * @throws InvalidPayloadException
-     * @throws InvalidQuantityException
-     * @throws LineItemNotStackableException
-     * @throws MixedLineItemTypeException
+     * @throws CartException
      */
     public function testPercentageOnMultipleItemsAndSubsetQuantities(): void
     {
@@ -104,10 +100,7 @@ class PromotionSetGroupCalculationTest extends TestCase
      *
      * @group promotions
      *
-     * @throws InvalidPayloadException
-     * @throws InvalidQuantityException
-     * @throws LineItemNotStackableException
-     * @throws MixedLineItemTypeException
+     * @throws CartException
      */
     public function testAbsoluteOnMultipleItemsAndSubsetQuantities(): void
     {
@@ -154,10 +147,7 @@ class PromotionSetGroupCalculationTest extends TestCase
      *
      * @group promotions
      *
-     * @throws InvalidPayloadException
-     * @throws InvalidQuantityException
-     * @throws LineItemNotStackableException
-     * @throws MixedLineItemTypeException
+     * @throws CartException
      */
     public function testFixedUnitPriceOnMultipleItemsAndSubsetQuantities(): void
     {
@@ -205,10 +195,7 @@ class PromotionSetGroupCalculationTest extends TestCase
      * @test
      * @group promotions
      *
-     * @throws InvalidPayloadException
-     * @throws InvalidQuantityException
-     * @throws LineItemNotStackableException
-     * @throws MixedLineItemTypeException
+     * @throws CartException
      */
     public function testFixedPriceOnMultipleItemsAndSubsetQuantities(): void
     {

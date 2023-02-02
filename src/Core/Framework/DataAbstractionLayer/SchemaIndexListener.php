@@ -4,7 +4,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 
 use Doctrine\DBAL\Event\SchemaIndexDefinitionEventArgs;
 use Doctrine\DBAL\Schema\Index;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('core')]
 class SchemaIndexListener
 {
     /** Doctrine has its own format for foreign keys. fk.test.column will be split into:
@@ -16,7 +18,7 @@ class SchemaIndexListener
         $event->preventDefault();
         $data = $event->getTableIndex();
 
-        $name = str_replace('.', '__', $data['name']);
+        $name = str_replace('.', '__', (string) $data['name']);
         $event->setIndex(new Index($name, $data['columns'], $data['unique'], $data['primary'], $data['flags'], $data['options']));
     }
 }

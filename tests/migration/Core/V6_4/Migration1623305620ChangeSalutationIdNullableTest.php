@@ -45,13 +45,9 @@ class Migration1623305620ChangeSalutationIdNullableTest extends TestCase
         $schema = $this->connection->getSchemaManager();
 
         /** @var array<Column[]> $columns */
-        $columns = array_map(static function (string $table) use ($schema): array {
-            return $schema->listTableColumns($table);
-        }, MigrationTested::TABLES);
+        $columns = array_map(static fn (string $table): array => $schema->listTableColumns($table), MigrationTested::TABLES);
 
-        $columns = array_filter(array_merge(...$columns), static function (Column $column): bool {
-            return $column->getName() === 'salutation_id';
-        });
+        $columns = array_filter(array_merge(...$columns), static fn (Column $column): bool => $column->getName() === 'salutation_id');
 
         foreach ($columns as $column) {
             static::assertFalse($column->getNotnull());

@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Adapter\Twig;
 
 use Shopware\Core\Framework\Adapter\Twig\Exception\StringTemplateRenderingException;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Twig\Cache\FilesystemCache;
 use Twig\Environment;
 use Twig\Error\Error;
@@ -14,21 +15,16 @@ use Twig\Loader\ArrayLoader;
 /**
  * @final tag:v6.5.0
  */
+#[Package('core')]
 class StringTemplateRenderer
 {
     private Environment $twig;
 
-    private Environment $platformTwig;
-
-    private string $cacheDir;
-
     /**
      * @internal
      */
-    public function __construct(Environment $environment, string $cacheDir)
+    public function __construct(private readonly Environment $platformTwig, private readonly string $cacheDir)
     {
-        $this->platformTwig = $environment;
-        $this->cacheDir = $cacheDir;
         $this->initialize();
     }
 
@@ -41,7 +37,7 @@ class StringTemplateRenderer
 
         $this->disableTestMode();
         foreach ($this->platformTwig->getExtensions() as $extension) {
-            if ($this->twig->hasExtension(\get_class($extension))) {
+            if ($this->twig->hasExtension($extension::class)) {
                 continue;
             }
             $this->twig->addExtension($extension);
@@ -59,19 +55,12 @@ class StringTemplateRenderer
     }
 
     /**
-     * @param bool $htmlEscape - @deprecated tag:v6.5.0 parameter $htmlEscape will be added in v6.5.0.0
+     * @param array<string, mixed> $data
      *
      * @throws StringTemplateRenderingException
      */
-    public function render(string $templateSource, array $data, Context $context /*, bool $htmlEscape = true */): string
+    public function render(string $templateSource, array $data, Context $context, bool $htmlEscape = true): string
     {
-        // @deprecated tag:v6.5.0 - Remove if/else
-        if (\func_num_args() === 4) {
-            $htmlEscape = (bool) func_get_arg(3);
-        } else {
-            $htmlEscape = true;
-        }
-
         $name = md5($templateSource . !$htmlEscape);
         $this->twig->setLoader(new ArrayLoader([$name => $templateSource]));
 

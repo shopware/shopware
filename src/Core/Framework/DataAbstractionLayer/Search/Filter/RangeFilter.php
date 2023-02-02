@@ -2,28 +2,21 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Filter;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
- * @final tag:v6.5.0
+ * @final
  */
+#[Package('core')]
 class RangeFilter extends SingleFieldFilter
 {
-    public const LTE = 'lte';
+    final public const LTE = 'lte';
 
-    public const LT = 'lt';
+    final public const LT = 'lt';
 
-    public const GTE = 'gte';
+    final public const GTE = 'gte';
 
-    public const GT = 'gt';
-
-    /**
-     * @var string
-     */
-    protected $field;
-
-    /**
-     * @var array
-     */
-    protected $parameters = [];
+    final public const GT = 'gt';
 
     /**
      * @example
@@ -36,19 +29,19 @@ class RangeFilter extends SingleFieldFilter
      * new RangeFilter('price', [
      *      RangeFilter::GT => 5.99
      * ])
+     *
+     * @param array<string, float|int|string> $parameters
      */
-    public function __construct(string $field, array $parameters = [])
+    public function __construct(private readonly string $field, private readonly array $parameters = [])
     {
-        $this->field = $field;
-        $this->parameters = $parameters;
     }
 
-    public function hasParameter(string $key)
+    public function hasParameter(string $key): bool
     {
         return \array_key_exists($key, $this->parameters);
     }
 
-    public function getParameter(string $key)
+    public function getParameter(string $key): float|int|string|null
     {
         if (!$this->hasParameter($key)) {
             return null;
@@ -62,6 +55,9 @@ class RangeFilter extends SingleFieldFilter
         return $this->field;
     }
 
+    /**
+     * @return array<string, float|int|string>
+     */
     public function getParameters(): array
     {
         return $this->parameters;

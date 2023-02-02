@@ -5,46 +5,34 @@ namespace Shopware\Core\Framework\Adapter\Twig;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\TwigLoaderConfigCompilerPass;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Contracts\Service\ResetInterface;
 use Twig\Error\LoaderError;
 use Twig\Loader\LoaderInterface;
 use Twig\Source;
 
+/**
+ * @internal
+ */
+#[Package('core')]
 class EntityTemplateLoader implements LoaderInterface, EventSubscriberInterface, ResetInterface
 {
+    /**
+     * @var array<string, array<string, array{template: string, updatedAt: \DateTimeInterface|null}|null>>
+     */
     private array $databaseTemplateCache = [];
-
-    private Connection $connection;
-
-    private string $environment;
 
     /**
      * @internal
      */
-    public function __construct(Connection $connection, string $environment)
+    public function __construct(private readonly Connection $connection, private readonly string $environment)
     {
-        $this->connection = $connection;
-        $this->environment = $environment;
     }
 
     public static function getSubscribedEvents(): array
     {
         return ['app_template.written' => 'reset'];
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 will be removed, use `reset()` instead
-     */
-    public function clearInternalCache(): void
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'reset()')
-        );
-
-        $this->reset();
     }
 
     public function reset(): void
@@ -91,6 +79,9 @@ class EntityTemplateLoader implements LoaderInterface, EventSubscriberInterface,
         return true;
     }
 
+    /**
+     * @return array{template: string, updatedAt: \DateTimeInterface|null}|null
+     */
     private function findDatabaseTemplate(string $name): ?array
     {
         if (EnvironmentHelper::getVariable('DISABLE_EXTENSIONS', false)) {
@@ -110,7 +101,8 @@ class EntityTemplateLoader implements LoaderInterface, EventSubscriberInterface,
         $path = $templateName['path'];
 
         if (empty($this->databaseTemplateCache)) {
-            $templates = $this->connection->fetchAll('
+            /** @var array<array{path: string, template: string, updatedAt: string|null, namespace: string}> $templates */
+            $templates = $this->connection->fetchAllAssociative('
                 SELECT
                     `app_template`.`path` AS `path`,
                     `app_template`.`template` AS `template`,
@@ -121,7 +113,6 @@ class EntityTemplateLoader implements LoaderInterface, EventSubscriberInterface,
                 WHERE `app_template`.`active` = 1 AND `app`.`active` = 1
             ');
 
-            /** @var array $template */
             foreach ($templates as $template) {
                 $this->databaseTemplateCache[$template['path']][$template['namespace']] = [
                     'template' => $template['template'],
@@ -139,6 +130,9 @@ class EntityTemplateLoader implements LoaderInterface, EventSubscriberInterface,
         return $this->databaseTemplateCache[$path][$namespace] = null;
     }
 
+    /**
+     * @return array{namespace: string, path: string}
+     */
     private function splitTemplateName(string $template): array
     {
         // remove static template inheritance prefix

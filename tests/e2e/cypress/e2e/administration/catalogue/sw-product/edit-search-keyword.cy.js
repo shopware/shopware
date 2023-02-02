@@ -13,15 +13,11 @@ function setCustomSearchKeywordIsSearchable() {
 
 describe('Product: Search Keyword product', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createProductFixture();
-            })
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
-            });
+        cy.createProductFixture().then(() => {
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+        });
     });
 
     it('@catalogue: edit a product\'s search keyword', { tags: ['pa-inventory'] }, () => {
@@ -29,12 +25,12 @@ describe('Product: Search Keyword product', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         cy.intercept({
             method: 'POST',
-            url: `${Cypress.env('apiPath')}/search/product`
+            url: `${Cypress.env('apiPath')}/search/product`,
         }).as('searchData');
 
         cy.contains(`${page.elements.dataGridRow}--0`, 'Product name');
@@ -42,7 +38,7 @@ describe('Product: Search Keyword product', () => {
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         // Create new search keyword

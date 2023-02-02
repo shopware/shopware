@@ -3,32 +3,29 @@
 namespace Shopware\Core\Framework\Demodata\Generator;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\FetchMode;
 use Faker\Generator;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Shopware\Core\Test\TestDefaults;
 
+/**
+ * @internal
+ */
+#[Package('core')]
 class CustomerGenerator implements DemodataGeneratorInterface
 {
-    private EntityWriterInterface $writer;
-
-    private EntityRepositoryInterface $customerGroupRepository;
-
-    private NumberRangeValueGeneratorInterface $numberRangeValueGenerator;
-
-    private Connection $connection;
-
+    /**
+     * @var list<string>
+     */
     private array $salutationIds = [];
-
-    private CustomerDefinition $customerDefinition;
 
     private Generator $faker;
 
@@ -36,17 +33,12 @@ class CustomerGenerator implements DemodataGeneratorInterface
      * @internal
      */
     public function __construct(
-        EntityWriterInterface $writer,
-        Connection $connection,
-        EntityRepositoryInterface $customerGroupRepository,
-        NumberRangeValueGeneratorInterface $numberRangeValueGenerator,
-        CustomerDefinition $customerDefinition
+        private readonly EntityWriterInterface $writer,
+        private readonly Connection $connection,
+        private readonly EntityRepository $customerGroupRepository,
+        private readonly NumberRangeValueGeneratorInterface $numberRangeValueGenerator,
+        private readonly CustomerDefinition $customerDefinition
     ) {
-        $this->writer = $writer;
-        $this->customerGroupRepository = $customerGroupRepository;
-        $this->numberRangeValueGenerator = $numberRangeValueGenerator;
-        $this->connection = $connection;
-        $this->customerDefinition = $customerDefinition;
     }
 
     public function getDefinition(): string
@@ -93,10 +85,7 @@ class CustomerGenerator implements DemodataGeneratorInterface
         $shippingAddressId = Uuid::randomHex();
         $billingAddressId = Uuid::randomHex();
         $salutationId = Uuid::fromBytesToHex($this->getRandomSalutationId());
-        $countries = $this->connection
-            ->executeQuery('SELECT id FROM country WHERE active = 1')
-            ->fetchAll(FetchMode::COLUMN);
-
+        $countries = $this->connection->fetchFirstColumn('SELECT id FROM country WHERE active = 1');
         $salesChannelIds = $this->connection->fetchFirstColumn('SELECT LOWER(HEX(id)) FROM sales_channel');
 
         $customer = [
@@ -162,9 +151,7 @@ class CustomerGenerator implements DemodataGeneratorInterface
             $lastName = $context->getFaker()->format('lastName');
             $salutationId = Uuid::fromBytesToHex($this->getRandomSalutationId());
             $title = $this->getRandomTitle();
-            $countries = $this->connection
-                ->executeQuery('SELECT id FROM country WHERE active = 1')
-                ->fetchAll(FetchMode::COLUMN);
+            $countries = $this->connection->fetchFirstColumn('SELECT id FROM country WHERE active = 1');
 
             $addresses = [];
 
@@ -228,6 +215,11 @@ class CustomerGenerator implements DemodataGeneratorInterface
         return $titles[array_rand($titles)];
     }
 
+    /**
+     * @param list<string> $tags
+     *
+     * @return list<array{id: string}>
+     */
     private function getTags(array $tags): array
     {
         $tagAssignments = [];
@@ -237,9 +229,7 @@ class CustomerGenerator implements DemodataGeneratorInterface
 
             if (!empty($chosenTags)) {
                 $tagAssignments = array_map(
-                    function ($id) {
-                        return ['id' => $id];
-                    },
+                    fn ($id) => ['id' => $id],
                     $chosenTags
                 );
             }
@@ -248,17 +238,18 @@ class CustomerGenerator implements DemodataGeneratorInterface
         return $tagAssignments;
     }
 
+    /**
+     * @return list<string>
+     */
     private function getIds(string $table): array
     {
-        $ids = $this->connection->fetchAllAssociative('SELECT LOWER(HEX(id)) as id FROM ' . $table . ' LIMIT 500');
-
-        return array_column($ids, 'id');
+        return $this->connection->fetchFirstColumn('SELECT LOWER(HEX(id)) as id FROM ' . $table . ' LIMIT 500');
     }
 
     private function getRandomSalutationId(): string
     {
         if (!$this->salutationIds) {
-            $this->salutationIds = $this->connection->executeQuery('SELECT id FROM salutation')->fetchAll(FetchMode::COLUMN);
+            $this->salutationIds = $this->connection->fetchFirstColumn('SELECT id FROM salutation');
         }
 
         return $this->salutationIds[array_rand($this->salutationIds)];
@@ -266,9 +257,9 @@ class CustomerGenerator implements DemodataGeneratorInterface
 
     private function getDefaultPaymentMethod(): ?string
     {
-        $id = $this->connection->executeQuery(
+        $id = $this->connection->fetchOne(
             'SELECT `id` FROM `payment_method` WHERE `active` = 1 ORDER BY `position` ASC'
-        )->fetchColumn();
+        );
 
         if (!$id) {
             return null;

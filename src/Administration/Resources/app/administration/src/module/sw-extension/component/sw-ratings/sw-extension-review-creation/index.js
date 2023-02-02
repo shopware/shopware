@@ -2,12 +2,12 @@ import template from './sw-extension-review-creation.html.twig';
 import './sw-extension-review-creation.scss';
 
 const { ShopwareError } = Shopware.Classes;
-const { Component } = Shopware;
 
 /**
+ * @package merchant-services
  * @private
  */
-Component.register('sw-extension-review-creation', {
+export default {
     template,
 
     inject: ['extensionStoreActionService'],
@@ -160,4 +160,4 @@ Component.register('sw-extension-review-creation', {
             this.isCreatedSuccessful = false;
         },
     },
-});
+};

@@ -17,7 +17,7 @@
 
     .headline {
         width: 512px;
-        font-size: 18px;
+        font-size: $font-size-m;
         font-weight: normal;
         text-align: center;
         letter-spacing: 0.41px;
@@ -32,7 +32,7 @@
     }
 
     .paymethod {
-        font-size: 14px;
+        font-size: $font-size-xs;
         font-weight: normal;
         text-align: center;
         letter-spacing: 0.1px;
@@ -49,7 +49,7 @@
 
     .disclaimer p {
         color: $color-gray-500;
-        font-size: 12px;
+        font-size: $font-size-xxs;
         font-weight: normal;
         letter-spacing: 0;
         line-height: 19px;

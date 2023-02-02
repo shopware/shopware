@@ -4,8 +4,10 @@ namespace Shopware\Core\Checkout\Shipping\SalesChannel;
 
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
+#[Package('checkout')]
 class ShippingMethodRouteResponse extends StoreApiResponse
 {
     /**

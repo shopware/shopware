@@ -5,18 +5,14 @@ import MediaPageObject from '../../support/pages/module/sw-media.page-object';
 
 describe('CMS: product page layout', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createProductFixture({
-                    name: 'Page Product',
-                    productNumber: 'PP-123'
-                });
-            })
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/cms/index`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
-            });
+        cy.createProductFixture({
+            name: 'Page Product',
+            productNumber: 'PP-123',
+        }).then(() => {
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/cms/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+        });
     });
 
     const page = new ProductPageObject();
@@ -25,11 +21,11 @@ describe('CMS: product page layout', () => {
     it('@package: create product page layout with image', { tags: ['pa-content-management'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/cms-page`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveLayout');
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST'
+            method: 'POST',
         }).as('editLayout');
 
         // Create
@@ -68,7 +64,7 @@ describe('CMS: product page layout', () => {
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
         cy.contains('h2', 'Page Product').should('be.visible');
         cy.get('.sw-product-detail__select-visibility').scrollIntoView()

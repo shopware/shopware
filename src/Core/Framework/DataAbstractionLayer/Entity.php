@@ -3,10 +3,12 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InternalFieldAccessNotAllowedException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Struct\Struct;
 
+#[Package('core')]
 class Entity extends Struct
 {
     /**
@@ -143,10 +145,7 @@ class Entity extends Struct
         $this->translated = $translated;
     }
 
-    /**
-     * @param mixed $value
-     */
-    public function addTranslated(string $key, $value): void
+    public function addTranslated(string $key, mixed $value): void
     {
         $this->translated[$key] = $value;
     }
@@ -244,7 +243,7 @@ class Entity extends Struct
     }
 
     /**
-     * @deprecated tag:v6.5.0 - reason:becomes-internal - will be marked as internal
+     * @internal
      */
     public function getInternalEntityName(): ?string
     {

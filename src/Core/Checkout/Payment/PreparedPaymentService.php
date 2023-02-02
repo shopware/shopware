@@ -15,37 +15,23 @@ use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Checkout\Payment\Exception\PaymentProcessException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Checkout\Payment\Exception\ValidatePreparedPaymentException;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 
+#[Package('checkout')]
 class PreparedPaymentService
 {
-    private PaymentHandlerRegistry $paymentHandlerRegistry;
-
-    private EntityRepositoryInterface $appPaymentMethodRepository;
-
-    private LoggerInterface $logger;
-
-    private InitialStateIdLoader $initialStateIdLoader;
-
     /**
      * @internal
      */
-    public function __construct(
-        PaymentHandlerRegistry $paymentHandlerRegistry,
-        EntityRepositoryInterface $appPaymentMethodRepository,
-        LoggerInterface $logger,
-        InitialStateIdLoader $initialStateIdLoader
-    ) {
-        $this->paymentHandlerRegistry = $paymentHandlerRegistry;
-        $this->appPaymentMethodRepository = $appPaymentMethodRepository;
-        $this->logger = $logger;
-        $this->initialStateIdLoader = $initialStateIdLoader;
+    public function __construct(private readonly PaymentHandlerRegistry $paymentHandlerRegistry, private readonly EntityRepository $appPaymentMethodRepository, private readonly LoggerInterface $logger, private readonly InitialStateIdLoader $initialStateIdLoader)
+    {
     }
 
     public function handlePreOrderPayment(

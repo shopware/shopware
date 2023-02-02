@@ -1,12 +1,13 @@
 import template from './sw-cms-el-buy-box.html.twig';
 import './sw-cms-el-buy-box.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 
 /**
- * @private since v6.5.0
+ * @private
+ * @package content
  */
-Component.register('sw-cms-el-buy-box', {
+export default {
     template,
 
     mixins: [
@@ -79,4 +80,4 @@ Component.register('sw-cms-el-buy-box', {
             this.$set(this.element, 'locked', this.isProductPageType);
         },
     },
-});
+};

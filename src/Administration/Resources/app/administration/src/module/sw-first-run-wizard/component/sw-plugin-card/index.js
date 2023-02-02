@@ -1,10 +1,12 @@
 import template from './sw-plugin-card.html.twig';
 import './sw-plugin-card.scss';
 
-const { Component } = Shopware;
-
+/**
+ * @package merchant-services
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-plugin-card', {
+export default {
     template,
 
     inject: ['cacheApiService', 'extensionHelperService'],
@@ -52,6 +54,7 @@ Component.register('sw-plugin-card', {
             return this.extensionHelperService.downloadAndActivateExtension(pluginName)
                 .then(() => {
                     this.pluginIsSaveSuccessful = true;
+                    this.$emit('extension-activated');
                 })
                 .catch(error => {
                     this.showExtensionErrors(error);
@@ -64,4 +67,4 @@ Component.register('sw-plugin-card', {
                 });
         },
     },
-});
+};

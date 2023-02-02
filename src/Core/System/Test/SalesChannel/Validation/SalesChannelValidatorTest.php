@@ -7,9 +7,10 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\TestDefaults;
@@ -17,14 +18,15 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
+#[Package('sales-channel')]
 class SalesChannelValidatorTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    public const DELETE_VALIDATION_MESSAGE = 'Cannot delete default language id from language list of the sales channel with id "%s".';
-    public const INSERT_VALIDATION_MESSAGE = 'The sales channel with id "%s" does not have a default sales channel language id in the language list.';
-    public const UPDATE_VALIDATION_MESSAGE = 'Cannot update default language id because the given id is not in the language list of sales channel with id "%s"';
-    public const DUPLICATED_ENTRY_VALIDATION_MESSAGE = 'The sales channel language "%s" for the sales channel "%s" already exists.';
+    final public const DELETE_VALIDATION_MESSAGE = 'Cannot delete default language id from language list of the sales channel with id "%s".';
+    final public const INSERT_VALIDATION_MESSAGE = 'The sales channel with id "%s" does not have a default sales channel language id in the language list.';
+    final public const UPDATE_VALIDATION_MESSAGE = 'Cannot update default language id because the given id is not in the language list of sales channel with id "%s"';
+    final public const DUPLICATED_ENTRY_VALIDATION_MESSAGE = 'The sales channel language "%s" for the sales channel "%s" already exists.';
 
     /**
      * @dataProvider getInsertValidationProvider
@@ -370,12 +372,12 @@ class SalesChannelValidatorTest extends TestCase
         return $nonDefaultLanguageId;
     }
 
-    private function getSalesChannelRepository(): EntityRepositoryInterface
+    private function getSalesChannelRepository(): EntityRepository
     {
         return $this->getContainer()->get('sales_channel.repository');
     }
 
-    private function getSalesChannelLanguageRepository(): EntityRepositoryInterface
+    private function getSalesChannelLanguageRepository(): EntityRepository
     {
         return $this->getContainer()->get('sales_channel_language.repository');
     }

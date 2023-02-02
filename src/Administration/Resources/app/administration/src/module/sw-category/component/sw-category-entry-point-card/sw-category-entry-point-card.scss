@@ -11,6 +11,6 @@
     &__navigation-entry {
         color: $color-shopware-brand-500;
         text-decoration: none;
-        line-height: 24px;
+        line-height: $line-height-md;
     }
 }

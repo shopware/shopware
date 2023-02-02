@@ -6,33 +6,27 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Dispatching\Action\ChangeCustomerGroupAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Event\CustomerAware;
-use Shopware\Core\Framework\Event\DelayAware;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
+ * @package business-ops
+ *
  * @internal
  * @covers \Shopware\Core\Content\Flow\Dispatching\Action\ChangeCustomerGroupAction
  */
 class ChangeCustomerGroupActionTest extends TestCase
 {
-    /**
-     * @var MockObject|EntityRepositoryInterface
-     */
-    private $repository;
+    private MockObject&EntityRepository $repository;
 
     private ChangeCustomerGroupAction $action;
 
-    /**
-     * @var MockObject|StorableFlow
-     */
-    private $flow;
+    private MockObject&StorableFlow $flow;
 
     public function setUp(): void
     {
-        $this->repository = $this->createMock(EntityRepositoryInterface::class);
+        $this->repository = $this->createMock(EntityRepository::class);
         $this->action = new ChangeCustomerGroupAction($this->repository);
 
         $this->flow = $this->createMock(StorableFlow::class);
@@ -41,25 +35,8 @@ class ChangeCustomerGroupActionTest extends TestCase
     public function testRequirements(): void
     {
         static::assertSame(
-            [CustomerAware::class, DelayAware::class],
+            [CustomerAware::class],
             $this->action->requirements()
-        );
-    }
-
-    public function testSubscribedEvents(): void
-    {
-        if (Feature::isActive('v6.5.0.0')) {
-            static::assertSame(
-                [],
-                ChangeCustomerGroupAction::getSubscribedEvents()
-            );
-
-            return;
-        }
-
-        static::assertSame(
-            ['action.change.customer.group' => 'handle'],
-            ChangeCustomerGroupAction::getSubscribedEvents()
         );
     }
 

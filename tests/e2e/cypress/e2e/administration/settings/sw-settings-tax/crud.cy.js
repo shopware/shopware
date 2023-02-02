@@ -4,10 +4,7 @@ import SettingsPageObject from '../../../../support/pages/module/sw-settings.pag
 
 describe('Tax: Test crud operations', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createDefaultFixture('tax');
-            })
+        cy.createDefaultFixture('tax')
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/tax/index`);
                 cy.get('.sw-skeleton').should('not.exist');
@@ -21,7 +18,7 @@ describe('Tax: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/tax`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         // Create tax
@@ -47,7 +44,7 @@ describe('Tax: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/tax/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
 
         // Edit tax' base data
@@ -55,7 +52,7 @@ describe('Tax: Test crud operations', () => {
         cy.clickContextMenuItem(
             '.sw-tax-list__edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
         cy.get('input[name=sw-field--tax-name]').clearTypeAndCheck('Still high tax');
         cy.get(page.elements.taxSaveAction).click();
@@ -74,14 +71,14 @@ describe('Tax: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/tax/*`,
-            method: 'delete'
+            method: 'delete',
         }).as('deleteData');
 
         cy.get('.sw-settings-tax-list-grid').should('be.visible');
         cy.clickContextMenuItem(
             `${page.elements.contextMenu}-item--danger`,
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.get('.sw-modal__body').should('be.visible');

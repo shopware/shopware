@@ -1,11 +1,16 @@
+/**
+ * @package admin
+ */
+
 import template from './sw-tabs.html.twig';
 import './sw-tabs.scss';
 
-const { Component, Feature } = Shopware;
+const { Component } = Shopware;
 const util = Shopware.Utils;
 const dom = Shopware.Utils.dom;
 
 /**
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @description Renders tabs. Each item references a route or emits a custom event.
  * @status ready
@@ -20,7 +25,6 @@ const dom = Shopware.Utils.dom;
  *     </sw-tabs-item>
  * </sw-tabs>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-tabs', {
     template,
 
@@ -32,8 +36,7 @@ Component.register('sw-tabs', {
     props: {
         positionIdentifier: {
             type: String,
-            // eslint-disable-next-line no-unneeded-ternary
-            required: Feature.isActive('FEATURE_NEXT_18129') ? true : false,
+            required: true,
             default: null,
         },
 
@@ -198,7 +201,7 @@ Component.register('sw-tabs', {
             this.recalculateSlider();
 
             // check if tab bar contains items with url routes
-            if (this.$scopedSlots.default()?.[0]?.componentOptions?.propsData?.route) {
+            if (this.$scopedSlots.default && this.$scopedSlots.default()?.[0]?.componentOptions?.propsData?.route) {
                 this.hasRoutes = true;
             }
         },

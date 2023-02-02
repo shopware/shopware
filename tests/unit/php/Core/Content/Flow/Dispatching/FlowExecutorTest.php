@@ -3,22 +3,41 @@
 namespace Shopware\Tests\Unit\Core\Content\Flow\Dispatching;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\AbstractRuleLoader;
+use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Flow\Dispatching\Action\AddCustomerTagAction;
 use Shopware\Core\Content\Flow\Dispatching\Action\AddOrderTagAction;
 use Shopware\Core\Content\Flow\Dispatching\Action\StopFlowAction;
 use Shopware\Core\Content\Flow\Dispatching\FlowExecutor;
+use Shopware\Core\Content\Flow\Dispatching\FlowState;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Dispatching\Struct\ActionSequence;
 use Shopware\Core\Content\Flow\Dispatching\Struct\Flow;
 use Shopware\Core\Content\Flow\Dispatching\Struct\IfSequence;
+use Shopware\Core\Content\Flow\Dispatching\Struct\Sequence;
+use Shopware\Core\Content\Flow\Exception\ExecuteSequenceException;
+use Shopware\Core\Content\Flow\Rule\FlowRuleScope;
+use Shopware\Core\Content\Flow\Rule\FlowRuleScopeBuilder;
+use Shopware\Core\Content\Flow\Rule\OrderTagRule;
+use Shopware\Core\Content\Rule\RuleCollection;
+use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\App\Event\AppFlowActionEvent;
 use Shopware\Core\Framework\App\FlowAction\AppFlowActionProvider;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
+use Shopware\Core\Framework\Event\OrderAware;
+use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestDataCollection;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\Tag\TagCollection;
+use Shopware\Core\System\Tag\TagEntity;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
+ * @package business-ops
+ *
  * @internal
  *
  * @covers \Shopware\Core\Content\Flow\Dispatching\FlowExecutor
@@ -36,15 +55,15 @@ class FlowExecutorTest extends TestCase
      * @param array<int, mixed> $actionSequencesTrueCase
      * @param array<int, mixed> $actionSequencesFalseCase
      *
-     * @throws \Shopware\Core\Content\Flow\Exception\ExecuteSequenceException
+     * @throws ExecuteSequenceException
      */
     public function testExecute(array $actionSequencesExecuted, array $actionSequencesTrueCase, array $actionSequencesFalseCase, ?string $appAction = null): void
     {
-        Feature::skipTestIfInActive('v6.5.0.0', $this);
-
         $ids = new TestDataCollection();
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $appFlowActionProvider = $this->createMock(AppFlowActionProvider::class);
+        $ruleLoader = $this->createMock(AbstractRuleLoader::class);
+        $scopeBuilder = $this->createMock(FlowRuleScopeBuilder::class);
 
         $addOrderTagAction = $this->createMock(AddOrderTagAction::class);
         $addCustomerTagAction = $this->createMock(AddCustomerTagAction::class);
@@ -150,7 +169,7 @@ class FlowExecutorTest extends TestCase
             $stopFlowAction->expects(static::never())->method('handleFlow');
         }
 
-        $flowExecutor = new FlowExecutor($eventDispatcher, $appFlowActionProvider, $actions);
+        $flowExecutor = new FlowExecutor($eventDispatcher, $appFlowActionProvider, $ruleLoader, $scopeBuilder, $actions);
         $flowExecutor->execute($flow, $storableFlow);
     }
 
@@ -196,5 +215,45 @@ class FlowExecutorTest extends TestCase
             [],
             'app.action',
         ];
+    }
+
+    public function testExecuteIfWithRuleEvaluation(): void
+    {
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $appFlowActionProvider = $this->createMock(AppFlowActionProvider::class);
+        $ruleLoader = $this->createMock(AbstractRuleLoader::class);
+        $scopeBuilder = $this->createMock(FlowRuleScopeBuilder::class);
+
+        $trueCaseSequence = new Sequence();
+        $trueCaseSequence->assign(['sequenceId' => 'foobar']);
+        $ruleId = Uuid::randomHex();
+        $ifSequence = new IfSequence();
+        $ifSequence->assign(['ruleId' => $ruleId, 'trueCase' => $trueCaseSequence]);
+
+        $order = new OrderEntity();
+        $tagId = Uuid::randomHex();
+        $tag = new TagEntity();
+        $tag->setId($tagId);
+        $order->setTags(new TagCollection([$tag]));
+
+        $flow = new StorableFlow('bar', Context::createDefaultContext());
+        $flow->setFlowState(new FlowState());
+        $flow->setData(OrderAware::ORDER, $order);
+
+        $scopeBuilder->method('build')->willReturn(
+            new FlowRuleScope($order, new Cart('test'), $this->createMock(SalesChannelContext::class))
+        );
+
+        $rule = new OrderTagRule(Rule::OPERATOR_EQ, [$tagId]);
+        $ruleEntity = new RuleEntity();
+        $ruleEntity->setId($ruleId);
+        $ruleEntity->setPayload($rule);
+        $ruleEntity->setAreas([RuleAreas::FLOW_AREA]);
+        $ruleLoader->method('load')->willReturn(new RuleCollection([$ruleEntity]));
+
+        $flowExecutor = new FlowExecutor($eventDispatcher, $appFlowActionProvider, $ruleLoader, $scopeBuilder, []);
+        $flowExecutor->executeIf($ifSequence, $flow);
+
+        static::assertEquals($trueCaseSequence, $flow->getFlowState()->currentSequence);
     }
 }

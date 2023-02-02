@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\Framework\Api\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+#[Package('core')]
 class InvalidVersionNameException extends ShopwareHttpException
 {
     public function __construct()

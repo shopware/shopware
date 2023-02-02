@@ -13,22 +13,27 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountLineItem;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\ScopePackager\CartScopeDiscountPackager;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
  */
+#[Package('checkout')]
 class CartScopeDiscountPackagerTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
     /**
      * @dataProvider buildPackagesProvider
+     *
+     * @param LineItem[] $items
+     * @param array<string> $expected
      */
     public function testBuildPackages(array $items, array $expected): void
     {
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
         $cart->setLineItems(new LineItemCollection($items));
 
         $packager = $this->getContainer()->get(CartScopeDiscountPackager::class);
@@ -36,8 +41,8 @@ class CartScopeDiscountPackagerTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
 
         $discount = new DiscountLineItem('test', new QuantityPriceDefinition(10, new TaxRuleCollection([]), 1), [
-            'discountScope' => null,
-            'discountType' => null,
+            'discountScope' => 'scope',
+            'discountType' => 'type',
             'filter' => [],
         ], null);
 
@@ -45,14 +50,12 @@ class CartScopeDiscountPackagerTest extends TestCase
 
         $package = $packages->first();
 
-        $ids = $package->getMetaData()->map(function (LineItemQuantity $item) {
-            return $item->getLineItemId();
-        });
+        $ids = $package->getMetaData()->map(fn (LineItemQuantity $item) => $item->getLineItemId());
 
         static::assertEquals($expected, $ids);
     }
 
-    public function buildPackagesProvider()
+    public function buildPackagesProvider(): \Generator
     {
         $stackable = new LineItem('stackable', LineItem::PRODUCT_LINE_ITEM_TYPE, null, 1);
         $stackable->setPrice(new CalculatedPrice(100, 100, new CalculatedTaxCollection(), new TaxRuleCollection()));

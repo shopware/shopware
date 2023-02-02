@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Routing\ApiRequestContextResolver;
+use Shopware\Core\Framework\Routing\RequestContextResolverInterface;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -28,15 +29,9 @@ class ApiRequestContextResolverTest extends TestCase
     use IntegrationTestBehaviour;
     use AdminApiTestBehaviour;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var ApiRequestContextResolver
-     */
-    private $resolver;
+    private RequestContextResolverInterface $resolver;
 
     protected function setUp(): void
     {
@@ -133,7 +128,7 @@ class ApiRequestContextResolverTest extends TestCase
         $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID, $this->createAccessKey($user->getUserId()));
         $request->attributes->set('_routeScope', ['api']);
 
-        $request->headers->set(PlatformRequest::HEADER_SKIP_TRIGGER_FLOW, true);
+        $request->headers->set(PlatformRequest::HEADER_SKIP_TRIGGER_FLOW, 'true');
 
         $this->resolver->resolve($request);
 
@@ -203,12 +198,12 @@ class ApiRequestContextResolverTest extends TestCase
 
         $this->getContainer()
             ->get(Connection::class)
-            ->executeUpdate('UPDATE `integration` SET `admin` = 1 WHERE id = :id', ['id' => Uuid::fromHexToBytes($ids->get('integration'))]);
+            ->executeStatement('UPDATE `integration` SET `admin` = 1 WHERE id = :id', ['id' => Uuid::fromHexToBytes($ids->get('integration'))]);
 
         $browser->request('POST', '/api/search/currency', [
             'limit' => 2,
         ]);
-        $response = json_decode($browser->getResponse()->getContent(), true);
+        $response = json_decode($browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals(200, $browser->getResponse()->getStatusCode());
         static::assertArrayHasKey('data', $response);
@@ -262,9 +257,9 @@ class ApiRequestContextResolverTest extends TestCase
         $browser->request('POST', '/api/search/currency', [
             'limit' => 2,
         ]);
-        $response = json_decode($browser->getResponse()->getContent(), true);
+        $response = json_decode($browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertEquals(Response::HTTP_FORBIDDEN, $browser->getResponse()->getStatusCode(), \json_encode($response));
+        static::assertEquals(Response::HTTP_FORBIDDEN, $browser->getResponse()->getStatusCode(), \json_encode($response, \JSON_THROW_ON_ERROR));
         static::assertArrayHasKey('errors', $response);
     }
 
@@ -329,9 +324,9 @@ class ApiRequestContextResolverTest extends TestCase
         $browser->request('POST', '/api/search/currency', [
             'limit' => 2,
         ]);
-        $response = json_decode($browser->getResponse()->getContent(), true);
+        $response = json_decode($browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertEquals(Response::HTTP_FORBIDDEN, $browser->getResponse()->getStatusCode(), \json_encode($response));
+        static::assertEquals(Response::HTTP_FORBIDDEN, $browser->getResponse()->getStatusCode(), \json_encode($response, \JSON_THROW_ON_ERROR));
         static::assertArrayHasKey('errors', $response);
 
         $errors = $response['errors'];
@@ -340,7 +335,7 @@ class ApiRequestContextResolverTest extends TestCase
         $error = $errors[0];
         static::assertArrayHasKey('detail', $error);
 
-        $detail = \json_decode($error['detail'], true);
+        $detail = \json_decode((string) $error['detail'], true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('missingPrivileges', $detail);
         static::assertSame(['app.PHPUnit'], $detail['missingPrivileges']);
     }
@@ -394,9 +389,9 @@ class ApiRequestContextResolverTest extends TestCase
         $browser->request('POST', '/api/search/currency', [
             'limit' => 2,
         ]);
-        $response = json_decode($browser->getResponse()->getContent(), true);
+        $response = json_decode($browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR, $browser->getResponse()->getStatusCode(), \json_encode($response));
+        static::assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR, $browser->getResponse()->getStatusCode(), \json_encode($response, \JSON_THROW_ON_ERROR));
         static::assertArrayHasKey('errors', $response);
 
         $errors = $response['errors'];
@@ -414,7 +409,7 @@ class ApiRequestContextResolverTest extends TestCase
 
         $this->getContainer()
             ->get(Connection::class)
-            ->executeUpdate('UPDATE `integration` SET `admin` = 0 WHERE id = :id', ['id' => Uuid::fromHexToBytes($ids->get('integration'))]);
+            ->executeStatement('UPDATE `integration` SET `admin` = 0 WHERE id = :id', ['id' => Uuid::fromHexToBytes($ids->get('integration'))]);
 
         $browser->request('POST', '/api/search/currency', [
             'limit' => 2,
@@ -422,7 +417,7 @@ class ApiRequestContextResolverTest extends TestCase
 
         static::assertEquals(403, $browser->getResponse()->getStatusCode());
 
-        $response = json_decode($browser->getResponse()->getContent(), true);
+        $response = json_decode($browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
         $errors = $response['errors'];
@@ -436,26 +431,23 @@ class ApiRequestContextResolverTest extends TestCase
 
         $this->getContainer()
             ->get(Connection::class)
-            ->executeUpdate('UPDATE `integration` SET `admin` = 0 WHERE id = :id', ['id' => Uuid::fromHexToBytes($ids->get('integration'))]);
+            ->executeStatement('UPDATE `integration` SET `admin` = 0 WHERE id = :id', ['id' => Uuid::fromHexToBytes($ids->get('integration'))]);
 
         $this->addRoleToIntegration($ids->get('integration'), ['currency:read']);
 
         $browser->request('POST', '/api/search/currency', [
             'limit' => 2,
         ]);
-        $response = json_decode($browser->getResponse()->getContent(), true);
+        $response = json_decode($browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals(200, $browser->getResponse()->getStatusCode());
         static::assertArrayHasKey('data', $response);
     }
 
-    /**
-     * @throws \Doctrine\DBAL\DBALException
-     */
     private function createUser(array $roles, bool $isAdmin): TestUser
     {
         $user = TestUser::createNewTestUser($this->connection);
-        $this->connection->executeUpdate(
+        $this->connection->executeStatement(
             'UPDATE `user` SET admin = :admin WHERE id = :id',
             ['admin' => $isAdmin ? 1 : 0, 'id' => Uuid::fromHexToBytes($user->getUserId())]
         );
@@ -467,7 +459,7 @@ class ApiRequestContextResolverTest extends TestCase
                 'id' => $id,
                 'name' => $role,
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT),
-                'privileges' => json_encode($privs),
+                'privileges' => json_encode($privs, \JSON_THROW_ON_ERROR),
             ]);
 
             $this->connection->insert('acl_user_role', [

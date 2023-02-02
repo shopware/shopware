@@ -11,20 +11,20 @@ describe('Manual update', () => {
         // match applyMigrations where offset == total
         cy.intercept({
             url: /.*applyMigrations\?offset=(\d+)&total=\1&modus=update$/,
-            method: 'get'
+            method: 'get',
         }).as('applyMigrations');
 
         // match applyMigrations migration where offset == total
         cy.intercept({
             url: /.*applyMigrations\?offset=(\d+)&total=\1&modus=update_destructive$/,
-            method: 'get'
+            method: 'get',
         }).as('applyDestructiveMigrations');
 
         cy.visit('/admin', {
             headers: {
-                'Accept-Language': Cypress.env('acceptLanguage')
+                'Accept-Language': Cypress.env('acceptLanguage'),
             },
-            failOnStatusCode: false
+            failOnStatusCode: false,
         });
 
         cy.get('.maintenance-headline')

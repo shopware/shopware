@@ -3,10 +3,12 @@
 namespace Shopware\Core\System\Snippet;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<SnippetEntity>
  */
+#[Package('core')]
 class SnippetCollection extends EntityCollection
 {
     public function getApiAlias(): string

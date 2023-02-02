@@ -9,8 +9,8 @@ $sw-order-user-card-link: $color-shopware-brand-500;
 
     .sw-order-user-card__metadata-user-name,
     .sw-order-user-card__metadata-price {
-        font-weight: 600;
-        font-size: 18px;
+        font-weight: $font-weight-semi-bold;
+        font-size: $font-size-m;
         margin-bottom: 8px;
     }
 
@@ -23,7 +23,7 @@ $sw-order-user-card-link: $color-shopware-brand-500;
 
     .sw-order-user-card__metadata-item {
         margin-bottom: 8px;
-        font-size: 14px;
+        font-size: $font-size-xs;
     }
 
     .sw-order-user-card__actions {
@@ -56,7 +56,7 @@ $sw-order-user-card-link: $color-shopware-brand-500;
         }
 
         dt {
-            font-weight: 600;
+            font-weight: $font-weight-semi-bold;
 
             &:not(:first-child),
             &:only-of-type {

@@ -2,22 +2,18 @@
 
 namespace Shopware\Core\Framework\Event;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+#[Package('core')]
 class NestedEventDispatcher implements EventDispatcherInterface
 {
     /**
-     * @var EventDispatcherInterface
-     */
-    private $dispatcher;
-
-    /**
      * @internal
      */
-    public function __construct(EventDispatcherInterface $dispatcher)
+    public function __construct(private readonly EventDispatcherInterface $dispatcher)
     {
-        $this->dispatcher = $dispatcher;
     }
 
     public function dispatch($event, ?string $eventName = null): object

@@ -4,10 +4,7 @@ import ShippingPageObject from '../../../../support/pages/module/sw-shipping.pag
 
 describe('Shipping: Edit in various ways', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createShippingFixture();
-            })
+        cy.createShippingFixture()
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/shipping/index`);
                 cy.get('.sw-skeleton').should('not.exist');
@@ -21,7 +18,7 @@ describe('Shipping: Edit in various ways', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/shipping-method/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
 
         cy.setEntitySearchable('shipping_method', 'name');
@@ -31,7 +28,7 @@ describe('Shipping: Edit in various ways', () => {
         cy.clickContextMenuItem(
             '.sw-settings-shipping-list__edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
         cy.get('input[name=sw-field--shippingMethod-name]').clearTypeAndCheck('Wasserpost');
         cy.get('input[name=sw-field--shippingMethod-position]').clearTypeAndCheck('99');
@@ -44,7 +41,7 @@ describe('Shipping: Edit in various ways', () => {
         cy.get('.sw-settings-shipping-price-matrices').scrollIntoView();
         cy.get('.sw-settings-shipping-price-matrix__empty--select-property').typeSingleSelect(
             'Product quantity',
-            '.sw-settings-shipping-price-matrix__empty--select-property'
+            '.sw-settings-shipping-price-matrix__empty--select-property',
         );
         cy.get('.sw-settings-shipping-price-matrix__empty--select-property').should('not.exist');
 
@@ -102,7 +99,7 @@ describe('Shipping: Edit in various ways', () => {
 
         cy.get('.sw-settings-shipping-price-matrix__top-container-rule-select').typeSingleSelectAndCheck(
             'All customers',
-            '.sw-settings-shipping-price-matrix__top-container-rule-select'
+            '.sw-settings-shipping-price-matrix__top-container-rule-select',
         );
 
         cy.get('.sw-settings-shipping-price-matrices__actions button').should('not.be.disabled');
@@ -113,7 +110,7 @@ describe('Shipping: Edit in various ways', () => {
         cy.get('.sw-settings-shipping-price-matrices').scrollIntoView();
         cy.get('.sw-settings-shipping-price-matrix__empty--select-property').typeSingleSelect(
             'Weight',
-            '.sw-settings-shipping-price-matrix__empty--select-property'
+            '.sw-settings-shipping-price-matrix__empty--select-property',
         );
         cy.get('.sw-settings-shipping-price-matrix__empty--select-property').should('not.exist');
 

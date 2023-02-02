@@ -9,6 +9,7 @@ The top bar contains e.g. the language switcher, the currency switcher and the s
     color: $body-color;
     font-weight: $font-weight-normal;
     padding: 0;
+    border: 0 none;
 
     &:hover {
         &,

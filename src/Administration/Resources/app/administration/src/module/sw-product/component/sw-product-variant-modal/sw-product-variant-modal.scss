@@ -6,7 +6,7 @@
     &__main-product-link {
         color: $color-shopware-brand-500;
         text-decoration: none;
-        font-size: $font-size-small;
+        font-size: $font-size-xs;
         cursor: pointer;
 
         &:hover {
@@ -85,7 +85,7 @@
     &__delete-modal-subline {
         color: $color-gray-600;
         margin-top: 8px;
-        font-size: $font-size-small;
+        font-size: $font-size-xs;
     }
 
     &__variant-name {
@@ -194,5 +194,14 @@
         .sw-product-variants-media-upload.sw-media-upload-v2 .sw-media-upload-v2__dropzone {
             width: 100%;
         }
+    }
+
+    &__bulk-edit-modal .sw-product-variant-modal__digital-indicator,
+    .sw-product-variant-modal__digital-indicator {
+        height: 24px;
+        padding: 4px 8px;
+        margin: 0;
+        min-width: auto;
+        vertical-align: middle;
     }
 }

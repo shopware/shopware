@@ -4,33 +4,26 @@ namespace Shopware\Storefront\Framework\Cookie;
 
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('core')]
 class AppCookieProvider implements CookieProviderInterface
 {
     /**
-     * @var CookieProviderInterface
-     */
-    private $inner;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $appRepository;
-
-    /**
      * @internal
      */
-    public function __construct(CookieProviderInterface $inner, EntityRepositoryInterface $appRepository)
+    public function __construct(private readonly CookieProviderInterface $inner, private readonly EntityRepository $appRepository)
     {
-        $this->inner = $inner;
-        $this->appRepository = $appRepository;
     }
 
+    /**
+     * @return array<string|int, mixed>
+     */
     public function getCookieGroups(): array
     {
         $criteria = new Criteria();
@@ -61,6 +54,10 @@ class AppCookieProvider implements CookieProviderInterface
     /**
      * merges cookie groups by the snippet name of the group
      * and only iterates once over every cookie
+     *
+     * @param array<string|int, mixed> $cookies
+     *
+     * @return array<string|int, mixed>
      */
     private function mergeCookies(array $cookies, EntitySearchResult $apps): array
     {

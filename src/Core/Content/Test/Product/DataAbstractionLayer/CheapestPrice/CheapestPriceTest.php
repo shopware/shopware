@@ -93,7 +93,7 @@ class CheapestPriceTest extends TestCase
     public function testIndexing(?IdsCollection $ids = null): IdsCollection
     {
         try {
-            $ids = $ids ?? new IdsCollection();
+            $ids ??= new IdsCollection();
             $currency = [
                 'id' => $ids->get('currency'),
                 'factor' => 2,
@@ -443,7 +443,7 @@ class CheapestPriceTest extends TestCase
         foreach ($ids->all() as $key => $id) {
             $prices = str_replace(sprintf('__id_placeholder_%s__', $key), $id, $prices);
         }
-        foreach (\json_decode($prices, true) as $productName => $serializedPrice) {
+        foreach (\json_decode($prices, true, 512, \JSON_THROW_ON_ERROR) as $productName => $serializedPrice) {
             $cheapestPriceQuery->execute([
                 'price' => $serializedPrice,
                 'id' => $ids->getBytes($productName),

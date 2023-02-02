@@ -1,11 +1,15 @@
 import template from './sw-order-create-address-modal.html.twig';
 import './sw-order-create-address-modal.scss';
 
-const { Component, Mixin, State, Service } = Shopware;
+/**
+ * @package customer-order
+ */
+
+const { Mixin, State, Service } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-order-create-address-modal', {
+export default {
     template,
 
     mixins: [
@@ -75,6 +79,10 @@ Component.register('sw-order-create-address-modal', {
                 this.activeCustomer.addresses.entity,
                 this.activeCustomer.addresses.source,
             );
+        },
+
+        isValidCompanyField() {
+            return this.customer.company !== null && !!this.currentAddress.company?.trim().length;
         },
     },
 
@@ -171,6 +179,19 @@ Component.register('sw-order-create-address-modal', {
                 this.addresses.push(this.currentAddress);
             }
 
+            if (!this.isValidCompanyField) {
+                const companyError = new Shopware.Classes.ShopwareError({
+                    code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
+                });
+
+                await Shopware.State.dispatch('error/addApiError', {
+                    expression: `customer_address.${this.currentAddress.id}.company`,
+                    error: companyError,
+                });
+
+                return Promise.reject(companyError);
+            }
+
             return this.addressRepository.save(this.currentAddress);
         },
 
@@ -258,4 +279,4 @@ Component.register('sw-order-create-address-modal', {
             this.currentAddress = newAddress;
         },
     },
-});
+};

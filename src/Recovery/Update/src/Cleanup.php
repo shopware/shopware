@@ -4,6 +4,9 @@ namespace Shopware\Recovery\Update;
 
 use Shopware\Recovery\Update\Results\DeleteResult;
 
+/**
+ * @package system-settings
+ */
 class Cleanup
 {
     /**

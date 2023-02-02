@@ -7,12 +7,12 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Notification\NotificationCollection;
 use Shopware\Administration\Notification\NotificationEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
-use Shopware\Core\Framework\Test\App\GuzzleTestClientBehaviour;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
+use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
+use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
 
 /**
  * @internal
@@ -23,11 +23,9 @@ class NotificationControllerTest extends TestCase
     use AdminApiTestBehaviour;
     use AppSystemTestBehaviour;
 
-    private EntityRepositoryInterface  $notificationRepository;
+    private EntityRepository  $notificationRepository;
 
     private Context $context;
-
-    private string $defaultSecret = 's3cr3t';
 
     public function setUp(): void
     {
@@ -37,10 +35,17 @@ class NotificationControllerTest extends TestCase
     }
 
     /**
+     * @param array<string> $requirePrivileges
      * @dataProvider saveNotificationProvider
      */
-    public function testSaveNotification($client, $status, $message, $adminOnly, $requirePrivileges, $isSuccess): void
-    {
+    public function testSaveNotification(
+        string $client,
+        string $status,
+        string $message,
+        bool $adminOnly,
+        array $requirePrivileges,
+        bool $isSuccess
+    ): void {
         $integrationId = null;
         if ($client === 'integration') {
             $ids = new IdsCollection();
@@ -58,15 +63,19 @@ class NotificationControllerTest extends TestCase
             'requiredPrivileges' => $requirePrivileges,
         ];
 
+        $json = \json_encode($data, \JSON_THROW_ON_ERROR);
+        static::assertNotFalse($json);
+
         if (!$isSuccess) {
             $this->appendNewResponse(new Response(500));
-            $client->request('POST', $url, [], [], [], json_encode($data));
+            $client->request('POST', $url, [], [], [], $json);
 
             return;
         }
 
         $this->appendNewResponse(new Response(200));
-        $client->request('POST', $url, [], [], [], json_encode($data));
+
+        $client->request('POST', $url, [], [], [], $json);
 
         static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
 
@@ -88,6 +97,9 @@ class NotificationControllerTest extends TestCase
         }
     }
 
+    /**
+     * @return array<array<array<string>|string|bool>>
+     */
     public function saveNotificationProvider(): array
     {
         return [
@@ -99,10 +111,16 @@ class NotificationControllerTest extends TestCase
     }
 
     /**
+     * @param array<string> $requiredPrivileges
+     * @param array<string>|null $userPrivileges
      * @dataProvider getNotificationProvider
      */
-    public function testGetNotifications($adminOnly, $requiredPrivileges, $userPrivileges, $resultQuantity): void
-    {
+    public function testGetNotifications(
+        bool $adminOnly,
+        array $requiredPrivileges,
+        ?array $userPrivileges,
+        int $resultQuantity
+    ): void {
         $data = [
             'status' => 'success',
             'message' => 'This is a successful message',
@@ -118,8 +136,9 @@ class NotificationControllerTest extends TestCase
         $this->getBrowser()->request('GET', '/api/notification/message');
 
         static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertNotFalse($this->getBrowser()->getResponse()->getContent());
 
-        $content = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $content = \json_decode($this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         if ($resultQuantity === 0) {
             static::assertCount(0, $content['notifications']);
@@ -134,6 +153,9 @@ class NotificationControllerTest extends TestCase
         static::assertNotEmpty($content['timestamp']);
     }
 
+    /**
+     * @return array<array<array<string>|bool|int|null>>
+     */
     public function getNotificationProvider(): array
     {
         return [

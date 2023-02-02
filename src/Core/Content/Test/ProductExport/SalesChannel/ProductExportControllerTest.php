@@ -8,7 +8,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -23,7 +23,7 @@ class ProductExportControllerTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;
 
-    private EntityRepositoryInterface $repository;
+    private EntityRepository $repository;
 
     private Context $context;
 
@@ -66,7 +66,7 @@ class ProductExportControllerTest extends TestCase
         );
         $client->request('GET', getenv('APP_URL') . sprintf('/store-api/product-export/%s/%s', $productExport->getAccessKey(), $productExport->getFileName()));
 
-        $csvRows = explode(\PHP_EOL, $client->getResponse()->getContent());
+        $csvRows = explode(\PHP_EOL, (string) $client->getResponse()->getContent());
 
         static::assertCount(4, $csvRows);
         static::assertEquals(ProductExportEntity::ENCODING_UTF8, $client->getResponse()->getCharset());
@@ -98,7 +98,7 @@ class ProductExportControllerTest extends TestCase
 
         $client->request('GET', getenv('APP_URL') . sprintf('/store-api/product-export/%s/%s', $productExport->getAccessKey(), $productExport->getFileName()));
 
-        $csvRows = explode(\PHP_EOL, $client->getResponse()->getContent());
+        $csvRows = explode(\PHP_EOL, (string) $client->getResponse()->getContent());
 
         static::assertCount(4, $csvRows);
         static::assertEquals(ProductExportEntity::ENCODING_ISO88591, $client->getResponse()->getCharset());
@@ -175,7 +175,7 @@ class ProductExportControllerTest extends TestCase
 
     protected function getSalesChannelDomain(): SalesChannelDomainEntity
     {
-        /** @var EntityRepositoryInterface $repository */
+        /** @var EntityRepository $repository */
         $repository = $this->getContainer()->get('sales_channel_domain.repository');
 
         return $repository->search(new Criteria(), $this->context)->first();

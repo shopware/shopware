@@ -4,23 +4,19 @@ import RulePageObject from '../../../../support/pages/module/sw-rule.page-object
 
 describe('Rule builder: Sorting rules', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createDefaultFixture('rule', {
-                    paymentMethods: [
-                        { name: 'foo' },
-                        { name: 'bar' }
-                    ]
-                });
-            })
-            .then(() => {
-                return cy.createDefaultFixture('rule', {
-                    name: 'Foobar',
-                    paymentMethods: [
-                        { name: 'baz' }
-                    ]
-                });
-            })
+        cy.createDefaultFixture('rule', {
+            paymentMethods: [
+                { name: 'foo' },
+                { name: 'bar' },
+            ],
+        }).then(() => {
+            return cy.createDefaultFixture('rule', {
+                name: 'Foobar',
+                paymentMethods: [
+                    { name: 'baz' },
+                ],
+            });
+        })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/rule/index`);
             });
@@ -31,7 +27,7 @@ describe('Rule builder: Sorting rules', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/rule`,
-            method: 'POST'
+            method: 'POST',
         }).as('loadData');
 
         cy.get('.sw-data-grid-skeleton').should('exist');
@@ -61,7 +57,6 @@ describe('Rule builder: Sorting rules', () => {
         cy.contains('.sw-data-grid__settings-column-item', 'Promotion customer rule assignments');
         cy.contains('.sw-data-grid__settings-column-item', 'Promotion set group rule assignments');
         cy.contains('.sw-data-grid__settings-column-item', 'Promotion discount product rule assignments');
-        cy.contains('.sw-data-grid__settings-column-item', 'Business event assignments');
         cy.contains('.sw-data-grid__settings-column-item', 'Flow assignments');
         cy.contains('.sw-data-grid__settings-column-item', 'Product price assignments');
         cy.contains('.sw-data-grid__settings-column-item', 'Shipping method price matrix assignments');

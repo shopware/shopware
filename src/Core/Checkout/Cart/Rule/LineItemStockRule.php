@@ -4,7 +4,7 @@ namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
@@ -13,26 +13,17 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
+#[Package('business-ops')]
 class LineItemStockRule extends Rule
 {
-    protected ?int $stock;
-
-    protected string $operator;
+    final public const RULE_NAME = 'cartLineItemStock';
 
     /**
      * @internal
      */
-    public function __construct(string $operator = self::OPERATOR_EQ, ?int $stock = null)
+    public function __construct(protected string $operator = self::OPERATOR_EQ, protected ?int $stock = null)
     {
         parent::__construct();
-
-        $this->operator = $operator;
-        $this->stock = $stock;
-    }
-
-    public function getName(): string
-    {
-        return 'cartLineItemStock';
     }
 
     public function match(RuleScope $scope): bool
@@ -42,7 +33,7 @@ class LineItemStockRule extends Rule
         }
 
         if ($scope instanceof CartRuleScope) {
-            return $this->matchStockFromCollection($scope->getCart()->getLineItems()->getFlat());
+            return $this->matchStockFromCollection($scope->getCart()->getLineItems()->filterGoodsFlat());
         }
 
         return false;
@@ -75,10 +66,6 @@ class LineItemStockRule extends Rule
         $deliveryInformation = $lineItem->getDeliveryInformation();
 
         if (!$deliveryInformation instanceof DeliveryInformation) {
-            if (!Feature::isActive('v6.5.0.0')) {
-                return false;
-            }
-
             return RuleComparison::isNegativeOperator($this->operator);
         }
 

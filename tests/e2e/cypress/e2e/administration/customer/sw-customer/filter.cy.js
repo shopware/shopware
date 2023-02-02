@@ -9,9 +9,9 @@ describe('Customer: Test filter and reset filter', () => {
         cy.searchViaAdminApi({
             data: {
                 field: 'username',
-                value: 'admin'
+                value: 'admin',
             },
-            endpoint: 'user'
+            endpoint: 'user',
         }).then((user) => {
             userId = user.id;
             cy.searchViaAdminApi({
@@ -19,8 +19,8 @@ describe('Customer: Test filter and reset filter', () => {
                 data: {
                     field: 'iso',
                     type: 'equals',
-                    value: 'DE'
-                }
+                    value: 'DE',
+                },
             }).then(data => {
                 countryId = data.id;
                 return cy.searchViaAdminApi({
@@ -28,8 +28,8 @@ describe('Customer: Test filter and reset filter', () => {
                     data: {
                         field: 'name',
                         type: 'equals',
-                        value: 'Invoice'
-                    }
+                        value: 'Invoice',
+                    },
                 });
             }).then(data => {
                 paymentMethodId = data.id;
@@ -38,8 +38,8 @@ describe('Customer: Test filter and reset filter', () => {
                     data: {
                         field: 'name',
                         type: 'equals',
-                        value: 'Storefront'
-                    }
+                        value: 'Storefront',
+                    },
                 });
             }).then(data => {
                 salesChannelId = data.id;
@@ -48,8 +48,8 @@ describe('Customer: Test filter and reset filter', () => {
                     data: {
                         field: 'name',
                         type: 'equals',
-                        value: 'Standard customer group'
-                    }
+                        value: 'Standard customer group',
+                    },
                 });
             })
                 .then(data => {
@@ -59,8 +59,8 @@ describe('Customer: Test filter and reset filter', () => {
                         data: {
                             field: 'displayName',
                             type: 'equals',
-                            value: 'Mr.'
-                        }
+                            value: 'Mr.',
+                        },
                     });
                 })
                 .then(data => {
@@ -100,7 +100,7 @@ describe('Customer: Test filter and reset filter', () => {
                                 countryId: countryId,
                             },
                             customerNumber: uuid().replace(/-/g, ''),
-                            email: `test-${i}@example.com`
+                            email: `test-${i}@example.com`,
                         });
                     }
 
@@ -132,7 +132,7 @@ describe('Customer: Test filter and reset filter', () => {
                         },
                         customerNumber: uuid().replace(/-/g, ''),
                         email: 'test-27@example.com',
-                        active: false
+                        active: false,
                     });
 
                     customers = customers.map(customer => Object.assign({ countryId, salesChannelId, salutationId, groupId }, customer));
@@ -140,32 +140,32 @@ describe('Customer: Test filter and reset filter', () => {
                         headers: {
                             Accept: 'application/vnd.api+json',
                             Authorization: `Bearer ${auth.access}`,
-                            'Content-Type': 'application/json'
+                            'Content-Type': 'application/json',
                         },
                         method: 'POST',
                         url: `/${Cypress.env('apiPath')}/_action/sync`,
                         qs: {
-                            response: true
+                            response: true,
                         },
                         body: {
                             'write-customer': {
                                 entity: 'customer',
                                 action: 'upsert',
-                                payload: customers
-                            }
-                        }
+                                payload: customers,
+                            },
+                        },
                     });
 
                     cy.request({
                         headers: {
                             Accept: 'application/vnd.api+json',
                             Authorization: `Bearer ${auth.access}`,
-                            'Content-Type': 'application/json'
+                            'Content-Type': 'application/json',
                         },
                         method: 'POST',
                         url: `/${Cypress.env('apiPath')}/_action/sync`,
                         qs: {
-                            response: true
+                            response: true,
                         },
                         body: {
                             'write-user-config': {
@@ -181,23 +181,23 @@ describe('Customer: Test filter and reset filter', () => {
                                         value: {
                                             'salutation-filter': {
                                                 value: [{
-                                                    id: 'adada1a3529b491284b550a80932ab58'
+                                                    id: 'adada1a3529b491284b550a80932ab58',
                                                 }],
                                                 criteria: [{
                                                     type: 'equalsAny',
                                                     field: 'salutation.id',
-                                                    value: 'adada1a3529b491284b550a80932ab58'
-                                                }]
+                                                    value: 'adada1a3529b491284b550a80932ab58',
+                                                }],
                                             },
                                             'account-status-filter': {
                                                 value: 'true',
-                                                criteria: [{ type: 'equals', field: 'active', value: true }]
-                                            }
-                                        }
-                                    }
-                                ]
-                            }
-                        }
+                                                criteria: [{ type: 'equals', field: 'active', value: true }],
+                                            },
+                                        },
+                                    },
+                                ],
+                            },
+                        },
                     });
                 });
         });
@@ -205,24 +205,22 @@ describe('Customer: Test filter and reset filter', () => {
 
     // TODO skipped due to flakiness, see NEXT-15697
     it('@customer: check filter function and display list correctly', { tags: ['quarantined', 'pa-customers-orders'] }, () => {
-        cy.loginViaApi();
-
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/customer/index`);
 
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/customer`,
-            method: 'POST'
+            method: 'POST',
         }).as('filterCustomer');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/payment-method`,
-            method: 'POST'
+            method: 'POST',
         }).as('getPaymentMethod');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/user-config`,
-            method: 'POST'
+            method: 'POST',
         }).as('getUserConfig');
 
         cy.get('.sw-sidebar-navigation-item[title="Filters"]').click();
@@ -256,10 +254,10 @@ describe('Customer: Test filter and reset filter', () => {
                 text: 'Customer number',
                 propertyName: 'customerNumber',
                 sortDirection: 'DESC',
-                location: 4
+                location: 4,
             },
             page: 1,
-            limit: 25
+            limit: 25,
         });
 
         cy.log('change Sorting direction from DESC to ASC');
@@ -271,10 +269,10 @@ describe('Customer: Test filter and reset filter', () => {
                 text: 'Customer number',
                 propertyName: 'customerNumber',
                 sortDirection: 'ASC',
-                location: 4
+                location: 4,
             },
             page: 1,
-            limit: 25
+            limit: 25,
         });
 
         // Combine multiple filters criteria
@@ -290,24 +288,22 @@ describe('Customer: Test filter and reset filter', () => {
 
     // TODO skipped due to flakiness, see NEXT-15697
     it('@customer: check reset filter and reset all filter', { tags: ['quarantined', 'pa-customers-orders'] }, () => {
-        cy.loginViaApi();
-
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/customer/index`);
 
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/customer`,
-            method: 'POST'
+            method: 'POST',
         }).as('filterCustomer');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/user-config`,
-            method: 'POST'
+            method: 'POST',
         }).as('getUserConfig');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/user-config/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('patchUserConfig');
 
         cy.get('.sw-sidebar-navigation-item[title="Filters"]').click();

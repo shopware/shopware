@@ -3,21 +3,25 @@
 namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules;
 
 use PhpParser\Node;
+use PhpParser\Node\Scalar\LNumber;
 use PhpParser\Node\Stmt\ClassMethod;
+use PhpParser\Node\Stmt\Return_;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
 use Shopware\Core\Content\ProductExport\ScheduledTask\ProductExportGenerateTask;
-use Shopware\Core\Framework\MessageQueue\ScheduledTask\RequeueDeadMessagesTask;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 
 /**
  * @implements Rule<ClassMethod>
+ *
+ * @internal
  */
+#[Package('core')]
 class ScheduledTaskTooLowIntervalRule implements Rule
 {
     private const EXCEPTION_CLASSES = [
-        RequeueDeadMessagesTask::class, // Will be deleted in next major and replaced with Symfony default
         ProductExportGenerateTask::class, // Ticket: NEXT-21167
     ];
 
@@ -50,7 +54,7 @@ class ScheduledTaskTooLowIntervalRule implements Rule
         }
 
         foreach ($node->stmts ?? [] as $stmt) {
-            if ($stmt instanceof Node\Stmt\Return_ && $stmt->expr instanceof Node\Scalar\LNumber) {
+            if ($stmt instanceof Return_ && $stmt->expr instanceof LNumber) {
                 $interval = (int) $stmt->expr->value;
 
                 if ($interval < self::MIN_SCHEDULED_TASK_INTERVAL) {

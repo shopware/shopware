@@ -2,25 +2,19 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Filter;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
- * @final tag:v6.5.0
+ * @final
  */
+#[Package('core')]
 class EqualsAnyFilter extends SingleFieldFilter
 {
     /**
-     * @var string
+     * @param string[]|float[]|int[] $value
      */
-    protected $field;
-
-    /**
-     * @var array<string>|float[]|int[]
-     */
-    protected $value = [];
-
-    public function __construct(string $field, array $value = [])
+    public function __construct(private readonly string $field, private readonly array $value = [])
     {
-        $this->field = $field;
-        $this->value = $value;
     }
 
     public function getField(): string
@@ -28,7 +22,10 @@ class EqualsAnyFilter extends SingleFieldFilter
         return $this->field;
     }
 
-    public function getValue()
+    /**
+     * @return float[]|int[]|string[]
+     */
+    public function getValue(): array
     {
         return $this->value;
     }

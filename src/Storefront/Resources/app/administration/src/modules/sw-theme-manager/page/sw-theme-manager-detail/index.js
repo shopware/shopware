@@ -1,6 +1,10 @@
 import template from './sw-theme-manager-detail.html.twig';
 import './sw-theme-manager-detail.scss';
 
+/**
+ * @package sales-channel
+ */
+
 const { Component, Mixin } = Shopware;
 const Criteria = Shopware.Data.Criteria;
 const { getObjectDiff, cloneDeep } = Shopware.Utils.object;
@@ -170,11 +174,6 @@ Component.register('sw-theme-manager-detail', {
 
                 this.isLoading = false;
             });
-        },
-
-        /** @deprecated tag:v6.5.0 method will be removed */
-        checkInheritance(value) {
-            return !value;
         },
 
         checkInheritanceFunction(fieldName) {
@@ -349,28 +348,32 @@ Component.register('sw-theme-manager-detail', {
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
-            return Promise.all([this.saveSalesChannels(), this.saveThemeConfig(clean)]).then(() => {
+            return Promise.all([this.saveSalesChannels(), this.saveThemeConfig(clean)]).finally(() => {
                 this.getTheme();
             }).catch((error) => {
                 this.isLoading = false;
 
-                const actions = [];
-
                 const errorObject = error.response.data.errors[0];
                 if (errorObject.code === 'THEME__COMPILING_ERROR') {
-                    actions.push({
-                        label: this.$tc('sw-theme-manager.detail.showFullError'),
-                        method: function showFullError() {
-                            this.errorModalMessage = errorObject.detail;
-                        }.bind(this)
+                    this.createNotificationError({
+                        title: this.$tc('sw-theme-manager.detail.error.themeCompile.title'),
+                        message: this.$tc('sw-theme-manager.detail.error.themeCompile.message'),
+                        autoClose: false,
+                        actions: [{
+                            label: this.$tc('sw-theme-manager.detail.showFullError'),
+                            method: function showFullError() {
+                                this.errorModalMessage = errorObject.detail;
+                            }.bind(this),
+                        }],
                     });
+
+                    return;
                 }
 
                 this.createNotificationError({
                     title: this.$tc('global.default.error'),
                     message: error.toString(),
-                    autoClose: false,
-                    actions: [...actions]
+                    autoClose: true,
                 });
             });
         },

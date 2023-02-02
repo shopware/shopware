@@ -2,9 +2,12 @@
 
 namespace Shopware\Core\Checkout\Customer\Event;
 
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('customer-order')]
 class GuestCustomerRegisterEvent extends CustomerRegisterEvent
 {
-    public const EVENT_NAME = 'checkout.customer.guest_register';
+    final public const EVENT_NAME = 'checkout.customer.guest_register';
 
     public function getName(): string
     {

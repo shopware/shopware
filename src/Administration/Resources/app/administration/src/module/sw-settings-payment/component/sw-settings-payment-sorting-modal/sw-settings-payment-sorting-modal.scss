@@ -32,7 +32,7 @@
 
         &__name {
             font-weight: $font-weight-semi-bold;
-            font-size: $font-size-small;
+            font-size: $font-size-xs;
         }
 
         &__icon {
@@ -41,9 +41,8 @@
             height: 24px;
         }
 
-        .sw-icon {
-            width: 16px;
-            margin-right: 4px;
+        &__action {
+            padding: 4px;
         }
 
         .sw-media-preview-v2.is--icon .sw-media-preview-v2__item {

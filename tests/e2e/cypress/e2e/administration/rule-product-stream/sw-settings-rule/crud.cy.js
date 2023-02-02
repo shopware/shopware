@@ -4,15 +4,11 @@ import RulePageObject from '../../../../support/pages/module/sw-rule.page-object
 
 describe('Rule builder: Test crud operations', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createDefaultFixture('rule');
-            })
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/rule/index`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
-            });
+        cy.createDefaultFixture('rule').then(() => {
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/rule/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+        });
     });
 
     it('@base @rule: create and read rule', { tags: ['pa-business-ops'] }, () => {
@@ -21,12 +17,12 @@ describe('Rule builder: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/rule`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/rule`,
-            method: 'POST'
+            method: 'POST',
         }).as('searchRule');
 
         cy.get('.sw-data-grid-skeleton').should('not.exist');
@@ -38,7 +34,7 @@ describe('Rule builder: Test crud operations', () => {
         cy.get('button.sw-button').contains('Save').click();
         cy.wait('@saveData').its('response.statusCode').should('equal', 400);
 
-        cy.awaitAndCheckNotification('An error occurred while saving rule "".');
+        cy.awaitAndCheckNotification('An error occurred while saving rule');
 
         // fill basic data
         cy.get('.sw-field').contains('.sw-field', 'Name').then((field) => {
@@ -88,7 +84,7 @@ describe('Rule builder: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/rule/*`,
-            method: 'delete'
+            method: 'delete',
         }).as('deleteData');
 
         // Delete rule
@@ -99,7 +95,7 @@ describe('Rule builder: Test crud operations', () => {
         cy.clickContextMenuItem(
             '.sw-context-menu-item--danger',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
         cy.get('.sw-listing__confirm-delete-text')
             .contains('Are you sure you want to delete this item?');
@@ -120,10 +116,9 @@ describe('Rule builder: Test crud operations', () => {
             cy.get('.sw-condition-type-select', { withinSubject: conditionElement })
                 .then((conditionTypeSelect) => {
                     cy.wrap(conditionTypeSelect).click();
-                    const popover = cy.get('.sw-select-result-list-popover-wrapper');
 
-                    popover.should('be.visible');
-                    popover.should('have.class', '--placement-bottom-outside');
+                    cy.get('.sw-select-result-list-popover-wrapper').should('be.visible');
+                    cy.get('.sw-select-result-list-popover-wrapper').should('have.class', '--placement-bottom-outside');
                 });
         });
     });

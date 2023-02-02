@@ -8,7 +8,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Store\Services\ExtensionLifecycleService;
 use Shopware\Core\Framework\Test\Store\ExtensionBehaviour;
 use Shopware\Core\Framework\Test\Store\StoreClientBehaviour;
@@ -35,11 +35,11 @@ class DeactivateExtensionsStepTest extends TestCase
 
     private PluginCompatibility $pluginCompatibility;
 
-    private EntityRepositoryInterface $appRepository;
+    private EntityRepository $appRepository;
 
-    private EntityRepositoryInterface $pluginRepository;
+    private EntityRepository $pluginRepository;
 
-    private EntityRepositoryInterface $salesChannelRepository;
+    private EntityRepository $salesChannelRepository;
 
     private ApiClient $apiClient;
 

@@ -4,44 +4,40 @@ import ProductPageObject from '../../../../support/pages/module/sw-product.page-
 
 describe('Product: Test variants visibilities', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                cy.createDefaultFixture('tax', {
-                    id: '91b5324352dc4ee58ec320df5dcf2bf4'
-                });
-            })
-            .then(() => {
-                return cy.createPropertyFixture({
-                    options: [{
-                        id: '15532b3fd3ea4c1dbef6e9e9816e0715',
-                        name: 'Red'
-                    }, {
-                        id: '98432def39fc4624b33213a56b8c944f',
-                        name: 'Green'
-                    }]
-                });
-            })
+        cy.createDefaultFixture('tax', {
+            id: '91b5324352dc4ee58ec320df5dcf2bf4',
+        }).then(() => {
+            return cy.createPropertyFixture({
+                options: [{
+                    id: '15532b3fd3ea4c1dbef6e9e9816e0715',
+                    name: 'Red',
+                }, {
+                    id: '98432def39fc4624b33213a56b8c944f',
+                    name: 'Green',
+                }],
+            });
+        })
             .then(() => {
                 return cy.createPropertyFixture({
                     name: 'Size',
-                    options: [{ name: 'S' }, { name: 'M' }, { name: 'L' }]
+                    options: [{ name: 'S' }, { name: 'M' }, { name: 'L' }],
                 });
             })
             .then(() => {
                 return cy.searchViaAdminApi({
                     data: {
                         field: 'name',
-                        value: 'Storefront'
+                        value: 'Storefront',
                     },
-                    endpoint: 'sales-channel'
+                    endpoint: 'sales-channel',
                 });
             })
             .then((saleschannel) => {
                 cy.createDefaultFixture('product', {
                     visibilities: [{
                         visibility: 30,
-                        salesChannelId: saleschannel.id
-                    }]
+                        salesChannelId: saleschannel.id,
+                    }],
                 }, 'product-variants.json');
             })
             .then(() => {
@@ -58,14 +54,14 @@ describe('Product: Test variants visibilities', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         // Navigate to variant generator listing and start
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.get('.sw-product-detail__select-visibility')

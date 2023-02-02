@@ -7,36 +7,21 @@ use Shopware\Core\Content\Product\ProductEvents;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
-use Shopware\Core\Framework\Routing\Annotation\Entity;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
-use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @Route(defaults={"_routeScope"={"store-api"}})
- */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Package('system-settings')]
 class ResolvedCriteriaProductSearchRoute extends AbstractProductSearchRoute
 {
-    private AbstractProductSearchRoute $decorated;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private DefinitionInstanceRegistry $registry;
-
-    private RequestCriteriaBuilder $criteriaBuilder;
-
     /**
      * @internal
      */
-    public function __construct(AbstractProductSearchRoute $decorated, EventDispatcherInterface $eventDispatcher, DefinitionInstanceRegistry $registry, RequestCriteriaBuilder $criteriaBuilder)
+    public function __construct(private readonly AbstractProductSearchRoute $decorated, private readonly EventDispatcherInterface $eventDispatcher, private readonly DefinitionInstanceRegistry $registry, private readonly RequestCriteriaBuilder $criteriaBuilder)
     {
-        $this->decorated = $decorated;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->registry = $registry;
-        $this->criteriaBuilder = $criteriaBuilder;
     }
 
     public function getDecorated(): AbstractProductSearchRoute
@@ -44,11 +29,7 @@ class ResolvedCriteriaProductSearchRoute extends AbstractProductSearchRoute
         return $this->decorated;
     }
 
-    /**
-     * @Since("6.2.0.0")
-     * @Entity("product")
-     * @Route("/store-api/search", name="store-api.search", methods={"POST"})
-     */
+    #[Route(path: '/store-api/search', name: 'store-api.search', methods: ['POST'], defaults: ['_entity' => 'product'])]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): ProductSearchRouteResponse
     {
         $criteria = $this->criteriaBuilder->handleRequest(

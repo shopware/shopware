@@ -1,13 +1,17 @@
+/**
+ * @package sales-channel
+ */
+
 import template from './sw-mail-header-footer-detail.html.twig';
 import './sw-mail-header-footer-detail.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { warn } = Shopware.Utils.debug;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-mail-header-footer-detail', {
+export default {
     template,
 
     inject: ['entityMappingService', 'repositoryFactory', 'acl'],
@@ -77,9 +81,7 @@ Component.register('sw-mail-header-footer-detail', {
                 function completerFunction(prefix) {
                     const properties = [];
                     Object.keys(
-                        entityMappingService.getEntityMapping(
-                            prefix, { salesChannel: 'sales_channel' },
-                        ),
+                        entityMappingService.getEntityMapping(prefix, { salesChannel: 'sales_channel' }),
                     ).forEach((val) => {
                         properties.push({
                             value: val,
@@ -241,4 +243,4 @@ Component.register('sw-mail-header-footer-detail', {
             }, []);
         },
     },
-});
+};

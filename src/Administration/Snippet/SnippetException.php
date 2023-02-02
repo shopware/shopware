@@ -3,13 +3,15 @@
 namespace Shopware\Administration\Snippet;
 
 use Shopware\Core\Framework\HttpException;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
+#[Package('administration')]
 class SnippetException extends HttpException
 {
-    public const SNIPPET_DUPLICATED_FIRST_LEVEL_KEY_EXCEPTION = 'SNIPPET__DUPLICATED_FIRST_LEVEL_KEY';
-    public const SNIPPET_EXTEND_OR_OVERWRITE_CORE_EXCEPTION = 'SNIPPET__EXTEND_OR_OVERWRITE_CORE';
-    public const SNIPPET_DEFAULT_LANGUAGE_NOT_GIVEN_EXCEPTION = 'SNIPPET__DEFAULT_LANGUAGE_NOT_GIVEN';
+    final public const SNIPPET_DUPLICATED_FIRST_LEVEL_KEY_EXCEPTION = 'SNIPPET__DUPLICATED_FIRST_LEVEL_KEY';
+    final public const SNIPPET_EXTEND_OR_OVERWRITE_CORE_EXCEPTION = 'SNIPPET__EXTEND_OR_OVERWRITE_CORE';
+    final public const SNIPPET_DEFAULT_LANGUAGE_NOT_GIVEN_EXCEPTION = 'SNIPPET__DEFAULT_LANGUAGE_NOT_GIVEN';
 
     /**
      * @param list<string> $duplicatedKeys

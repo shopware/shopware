@@ -8,7 +8,7 @@ const { Component, Mixin } = Shopware;
 /**
  * @private
  */
-Component.register('sw-settings-units-detail', {
+export default Component.wrapComponentConfig({
     template,
 
     mixins: [
@@ -29,14 +29,14 @@ Component.register('sw-settings-units-detail', {
     },
 
     computed: {
-        unitRepository(): Repository {
+        unitRepository(): Repository<'unit'> {
             return this.repositoryFactory.create('unit');
         },
 
         ...mapPropertyErrors('unit', ['name', 'shortCode']),
     },
 
-    data(): { unit: Entity|null, isLoading: boolean, isSaveSuccessful: boolean } {
+    data(): { unit: Entity<'unit'>|null, isLoading: boolean, isSaveSuccessful: boolean } {
         return {
             unit: null,
             isLoading: true,
@@ -97,8 +97,7 @@ Component.register('sw-settings-units-detail', {
             this.unitRepository.save(this.unit, Shopware.Context.api).then(() => {
                 this.isSaveSuccessful = true;
 
-                // @ts-expect-error
-                this.$router.push({ name: 'sw.settings.units.detail', params: { id: this.unit.id } });
+                void this.$router.push({ name: 'sw.settings.units.detail', params: { id: this.unit?.id ?? '' } });
 
                 this.isLoading = false;
             }).catch(() => {

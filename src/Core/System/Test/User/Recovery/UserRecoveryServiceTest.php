@@ -4,8 +4,9 @@ namespace Shopware\Core\System\Test\User\Recovery;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\Framework\Util\Random;
@@ -17,6 +18,7 @@ use Shopware\Core\System\User\UserEntity;
 /**
  * @internal
  */
+#[Package('system-settings')]
 class UserRecoveryServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -25,9 +27,9 @@ class UserRecoveryServiceTest extends TestCase
 
     private UserRecoveryService $userRecoveryService;
 
-    private EntityRepositoryInterface $userRecoveryRepo;
+    private EntityRepository $userRecoveryRepo;
 
-    private EntityRepositoryInterface $userRepo;
+    private EntityRepository $userRepo;
 
     private Context $context;
 

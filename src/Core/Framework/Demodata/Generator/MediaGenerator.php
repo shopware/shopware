@@ -4,60 +4,45 @@ namespace Shopware\Core\Framework\Demodata\Generator;
 
 use Doctrine\DBAL\Connection;
 use Faker\Generator;
+use Maltyxx\ImagesGenerator\ImagesGeneratorProvider;
 use Shopware\Core\Content\Media\Aggregate\MediaDefaultFolder\MediaDefaultFolderEntity;
 use Shopware\Core\Content\Media\File\FileNameProvider;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Finder\Finder;
 
+/**
+ * @internal
+ */
+#[Package('core')]
 class MediaGenerator implements DemodataGeneratorInterface
 {
-    private EntityWriterInterface $writer;
-
-    private FileSaver $mediaUpdater;
-
-    private FileNameProvider $fileNameProvider;
-
     private array $tmpImages = [];
 
-    private EntityRepositoryInterface $defaultFolderRepository;
-
-    private EntityRepositoryInterface $folderRepository;
-
-    private MediaDefinition $mediaDefinition;
-
     private Generator $faker;
-
-    private Connection $connection;
 
     /**
      * @internal
      */
     public function __construct(
-        EntityWriterInterface $writer,
-        FileSaver $mediaUpdater,
-        FileNameProvider $fileNameProvider,
-        EntityRepositoryInterface $defaultFolderRepository,
-        EntityRepositoryInterface $folderRepository,
-        MediaDefinition $mediaDefinition,
-        Connection $connection
+        private readonly EntityWriterInterface $writer,
+        private readonly FileSaver $mediaUpdater,
+        private readonly FileNameProvider $fileNameProvider,
+        private readonly EntityRepository $defaultFolderRepository,
+        private readonly EntityRepository $folderRepository,
+        private readonly MediaDefinition $mediaDefinition,
+        private readonly Connection $connection
     ) {
-        $this->writer = $writer;
-        $this->mediaUpdater = $mediaUpdater;
-        $this->fileNameProvider = $fileNameProvider;
-        $this->defaultFolderRepository = $defaultFolderRepository;
-        $this->folderRepository = $folderRepository;
-        $this->mediaDefinition = $mediaDefinition;
-        $this->connection = $connection;
     }
 
     public function getDefinition(): string
@@ -73,9 +58,11 @@ class MediaGenerator implements DemodataGeneratorInterface
         $writeContext = WriteContext::createFromContext($context->getContext());
 
         $mediaFolderId = $this->getOrCreateDefaultFolder($context);
+        $downloadFolderId = $this->getOrCreateDefaultFolder($context, true);
         $tags = $this->getIds('tag');
 
         for ($i = 0; $i < $numberOfItems; ++$i) {
+            $isDownloadFile = $i % 30 === 0;
             $file = $this->getRandomFile($context);
 
             $mediaId = Uuid::randomHex();
@@ -85,7 +72,8 @@ class MediaGenerator implements DemodataGeneratorInterface
                     [
                         'id' => $mediaId,
                         'title' => "File #{$i}: {$file}",
-                        'mediaFolderId' => $mediaFolderId,
+                        'mediaFolderId' => $isDownloadFile ? $downloadFolderId : $mediaFolderId,
+                        'private' => $isDownloadFile,
                         'tags' => $this->getTags($tags),
                     ],
                 ],
@@ -124,9 +112,7 @@ class MediaGenerator implements DemodataGeneratorInterface
 
             if (!empty($chosenTags)) {
                 $tagAssignments = array_map(
-                    function ($id) {
-                        return ['id' => $id];
-                    },
+                    fn ($id) => ['id' => $id],
                     $chosenTags
                 );
             }
@@ -166,14 +152,7 @@ class MediaGenerator implements DemodataGeneratorInterface
         /** @var string $text */
         $text = $context->getFaker()->words(1, true);
 
-        /*
-         * @deprecated tag:v6.5.0 remove and replace by importing \Maltyxx\ImagesGenerator\ImagesGeneratorProvider
-         */
-        if (\class_exists(\Maltyxx\ImagesGenerator\ImagesGeneratorProvider::class)) {
-            $provider = \Maltyxx\ImagesGenerator\ImagesGeneratorProvider::class;
-        } else {
-            $provider = \bheller\ImagesGenerator\ImagesGeneratorProvider::class;
-        }
+        $provider = ImagesGeneratorProvider::class;
 
         return $this->tmpImages[] = $provider::imageGenerator(
             null,
@@ -187,12 +166,16 @@ class MediaGenerator implements DemodataGeneratorInterface
         );
     }
 
-    private function getOrCreateDefaultFolder(DemodataContext $context): ?string
+    private function getOrCreateDefaultFolder(DemodataContext $context, bool $isDownloadFolder = false): ?string
     {
         $mediaFolderId = null;
 
+        $entity = $isDownloadFolder ? 'product_download' : 'product';
+        $name = $isDownloadFolder ? 'Product Downloads' : 'Product Media';
+        $configuration = $isDownloadFolder ? ['private' => true] : [];
+
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('entity', 'product'));
+        $criteria->addFilter(new EqualsFilter('entity', $entity));
         $criteria->addAssociation('folder');
         $criteria->setLimit(1);
 
@@ -214,9 +197,9 @@ class MediaGenerator implements DemodataGeneratorInterface
             [
                 'id' => $mediaFolderId,
                 'defaultFolderId' => $defaultFolder->getId(),
-                'name' => 'Product Media',
+                'name' => $name,
                 'useParentConfiguration' => false,
-                'configuration' => [],
+                'configuration' => $configuration,
             ],
         ], $context->getContext());
 

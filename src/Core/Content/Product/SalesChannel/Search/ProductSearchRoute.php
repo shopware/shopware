@@ -9,41 +9,24 @@ use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\Annotation\Entity;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @Route(defaults={"_routeScope"={"store-api"}})
- */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Package('system-settings')]
 class ProductSearchRoute extends AbstractProductSearchRoute
 {
-    private EventDispatcherInterface $eventDispatcher;
-
-    private ProductSearchBuilderInterface $searchBuilder;
-
-    private ProductListingLoader $productListingLoader;
-
     /**
      * @internal
      */
-    public function __construct(
-        ProductSearchBuilderInterface $searchBuilder,
-        EventDispatcherInterface $eventDispatcher,
-        ProductListingLoader $productListingLoader
-    ) {
-        $this->eventDispatcher = $eventDispatcher;
-        $this->searchBuilder = $searchBuilder;
-        $this->productListingLoader = $productListingLoader;
+    public function __construct(private readonly ProductSearchBuilderInterface $searchBuilder, private readonly EventDispatcherInterface $eventDispatcher, private readonly ProductListingLoader $productListingLoader)
+    {
     }
 
     public function getDecorated(): AbstractProductSearchRoute
@@ -51,11 +34,7 @@ class ProductSearchRoute extends AbstractProductSearchRoute
         throw new DecorationPatternException(self::class);
     }
 
-    /**
-     * @Since("6.2.0.0")
-     * @Entity("product")
-     * @Route("/store-api/search", name="store-api.search", methods={"POST"})
-     */
+    #[Route(path: '/store-api/search', name: 'store-api.search', methods: ['POST'], defaults: ['_entity' => 'product'])]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): ProductSearchRouteResponse
     {
         if (!$request->get('search')) {
@@ -63,10 +42,6 @@ class ProductSearchRoute extends AbstractProductSearchRoute
         }
 
         $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
-
-        if (!Feature::isActive('v6.5.0.0')) {
-            $context->getContext()->addState(Context::STATE_ELASTICSEARCH_AWARE);
-        }
 
         $criteria->addFilter(
             new ProductAvailableFilter($context->getSalesChannel()->getId(), ProductVisibilityDefinition::VISIBILITY_SEARCH)

@@ -2,11 +2,9 @@
 
 namespace Shopware\Core\System\Snippet\Files;
 
-use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Decoratable;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @Decoratable
- */
+#[Package('system-settings')]
 interface SnippetFileLoaderInterface
 {
     public function loadSnippetFilesIntoCollection(SnippetFileCollection $snippetFileCollection): void;

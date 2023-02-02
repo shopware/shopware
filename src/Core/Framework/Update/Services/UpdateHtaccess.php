@@ -2,9 +2,14 @@
 
 namespace Shopware\Core\Framework\Update\Services;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * @internal
+ */
+#[Package('system-settings')]
 class UpdateHtaccess implements EventSubscriberInterface
 {
     private const MARKER_START = '# BEGIN Shopware';
@@ -16,14 +21,11 @@ class UpdateHtaccess implements EventSubscriberInterface
         'ba812f2a64b337b032b10685ca6e2308', // https://github.com/shopware/production/commit/18ce6ffc904b8d2d237dc4ee6654c1fa9a6df719
     ];
 
-    private string $htaccessPath;
-
     /**
      * @internal
      */
-    public function __construct(string $htaccessPath)
+    public function __construct(private readonly string $htaccessPath)
     {
-        $this->htaccessPath = $htaccessPath;
     }
 
     public static function getSubscribedEvents(): array
@@ -48,7 +50,7 @@ class UpdateHtaccess implements EventSubscriberInterface
         $content = file_get_contents($this->htaccessPath);
 
         // User has deleted the markers. So we will ignore the update process
-        if (strpos($content, self::MARKER_START) === false || strpos($content, self::MARKER_STOP) === false) {
+        if (!$content || !str_contains($content, self::MARKER_START) || !str_contains($content, self::MARKER_STOP)) {
             return;
         }
 
@@ -86,7 +88,7 @@ class UpdateHtaccess implements EventSubscriberInterface
         array_unshift($existing, self::MARKER_START);
         $existing[] = self::MARKER_STOP;
 
-        $newFile = implode("\n", array_merge($pre, $existing, $post));
+        $newFile = implode("\n", [...$pre, ...$existing, ...$post]);
 
         $perms = fileperms($path);
         file_put_contents($path, $newFile);
@@ -96,11 +98,14 @@ class UpdateHtaccess implements EventSubscriberInterface
         }
     }
 
+    /**
+     * @return array{0: list<string>, 1: list<string>, 2: list<string>}
+     */
     private function getLinesFromMarkedFile(string $path): array
     {
         $fp = fopen($path, 'rb+');
         if (!$fp) {
-            return [];
+            return [[], [], []];
         }
 
         $lines = [];
@@ -117,13 +122,13 @@ class UpdateHtaccess implements EventSubscriberInterface
         $existingLines = [];
 
         foreach ($lines as $line) {
-            if (!$foundStart && strpos($line, self::MARKER_START) === 0) {
+            if (!$foundStart && str_starts_with($line, self::MARKER_START)) {
                 $foundStart = true;
 
                 continue;
             }
 
-            if (!$foundStop && strpos($line, self::MARKER_STOP) === 0) {
+            if (!$foundStop && str_starts_with($line, self::MARKER_STOP)) {
                 $foundStop = true;
 
                 continue;

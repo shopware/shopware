@@ -2,23 +2,25 @@
 
 namespace Shopware\Core\System\Snippet\Files;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\System\Snippet\Exception\InvalidSnippetFileException;
 
 /**
- * @extends Collection<SnippetFileInterface>
+ * @extends Collection<AbstractSnippetFile>
  */
+#[Package('system-settings')]
 class SnippetFileCollection extends Collection
 {
     /**
-     * @param SnippetFileInterface $snippetFile
+     * @param AbstractSnippetFile $snippetFile
      */
     public function add($snippetFile): void
     {
         $this->set(null, $snippetFile);
     }
 
-    public function get($key): ?SnippetFileInterface
+    public function get($key): ?AbstractSnippetFile
     {
         if ($this->has($key)) {
             return $this->elements[$key];
@@ -27,7 +29,7 @@ class SnippetFileCollection extends Collection
         return $this->getByName($key);
     }
 
-    public function getByName($key): ?SnippetFileInterface
+    public function getByName(string $key): ?AbstractSnippetFile
     {
         foreach ($this->elements as $index => $element) {
             if ($element->getName() === $key) {
@@ -38,13 +40,17 @@ class SnippetFileCollection extends Collection
         return null;
     }
 
+    /**
+     * @return array<int, array<string, mixed>>
+     */
     public function getFilesArray(bool $isBase = true): array
     {
-        return array_filter($this->toArray(), function ($file) use ($isBase) {
-            return $file['isBase'] === $isBase;
-        });
+        return array_filter($this->toArray(), fn ($file) => $file['isBase'] === $isBase);
     }
 
+    /**
+     * @return array<int, array<string, mixed>>
+     */
     public function toArray(): array
     {
         $data = [];
@@ -72,7 +78,7 @@ class SnippetFileCollection extends Collection
     }
 
     /**
-     * @return SnippetFileInterface[]
+     * @return array<int, AbstractSnippetFile>
      */
     public function getSnippetFilesByIso(string $iso): array
     {
@@ -84,7 +90,7 @@ class SnippetFileCollection extends Collection
     /**
      * @throws InvalidSnippetFileException
      */
-    public function getBaseFileByIso(string $iso): SnippetFileInterface
+    public function getBaseFileByIso(string $iso): AbstractSnippetFile
     {
         foreach ($this->getSnippetFilesByIso($iso) as $file) {
             if (!$file->isBase()) {
@@ -106,26 +112,26 @@ class SnippetFileCollection extends Collection
     {
         $filePath = realpath($filePath);
 
-        $filesWithMatchingPath = $this->filter(static function (SnippetFileInterface $file) use ($filePath): bool {
-            return realpath($file->getPath()) === $filePath;
-        });
+        $filesWithMatchingPath = $this->filter(
+            static fn (AbstractSnippetFile $file): bool => realpath($file->getPath()) === $filePath
+        );
 
         return $filesWithMatchingPath->count() > 0;
     }
 
     protected function getExpectedClass(): ?string
     {
-        return SnippetFileInterface::class;
+        return AbstractSnippetFile::class;
     }
 
     /**
-     * @return array<string, SnippetFileInterface[]>
+     * @return array<string, array<int, AbstractSnippetFile>>
      */
     private function getListSortedByIso(): array
     {
         $list = [];
 
-        /** @var SnippetFileInterface $element */
+        /** @var AbstractSnippetFile $element */
         foreach ($this->getIterator() as $element) {
             $list[$element->getIso()][] = $element;
         }

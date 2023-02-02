@@ -2,10 +2,12 @@
 
 namespace Shopware\Storefront\Framework\Captcha\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Storefront\Framework\Captcha\AbstractCaptcha;
 use Symfony\Component\HttpFoundation\Response;
 
+#[Package('storefront')]
 class CaptchaInvalidException extends ShopwareHttpException
 {
     public function __construct(AbstractCaptcha $captcha)
@@ -13,7 +15,7 @@ class CaptchaInvalidException extends ShopwareHttpException
         parent::__construct(
             'The provided value for captcha "{{ captcha }}" is not valid.',
             [
-                'captcha' => \get_class($captcha),
+                'captcha' => $captcha::class,
             ]
         );
     }

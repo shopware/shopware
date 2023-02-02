@@ -1,14 +1,15 @@
 import template from './sw-cms-el-config-image-slider.html.twig';
 import './sw-cms-el-config-image-slider.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { cloneDeep } = Shopware.Utils.object;
 const Criteria = Shopware.Data.Criteria;
 
 /**
- * @private since v6.5.0
+ * @private
+ * @package content
  */
-Component.register('sw-cms-el-config-image-slider', {
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -201,4 +202,4 @@ Component.register('sw-cms-el-config-image-slider', {
             this.$emit('element-update', this.element);
         },
     },
-});
+};

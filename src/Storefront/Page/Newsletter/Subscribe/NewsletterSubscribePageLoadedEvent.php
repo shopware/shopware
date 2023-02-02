@@ -2,10 +2,12 @@
 
 namespace Shopware\Storefront\Page\Newsletter\Subscribe;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\PageLoadedEvent;
 use Symfony\Component\HttpFoundation\Request;
 
+#[Package('customer-order')]
 class NewsletterSubscribePageLoadedEvent extends PageLoadedEvent
 {
     /**

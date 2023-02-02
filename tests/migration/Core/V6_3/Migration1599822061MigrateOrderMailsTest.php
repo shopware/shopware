@@ -18,6 +18,11 @@ class Migration1599822061MigrateOrderMailsTest extends TestCase
 {
     use MigrationTestTrait;
 
+    public function setUp(): void
+    {
+        static::markTestSkipped('NEXT-24549: should be enabled again after NEXT-24549 is fixed');
+    }
+
     public function testStateMigration(): void
     {
         $connection = KernelLifecycleManager::getConnection();
@@ -67,7 +72,7 @@ class Migration1599822061MigrateOrderMailsTest extends TestCase
             'action_name' => MailTemplateActions::MAIL_TEMPLATE_MAIL_SEND_ACTION,
             'config' => json_encode([
                 'mail_template_type_id' => $typeId,
-            ]),
+            ], \JSON_THROW_ON_ERROR),
             'event_name' => 'test.event',
             'active' => 1,
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -82,7 +87,7 @@ class Migration1599822061MigrateOrderMailsTest extends TestCase
         static::assertCount(2, $events);
 
         foreach ($events as $event) {
-            $config = json_decode($event['config'], true);
+            $config = json_decode((string) $event['config'], true, 512, \JSON_THROW_ON_ERROR);
             static::assertArrayHasKey('mail_template_type_id', $config);
 
             if (\array_key_exists('mail_template_id', $config)) {

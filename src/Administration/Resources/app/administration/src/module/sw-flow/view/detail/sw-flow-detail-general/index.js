@@ -4,8 +4,11 @@ import './sw-flow-detail-general.scss';
 const { Component } = Shopware;
 const { mapPropertyErrors, mapState } = Component.getComponentHelper();
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-flow-detail-general', {
+/**
+ * @private
+ * @package business-ops
+ */
+export default {
     template,
 
     inject: ['acl'],
@@ -17,6 +20,11 @@ Component.register('sw-flow-detail-general', {
             default: false,
         },
         isNewFlow: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+        isTemplate: {
             type: Boolean,
             required: false,
             default: false,
@@ -55,7 +63,11 @@ Component.register('sw-flow-detail-general', {
             ];
         },
 
+        isFlowTemplate() {
+            return this.$route.query?.type === 'template';
+        },
+
         ...mapState('swFlowState', ['flow']),
         ...mapPropertyErrors('flow', ['name']),
     },
-});
+};

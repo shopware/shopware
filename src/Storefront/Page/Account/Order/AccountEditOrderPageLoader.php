@@ -4,7 +4,6 @@ namespace Shopware\Storefront\Page\Account\Order;
 
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
-use Shopware\Core\Checkout\Cart\Exception\OrderPaidException;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -20,7 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Event\RouteRequest\OrderRouteRequestEvent;
@@ -29,41 +28,14 @@ use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
+#[Package('customer-order')]
 class AccountEditOrderPageLoader
 {
-    private GenericPageLoaderInterface $genericLoader;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private AbstractOrderRoute $orderRoute;
-
-    private RequestCriteriaBuilder $requestCriteriaBuilder;
-
-    private AbstractPaymentMethodRoute $paymentMethodRoute;
-
-    private OrderConverter $orderConverter;
-
-    private OrderService $orderService;
-
     /**
      * @internal
      */
-    public function __construct(
-        GenericPageLoaderInterface $genericLoader,
-        EventDispatcherInterface $eventDispatcher,
-        AbstractOrderRoute $orderRoute,
-        RequestCriteriaBuilder $requestCriteriaBuilder,
-        AbstractPaymentMethodRoute $paymentMethodRoute,
-        OrderConverter $orderConverter,
-        OrderService $orderService
-    ) {
-        $this->genericLoader = $genericLoader;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->orderRoute = $orderRoute;
-        $this->requestCriteriaBuilder = $requestCriteriaBuilder;
-        $this->paymentMethodRoute = $paymentMethodRoute;
-        $this->orderConverter = $orderConverter;
-        $this->orderService = $orderService;
+    public function __construct(private readonly GenericPageLoaderInterface $genericLoader, private readonly EventDispatcherInterface $eventDispatcher, private readonly AbstractOrderRoute $orderRoute, private readonly RequestCriteriaBuilder $requestCriteriaBuilder, private readonly AbstractPaymentMethodRoute $paymentMethodRoute, private readonly OrderConverter $orderConverter, private readonly OrderService $orderService)
+    {
     }
 
     /**
@@ -80,7 +52,6 @@ class AccountEditOrderPageLoader
 
         $page = $this->genericLoader->load($request, $salesChannelContext);
 
-        /** @var AccountEditOrderPage $page */
         $page = AccountEditOrderPage::createFrom($page);
 
         if ($page->getMetaInformation()) {
@@ -92,11 +63,7 @@ class AccountEditOrderPageLoader
         $order = $orderRouteResponse->getOrders()->first();
 
         if ($this->isOrderPaid($order)) {
-            if (Feature::isActive('v6.5.0.0')) {
-                throw OrderException::orderAlreadyPaid($order->getId());
-            }
-
-            throw new OrderPaidException($order->getId());
+            throw OrderException::orderAlreadyPaid($order->getId());
         }
 
         $page->setOrder($order);

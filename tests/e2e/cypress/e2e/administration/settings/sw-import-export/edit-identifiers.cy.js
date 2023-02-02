@@ -4,9 +4,7 @@ describe('Import/Export - Profiles: Test editing identifiers and import', () => 
     let page = null;
 
     beforeEach(() => {
-        cy.loginViaApi().then(() => {
-            return cy.createDefaultFixture('import-export-profile');
-        }).then(() => {
+        cy.createDefaultFixture('import-export-profile').then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/import-export/index/profiles`);
             cy.get('.sw-skeleton').should('not.exist');
             cy.get('.sw-loader').should('not.exist');
@@ -22,22 +20,22 @@ describe('Import/Export - Profiles: Test editing identifiers and import', () => 
     it('@settings: Edit identfiers', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/import-export-profile/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/import-export/prepare`,
-            method: 'POST'
+            method: 'POST',
         }).as('prepare');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/import-export/process`,
-            method: 'POST'
+            method: 'POST',
         }).as('process');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/import-export-log`,
-            method: 'POST'
+            method: 'POST',
         }).as('importExportLog');
 
         cy.get('.sw-import-export-view-profiles__listing').should('be.visible');
@@ -46,7 +44,7 @@ describe('Import/Export - Profiles: Test editing identifiers and import', () => 
         cy.get('.sw-import-export-view-profiles__search input[type="text"]').should('be.visible');
         cy.get('.sw-import-export-view-profiles__search input[type="text"]').clear();
         cy.get('.sw-import-export-view-profiles__search input[type="text"]').type('E2E', {
-            delay: 400
+            delay: 400,
         });
 
         cy.get('.sw-import-export-view-profiles__search input[type="text"]')
@@ -60,7 +58,7 @@ describe('Import/Export - Profiles: Test editing identifiers and import', () => 
         cy.clickContextMenuItem(
             '.sw-import-export-view-profiles__listing-open-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         // Wait for detail modal
@@ -76,12 +74,12 @@ describe('Import/Export - Profiles: Test editing identifiers and import', () => 
         cy.get(`.sw-import-export-edit-profile-modal-identifiers__grid ${page.elements.dataGridRow}--0 .sw-single-select`)
             .typeSingleSelectAndCheck(
                 'productNumber',
-                `.sw-import-export-edit-profile-modal-identifiers__grid ${page.elements.dataGridRow}--0 .sw-single-select`
+                `.sw-import-export-edit-profile-modal-identifiers__grid ${page.elements.dataGridRow}--0 .sw-single-select`,
             );
         cy.get(`.sw-import-export-edit-profile-modal-identifiers__grid ${page.elements.dataGridRow}--3 .sw-single-select`)
             .typeSingleSelectAndCheck(
                 'translations.DEFAULT.name',
-                `.sw-import-export-edit-profile-modal-identifiers__grid ${page.elements.dataGridRow}--3 .sw-single-select`
+                `.sw-import-export-edit-profile-modal-identifiers__grid ${page.elements.dataGridRow}--3 .sw-single-select`,
             );
 
         // Save the profile

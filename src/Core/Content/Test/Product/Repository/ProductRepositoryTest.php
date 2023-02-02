@@ -24,7 +24,7 @@ use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
@@ -57,11 +57,11 @@ class ProductRepositoryTest extends TestCase
     use IntegrationTestBehaviour;
     use QueueTestBehaviour;
 
-    public const TEST_LANGUAGE_ID = 'cc72c24b82684d72a4ce91054da264bf';
-    public const TEST_LOCALE_ID = 'cf735c44dc7b4428bb3870fe4ffea2df';
-    public const TEST_LANGUAGE_LOCALE_CODE = 'sw-AG';
+    final public const TEST_LANGUAGE_ID = 'cc72c24b82684d72a4ce91054da264bf';
+    final public const TEST_LOCALE_ID = 'cf735c44dc7b4428bb3870fe4ffea2df';
+    final public const TEST_LANGUAGE_LOCALE_CODE = 'sw-AG';
 
-    private EntityRepositoryInterface $repository;
+    private EntityRepository $repository;
 
     private EventDispatcherInterface $eventDispatcher;
 
@@ -122,8 +122,8 @@ class ProductRepositoryTest extends TestCase
                     'symbol' => 'A',
                     'isoCode' => 'XX',
                     'decimalPrecision' => 2,
-                    'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true),
-                    'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true),
+                    'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+                    'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
                 ],
             ],
             $this->context
@@ -196,7 +196,7 @@ class ProductRepositoryTest extends TestCase
             $update = ['name' => null, 'id' => $variantId];
 
             $this->repository->update([$update], $this->context);
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             static::fail('Can not reset variant name to null');
         }
 
@@ -353,9 +353,7 @@ class ProductRepositoryTest extends TestCase
 
         static::assertInstanceOf(ProductSearchKeywordCollection::class, $product->getSearchKeywords());
 
-        $keywords = $product->getSearchKeywords()->map(static function (ProductSearchKeywordEntity $entity) {
-            return $entity->getKeyword();
-        });
+        $keywords = $product->getSearchKeywords()->map(static fn (ProductSearchKeywordEntity $entity) => $entity->getKeyword());
 
         static::assertContains('default', $keywords);
         static::assertContains('name', $keywords);
@@ -376,9 +374,7 @@ class ProductRepositoryTest extends TestCase
 
         static::assertInstanceOf(ProductSearchKeywordCollection::class, $product->getSearchKeywords());
 
-        $keywords = $product->getSearchKeywords()->map(static function (ProductSearchKeywordEntity $entity) {
-            return $entity->getKeyword();
-        });
+        $keywords = $product->getSearchKeywords()->map(static fn (ProductSearchKeywordEntity $entity) => $entity->getKeyword());
 
         static::assertNotContains('default', $keywords);
         static::assertNotContains('name', $keywords);
@@ -1006,7 +1002,7 @@ class ProductRepositoryTest extends TestCase
 
         /** @var array{price: string} $row */
         $row = $this->connection->fetchAssociative('SELECT `price` FROM product WHERE id = :id', ['id' => Uuid::fromHexToBytes($parentId)]);
-        static::assertEquals(['c' . Defaults::CURRENCY => $parentPrice], json_decode($row['price'], true));
+        static::assertEquals(['c' . Defaults::CURRENCY => $parentPrice], json_decode($row['price'], true, 512, \JSON_THROW_ON_ERROR));
 
         /** @var array{name: string} $row */
         $row = $this->connection->fetchAssociative('SELECT `name` FROM product_translation WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($parentId)]);
@@ -1022,7 +1018,7 @@ class ProductRepositoryTest extends TestCase
 
         /** @var array{price: string} $row */
         $row = $this->connection->fetchAssociative('SELECT `price` FROM product WHERE id = :id', ['id' => Uuid::fromHexToBytes($greenId)]);
-        static::assertEquals(['c' . Defaults::CURRENCY => $greenPrice], json_decode($row['price'], true));
+        static::assertEquals(['c' . Defaults::CURRENCY => $greenPrice], json_decode($row['price'], true, 512, \JSON_THROW_ON_ERROR));
 
         $row = $this->connection->fetchAssociative('SELECT * FROM product_translation WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($greenId)]);
         static::assertEmpty($row);
@@ -1066,7 +1062,7 @@ class ProductRepositoryTest extends TestCase
         static::assertInstanceOf(Price::class, $currencyPrice);
         static::assertSame(12.0, $currencyPrice->getGross());
 
-        $count = (int) $this->connection->fetchColumn('SELECT COUNT(id) FROM product WHERE ean = :filterId', ['filterId' => $filterId]);
+        $count = (int) $this->connection->fetchOne('SELECT COUNT(id) FROM product WHERE ean = :filterId', ['filterId' => $filterId]);
         static::assertSame(1, $count);
     }
 
@@ -1086,10 +1082,10 @@ class ProductRepositoryTest extends TestCase
         static::assertTrue($products->has($id));
         static::assertTrue($products->has($child));
 
-        $raw = $this->connection->fetchAll('SELECT * FROM product WHERE ean = :filterId', ['filterId' => $filterId]);
+        $raw = $this->connection->fetchAllAssociative('SELECT * FROM product WHERE ean = :filterId', ['filterId' => $filterId]);
         static::assertCount(2, $raw);
 
-        $name = $this->connection->fetchColumn('SELECT name FROM product_translation WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($child)]);
+        $name = $this->connection->fetchOne('SELECT name FROM product_translation WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($child)]);
         static::assertSame('Update', $name);
 
         $data = [
@@ -1186,14 +1182,14 @@ class ProductRepositoryTest extends TestCase
         static::assertTrue($products->has($id));
         static::assertTrue($products->has($child));
 
-        $raw = $this->connection->fetchAll(
+        $raw = $this->connection->fetchAllAssociative(
             'SELECT * FROM product WHERE id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList([$id, $child])],
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
         static::assertCount(2, $raw);
 
-        $name = $this->connection->fetchColumn('SELECT name FROM product_translation WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($child)]);
+        $name = $this->connection->fetchOne('SELECT name FROM product_translation WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($child)]);
         static::assertFalse($name);
 
         $data = [
@@ -1351,7 +1347,7 @@ class ProductRepositoryTest extends TestCase
             [
                 'c' . Defaults::CURRENCY => ['net' => 9, 'gross' => 10, 'linked' => true, 'currencyId' => Defaults::CURRENCY],
             ],
-            json_decode($row['price'], true)
+            json_decode($row['price'], true, 512, \JSON_THROW_ON_ERROR)
         );
         static::assertSame($parentTaxId, Uuid::fromBytesToHex($row['tax_id']));
 
@@ -1426,9 +1422,7 @@ class ProductRepositoryTest extends TestCase
         $product = $this->repository->search($criteria, Context::createDefaultContext())
             ->first();
 
-        $ids = $product->getMedia()->map(function (ProductMediaEntity $a) {
-            return $a->getId();
-        });
+        $ids = $product->getMedia()->map(fn (ProductMediaEntity $a) => $a->getId());
 
         $order = [$a, $b, $c];
         static::assertEquals($order, array_values($ids));
@@ -1441,9 +1435,7 @@ class ProductRepositoryTest extends TestCase
         $product = $this->repository->search($criteria, Context::createDefaultContext())
             ->first();
 
-        $ids = $product->getMedia()->map(function (ProductMediaEntity $a) {
-            return $a->getId();
-        });
+        $ids = $product->getMedia()->map(fn (ProductMediaEntity $a) => $a->getId());
 
         $order = [$d, $c, $b];
         static::assertEquals($order, array_values($ids));
@@ -1689,17 +1681,17 @@ class ProductRepositoryTest extends TestCase
 
         /** @var array{category_tree: string, categories: string} $row */
         $row = $this->connection->fetchAssociative('SELECT category_tree, categories FROM product WHERE id = :id', ['id' => Uuid::fromHexToBytes($parentId)]);
-        static::assertContains($parentCategory, json_decode($row['category_tree'], true));
+        static::assertContains($parentCategory, json_decode($row['category_tree'], true, 512, \JSON_THROW_ON_ERROR));
         static::assertSame($parentId, Uuid::fromBytesToHex($row['categories']));
 
         /** @var array{category_tree: string, categories: string} $row */
         $row = $this->connection->fetchAssociative('SELECT category_tree, categories FROM product WHERE id = :id', ['id' => Uuid::fromHexToBytes($redId)]);
-        static::assertContains($parentCategory, json_decode($row['category_tree'], true));
+        static::assertContains($parentCategory, json_decode($row['category_tree'], true, 512, \JSON_THROW_ON_ERROR));
         static::assertSame($parentId, Uuid::fromBytesToHex($row['categories']));
 
         /** @var array{category_tree: string, categories: string} $row */
         $row = $this->connection->fetchAssociative('SELECT category_tree, categories FROM product WHERE id = :id', ['id' => Uuid::fromHexToBytes($greenId)]);
-        static::assertContains($greenCategory, json_decode($row['category_tree'], true));
+        static::assertContains($greenCategory, json_decode($row['category_tree'], true, 512, \JSON_THROW_ON_ERROR));
         static::assertSame($greenId, Uuid::fromBytesToHex($row['categories']));
     }
 
@@ -2480,12 +2472,12 @@ class ProductRepositoryTest extends TestCase
                 ['name' => 'category_name'],
             ],
         ];
-        $this->connection->executeUpdate('DELETE FROM sales_channel');
-        $this->connection->executeUpdate('DELETE FROM category');
+        $this->connection->executeStatement('DELETE FROM sales_channel');
+        $this->connection->executeStatement('DELETE FROM category');
 
         $this->repository->create([$data], Context::createDefaultContext());
 
-        $count = $this->connection->fetchAll('SELECT * FROM category');
+        $count = $this->connection->fetchAllAssociative('SELECT * FROM category');
 
         static::assertCount(1, $count, print_r($count, true));
     }
@@ -2580,8 +2572,8 @@ class ProductRepositoryTest extends TestCase
                     'symbol' => 'DM',
                     'isoCode' => $isoCode,
                     'decimalPrecision' => 2,
-                    'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true),
-                    'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true),
+                    'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+                    'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
                 ],
             ],
             Context::createDefaultContext()
@@ -3092,10 +3084,10 @@ class ProductRepositoryTest extends TestCase
         ];
 
         $this->repository->upsert([$data], Context::createDefaultContext());
-        $critera = new Criteria([$rootId]);
-        $critera->addAssociation('configuratorSettings');
+        $criteria = new Criteria([$rootId]);
+        $criteria->addAssociation('configuratorSettings');
         /** @var ProductEntity $result */
-        $result = $this->repository->search($critera, Context::createDefaultContext())->first();
+        $result = $this->repository->search($criteria, Context::createDefaultContext())->first();
 
         static::assertInstanceOf(ProductConfiguratorSettingCollection::class, $result->getConfiguratorSettings());
         static::assertCount(3, $result->getConfiguratorSettings());

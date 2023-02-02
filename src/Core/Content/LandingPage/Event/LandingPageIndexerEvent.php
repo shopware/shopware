@@ -4,7 +4,9 @@ namespace Shopware\Core\Content\LandingPage\Event;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('content')]
 class LandingPageIndexerEvent extends NestedEvent
 {
     /**
@@ -17,13 +19,10 @@ class LandingPageIndexerEvent extends NestedEvent
      */
     protected $context;
 
-    private array $skip;
-
-    public function __construct(array $ids, Context $context, array $skip = [])
+    public function __construct(array $ids, Context $context, private readonly array $skip = [])
     {
         $this->ids = $ids;
         $this->context = $context;
-        $this->skip = $skip;
     }
 
     public function getIds(): array

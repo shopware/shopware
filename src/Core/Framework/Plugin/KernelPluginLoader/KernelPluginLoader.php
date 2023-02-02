@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Plugin\KernelPluginLoader;
 
 use Composer\Autoload\ClassLoader;
 use Composer\Autoload\ClassMapGenerator;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Parameter\AdditionalBundleParameters;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Exception\KernelPluginLoaderException;
@@ -13,24 +14,25 @@ use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
+#[Package('core')]
 abstract class KernelPluginLoader extends Bundle
 {
-    protected array $pluginInfos = [];
+    /**
+     * @var array<int, mixed>
+     */
+    protected $pluginInfos = [];
 
-    private ClassLoader $classLoader;
+    private readonly KernelPluginCollection $pluginInstances;
 
-    private KernelPluginCollection $pluginInstances;
-
-    private string $pluginDir;
+    private readonly string $pluginDir;
 
     private bool $initialized = false;
 
     /**
      * @internal
      */
-    public function __construct(ClassLoader $classLoader, ?string $pluginDir = null)
+    public function __construct(private readonly ClassLoader $classLoader, ?string $pluginDir = null)
     {
-        $this->classLoader = $classLoader;
         $this->pluginDir = $pluginDir ?? 'custom/plugins';
         $this->pluginInstances = new KernelPluginCollection();
     }
@@ -46,6 +48,7 @@ abstract class KernelPluginLoader extends Bundle
     }
 
     /**
+     * @return array<int, mixed>
      * Basic information required for instantiating the plugins
      */
     final public function getPluginInfos(): array
@@ -54,13 +57,20 @@ abstract class KernelPluginLoader extends Bundle
     }
 
     /**
+     * @final
      * Instances of the plugin bundle classes
      */
-    final public function getPluginInstances(): KernelPluginCollection
+    public function getPluginInstances(): KernelPluginCollection
     {
         return $this->pluginInstances;
     }
 
+    /**
+     * @param array<string, mixed> $kernelParameters
+     * @param array<int, string> $loadedBundles
+     *
+     * @return \Traversable<Bundle>
+     */
     final public function getBundles(array $kernelParameters = [], array $loadedBundles = []): iterable
     {
         if (!$this->initialized) {
@@ -120,7 +130,7 @@ abstract class KernelPluginLoader extends Bundle
          * Register every plugin in the di container, enable autowire and set public
          */
         foreach ($this->pluginInstances->getActives() as $plugin) {
-            $class = \get_class($plugin);
+            $class = $plugin::class;
 
             $definition = new Definition();
             if ($container->hasDefinition($class)) {
@@ -218,7 +228,11 @@ abstract class KernelPluginLoader extends Bundle
     }
 
     /**
+     * @param array<string> $psr
+     *
      * @throws KernelPluginLoaderException
+     *
+     * @return array<string>
      */
     private function mapPsrPaths(string $plugin, array $psr, string $projectDir, string $pluginRootPath): array
     {
@@ -267,7 +281,7 @@ abstract class KernelPluginLoader extends Bundle
             $plugin = new $className((bool) $pluginData['active'], $pluginData['path'], $projectDir);
 
             if (!$plugin instanceof Plugin) {
-                $reason = sprintf('Plugin class "%s" must extend "%s"', \get_class($plugin), Plugin::class);
+                $reason = sprintf('Plugin class "%s" must extend "%s"', $plugin::class, Plugin::class);
 
                 throw new KernelPluginLoaderException($pluginData['name'], $reason);
             }

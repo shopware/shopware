@@ -4,15 +4,11 @@ import ProductStreamObject from '../../../../support/pages/module/sw-product-str
 
 describe('Dynamic product group: Test crud operations', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createDefaultFixture('product-stream');
-            })
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/stream/index`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
-            });
+        cy.createDefaultFixture('product-stream').then(() => {
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/stream/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+        });
     });
 
     it('@base @catalogue: create and read dynamic product group', { tags: ['pa-business-ops'] }, () => {
@@ -22,7 +18,7 @@ describe('Dynamic product group: Test crud operations', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/product-stream`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         cy.get('.sw-product-stream-list__create-action').click();
@@ -47,14 +43,14 @@ describe('Dynamic product group: Test crud operations', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/product-stream/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
 
         // Edit product stream
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
         cy.get(page.elements.loader).should('not.exist');
         cy.get('input[name=sw-field--productStream-name]').clearTypeAndCheck('Streamline');
@@ -75,7 +71,7 @@ describe('Dynamic product group: Test crud operations', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/product-stream/*`,
-            method: 'delete'
+            method: 'delete',
         }).as('deleteData');
 
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('1st Productstream');
@@ -86,7 +82,7 @@ describe('Dynamic product group: Test crud operations', () => {
         cy.clickContextMenuItem(
             '.sw-context-menu-item--danger',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
         cy.contains('button.sw-button', 'Delete').click();
 
@@ -101,19 +97,19 @@ describe('Dynamic product group: Test crud operations', () => {
         // Requests we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/clone/product-stream/*`,
-            method: 'POST'
+            method: 'POST',
         }).as('cloneData');
 
         // Edit product stream
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
         cy.get(page.elements.loader).should('not.exist');
 
@@ -124,8 +120,8 @@ describe('Dynamic product group: Test crud operations', () => {
             {
                 field: 'Active',
                 operator: null,
-                value: 'Yes'
-            }
+                value: 'Yes',
+            },
         );
 
         // Save product stream
@@ -137,7 +133,7 @@ describe('Dynamic product group: Test crud operations', () => {
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-duplicate',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
         cy.wait('@cloneData').its('response.statusCode').should('equal', 200);
         cy.get(page.elements.loader).should('not.exist');
@@ -155,7 +151,7 @@ describe('Dynamic product group: Test crud operations', () => {
         // Click save and duplicate
         cy.clickContextMenuItem(
             '.sw-product-stream-detail__save-duplicate-action',
-            '.sw-product-stream-detail__save-button-group .sw-context-button'
+            '.sw-product-stream-detail__save-button-group .sw-context-button',
         );
 
         // Verify product stream name has been appended

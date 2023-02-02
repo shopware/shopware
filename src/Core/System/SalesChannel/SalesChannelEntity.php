@@ -27,8 +27,7 @@ use Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
-use Shopware\Core\Framework\Event\EventAction\EventActionCollection;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Currency\CurrencyCollection;
@@ -43,6 +42,7 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTranslation\SalesCha
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType\SalesChannelTypeEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigCollection;
 
+#[Package('sales-channel')]
 class SalesChannelEntity extends Entity
 {
     use EntityIdTrait;
@@ -94,7 +94,7 @@ class SalesChannelEntity extends Entity
     protected $navigationCategoryDepth;
 
     /**
-     * @var array|null
+     * @var array<mixed>|null
      */
     protected $homeSlotConfig;
 
@@ -184,7 +184,7 @@ class SalesChannelEntity extends Entity
     protected $languages;
 
     /**
-     * @var array|null
+     * @var array<mixed>|null
      */
     protected $configuration;
 
@@ -199,7 +199,7 @@ class SalesChannelEntity extends Entity
     protected $maintenance;
 
     /**
-     * @var array|null
+     * @var array<mixed>|null
      */
     protected $maintenanceIpWhitelist;
 
@@ -399,13 +399,6 @@ class SalesChannelEntity extends Entity
     protected $customerGroupsRegistrations;
 
     /**
-     * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
-     *
-     * @var EventActionCollection|null
-     */
-    protected $eventActions;
-
-    /**
      * @var CustomerCollection|null
      */
     protected $boundCustomers;
@@ -540,11 +533,17 @@ class SalesChannelEntity extends Entity
         $this->languages = $languages;
     }
 
+    /**
+     * @return array<mixed>|null
+     */
     public function getConfiguration(): ?array
     {
         return $this->configuration;
     }
 
+    /**
+     * @param array<mixed> $configuration
+     */
     public function setConfiguration(array $configuration): void
     {
         $this->configuration = $configuration;
@@ -570,11 +569,17 @@ class SalesChannelEntity extends Entity
         $this->maintenance = $maintenance;
     }
 
+    /**
+     * @return array<mixed>|null
+     */
     public function getMaintenanceIpWhitelist(): ?array
     {
         return $this->maintenanceIpWhitelist;
     }
 
+    /**
+     * @param array<mixed>|null $maintenanceIpWhitelist
+     */
     public function setMaintenanceIpWhitelist(?array $maintenanceIpWhitelist): void
     {
         $this->maintenanceIpWhitelist = $maintenanceIpWhitelist;
@@ -750,11 +755,17 @@ class SalesChannelEntity extends Entity
         $this->navigationCategory = $navigationCategory;
     }
 
+    /**
+     * @return array<mixed>|null
+     */
     public function getHomeSlotConfig(): ?array
     {
         return $this->homeSlotConfig;
     }
 
+    /**
+     * @param array<mixed>|null $homeSlotConfig
+     */
     public function setHomeSlotConfig(?array $homeSlotConfig): void
     {
         $this->homeSlotConfig = $homeSlotConfig;
@@ -1084,32 +1095,6 @@ class SalesChannelEntity extends Entity
     public function setCustomerGroupsRegistrations(CustomerGroupCollection $customerGroupsRegistrations): void
     {
         $this->customerGroupsRegistrations = $customerGroupsRegistrations;
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
-     */
-    public function getEventActions(): ?EventActionCollection
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
-        );
-
-        return $this->eventActions;
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
-     */
-    public function setEventActions(EventActionCollection $eventActions): void
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
-        );
-
-        $this->eventActions = $eventActions;
     }
 
     public function getBoundCustomers(): ?CustomerCollection

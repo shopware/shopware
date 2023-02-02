@@ -4,11 +4,13 @@ namespace Shopware\Core\Checkout\Test\Cart\Processor\_fixtures;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
+#[Package('checkout')]
 class ContainerItem extends LineItem
 {
     public function __construct(array $items = [])

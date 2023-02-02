@@ -9,8 +9,11 @@ const { chunk } = Shopware.Utils.array;
 const { mapState, mapGetters } = Component.getComponentHelper();
 const { cloneDeep } = Shopware.Utils.object;
 
+/**
+ * @package system-settings
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-bulk-edit-product', {
+export default {
     template,
 
     inject: [
@@ -1310,4 +1313,4 @@ Component.register('sw-bulk-edit-product', {
             parentProduct[entityName].forEach(item => this.product[entityName].add(item));
         },
     },
-});
+};

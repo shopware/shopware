@@ -1,16 +1,21 @@
+/*
+ * @package inventory
+ */
+
+import EntityValidationService from 'src/app/service/entity-validation.service';
 import template from './sw-product-detail.html.twig';
 import swProductDetailState from './state';
 import errorConfiguration from './error.cfg.json';
 import './sw-product-detail.scss';
 
-const { Component, Context, Mixin } = Shopware;
+const { Context, Mixin } = Shopware;
 const { Criteria, ChangesetGenerator } = Shopware.Data;
-const { hasOwnProperty, cloneDeep } = Shopware.Utils.object;
+const { cloneDeep } = Shopware.Utils.object;
 const { mapPageErrors, mapState, mapGetters } = Shopware.Component.getComponentHelper();
 const type = Shopware.Utils.types;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-product-detail', {
+export default {
     template,
 
     inject: [
@@ -20,6 +25,7 @@ Component.register('sw-product-detail', {
         'seoUrlService',
         'acl',
         'systemConfigApiService',
+        'entityValidationService',
     ],
 
     mixins: [
@@ -40,6 +46,12 @@ Component.register('sw-product-detail', {
     props: {
         productId: {
             type: String,
+            required: false,
+            default: null,
+        },
+        /* Product "types" provided by the split button for creating a new product through a router parameter */
+        creationStates: {
+            type: Array,
             required: false,
             default: null,
         },
@@ -77,6 +89,7 @@ Component.register('sw-product-detail', {
             'defaultFeatureSet',
             'showModeSetting',
             'advanceModeEnabled',
+            'productStates',
         ]),
 
         ...mapPageErrors(errorConfiguration),
@@ -201,7 +214,8 @@ Component.register('sw-product-detail', {
                 .addAssociation('customFieldSets')
                 .addAssociation('featureSet')
                 .addAssociation('cmsPage')
-                .addAssociation('featureSet');
+                .addAssociation('featureSet')
+                .addAssociation('downloads.media');
 
             criteria.getAssociation('manufacturer')
                 .addAssociation('media');
@@ -380,12 +394,6 @@ Component.register('sw-product-detail', {
             // initialize default state
             this.initState();
 
-            /**
-             * @deprecated tag:v6.5.0 - The event listener "sidebar-toggle-open" will be removed because
-             * the function that called it was deleted.
-             */
-            this.$root.$on('sidebar-toggle-open', this.openMediaSidebar);
-
             this.$root.$on('media-remove', (mediaId) => {
                 this.removeMediaItem(mediaId);
             });
@@ -397,12 +405,6 @@ Component.register('sw-product-detail', {
         },
 
         destroyedComponent() {
-            /**
-             * @deprecated tag:v6.5.0 - The event listener "sidebar-toggle-open" will be removed because
-             * the function that called it was deleted.
-             */
-            this.$root.$off('sidebar-toggle-open');
-
             this.$root.$off('media-remove');
             this.$root.$off('product-reload');
         },
@@ -534,6 +536,9 @@ Component.register('sw-product-detail', {
 
             Shopware.State.commit('swProductDetail/setLoading', ['product', true]);
 
+            // set product "type"
+            Shopware.State.commit('swProductDetail/setCreationStates', this.creationStates);
+
             // create empty product
             Shopware.State.commit('swProductDetail/setProduct', this.productRepository.create());
             Shopware.State.commit('swProductDetail/setProductId', this.product.id);
@@ -545,6 +550,10 @@ Component.register('sw-product-detail', {
             this.product.metaTitle = '';
             this.product.additionalText = '';
             this.product.variantListingConfig = {};
+
+            if (this.creationStates) {
+                this.adjustProductAccordingToType();
+            }
 
             return Promise.all([
                 this.loadCurrencies(),
@@ -603,10 +612,16 @@ Component.register('sw-product-detail', {
             });
         },
 
+        adjustProductAccordingToType() {
+            if (this.creationStates.includes('is-download')) {
+                this.product.maxPurchase = 1;
+            }
+        },
+
         loadProduct() {
             Shopware.State.commit('swProductDetail/setLoading', ['product', true]);
 
-            this.productRepository.get(
+            return this.productRepository.get(
                 this.productId || this.product.id,
                 Shopware.Context.api,
                 this.productCriteria,
@@ -745,19 +760,6 @@ Component.register('sw-product-detail', {
             this.initState();
         },
 
-        /**
-         * @deprecated tag:v6.5.0 - The method "openMediaSidebar" will be removed because
-         * the function that called it was deleted.
-         */
-        openMediaSidebar() {
-            // Check if we have a reference to the component before calling a method
-            if (!hasOwnProperty(this.$refs, 'mediaSidebarItem')
-                || !this.$refs.mediaSidebarItem) {
-                return;
-            }
-            this.$refs.mediaSidebarItem.openContent();
-        },
-
         saveFinish() {
             this.isSaveSuccessful = false;
 
@@ -772,7 +774,9 @@ Component.register('sw-product-detail', {
                     message: this.$tc('sw-product.detail.errorMinMaxPurchase'),
                 });
 
-                return new Promise((res) => res());
+                return new Promise((resolve) => {
+                    resolve();
+                });
             }
 
             this.validateProductPrices();
@@ -786,7 +790,6 @@ Component.register('sw-product-detail', {
                 }
             }
 
-
             this.isSaveSuccessful = false;
 
             const pageOverrides = this.getCmsPageOverrides();
@@ -795,46 +798,31 @@ Component.register('sw-product-detail', {
                 this.product.slotConfig = cloneDeep(pageOverrides);
             }
 
+            if (!this.entityValidationService.validate(this.product, this.customValidate)) {
+                const titleSaveError = this.$tc('global.default.error');
+                const messageSaveError = this.$tc(
+                    'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid',
+                );
+
+                this.createNotificationError({
+                    title: titleSaveError,
+                    message: messageSaveError,
+                });
+                return Promise.resolve();
+            }
+
             return this.saveProduct().then(this.onSaveFinished);
         },
 
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed, use validateProductPrices instead
-         */
-        validateProductListPrices() {
-            this.product.prices.forEach(advancedPrice => {
-                this.validateListPrices(advancedPrice.price);
-            });
-            this.validateListPrices(this.product.price);
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed, use validatePrices instead
-         */
-        validateListPrices(prices) {
-            if (!prices) {
-                return;
+        customValidate(errors, product) {
+            if (this.productStates.includes('is-download')) {
+                // custom download product validation
+                if (product.downloads === undefined || product.downloads.length < 1) {
+                    errors.push(EntityValidationService.createRequiredError('/0/downloads'));
+                }
             }
 
-            prices.forEach(price => {
-                if (!price.listPrice) {
-                    return;
-                }
-
-                if (!price.listPrice.gross && !price.listPrice.net) {
-                    price.listPrice = null;
-                    return;
-                }
-
-                if (!price.listPrice.gross) {
-                    price.listPrice.gross = 0;
-                    return;
-                }
-
-                if (!price.listPrice.net) {
-                    price.listPrice.net = 0;
-                }
-            });
+            return errors;
         },
 
         validateProductPrices() {
@@ -922,7 +910,8 @@ Component.register('sw-product-detail', {
                         if (errorCode === 'CONTENT__DUPLICATE_PRODUCT_NUMBER') {
                             const titleSaveError = this.$tc('global.default.error');
                             const messageSaveError = this.$t(
-                                'sw-product.notification.notificationSaveErrorProductNoAlreadyExists', {
+                                'sw-product.notification.notificationSaveErrorProductNoAlreadyExists',
+                                {
                                     productNo: response.response.data.errors[0].meta.parameters.number,
                                 },
                             );
@@ -986,69 +975,6 @@ Component.register('sw-product-detail', {
             });
         },
 
-        /**
-         * @deprecated tag:v6.5.0 - The method "onAddItemToProduct" will be removed because
-         * its relevant view was removed
-         */
-        onAddItemToProduct(mediaItem) {
-            if (this._checkIfMediaIsAlreadyUsed(mediaItem.id)) {
-                this.createNotificationInfo({
-                    message: this.$tc('sw-product.mediaForm.errorMediaItemDuplicated'),
-                });
-                return false;
-            }
-
-            this.addMedia(mediaItem).then((mediaId) => {
-                this.$root.$emit('media-added', mediaId);
-                return true;
-            }).catch(() => {
-                this.createNotificationError({
-                    title: this.$tc('sw-product.mediaForm.errorHeadline'),
-                    message: this.$tc('sw-product.mediaForm.errorMediaItemDuplicated'),
-                });
-
-                return false;
-            });
-            return true;
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - The method "addMedia" will be removed because
-         * the function that called it was deleted.
-         */
-        addMedia(mediaItem) {
-            Shopware.State.commit('swProductDetail/setLoading', ['media', true]);
-
-            // return error if media exists
-            if (this.product.media.has(mediaItem.id)) {
-                Shopware.State.commit('swProductDetail/setLoading', ['media', false]);
-                // eslint-disable-next-line prefer-promise-reject-errors
-                return Promise.reject('A media item with this id exists');
-            }
-
-            const newMedia = this.mediaRepository.create();
-            newMedia.mediaId = mediaItem.id;
-            newMedia.media = {
-                url: mediaItem.url,
-                id: mediaItem.id,
-            };
-
-            return new Promise((resolve) => {
-                // if no other media exists
-                if (this.product.media.length === 0) {
-                    // set media item as cover
-                    newMedia.position = 0;
-                    this.product.coverId = newMedia.id;
-                }
-                this.product.media.add(newMedia);
-
-                Shopware.State.commit('swProductDetail/setLoading', ['media', false]);
-
-                resolve(newMedia.mediaId);
-                return true;
-            });
-        },
-
         removeMediaItem(state, mediaId) {
             const media = this.product.media.find((mediaItem) => mediaItem.mediaId === mediaId);
 
@@ -1070,16 +996,6 @@ Component.register('sw-product-detail', {
             if (media) {
                 this.product.coverId = media.id;
             }
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - The method "_checkIfMediaIsAlreadyUsed" will be removed because
-         * the function that called it was deleted.
-         */
-        _checkIfMediaIsAlreadyUsed(mediaId) {
-            return this.product.media.some((productMedia) => {
-                return productMedia.mediaId === mediaId;
-            });
         },
 
         getInheritTitle() {
@@ -1185,4 +1101,4 @@ Component.register('sw-product-detail', {
             });
         },
     },
-});
+};

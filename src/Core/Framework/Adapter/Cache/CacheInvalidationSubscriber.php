@@ -42,6 +42,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Event\PluginPostActivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostDeactivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostInstallEvent;
@@ -61,6 +62,7 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCurrency\SalesChanne
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelLanguage\SalesChannelLanguageDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelPaymentMethod\SalesChannelPaymentMethodDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelShippingMethod\SalesChannelShippingMethodDefinition;
+use Shopware\Core\System\SalesChannel\Context\CachedBaseContextFactory;
 use Shopware\Core\System\SalesChannel\Context\CachedSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\Salutation\SalesChannel\CachedSalutationRoute;
@@ -77,24 +79,17 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal - The functions inside this class are no public-api and can be changed without previous deprecation
  */
+#[Package('core')]
 class CacheInvalidationSubscriber implements EventSubscriberInterface
 {
-    private Connection $connection;
-
-    private CacheInvalidator $cacheInvalidator;
-
-    public function __construct(
-        CacheInvalidator $cacheInvalidator,
-        Connection $connection
-    ) {
-        $this->cacheInvalidator = $cacheInvalidator;
-        $this->connection = $connection;
+    public function __construct(private readonly CacheInvalidator $cacheInvalidator, private readonly Connection $connection)
+    {
     }
 
     /**
      * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             CategoryIndexerEvent::class => [
@@ -229,10 +224,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
     public function invalidateShippingMethodRoute(EntityWrittenContainerEvent $event): void
     {
         // checks if a shipping method changed or the assignment between shipping method and sales channel
-        $logs = array_merge(
-            $this->getChangedShippingMethods($event),
-            $this->getChangedShippingAssignments($event)
-        );
+        $logs = [...$this->getChangedShippingMethods($event), ...$this->getChangedShippingAssignments($event)];
 
         $this->cacheInvalidator->invalidate($logs);
     }
@@ -257,7 +249,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
     {
         // invalidates all routes and http cache pages where a cms page was loaded, the id is assigned as tag
         $this->cacheInvalidator->invalidate(
-            array_map([EntityCacheKeyGenerator::class, 'buildCmsTag'], $event->getPrimaryKeys(CmsPageDefinition::ENTITY_NAME))
+            array_map(EntityCacheKeyGenerator::buildCmsTag(...), $event->getPrimaryKeys(CmsPageDefinition::ENTITY_NAME))
         );
     }
 
@@ -265,7 +257,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
     {
         // invalidates all routes which loads products in nested unknown objects, like cms listing elements or cross selling elements
         $this->cacheInvalidator->invalidate(
-            array_map([EntityCacheKeyGenerator::class, 'buildProductTag'], $event->getIds())
+            array_map(EntityCacheKeyGenerator::buildProductTag(...), $event->getIds())
         );
     }
 
@@ -273,7 +265,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
     {
         // invalidates all routes which are loaded based on a stream (e.G. category listing and cross selling)
         $this->cacheInvalidator->invalidate(
-            array_map([EntityCacheKeyGenerator::class, 'buildStreamTag'], $event->getPrimaryKeys(ProductStreamDefinition::ENTITY_NAME))
+            array_map(EntityCacheKeyGenerator::buildStreamTag(...), $event->getPrimaryKeys(ProductStreamDefinition::ENTITY_NAME))
         );
     }
 
@@ -304,28 +296,19 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
     public function invalidateCurrencyRoute(EntityWrittenContainerEvent $event): void
     {
         // invalidates the currency route when a currency changed or an assignment between the sales channel and currency changed
-        $this->cacheInvalidator->invalidate(array_merge(
-            $this->getChangedCurrencyAssignments($event),
-            $this->getChangedCurrencies($event)
-        ));
+        $this->cacheInvalidator->invalidate([...$this->getChangedCurrencyAssignments($event), ...$this->getChangedCurrencies($event)]);
     }
 
     public function invalidateLanguageRoute(EntityWrittenContainerEvent $event): void
     {
         // invalidates the language route when a language changed or an assignment between the sales channel and language changed
-        $this->cacheInvalidator->invalidate(array_merge(
-            $this->getChangedLanguageAssignments($event),
-            $this->getChangedLanguages($event)
-        ));
+        $this->cacheInvalidator->invalidate([...$this->getChangedLanguageAssignments($event), ...$this->getChangedLanguages($event)]);
     }
 
     public function invalidateCountryRoute(EntityWrittenContainerEvent $event): void
     {
         // invalidates the country route when a country changed or an assignment between the sales channel and country changed
-        $this->cacheInvalidator->invalidate(array_merge(
-            $this->getChangedCountryAssignments($event),
-            $this->getChangedCountries($event),
-        ));
+        $this->cacheInvalidator->invalidate([...$this->getChangedCountryAssignments($event), ...$this->getChangedCountries($event)]);
     }
 
     public function invalidateCountryStateRoute(EntityWrittenContainerEvent $event): void
@@ -352,18 +335,13 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
     public function invalidateSalutationRoute(EntityWrittenContainerEvent $event): void
     {
         // invalidates the salutation route when a salutation changed
-        $this->cacheInvalidator->invalidate(array_merge(
-            $this->getChangedSalutations($event),
-        ));
+        $this->cacheInvalidator->invalidate([...$this->getChangedSalutations($event)]);
     }
 
     public function invalidateNavigationRoute(EntityWrittenContainerEvent $event): void
     {
         // invalidates the navigation route when a category changed or the entry point configuration of an sales channel changed
-        $logs = array_merge(
-            $this->getChangedCategories($event),
-            $this->getChangedEntryPoints($event)
-        );
+        $logs = [...$this->getChangedCategories($event), ...$this->getChangedEntryPoints($event)];
 
         $this->cacheInvalidator->invalidate($logs);
     }
@@ -371,10 +349,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
     public function invalidatePaymentMethodRoute(EntityWrittenContainerEvent $event): void
     {
         // invalidates the payment method route when a payment method changed or an assignment between the sales channel and payment method changed
-        $logs = array_merge(
-            $this->getChangedPaymentMethods($event),
-            $this->getChangedPaymentAssignments($event)
-        );
+        $logs = [...$this->getChangedPaymentMethods($event), ...$this->getChangedPaymentAssignments($event)];
 
         $this->cacheInvalidator->invalidate($logs);
     }
@@ -413,6 +388,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
         //invalidates the context cache - each time one of the entities which are considered inside the context factory changed
         $ids = $event->getPrimaryKeys(SalesChannelDefinition::ENTITY_NAME);
         $keys = array_map([CachedSalesChannelContextFactory::class, 'buildName'], $ids);
+        $keys = array_merge($keys, array_map([CachedBaseContextFactory::class, 'buildName'], $ids));
 
         if ($event->getEventByEntityName(CurrencyDefinition::ENTITY_NAME)) {
             $keys[] = CachedSalesChannelContextFactory::ALL_TAG;
@@ -477,10 +453,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
 
     public function invalidatePropertyFilters(EntityWrittenContainerEvent $event): void
     {
-        $this->cacheInvalidator->invalidate(array_merge(
-            $this->getChangedPropertyFilterTags($event),
-            $this->getDeletedPropertyFilterTags($event)
-        ));
+        $this->cacheInvalidator->invalidate([...$this->getChangedPropertyFilterTags($event), ...$this->getDeletedPropertyFilterTags($event)]);
     }
 
     public function invalidateReviewRoute(ProductChangedEventInterface $event): void
@@ -518,7 +491,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
         );
 
         $this->cacheInvalidator->invalidate(
-            array_map([EntityCacheKeyGenerator::class, 'buildStreamTag'], $ids)
+            array_map(EntityCacheKeyGenerator::buildStreamTag(...), $ids)
         );
     }
 
@@ -535,7 +508,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
         );
 
         $this->cacheInvalidator->invalidate(
-            array_map([EntityCacheKeyGenerator::class, 'buildStreamTag'], $ids)
+            array_map(EntityCacheKeyGenerator::buildStreamTag(...), $ids)
         );
     }
 
@@ -559,6 +532,9 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
         );
     }
 
+    /**
+     * @return list<string>
+     */
     private function getDeletedPropertyFilterTags(EntityWrittenContainerEvent $event): array
     {
         // invalidates the product listing route, each time a property changed
@@ -576,6 +552,9 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
         );
     }
 
+    /**
+     * @return list<string>
+     */
     private function getChangedPropertyFilterTags(EntityWrittenContainerEvent $event): array
     {
         // invalidates the product listing route and detail rule, each time a property group changed
@@ -603,18 +582,15 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
             ['ids' => Uuid::fromHexToBytesList($propertyGroupIds), 'optionIds' => Uuid::fromHexToBytesList($propertyOptionIds), 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
             ['ids' => Connection::PARAM_STR_ARRAY, 'optionIds' => Connection::PARAM_STR_ARRAY]
         );
-        $productIds = array_unique(array_merge(
-            $productIds,
-            $this->connection->fetchFirstColumn(
-                'SELECT product_option.product_id
+        $productIds = array_unique([...$productIds, ...$this->connection->fetchFirstColumn(
+            'SELECT product_option.product_id
                  FROM product_option
                     LEFT JOIN property_group_option productOptions ON productOptions.id = product_option.property_group_option_id
                  WHERE productOptions.property_group_id IN (:ids) OR productOptions.id IN (:optionIds)
                  AND product_option.product_version_id = :version',
-                ['ids' => Uuid::fromHexToBytesList($propertyGroupIds), 'optionIds' => Uuid::fromHexToBytesList($propertyOptionIds), 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
-                ['ids' => Connection::PARAM_STR_ARRAY, 'optionIds' => Connection::PARAM_STR_ARRAY]
-            )
-        ));
+            ['ids' => Uuid::fromHexToBytesList($propertyGroupIds), 'optionIds' => Uuid::fromHexToBytesList($propertyOptionIds), 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
+            ['ids' => Connection::PARAM_STR_ARRAY, 'optionIds' => Connection::PARAM_STR_ARRAY]
+        )]);
 
         if (empty($productIds)) {
             return [];
@@ -636,12 +612,14 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
             ['productIds' => Connection::PARAM_STR_ARRAY]
         );
 
-        return array_merge(
-            array_map([CachedProductDetailRoute::class, 'buildName'], array_filter($parentIds)),
-            array_map([CachedProductListingRoute::class, 'buildName'], array_filter($categoryIds)),
-        );
+        return [...array_map([CachedProductDetailRoute::class, 'buildName'], array_filter($parentIds)), ...array_map([CachedProductListingRoute::class, 'buildName'], array_filter($categoryIds))];
     }
 
+    /**
+     * @param list<string> $ids
+     *
+     * @return list<string>
+     */
     private function getProductCategoryIds(array $ids): array
     {
         return $this->connection->fetchFirstColumn(
@@ -655,6 +633,9 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
         );
     }
 
+    /**
+     * @return list<string>
+     */
     private function getChangedShippingMethods(EntityWrittenContainerEvent $event): array
     {
         $ids = $event->getPrimaryKeys(ShippingMethodDefinition::ENTITY_NAME);
@@ -676,6 +657,9 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
         return array_merge($tags, array_map([CachedShippingMethodRoute::class, 'buildName'], $ids));
     }
 
+    /**
+     * @return list<string>
+     */
     private function getChangedShippingAssignments(EntityWrittenContainerEvent $event): array
     {
         //Used to detect changes to the shipping assignment of a sales channel
@@ -686,6 +670,9 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
         return array_map([CachedShippingMethodRoute::class, 'buildName'], $ids);
     }
 
+    /**
+     * @return list<string>
+     */
     private function getChangedPaymentMethods(EntityWrittenContainerEvent $event): array
     {
         $ids = $event->getPrimaryKeys(PaymentMethodDefinition::ENTITY_NAME);
@@ -707,6 +694,9 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
         return array_merge($tags, array_map([CachedPaymentMethodRoute::class, 'buildName'], $ids));
     }
 
+    /**
+     * @return list<string>
+     */
     private function getChangedPaymentAssignments(EntityWrittenContainerEvent $event): array
     {
         //Used to detect changes to the language assignment of a sales channel
@@ -717,6 +707,9 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
         return array_map([CachedPaymentMethodRoute::class, 'buildName'], $ids);
     }
 
+    /**
+     * @return list<string>
+     */
     private function getChangedCategories(EntityWrittenContainerEvent $event): array
     {
         $ids = $event->getPrimaryKeysWithPayload(CategoryDefinition::ENTITY_NAME);
@@ -731,6 +724,9 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
         return $ids;
     }
 
+    /**
+     * @return list<string>
+     */
     private function getChangedEntryPoints(EntityWrittenContainerEvent $event): array
     {
         $ids = $event->getPrimaryKeysWithPropertyChange(
@@ -745,6 +741,9 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
         return [CachedNavigationRoute::ALL_TAG];
     }
 
+    /**
+     * @return list<string>
+     */
     private function getChangedCountries(EntityWrittenContainerEvent $event): array
     {
         $ids = $event->getPrimaryKeys(CountryDefinition::ENTITY_NAME);
@@ -767,6 +766,9 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
         return array_merge($tags, array_map([CachedCountryRoute::class, 'buildName'], $ids));
     }
 
+    /**
+     * @return list<string>
+     */
     private function getChangedCountryAssignments(EntityWrittenContainerEvent $event): array
     {
         //Used to detect changes to the country assignment of a sales channel
@@ -777,6 +779,9 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
         return array_map([CachedCountryRoute::class, 'buildName'], $ids);
     }
 
+    /**
+     * @return list<string>
+     */
     private function getChangedSalutations(EntityWrittenContainerEvent $event): array
     {
         $ids = $event->getPrimaryKeys(SalutationDefinition::ENTITY_NAME);
@@ -787,6 +792,9 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
         return [CachedSalutationRoute::ALL_TAG];
     }
 
+    /**
+     * @return list<string>
+     */
     private function getChangedLanguages(EntityWrittenContainerEvent $event): array
     {
         $ids = $event->getPrimaryKeys(LanguageDefinition::ENTITY_NAME);
@@ -809,6 +817,9 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
         return array_merge($tags, array_map([CachedLanguageRoute::class, 'buildName'], $ids));
     }
 
+    /**
+     * @return list<string>
+     */
     private function getChangedLanguageAssignments(EntityWrittenContainerEvent $event): array
     {
         //Used to detect changes to the language assignment of a sales channel
@@ -819,6 +830,9 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
         return array_map([CachedLanguageRoute::class, 'buildName'], $ids);
     }
 
+    /**
+     * @return list<string>
+     */
     private function getChangedCurrencies(EntityWrittenContainerEvent $event): array
     {
         $ids = $event->getPrimaryKeys(CurrencyDefinition::ENTITY_NAME);
@@ -842,6 +856,9 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
         return array_merge($tags, array_map([CachedCurrencyRoute::class, 'buildName'], $ids));
     }
 
+    /**
+     * @return list<string>
+     */
     private function getChangedCurrencyAssignments(EntityWrittenContainerEvent $event): array
     {
         //Used to detect changes to the currency assignment of a sales channel

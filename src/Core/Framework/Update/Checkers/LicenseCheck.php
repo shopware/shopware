@@ -2,29 +2,19 @@
 
 namespace Shopware\Core\Framework\Update\Checkers;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\Framework\Update\Struct\ValidationResult;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
+#[Package('system-settings')]
 class LicenseCheck implements CheckerInterface
 {
     /**
-     * @var SystemConfigService
-     */
-    private $systemConfigService;
-
-    /**
-     * @var StoreClient
-     */
-    private $storeClient;
-
-    /**
      * @internal
      */
-    public function __construct(SystemConfigService $systemConfigService, StoreClient $storeClient)
+    public function __construct(private readonly SystemConfigService $systemConfigService, private readonly StoreClient $storeClient)
     {
-        $this->systemConfigService = $systemConfigService;
-        $this->storeClient = $storeClient;
     }
 
     public function supports(string $check): bool

@@ -1,6 +1,7 @@
 import ApiService from '../api.service';
 
 /**
+ * @package customer-order
  * Gateway for the API end point "customer-group-registration"
  * @class
  * @extends ApiService

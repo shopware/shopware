@@ -31,7 +31,7 @@
     >
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_custom_field_translated_labels_translated_tabs %}
-        <template slot-scope="{ active }">
+        <template #default="{ active }">
             <sw-tabs-item
                 v-for="locale in locales"
                 :key="locale"
@@ -48,8 +48,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_custom_field_translated_labels_translated_content %}
         <template
-            slot="content"
-            slot-scope="{ active }"
+            #content="{ active }"
         >
             <!-- eslint-disable vue/no-use-v-if-with-v-for -->
             <div

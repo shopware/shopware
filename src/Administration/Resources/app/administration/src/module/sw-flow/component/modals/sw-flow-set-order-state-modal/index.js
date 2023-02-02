@@ -4,8 +4,11 @@ const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapState } = Component.getComponentHelper();
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-flow-set-order-state-modal', {
+/**
+ * @private
+ * @package business-ops
+ */
+export default {
     template,
 
     inject: [
@@ -132,4 +135,4 @@ Component.register('sw-flow-set-order-state-modal', {
             this.$emit('process-finish', sequence);
         },
     },
-});
+};

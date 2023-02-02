@@ -2,9 +2,7 @@
 
 describe('Sales Channel: create product, change currency and language', () => {
     beforeEach(() => {
-        cy.loginViaApi().then(() => {
-            cy.createProductFixture();
-        }).then(() => {
+        cy.createProductFixture().then(() => {
             cy.openInitialPage(Cypress.env('admin'));
             cy.get('.sw-skeleton').should('not.exist');
             cy.get('.sw-loader').should('not.exist');
@@ -14,15 +12,15 @@ describe('Sales Channel: create product, change currency and language', () => {
     it('@package: create sales channel', { tags: ['pa-sales-channels'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/sales-channel-domain`,
-            method: 'POST'
+            method: 'POST',
         }).as('verifyDomain');
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/product-visibility`,
-            method: 'POST'
+            method: 'POST',
         }).as('editProduct');
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/sales-channel`,
-            method: 'POST'
+            method: 'POST',
         }).as('editSalesChannel');
 
         // Configure sales channel
@@ -81,7 +79,7 @@ describe('Sales Channel: create product, change currency and language', () => {
         cy.visit('/nl');
         cy.get('.header-search-input').type('Product name');
         cy.contains('.search-suggest-product-name', 'Product name').click();
-        cy.contains('.product-detail-price', '€ 49,98*')
+        cy.contains('.product-detail-price', '€ 49,98*');
         cy.get('.product-detail-buy .btn-buy').contains('In het winkelmandje').click();
 
         // Off canvas
@@ -102,7 +100,7 @@ describe('Sales Channel: create product, change currency and language', () => {
         cy.contains('#languagesDropdown-top-bar', 'Deutsch');
 
         // Verify currency and language on detail page
-        cy.contains('.product-detail-price', '58,52 $*')
+        cy.contains('.product-detail-price', '58,52 $*');
         cy.contains('.product-detail-buy .btn-buy', 'In den Warenkorb').should('be.visible');
 
         // Verify currency and language on canvas

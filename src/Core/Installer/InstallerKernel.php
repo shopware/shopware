@@ -3,6 +3,8 @@
 namespace Shopware\Core\Installer;
 
 use Composer\InstalledVersions;
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\VersionParser;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
@@ -16,13 +18,14 @@ use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 /**
  * @internal
  */
+#[Package('core')]
 class InstallerKernel extends HttpKernel
 {
     use MicroKernelTrait;
 
-    private string $shopwareVersion;
+    private readonly string $shopwareVersion;
 
-    private ?string $shopwareVersionRevision;
+    private readonly ?string $shopwareVersionRevision;
 
     public function __construct(string $environment, bool $debug)
     {
@@ -41,6 +44,15 @@ class InstallerKernel extends HttpKernel
         $version = VersionParser::parseShopwareVersion($version);
         $this->shopwareVersion = $version['version'];
         $this->shopwareVersionRevision = $version['revision'];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function boot(): void
+    {
+        parent::boot();
+        $this->ensureComposerHomeVarIsSet();
     }
 
     /**
@@ -102,5 +114,17 @@ class InstallerKernel extends HttpKernel
     protected function configureRoutes(RoutingConfigurator $routes): void
     {
         $routes->import(__DIR__ . '/Resources/config/routes.xml');
+    }
+
+    /**
+     * We check the requirements via composer, and composer will fail if the composer home is not set
+     */
+    private function ensureComposerHomeVarIsSet(): void
+    {
+        if (!EnvironmentHelper::getVariable('COMPOSER_HOME')) {
+            // The same location is also used in EnvConfigWriter and SystemSetupCommand
+            $fallbackComposerHome = $this->getProjectDir() . '/var/cache/composer';
+            $_ENV['COMPOSER_HOME'] = $_SERVER['COMPOSER_HOME'] = $fallbackComposerHome;
+        }
     }
 }

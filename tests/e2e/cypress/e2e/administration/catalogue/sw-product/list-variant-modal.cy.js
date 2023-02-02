@@ -2,18 +2,14 @@
 
 describe('Product: Test variants', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createPropertyFixture({
-                    name: 'Size',
-                    options: [{ name: 'S' }, { name: 'M' }, { name: 'L' }]
-                });
-            })
-            .then(() => {
-                return cy.createProductFixture({
-                    name: 'Parent Product'
-                });
-            })
+        cy.createPropertyFixture({
+            name: 'Size',
+            options: [{ name: 'S' }, { name: 'M' }, { name: 'L' }],
+        }).then(() => {
+            return cy.createProductFixture({
+                name: 'Parent Product',
+            });
+        })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
                 cy.get('.sw-skeleton').should('not.exist');
@@ -32,9 +28,9 @@ describe('Product: Test variants', () => {
 
                 cy.get('.sw-property-search__tree-selection__option_grid .sw-grid__row--0 > :nth-child(2)').click();
 
-                cy.get('.sw-product-variant-generation__generate-action').click();
+                cy.get('.sw-product-variant-generation__next-action').click();
 
-                cy.get('.sw-product-modal-variant-generation__notification-modal .sw-button--primary').click();
+                cy.get('.sw-product-modal-variant-generation__upload_files .sw-button--primary').click();
 
                 cy.get('.sw-modal').should('not.exist');
 
@@ -43,7 +39,7 @@ describe('Product: Test variants', () => {
                 cy.get('.sw-loader').should('not.exist');
 
                 // open variant modal
-                cy.get(':nth-child(2) > .sw-button')
+                cy.get('.sw-data-grid :nth-child(2) > .sw-button')
                     .should('be.visible')
                     .click();
 
@@ -55,7 +51,7 @@ describe('Product: Test variants', () => {
     it('@catalogue: should edit variants in modal', { tags: ['pa-inventory'] }, () => {
         cy.intercept({
             method: 'PATCH',
-            url: `${Cypress.env('apiPath')}/product/*`
+            url: `${Cypress.env('apiPath')}/product/*`,
         }).as('saveChanges');
 
         cy.get('.sw-modal .sw-data-grid__row--0')
@@ -85,7 +81,7 @@ describe('Product: Test variants', () => {
     it('@catalogue @base: delete variants in modal', { tags: ['quarantined', 'pa-inventory'] }, () => {
         cy.intercept({
             method: 'POST',
-            url: 'api/_action/sync'
+            url: 'api/_action/sync',
         }).as('deleteData');
 
         cy.get('.sw-modal .sw-data-grid__actions-menu')

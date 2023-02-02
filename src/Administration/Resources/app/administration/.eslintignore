@@ -1,3 +1,5 @@
 build/*.js
 config/*.js
 test/e2e/**/*
+src/app/component/base/sw-icon/index.js
+scripts/**/*

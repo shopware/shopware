@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
@@ -19,6 +20,7 @@ use Symfony\Component\HttpKernel\Bundle\BundleInterface;
  * @internal
  * @group skip-paratest
  */
+#[Package('system-settings')]
 class ConfigurationServiceInFlagTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -32,10 +34,7 @@ class ConfigurationServiceInFlagTest extends TestCase
         'FEATURE_NEXT_102',
     ];
 
-    /**
-     * @var ConfigurationService
-     */
-    private $configurationService;
+    private ConfigurationService $configurationService;
 
     private static string $featureAllValue;
 

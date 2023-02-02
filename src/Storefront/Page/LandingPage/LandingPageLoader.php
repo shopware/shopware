@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Page\LandingPage;
 
 use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Content\LandingPage\SalesChannel\AbstractLandingPageRoute;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
@@ -11,31 +12,14 @@ use Shopware\Storefront\Page\MetaInformation;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
+#[Package('content')]
 class LandingPageLoader
 {
     /**
-     * @var GenericPageLoaderInterface
-     */
-    private $genericPageLoader;
-
-    /**
-     * @var AbstractLandingPageRoute
-     */
-    private $landingPageRoute;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    /**
      * @internal
      */
-    public function __construct(
-        GenericPageLoaderInterface $genericPageLoader,
-        AbstractLandingPageRoute $landingPageRoute,
-        EventDispatcherInterface $eventDispatcher
-    ) {
-        $this->genericPageLoader = $genericPageLoader;
-        $this->landingPageRoute = $landingPageRoute;
-        $this->eventDispatcher = $eventDispatcher;
+    public function __construct(private readonly GenericPageLoaderInterface $genericPageLoader, private readonly AbstractLandingPageRoute $landingPageRoute, private readonly EventDispatcherInterface $eventDispatcher)
+    {
     }
 
     /**
@@ -50,23 +34,21 @@ class LandingPageLoader
 
         $landingPage = $this->landingPageRoute->load($landingPageId, $request, $context)->getLandingPage();
 
-        $cmsPage = $landingPage->getCmsPage();
-        if ($cmsPage === null) {
+        if ($landingPage->getCmsPage() === null) {
             throw new PageNotFoundException($landingPageId);
         }
 
         $page = $this->genericPageLoader->load($request, $context);
         $page = LandingPage::createFrom($page);
 
+        $page->setLandingPage($landingPage);
+
         $metaInformation = new MetaInformation();
         $metaTitle = $landingPage->getMetaTitle() ?? $landingPage->getName();
-        $page->setCmsPage($cmsPage);
-        $page->setNavigationId($landingPage->getId());
         $metaInformation->setMetaTitle($metaTitle ?? '');
         $metaInformation->setMetaDescription($landingPage->getMetaDescription() ?? '');
         $metaInformation->setMetaKeywords($landingPage->getKeywords() ?? '');
         $page->setMetaInformation($metaInformation);
-        $page->setCustomFields($landingPage->getCustomFields());
 
         $this->eventDispatcher->dispatch(
             new LandingPageLoadedEvent($page, $context, $request)

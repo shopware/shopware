@@ -21,6 +21,7 @@ use Shopware\Core\Checkout\Test\Cart\Processor\_fixtures\HighTaxes;
 use Shopware\Core\Checkout\Test\Cart\Processor\_fixtures\LowTaxes;
 use Shopware\Core\Checkout\Test\Cart\Processor\_fixtures\PercentageItem;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -30,13 +31,15 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
+#[Package('checkout')]
 class DiscountProcessorTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    public const DISCOUNT_ID = 'discount-id';
+    final public const DISCOUNT_ID = 'discount-id';
 
     /**
+     * @param array<LineItem> $items
      * @dataProvider processorProvider
      */
     public function testProcessor(array $items, ?CalculatedPrice $expected): void
@@ -46,14 +49,12 @@ class DiscountProcessorTest extends TestCase
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
         $cart->setLineItems(new LineItemCollection($items));
 
-        $new = new Cart('after', 'after');
+        $new = new Cart('after');
         $new->setLineItems(
-            (new LineItemCollection($items))->filter(function (LineItem $item) {
-                return $item->getType() !== LineItem::DISCOUNT_LINE_ITEM;
-            })
+            (new LineItemCollection($items))->filter(fn (LineItem $item) => $item->getType() !== LineItem::DISCOUNT_LINE_ITEM)
         );
 
         $processor->process(new CartDataCollection(), $cart, $new, $context, new CartBehavior());

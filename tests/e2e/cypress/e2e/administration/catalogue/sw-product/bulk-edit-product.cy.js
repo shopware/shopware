@@ -12,9 +12,9 @@ describe('Product: Test bulk edit product', () => {
                 cy.searchViaAdminApi({
                     data: {
                         field: 'name',
-                        value: 'Standard rate'
+                        value: 'Standard rate',
                     },
-                    endpoint: 'tax'
+                    endpoint: 'tax',
                 });
             }).then(tax => {
                 taxId = tax.id;
@@ -22,9 +22,9 @@ describe('Product: Test bulk edit product', () => {
                 cy.searchViaAdminApi({
                     data: {
                         field: 'name',
-                        value: 'Euro'
+                        value: 'Euro',
                     },
-                    endpoint: 'currency'
+                    endpoint: 'currency',
                 });
             })
             .then(currency => {
@@ -46,31 +46,31 @@ describe('Product: Test bulk edit product', () => {
                                     currencyId: currencyId,
                                     net: 42,
                                     linked: false,
-                                    gross: 64
-                                }
-                            ]
-                        }
+                                    gross: 64,
+                                },
+                            ],
+                        },
                     );
                 }
                 return cy.request({
                     headers: {
                         Accept: 'application/vnd.api+json',
                         Authorization: `Bearer ${auth.access}`,
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
                     },
                     method: 'POST',
                     url: '/api/_action/sync',
                     qs: {
-                        response: true
+                        response: true,
                     },
                     body: {
                         'write-product': {
                             entity: 'product',
                             action: 'upsert',
-                            payload: products
-                        }
+                            payload: products,
+                        },
 
-                    }
+                    },
                 });
             });
     });
@@ -78,20 +78,20 @@ describe('Product: Test bulk edit product', () => {
     it('@product: bulk edit product', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product`,
-            method: 'POST'
+            method: 'POST',
         }).as('getProduct');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/user-config`,
-            method: 'POST'
+            method: 'POST',
         }).as('getUserConfig');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
-        cy.loginViaApi();
+        cy.authenticate();
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
 

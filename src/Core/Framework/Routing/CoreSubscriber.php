@@ -2,32 +2,33 @@
 
 namespace Shopware\Core\Framework\Routing;
 
-use Shopware\Core\Framework\Routing\Annotation\RouteScope as RouteScopeAnnotation;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
+/**
+ * @internal
+ */
+#[Package('core')]
 class CoreSubscriber implements EventSubscriberInterface
 {
     /**
-     * @var array<string>
-     */
-    private array $cspTemplates;
-
-    /**
      * @internal
+     *
+     * @param array<string> $cspTemplates
      */
-    public function __construct($cspTemplates)
+    public function __construct(private array $cspTemplates)
     {
-        $this->cspTemplates = (array) $cspTemplates;
+        $this->cspTemplates = $cspTemplates;
     }
 
     /**
      * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             KernelEvents::REQUEST => 'initializeCspNonce',
@@ -58,9 +59,6 @@ class CoreSubscriber implements EventSubscriberInterface
         $cspTemplate = $this->cspTemplates['default'] ?? '';
 
         $scopes = $event->getRequest()->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []);
-        if ($scopes instanceof RouteScopeAnnotation) {
-            $scopes = $scopes->getScopes();
-        }
 
         foreach ($scopes as $scope) {
             $cspTemplate = $this->cspTemplates[$scope] ?? $cspTemplate;

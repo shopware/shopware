@@ -63,7 +63,7 @@ class JwtCertificateGeneratorTest extends TestCase
 
         /** @var string $privateCertificate */
         $privateCertificate = file_get_contents($this->privatePath);
-        /** @var resource $privateKey */
+        /** @var \OpenSSLAsymmetricKey $privateKey */
         $privateKey = openssl_pkey_get_private($privateCertificate, $passphrase);
 
         openssl_sign($data, $signature, $privateKey);
@@ -93,7 +93,7 @@ class JwtCertificateGeneratorTest extends TestCase
         $data = 'test data';
         /** @var string $privateCertificate */
         $privateCertificate = file_get_contents($this->privatePath);
-        /** @var resource $privateKey */
+        /** @var \OpenSSLAsymmetricKey $privateKey */
         $privateKey = openssl_pkey_get_private($privateCertificate);
 
         openssl_sign($data, $signature, $privateKey);

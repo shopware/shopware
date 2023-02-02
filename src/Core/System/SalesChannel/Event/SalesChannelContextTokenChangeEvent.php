@@ -4,9 +4,11 @@ namespace Shopware\Core\System\SalesChannel\Event;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
+#[Package('core')]
 class SalesChannelContextTokenChangeEvent extends Event implements ShopwareSalesChannelEvent
 {
     /**

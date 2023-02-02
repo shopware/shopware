@@ -3,17 +3,22 @@
 namespace Shopware\Core\System\CustomEntity\Xml;
 
 use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
  */
+#[Package('core')]
 class Entities extends XmlElement
 {
     /**
-     * @var Entity[]
+     * @var list<Entity>
      */
     protected $entities = [];
 
+    /**
+     * @param list<Entity> $entities
+     */
     public function __construct(array $entities)
     {
         $this->entities = $entities;
@@ -25,7 +30,7 @@ class Entities extends XmlElement
     }
 
     /**
-     * @return Entity[]
+     * @return list<Entity>
      */
     public function getEntities(): array
     {
@@ -33,7 +38,7 @@ class Entities extends XmlElement
     }
 
     /**
-     * @return Entity[]
+     * @return list<Entity>
      */
     private static function parseEntities(\DOMElement $element): array
     {

@@ -1,9 +1,9 @@
 import template from './sw-settings-address.html.twig';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-settings-address', {
+export default {
     template,
 
     mixins: [
@@ -39,4 +39,4 @@ Component.register('sw-settings-address', {
             this.isLoading = loading;
         },
     },
-});
+};

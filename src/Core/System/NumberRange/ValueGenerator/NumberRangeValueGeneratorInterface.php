@@ -3,7 +3,9 @@
 namespace Shopware\Core\System\NumberRange\ValueGenerator;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('checkout')]
 interface NumberRangeValueGeneratorInterface
 {
     /**

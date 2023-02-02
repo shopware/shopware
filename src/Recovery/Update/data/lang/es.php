@@ -1,5 +1,8 @@
 <?php declare(strict_types=1);
 
+/**
+ * @package system-settings
+ */
 return [
     'title' => 'Script actualización Shopware 6',
     'meta_text' => '<strong>Actualización Shopware:</strong>',
@@ -56,4 +59,5 @@ return [
     'deleted_files' => '&nbsp;archivos remotos de %d directorios',
     'cache_clear_error' => 'Se ha producido un error. Tras la actualización, borre la memoria caché manualmente.',
     'finish_update' => 'Finalizar actualización',
+    'version' => 'Version',
 ];

@@ -1,0 +1,40 @@
+@import "~scss/variables";
+
+.sw-extension-app-module-error-page {
+    width: 100%;
+    height: 100%;
+    padding: 10%;
+    position: relative;
+
+    .sw-extension-app-module-error-page__text-content {
+        line-height: 1.5;
+        max-width: 600px;
+        position: relative;
+
+        h3 {
+            font-size: 32px;
+            font-weight: $font-weight-regular;
+            margin-block-end: 24px;
+        }
+
+        p {
+            margin-block-end: 24px;
+        }
+    }
+
+    .sw-extension-app-module-error-page__illustration {
+        position: absolute;
+        max-width: 100%;
+        right: 0;
+        bottom: 0;
+        transform: translate(0, -50%);
+    }
+
+    @media screen and (max-width: 925px) {
+        .sw-extension-app-module-error-page__illustration {
+            position: relative;
+            transform: unset;
+            margin-bottom: 8px;
+        }
+    }
+}

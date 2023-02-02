@@ -3,14 +3,12 @@
 namespace Shopware\Core\Checkout\Cart;
 
 use Shopware\Core\Checkout\Cart\Event\BeforeLineItemQuantityChangedEvent;
-use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
-use Shopware\Core\Checkout\Cart\Exception\LineItemTypeNotSupportedException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\LineItemFactoryInterface;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
@@ -19,39 +17,19 @@ use Symfony\Component\Validator\Constraints\Required;
 use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+#[Package('checkout')]
 class LineItemFactoryRegistry
 {
-    /**
-     * @var LineItemFactoryInterface[]|iterable
-     */
-    private $handlers;
-
-    /**
-     * @var DataValidator
-     */
-    private $validator;
-
-    /**
-     * @var DataValidationDefinition
-     */
-    private $validatorDefinition;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private readonly DataValidationDefinition $validatorDefinition;
 
     /**
      * @param LineItemFactoryInterface[]|iterable $handlers
      *
      * @internal
      */
-    public function __construct(iterable $handlers, DataValidator $validator, EventDispatcherInterface $eventDispatcher)
+    public function __construct(private readonly iterable $handlers, private readonly DataValidator $validator, private readonly EventDispatcherInterface $eventDispatcher)
     {
-        $this->handlers = $handlers;
-        $this->validator = $validator;
         $this->validatorDefinition = $this->createValidatorDefinition();
-        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
@@ -81,11 +59,7 @@ class LineItemFactoryRegistry
         $identifier = $data['id'];
 
         if (!$lineItem = $cart->getLineItems()->get($identifier)) {
-            if (Feature::isActive('v6.5.0.0')) {
-                throw CartException::lineItemNotFound($identifier);
-            }
-
-            throw new LineItemNotFoundException($identifier);
+            throw CartException::lineItemNotFound($identifier);
         }
 
         if (!isset($data['type'])) {
@@ -115,11 +89,7 @@ class LineItemFactoryRegistry
             }
         }
 
-        if (Feature::isActive('v6.5.0.0')) {
-            throw CartException::lineItemTypeNotSupported($type);
-        }
-
-        throw new LineItemTypeNotSupportedException($type);
+        throw CartException::lineItemTypeNotSupported($type);
     }
 
     /**

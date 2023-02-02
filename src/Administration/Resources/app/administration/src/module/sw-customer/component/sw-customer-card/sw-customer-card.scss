@@ -10,8 +10,8 @@ $sw-customer-color-mail-to-link: $color-shopware-brand-500;
     .sw-customer-card__metadata-customer-name {
         align-items: center;
         display: flex;
-        font-weight: 600;
-        font-size: 18px;
+        font-weight: $font-weight-semi-bold;
+        font-size: $font-size-m;
         margin-bottom: 1px;
     }
 
@@ -22,7 +22,7 @@ $sw-customer-color-mail-to-link: $color-shopware-brand-500;
 
     .sw-customer-card__metadata-item {
         margin-bottom: 8px;
-        font-size: 14px;
+        font-size: $font-size-xs;
 
         .sw-customer-card-email-link {
             color: $sw-customer-color-mail-to-link;

@@ -14,13 +14,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
  */
+#[Package('core')]
 class TemplateDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'app_template';
+    final public const ENTITY_NAME = 'app_template';
 
     public function getEntityName(): string
     {

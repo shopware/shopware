@@ -1,9 +1,19 @@
 import CMS from '../../../constant/sw-cms.constant';
-import './component';
-import './preview';
 
 /**
- * @private since v6.5.0
+ * @private
+ * @package content
+ */
+Shopware.Component.register('sw-cms-preview-image-highlight-row', () => import('./preview'));
+/**
+ * @private
+ * @package content
+ */
+Shopware.Component.register('sw-cms-block-image-highlight-row', () => import('./component'));
+
+/**
+ * @private
+ * @package content
  */
 Shopware.Service('cmsService').registerCmsBlock({
     name: 'image-highlight-row',

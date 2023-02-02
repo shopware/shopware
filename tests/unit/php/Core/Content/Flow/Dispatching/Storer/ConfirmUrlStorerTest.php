@@ -8,9 +8,11 @@ use Shopware\Core\Checkout\Customer\Event\CustomerDoubleOptInRegistrationEvent;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ConfirmUrlAware;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Dispatching\Storer\ConfirmUrlStorer;
-use Shopware\Core\Framework\Test\Event\TestBusinessEvent;
+use Shopware\Core\Content\Test\Flow\TestFlowBusinessEvent;
 
 /**
+ * @package business-ops
+ *
  * @internal
  *
  * @covers \Shopware\Core\Content\Flow\Dispatching\Storer\ConfirmUrlStorer
@@ -34,7 +36,7 @@ class ConfirmUrlStorerTest extends TestCase
 
     public function testStoreWithNotAware(): void
     {
-        $event = $this->createMock(TestBusinessEvent::class);
+        $event = $this->createMock(TestFlowBusinessEvent::class);
         $stored = [];
         $stored = $this->storer->store($event, $stored);
         static::assertArrayNotHasKey(ConfirmUrlAware::CONFIRM_URL, $stored);
@@ -42,7 +44,7 @@ class ConfirmUrlStorerTest extends TestCase
 
     public function testRestoreWithEmptyStored(): void
     {
-        /** @var MockObject|StorableFlow $storable */
+        /** @var MockObject&StorableFlow $storable */
         $storable = $this->createMock(StorableFlow::class);
 
         $storable->expects(static::exactly(1))
@@ -62,7 +64,7 @@ class ConfirmUrlStorerTest extends TestCase
     {
         $confirmUrl = 'shopware-test.com';
 
-        /** @var MockObject|StorableFlow $storable */
+        /** @var MockObject&StorableFlow $storable */
         $storable = $this->createMock(StorableFlow::class);
 
         $storable->expects(static::exactly(1))

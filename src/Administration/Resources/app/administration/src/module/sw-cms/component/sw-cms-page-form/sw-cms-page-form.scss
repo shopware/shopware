@@ -19,8 +19,13 @@
 
         .sw-cms-page-form__section-action {
             position: static;
-            width: $content-width;
+            max-width: $content-width;
+            width: 100%;
             margin: 9px auto;
+
+            @media screen and (max-width: 1360px) {
+                max-width: 770px;
+            }
         }
 
         .sw-cms-page-form__section-action-label {
@@ -116,7 +121,7 @@
 
     &__section-action-label {
         color: #52667a;
-        font-weight: 600;
+        font-weight: $font-weight-semi-bold;
         line-height: 22px;
         width: 190px;
         word-wrap: break-word;
@@ -143,7 +148,7 @@
     &__section-type-icon {
         margin-right: 10px;
         color: #b3bfcc;
-        font-weight: 600;
+        font-weight: $font-weight-semi-bold;
     }
 
     &__section-divider {
@@ -153,5 +158,15 @@
         height: 1px;
         border: 0 none;
         background: #d1d9e0;
+    }
+
+    &__device-actions,
+    &__block-device-actions {
+        width: 96px;
+        color: $color-gray-500;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        justify-content: flex-end;
     }
 }

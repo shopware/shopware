@@ -1,4 +1,6 @@
-import '../sw-category/page/sw-category-detail';
+/**
+ * @package content
+ */
 import defaultSearchConfiguration from './default-search-configuration';
 
 const { Module } = Shopware;

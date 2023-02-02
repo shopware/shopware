@@ -3,8 +3,8 @@
 namespace Shopware\Tests\Unit\Elasticsearch\Framework\Indexing;
 
 use Doctrine\DBAL\Connection;
-use Elasticsearch\Client;
-use Elasticsearch\Namespaces\IndicesNamespace;
+use OpenSearch\Client;
+use OpenSearch\Namespaces\IndicesNamespace;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
@@ -22,7 +22,13 @@ class CreateAliasTaskHandlerTest extends TestCase
 {
     public function testHandledMessages(): void
     {
-        static::assertSame([CreateAliasTask::class], CreateAliasTaskHandler::getHandledMessages());
+        $messages = CreateAliasTaskHandler::getHandledMessages();
+
+        if ($messages instanceof \Traversable) {
+            $messages = iterator_to_array($messages);
+        }
+
+        static::assertSame([CreateAliasTask::class], $messages);
     }
 
     public function testHandleLogsErrors(): void

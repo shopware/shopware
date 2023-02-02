@@ -4,29 +4,25 @@ import SettingsPageObject from '../../../../support/pages/module/sw-settings.pag
 
 describe('Tag: Test listing sorting', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                cy.createDefaultFixture('tag', {
-                    categories: [{ name: 'a' }],
-                }).then(() => {
-                    cy.createDefaultFixture('tag', {
-                        categories: [{ name: 'a' }, { name: 'b' }],
-                    });
-                }).then(() => {
-                    cy.createDefaultFixture('tag', {
-                        categories: [{ name: 'a' }, { name: 'b' }, { name: 'c' }],
-                    });
-                }).then(() => {
-                    cy.createDefaultFixture('tag', {
-                        categories: [{ name: 'a' }, { name: 'b' }, { name: 'c' }, { name: 'd' }],
-                    });
-                });
-            })
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/tag/index`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
+        cy.createDefaultFixture('tag', {
+            categories: [{ name: 'a' }],
+        }).then(() => {
+            cy.createDefaultFixture('tag', {
+                categories: [{ name: 'a' }, { name: 'b' }],
             });
+        }).then(() => {
+            cy.createDefaultFixture('tag', {
+                categories: [{ name: 'a' }, { name: 'b' }, { name: 'c' }],
+            });
+        }).then(() => {
+            cy.createDefaultFixture('tag', {
+                categories: [{ name: 'a' }, { name: 'b' }, { name: 'c' }, { name: 'd' }],
+            });
+        }).then(() => {
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/tag/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+        });
     });
 
     it('@settings: sort tags by assignment count', { tags: ['pa-business-ops'] }, () => {
@@ -34,7 +30,7 @@ describe('Tag: Test listing sorting', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/tag`,
-            method: 'POST'
+            method: 'POST',
         }).as('loadTags');
 
         cy.get('.sw-skeleton').should('not.exist');

@@ -1,15 +1,12 @@
 describe('Category: SDK Test', ()=> {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/index/shop`);
+        cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/index/shop`);
 
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
-                cy.getSDKiFrame('sw-main-hidden')
-                    .should('exist');
-            });
+        cy.getSDKiFrame('sw-main-hidden')
+            .should('exist');
     });
     it('@sdk: add settings without searchbar', { tags: ['ct-admin'] }, () => {
         cy.contains('.sw-settings__content-header', 'Settings');
@@ -29,7 +26,7 @@ describe('Category: SDK Test', ()=> {
             .should('be.visible');
 
         cy.getSDKiFrame('ui-menu-item-add-menu-item')
-            .contains('Hello from the new Menu Page')
+            .contains('Hello from the new Menu Page');
 
         cy.get('.sw-page__search-bar')
             .should('not.exist');
@@ -57,9 +54,9 @@ describe('Category: SDK Test', ()=> {
             .should('be.visible');
 
         cy.getSDKiFrame('ui-menu-item-add-menu-item')
-            .contains('Hello from the new menu page with searchbar')
+            .contains('Hello from the new menu page with searchbar');
 
         cy.get('.sw-page__search-bar')
             .should('exist');
-    })
+    });
 });

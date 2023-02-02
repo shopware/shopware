@@ -2,39 +2,35 @@
 
 describe('Product: Sort grid', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.searchViaAdminApi({
-                    endpoint: 'currency',
-                    data: {
-                        field: 'isoCode',
-                        value: 'GBP'
-                    }
-                });
-            })
-            .then(response => {
-                const currencyId = response.id;
+        cy.searchViaAdminApi({
+            endpoint: 'currency',
+            data: {
+                field: 'isoCode',
+                value: 'GBP',
+            },
+        }).then(response => {
+            const currencyId = response.id;
 
-                return cy.createProductFixture({
-                    name: 'Original product',
-                    productNumber: 'RS-11111',
-                    description: 'Pudding wafer apple pie fruitcake cupcake.',
-                    price: [
-                        {
-                            currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
-                            net: 55,
-                            linked: false,
-                            gross: 210
-                        },
-                        {
-                            currencyId,
-                            net: 67,
-                            linked: false,
-                            gross: 67
-                        }
-                    ]
-                });
-            })
+            return cy.createProductFixture({
+                name: 'Original product',
+                productNumber: 'RS-11111',
+                description: 'Pudding wafer apple pie fruitcake cupcake.',
+                price: [
+                    {
+                        currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
+                        net: 55,
+                        linked: false,
+                        gross: 210,
+                    },
+                    {
+                        currencyId,
+                        net: 67,
+                        linked: false,
+                        gross: 67,
+                    },
+                ],
+            });
+        })
             .then(response => {
                 const currencyId = response.price[1].currencyId;
 
@@ -47,15 +43,15 @@ describe('Product: Sort grid', () => {
                             currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
                             net: 24,
                             linked: false,
-                            gross: 128
+                            gross: 128,
                         },
                         {
                             currencyId,
                             net: 12,
                             linked: false,
-                            gross: 232
-                        }
-                    ]
+                            gross: 232,
+                        },
+                    ],
                 });
             })
             .then(() => {
@@ -69,7 +65,7 @@ describe('Product: Sort grid', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product`,
-            method: 'POST'
+            method: 'POST',
         }).as('search');
 
         // open context menu and display pound

@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Framework\Rule;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Container\Container;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
  * @extends Collection<Rule>
  */
+#[Package('business-ops')]
 class RuleCollection extends Collection
 {
     /**
@@ -50,13 +52,14 @@ class RuleCollection extends Collection
         return new self(
             array_filter(
                 $this->flat,
-                function (Rule $rule) use ($class) {
-                    return $rule instanceof $class;
-                }
+                fn (Rule $rule) => $rule instanceof $class
             )
         );
     }
 
+    /**
+     * @param class-string $class
+     */
     public function has($class): bool
     {
         return \array_key_exists($class, $this->classes);
@@ -69,7 +72,7 @@ class RuleCollection extends Collection
 
     private function addMeta(Rule $rule): void
     {
-        $this->classes[\get_class($rule)] = true;
+        $this->classes[$rule::class] = true;
 
         $this->flat[] = $rule;
 

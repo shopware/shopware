@@ -6,7 +6,9 @@ use Dompdf\Adapter\CPDF;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('customer-order')]
 final class PdfRenderer
 {
     public const FILE_EXTENSION = 'pdf';
@@ -23,7 +25,7 @@ final class PdfRenderer
         $dompdf = new Dompdf();
 
         $options = new Options();
-        $options->set('isRemoteEnabled', true);
+        $options->setIsRemoteEnabled(true);
         $options->setIsHtml5ParserEnabled(true);
 
         $dompdf->setOptions($options);
@@ -64,7 +66,7 @@ final class PdfRenderer
 
         foreach ($pdf->objects as &$o) {
             if ($o['t'] === 'contents') {
-                $o['c'] = str_replace($search, $replace, $o['c']);
+                $o['c'] = str_replace($search, $replace, (string) $o['c']);
             }
         }
     }

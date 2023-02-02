@@ -14,13 +14,14 @@ class MigrationSourceCollector
     {
         return [
             new CoreMigrationSource('core', []),
-            self::createMigrationSource('V6_3', true),
-            self::createMigrationSource('V6_4', true),
+            self::createMigrationSource('V6_3'),
+            self::createMigrationSource('V6_4'),
             self::createMigrationSource('V6_5'),
+            self::createMigrationSource('V6_6'),
         ];
     }
 
-    private static function createMigrationSource(string $version, bool $addReplacements = false): CoreMigrationSource
+    private static function createMigrationSource(string $version): CoreMigrationSource
     {
         if (file_exists(SW_PATH . '/platform/src/Core/schema.sql')) {
             $coreBasePath = SW_PATH . '/platform/src/Core';
@@ -49,16 +50,6 @@ class MigrationSourceCollector
 
         if ($hasAdminMigrations) {
             $source->addDirectory(sprintf('%s/Migration/%s', $adminBasePath, $version), sprintf('Shopware\\Administration\\Migration\\%s', $version));
-        }
-
-        if ($addReplacements) {
-            $source->addReplacementPattern(sprintf('#^(Shopware\\\\Core\\\\Migration\\\\)%s\\\\([^\\\\]*)$#', $version), '$1$2');
-            if ($hasStorefrontMigrations) {
-                $source->addReplacementPattern(sprintf('#^(Shopware\\\\Storefront\\\\Migration\\\\)%s\\\\([^\\\\]*)$#', $version), '$1$2');
-            }
-            if ($hasAdminMigrations) {
-                $source->addReplacementPattern(sprintf('#^(Shopware\\\\Administration\\\\Migration\\\\)%s\\\\([^\\\\]*)$#', $version), '$1$2');
-            }
         }
 
         return $source;

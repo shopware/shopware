@@ -9,20 +9,20 @@ use OpenApi\Annotations\Parameter;
 use Shopware\Core\Framework\Api\ApiDefinition\ApiDefinitionGeneratorInterface;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiDefinitionSchemaBuilder;
-use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiLoader;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiSchemaBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
 
 /**
  * @phpstan-import-type Api from DefinitionService
  * @phpstan-import-type OpenApiSpec from DefinitionService
  */
+#[Package('core')]
 class StoreApiGenerator implements ApiDefinitionGeneratorInterface
 {
-    public const FORMAT = 'openapi-3';
+    final public const FORMAT = 'openapi-3';
     private const OPERATION_KEYS = [
         'get',
         'post',
@@ -31,15 +31,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         'delete',
     ];
 
-    private OpenApiSchemaBuilder $openApiBuilder;
-
-    private OpenApiDefinitionSchemaBuilder $definitionSchemaBuilder;
-
-    private OpenApiLoader $openApiLoader;
-
-    private string $schemaPath;
-
-    private BundleSchemaPathCollection $bundleSchemaPathCollection;
+    private readonly string $schemaPath;
 
     /**
      * @param array{Framework: array{path: string}} $bundles
@@ -47,17 +39,12 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
      * @internal
      */
     public function __construct(
-        OpenApiSchemaBuilder $openApiBuilder,
-        OpenApiDefinitionSchemaBuilder $definitionSchemaBuilder,
-        OpenApiLoader $openApiLoader,
+        private readonly OpenApiSchemaBuilder $openApiBuilder,
+        private readonly OpenApiDefinitionSchemaBuilder $definitionSchemaBuilder,
         array $bundles,
-        BundleSchemaPathCollection $bundleSchemaPathCollection
+        private readonly BundleSchemaPathCollection $bundleSchemaPathCollection
     ) {
-        $this->openApiBuilder = $openApiBuilder;
-        $this->definitionSchemaBuilder = $definitionSchemaBuilder;
-        $this->openApiLoader = $openApiLoader;
         $this->schemaPath = $bundles['Framework']['path'] . '/Api/ApiDefinition/Generator/Schema/StoreApi';
-        $this->bundleSchemaPathCollection = $bundleSchemaPathCollection;
     }
 
     public function supports(string $format, string $api): bool
@@ -65,22 +52,20 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         return $format === self::FORMAT && $api === DefinitionService::STORE_API;
     }
 
-    /**
-     * @param Api $api
-     * {@inheritdoc}
-     */
     public function generate(array $definitions, string $api, string $apiType): array
     {
         $openApi = new OpenApi([]);
-        if (!Feature::isActive('v6.5.0.0')) {
-            $openApi = $this->openApiLoader->load($api);
-        }
         $this->openApiBuilder->enrich($openApi, $api);
+
         $forSalesChannel = $api === DefinitionService::STORE_API;
 
         ksort($definitions);
 
         foreach ($definitions as $definition) {
+            if (!$definition instanceof EntityDefinition) {
+                continue;
+            }
+
             if (!$this->shouldDefinitionBeIncluded($definition)) {
                 continue;
             }
@@ -95,8 +80,8 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         $this->addGeneralInformation($openApi);
         $this->addContentTypeParameter($openApi);
 
-        $data = json_decode($openApi->toJson(), true);
-        $data['paths'] = $data['paths'] ?? [];
+        $data = json_decode($openApi->toJson(), true, 512, \JSON_THROW_ON_ERROR);
+        $data['paths'] ??= [];
 
         $schemaPaths = [$this->schemaPath];
         $schemaPaths = array_merge($schemaPaths, $this->bundleSchemaPathCollection->getSchemaPaths($api));
@@ -111,6 +96,8 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
 
     /**
      * {@inheritdoc}
+     *
+     * @param list<EntityDefinition>|list<EntityDefinition&SalesChannelDefinitionInterface> $definitions
      *
      * @return never
      */

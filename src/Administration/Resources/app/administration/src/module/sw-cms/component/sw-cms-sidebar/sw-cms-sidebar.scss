@@ -14,8 +14,8 @@
         border-bottom: 1px solid $color-gray-300;
 
         .sw-cms-sidebar__navigator-section-header {
-            font-weight: 600;
-            font-size: 16px;
+            font-weight: $font-weight-semi-bold;
+            font-size: $font-size-s;
             color: $color-darkgray-200;
             margin: 12px 0;
             display: grid;
@@ -24,7 +24,7 @@
     }
 
     .sw-sidebar-collapse__title {
-        font-size: 18px;
+        font-size: $font-size-m;
     }
 
     .sw-cms-sidebar__settings {
@@ -96,14 +96,28 @@
     .sw-cms-sidebar__layout-assignment-headline,
     .sw-cms-sidebar__layout-set-as-default-headline {
         color: $color-darkgray-200;
-        font-size: $font-size-small;
+        font-size: $font-size-xs;
     }
 
     .sw-cms-sidebar__layout-assignment-info-text,
     .sw-cms-sidebar__layout-set-as-default-info-text {
         color: $color-darkgray-200;
-        font-size: $font-size-small;
+        font-size: $font-size-xs;
         margin-bottom: 20px;
+    }
+
+    .sw-cms-sidebar__block-preview-with-actions {
+        position: relative;
+
+        .sw-cms-sidebar__block-favorite {
+            right: 8px;
+            bottom: 8px;
+            position: absolute;
+
+            .sw-icon.sw-cms-sidebar__icon-cms-block-favorite {
+                color: $color-module-pink-800;
+            }
+        }
     }
 }
 
@@ -124,6 +138,10 @@
         box-shadow: none;
         border: 1px dashed $color-gray-300;
         background-color: $color-gray-50;
+
+        + .sw-cms-sidebar__block-favorite {
+            display: none;
+        }
     }
 
     &.is--drag-element,
@@ -138,13 +156,13 @@
     h4,
     h5,
     h6 {
-        font-size: 16px;
-        line-height: 18px;
+        font-size: $font-size-s;
+        line-height: $line-height-xs;
         margin: 0 0 6px;
     }
 
     p {
-        font-size: 12px;
+        font-size: $font-size-xxs;
         line-height: 14px;
     }
 

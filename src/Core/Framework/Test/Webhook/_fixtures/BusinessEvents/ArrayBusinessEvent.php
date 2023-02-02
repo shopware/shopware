@@ -3,10 +3,10 @@
 namespace Shopware\Core\Framework\Test\Webhook\_fixtures\BusinessEvents;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Event\EventData\ArrayType;
 use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
+use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\System\Tax\TaxCollection;
 use Shopware\Core\System\Tax\TaxDefinition;
 use Shopware\Core\System\Tax\TaxEntity;
@@ -14,12 +14,12 @@ use Shopware\Core\System\Tax\TaxEntity;
 /**
  * @internal
  */
-class ArrayBusinessEvent implements BusinessEventInterface, BusinessEventEncoderTestInterface
+class ArrayBusinessEvent implements FlowEventAware, BusinessEventEncoderTestInterface
 {
     /**
      * @var TaxEntity[]
      */
-    private $taxes;
+    private readonly array $taxes;
 
     public function __construct(TaxCollection $taxes)
     {

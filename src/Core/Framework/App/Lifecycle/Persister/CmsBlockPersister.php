@@ -7,31 +7,21 @@ use Shopware\Core\Framework\App\Aggregate\CmsBlock\AppCmsBlockEntity;
 use Shopware\Core\Framework\App\Cms\AbstractBlockTemplateLoader;
 use Shopware\Core\Framework\App\Cms\CmsExtensions;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Util\HtmlSanitizer;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('core')]
 class CmsBlockPersister
 {
-    private EntityRepositoryInterface $cmsBlockRepository;
-
-    private AbstractBlockTemplateLoader $blockTemplateLoader;
-
-    private HtmlSanitizer $htmlSanitizer;
-
     public function __construct(
-        EntityRepositoryInterface $cmsBlockRepository,
-        AbstractBlockTemplateLoader $blockTemplateLoader,
-        HtmlSanitizer $htmlSanitizer
+        private readonly EntityRepository $cmsBlockRepository,
+        private readonly AbstractBlockTemplateLoader $blockTemplateLoader,
     ) {
-        $this->cmsBlockRepository = $cmsBlockRepository;
-        $this->blockTemplateLoader = $blockTemplateLoader;
-        $this->htmlSanitizer = $htmlSanitizer;
     }
 
     public function updateCmsBlocks(
@@ -48,15 +38,6 @@ class CmsBlockPersister
             $payload = $cmsBlock->toEntityArray($appId, $defaultLocale);
 
             $template = $this->blockTemplateLoader->getTemplateForBlock($cmsExtensions, $cmsBlock->getName());
-
-            if (!Feature::isActive('FEATURE_NEXT_15172')) {
-                $template = $this->htmlSanitizer->sanitize(
-                    $template,
-                    [],
-                    false,
-                    'app_cms_block.template'
-                );
-            }
 
             $payload['template'] = $template;
             $payload['styles'] = $this->blockTemplateLoader->getStylesForBlock($cmsExtensions, $cmsBlock->getName());
@@ -84,9 +65,7 @@ class CmsBlockPersister
         $ids = $toBeRemoved->getIds();
 
         if (!empty($ids)) {
-            $ids = array_map(static function (string $id): array {
-                return ['id' => $id];
-            }, array_values($ids));
+            $ids = array_map(static fn (string $id): array => ['id' => $id], array_values($ids));
 
             $this->cmsBlockRepository->delete($ids, $context);
         }

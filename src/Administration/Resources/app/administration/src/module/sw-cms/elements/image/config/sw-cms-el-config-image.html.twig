@@ -20,24 +20,22 @@
             @media-upload-remove-image="onImageRemove"
         />
 
-        <div
-            slot="preview"
-            slot-scope="{ demoValue }"
-            class="sw-cms-el-config-image__mapping-preview"
-        >
-            <img
-                v-if="demoValue.url"
-                :src="demoValue.url"
-                alt=""
-            >
-            <sw-alert
-                v-else
-                class="sw-cms-el-config-image__preview-info"
-                variant="info"
-            >
-                {{ $tc('sw-cms.detail.label.mappingEmptyPreview') }}
-            </sw-alert>
-        </div>
+        <template #preview="{ demoValue }">
+            <div class="sw-cms-el-config-image__mapping-preview">
+                <img
+                    v-if="demoValue.url"
+                    :src="demoValue.url"
+                    alt=""
+                >
+                <sw-alert
+                    v-else
+                    class="sw-cms-el-config-image__preview-info"
+                    variant="info"
+                >
+                    {{ $tc('sw-cms.detail.label.mappingEmptyPreview') }}
+                </sw-alert>
+            </div>
+        </template>
     </sw-cms-mapping-field>
 
     <sw-upload-listener

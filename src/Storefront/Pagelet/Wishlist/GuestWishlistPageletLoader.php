@@ -3,38 +3,28 @@
 namespace Shopware\Storefront\Pagelet\Wishlist;
 
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductListRoute;
-use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilter;
 use Shopware\Core\Content\Product\SalesChannel\ProductListResponse;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
+#[Package('storefront')]
 class GuestWishlistPageletLoader
 {
     private const LIMIT = 100;
 
-    private EventDispatcherInterface $eventDispatcher;
-
-    private AbstractProductListRoute $productListRoute;
-
-    private SystemConfigService $systemConfigService;
-
     /**
      * @internal
      */
-    public function __construct(
-        AbstractProductListRoute $productListRoute,
-        SystemConfigService $systemConfigService,
-        EventDispatcherInterface $eventDispatcher
-    ) {
-        $this->productListRoute = $productListRoute;
-        $this->systemConfigService = $systemConfigService;
-        $this->eventDispatcher = $eventDispatcher;
+    public function __construct(private readonly AbstractProductListRoute $productListRoute, private readonly SystemConfigService $systemConfigService, private readonly EventDispatcherInterface $eventDispatcher, private readonly AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory)
+    {
     }
 
     public function load(Request $request, SalesChannelContext $context): GuestWishlistPagelet
@@ -74,9 +64,7 @@ class GuestWishlistPageletLoader
             throw new \InvalidArgumentException('Argument $productIds is not an array');
         }
 
-        $productIds = array_filter($productIds, static function ($productId) {
-            return Uuid::isValid($productId);
-        });
+        $productIds = array_filter($productIds, static fn ($productId) => Uuid::isValid($productId));
 
         $criteria->setLimit(self::LIMIT);
         $criteria->setIds($productIds);
@@ -89,7 +77,8 @@ class GuestWishlistPageletLoader
             'core.listing.hideCloseoutProductsWhenOutOfStock',
             $context->getSalesChannelId()
         )) {
-            $criteria->addFilter(new ProductCloseoutFilter());
+            $closeoutFilter = $this->productCloseoutFilterFactory->create($context);
+            $criteria->addFilter($closeoutFilter);
         }
 
         return $criteria;

@@ -5,10 +5,12 @@ namespace Shopware\Core\Maintenance\System\Command;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Framework\Update\Event\UpdatePostPrepareEvent;
 use Shopware\Core\Framework\Update\Event\UpdatePrePrepareEvent;
 use Shopware\Core\Kernel;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -18,16 +20,16 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal should be used over the CLI only
  */
+#[AsCommand(
+    name: 'system:update:prepare',
+    description: 'Prepares the update process',
+)]
+#[Package('core')]
 class SystemUpdatePrepareCommand extends Command
 {
-    public static $defaultName = 'system:update:prepare';
-
-    private ContainerInterface $container;
-
-    public function __construct(ContainerInterface $container)
+    public function __construct(private readonly ContainerInterface $container)
     {
         parent::__construct();
-        $this->container = $container;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -35,8 +37,8 @@ class SystemUpdatePrepareCommand extends Command
         $output = new ShopwareStyle($input, $output);
 
         $dsn = trim((string) (EnvironmentHelper::getVariable('DATABASE_URL', getenv('DATABASE_URL'))));
-        if ($dsn === '' || $dsn === Kernel::PLACEHOLDER_DATABASE_URL) {
-            $output->note("Environment variable 'DATABASE_URL' not defined. Skipping " . $this->getName() . '...');
+        if ($dsn === '') {
+            $output->note('Environment variable \'DATABASE_URL\' not defined. Skipping ' . $this->getName() . '...');
 
             return self::SUCCESS;
         }

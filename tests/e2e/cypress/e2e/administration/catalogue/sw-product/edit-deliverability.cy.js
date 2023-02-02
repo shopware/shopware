@@ -4,13 +4,9 @@ import ProductPageObject from '../../../../support/pages/module/sw-product.page-
 
 describe('Product: Deliverability', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createProductFixture();
-            })
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
-            });
+        cy.createProductFixture().then(() => {
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
+        });
     });
 
     it('@base @catalogue: Editing product with extended purchase amounts', { tags: ['pa-inventory'] }, () => {
@@ -19,18 +15,18 @@ describe('Product: Deliverability', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         cy.intercept({
             url: '/checkout/offcanvas',
-            method: 'GET'
+            method: 'GET',
         }).as('offcanvasCart');
 
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         // Set base price data
@@ -50,28 +46,23 @@ describe('Product: Deliverability', () => {
         // Verify in storefront
         cy.visit('/');
 
-        cy.window().then((win) => {
-            /** @deprecated tag:v6.5.0 - Use `${CheckoutPageObject.elements.lineItem}-total-price` instead */
-            const lineItemTotalPriceSelector = win.features['v6.5.0.0'] ? '.line-item-total-price' : '.cart-item-price';
+        cy.get('input[name=search]').type('Product name');
+        cy.get('.search-suggest-container').should('be.visible');
+        cy.get('.search-suggest-product-name')
+            .contains('Product name')
+            .click();
 
-            cy.get('input[name=search]').type('Product name');
-            cy.get('.search-suggest-container').should('be.visible');
-            cy.get('.search-suggest-product-name')
-                .contains('Product name')
-                .click();
+        cy.contains('.buy-widget-container', 'Packages');
+        cy.get('input.product-detail-quantity-input').should('have.value', '50').clear().type('1000000000{downArrow}');
 
-            cy.contains('.buy-widget-container', 'Packages');
-            cy.get('input.product-detail-quantity-input').should('have.value', '50').clear().type('1000000000{downArrow}');
+        cy.get('.btn-buy').click();
+        cy.get('.js-offcanvas-cart-change-quantity-number').should('have.value', '200000');
+        cy.contains('.line-item-total-price', '€9,996,000.00*');
 
-            cy.get('.btn-buy').click();
-            cy.get('.js-offcanvas-cart-change-quantity-number').should('have.value', '200000');
-            cy.contains(`${lineItemTotalPriceSelector}`, '€9,996,000.00*');
+        cy.get('.js-offcanvas-cart-change-quantity-number').clear().type('1{upArrow}').blur();
+        cy.wait('@offcanvasCart').its('response.statusCode').should('equal', 200);
 
-            cy.get('.js-offcanvas-cart-change-quantity-number').clear().type('1{upArrow}').blur();
-            cy.wait('@offcanvasCart').its('response.statusCode').should('equal', 200);
-
-            cy.get('.js-offcanvas-cart-change-quantity-number').should('have.value', '50')
-            cy.contains(`${lineItemTotalPriceSelector}`, '€2,499.00*');
-        });
+        cy.get('.js-offcanvas-cart-change-quantity-number').should('have.value', '50');
+        cy.contains('.line-item-total-price', '€2,499.00*');
     });
 });

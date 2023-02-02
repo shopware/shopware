@@ -2,10 +2,15 @@
 
 namespace Shopware\Core\DevOps\StaticAnalyze;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Kernel;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
+/**
+ * @internal
+ */
+#[Package('core')]
 class StaticAnalyzeKernel extends Kernel
 {
     public function getCacheDir(): string

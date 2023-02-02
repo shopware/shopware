@@ -28,12 +28,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Symfony\Component\String\Inflector\EnglishInflector;
 
 /**
- * @final tag:v6.5.0
+ * @final
  */
+#[Package('core')]
 class DefinitionValidator
 {
     private const FOREIGN_KEY_PREFIX = 'fk';
@@ -45,6 +47,8 @@ class DefinitionValidator
         'customer.defaultShippingAddress',
         'customer.activeShippingAddress',
         'customer.activeBillingAddress',
+        'customer.createdBy',
+        'customer.updatedBy',
         'product_configurator_setting.selected',
         'sales_channel.wishlists',
         'product.wishlists',
@@ -115,25 +119,16 @@ class DefinitionValidator
     ];
 
     /**
-     * @var DefinitionInstanceRegistry
-     */
-    private $registry;
-
-    /**
-     * @var Connection
-     */
-    private $connection;
-
-    /**
      * @internal
      */
-    public function __construct(DefinitionInstanceRegistry $registry, Connection $connection)
+    public function __construct(private readonly DefinitionInstanceRegistry $registry, private readonly Connection $connection)
     {
-        $this->registry = $registry;
-        $this->connection = $connection;
         $this->connection->getEventManager()->addEventListener(Events::onSchemaIndexDefinition, new SchemaIndexListener());
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function validate(): array
     {
         $violations = [];
@@ -169,13 +164,14 @@ class DefinitionValidator
             }
         }
 
-        $violations = array_filter($violations, function ($vio) {
-            return !empty($vio);
-        });
+        $violations = array_filter($violations, fn ($vio) => !empty($vio));
 
         return $violations;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getNotices(): array
     {
         $notices = [];
@@ -217,13 +213,13 @@ class DefinitionValidator
 
         $notices = array_merge_recursive($notices, $namingViolations, $tableViolations);
 
-        return array_filter($notices, function ($vio) {
-            return !empty($vio);
-        });
+        return array_filter($notices, fn ($vio) => !empty($vio));
     }
 
     /**
      * @param Table[] $tables
+     *
+     * @return array<string, mixed>
      */
     private function findNotRegisteredTables(array $tables): array
     {
@@ -236,7 +232,7 @@ class DefinitionValidator
 
             try {
                 $this->registry->getByEntityName($table->getName());
-            } catch (DefinitionNotFoundException $e) {
+            } catch (DefinitionNotFoundException) {
                 $violations[] = sprintf(
                     'Table %s has no configured definition',
                     $table->getName()
@@ -249,6 +245,8 @@ class DefinitionValidator
 
     /**
      * @param Table[] $tables
+     *
+     * @return array<string, mixed>
      */
     private function checkNaming(array $tables): array
     {
@@ -285,6 +283,11 @@ class DefinitionValidator
         return ['Foreign key naming issues' => $fkViolations];
     }
 
+    /**
+     * @param class-string<Entity> $struct
+     *
+     * @return array<int, mixed>
+     */
     private function findEntityNotices(string $struct, EntityDefinition $definition): array
     {
         $reflection = new \ReflectionClass($struct);
@@ -298,7 +301,12 @@ class DefinitionValidator
                 continue;
             }
 
-            if ($reflection->getParentClass()->getName() === MappingEntityDefinition::class) {
+            $parentClass = $reflection->getParentClass();
+            if (!$parentClass) {
+                continue;
+            }
+
+            if ($parentClass->getName() === MappingEntityDefinition::class) {
                 continue;
             }
 
@@ -314,6 +322,11 @@ class DefinitionValidator
         return $notices;
     }
 
+    /**
+     * @param class-string<Entity> $struct
+     *
+     * @return array<int, mixed>
+     */
     private function validateStruct(string $struct, EntityDefinition $definition): array
     {
         $reflection = new \ReflectionClass($struct);
@@ -373,9 +386,12 @@ class DefinitionValidator
             }
         }
 
-        return array_merge($properties, $functionViolations);
+        return [...$properties, ...$functionViolations];
     }
 
+    /**
+     * @return array<int, mixed>
+     */
     private function validateAssociations(EntityDefinition $definition): array
     {
         $violations = [];
@@ -445,6 +461,9 @@ class DefinitionValidator
         return $violations;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function validateEntityTranslationGettersAreNullable(EntityTranslationDefinition $translationDefinition): array
     {
         $violations = [];
@@ -492,6 +511,9 @@ class DefinitionValidator
         return $violations;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function validateEntityTranslationDefinitions(EntityTranslationDefinition $translationDefinition): array
     {
         $violations = [];
@@ -499,9 +521,7 @@ class DefinitionValidator
         $parentDefinition = $translationDefinition->getParentDefinition();
         $translationsAssociationFields = $parentDefinition->getFields()
             ->filterInstance(TranslationsAssociationField::class)
-            ->filter(function (TranslationsAssociationField $f) use ($translationDefinition) {
-                return $f->getReferenceDefinition() === $translationDefinition;
-            })->getElements();
+            ->filter(fn (TranslationsAssociationField $f) => $f->getReferenceDefinition() === $translationDefinition)->getElements();
 
         if (empty($translationsAssociationFields)) {
             $violations[$parentDefinition->getClass()] = sprintf('The parentDefinition `%s` for `%s` should define a `TranslationsAssociationField for `%s`. The parentDefinition could be wrong too.', $parentDefinition->getClass(), $translationDefinition->getClass(), $translationDefinition->getClass());
@@ -510,15 +530,16 @@ class DefinitionValidator
         return $violations;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function validateTranslationAssociation(EntityDefinition $parentDefinition, EntityDefinition $translationDefinition): array
     {
         $translatedFieldsInParent = array_keys($parentDefinition->getFields()->filterInstance(TranslatedField::class)->getElements());
 
-        $translatedFields = array_keys($translationDefinition->getFields()->filter(function (Field $f) {
-            return !$f->is(PrimaryKey::class)
-                && !$f instanceof AssociationField
-                && !\in_array($f->getPropertyName(), ['createdAt', 'updatedAt'], true);
-        })->getElements());
+        $translatedFields = array_keys($translationDefinition->getFields()->filter(fn (Field $f) => !$f->is(PrimaryKey::class)
+            && !$f instanceof AssociationField
+            && !\in_array($f->getPropertyName(), ['createdAt', 'updatedAt'], true))->getElements());
 
         $violations = [];
 
@@ -535,6 +556,9 @@ class DefinitionValidator
         return $violations;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function validateOneToOne(EntityDefinition $definition, OneToOneAssociationField $association): array
     {
         $reference = $association->getReferenceDefinition();
@@ -588,6 +612,9 @@ class DefinitionValidator
         return $associationViolations;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function validateManyToOne(EntityDefinition $definition, ManyToOneAssociationField $association): array
     {
         $reference = $association->getReferenceDefinition();
@@ -631,6 +658,9 @@ class DefinitionValidator
         return $associationViolations;
     }
 
+    /**
+     * @return array<int|string, mixed>
+     */
     private function validateOneToMany(EntityDefinition $definition, OneToManyAssociationField $association): array
     {
         $reference = $association->getReferenceDefinition();
@@ -648,6 +678,7 @@ class DefinitionValidator
             }
         )->first();
 
+        /** @var Field $foreignKey */
         $foreignKey = $reference->getFields()->getByStorageName($association->getReferenceField());
 
         if (!$foreignKey instanceof FkField) {
@@ -672,6 +703,9 @@ class DefinitionValidator
         return $associationViolations;
     }
 
+    /**
+     * @return array<int|string, mixed>
+     */
     private function validateManyToMany(EntityDefinition $definition, ManyToManyAssociationField $association): array
     {
         $reference = $association->getToManyReferenceDefinition();
@@ -727,17 +761,13 @@ class DefinitionValidator
         }
 
         if ($definition->isVersionAware() && $reference->isVersionAware()) {
-            $versionField = $mapping->getFields()->filter(function (Field $field) use ($definition) {
-                return $field instanceof ReferenceVersionField && $field->getVersionReferenceDefinition() === $definition;
-            })->first();
+            $versionField = $mapping->getFields()->filter(fn (Field $field) => $field instanceof ReferenceVersionField && $field->getVersionReferenceDefinition() === $definition)->first();
 
             if (!$versionField) {
                 $violations[$mapping->getClass()][] = sprintf('Missing reference version field for definition %s in mapping definition %s', $definition->getClass(), $mapping->getClass());
             }
 
-            $referenceVersionField = $mapping->getFields()->filter(function (Field $field) use ($reference) {
-                return $field instanceof ReferenceVersionField && $field->getVersionReferenceDefinition() === $reference;
-            })->first();
+            $referenceVersionField = $mapping->getFields()->filter(fn (Field $field) => $field instanceof ReferenceVersionField && $field->getVersionReferenceDefinition() === $reference)->first();
 
             if (!$referenceVersionField) {
                 $violations[$mapping->getClass()][] = sprintf('Missing reference version field for definition %s in mapping definition %s', $reference->getClass(), $mapping->getClass());
@@ -746,11 +776,9 @@ class DefinitionValidator
 
         $violations = $this->validateForeignKeyOnDeleteBehaviour($definition, $association, $reference, $violations);
 
-        $reverse = $reference->getFields()->filter(function (Field $field) use ($definition, $association) {
-            return $field instanceof ManyToManyAssociationField
-                && $field->getToManyReferenceDefinition() === $definition
-                && $field->getMappingDefinition() === $association->getMappingDefinition();
-        })->first();
+        $reverse = $reference->getFields()->filter(fn (Field $field) => $field instanceof ManyToManyAssociationField
+            && $field->getToManyReferenceDefinition() === $definition
+            && $field->getMappingDefinition() === $association->getMappingDefinition())->first();
 
         if (!$reverse) {
             $violations[$reference->getClass()][] = sprintf('Missing reverse many to many association for original %s.%s', $definition->getClass(), $association->getPropertyName());
@@ -764,6 +792,9 @@ class DefinitionValidator
         return $violations;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function validateSchema(EntityDefinition $definition): array
     {
         $manager = $this->connection->getSchemaManager();
@@ -810,6 +841,9 @@ class DefinitionValidator
         return [$definition->getClass() => $violations];
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function validateColumn(EntityDefinition $definition): array
     {
         $manager = $this->connection->getSchemaManager();
@@ -840,6 +874,9 @@ class DefinitionValidator
         return [$definition->getClass() => $notices];
     }
 
+    /**
+     * @return array<int|string, mixed>
+     */
     private function validateIsPlural(EntityDefinition $definition, AssociationField $association): array
     {
         if (!$association instanceof ManyToManyAssociationField && !$association instanceof OneToManyAssociationField) {
@@ -882,6 +919,9 @@ class DefinitionValidator
         return self::CUSTOM_SHORT_NAMES[$normalized];
     }
 
+    /**
+     * @return array<int|string, mixed>
+     */
     private function validateReferenceNameContainedInName(EntityDefinition $definition, AssociationField $association): array
     {
         if ($definition === $association->getReferenceDefinition()) {
@@ -938,6 +978,9 @@ class DefinitionValidator
         return [];
     }
 
+    /**
+     * @return array<int, mixed>
+     */
     private function validateDataFieldNotPrefixedByEntityName(EntityDefinition $definition): array
     {
         $violations = [];
@@ -1002,14 +1045,17 @@ class DefinitionValidator
 
     private function getShortClassName(EntityDefinition $definition): string
     {
-        return lcfirst(preg_replace('/.*\\\\([^\\\\]+)Definition/', '$1', $definition->getClass()));
+        return lcfirst((string) preg_replace('/.*\\\\([^\\\\]+)Definition/', '$1', $definition->getClass()));
     }
 
     private function getAggregateNamespace(EntityDefinition $definition): string
     {
-        return lcfirst(preg_replace('/.*\\\\([^\\\\]+)\\\\Aggregate.*/', '$1', $definition->getClass()));
+        return lcfirst((string) preg_replace('/.*\\\\([^\\\\]+)\\\\Aggregate.*/', '$1', $definition->getClass()));
     }
 
+    /**
+     * @return array<int, mixed>
+     */
     private function checkEntityNameConstant(EntityDefinition $definition): array
     {
         $violations = [];
@@ -1032,6 +1078,9 @@ class DefinitionValidator
         return $violations;
     }
 
+    /**
+     * @return array<int|string, mixed>
+     */
     private function checkParentDefinition(EntityDefinition $definition): array
     {
         if ($definition->getParentDefinition()) {
@@ -1050,9 +1099,11 @@ class DefinitionValidator
     }
 
     /**
-     * @param OneToManyAssociationField|ManyToManyAssociationField $association
+     * @param array<int|string, mixed> $associationViolations
+     *
+     * @return array<int|string, mixed>
      */
-    private function validateForeignKeyOnDeleteBehaviour(EntityDefinition $definition, AssociationField $association, EntityDefinition $reference, array $associationViolations): array
+    private function validateForeignKeyOnDeleteBehaviour(EntityDefinition $definition, OneToManyAssociationField|ManyToManyAssociationField $association, EntityDefinition $reference, array $associationViolations): array
     {
         $manager = $this->connection->getSchemaManager();
 
@@ -1071,7 +1122,7 @@ class DefinitionValidator
                     ?? $association->getFlag(RestrictDelete::class)
                     ?? $association->getFlag(SetNullOnDelete::class);
 
-                if (\in_array($fk->onDelete(), self::DELETE_FLAG_TO_ACTION_MAPPING[\get_class($deleteFlag)], true)) {
+                if (\in_array($fk->onDelete(), self::DELETE_FLAG_TO_ACTION_MAPPING[$deleteFlag::class], true)) {
                     continue;
                 }
 
@@ -1080,10 +1131,10 @@ class DefinitionValidator
                     . 'because Association "%s" on entity "%s" defined flag "%s", got "%s" instead.',
                     $fk->getName(),
                     $reference->getEntityName(),
-                    self::DELETE_FLAG_TO_ACTION_MAPPING[\get_class($deleteFlag)][0],
+                    self::DELETE_FLAG_TO_ACTION_MAPPING[$deleteFlag::class][0],
                     $association->getPropertyName(),
                     $definition->getEntityName(),
-                    \get_class($deleteFlag),
+                    $deleteFlag::class,
                     $fk->onDelete()
                 );
             }
@@ -1092,6 +1143,11 @@ class DefinitionValidator
         return $associationViolations;
     }
 
+    /**
+     * @param array<int|string, mixed> $associationViolations
+     *
+     * @return array<int|string, mixed>
+     */
     private function validateSetterIsNotNull(EntityDefinition $definition, AssociationField $association, array $associationViolations): array
     {
         $setter = 'set' . ucfirst($association->getPropertyName());
@@ -1122,16 +1178,12 @@ class DefinitionValidator
         }
 
         // see if this is the owning side
-        $owningSide = $definition->getFields()->filterInstance(FkField::class)->filter(function (FkField $field) use ($reference): bool {
-            return $field->getReferenceDefinition() === $reference;
-        });
+        $owningSide = $definition->getFields()->filterInstance(FkField::class)->filter(fn (FkField $field): bool => $field->getReferenceDefinition() === $reference);
 
         if ($owningSide->count() === 0) {
             return null;
         }
-        $referenceVersionFieldForReference = $definition->getFields()->filterInstance(ReferenceVersionField::class)->filter(function (ReferenceVersionField $field) use ($association): bool {
-            return $field->getVersionReferenceDefinition()->getClass() === $association->getReferenceDefinition()->getClass();
-        });
+        $referenceVersionFieldForReference = $definition->getFields()->filterInstance(ReferenceVersionField::class)->filter(fn (ReferenceVersionField $field): bool => $field->getVersionReferenceDefinition()->getClass() === $association->getReferenceDefinition()->getClass());
 
         if (\count($referenceVersionFieldForReference) > 0) {
             return null;

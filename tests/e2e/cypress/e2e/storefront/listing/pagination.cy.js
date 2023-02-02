@@ -3,7 +3,7 @@ import products from '../../../fixtures/listing-pagination-products.json';
 const testCases = [
     2,
     4,
-    8
+    8,
 ];
 const maximumCase = Math.max(...testCases);
 
@@ -15,7 +15,7 @@ describe('Listing: Test product pagination', () => {
     testCases.forEach(testCase => {
         context(`Check pagination for ${testCase} products`, () => {
             beforeEach(() => {
-                cy.loginViaApi().then(() => cy.visit('/admin#/sw/settings/listing/index'));
+                cy.visit('/admin#/sw/settings/listing/index');
             });
 
             it('Run pagination', { tags: ['pa-inventory'] }, () => {

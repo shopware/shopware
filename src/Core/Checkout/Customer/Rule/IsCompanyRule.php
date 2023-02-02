@@ -3,13 +3,17 @@
 namespace Shopware\Core\Checkout\Customer\Rule;
 
 use Shopware\Core\Checkout\CheckoutRuleScope;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
+#[Package('business-ops')]
 class IsCompanyRule extends Rule
 {
+    final public const RULE_NAME = 'customerIsCompany';
+
     /**
      * @var bool
      */
@@ -46,11 +50,6 @@ class IsCompanyRule extends Rule
         return [
             'isCompany' => RuleConstraints::bool(true),
         ];
-    }
-
-    public function getName(): string
-    {
-        return 'customerIsCompany';
     }
 
     public function getConfig(): RuleConfig

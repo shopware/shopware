@@ -2,13 +2,15 @@
 
 namespace Shopware\Elasticsearch\Profiler;
 
-use Elasticsearch\Client;
-use Elasticsearch\Connections\ConnectionInterface;
-use Elasticsearch\Namespaces\AbstractNamespace;
+use OpenSearch\Client;
+use OpenSearch\Connections\ConnectionInterface;
+use OpenSearch\Namespaces\NamespaceBuilderInterface;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @phpstan-type RequestInfo array{url: string, request: array<mixed>, response: array<mixed>, time: float, backtrace: string}
  */
+#[Package('core')]
 class ClientProfiler extends Client
 {
     /**
@@ -18,7 +20,7 @@ class ClientProfiler extends Client
 
     public function __construct(Client $client)
     {
-        /** @var array<AbstractNamespace> $namespaces */
+        /** @var array<NamespaceBuilderInterface> $namespaces */
         $namespaces = $client->registeredNamespaces;
 
         parent::__construct($client->transport, $client->endpoints, $namespaces);
@@ -39,6 +41,31 @@ class ClientProfiler extends Client
         $this->requests[] = [
             'url' => $this->assembleElasticsearchUrl($this->transport->getConnection(), $request),
             'request' => $request,
+            'response' => $response,
+            'time' => microtime(true) - $time,
+            'backtrace' => sprintf('%s:%s', $backtrace[1]['class'] ?? '', $backtrace[1]['function']),
+        ];
+
+        return $response;
+    }
+
+    /**
+     * @param array<mixed> $params
+     *
+     * @return array<mixed>
+     */
+    public function msearch(array $params = [])
+    {
+        $time = microtime(true);
+        $response = parent::msearch($params);
+
+        $backtrace = debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS, 2);
+
+        $connection = $this->transport->getConnection();
+
+        $this->requests[] = [
+            'url' => sprintf('%s://%s:%d/_msearch', $connection->getTransportSchema(), $connection->getHost(), $connection->getPort()),
+            'request' => $params,
             'response' => $response,
             'time' => microtime(true) - $time,
             'backtrace' => sprintf('%s:%s', $backtrace[1]['class'] ?? '', $backtrace[1]['function']),

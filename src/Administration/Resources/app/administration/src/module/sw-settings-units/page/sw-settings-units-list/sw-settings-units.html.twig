@@ -1,46 +1,20 @@
-{# @deprecated tag:v6.5.0 - Block will be removed #}
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-{% block sw_settings_units %}
 <sw-page class="sw-settings-units">
-
-    {# @deprecated tag:v6.5.0 - Block will be removed #}
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-    {% block sw_settings_units_search_bar %}
-    <template slot="search-bar">
+    <template #search-bar>
         <sw-search-bar />
     </template>
-    {% endblock %}
 
-    {# @deprecated tag:v6.5.0 - Block will be removed #}
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-    {% block sw_settings_units_smart_bar_header %}
-    <template slot="smart-bar-header">
-        {# @deprecated tag:v6.5.0 - Block will be removed #}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_settings_units_smart_bar_header_title %}
+    <template #smart-bar-header>
         <h2>
-            {# @deprecated tag:v6.5.0 - Block will be removed #}
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_settings_units_smart_bar_header_title_text %}
             {{ $tc('sw-settings.index.title') }}
             <sw-icon
                 name="regular-chevron-right-xs"
                 small
             />
             {{ $tc('sw-settings-units.general.mainMenuItemGeneral') }}
-            {% endblock %}
         </h2>
-        {% endblock %}
     </template>
-    {% endblock %}
 
-    {# @deprecated tag:v6.5.0 - Block will be removed #}
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-    {% block sw_settings_units_smart_bar_actions %}
-    <template slot="smart-bar-actions">
-        {# @deprecated tag:v6.5.0 - Block will be removed #}
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_settings_units_actions_save %}
+    <template #smart-bar-actions>
         <sw-button
             v-tooltip="tooltipCreate"
             class="sw-settings-units__create-action"
@@ -50,87 +24,67 @@
         >
             {{ $tc('sw-settings-units.general.createNewUnit') }}
         </sw-button>
-        {% endblock %}
     </template>
-    {% endblock %}
 
-    {# @deprecated tag:v6.5.0 - Block will be removed #}
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-    {% block sw_settings_units_language_switch %}
-    <sw-language-switch
-        slot="language-switch"
-        :disabled="!!newUnit"
-        @on-change="onChangeLanguage"
-    />
-    {% endblock %}
+    <template #language-switch>
+        <sw-language-switch
+            :disabled="!!newUnit"
+            @on-change="onChangeLanguage"
+        />
+    </template>
 
-    {# @deprecated tag:v6.5.0 - Block will be removed #}
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-    {% block sw_settings_units_content %}
-    <sw-card-view slot="content">
-        <sw-card
-            position-identifier="sw-settings-units-content"
-            :class="{ 'sw-settings-units-card-empty': isEmpty }"
-        >
-            {# @deprecated tag:v6.5.0 - Block will be removed #}
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_settings_units_content_empty_state %}
-            <sw-empty-state
-                v-if="!isLoading && isEmpty"
-                :title="$tc('sw-settings-units.empty-state.title')"
-                :subline="$tc('sw-settings-units.empty-state.subline')"
-                icon="regular-balance-scale"
-            />
-            {% endblock %}
+    <template #content>
+        <sw-card-view>
+            <sw-card
+                position-identifier="sw-settings-units-content"
+                :class="{ 'sw-settings-units-card-empty': isEmpty }"
+            >
+                <sw-empty-state
+                    v-if="!isLoading && isEmpty"
+                    :title="$tc('sw-settings-units.empty-state.title')"
+                    :subline="$tc('sw-settings-units.empty-state.subline')"
+                    icon="regular-balance-scale"
+                />
 
-            <template #grid>
-                {# @deprecated tag:v6.5.0 - Block will be removed #}
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_settings_units_content_grid %}
-                <sw-data-grid
-                    v-show="isLoading || !isEmpty"
-                    ref="swDataGrid"
-                    class="sw-settings-units-grid"
-                    :is-loading="isLoading"
-                    :data-source="unitList"
-                    :columns="unitColumns()"
-                    :show-selection="false"
-                    :allow-inline-edit="acl.can('scale_unit.editor')"
-                    :skeleton-item-amount="placeholderAmount"
-                    @inline-edit-save="saveUnit"
-                    @inline-edit-cancel="cancelUnit"
-                >
+                <template #grid>
+                    <sw-data-grid
+                        v-show="isLoading || !isEmpty"
+                        ref="swDataGrid"
+                        class="sw-settings-units-grid"
+                        :is-loading="isLoading"
+                        :data-source="unitList"
+                        :columns="unitColumns()"
+                        :show-selection="false"
+                        :allow-inline-edit="acl.can('scale_unit.editor')"
+                        :skeleton-item-amount="placeholderAmount"
+                        @inline-edit-save="saveUnit"
+                        @inline-edit-cancel="cancelUnit"
+                    >
 
-                    <template #actions="{ item }">
-                        <sw-context-menu-item
-                            class="sw-settings-units__edit-action"
-                            :disabled="!acl.can('scale_unit.editor')"
-                            @click="editUnit(item)"
-                        >
-                            {{ $tc('global.default.edit') }}
-                        </sw-context-menu-item>
+                        <template #actions="{ item }">
+                            <sw-context-menu-item
+                                class="sw-settings-units__edit-action"
+                                :disabled="!acl.can('scale_unit.editor')"
+                                @click="editUnit(item)"
+                            >
+                                {{ $tc('global.default.edit') }}
+                            </sw-context-menu-item>
 
-                        <sw-context-menu-divider />
+                            <sw-context-menu-divider />
 
-                        {# @deprecated tag:v6.5.0 - Block will be removed #}
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_settings_units_content_grid_column_menu_delete %}
-                        <sw-context-menu-item
-                            class="sw-settings-units__delete-action"
-                            variant="danger"
-                            :disabled="!acl.can('scale_unit.deleter')"
-                            @click="deleteUnit(item)"
-                        >
-                            {{ $tc('global.default.delete') }}
-                        </sw-context-menu-item>
-                        {% endblock %}
-                    </template>
+                            <sw-context-menu-item
+                                class="sw-settings-units__delete-action"
+                                variant="danger"
+                                :disabled="!acl.can('scale_unit.deleter')"
+                                @click="deleteUnit(item)"
+                            >
+                                {{ $tc('global.default.delete') }}
+                            </sw-context-menu-item>
+                        </template>
 
-                </sw-data-grid>
-                {% endblock %}
-            </template>
-        </sw-card>
-    </sw-card-view>
-    {% endblock %}
+                    </sw-data-grid>
+                </template>
+            </sw-card>
+        </sw-card-view>
+    </template>
 </sw-page>
-{% endblock %}

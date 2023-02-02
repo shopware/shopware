@@ -5,7 +5,7 @@
     {% block sw_flow_sequence_selector_title %}
     <div class="sw-flow-sequence-selector__title">
         <slot name="title">
-            <h3>{{ title }}</h3>
+            <h4>{{ title }}</h4>
         </slot>
     </div>
     {% endblock %}
@@ -33,7 +33,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_flow_sequence_selector_then_action_icon_rule %}
             <sw-icon
-                size="12"
+                size="16"
                 name="regular-rule-s"
             />
             {% endblock %}
@@ -53,8 +53,8 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_flow_sequence_selector_then_action_icon_file %}
             <sw-icon
-                size="12"
-                name="multicolor-file-thumbnail-normal"
+                size="16"
+                name="regular-file-edit-s"
             />
             {% endblock %}
 

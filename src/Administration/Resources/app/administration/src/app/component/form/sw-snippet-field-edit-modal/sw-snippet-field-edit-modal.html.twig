@@ -25,6 +25,7 @@
         v-model="snippet.value"
         v-tooltip.bottom="getNoPermissionsTooltip('snippet.editor')"
         :type="fieldType"
+        class="sw-snippet-field-edit-modal__translation-field"
         :class="`sw-snippet-field-edit-modal__translation-field--${index}`"
         :disabled="!acl.can('snippet.editor')"
         :label="$tc('sw-settings-snippet.detail.labelContent', 0, { name: snippetSets.get(snippet.setId).name })"

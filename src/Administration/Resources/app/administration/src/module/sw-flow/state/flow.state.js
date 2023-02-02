@@ -4,7 +4,10 @@ const { Service } = Shopware;
 const { EntityCollection } = Shopware.Data;
 const { types } = Shopware.Utils;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @private
+ * @package business-ops
+ */
 export default {
     namespaced: true,
 
@@ -23,11 +26,17 @@ export default {
         customFieldSets: [],
         customFields: [],
         customerGroups: [],
+        restrictedRules: [],
     },
 
     mutations: {
         setFlow(state, flow) {
             state.flow = flow;
+            if (flow.config) {
+                state.flow.description = flow.config.description;
+                state.flow.sequences = flow.config.sequences;
+                state.flow.eventName = flow.config.eventName;
+            }
         },
 
         setOriginFlow(state, flow) {
@@ -54,7 +63,12 @@ export default {
         },
 
         addSequence(state, sequence) {
-            state.flow.sequences.add(sequence);
+            if (state.flow.sequences instanceof EntityCollection) {
+                state.flow.sequences.add(sequence);
+                return;
+            }
+
+            state.flow.sequences.push(sequence);
         },
 
         removeSequences(state, sequenceIds) {
@@ -130,7 +144,6 @@ export default {
             state.customFields = customField;
         },
 
-        /* @internal (flag:FEATURE_NEXT_18215) */
         setRestrictedRules(state, rules) {
             state.restrictedRules = rules;
         },
@@ -165,7 +178,7 @@ export default {
                 return false;
             }
 
-            const firstSequence = state.flow.sequences.first();
+            const firstSequence = state.flow.sequences[0];
             return !firstSequence.actionName && !firstSequence.ruleId;
         },
 
@@ -236,6 +249,14 @@ export default {
             commit('removeCurrentFlow');
             commit('removeInvalidSequences');
             commit('removeTriggerEvent');
+        },
+
+        setRestrictedRules({ commit }, id) {
+            Shopware.Service('ruleConditionDataProviderService')
+                .getRestrictedRules(`flowTrigger.${id}`)
+                .then((result) => {
+                    commit('setRestrictedRules', result);
+                });
         },
     },
 };

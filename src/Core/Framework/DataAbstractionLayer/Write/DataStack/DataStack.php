@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
  *
  * Start with original raw result
  *  -> each step removes one from the raw set and possibly adds one to the result set
@@ -29,12 +31,13 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack;
  *
  *      $resultSet = $stack->getResultAsArray();
  */
+#[Package('core')]
 class DataStack
 {
     /**
      * @var KeyValuePair[]
      */
-    private $data = [];
+    private array $data = [];
 
     public function __construct(array $originalData)
     {

@@ -3,20 +3,15 @@ import './sw-filter-panel.scss';
 
 const { Component } = Shopware;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 Component.register('sw-filter-panel', {
     template,
 
     inject: ['repositoryFactory'],
 
     props: {
-        /* @deprecated tag:v6.5.0 - Unused will be removed */
-        entity: {
-            type: String,
-            required: false,
-            default: '',
-        },
-
         filters: {
             type: Array,
             required: true,

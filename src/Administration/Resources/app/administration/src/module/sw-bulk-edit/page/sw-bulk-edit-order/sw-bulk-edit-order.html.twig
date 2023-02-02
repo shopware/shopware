@@ -75,22 +75,6 @@
                 :is-loading="isLoading"
             >
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_bulk_edit_order_content_documents_warning %}
-                <sw-container
-                    v-if="showBulkEditDocumentWarning"
-                    class="sw-bulk-edit-order-base__documents-warning-container"
-                    columns="1fr"
-                >
-                    <sw-alert
-                        variant="info"
-                        class="sw-bulk-edit-order-base__documents-warning"
-                    >
-                        {{ $tc('sw-bulk-edit.order.documents.warning') }}
-                    </sw-alert>
-                </sw-container>
-                {% endblock %}
-
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_bulk_edit_order_content_documents_content %}
                 <sw-bulk-edit-change-type-field-renderer
                     :form-fields="documentsFormFields"

@@ -10,13 +10,10 @@ use Shopware\Core\Framework\Uuid\Uuid;
  */
 class TestError extends Error
 {
-    public const LEVEL_UNKNOWN = \PHP_INT_MAX;
+    final public const LEVEL_UNKNOWN = \PHP_INT_MAX;
 
-    private int $level;
-
-    private function __construct(int $level)
+    private function __construct(private readonly int $level)
     {
-        $this->level = $level;
     }
 
     public static function error(): self

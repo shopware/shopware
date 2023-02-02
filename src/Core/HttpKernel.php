@@ -5,17 +5,19 @@ namespace Shopware\Core;
 use Composer\Autoload\ClassLoader;
 use Composer\InstalledVersions;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Driver\Middleware;
+use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\Exception;
 use Shopware\Core\Framework\Adapter\Cache\CacheIdLoader;
 use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
 use Shopware\Core\Framework\Event\BeforeSendRedirectResponseEvent;
 use Shopware\Core\Framework\Event\BeforeSendResponseEvent;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\DbalKernelPluginLoader;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Routing\CanonicalRedirectService;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
-use Shopware\Core\Profiling\Doctrine\DebugStack;
+use Shopware\Core\Profiling\Doctrine\ProfilingMiddleware;
 use Shopware\Storefront\Framework\Cache\CacheStore;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -25,6 +27,10 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\HttpKernel\TerminableInterface;
 
+/**
+ * @psalm-import-type Params from DriverManager
+ */
+#[Package('core')]
 class HttpKernel
 {
     protected static ?Connection $connection = null;
@@ -39,41 +45,22 @@ class HttpKernel
      */
     protected static string $httpCacheClass = HttpCache::class;
 
-    protected ?ClassLoader $classLoader;
-
-    protected string $environment;
-
-    protected bool $debug;
-
     protected ?string $projectDir = null;
 
     protected ?KernelPluginLoader $pluginLoader = null;
 
     protected ?KernelInterface $kernel = null;
 
-    public function __construct(string $environment, bool $debug, ?ClassLoader $classLoader = null)
+    public function __construct(protected string $environment, protected bool $debug, protected ?ClassLoader $classLoader = null)
     {
-        $this->classLoader = $classLoader;
-        $this->environment = $environment;
-        $this->debug = $debug;
     }
 
-    /**
-     * @deprecated tag:v6.5.0 - parameter `$type` will be typed to `int` and parameter `$catch` will be typed to `bool`
-     */
-    public function handle(Request $request, $type = HttpKernelInterface::MASTER_REQUEST, $catch = true): HttpKernelResult
+    public function handle(Request $request, int $type = HttpKernelInterface::MAIN_REQUEST, bool $catch = true): HttpKernelResult
     {
-        if (!\is_int($type)) {
-            Feature::triggerDeprecationOrThrow('v6.5.0.0', 'The second parameter `$type` of `HttpKernel->handle()` will be typed to `int`');
-        }
-
-        if (!\is_bool($catch)) {
-            Feature::triggerDeprecationOrThrow('v6.5.0.0', 'The third parameter `$catch` of `HttpKernel->handle()` will be typed to `bool`');
-        }
-
         try {
-            return $this->doHandle($request, (int) $type, (bool) $catch);
-        } catch (DBALException $e) {
+            return $this->doHandle($request, $type, $catch);
+        } catch (Exception $e) {
+            /** @var Params|array{url?: string} $connectionParams */
             $connectionParams = self::getConnection()->getParams();
 
             $message = str_replace([$connectionParams['url'] ?? null, $connectionParams['password'] ?? null, $connectionParams['user'] ?? null], '******', $e->getMessage());
@@ -95,13 +82,16 @@ class HttpKernel
         $this->pluginLoader = $pluginLoader;
     }
 
-    public static function getConnection(): Connection
+    /**
+     * @param array<Middleware> $middlewares
+     */
+    public static function getConnection(array $middlewares = []): Connection
     {
         if (self::$connection) {
             return self::$connection;
         }
 
-        self::$connection = MySQLFactory::create();
+        self::$connection = MySQLFactory::create($middlewares);
 
         return self::$connection;
     }
@@ -169,11 +159,12 @@ class HttpKernel
                 . '@' . InstalledVersions::getReference('shopware/core');
         }
 
-        $connection = self::getConnection();
-
-        if ($this->environment !== 'prod') {
-            $connection->getConfiguration()->setSQLLogger(new DebugStack());
+        $middlewares = [];
+        if (InstalledVersions::isInstalled('symfony/doctrine-bridge')) {
+            $middlewares = [new ProfilingMiddleware()];
         }
+
+        $connection = self::getConnection($middlewares);
 
         $pluginLoader = $this->createPluginLoader($connection);
 

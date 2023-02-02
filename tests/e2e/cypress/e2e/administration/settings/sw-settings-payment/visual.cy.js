@@ -1,13 +1,8 @@
 // / <reference types="Cypress" />
 
 describe('Payment: Visual testing', () => {
-    // eslint-disable-next-line no-undef
     beforeEach(() => {
-        // Clean previous state and prepare Administration
-        cy.loginViaApi()
-            .then(() => {
-                cy.setLocaleToEnGb();
-            })
+        cy.setLocaleToEnGb()
             .then(() => {
                 cy.openInitialPage(Cypress.env('admin'));
                 cy.get('.sw-skeleton').should('not.exist');
@@ -15,17 +10,16 @@ describe('Payment: Visual testing', () => {
             });
     });
 
-    // ToDo: NEXT-20936 - Find payment method in new list
-    it('@base @navigation: navigate to payment module', { tags: ['quarantined', 'pa-checkout'] }, () => {
+    it('@base @navigation: navigate to payment module', { tags: ['pa-checkout'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/payment-method`,
-            method: 'POST'
+            method: 'POST',
         }).as('getData');
 
         cy.get('.sw-dashboard-index__welcome-text').should('be.visible');
         cy.clickMainMenuItem({
             targetPath: '#/sw/settings/index',
-            mainMenuId: 'sw-settings'
+            mainMenuId: 'sw-settings',
         });
         cy.get('#sw-settings-payment').click();
 
@@ -37,9 +31,11 @@ describe('Payment: Visual testing', () => {
 
         // Take Snapshot
         cy.prepareAdminForScreenshot();
-        cy.takeSnapshot('[Payment] Listing', '.sw-settings-payment-list', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
+        cy.takeSnapshot('[Payment] Overview', '.sw-settings-payment-overview', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
-        cy.contains('.sw-data-grid__cell--name a', 'Cash on delivery').click();
+        cy.contains('.sw-card', 'Cash on delivery')
+            .find('.sw-internal-link')
+            .click();
 
         // Ensure snapshot consistency
         cy.get('.sw-loader').should('not.exist');

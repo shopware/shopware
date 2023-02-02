@@ -10,9 +10,8 @@ describe('Newsletter-Recipient: Test crud operations with ACL', () => {
             lastName: 'Mustermann',
             street: 'Buchenweg 5',
             zipcode: '33602',
-            city: 'Bielefeld'
+            city: 'Bielefeld',
         }).then(() => {
-            cy.loginViaApi();
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
         });
     });
@@ -41,8 +40,8 @@ describe('Newsletter-Recipient: Test crud operations with ACL', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'newsletter_recipient',
-                role: 'viewer'
-            }
+                role: 'viewer',
+            },
         ]);
 
         cy.visit(`${Cypress.env('admin')}#/sw/newsletter/recipient/index`);
@@ -62,12 +61,12 @@ describe('Newsletter-Recipient: Test crud operations with ACL', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'newsletter_recipient',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'newsletter_recipient',
-                role: 'editor'
-            }
+                role: 'editor',
+            },
         ]);
 
         cy.visit(`${Cypress.env('admin')}#/sw/newsletter/recipient/index`);
@@ -77,7 +76,7 @@ describe('Newsletter-Recipient: Test crud operations with ACL', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/newsletter-recipient/**`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
 
         // Edit base data
@@ -100,16 +99,16 @@ describe('Newsletter-Recipient: Test crud operations with ACL', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'newsletter_recipient',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'newsletter_recipient',
-                role: 'editor'
+                role: 'editor',
             },
             {
                 key: 'newsletter_recipient',
-                role: 'deleter'
-            }
+                role: 'deleter',
+            },
         ]);
 
         cy.visit(`${Cypress.env('admin')}#/sw/newsletter/recipient/index`);
@@ -122,17 +121,17 @@ describe('Newsletter-Recipient: Test crud operations with ACL', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/newsletter-recipient/**`,
-            method: 'delete'
+            method: 'delete',
         }).as('saveData');
 
         // Delete manufacturer
         cy.clickContextMenuItem(
             '.sw-context-menu-item--danger',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
         cy.contains(`${page.elements.modal} ${page.elements.modal}__body p`,
-            'Are you sure you want to delete this item?'
+            'Are you sure you want to delete this item?',
         );
         cy.get(`${page.elements.modal}__footer ${page.elements.dangerButton}`).click();
         cy.get(page.elements.modal).should('not.exist');

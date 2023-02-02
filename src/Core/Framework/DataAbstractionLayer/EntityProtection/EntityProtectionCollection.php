@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\EntityProtection;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
  * @extends Collection<EntityProtection>
  */
+#[Package('core')]
 class EntityProtectionCollection extends Collection
 {
     /**
@@ -14,7 +16,7 @@ class EntityProtectionCollection extends Collection
      */
     public function add($element): void
     {
-        $this->set(\get_class($element), $element);
+        $this->set($element::class, $element);
     }
 
     /**
@@ -23,7 +25,7 @@ class EntityProtectionCollection extends Collection
      */
     public function set($key, $element): void
     {
-        parent::set(\get_class($element), $element);
+        parent::set($element::class, $element);
     }
 
     public function getApiAlias(): string

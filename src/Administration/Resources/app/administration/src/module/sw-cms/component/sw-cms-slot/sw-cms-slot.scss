@@ -5,6 +5,7 @@
     height: 100%;
     width: 100%;
     display: flex;
+    flex-direction: column;
 
     &.is--disabled {
         cursor: not-allowed;
@@ -73,6 +74,25 @@
             color: $color-shopware-brand-500;
         }
     }
+
+    &__modal-container {
+        margin: -21px -30px -20px;
+
+        .sw-sidebar-collapse__indicator {
+            .icon--regular-chevron-up-xxs {
+                width: 16px;
+                height: 16px;
+                padding-top: 4px;
+                padding-right: 2px;
+                padding-bottom: 3px;
+                padding-left: 2px;
+            }
+        }
+
+        .sw-cms-slot__element-selection {
+            padding: 0 20px 16px;
+        }
+    }
 }
 
 .sw-cms-slot__config-modal {
@@ -114,7 +134,7 @@
         }
 
         .element-selection__overlay {
-            width: 100%;
+            width: 50%;
             height: 100%;
             display: none;
             align-content: center;
@@ -124,11 +144,17 @@
             margin: auto;
             position: absolute;
             top: 0;
-            left: 0;
-            right: 0;
             bottom: 0;
             background: rgba(255, 255, 255, 80%);
             border-radius: 5px;
+
+            &.element-selection__overlay-action-select {
+                left: 0;
+            }
+
+            &.element-selection__overlay-action-favorite {
+                right: 0;
+            }
         }
     }
 }

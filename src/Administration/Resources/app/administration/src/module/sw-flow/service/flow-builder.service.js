@@ -7,12 +7,16 @@ Application.addServiceProvider('flowBuilderService', () => {
     return flowBuilderService();
 });
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @private
+ * @package business-ops
+ */
 export default function flowBuilderService() {
     const $icon = {
         addEntityTag: 'regular-tag',
         removeEntityTag: 'regular-tag',
         mailSend: 'regular-envelope',
+        grantDownloadAccess: 'regular-file-signature',
         setOrderState: 'regular-shopping-bag-alt',
         generateDocument: 'regular-file-text',
         changeCustomerGroup: 'regular-users',
@@ -26,6 +30,7 @@ export default function flowBuilderService() {
         addEntityTag: 'sw-flow.actions.addTag',
         removeEntityTag: 'sw-flow.actions.removeTag',
         mailSend: 'sw-flow.actions.mailSend',
+        grantDownloadAccess: 'sw-flow.actions.grantDownloadAccess',
         setOrderState: 'sw-flow.actions.setOrderState',
         generateDocument: 'sw-flow.actions.generateDocument',
         changeCustomerGroup: 'sw-flow.actions.changeCustomerGroup',
@@ -53,6 +58,7 @@ export default function flowBuilderService() {
         convertEntityName,
         mapActionType,
         getAvailableEntities,
+        rearrangeArrayObjects,
     };
 
     function getActionTitle(actionName) {
@@ -99,6 +105,10 @@ export default function flowBuilderService() {
 
         if (mapActionType(actionName) === ACTION_TYPE.ADD_AFFILIATE_AND_CAMPAIGN_CODE) {
             return 'sw-flow-affiliate-and-campaign-code-modal';
+        }
+
+        if (mapActionType(actionName) === ACTION_TYPE.GRANT_DOWNLOAD_ACCESS) {
+            return 'sw-flow-grant-download-access-modal';
         }
 
         return `${actionName.replace(/\./g, '-').replace('action', 'sw-flow')}-modal`;
@@ -166,5 +176,48 @@ export default function flowBuilderService() {
         });
 
         return entities;
+    }
+
+    function flattenNodeList(parent, arrayResult) {
+        arrayResult.push(parent);
+
+        if (parent.children.length === 0) {
+            return;
+        }
+
+        parent.children.forEach(child => {
+            flattenNodeList(child, arrayResult);
+        });
+    }
+
+    function rearrangeArrayObjects(items) {
+        const itemsKeyMapping = items.reduce((map, item) => {
+            map[item.id] = item;
+            map[item.id].children = [];
+
+            return map;
+        }, {});
+
+        const itemsNodeList = [];
+        items.forEach((item) => {
+            if (!item.parentId) {
+                itemsNodeList.push(item);
+            } else {
+                const parentNode = itemsKeyMapping[item.parentId];
+                parentNode.children.push(item);
+            }
+        });
+
+        const arrayResult = [];
+        itemsNodeList.forEach(node => {
+            flattenNodeList(node, arrayResult);
+        });
+
+        arrayResult.forEach(item => {
+            item.children = [];
+            return item;
+        });
+
+        return arrayResult;
     }
 }

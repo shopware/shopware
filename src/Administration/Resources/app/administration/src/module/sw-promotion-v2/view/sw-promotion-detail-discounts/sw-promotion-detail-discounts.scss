@@ -1,0 +1,15 @@
+@import "~scss/variables";
+
+.sw-promotion-detail-discounts {
+    .promotion-detail-discounts__action_add {
+        text-align: center;
+        max-width: $content-width;
+        margin: 0 auto 40px;
+        position: relative;
+        padding: 30px;
+
+        @media screen and (max-width: $content-width) {
+            padding: 15px;
+        }
+    }
+}

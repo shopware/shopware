@@ -44,7 +44,7 @@
     .sw-cms-el-product-box__badge-new {
         padding: 4px 4px 4px 10px;
         margin-bottom: 10px;
-        font-size: 12px;
+        font-size: $font-size-xxs;
         font-weight: bold;
         background: $color-shopware-brand-500;
         color: $color-white;
@@ -98,8 +98,8 @@
         display: block;
         height: 40px;
         margin-bottom: 10px;
-        font-size: 18px;
-        line-height: 20px;
+        font-size: $font-size-m;
+        line-height: $line-height-sm;
         overflow: hidden;
         text-decoration: none;
         color: $color-darkgray-200;
@@ -112,8 +112,8 @@
     .sw-cms-el-product-box__description {
         height: 72px;
         margin-top: 10px;
-        font-size: 14px;
-        line-height: 18px;
+        font-size: $font-size-xs;
+        line-height: $line-height-xs;
         overflow: hidden;
     }
 
@@ -123,24 +123,24 @@
 
     .sw-cms-el-product-box__price-unit {
         height: 36px;
-        font-size: 14px;
-        line-height: 18px;
+        font-size: $font-size-xs;
+        line-height: $line-height-xs;
         overflow: hidden;
     }
 
     .sw-cms-el-product-box__price-unit-reference {
         height: 18px;
-        font-size: 14px;
-        line-height: 18px;
+        font-size: $font-size-xs;
+        line-height: $line-height-xs;
         overflow: hidden;
     }
 
     .sw-cms-el-product-box__price {
         height: 20px;
         margin-top: 10px;
-        font-size: 18px;
+        font-size: $font-size-m;
         font-weight: bold;
-        line-height: 20px;
+        line-height: $line-height-sm;
         overflow: hidden;
         color: $color-darkgray-200;
     }
@@ -152,7 +152,7 @@
     .sw-cms-el-product-box__buy-action {
         display: block;
         line-height: 40px;
-        font-size: 14px;
+        font-size: $font-size-xs;
         font-weight: bold;
         text-align: center;
         text-decoration: none;

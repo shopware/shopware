@@ -2,11 +2,7 @@
 
 describe('Feature sets: Visual testing', () => {
     beforeEach(() => {
-        // Clean previous state and prepare Administration
-        cy.loginViaApi()
-            .then(() => {
-                cy.setLocaleToEnGb();
-            })
+        cy.setLocaleToEnGb()
             .then(() => {
                 cy.openInitialPage(Cypress.env('admin'));
                 cy.get('.sw-skeleton').should('not.exist');
@@ -17,13 +13,13 @@ describe('Feature sets: Visual testing', () => {
     it('@visual: check appearance of product feature sets module',  { tags: ['pa-inventory'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product-feature-set`,
-            method: 'POST'
+            method: 'POST',
         }).as('getData');
 
         cy.get('.sw-dashboard-index__welcome-text').should('be.visible');
         cy.clickMainMenuItem({
             targetPath: '#/sw/settings/index',
-            mainMenuId: 'sw-settings'
+            mainMenuId: 'sw-settings',
         });
         cy.get('#sw-settings-product-feature-sets').click();
         cy.wait('@getData')

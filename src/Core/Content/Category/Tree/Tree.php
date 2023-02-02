@@ -3,8 +3,10 @@
 namespace Shopware\Core\Content\Category\Tree;
 
 use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
+#[Package('content')]
 class Tree extends Struct
 {
     /**
@@ -25,8 +27,16 @@ class Tree extends Struct
 
     public function isSelected(CategoryEntity $category): bool
     {
+        if ($this->active === null) {
+            return false;
+        }
+
         if ($category->getId() === $this->active->getId()) {
             return true;
+        }
+
+        if (!$this->active->getPath()) {
+            return false;
         }
 
         $ids = explode('|', $this->active->getPath());

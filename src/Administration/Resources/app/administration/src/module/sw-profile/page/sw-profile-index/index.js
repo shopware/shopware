@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import { email } from 'src/core/service/validation.service';
 import { KEY_USER_SEARCH_PREFERENCE } from 'src/app/service/search-ranking.service';
 import template from './sw-profile-index.html.twig';
@@ -8,7 +11,7 @@ const { Criteria } = Shopware.Data;
 const { mapState, mapPropertyErrors } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-profile-index', {
+export default {
     template,
 
     inject: [
@@ -252,7 +255,6 @@ Component.register('sw-profile-index', {
         },
 
         resetGeneralData() {
-            this.avatarMediaItem = null;
             this.newPassword = null;
             this.newPasswordConfirm = null;
 
@@ -325,6 +327,16 @@ Component.register('sw-profile-index', {
                     this.isSaveSuccessful = true;
 
                     Shopware.Service('localeHelper').setLocaleWithId(this.user.localeId);
+                }).catch((error) => {
+                    State.dispatch('error/addApiError', {
+                        expression: `user.${this.user?.id}.password`,
+                        error: new Shopware.Classes.ShopwareError(error.response.data.errors[0]),
+                    });
+                    this.createNotificationError({
+                        message: this.$tc('sw-profile.index.notificationSaveErrorMessage'),
+                    });
+                    this.isLoading = false;
+                    this.isSaveSuccessful = false;
                 });
 
                 return;
@@ -334,11 +346,6 @@ Component.register('sw-profile-index', {
             context.authToken.access = authToken;
 
             this.userRepository.save(this.user, context).then(async () => {
-                // @deprecated tag:v6.5.0 - Will be removed
-                if (this.$refs.mediaSidebarItem) {
-                    this.$refs.mediaSidebarItem.getList();
-                }
-
                 await this.updateCurrentUser();
                 Shopware.Service('localeHelper').setLocaleWithId(this.user.localeId);
 
@@ -361,6 +368,8 @@ Component.register('sw-profile-index', {
                 this.newPasswordConfirm = '';
             }).catch(() => {
                 this.handleUserSaveError();
+                this.isLoading = false;
+                this.isSaveSuccessful = false;
             });
         },
 
@@ -416,20 +425,9 @@ Component.register('sw-profile-index', {
             this.confirmPasswordModal = false;
         },
 
-        /* @deprecated tag:v6.5.0 - Will be removed */
-        setMediaFromSidebar(mediaEntity) {
-            this.avatarMediaItem = mediaEntity;
-            this.user.avatarId = mediaEntity.id;
-        },
-
         onUnlinkAvatar() {
             this.avatarMediaItem = null;
             this.user.avatarId = null;
-        },
-
-        /* @deprecated tag:v6.5.0 - Will be removed */
-        openMediaSidebar() {
-            this.$refs.mediaSidebarItem.openContent();
         },
 
         openMediaModal() {
@@ -437,9 +435,11 @@ Component.register('sw-profile-index', {
         },
 
         handleUserSaveError() {
-            this.createNotificationError({
-                message: this.$tc('sw-profile.index.notificationSaveErrorMessage'),
-            });
+            if (this.$route.name.includes('sw.profile.index')) {
+                this.createNotificationError({
+                    message: this.$tc('sw-profile.index.notificationSaveErrorMessage'),
+                });
+            }
             this.isLoading = false;
         },
 
@@ -488,4 +488,4 @@ Component.register('sw-profile-index', {
                 });
         },
     },
-});
+};

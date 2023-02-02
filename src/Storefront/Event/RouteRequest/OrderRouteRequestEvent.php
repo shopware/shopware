@@ -2,6 +2,9 @@
 
 namespace Shopware\Storefront\Event\RouteRequest;
 
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('customer-order')]
 class OrderRouteRequestEvent extends RouteRequestEvent
 {
 }

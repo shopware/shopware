@@ -4,7 +4,7 @@ Symfony security check:
     extends: .long-running
     stage: unit
     needs: []
-    image: shopware/development:7.4-composer-2
+    image: shopware/development:8.1-composer-2
     before_script: []
     script:
         - composer install --no-interaction --no-scripts
@@ -20,7 +20,7 @@ Symfony security check:
 .NPM security check:
     extends: .long-running
     stage: security
-    image: shopware/development:7.4-composer-2
+    image: shopware/development:8.1-composer-2
     dependencies: []
     allow_failure: true
     before_script: []

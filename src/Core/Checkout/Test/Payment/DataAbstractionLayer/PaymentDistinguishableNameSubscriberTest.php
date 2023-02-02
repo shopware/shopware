@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Test\Payment\DataAbstractionLayer;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Payment\DataAbstractionLayer\PaymentDistinguishableNameSubscriber;
-use Shopware\Core\Checkout\Payment\DataAbstractionLayer\PaymentMethodRepositoryDecorator;
 use Shopware\Core\Checkout\Payment\PaymentEvents;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
@@ -12,12 +11,14 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
+#[Package('checkout')]
 class PaymentDistinguishableNameSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -44,7 +45,6 @@ class PaymentDistinguishableNameSubscriberTest extends TestCase
 
     public function testFallsBackToPaymentMethodNameIfDistinguishableNameIsNotSet(): void
     {
-        /** @var PaymentMethodRepositoryDecorator $paymentRepository */
         $paymentRepository = $this->getContainer()->get('payment_method.repository');
 
         $paymentRepository->create(

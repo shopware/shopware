@@ -1,15 +1,15 @@
+@import "~scss/mixins";
 @import "~scss/variables";
-
-$sw-meteor-card-background: rgba(235, 235, 235, 10%);
 
 .sw-meteor-card {
     max-width: 960px;
     margin: 0 auto 40px;
     position: relative;
     color: $color-darkgray-200;
-    border-radius: $border-radius-default;
+    border-radius: $border-radius-lg;
     background: $color-white;
-    box-shadow: 0 0 4px 0 rgba(0, 0, 0, 10%);
+
+    @include drop-shadow-default;
 
     .sw-meteor-card__header {
         .sw-meteor-card__header-grid {
@@ -24,7 +24,7 @@ $sw-meteor-card-background: rgba(235, 235, 235, 10%);
             }
 
             .sw-meteor-card__title {
-                font-size: $font-size-large;
+                font-size: $font-size-m;
                 font-weight: $font-weight-semi-bold;
             }
         }
@@ -64,17 +64,16 @@ $sw-meteor-card-background: rgba(235, 235, 235, 10%);
     }
 
     .sw-meteor-card__content {
-        background: $sw-meteor-card-background;
         position: relative;
         line-height: 22px;
-        font-size: $font-size-small;
+        font-size: $font-size-xs;
 
         & > .sw-grid {
             border: none;
         }
 
         h1 {
-            font-size: 24px;
+            font-size: $font-size-xl;
         }
 
         h2 {
@@ -82,13 +81,13 @@ $sw-meteor-card-background: rgba(235, 235, 235, 10%);
         }
 
         h3 {
-            font-size: $font-size-large;
+            font-size: $font-size-m;
         }
 
         h4,
         h5,
         h6 {
-            font-size: $font-size-default;
+            font-size: $font-size-s;
         }
 
         a.sw-meteor-card__quick-link {
@@ -98,7 +97,7 @@ $sw-meteor-card-background: rgba(235, 235, 235, 10%);
             align-items: center;
             text-decoration: none;
             color: $color-shopware-brand-500;
-            font-size: $font-size-small;
+            font-size: $font-size-xs;
 
             &:hover {
                 color: $color-shopware-brand-800;
@@ -156,10 +155,9 @@ $sw-meteor-card-background: rgba(235, 235, 235, 10%);
     .sw-meteor-card__footer {
         border-top: 1px solid $color-gray-300;
         padding: 24px 32px;
-        background: $sw-meteor-card-background;
         position: relative;
         line-height: 22px;
-        font-size: $font-size-small;
+        font-size: $font-size-xs;
 
         @media screen and (max-width: 960px) {
             padding: 15px;
@@ -205,7 +203,7 @@ $sw-meteor-card-background: rgba(235, 235, 235, 10%);
             margin-right: 14px;
             font-weight: $font-weight-regular;
             border-color: transparent;
-            font-size: $font-size-small;
+            font-size: $font-size-xs;
 
             @media screen and (max-width: 960px) {
                 padding: 15px 0 10px;
@@ -216,7 +214,7 @@ $sw-meteor-card-background: rgba(235, 235, 235, 10%);
             }
 
             &.sw-tabs-item--active {
-                font-weight: 600;
+                font-weight: $font-weight-semi-bold;
             }
         }
     }

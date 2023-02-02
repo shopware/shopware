@@ -2,6 +2,9 @@ import Plugin from 'src/plugin-system/plugin.class';
 import HttpClient from 'src/service/http-client.service';
 import ElementLoadingIndicatorUtil from 'src/utility/loading-indicator/element-loading-indicator.util';
 
+/**
+ * @package checkout
+ */
 export default class GuestWishlistPagePlugin extends Plugin {
     init() {
         ElementLoadingIndicatorUtil.create(this.el);
@@ -36,7 +39,6 @@ export default class GuestWishlistPagePlugin extends Plugin {
             .map(item => item.productId);
 
         this.httpClient.post(this.options.pageletRouter.path, JSON.stringify({
-            _csrf_token: this.options.pageletRouter.token,
             productIds,
         }), response => {
             this.el.innerHTML = response;

@@ -4,10 +4,7 @@ import ProductPageObject from '../../../../support/pages/module/sw-product.page-
 
 describe('Product: Test crud operations', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createProductFixture();
-            })
+        cy.createProductFixture()
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
                 cy.get('.sw-skeleton').should('not.exist');
@@ -22,15 +19,15 @@ describe('Product: Test crud operations', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/calculate-price`,
-            method: 'POST'
+            method: 'POST',
         }).as('calculatePrice');
 
         // Add basic data to product
-        cy.get('a[href="#/sw/product/create"]').click();
+        cy.get('a[href="#/sw/product/create?creationStates=is-physical"]').click();
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
 
@@ -40,7 +37,7 @@ describe('Product: Test crud operations', () => {
 
         if (Cypress.isBrowser({ family: 'chromium' })) {
             // Add image to product
-            cy.get('#files')
+            cy.get('.sw-product-media-form .sw-media-upload-v2__file-input')
                 .attachFile('img/sw-login-background.png');
 
             cy.get('.sw-product-image__image img')
@@ -96,14 +93,14 @@ describe('Product: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         // Edit base data of product
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.get('input[name=sw-field--product-name]').clearTypeAndCheck('What remains of Edith Finch');
@@ -123,17 +120,17 @@ describe('Product: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/product/*`,
-            method: 'delete'
+            method: 'delete',
         }).as('deleteData');
 
         // Delete product
         cy.clickContextMenuItem(
             '.sw-context-menu-item--danger',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
         cy.contains(`${page.elements.modal} .sw-listing__confirm-delete-text`,
-            'Are you sure you want to delete this item?'
+            'Are you sure you want to delete this item?',
         );
         cy.get(`${page.elements.modal}__footer ${page.elements.dangerButton}`).click();
 
@@ -147,7 +144,7 @@ describe('Product: Test crud operations', () => {
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.get('.sw-product-settings-mode').should('be.visible');
@@ -159,14 +156,14 @@ describe('Product: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         // Edit base data of product
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.get('input[name=sw-field--product-name]').clearTypeAndCheck('What remains of Edith Finch');
@@ -206,11 +203,11 @@ describe('Product: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/calculate-price`,
-            method: 'POST'
+            method: 'POST',
         }).as('calculatePrice');
 
         // Add basic data to product
-        cy.get('a[href="#/sw/product/create"]').click();
+        cy.get('a[href="#/sw/product/create?creationStates=is-physical"]').click();
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
 

@@ -2,18 +2,14 @@
 
 namespace Shopware\Storefront\Theme\Event;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
+#[Package('storefront')]
 class ThemeConfigChangedEvent extends Event
 {
-    protected array $config;
-
-    private string $themeId;
-
-    public function __construct(string $themeId, array $config)
+    public function __construct(private readonly string $themeId, protected array $config)
     {
-        $this->config = $config;
-        $this->themeId = $themeId;
     }
 
     public function getConfig(): array

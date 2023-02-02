@@ -11,9 +11,7 @@ const productPage = new ProductPageObject();
 
 describe('Rule builder: Test with shipping method and advance pricing', () => {
     beforeEach(() => {
-        cy.loginViaApi().then(() => {
-            return cy.createProductFixture();
-        }).then(() => {
+        cy.createProductFixture().then(() => {
             return cy.createCustomerFixtureStorefront();
         }).then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/rule/index`);
@@ -26,22 +24,22 @@ describe('Rule builder: Test with shipping method and advance pricing', () => {
     it('@package @rule: should use rule builder with the shipping method', { tags: ['pa-business-ops'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/rule`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/shipping-method`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveShipping');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/sales-channel`,
-            method: 'POST'
+            method: 'POST',
         }).as('getSalesChannel');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/shipping-method`,
-            method: 'POST'
+            method: 'POST',
         }).as('getShippingMethod');
 
         cy.url().should('include', 'settings/rule/index');
@@ -74,7 +72,7 @@ describe('Rule builder: Test with shipping method and advance pricing', () => {
 
             cy.get('.sw-condition .sw-entity-multi-select')
                 .typeMultiSelectAndCheck('Netherlands', {
-                    searchTerm: 'Netherlands'
+                    searchTerm: 'Netherlands',
                 });
         });
 
@@ -92,22 +90,23 @@ describe('Rule builder: Test with shipping method and advance pricing', () => {
         cy.url().should('include', 'settings/shipping/index');
         cy.get('a[href="#/sw/settings/shipping/create"]').click();
         cy.get('input[name=sw-field--shippingMethod-name]').typeAndCheck('Shipping to Netherlands');
+        cy.get('input[name=sw-field--shippingMethod-active]').check();
         cy.get('.sw-settings-shipping-detail__delivery-time').typeSingleSelectAndCheck(
             '1-3 days',
-            '.sw-settings-shipping-detail__delivery-time'
+            '.sw-settings-shipping-detail__delivery-time',
         );
         cy.get('.sw-settings-shipping-detail__top-rule').typeSingleSelectAndCheck(
             'Shipping to Netherlands',
-            '.sw-settings-shipping-detail__top-rule'
+            '.sw-settings-shipping-detail__top-rule',
         );
         cy.get('.sw-settings-shipping__tax-type-selection').typeSingleSelectAndCheck(
             'Fixed',
-            '.sw-settings-shipping__tax-type-selection'
+            '.sw-settings-shipping__tax-type-selection',
         );
         cy.get('.sw-settings-shipping__tax-rate').should('exist');
         cy.get('.sw-settings-shipping__tax-rate').typeSingleSelectAndCheck(
             'Standard rate',
-            '.sw-settings-shipping__tax-rate'
+            '.sw-settings-shipping__tax-rate',
         );
         shippingPage.createShippingMethodPriceRule();
         cy.get(shippingPage.elements.shippingSaveAction).click();
@@ -133,7 +132,7 @@ describe('Rule builder: Test with shipping method and advance pricing', () => {
         cy.get('.sw-skeleton').should('not.exist');
         // now it should be safe to select the element in the flyout
         cy.get('.sw-select-result-list__item-list .sw-select-option--0').should('be.visible');
-        cy.get('.sw-select-result-list__item-list .sw-select-option--0 .sw-highlight-text__highlight').contains('Shipping to Netherlands')
+        cy.get('.sw-select-result-list__item-list .sw-select-option--0 .sw-highlight-text__highlight').contains('Shipping to Netherlands');
         cy.get('.sw-select-result-list__item-list .sw-select-option--0').click({
             force: true,
         });
@@ -160,13 +159,8 @@ describe('Rule builder: Test with shipping method and advance pricing', () => {
 
         cy.get(checkoutPage.elements.offCanvasCart).should('be.visible');
 
-        cy.window().then((win) => {
-            /** @deprecated tag:v6.5.0 - Use `CheckoutPageObject.elements.lineItem` instead */
-            const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
-
-            cy.get(`${lineItemSelector}-label`).contains('Product name');
-        });
-        cy.get('a[title="Proceed to checkout"]').click();
+        cy.get('.line-item-label').contains('Product name');
+        cy.get('a[title="Go to checkout"]').click();
         cy.url().should('include', 'checkout/confirm');
         cy.get('.address').contains('Germany');
         cy.contains('Standard').should('exist');
@@ -187,12 +181,12 @@ describe('Rule builder: Test with shipping method and advance pricing', () => {
     it('@package @rule: should use rule builder with the advance pricing', { tags: ['pa-business-ops'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/rule`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveProduct');
 
         const advancePriceStandard = 45.98;
@@ -227,7 +221,7 @@ describe('Rule builder: Test with shipping method and advance pricing', () => {
                 });
             cy.get('.sw-condition .sw-entity-multi-select')
                 .typeMultiSelectAndCheck('US-Dollar', {
-                    searchTerm: 'US-Dollar'
+                    searchTerm: 'US-Dollar',
                 });
         });
 
@@ -246,7 +240,7 @@ describe('Rule builder: Test with shipping method and advance pricing', () => {
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             productPage.elements.contextMenuButton,
-            `${productPage.elements.dataGridRow}--0`
+            `${productPage.elements.dataGridRow}--0`,
         );
         cy.get('.sw-product-detail__tab-advanced-prices').click();
         cy.get('.sw-product-detail-context-prices__empty-state-select-rule')

@@ -6,39 +6,20 @@ use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
 use Shopware\Core\Content\Media\Exception\MediaFolderNotFoundException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+#[Package('content')]
 class MediaFolderService
 {
     /**
-     * @var EntityRepositoryInterface
-     */
-    private $mediaRepo;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $mediaFolderRepo;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $mediaFolderConfigRepo;
-
-    /**
      * @internal
      */
-    public function __construct(
-        EntityRepositoryInterface $mediaRepo,
-        EntityRepositoryInterface $mediaFolderRepo,
-        EntityRepositoryInterface $mediaFolderConfigRepo
-    ) {
-        $this->mediaRepo = $mediaRepo;
-        $this->mediaFolderRepo = $mediaFolderRepo;
-        $this->mediaFolderConfigRepo = $mediaFolderConfigRepo;
+    public function __construct(private readonly EntityRepository $mediaRepo, private readonly EntityRepository $mediaFolderRepo, private readonly EntityRepository $mediaFolderConfigRepo)
+    {
     }
 
     public function dissolve(string $folderId, Context $context): void
@@ -97,7 +78,9 @@ class MediaFolderService
         }
 
         if ((!$folder->getUseParentConfiguration()) && \count($subFolders) > 1) {
-            $payload = $this->duplicateFolderConfig($subFolders->getEntities(), $payload, $context);
+            /** @var MediaFolderCollection $collection */
+            $collection = $subFolders->getEntities();
+            $payload = $this->duplicateFolderConfig($collection, $payload, $context);
         }
 
         $this->mediaFolderRepo->update(array_values($payload), $context);

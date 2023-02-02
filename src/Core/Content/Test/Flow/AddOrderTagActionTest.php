@@ -9,18 +9,20 @@ use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
 use Shopware\Core\Content\Flow\Dispatching\Action\AddOrderTagAction;
 use Shopware\Core\Content\Flow\Dispatching\Action\RemoveOrderTagAction;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
+#[Package('business-ops')]
 class AddOrderTagActionTest extends TestCase
 {
     use OrderActionTrait;
 
-    private EntityRepositoryInterface $flowRepository;
+    private EntityRepository $flowRepository;
 
     private Connection $connection;
 
@@ -39,9 +41,6 @@ class AddOrderTagActionTest extends TestCase
         ]);
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $this->ids->create('token'));
-
-        // all business event should be inactive.
-        $this->connection->executeStatement('DELETE FROM event_action;');
     }
 
     public function testAddOrderTagAction(): void

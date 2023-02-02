@@ -34,10 +34,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('checkout')]
 class PromotionDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'promotion';
+    final public const ENTITY_NAME = 'promotion';
 
     public function getEntityName(): string
     {
@@ -115,7 +117,7 @@ class PromotionDefinition extends EntityDefinition
             (new OneToManyAssociationField('orderLineItems', OrderLineItemDefinition::class, 'promotion_id'))->addFlags(new SetNullOnDelete()),
 
             (new TranslationsAssociationField(PromotionTranslationDefinition::class, 'promotion_id'))->addFlags(new Required()),
-            (new ListField('exclusion_ids', 'exclusionIds', IdField::class))->setStrict(true),
+            new ListField('exclusion_ids', 'exclusionIds', IdField::class),
             (new TranslatedField('customFields'))->addFlags(new ApiAware()),
         ]);
     }

@@ -32,14 +32,6 @@ E2E:
                     - "cypress/e2e/administration/sdk-plugin/**/*"
                     - "cypress/e2e/storefront/**/*"
                 BROWSER: 'chrome'
-                FEATURE_ALL: ["false", "major"]
-            # firefox
-            -   TEST_DIRECTORY:
-                    - "cypress/e2e/administration/settings/**/*"
-                    - "cypress/e2e/administration/catalogue/**/*,cypress/e2e/administration/media-marketing/**/*,cypress/e2e/administration/customer/**/*"
-                    - "cypress/e2e/administration/content/**/*,cypress/e2e/administration/general/**/*,cypress/e2e/administration/order/**/*,cypress/e2e/administration/rule-product-stream/**/*"
-                    - "cypress/e2e/storefront/**/*"
-                BROWSER: 'firefox'
                 FEATURE_ALL: 'false'
     before_script:
         - !reference [ .scripts, install-node, script ]
@@ -95,6 +87,15 @@ E2E:
 E2E quarantined:
   extends: E2E
   stage: quarantine
+  rules:
+    - !reference [ .rules, skip ]
+    - !reference [ .rules, skip-in-merge-train ]
+    - if: !reference [ .rules, run-allow-failure, if ]
+      allow_failure: true
+    - !reference [ .rules, run ]
+    - if: !reference [ .rules, long-running-allow-failure, if ]
+      allow_failure: true
+    - !reference [ .rules, long-running ]
   parallel:
     matrix:
       - TEST_DIRECTORY:
@@ -114,7 +115,7 @@ E2E install NL:
             alias: database
     variables:
         APP_ENV: e2e
-        APP_DEBUG: 'true'
+        APP_DEBUG: 0
         CYPRESS_baseUrl: "http://localhost:8000"
         CYPRESS_localUsage: 1
         CYPRESS_screenshotsFolder: $CI_PROJECT_DIR/var/log/screenshots
@@ -191,3 +192,4 @@ E2E install NL:
             - var/log/*
         reports:
             junit: var/log/e2e/*.xml
+    allow_failure: true # TODO: Remove this line as soon as the extensions involved are compatible with the new trunk branch

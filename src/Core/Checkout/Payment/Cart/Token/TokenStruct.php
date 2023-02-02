@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\Checkout\Payment\Cart\Token;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
+#[Package('checkout')]
 class TokenStruct extends Struct
 {
     /**

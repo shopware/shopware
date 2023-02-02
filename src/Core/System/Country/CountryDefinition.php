@@ -9,7 +9,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deprecated;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RestrictDelete;
@@ -23,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TaxFreeConfigField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateDefinition;
 use Shopware\Core\System\Country\Aggregate\CountryTranslation\CountryTranslationDefinition;
 use Shopware\Core\System\Currency\Aggregate\CurrencyCountryRounding\CurrencyCountryRoundingDefinition;
@@ -30,13 +30,22 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCountry\SalesChannel
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleDefinition;
 
+#[Package('system-settings')]
 class CountryDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'country';
+    final public const ENTITY_NAME = 'country';
 
-    public const TYPE_CUSTOMER_TAX_FREE = 'customer-tax-free';
+    final public const TYPE_CUSTOMER_TAX_FREE = 'customer-tax-free';
 
-    public const TYPE_COMPANY_TAX_FREE = 'company-tax-free';
+    final public const TYPE_COMPANY_TAX_FREE = 'company-tax-free';
+
+    final public const DEFAULT_ADDRESS_FORMAT = [
+        ['address/company', 'symbol/dash', 'address/department'],
+        ['address/first_name', 'address/last_name'],
+        ['address/street'],
+        ['address/zipcode', 'address/city'],
+        ['address/country'],
+    ];
 
     public function getEntityName(): string
     {
@@ -63,6 +72,9 @@ class CountryDefinition extends EntityDefinition
 
         return [
             'vatIdRequired' => false,
+            'postalCodeRequired' => false,
+            'checkPostalCodePattern' => false,
+            'checkAdvancedPostalCodePattern' => false,
             'customerTax' => $defaultTax,
             'companyTax' => $defaultTax,
         ];
@@ -86,15 +98,18 @@ class CountryDefinition extends EntityDefinition
             (new StringField('iso3', 'iso3'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
             (new BoolField('display_state_in_registration', 'displayStateInRegistration'))->addFlags(new ApiAware()),
             (new BoolField('force_state_in_registration', 'forceStateInRegistration'))->addFlags(new ApiAware()),
-            (new BoolField('company_tax_free', 'companyTaxFree'))->addFlags(new ApiAware()),
             (new BoolField('check_vat_id_pattern', 'checkVatIdPattern'))->addFlags(new ApiAware()),
             (new BoolField('vat_id_required', 'vatIdRequired'))->addFlags(new ApiAware()),
-            (new BoolField('tax_free', 'taxFree'))->addFlags(new ApiAware(), new Deprecated('v6.4.0', 'v6.5.0')),
-            (new BoolField('company_tax_free', 'companyTaxFree'))->addFlags(new ApiAware(), new Deprecated('v6.4.0', 'v6.5.0')),
             (new StringField('vat_id_pattern', 'vatIdPattern'))->addFlags(new ApiAware()),
             (new TranslatedField('customFields'))->addFlags(new ApiAware()),
             (new TaxFreeConfigField('customer_tax', 'customerTax'))->addFlags(new ApiAware()),
             (new TaxFreeConfigField('company_tax', 'companyTax'))->addFlags(new ApiAware()),
+            (new BoolField('postal_code_required', 'postalCodeRequired'))->addFlags(new ApiAware()),
+            (new BoolField('check_postal_code_pattern', 'checkPostalCodePattern'))->addFlags(new ApiAware()),
+            (new BoolField('check_advanced_postal_code_pattern', 'checkAdvancedPostalCodePattern'))->addFlags(new ApiAware()),
+            (new StringField('advanced_postal_code_pattern', 'advancedPostalCodePattern'))->addFlags(new ApiAware()),
+            (new TranslatedField('addressFormat'))->addFlags(new ApiAware()),
+            (new StringField('default_postal_code_pattern', 'defaultPostalCodePattern'))->addFlags(new ApiAware()),
 
             (new OneToManyAssociationField('states', CountryStateDefinition::class, 'country_id', 'id'))
                 ->addFlags(new ApiAware(), new CascadeDelete()),

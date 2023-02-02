@@ -17,8 +17,10 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Shipping\Exception\ShippingMethodNotFoundException;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+#[Package('checkout')]
 class DeliveryBuilder
 {
     public function build(Cart $cart, CartDataCollection $data, SalesChannelContext $context, CartBehavior $cartBehavior): DeliveryCollection
@@ -32,6 +34,11 @@ class DeliveryBuilder
         /** @var ShippingMethodEntity $shippingMethod */
         $shippingMethod = $data->get($key);
 
+        return $this->buildByUsingShippingMethod($cart, $shippingMethod, $context);
+    }
+
+    public function buildByUsingShippingMethod(Cart $cart, ShippingMethodEntity $shippingMethod, SalesChannelContext $context): DeliveryCollection
+    {
         $delivery = $this->buildSingleDelivery($shippingMethod, $cart->getLineItems(), $context);
 
         if (!$delivery) {
@@ -133,7 +140,7 @@ class DeliveryBuilder
                 continue;
             }
 
-            // if the item is completely instock, use the delivery date
+            // if the item is completely in stock, use the delivery date
             if ($item->getDeliveryInformation()->getStock() >= $item->getQuantity()) {
                 $position = new DeliveryPosition($item->getId(), clone $item, $item->getQuantity(), $item->getPrice(), $deliveryDate);
             } else {

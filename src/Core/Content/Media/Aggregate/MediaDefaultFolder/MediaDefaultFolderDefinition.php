@@ -12,10 +12,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('content')]
 class MediaDefaultFolderDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'media_default_folder';
+    final public const ENTITY_NAME = 'media_default_folder';
 
     public function getEntityName(): string
     {
@@ -42,7 +44,7 @@ class MediaDefaultFolderDefinition extends EntityDefinition
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
 
-            (new ListField('association_fields', 'associationFields', StringField::class))->setStrict(true)->addFlags(new Required()),
+            (new ListField('association_fields', 'associationFields', StringField::class))->addFlags(new Required()),
 
             (new StringField('entity', 'entity'))->addFlags(new Required()),
             new OneToOneAssociationField('folder', 'id', 'default_folder_id', MediaFolderDefinition::class),

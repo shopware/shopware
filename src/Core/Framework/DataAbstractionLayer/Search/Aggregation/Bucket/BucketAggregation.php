@@ -3,18 +3,14 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('core')]
 class BucketAggregation extends Aggregation
 {
-    /**
-     * @var Aggregation|null
-     */
-    protected $aggregation;
-
-    public function __construct(string $name, string $field, ?Aggregation $aggregation)
+    public function __construct(string $name, string $field, protected ?Aggregation $aggregation)
     {
         parent::__construct($name, $field);
-        $this->aggregation = $aggregation;
     }
 
     public function getFields(): array

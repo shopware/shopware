@@ -71,8 +71,7 @@
             >
                 {{ getLabelSearchType() }}
                 <sw-icon
-                    name="regular-chevron-down-xs"
-                    small
+                    name="regular-chevron-down-xxs"
                 />
             </span>
             {% endblock %}
@@ -158,10 +157,6 @@
                             </span>
                             {% endblock %}
 
-                            {# @deprecated tag:v6.5.0 - Will be removed #}
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                            {% block sw_search_bar_results_list_column_header_more_results %}
-                            {% endblock %}
                         </div>
                         {% endblock %}
 
@@ -192,11 +187,9 @@
                                 />
                                 {% endblock %}
 
-                                {# @deprecated tag:v6.5.0 - `result` parameter will be removed #}
                                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_search_bar_results_list_bar_item_more_results %}
                                 <sw-search-more-results
-                                    :result="entity"
                                     :entity="entity.entity"
                                     :term="searchTerm"
                                 />
@@ -217,21 +210,19 @@
                 >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_search_bar_results_empty_content %}
-                    <template>
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_search_bar_results_empty_text %}
-                        <div class="sw-search-bar__results-empty-text">
-                            {{ $tc('global.sw-search-bar.messageNoResultsV2', 0, { term: searchTerm }) }}
-                        </div>
-                        {% endblock %}
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_search_bar_results_empty_text %}
+                    <div class="sw-search-bar__results-empty-text">
+                        {{ $tc('global.sw-search-bar.messageNoResultsV2', 0, { term: searchTerm }) }}
+                    </div>
+                    {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_search_bar_results_empty_detail %}
-                        <div class="sw-search-bar__results-empty-detail">
-                            {{ $tc('global.sw-search-bar.messageNoResultsDetailV2') }}
-                        </div>
-                        {% endblock %}
-                    </template>
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_search_bar_results_empty_detail %}
+                    <div class="sw-search-bar__results-empty-detail">
+                        {{ $tc('global.sw-search-bar.messageNoResultsDetailV2') }}
+                    </div>
+                    {% endblock %}
                     {% endblock %}
                 </div>
                 {% endblock %}
@@ -241,6 +232,16 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_search_bar_results_footer %}
             <div
+                v-if="showSearchTipForEsSearch"
+                class="sw-search-bar__footer"
+            >
+                <p
+                    class="sw-search-bar__shortcut-tip"
+                    v-html="$tc('global.sw-search-bar.placeholderESSearchShortcutInfo')"
+                ></p>
+            </div>
+            <div
+                v-else
                 class="sw-search-bar__footer"
             >
                 <p
@@ -276,35 +277,33 @@
                 </p>
             </div>
             {% endblock %}
-            <template>
-                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events vuejs-accessibility/mouse-events-have-key-events -->
-                <div
-                    v-for="(type, index) in typeSelectResults"
-                    :key="index"
-                    class="sw-search-bar__type-item"
-                    :class="{ 'is--active': activeTypeListIndex === index }"
-                    @mouseenter="onMouseEnterSearchType(index)"
-                    @click="onClickType(type.entityName)"
+            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events vuejs-accessibility/mouse-events-have-key-events -->
+            <div
+                v-for="(type, index) in typeSelectResults"
+                :key="index"
+                class="sw-search-bar__type-item"
+                :class="{ 'is--active': activeTypeListIndex === index }"
+                @mouseenter="onMouseEnterSearchType(index)"
+                @click="onClickType(type.entityName)"
+            >
+                <span
+                    class="sw-search-bar__type-item-name"
                 >
-                    <span
-                        class="sw-search-bar__type-item-name"
-                    >
-                        <sw-icon
-                            class="sw-search-bar__type-item-icon"
-                            :style="{ 'color': getEntityIconColor(type.entityName) }"
-                            :name="type.entityName ? getEntityIcon(type.entityName) : 'regular-circle'"
-                        />
+                    <sw-icon
+                        class="sw-search-bar__type-item-icon"
+                        :style="{ 'color': getEntityIconColor(type.entityName) }"
+                        :name="type.entityName ? getEntityIcon(type.entityName) : 'regular-circle'"
+                    />
 
-                        {{ type.entityName ? getLabelSearchType(type.entityName) : $tc('global.sw-search-bar.searchTypeAll') }}
-                    </span>
+                    {{ type.entityName ? getLabelSearchType(type.entityName) : $tc('global.sw-search-bar.searchTypeAll') }}
+                </span>
 
-                    <p
-                        class="sw-search-bar__type--filter"
-                    >
-                        {{ $tc('global.sw-search-bar.moduleFilter') }}
-                    </p>
-                </div>
-            </template>
+                <p
+                    class="sw-search-bar__type--filter"
+                >
+                    {{ $tc('global.sw-search-bar.moduleFilter') }}
+                </p>
+            </div>
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_search_bar_types_container_empty %}
@@ -317,11 +316,6 @@
                 {{ $tc('global.sw-search-bar.messageNoTypeResults') }}
                 {% endblock %}
             </div>
-            {% endblock %}
-
-            {# @deprecated tag:v6.5.0 - Will be removed #}
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_search_bar_types_container_tip %}
             {% endblock %}
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

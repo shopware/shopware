@@ -1,7 +1,6 @@
 ---
 title: Optimize storefront script loading
 issue: NEXT-15917
-flag: FEATURE_NEXT_15917
 author: Tobias Berge
 author_email: t.berge@shopware.com 
 author_github: @tobiasberge

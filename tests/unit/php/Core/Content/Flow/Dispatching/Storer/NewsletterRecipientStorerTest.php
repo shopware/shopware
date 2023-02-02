@@ -11,10 +11,12 @@ use Shopware\Core\Content\Flow\Dispatching\Storer\NewsletterRecipientStorer;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
 use Shopware\Core\Content\Newsletter\Event\NewsletterConfirmEvent;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 
 /**
+ * @package business-ops
+ *
  * @internal
  *
  * @covers \Shopware\Core\Content\Flow\Dispatching\Storer\NewsletterRecipientStorer
@@ -23,14 +25,11 @@ class NewsletterRecipientStorerTest extends TestCase
 {
     private NewsletterRecipientStorer $storer;
 
-    /**
-     * @var MockObject|EntityRepositoryInterface
-     */
-    private $repository;
+    private MockObject&EntityRepository $repository;
 
     public function setUp(): void
     {
-        $this->repository = $this->createMock(EntityRepositoryInterface::class);
+        $this->repository = $this->createMock(EntityRepository::class);
         $this->storer = new NewsletterRecipientStorer($this->repository);
     }
 
@@ -52,7 +51,7 @@ class NewsletterRecipientStorerTest extends TestCase
 
     public function testRestoreHasStored(): void
     {
-        /** @var MockObject|StorableFlow $storable */
+        /** @var MockObject&StorableFlow $storable */
         $storable = $this->createMock(StorableFlow::class);
 
         $storable->expects(static::exactly(1))
@@ -71,7 +70,7 @@ class NewsletterRecipientStorerTest extends TestCase
 
     public function testRestoreEmptyStored(): void
     {
-        /** @var MockObject|StorableFlow $storable */
+        /** @var MockObject&StorableFlow $storable */
         $storable = $this->createMock(StorableFlow::class);
 
         $storable->expects(static::exactly(1))

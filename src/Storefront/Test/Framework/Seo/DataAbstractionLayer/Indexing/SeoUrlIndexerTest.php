@@ -11,11 +11,13 @@ use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Core\Content\Seo\SeoUrlUpdater;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\App\Template\TemplateCollection;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\InheritanceUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteTypeIntendException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Test\Seo\StorefrontSalesChannelTestHelper;
@@ -35,15 +37,9 @@ class SeoUrlIndexerTest extends TestCase
     use StorefrontSalesChannelTestHelper;
     use QueueTestBehaviour;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $templateRepository;
+    private EntityRepository $templateRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $productRepository;
+    private EntityRepository $productRepository;
 
     public function setUp(): void
     {
@@ -576,7 +572,7 @@ class SeoUrlIndexerTest extends TestCase
             ->get(SeoUrlUpdater::class)
             ->update(ProductPageSeoUrlRoute::ROUTE_NAME, [$id]);
 
-        /** @var EntityRepositoryInterface $productRepo */
+        /** @var EntityRepository $productRepo */
         $productRepo = $this->getContainer()->get('product.repository');
 
         $criteria = new Criteria([$id]);
@@ -587,6 +583,7 @@ class SeoUrlIndexerTest extends TestCase
         /** @var SeoUrlCollection $seoUrls */
         $seoUrls = $product->getSeoUrls();
         static::assertInstanceOf(SeoUrlCollection::class, $seoUrls);
+        /** @var int $seoUrlCount */
         static::assertCount($seoUrlCount, $seoUrls);
     }
 
@@ -594,20 +591,20 @@ class SeoUrlIndexerTest extends TestCase
     {
         $templateRepository = $this->getContainer()->get('seo_url_template.repository');
 
+        /** @var string[] $ids */
         $ids = $templateRepository->searchIds(new Criteria(), Context::createDefaultContext())->getIds();
 
+        /** @var TemplateCollection $templates */
         $templates = $templateRepository->search(new Criteria($ids), Context::createDefaultContext())->getEntities();
 
         foreach ($templates as $template) {
             $template->setTemplate('');
         }
 
-        $data = array_map(static function (string $templateId): array {
-            return [
-                'id' => $templateId,
-                'template' => null,
-            ];
-        }, $templates->getIds());
+        $data = array_map(static fn (string $templateId): array => [
+            'id' => $templateId,
+            'template' => null,
+        ], $templates->getIds());
 
         $templateRepository->upsert(array_values($data), Context::createDefaultContext());
 
@@ -616,7 +613,7 @@ class SeoUrlIndexerTest extends TestCase
 
     private function getSeoUrls(string $salesChannelId, string $productId): SeoUrlCollection
     {
-        /** @var EntityRepositoryInterface $repo */
+        /** @var EntityRepository $repo */
         $repo = $this->getContainer()->get('seo_url.repository');
 
         $criteria = new Criteria();
@@ -629,6 +626,9 @@ class SeoUrlIndexerTest extends TestCase
         return $seoUrlCollection;
     }
 
+    /**
+     * @param array<string, mixed> $data
+     */
     private function upsertTemplate(array $data): void
     {
         $seoUrlTemplateDefaults = [
@@ -640,6 +640,9 @@ class SeoUrlIndexerTest extends TestCase
         $this->templateRepository->upsert([$seoUrlTemplate], Context::createDefaultContext());
     }
 
+    /**
+     * @param array<string, mixed> $data
+     */
     private function upsertProduct(array $data, string $salesChannelId): void
     {
         $defaults = [
@@ -663,7 +666,7 @@ class SeoUrlIndexerTest extends TestCase
 
         try {
             $this->productRepository->create([$data], Context::createDefaultContext());
-        } catch (\Throwable $e) {
+        } catch (WriteTypeIntendException) {
             unset($data['visibilities']);
             $this->productRepository->upsert([$data], Context::createDefaultContext());
         }

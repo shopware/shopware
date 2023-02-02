@@ -41,85 +41,86 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_view_profile_profiles_listing %}
-        <sw-entity-listing
-            ref="listing"
-            slot="grid"
-            class="sw-import-export-view-profiles__listing"
-            :repository="profileRepository"
-            :items="profiles"
-            :is-loading="isLoading"
-            :columns="profilesColumns"
-            :sort-by="sortBy"
-            :sort-direction="sortDirection"
-            :show-settings="false"
-            :show-selection="false"
-            :allow-column-edit="false"
-        >
+        <template #grid>
+            <sw-entity-listing
+                ref="listing"
+                class="sw-import-export-view-profiles__listing"
+                :repository="profileRepository"
+                :items="profiles"
+                :is-loading="isLoading"
+                :columns="profilesColumns"
+                :sort-by="sortBy"
+                :sort-direction="sortDirection"
+                :show-settings="false"
+                :show-selection="false"
+                :allow-column-edit="false"
+            >
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_import_export_view_profile_profiles_listing_column_label %}
-            <template #column-label="{ item }">
-                <a
-                    href="#"
-                    @click.prevent="onEditProfile(item.id)"
-                >
-                    {{ item.translated.label || item.label }}
-                </a>
-            </template>
-            {% endblock %}
-
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_import_export_view_profile_profiles_listing_column_system_default %}
-            <template #column-systemDefault="{ item }">
-                {{ getTypeLabel(item.systemDefault) }}
-            </template>
-            {% endblock %}
-
-            <template #actions="{ item }">
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_import_export_view_profile_profiles_listing_edit %}
-                <sw-context-menu-item
-                    class="sw-import-export-view-profiles__listing-open-action"
-                    @click="onEditProfile(item.id)"
-                >
-                    {{ $tc('sw-import-export.profile.openLabel') }}
-                </sw-context-menu-item>
+                {% block sw_import_export_view_profile_profiles_listing_column_label %}
+                <template #column-label="{ item }">
+                    <a
+                        href="#"
+                        @click.prevent="onEditProfile(item.id)"
+                    >
+                        {{ item.translated.label || item.label }}
+                    </a>
+                </template>
                 {% endblock %}
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_import_export_view_profile_profiles_listing_duplicate %}
-                <sw-context-menu-item
-                    class="sw-import-export-view-profiles__listing-duplicate-action"
-                    @click="onDuplicateProfile(item)"
-                >
-                    {{ $tc('sw-import-export.profile.duplicateLabel') }}
-                </sw-context-menu-item>
+                {% block sw_import_export_view_profile_profiles_listing_column_system_default %}
+                <template #column-systemDefault="{ item }">
+                    {{ getTypeLabel(item.systemDefault) }}
+                </template>
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_import_export_view_profile_profiles_listing_download_template %}
-                <sw-context-menu-item
-                    class="sw-import-export-view-profiles__listing-download-template-action"
-                    @click="onDownloadTemplate(item)"
-                >
-                    {{ $tc('sw-import-export.profile.downloadTemplateLabel') }}
-                </sw-context-menu-item>
-                {% endblock %}
+                <template #actions="{ item }">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_import_export_view_profile_profiles_listing_edit %}
+                    <sw-context-menu-item
+                        class="sw-import-export-view-profiles__listing-open-action"
+                        @click="onEditProfile(item.id)"
+                    >
+                        {{ $tc('sw-import-export.profile.openLabel') }}
+                    </sw-context-menu-item>
+                    {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_import_export_view_profile_profiles_listing_delete %}
-                <sw-context-menu-item
-                    class="sw-import-export-view-profiles__listing-delete-action"
-                    variant="danger"
-                    :disabled="item.systemDefault"
-                    @click="onDeleteProfile(item.id)"
-                >
-                    {{ $tc('sw-import-export.profile.deleteLabel') }}
-                </sw-context-menu-item>
-                {% endblock %}
-            </template>
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_import_export_view_profile_profiles_listing_duplicate %}
+                    <sw-context-menu-item
+                        class="sw-import-export-view-profiles__listing-duplicate-action"
+                        @click="onDuplicateProfile(item)"
+                    >
+                        {{ $tc('sw-import-export.profile.duplicateLabel') }}
+                    </sw-context-menu-item>
+                    {% endblock %}
 
-        </sw-entity-listing>
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_import_export_view_profile_profiles_listing_download_template %}
+                    <sw-context-menu-item
+                        class="sw-import-export-view-profiles__listing-download-template-action"
+                        @click="onDownloadTemplate(item)"
+                    >
+                        {{ $tc('sw-import-export.profile.downloadTemplateLabel') }}
+                    </sw-context-menu-item>
+                    {% endblock %}
+
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_import_export_view_profile_profiles_listing_delete %}
+                    <sw-context-menu-item
+                        class="sw-import-export-view-profiles__listing-delete-action"
+                        variant="danger"
+                        :disabled="item.systemDefault"
+                        @click="onDeleteProfile(item.id)"
+                    >
+                        {{ $tc('sw-import-export.profile.deleteLabel') }}
+                    </sw-context-menu-item>
+                    {% endblock %}
+                </template>
+
+            </sw-entity-listing>
+        </template>
         {% endblock %}
     </sw-card>
     {% endblock %}

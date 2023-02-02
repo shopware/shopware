@@ -4,7 +4,9 @@ namespace Shopware\Core\Content\Media\Pathname\PathnameStrategy;
 
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('content')]
 class FilenamePathnameStrategy extends AbstractPathNameStrategy
 {
     /**

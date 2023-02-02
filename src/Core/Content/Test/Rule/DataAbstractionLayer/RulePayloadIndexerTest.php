@@ -7,9 +7,10 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Rule\DataAbstractionLayer\RuleIndexer;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
@@ -36,17 +37,15 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
+#[Package('business-ops')]
 class RulePayloadIndexerTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $repository;
 
@@ -488,6 +487,7 @@ class RulePayloadIndexerTest extends TestCase
 /**
  * @internal
  */
+#[Package('business-ops')]
 class RulePlugin extends Plugin
 {
 }

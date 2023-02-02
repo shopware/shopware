@@ -3,11 +3,10 @@ const { Service } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
- * @module app/service/custom-field
- */
-
-/**
+ * @package admin
  *
+ * @deprecated tag:v6.6.0 - Will be private
+ * @module app/service/custom-field
  * @memberOf module:core/service/custom-field
  * @constructor
  * @method createCustomFieldTypeService
@@ -110,7 +109,6 @@ export default function createCustomFieldService() {
         'product_stream',
         'property_group',
         'product_review',
-        'event_action',
         'country',
         'currency',
         'customer_group',
@@ -140,7 +138,7 @@ export default function createCustomFieldService() {
     }
 
     function upsertType(name, configuration) {
-        $typeStore[name] = { ...$typeStore[name], ...{ configuration } };
+        $typeStore[name] = { ...$typeStore[name], ...configuration };
     }
 
     function getTypes() {

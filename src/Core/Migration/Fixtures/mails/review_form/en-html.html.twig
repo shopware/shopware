@@ -1,0 +1,24 @@
+<div style="font-family:arial; font-size:12px;">
+    <p>
+        A product review has just been {% if reviewFormData.id is defined %}edited{% else %}sent{% endif %}.<br/>
+        <br/>
+        {% if reviewFormData.name is defined %}
+            Name: {{ reviewFormData.name }}{% if reviewFormData.lastName is defined %} {{ reviewFormData.lastName }}{% endif %}
+            <br/>
+        {% endif %}
+        {% if reviewFormData.email is defined %}
+            Email address: {{ reviewFormData.email }}<br/>
+            <br>
+        {% endif %}
+        {% if product.translated.name is defined %}
+            Product: {{ product.translated.name }}<br/>
+            <br>
+        {% endif %}
+        Rating: {{ reviewFormData.points }}<br/>
+        <br/>
+        Title: {{ reviewFormData.title }}<br/>
+        <br/>
+        Content:<br/>
+        {{ reviewFormData.content|nl2br }}<br/>
+    </p>
+</div>

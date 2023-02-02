@@ -33,17 +33,20 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\ScriptDefinition;
 use Shopware\Core\Framework\Webhook\WebhookDefinition;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
 use Shopware\Core\System\Integration\IntegrationDefinition;
+use Shopware\Core\System\TaxProvider\TaxProviderDefinition;
 
 /**
  * @internal
  */
+#[Package('core')]
 class AppDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'app';
+    final public const ENTITY_NAME = 'app';
 
     public function getEntityName(): string
     {
@@ -94,12 +97,12 @@ class AppDefinition extends EntityDefinition
             (new BlobField('icon', 'iconRaw'))->removeFlag(ApiAware::class),
             (new StringField('icon', 'icon'))->addFlags(new WriteProtected(), new Runtime()),
             (new StringField('app_secret', 'appSecret'))->removeFlag(ApiAware::class)->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
-            (new ListField('modules', 'modules', JsonField::class))->setStrict(true),
+            new ListField('modules', 'modules', JsonField::class),
             new JsonField('main_module', 'mainModule'),
-            (new ListField('cookies', 'cookies', JsonField::class))->setStrict(true),
+            new ListField('cookies', 'cookies', JsonField::class),
             (new BoolField('allow_disable', 'allowDisable'))->addFlags(new Required()),
             new StringField('base_app_url', 'baseAppUrl', 1024),
-            (new ListField('allowed_hosts', 'allowedHosts', StringField::class))->setStrict(true),
+            new ListField('allowed_hosts', 'allowedHosts', StringField::class),
             new IntField('template_load_priority', 'templateLoadPriority'),
 
             (new TranslationsAssociationField(AppTranslationDefinition::class, 'app_id'))->addFlags(new Required(), new CascadeDelete()),
@@ -120,6 +123,7 @@ class AppDefinition extends EntityDefinition
             (new OneToManyAssociationField('scripts', ScriptDefinition::class, 'app_id'))->addFlags(new CascadeDelete())->removeFlag(ApiAware::class),
             (new OneToManyAssociationField('webhooks', WebhookDefinition::class, 'app_id'))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('paymentMethods', AppPaymentMethodDefinition::class, 'app_id'))->addFlags(new SetNullOnDelete()),
+            (new OneToManyAssociationField('taxProviders', TaxProviderDefinition::class, 'app_id'))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('scriptConditions', AppScriptConditionDefinition::class, 'app_id'))->addFlags(new CascadeDelete())->removeFlag(ApiAware::class),
             (new OneToManyAssociationField('cmsBlocks', AppCmsBlockDefinition::class, 'app_id'))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('flowActions', AppFlowActionDefinition::class, 'app_id'))->addFlags(new CascadeDelete()),

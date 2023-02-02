@@ -7,42 +7,20 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('core')]
 class SalesChannelCreator
 {
-    private EntityRepositoryInterface $salesChannelRepository;
-
-    private EntityRepositoryInterface $paymentMethodRepository;
-
-    private EntityRepositoryInterface $shippingMethodRepository;
-
-    private EntityRepositoryInterface $countryRepository;
-
-    private DefinitionInstanceRegistry $definitionRegistry;
-
-    private EntityRepositoryInterface $categoryRepository;
-
     /**
      * @internal
      */
-    public function __construct(
-        DefinitionInstanceRegistry $definitionRegistry,
-        EntityRepositoryInterface $salesChannelRepository,
-        EntityRepositoryInterface $paymentMethodRepository,
-        EntityRepositoryInterface $shippingMethodRepository,
-        EntityRepositoryInterface $countryRepository,
-        EntityRepositoryInterface $categoryRepository
-    ) {
-        $this->definitionRegistry = $definitionRegistry;
-        $this->salesChannelRepository = $salesChannelRepository;
-        $this->paymentMethodRepository = $paymentMethodRepository;
-        $this->shippingMethodRepository = $shippingMethodRepository;
-        $this->countryRepository = $countryRepository;
-        $this->categoryRepository = $categoryRepository;
+    public function __construct(private readonly DefinitionInstanceRegistry $definitionRegistry, private readonly EntityRepository $salesChannelRepository, private readonly EntityRepository $paymentMethodRepository, private readonly EntityRepository $shippingMethodRepository, private readonly EntityRepository $countryRepository, private readonly EntityRepository $categoryRepository)
+    {
     }
 
     public function createSalesChannel(
@@ -65,11 +43,11 @@ class SalesChannelCreator
     ): string {
         $context = Context::createDefaultContext();
 
-        $languageId = $languageId ?? Defaults::LANGUAGE_SYSTEM;
-        $currencyId = $currencyId ?? Defaults::CURRENCY;
-        $paymentMethodId = $paymentMethodId ?? $this->getFirstActivePaymentMethodId();
-        $shippingMethodId = $shippingMethodId ?? $this->getFirstActiveShippingMethodId();
-        $countryId = $countryId ?? $this->getFirstActiveCountryId();
+        $languageId ??= Defaults::LANGUAGE_SYSTEM;
+        $currencyId ??= Defaults::CURRENCY;
+        $paymentMethodId ??= $this->getFirstActivePaymentMethodId();
+        $shippingMethodId ??= $this->getFirstActiveShippingMethodId();
+        $countryId ??= $this->getFirstActiveCountryId();
 
         $currencies = $this->formatToMany($currencies, $currencyId, 'currency', $context);
         $languages = $this->formatToMany($languages, $languageId, 'language', $context);
@@ -164,9 +142,7 @@ class SalesChannelCreator
         $ids = $this->definitionRegistry->getRepository($entity)->searchIds(new Criteria(), $context)->getIds();
 
         return array_map(
-            function (string $id) {
-                return ['id' => $id];
-            },
+            fn (string $id) => ['id' => $id],
             $ids
         );
     }
@@ -196,9 +172,7 @@ class SalesChannelCreator
         $values = array_unique(array_merge($values, [$default]));
 
         return array_map(
-            function (string $id) {
-                return ['id' => $id];
-            },
+            fn (string $id) => ['id' => $id],
             $values
         );
     }

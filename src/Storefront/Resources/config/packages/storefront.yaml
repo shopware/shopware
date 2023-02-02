@@ -1,8 +1,4 @@
 storefront:
-    csrf:
-        enabled: true
-        mode: twig
-
     reverse_proxy:
         enabled: false
         ban_method: "BAN" # This can defer from used reverse proxy
@@ -89,3 +85,4 @@ storefront:
             - 'epik' # Pinterest
             - 'pp'
     theme:
+        file_delete_delay: 900

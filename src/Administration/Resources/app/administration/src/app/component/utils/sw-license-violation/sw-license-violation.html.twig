@@ -22,7 +22,7 @@
 
         <tr
             v-for="violation in violations"
-            :key="violation"
+            :key="violation.name"
         >
 
             <td class="sw-license-violation__table-name">
@@ -73,7 +73,7 @@
         </tr>
     </table>
 
-    <template slot="modal-footer">
+    <template #modal-footer>
         <sw-field
             v-model="readNotice"
             type="checkbox"

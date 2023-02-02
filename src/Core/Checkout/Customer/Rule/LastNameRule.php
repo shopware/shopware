@@ -3,7 +3,7 @@
 namespace Shopware\Core\Checkout\Customer\Rule;
 
 use Shopware\Core\Checkout\CheckoutRuleScope;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
@@ -11,26 +11,17 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
+#[Package('business-ops')]
 class LastNameRule extends Rule
 {
-    /**
-     * @var string|null
-     */
-    protected $lastName;
-
-    /**
-     * @var string
-     */
-    protected $operator;
+    final public const RULE_NAME = 'customerLastName';
 
     /**
      * @internal
      */
-    public function __construct(string $operator = self::OPERATOR_EQ, ?string $lastName = null)
+    public function __construct(protected string $operator = self::OPERATOR_EQ, protected ?string $lastName = null)
     {
         parent::__construct();
-        $this->operator = $operator;
-        $this->lastName = $lastName;
     }
 
     public function match(RuleScope $scope): bool
@@ -40,10 +31,6 @@ class LastNameRule extends Rule
         }
 
         if (!$customer = $scope->getSalesChannelContext()->getCustomer()) {
-            if (!Feature::isActive('v6.5.0.0')) {
-                return false;
-            }
-
             return RuleComparison::isNegativeOperator($this->operator);
         }
 
@@ -67,11 +54,6 @@ class LastNameRule extends Rule
         $constraints['lastName'] = RuleConstraints::string();
 
         return $constraints;
-    }
-
-    public function getName(): string
-    {
-        return 'customerLastName';
     }
 
     public function getConfig(): RuleConfig

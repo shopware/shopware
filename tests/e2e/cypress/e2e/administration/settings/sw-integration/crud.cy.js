@@ -4,19 +4,16 @@ import SettingsPageObject from '../../../../support/pages/module/sw-settings.pag
 
 describe('Integration: crud integrations', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
-            });
+        cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
     });
 
     it('@settings: can create a new integration', { tags: ['pa-system-settings'] }, () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/integration`,
-            method: 'POST'
+            method: 'POST',
         }).as('createIntegration');
 
         // go to integration module
@@ -44,7 +41,7 @@ describe('Integration: crud integrations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/integration`,
-            method: 'POST'
+            method: 'POST',
         }).as('createIntegration');
 
         // go to integration module
@@ -73,12 +70,12 @@ describe('Integration: crud integrations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/integration`,
-            method: 'POST'
+            method: 'POST',
         }).as('createIntegration');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/integration/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('editIntegration');
 
         // go to integration module
@@ -119,12 +116,12 @@ describe('Integration: crud integrations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/integration`,
-            method: 'POST'
+            method: 'POST',
         }).as('createIntegration');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/integration/*`,
-            method: 'delete'
+            method: 'delete',
         }).as('deleteIntegration');
 
         // go to integration module
@@ -147,7 +144,7 @@ describe('Integration: crud integrations', () => {
         cy.clickContextMenuItem(
             `${page.elements.contextMenu}-item--danger`,
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.contains('.sw-button--primary.sw-button--small span.sw-button__content', 'Delete').click();

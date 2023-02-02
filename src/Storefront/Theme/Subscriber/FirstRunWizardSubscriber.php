@@ -3,48 +3,33 @@
 namespace Shopware\Storefront\Theme\Subscriber;
 
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Event\FirstRunWizardFinishedEvent;
 use Shopware\Storefront\Theme\ThemeEntity;
 use Shopware\Storefront\Theme\ThemeLifecycleService;
 use Shopware\Storefront\Theme\ThemeService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * @internal
+ */
+#[Package('storefront')]
 class FirstRunWizardSubscriber implements EventSubscriberInterface
 {
-    private ThemeService $themeService;
-
-    private ThemeLifecycleService $themeLifecycleService;
-
-    private EntityRepositoryInterface $themeRepository;
-
-    private EntityRepositoryInterface $themeSalesChannelRepository;
-
-    private EntityRepositoryInterface $salesChannelRepository;
-
     /**
      * @internal
      */
-    public function __construct(
-        ThemeService $themeService,
-        ThemeLifecycleService $themeLifecycleService,
-        EntityRepositoryInterface $themeRepository,
-        EntityRepositoryInterface $themeSalesChannelRepository,
-        EntityRepositoryInterface $salesChannelRepository
-    ) {
-        $this->themeService = $themeService;
-        $this->themeLifecycleService = $themeLifecycleService;
-        $this->themeRepository = $themeRepository;
-        $this->themeSalesChannelRepository = $themeSalesChannelRepository;
-        $this->salesChannelRepository = $salesChannelRepository;
+    public function __construct(private readonly ThemeService $themeService, private readonly ThemeLifecycleService $themeLifecycleService, private readonly EntityRepository $themeRepository, private readonly EntityRepository $themeSalesChannelRepository, private readonly EntityRepository $salesChannelRepository)
+    {
     }
 
     /**
      * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             FirstRunWizardFinishedEvent::class => 'frwFinished',

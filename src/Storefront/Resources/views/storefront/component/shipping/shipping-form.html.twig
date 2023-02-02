@@ -8,17 +8,13 @@
         <form id="changeShippingForm"
               name="changeShippingForm"
               action="{{ actionPath }}"
-              data-form-csrf-handler="true"
               data-form-auto-submit="true"
               data-form-auto-submit-options='{{ formAjaxSubmitOptions|json_encode }}'
               method="post">
 
-            {% block page_checkout_change_shipping_form_csrf %}
-                {{ sw_csrf(action) }}
-            {% endblock %}
-
             {% block page_checkout_change_shipping_form_redirect %}
                 <input type="hidden" name="redirectTo" value="{{ redirect }}">
+                <input type="hidden" name="redirectParameters[redirected]" value="0">
             {% endblock %}
 
             {% block page_checkout_change_shipping_form_fields %}

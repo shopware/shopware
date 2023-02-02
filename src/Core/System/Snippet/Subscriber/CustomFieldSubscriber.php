@@ -7,24 +7,23 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * @internal
+ */
+#[Package('system-settings')]
 class CustomFieldSubscriber implements EventSubscriberInterface
 {
     private const CUSTOM_FIELD_ID_FIELD = 'custom_field_id';
 
     /**
-     * @var Connection
-     */
-    private $connection;
-
-    /**
      * @internal
      */
-    public function __construct(Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     public static function getSubscribedEvents(): array
@@ -46,7 +45,7 @@ class CustomFieldSubscriber implements EventSubscriberInterface
 
             if ($writeResult->getOperation() === EntityWriteResult::OPERATION_INSERT) {
                 if ($snippetSets === null) {
-                    $snippetSets = $this->connection->fetchAll('SELECT id, iso FROM snippet_set');
+                    $snippetSets = $this->connection->fetchAllAssociative('SELECT id, iso FROM snippet_set');
                 }
 
                 if (empty($snippetSets)) {
@@ -62,7 +61,7 @@ class CustomFieldSubscriber implements EventSubscriberInterface
         }
 
         foreach ($snippets as $snippet) {
-            $this->connection->executeUpdate(
+            $this->connection->executeStatement(
                 'INSERT INTO snippet (`id`, `snippet_set_id`, `translation_key`, `value`, `author`, `custom_fields`, `created_at`)
                       VALUES (:id, :setId, :translationKey, :value, :author, :customFields, :createdAt)
                       ON DUPLICATE KEY UPDATE `value` = :value',
@@ -73,7 +72,7 @@ class CustomFieldSubscriber implements EventSubscriberInterface
 
     public function customFieldIsDeleted(EntityDeletedEvent $event): void
     {
-        $this->connection->executeUpdate(
+        $this->connection->executeStatement(
             'DELETE FROM `snippet`
             WHERE JSON_EXTRACT(`custom_fields`, "$.custom_field_id") IN (:customFieldIds)',
             ['customFieldIds' => $event->getIds()],
@@ -81,6 +80,10 @@ class CustomFieldSubscriber implements EventSubscriberInterface
         );
     }
 
+    /**
+     * @param list<array<string, string>> $snippetSets
+     * @param array<string, mixed> $snippets
+     */
     private function setInsertSnippets(EntityWriteResult $writeResult, array $snippetSets, array &$snippets): void
     {
         $name = $writeResult->getPayload()['name'];
@@ -102,7 +105,7 @@ class CustomFieldSubscriber implements EventSubscriberInterface
                 'author' => 'System',
                 'customFields' => json_encode([
                     self::CUSTOM_FIELD_ID_FIELD => $writeResult->getPrimaryKey(),
-                ]),
+                ], \JSON_THROW_ON_ERROR),
                 'createdAt' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ];
         }

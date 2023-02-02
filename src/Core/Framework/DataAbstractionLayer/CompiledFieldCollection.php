@@ -9,7 +9,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('core')]
 class CompiledFieldCollection extends FieldCollection
 {
     /**
@@ -18,8 +20,6 @@ class CompiledFieldCollection extends FieldCollection
     protected array $mappedByStorageName = [];
 
     private ?ChildrenAssociationField $childrenAssociationField = null;
-
-    private DefinitionInstanceRegistry $registry;
 
     /**
      * @var TranslatedField[]
@@ -31,13 +31,11 @@ class CompiledFieldCollection extends FieldCollection
      */
     private array $extensionFields = [];
 
-    public function __construct(DefinitionInstanceRegistry $registry, iterable $elements = [])
+    public function __construct(private readonly DefinitionInstanceRegistry $registry, iterable $elements = [])
     {
         foreach ($elements as $element) {
             $this->addField($element);
         }
-
-        $this->registry = $registry;
     }
 
     /**
@@ -132,9 +130,7 @@ class CompiledFieldCollection extends FieldCollection
 
     public function filterByFlag(string $flagClass): self
     {
-        return $this->filter(static function (Field $field) use ($flagClass) {
-            return $field->is($flagClass);
-        });
+        return $this->filter(static fn (Field $field) => $field->is($flagClass));
     }
 
     public function getChildrenAssociationField(): ?ChildrenAssociationField

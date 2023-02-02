@@ -12,7 +12,7 @@ describe('Minimal auto update', () => {
         // Request we want to wait for later
         cy.intercept({
             url: '/api/search/media',
-            method: 'POST'
+            method: 'POST',
         }).as('dataRequest');
 
         cy.login();

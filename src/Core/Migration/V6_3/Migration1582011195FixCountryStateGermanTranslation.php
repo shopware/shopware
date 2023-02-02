@@ -3,8 +3,13 @@
 namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @internal
+ */
+#[Package('core')]
 class Migration1582011195FixCountryStateGermanTranslation extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -59,7 +64,7 @@ class Migration1582011195FixCountryStateGermanTranslation extends MigrationStep
             ->where('loc.code = :germanLocale')
             ->setParameter('germanLocale', 'de-DE')
             ->execute()
-            ->fetchColumn();
+            ->fetchOne();
 
         if (!$germanLanguageId) {
             return;
@@ -77,7 +82,7 @@ class Migration1582011195FixCountryStateGermanTranslation extends MigrationStep
             ->setParameter('germanLanguageId', $germanLanguageId)
             ->setParameter('shortCodes', array_keys($default), Connection::PARAM_STR_ARRAY)
             ->execute()
-            ->fetchAll();
+            ->fetchAllAssociative();
 
         foreach ($translations as $translation) {
             $shortCode = $translation['short_code'];

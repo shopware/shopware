@@ -2,41 +2,41 @@
 
 namespace Shopware\Core\Framework\Adapter\Cache;
 
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Cache\Adapter\RedisAdapter;
 use Symfony\Component\Cache\Traits\RedisClusterProxy;
 use Symfony\Component\Cache\Traits\RedisProxy;
 
-/**
- * Used to create new Redis connection based on a connection dsn.
- * Existing connections are reused if there are any.
- */
+#[Package('core
+Used to create new Redis connection based on a connection dsn.
+Existing connections are reused if there are any.')]
 class RedisConnectionFactory
 {
     /**
      * This static variable is not reset on purpose, as we may reuse existing redis connections over multiple requests
+     *
+     * @var array<string, \Redis|\RedisArray|\RedisCluster|RedisClusterProxy|RedisProxy>
      */
     private static array $connections = [];
-
-    private ?string $prefix;
 
     /**
      * @internal
      */
-    public function __construct(?string $prefix = null)
+    public function __construct(private readonly ?string $prefix = null)
     {
-        $this->prefix = $prefix;
     }
 
     /**
-     * @return \Redis|\RedisArray|\RedisCluster|RedisClusterProxy|RedisProxy
+     * @param array<string, mixed> $options
      */
-    public function create(string $dsn, array $options = [])
+    public function create(string $dsn, array $options = []): \Redis|\RedisArray|\RedisCluster|RedisClusterProxy|RedisProxy
     {
         $configHash = md5(json_encode($options, \JSON_THROW_ON_ERROR));
         $key = $dsn . $configHash . $this->prefix;
 
-        if (!isset(self::$connections[$key]) || self::$connections[$key]->isConnected() === false) {
+        if (!isset(self::$connections[$key]) || (
+            \method_exists(self::$connections[$key], 'isConnected') && self::$connections[$key]->isConnected() === false
+        )) {
             /** @var \Redis|\RedisArray|\RedisCluster|RedisClusterProxy|RedisProxy $redis */
             $redis = RedisAdapter::createConnection($dsn, $options);
 
@@ -48,17 +48,5 @@ class RedisConnectionFactory
         }
 
         return self::$connections[$key];
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 - use create() instead
-     *
-     * @return \Redis|\RedisArray|\RedisCluster|RedisClusterProxy|RedisProxy
-     */
-    public static function createConnection(string $dsn, array $options = [])
-    {
-        Feature::triggerDeprecationOrThrow('v6.5.0.0', Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'create()'));
-
-        return (new self())->create($dsn, $options);
     }
 }

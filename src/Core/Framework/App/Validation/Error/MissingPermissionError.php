@@ -2,9 +2,12 @@
 
 namespace Shopware\Core\Framework\App\Validation\Error;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
  * @internal only for use by the app-system
  */
+#[Package('core')]
 class MissingPermissionError extends Error
 {
     private const KEY = 'manifest-missing-permission';

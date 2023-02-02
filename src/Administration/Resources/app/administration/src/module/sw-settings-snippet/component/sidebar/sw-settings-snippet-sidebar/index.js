@@ -1,9 +1,11 @@
+/**
+ * @package system-settings
+ */
 import template from './sw-settings-snippet-sidebar.html.twig';
-
-const { Component } = Shopware;
+import './sw-settings-snippet-sidebar.scss';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-settings-snippet-sidebar', {
+export default {
     template,
 
     props: {
@@ -15,6 +17,46 @@ Component.register('sw-settings-snippet-sidebar', {
         authorFilters: {
             type: Array,
             required: true,
+        },
+
+        filterSettings: {
+            type: Object,
+            required: false,
+            default: null,
+        },
+    },
+
+    computed: {
+        activeFilterNumber() {
+            let count = 0;
+
+            if (!this.filterSettings) {
+                return count;
+            }
+
+            Object.values(this.filterSettings).forEach((value) => {
+                if (value === true) {
+                    count += 1;
+                }
+            });
+
+            return count;
+        },
+
+        isExpandedAuthorFilters() {
+            if (!this.filterSettings) {
+                return false;
+            }
+
+            return this.authorFilters.some((item) => this.filterSettings[item] === true);
+        },
+
+        isExpandedMoreFilters() {
+            if (!this.filterSettings) {
+                return false;
+            }
+
+            return this.filterItems.some((item) => this.filterSettings[item] === true);
         },
     },
 
@@ -40,5 +82,9 @@ Component.register('sw-settings-snippet-sidebar', {
         onRefresh() {
             this.$emit('sw-sidebar-collaps-refresh-grid');
         },
+
+        resetAll() {
+            this.$emit('sidebar-reset-all');
+        },
     },
-});
+};

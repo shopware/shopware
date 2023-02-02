@@ -28,14 +28,8 @@
                             {% block page_account_profile_personal_form %}
                                 <form id="profilePersonalForm"
                                       method="post"
-                                      data-form-csrf-handler="true"
                                       action="{{ path('frontend.account.profile.save') }}"
                                       data-form-validation="true">
-
-                                    {% block page_account_profile_personal_form_csrf %}
-                                        {{ sw_csrf('frontend.account.profile.save') }}
-                                    {% endblock %}
-
                                     {% block page_account_profile_personal_fields %}
                                         {% sw_include '@Storefront/storefront/page/account/profile/personal.html.twig' with {
                                             'showBirthdayField': config('core.loginRegistration.showBirthdayField'),
@@ -91,7 +85,7 @@
                                     {% block page_account_profile_credentials_change_mail %}
                                         <div class="col-12 col-sm-6 col-md-3 mt-2 mt-md-0">
                                             <a class="account-profile-change{% if not emailFormViolation %} collapsed{% endif %}"
-                                               {{ dataBsToggleAttr }}="collapse"
+                                               data-bs-toggle="collapse"
                                                href="#profile-email-form"
                                                role="button"
                                                aria-expanded="{% if emailFormViolation %}true{% else %}false{% endif %}"
@@ -104,7 +98,7 @@
                                     {% block page_account_profile_credentials_change_password %}
                                         <div class="col-12 col-sm-6 col-md-3 mt-2 mt-md-0">
                                             <a class="account-profile-change{% if not passwordFormViolation %} collapsed{% endif %}"
-                                               {{ dataBsToggleAttr }}="collapse"
+                                               data-bs-toggle="collapse"
                                                href="#profile-password-form"
                                                role="button"
                                                aria-expanded="{% if passwordFormViolation %}true{% else %}false{% endif %}"
@@ -129,13 +123,7 @@
                                               class="card-body"
                                               method="post"
                                               action="{{ path('frontend.account.profile.email.save') }}"
-                                              data-form-csrf-handler="true"
                                               data-form-validation="true">
-
-                                            {% block page_account_profile_mail_form_csrf %}
-                                                {{ sw_csrf('frontend.account.profile.email.save') }}
-                                            {% endblock %}
-
                                             {% block page_account_profile_mail_title %}
                                                 <div class="card-title">
                                                     {{ "account.profileMailTitle"|trans|sw_sanitize }}
@@ -143,7 +131,7 @@
                                             {% endblock %}
 
                                             {% block page_account_profile_mail_container %}
-                                                <div class="{{ formRowClass }}">
+                                                <div class="row g-2">
                                                     {% block page_account_profile_mail %}
                                                         <div class="col form-group">
                                                             {% block page_account_profile_mail_label %}
@@ -158,7 +146,7 @@
                                                                        class="form-control{% if formViolations.getViolations('/email') is not empty %} is-invalid{% endif %}"
                                                                        autocomplete="section-personal email"
                                                                        id="personalMail"
-                                                                       placeholder="{{ "account.personalMailPlaceholder"|trans|striptags }}{{ "general.required"|trans|striptags }}"
+                                                                       placeholder="{{ "account.personalMailPlaceholder"|trans|striptags }}"
                                                                        name="email[email]"
                                                                        data-form-validation-equal="personalMail"
                                                                        required="required">
@@ -188,7 +176,7 @@
                                                                        class="form-control{% if formViolations.getViolations('/email') is not empty %} is-invalid{% endif %}"
                                                                        autocomplete="section-personal email"
                                                                        id="personalMailConfirmation"
-                                                                       placeholder="{{ "account.personalMailConfirmationPlaceholder"|trans|striptags }}{{ "general.required"|trans|striptags }}"
+                                                                       placeholder="{{ "account.personalMailConfirmationPlaceholder"|trans|striptags }}"
                                                                        name="email[emailConfirmation]"
                                                                        required="required"
                                                                        data-form-validation-equal="personalMail"
@@ -210,7 +198,7 @@
                                             {% endblock %}
 
                                             {% block page_account_profile_mail_password %}
-                                                <div class="{{ formRowClass }}">
+                                                <div class="row g-2">
                                                     <div class="form-group col-6">
                                                         {% block page_account_profile_mail_password_label %}
                                                             <label class="form-label"
@@ -224,7 +212,7 @@
                                                                    class="form-control{% if formViolations.getViolations('/password') is not empty and emailFormViolation %} is-invalid{% endif %}"
                                                                    autocomplete="new-password"
                                                                    id="personalMailPasswordCurrent"
-                                                                   placeholder="{{ "account.profilePasswordCurrent"|trans|striptags }}{{ "general.required"|trans|striptags }}"
+                                                                   placeholder="{{ "account.personalPasswordPlaceholder"|trans|striptags }}"
                                                                    name="email[password]"
                                                                    required="required">
                                                         {% endblock %}
@@ -270,14 +258,8 @@
                                         <form id="profilePasswordForm"
                                               class="card-body"
                                               method="post"
-                                              data-form-csrf-handler="true"
                                               action="{{ path('frontend.account.profile.password.save') }}"
                                               data-form-validation="true">
-
-                                            {% block page_account_profile_password_form_csrf %}
-                                                {{ sw_csrf('frontend.account.profile.password.save') }}
-                                            {% endblock %}
-
                                             {% block page_account_profile_password_title %}
                                                 <div class="card-title">
                                                     {{ "account.profilePasswordTitle"|trans|sw_sanitize }}
@@ -285,7 +267,7 @@
                                             {% endblock %}
 
                                             {% block page_account_profile_password_container %}
-                                                <div class="{{ formRowClass }}">
+                                                <div class="row g-2">
                                                     {% block page_account_profile_new_password %}
                                                         <div class="col form-group">
                                                             {% block page_account_profile_new_password_label %}
@@ -300,7 +282,7 @@
                                                                        class="form-control{% if formViolations.getViolations('/newPassword') is not empty %} is-invalid{% endif %}"
                                                                        autocomplete="new-password"
                                                                        id="newPassword"
-                                                                       placeholder="{{ "account.profilePasswordCreateNew"|trans|striptags }}{{ "general.required"|trans|striptags }}"
+                                                                       placeholder="{{ "account.profilePasswordCreateNewPlaceholder"|trans|striptags }}"
                                                                        name="password[newPassword]"
                                                                        data-form-validation-equal="newPassword"
                                                                        data-form-validation-length="{{ config('core.loginRegistration.passwordMinLength') }}"
@@ -334,7 +316,7 @@
                                                                        class="form-control{% if formViolations.getViolations('/newPassword') is not empty %} is-invalid{% endif %}"
                                                                        autocomplete="new-password"
                                                                        id="passwordConfirmation"
-                                                                       placeholder="{{ "account.personalPasswordConfirmationLabel"|trans|striptags }}{{ "general.required"|trans|striptags }}"
+                                                                       placeholder="{{ "account.personalPasswordConfirmationPlaceholder"|trans|striptags }}"
                                                                        name="password[newPasswordConfirm]"
                                                                        required="required"
                                                                        data-form-validation-equal="newPassword"
@@ -356,7 +338,7 @@
                                             {% endblock %}
 
                                             {% block page_account_profile_current_password %}
-                                                <div class="{{ formRowClass }}">
+                                                <div class="row g-2">
                                                     <div class="col-6 form-group">
                                                         {% block page_account_profile_current_password_label %}
                                                             <label class="form-label"
@@ -370,7 +352,7 @@
                                                                    class="form-control{% if formViolations.getViolations('/password') is not empty and passwordFormViolation %} is-invalid{% endif %}"
                                                                    autocomplete="new-password"
                                                                    id="password"
-                                                                   placeholder="{{ "account.profilePasswordCurrent"|trans|striptags }}{{ "general.required"|trans|striptags }}"
+                                                                   placeholder="{{ "account.profilePasswordCurrentPlaceholder"|trans|striptags }}"
                                                                    name="password[password]"
                                                                    required="required">
                                                         {% endblock %}
@@ -414,7 +396,7 @@
                 {% block page_account_profile_delete_account %}
                     {% if config('core.loginRegistration.allowCustomerDeletion') %}
                         <div class="account-deleting py-4">
-                            {{ 'account.profileDelete'|trans({
+                            {{ 'account.profileDeleteText'|trans({
                                 '%target%': '#confirmDeleteAccountModal'
                             })|raw }}
                         </div>
@@ -445,15 +427,9 @@
                                                 {% block page_account_delete_account_confirm_modal_header_close_button %}
                                                     <button
                                                         type="button"
-                                                        class="{{ modalCloseBtnClass }} close"
-                                                        {{ dataBsDismissAttr }}="modal"
+                                                        class="btn-close close"
+                                                        data-bs-dismiss="modal"
                                                         aria-label="Close">
-                                                        {# @deprecated tag:v6.5.0 - Bootstrap v5 creates "x" symbol automatically via SVG background #}
-                                                        {% if not feature('v6.5.0.0') %}
-                                                            <span aria-hidden="true">
-                                                                {% sw_icon 'x' style { 'size': 'sm' } %}
-                                                            </span>
-                                                        {% endif %}
                                                     </button>
                                                 {% endblock %}
                                             </div>
@@ -464,14 +440,8 @@
 
                                                 {% block page_account_delete_account_confirm_modal_form %}
                                                     <form method="post"
-                                                          data-form-csrf-handler="true"
                                                           action="{{ path('frontend.account.profile.delete') }}"
                                                           data-form-submit-loader="true">
-
-                                                        {% block page_account_delete_account_confirm_form_csrf %}
-                                                            {{ sw_csrf('frontend.account.profile.delete') }}
-                                                        {% endblock %}
-
                                                         {% block page_account_delete_account_confirm_alert %}
                                                             {{ "account.profileDeleteAlert"|trans|sw_sanitize }}
                                                         {% endblock %}

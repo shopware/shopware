@@ -3,8 +3,13 @@
 namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @internal
+ */
+#[Package('core')]
 class Migration1536233210SalesChannelDomain extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -14,7 +19,7 @@ class Migration1536233210SalesChannelDomain extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->exec('
+        $connection->executeStatement('
             CREATE TABLE sales_channel_domain (
             `id` BINARY(16) NOT NULL PRIMARY KEY,
             `sales_channel_id` BINARY(16) NOT NULL,

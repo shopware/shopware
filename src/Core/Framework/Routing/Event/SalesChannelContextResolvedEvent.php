@@ -4,19 +4,15 @@ namespace Shopware\Core\Framework\Routing\Event;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
+#[Package('core')]
 class SalesChannelContextResolvedEvent extends Event implements ShopwareSalesChannelEvent
 {
-    private SalesChannelContext $salesChannelContext;
-
-    private string $usedToken;
-
-    public function __construct(SalesChannelContext $salesChannelContext, string $usedToken)
+    public function __construct(private readonly SalesChannelContext $salesChannelContext, private readonly string $usedToken)
     {
-        $this->salesChannelContext = $salesChannelContext;
-        $this->usedToken = $usedToken;
     }
 
     public function getSalesChannelContext(): SalesChannelContext

@@ -3,23 +3,20 @@
 namespace Shopware\Core\Checkout\Promotion\Cart\Discount;
 
 use Shopware\Core\Checkout\Cart\CartException;
-use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantityCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Checkout\Promotion\Exception\PriceNotFoundException;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('checkout')]
 class DiscountPackage
 {
-    private LineItemQuantityCollection $metaItems;
-
     private LineItemFlatCollection $cartItems;
 
-    public function __construct(LineItemQuantityCollection $items)
+    public function __construct(private LineItemQuantityCollection $metaItems)
     {
-        $this->metaItems = $items;
         $this->cartItems = new LineItemFlatCollection();
     }
 
@@ -46,11 +43,7 @@ class DiscountPackage
             }
         }
 
-        if (Feature::isActive('v6.5.0.0')) {
-            throw CartException::lineItemNotFound($id);
-        }
-
-        throw new LineItemNotFoundException($id);
+        throw CartException::lineItemNotFound($id);
     }
 
     public function setCartItems(LineItemFlatCollection $items): void

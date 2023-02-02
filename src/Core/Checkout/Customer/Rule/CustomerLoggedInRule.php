@@ -3,22 +3,23 @@
 namespace Shopware\Core\Checkout\Customer\Rule;
 
 use Shopware\Core\Checkout\CheckoutRuleScope;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
+#[Package('business-ops')]
 class CustomerLoggedInRule extends Rule
 {
-    protected bool $isLoggedIn;
+    final public const RULE_NAME = 'customerLoggedIn';
 
     /**
      * @internal
      */
-    public function __construct(bool $isLoggedIn = false)
+    public function __construct(protected bool $isLoggedIn = false)
     {
         parent::__construct();
-        $this->isLoggedIn = $isLoggedIn;
     }
 
     public function match(RuleScope $scope): bool
@@ -39,11 +40,6 @@ class CustomerLoggedInRule extends Rule
         return [
             'isLoggedIn' => RuleConstraints::bool(true),
         ];
-    }
-
-    public function getName(): string
-    {
-        return 'customerLoggedIn';
     }
 
     public function getConfig(): RuleConfig

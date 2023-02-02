@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ConfigJsonField;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -22,6 +23,7 @@ use function json_encode;
 /**
  * @internal
  */
+#[Package('system-settings')]
 class SystemConfigServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -97,7 +99,7 @@ class SystemConfigServiceTest extends TestCase
         $this->systemConfigService->set('foo.bar', $writtenValue);
         if (\is_array($writtenValue)) {
             $this->expectException(InvalidSettingValueException::class);
-            $this->expectExceptionMessage("Invalid value for 'foo.bar'. Must be of type 'string'. But is of type 'array'");
+            $this->expectExceptionMessage('Invalid value for \'foo.bar\'. Must be of type \'string\'. But is of type \'array\'');
         }
         $actual = $this->systemConfigService->getString('foo.bar');
         static::assertSame($expected, $actual);
@@ -130,7 +132,7 @@ class SystemConfigServiceTest extends TestCase
         $this->systemConfigService->set('foo.bar', $writtenValue);
         if (\is_array($writtenValue)) {
             $this->expectException(InvalidSettingValueException::class);
-            $this->expectExceptionMessage("Invalid value for 'foo.bar'. Must be of type 'int'. But is of type 'array'");
+            $this->expectExceptionMessage('Invalid value for \'foo.bar\'. Must be of type \'int\'. But is of type \'array\'');
         }
         $actual = $this->systemConfigService->getInt('foo.bar');
         static::assertSame($expected, $actual);
@@ -163,7 +165,7 @@ class SystemConfigServiceTest extends TestCase
         $this->systemConfigService->set('foo.bar', $writtenValue);
         if (\is_array($writtenValue)) {
             $this->expectException(InvalidSettingValueException::class);
-            $this->expectExceptionMessage("Invalid value for 'foo.bar'. Must be of type 'float'. But is of type 'array'");
+            $this->expectExceptionMessage('Invalid value for \'foo.bar\'. Must be of type \'float\'. But is of type \'array\'');
         }
         $actual = $this->systemConfigService->getFloat('foo.bar');
         static::assertSame($expected, $actual);
@@ -382,7 +384,7 @@ class SystemConfigServiceTest extends TestCase
             $inserts->addInsert('system_config', [
                 'id' => Uuid::randomBytes(),
                 'configuration_key' => (string) $i,
-                'configuration_value' => json_encode([ConfigJsonField::STORAGE_KEY => $i]),
+                'configuration_value' => json_encode([ConfigJsonField::STORAGE_KEY => $i], \JSON_THROW_ON_ERROR),
                 'sales_channel_id' => null,
                 'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]);

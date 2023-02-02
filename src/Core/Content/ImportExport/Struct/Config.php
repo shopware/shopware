@@ -3,10 +3,17 @@
 namespace Shopware\Core\Content\ImportExport\Struct;
 
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
+use Shopware\Core\Content\ImportExport\Processing\Mapping\Mapping;
 use Shopware\Core\Content\ImportExport\Processing\Mapping\MappingCollection;
+use Shopware\Core\Content\ImportExport\Processing\Mapping\UpdateBy;
 use Shopware\Core\Content\ImportExport\Processing\Mapping\UpdateByCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\JsonSerializableTrait;
 
+/**
+ * @phpstan-import-type MappingArray from Mapping
+ */
+#[Package('system-settings')]
 class Config
 {
     use JsonSerializableTrait;
@@ -15,12 +22,17 @@ class Config
 
     protected UpdateByCollection $updateBy;
 
+    /**
+     * @var array<string, mixed>
+     */
     protected array $parameters = [];
 
     /**
-     * @deprecated tag:v6.5.0 The parameter $updateBy will be required
+     * @param iterable<Mapping|string|MappingArray> $mapping
+     * @param iterable<string, mixed> $parameters
+     * @param iterable<UpdateBy|string|array<string, mixed>> $updateBy
      */
-    public function __construct(iterable $mapping, iterable $parameters, iterable $updateBy = [])
+    public function __construct(iterable $mapping, iterable $parameters, iterable $updateBy)
     {
         $this->mapping = MappingCollection::fromIterable($mapping);
 
@@ -41,7 +53,7 @@ class Config
         return $this->updateBy;
     }
 
-    public function get(string $key)
+    public function get(string $key): mixed
     {
         return $this->parameters[$key] ?? null;
     }

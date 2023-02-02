@@ -9,11 +9,13 @@ use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
 /**
  * @internal
  */
+#[Package('system-settings')]
 class FieldSerializerTest extends TestCase
 {
     use KernelTestBehaviour;

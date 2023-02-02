@@ -1,14 +1,15 @@
 import template from './sw-media-modal-v2.html.twig';
 import './sw-media-modal-v2.scss';
 
-const { Component, Context, Utils } = Shopware;
+const { Context, Utils } = Shopware;
 
 /**
  * @event media-modal-selection-change EntityProxy[]
  * @event closeModal (void)
+ * @package content
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-media-modal-v2', {
+export default {
     template,
 
     inject: ['repositoryFactory', 'mediaService'],
@@ -221,9 +222,11 @@ Component.register('sw-media-modal-v2', {
             await this.mediaService.runUploads(this.uploadTag);
 
             await Promise.all(data.map(({ targetId }) => {
-                return new Promise(async (resolve) => {
-                    this.uploads.push(await this.mediaRepository.get(targetId, Context.api));
-                    resolve();
+                return new Promise((resolve) => {
+                    this.mediaRepository.get(targetId, Context.api).then((media) => {
+                        this.uploads.push(media);
+                        resolve();
+                    });
                 });
             }));
         },
@@ -273,4 +276,4 @@ Component.register('sw-media-modal-v2', {
             return upload.id === this.selectedMediaItem.id;
         },
     },
-});
+};

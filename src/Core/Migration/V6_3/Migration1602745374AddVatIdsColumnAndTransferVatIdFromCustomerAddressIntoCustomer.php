@@ -3,8 +3,13 @@
 namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @internal
+ */
+#[Package('core')]
 class Migration1602745374AddVatIdsColumnAndTransferVatIdFromCustomerAddressIntoCustomer extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -14,7 +19,7 @@ class Migration1602745374AddVatIdsColumnAndTransferVatIdFromCustomerAddressIntoC
 
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate('
+        $connection->executeStatement('
             ALTER TABLE `customer`
             ADD COLUMN `vat_ids` JSON NULL DEFAULT NULL AFTER `title`;
         ');
@@ -22,7 +27,7 @@ class Migration1602745374AddVatIdsColumnAndTransferVatIdFromCustomerAddressIntoC
         $this->addInsertTrigger($connection);
         $this->addUpdateTrigger($connection);
 
-        $connection->executeUpdate('
+        $connection->executeStatement('
             UPDATE `customer`, `customer_address`
             SET `customer`.`vat_ids` = JSON_ARRAY(`customer_address`.`vat_id`)
             WHERE `customer`.`default_billing_address_id` = `customer_address`.`id` AND `customer_address`.`vat_id` IS NOT NULL;

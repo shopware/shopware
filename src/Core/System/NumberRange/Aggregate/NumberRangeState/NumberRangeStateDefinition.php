@@ -11,11 +11,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\NumberRange\NumberRangeDefinition;
 
+#[Package('checkout')]
 class NumberRangeStateDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'number_range_state';
+    final public const ENTITY_NAME = 'number_range_state';
 
     public function getEntityName(): string
     {

@@ -1,5 +1,8 @@
 import FormValidationPlugin from 'src/plugin/forms/form-validation.plugin';
 
+/**
+ * @package content
+ */
 describe('FormValidationPlugin tests', () => {
     let formValidationPlugin = null;
     let spySetFieldToInvalid = jest.fn();

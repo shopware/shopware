@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig;
 
+use Shopware\Core\Framework\Log\Package;
 use Twig\Cache\FilesystemCache;
 
+#[Package('core')]
 class ConfigurableFilesystemCache extends FilesystemCache
 {
     /**

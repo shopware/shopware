@@ -6,16 +6,18 @@ use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidCartException;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
+#[Package('checkout')]
 class CartException extends HttpException
 {
     public const DESERIALIZE_FAILED_CODE = 'CHECKOUT__CART_DESERIALIZE_FAILED';
     public const TOKEN_NOT_FOUND_CODE = 'CHECKOUT__CART_TOKEN_NOT_FOUND';
     public const CUSTOMER_NOT_LOGGED_IN_CODE = 'CHECKOUT__CUSTOMER_NOT_LOGGED_IN';
     public const INSUFFICIENT_PERMISSION_CODE = 'CHECKOUT__INSUFFICIENT_PERMISSION';
+    public const CART_DELIVERY_NOT_FOUND_CODE = 'CHECKOUT__CART_DELIVERY_POSITION_NOT_FOUND';
     public const CART_INVALID_CODE = 'CHECKOUT__CART_INVALID';
     public const CART_INVALID_LINE_ITEM_PAYLOAD_CODE = 'CHECKOUT__CART_INVALID_LINE_ITEM_PAYLOAD';
     public const CART_INVALID_LINE_ITEM_QUANTITY_CODE = 'CHECKOUT__CART_INVALID_LINE_ITEM_QUANTITY';
@@ -39,21 +41,16 @@ class CartException extends HttpException
 
     public static function tokenNotFound(string $token): self
     {
-        return new CartTokenNotFoundException($token);
-//        @deprecated tag:v6.5.0 - Remove above line and use line below instead
-//        return new CartTokenNotFoundException(Response::HTTP_NOT_FOUND, self::TOKEN_NOT_FOUND_CODE, 'Cart with token {{ token }} not found.', ['token' => $token]);
+        return new CartTokenNotFoundException(Response::HTTP_NOT_FOUND, self::TOKEN_NOT_FOUND_CODE, 'Cart with token {{ token }} not found.', ['token' => $token]);
     }
 
     public static function customerNotLoggedIn(): self
     {
-        return new CustomerNotLoggedInException();
-
-//        @deprecated tag:v6.5.0 - Remove above line and use line below instead
-//        return new CustomerNotLoggedInException(
-//            Response::HTTP_FORBIDDEN,
-//            self::CUSTOMER_NOT_LOGGED_IN_CODE,
-//            'Customer is not logged in.'
-//        );
+        return new CustomerNotLoggedInException(
+            Response::HTTP_FORBIDDEN,
+            self::CUSTOMER_NOT_LOGGED_IN_CODE,
+            'Customer is not logged in.'
+        );
     }
 
     public static function insufficientPermission(): self
@@ -70,10 +67,6 @@ class CartException extends HttpException
      */
     public static function invalidCart(ErrorCollection $errors)
     {
-        if (!Feature::isActive('v6.5.0.0')) {
-            return new InvalidCartException($errors);
-        }
-
         $message = [];
         foreach ($errors as $error) {
             $message[] = $error->getId() . ': ' . $error->getMessage();
@@ -114,6 +107,16 @@ class CartException extends HttpException
             self::CART_INVALID_LINE_ITEM_QUANTITY_CODE,
             'The quantity must be a positive integer. Given: "{{ quantity }}"',
             ['quantity' => $quantity]
+        );
+    }
+
+    public static function deliveryNotFound(string $id): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::CART_DELIVERY_NOT_FOUND_CODE,
+            'Delivery with identifier {{ id }} not found.',
+            ['id' => $id]
         );
     }
 

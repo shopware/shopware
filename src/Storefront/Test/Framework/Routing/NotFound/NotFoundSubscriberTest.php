@@ -6,7 +6,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedEvent;
@@ -68,9 +67,7 @@ class NotFoundSubscriberTest extends TestCase
         $cacheTracer
             ->expects(static::once())
             ->method('trace')
-            ->willReturnCallback(function (string $name, \Closure $closure) {
-                return $closure();
-            });
+            ->willReturnCallback(fn (string $name, \Closure $closure) => $closure());
 
         $requestStack = $this->createMock(RequestStack::class);
         $requestStack->method('getMainRequest')->willReturn(new Request());
@@ -97,7 +94,13 @@ class NotFoundSubscriberTest extends TestCase
         );
         $subscriber->onError($event);
 
-        static::assertInstanceOf(Response::class, $event->getResponse());
+        /** @var StorefrontResponse $response */
+        $response = $event->getResponse();
+
+        static::assertInstanceOf(Response::class, $response);
+        static::assertInstanceOf(StorefrontResponse::class, $response);
+        static::assertEmpty($response->getData());
+        static::assertNull($response->getContext());
     }
 
     public function testOtherExceptionsDoesNotGetCached(): void
@@ -166,6 +169,9 @@ class NotFoundSubscriberTest extends TestCase
         $subscriber->onSystemConfigChanged(new SystemConfigChangedEvent($key, 'foo', null));
     }
 
+    /**
+     * @return iterable<string, array<mixed>>
+     */
     public function providerSystemConfigKeys(): iterable
     {
         yield 'key matches' => [
@@ -181,38 +187,8 @@ class NotFoundSubscriberTest extends TestCase
 
     public function testSubscribedEvents(): void
     {
-        $featureAll = $_SERVER['FEATURE_ALL'] ?? null;
-
-        if (isset($featureAll)) {
-            unset($_SERVER['FEATURE_ALL']);
-        }
-
-        $defaultVar = $_SERVER['v6_5_0_0'] ?? null;
-
         static::assertArrayHasKey(SystemConfigChangedEvent::class, NotFoundSubscriber::getSubscribedEvents());
 
-        if (Feature::isActive('v6.5.0.0')) {
-            static::assertArrayHasKey(KernelEvents::EXCEPTION, NotFoundSubscriber::getSubscribedEvents());
-
-            $_SERVER['V6_5_0_0'] = '0';
-
-            static::assertArrayNotHasKey(KernelEvents::EXCEPTION, NotFoundSubscriber::getSubscribedEvents());
-        } else {
-            static::assertArrayNotHasKey(KernelEvents::EXCEPTION, NotFoundSubscriber::getSubscribedEvents());
-
-            $_SERVER['V6_5_0_0'] = '1';
-
-            static::assertArrayHasKey(KernelEvents::EXCEPTION, NotFoundSubscriber::getSubscribedEvents());
-        }
-
-        if ($defaultVar !== null) {
-            $_SERVER['V6_5_0_0'] = $defaultVar;
-        } else {
-            unset($_SERVER['V6_5_0_0']);
-        }
-
-        if (isset($featureAll)) {
-            $_SERVER['FEATURE_ALL'] = $featureAll;
-        }
+        static::assertArrayHasKey(KernelEvents::EXCEPTION, NotFoundSubscriber::getSubscribedEvents());
     }
 }

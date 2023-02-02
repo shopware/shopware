@@ -2,23 +2,18 @@
 
 namespace Shopware\Core\Framework\Migration\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareException;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 // ShopwareHttpException depends on Symfony. Symfony is not available in the updater context.
 if (class_exists(HttpException::class)) {
+    #[Package('core')]
     class UnknownMigrationSourceExceptionBase extends ShopwareHttpException
     {
-        /**
-         * @var string
-         */
-        private $name;
-
-        public function __construct(string $name)
+        public function __construct(private readonly string $name)
         {
-            $this->name = $name;
-
             parent::__construct(
                 'No source registered for "{{ name }}"',
                 ['name' => $name]
@@ -38,12 +33,10 @@ if (class_exists(HttpException::class)) {
         }
     }
 } else {
+    #[Package('core')]
     class UnknownMigrationSourceExceptionBase extends \RuntimeException implements ShopwareException
     {
-        /**
-         * @var string
-         */
-        private $name;
+        private readonly string $name;
 
         public function __construct(string $name)
         {
@@ -65,6 +58,7 @@ if (class_exists(HttpException::class)) {
     }
 }
 
+#[Package('core')]
 class UnknownMigrationSourceException extends UnknownMigrationSourceExceptionBase
 {
 }

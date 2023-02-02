@@ -1,5 +1,12 @@
 .sw-button.sw-button--square.sw-data-grid-settings__trigger {
     width: 32px;
+
+    .sw-icon {
+        padding-top: 2px;
+        padding-right: 1px;
+        padding-bottom: 2px;
+        padding-left: 1px;
+    }
 }
 
 .sw-data-grid-settings {
@@ -35,8 +42,7 @@
 
             .icon--regular-chevron-down-xxs,
             .icon--regular-chevron-up-xxs {
-                // @deprecated tag:v6.5.0 - The !important attribute can be removed
-                padding: 4px !important;
+                padding: 4px;
             }
         }
     }

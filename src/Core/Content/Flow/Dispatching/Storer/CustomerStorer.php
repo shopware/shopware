@@ -4,21 +4,20 @@ namespace Shopware\Core\Content\Flow\Dispatching\Storer;
 
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\CustomerAware;
 use Shopware\Core\Framework\Event\FlowEventAware;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('business-ops')]
 class CustomerStorer extends FlowStorer
 {
-    private EntityRepositoryInterface $customerRepository;
-
     /**
      * @internal
      */
-    public function __construct(EntityRepositoryInterface $customerRepository)
+    public function __construct(private readonly EntityRepository $customerRepository)
     {
-        $this->customerRepository = $customerRepository;
     }
 
     /**
@@ -45,7 +44,7 @@ class CustomerStorer extends FlowStorer
 
         $storable->lazy(
             CustomerAware::CUSTOMER,
-            [$this, 'load'],
+            $this->load(...),
             [$storable->getStore(CustomerAware::CUSTOMER_ID), $storable->getContext()]
         );
     }
@@ -55,7 +54,7 @@ class CustomerStorer extends FlowStorer
      */
     public function load(array $args): ?CustomerEntity
     {
-        list($id, $context) = $args;
+        [$id, $context] = $args;
         $criteria = new Criteria([$id]);
         $criteria->addAssociation('salutation');
 

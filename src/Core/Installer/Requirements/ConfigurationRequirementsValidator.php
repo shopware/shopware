@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Installer\Requirements;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\MemorySizeCalculator;
 use Shopware\Core\Installer\Requirements\Struct\RequirementCheck;
 use Shopware\Core\Installer\Requirements\Struct\RequirementsCheckCollection;
@@ -10,17 +11,15 @@ use Shopware\Core\Installer\Requirements\Struct\SystemCheck;
 /**
  * @internal
  */
+#[Package('core')]
 class ConfigurationRequirementsValidator implements RequirementsValidatorInterface
 {
     private const MAX_EXECUTION_TIME_REQUIREMENT = 30;
     private const MEMORY_LIMIT_REQUIREMENT = '512M';
     private const OPCACHE_MEMORY_RECOMMENDATION = '256M';
 
-    private IniConfigReader $iniConfigReader;
-
-    public function __construct(IniConfigReader $iniConfigReader)
+    public function __construct(private readonly IniConfigReader $iniConfigReader)
     {
-        $this->iniConfigReader = $iniConfigReader;
     }
 
     public function validateRequirements(RequirementsCheckCollection $checks): RequirementsCheckCollection

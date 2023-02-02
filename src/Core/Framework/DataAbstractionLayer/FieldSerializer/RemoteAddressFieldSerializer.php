@@ -9,21 +9,18 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\RemoteAddressField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\IpUtils;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
  */
+#[Package('core')]
 class RemoteAddressFieldSerializer extends AbstractFieldSerializer
 {
     protected const CONFIG_KEY = 'core.loginRegistration.customerIpAddressesNotAnonymously';
-
-    /**
-     * @var SystemConfigService
-     */
-    private $configService;
 
     /**
      * @internal
@@ -31,10 +28,9 @@ class RemoteAddressFieldSerializer extends AbstractFieldSerializer
     public function __construct(
         ValidatorInterface $validator,
         DefinitionInstanceRegistry $definitionRegistry,
-        SystemConfigService $configService
+        private readonly SystemConfigService $configService
     ) {
         parent::__construct($validator, $definitionRegistry);
-        $this->configService = $configService;
     }
 
     public function encode(
@@ -60,7 +56,7 @@ class RemoteAddressFieldSerializer extends AbstractFieldSerializer
         yield $field->getStorageName() => IPUtils::anonymize($data->getValue());
     }
 
-    public function decode(Field $field, $value): ?string
+    public function decode(Field $field, mixed $value): ?string
     {
         return $value;
     }

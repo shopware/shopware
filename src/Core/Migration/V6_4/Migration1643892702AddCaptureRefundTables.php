@@ -3,8 +3,13 @@
 namespace Shopware\Core\Migration\V6_4;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @internal
+ */
+#[Package('core')]
 class Migration1643892702AddCaptureRefundTables extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -14,7 +19,7 @@ class Migration1643892702AddCaptureRefundTables extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate('
+        $connection->executeStatement('
             CREATE TABLE IF NOT EXISTS `order_transaction_capture` (
               `id`                              BINARY(16)                      NOT NULL,
               `order_transaction_id`            BINARY(16)                      NOT NULL,
@@ -35,7 +40,7 @@ class Migration1643892702AddCaptureRefundTables extends MigrationStep
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
 
-        $connection->executeUpdate('
+        $connection->executeStatement('
             CREATE TABLE IF NOT EXISTS `order_transaction_capture_refund` (
               `id`                      BINARY(16)                              NOT NULL,
               `capture_id`              BINARY(16)                              NOT NULL,
@@ -56,7 +61,7 @@ class Migration1643892702AddCaptureRefundTables extends MigrationStep
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
 
-        $connection->executeUpdate('
+        $connection->executeStatement('
             CREATE TABLE IF NOT EXISTS `order_transaction_capture_refund_position` (
               `id`                              BINARY(16)                              NOT NULL,
               `refund_id`                       BINARY(16)                              NOT NULL,

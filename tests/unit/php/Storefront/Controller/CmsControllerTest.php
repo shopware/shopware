@@ -25,7 +25,6 @@ use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Controller\CmsController;
-use Shopware\Storefront\Page\Product\Configurator\ProductCombinationFinder;
 use Shopware\Storefront\Page\Product\Review\ProductReviewLoader;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
@@ -38,31 +37,17 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class CmsControllerTest extends TestCase
 {
-    /**
-     * @var MockObject|EventDispatcher
-     */
-    private $eventDispatcherMock;
+    private MockObject&CmsRoute $cmsRouteMock;
 
-    /**
-     * @var MockObject|CmsRoute
-     */
-    private $cmsRouteMock;
+    private MockObject&CategoryRoute $categoryRouteMock;
 
-    /**
-     * @var MockObject|CategoryRoute
-     */
-    private $categoryRouteMock;
-
-    /**
-     * @var ProductListingRoute|MockObject
-     */
-    private $productListingRouteMock;
+    private MockObject&ProductListingRoute $productListingRouteMock;
 
     private CmsControllerTestClass $controller;
 
     public function setUp(): void
     {
-        $this->eventDispatcherMock = $this->createMock(EventDispatcher::class);
+        $eventDispatcherMock = $this->createMock(EventDispatcher::class);
         $this->cmsRouteMock = $this->createMock(CmsRoute::class);
         $this->categoryRouteMock = $this->createMock(CategoryRoute::class);
         $this->productListingRouteMock = $this->createMock(ProductListingRoute::class);
@@ -74,8 +59,7 @@ class CmsControllerTest extends TestCase
             $this->createMock(ProductDetailRoute::class),
             $this->createMock(ProductReviewLoader::class),
             $this->createMock(FindProductVariantRoute::class),
-            $this->createMock(ProductCombinationFinder::class),
-            $this->eventDispatcherMock
+            $eventDispatcherMock
         );
     }
 
@@ -157,8 +141,8 @@ class CmsControllerTest extends TestCase
         $response = $this->controller->filter($ids->get('navigation'), $request, $this->createMock(SalesChannelContext::class));
 
         static::assertEquals(
-            json_encode($testAggregations),
-            json_encode(json_decode($response->getContent() ?: '', true))
+            json_encode($testAggregations, \JSON_THROW_ON_ERROR),
+            json_encode(json_decode($response->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR), \JSON_THROW_ON_ERROR)
         );
 
         static::assertTrue($request->request->get('only-aggregations'));
@@ -175,7 +159,7 @@ class CmsControllerTest extends TestCase
                 'options' => json_encode([
                     $ids->get('group1') => $ids->get('option1'),
                     $ids->get('group2') => $ids->get('option2'),
-                ]),
+                ], \JSON_THROW_ON_ERROR),
             ]
         );
 
@@ -200,16 +184,16 @@ class CmsControllerTest extends TestCase
  */
 class CmsControllerTestClass extends CmsController
 {
-    /**
-     * @var mixed
-     */
-    public $renderStorefrontView;
+    public string $renderStorefrontView;
 
     /**
-     * @var mixed
+     * @var array<array-key, mixed>
      */
-    public $renderStorefrontParameters;
+    public array $renderStorefrontParameters;
 
+    /**
+     * @param array<array-key, mixed> $parameters
+     */
     protected function renderStorefront(string $view, array $parameters = []): Response
     {
         $this->renderStorefrontView = $view;

@@ -4,22 +4,21 @@ namespace Shopware\Core\Content\Seo;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @phpstan-import-type ResolvedSeoUrl from AbstractSeoResolver
  */
+#[Package('sales-channel')]
 class SeoResolver extends AbstractSeoResolver
 {
-    private Connection $connection;
-
     /**
      * @internal
      */
-    public function __construct(Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     public function getDecorated(): AbstractSeoResolver
@@ -49,7 +48,7 @@ class SeoResolver extends AbstractSeoResolver
 
         $query->setTitle('seo-url::resolve');
 
-        $seoPath = $query->execute()->fetch();
+        $seoPath = $query->executeQuery()->fetchAssociative();
 
         $seoPath = $seoPath !== false
             ? $seoPath
@@ -68,15 +67,15 @@ class SeoResolver extends AbstractSeoResolver
                 ->setParameter('language_id', Uuid::fromHexToBytes($languageId))
                 ->setParameter('sales_channel_id', Uuid::fromHexToBytes($salesChannelId))
                 ->setParameter('id', $seoPath['id'] ?? '')
-                ->setParameter('pathInfo', '/' . ltrim($seoPath['pathInfo'], '/'));
+                ->setParameter('pathInfo', '/' . ltrim((string) $seoPath['pathInfo'], '/'));
 
-            $canonical = $query->execute()->fetchAssociative();
+            $canonical = $query->executeQuery()->fetchAssociative();
             if ($canonical) {
-                $seoPath['canonicalPathInfo'] = '/' . ltrim($canonical['seoPathInfo'], '/');
+                $seoPath['canonicalPathInfo'] = '/' . ltrim((string) $canonical['seoPathInfo'], '/');
             }
         }
 
-        $seoPath['pathInfo'] = '/' . ltrim($seoPath['pathInfo'], '/');
+        $seoPath['pathInfo'] = '/' . ltrim((string) $seoPath['pathInfo'], '/');
 
         return $seoPath;
     }

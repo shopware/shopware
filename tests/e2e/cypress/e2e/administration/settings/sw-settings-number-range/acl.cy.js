@@ -4,10 +4,7 @@ const page = new SettingsPageObject();
 
 describe('Number Range: Test acl privileges', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
-            });
+        cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
     });
 
     // TODO: Unskip with NEXT-15489
@@ -29,8 +26,8 @@ describe('Number Range: Test acl privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'number_ranges',
-                role: 'viewer'
-            }
+                role: 'viewer',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/number/range/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -51,16 +48,16 @@ describe('Number Range: Test acl privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'number_ranges',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'number_ranges',
-                role: 'editor'
+                role: 'editor',
             },
             {
                 key: 'number_ranges',
-                role: 'creator'
-            }
+                role: 'creator',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/number/range/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -70,22 +67,22 @@ describe('Number Range: Test acl privileges', () => {
 
         cy.intercept({
             url: '/api/search/number-range',
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/number-range`,
-            method: 'POST'
+            method: 'POST',
         }).as('searchData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/number-range-type`,
-            method: 'POST'
+            method: 'POST',
         }).as('searchNumberRangeType');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/sales-channel`,
-            method: 'POST'
+            method: 'POST',
         }).as('searchSalesChannel');
 
         cy.get('a[href="#/sw/settings/number/range/create"]').click();
@@ -96,7 +93,7 @@ describe('Number Range: Test acl privileges', () => {
         cy.get('#numberRangeTypes')
             .typeSingleSelectAndCheck(
                 'Cancellation',
-                '#numberRangeTypes'
+                '#numberRangeTypes',
             );
 
         cy.wait('@searchNumberRangeType')
@@ -118,17 +115,16 @@ describe('Number Range: Test acl privileges', () => {
         cy.contains(`${page.elements.dataGridRow}--0`, 'Name e2e').should('be.visible');
     });
 
-    // TODO: Unskip with NEXT-15489
-    it('@settings: can edit number range with ACL', { tags: ['quarantined', 'pa-system-settings'] }, () => {
+    it('@settings: can edit number range with ACL', { tags: ['pa-system-settings'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'number_ranges',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'number_ranges',
-                role: 'editor'
-            }
+                role: 'editor',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/number/range/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -137,12 +133,12 @@ describe('Number Range: Test acl privileges', () => {
 
         // Request we want to wait for later
         cy.intercept({
-            url: '/api/search/number-range/*',
-            method: 'PATCH'
+            url: '/api/number-range/*',
+            method: 'PATCH',
         }).as('saveData');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/number-range`,
-            method: 'POST'
+            method: 'POST',
         }).as('searchData');
 
         cy.get(`${page.elements.dataGridRow}--1 a`).click();
@@ -163,17 +159,16 @@ describe('Number Range: Test acl privileges', () => {
         cy.contains(`${page.elements.dataGridRow}--0`, 'Cancellations update').should('be.visible');
     });
 
-    // TODO: Unskip with NEXT-15489
-    it('@settings: can delete number range with ACL', { tags: ['quarantined', 'pa-system-settings'] }, () => {
+    it('@settings: can delete number range with ACL', { tags: ['pa-system-settings'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'number_ranges',
-                role: 'viewer'
+                role: 'viewer',
             },
             {
                 key: 'number_ranges',
-                role: 'deleter'
-            }
+                role: 'deleter',
+            },
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/number/range/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -182,15 +177,15 @@ describe('Number Range: Test acl privileges', () => {
 
         // Request we want to wait for later
         cy.intercept({
-            url: '/api/search/number-range/*',
-            method: 'delete'
+            url: '/api/number-range/*',
+            method: 'delete',
         }).as('deleteData');
 
         // Delete number range
         cy.clickContextMenuItem(
             `${page.elements.contextMenu}-item--danger`,
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
         cy.get('.sw-modal__body').should('be.visible');
         cy.get(`${page.elements.dataGridRow}--0 ${page.elements.numberRangeColumnName}`).then(row => {

@@ -1,7 +1,6 @@
 ---
 title: Make rule assignment aware
 issue: NEXT-17414
-flag: FEATURE_NEXT_18215
 ---
 # Administration
 * Added prop `restriction` to `sw-select-rule-create` component

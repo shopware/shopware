@@ -17,9 +17,9 @@ describe('Order: Testing filter and reset filter', () => {
         cy.searchViaAdminApi({
             data: {
                 field: 'username',
-                value: 'admin'
+                value: 'admin',
             },
-            endpoint: 'user'
+            endpoint: 'user',
         })
             .then((user) => {
                 userId = user.id;
@@ -28,8 +28,8 @@ describe('Order: Testing filter and reset filter', () => {
                     data: {
                         field: 'technicalName',
                         type: 'equals',
-                        value: 'order.state'
-                    }
+                        value: 'order.state',
+                    },
                 });
             })
             .then((data) => {
@@ -39,8 +39,8 @@ describe('Order: Testing filter and reset filter', () => {
                     data: {
                         field: 'iso',
                         type: 'equals',
-                        value: 'DE'
-                    }
+                        value: 'DE',
+                    },
                 });
             })
             .then(data => {
@@ -50,8 +50,8 @@ describe('Order: Testing filter and reset filter', () => {
                     data: {
                         field: 'name',
                         type: 'equals',
-                        value: 'Invoice'
-                    }
+                        value: 'Invoice',
+                    },
                 });
             })
             .then((data) => {
@@ -61,8 +61,8 @@ describe('Order: Testing filter and reset filter', () => {
                     data: {
                         field: 'name',
                         type: 'equals',
-                        value: 'Standard'
-                    }
+                        value: 'Standard',
+                    },
                 });
             })
             .then((data) => {
@@ -72,8 +72,8 @@ describe('Order: Testing filter and reset filter', () => {
                     data: {
                         field: 'name',
                         type: 'equals',
-                        value: 'Storefront'
-                    }
+                        value: 'Storefront',
+                    },
                 });
             })
             .then((data) => {
@@ -83,8 +83,8 @@ describe('Order: Testing filter and reset filter', () => {
                     data: {
                         field: 'name',
                         type: 'equals',
-                        value: 'Standard customer group'
-                    }
+                        value: 'Standard customer group',
+                    },
                 });
             })
             .then(() => {
@@ -93,8 +93,8 @@ describe('Order: Testing filter and reset filter', () => {
                     data: {
                         field: 'displayName',
                         type: 'equals',
-                        value: 'Mr.'
-                    }
+                        value: 'Mr.',
+                    },
                 });
             })
             .then((data) => {
@@ -103,9 +103,9 @@ describe('Order: Testing filter and reset filter', () => {
                 cy.searchViaAdminApi({
                     data: {
                         field: 'name',
-                        value: 'Euro'
+                        value: 'Euro',
                     },
-                    endpoint: 'currency'
+                    endpoint: 'currency',
                 });
             })
             .then((currency) => {
@@ -115,8 +115,8 @@ describe('Order: Testing filter and reset filter', () => {
                     endpoint: 'sales-channel',
                     data: {
                         field: 'name',
-                        value: 'Storefront'
-                    }
+                        value: 'Storefront',
+                    },
                 });
             })
             .then((salesChannel) => {
@@ -145,7 +145,7 @@ describe('Order: Testing filter and reset filter', () => {
                                 salutationId: salutationId,
                                 defaultPaymentMethodId: paymentMethodId,
                                 defaultBillingAddressId: uuid().replace(/-/g, ''),
-                                defaultShippingAddressId: uuid().replace(/-/g, '')
+                                defaultShippingAddressId: uuid().replace(/-/g, ''),
                             },
                             billingAddress: {
                                 countryId,
@@ -154,12 +154,12 @@ describe('Order: Testing filter and reset filter', () => {
                                 lastName: 'Doe',
                                 street: 'Test street',
                                 city: 'Test city',
-                                zipcode: '000-0000'
+                                zipcode: '000-0000',
                             },
                             stateMachineState: {
                                 name: `order state ${i}`,
                                 technicalName: `order.${i}`,
-                                stateMachineId: stateMachineId
+                                stateMachineId: stateMachineId,
                             },
                             transactions: [
                                 {
@@ -172,14 +172,14 @@ describe('Order: Testing filter and reset filter', () => {
                                         unitPrice: 0.0,
                                         totalPrice: 0.0,
                                         referencePrice: null,
-                                        calculatedTaxes: [{ tax: 0.0, price: 0.0, taxRate: 19.0 }]
+                                        calculatedTaxes: [{ tax: 0.0, price: 0.0, taxRate: 19.0 }],
                                     },
                                     stateMachineState: {
                                         name: `payment state ${i}`,
                                         technicalName: `payment.${i}`,
-                                        stateMachineId: stateMachineId
-                                    }
-                                }
+                                        stateMachineId: stateMachineId,
+                                    },
+                                },
                             ],
                             deliveries: [
                                 {
@@ -194,14 +194,14 @@ describe('Order: Testing filter and reset filter', () => {
                                         unitPrice: 0.0,
                                         totalPrice: 0.0,
                                         referencePrice: null,
-                                        calculatedTaxes: [{ tax: 0.0, price: 0.0, taxRate: 19.0 }]
+                                        calculatedTaxes: [{ tax: 0.0, price: 0.0, taxRate: 19.0 }],
                                     },
                                     stateMachineState: {
                                         name: `shipping state ${i}`,
                                         technicalName: `shipping.${i}`,
-                                        stateMachineId: stateMachineId
-                                    }
-                                }
+                                        stateMachineId: stateMachineId,
+                                    },
+                                },
                             ],
                             price: {
                                 netPrice: 8294.66,
@@ -210,7 +210,7 @@ describe('Order: Testing filter and reset filter', () => {
                                 taxStatus: 'net',
                                 totalPrice: 8454.01,
                                 positionPrice: 8294.66,
-                                calculatedTaxes: [{ tax: 159.35, price: 838.66, taxRate: 19.0 }]
+                                calculatedTaxes: [{ tax: 159.35, price: 838.66, taxRate: 19.0 }],
                             },
                             shippingCosts: {
                                 quantity: 1,
@@ -219,10 +219,10 @@ describe('Order: Testing filter and reset filter', () => {
                                 unitPrice: 0.0,
                                 totalPrice: 0.0,
                                 referencePrice: null,
-                                calculatedTaxes: [{ tax: 0.0, price: 0.0, taxRate: 19.0 }]
+                                calculatedTaxes: [{ tax: 0.0, price: 0.0, taxRate: 19.0 }],
                             },
-                            currencyFactor: 1.25
-                        }
+                            currencyFactor: 1.25,
+                        },
                     );
                 }
 
@@ -230,33 +230,33 @@ describe('Order: Testing filter and reset filter', () => {
                     headers: {
                         Accept: 'application/vnd.api+json',
                         Authorization: `Bearer ${auth.access}`,
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
                     },
                     method: 'POST',
                     url: `/${Cypress.env('apiPath')}/_action/sync`,
                     qs: {
-                        response: true
+                        response: true,
                     },
                     body: {
                         'write-order': {
                             entity: 'order',
                             action: 'upsert',
-                            payload: orders
-                        }
+                            payload: orders,
+                        },
 
-                    }
+                    },
                 });
 
                 cy.request({
                     headers: {
                         Accept: 'application/vnd.api+json',
                         Authorization: `Bearer ${auth.access}`,
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
                     },
                     method: 'POST',
                     url: `/${Cypress.env('apiPath')}/_action/sync`,
                     qs: {
-                        response: true
+                        response: true,
                     },
                     body: {
                         'write-user-config': {
@@ -277,24 +277,22 @@ describe('Order: Testing filter and reset filter', () => {
                                                 queries: [{
                                                     type: 'equals',
                                                     field: 'documents.id',
-                                                    value: null
+                                                    value: null,
                                                 }],
-                                                operator: 'AND'
-                                            }]
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
+                                                operator: 'AND',
+                                            }],
+                                        },
+                                    },
+                                },
+                            ],
+                        },
+                    },
                 });
             });
     });
 
     // TODO skipped due to flakiness, see NEXT-15697
     it('@order: check filter function and display listing correctly', { tags: ['quarantined', 'pa-customers-orders'] }, () => {
-        cy.loginViaApi();
-
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/order/index`);
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
@@ -302,17 +300,17 @@ describe('Order: Testing filter and reset filter', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/order`,
-            method: 'POST'
+            method: 'POST',
         }).as('filterOrder');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/state-machine-state`,
-            method: 'POST'
+            method: 'POST',
         }).as('getStateMachineState');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/user-config`,
-            method: 'POST'
+            method: 'POST',
         }).as('getUserConfig');
 
         cy.wait('@filterOrder')
@@ -358,8 +356,6 @@ describe('Order: Testing filter and reset filter', () => {
 
     // TODO skipped due to flakiness, see NEXT-15697
     it('@order: check reset filter', { tags: ['quarantined', 'pa-customers-orders'] }, () => {
-        cy.loginViaApi();
-
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/order/index`);
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
@@ -368,7 +364,7 @@ describe('Order: Testing filter and reset filter', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/state-machine-state`,
-            method: 'POST'
+            method: 'POST',
         }).as('getStateMachineState');
 
         // Assert the grid has finished loading and the preset filters are active
@@ -377,7 +373,7 @@ describe('Order: Testing filter and reset filter', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/user-config`,
-            method: 'POST'
+            method: 'POST',
         }).as('getUserConfig');
 
         // Open the filter panel
@@ -388,7 +384,7 @@ describe('Order: Testing filter and reset filter', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/order`,
-            method: 'POST'
+            method: 'POST',
         }).as('filterOrder');
 
         // Reset all filters
@@ -422,7 +418,7 @@ describe('Order: Testing filter and reset filter', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/order`,
-            method: 'POST'
+            method: 'POST',
         }).as('filterOrder');
 
         // Click Reset All button

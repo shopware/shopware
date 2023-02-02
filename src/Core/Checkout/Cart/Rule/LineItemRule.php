@@ -3,30 +3,25 @@
 namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
+#[Package('business-ops')]
 class LineItemRule extends Rule
 {
-    /**
-     * @var array<string>|null
-     */
-    protected ?array $identifiers;
-
-    protected string $operator;
+    final public const RULE_NAME = 'cartLineItem';
 
     /**
+     * @param list<string>|null $identifiers
+     *
      * @internal
      */
-    public function __construct(string $operator = self::OPERATOR_EQ, ?array $identifiers = null)
+    public function __construct(protected string $operator = self::OPERATOR_EQ, protected ?array $identifiers = null)
     {
         parent::__construct();
-
-        $this->operator = $operator;
-        $this->identifiers = $identifiers;
     }
 
     public function match(RuleScope $scope): bool
@@ -39,7 +34,7 @@ class LineItemRule extends Rule
             return false;
         }
 
-        foreach ($scope->getCart()->getLineItems()->getFlat() as $lineItem) {
+        foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
             if ($this->lineItemMatches($lineItem)) {
                 return true;
             }
@@ -49,7 +44,7 @@ class LineItemRule extends Rule
     }
 
     /**
-     * @return array<string>|null
+     * @return list<string>|null
      */
     public function getIdentifiers(): ?array
     {
@@ -64,11 +59,6 @@ class LineItemRule extends Rule
         ];
     }
 
-    public function getName(): string
-    {
-        return 'cartLineItem';
-    }
-
     private function lineItemMatches(LineItem $lineItem): bool
     {
         $parentId = $lineItem->getPayloadValue('parentId');
@@ -77,11 +67,6 @@ class LineItemRule extends Rule
         }
 
         $referencedId = $lineItem->getReferencedId();
-        if ($referencedId === null) {
-            if (!Feature::isActive('v6.5.0.0')) {
-                return false;
-            }
-        }
 
         return RuleComparison::uuids([$referencedId], $this->identifiers, $this->operator);
     }

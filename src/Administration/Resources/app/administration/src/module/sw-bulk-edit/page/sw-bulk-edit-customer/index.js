@@ -2,14 +2,17 @@ import template from './sw-bulk-edit-customer.html.twig';
 import './sw-bulk-edit-customer.scss';
 import swBulkEditState from '../../state/sw-bulk-edit.state';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { types } = Shopware.Utils;
 const { chunk } = Shopware.Utils.array;
 const { cloneDeep } = Shopware.Utils.object;
 
+/**
+ * @package system-settings
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-bulk-edit-customer', {
+export default {
     template,
 
     inject: [
@@ -51,13 +54,6 @@ Component.register('sw-bulk-edit-customer', {
 
         customerRepository() {
             return this.repositoryFactory.create('customer');
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed
-         */
-        hasSelectedChanges() {
-            return Object.values(this.bulkEditData).some(field => field.isChanged) || this.bulkEditData.length > 0;
         },
 
         customFieldSetCriteria() {
@@ -313,5 +309,4 @@ Component.register('sw-bulk-edit-customer', {
             Shopware.State.commit('context/setApiLanguageId', languageId);
         },
     },
-});
-
+};

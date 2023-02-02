@@ -2,8 +2,8 @@
 
 namespace Shopware\Tests\Unit\Elasticsearch\Profiler;
 
-use Elasticsearch\Namespaces\CatNamespace;
-use Elasticsearch\Namespaces\ClusterNamespace;
+use OpenSearch\Namespaces\CatNamespace;
+use OpenSearch\Namespaces\ClusterNamespace;
 use PHPUnit\Framework\TestCase;
 use Shopware\Elasticsearch\Profiler\ClientProfiler;
 use Shopware\Elasticsearch\Profiler\DataCollector;
@@ -47,6 +47,9 @@ class DataCollectorTest extends TestCase
             ->willReturn($catMock);
 
         $collector = new DataCollector(
+            true,
+            true,
+            $client,
             $client
         );
 
@@ -76,6 +79,9 @@ class DataCollectorTest extends TestCase
             ]);
 
         $collector = new DataCollector(
+            true,
+            true,
+            $client,
             $client
         );
 
@@ -88,6 +94,28 @@ class DataCollectorTest extends TestCase
 
         $collector->reset();
         static::assertCount(0, $collector->getRequests());
+        static::assertEquals(0, $collector->getTime());
+    }
+
+    public function testDisabled(): void
+    {
+        $client = $this->createMock(ClientProfiler::class);
+        $client
+            ->expects(static::never())
+            ->method('cluster');
+
+        $collector = new DataCollector(
+            false,
+            false,
+            $client,
+            $client
+        );
+
+        $collector->collect(
+            new Request(),
+            new Response()
+        );
+
         static::assertEquals(0, $collector->getTime());
     }
 }

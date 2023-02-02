@@ -2,14 +2,15 @@
 
 namespace Shopware\Core\Framework\Store\Struct;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
  * @codeCoverageIgnore
  * Pseudo immutable collection
- *
  * @extends Collection<PluginRegionStruct>
  */
+#[Package('merchant-services')]
 final class PluginRegionCollection extends Collection
 {
     public function getExpectedClass(): string

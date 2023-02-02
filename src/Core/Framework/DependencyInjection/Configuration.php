@@ -2,10 +2,13 @@
 
 namespace Shopware\Core\Framework\DependencyInjection;
 
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\MemorySizeCalculator;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
+#[Package('core')]
 class Configuration implements ConfigurationInterface
 {
     public function getConfigTreeBuilder(): TreeBuilder
@@ -35,6 +38,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createCacheSection())
                 ->append($this->createHtmlSanitizerSection())
                 ->append($this->createIncrementSection())
+                ->append($this->createTwigSection())
             ->end();
 
         return $treeBuilder;
@@ -99,6 +103,13 @@ class Configuration implements ConfigurationInterface
                 ->end()
                 ->arrayNode('allowed_extensions')
                     ->prototype('scalar')->end()
+                ->end()
+                ->arrayNode('private_allowed_extensions')
+                    ->prototype('scalar')->end()
+                ->end()
+                ->enumNode('private_local_download_strategy')
+                    ->defaultValue('php')
+                    ->values(['php', 'x-sendfile', 'x-accel'])
                 ->end()
             ->end();
 
@@ -266,6 +277,8 @@ class Configuration implements ConfigurationInterface
             ->children()
                 ->booleanNode('enable_url_upload_feature')->end()
                 ->booleanNode('enable_url_validation')->end()
+                ->scalarNode('url_upload_max_size')->defaultValue(0)
+                    ->validate()->always()->then(fn ($value) => abs(MemorySizeCalculator::convertToBytes((string) $value)))->end()
             ->end();
 
         return $rootNode;
@@ -316,6 +329,9 @@ class Configuration implements ConfigurationInterface
                     ->defaultValue(14)
                 ->end()
                 ->arrayNode('exclude_exception')
+                    ->prototype('scalar')->end()
+                ->end()
+                ->arrayNode('exclude_events')
                     ->prototype('scalar')->end()
                 ->end()
             ->end();
@@ -582,6 +598,22 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
                 ->arrayNode('integrations')
+                    ->performNoDeepMerging()
+                    ->scalarPrototype()
+                ->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createTwigSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('twig');
+
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
+            ->children()
+                ->arrayNode('allowed_php_functions')
                     ->performNoDeepMerging()
                     ->scalarPrototype()
                 ->end()

@@ -1,6 +1,9 @@
 const { Filter } = Shopware;
 
 /**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
  * Filter which allows you to truncate a string.
  *
  * @param {String} [value='']

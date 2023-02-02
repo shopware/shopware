@@ -2,9 +2,10 @@
 
 namespace Shopware\Core\Test;
 
-use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Exception;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\HttpKernel;
@@ -16,6 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('core')]
 class HttpKernelTest extends TestCase
 {
     use EnvTestBehaviour;
@@ -49,16 +51,17 @@ class HttpKernelTest extends TestCase
  *
  * @method void configureContainer(ContainerBuilder $container, LoaderInterface $loader)
  */
+#[Package('core')]
 class TestKernel extends Kernel
 {
     public function __construct()
     {
-        $urlParams = parse_url($_ENV['DATABASE_URL']);
+        $urlParams = parse_url((string) $_ENV['DATABASE_URL']);
         if ($urlParams === false || !\array_key_exists('user', $urlParams) || !\array_key_exists('pass', $urlParams)) {
-            throw new DBALException('Could not parse DATABASE_URL');
+            throw new Exception('Could not parse DATABASE_URL');
         }
 
-        throw new DBALException(vsprintf(
+        throw new Exception(vsprintf(
             'Could not connect to the server as %s with the password %s with connection string %s',
             [$urlParams['user'], $urlParams['pass'], $_ENV['DATABASE_URL']]
         ));

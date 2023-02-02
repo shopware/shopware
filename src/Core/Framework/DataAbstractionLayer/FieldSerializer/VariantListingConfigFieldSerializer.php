@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\VariantListingConfigField
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Validator\Constraints\Collection;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -20,6 +21,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
+#[Package('core')]
 class VariantListingConfigFieldSerializer extends AbstractFieldSerializer
 {
     /**
@@ -55,7 +57,7 @@ class VariantListingConfigFieldSerializer extends AbstractFieldSerializer
         yield 'configurator_group_config' => $configuratorGroupConfig;
     }
 
-    public function decode(Field $field, $value): ?VariantListingConfig
+    public function decode(Field $field, mixed $value): ?VariantListingConfig
     {
         if ($value === null) {
             return null;

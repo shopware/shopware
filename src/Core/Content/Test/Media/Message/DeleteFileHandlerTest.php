@@ -31,13 +31,13 @@ class DeleteFileHandlerTest extends TestCase
         $file1 = 'test/file1.txt';
         $file2 = 'test/file2.txt';
 
-        $filesystem->put($file1, 'file 1 content');
-        $filesystem->put($file2, 'file 2 content');
+        $filesystem->write($file1, 'file 1 content');
+        $filesystem->write($file2, 'file 2 content');
 
         $deleteMsg = new DeleteFileMessage();
         $deleteMsg->setFiles([$file1, $file2]);
 
-        $this->handler->handle($deleteMsg);
+        $this->handler->__invoke($deleteMsg);
 
         static::assertFalse($filesystem->has($file1));
         static::assertFalse($filesystem->has($file2));
@@ -51,13 +51,13 @@ class DeleteFileHandlerTest extends TestCase
         $file2 = 'test/file2.txt';
         $file3 = 'test/file3.txt';
 
-        $filesystem->put($file1, 'file 1 content');
-        $filesystem->put($file3, 'file 3 content');
+        $filesystem->write($file1, 'file 1 content');
+        $filesystem->write($file3, 'file 3 content');
 
         $deleteMsg = new DeleteFileMessage();
         $deleteMsg->setFiles([$file1, $file2, $file3]);
 
-        $this->handler->handle($deleteMsg);
+        $this->handler->__invoke($deleteMsg);
 
         static::assertFalse($filesystem->has($file1));
         static::assertFalse($filesystem->has($file2));

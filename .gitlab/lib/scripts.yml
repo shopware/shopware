@@ -2,7 +2,7 @@
   # install node $NODE_VERSION
   install-node:
       script:
-        - export NODE_VERSION="${NODE_VERSION:-16}"
+        - export NODE_VERSION="${NODE_VERSION:-18}"
         - export NVM_DIR=/opt/nvm
         # found no way to automatically load shell initialization scripts in gitlab
         - bash -c '\. "$NVM_DIR/nvm.sh" && nvm install $NODE_VERSION'

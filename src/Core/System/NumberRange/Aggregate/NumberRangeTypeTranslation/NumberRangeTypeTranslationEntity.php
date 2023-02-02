@@ -4,8 +4,10 @@ namespace Shopware\Core\System\NumberRange\Aggregate\NumberRangeTypeTranslation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\NumberRange\Aggregate\NumberRangeType\NumberRangeTypeEntity;
 
+#[Package('checkout')]
 class NumberRangeTypeTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;

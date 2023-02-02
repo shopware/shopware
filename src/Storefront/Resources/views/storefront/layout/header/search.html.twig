@@ -27,26 +27,13 @@
                         {% endblock %}
 
                         {% block layout_header_search_button %}
-                            {# @deprecated tag:v6.5.0 - Bootstrap v5 removes `input-group-append` wrapper and uses elements as direct children of `input-group` #}
-                            {% if feature('v6.5.0.0') %}
-                                <button type="submit"
-                                        class="btn header-search-btn"
-                                        aria-label="{{ "header.searchButton"|trans|striptags }}">
-                                    <span class="header-search-icon">
-                                        {% sw_icon 'search' %}
-                                    </span>
-                                </button>
-                            {% else %}
-                                <div class="input-group-append">
-                                    <button type="submit"
-                                            class="btn header-search-btn"
-                                            aria-label="{{ "header.searchButton"|trans|striptags }}">
-                                        <span class="header-search-icon">
-                                            {% sw_icon 'search' %}
-                                        </span>
-                                    </button>
-                                </div>
-                            {% endif %}
+                            <button type="submit"
+                                    class="btn header-search-btn"
+                                    aria-label="{{ "header.searchButton"|trans|striptags }}">
+                                <span class="header-search-icon">
+                                    {% sw_icon 'search' %}
+                                </span>
+                            </button>
                         {% endblock %}
                     </div>
                 {% endblock %}

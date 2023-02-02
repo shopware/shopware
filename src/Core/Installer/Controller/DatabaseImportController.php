@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Installer\Controller;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Installer\Database\BlueGreenDeploymentService;
 use Shopware\Core\Installer\Database\DatabaseMigrator;
 use Shopware\Core\Maintenance\System\Service\DatabaseConnectionFactory;
@@ -16,22 +16,14 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @internal
  */
+#[Package('core')]
 class DatabaseImportController extends InstallerController
 {
-    private DatabaseConnectionFactory $connectionFactory;
-
-    private DatabaseMigrator $migrator;
-
-    public function __construct(DatabaseConnectionFactory $connectionFactory, DatabaseMigrator $migrator)
+    public function __construct(private readonly DatabaseConnectionFactory $connectionFactory, private readonly DatabaseMigrator $migrator)
     {
-        $this->connectionFactory = $connectionFactory;
-        $this->migrator = $migrator;
     }
 
-    /**
-     * @Since("6.4.15.0")
-     * @Route("/installer/database-import", name="installer.database-import", methods={"GET"})
-     */
+    #[Route(path: '/installer/database-import', name: 'installer.database-import', methods: ['GET'])]
     public function databaseImport(Request $request): Response
     {
         $session = $request->getSession();
@@ -50,10 +42,7 @@ class DatabaseImportController extends InstallerController
         );
     }
 
-    /**
-     * @Since("6.4.15.0")
-     * @Route("/installer/database-migrate", name="installer.database-migrate", methods={"POST"})
-     */
+    #[Route(path: '/installer/database-migrate', name: 'installer.database-migrate', methods: ['POST'])]
     public function databaseMigrate(Request $request): JsonResponse
     {
         $session = $request->getSession();
@@ -72,7 +61,7 @@ class DatabaseImportController extends InstallerController
         try {
             $connection = $this->connectionFactory->getConnection($connectionInfo);
 
-            $offset = json_decode($request->getContent(), true, 512, \JSON_THROW_ON_ERROR)['offset'] ?? 0;
+            $offset = json_decode((string) $request->getContent(), true, 512, \JSON_THROW_ON_ERROR)['offset'] ?? 0;
             $result = $this->migrator->migrate($offset, $connection);
 
             return new JsonResponse($result);

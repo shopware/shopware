@@ -1,14 +1,20 @@
 import template from './sw-cms-list.html.twig';
 import './sw-cms-list.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-cms-list', {
+export default {
     template,
 
-    inject: ['repositoryFactory', 'acl', 'feature', 'systemConfigApiService'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+        'feature',
+        'systemConfigApiService',
+        'cmsPageTypeService',
+    ],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -33,6 +39,8 @@ Component.register('sw-cms-list', {
             currentPageType: null,
             showMediaModal: false,
             currentPage: null,
+            showRenameModal: false,
+            newName: null,
             showDeleteModal: false,
             defaultMediaFolderId: null,
             listMode: 'grid',
@@ -64,6 +72,9 @@ Component.register('sw-cms-list', {
             return this.getColumnConfig();
         },
 
+        /**
+         * @deprecated tag:v6.6.0 - Will be removed
+         */
         sortOptions() {
             return [
                 { value: 'createdAt:DESC', name: this.$tc('sw-cms.sorting.labelSortByCreatedDsc') },
@@ -74,44 +85,26 @@ Component.register('sw-cms-list', {
         },
 
         sortPageTypes() {
-            const sortPageTypes = [
-                { value: '', name: this.$tc('sw-cms.sorting.labelSortByAllPages'), active: true },
-                { value: 'page', name: this.$tc('sw-cms.sorting.labelSortByShopPages') },
-                { value: 'landingpage', name: this.$tc('sw-cms.sorting.labelSortByLandingPages') },
-                { value: 'product_list', name: this.$tc('sw-cms.sorting.labelSortByCategoryPages') },
-                { value: 'product_detail', name: this.$tc('sw-cms.sorting.labelSortByProductPages') },
-            ];
-
-            return sortPageTypes;
-        },
-
-        pageTypes() {
-            const pageTypes = {
-                page: this.$tc('sw-cms.sorting.labelSortByShopPages'),
-                landingpage: this.$tc('sw-cms.sorting.labelSortByLandingPages'),
-                product_list: this.$tc('sw-cms.sorting.labelSortByCategoryPages'),
-                product_detail: this.$tc('sw-cms.sorting.labelSortByProductPages'),
+            const sortByAllPagesOption = {
+                value: '',
+                name: this.$tc('sw-cms.sorting.labelSortByAllPages'),
+                active: true,
             };
 
-            return pageTypes;
-        },
+            return this.cmsPageTypeService.getTypes().reduce((accumulator, pageType) => {
+                accumulator.push({
+                    value: pageType.name,
+                    name: this.$tc(pageType.title),
+                });
 
-        sortingConCat() {
-            return `${this.sortBy}:${this.sortDirection}`;
+                return accumulator;
+            }, [sortByAllPagesOption]);
         },
 
         listCriteria() {
             const criteria = new Criteria(this.page, this.limit);
             criteria.addAssociation('previewMedia')
                 .addSorting(Criteria.sort(this.sortBy, this.sortDirection));
-
-            /**
-             * @deprecated tag:v6.5.0 - Association will be removed
-             */
-            if (!this.feature.isActive('v6.5.0.0')) {
-                criteria.addAssociation('products');
-                criteria.getAssociation('products').setLimit(25);
-            }
 
             if (this.term !== null) {
                 criteria.setTerm(this.term);
@@ -406,17 +399,40 @@ Component.register('sw-cms-list', {
             this.currentPage.previewMedia = image;
         },
 
+        onRenameCmsPage(page) {
+            this.currentPage = page;
+            this.showRenameModal = true;
+        },
+
+        onCloseRenameModal() {
+            this.currentPage = null;
+            this.showRenameModal = false;
+        },
+
+        onConfirmPageRename() {
+            if (this.newName) {
+                this.currentPage.name = this.newName;
+                this.saveCmsPage(this.currentPage);
+                this.getList();
+            }
+            this.newName = null;
+            this.currentPage = null;
+            this.showRenameModal = false;
+        },
+
         onDeleteCmsPage(page) {
             this.currentPage = page;
             this.showDeleteModal = true;
         },
 
-        onDuplicateCmsPage(page) {
-            const behavior = {
-                overwrites: {
-                    name: `${page.name} - ${this.$tc('global.default.copy')}`,
-                },
-            };
+        onDuplicateCmsPage(page, behavior = { overwrites: {} }) {
+            if (!behavior.overwrites) {
+                behavior.overwrites = {};
+            }
+
+            if (!behavior.overwrites.name) {
+                behavior.overwrites.name = `${page.name} - ${this.$tc('global.default.copy')}`;
+            }
 
             this.isLoading = true;
             this.pageRepository.clone(page.id, Shopware.Context.api, behavior).then(() => {
@@ -424,6 +440,9 @@ Component.register('sw-cms-list', {
                 this.isLoading = false;
             }).catch(() => {
                 this.isLoading = false;
+                this.createNotificationError({
+                    message: this.$tc('global.notification.unspecifiedSaveErrorMessage'),
+                });
             });
         },
 
@@ -439,9 +458,9 @@ Component.register('sw-cms-list', {
             this.showDeleteModal = false;
         },
 
-        saveCmsPage(page) {
+        saveCmsPage(page, context = Shopware.Context.api) {
             this.isLoading = true;
-            return this.pageRepository.save(page).then(() => {
+            return this.pageRepository.save(page, context).then(() => {
                 this.isLoading = false;
             }).catch(() => {
                 this.isLoading = false;
@@ -508,7 +527,9 @@ Component.register('sw-cms-list', {
         getPageType(page) {
             const isDefault = [this.defaultProductId, this.defaultCategoryId].includes(page.id);
             const defaultText = this.$tc('sw-cms.components.cmsListItem.defaultLayout');
-            return isDefault ? `${defaultText} - ${this.pageTypes[page.type]}` : this.pageTypes[page.type];
+            const typeLabel = this.$tc(this.cmsPageTypeService.getType(page.type)?.title);
+
+            return isDefault ? `${defaultText} - ${typeLabel}` : typeLabel;
         },
 
         getPageCategoryCount(page) {
@@ -534,4 +555,4 @@ Component.register('sw-cms-list', {
                 !this.acl.can('cms.deleter');
         },
     },
-});
+};

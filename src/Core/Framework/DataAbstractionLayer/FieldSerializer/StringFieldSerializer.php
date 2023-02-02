@@ -11,7 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\Length;
@@ -20,23 +20,20 @@ use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
  */
+#[Package('core')]
 class StringFieldSerializer extends AbstractFieldSerializer
 {
-    private HtmlSanitizer $sanitizer;
-
     /**
      * @internal
      */
     public function __construct(
         ValidatorInterface $validator,
         DefinitionInstanceRegistry $definitionRegistry,
-        HtmlSanitizer $sanitizer
+        private readonly HtmlSanitizer $sanitizer
     ) {
         parent::__construct($validator, $definitionRegistry);
-
-        $this->sanitizer = $sanitizer;
     }
 
     public function encode(
@@ -50,8 +47,7 @@ class StringFieldSerializer extends AbstractFieldSerializer
         }
 
         $tmp = $data->getValue();
-        // @deprecated tag:v6.5.0 - remove Feature::isActive check
-        if (\is_string($tmp) && Feature::isActive('v6.5.0.0')) {
+        if (\is_string($tmp)) {
             $tmp = trim($tmp);
         }
 
@@ -68,7 +64,7 @@ class StringFieldSerializer extends AbstractFieldSerializer
         yield $field->getStorageName() => $data->getValue() !== null ? (string) $data->getValue() : null;
     }
 
-    public function decode(Field $field, $value): ?string
+    public function decode(Field $field, mixed $value): ?string
     {
         if ($value === null) {
             return $value;

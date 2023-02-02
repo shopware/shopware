@@ -36,6 +36,14 @@
                         {{ getSectionName(section) }}
                     </span>
                     {% endblock %}
+
+                    <div class="sw-cms-page-form__device-actions">
+                        <sw-icon :name="getDeviceActive('mobile', section)" />
+
+                        <sw-icon :name="getDeviceActive('tablet', section)" />
+
+                        <sw-icon :name="getDeviceActive('desktop', section)" />
+                    </div>
                 </div>
                 {% endblock %}
             </div>
@@ -112,6 +120,15 @@
                     class="sw-cms-page-form__block-card"
                     :title="$tc(getBlockTitle(block))"
                 >
+                    <template #header-right>
+                        <div class="sw-cms-page-form__block-device-actions">
+                            <sw-icon :name="getDeviceActive('mobile', section, block)" />
+
+                            <sw-icon :name="getDeviceActive('tablet', section, block)" />
+
+                            <sw-icon :name="getDeviceActive('desktop', section, block)" />
+                        </div>
+                    </template>
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_page_form_card_content %}
@@ -120,6 +137,12 @@
                         :key="blockIndex"
                         class="sw-cms-page-form__element-config"
                     >
+
+                        <template v-if="displayNotification(section, block)">
+                            <sw-alert variant="info">
+                                {{ $tc('sw-cms.blocks.blockDisableState') }}
+                            </sw-alert>
+                        </template>
 
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_cms_page_form_element_config %}

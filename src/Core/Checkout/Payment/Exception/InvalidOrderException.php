@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\Checkout\Payment\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+#[Package('checkout')]
 class InvalidOrderException extends ShopwareHttpException
 {
     public function __construct(string $orderId, ?\Throwable $e = null)

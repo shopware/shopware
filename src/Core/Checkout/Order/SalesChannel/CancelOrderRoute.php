@@ -3,36 +3,27 @@
 namespace Shopware\Core\Checkout\Order\SalesChannel;
 
 use Shopware\Core\Checkout\Cart\CartException;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route(defaults={"_routeScope"={"store-api"}})
- */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Package('customer-order')]
 class CancelOrderRoute extends AbstractCancelOrderRoute
 {
-    private OrderService $orderService;
-
-    private EntityRepositoryInterface $orderRepository;
-
     /**
      * @internal
      */
-    public function __construct(OrderService $orderService, EntityRepositoryInterface $orderRepository)
+    public function __construct(private readonly OrderService $orderService, private readonly EntityRepository $orderRepository)
     {
-        $this->orderService = $orderService;
-        $this->orderRepository = $orderRepository;
     }
 
     public function getDecorated(): AbstractCancelOrderRoute
@@ -40,10 +31,7 @@ class CancelOrderRoute extends AbstractCancelOrderRoute
         throw new DecorationPatternException(self::class);
     }
 
-    /**
-    * @Since("6.2.0.0")
-    * @Route(path="/store-api/order/state/cancel", name="store-api.order.state.cancel", methods={"POST"}, defaults={"_loginRequired"=true, "_loginRequiredAllowGuest"=true})
-    */
+    #[Route(path: '/store-api/order/state/cancel', name: 'store-api.order.state.cancel', methods: ['POST'], defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true])]
     public function cancel(Request $request, SalesChannelContext $context): CancelOrderRouteResponse
     {
         $orderId = $request->get('orderId', null);

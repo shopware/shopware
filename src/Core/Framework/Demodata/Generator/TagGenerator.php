@@ -6,24 +6,23 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Tag\TagDefinition;
 
+/**
+ * @internal
+ */
+#[Package('core')]
 class TagGenerator implements DemodataGeneratorInterface
 {
-    private EntityWriterInterface $writer;
-
-    private TagDefinition $tagDefinition;
-
     /**
      * @internal
      */
     public function __construct(
-        EntityWriterInterface $writer,
-        TagDefinition $tagDefinition
+        private readonly EntityWriterInterface $writer,
+        private readonly TagDefinition $tagDefinition
     ) {
-        $this->writer = $writer;
-        $this->tagDefinition = $tagDefinition;
     }
 
     public function getDefinition(): string

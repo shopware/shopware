@@ -2,33 +2,26 @@
 
 describe('User: Test crud operations', () => {
     beforeEach(() => {
-        cy.clearCookies();
-        cy.clearCookie('bearerAuth');
-        cy.clearCookie('refreshBearerAuth');
-
-        cy.loginViaApi()
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/users/permissions/index`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
-            });
+        cy.openInitialPage(`${Cypress.env('admin')}#/sw/users/permissions/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
     });
 
     it('@settings: create and delete user', { tags: ['pa-system-settings'] }, () => {
         // Requests we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/user`,
-            method: 'POST'
+            method: 'POST',
         }).as('createCall');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/user/**`,
-            method: 'delete'
+            method: 'delete',
         }).as('deleteCall');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/oauth/token`,
-            method: 'POST'
+            method: 'POST',
         }).as('oauthCall');
 
         // create a new user
@@ -42,7 +35,7 @@ describe('User: Test crud operations', () => {
             '#sw-field--user-lastName': 'Allison',
             '#sw-field--user-email': 'test@shopware.com',
             '#sw-field--user-username': 'abraham',
-            '.sw-field--password__container > input[type=password]': 'mesecurepassword'
+            '.sw-field--password__container > input[type=password]': 'mesecurepassword',
         };
 
         Object.keys(userFields).forEach((key) => {
@@ -88,7 +81,7 @@ describe('User: Test crud operations', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/user`,
-            method: 'POST'
+            method: 'POST',
         }).as('userSearchCall');
 
         cy.get('.sw-users-permissions-user-listing .sw-simple-search-field')
@@ -103,7 +96,7 @@ describe('User: Test crud operations', () => {
         cy.clickContextMenuItem(
             '.sw-settings-user-list__user-delete-action',
             '.sw-context-button__button',
-            '.sw-data-grid__row--0'
+            '.sw-data-grid__row--0',
         );
 
         // expect modal to be open
@@ -130,17 +123,17 @@ describe('User: Test crud operations', () => {
         cy.awaitAndCheckNotification('User "Abraham Allison " deleted.');
     });
 
-    it('@settings: update existing user', { tags: ['pa-system-settings'] }, () => {
+    it('@settings: update existing user', { tags: ['pa-system-settings', 'quarantined'] }, () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/oauth/token`,
-            method: 'POST'
+            method: 'POST',
         }).as('oauthCall');
 
         cy.clickContextMenuItem(
             '.sw-settings-user-list__user-view-action',
             '.sw-context-button__button',
-            '.sw-data-grid__row--0'
+            '.sw-data-grid__row--0',
         );
 
         cy.get('#sw-field--user-email')
@@ -179,16 +172,16 @@ describe('User: Test crud operations', () => {
             .should('have.value', 'changed@shopware.com');
     });
 
-    it('@settings: can not create a user with an invalid field', { tags: ['pa-system-settings'] }, () => {
+    it('@settings: can not create a user with an invalid field', { tags: ['pa-system-settings', 'quarantined'] }, () => {
         // Requests we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/user`,
-            method: 'POST'
+            method: 'POST',
         }).as('createCall');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/oauth/token`,
-            method: 'POST'
+            method: 'POST',
         }).as('oauthCall');
 
         // create a new user
@@ -200,7 +193,7 @@ describe('User: Test crud operations', () => {
         const userFields = {
             '#sw-field--user-lastName': 'Allison',
             '#sw-field--user-email': 'test@shopware.com',
-            '#sw-field--user-username': 'abraham'
+            '#sw-field--user-username': 'abraham',
         };
 
         Object.keys(userFields).forEach((key) => {
@@ -245,9 +238,5 @@ describe('User: Test crud operations', () => {
             .should('be.visible');
         cy.contains('.sw-settings-user-detail__grid-password .sw-field__error', 'This field must not be empty.')
             .should('be.visible');
-
-        cy.clearCookies();
-        cy.clearCookie('bearerAuth');
-        cy.clearCookie('refreshBearerAuth');
     });
 });

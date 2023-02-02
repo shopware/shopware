@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Test\Api\EventListener;
 use Composer\InstalledVersions;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\EventListener\ExpectationSubscriber;
-use Shopware\Core\Framework\Api\Exception\ExceptionFailedException;
+use Shopware\Core\Framework\Api\Exception\ExpectationFailedException;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Kernel;
 use Shopware\Core\PlatformRequest;
@@ -24,9 +24,20 @@ class ExpectationSubscriberTest extends TestCase
     {
         $this->expectationSubscriber = new ExpectationSubscriber('6.3.0.0', []);
         InstalledVersions::reload([
+            'root' => [
+                'name' => 'shopware/production',
+                'pretty_version' => '6.3.0.0',
+                'version' => '6.3.0.0',
+                'reference' => 'foo',
+                'type' => 'project',
+                'install_path' => __DIR__,
+                'aliases' => [],
+                'dev' => false,
+            ],
             'versions' => [
                 'shopware/core' => [
                     'version' => '6.3.0.0',
+                    'dev_requirement' => false,
                 ],
             ],
         ]);
@@ -39,12 +50,12 @@ class ExpectationSubscriberTest extends TestCase
 
         $event = new ControllerEvent(
             $this->createMock(Kernel::class),
-            [$this, 'setUp'],
+            $this->setUp(...),
             $request,
-            HttpKernelInterface::MASTER_REQUEST
+            HttpKernelInterface::MAIN_REQUEST
         );
 
-        static::expectException(ExceptionFailedException::class);
+        static::expectException(ExpectationFailedException::class);
 
         $this->expectationSubscriber->checkExpectations($event);
     }
@@ -59,9 +70,9 @@ class ExpectationSubscriberTest extends TestCase
 
         $event = new ControllerEvent(
             $this->createMock(Kernel::class),
-            [$this, 'setUp'],
+            $this->setUp(...),
             $request,
-            HttpKernelInterface::MASTER_REQUEST
+            HttpKernelInterface::MAIN_REQUEST
         );
 
         $this->expectationSubscriber->checkExpectations($event);
@@ -74,12 +85,12 @@ class ExpectationSubscriberTest extends TestCase
 
         $event = new ControllerEvent(
             $this->createMock(Kernel::class),
-            [$this, 'setUp'],
+            $this->setUp(...),
             $request,
-            HttpKernelInterface::MASTER_REQUEST
+            HttpKernelInterface::MAIN_REQUEST
         );
 
-        static::expectException(ExceptionFailedException::class);
+        static::expectException(ExpectationFailedException::class);
 
         $this->expectationSubscriber->checkExpectations($event);
     }
@@ -96,9 +107,9 @@ class ExpectationSubscriberTest extends TestCase
 
         $event = new ControllerEvent(
             $this->createMock(Kernel::class),
-            [$this, 'setUp'],
+            $this->setUp(...),
             $request,
-            HttpKernelInterface::MASTER_REQUEST
+            HttpKernelInterface::MAIN_REQUEST
         );
 
         $this->expectationSubscriber->checkExpectations($event);
@@ -113,12 +124,12 @@ class ExpectationSubscriberTest extends TestCase
 
         $event = new ControllerEvent(
             $this->createMock(Kernel::class),
-            [$this, 'setUp'],
+            $this->setUp(...),
             $request,
-            HttpKernelInterface::MASTER_REQUEST
+            HttpKernelInterface::MAIN_REQUEST
         );
 
-        static::expectException(ExceptionFailedException::class);
+        static::expectException(ExpectationFailedException::class);
 
         $this->expectationSubscriber->checkExpectations($event);
     }

@@ -9,36 +9,23 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
+#[Package('core')]
 class ProductReviewGenerator implements DemodataGeneratorInterface
 {
-    /**
-     * @var EntityWriterInterface
-     */
-    private $writer;
-
-    /**
-     * @var ProductReviewDefinition
-     */
-    private $productReviewDefinition;
-
-    /**
-     * @var Connection
-     */
-    private $connection;
-
     /**
      * @internal
      */
     public function __construct(
-        EntityWriterInterface $writer,
-        ProductReviewDefinition $productReviewDefinition,
-        Connection $connection
+        private readonly EntityWriterInterface $writer,
+        private readonly ProductReviewDefinition $productReviewDefinition,
+        private readonly Connection $connection
     ) {
-        $this->writer = $writer;
-        $this->productReviewDefinition = $productReviewDefinition;
-        $this->connection = $connection;
     }
 
     public function getDefinition(): string
@@ -46,6 +33,9 @@ class ProductReviewGenerator implements DemodataGeneratorInterface
         return ProductReviewDefinition::class;
     }
 
+    /**
+     * @param array<mixed> $options
+     */
     public function generate(int $numberOfItems, DemodataContext $context, array $options = []): void
     {
         $context->getConsole()->progressStart($numberOfItems);
@@ -64,6 +54,8 @@ class ProductReviewGenerator implements DemodataGeneratorInterface
                 'customerId' => $context->getFaker()->randomElement($customerIds),
                 'salesChannelId' => $salesChannelIds[array_rand($salesChannelIds)],
                 'languageId' => Defaults::LANGUAGE_SYSTEM,
+                'externalUser' => $context->getFaker()->name,
+                'externalEmail' => $context->getFaker()->email,
                 'title' => $context->getFaker()->sentence(),
                 'content' => $context->getFaker()->text(),
                 'points' => $context->getFaker()->randomElement($points),
@@ -81,20 +73,26 @@ class ProductReviewGenerator implements DemodataGeneratorInterface
         $context->getConsole()->progressFinish();
     }
 
+    /**
+     * @return array<string>
+     */
     private function getCustomerIds(): array
     {
         $sql = 'SELECT LOWER(HEX(id)) as id FROM customer LIMIT 200';
 
-        $customerIds = $this->connection->fetchAll($sql);
+        $customerIds = $this->connection->fetchAllAssociative($sql);
 
         return array_column($customerIds, 'id');
     }
 
+    /**
+     * @return array<string>
+     */
     private function getProductIds(): array
     {
-        $sql = 'SELECT LOWER(HEX(id)) as id FROM product LIMIT 200';
+        $sql = 'SELECT LOWER(HEX(id)) as id FROM product WHERE version_id = :liveVersionId LIMIT 200';
 
-        $productIds = $this->connection->fetchAll($sql);
+        $productIds = $this->connection->fetchAllAssociative($sql, ['liveVersionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)]);
 
         return array_column($productIds, 'id');
     }

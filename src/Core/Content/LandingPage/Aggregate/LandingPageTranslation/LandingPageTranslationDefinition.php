@@ -12,10 +12,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('content')]
 class LandingPageTranslationDefinition extends EntityTranslationDefinition
 {
-    public const ENTITY_NAME = 'landing_page_translation';
+    final public const ENTITY_NAME = 'landing_page_translation';
 
     public function getEntityName(): string
     {

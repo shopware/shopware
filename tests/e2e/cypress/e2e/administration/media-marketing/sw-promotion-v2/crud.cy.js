@@ -1,3 +1,6 @@
+/**
+ * @package checkout
+ */
 // / <reference types="Cypress" />
 
 import ProductPageObject from '../../../../support/pages/module/sw-product.page-object';
@@ -6,19 +9,17 @@ const multiSelectFirstSelector = '.sw-select-selection-list__item-holder--0';
 
 describe('Promotion v2: Test crud operations', () => {
     beforeEach(() => {
-        cy.loginViaApi().then(() => {
-            return cy.createDefaultFixture('promotion');
-        }).then(() => {
+        cy.createDefaultFixture('promotion').then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/promotion/v2/index`);
             cy.get('.sw-skeleton').should('not.exist');
             cy.get('.sw-loader').should('not.exist');
         });
     });
 
-    it('@base @marketing: create, update and read promotion', { tags: ['quarantined', 'pa-checkout'] }, () => {
+    it('@base @marketing: create, update and read promotion', { tags: ['pa-checkout'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/promotion`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         cy.waitFor('.sw-promotion-v2-list__smart-bar-button-add');
@@ -140,7 +141,7 @@ describe('Promotion v2: Test crud operations', () => {
 
         cy.get('.sw-promotion-discount-component')
             .should('not.exist');
-        cy.get('.sw-card--hero button')
+        cy.get('.promotion-detail-discounts__action_add button')
             .click();
         cy.get('.sw-promotion-discount-component')
             .should('be.visible');
@@ -168,14 +169,14 @@ describe('Promotion v2: Test crud operations', () => {
 
         cy.contains('.sw-data-grid__cell--name > .sw-data-grid__cell-content', 'Funicular prices');
         cy.get('.sw-data-grid__cell--active > .sw-data-grid__cell-content > span').should('have.class', 'is--active');
-        cy.contains('.sw-data-grid__cell--validFrom > .sw-data-grid__cell-content', '1 January 2222, 00:00');
-        cy.contains('.sw-data-grid__cell--validUntil > .sw-data-grid__cell-content', '2 February 2222, 00:00');
+        cy.contains('.sw-data-grid__cell--validFrom > .sw-data-grid__cell-content', '1 January 2222 at 00:00');
+        cy.contains('.sw-data-grid__cell--validUntil > .sw-data-grid__cell-content', '2 February 2222 at 00:00');
     });
 
     it('@base @marketing: create promotion in non system language', { tags: ['pa-checkout'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/promotion`,
-            method: 'POST'
+            method: 'POST',
         }).as('getData');
 
         cy.waitFor('.sw-language-switch');
@@ -196,14 +197,14 @@ describe('Promotion v2: Test crud operations', () => {
         const page = new ProductPageObject();
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/promotion/*`,
-            method: 'delete'
+            method: 'delete',
         }).as('deleteData');
 
         // Delete product
         cy.clickContextMenuItem(
             '.sw-context-menu-item--danger',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
         cy.contains(`${page.elements.modal} .sw-listing__confirm-delete-text`,
             'Are you sure you want to delete this item?');

@@ -1,6 +1,9 @@
 import Iterator from 'src/helper/iterator.helper';
 import DomAccess from 'src/helper/dom-access.helper';
 
+/**
+ * @package storefront
+ */
 class ElementReplaceHelperSingleton {
 
     constructor() {

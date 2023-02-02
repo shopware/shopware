@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import { email } from 'src/core/service/validation.service';
 import template from './sw-users-permissions-user-detail.html.twig';
 import './sw-users-permissions-user-detail.scss';
@@ -8,7 +11,7 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 const { warn } = Shopware.Utils.debug;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-users-permissions-user-detail', {
+export default {
     template,
 
     inject: [
@@ -68,6 +71,7 @@ Component.register('sw-users-permissions-user-detail', {
             'email',
             'username',
             'localeId',
+            'password',
         ]),
 
         identifier() {
@@ -192,6 +196,11 @@ Component.register('sw-users-permissions-user-detail', {
 
     methods: {
         createdComponent() {
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-users-permissions-user-detail__currentUser',
+                path: 'currentUser',
+                scope: this,
+            });
             this.isLoading = true;
 
             if (!this.languageId) {
@@ -467,4 +476,4 @@ Component.register('sw-users-permissions-user-detail', {
             this.confirmPasswordModal = false;
         },
     },
-});
+};

@@ -1,9 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Store\Checkout\Payment;
+namespace Shopware\Tests\Unit\Storefront\Checkout\Payment;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Payment\Cart\Error\PaymentMethodBlockedError;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
@@ -12,11 +11,15 @@ use Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute;
 use Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRouteResponse;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NandFilter;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Checkout\Cart\Error\PaymentMethodChangedError;
 use Shopware\Storefront\Checkout\Payment\BlockedPaymentMethodSwitcher;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
@@ -24,194 +27,270 @@ use Shopware\Storefront\Checkout\Payment\BlockedPaymentMethodSwitcher;
  */
 class BlockedPaymentMethodSwitcherTest extends TestCase
 {
+    private PaymentMethodCollection $paymentMethodCollection;
+
+    private SalesChannelContext $salesChannelContext;
+
+    private BlockedPaymentMethodSwitcher $switcher;
+
     protected function setUp(): void
     {
+        $this->paymentMethodCollection = new PaymentMethodCollection([
+            (new PaymentMethodEntity())->assign([
+                'id' => 'original-payment-method-id',
+                'name' => 'original-payment-method-name',
+                'translated' => ['name' => 'original-payment-method-name'],
+            ]),
+            (new PaymentMethodEntity())->assign([
+                'id' => 'any-other-payment-method-id',
+                'name' => 'any-other-payment-method-name',
+                'translated' => ['name' => 'any-other-payment-method-name'],
+            ]),
+            (new PaymentMethodEntity())->assign([
+                'id' => 'default-payment-method-id',
+                'name' => 'default-payment-method-name',
+                'translated' => ['name' => 'default-payment-method-name'],
+            ]),
+        ]);
+
+        $this->salesChannelContext = $this->getSalesChannelContext();
+        $this->switcher = new BlockedPaymentMethodSwitcher(
+            $this->getPaymentMethodRoute()
+        );
     }
 
-    /**
-     * @dataProvider getSwitchData
-     *
-     * @param array<string> $targets
-     */
-    public function testSwitch(array $targets): void
+    public function testSwitchDoesNotSwitchWithNoErrors(): void
     {
-        $blockedPaymentMethodSwitcher = $this->getBlockedPaymentMethodSwitcher($targets);
-        $errorCollection = $this->getErrorCollection($targets);
-        $salesChannelContext = $this->getSalesChannelContext($targets);
-        $newPaymentMethod = $blockedPaymentMethodSwitcher->switch($errorCollection, $salesChannelContext);
+        $errorCollection = $this->getErrorCollection();
+        $newPaymentMethod = $this->switcher->switch($errorCollection, $this->salesChannelContext);
 
-        if (\in_array('block', $targets, true)) {
-            if (\in_array('empty-any-payment-method', $targets, true)) {
-                static::assertEquals($this->getOriginalPaymentMethod(), $newPaymentMethod);
-            } elseif (\in_array('empty-default-payment-method', $targets, true)) {
-                static::assertEquals($this->getAnyPaymentMethod(), $newPaymentMethod);
-            } elseif (\in_array('block-default-payment-method', $targets, true)) {
-                static::assertEquals($this->getAnyPaymentMethod(), $newPaymentMethod);
-            } elseif (\in_array('block-original-payment-method', $targets, true)) {
-                static::assertEquals($this->getDefaultPaymentMethod(), $newPaymentMethod);
-            }
-        } else {
-            static::assertEquals($this->getOriginalPaymentMethod(), $newPaymentMethod);
-        }
+        static::assertSame('original-payment-method-id', $newPaymentMethod->getId());
 
-        if (\in_array('check-notice', $targets, true)) {
-            $shippingMethodChangedErrors = $errorCollection->filter(static function (Error $error) {
-                return $error instanceof PaymentMethodChangedError;
-            });
+        // Assert notices
+        $errorCollectionFiltered = $errorCollection->filter(
+            fn ($error) => $error instanceof PaymentMethodChangedError
+        );
 
-            $possibleErrors = [];
-            if (\in_array('notice-original-to-default', $targets, true)) {
-                array_push($possibleErrors, [
-                    'newPaymentMethodName' => $this->getDefaultPaymentMethod()->getName(),
-                    'oldPaymentMethodName' => $this->getOriginalPaymentMethod()->getName(),
-                ]);
-            }
-            if (\in_array('notice-original-to-any', $targets, true)) {
-                array_push($possibleErrors, [
-                    'newPaymentMethodName' => $this->getAnyPaymentMethod()->getName(),
-                    'oldPaymentMethodName' => $this->getOriginalPaymentMethod()->getName(),
-                ]);
-            }
-            if (\in_array('notice-default-to-any', $targets, true)) {
-                array_push($possibleErrors, [
-                    'newPaymentMethodName' => $this->getAnyPaymentMethod()->getName(),
-                    'oldPaymentMethodName' => $this->getDefaultPaymentMethod()->getName(),
-                ]);
-            }
-
-            static::assertCount(\count($possibleErrors), $shippingMethodChangedErrors);
-
-            foreach ($shippingMethodChangedErrors as $error) {
-                static::assertContains($error->getParameters(), $possibleErrors);
-            }
-        }
+        static::assertCount(0, $errorCollectionFiltered);
     }
 
-    /**
-     * @return array<int, array<int, array<int, string>>>
-     */
-    public function getSwitchData(): array
+    public function testSwitchBlockedOriginalSwitchToDefault(): void
     {
-        return [
+        $errorCollection = $this->getErrorCollection(['original-payment-method-name']);
+        $newPaymentMethod = $this->switcher->switch($errorCollection, $this->salesChannelContext);
+
+        static::assertSame('default-payment-method-id', $newPaymentMethod->getId());
+
+        // Assert notices
+        $errorCollectionFiltered = $errorCollection->filter(
+            fn ($error) => $error instanceof PaymentMethodChangedError
+        );
+        static::assertCount(1, $errorCollectionFiltered);
+        static::assertSame([
+            'newPaymentMethodName' => 'default-payment-method-name',
+            'oldPaymentMethodName' => 'original-payment-method-name',
+        ], $errorCollectionFiltered->first()->getParameters());
+    }
+
+    public function testSwitchBlockedOriginalWithTranslatedName(): void
+    {
+        $errorCollection = $this->getErrorCollection(['original-payment-method-name']);
+
+        $this->paymentMethodCollection->remove('any-other-payment-method-id');
+        $this->paymentMethodCollection->remove('default-payment-method-id');
+        $this->paymentMethodCollection->add((new PaymentMethodEntity())->assign([
+            'id' => 'translated-payment-method-id',
+            'name' => null,
+            'translated' => ['name' => 'translated-payment-method-name'],
+        ]));
+
+        $newPaymentMethod = $this->switcher->switch($errorCollection, $this->salesChannelContext);
+        static::assertSame('translated-payment-method-id', $newPaymentMethod->getId());
+
+        // Assert notices
+        $errorCollectionFiltered = $errorCollection->filter(
+            fn ($error) => $error instanceof PaymentMethodChangedError
+        );
+        static::assertCount(1, $errorCollectionFiltered);
+        static::assertSame([
+            'newPaymentMethodName' => 'translated-payment-method-name',
+            'oldPaymentMethodName' => 'original-payment-method-name',
+        ], $errorCollectionFiltered->first()->getParameters());
+    }
+
+    public function testSwitchBlockedOriginalAndDefaultSwitchToAnyOther(): void
+    {
+        $errorCollection = $this->getErrorCollection(['original-payment-method-name', 'default-payment-method-name']);
+        $newPaymentMethod = $this->switcher->switch($errorCollection, $this->salesChannelContext);
+
+        static::assertSame('any-other-payment-method-id', $newPaymentMethod->getId());
+
+        // Assert notices
+        $errorCollectionFiltered = $errorCollection->filter(
+            fn ($error) => $error instanceof PaymentMethodChangedError
+        );
+        static::assertCount(2, $errorCollectionFiltered);
+
+        $expectedParameters = [
             [
-                [''],
+                'newPaymentMethodName' => 'any-other-payment-method-name',
+                'oldPaymentMethodName' => 'original-payment-method-name',
             ],
             [
-                ['block', 'block-original-payment-method', 'check-notice', 'notice-original-to-default'],
-            ],
-            [
-                ['block', 'block-original-payment-method', 'block-default-payment-method', 'check-notice', 'notice-original-to-any', 'notice-default-to-any'],
-            ],
-            [
-                ['block', 'block-original-payment-method', 'empty-default-payment-method', 'check-notice', 'notice-original-to-any'],
-            ],
-            [
-                ['block', 'block-original-payment-method', 'empty-default-payment-method', 'empty-any-payment-method'],
+                'newPaymentMethodName' => 'any-other-payment-method-name',
+                'oldPaymentMethodName' => 'default-payment-method-name',
             ],
         ];
+
+        foreach ($errorCollectionFiltered as $error) {
+            static::assertContainsEquals($error->getParameters(), $expectedParameters);
+        }
+    }
+
+    public function testSwitchBlockedOriginalAndNoDefaultSwitchToAnyOther(): void
+    {
+        $errorCollection = $this->getErrorCollection(['original-payment-method-name']);
+        $salesChannelContext = $this->getSalesChannelContext(true);
+        $newPaymentMethod = $this->switcher->switch($errorCollection, $salesChannelContext);
+
+        static::assertSame('any-other-payment-method-id', $newPaymentMethod->getId());
+
+        // Assert notices
+        $errorCollectionFiltered = $errorCollection->filter(
+            fn ($error) => $error instanceof PaymentMethodChangedError
+        );
+
+        static::assertCount(1, $errorCollectionFiltered);
+        static::assertSame([
+            'newPaymentMethodName' => 'any-other-payment-method-name',
+            'oldPaymentMethodName' => 'original-payment-method-name',
+        ], $errorCollectionFiltered->first()->getParameters());
+    }
+
+    public function testSwitchBlockedOriginalAndDefaultAndAnyOtherDoesNotSwitch(): void
+    {
+        $switcher = new BlockedPaymentMethodSwitcher(
+            $this->getPaymentMethodRoute(true)
+        );
+        $errorCollection = $this->getErrorCollection(['original-payment-method-name', 'default-payment-method-name']);
+        $newPaymentMethod = $switcher->switch($errorCollection, $this->salesChannelContext);
+
+        static::assertSame('original-payment-method-id', $newPaymentMethod->getId());
+
+        // Assert notices
+        $errorCollectionFiltered = $errorCollection->filter(
+            fn ($error) => $error instanceof PaymentMethodChangedError
+        );
+
+        static::assertCount(0, $errorCollectionFiltered);
+    }
+
+    public function callbackLoadPaymentMethods(Request $request, SalesChannelContext $context, Criteria $criteria): PaymentMethodRouteResponse
+    {
+        $searchIds = $criteria->getIds();
+
+        if (!$searchIds) {
+            static::assertCount(1, $criteria->getFilters());
+
+            $nand = $criteria->getFilters()[0];
+
+            static::assertInstanceOf(NandFilter::class, $nand);
+            static::assertCount(1, $nand->getQueries());
+
+            $nameFilter = $nand->getQueries()[0];
+
+            static::assertInstanceOf(EqualsAnyFilter::class, $nameFilter);
+
+            $names = $nameFilter->getValue();
+
+            $collection = $this->paymentMethodCollection->filter(
+                fn (PaymentMethodEntity $entity) => !\in_array($entity->getName() ?? '', $names, true)
+            );
+        } else {
+            $collection = $this->paymentMethodCollection->filter(
+                fn (PaymentMethodEntity $entity) => \in_array($entity->getId(), $searchIds, true)
+            );
+        }
+
+        $paymentMethodResponse = $this->createMock(PaymentMethodRouteResponse::class);
+        $paymentMethodResponse
+            ->expects(static::once())
+            ->method('getPaymentMethods')
+            ->willReturn($collection);
+
+        return $paymentMethodResponse;
+    }
+
+    public function callbackLoadPaymentMethodsForAllBlocked(Request $request, SalesChannelContext $context, Criteria $criteria): PaymentMethodRouteResponse
+    {
+        $searchIds = $criteria->getIds();
+
+        if (!$searchIds) {
+            $collection = new PaymentMethodCollection();
+        } else {
+            $collection = $this->paymentMethodCollection->filter(
+                fn (PaymentMethodEntity $entity) => \in_array($entity->getId(), $searchIds, true)
+            );
+        }
+
+        $paymentMethodResponse = $this->createMock(PaymentMethodRouteResponse::class);
+        $paymentMethodResponse
+            ->expects(static::once())
+            ->method('getPaymentMethods')
+            ->willReturn($collection);
+
+        return $paymentMethodResponse;
     }
 
     /**
-     * @param array<string> $targets
+     * @param array<string> $blockedPaymentMethodNames
      */
-    private function getErrorCollection(array $targets): ErrorCollection
+    private function getErrorCollection(array $blockedPaymentMethodNames = []): ErrorCollection
     {
         $errorCollection = new ErrorCollection();
-        if (\in_array('block-original-payment-method', $targets, true)) {
-            $errorCollection->add(new PaymentMethodBlockedError($this->getOriginalPaymentMethod()->getName() ?? ''));
-        }
-        if (\in_array('block-default-payment-method', $targets, true)) {
-            $errorCollection->add(new PaymentMethodBlockedError($this->getDefaultPaymentMethod()->getName() ?? ''));
+
+        foreach ($blockedPaymentMethodNames as $name) {
+            $errorCollection->add(new PaymentMethodBlockedError($name, 'Payment method blocked'));
         }
 
         return $errorCollection;
     }
 
-    /**
-     * @param array<string> $targets
-     */
-    private function getSalesChannelContext(array $targets): SalesChannelContext
+    private function getSalesChannelContext(bool $dontReturnDefaultPaymentMethod = false): SalesChannelContext
     {
-        $shippingMethod = $this->getOriginalPaymentMethod();
-
         $salesChannel = new SalesChannelEntity();
         $salesChannel->setId(TestDefaults::SALES_CHANNEL);
         $salesChannel->setLanguageId(Defaults::LANGUAGE_SYSTEM);
-        $salesChannel->setPaymentMethodId($shippingMethod->getId());
+        if ($dontReturnDefaultPaymentMethod) {
+            $salesChannel->setPaymentMethodId('not-a-valid-id');
+        } else {
+            $salesChannel->setPaymentMethodId('default-payment-method-id');
+        }
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $salesChannelContext->method('getSalesChannel')->willReturn($salesChannel);
         $salesChannelContext->method('getContext')->willReturn(Context::createDefaultContext());
-
-        $salesChannelContext->method('getPaymentMethod')->willReturn($shippingMethod);
+        $salesChannelContext->method('getPaymentMethod')->willReturn($this->paymentMethodCollection->get('original-payment-method-id'));
 
         return $salesChannelContext;
     }
 
-    private function getOriginalPaymentMethod(): PaymentMethodEntity
+    private function getPaymentMethodRoute(bool $dontReturnAnyOtherPaymentMethod = false): PaymentMethodRoute
     {
-        $shippingMethod = new PaymentMethodEntity();
-        $shippingMethod->setId('original-payment-method-id');
-        $shippingMethod->setName('original-payment-method-name');
+        $paymentMethodRoute = $this->createMock(PaymentMethodRoute::class);
 
-        return $shippingMethod;
-    }
-
-    private function getDefaultPaymentMethod(): PaymentMethodEntity
-    {
-        $shippingMethod = new PaymentMethodEntity();
-        $shippingMethod->setId('default-payment-method-id');
-        $shippingMethod->setName('default-payment-method-name');
-
-        return $shippingMethod;
-    }
-
-    private function getAnyPaymentMethod(): PaymentMethodEntity
-    {
-        $shippingMethod = new PaymentMethodEntity();
-        $shippingMethod->setId('any-payment-method-id');
-        $shippingMethod->setName('any-payment-method-name');
-
-        return $shippingMethod;
-    }
-
-    /**
-     * @param array<string> $targets
-     */
-    private function getBlockedPaymentMethodSwitcher(array $targets): BlockedPaymentMethodSwitcher
-    {
-        $shippingMethodRoute = $this->getPaymentMethodRoute($targets);
-
-        return new BlockedPaymentMethodSwitcher($shippingMethodRoute);
-    }
-
-    /**
-     * @param array<string> $targets
-     */
-    private function getPaymentMethodRoute(array $targets): PaymentMethodRoute
-    {
-        $shippingMethodRoute = $this->createMock(PaymentMethodRoute::class);
-        $shippingMethodRoute->method('load')->willReturnOnConsecutiveCalls(
-            $this->getPaymentMethodRouteResponse(
-                \in_array('empty-default-payment-method', $targets, true) ? null : $this->getDefaultPaymentMethod()
-            ),
-            $this->getPaymentMethodRouteResponse(
-                \in_array('empty-any-payment-method', $targets, true) ? null : $this->getAnyPaymentMethod()
-            )
-        );
-
-        return $shippingMethodRoute;
-    }
-
-    private function getPaymentMethodRouteResponse(?PaymentMethodEntity $shippingMethod = null): PaymentMethodRouteResponse
-    {
-        $shippingMethodCollection = new PaymentMethodCollection();
-        if ($shippingMethod !== null) {
-            $shippingMethodCollection->add($shippingMethod);
+        if ($dontReturnAnyOtherPaymentMethod) {
+            $paymentMethodRoute
+                ->method('load')
+                ->withAnyParameters()
+                ->willReturnCallback($this->callbackLoadPaymentMethodsForAllBlocked(...));
+        } else {
+            $paymentMethodRoute
+                ->method('load')
+                ->withAnyParameters()
+                ->willReturnCallback($this->callbackLoadPaymentMethods(...));
         }
-        $shippingMethodRouteResponse = $this->createMock(PaymentMethodRouteResponse::class);
-        $shippingMethodRouteResponse->method('getPaymentMethods')->willReturn($shippingMethodCollection);
 
-        return $shippingMethodRouteResponse;
+        return $paymentMethodRoute;
     }
 }

@@ -1,7 +1,12 @@
-import './page/sw-settings-language-list';
-import './page/sw-settings-language-detail';
-
+/**
+ * @package system-settings
+ */
 import './acl';
+
+/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+Shopware.Component.register('sw-settings-language-list', () => import('./page/sw-settings-language-list'));
+Shopware.Component.register('sw-settings-language-detail', () => import('./page/sw-settings-language-detail'));
+/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
 const { Module } = Shopware;
 

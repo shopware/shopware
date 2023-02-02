@@ -10,6 +10,7 @@ use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\ProductCrossSellingAssignedProductsCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductDownload\ProductDownloadCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
@@ -19,8 +20,6 @@ use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollectio
 use Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityCollection;
-use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPrice;
-use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPriceContainer;
 use Shopware\Core\Content\Product\DataAbstractionLayer\VariantListingConfig;
 use Shopware\Core\Content\ProductStream\ProductStreamCollection;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
@@ -31,14 +30,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetCollection;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\System\Tag\TagCollection;
 use Shopware\Core\System\Tax\TaxEntity;
 use Shopware\Core\System\Unit\UnitEntity;
 
-class ProductEntity extends Entity
+#[Package('inventory')]
+class ProductEntity extends Entity implements \Stringable
 {
     use EntityIdTrait;
     use EntityCustomFieldsTrait;
@@ -269,27 +269,6 @@ class ProductEntity extends Entity
     protected $variantRestrictions;
 
     /**
-     * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
-     *
-     * @var array<string>|null
-     */
-    protected $configuratorGroupConfig;
-
-    /**
-     * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
-     *
-     * @var string|null
-     */
-    protected $mainVariantId;
-
-    /**
-     * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
-     *
-     * @var bool|null
-     */
-    protected $displayParent;
-
-    /**
      * @var VariantListingConfig|null
      */
     protected $variantListingConfig;
@@ -318,16 +297,6 @@ class ProductEntity extends Entity
      * @var ProductPriceCollection
      */
     protected $prices;
-
-    /**
-     * The container will be resolved on product.loaded event and
-     * the detected cheapest price will be set for the current context rules
-     *
-     * @feature-deprecated  (flag:FEATURE_NEXT_15815) tag:v6.5.0 - CheapestPrice will only be available for SalesChannelProductEntity
-     *
-     * @var CheapestPrice|CheapestPriceContainer|null
-     */
-    protected $cheapestPrice;
 
     /**
      * @var ProductMediaEntity|null
@@ -510,23 +479,23 @@ class ProductEntity extends Entity
     protected $canonicalProduct;
 
     /**
-     * @feature-deprecated  (flag:FEATURE_NEXT_15815) tag:v6.5.0 - CheapestPrice will only be available for SalesChannelProductEntity
-     *
-     * @var CheapestPriceContainer|null
-     */
-    protected $cheapestPriceContainer;
-
-    /**
      * @var ProductStreamCollection|null
      */
     protected $streams;
+
+    protected ?ProductDownloadCollection $downloads = null;
+
+    /**
+     * @var array<int, string>
+     */
+    protected array $states = [];
 
     public function __construct()
     {
         $this->prices = new ProductPriceCollection();
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         return (string) $this->getName();
     }
@@ -1261,72 +1230,6 @@ class ProductEntity extends Entity
         $this->variantRestrictions = $variantRestrictions;
     }
 
-    /**
-     * @return array<string>|null
-     */
-    public function getConfiguratorGroupConfig(): ?array
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
-        );
-
-        return $this->configuratorGroupConfig;
-    }
-
-    /**
-     * @param array<string>|null $configuratorGroupConfig
-     */
-    public function setConfiguratorGroupConfig(?array $configuratorGroupConfig): void
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
-        );
-
-        $this->configuratorGroupConfig = $configuratorGroupConfig;
-    }
-
-    public function getMainVariantId(): ?string
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
-        );
-
-        return $this->mainVariantId;
-    }
-
-    public function setMainVariantId(?string $mainVariantId): void
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
-        );
-
-        $this->mainVariantId = $mainVariantId;
-    }
-
-    public function getDisplayParent(): ?bool
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
-        );
-
-        return $this->displayParent;
-    }
-
-    public function setDisplayParent(?bool $displayParent): void
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
-        );
-
-        $this->displayParent = $displayParent;
-    }
-
     public function getVariantListingConfig(): ?VariantListingConfig
     {
         return $this->variantListingConfig;
@@ -1559,40 +1462,6 @@ class ProductEntity extends Entity
         $this->canonicalProduct = $product;
     }
 
-    /**
-     * @feature-deprecated  (flag:FEATURE_NEXT_15815) tag:v6.5.0 - CheapestPrice will only be available for SalesChannelProductEntity
-     *
-     * @return CheapestPrice|CheapestPriceContainer|null
-     */
-    public function getCheapestPrice()
-    {
-        return $this->cheapestPrice;
-    }
-
-    /**
-     * @feature-deprecated  (flag:FEATURE_NEXT_15815) tag:v6.5.0 - CheapestPrice will only be available for SalesChannelProductEntity
-     */
-    public function setCheapestPrice(?CheapestPrice $cheapestPrice): void
-    {
-        $this->cheapestPrice = $cheapestPrice;
-    }
-
-    /**
-     * @feature-deprecated  (flag:FEATURE_NEXT_15815) tag:v6.5.0 - CheapestPrice will only be available for SalesChannelProductEntity
-     */
-    public function setCheapestPriceContainer(CheapestPriceContainer $container): void
-    {
-        $this->cheapestPriceContainer = $container;
-    }
-
-    /**
-     * @feature-deprecated  (flag:FEATURE_NEXT_15815) tag:v6.5.0 - CheapestPrice will only be available for SalesChannelProductEntity
-     */
-    public function getCheapestPriceContainer(): ?CheapestPriceContainer
-    {
-        return $this->cheapestPriceContainer;
-    }
-
     public function getStreams(): ?ProductStreamCollection
     {
         return $this->streams;
@@ -1617,5 +1486,31 @@ class ProductEntity extends Entity
     public function setCategoryIds(?array $categoryIds): void
     {
         $this->categoryIds = $categoryIds;
+    }
+
+    public function getDownloads(): ?ProductDownloadCollection
+    {
+        return $this->downloads;
+    }
+
+    public function setDownloads(ProductDownloadCollection $downloads): void
+    {
+        $this->downloads = $downloads;
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    public function getStates(): array
+    {
+        return $this->states;
+    }
+
+    /**
+     * @param array<int, string> $states
+     */
+    public function setStates(array $states): void
+    {
+        $this->states = $states;
     }
 }

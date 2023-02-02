@@ -2,22 +2,20 @@
 
 namespace Shopware\Core\Framework\Update\Services;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Update\Checkers\CheckerInterface;
 use Shopware\Core\Framework\Update\Struct\Version;
 
+#[Package('system-settings')]
 class RequirementsValidator
 {
     /**
-     * @var CheckerInterface[]
-     */
-    private $checkers;
-
-    /**
      * @internal
+     *
+     * @param CheckerInterface[] $checkers
      */
-    public function __construct(iterable $checkers)
+    public function __construct(private readonly iterable $checkers)
     {
-        $this->checkers = $checkers;
     }
 
     public function validate(Version $version): array

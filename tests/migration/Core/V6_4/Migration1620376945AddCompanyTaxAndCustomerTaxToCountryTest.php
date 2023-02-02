@@ -25,6 +25,20 @@ class Migration1620376945AddCompanyTaxAndCustomerTaxToCountryTest extends TestCa
         $this->connection = KernelLifecycleManager::getConnection();
         $this->connection->rollBack();
 
+        if ($this->getColumnInfo('country', 'tax_free') === false) {
+            $this->connection->executeStatement('
+                ALTER TABLE country
+                ADD `tax_free` TINYINT(1) NOT NULL DEFAULT 0
+            ');
+        }
+
+        if ($this->getColumnInfo('country', 'company_tax_free') === false) {
+            $this->connection->executeStatement('
+                ALTER TABLE country
+                ADD `company_tax_free` TINYINT(1) NOT NULL DEFAULT 0
+            ');
+        }
+
         $this->connection->executeStatement('DROP TRIGGER IF EXISTS country_tax_free_insert;');
         $this->connection->executeStatement('DROP TRIGGER IF EXISTS country_tax_free_update;');
         $this->connection->executeStatement(
@@ -44,8 +58,8 @@ class Migration1620376945AddCompanyTaxAndCustomerTaxToCountryTest extends TestCa
         $countries = $this->connection->fetchAllAssociative('SELECT `tax_free`, `company_tax_free`, `customer_tax`, `company_tax` FROM `country`');
 
         foreach ($countries as $country) {
-            $customerTaxFree = json_decode($country['customer_tax'], true);
-            $companyTaxFree = json_decode($country['company_tax'], true);
+            $customerTaxFree = json_decode((string) $country['customer_tax'], true, 512, \JSON_THROW_ON_ERROR);
+            $companyTaxFree = json_decode((string) $country['company_tax'], true, 512, \JSON_THROW_ON_ERROR);
             static::assertSame((int) $country['tax_free'], $customerTaxFree['enabled']);
             static::assertSame((int) $country['company_tax_free'], $companyTaxFree['enabled']);
         }
@@ -178,7 +192,7 @@ class Migration1620376945AddCompanyTaxAndCustomerTaxToCountryTest extends TestCa
 
         if (\array_key_exists('special_case', $payload)) {
             unset($payload['special_case']);
-            $data = array_merge($data, $payload);
+            $data = [...$data, ...$payload];
             $this->connection->executeStatement(
                 'UPDATE country SET
                     tax_free = :tax_free,
@@ -240,5 +254,26 @@ class Migration1620376945AddCompanyTaxAndCustomerTaxToCountryTest extends TestCa
         static::assertSame((int) $country['company_tax_free'], (int) $countryCompanyTax['enabled']);
         static::assertSame($customerTaxExpected, $countryCustomerTax);
         static::assertSame($companyTaxExpected, $countryCompanyTax);
+    }
+
+    /**
+     * @return array<string, mixed>|false
+     */
+    private function getColumnInfo(string $table, string $column): array|false
+    {
+        $database = $this->connection->fetchOne('SELECT DATABASE();');
+
+        return $this->connection->fetchAssociative(
+            '
+                SELECT * FROM information_schema.`COLUMNS`
+                WHERE TABLE_NAME = :table
+                AND TABLE_SCHEMA = :database
+                AND COLUMN_NAME = :column',
+            [
+                'table' => $table,
+                'database' => $database,
+                'column' => $column,
+            ]
+        );
     }
 }

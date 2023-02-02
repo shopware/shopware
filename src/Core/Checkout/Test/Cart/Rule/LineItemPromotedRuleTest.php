@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemPromotedRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\Test\Cart\Rule\Helper\CartRuleHelperTrait;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Validator\Constraints\Type;
 
@@ -17,6 +18,7 @@ use Symfony\Component\Validator\Constraints\Type;
  * @internal
  * @group rules
  */
+#[Package('business-ops')]
 class LineItemPromotedRuleTest extends TestCase
 {
     use CartRuleHelperTrait;

@@ -86,7 +86,7 @@ namespace TestSerializer {
             yield $data->getKey() => $data->getValue();
         }
 
-        public function decode(Field $field, $value)
+        public function decode(Field $field, mixed $value): mixed
         {
             return $value;
         }

@@ -6,30 +6,21 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\Event\CartBeforeSerializationEvent;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+#[Package('checkout')]
 class CartSerializationCleaner
 {
-    private Connection $connection;
-
-    private EventDispatcherInterface $eventDispatcher;
-
     /**
      * @internal
      */
-    public function __construct(Connection $connection, EventDispatcherInterface $eventDispatcher)
+    public function __construct(private readonly Connection $connection, private readonly EventDispatcherInterface $eventDispatcher)
     {
-        $this->connection = $connection;
-        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function cleanupCart(Cart $cart): void
     {
-        if (!Feature::isActive('v6.5.0.0')) {
-            return;
-        }
-
         $customFieldAllowList = $this->connection->fetchFirstColumn('SELECT JSON_UNQUOTE(JSON_EXTRACT(`value`, "$.renderedField.name")) as technical_name FROM rule_condition WHERE type = \'cartLineItemCustomField\';');
 
         $event = new CartBeforeSerializationEvent($cart, $customFieldAllowList);
@@ -42,6 +33,9 @@ class CartSerializationCleaner
         }
     }
 
+    /**
+     * @param array<mixed> $customFieldAllowList
+     */
     private function cleanupLineItems(LineItemCollection $lineItems, array $customFieldAllowList): void
     {
         foreach ($lineItems as $lineItem) {
@@ -49,6 +43,9 @@ class CartSerializationCleaner
         }
     }
 
+    /**
+     * @param array<mixed> $customFieldAllowList
+     */
     private function cleanupLineItem(LineItem $lineItem, array $customFieldAllowList): void
     {
         if ($lineItem->getCover()) {
@@ -62,6 +59,9 @@ class CartSerializationCleaner
         }
     }
 
+    /**
+     * @param array<mixed> $customFieldAllowList
+     */
     private function cleanupCustomFields(LineItem $lineItem, array $customFieldAllowList): void
     {
         $customFields = $lineItem->getPayloadValue('customFields');

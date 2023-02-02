@@ -16,7 +16,10 @@ use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOp
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\FilterAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\EntityAggregation;
@@ -30,6 +33,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -38,52 +42,21 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @internal
+ */
+#[Package('inventory')]
 class ProductListingFeaturesSubscriber implements EventSubscriberInterface
 {
-    public const DEFAULT_SEARCH_SORT = 'score';
+    final public const DEFAULT_SEARCH_SORT = 'score';
 
-    public const PROPERTY_GROUP_IDS_REQUEST_PARAM = 'property-whitelist';
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $optionRepository;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $sortingRepository;
-
-    /**
-     * @var Connection
-     */
-    private $connection;
-
-    /**
-     * @var SystemConfigService
-     */
-    private $systemConfigService;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $dispatcher;
+    final public const PROPERTY_GROUP_IDS_REQUEST_PARAM = 'property-whitelist';
 
     /**
      * @internal
      */
-    public function __construct(
-        Connection $connection,
-        EntityRepositoryInterface $optionRepository,
-        EntityRepositoryInterface $productSortingRepository,
-        SystemConfigService $systemConfigService,
-        EventDispatcherInterface $dispatcher
-    ) {
-        $this->optionRepository = $optionRepository;
-        $this->sortingRepository = $productSortingRepository;
-        $this->connection = $connection;
-        $this->systemConfigService = $systemConfigService;
-        $this->dispatcher = $dispatcher;
+    public function __construct(private readonly Connection $connection, private readonly EntityRepository $optionRepository, private readonly EntityRepository $sortingRepository, private readonly SystemConfigService $systemConfigService, private readonly EventDispatcherInterface $dispatcher)
+    {
     }
 
     public static function getSubscribedEvents(): array
@@ -222,6 +195,9 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         $criteria->addExtension('filters', $filters);
     }
 
+    /**
+     * @return array<Aggregation>
+     */
     private function getAggregations(Request $request, FilterCollection $filters): array
     {
         $aggregations = [];
@@ -337,6 +313,9 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         );
     }
 
+    /**
+     * @return array<int, non-falsy-string>
+     */
     private function collectOptionIds(ProductListingResultEvent $event): array
     {
         $aggregations = $event->getResult()->getAggregations();
@@ -350,7 +329,7 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         $options = $options ? $options->getKeys() : [];
         $properties = $properties ? $properties->getKeys() : [];
 
-        return array_unique(array_filter(array_merge($options, $properties)));
+        return array_unique(array_filter([...$options, ...$properties]));
     }
 
     private function groupOptionAggregations(ProductListingResultEvent $event): void
@@ -373,7 +352,10 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
 
         $repositoryIterator = new RepositoryIterator($this->optionRepository, $event->getContext(), $criteria);
         while (($result = $repositoryIterator->fetch()) !== null) {
-            $mergedOptions->merge($result->getEntities());
+            /** @var PropertyGroupOptionCollection $entities */
+            $entities = $result->getEntities();
+
+            $mergedOptions->merge($entities);
         }
 
         // group options by their property-group
@@ -387,6 +369,7 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         $aggregations->remove('properties');
         $aggregations->remove('configurators');
         $aggregations->remove('options');
+        /** @var EntityCollection<Entity> $grouped */
         $aggregations->add(new EntityResult('properties', $grouped));
     }
 
@@ -404,6 +387,9 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         }
     }
 
+    /**
+     * @return list<string>
+     */
     private function getManufacturerIds(Request $request): array
     {
         $ids = $request->query->get('manufacturer', '');
@@ -415,9 +401,15 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
             $ids = explode('|', $ids);
         }
 
-        return array_filter((array) $ids);
+        /** @var list<string> $ids */
+        $ids = array_filter((array) $ids);
+
+        return $ids;
     }
 
+    /**
+     * @return list<string>
+     */
     private function getPropertyIds(Request $request): array
     {
         $ids = $request->query->get('properties', '');
@@ -429,7 +421,10 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
             $ids = explode('|', $ids);
         }
 
-        return array_filter((array) $ids);
+        /** @var list<string> $ids */
+        $ids = array_filter((array) $ids);
+
+        return $ids;
     }
 
     private function getLimit(Request $request, SalesChannelContext $context): int
@@ -545,7 +540,7 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
             );
         }
 
-        $grouped = $this->connection->fetchAll(
+        $grouped = $this->connection->fetchAllAssociative(
             'SELECT LOWER(HEX(property_group_id)) as property_group_id, LOWER(HEX(id)) as id
              FROM property_group_option
              WHERE id IN (:ids)',

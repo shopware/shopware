@@ -11,11 +11,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\User\UserDefinition;
 
+#[Package('system-settings')]
 class UserConfigDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'user_config';
+    final public const ENTITY_NAME = 'user_config';
 
     public function getEntityName(): string
     {

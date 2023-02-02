@@ -2,13 +2,14 @@
 
 namespace Shopware\Core\Framework\Store\Struct;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
  * @codeCoverageIgnore
- *
  * @extends Collection<ExtensionStruct>
  */
+#[Package('merchant-services')]
 class ExtensionCollection extends Collection
 {
     private int $total = 0;
@@ -37,9 +38,7 @@ class ExtensionCollection extends Collection
 
     public function filterByType(string $type): self
     {
-        return $this->filter(function (ExtensionStruct $ext) use ($type) {
-            return $ext->getType() === $type;
-        });
+        return $this->filter(fn (ExtensionStruct $ext) => $ext->getType() === $type);
     }
 
     protected function getExpectedClass(): ?string

@@ -2,13 +2,18 @@
 
 namespace Shopware\Core\Framework\Store\Exception;
 
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\ShopwareHttpException;
+
 /**
- * @deprecated tag:v6.5.0 - Will only extend from Shopware\Core\Framework\ShopwareHttpException
- *
  * @internal
  */
-class ExtensionUpdateRequiresConsentAffirmationException extends ExtensionRequiresNewPrivilegesException
+#[Package('merchant-services')]
+class ExtensionUpdateRequiresConsentAffirmationException extends ShopwareHttpException
 {
+    /**
+     * @param array<string, array<string, mixed>> $deltas
+     */
     public static function fromDelta(string $appName, array $deltas): self
     {
         return new self(

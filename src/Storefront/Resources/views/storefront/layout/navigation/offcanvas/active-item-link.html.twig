@@ -1,13 +1,11 @@
-{# @deprecated tag:v6.5.0 - Variable `item` will be removed. Use `treeItem` instead. #}
-
 {% block layout_navigation_offcanvas_navigation_category_headline %}
     <a class="nav-item nav-link navigation-offcanvas-headline"
-       href="{{ category_url(treeItem) }}"
-       {% if category_linknewtab(treeItem) %}target="_blank"{% endif %}
+       href="{{ category_url(item) }}"
+       {% if category_linknewtab(item) %}target="_blank"{% endif %}
        itemprop="url">
         {% block layout_navigation_offcanvas_navigation_category_headline_text %}
             <span itemprop="name">
-                {{ treeItem.translated.name }}
+                {{ item.translated.name }}
             </span>
         {% endblock %}
     </a>

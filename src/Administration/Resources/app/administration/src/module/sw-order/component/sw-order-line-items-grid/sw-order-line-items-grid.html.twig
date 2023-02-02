@@ -8,7 +8,6 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_line_items_grid_actions %}
     <sw-container
-        v-show="editable"
         class="sw-order-line-items-grid__actions-container"
         columns="1fr auto"
         gap="16px"
@@ -39,6 +38,7 @@
                     class="sw-order-line-items-grid__actions-container-add-product-btn"
                     variant="ghost"
                     size="small"
+                    :disabled="!editable"
                     @click="onInsertExistingItem"
                 >
                     {{ $tc('sw-order.detailBase.buttonAddProduct') }}
@@ -55,7 +55,7 @@
                             square
                         >
                             <sw-icon
-                                name="regular-chevron-down-xxs"
+                                name="regular-chevron-down-xs"
                                 decorative
                             />
                         </sw-button>
@@ -63,11 +63,20 @@
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_order_line_items_grid_create_actions_dropdown_menu_item %}
-                    <sw-context-menu-item @click="onInsertBlankItem">
+                    <sw-context-menu-item
+                        v-tooltip.left="{
+                            message: $tc('sw-privileges.tooltip.warning'),
+                            disabled: editable,
+                            showOnDisabledElements: true
+                        }"
+                        class="sw-order-line-items-grid__create-custom-item"
+                        :disabled="!editable"
+                        @click="onInsertBlankItem"
+                    >
                         {{ $tc('sw-order.detailBase.buttonAddBlankProduct') }}
                     </sw-context-menu-item>
                     <sw-context-menu-item
-                        v-tooltip="{
+                        v-tooltip.left="{
                             message: $tc('sw-privileges.tooltip.warning'),
                             disabled: canCreateDiscounts,
                             showOnDisabledElements: true
@@ -175,14 +184,14 @@
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_line_items_grid_column_payload_options_linkless %}
-                <template
+                <div
                     v-else
                     class="sw-order-line-items-grid__item-payload-options"
                 >
                     <span class="sw-order-line-items-grid__item-label">
                         {{ item.label }}
                     </span>
-                </template>
+                </div>
                 {% endblock %}
                 {% endblock %}
 
@@ -213,13 +222,14 @@
                 placeholder="0"
                 size="small"
                 :min="getMinItemPrice(item.id)"
+                :digits="order.itemRounding.decimals"
                 @change="checkItemPrice($event, item)"
             />
             {% endblock %}
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_line_items_grid_grid_columns_unit_price_content %}
-            <span v-else>{{ item.unitPrice | currency(order.currency.shortName) }}</span>
+            <span v-else>{{ item.unitPrice | currency(order.currency.shortName, order.itemRounding.decimals) }}</span>
             {% endblock %}
 
         </template>
@@ -232,7 +242,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_line_items_grid_grid_columns_total_price_content %}
             <span>
-                {{ item.totalPrice | currency(order.currency.shortName) }}
+                {{ item.totalPrice | currency(order.currency.shortName, order.itemRounding.decimals) }}
             </span>
             {% endblock %}
 
@@ -305,8 +315,7 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_line_items_grid_grid_actions %}
-        <template #actions="{ item }">
-
+        <template #actions="{ item, itemIndex }">
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_line_items_grid_grid_actions_show %}
             <sw-context-menu-item
@@ -328,11 +337,16 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_line_items_grid_grid_actions_delete %}
             <sw-context-menu-item
-                v-if="feature.isActive('FEATURE_NEXT_7530')"
+                v-tooltip.left="{
+                    message: $tc('sw-privileges.tooltip.warning'),
+                    disabled: editable,
+                    showOnDisabledElements: true
+                }"
                 variant="danger"
-                @click="onDeleteItem(item)"
+                class="sw_order_line_items_grid-item__delete-action"
+                :disabled="!editable"
+                @click="onDeleteItem(item, itemIndex)"
             >
-
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_line_items_grid_grid_actions_delete_label %}
                 {{ $tc('sw-order.detailBase.contextMenuDelete') }}
@@ -349,6 +363,37 @@
         <template #action-modals="{ item }">
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_line_items_grid_grid_actions_modals_items %}{% endblock %}
+            <sw-modal
+                v-if="showDeleteModal === item.id"
+                class="sw-order-line-items-grid__delete-item-modal"
+                :title="$tc('global.default.warning')"
+                variant="small"
+                @modal-close="onCloseDeleteModal"
+            >
+                <p class="sw-order-list__confirm-delete-text">
+                    {{ $tc('sw-order.detailBase.textDeleteLineItemConfirm', 0, { label: `${item.label}` }) }}
+                </p>
+
+                <template #modal-footer>
+                    <sw-button
+                        size="small"
+                        class="sw_order_line_items_grid-actions_modal__close-action"
+                        @click="onCloseDeleteModal"
+                    >
+                        {{ $tc('global.default.cancel') }}
+                    </sw-button>
+
+                    <sw-button
+                        variant="danger"
+                        size="small"
+
+                        class="sw_order_line_items_grid-actions_modal__confirm-action"
+                        @click="onConfirmDelete(item.id)"
+                    >
+                        {{ $tc('global.default.delete') }}
+                    </sw-button>
+                </template>
+            </sw-modal>
         </template>
         {% endblock %}
 

@@ -2,12 +2,15 @@
 
 namespace Shopware\Core\Framework\App\ActionButton\Response;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
  * @internal only for use by the app-system
  */
+#[Package('core')]
 class NotificationResponse extends ActionButtonResponse
 {
-    public const ACTION_TYPE = 'notification';
+    final public const ACTION_TYPE = 'notification';
 
     /**
      * One of the possible action statuses of notification.

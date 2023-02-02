@@ -6,7 +6,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\Event\BusinessEvent;
 use Shopware\Core\Framework\Event\BusinessEventRegistry;
 use Shopware\Core\Framework\Test\DependencyInjection\fixtures\TestActionEventCompilerPass;
 use Shopware\Core\Framework\Test\DependencyInjection\fixtures\TestEvent;
@@ -39,7 +38,6 @@ class ActionEventCompilerPassTest extends TestCase
         $registry = $container->get(BusinessEventRegistry::class);
 
         $expected = [
-            BusinessEvent::class,
             TestEvent::class,
         ];
 

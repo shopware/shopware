@@ -12,25 +12,21 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\ExpectedArrayException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
  */
+#[Package('core')]
 class OneToOneAssociationFieldSerializer implements FieldSerializerInterface
 {
-    /**
-     * @var WriteCommandExtractor
-     */
-    protected $writeExtractor;
-
     /**
      * @internal
      */
     public function __construct(
-        WriteCommandExtractor $writeExtractor
+        private readonly WriteCommandExtractor $writeExtractor
     ) {
-        $this->writeExtractor = $writeExtractor;
     }
 
     public function normalize(Field $field, array $data, WriteParameterBag $parameters): array
@@ -61,7 +57,7 @@ class OneToOneAssociationFieldSerializer implements FieldSerializerInterface
                     sprintf(
                         'Could not find reference field "%s" in definition "%s"',
                         $referenceField,
-                        \get_class($reference)
+                        $reference::class
                     )
                 );
             }
@@ -123,10 +119,7 @@ class OneToOneAssociationFieldSerializer implements FieldSerializerInterface
         yield from [];
     }
 
-    /**
-     * @never
-     */
-    public function decode(Field $field, $value): void
+    public function decode(Field $field, mixed $value): never
     {
         throw new DecodeByHydratorException($field);
     }

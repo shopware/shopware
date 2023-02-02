@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
-use Shopware\Core\Framework\Test\MessageQueue\fixtures\TestMessage;
+use Shopware\Core\Framework\Test\MessageQueue\fixtures\FooMessage;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_4\Migration1635936029MigrateMessageQueueStatsToIncrement;
@@ -38,7 +38,7 @@ class Migration1635936029MigrateMessageQueueStatsToIncrementTest extends TestCas
             'id2' => Uuid::randomBytes(),
             'size1' => 2,
             'size2' => 5,
-            'name1' => TestMessage::class,
+            'name1' => FooMessage::class,
             'name2' => ElasticsearchIndexingMessage::class,
             'createdAt' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             'updatedAt' => null,
@@ -57,7 +57,7 @@ class Migration1635936029MigrateMessageQueueStatsToIncrementTest extends TestCas
         static::assertEquals(IncrementGatewayRegistry::MESSAGE_QUEUE_POOL, $migrated[1]['pool']);
         static::assertEquals('message_queue_stats', $migrated[1]['cluster']);
         static::assertEquals(2, (int) $migrated[1]['count']);
-        static::assertEquals(TestMessage::class, $migrated[1]['key']);
+        static::assertEquals(FooMessage::class, $migrated[1]['key']);
     }
 
     private function rollback(): void

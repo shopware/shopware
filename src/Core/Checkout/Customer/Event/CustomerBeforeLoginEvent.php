@@ -5,34 +5,23 @@ namespace Shopware\Core\Checkout\Customer\Event;
 use Shopware\Core\Content\Flow\Dispatching\Aware\EmailAware;
 use Shopware\Core\Content\MailTemplate\Exception\MailEventConfigurationException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\SalesChannelAware;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class CustomerBeforeLoginEvent extends Event implements BusinessEventInterface, SalesChannelAware, ShopwareSalesChannelEvent, MailAware, EmailAware
+#[Package('customer-order')]
+class CustomerBeforeLoginEvent extends Event implements SalesChannelAware, ShopwareSalesChannelEvent, MailAware, EmailAware
 {
-    public const EVENT_NAME = 'checkout.customer.before.login';
+    final public const EVENT_NAME = 'checkout.customer.before.login';
 
-    /**
-     * @var SalesChannelContext
-     */
-    private $salesChannelContext;
-
-    /**
-     * @var string
-     */
-    private $email;
-
-    public function __construct(SalesChannelContext $salesChannelContext, string $email)
+    public function __construct(private readonly SalesChannelContext $salesChannelContext, private readonly string $email)
     {
-        $this->email = $email;
-        $this->salesChannelContext = $salesChannelContext;
     }
 
     public function getName(): string

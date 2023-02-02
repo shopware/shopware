@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -23,10 +23,7 @@ class ProductExportControllerTest extends TestCase
     use IntegrationTestBehaviour;
     use AdminApiTestBehaviour;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     protected function setUp(): void
     {
@@ -52,7 +49,7 @@ class ProductExportControllerTest extends TestCase
             'fileName' => 'test.csv',
             'accessKey' => 'test',
             'currencyId' => Defaults::CURRENCY,
-        ]);
+        ], \JSON_THROW_ON_ERROR);
 
         if (!$content) {
             $content = '';
@@ -89,7 +86,7 @@ class ProductExportControllerTest extends TestCase
             'fileName' => 'test.csv',
             'accessKey' => 'test',
             'currencyId' => Defaults::CURRENCY,
-        ]);
+        ], \JSON_THROW_ON_ERROR);
 
         if (!$content) {
             $content = '';
@@ -124,7 +121,7 @@ class ProductExportControllerTest extends TestCase
             'fileName' => 'test.csv',
             'accessKey' => 'test',
             'currencyId' => Defaults::CURRENCY,
-        ]);
+        ], \JSON_THROW_ON_ERROR);
 
         if (!$content) {
             $content = '';
@@ -168,7 +165,7 @@ class ProductExportControllerTest extends TestCase
             'fileName' => 'test.csv',
             'accessKey' => 'test',
             'currencyId' => Defaults::CURRENCY,
-        ]);
+        ], \JSON_THROW_ON_ERROR);
 
         if (!$content) {
             $content = '';
@@ -205,7 +202,7 @@ class ProductExportControllerTest extends TestCase
             'fileName' => 'test.csv',
             'accessKey' => 'test',
             'currencyId' => Defaults::CURRENCY,
-        ]);
+        ], \JSON_THROW_ON_ERROR);
 
         if (!$content) {
             $content = '';
@@ -249,7 +246,7 @@ class ProductExportControllerTest extends TestCase
             'fileName' => 'test.csv',
             'accessKey' => 'test',
             'currencyId' => Defaults::CURRENCY,
-        ]);
+        ], \JSON_THROW_ON_ERROR);
 
         if (!$content) {
             $content = '';
@@ -276,7 +273,7 @@ class ProductExportControllerTest extends TestCase
 
     private function getSalesChannelDomain(): SalesChannelDomainEntity
     {
-        /** @var EntityRepositoryInterface $repository */
+        /** @var EntityRepository $repository */
         $repository = $this->getContainer()->get('sales_channel_domain.repository');
 
         return $repository->search(new Criteria(), $this->context)->first();

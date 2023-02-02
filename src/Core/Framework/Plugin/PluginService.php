@@ -6,9 +6,10 @@ use Composer\IO\IOInterface;
 use Composer\Package\CompletePackageInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Changelog\ChangelogService;
 use Shopware\Core\Framework\Plugin\Exception\ExceptionCollection;
 use Shopware\Core\Framework\Plugin\Exception\PluginChangelogInvalidException;
@@ -22,61 +23,13 @@ use Shopware\Core\System\Language\LanguageEntity;
 /**
  * @internal
  */
+#[Package('core')]
 class PluginService
 {
-    public const COMPOSER_AUTHOR_ROLE_MANUFACTURER = 'Manufacturer';
+    final public const COMPOSER_AUTHOR_ROLE_MANUFACTURER = 'Manufacturer';
 
-    /**
-     * @var string
-     */
-    private $pluginDir;
-
-    /**
-     * @var string
-     */
-    private $projectDir;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $pluginRepo;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $languageRepo;
-
-    /**
-     * @var ChangelogService
-     */
-    private $changelogService;
-
-    /**
-     * @var PluginFinder
-     */
-    private $pluginFinder;
-
-    /**
-     * @var VersionSanitizer
-     */
-    private $versionSanitizer;
-
-    public function __construct(
-        string $pluginDir,
-        string $projectDir,
-        EntityRepositoryInterface $pluginRepo,
-        EntityRepositoryInterface $languageRepo,
-        ChangelogService $changelogService,
-        PluginFinder $pluginFinder,
-        VersionSanitizer $versionSanitizer
-    ) {
-        $this->pluginDir = $pluginDir;
-        $this->projectDir = $projectDir;
-        $this->pluginRepo = $pluginRepo;
-        $this->languageRepo = $languageRepo;
-        $this->changelogService = $changelogService;
-        $this->pluginFinder = $pluginFinder;
-        $this->versionSanitizer = $versionSanitizer;
+    public function __construct(private readonly string $pluginDir, private readonly string $projectDir, private readonly EntityRepository $pluginRepo, private readonly EntityRepository $languageRepo, private readonly ChangelogService $changelogService, private readonly PluginFinder $pluginFinder, private readonly VersionSanitizer $versionSanitizer)
+    {
     }
 
     public function refreshPlugins(Context $shopwareContext, IOInterface $composerIO): ExceptionCollection
@@ -249,9 +202,7 @@ class PluginService
         $composerAuthors = $info->getAuthors();
 
         if ($composerAuthors !== null) {
-            $manufacturersAuthors = array_filter($composerAuthors, static function (array $author): bool {
-                return ($author['role'] ?? '') === self::COMPOSER_AUTHOR_ROLE_MANUFACTURER;
-            });
+            $manufacturersAuthors = array_filter($composerAuthors, static fn (array $author): bool => ($author['role'] ?? '') === self::COMPOSER_AUTHOR_ROLE_MANUFACTURER);
 
             if (empty($manufacturersAuthors)) {
                 $manufacturersAuthors = $composerAuthors;

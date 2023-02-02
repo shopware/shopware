@@ -5,23 +5,25 @@ namespace Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Ent
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\SerializerRegistry;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
+#[Package('core')]
 abstract class AbstractEntitySerializer
 {
     protected SerializerRegistry $serializerRegistry;
 
     /**
-     * @param array|Struct|null $entity
+     * @param array<mixed>|Struct|null $entity
      *
      * @return \Generator
      */
     abstract public function serialize(Config $config, EntityDefinition $definition, $entity): iterable;
 
     /**
-     * @param array|\Traversable $entity
+     * @param array<mixed>|\Traversable<mixed> $entity
      *
-     * @return array|\Traversable
+     * @return array<mixed>|\Traversable<mixed>
      */
     abstract public function deserialize(Config $config, EntityDefinition $definition, $entity);
 

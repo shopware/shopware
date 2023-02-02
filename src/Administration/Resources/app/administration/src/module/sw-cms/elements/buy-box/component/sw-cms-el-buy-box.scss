@@ -7,7 +7,7 @@
     height: 100%;
     width: 100%;
     pointer-events: none;
-    font-size: $font-size-extra-small;
+    font-size: $font-size-xxs;
     color: $color-darkgray-200;
 
     &__placeholder {
@@ -89,6 +89,24 @@
         right: 10px;
         top: calc(50% - 15px);
         color: $color-darkgray-200;
+
+        .icon--regular-chevron-up-xxs {
+            width: 16px;
+            height: 16px;
+            padding-top: 5px;
+            padding-right: 4px;
+            padding-bottom: 6px;
+            padding-left: 4px;
+        }
+
+        .icon--regular-chevron-down-xxs {
+            width: 16px;
+            height: 16px;
+            padding-top: 6px;
+            padding-right: 4px;
+            padding-bottom: 5px;
+            padding-left: 4px;
+        }
     }
 
     &__actions {
@@ -100,7 +118,7 @@
     &__buy-action {
         display: block;
         line-height: 40px;
-        font-size: $font-size-small;
+        font-size: $font-size-xs;
         font-weight: $font-weight-bold;
         text-align: center;
         text-decoration: none;

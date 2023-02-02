@@ -24,7 +24,7 @@ if (!\function_exists('Shopware\Core\Framework\Adapter\Twig\sw_get_attribute')) 
      *
      * @internal
      */
-    function sw_get_attribute(Environment $env, Source $source, $object, $item, array $arguments = [], $type = /* Template::ANY_CALL */ 'any', $isDefinedTest = false, $ignoreStrictCheck = false, $sandboxed = false, int $lineno = -1)
+    function sw_get_attribute(Environment $env, Source $source, mixed $object, mixed $item, array $arguments = [], $type = /* Template::ANY_CALL */ 'any', $isDefinedTest = false, $ignoreStrictCheck = false, $sandboxed = false, int $lineno = -1)
     {
         try {
             if ($object instanceof Struct) {
@@ -34,8 +34,8 @@ if (!\function_exists('Shopware\Core\Framework\Adapter\Twig\sw_get_attribute')) 
                     return $object->$item(...$arguments);
                 }
 
-                $getter = 'get' . ucfirst($item);
-                $isGetter = 'is' . ucfirst($item);
+                $getter = 'get' . ucfirst((string) $item);
+                $isGetter = 'is' . ucfirst((string) $item);
 
                 if (method_exists($object, $getter)) {
                     return $object->$getter();
@@ -47,7 +47,7 @@ if (!\function_exists('Shopware\Core\Framework\Adapter\Twig\sw_get_attribute')) 
             }
 
             return \twig_get_attribute($env, $source, $object, $item, $arguments, $type, $isDefinedTest, $ignoreStrictCheck, $sandboxed, $lineno);
-        } catch (\Throwable $e) {
+        } catch (\Throwable) {
             return \twig_get_attribute($env, $source, $object, $item, $arguments, $type, $isDefinedTest, $ignoreStrictCheck, $sandboxed, $lineno);
         } finally {
             FieldVisibility::$isInTwigRenderingContext = false;
@@ -66,7 +66,7 @@ if (!\function_exists('Shopware\Core\Framework\Adapter\Twig\sw_escape_filter')) 
      *
      * @return string
      */
-    function sw_escape_filter(Environment $env, $string, string $strategy = 'html', $charset = null, $autoescape = false)
+    function sw_escape_filter(Environment $env, mixed $string, string $strategy = 'html', $charset = null, $autoescape = false)
     {
         if (\is_int($string)) {
             $string = (string) $string;

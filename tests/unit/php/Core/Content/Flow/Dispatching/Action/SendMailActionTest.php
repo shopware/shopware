@@ -6,28 +6,27 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
-use Shopware\Core\Checkout\Document\DocumentService;
-use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Mail\Service\AbstractMailService;
+use Shopware\Core\Content\Mail\Service\MailAttachmentsConfig;
 use Shopware\Core\Content\MailTemplate\Exception\MailEventConfigurationException;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
-use Shopware\Core\Content\Media\MediaService;
-use Shopware\Core\Defaults;
+use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\Event\DelayAware;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\MailAware;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
+ * @package business-ops
+ *
  * @internal
  * @covers \Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction
  */
@@ -36,43 +35,42 @@ class SendMailActionTest extends TestCase
     private MailTemplateEntity $mailTemplate;
 
     /**
-     * @var MockObject|AbstractMailService
+     * @var AbstractMailService&MockObject
      */
-    private $mailService;
+    private AbstractMailService $mailService;
 
     /**
-     * @var MockObject|EntityRepositoryInterface
+     * @var EntityRepository&MockObject
      */
-    private $mailTemplateRepository;
+    private EntityRepository $mailTemplateRepository;
 
     /**
-     * @var MockObject|LanguageLocaleCodeProvider
+     * @var LanguageLocaleCodeProvider&MockObject
      */
-    private $languageLocaleProvider;
+    private LanguageLocaleCodeProvider $languageLocaleProvider;
 
     /**
-     * @var MockObject|Translator
+     * @var Translator&MockObject
      */
-    private $translator;
+    private Translator $translator;
 
     /**
-     * @var MockObject|EntitySearchResult
+     * @var EntitySearchResult&MockObject
      */
-    private $entitySearchResult;
+    private EntitySearchResult $entitySearchResult;
 
     private SendMailAction $action;
 
     /**
-     * @var MockObject|StorableFlow
+     * @var StorableFlow&MockObject
      */
-    private $flow;
+    private StorableFlow $flow;
 
     public function setUp(): void
     {
         $this->mailTemplate = new MailTemplateEntity();
         $this->mailService = $this->createMock(AbstractMailService::class);
-        $this->mailTemplateRepository = $this->createMock(EntityRepositoryInterface::class);
-        $documentGenerator = $this->getMockBuilder(DocumentGenerator::class)->disableOriginalConstructor()->onlyMethods(['generate'])->getMock();
+        $this->mailTemplateRepository = $this->createMock(EntityRepository::class);
         $this->languageLocaleProvider = $this->createMock(LanguageLocaleCodeProvider::class);
         $this->translator = $this->createMock(Translator::class);
         $this->entitySearchResult = $this->createMock(EntitySearchResult::class);
@@ -80,14 +78,9 @@ class SendMailActionTest extends TestCase
         $this->action = new SendMailAction(
             $this->mailService,
             $this->mailTemplateRepository,
-            $this->createMock(MediaService::class),
-            $this->createMock(EntityRepositoryInterface::class),
-            $this->createMock(EntityRepositoryInterface::class),
-            $this->createMock(DocumentService::class),
-            $documentGenerator,
             $this->createMock(LoggerInterface::class),
             $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(EntityRepositoryInterface::class),
+            $this->createMock(EntityRepository::class),
             $this->translator,
             $this->createMock(Connection::class),
             $this->languageLocaleProvider,
@@ -100,25 +93,8 @@ class SendMailActionTest extends TestCase
     public function testRequirements(): void
     {
         static::assertSame(
-            [MailAware::class, DelayAware::class],
+            [MailAware::class],
             $this->action->requirements()
-        );
-    }
-
-    public function testSubscribedEvents(): void
-    {
-        if (Feature::isActive('v6.5.0.0')) {
-            static::assertSame(
-                [],
-                SendMailAction::getSubscribedEvents()
-            );
-
-            return;
-        }
-
-        static::assertSame(
-            ['action.mail.send' => 'handle'],
-            SendMailAction::getSubscribedEvents()
         );
     }
 
@@ -127,13 +103,21 @@ class SendMailActionTest extends TestCase
         static::assertSame('action.mail.send', SendMailAction::getName());
     }
 
-    public function testActionExecuted(): void
+    /**
+     * @dataProvider replyToProvider
+     *
+     * @param array<string, string> $exptectedReplyTo
+     */
+    public function testActionExecuted(?string $replyTo, array $exptectedReplyTo = []): void
     {
+        $orderId = Uuid::randomHex();
         $mailTemplateId = Uuid::randomHex();
+        $this->mailTemplate->setId($mailTemplateId);
         $config = array_filter([
             'mailTemplateId' => $mailTemplateId,
             'recipient' => ['type' => 'customer'],
             'documentTypeIds' => null,
+            'replyTo' => $replyTo,
         ]);
 
         $expected = [
@@ -141,7 +125,7 @@ class SendMailActionTest extends TestCase
                 'recipients' => [
                     'email' => 'firstName lastName',
                 ],
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'templateId' => $mailTemplateId,
                 'customFields' => null,
                 'contentHtml' => null,
@@ -149,32 +133,48 @@ class SendMailActionTest extends TestCase
                 'subject' => null,
                 'mediaIds' => [],
                 'senderName' => null,
+                'attachmentsConfig' => new MailAttachmentsConfig(
+                    Context::createDefaultContext(),
+                    $this->mailTemplate,
+                    new MailSendSubscriberConfig(false, [], []),
+                    $config,
+                    $orderId
+                ),
             ],
             'context' => Context::createDefaultContext(),
         ];
 
         $templateData = new MailRecipientStruct($expected['data']['recipients']);
-        $this->mailTemplate->setId($mailTemplateId);
+
+        $expected['data'] = array_merge($expected['data'], $exptectedReplyTo);
 
         $this->flow->expects(static::exactly(2))
             ->method('hasStore')
             ->willReturn(true);
 
-        $this->flow->expects(static::exactly(5))
+        $this->flow->expects(static::exactly(6))
             ->method('getStore')
             ->willReturnOnConsecutiveCalls(
-                Defaults::SALES_CHANNEL,
+                TestDefaults::SALES_CHANNEL,
                 ['recipients' => [
                     'email' => 'firstName lastName',
                 ]],
                 [],
-                Defaults::SALES_CHANNEL,
-                Uuid::randomHex(),
+                TestDefaults::SALES_CHANNEL,
+                $orderId,
+                [
+                    'email' => 'customer@example.com',
+                    'firstName' => 'Max',
+                    'lastName' => 'Mustermann',
+                ],
             );
 
         $this->flow->expects(static::exactly(2))
             ->method('data')
-            ->willReturn(['mailStruct' => $templateData]);
+            ->willReturn([
+                'mailStruct' => $templateData,
+                'eventName' => $this->flow->getName(),
+            ]);
 
         $this->flow->expects(static::once())
             ->method('getConfig')
@@ -202,9 +202,26 @@ class SendMailActionTest extends TestCase
 
         $this->mailService->expects(static::once())
             ->method('send')
-            ->with($expected['data'], $expected['context'], ['mailStruct' => $templateData]);
+            ->with(
+                $expected['data'],
+                $expected['context'],
+                [
+                    'mailStruct' => $templateData,
+                    'eventName' => $this->flow->getName(),
+                ],
+            );
 
         $this->action->handleFlow($this->flow);
+    }
+
+    public function replyToProvider(): \Generator
+    {
+        yield 'no reply to' => [null];
+        yield 'custom reply to' => ['foo@example.com', ['senderMail' => 'foo@example.com']];
+        yield 'contact form reply to' => ['contactFormMail', [
+            'senderMail' => 'customer@example.com',
+            'senderName' => '{% if contactFormData.firstName is defined %}{{ contactFormData.firstName }}{% endif %} {% if contactFormData.lastName is defined %}{{ contactFormData.lastName }}{% endif %}',
+        ]];
     }
 
     public function testActionWithNotAware(): void

@@ -7,15 +7,12 @@ const packagingItemClassName = [
     '.sw-select-product__select_unit',
     '.sw-product-packaging-form__pack-unit-field',
     '.sw-product-packaging-form__pack-unit-plural-field',
-    '.sw-product-packaging-form__reference-unit-field'
+    '.sw-product-packaging-form__reference-unit-field',
 ];
 
 describe('Product: Mode advanced settings at product detail', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createProductFixture();
-            })
+        cy.createProductFixture()
             .then(() => {
                 return cy.createDefaultFixture('custom-field-set');
             })
@@ -29,7 +26,7 @@ describe('Product: Mode advanced settings at product detail', () => {
     it('@catalogue: should not show the cards, fields when unchecking or toggling in advanced mode menu in General tab', { tags: ['pa-inventory'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/user-config/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveUserConfig');
 
         cy.get('.sw-data-grid__row--0 .sw-data-grid__cell--name a').click();
@@ -38,7 +35,7 @@ describe('Product: Mode advanced settings at product detail', () => {
 
         const priceFieldsClassName = [
             '.sw-purchase-price-field',
-            '.sw-price-field.sw-list-price-field__list-price-field'
+            '.sw-price-field.sw-list-price-field__list-price-field',
         ];
 
         cy.get('.sw-product-detail-base__prices').scrollIntoView().then(() => {
@@ -53,7 +50,7 @@ describe('Product: Mode advanced settings at product detail', () => {
             '.sw-product-deliverability__shipping-free',
             '.sw-product-deliverability__min-purchase',
             '.sw-product-deliverability__purchase-step',
-            '.sw-product-deliverability__max-purchase'
+            '.sw-product-deliverability__max-purchase',
         ];
 
         cy.get('.sw-product-detail-base__deliverability').scrollIntoView().then(() => {
@@ -64,7 +61,7 @@ describe('Product: Mode advanced settings at product detail', () => {
 
         const structureFieldsClassName = [
             '.sw-product-category-form__tag-field-wrapper',
-            '.sw-product-category-form__search-keyword-field'
+            '.sw-product-category-form__search-keyword-field',
         ];
 
         cy.get('.sw-product-detail-base__visibility-structure').scrollIntoView().then(() => {
@@ -150,12 +147,12 @@ describe('Product: Mode advanced settings at product detail', () => {
 
         cy.intercept({
             method: 'PATCH',
-            url: `${Cypress.env('apiPath')}/custom-field-set/*`
+            url: `${Cypress.env('apiPath')}/custom-field-set/*`,
         }).as('saveData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/user-config/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveUserConfig');
 
         cy.visit(`${Cypress.env('admin')}#/sw/settings/custom/field/index`);
@@ -178,7 +175,7 @@ describe('Product: Mode advanced settings at product detail', () => {
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.get('.sw-tabs-item.sw-product-detail__tab-specifications').click();

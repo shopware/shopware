@@ -31,7 +31,6 @@
 
         <service id="Shopware\Core\Content\Mail\Service\MailFactory" public="true">
             <argument type="service" id="validator"/>
-            <argument type="service" id="shopware.filesystem.public"/>
         </service>
 
         <!-- Controller -->
@@ -59,40 +58,35 @@
             <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer" />
             <argument type="service" id="Shopware\Core\Content\Mail\Service\MailFactory" />
             <argument type="service" id="Shopware\Core\Content\Mail\Service\MailSender" />
-            <argument type="service" id="Shopware\Core\Content\Media\DataAbstractionLayer\MediaRepositoryDecorator" />
+            <argument type="service" id="media.repository" />
             <argument type="service" id="Shopware\Core\System\SalesChannel\SalesChannelDefinition" />
             <argument type="service" id="sales_channel.repository"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface"/>
+            <argument type="service" id="logger"/>
         </service>
 
-        <service id="Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriber">
-            <tag name="kernel.event_subscriber"/>
-            <argument type="service" id="Shopware\Core\Content\Mail\Service\MailService"/>
-            <argument type="service" id="mail_template.repository"/>
+        <service id="Shopware\Core\Content\Mail\Service\MailAttachmentsBuilder" public="true">
             <argument type="service" id="Shopware\Core\Content\Media\MediaService"/>
             <argument type="service" id="media.repository"/>
-            <argument type="service" id="document.repository"/>
-            <argument type="service" id="Shopware\Core\Checkout\Document\DocumentService"/>
-            <argument type="service" id="logger"/>
-            <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="mail_template_type.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Translation\Translator"/>
-            <argument type="service" id="Shopware\Core\System\Locale\LanguageLocaleCodeProvider"/>
+            <argument type="service" id="Shopware\Core\Checkout\Document\Service\DocumentGenerator"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <service id="core_mailer" alias="mailer" />
 
-        <service id="mailer.transport_factory" class="Shopware\Core\Content\Mail\Service\MailerTransportFactory">
-            <argument type="tagged_iterator" tag="mailer.transport_factory"/>
+        <service id="Shopware\Core\Content\Mail\Service\MailerTransportLoader">
+            <argument type="service" id="mailer.transport_factory"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Shopware\Core\Content\Mail\Service\MailAttachmentsBuilder"/>
+            <argument type="service" id="shopware.filesystem.public"/>
+            <argument type="service" id="document.repository"/>
         </service>
 
         <service id="Shopware\Core\Content\MailTemplate\Service\AttachmentLoader">
             <argument type="service" id="document.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Document\Service\DocumentGenerator"/>
-            <argument type="service" id="Shopware\Core\Checkout\Document\DocumentService"/>
             <argument type="service" id="event_dispatcher"/>
         </service>
     </services>

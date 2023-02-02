@@ -5,11 +5,16 @@ namespace Shopware\Core\Migration\V6_4;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\MailTemplate\MailTemplateTypes;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\Traits\ImportTranslationsTrait;
 use Shopware\Core\Migration\Traits\Translations;
 
+/**
+ * @internal
+ */
+#[Package('core')]
 class Migration1632721037OrderDocumentMailTemplate extends MigrationStep
 {
     use ImportTranslationsTrait;
@@ -193,7 +198,7 @@ class Migration1632721037OrderDocumentMailTemplate extends MigrationStep
             ->where('technical_name = :technicalName')
             ->setParameter('technicalName', $technicalName)
             ->execute()
-            ->fetchColumn();
+            ->fetchOne();
 
         return $result ?: null;
     }

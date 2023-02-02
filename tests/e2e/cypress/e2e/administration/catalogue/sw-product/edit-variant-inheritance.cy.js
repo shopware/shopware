@@ -4,15 +4,11 @@ import ProductPageObject from '../../../../support/pages/module/sw-product.page-
 
 describe('Product: Test variants', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                cy.createProductVariantFixture();
-            })
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
-            });
+        cy.createProductVariantFixture().then(() => {
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+        });
     });
 
     it('@catalogue: check fields in inheritance', { tags: ['pa-inventory'] }, () => {
@@ -21,14 +17,14 @@ describe('Product: Test variants', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         // Navigate to variant generator listing and start
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.get('.sw-product-detail__tab-variants').click();
@@ -82,7 +78,7 @@ describe('Product: Test variants', () => {
 
         // Check other values
         cy.get('#sw-field--product-name').scrollIntoView().should('be.visible');
-        cy.get('.sw-field .icon--custom-inherited').first().click();
+        cy.get('.sw-field .icon--regular-link-horizontal').first().click();
         cy.get('#sw-field--product-name').clearTypeAndCheck('Variant in Red');
         cy.get('.sw-text-editor__content-editor').type('This is not an inherited variant text.');
         cy.contains('.sw-text-editor__content-editor', 'This is not an inherited variant text.');

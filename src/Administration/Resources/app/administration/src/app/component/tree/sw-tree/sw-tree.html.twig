@@ -95,10 +95,6 @@
             </slot>
             {% endblock %}
 
-            {# @deprecated tag:v6.5.0 - Will be removed #}
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_tree_loader %}{% endblock %}
-
         </div>
     </div>
     {% endblock %}
@@ -147,7 +143,7 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_tree_delete_modal_footer %}
-        <template slot="modal-footer">
+        <template #modal-footer>
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_tree_delete_modal_cancel %}
             <sw-button

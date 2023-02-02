@@ -2,9 +2,11 @@
 
 namespace Shopware\Storefront\Framework\Captcha\BasicCaptcha;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Symfony\Component\Filesystem\Filesystem;
 
+#[Package('storefront')]
 class BasicCaptchaGenerator extends AbstractBasicCaptchaGenerator
 {
     private const FALLBACK_WIDTH_IMAGE = 390;
@@ -21,10 +23,10 @@ class BasicCaptchaGenerator extends AbstractBasicCaptchaGenerator
         $filesystem = new Filesystem();
 
         if ($filesystem->exists($this->backgroundPath)) {
-            /** @var resource $img */
+            /** @var \GdImage $img */
             $img = imagecreatefrompng($this->backgroundPath);
         } else {
-            /** @var resource $img */
+            /** @var \GdImage $img */
             $img = imagecreate(self::FALLBACK_WIDTH_IMAGE, self::FALLBACK_HEIGHT_IMAGE);
             imagecolorallocate($img, 255, 255, 255);
         }

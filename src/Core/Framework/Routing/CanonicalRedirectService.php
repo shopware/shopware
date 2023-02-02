@@ -2,25 +2,21 @@
 
 namespace Shopware\Core\Framework\Routing;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+#[Package('core')]
 class CanonicalRedirectService
 {
     /**
-     * @var SystemConfigService
-     */
-    private $configService;
-
-    /**
      * @internal
      */
-    public function __construct(SystemConfigService $configService)
+    public function __construct(private readonly SystemConfigService $configService)
     {
-        $this->configService = $configService;
     }
 
     /**

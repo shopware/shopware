@@ -1,35 +1,34 @@
+/**
+ * @package content
+ */
 const platforms = [{
     name: 'youtube',
-    videoId: 'https://www.youtube.com/watch?v=Ds7c_AKSk7s'
+    videoId: 'https://www.youtube.com/watch?v=Ds7c_AKSk7s',
 }, {
     name: 'vimeo',
-    videoId: 'https://vimeo.com/68765485'
+    videoId: 'https://vimeo.com/68765485',
 }];
 
 describe('CMS: Check GDPR compliant video elements', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createCmsFixture();
-            })
-            .then(() => {
-                cy.viewport(1920, 1080);
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/cms/index`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
-            });
+        cy.createCmsFixture().then(() => {
+            cy.viewport(1920, 1080);
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/cms/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+        });
     });
 
     platforms.forEach(({ name, videoId }) => {
         it(`use ${name} element with GDPR compliant options`, { tags: ['pa-content-management'] }, () => {
             cy.intercept({
                 url: `**/${Cypress.env('apiPath')}/cms-page/*`,
-                method: 'PATCH'
+                method: 'PATCH',
             }).as('saveData');
 
             cy.intercept({
                 url: `**/${Cypress.env('apiPath')}/category/*`,
-                method: 'PATCH'
+                method: 'PATCH',
             }).as('saveCategory');
 
             cy.get('.sw-cms-list-item--0').click();
@@ -56,7 +55,7 @@ describe('CMS: Check GDPR compliant video elements', () => {
 
             // Upload preview image
             cy.get('.sw-media-upload-v2__dropzone.is--droppable').should('be.visible');
-            cy.get('.sw-cms-slot__config-modal #files')
+            cy.get('.sw-cms-slot__config-modal .sw-media-upload-v2__file-input')
                 .attachFile('img/sw-login-background.png');
             cy.awaitAndCheckNotification('File has been saved.');
 
@@ -91,7 +90,7 @@ describe('CMS: Check GDPR compliant video elements', () => {
             cy.get(`.cms-element-${name}-video__backdrop`).should('be.visible');
 
             // Check the privacy notice modal
-            cy.get(`.cms-element-${name}-video__backdrop a[data-toggle="modal"]`).click();
+            cy.get(`.cms-element-${name}-video__backdrop a[data-ajax-modal="true"]`).click();
             cy.get('.js-pseudo-modal .modal').should('exist');
             cy.contains('.js-pseudo-modal .modal .cms-element-text h2', 'Privacy');
 

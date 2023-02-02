@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AutoIncrementField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedByField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
@@ -23,6 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\EmailField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\NoConstraint;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
@@ -41,13 +43,17 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PasswordField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\RemoteAddressField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedByField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\Salutation\SalutationDefinition;
 use Shopware\Core\System\Tag\TagDefinition;
+use Shopware\Core\System\User\UserDefinition;
 
+#[Package('customer-order')]
 class CustomerDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'customer';
@@ -86,18 +92,18 @@ class CustomerDefinition extends EntityDefinition
             (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->addFlags(new ApiAware(), new Required()),
             (new FkField('language_id', 'languageId', LanguageDefinition::class))->addFlags(new ApiAware(), new Required()),
             (new FkField('last_payment_method_id', 'lastPaymentMethodId', PaymentMethodDefinition::class))->addFlags(new ApiAware()),
-            (new FkField('default_billing_address_id', 'defaultBillingAddressId', CustomerAddressDefinition::class))->addFlags(new ApiAware(), new Required()),
-            (new FkField('default_shipping_address_id', 'defaultShippingAddressId', CustomerAddressDefinition::class))->addFlags(new ApiAware(), new Required()),
+            (new FkField('default_billing_address_id', 'defaultBillingAddressId', CustomerAddressDefinition::class))->addFlags(new ApiAware(), new Required(), new NoConstraint()),
+            (new FkField('default_shipping_address_id', 'defaultShippingAddressId', CustomerAddressDefinition::class))->addFlags(new ApiAware(), new Required(), new NoConstraint()),
             new AutoIncrementField(),
             (new NumberRangeField('customer_number', 'customerNumber', 255))->addFlags(new ApiAware(), new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new FkField('salutation_id', 'salutationId', SalutationDefinition::class))->addFlags(new ApiAware()),
             (new StringField('first_name', 'firstName'))->addFlags(new ApiAware(), new Required(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
             (new StringField('last_name', 'lastName'))->addFlags(new ApiAware(), new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new StringField('company', 'company'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
-            (new PasswordField('password', 'password'))->removeFlag(ApiAware::class),
+            (new PasswordField('password', 'password', \PASSWORD_DEFAULT, [], PasswordField::FOR_CUSTOMER))->removeFlag(ApiAware::class),
             (new EmailField('email', 'email'))->addFlags(new ApiAware(), new Required(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING, false)),
             (new StringField('title', 'title'))->addFlags(new ApiAware()),
-            (new ListField('vat_ids', 'vatIds', StringField::class))->setStrict(true)->addFlags(new ApiAware()),
+            (new ListField('vat_ids', 'vatIds', StringField::class))->addFlags(new ApiAware()),
             (new StringField('affiliate_code', 'affiliateCode'))->addFlags(new ApiAware()),
             (new StringField('campaign_code', 'campaignCode'))->addFlags(new ApiAware()),
             (new BoolField('active', 'active'))->addFlags(new ApiAware()),
@@ -109,11 +115,6 @@ class CustomerDefinition extends EntityDefinition
             (new DateTimeField('first_login', 'firstLogin'))->addFlags(new ApiAware()),
             (new DateTimeField('last_login', 'lastLogin'))->addFlags(new ApiAware()),
             (new JsonField('newsletter_sales_channel_ids', 'newsletterSalesChannelIds'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE))->removeFlag(ApiAware::class),
-            /*
-             * @deprecated tag:v6.5.0 - newsletter field will be remove on version 6.5.0.
-             * Please use the newsletterRecipient to detemine if a customer is subscribed to a newsletter
-             */
-            (new BoolField('newsletter', 'newsletter'))->addFlags(new ApiAware()),
             (new DateField('birthday', 'birthday'))->addFlags(new ApiAware()),
             (new DateTimeField('last_order_date', 'lastOrderDate'))->addFlags(new ApiAware(), new WriteProtected(Context::SYSTEM_SCOPE)),
             (new IntField('order_count', 'orderCount'))->addFlags(new ApiAware(), new WriteProtected(Context::SYSTEM_SCOPE)),
@@ -142,6 +143,10 @@ class CustomerDefinition extends EntityDefinition
             new FkField('bound_sales_channel_id', 'boundSalesChannelId', SalesChannelDefinition::class),
             new ManyToOneAssociationField('boundSalesChannel', 'bound_sales_channel_id', SalesChannelDefinition::class, 'id', false),
             (new OneToManyAssociationField('wishlists', CustomerWishlistDefinition::class, 'customer_id'))->addFlags(new CascadeDelete()),
+            (new CreatedByField([Context::SYSTEM_SCOPE, Context::CRUD_API_SCOPE]))->addFlags(new ApiAware()),
+            (new UpdatedByField([Context::SYSTEM_SCOPE, Context::CRUD_API_SCOPE]))->addFlags(new ApiAware()),
+            new ManyToOneAssociationField('createdBy', 'created_by_id', UserDefinition::class, 'id', false),
+            new ManyToOneAssociationField('updatedBy', 'updated_by_id', UserDefinition::class, 'id', false),
         ]);
 
         return $fields;

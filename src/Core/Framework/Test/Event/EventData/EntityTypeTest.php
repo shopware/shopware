@@ -21,5 +21,6 @@ class EntityTypeTest extends TestCase
         ];
 
         static::assertEquals($expected, (new EntityType($definition))->toArray());
+        static::assertEquals($expected, (new EntityType(new CustomerDefinition()))->toArray());
     }
 }

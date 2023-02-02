@@ -8,10 +8,10 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEnt
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Rule\BillingCountryRule;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -25,25 +25,17 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 /**
  * @internal
  */
+#[Package('business-ops')]
 class BillingCountryRuleTest extends TestCase
 {
     use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $ruleRepository;
+    private EntityRepository $ruleRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $conditionRepository;
+    private EntityRepository $conditionRepository;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     private BillingCountryRule $rule;
 
@@ -253,6 +245,9 @@ class BillingCountryRuleTest extends TestCase
         }
     }
 
+    /**
+     * @return \Traversable<string, array<string|bool>>
+     */
     public function getMatchValues(): \Traversable
     {
         yield 'operator_eq / not match / country id' => [Rule::OPERATOR_EQ, false, Uuid::randomHex()];
@@ -261,22 +256,6 @@ class BillingCountryRuleTest extends TestCase
         yield 'operator_neq / not match / country id' => [Rule::OPERATOR_NEQ, false, 'kyln123'];
         yield 'operator_empty / not match / country id' => [Rule::OPERATOR_NEQ, false, 'kyln123'];
         yield 'operator_empty / match / country id' => [Rule::OPERATOR_EMPTY, true, ''];
-
-        if (!Feature::isActive('v6.5.0.0')) {
-            yield 'operator_eq / no match / no customer' => [Rule::OPERATOR_EQ, false, '', true];
-            yield 'operator_eq / no match / no country' => [Rule::OPERATOR_EQ, false, '', false, true];
-            yield 'operator_eq / no match / no address' => [Rule::OPERATOR_EQ, false, '', false, false, true];
-
-            yield 'operator_empty / no match / no customer' => [Rule::OPERATOR_EMPTY, false, '', true];
-            yield 'operator_empty / no match / no country' => [Rule::OPERATOR_EMPTY, false, '', false, true];
-            yield 'operator_empty / no match / no address' => [Rule::OPERATOR_EMPTY, false, '', false, false, true];
-
-            yield 'operator_neq / no match / no customer' => [Rule::OPERATOR_EMPTY, false, '', true];
-            yield 'operator_neq / no match / no country' => [Rule::OPERATOR_EMPTY, false, '', false, true];
-            yield 'operator_neq / no match / no address' => [Rule::OPERATOR_EMPTY, false, '', false, false, true];
-
-            return;
-        }
 
         yield 'operator_eq / no match / no customer' => [Rule::OPERATOR_EQ, false, '', true];
         yield 'operator_eq / no match / no country' => [Rule::OPERATOR_EQ, false, '', false, true];

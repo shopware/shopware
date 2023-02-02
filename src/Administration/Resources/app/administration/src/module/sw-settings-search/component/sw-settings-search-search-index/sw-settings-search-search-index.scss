@@ -3,13 +3,13 @@
 .sw-settings-search {
     &__search-index-latest-build {
         padding-left: 16px;
-        font-size: $font-size-small;
+        font-size: $font-size-xs;
     }
 
     &__search-index-rebuilding-text {
         display: inline-block;
         margin-bottom: 2px;
-        font-size: $font-size-small;
+        font-size: $font-size-xs;
     }
 
     &__search-index-warning-top {

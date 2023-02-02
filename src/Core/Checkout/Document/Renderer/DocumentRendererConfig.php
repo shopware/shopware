@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Checkout\Document\Renderer;
 
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('customer-order')]
 final class DocumentRendererConfig
 {
     public string $deepLinkCode = '';

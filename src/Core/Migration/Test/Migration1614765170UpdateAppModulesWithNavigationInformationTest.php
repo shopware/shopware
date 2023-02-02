@@ -4,9 +4,11 @@ namespace Shopware\Core\Migration\Test;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_4\Migration1614765170UpdateAppModulesWithNavigationInformation;
@@ -14,13 +16,14 @@ use Shopware\Core\Migration\V6_4\Migration1614765170UpdateAppModulesWithNavigati
 /**
  * @internal
  */
+#[Package('core')]
 class Migration1614765170UpdateAppModulesWithNavigationInformationTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
     private Connection $connection;
 
-    private EntityRepositoryInterface $appRepository;
+    private EntityRepository $appRepository;
 
     private Context $context;
 
@@ -104,6 +107,7 @@ class Migration1614765170UpdateAppModulesWithNavigationInformationTest extends T
         $apps = $this->appRepository->search(new Criteria([$firstAppId, $secondAppId]), $this->context);
 
         $firstApp = $apps->get($firstAppId);
+        static::assertInstanceOf(AppEntity::class, $firstApp);
         static::assertEquals([
             [
                 'source' => 'http://testApp1-module',
@@ -117,6 +121,7 @@ class Migration1614765170UpdateAppModulesWithNavigationInformationTest extends T
         ], $firstApp->getModules());
 
         $secondApp = $apps->get($secondAppId);
+        static::assertInstanceOf(AppEntity::class, $secondApp);
         static::assertEquals([
             [
                 'source' => 'http://testApp2-module',
@@ -162,15 +167,22 @@ class Migration1614765170UpdateAppModulesWithNavigationInformationTest extends T
         ], $app->getModules());
     }
 
+    /**
+     * @param list<array<string, mixed>>|null $modules
+     */
     private function insertAppWithModule(string $name, ?array $modules): string
     {
         $appId = Uuid::randomHex();
+
+        $path = \realpath(__DIR__ . '/../../../../tests/integration/php/Core/Framework/App/Manifest/_fixtures/test');
+        static::assertNotFalse($path);
+
         $this->appRepository->create([
             [
                 'id' => $appId,
                 'name' => $name,
                 'label' => $name,
-                'path' => realpath(__DIR__ . '/../../Framework/Test/App/Manifest/_fixtures/test'),
+                'path' => $path,
                 'active' => true,
                 'modules' => $modules,
                 'version' => '1.0.0',

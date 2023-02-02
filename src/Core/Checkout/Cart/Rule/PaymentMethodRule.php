@@ -3,20 +3,27 @@
 namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
+#[Package('business-ops')]
 class PaymentMethodRule extends Rule
 {
-    /**
-     * @var array<string>
-     */
-    protected array $paymentMethodIds;
+    final public const RULE_NAME = 'paymentMethod';
 
-    protected string $operator;
+    /**
+     * @param list<string> $paymentMethodIds
+     *
+     * @internal
+     */
+    public function __construct(protected string $operator = RULE::OPERATOR_EQ, protected array $paymentMethodIds = [])
+    {
+        parent::__construct();
+    }
 
     public function match(RuleScope $scope): bool
     {
@@ -29,11 +36,6 @@ class PaymentMethodRule extends Rule
             'paymentMethodIds' => RuleConstraints::uuids(),
             'operator' => RuleConstraints::uuidOperators(false),
         ];
-    }
-
-    public function getName(): string
-    {
-        return 'paymentMethod';
     }
 
     public function getConfig(): RuleConfig

@@ -10,291 +10,171 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_variant_modal_body %}
-    <template>
 
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_product_variant_modal_toolbar %}
+    <div class="sw-configuration-option-list__toolbar">
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_product_variant_modal_toolbar %}
-        <div class="sw-configuration-option-list__toolbar">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_product_variant_modal_toolbar_container %}
-            <sw-container
-                columns="1fr minmax(50px, max-content)"
-                gap="0 16px"
-            >
-
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_product_variant_modal_body_label_search %}
-                <sw-simple-search-field
-                    v-model="searchTerm"
-                    class="sw-product-variant-modal__search"
-                    size="small"
-                    variant="form"
-                    @search-term-change="onSearchTermChange"
-                />
-                {% endblock %}
-
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_product_variant_modal_option_list_toolbar_container_filter_list %}
-                <div class="sw-product-variant-modal__filter-list-button">
-
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_product_variant_modal_option_list_toolbar_container_filter_list_button %}
-                    <sw-button
-                        class="sw-product-variant-modal__button-filter"
-                        @click="toggleFilterMenu"
-                    >
-                        {{ $tc('sw-product.variations.generatedFilterList') }}
-                        <sw-icon name="regular-filter" />
-                    </sw-button>
-                    {% endblock %}
-
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_product_variant_modal_option_list_toolbar_container_filter_context_menu %}
-                    <sw-context-menu
-                        v-show="filterWindowOpen"
-                        class="sw-product-variant-modal__filter-context-menu"
-                    >
-                        <sw-container
-                            columns="1fr"
-                            gap="5px"
-                        >
-
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                            {% block sw_product_variant_modal_option_list_toolbar_container_filter_tree %}
-                            <sw-tree
-                                v-show="filterOptions.length"
-                                :sortable="false"
-                                :items="filterOptions"
-                                :searchable="false"
-                                disable-context-menu
-                                bind-items-to-folder
-                            >
-                                <template #items="{ treeItems, sortable, draggedItem, disableContextMenu, onChangeRoute, checkItem}">
-                                    <sw-tree-item
-                                        v-for="(item, index) in treeItems"
-                                        :key="item.id"
-                                        :sortable="false"
-                                        :item="item"
-                                        disable-context-menu
-                                        @check-item="filterOptionChecked"
-                                    />
-                                </template>
-                            </sw-tree>
-                            {% endblock %}
-
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                            {% block sw_product_variant_modal_option_list_toolbar_container_filter_buttons %}
-                            <div class="sw-product-variant-modal__filter-buttons">
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                                {% block sw_product_variant_modal_option_list_toolbar_container_button_filter_reset %}
-                                <sw-button
-                                    class="sw-product-variant-modal__reset-filter"
-                                    @click="resetFilterOptions"
-                                >
-                                    {{ $tc('sw-product.variations.overview.filterReset') }}
-                                </sw-button>
-                                {% endblock %}
-
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                                {% block sw_product_variant_modal_option_list_toolbar_container_button_update_list %}
-                                <sw-button
-                                    variant="primary"
-                                    @click="fetchProductVariants"
-                                >
-                                    {{ $tc('sw-product.variations.overview.filter') }}
-                                </sw-button>
-                                {% endblock %}
-                            </div>
-                            {% endblock %}
-
-                        </sw-container>
-                    </sw-context-menu>
-                    {% endblock %}
-                </div>
-                {% endblock %}
-            </sw-container>
-        {% endblock %}
-        </div>
-        {% endblock %}
-
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_product_variant_modal_body_grid %}
-        <sw-data-grid
-            v-if="productVariants.length > 0"
-            ref="variantGrid"
-            :is-loading="isLoading"
-            :columns="gridColumns"
-            :data-source="productVariants"
-            :sort-by="sortBy"
-            :sort-direction="sortDirection"
-            :allow-inline-edit="acl.can('product.editor')"
-            show-settings
-            @column-sort="onSortColumn"
-            @inline-edit-save="onInlineEditSave"
-            @inline-edit-cancel="onInlineEditCancel"
+        {% block sw_product_variant_modal_toolbar_container %}
+        <sw-container
+            columns="1fr minmax(50px, max-content)"
+            gap="0 16px"
         >
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_product_variant_modal_body_grid_bulk %}
-            <template #bulk>
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_product_variant_modal_body_grid_bulk_edit %}
-                <span
-                    v-if="acl.can('product.editor')"
-                    class="link link-primary sw-product-variant-modal__bulk-edit-action"
-                    @click="toggleBulkEditModal"
-                >
-                    {{ $tc('global.default.bulkEdit') }}
-                </span>
-                {% endblock %}
-
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_product_variant_modal_body_grid_bulk_delete %}
-                <span
-                    v-if="acl.can('product.deleter')"
-                    class="link link-danger sw-product-variant-modal__bulk-delete-action"
-                    @click="onClickBulkDelete"
-                >
-                    {{ $tc('global.default.delete') }}
-                </span>
-                {% endblock %}
-            </template>
+            {% block sw_product_variant_modal_body_label_search %}
+            <sw-simple-search-field
+                v-model="searchTerm"
+                class="sw-product-variant-modal__search"
+                size="small"
+                variant="form"
+                @search-term-change="onSearchTermChange"
+            />
             {% endblock %}
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_product_variant_modal_bulk_edit_modal %}
-            <template #bulk-modals="{ selection }">
-                <sw-bulk-edit-modal
-                    v-if="showBulkEditModal"
-                    class="sw-product-variant-modal__bulk-edit-modal"
-                    :selection="selection"
-                    :bulk-grid-edit-columns="gridColumns"
-                    @edit-items="onEditItems"
-                    @modal-close="toggleBulkEditModal"
+            {% block sw_product_variant_modal_option_list_toolbar_container_filter_list %}
+            <div class="sw-product-variant-modal__filter-list-button">
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_product_variant_modal_option_list_toolbar_container_filter_list_button %}
+                <sw-button
+                    class="sw-product-variant-modal__button-filter"
+                    @click="toggleFilterMenu"
                 >
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_product_variant_modal_bulk_edit_modal_column_name %}
-                    <template #column-name="{ item }">
-                        <sw-media-preview-v2 :source="getItemMedia(item)" />
-                        <router-link :to="{ name: 'sw.product.detail', params: { id: item.id } }">
-                            <span
-                                v-if="item.translated.name"
-                                class="sw-product-variant-modal__variant-name"
+                    {{ $tc('sw-product.variations.generatedFilterList') }}
+                    <sw-icon name="regular-filter" />
+                </sw-button>
+                {% endblock %}
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_product_variant_modal_option_list_toolbar_container_filter_context_menu %}
+                <sw-context-menu
+                    v-show="filterWindowOpen"
+                    class="sw-product-variant-modal__filter-context-menu"
+                >
+                    <sw-container
+                        columns="1fr"
+                        gap="5px"
+                    >
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_product_variant_modal_option_list_toolbar_container_filter_tree %}
+                        <sw-tree
+                            v-show="filterOptions.length"
+                            :sortable="false"
+                            :items="filterOptions"
+                            :searchable="false"
+                            disable-context-menu
+                            bind-items-to-folder
+                        >
+                            <template #items="{ treeItems, sortable, draggedItem, disableContextMenu, onChangeRoute, checkItem}">
+                                <sw-tree-item
+                                    v-for="(item, index) in treeItems"
+                                    :key="item.id"
+                                    :sortable="false"
+                                    :item="item"
+                                    disable-context-menu
+                                    @check-item="filterOptionChecked"
+                                />
+                            </template>
+                        </sw-tree>
+                        {% endblock %}
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_product_variant_modal_option_list_toolbar_container_filter_buttons %}
+                        <div class="sw-product-variant-modal__filter-buttons">
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_product_variant_modal_option_list_toolbar_container_button_filter_reset %}
+                            <sw-button
+                                class="sw-product-variant-modal__reset-filter"
+                                @click="resetFilterOptions"
                             >
-                                {{ item.translated.name }}
-                            </span>
-                            <sw-product-variant-info
-                                v-else
-                                class="sw-product-variant-modal__variant-options"
-                                :variations="item.variation"
-                                :show-tooltip="false"
-                                :ommit-parenthesis="true"
-                                seperator=", "
-                            />
-                        </router-link>
-                        <sw-product-variant-info
-                            v-if="item.translated.name"
-                            :variations="item.variation"
-                            :show-tooltip="false"
-                        />
-                    </template>
-                    {% endblock %}
+                                {{ $tc('sw-product.variations.overview.filterReset') }}
+                            </sw-button>
+                            {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_product_variant_modal_bulk_edit_modal_column_price %}
-                    <template #column-price="{ item }">
-                        <sw-inheritance-switch
-                            class="sw-product-variant-modal__price-inheritance-switch"
-                            :is-inherited="item.price === null"
-                            disabled
-                        />
-                        <sw-price-preview
-                            :price="item.price ? item.price : []"
-                            :default-price="productEntity.price[0]"
-                            :tax-rate="productEntity.tax"
-                            :currency="currency"
-                        />
-                    </template>
-                    {% endblock %}
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_product_variant_modal_option_list_toolbar_container_button_update_list %}
+                            <sw-button
+                                variant="primary"
+                                @click="fetchProductVariants"
+                            >
+                                {{ $tc('sw-product.variations.overview.filter') }}
+                            </sw-button>
+                            {% endblock %}
+                        </div>
+                        {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_product_variant_modal_bulk_edit_modal_column_stock %}
-                    <template #column-stock="{ item }">
-                        {{ item.stock }}
-                        <sw-color-badge :variant="item.stock | stockColorVariant" />
-                    </template>
-                    {% endblock %}
+                    </sw-container>
+                </sw-context-menu>
+                {% endblock %}
+            </div>
+            {% endblock %}
+        </sw-container>
+        {% endblock %}
+    </div>
+    {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_product_variant_modal_bulk_edit_modal_column_active %}
-                    <template #column-active="{ item }">
-                        <sw-icon
-                            v-if="item.active === true"
-                            class="sw-icon--product-status is--active"
-                            name="regular-checkmark-xs"
-                            small
-                        />
-                        <sw-icon
-                            v-else-if="item.active === false"
-                            class="sw-icon--product-status is--inactive"
-                            name="regular-times-s"
-                            small
-                        />
-                        <sw-icon
-                            v-else
-                            key="inherit-icon"
-                            name="custom-inherited"
-                            size="16"
-                            multicolor
-                        />
-                    </template>
-                    {% endblock %}
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_product_variant_modal_body_grid %}
+    <sw-data-grid
+        v-if="productVariants.length > 0"
+        ref="variantGrid"
+        :is-loading="isLoading"
+        :columns="gridColumns"
+        :data-source="productVariants"
+        :sort-by="sortBy"
+        :sort-direction="sortDirection"
+        :allow-inline-edit="acl.can('product.editor')"
+        show-settings
+        @column-sort="onSortColumn"
+        @inline-edit-save="onInlineEditSave"
+        @inline-edit-cancel="onInlineEditCancel"
+    >
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_product_variant_modal_bulk_edit_modal_column_media %}
-                    <template #column-media="{ item }">
-                        <sw-inheritance-switch
-                            class="sw-product-variant-modal__media-inherited-icon"
-                            :is-inherited="isMediaFieldInherited(item)"
-                            disabled
-                        />
-                        <sw-product-variants-media-upload
-                            :source="item"
-                            :upload-tag="item.id"
-                            :is-inherited="isMediaFieldInherited(item)"
-                            :parent-product="productEntity"
-                            disabled
-                        />
-                    </template>
-                    {% endblock %}
-                </sw-bulk-edit-modal>
-            </template>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_product_variant_modal_body_grid_bulk %}
+        <template #bulk>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_product_variant_modal_body_grid_bulk_edit %}
+            <span
+                v-if="acl.can('product.editor')"
+                class="link link-primary sw-product-variant-modal__bulk-edit-action"
+                @click="toggleBulkEditModal"
+            >
+                {{ $tc('global.default.bulkEdit') }}
+            </span>
             {% endblock %}
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_product_variant_modal_body_grid_column_name %}
-            <template #column-name="{item, isInlineEdit}">
+            {% block sw_product_variant_modal_body_grid_bulk_delete %}
+            <span
+                v-if="acl.can('product.deleter')"
+                class="link link-danger sw-product-variant-modal__bulk-delete-action"
+                @click="onClickBulkDelete"
+            >
+                {{ $tc('global.default.delete') }}
+            </span>
+            {% endblock %}
+        </template>
+        {% endblock %}
 
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_product_variant_modal_bulk_edit_modal %}
+        <template #bulk-modals="{ selection }">
+            <sw-bulk-edit-modal
+                v-if="showBulkEditModal"
+                class="sw-product-variant-modal__bulk-edit-modal"
+                :selection="selection"
+                :bulk-grid-edit-columns="gridColumns"
+                @edit-items="onEditItems"
+                @modal-close="toggleBulkEditModal"
+            >
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_product_variant_modal_body_grid_column_name_inline_edit %}
-                <sw-text-field
-                    v-if="isInlineEdit"
-                    v-model="item.name"
-                    :placeholder="$tc('sw-product.list.variantModalInlineEditProductNamePlaceholder')"
-                    size="small"
-                />
-                {% endblock %}
-
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_product_variant_modal_body_grid_column_name_content %}
-                <template v-else>
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_product_variant_modal_body_grid_column_name_content_media_preview %}
+                {% block sw_product_variant_modal_bulk_edit_modal_column_name %}
+                <template #column-name="{ item }">
                     <sw-media-preview-v2 :source="getItemMedia(item)" />
-                    {% endblock %}
-
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_product_variant_modal_body_grid_column_name_content_name %}
                     <router-link :to="{ name: 'sw.product.detail', params: { id: item.id } }">
                         <span
                             v-if="item.translated.name"
@@ -302,7 +182,6 @@
                         >
                             {{ item.translated.name }}
                         </span>
-
                         <sw-product-variant-info
                             v-else
                             class="sw-product-variant-modal__variant-options"
@@ -312,51 +191,28 @@
                             seperator=", "
                         />
                     </router-link>
-                    {% endblock %}
-
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_product_variant_modal_body_grid_column_name_content_options %}
                     <sw-product-variant-info
                         v-if="item.translated.name"
                         :variations="item.variation"
                         :show-tooltip="false"
                     />
-                    {% endblock %}
+                    <sw-label
+                        v-if="variantIsDigital(item)"
+                        class="sw-product-variant-modal__digital-indicator"
+                    >
+                        {{ $tc('sw-product.variations.generatedListColumnContentProductState.is-download') }}
+                    </sw-label>
                 </template>
                 {% endblock %}
-            </template>
-            {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_product_variant_modal_body_grid_column_price %}
-            <template #column-price="{item, isInlineEdit}">
-                <template v-if="isInlineEdit">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_product_variant_modal_bulk_edit_modal_column_price %}
+                <template #column-price="{ item }">
                     <sw-inheritance-switch
-                        :is-inherited="item.price === null"
                         class="sw-product-variant-modal__price-inheritance-switch"
-                        @inheritance-restore="onInheritanceRestore(item, currency)"
-                        @inheritance-remove="onInheritanceRemove(item, currency)"
-                    />
-
-                    <sw-price-field
-                        :price="item.price ? item.price : []"
-                        :default-price="productEntity.price[0]"
-                        :tax-rate="productEntity.tax"
-                        :label="false"
-                        :compact="true"
-                        :disable-suffix="true"
-                        enable-inheritance
-                        :currency="currency"
-                    />
-                </template>
-
-                <template v-else>
-                    <sw-inheritance-switch
                         :is-inherited="item.price === null"
-                        class="sw-product-variant-modal__price-inheritance-switch"
                         disabled
                     />
-
                     <sw-price-preview
                         :price="item.price ? item.price : []"
                         :default-price="productEntity.price[0]"
@@ -364,241 +220,396 @@
                         :currency="currency"
                     />
                 </template>
-            </template>
-            {% endblock %}
-
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_product_variant_modal_body_grid_column_stock %}
-            <template #column-stock="{item, isInlineEdit}">
-
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_product_variant_modal_body_grid_column_stock_inline_edit %}
-                <sw-number-field
-                    v-if="isInlineEdit"
-                    v-model="item.stock"
-                    :placeholder="$tc('sw-product.list.variantModalInlineEditStockPlaceholder')"
-                    size="small"
-                />
                 {% endblock %}
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_product_variant_modal_body_grid_column_stock_content %}
-                <template v-else>
+                {% block sw_product_variant_modal_bulk_edit_modal_column_stock %}
+                <template #column-stock="{ item }">
                     {{ item.stock }}
                     <sw-color-badge :variant="item.stock | stockColorVariant" />
                 </template>
                 {% endblock %}
-            </template>
-            {% endblock %}
-
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_product_variant_modal_body_grid_column_active %}
-            <template #column-active="{item, isInlineEdit}">
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_product_variant_modal_body_grid_column_active_inline_edit %}
-                <template v-if="isInlineEdit">
-                    <sw-checkbox-field
-                        v-model="item.active"
-                        :disabled="item.active === null"
-                    />
-
-                    <sw-inheritance-switch
-                        :is-inherited="item.active === null"
-                        class="sw-product-variant-modal__active-inheritance-switch"
-                        @inheritance-restore="item.active = null"
-                        @inheritance-remove="item.active = true"
-                    />
-                </template>
-                {% endblock %}
-
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_product_variant_modal_body_grid_column_active_content %}
-                <template v-else>
-
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_product_variant_modal_body_grid_column_active_content_icon_active %}
+                {% block sw_product_variant_modal_bulk_edit_modal_column_active %}
+                <template #column-active="{ item }">
                     <sw-icon
                         v-if="item.active === true"
+                        class="sw-icon--product-status is--active"
                         name="regular-checkmark-xs"
                         small
-                        class="sw-icon--product-status is--active"
                     />
-                    {% endblock %}
-
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_product_variant_modal_body_grid_column_active_content_icon_not_active %}
                     <sw-icon
                         v-else-if="item.active === false"
+                        class="sw-icon--product-status is--inactive"
                         name="regular-times-s"
                         small
-                        class="sw-icon--product-status is--inactive"
                     />
-                    {% endblock %}
-
                     <sw-icon
                         v-else
                         key="inherit-icon"
-                        :multicolor="true"
                         name="custom-inherited"
                         size="16"
+                        multicolor
                     />
                 </template>
                 {% endblock %}
-            </template>
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_product_variant_modal_bulk_edit_modal_column_media %}
+                <template #column-media="{ item }">
+                    <sw-inheritance-switch
+                        class="sw-product-variant-modal__media-inherited-icon"
+                        :is-inherited="isMediaFieldInherited(item)"
+                        disabled
+                    />
+                    <sw-product-variants-media-upload
+                        :source="item"
+                        :upload-tag="item.id"
+                        :is-inherited="isMediaFieldInherited(item)"
+                        :parent-product="productEntity"
+                        disabled
+                    />
+                </template>
+                {% endblock %}
+            </sw-bulk-edit-modal>
+        </template>
+        {% endblock %}
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_product_variant_modal_body_grid_column_name %}
+        <template #column-name="{item, isInlineEdit}">
+
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_product_variant_modal_body_grid_column_name_inline_edit %}
+            <sw-text-field
+                v-if="isInlineEdit"
+                v-model="item.name"
+                :placeholder="$tc('sw-product.list.variantModalInlineEditProductNamePlaceholder')"
+                size="small"
+            />
             {% endblock %}
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_product_variant_modal_body_grid_column_media %}
-            <template
-                #column-media="{ item, isInlineEdit, compact }"
-            >
+            {% block sw_product_variant_modal_body_grid_column_name_content %}
+            <template v-else>
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_product_variant_modal_body_grid_column_media_inline_edit %}
+                {% block sw_product_variant_modal_body_grid_column_name_content_media_preview %}
+                <sw-media-preview-v2 :source="getItemMedia(item)" />
+                {% endblock %}
+
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_product_variant_modal_body_grid_column_media_inherit %}
-                <sw-inheritance-switch
-                    :is-inherited="isMediaFieldInherited(item)"
-                    :disabled="!isInlineEdit"
-                    class="sw-product-variant-modal__media-inherited-icon"
-                    @inheritance-restore="onMediaInheritanceRestore(item, isInlineEdit)"
-                    @inheritance-remove="onMediaInheritanceRemove(item, isInlineEdit)"
+                {% block sw_product_variant_modal_body_grid_column_name_content_name %}
+                <router-link :to="{ name: 'sw.product.detail', params: { id: item.id } }">
+                    <span
+                        v-if="item.translated.name"
+                        class="sw-product-variant-modal__variant-name"
+                    >
+                        {{ item.translated.name }}
+                    </span>
+
+                    <sw-product-variant-info
+                        v-else
+                        class="sw-product-variant-modal__variant-options"
+                        :variations="item.variation"
+                        :show-tooltip="false"
+                        :ommit-parenthesis="true"
+                        seperator=", "
+                    />
+                </router-link>
+                {% endblock %}
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_product_variant_modal_body_grid_column_name_content_options %}
+                <sw-product-variant-info
+                    v-if="item.translated.name"
+                    :variations="item.variation"
+                    :show-tooltip="false"
                 />
                 {% endblock %}
 
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_product_variant_modal_body_grid_column_media_content %}
-                <sw-product-variants-media-upload
-                    :source="item"
-                    :upload-tag="item.id"
-                    :is-inherited="isMediaFieldInherited(item)"
-                    :disabled="isInlineEdit ? isMediaFieldInherited(item) : true"
-                    :parent-product="productEntity"
-                />
-                {% endblock %}
-                {% endblock %}
-            </template>
-            {% endblock %}
-
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_product_variant_modal_body_grid_actions %}
-            <template #actions="{item}">
-
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_product_variant_modal_body_grid_actions_edit %}
-                <sw-context-menu-item @click="visitProduct(item.id)">
-                    {{ contextMenuEditText }}
-                </sw-context-menu-item>
-                {% endblock %}
-
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_product_variant_modal_body_grid_actions_delete %}
-                <sw-context-menu-item
-                    v-tooltip.left="getNoPermissionsTooltip('product.deleter')"
-                    variant="danger"
-                    :disabled="!acl.can('product.deleter')"
-                    @click="onDeleteVariant(item)"
+                <sw-label
+                    v-if="variantIsDigital(item)"
+                    class="sw-product-variant-modal__digital-indicator"
                 >
-                    {{ $tc('global.default.delete') }}
-                </sw-context-menu-item>
-                {% endblock %}
+                    {{ $tc('sw-product.variations.generatedListColumnContentProductState.is-download') }}
+                </sw-label>
             </template>
+            {% endblock %}
+        </template>
+        {% endblock %}
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_product_variant_modal_body_grid_column_price %}
+        <template #column-price="{item, isInlineEdit}">
+            <template v-if="isInlineEdit">
+                <sw-inheritance-switch
+                    :is-inherited="item.price === null"
+                    class="sw-product-variant-modal__price-inheritance-switch"
+                    @inheritance-restore="onInheritanceRestore(item, currency)"
+                    @inheritance-remove="onInheritanceRemove(item, currency)"
+                />
+
+                <sw-price-field
+                    :price="item.price ? item.price : []"
+                    :default-price="productEntity.price[0]"
+                    :tax-rate="productEntity.tax"
+                    :label="false"
+                    :compact="true"
+                    :disable-suffix="true"
+                    enable-inheritance
+                    :currency="currency"
+                />
+            </template>
+
+            <template v-else>
+                <sw-inheritance-switch
+                    :is-inherited="item.price === null"
+                    class="sw-product-variant-modal__price-inheritance-switch"
+                    disabled
+                />
+
+                <sw-price-preview
+                    :price="item.price ? item.price : []"
+                    :default-price="productEntity.price[0]"
+                    :tax-rate="productEntity.tax"
+                    :currency="currency"
+                />
+            </template>
+        </template>
+        {% endblock %}
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_product_variant_modal_body_grid_column_stock %}
+        <template #column-stock="{item, isInlineEdit}">
+
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_product_variant_modal_body_grid_column_stock_inline_edit %}
+            <sw-number-field
+                v-if="isInlineEdit"
+                v-model="item.stock"
+                :placeholder="$tc('sw-product.list.variantModalInlineEditStockPlaceholder')"
+                size="small"
+            />
             {% endblock %}
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_product_variant_modal_body_grid_pagination %}
-            <template #pagination>
-                <sw-pagination
-                    v-if="productVariants.length !== 0"
-                    ref="pagination"
-                    :page="paginationPage"
-                    :limit="paginationLimit"
-                    :total="productVariants.total"
-                    @page-change="onPageChange"
+            {% block sw_product_variant_modal_body_grid_column_stock_content %}
+            <template v-else>
+                {{ item.stock }}
+                <sw-color-badge :variant="item.stock | stockColorVariant" />
+            </template>
+            {% endblock %}
+        </template>
+        {% endblock %}
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_product_variant_modal_body_grid_column_active %}
+        <template #column-active="{item, isInlineEdit}">
+
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_product_variant_modal_body_grid_column_active_inline_edit %}
+            <template v-if="isInlineEdit">
+                <sw-checkbox-field
+                    v-model="item.active"
+                    :disabled="item.active === null"
+                />
+
+                <sw-inheritance-switch
+                    :is-inherited="item.active === null"
+                    class="sw-product-variant-modal__active-inheritance-switch"
+                    @inheritance-restore="item.active = null"
+                    @inheritance-remove="item.active = true"
                 />
             </template>
             {% endblock %}
-        </sw-data-grid>
-        {% endblock %}
-
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_product_variant_modal_body_empty_state %}
-        <sw-empty-state
-            v-else
-            title=""
-            :subline="$tc('sw-product.list.variantGridEmptyStateSubline')"
-            :absolute="false"
-        />
-        {% endblock %}
-
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_product_variant_modal_body_delete_modal %}
-        <sw-modal
-            v-if="showDeleteModal"
-            class="sw-product-variant-modal__delete-modal"
-            :title="$tc('sw-product.list.variantDeleteModalTitle')"
-            variant="small"
-            @modal-close="closeDeleteModal"
-        >
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_product_variant_modal_body_delete_modal_body_multiple %}
-            <template v-if="toBeDeletedVariants.length > 1">
+            {% block sw_product_variant_modal_body_grid_column_active_content %}
+            <template v-else>
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_product_variant_modal_body_delete_modal_body_multiple_text %}
-                <p>{{ $t('sw-product.list.multipleVariantsDeleteModalText', { amount: toBeDeletedVariants.length }) }}</p>
+                {% block sw_product_variant_modal_body_grid_column_active_content_icon_active %}
+                <sw-icon
+                    v-if="item.active === true"
+                    name="regular-checkmark-xs"
+                    small
+                    class="sw-icon--product-status is--active"
+                />
                 {% endblock %}
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_product_variant_modal_body_delete_modal_body_multiple_subline %}
-                <p class="sw-product-variant-modal__delete-modal-subline">
-                    ({{ $tc('sw-product.list.multipleVariantsDeleteModalSubline') }})
-                </p>
+                {% block sw_product_variant_modal_body_grid_column_active_content_icon_not_active %}
+                <sw-icon
+                    v-else-if="item.active === false"
+                    name="regular-times-s"
+                    small
+                    class="sw-icon--product-status is--inactive"
+                />
                 {% endblock %}
+
+                <sw-icon
+                    v-else
+                    key="inherit-icon"
+                    :multicolor="true"
+                    name="custom-inherited"
+                    size="16"
+                />
             </template>
+            {% endblock %}
+        </template>
+        {% endblock %}
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_product_variant_modal_body_grid_column_media %}
+        <template
+            #column-media="{ item, isInlineEdit, compact }"
+        >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_product_variant_modal_body_grid_column_media_inline_edit %}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_product_variant_modal_body_grid_column_media_inherit %}
+            <sw-inheritance-switch
+                :is-inherited="isMediaFieldInherited(item)"
+                :disabled="!isInlineEdit"
+                class="sw-product-variant-modal__media-inherited-icon"
+                @inheritance-restore="onMediaInheritanceRestore(item, isInlineEdit)"
+                @inheritance-remove="onMediaInheritanceRemove(item, isInlineEdit)"
+            />
             {% endblock %}
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_product_variant_modal_body_delete_modal_body_single %}
-            <p v-else>
-                {{ $t('sw-product.list.variantDeleteModalText', { variantName: buildVariantName(toBeDeletedVariants[0]) }) }}
+            {% block sw_product_variant_modal_body_grid_column_media_content %}
+            <sw-product-variants-media-upload
+                :source="item"
+                :upload-tag="item.id"
+                :is-inherited="isMediaFieldInherited(item)"
+                :disabled="isInlineEdit ? isMediaFieldInherited(item) : true"
+                :parent-product="productEntity"
+            />
+            {% endblock %}
+            {% endblock %}
+        </template>
+        {% endblock %}
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_product_variant_modal_body_grid_actions %}
+        <template #actions="{item}">
+
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_product_variant_modal_body_grid_actions_edit %}
+            <sw-context-menu-item @click="visitProduct(item.id)">
+                {{ contextMenuEditText }}
+            </sw-context-menu-item>
+            {% endblock %}
+
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_product_variant_modal_body_grid_actions_delete %}
+            <sw-context-menu-item
+                v-tooltip.left="getNoPermissionsTooltip('product.deleter')"
+                variant="danger"
+                :disabled="!acl.can('product.deleter')"
+                @click="onDeleteVariant(item)"
+            >
+                {{ $tc('global.default.delete') }}
+            </sw-context-menu-item>
+            {% endblock %}
+        </template>
+        {% endblock %}
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_product_variant_modal_body_grid_pagination %}
+        <template #pagination>
+            <sw-pagination
+                v-if="productVariants.length !== 0"
+                ref="pagination"
+                :page="paginationPage"
+                :limit="paginationLimit"
+                :total="productVariants.total"
+                @page-change="onPageChange"
+            />
+        </template>
+        {% endblock %}
+    </sw-data-grid>
+    {% endblock %}
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_product_variant_modal_body_empty_state %}
+    <sw-empty-state
+        v-else
+        title=""
+        :subline="$tc('sw-product.list.variantGridEmptyStateSubline')"
+        :absolute="false"
+    />
+    {% endblock %}
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_product_variant_modal_body_delete_modal %}
+    <sw-modal
+        v-if="showDeleteModal"
+        class="sw-product-variant-modal__delete-modal"
+        :title="$tc('sw-product.list.variantDeleteModalTitle')"
+        variant="small"
+        @modal-close="closeDeleteModal"
+    >
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_product_variant_modal_body_delete_modal_body_multiple %}
+        <template v-if="toBeDeletedVariants.length > 1">
+
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_product_variant_modal_body_delete_modal_body_multiple_text %}
+            <p>{{ $t('sw-product.list.multipleVariantsDeleteModalText', { amount: toBeDeletedVariants.length }) }}</p>
+            {% endblock %}
+
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_product_variant_modal_body_delete_modal_body_multiple_subline %}
+            <p class="sw-product-variant-modal__delete-modal-subline">
+                ({{ $tc('sw-product.list.multipleVariantsDeleteModalSubline') }})
             </p>
             {% endblock %}
+        </template>
+        {% endblock %}
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_product_variant_modal_body_delete_modal_body_single %}
+        <p v-else>
+            {{ $t('sw-product.list.variantDeleteModalText', { variantName: buildVariantName(toBeDeletedVariants[0]) }) }}
+        </p>
+        {% endblock %}
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_product_variant_modal_body_delete_modal_footer %}
+        <template #modal-footer>
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_product_variant_modal_body_delete_modal_footer %}
-            <template #modal-footer>
-
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_product_variant_modal_body_delete_modal_footer_close %}
-                <sw-button
-                    size="small"
-                    @click="closeDeleteModal"
-                >
-                    {{ $tc('global.default.cancel') }}
-                </sw-button>
-                {% endblock %}
-
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_product_variant_modal_body_delete_modal_footer_confirm %}
-                <sw-button-process
-                    variant="danger"
-                    size="small"
-                    :animation-timeout="750"
-                    :process-success="isDeletionOver"
-                    :is-loading="isDeleteButtonLoading"
-                    @click="deleteVariants"
-                    @process-finish="closeDeleteModal"
-                >
-                    {{ $tc('global.default.delete') }}
-                </sw-button-process>
-                {% endblock %}
-            </template>
+            {% block sw_product_variant_modal_body_delete_modal_footer_close %}
+            <sw-button
+                size="small"
+                @click="closeDeleteModal"
+            >
+                {{ $tc('global.default.cancel') }}
+            </sw-button>
             {% endblock %}
-        </sw-modal>
+
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_product_variant_modal_body_delete_modal_footer_confirm %}
+            <sw-button-process
+                variant="danger"
+                size="small"
+                :animation-timeout="750"
+                :process-success="isDeletionOver"
+                :is-loading="isDeleteButtonLoading"
+                @click="deleteVariants"
+                @process-finish="closeDeleteModal"
+            >
+                {{ $tc('global.default.delete') }}
+            </sw-button-process>
+            {% endblock %}
+        </template>
         {% endblock %}
-    </template>
+    </sw-modal>
+    {% endblock %}
     {% endblock %}
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

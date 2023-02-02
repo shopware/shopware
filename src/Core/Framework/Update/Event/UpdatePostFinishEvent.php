@@ -3,24 +3,14 @@
 namespace Shopware\Core\Framework\Update\Event;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('system-settings')]
 class UpdatePostFinishEvent extends UpdateEvent
 {
-    /**
-     * @var string
-     */
-    private $oldVersion;
-
-    /**
-     * @var string
-     */
-    private $newVersion;
-
-    public function __construct(Context $context, string $oldVersion, string $newVersion)
+    public function __construct(Context $context, private readonly string $oldVersion, private readonly string $newVersion)
     {
         parent::__construct($context);
-        $this->oldVersion = $oldVersion;
-        $this->newVersion = $newVersion;
     }
 
     public function getOldVersion(): string

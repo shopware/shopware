@@ -6,23 +6,19 @@ let customer = {
     salutation: 'Mr.',
     country: 'Germany',
     company: 'Company',
-    department: 'Department'
+    department: 'Department',
 };
 
 describe('Customer:  Visual test', () => {
     beforeEach(() => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/customer`,
-            method: 'POST'
+            method: 'POST',
         }).as('getData');
 
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createCustomerFixture();
-            })
-            .then(() => {
-                return cy.fixture('customer');
-            })
+        cy.createCustomerFixture().then(() => {
+            return cy.fixture('customer');
+        })
             .then((result) => {
                 customer = Cypress._.merge(customer, result);
 
@@ -43,7 +39,7 @@ describe('Customer:  Visual test', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/customer`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         cy.get('.sw-customer-list').should('be.visible');
@@ -115,7 +111,7 @@ describe('Customer:  Visual test', () => {
         cy.clickContextMenuItem(
             '.sw-customer-list__view-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
         cy.get(`${page.elements.customerMetaData}-customer-name`)
             .contains(`Mr. ${customer.firstName} ${customer.lastName}`);
@@ -129,6 +125,7 @@ describe('Customer:  Visual test', () => {
         cy.takeSnapshot('[Customer] Detail, address listing', '.sw-customer-detail-addresses', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
         cy.get('.sw-customer-detail__open-edit-mode-action').click();
+        cy.get('.sw-customer-detail__tab-addresses').click();
         cy.get('.sw-customer-detail-addresses__add-address-action').click();
 
         cy.get('.sw-modal').should('be.visible');
@@ -146,7 +143,7 @@ describe('Customer:  Visual test', () => {
         cy.clickContextMenuItem(
             '.sw-customer-list__view-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
         cy.contains(`${page.elements.customerMetaData}-customer-name`,
             `Mr. ${customer.firstName} ${customer.lastName}`);

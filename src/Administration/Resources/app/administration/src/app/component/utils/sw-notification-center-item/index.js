@@ -2,9 +2,10 @@ import './sw-notification-center-item.scss';
 import template from './sw-notification-center-item.html.twig';
 
 const { Component } = Shopware;
-const { date } = Shopware.Utils.format;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 Component.register('sw-notification-center-item', {
     template,
 
@@ -21,29 +22,7 @@ Component.register('sw-notification-center-item', {
                 'sw-notification-center-item__header--is-new': !this.notification.visited,
             };
         },
-        // @deprecated tag:v6.5.0 - use "sw-time-ago" component instead
-        dateFormatted() {
-            if (this.isNotificationFromSameDay()) {
-                return date(
-                    this.notification.timestamp,
-                    {
-                        day: undefined,
-                        month: undefined,
-                        year: undefined,
-                        hour: '2-digit',
-                        minute: '2-digit',
-                    },
-                );
-            }
 
-            return date(
-                this.notification.timestamp,
-                {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                },
-            );
-        },
         notificationActions() {
             return this.notification.actions.filter((action) => {
                 return action.route;

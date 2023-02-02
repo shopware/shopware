@@ -22,18 +22,17 @@ use Shopware\Core\Framework\Test\TestCaseBase\SessionTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
-use Shopware\Core\Test\Annotation\ActiveFeatures;
 use Shopware\Elasticsearch\Product\ElasticsearchProductDefinition;
 use Shopware\Elasticsearch\Product\Event\ElasticsearchProductCustomFieldsMappingEvent;
 use Shopware\Elasticsearch\Test\ElasticsearchTestTestBehaviour;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * @ActiveFeatures(features={"FEATURE_NEXT_22900"})
- *
  * @internal
  *
  * @covers \Shopware\Elasticsearch\Product\ProductSearchQueryBuilder
+ *
+ * @package system-settings
  */
 class ProductSearchQueryBuilderTest extends TestCase
 {

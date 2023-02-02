@@ -3,10 +3,12 @@
 namespace Shopware\Core\Content\Property\Aggregate\PropertyGroupOptionTranslation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<PropertyGroupOptionTranslationEntity>
  */
+#[Package('inventory')]
 class PropertyGroupOptionTranslationCollection extends EntityCollection
 {
     /**
@@ -14,16 +16,15 @@ class PropertyGroupOptionTranslationCollection extends EntityCollection
      */
     public function getPropertyGroupOptionIds(): array
     {
-        return $this->fmap(function (PropertyGroupOptionTranslationEntity $propertyGroupOptionTranslation) {
-            return $propertyGroupOptionTranslation->getPropertyGroupOptionId();
-        });
+        /** @var list<string> $ids */
+        $ids = $this->fmap(fn (PropertyGroupOptionTranslationEntity $propertyGroupOptionTranslation) => $propertyGroupOptionTranslation->getPropertyGroupOptionId());
+
+        return $ids;
     }
 
     public function filterByPropertyGroupOptionId(string $id): self
     {
-        return $this->filter(function (PropertyGroupOptionTranslationEntity $propertyGroupOptionTranslation) use ($id) {
-            return $propertyGroupOptionTranslation->getPropertyGroupOptionId() === $id;
-        });
+        return $this->filter(fn (PropertyGroupOptionTranslationEntity $propertyGroupOptionTranslation) => $propertyGroupOptionTranslation->getPropertyGroupOptionId() === $id);
     }
 
     /**
@@ -31,16 +32,15 @@ class PropertyGroupOptionTranslationCollection extends EntityCollection
      */
     public function getLanguageIds(): array
     {
-        return $this->fmap(function (PropertyGroupOptionTranslationEntity $propertyGroupOptionTranslation) {
-            return $propertyGroupOptionTranslation->getLanguageId();
-        });
+        /** @var list<string> $ids */
+        $ids = $this->fmap(fn (PropertyGroupOptionTranslationEntity $propertyGroupOptionTranslation) => $propertyGroupOptionTranslation->getLanguageId());
+
+        return $ids;
     }
 
     public function filterByLanguageId(string $id): self
     {
-        return $this->filter(function (PropertyGroupOptionTranslationEntity $propertyGroupOptionTranslation) use ($id) {
-            return $propertyGroupOptionTranslation->getLanguageId() === $id;
-        });
+        return $this->filter(fn (PropertyGroupOptionTranslationEntity $propertyGroupOptionTranslation) => $propertyGroupOptionTranslation->getLanguageId() === $id);
     }
 
     public function getApiAlias(): string

@@ -1,7 +1,6 @@
 ---
 title: Deprecate sw-promotion in favor for sw-promotion-v2
 issue: NEXT-12669
-flag: FEATURE_NEXT_13810
 author: Stephan Pohl
 author_email: s.pohl@shopware.com 
 author_github: klarstil

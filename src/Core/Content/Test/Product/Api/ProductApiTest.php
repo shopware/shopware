@@ -7,9 +7,10 @@ use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceEntity;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -18,12 +19,13 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
+#[Package('inventory')]
 class ProductApiTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $repository;
 
@@ -62,7 +64,7 @@ class ProductApiTest extends TestCase
             ],
         ];
 
-        $this->getBrowser()->request('POST', '/api/product', [], [], [], json_encode($data));
+        $this->getBrowser()->request('POST', '/api/product', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode(), $this->getBrowser()->getResponse()->getContent());
 
         $context = Context::createDefaultContext();
@@ -101,7 +103,7 @@ class ProductApiTest extends TestCase
             ],
         ];
 
-        $this->getBrowser()->request('PATCH', '/api/product/' . $id, [], [], [], json_encode($data));
+        $this->getBrowser()->request('PATCH', '/api/product/' . $id, [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode(), $this->getBrowser()->getResponse()->getContent());
 
         $criteria = new Criteria([$id]);
@@ -137,7 +139,7 @@ class ProductApiTest extends TestCase
             ],
         ];
 
-        $this->getBrowser()->request('PATCH', '/api/product/' . $id, [], [], [], json_encode($data));
+        $this->getBrowser()->request('PATCH', '/api/product/' . $id, [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode(), $this->getBrowser()->getResponse()->getContent());
 
         $criteria = new Criteria([$id]);
@@ -177,7 +179,7 @@ class ProductApiTest extends TestCase
             'description' => $description,
         ];
 
-        $this->getBrowser()->request('POST', '/api/product', [], [], [], json_encode($data));
+        $this->getBrowser()->request('POST', '/api/product', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode(), $this->getBrowser()->getResponse()->getContent());
 
         $this->getBrowser()->request('GET', '/api/product/' . $id, [], [], [
@@ -187,7 +189,7 @@ class ProductApiTest extends TestCase
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
-        $product = json_decode($response->getContent(), true);
+        $product = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertNotEmpty($product);
         static::assertArrayHasKey('data', $product);
@@ -222,7 +224,7 @@ class ProductApiTest extends TestCase
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
-        $products = json_decode($response->getContent(), true);
+        $products = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         $product = $products['data'][0];
 
@@ -265,7 +267,7 @@ class ProductApiTest extends TestCase
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
-        $products = json_decode($response->getContent(), true);
+        $products = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         $product = $products['data'][0];
 
@@ -295,7 +297,7 @@ class ProductApiTest extends TestCase
             'tax' => ['name' => 'test', 'taxRate' => 15],
         ];
 
-        $this->getBrowser()->request('POST', '/api/product', [], [], [], json_encode($data));
+        $this->getBrowser()->request('POST', '/api/product', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode(), $this->getBrowser()->getResponse()->getContent());
 
         $crossSellingPatch = [

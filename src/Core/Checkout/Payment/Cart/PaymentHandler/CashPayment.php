@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Checkout\Payment\Cart\PaymentHandler;
 
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('checkout')]
 class CashPayment extends DefaultPayment
 {
 }

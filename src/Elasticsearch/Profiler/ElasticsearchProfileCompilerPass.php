@@ -2,19 +2,21 @@
 
 namespace Shopware\Elasticsearch\Profiler;
 
-use Elasticsearch\Client;
-use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use OpenSearch\Client;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 
+#[Package('core')]
 class ElasticsearchProfileCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void
     {
-        $esEnabled = (int) EnvironmentHelper::getVariable('SHOPWARE_ES_ENABLED', 0);
-        if (!$container->getParameter('kernel.debug') || $esEnabled === 0) {
+        $isDebugEnabled = $container->getParameterBag()->resolveValue($container->getParameter('kernel.debug'));
+
+        if (!$isDebugEnabled) {
             $container->removeDefinition(DataCollector::class);
 
             return;
@@ -27,5 +29,13 @@ class ElasticsearchProfileCompilerPass implements CompilerPassInterface
         $clientDecorator->setDecoratedService(Client::class);
 
         $container->setDefinition('shopware.es.profiled.client', $clientDecorator);
+
+        $adminClientDecorator = new Definition(ClientProfiler::class);
+        $adminClientDecorator->setArguments([
+            new Reference('shopware.es.profiled.adminClient.inner'),
+        ]);
+        $adminClientDecorator->setDecoratedService('admin.openSearch.client');
+
+        $container->setDefinition('shopware.es.profiled.adminClient', $adminClientDecorator);
     }
 }

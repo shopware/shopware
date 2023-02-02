@@ -5,17 +5,17 @@ namespace Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Ent
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Salutation\SalutationDefinition;
 use Shopware\Core\System\Salutation\SalutationEntity;
 use Symfony\Contracts\Service\ResetInterface;
 
+#[Package('core')]
 class SalutationSerializer extends EntitySerializer implements ResetInterface
 {
-    private EntityRepositoryInterface $salutationRepository;
-
     /**
      * @var array<string>|null[]
      */
@@ -24,9 +24,8 @@ class SalutationSerializer extends EntitySerializer implements ResetInterface
     /**
      * @internal
      */
-    public function __construct(EntityRepositoryInterface $salutationRepository)
+    public function __construct(private readonly EntityRepository $salutationRepository)
     {
-        $this->salutationRepository = $salutationRepository;
     }
 
     /**

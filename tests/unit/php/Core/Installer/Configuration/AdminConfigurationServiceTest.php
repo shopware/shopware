@@ -31,13 +31,15 @@ class AdminConfigurationServiceTest extends TestCase
                     static::assertTrue($data['admin']);
                     static::assertTrue($data['active']);
 
-                    return password_verify('shopware', $data['password']);
+                    return password_verify('shopware', (string) $data['password']);
                 })
             );
 
+        $connection->expects(static::once())->method('fetchOne')->willReturn(json_encode(['_value' => 8]));
+
         $connection->method('createQueryBuilder')->willReturnOnConsecutiveCalls(
             new FakeQueryBuilder($connection, []),
-            new FakeQueryBuilder($connection, [$localeId])
+            new FakeQueryBuilder($connection, [[$localeId]])
         );
 
         $user = [

@@ -1,0 +1,11 @@
+.sw-condition {
+    .sw-condition-generic.sw-condition__condition-value {
+        display: flex;
+
+        .sw-condition-operator-select,
+        .is--max-content {
+            max-width: max-content;
+            min-width: 128px;
+        }
+    }
+}

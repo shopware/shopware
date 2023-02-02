@@ -1,11 +1,15 @@
 import template from './sw-settings-tax-detail.html.twig';
 import './sw-settings-tax-detail.scss';
 
-const { Component, Mixin } = Shopware;
+/**
+ * @package customer-order
+ */
+
+const { Mixin } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-settings-tax-detail', {
+export default {
     template,
 
     inject: [
@@ -157,21 +161,6 @@ Component.register('sw-settings-tax-detail', {
             });
         },
 
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed
-         */
-        saveAndReload() {
-            this.$emit('loading-change', true);
-            return this.taxRepository.save(this.tax, this.apiContext).then(() => {
-                return this.reloadEntityData();
-            }).catch((error) => {
-                this.$emit('error', error);
-            }).finally(() => {
-                this.$emit('loading-change', false);
-                return Promise.resolve();
-            });
-        },
-
         onSave() {
             this.isSaveSuccessful = false;
             this.isLoading = true;
@@ -245,4 +234,4 @@ Component.register('sw-settings-tax-detail', {
             this.changeDefaultTaxRate = false;
         },
     },
-});
+};

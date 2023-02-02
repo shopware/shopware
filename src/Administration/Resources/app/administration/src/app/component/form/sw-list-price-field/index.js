@@ -1,9 +1,15 @@
+/**
+ * @package admin
+ */
+
 import template from './sw-list-price-field.html.twig';
 import './sw-list-price-field.scss';
 
 const { Component } = Shopware;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 Component.register('sw-list-price-field', {
     template,
 

@@ -3,10 +3,12 @@
 namespace Shopware\Core\Content\Product\Aggregate\ProductSearchConfig;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<ProductSearchConfigEntity>
  */
+#[Package('inventory')]
 class ProductSearchConfigCollection extends EntityCollection
 {
     public function getApiAlias(): string

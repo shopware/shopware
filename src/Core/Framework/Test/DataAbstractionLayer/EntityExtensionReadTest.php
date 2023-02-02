@@ -9,7 +9,7 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Struct\ArrayEntity;
@@ -39,12 +39,12 @@ class EntityExtensionReadTest extends TestCase
     private $connection;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $productRepository;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $salesChannelRepository;
 
@@ -168,10 +168,11 @@ class EntityExtensionReadTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $created = $this->connection->fetchAll('SELECT * FROM many_to_one_product');
+        $created = $this->connection->fetchAllAssociative('SELECT * FROM many_to_one_product');
 
         static::assertCount(1, $created);
         $reference = array_shift($created);
+        static::assertIsArray($reference);
         static::assertSame($extendableId, Uuid::fromBytesToHex($reference['id']));
 
         $criteria = new Criteria();
@@ -219,7 +220,7 @@ class EntityExtensionReadTest extends TestCase
         $criteria = new Criteria([$extendableId]);
         $criteria->addAssociation('products');
 
-        /** @var EntityRepositoryInterface $manyToOneRepo */
+        /** @var EntityRepository $manyToOneRepo */
         $manyToOneRepo = $this->getContainer()->get('many_to_one_product.repository');
         $manyToOne = $manyToOneRepo->search($criteria, Context::createDefaultContext())->first();
 
@@ -388,9 +389,7 @@ class EntityExtensionReadTest extends TestCase
 
         $product = $this->productRepository->search(new Criteria([$productId]), $context)->first();
 
-        $variant = $context->enableInheritance(function (Context $context) use ($variantId) {
-            return $this->productRepository->search(new Criteria([$variantId]), $context)->first();
-        });
+        $variant = $context->enableInheritance(fn (Context $context) => $this->productRepository->search(new Criteria([$variantId]), $context)->first());
 
         static::assertTrue($product->hasExtension('oneToOneInherited'));
         /** @var ArrayEntity $extension */

@@ -2,11 +2,7 @@
 
 describe('User: Visual testing', () => {
     beforeEach(() => {
-        // Clean previous state and prepare Administration
-        cy.loginViaApi()
-            .then(() => {
-                cy.setLocaleToEnGb();
-            })
+        cy.setLocaleToEnGb()
             .then(() => {
                 cy.openInitialPage(Cypress.env('admin'));
             });
@@ -15,22 +11,22 @@ describe('User: Visual testing', () => {
     it('@visual: check appearance of user module', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/user`,
-            method: 'POST'
+            method: 'POST',
         }).as('getData');
 
         // Set other role
         cy.loginAsUserWithPermissions([
             {
                 key: 'product',
-                role: 'viewer'
-            }
+                role: 'viewer',
+            },
         ]);
 
         // Log out and in as admin (again)
         cy.get('.sw-admin-menu__user-actions-toggle').click();
         cy.clearCookies();
-        cy.clearCookie('bearerAuth')
-        cy.clearCookie('refreshBearerAuth')
+        cy.clearCookie('bearerAuth');
+        cy.clearCookie('refreshBearerAuth');
         cy.reload().then(() => {
             cy.get('.sw-login__container').should('be.visible');
 
@@ -41,7 +37,7 @@ describe('User: Visual testing', () => {
         // Finally check user module
         cy.clickMainMenuItem({
             targetPath: '#/sw/settings/index',
-            mainMenuId: 'sw-settings'
+            mainMenuId: 'sw-settings',
         });
         cy.get('.sw-settings__tab-system').click();
         cy.get('.sw-settings__tab-system.sw-tabs-item--active').should('exist');

@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Update\Services;
 
 use GuzzleHttp\Client;
 use Psr\Http\Message\ResponseInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Services\OpenSSLVerifier;
 use Shopware\Core\Framework\Update\Exception\UpdateApiSignatureValidationException;
 use Shopware\Core\Framework\Update\Struct\Version;
@@ -11,50 +12,16 @@ use Shopware\Core\Framework\Update\VersionFactory;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
+#[Package('system-settings')]
 final class ApiClient
 {
     private const SHOPWARE_SIGNATURE_HEADER = 'x-shopware-signature';
 
     /**
-     * @var Client
-     */
-    private $client;
-
-    /**
-     * @var string
-     */
-    private $shopwareVersion;
-
-    /**
-     * @var SystemConfigService
-     */
-    private $systemConfigService;
-
-    /**
-     * @var OpenSSLVerifier
-     */
-    private $openSSLVerifier;
-
-    /**
-     * @var bool
-     */
-    private $shopwareUpdateEnabled;
-
-    /**
      * @internal
      */
-    public function __construct(
-        string $shopwareVersion,
-        SystemConfigService $systemConfigService,
-        OpenSSLVerifier $openSSLVerifier,
-        Client $client,
-        bool $shopwareUpdateEnabled
-    ) {
-        $this->shopwareVersion = $shopwareVersion;
-        $this->systemConfigService = $systemConfigService;
-        $this->openSSLVerifier = $openSSLVerifier;
-        $this->shopwareUpdateEnabled = $shopwareUpdateEnabled;
-        $this->client = $client;
+    public function __construct(private readonly string $shopwareVersion, private readonly SystemConfigService $systemConfigService, private readonly OpenSSLVerifier $openSSLVerifier, private readonly Client $client, private readonly bool $shopwareUpdateEnabled)
+    {
     }
 
     public function checkForUpdates(bool $testMode = false): Version
@@ -70,7 +37,7 @@ final class ApiClient
 
         $this->verifyResponseSignature($response);
 
-        $data = json_decode((string) $response->getBody(), true);
+        $data = json_decode((string) $response->getBody(), true, 512, \JSON_THROW_ON_ERROR);
 
         return VersionFactory::create($data);
     }

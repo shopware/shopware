@@ -4,6 +4,9 @@ import './sw-help-text.scss';
 const { Component } = Shopware;
 
 /**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @description The help text adds a question mark icon which triggers a tooltip with your desired content.
  * @status ready
@@ -11,7 +14,6 @@ const { Component } = Shopware;
  * @component-example
  * <sw-help-text text="Lorem ipsum dolor sit amet, consetetur sadipscing elitr"></sw-help-text>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-help-text', {
     template,
 

@@ -11,11 +11,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\User\UserDefinition;
 
+#[Package('system-settings')]
 class UserRecoveryDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'user_recovery';
+    final public const ENTITY_NAME = 'user_recovery';
 
     public function getEntityName(): string
     {

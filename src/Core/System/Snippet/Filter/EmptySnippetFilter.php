@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\System\Snippet\Filter;
 
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('system-settings')]
 class EmptySnippetFilter extends AbstractFilter implements SnippetFilterInterface
 {
     /**

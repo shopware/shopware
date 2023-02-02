@@ -6,35 +6,25 @@ use Shopware\Core\Content\Media\Aggregate\MediaDefaultFolder\MediaDefaultFolderE
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 
+#[Package('content')]
 class DeleteNotUsedMediaService
 {
-    public const RESTRICT_DEFAULT_FOLDER_ENTITIES_EXTENSION = 'restrict-default-folder-entities';
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $mediaRepo;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $defaultFolderRepo;
+    final public const RESTRICT_DEFAULT_FOLDER_ENTITIES_EXTENSION = 'restrict-default-folder-entities';
 
     /**
      * @internal
      */
-    public function __construct(EntityRepositoryInterface $mediaRepo, EntityRepositoryInterface $defaultFolderRepo)
+    public function __construct(private readonly EntityRepository $mediaRepo, private readonly EntityRepository $defaultFolderRepo)
     {
-        $this->mediaRepo = $mediaRepo;
-        $this->defaultFolderRepo = $defaultFolderRepo;
     }
 
     public function countNotUsedMedia(Context $context): int
@@ -51,9 +41,7 @@ class DeleteNotUsedMediaService
         $criteria = $this->createFilterForNotUsedMedia($context);
 
         $ids = $this->mediaRepo->searchIds($criteria, $context)->getIds();
-        $ids = array_map(static function ($id) {
-            return ['id' => $id];
-        }, $ids);
+        $ids = array_map(static fn ($id) => ['id' => $id], $ids);
         $this->mediaRepo->delete($ids, $context);
     }
 

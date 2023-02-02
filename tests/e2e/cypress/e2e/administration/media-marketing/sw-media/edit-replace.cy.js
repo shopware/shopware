@@ -1,18 +1,17 @@
+/**
+ * @package content
+ */
 // / <reference types="Cypress" />
 
 import MediaPageObject from '../../../../support/pages/module/sw-media.page-object';
 
 describe('Media: Replace media', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createDefaultFixture('media-folder');
-            })
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/media/index`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
-            });
+        cy.createDefaultFixture('media-folder').then(() => {
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/media/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+        });
     });
 
     it('@media: replace media with same file type', { tags: ['pa-content-management'] }, () => {
@@ -21,7 +20,7 @@ describe('Media: Replace media', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/media/**/upload?extension=png&fileName=sw-login-background`,
-            method: 'POST'
+            method: 'POST',
         }).as('uploadMedia');
         cy.setEntitySearchable('media', ['fileName', 'title']);
 
@@ -69,7 +68,7 @@ describe('Media: Replace media', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/media/**/upload?extension=png&fileName=sw-login-background`,
-            method: 'POST'
+            method: 'POST',
         }).as('uploadMedia');
 
         cy.setEntitySearchable('media', ['fileName', 'title']);

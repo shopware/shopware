@@ -4,13 +4,9 @@ import ProductStreamObject from '../../../../support/pages/module/sw-product-str
 
 describe('Dynamic product groups: Test dynamic product group preview', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createDefaultFixture('product-stream');
-            })
-            .then(() => {
-                return cy.createProductFixture();
-            })
+        cy.createDefaultFixture('product-stream').then(() => {
+            return cy.createProductFixture();
+        })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/stream/index`);
                 cy.get('.sw-skeleton').should('not.exist');
@@ -30,7 +26,7 @@ describe('Dynamic product groups: Test dynamic product group preview', () => {
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.contains(page.elements.smartBarHeader, '1st Productstream');
@@ -43,8 +39,8 @@ describe('Dynamic product groups: Test dynamic product group preview', () => {
             {
                 field: null,
                 operator: 'Is equal to any of',
-                value: ['Product name']
-            }
+                value: ['Product name'],
+            },
         );
 
         cy.contains('button.sw-button', 'Preview').click();
@@ -70,8 +66,8 @@ describe('Dynamic product groups: Test dynamic product group preview', () => {
             {
                 field: null,
                 operator: 'Is not equal to any of',
-                value: []
-            }
+                value: [],
+            },
         );
 
         cy.contains('button.sw-button', 'Preview').click();

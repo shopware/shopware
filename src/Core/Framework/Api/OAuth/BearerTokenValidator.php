@@ -8,37 +8,18 @@ use Lcobucci\JWT\UnencryptedToken;
 use League\OAuth2\Server\AuthorizationValidators\AuthorizationValidatorInterface;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use Psr\Http\Message\ServerRequestInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 
+#[Package('core')]
 class BearerTokenValidator implements AuthorizationValidatorInterface
 {
     /**
-     * @var Connection
-     */
-    private $connection;
-
-    /**
-     * @var AuthorizationValidatorInterface
-     */
-    private $decorated;
-
-    /**
-     * @var Configuration
-     */
-    private $configuration;
-
-    /**
      * @internal
      */
-    public function __construct(
-        AuthorizationValidatorInterface $decorated,
-        Connection $connection,
-        Configuration $configuration
-    ) {
-        $this->decorated = $decorated;
-        $this->connection = $connection;
-        $this->configuration = $configuration;
+    public function __construct(private readonly AuthorizationValidatorInterface $decorated, private readonly Connection $connection, private readonly Configuration $configuration)
+    {
     }
 
     /**
@@ -64,7 +45,6 @@ class BearerTokenValidator implements AuthorizationValidatorInterface
 
     /**
      * @throws OAuthServerException
-     * @throws \Doctrine\DBAL\DBALException
      */
     private function validateAccessTokenIssuedAt(\DateTimeImmutable $tokenIssuedAt, string $userId): void
     {
@@ -73,8 +53,8 @@ class BearerTokenValidator implements AuthorizationValidatorInterface
             ->from('user')
             ->where('id = :userId')
             ->setParameter('userId', Uuid::fromHexToBytes($userId))
-            ->execute()
-            ->fetchColumn();
+            ->executeQuery()
+            ->fetchOne();
 
         if ($lastUpdatedPasswordAt === false) {
             throw OAuthServerException::accessDenied('Access token is invalid');
@@ -84,7 +64,7 @@ class BearerTokenValidator implements AuthorizationValidatorInterface
             return;
         }
 
-        $lastUpdatedPasswordAt = strtotime($lastUpdatedPasswordAt);
+        $lastUpdatedPasswordAt = strtotime((string) $lastUpdatedPasswordAt);
 
         if ($tokenIssuedAt->getTimestamp() <= $lastUpdatedPasswordAt) {
             throw OAuthServerException::accessDenied('Access token is expired');

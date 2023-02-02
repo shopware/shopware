@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\System\Snippet\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+#[Package('system-settings')]
 class FilterNotFoundException extends ShopwareHttpException
 {
     public function __construct(string $filterName, string $class)

@@ -3,12 +3,14 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * This route can be used to delete addresses
  */
+#[Package('customer-order')]
 abstract class AbstractDeleteAddressRoute
 {
     abstract public function getDecorated(): AbstractDeleteAddressRoute;

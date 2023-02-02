@@ -3,18 +3,17 @@
 namespace Shopware\Core\Framework\Update\Services;
 
 use GuzzleHttp\Client;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
+#[Package('system-settings')]
 class UpdateApiHttpClientFactory
 {
-    private SystemConfigService $systemConfigService;
-
     /**
      * @internal
      */
-    public function __construct(SystemConfigService $systemConfigService)
+    public function __construct(private readonly SystemConfigService $systemConfigService)
     {
-        $this->systemConfigService = $systemConfigService;
     }
 
     public function __invoke(): Client

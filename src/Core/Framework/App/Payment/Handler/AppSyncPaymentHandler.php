@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException;
 use Shopware\Core\Checkout\Payment\Exception\SyncPaymentProcessException;
 use Shopware\Core\Framework\App\Payment\Payload\Struct\SyncPayPayload;
 use Shopware\Core\Framework\App\Payment\Response\SyncPayResponse;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
@@ -18,6 +19,7 @@ use Shopware\Core\System\StateMachine\Transition;
 /**
  * @internal only for use by the app-system
  */
+#[Package('core')]
 class AppSyncPaymentHandler extends AppPaymentHandler implements SynchronousPaymentHandlerInterface
 {
     public function pay(SyncPaymentTransactionStruct $transaction, RequestDataBag $dataBag, SalesChannelContext $salesChannelContext): void

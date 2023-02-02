@@ -60,8 +60,11 @@ export default class ProductStreamPageObject {
         });
     }
 
-    fillFilterWithEntityMultiSelect(selector, { field, operator, value }) {
-        this.selectFieldAndOperator(selector, field, operator);
+    /**
+     * @param exact Selects the field with an exact match
+     */
+    fillFilterWithEntityMultiSelect(selector, { field, operator, value }, exactField = false) {
+        this.selectFieldAndOperator(selector, field, operator, exactField);
 
         cy.get(selector).within((p) => {
             cy.get('.sw-entity-multi-select').within(($multiSelect) => {
@@ -77,19 +80,21 @@ export default class ProductStreamPageObject {
         });
     }
 
-    selectFieldAndOperator(selector, fieldPath, operator) {
+    selectFieldAndOperator(selector, fieldPath, operator, exactField = false) {
         if (typeof fieldPath === 'string' && fieldPath !== '') {
             cy.wrap(fieldPath.split('.')).each((field) => {
                 cy.get('.sw-product-stream-field-select').last().within(($singleSelect) => {
                     cy.wrap($singleSelect).click();
                     cy.get('.sw-select-result-list').should('be.visible');
-                    selectResultList().find('li.sw-select-result').contains(field).click();
+                    const searchText = exactField ? new RegExp(`^${field}$`) : field;
+
+                    selectResultList().find('li.sw-select-result').contains(searchText).click();
                 });
             });
         }
 
         if (typeof operator === 'string' && operator !== '') {
-            cy.get('.sw-product-stream-value').within(() => {
+            cy.get(selector).find('.sw-product-stream-value').within(() => {
                 cy.get('.sw-single-select').first().click();
             });
 

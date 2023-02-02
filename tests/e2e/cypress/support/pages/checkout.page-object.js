@@ -40,8 +40,6 @@ export default class CheckoutPageObject {
             notification: '.sw-notifications__notification',
 
             // General cart selectors
-            /** @deprecated tag:v6.5.0 - Use lineItem` instead */
-            cartItem: '.cart-item',
             lineItem: '.line-item',
             cartItemFeatureList: '.product-feature-list-list',
             cartItemFeatureListItem: '.product-feature-list-item',
@@ -61,7 +59,7 @@ export default class CheckoutPageObject {
             paymentMethods: '.payment-method',
             paymentMethodsCollapseContainer: '.payment-methods > .collapse',
             paymentMethodsCollapseTrigger: '.payment-methods > .confirm-checkout-collapse-trigger',
-            paymentFormConfirm: '#changeShippingForm',
+            paymentFormConfirm: '#changePaymentForm',
 
             // shipping method
             shippingMethodsContainer: '.shipping-methods',

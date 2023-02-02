@@ -57,6 +57,7 @@ import Iterator from 'src/helper/iterator.helper';
  * // Initializes a single plugin.
  * PluginManager.initializePlugin(pluginName: String|boolean, selector: String | NodeList | HTMLElement, options?: Object): *;
  *
+ * @package storefront
  */
 class PluginManagerSingleton {
 

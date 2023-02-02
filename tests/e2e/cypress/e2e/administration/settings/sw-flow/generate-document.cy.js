@@ -2,14 +2,10 @@
 import OrderPageObject from '../../../../support/pages/module/sw-order.page-object';
 
 describe('Flow builder: generate document testing', () => {
-    // eslint-disable-next-line no-undef
     beforeEach(() => {
-        // Clean previous state and prepare Administration
-        cy.loginViaApi().then(() => {
-                return cy.createProductFixture();
-            }).then(() => {
-                return cy.createCustomerFixture();
-            })
+        cy.createProductFixture().then(() => {
+            return cy.createCustomerFixture();
+        })
             .then(() => {
                 cy.visit(`${Cypress.env('admin')}#/sw/flow/index`);
                 cy.get('.sw-skeleton').should('not.exist');
@@ -20,7 +16,7 @@ describe('Flow builder: generate document testing', () => {
     it('@settings: generate document flow', { tags: ['pa-business-ops'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/flow`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         cy.get('.sw-flow-list').should('be.visible');
@@ -65,30 +61,25 @@ describe('Flow builder: generate document testing', () => {
 
         cy.visit('/');
 
-        cy.window().then((win) => {
-            /** @deprecated tag:v6.5.0 - Use `CheckoutPageObject.elements.lineItem` instead */
-            const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
+        cy.contains('.btn-buy', 'Add to shopping ').click();
+        cy.get('.offcanvas').should('be.visible');
+        cy.contains('.line-item-price', 49.98);
 
-            cy.contains('.btn-buy', 'Add to shopping ').click();
-            cy.get('.offcanvas').should('be.visible');
-            cy.contains(`${lineItemSelector}-price`, 49.98);
+        // Checkout
+        cy.get('.offcanvas-cart-actions .btn-primary').click();
+        cy.get('.checkout-confirm-tos-label').click(1, 1);
 
-            // Checkout
-            cy.get('.offcanvas-cart-actions .btn-primary').click();
-            cy.get('.checkout-confirm-tos-label').click(1, 1);
-
-            // Finish checkout
-            cy.get('#confirmFormSubmit').scrollIntoView();
-            cy.get('#confirmFormSubmit').click();
-            cy.contains('.finish-ordernumber', 'Your order number: #10000');
-        });
+        // Finish checkout
+        cy.get('#confirmFormSubmit').scrollIntoView();
+        cy.get('#confirmFormSubmit').click();
+        cy.contains('.finish-ordernumber', 'Your order number: #10000');
 
         // Clear Storefront cookie
         cy.clearCookies();
 
         const page = new OrderPageObject();
 
-        cy.loginViaApi().then(() => {
+        cy.authenticate().then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/order/index`);
             cy.get('.sw-skeleton').should('not.exist');
             cy.get('.sw-loader').should('not.exist');
@@ -98,24 +89,15 @@ describe('Flow builder: generate document testing', () => {
         cy.clickContextMenuItem(
             '.sw-order-list__order-view-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.get('.sw-loader').should('not.exist');
 
-        cy.skipOnFeature('FEATURE_NEXT_7530', () => {
-            cy.get('.sw-order-detail-base__document-grid').scrollIntoView().then(() => {
-                cy.get('.sw-order-detail-base__document-grid .sw-data-grid__row--0').should('be.visible');
-                cy.contains('.sw-order-detail-base__document-grid .sw-data-grid__row--0', 'Invoice');
-            });
-        });
+        cy.get('.sw-tabs-item[title="Documents"]').click();
+        cy.get('.sw-loader').should('not.exist');
 
-        cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
-            cy.get('.sw-tabs-item[title="Documents"]').click();
-            cy.get('.sw-loader').should('not.exist');
-
-            cy.get('.sw-data-grid__row--0').should('be.visible');
-            cy.contains('.sw-data-grid__row--0', 'Invoice');
-        });
+        cy.get('.sw-data-grid__row--0').should('be.visible');
+        cy.contains('.sw-data-grid__row--0', 'Invoice');
     });
 });

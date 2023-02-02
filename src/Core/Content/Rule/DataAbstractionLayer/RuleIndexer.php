@@ -9,12 +9,12 @@ use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Content\Rule\RuleEvents;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Event\PluginPostActivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostDeactivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostInstallEvent;
@@ -24,39 +24,28 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @internal
+ */
+#[Package('business-ops')]
 class RuleIndexer extends EntityIndexer implements EventSubscriberInterface
 {
-    public const PAYLOAD_UPDATER = 'rule.payload';
+    final public const PAYLOAD_UPDATER = 'rule.payload';
 
-    private IteratorFactory $iteratorFactory;
-
-    private Connection $connection;
-
-    private EntityRepositoryInterface $repository;
-
-    private RulePayloadUpdater $payloadUpdater;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private CartRuleLoader $cartRuleLoader;
+    final public const AREA_UPDATER = 'rule.area';
 
     /**
      * @internal
      */
     public function __construct(
-        Connection $connection,
-        IteratorFactory $iteratorFactory,
-        EntityRepositoryInterface $repository,
-        RulePayloadUpdater $payloadUpdater,
-        CartRuleLoader $cartRuleLoader,
-        EventDispatcherInterface $eventDispatcher
+        private readonly Connection $connection,
+        private readonly IteratorFactory $iteratorFactory,
+        private readonly EntityRepository $repository,
+        private readonly RulePayloadUpdater $payloadUpdater,
+        private readonly RuleAreaUpdater $areaUpdater,
+        private readonly CartRuleLoader $cartRuleLoader,
+        private readonly EventDispatcherInterface $eventDispatcher
     ) {
-        $this->iteratorFactory = $iteratorFactory;
-        $this->repository = $repository;
-        $this->connection = $connection;
-        $this->payloadUpdater = $payloadUpdater;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->cartRuleLoader = $cartRuleLoader;
     }
 
     public function getName(): string
@@ -86,20 +75,8 @@ class RuleIndexer extends EntityIndexer implements EventSubscriberInterface
         $update->execute();
     }
 
-    /**
-     * @param array|null $offset
-     *
-     * @deprecated tag:v6.5.0 The parameter $offset will be native typed
-     */
-    public function iterate(/*?array */$offset): ?EntityIndexingMessage
+    public function iterate(?array $offset): ?EntityIndexingMessage
     {
-        if ($offset !== null && !\is_array($offset)) {
-            Feature::triggerDeprecationOrThrow(
-                'v6.5.0.0',
-                'Parameter `$offset` of method "iterate()" in class "RuleIndexer" will be natively typed to `?array` in v6.5.0.0.'
-            );
-        }
-
         $iterator = $this->iteratorFactory->createIterator($this->repository->getDefinition(), $offset);
 
         $ids = $iterator->fetch();
@@ -135,6 +112,10 @@ class RuleIndexer extends EntityIndexer implements EventSubscriberInterface
 
         if ($message->allow(self::PAYLOAD_UPDATER)) {
             $this->payloadUpdater->update($ids);
+        }
+
+        if ($message->allow(self::AREA_UPDATER)) {
+            $this->areaUpdater->update($ids);
         }
 
         $this->eventDispatcher->dispatch(new RuleIndexerEvent($ids, $message->getContext(), $message->getSkip()));

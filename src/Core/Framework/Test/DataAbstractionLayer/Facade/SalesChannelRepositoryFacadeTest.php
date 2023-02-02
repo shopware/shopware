@@ -7,7 +7,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufactu
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\ApiProtectionException;
 use Shopware\Core\Framework\DataAbstractionLayer\Facade\SalesChannelRepositoryFacadeHookFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
@@ -19,7 +19,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Struct\ArrayStruct;
-use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\Script\Execution\SalesChannelTestHook;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -27,6 +26,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
+use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 
 /**
  * @internal
@@ -49,6 +49,7 @@ class SalesChannelRepositoryFacadeTest extends TestCase
     }
 
     /**
+     * @param array<string, array<int, mixed>> $criteria
      * @dataProvider testCases
      */
     public function testFacade(array $criteria, string $method, IdsCollection $ids, callable $expectation): void
@@ -66,6 +67,9 @@ class SalesChannelRepositoryFacadeTest extends TestCase
         $expectation($result);
     }
 
+    /**
+     * @return array<string, array<int, mixed>>
+     */
     public function testCases(): array
     {
         $ids = new IdsCollection();
@@ -384,7 +388,7 @@ class SalesChannelRepositoryFacadeTest extends TestCase
 
     private function getExistingTaxId(): string
     {
-        /** @var EntityRepositoryInterface $taxRepository */
+        /** @var EntityRepository $taxRepository */
         $taxRepository = $this->getContainer()->get('tax.repository');
 
         $criteria = new Criteria();

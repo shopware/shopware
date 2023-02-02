@@ -1,31 +1,15 @@
 import type { PropType } from 'vue';
 import type { Route } from 'vue-router';
+import type { Address } from 'src/core/service/api/custom-snippet.api.service';
 import template from './sw-address.html.twig';
 import './sw-address.scss';
 
 const { Component } = Shopware;
 
-interface Country {
-    name: string,
-}
-
-interface CountryState {
-    name: string,
-}
-
-interface Address {
-    salutation: $TSFixMe,
-    title: string,
-    firstName: string,
-    lastName: string,
-    street: string,
-    zipcode: string,
-    city: string,
-    country: Country,
-    countryState: CountryState,
-}
-
 /**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @description Component to render a postal address
  * @status ready
@@ -40,9 +24,8 @@ interface Address {
  *     zipcode: '12456',
  *     city: 'Anytown',
  *     country: { name: 'Germany' }
- * }"></sw-address>
+ * }" :formattingAddress="First Name Last Name\nGermany"></sw-address>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-address', {
     template,
 
@@ -51,7 +34,12 @@ Component.register('sw-address', {
             type: Object as PropType<Address>,
             default(): Address {
                 return {
-                    salutation: '',
+                    salutation: {
+                        displayName: '',
+                        translated: {
+                            displayName: '',
+                        },
+                    },
                     title: '',
                     firstName: '',
                     lastName: '',
@@ -60,9 +48,15 @@ Component.register('sw-address', {
                     city: '',
                     country: {
                         name: '',
+                        translated: {
+                            name: '',
+                        },
                     },
                     countryState: {
                         name: '',
+                        translated: {
+                            name: '',
+                        },
                     },
                 };
             },
@@ -72,6 +66,12 @@ Component.register('sw-address', {
             type: String,
             required: false,
             default: '',
+        },
+
+        formattingAddress: {
+            type: String,
+            required: false,
+            default: null,
         },
 
         showEditButton: {
@@ -92,6 +92,10 @@ Component.register('sw-address', {
             return {
                 'sw-address--headline': this.headline,
             };
+        },
+
+        displayFormattingAddress(): string {
+            return this.formattingAddress;
         },
     },
 });

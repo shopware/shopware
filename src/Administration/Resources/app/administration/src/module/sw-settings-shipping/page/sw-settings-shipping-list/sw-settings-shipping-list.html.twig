@@ -4,7 +4,7 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_shipping_list_search_bar %}
-    <template slot="search-bar">
+    <template #search-bar>
         <sw-search-bar
             initial-search-type="shipping_method"
             :placeholder="$tc('sw-settings-shipping.general.placeholderSearchBar')"
@@ -16,7 +16,7 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_shipping_list_smart_bar_header %}
-    <template slot="smart-bar-header">
+    <template #smart-bar-header>
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_shipping_list_smart_bar_header_title %}
         <h2>
@@ -44,7 +44,7 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_shipping_list_smart_bar_actions %}
-    <template slot="smart-bar-actions">
+    <template #smart-bar-actions>
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_shipping_list_smart_bar_actions_add %}
         <sw-button
@@ -65,7 +65,7 @@
     </template>
     {% endblock %}
 
-    <template slot="content">
+    <template #content>
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_shipping_list_content %}
         <div class="sw-settings-shipping-list__content">
@@ -94,8 +94,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_shipping_list_grid_columns_active %}
                 <template
-                    slot="column-active"
-                    slot-scope="{ item, isInlineEdit }"
+                    #column-active="{ item, isInlineEdit }"
                 >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_shipping_list_grid_columns_active_inline_edit %}
@@ -258,16 +257,18 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_shipping_list_sidebar %}
-    <sw-sidebar slot="sidebar">
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_settings_shipping_list_sidebar_refresh %}
-        <sw-sidebar-item
-            icon="regular-undo"
-            :title="$tc('sw-settings-shipping.list.titleSidebarItemRefresh')"
-            @click="onRefresh"
-        />
-        {% endblock %}
-    </sw-sidebar>
+    <template #sidebar>
+        <sw-sidebar>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_settings_shipping_list_sidebar_refresh %}
+            <sw-sidebar-item
+                icon="regular-undo"
+                :title="$tc('sw-settings-shipping.list.titleSidebarItemRefresh')"
+                @click="onRefresh"
+            />
+            {% endblock %}
+        </sw-sidebar>
+    </template>
     {% endblock %}
 </sw-page>
 {% endblock %}

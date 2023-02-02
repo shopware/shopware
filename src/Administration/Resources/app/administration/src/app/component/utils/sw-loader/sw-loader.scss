@@ -1,5 +1,6 @@
 @import "~scss/variables";
 
+// @deprecated tag:v6.6.0 - Will be removed without replacement
 $sw-loader-color-overlay: rgba(255, 255, 255, 80%);
 $sw-loader-element-color: $color-shopware-brand-500;
 $sw-loader-rotate-duration: 1.4s;
@@ -15,7 +16,6 @@ $sw-loader-z-index: $z-index-loader;
     right: 0;
     margin: auto;
     z-index: $sw-loader-z-index;
-    background: $sw-loader-color-overlay;
 
     .sw-loader__container {
         display: grid;

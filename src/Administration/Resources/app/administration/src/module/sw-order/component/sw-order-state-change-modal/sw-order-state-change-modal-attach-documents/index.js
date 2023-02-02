@@ -1,10 +1,12 @@
 import template from './sw-order-state-change-modal-attach-documents.html.twig';
 import './sw-order-state-change-modal-attach-documents.scss';
 
-const { Component } = Shopware;
+/**
+ * @package customer-order
+ */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-order-state-change-modal-attach-documents', {
+export default {
     template,
 
     props: {
@@ -37,4 +39,4 @@ Component.register('sw-order-state-change-modal-attach-documents', {
             this.$emit('on-confirm', docIds, this.sendMail);
         },
     },
-});
+};

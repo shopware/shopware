@@ -5,13 +5,9 @@ import ProductPageObject from '../../../../support/pages/module/sw-product.page-
 
 describe('Sales Channel: Test product comparison', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createProductFixture();
-            })
-            .then(() => {
-                return cy.createDefaultFixture('product-stream', {}, 'product-stream-active');
-            })
+        cy.createProductFixture().then(() => {
+            return cy.createDefaultFixture('product-stream', {}, 'product-stream-active');
+        })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
                 cy.get('.sw-skeleton').should('not.exist');
@@ -26,28 +22,28 @@ describe('Sales Channel: Test product comparison', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/sales-channel`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveProductsData');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/product-export/validate`,
-            method: 'POST'
+            method: 'POST',
         }).as('validate');
 
         // Edit base data of product
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         // Upload product image
         cy.get('input[name=sw-field--product-name]').should('be.visible');
-        cy.get('#files')
+        cy.get('.sw-product-media-form .sw-media-upload-v2__file-input')
             .attachFile('img/sw-login-background.png');
         cy.get('.sw-product-image__image img')
             .should('have.attr', 'src')

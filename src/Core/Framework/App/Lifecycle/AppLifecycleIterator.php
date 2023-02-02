@@ -5,30 +5,18 @@ namespace Shopware\Core\Framework\App\Lifecycle;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
  */
+#[Package('core')]
 class AppLifecycleIterator
 {
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $appRepository;
-
-    /**
-     * @var AbstractAppLoader
-     */
-    private $appLoader;
-
-    public function __construct(
-        EntityRepositoryInterface $appRepository,
-        AbstractAppLoader $appLoader
-    ) {
-        $this->appRepository = $appRepository;
-        $this->appLoader = $appLoader;
+    public function __construct(private readonly EntityRepository $appRepository, private readonly AbstractAppLoader $appLoader)
+    {
     }
 
     /**

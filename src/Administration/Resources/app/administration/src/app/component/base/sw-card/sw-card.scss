@@ -18,7 +18,11 @@
     position: relative;
     color: $color-darkgray-200;
 
-    @include drop-shadow-default;
+    &:not(.sw-card--hero) {
+        border-radius: $border-radius-lg;
+
+        @include drop-shadow-default;
+    }
 
     &__context-menu {
         position: absolute;
@@ -62,6 +66,26 @@
         }
     }
 
+    &.has--tabs {
+        .sw-card__header {
+            padding-bottom: 0;
+
+            .sw-tabs {
+                flex-basis: 100%;
+            }
+
+            .sw-tabs__content::before {
+                all: unset;
+            }
+
+            .sw-tabs-item {
+                margin-right: 17.5px;
+                padding: 10px 0;
+                border-bottom: 0 none;
+            }
+        }
+    }
+
     .sw-card__header {
         display: flex;
         flex-wrap: wrap;
@@ -94,15 +118,15 @@
 
     .sw-card__title {
         color: $color-darkgray-300;
-        font-size: $font-size-large;
+        font-size: $font-size-m;
         font-weight: $font-weight-semi-bold;
-        line-height: 18px;
+        line-height: $line-height-xs;
     }
 
     .sw-card__subtitle {
         color: $color-darkgray-50;
-        font-size: $font-size-small;
-        line-height: 18px;
+        font-size: $font-size-xs;
+        line-height: $line-height-xs;
     }
 
     .sw-card__titles-right-slot {
@@ -145,7 +169,7 @@
         }
 
         h1 {
-            font-size: 24px;
+            font-size: $font-size-xl;
         }
 
         h2 {
@@ -153,13 +177,13 @@
         }
 
         h3 {
-            font-size: 20px;
+            font-size: $font-size-l;
         }
 
         h4,
         h5,
         h6 {
-            font-size: 18px;
+            font-size: $font-size-m;
         }
 
         a.sw-card__quick-link {
@@ -169,7 +193,7 @@
             align-items: center;
             text-decoration: none;
             color: $color-shopware-brand-500;
-            font-size: 14px;
+            font-size: $font-size-xs;
 
             &:hover {
                 color: $color-shopware-brand-600;
@@ -252,7 +276,7 @@
             font-weight: normal;
 
             &.sw-tabs-item--active {
-                font-weight: 600;
+                font-weight: $font-weight-semi-bold;
             }
         }
     }

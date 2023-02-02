@@ -15,13 +15,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\NumberRange\Aggregate\NumberRangeSalesChannel\NumberRangeSalesChannelDefinition;
 use Shopware\Core\System\NumberRange\Aggregate\NumberRangeTypeTranslation\NumberRangeTypeTranslationDefinition;
 use Shopware\Core\System\NumberRange\NumberRangeDefinition;
 
+#[Package('checkout')]
 class NumberRangeTypeDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'number_range_type';
+    final public const ENTITY_NAME = 'number_range_type';
 
     public function getEntityName(): string
     {

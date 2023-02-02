@@ -50,10 +50,12 @@
         "selectorHelpTextAddSequence": "Flows werden durch einen einzelnen Auslöser gestartet, können aber aus mehreren Sequenzen bestehen.<br/><br/>Sequenzen werden nacheinander ausgeführt. Flows können jederzeit durch eine \"Stop\"-Aktion vollständig beendet werden.",
         "selectorIfCondition": "Bedingung (WENN) hinzufügen",
         "selectorThenAction": "Aktion (DANN) hinzufügen",
-        "conditionTitle": "Bedingung (WENN)",
+        "conditionTitle": "Bedingung",
+        "conditionDescription": "(WENN)",
         "conditionExplainsTitle": "Bedingung erstellen",
         "conditionExplainsDescription": "Bedingungen bestehen aus Regeln. Du kannst entwender eine vorhandene Regel auswählen oder eine neue Regel erstellen, um die Bedingung zu definieren.",
-        "actionTitle": "Aktion (DANN)",
+        "actionTitle": "Aktion",
+        "actionDescription": "(DANN)",
         "contextButton": {
           "deleteCondition": "Bedingung löschen",
           "deleteActionContainer": "Alle Aktionen löschen"
@@ -62,7 +64,8 @@
         "labelFalse": "Falsch",
         "noActions": "Kein Aktionen hinzugefügt",
         "noRule": "Noch keine Regeln definiert"
-      }
+      },
+      "warningText": "Dieser Flow verwendet Aktionen, die aufgrund einer Änderung der gebuchten Edition bzw. durch Deaktivierung oder Deinstallation der dazugehörigen Erweiterungen, nicht mehr verfügbar sind. Wenn dieser Flow ausgelöst wird, werden nicht verfügbare Aktionen nicht ausgeführt."
     },
     "page": {
       "tabGeneral": "Allgemein",
@@ -72,6 +75,7 @@
       "messageDeleteSuccess": "Flow gelöscht.",
       "messageDeleteError": "Flow konnte nicht gelöscht werden.",
       "messageSaveError": "Flow konnte nicht gespeichert werden.",
+      "messageWarningSave": "Flow-Vorlagen können nicht bearbeitet werden.",
       "messageError": "Ein Fehler ist aufgetreten.",
       "messageRequiredEventName": "Wähle vor dem Speichern ein Auslöser-Ereignis aus.",
       "messageRequiredEmptyFields": "Wähle vor dem Speichern eine Regel oder Aktion aus.",
@@ -80,6 +84,7 @@
       "messageDownloadSuccess": "Flow heruntergeladen.",
       "messageDownloadError": "Flow konnte nicht heruntergeladen werden.",
       "messageCreateSuccess": "Flow erstellt.",
+      "messageUpdateTemplateSuccess": "Flow template updated.",
       "messageCreateError": "Flow konnte nicht erstellt werden."
     },
     "actions": {
@@ -87,6 +92,7 @@
       "generateDocument": "Dokumente erzeugen",
       "removeTag": "Tag entfernen",
       "mailSend": "E-Mail verschicken",
+      "grantDownloadAccess": "Download-Recht setzen",
       "setOrderState": "Status zuweisen",
       "stopFlow": "Flow anhalten",
       "changeCustomerGroup": "Kundengruppe zuweisen",
@@ -117,7 +123,9 @@
         "customer": "Kunden",
         "general": "Allgemein",
         "order": "Bestellung"
-      }
+      },
+      "unknownLabel": "Unbekannte Aktion",
+      "warningText": "Diese Aktion wurde durch eine Erweiterung bereitgestellt, die inaktiv oder nicht mehr installiert ist."
     },
     "rule": {
       "addRule": "Regel hinzufügen",
@@ -135,8 +143,8 @@
       "rule": {
         "labelAddNewRule": "Neue Regel hinzufügen",
         "labelEditRule": "Regel bearbeiten",
-        "tabRule": "Regel",
-        "tabDetail": "Details",
+        "tabRule": "Bedingung",
+        "tabDetail": "Allgemein",
         "buttonAddRule": "Speichern und anwenden",
         "labelName": "Name",
         "placeholderName": "Regelnamen eingeben ...",
@@ -172,6 +180,15 @@
         "titleCreateDocument": "Dokumente erzeugen",
         "labelDocumentType": "Dokumente",
         "placeholderDocumentType": "Dokumente auswählen ..."
+      },
+      "downloadAccess": {
+        "titleSetDownloadAccess": "Download-Recht setzen",
+        "labelValueField": "Recht",
+        "placeholderValueField": "Anwendung auswählen ...",
+        "options": {
+          "grant": "Erteilen",
+          "revoke": "Entziehen"
+        }
       },
       "customerGroup": {
         "titleChangeCustomerGroup": "Kundengruppe zuweisen",
@@ -214,9 +231,13 @@
         "labelCustomer": "Kunde",
         "labelAdmin": "Administrator",
         "labelCustom": "Anderer Empfänger",
-        "labelContactFormMail": "Kontaktformular-Bestätigung",
+        "labelContactFormMail": "Anfragesteller",
         "labelRecipient": "Empfänger",
         "placeholderRecipient": "E-Mail-Empfänger auswählen ...",
+        "useDifferentReplyToLabel": "Andere Absender-Adresse verwenden",
+        "labelReplyTo": "Absender-Adresse",
+        "placeholderReplyTo": "E-Mail-Adresse eingeben ...",
+        "tooltipDifferentReplyTo": "E-Mails werden von der E-Mail-Adresse des Shop-Betreibers versendet. Du kannst die E-Mail-Adresse des Shop-Betreibers in den <a href=\"{settingsLink}\">Einstellungen</a> ändern.",
         "labelLatestDocuments": "Angefügte Dokumente",
         "placeholderLatestDocuments": "Dokumente auswählen ...",
         "documentDescription": "Falls die ausgewählten Dokumente nicht existieren, werden sie nicht versendet. Du musst Dokumente erzeugen, bevor diese Aktion ausgeführt wird."
@@ -265,6 +286,69 @@
       "headline": "Warnung",
       "description": "Ungespeicherte Änderungen vorhanden. Willst Du die Seite trotzdem verlassen?",
       "confirmButton": "Seite verlassen"
+    },
+    "triggers": {
+      "checkout": "Bestellabschluss",
+      "customer": "Kunde",
+      "before": "Bevor",
+      "order": "Bestellung",
+      "paymentMethod": "Zahlungsart",
+      "contactForm": "Kontaktformular",
+      "reviewForm": "Produktbewertung",
+      "group": "Gruppe",
+      "recovery": "Wiederherstellung",
+      "registration": "Registrierung",
+      "mail": "E-Mail",
+      "after": "Nach",
+      "create": "Erstellen",
+      "newsletter": "Newsletter",
+      "productExport": "Produktexport",
+      "stateEnter": "Status erreicht",
+      "state": "Status",
+      "orderDelivery": "Bestellung Lieferung",
+      "orderTransaction": "Bestellung Transaktion",
+      "orderTransactionCapture": "Bestellung Transaktion Einzug",
+      "orderTransactionCaptureRefund": "Bestellung Transaktion Einzug Rückerstattung",
+      "stateLeave": "Status verlassen",
+      "user": "Benutzer",
+      "login": "Anmeldung",
+      "logout": "Abmeldung",
+      "register": "Registrierung",
+      "changedPaymentMethod": "Zahlungsart geändert",
+      "deleted": "Gelöscht",
+      "doubleOptInGuestOrder": "Double-Opt-In-Gastbestellung",
+      "doubleOptInRegistration": "Double-Opt-In-Registrierung",
+      "guestRegister": "Gast registriert",
+      "placed": "Eingang",
+      "send": "Abschicken",
+      "accepted": "Akzeptiert",
+      "declined": "Abgelehnt",
+      "request": "Anfrage",
+      "message": "Nachricht",
+      "sent": "Abgeschickt",
+      "confirm": "Bestätigen",
+      "unsubscribe": "Abbestellen",
+      "log": "Protokoll",
+      "cancelled": "Abgebrochen",
+      "completed": "Abgeschlossen",
+      "inProgress": "In Bearbeitung",
+      "open": "Offen",
+      "returned": "Zurückgeschickt",
+      "returnedPartially": "Teilweise zurückgeschickt",
+      "shipped": "Versendet",
+      "shippedPartially": "Teilweise versendet",
+      "authorized": "Autorisiert",
+      "chargeback": "Rückbuchung",
+      "failed": "Gescheitert",
+      "paid": "Bezahlt",
+      "paidPartially": "Teilweise bezahlt",
+      "refunded": "Erstattet",
+      "refundedPartially": "Teilweise erstattet",
+      "reminded": "Erinnert",
+      "unconfirmed": "Unbestätigt",
+      "pending": "Ausstehend",
+      "changed": "Geändert",
+      "update": "Aktualisierung"
     }
   },
   "sw-privileges": {

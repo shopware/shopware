@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\RouterInterface;
@@ -25,41 +26,24 @@ use Twig\Environment;
 use Twig\Error\SyntaxError;
 use Twig\Loader\ArrayLoader;
 
+#[Package('sales-channel')]
 class SeoUrlGenerator
 {
-    public const ESCAPE_SLUGIFY = 'slugifyurlencode';
-
-    private RouterInterface $router;
-
-    private Environment $twig;
-
-    private DefinitionInstanceRegistry $definitionRegistry;
-
-    private RequestStack $requestStack;
-
-    private TwigVariableParser $twigVariableParser;
+    final public const ESCAPE_SLUGIFY = 'slugifyurlencode';
 
     /**
      * @internal
      */
-    public function __construct(
-        DefinitionInstanceRegistry $definitionRegistry,
-        RouterInterface $router,
-        RequestStack $requestStack,
-        Environment $environment,
-        TwigVariableParser $twigVariableParser
-    ) {
-        $this->definitionRegistry = $definitionRegistry;
-        $this->router = $router;
-        $this->requestStack = $requestStack;
-        $this->twig = $environment;
-        $this->twigVariableParser = $twigVariableParser;
+    public function __construct(private readonly DefinitionInstanceRegistry $definitionRegistry, private readonly RouterInterface $router, private readonly RequestStack $requestStack, private readonly Environment $twig, private readonly TwigVariableParser $twigVariableParser)
+    {
     }
 
     /**
-     * @feature-deprecated (flag:FEATURE_NEXT_13410) Parameter $salesChannel will be required
+     * @param array<string|array<string, string>> $ids
+     *
+     * @return iterable<SeoUrlEntity>
      */
-    public function generate(array $ids, string $template, SeoUrlRouteInterface $route, Context $context, ?SalesChannelEntity $salesChannel): iterable
+    public function generate(array $ids, string $template, SeoUrlRouteInterface $route, Context $context, SalesChannelEntity $salesChannel): iterable
     {
         $criteria = new Criteria($ids);
         $route->prepareCriteria($criteria, $salesChannel);
@@ -74,9 +58,7 @@ class SeoUrlGenerator
         $criteria->setLimit(50);
 
         /** @var RepositoryIterator $iterator */
-        $iterator = $context->enableInheritance(static function (Context $context) use ($repository, $criteria) {
-            return new RepositoryIterator($repository, $context, $criteria);
-        });
+        $iterator = $context->enableInheritance(static fn (Context $context) => new RepositoryIterator($repository, $context, $criteria));
 
         $this->setTwigTemplate($config, $template);
 
@@ -86,11 +68,11 @@ class SeoUrlGenerator
     }
 
     /**
-     * @internal (flag:FEATURE_NEXT_13410) Parameter $salesChannel will be required
-     *
      * @param EntityCollection<Entity> $entities
+     *
+     * @return iterable<SeoUrlEntity>
      */
-    private function generateUrls(SeoUrlRouteInterface $seoUrlRoute, SeoUrlRouteConfig $config, ?SalesChannelEntity $salesChannel, EntityCollection $entities): iterable
+    private function generateUrls(SeoUrlRouteInterface $seoUrlRoute, SeoUrlRouteConfig $config, SalesChannelEntity $salesChannel, EntityCollection $entities): iterable
     {
         $request = $this->requestStack->getMainRequest();
 
@@ -122,12 +104,7 @@ class SeoUrlGenerator
             }
 
             $copy->setSeoPathInfo($seoPathInfo);
-
-            if ($salesChannel !== null) {
-                $copy->setSalesChannelId($salesChannel->getId());
-            } else {
-                $copy->setSalesChannelId(null);
-            }
+            $copy->setSalesChannelId($salesChannel->getId());
 
             yield $copy;
         }
@@ -148,7 +125,7 @@ class SeoUrlGenerator
 
     private function setTwigTemplate(SeoUrlRouteConfig $config, string $template): void
     {
-        $template = "{% autoescape '" . self::ESCAPE_SLUGIFY . "' %}$template{% endautoescape %}";
+        $template = '{% autoescape \'' . self::ESCAPE_SLUGIFY . "' %}$template{% endautoescape %}";
         $this->twig->setLoader(new ArrayLoader(['template' => $template]));
 
         try {
@@ -169,6 +146,9 @@ class SeoUrlGenerator
         return mb_substr($subject, mb_strlen($prefix));
     }
 
+    /**
+     * @return list<string>
+     */
     private function getAssociations(string $template, EntityDefinition $definition): array
     {
         try {

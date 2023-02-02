@@ -51,7 +51,7 @@ trait MailTemplateTestBehaviour
 
         $this->getContainer()
             ->get(Connection::class)
-            ->executeUpdate('DELETE FROM mail_template_sales_channel WHERE sales_channel_id = :id', [
+            ->executeStatement('DELETE FROM mail_template_sales_channel WHERE sales_channel_id = :id', [
                 'id' => Uuid::fromHexToBytes($salesChannelId),
             ]);
 

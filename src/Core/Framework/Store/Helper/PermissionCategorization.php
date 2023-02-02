@@ -105,6 +105,7 @@ use Shopware\Core\Framework\App\Aggregate\AppTranslation\AppTranslationDefinitio
 use Shopware\Core\Framework\App\AppDefinition;
 use Shopware\Core\Framework\App\Template\TemplateDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\VersionDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateDefinition;
 use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Currency\CurrencyDefinition;
@@ -152,6 +153,7 @@ use Shopware\Core\System\User\UserDefinition;
 /**
  * @internal
  */
+#[Package('merchant-services')]
 class PermissionCategorization
 {
     private const CATEGORY_APP = 'app';
@@ -414,6 +416,9 @@ class PermissionCategorization
         return \in_array($entity, self::PERMISSION_CATEGORIES[$category], true);
     }
 
+    /**
+     * @return string[]
+     */
     public static function getCategoryNames(): array
     {
         $categories = array_keys(self::PERMISSION_CATEGORIES);

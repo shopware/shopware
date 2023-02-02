@@ -1,8 +1,14 @@
+/**
+ * @package admin
+ */
+
 import template from './sw-login-recovery-info.html.twig';
 
 const { Component } = Shopware;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 Component.register('sw-login-recovery-info', {
     template,
 

@@ -1,10 +1,12 @@
 import './sw-order-state-history-card-entry.scss';
 import template from './sw-order-state-history-card-entry.html.twig';
 
-const { Component } = Shopware;
+/**
+ * @package customer-order
+ */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-order-state-card-entry', {
+export default {
     template,
 
     inject: ['stateStyleDataProviderService'],
@@ -57,4 +59,4 @@ Component.register('sw-order-state-card-entry', {
             return this.stateStyleDataProviderService.getStyle(this.stateMachineName, stateName).iconBackgroundStyle;
         },
     },
-});
+};

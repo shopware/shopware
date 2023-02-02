@@ -5,15 +5,11 @@ import ManufacturerPageObject from '../../../../support/pages/module/sw-manufact
 describe('Manufacturer: Visual tests', () => {
     // eslint-disable-next-line no-undef
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createDefaultFixture('product-manufacturer');
-            })
-            .then(() => {
-                cy.openInitialPage(Cypress.env('admin'));
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
-            });
+        cy.createDefaultFixture('product-manufacturer').then(() => {
+            cy.openInitialPage(Cypress.env('admin'));
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+        });
     });
 
     it('@visual: check appearance of basic manufacturer workflow', { tags: ['pa-inventory'] }, () => {
@@ -22,17 +18,17 @@ describe('Manufacturer: Visual tests', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/product-manufacturer/**`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product-manufacturer`,
-            method: 'POST'
+            method: 'POST',
         }).as('getData');
 
         cy.clickMainMenuItem({
             targetPath: '#/sw/manufacturer/index',
             mainMenuId: 'sw-catalogue',
-            subMenuId: 'sw-manufacturer'
+            subMenuId: 'sw-manufacturer',
         });
         cy.wait('@getData')
             .its('response.statusCode').should('equal', 200);

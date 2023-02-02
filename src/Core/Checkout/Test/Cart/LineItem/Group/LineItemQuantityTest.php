@@ -4,10 +4,12 @@ namespace Shopware\Core\Checkout\Test\Cart\LineItem\Group\Exception;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantity;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('checkout')]
 class LineItemQuantityTest extends TestCase
 {
     /**

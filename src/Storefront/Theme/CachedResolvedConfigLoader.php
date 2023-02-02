@@ -3,23 +3,19 @@
 namespace Shopware\Storefront\Theme;
 
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 
+#[Package('storefront')]
 class CachedResolvedConfigLoader extends AbstractResolvedConfigLoader
 {
-    private AbstractResolvedConfigLoader $decorated;
-
-    private CacheInterface $cache;
-
     /**
      * @internal
      */
-    public function __construct(AbstractResolvedConfigLoader $decorated, CacheInterface $cache)
+    public function __construct(private readonly AbstractResolvedConfigLoader $decorated, private readonly CacheInterface $cache)
     {
-        $this->decorated = $decorated;
-        $this->cache = $cache;
     }
 
     public function getDecorated(): AbstractResolvedConfigLoader

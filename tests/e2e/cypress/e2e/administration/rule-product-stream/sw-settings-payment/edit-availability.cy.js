@@ -5,36 +5,26 @@ import RulePageObject from '../../../../support/pages/module/sw-rule.page-object
 
 describe('Payment: Test crud operations', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createDefaultFixture('payment-method');
-            })
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/payment/index`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
-            });
+        cy.createDefaultFixture('payment-method').then(() => {
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/payment/overview`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+        });
     });
 
-    // ToDo: NEXT-20936 - Find payment method in new list
-    it('@base @rule: edit availability rule', { tags: ['quarantined', 'pa-checkout'] }, () => {
+    it('@base @rule: edit availability rule', { tags: ['pa-checkout'] }, () => {
         const page = new PaymentPageObject();
         const rulePage = new RulePageObject();
 
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/payment-method/**`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
 
-        cy.setEntitySearchable('payment_method', 'name');
-
-        cy.get('input.sw-search-bar__input').typeAndCheckSearchField('CredStick');
-        cy.clickContextMenuItem(
-            '.sw-settings-payment-list__edit-action',
-            page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
-        );
+        cy.contains('.sw-card', 'CredStick')
+            .find('.sw-internal-link')
+            .click();
 
         // Open modal and create new availability rule
         cy.get('.sw-settings-payment-detail__condition_container .sw-select-rule-create').click();
@@ -48,17 +38,17 @@ describe('Payment: Test crud operations', () => {
             cy.get('input[name=sw-field--rule-priority]').type('1');
 
             rulePage.createBasicSelectCondition({
-                type: 'New customer',
+                type: 'Commercial customer',
                 selector: '.sw-condition',
                 operator: null,
-                value: 'Yes'
+                value: 'Yes',
             });
 
             cy.contains('button.sw-button', 'Save').click();
         });
 
         cy.get('.sw-modal.sw-rule-modal').should('not.exist');
-        cy.awaitAndCheckNotification('The rule "Rule for new customers" has been saved.');
+        cy.awaitAndCheckNotification('Rule "Rule for new customers" saved.');
 
         cy.contains('.sw-select-rule-create', 'Rule for new customers');
 
@@ -67,8 +57,6 @@ describe('Payment: Test crud operations', () => {
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click();
-        cy.get('input.sw-search-bar__input').typeAndCheckSearchField('CredStick');
-        cy.get(page.elements.loader).should('not.exist');
-        cy.contains(`${page.elements.dataGridRow}--0`, 'CredStick');
+        cy.contains('.sw-card__title', 'CredStick');
     });
 });

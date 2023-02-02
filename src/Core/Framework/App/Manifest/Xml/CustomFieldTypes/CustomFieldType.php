@@ -3,11 +3,13 @@
 namespace Shopware\Core\Framework\App\Manifest\Xml\CustomFieldTypes;
 
 use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\XmlReader;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
  */
+#[Package('core')]
 abstract class CustomFieldType extends XmlElement
 {
     protected const TRANSLATABLE_FIELDS = ['label', 'help-text'];

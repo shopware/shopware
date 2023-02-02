@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import template from './sw-import-export-edit-profile-modal-mapping.html.twig';
 import './sw-import-export-edit-profile-modal-mapping.scss';
 
@@ -7,7 +10,7 @@ const Criteria = Shopware.Data.Criteria;
 /**
  * @private
  */
-Shopware.Component.register('sw-import-export-edit-profile-modal-mapping', {
+export default {
     template,
 
     inject: [
@@ -246,8 +249,7 @@ Shopware.Component.register('sw-import-export-edit-profile-modal-mapping', {
             return this.systemRequiredFields[item.key] !== undefined;
         },
 
-        // @deprecated tag:v6.5.0 - parameter 'mapping' will be removed there is no replacement
-        updateSorting(mapping, index, direction) {
+        updateSorting(index, direction) {
             const clonedMappings = cloneDeep(this.sortedMappings);
             const clonedMapping = clonedMappings[index];
 
@@ -293,4 +295,4 @@ Shopware.Component.register('sw-import-export-edit-profile-modal-mapping', {
             return item.position === lastPosition;
         },
     },
-});
+};

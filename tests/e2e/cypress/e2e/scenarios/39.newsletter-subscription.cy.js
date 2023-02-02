@@ -3,19 +3,15 @@
 import NewsletterRecipientPageObject  from '../../support/pages/module/sw-newsletter-recipient.page-object';
 
 describe('Storefront profile settings', () => {
-    beforeEach(() => {
-        cy.loginViaApi();
-    });
-
     it('@package: should apply for newsletter in storefront and see the customer in newsletter recipients ', { tags: ['pa-customers-orders'] }, () => {
         cy.intercept({
             url: `/account/register`,
-            method: 'POST'
+            method: 'POST',
         }).as('registerCustomer');
 
         cy.intercept({
             url: `/widgets/account/newsletter`,
-            method: 'POST'
+            method: 'POST',
         }).as('checkNewsletter');
 
         const page = new NewsletterRecipientPageObject();

@@ -4,26 +4,13 @@ namespace Shopware\Storefront\Theme\Event;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('storefront')]
 class ThemeIndexerEvent extends NestedEvent
 {
-    /**
-     * @var Context
-     */
-    private $context;
-
-    /**
-     * @var array
-     */
-    private $ids;
-
-    private array $skip;
-
-    public function __construct(array $ids, Context $context, array $skip = [])
+    public function __construct(private readonly array $ids, private readonly Context $context, private readonly array $skip = [])
     {
-        $this->context = $context;
-        $this->ids = $ids;
-        $this->skip = $skip;
     }
 
     public function getContext(): Context

@@ -7,7 +7,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_4\Migration1620820321AddDefaultDomainForHeadlessSaleschannel;
@@ -16,6 +17,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
+#[Package('core')]
 class Migration1620820321AddDefaultDomainForHeadlessSaleschannelTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -39,12 +41,13 @@ class Migration1620820321AddDefaultDomainForHeadlessSaleschannelTest extends Tes
         $statement = $this->connection->prepare('SELECT COUNT(*) FROM `sales_channel_domain` WHERE `sales_channel_id` = :salesChannelId');
         $statement->bindValue('salesChannelId', Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL));
 
-        static::assertEquals(0, $statement->fetchOne());
+        $result = $statement->executeQuery();
+        static::assertEquals(0, $result->fetchOne());
 
         (new Migration1620820321AddDefaultDomainForHeadlessSaleschannel())->update($this->connection);
 
-        $statement->execute();
-        static::assertEquals(1, $statement->fetchOne());
+        $result = $statement->executeQuery();
+        static::assertEquals(1, $result->fetchOne());
     }
 
     public function testItAddsDefaultDomainToMultipleApiSalesChannel(): void
@@ -57,17 +60,17 @@ class Migration1620820321AddDefaultDomainForHeadlessSaleschannelTest extends Tes
 
         (new Migration1620820321AddDefaultDomainForHeadlessSaleschannel())->update($this->connection);
 
-        $statement->execute(['salesChannelId' => Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL)]);
-        static::assertEquals(1, $statement->fetchOne());
+        $result = $statement->executeQuery(['salesChannelId' => Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL)]);
+        static::assertEquals(1, $result->fetchOne());
 
-        $statement->execute(['salesChannelId' => Uuid::fromHexToBytes($firstApiSalesChannelId)]);
-        static::assertEquals(1, $statement->fetchOne());
+        $result = $statement->executeQuery(['salesChannelId' => Uuid::fromHexToBytes($firstApiSalesChannelId)]);
+        static::assertEquals(1, $result->fetchOne());
 
-        $statement->execute(['salesChannelId' => Uuid::fromHexToBytes($secondApiSalesChannelId)]);
-        static::assertEquals(1, $statement->fetchOne());
+        $result = $statement->executeQuery(['salesChannelId' => Uuid::fromHexToBytes($secondApiSalesChannelId)]);
+        static::assertEquals(1, $result->fetchOne());
 
-        $statement->execute(['salesChannelId' => Uuid::fromHexToBytes($firstStorefrontSalesChannelId)]);
-        static::assertEquals(0, $statement->fetchOne());
+        $result = $statement->executeQuery(['salesChannelId' => Uuid::fromHexToBytes($firstStorefrontSalesChannelId)]);
+        static::assertEquals(0, $result->fetchOne());
     }
 
     public function testItDoesNotBreakIfNoHeadlessSalesChannelIsPresent(): void
@@ -93,7 +96,7 @@ class Migration1620820321AddDefaultDomainForHeadlessSaleschannelTest extends Tes
             WHERE `short_name` = "API Test"
         ');
 
-        /** @var EntityRepositoryInterface $salesChannelRepository */
+        /** @var EntityRepository $salesChannelRepository */
         $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
         //$salesChannelRepository->delete([$ids], Context::createDefaultContext());
     }

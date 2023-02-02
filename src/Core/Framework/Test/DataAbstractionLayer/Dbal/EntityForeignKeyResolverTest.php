@@ -14,8 +14,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityForeignKeyResolver;
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -31,21 +30,6 @@ class EntityForeignKeyResolverTest extends TestCase
     use IntegrationTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
 
-    /**
-     * @var Connection
-     */
-    private $testConnection;
-
-    /**
-     * @var EntityForeignKeyResolver
-     */
-    private $entityForeignKeyResolver;
-
-    /**
-     * @var DefinitionInstanceRegistry
-     */
-    private $definitionRegistry;
-
     public function testItCreatesEventsForWriteProtectedCascadeDeletes(): void
     {
         $categoryIds = [
@@ -56,7 +40,7 @@ class EntityForeignKeyResolverTest extends TestCase
 
         $productId = Uuid::randomHex();
 
-        /** @var EntityRepositoryInterface $productRepository */
+        /** @var EntityRepository $productRepository */
         $productRepository = $this->getContainer()->get('product.repository');
         $context = Context::createDefaultContext();
 
@@ -114,7 +98,9 @@ class EntityForeignKeyResolverTest extends TestCase
             }
         }
 
-        static::assertEmpty($categoryIds);
+        foreach ($categoryIds as $categoryId) {
+            static::fail('All category IDS must be unset at this point');
+        }
     }
 
     public function testNestedCascades(): void
@@ -195,7 +181,7 @@ class EntityForeignKeyResolverTest extends TestCase
     private function getStateId(string $state, string $machine)
     {
         return $this->getContainer()->get(Connection::class)
-            ->fetchColumn('
+            ->fetchOne('
                 SELECT LOWER(HEX(state_machine_state.id))
                 FROM state_machine_state
                     INNER JOIN  state_machine

@@ -9,11 +9,11 @@ use Shopware\Core\Framework\Plugin\Context\UpdateContext;
 
 class SwagTestNoDefaultLang extends Plugin
 {
-    public const PLUGIN_LABEL = 'Dutch Pluginname';
+    final public const PLUGIN_LABEL = 'Dutch Pluginname';
 
-    public const PLUGIN_VERSION = '1.0.1';
+    final public const PLUGIN_VERSION = '1.0.1';
 
-    public const PLUGIN_OLD_VERSION = '1.0.0';
+    final public const PLUGIN_OLD_VERSION = '1.0.0';
 
     public function uninstall(UninstallContext $uninstallContext): void
     {

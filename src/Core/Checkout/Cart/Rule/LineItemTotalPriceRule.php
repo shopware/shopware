@@ -3,7 +3,7 @@
 namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
@@ -11,21 +11,17 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
+#[Package('business-ops')]
 class LineItemTotalPriceRule extends Rule
 {
-    protected ?float $amount;
-
-    protected string $operator;
+    final public const RULE_NAME = 'cartLineItemTotalPrice';
 
     /**
      * @internal
      */
-    public function __construct(string $operator = self::OPERATOR_EQ, ?float $amount = null)
+    public function __construct(protected string $operator = self::OPERATOR_EQ, protected ?float $amount = null)
     {
         parent::__construct();
-
-        $this->operator = $operator;
-        $this->amount = $amount;
     }
 
     /**
@@ -41,7 +37,7 @@ class LineItemTotalPriceRule extends Rule
             return false;
         }
 
-        foreach ($scope->getCart()->getLineItems()->getFlat() as $lineItem) {
+        foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
             if ($this->lineItemMatches($lineItem)) {
                 return true;
             }
@@ -58,11 +54,6 @@ class LineItemTotalPriceRule extends Rule
         ];
     }
 
-    public function getName(): string
-    {
-        return 'cartLineItemTotalPrice';
-    }
-
     public function getConfig(): RuleConfig
     {
         return (new RuleConfig())
@@ -75,10 +66,6 @@ class LineItemTotalPriceRule extends Rule
         $price = $lineItem->getPrice();
 
         if ($price === null || !$this->amount) {
-            if (!Feature::isActive('v6.5.0.0')) {
-                return false;
-            }
-
             return RuleComparison::isNegativeOperator($this->operator);
         }
 

@@ -3,14 +3,16 @@
 namespace SwagTest;
 
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
+/**
+ * @final
+ *
+ * @internal
+ */
+#[AsMessageHandler(handles: SwagTestTask::class)]
 class SwagTestTaskHandler extends ScheduledTaskHandler
 {
-    public static function getHandledMessages(): iterable
-    {
-        return [SwagTestTask::class];
-    }
-
     public function run(): void
     {
     }

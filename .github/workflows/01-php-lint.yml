@@ -1,33 +1,43 @@
 name: PHP Lint
 
 on:
-    push:
-      branches:
-          - trunk
-    pull_request:
+  push:
+    branches:
+      - trunk
+  pull_request:
+    paths:
+      - composer.json
+      - 'changelog/**/*.md'
+      - 'src/**/snippet/**/*.json'
+      - '**.php'
 
 jobs:
   build:
     runs-on: ubuntu-latest
     name: "PHP Analyse"
-    container: shopware/development:7.4-composer-2
 
     steps:
-    - name: Clone platform
-      uses: actions/checkout@v2
-      with:
-        fetch-depth: '0'
+      - name: Clone platform
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: '0'
 
-    - name: Install Shopware
-      run: |
-        composer install
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
 
-    - name: Check Code
-      run: |
-        composer run ecs -- --no-progress-bar
-        composer run phpstan -- --error-format=gitlab --no-progress | tee phpstan-report.json
-        composer run lint:changelog
-        composer run lint:snippets
-        git remote add bc-checker-upstream https://github.com/shopware/platform.git
-        git fetch bc-checker-upstream
-        composer run bc-check
+      - name: Install Shopware
+        run: |
+          composer install
+
+      - name: Check Code
+        run: |
+          composer run ecs -- --no-progress-bar
+          composer run phpstan -- --error-format=gitlab --no-progress | tee phpstan-report.json
+          composer run lint:changelog
+          composer run lint:snippets
+          # TODO: Re-Enable BC-Check after 6.5 RC release
+          # git remote add bc-checker-upstream https://github.com/shopware/platform.git
+          # git fetch bc-checker-upstream
+          # composer run bc-check

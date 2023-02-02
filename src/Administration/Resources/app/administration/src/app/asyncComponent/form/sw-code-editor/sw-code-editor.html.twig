@@ -1,0 +1,78 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_code_editor %}
+<div
+    class="sw-code-editor"
+    :class="classes"
+>
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_text_editor_label %}
+    <div
+        v-if="label.length"
+        class="sw-code-editor__label"
+    >{{ label }}
+    </div>
+    {% endblock %}
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_code_editor_editor %}
+    <!-- eslint-disable-next-line vuejs-accessibility/tabindex-no-positive -->
+    <div
+        :ref="`editor${editorId}`"
+        class="sw-code-editor__editor"
+        :content="value"
+        tabindex="1"
+    ></div>
+    {% endblock %}
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_code_editor_sanitize_info %}
+    <div
+        v-if="sanitizeInput"
+        class="sw-code-editor__sanitize-bar"
+    >
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_code_editor_sanitize_info_content %}
+        <div
+            v-if="contentWasSanitized"
+            class="sw-code-editor__sanitized-hint"
+            :class="{'sw-code-editor__sanitized-hint--visible': contentWasSanitized}"
+        >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_code_editor_sanitize_info_content_sanitized %}
+            <sw-circle-icon
+                icon-name="regular-info-circle"
+                :size="30"
+                variant="warning"
+            />
+            <p class="sw-code-editor__sanitize-text">
+                {{ $tc('global.sw-code-editor.sanitizedHint') }}
+            </p>
+            {% endblock %}
+        </div>
+        <div
+            class="sw-code-editor__sanitize-info"
+            :class="{'sw-code-editor__sanitize-info--visible': !contentWasSanitized}"
+        >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_code_editor_sanitize_info_content_hint %}
+            <sw-circle-icon
+                icon-name="regular-info-circle"
+                :size="30"
+                variant="info"
+            />
+            <p class="sw-code-editor__sanitize-text">
+                {{ $tc('global.sw-code-editor.sanitizeInfo') }}
+            </p>
+            {% endblock %}
+        </div>
+        {% endblock %}
+
+    </div>
+    {% endblock %}
+
+    <sw-field-error
+        v-if="error"
+        :error="error"
+    />
+</div>
+{% endblock %}

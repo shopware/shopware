@@ -4,17 +4,17 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\Version
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<VersionCommitDataEntity>
  */
+#[Package('core')]
 class VersionCommitDataCollection extends EntityCollection
 {
     public function filterByEntity(EntityDefinition $definition): self
     {
-        return $this->filter(function (VersionCommitDataEntity $change) use ($definition) {
-            return $change->getEntityName() === $definition->getEntityName();
-        });
+        return $this->filter(fn (VersionCommitDataEntity $change) => $change->getEntityName() === $definition->getEntityName());
     }
 
     public function filterByEntityPrimary(EntityDefinition $definition, array $primary): self

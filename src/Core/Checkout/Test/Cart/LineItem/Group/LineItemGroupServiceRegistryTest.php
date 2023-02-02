@@ -8,10 +8,12 @@ use Shopware\Core\Checkout\Cart\LineItem\Group\Packager\LineItemGroupCountPackag
 use Shopware\Core\Checkout\Cart\LineItem\Group\Packager\LineItemGroupUnitPriceNetPackager;
 use Shopware\Core\Checkout\Cart\LineItem\Group\Sorter\LineItemGroupPriceAscSorter;
 use Shopware\Core\Checkout\Cart\LineItem\Group\Sorter\LineItemGroupPriceDescSorter;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('checkout')]
 class LineItemGroupServiceRegistryTest extends TestCase
 {
     /**

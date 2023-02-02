@@ -1,3 +1,6 @@
+/**
+ * @package system-settings
+ */
 import template from './sw-settings-country-detail.html.twig';
 import './sw-settings-country-detail.scss';
 
@@ -6,7 +9,7 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-settings-country-detail', {
+export default {
     template,
 
     inject: [
@@ -50,6 +53,8 @@ Component.register('sw-settings-country-detail', {
                 value: {},
             },
             userConfigValues: {},
+            showPreviewModal: false,
+            previewData: null,
         };
     },
 
@@ -70,13 +75,6 @@ Component.register('sw-settings-country-detail', {
 
         userConfigRepository() {
             return this.repositoryFactory.create('user_config');
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed
-         * */
-        currencyRepository() {
-            return this.repositoryFactory.create('currency');
         },
 
         identifier() {
@@ -126,7 +124,6 @@ Component.register('sw-settings-country-detail', {
             ));
         },
 
-
         ...mapPropertyErrors('country', ['name']),
 
         showCustomFields() {
@@ -152,6 +149,10 @@ Component.register('sw-settings-country-detail', {
         },
 
         loadEntityData() {
+            if (typeof this.country.isNew === 'function' && this.country.isNew()) {
+                return false;
+            }
+
             this.isLoading = true;
             return this.countryRepository.get(this.countryId).then(country => {
                 this.country = country;
@@ -162,6 +163,8 @@ Component.register('sw-settings-country-detail', {
                     this.country.states.entity,
                     this.country.states.source,
                 );
+            }).catch(() => {
+                this.isLoading = false;
             });
         },
 
@@ -208,7 +211,6 @@ Component.register('sw-settings-country-detail', {
                             this.loadUserConfig();
                         });
                 }
-
                 this.loadEntityData();
                 this.isLoading = false;
                 this.isSaveSuccessful = true;
@@ -219,92 +221,6 @@ Component.register('sw-settings-country-detail', {
 
         onCancel() {
             this.$router.push({ name: 'sw.settings.country.index' });
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed
-         * */
-        countryStateSelectionChanged(selection, selectionCount) {
-            this.deleteButtonDisabled = selectionCount <= 0;
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed
-         * */
-        onDeleteCountryStates() {
-            const selection = this.$refs.countryStateGrid.selection;
-
-            const countryStateIds = Object.keys(selection);
-            if (!countryStateIds.length) {
-                return Promise.resolve();
-            }
-
-            this.countryStateLoading = true;
-
-            return this.countryStateRepository.syncDeleted(countryStateIds, Shopware.Context.api)
-                .finally(() => {
-                    this.countryStateLoading = false;
-                });
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed
-         * */
-        onAddCountryState() {
-            this.currentCountryState = this.countryStateRepository.create();
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed
-         * */
-        onSearchCountryState() {
-            this.country.states.criteria.setTerm(this.term);
-            this.refreshCountryStateList();
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed
-         * */
-        refreshCountryStateList() {
-            this.countryStateLoading = true;
-
-            this.$refs.countryStateGrid.load().then(() => {
-                this.countryStateLoading = false;
-            });
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed
-         * */
-        onSaveCountryState() {
-            // dont send requests if we are on local mode(creating a new country)
-            if (this.country.isNew()) {
-                this.country.states.add(this.currentCountryState);
-            } else {
-                this.countryStateRepository.save(this.currentCountryState).then(() => {
-                    this.refreshCountryStateList();
-                });
-            }
-
-            this.currentCountryState = null;
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed
-         * */
-        onCancelCountryState() {
-            this.currentCountryState = null;
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed
-         * */
-        onClickCountryState(item) {
-            // Create a copy with the same id which will be edited
-            const copy = this.countryStateRepository.create(Shopware.Context.api, item.id);
-            copy._isNew = false;
-
-            this.currentCountryState = Object.assign(copy, item);
         },
 
         abortOnLanguageChange() {
@@ -336,4 +252,4 @@ Component.register('sw-settings-country-detail', {
             return this.onSave();
         },
     },
-});
+};

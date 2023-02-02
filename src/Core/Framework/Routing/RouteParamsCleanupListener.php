@@ -2,12 +2,12 @@
 
 namespace Shopware\Core\Framework\Routing;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 
-/**
- * Remove unwanted information from route_params
- */
+#[Package('core
+Remove unwanted information from route_params')]
 class RouteParamsCleanupListener
 {
     private const CLEANUP_PARAMETERS = [

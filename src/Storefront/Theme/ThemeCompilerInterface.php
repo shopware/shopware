@@ -3,12 +3,11 @@
 namespace Shopware\Storefront\Theme;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 
-/**
- * @param Context $context - @deprecated tag:v6.5.0 parameter $context will be required in v6.5.0.0
- */
+#[Package('storefront')]
 interface ThemeCompilerInterface
 {
     public function compileTheme(
@@ -16,7 +15,7 @@ interface ThemeCompilerInterface
         string $themeId,
         StorefrontPluginConfiguration $themeConfig,
         StorefrontPluginConfigurationCollection $configurationCollection,
-        bool $withAssets = true/*,
-        Context $context = null */
+        bool $withAssets,
+        Context $context
     ): void;
 }

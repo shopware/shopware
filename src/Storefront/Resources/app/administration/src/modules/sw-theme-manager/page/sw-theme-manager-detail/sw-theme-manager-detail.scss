@@ -22,7 +22,7 @@
 
         .sw-theme-manager-detail__inheritance-text {
             color: $color-darkgray-200;
-            font-size: $font-size-small;
+            font-size: $font-size-xxs;
             line-height: 22px;
         }
     }
@@ -183,10 +183,17 @@
     &__content-skeleton {
         margin-top: 60px;
     }
+
+    .sw-theme-manager-detail__save-button-group {
+        .sw-icon {
+            padding: 4px 3px;
+        }
+    }
 }
 
 .sw-theme-manager-detail-modal {
-    .sw_theme_manager__confirm-save-text, .sw-theme-manager-detail__sales-channel-warning {
+    .sw_theme_manager__confirm-save-text,
+    .sw-theme-manager-detail__sales-channel-warning {
         margin-bottom: 15px;
     }
 }

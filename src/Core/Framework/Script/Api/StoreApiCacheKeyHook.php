@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Script\Api;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\Awareness\SalesChannelContextAware;
 use Shopware\Core\Framework\Script\Execution\Awareness\StoppableHook;
 use Shopware\Core\Framework\Script\Execution\Awareness\StoppableHookTrait;
@@ -16,30 +17,18 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  *
  * @since 6.4.9.0
  */
+#[Package('core')]
 class StoreApiCacheKeyHook extends OptionalFunctionHook implements SalesChannelContextAware, StoppableHook
 {
     use StoppableHookTrait;
 
-    public const FUNCTION_NAME = 'cache_key';
-
-    private array $request;
-
-    private array $query;
-
-    private SalesChannelContext $salesChannelContext;
-
-    private string $name;
+    final public const FUNCTION_NAME = 'cache_key';
 
     private ?string $cacheKey = null;
 
-    public function __construct(string $name, array $request, array $query, SalesChannelContext $salesChannelContext)
+    public function __construct(private readonly string $name, private readonly array $request, private readonly array $query, private readonly SalesChannelContext $salesChannelContext)
     {
-        $this->request = $request;
-        $this->query = $query;
-        $this->salesChannelContext = $salesChannelContext;
-
         parent::__construct($salesChannelContext->getContext());
-        $this->name = $name;
     }
 
     public function getRequest(): array

@@ -3,20 +3,18 @@
 namespace Shopware\Core\Framework\Store\Services;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Store\Struct\ReviewStruct;
 
 /**
  * @internal
  */
+#[Package('merchant-services')]
 class ExtensionStoreLicensesService extends AbstractExtensionStoreLicensesService
 {
-    private StoreClient $client;
-
-    public function __construct(
-        StoreClient $client
-    ) {
-        $this->client = $client;
+    public function __construct(private readonly StoreClient $client)
+    {
     }
 
     public function cancelSubscription(int $licenseId, Context $context): void

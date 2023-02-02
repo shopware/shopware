@@ -8,45 +8,33 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Flow\Dispatching\Action\SetOrderCustomFieldAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\Event\DelayAware;
 use Shopware\Core\Framework\Event\OrderAware;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
+ * @package business-ops
+ *
  * @internal
  * @covers \Shopware\Core\Content\Flow\Dispatching\Action\SetOrderCustomFieldAction
  */
 class SetOrderCustomFieldActionTest extends TestCase
 {
-    /**
-     * @var MockObject|Connection
-     */
-    private $connection;
+    private Connection&MockObject $connection;
 
-    /**
-     * @var MockObject|EntityRepositoryInterface
-     */
-    private $repository;
+    private MockObject&EntityRepository $repository;
 
-    /**
-     * @var MockObject|EntitySearchResult
-     */
-    private $entitySearchResult;
+    private MockObject&EntitySearchResult $entitySearchResult;
 
-    /**
-     * @var MockObject|StorableFlow
-     */
-    private $flow;
+    private MockObject&StorableFlow $flow;
 
     private SetOrderCustomFieldAction $action;
 
     public function setUp(): void
     {
         $this->connection = $this->createMock(Connection::class);
-        $this->repository = $this->createMock(EntityRepositoryInterface::class);
+        $this->repository = $this->createMock(EntityRepository::class);
         $this->entitySearchResult = $this->createMock(EntitySearchResult::class);
 
         $this->action = new SetOrderCustomFieldAction($this->connection, $this->repository);
@@ -57,25 +45,8 @@ class SetOrderCustomFieldActionTest extends TestCase
     public function testRequirements(): void
     {
         static::assertSame(
-            [OrderAware::class, DelayAware::class],
+            [OrderAware::class],
             $this->action->requirements()
-        );
-    }
-
-    public function testSubscribedEvents(): void
-    {
-        if (Feature::isActive('v6.5.0.0')) {
-            static::assertSame(
-                [],
-                SetOrderCustomFieldAction::getSubscribedEvents()
-            );
-
-            return;
-        }
-
-        static::assertSame(
-            ['action.set.order.custom.field' => 'handle'],
-            SetOrderCustomFieldAction::getSubscribedEvents()
         );
     }
 

@@ -3,9 +3,12 @@
 namespace Shopware\Core\Framework\Migration;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('core')]
 class MakeVersionableMigrationHelper
 {
     private const DROP_FOREIGN_KEY = 'ALTER TABLE `%s` DROP FOREIGN KEY `%s`';
@@ -31,20 +34,14 @@ WHERE
 EOD;
 
     /**
-     * @var Connection
+     * @var AbstractSchemaManager<MySQLPlatform>
      */
-    private $connection;
-
-    /**
-     * @var AbstractSchemaManager
-     */
-    private $schemaManager;
+    private readonly AbstractSchemaManager $schemaManager;
 
     public function __construct(
-        Connection $connection
+        private readonly Connection $connection
     ) {
-        $this->connection = $connection;
-        $this->schemaManager = $connection->getSchemaManager();
+        $this->schemaManager = $connection->createSchemaManager();
     }
 
     public function getRelationData(string $tableName, string $keyColumn): array
@@ -112,7 +109,7 @@ EOD;
     {
         $playbook = [];
         foreach ($keyStructures as $keyStructure) {
-            if (\count($keyStructure['REFERENCED_COLUMN_NAME']) < 2) {
+            if ((is_countable($keyStructure['REFERENCED_COLUMN_NAME']) ? \count($keyStructure['REFERENCED_COLUMN_NAME']) : 0) < 2) {
                 continue;
             }
 
@@ -128,9 +125,7 @@ EOD;
 
     private function implodeColumns(array $columns): string
     {
-        return implode(',', array_map(function (string $column): string {
-            return '`' . $column . '`';
-        }, $columns));
+        return implode(',', array_map(fn (string $column): string => '`' . $column . '`', $columns));
     }
 
     private function isEqualForeignKey(ForeignKeyConstraint $constraint, string $foreignTable, array $foreignFieldNames): bool
@@ -176,19 +171,17 @@ EOD;
 
     private function filterHydrateForeignKeyData(array $hydratedData, string $keyColumnName): array
     {
-        $hydratedData = array_filter($hydratedData, function (array $entry) use ($keyColumnName): bool {
-            return \in_array($keyColumnName, $entry['REFERENCED_COLUMN_NAME'], true);
-        });
+        $hydratedData = array_filter($hydratedData, fn (array $entry): bool => \in_array($keyColumnName, $entry['REFERENCED_COLUMN_NAME'], true));
 
         return $hydratedData;
     }
 
     private function fetchRelationData(string $tableName): array
     {
-        $databaseName = $this->connection->fetchColumn('SELECT DATABASE()');
+        $databaseName = $this->connection->fetchOne('SELECT DATABASE()');
         $query = sprintf(self::FIND_RELATIONSHIPS_QUERY, $databaseName, $tableName);
 
-        return $this->connection->fetchAll($query);
+        return $this->connection->fetchAllAssociative($query);
     }
 
     private function createModifyPrimaryKeyQuery(string $tableName, string $newColumnName, string $defaultValue): string

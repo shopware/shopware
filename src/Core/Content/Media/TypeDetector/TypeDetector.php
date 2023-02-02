@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Media\TypeDetector;
 
 use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaType\MediaType;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Annotation\Concept\ExtensionPattern\HandlerChain;
 
 /**
@@ -12,19 +13,16 @@ use Shopware\Core\System\Annotation\Concept\ExtensionPattern\HandlerChain;
  *     handlerInterface="TypeDetectorInterface"
  * )
  */
+#[Package('content')]
 class TypeDetector implements TypeDetectorInterface
 {
     /**
-     * @var TypeDetectorInterface[]
-     */
-    private $typeDetector;
-
-    /**
      * @internal
+     *
+     * @param TypeDetectorInterface[] $typeDetector
      */
-    public function __construct(iterable $typeDetector)
+    public function __construct(private readonly iterable $typeDetector)
     {
-        $this->typeDetector = $typeDetector;
     }
 
     public function detect(MediaFile $mediaFile, ?MediaType $previouslyDetectedType = null): MediaType

@@ -1,0 +1,11 @@
+<sw-alert
+    v-if="errorCount > 0"
+    class="sw-error-summary"
+    variant="error"
+    :title="$tc('sw-error-summary.title', errorCount)"
+    :showIcon="true"
+>
+    <li v-for="(entry, index) in errorEntries" :key="index">
+        <span class="sw-error-summary__quantity">{{ entry.count }}x</span> "{{ entry.message }}"
+    </li>
+</sw-alert>

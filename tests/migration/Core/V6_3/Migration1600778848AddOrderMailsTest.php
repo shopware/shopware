@@ -47,8 +47,8 @@ class Migration1600778848AddOrderMailsTest extends TestCase
 
             $mail = $mails[$key];
 
-            static::assertTrue(strpos($mail['content_html'], $updated) !== false);
-            static::assertTrue(strpos($mail['content_plain'], $updated) !== false);
+            static::assertStringContainsString($updated, $mail['content_html']);
+            static::assertStringContainsString($updated, $mail['content_plain']);
         }
     }
 
@@ -82,8 +82,8 @@ class Migration1600778848AddOrderMailsTest extends TestCase
 
             $mail = $mails[$key];
 
-            static::assertTrue(strpos($mail['content_html'], $updated) !== false);
-            static::assertTrue(strpos($mail['content_plain'], $updated) !== false);
+            static::assertStringContainsString($updated, $mail['content_html']);
+            static::assertStringContainsString($updated, $mail['content_plain']);
         }
     }
 
@@ -117,8 +117,8 @@ class Migration1600778848AddOrderMailsTest extends TestCase
 
             $mail = $mails[$key];
 
-            static::assertTrue(strpos($mail['content_html'], $updated) !== false);
-            static::assertTrue(strpos($mail['content_plain'], $updated) !== false);
+            static::assertStringContainsString($updated, $mail['content_html']);
+            static::assertStringContainsString($updated, $mail['content_plain']);
         }
     }
 
@@ -150,8 +150,8 @@ class Migration1600778848AddOrderMailsTest extends TestCase
 
             $mail = $mails[$key];
 
-            static::assertTrue(strpos($mail['content_html'], $updated) !== false);
-            static::assertTrue(strpos($mail['content_plain'], $updated) !== false);
+            static::assertStringContainsString($updated, $mail['content_html']);
+            static::assertStringContainsString($updated, $mail['content_plain']);
         }
     }
 
@@ -497,9 +497,9 @@ class Migration1600778848AddOrderMailsTest extends TestCase
     private function getMails(): array
     {
         $mails = KernelLifecycleManager::getConnection()
-            ->fetchAllAssociative("
+            ->fetchAllAssociative('
                 SELECT
-                    CONCAT(LOWER(HEX(mail_template.id)), '.', LOWER(HEX(mail_template_translation.language_id))) as `array_key`,
+                    CONCAT(LOWER(HEX(mail_template.id)), \'.\', LOWER(HEX(mail_template_translation.language_id))) as `array_key`,
                     LOWER(HEX(mail_template.id)) as `mail_template_id`,
                     LOWER(HEX(mail_template_translation.language_id)) as `language_id`,
                     mail_template_type.technical_name,
@@ -510,7 +510,7 @@ class Migration1600778848AddOrderMailsTest extends TestCase
                         ON mail_template.id = mail_template_translation.mail_template_id
                     INNER JOIN mail_template_type
                         ON mail_template.mail_template_type_id = mail_template_type.id
-            ");
+            ');
 
         return FetchModeHelper::groupUnique($mails);
     }

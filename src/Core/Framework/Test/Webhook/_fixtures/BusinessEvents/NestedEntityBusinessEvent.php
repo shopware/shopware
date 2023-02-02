@@ -3,26 +3,20 @@
 namespace Shopware\Core\Framework\Test\Webhook\_fixtures\BusinessEvents;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\ObjectType;
+use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\System\Tax\TaxDefinition;
 use Shopware\Core\System\Tax\TaxEntity;
 
 /**
  * @internal
  */
-class NestedEntityBusinessEvent implements BusinessEventInterface, BusinessEventEncoderTestInterface
+class NestedEntityBusinessEvent implements FlowEventAware, BusinessEventEncoderTestInterface
 {
-    /**
-     * @var TaxEntity
-     */
-    private $tax;
-
-    public function __construct(TaxEntity $tax)
+    public function __construct(private readonly TaxEntity $tax)
     {
-        $this->tax = $tax;
     }
 
     public static function getAvailableData(): EventDataCollection

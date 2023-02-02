@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Checkout\Promotion\Cart\Discount\Calculator;
 
-use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Price\AbsolutePriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Composition\DiscountCompositionItem;
@@ -10,20 +10,19 @@ use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountCalculatorResult;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountLineItem;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackageCollection;
 use Shopware\Core\Checkout\Promotion\Exception\InvalidPriceDefinitionException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+#[Package('checkout')]
 class DiscountFixedPriceCalculator
 {
-    private AbsolutePriceCalculator $absolutePriceCalculator;
-
-    public function __construct(AbsolutePriceCalculator $absolutePriceCalculator)
+    public function __construct(private readonly AbsolutePriceCalculator $absolutePriceCalculator)
     {
-        $this->absolutePriceCalculator = $absolutePriceCalculator;
     }
 
     /**
      * @throws InvalidPriceDefinitionException
-     * @throws LineItemNotFoundException
+     * @throws CartException
      */
     public function calculate(DiscountLineItem $discount, DiscountPackageCollection $packages, SalesChannelContext $context): DiscountCalculatorResult
     {
@@ -61,6 +60,9 @@ class DiscountFixedPriceCalculator
         return $totalProductPrices - ($fixedPackagePrice * $packages->count());
     }
 
+    /**
+     * @return array<DiscountCompositionItem>
+     */
     private function getCompositionItems(float $discountValue, DiscountPackageCollection $packages): array
     {
         $totalOriginalSum = $packages->getAffectedPrices()->sum()->getTotalPrice();

@@ -12,6 +12,8 @@ use Shopware\Core\Framework\Context;
 use Symfony\Component\Mime\Email;
 
 /**
+ * @package business-ops
+ *
  * @internal
  *
  * @covers \Shopware\Core\Content\Flow\Dispatching\Storer\MessageStorer
@@ -72,12 +74,10 @@ class MessageStorerTest extends TestCase
     {
         $storer = new MessageStorer();
 
-        $serialize = \serialize(['text', 'text', 'text', 'text', 'text', ['text', 'text']]);
-
         $mail = new Email();
-        $mail->unserialize($serialize);
+        $mail->html('text/plain');
 
-        /** @var MockObject|StorableFlow $storable */
+        /** @var MockObject&StorableFlow $storable */
         $storable = $this->createMock(StorableFlow::class);
 
         $storable->expects(static::exactly(1))
@@ -86,7 +86,7 @@ class MessageStorerTest extends TestCase
 
         $storable->expects(static::exactly(1))
             ->method('getStore')
-            ->willReturn($serialize);
+            ->willReturn(\serialize($mail));
 
         $storable->expects(static::exactly(1))
             ->method('setData')
@@ -99,12 +99,7 @@ class MessageStorerTest extends TestCase
     {
         $storer = new MessageStorer();
 
-        $serialize = \serialize(['text', 'text', 'text', 'text', 'text', ['text', 'text']]);
-
-        $mail = new Email();
-        $mail->unserialize($serialize);
-
-        /** @var MockObject|StorableFlow $storable */
+        /** @var MockObject&StorableFlow $storable */
         $storable = $this->createMock(StorableFlow::class);
 
         $storable->expects(static::exactly(1))

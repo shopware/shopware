@@ -1,4 +1,6 @@
 /**
+ * @package admin
+ *
  * @module core/service/utils
  */
 import throttle from 'lodash/throttle';
@@ -143,9 +145,9 @@ export default {
 };
 
 /**
- * Returns a uuid string in hex format.
+ * Returns an uuid string in hex format.
  *
- * @returns {String}
+ * @returns { String }
  */
 function createId(): string {
     // eslint-disable-next-line max-len

@@ -9,10 +9,11 @@ use Shopware\Core\Checkout\Test\Customer\Rule\OrderFixture;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -31,6 +32,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
+#[Package('customer-order')]
 class AccountOrderControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -70,7 +72,7 @@ class AccountOrderControllerTest extends TestCase
         $orderData[0]['lineItems'][0]['identifier'] = $productId;
         $orderData[0]['lineItems'][0]['productId'] = $productId;
 
-        /** @var EntityRepositoryInterface $orderRepo */
+        /** @var EntityRepository $orderRepo */
         $orderRepo = $this->getContainer()->get('order.repository');
         $orderRepo->create($orderData, $context);
 
@@ -132,7 +134,7 @@ class AccountOrderControllerTest extends TestCase
         $orderRepo = $this->getContainer()->get('order.repository');
         $orderRepo->create($orderData, $context);
 
-        $browser->followRedirects(true);
+        $browser->followRedirects();
 
         $browser->request('GET', $_SERVER['APP_URL'] . '/account/order/' . $orderData[0]['deepLinkCode']);
         /** @var StorefrontResponse $response */
@@ -150,7 +152,7 @@ class AccountOrderControllerTest extends TestCase
             ])
         );
 
-        static::assertSame(200, $response->getStatusCode(), $response->getContent());
+        static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
     }
 
     public function testEditOrderWithDifferentSalesChannelContextShippingMethodRestoresOrderShippingMethod(): void
@@ -170,11 +172,13 @@ class AccountOrderControllerTest extends TestCase
             ->addFilter(new EqualsFilter('active', true))
             ->addFilter(new EqualsFilter('domains.url', $_SERVER['APP_URL']));
 
-        /** @var EntityRepositoryInterface $salesChannelRepository */
+        /** @var EntityRepository $salesChannelRepository */
         $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
 
         /** @var SalesChannelEntity|null $salesChannel */
         $salesChannel = $salesChannelRepository->search($criteria, $context)->first();
+        static::assertNotNull($salesChannel);
+
         if ($salesChannel !== null) {
             $orderData[0]['salesChannelId'] = $salesChannel->getId();
         }
@@ -199,7 +203,6 @@ class AccountOrderControllerTest extends TestCase
         $differentShippingMethodId = $this->getContainer()->get('shipping_method.repository')->searchIds($criteria, $context)->firstId();
         static::assertNotNull($differentShippingMethodId);
         static::assertNotSame($orderShippingMethodId, $differentShippingMethodId);
-
         $salesChannelRepository->update([
             [
                 'id' => $salesChannel->getId(),
@@ -216,7 +219,7 @@ class AccountOrderControllerTest extends TestCase
         ], $context);
 
         $browser = $this->login($customer->getEmail());
-        $browser->followRedirects(true);
+        $browser->followRedirects();
 
         // Load home page to verify the saleschannel got a different shipping method from the ordered one
         $browser->request(
@@ -226,7 +229,8 @@ class AccountOrderControllerTest extends TestCase
 
         /** @var StorefrontResponse $response */
         $response = $browser->getResponse();
-        static::assertSame($differentShippingMethodId, $response->getContext()->getShippingMethod()->getId());
+        static::assertNotNull($context = $response->getContext());
+        static::assertSame($differentShippingMethodId, $context->getShippingMethod()->getId());
 
         // Test that the order edit page switches the SalesChannelContext Shipping method to the order one
         $browser->request(
@@ -236,7 +240,8 @@ class AccountOrderControllerTest extends TestCase
 
         /** @var StorefrontResponse $response */
         $response = $browser->getResponse();
-        static::assertSame($orderShippingMethodId, $response->getContext()->getShippingMethod()->getId());
+        static::assertNotNull($context = $response->getContext());
+        static::assertSame($orderShippingMethodId, $context->getShippingMethod()->getId());
     }
 
     public function testAccountOrderPageLoadedScriptsAreExecuted(): void
@@ -247,8 +252,7 @@ class AccountOrderControllerTest extends TestCase
 
         $browser->request(
             'GET',
-            '/account/order',
-            []
+            '/account/order'
         );
         $response = $browser->getResponse();
 
@@ -276,8 +280,7 @@ class AccountOrderControllerTest extends TestCase
 
         $browser->request(
             'GET',
-            '/account/order/' . $orderData[0]['deepLinkCode'],
-            []
+            '/account/order/' . $orderData[0]['deepLinkCode']
         );
         $response = $browser->getResponse();
 
@@ -304,7 +307,7 @@ class AccountOrderControllerTest extends TestCase
             ->addFilter(new EqualsFilter('active', true))
             ->addFilter(new EqualsFilter('domains.url', $_SERVER['APP_URL']));
 
-        /** @var EntityRepositoryInterface $salesChannelRepository */
+        /** @var EntityRepository $salesChannelRepository */
         $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
 
         /** @var SalesChannelEntity $salesChannel */
@@ -317,8 +320,7 @@ class AccountOrderControllerTest extends TestCase
         $browser = $this->login($customer->getEmail());
         $browser->request(
             'GET',
-            '/widgets/account/order/detail/' . $orderData[0]['id'],
-            []
+            '/widgets/account/order/detail/' . $orderData[0]['id']
         );
         $response = $browser->getResponse();
 
@@ -345,7 +347,7 @@ class AccountOrderControllerTest extends TestCase
             ->addFilter(new EqualsFilter('active', true))
             ->addFilter(new EqualsFilter('domains.url', $_SERVER['APP_URL']));
 
-        /** @var EntityRepositoryInterface $salesChannelRepository */
+        /** @var EntityRepository $salesChannelRepository */
         $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
 
         /** @var SalesChannelEntity $salesChannel */
@@ -360,8 +362,7 @@ class AccountOrderControllerTest extends TestCase
 
         $browser->request(
             'GET',
-            $url,
-            []
+            $url
         );
         $response = $browser->getResponse();
 
@@ -380,11 +381,11 @@ class AccountOrderControllerTest extends TestCase
             $_SERVER['APP_URL'] . '/account/login',
             $this->tokenize('frontend.account.login', [
                 'username' => $email,
-                'password' => 'test',
+                'password' => 'shopware',
             ])
         );
         $response = $browser->getResponse();
-        static::assertSame(200, $response->getStatusCode(), $response->getContent());
+        static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
 
         return $browser;
     }
@@ -407,7 +408,7 @@ class AccountOrderControllerTest extends TestCase
                     'city' => 'Schöppingen',
                     'zipcode' => '12345',
                     'salutationId' => $this->getValidSalutationId(),
-                    'countryId' => $this->getValidCountryId(TestDefaults::SALES_CHANNEL),
+                    'countryId' => $this->getValidCountryId(),
                 ],
                 'defaultBillingAddressId' => $addressId,
                 'guest' => $guest,
@@ -415,7 +416,7 @@ class AccountOrderControllerTest extends TestCase
                 'defaultPaymentMethodId' => $this->getValidPaymentMethodId(TestDefaults::SALES_CHANNEL),
                 'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => 'test@example.com',
-                'password' => 'test',
+                'password' => 'shopware',
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
                 'salutationId' => $this->getValidSalutationId(),

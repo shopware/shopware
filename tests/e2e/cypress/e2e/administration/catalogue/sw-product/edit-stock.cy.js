@@ -4,15 +4,11 @@ import ProductPageObject from '../../../../support/pages/module/sw-product.page-
 
 describe('Product: Edit in various ways', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createProductFixture();
-            })
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
-            });
+        cy.createProductFixture().then(() => {
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+        });
     });
 
     it('@base @catalogue: check out-of-stock-behavior without clearance', { tags: ['pa-inventory'] }, () => {
@@ -21,13 +17,13 @@ describe('Product: Edit in various ways', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.get('.sw-loader').should('not.exist');
@@ -46,10 +42,8 @@ describe('Product: Edit in various ways', () => {
         cy.get('.btn-buy').click();
         cy.get('.offcanvas').should('be.visible');
 
-        cy.window().then((win) => {
-            /** @deprecated tag:v6.5.0 - Use `CheckoutPageObject.elements.lineItem` instead */
-            const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
-            cy.contains(`.offcanvas ${lineItemSelector}-label`, 'Product name');
+        cy.window().then(() => {
+            cy.contains(`.offcanvas .line-item-label`, 'Product name');
         });
     });
 
@@ -59,13 +53,13 @@ describe('Product: Edit in various ways', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.get('.sw-loader').should('not.exist');
@@ -80,14 +74,11 @@ describe('Product: Edit in various ways', () => {
         // Put product in cart
         cy.visit('/');
 
-        cy.window().then((win) => {
-            /** @deprecated tag:v6.5.0 - Use `CheckoutPageObject.elements.lineItem` instead */
-            const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
-
+        cy.window().then(() => {
             cy.get('.btn-buy').should('be.visible');
             cy.get('.btn-buy').click();
             cy.get('.offcanvas').should('be.visible');
-            cy.contains(`.offcanvas ${lineItemSelector}-label`, 'Product name');
+            cy.contains(`.offcanvas .line-item-label`, 'Product name');
         });
     });
 
@@ -97,13 +88,13 @@ describe('Product: Edit in various ways', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.get('.sw-loader').should('not.exist');

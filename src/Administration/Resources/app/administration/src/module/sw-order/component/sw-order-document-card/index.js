@@ -1,17 +1,17 @@
 import { DocumentEvents } from 'src/core/service/api/document.api.service';
 import template from './sw-order-document-card.html.twig';
 import './sw-order-document-card.scss';
-import '../sw-order-document-settings-invoice-modal';
-import '../sw-order-document-settings-storno-modal';
-import '../sw-order-document-settings-delivery-note-modal';
-import '../sw-order-document-settings-credit-note-modal';
-import '../sw-order-document-settings-modal';
 
-const { Component, Mixin } = Shopware;
+/**
+ * @package customer-order
+ */
+
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
+const { mapGetters } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-order-document-card', {
+export default {
     template,
 
     inject: [
@@ -66,6 +66,10 @@ Component.register('sw-order-document-card', {
     },
 
     computed: {
+        ...mapGetters('swOrderDetail', [
+            'isEditing',
+        ]),
+
         creditItems() {
             const items = [];
 
@@ -163,11 +167,7 @@ Component.register('sw-order-document-card', {
         },
 
         showCardFilter() {
-            if (this.feature.isActive('FEATURE_NEXT_7530')) {
-                return this.order?.documents?.length > 0;
-            }
-
-            return true;
+            return this.order?.documents?.length > 0;
         },
 
         showCreateDocumentButton() {
@@ -178,6 +178,14 @@ Component.register('sw-order-document-card', {
             return this.order?.documents?.length > 0
                 ? this.$tc('sw-order.documentCard.messageNoDocumentFound')
                 : this.$tc('sw-order.documentCard.messageEmptyTitle');
+        },
+
+        tooltipCreateDocumentButton() {
+            if (!this.acl.can('document.viewer')) {
+                return this.$tc('sw-privileges.tooltip.warning');
+            }
+
+            return this.$tc('sw-order.documentTab.tooltipSaveBeforeCreateDocument');
         },
     },
 
@@ -283,11 +291,7 @@ Component.register('sw-order-document-card', {
             this.currentDocumentType = null;
         },
 
-        onPrepareDocument(documentType) {
-            if (!this.feature.isActive('FEATURE_NEXT_7530')) {
-                this.currentDocumentType = documentType;
-            }
-
+        onPrepareDocument() {
             this.showModal = true;
         },
 
@@ -362,21 +366,27 @@ Component.register('sw-order-document-card', {
                     return;
                 }
 
+                const documentId = Array.isArray(response)
+                    ? response[0].documentId
+                    : response?.data?.documentId;
+
+                const documentDeepLink = Array.isArray(response)
+                    ? response[0].documentDeepLink
+                    : response?.data?.documentDeepLink;
+
                 if (params.documentMediaFileId) {
-                    this.documentRepository.get(response.data.documentId, Shopware.Context.api)
-                        .then((documentData) => {
-                            documentData.documentMediaFileId = params.documentMediaFileId;
-                            this.documentRepository.save(documentData);
-                        });
+                    const documentData = await this.documentRepository.get(documentId, Shopware.Context.api);
+                    documentData.documentMediaFileId = params.documentMediaFileId;
+                    await this.documentRepository.save(documentData);
                 }
 
                 if (additionalAction === 'download') {
-                    this.downloadDocument(response.data.documentId, response.data.documentDeepLink);
+                    this.downloadDocument(documentId, documentDeepLink);
                 } else if (additionalAction === 'send') {
                     const criteria = new Criteria(null, null);
                     criteria.addAssociation('documentType');
 
-                    this.documentRepository.get(response.data.documentId, Shopware.Context.api, criteria)
+                    this.documentRepository.get(documentId, Shopware.Context.api, criteria)
                         .then((documentData) => {
                             if (!documentData) {
                                 return;
@@ -394,7 +404,7 @@ Component.register('sw-order-document-card', {
         onPreview(params) {
             this.isLoadingPreview = true;
 
-            this.documentService.getDocumentPreview(
+            return this.documentService.getDocumentPreview(
                 this.order.id,
                 this.order.deepLinkCode,
                 this.currentDocumentType.technicalName,
@@ -409,6 +419,8 @@ Component.register('sw-order-document-card', {
                 }
 
                 this.isLoadingPreview = false;
+
+                return response;
             });
         },
 
@@ -463,4 +475,4 @@ Component.register('sw-order-document-card', {
             }
         },
     },
-});
+};

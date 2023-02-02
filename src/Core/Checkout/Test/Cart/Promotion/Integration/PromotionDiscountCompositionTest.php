@@ -10,8 +10,9 @@ use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionIntegrationTestBehaviour;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionTestFixtureBehaviour;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -24,6 +25,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
+#[Package('checkout')]
 class PromotionDiscountCompositionTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -31,11 +33,11 @@ class PromotionDiscountCompositionTest extends TestCase
     use PromotionIntegrationTestBehaviour;
     use CountryAddToSalesChannelTestBehaviour;
 
-    protected EntityRepositoryInterface $productRepository;
+    protected EntityRepository $productRepository;
 
     protected CartService $cartService;
 
-    protected EntityRepositoryInterface $promotionRepository;
+    protected EntityRepository $promotionRepository;
 
     protected function setUp(): void
     {
@@ -91,7 +93,7 @@ class PromotionDiscountCompositionTest extends TestCase
 
         static::assertTrue($discountItem->hasPayloadValue('composition'), 'composition node is missing');
 
-        /** @var array $composition */
+        /** @var array<int, mixed> $composition */
         $composition = $discountItem->getPayload()['composition'];
 
         static::assertEquals($productId1, $composition[0]['id']);
@@ -139,7 +141,7 @@ class PromotionDiscountCompositionTest extends TestCase
 
         static::assertTrue($discountItem->hasPayloadValue('composition'), 'composition node is missing');
 
-        /** @var array $composition */
+        /** @var array<int, mixed> $composition */
         $composition = $discountItem->getPayload()['composition'];
 
         static::assertEquals($productId1, $composition[0]['id']);
@@ -195,11 +197,13 @@ class PromotionDiscountCompositionTest extends TestCase
         // order promotion with two products
         $this->orderWithPromotion($code, [$productId1, $productId2], $context);
 
+        /** @var PromotionEntity $promotion */
         $promotion = $this->promotionRepository
             ->search(new Criteria([$promotionId]), Context::createDefaultContext())
             ->get($promotionId);
+        static::assertNotNull($promotion);
 
-        // verify that the promotion has an total order count of 1 and the current customer is although tracked
+        // verify that the promotion has a total order count of 1 and the current customer is although tracked
         static::assertEquals(2, $promotion->getOrderCount());
         static::assertEquals(
             [$context->getCustomer()->getId() => 2],
@@ -219,9 +223,11 @@ class PromotionDiscountCompositionTest extends TestCase
         // order promotion with two products and another customer
         $this->orderWithPromotion($code, [$productId1, $productId2], $context);
 
+        /** @var PromotionEntity $promotion */
         $promotion = $this->promotionRepository
             ->search(new Criteria([$promotionId]), Context::createDefaultContext())
             ->get($promotionId);
+        static::assertNotNull($promotion);
 
         static::assertEquals(3, $promotion->getOrderCount());
         $expected = [
@@ -229,7 +235,7 @@ class PromotionDiscountCompositionTest extends TestCase
             $customerId1 => 2,
         ];
 
-        $actual = $promotion->getOrdersPerCustomerCount();
+        $actual = $promotion->getOrdersPerCustomerCount() ?? [];
 
         static::assertEquals(ksort($expected), ksort($actual));
     }
@@ -271,7 +277,7 @@ class PromotionDiscountCompositionTest extends TestCase
 
         static::assertTrue($discountItem->hasPayloadValue('composition'), 'composition node is missing');
 
-        /** @var array $composition */
+        /** @var array<int, mixed> $composition */
         $composition = $discountItem->getPayload()['composition'];
 
         static::assertEquals($productId1, $composition[0]['id']);
@@ -322,7 +328,7 @@ class PromotionDiscountCompositionTest extends TestCase
 
         static::assertTrue($discountItem->hasPayloadValue('composition'), 'composition node is missing');
 
-        /** @var array $composition */
+        /** @var array<int, mixed> $composition */
         $composition = $discountItem->getPayload()['composition'];
 
         static::assertEquals($productId1, $composition[0]['id']);

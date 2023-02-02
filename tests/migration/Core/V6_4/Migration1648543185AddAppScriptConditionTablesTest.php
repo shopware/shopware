@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Migration\Core\V6_4;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionDefinition;
@@ -19,12 +20,15 @@ class Migration1648543185AddAppScriptConditionTablesTest extends TestCase
 {
     private Connection $connection;
 
+    /**
+     * @var AbstractSchemaManager<MySQLPlatform>
+     */
     private AbstractSchemaManager $schemaManager;
 
     protected function setUp(): void
     {
         $this->connection = KernelLifecycleManager::getConnection();
-        $this->schemaManager = $this->connection->getSchemaManager();
+        $this->schemaManager = $this->connection->createSchemaManager();
     }
 
     public function testMigration(): void

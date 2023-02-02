@@ -130,7 +130,7 @@ describe('Check out of stock variants', () => {
         // option green is sold out and should be grayed out
         cy.get('.product-detail-configurator > form').last()
             .find('.product-detail-configurator-option-label')
-            .contains('Green')
+            .contains('Green');
         cy.getAttached('.product-detail-configurator-option-label[title="Green"]')
             .should('not.have.class', 'is-combinable');
 

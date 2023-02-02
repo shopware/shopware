@@ -3,16 +3,20 @@
 namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
+#[Package('business-ops')]
 class ShippingMethodRule extends Rule
 {
+    final public const RULE_NAME = 'shippingMethod';
+
     /**
-     * @var array<string>
+     * @var list<string>
      */
     protected array $shippingMethodIds;
 
@@ -29,11 +33,6 @@ class ShippingMethodRule extends Rule
             'shippingMethodIds' => RuleConstraints::uuids(),
             'operator' => RuleConstraints::uuidOperators(false),
         ];
-    }
-
-    public function getName(): string
-    {
-        return 'shippingMethod';
     }
 
     public function getConfig(): RuleConfig

@@ -35,10 +35,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @final tag:v6.5.0
+ * @final
  */
+#[Package('core')]
 class EntityGenerator
 {
     private string $classTemplate = <<<EOF
@@ -87,6 +89,7 @@ namespace #domain#;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
+ * @package core
  * @method void                add(#entityClass# \$entity)
  * @method void                set(string \$key, #entityClass# \$entity)
  * @method #entityClass#[]    getIterator()
@@ -267,7 +270,7 @@ EOF;
 
                 break;
             default:
-                throw new \RuntimeException(sprintf('Unknown field %s', \get_class($field)));
+                throw new \RuntimeException(sprintf('Unknown field %s', $field::class));
         }
 
         $template = str_replace(

@@ -1,18 +1,12 @@
 {% block page_account_order_item_detail_body %}
-    {# @deprecated tag:v6.5.0 - class `order-detail-content-body` will be removed, use `order-detail-content-list` instead #}
-    <div class="order-detail-content-body order-detail-content-list">
+    <div class="order-detail-content-list">
         {% block page_account_order_item_detail_line_items %}
             {% for lineItem in order.nestedLineItems %}
                 {% block page_account_order_item_detail_line_item %}
-                    {# @deprecated tag:v6.5.0 - Template `order-detail-list-item.html.twig` is deprecated. Use `storefront/component/line-item/line-item.html.twig` instead. #}
-                    {% if feature('v6.5.0.0') %}
-                        {% sw_include '@Storefront/storefront/component/line-item/line-item.html.twig' with {
-                            displayMode: 'order',
-                            showRemoveButton: false
-                        } %}
-                    {% else %}
-                        {% sw_include '@Storefront/storefront/page/account/order-history/order-detail-list-item.html.twig' %}
-                    {% endif %}
+                    {% sw_include '@Storefront/storefront/component/line-item/line-item.html.twig' with {
+                        displayMode: 'order',
+                        showRemoveButton: false
+                    } %}
                 {% endblock %}
             {% endfor %}
         {% endblock %}

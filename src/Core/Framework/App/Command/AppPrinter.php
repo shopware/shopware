@@ -9,12 +9,14 @@ use Shopware\Core\Framework\App\Exception\UserAbortedCommandException;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\Permissions;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal only for use by the app-system
  */
+#[Package('core')]
 class AppPrinter
 {
     private const PRIVILEGE_TO_HUMAN_READABLE = [
@@ -24,11 +26,8 @@ class AppPrinter
         AclRoleDefinition::PRIVILEGE_DELETE => 'delete',
     ];
 
-    private EntityRepositoryInterface $appRepository;
-
-    public function __construct(EntityRepositoryInterface $appRepository)
+    public function __construct(private readonly EntityRepository $appRepository)
     {
-        $this->appRepository = $appRepository;
     }
 
     public function printInstalledApps(ShopwareStyle $io, Context $context): void

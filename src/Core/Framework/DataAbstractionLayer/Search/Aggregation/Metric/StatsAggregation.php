@@ -3,39 +3,23 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @final tag:v6.5.0
+ * @final
  */
+#[Package('core')]
 class StatsAggregation extends Aggregation
 {
-    /**
-     * @var bool
-     */
-    private $max;
-
-    /**
-     * @var bool
-     */
-    private $min;
-
-    /**
-     * @var bool
-     */
-    private $sum;
-
-    /**
-     * @var bool
-     */
-    private $avg;
-
-    public function __construct(string $name, string $field, bool $max = true, bool $min = true, bool $sum = true, bool $avg = true)
-    {
+    public function __construct(
+        string $name,
+        string $field,
+        private readonly bool $max = true,
+        private readonly bool $min = true,
+        private readonly bool $sum = true,
+        private readonly bool $avg = true
+    ) {
         parent::__construct($name, $field);
-        $this->max = $max;
-        $this->min = $min;
-        $this->sum = $sum;
-        $this->avg = $avg;
     }
 
     public function fetchMax(): bool

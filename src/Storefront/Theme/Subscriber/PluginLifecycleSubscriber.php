@@ -3,16 +3,16 @@
 namespace Shopware\Storefront\Theme\Subscriber;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Event\PluginLifecycleEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostActivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostDeactivationFailedEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostUninstallEvent;
-use Shopware\Core\Framework\Plugin\Event\PluginPreActivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPreDeactivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPreUninstallEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPreUpdateEvent;
+use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Storefront\Theme\Exception\InvalidThemeBundleException;
 use Shopware\Storefront\Theme\Exception\ThemeCompileException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\AbstractStorefrontPluginConfigurationFactory;
@@ -22,53 +22,25 @@ use Shopware\Storefront\Theme\ThemeLifecycleHandler;
 use Shopware\Storefront\Theme\ThemeLifecycleService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * @internal
+ */
+#[Package('storefront')]
 class PluginLifecycleSubscriber implements EventSubscriberInterface
 {
-    private StorefrontPluginRegistryInterface $storefrontPluginRegistry;
-
-    private string $projectDirectory;
-
-    private AbstractStorefrontPluginConfigurationFactory $pluginConfigurationFactory;
-
-    private ThemeLifecycleHandler $themeLifecycleHandler;
-
-    private ThemeLifecycleService $themeLifecycleService;
-
     /**
      * @internal
      */
-    public function __construct(
-        StorefrontPluginRegistryInterface $storefrontPluginRegistry,
-        string $projectDirectory,
-        AbstractStorefrontPluginConfigurationFactory $pluginConfigurationFactory,
-        ThemeLifecycleHandler $themeLifecycleHandler,
-        ThemeLifecycleService $themeLifecycleService
-    ) {
-        $this->storefrontPluginRegistry = $storefrontPluginRegistry;
-        $this->projectDirectory = $projectDirectory;
-        $this->pluginConfigurationFactory = $pluginConfigurationFactory;
-        $this->themeLifecycleHandler = $themeLifecycleHandler;
-        $this->themeLifecycleService = $themeLifecycleService;
+    public function __construct(private readonly StorefrontPluginRegistryInterface $storefrontPluginRegistry, private readonly string $projectDirectory, private readonly AbstractStorefrontPluginConfigurationFactory $pluginConfigurationFactory, private readonly ThemeLifecycleHandler $themeLifecycleHandler, private readonly ThemeLifecycleService $themeLifecycleService)
+    {
     }
 
     /**
      * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
-        if (Feature::isActive('v6.5.0.0')) {
-            return [
-                PluginPostActivateEvent::class => 'pluginPostActivate',
-                PluginPreUpdateEvent::class => 'pluginUpdate',
-                PluginPreDeactivateEvent::class => 'pluginDeactivateAndUninstall',
-                PluginPostDeactivationFailedEvent::class => 'pluginPostDeactivateFailed',
-                PluginPreUninstallEvent::class => 'pluginDeactivateAndUninstall',
-                PluginPostUninstallEvent::class => 'pluginPostUninstall',
-            ];
-        }
-
         return [
-            PluginPreActivateEvent::class => 'pluginActivate',
             PluginPostActivateEvent::class => 'pluginPostActivate',
             PluginPreUpdateEvent::class => 'pluginUpdate',
             PluginPreDeactivateEvent::class => 'pluginDeactivateAndUninstall',
@@ -76,18 +48,6 @@ class PluginLifecycleSubscriber implements EventSubscriberInterface
             PluginPreUninstallEvent::class => 'pluginDeactivateAndUninstall',
             PluginPostUninstallEvent::class => 'pluginPostUninstall',
         ];
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 - Method will be removed. use pluginPostActivate instead
-     */
-    public function pluginActivate(PluginPreActivateEvent $event): void
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            sprintf('Method pluginActivate of Class %s is deprecated. Use method pluginPostActivate instead', static::class)
-        );
-        // do nothing
     }
 
     public function pluginPostActivate(PluginPostActivateEvent $event): void
@@ -120,10 +80,7 @@ class PluginLifecycleSubscriber implements EventSubscriberInterface
         );
     }
 
-    /**
-     * @param PluginPreDeactivateEvent|PluginPreUninstallEvent $event
-     */
-    public function pluginDeactivateAndUninstall($event): void
+    public function pluginDeactivateAndUninstall(PluginPreDeactivateEvent|PluginPreUninstallEvent $event): void
     {
         if ($this->skipCompile($event->getContext()->getContext())) {
             return;
@@ -159,7 +116,7 @@ class PluginLifecycleSubscriber implements EventSubscriberInterface
 
         if (!$plugin instanceof Plugin) {
             throw new \RuntimeException(
-                sprintf('Plugin class "%s" must extend "%s"', \get_class($plugin), Plugin::class)
+                sprintf('Plugin class "%s" must extend "%s"', $plugin::class, Plugin::class)
             );
         }
 
@@ -183,7 +140,7 @@ class PluginLifecycleSubscriber implements EventSubscriberInterface
             $event->getPlugin()->getBaseClass()
         );
 
-        // add plugin configuration to the list of all active plugin configurations
+        // ensure plugin configuration is in the list of all active plugin configurations
         $configurationCollection = clone $this->storefrontPluginRegistry->getConfigurations();
         $configurationCollection->add($storefrontPluginConfig);
 
@@ -196,6 +153,6 @@ class PluginLifecycleSubscriber implements EventSubscriberInterface
 
     private function skipCompile(Context $context): bool
     {
-        return $context->hasState(Plugin\PluginLifecycleService::STATE_SKIP_ASSET_BUILDING);
+        return $context->hasState(PluginLifecycleService::STATE_SKIP_ASSET_BUILDING);
     }
 }

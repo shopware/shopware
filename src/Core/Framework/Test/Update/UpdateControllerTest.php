@@ -259,7 +259,7 @@ class UpdateControllerTest extends TestCase
             $response = $this->getBrowser()->getResponse();
 
             static::assertEquals(Response::HTTP_FORBIDDEN, $response->getStatusCode(), $response->getContent());
-            static::assertEquals(MissingPrivilegeException::MISSING_PRIVILEGE_ERROR, json_decode($response->getContent(), true)['errors'][0]['code'], $response->getContent());
+            static::assertEquals(MissingPrivilegeException::MISSING_PRIVILEGE_ERROR, json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR)['errors'][0]['code'], $response->getContent());
         } finally {
             $this->resetBrowser();
         }

@@ -9,13 +9,13 @@ use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
-use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Storefront\Framework\Cache\CacheResponseSubscriber;
 use Shopware\Storefront\Framework\Cache\CacheStore;
+use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\HttpCache\HttpCache;
 
@@ -30,7 +30,7 @@ class HttpCacheIntegrationTest extends TestCase
     use CacheTestBehaviour;
     use AppSystemTestBehaviour;
 
-    private static $originalHttpCacheValue;
+    private static string $originalHttpCacheValue;
 
     public static function setUpBeforeClass(): void
     {
@@ -72,7 +72,10 @@ class HttpCacheIntegrationTest extends TestCase
     {
         $kernel = $this->getCacheKernel();
 
-        $request = $this->createRequest(EnvironmentHelper::getVariable('APP_URL'));
+        $appUrl = EnvironmentHelper::getVariable('APP_URL');
+        static::assertIsString($appUrl);
+
+        $request = $this->createRequest($appUrl);
 
         $response = $kernel->handle($request);
         static::assertTrue($response->headers->has('x-symfony-cache'));
@@ -86,7 +89,10 @@ class HttpCacheIntegrationTest extends TestCase
     {
         $kernel = $this->getCacheKernel();
 
-        $request = $this->createRequest(EnvironmentHelper::getVariable('APP_URL'));
+        $appUrl = EnvironmentHelper::getVariable('APP_URL');
+        static::assertIsString($appUrl);
+
+        $request = $this->createRequest($appUrl);
         $request->cookies->set(CacheResponseSubscriber::CONTEXT_CACHE_COOKIE, 'a');
 
         $response = $kernel->handle($request);
@@ -215,10 +221,10 @@ class HttpCacheIntegrationTest extends TestCase
         static::assertEquals('logged-in', $response->headers->get(CacheResponseSubscriber::INVALIDATION_STATES_HEADER));
     }
 
-    private function createRequest(?string $url = null)
+    private function createRequest(?string $url = null): Request
     {
         if ($url === null) {
-            $url = $this->getContainer()->get(Connection::class)->fetchColumn('SELECT url FROM sales_channel_domain LIMIT 1');
+            $url = $this->getContainer()->get(Connection::class)->fetchOne('SELECT url FROM sales_channel_domain LIMIT 1');
         }
 
         $request = Request::create($url);

@@ -13,6 +13,7 @@ use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\FloatComparator;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Profiling\Profiler;
@@ -23,51 +24,23 @@ use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Service\ResetInterface;
 
+#[Package('checkout')]
 class CartRuleLoader implements ResetInterface
 {
     private const MAX_ITERATION = 7;
 
-    private CartPersisterInterface $cartPersister;
-
     private ?RuleCollection $rules = null;
 
-    private Processor $processor;
-
-    private LoggerInterface $logger;
-
-    private CacheInterface $cache;
-
-    private AbstractRuleLoader $ruleLoader;
-
-    private TaxDetector $taxDetector;
-
-    private EventDispatcherInterface $dispatcher;
-
-    private Connection $connection;
-
+    /**
+     * @var array<string, float>
+     */
     private array $currencyFactor = [];
 
     /**
      * @internal
      */
-    public function __construct(
-        CartPersisterInterface $cartPersister,
-        Processor $processor,
-        LoggerInterface $logger,
-        CacheInterface $cache,
-        AbstractRuleLoader $loader,
-        TaxDetector $taxDetector,
-        Connection $connection,
-        EventDispatcherInterface $dispatcher
-    ) {
-        $this->cartPersister = $cartPersister;
-        $this->processor = $processor;
-        $this->logger = $logger;
-        $this->cache = $cache;
-        $this->ruleLoader = $loader;
-        $this->taxDetector = $taxDetector;
-        $this->dispatcher = $dispatcher;
-        $this->connection = $connection;
+    public function __construct(private readonly AbstractCartPersister $cartPersister, private readonly Processor $processor, private readonly LoggerInterface $logger, private readonly CacheInterface $cache, private readonly AbstractRuleLoader $ruleLoader, private readonly TaxDetector $taxDetector, private readonly Connection $connection, private readonly EventDispatcherInterface $dispatcher)
+    {
     }
 
     public function loadByToken(SalesChannelContext $context, string $cartToken): RuleLoaderResult
@@ -76,8 +49,8 @@ class CartRuleLoader implements ResetInterface
             $cart = $this->cartPersister->load($cartToken, $context);
 
             return $this->load($context, $cart, new CartBehavior($context->getPermissions()), false);
-        } catch (CartTokenNotFoundException $e) {
-            $cart = new Cart($context->getSalesChannel()->getTypeId(), $cartToken);
+        } catch (CartTokenNotFoundException) {
+            $cart = new Cart($cartToken);
             $this->dispatcher->dispatch(new CartCreatedEvent($cart));
 
             return $this->load($context, $cart, new CartBehavior($context->getPermissions()), true);
@@ -167,6 +140,7 @@ class CartRuleLoader implements ResetInterface
             }
 
             $context->setRuleIds($rules->getIds());
+            $context->setAreaRuleIds($rules->getIdsByArea());
 
             // save the cart if errors exist, so the errors get persisted
             if ($cart->getErrors()->count() > 0 || $this->updated($cart, $timestamps)) {
@@ -183,7 +157,7 @@ class CartRuleLoader implements ResetInterface
             return $this->rules;
         }
 
-        return $this->rules = $this->ruleLoader->load($context);
+        return $this->rules = $this->ruleLoader->load($context)->filterForContext();
     }
 
     private function cartChanged(Cart $previous, Cart $current): bool

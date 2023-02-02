@@ -3,10 +3,12 @@
 namespace Shopware\Core\Content\Media\Aggregate\MediaFolder;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<MediaFolderEntity>
  */
+#[Package('content')]
 class MediaFolderCollection extends EntityCollection
 {
     public function getApiAlias(): string

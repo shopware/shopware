@@ -6,8 +6,10 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
+#[Package('core')]
 class OrderSerializer extends EntitySerializer
 {
     public function supports(string $entity): bool
@@ -41,7 +43,7 @@ class OrderSerializer extends EntitySerializer
             $entity['lineItems'] = implode('|', $modifiedLineItems);
         }
 
-        if (isset($entity['deliveries']) && \count($entity['deliveries']) > 0) {
+        if (isset($entity['deliveries']) && (is_countable($entity['deliveries']) ? \count($entity['deliveries']) : 0) > 0) {
             $entity['deliveries'] = $entity['deliveries']->first()->jsonSerialize();
             $entity['deliveries']['shippingOrderAddress'] = $entity['deliveries']['shippingOrderAddress']->jsonSerialize();
         }

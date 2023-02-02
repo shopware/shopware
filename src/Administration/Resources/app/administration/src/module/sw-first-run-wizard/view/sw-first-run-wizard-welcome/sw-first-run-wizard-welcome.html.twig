@@ -32,6 +32,7 @@
             :plugin="languagePlugin"
             @onPluginInstalled="onPluginInstalled"
             @onPluginRemoved="onPluginRemoved"
+            @extension-activated="$emit('extension-activated', $event)"
         />
     </sw-container>
 
@@ -75,7 +76,7 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_first_run_wizard_welcome_confirm_language_switch_modal_footer %}
-        <template slot="modal-footer">
+        <template #modal-footer>
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_first_run_wizard_welcome_confirm_language_switch_modal_action_cancel %}
             <sw-button

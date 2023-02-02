@@ -4,27 +4,22 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @final tag:v6.5.0
+ * @final
  */
+#[Package('core')]
 class TermsAggregation extends BucketAggregation
 {
-    /**
-     * @var int|null
-     */
-    protected $limit;
-
-    /**
-     * @var FieldSorting|null
-     */
-    protected $sorting;
-
-    public function __construct(string $name, string $field, ?int $limit = null, ?FieldSorting $sorting = null, ?Aggregation $aggregation = null)
-    {
+    public function __construct(
+        string $name,
+        string $field,
+        private readonly ?int $limit = null,
+        private readonly ?FieldSorting $sorting = null,
+        ?Aggregation $aggregation = null
+    ) {
         parent::__construct($name, $field, $aggregation);
-        $this->limit = $limit;
-        $this->sorting = $sorting;
     }
 
     public function getLimit(): ?int

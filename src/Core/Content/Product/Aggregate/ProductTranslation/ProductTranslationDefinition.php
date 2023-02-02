@@ -13,10 +13,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('inventory')]
 class ProductTranslationDefinition extends EntityTranslationDefinition
 {
-    public const ENTITY_NAME = 'product_translation';
+    final public const ENTITY_NAME = 'product_translation';
 
     public function getEntityName(): string
     {
@@ -58,7 +60,7 @@ class ProductTranslationDefinition extends EntityTranslationDefinition
             (new StringField('meta_title', 'metaTitle'))->addFlags(new ApiAware()),
             (new StringField('pack_unit', 'packUnit'))->addFlags(new ApiAware()),
             (new StringField('pack_unit_plural', 'packUnitPlural'))->addFlags(new ApiAware()),
-            (new ListField('custom_search_keywords', 'customSearchKeywords'))->setStrict(true),
+            new ListField('custom_search_keywords', 'customSearchKeywords'),
             (new JsonField('slot_config', 'slotConfig'))->addFlags(new ApiAware()),
             (new CustomFields())->addFlags(new ApiAware()),
         ]);

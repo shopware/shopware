@@ -67,7 +67,7 @@ class KernelLifecycleManager
     /**
      * Create a web client with the default kernel and disabled reboots
      */
-    public static function createBrowser(KernelInterface $kernel, bool $enableReboot = false, bool $disableCsrf = false): TestBrowser
+    public static function createBrowser(KernelInterface $kernel, bool $enableReboot = false): TestBrowser
     {
         /** @var TestBrowser $apiBrowser */
         $apiBrowser = $kernel->getContainer()->get('test.browser');
@@ -76,13 +76,6 @@ class KernelLifecycleManager
             $apiBrowser->enableReboot();
         } else {
             $apiBrowser->disableReboot();
-        }
-        if ($apiBrowser instanceof TestBrowser) {
-            if ($disableCsrf) {
-                $apiBrowser->disableCsrf();
-            } else {
-                $apiBrowser->enableCsrf();
-            }
         }
 
         return $apiBrowser;
@@ -129,8 +122,8 @@ class KernelLifecycleManager
                 $existingConnection = self::getConnection();
 
                 try {
-                    $existingConnection->fetchAll('SELECT 1');
-                } catch (\Throwable $e) {
+                    $existingConnection->fetchOne('SELECT 1');
+                } catch (\Throwable) {
                     // The connection is closed
                     $existingConnection = null;
                 }
@@ -140,10 +133,10 @@ class KernelLifecycleManager
             }
 
             // force connection to database
-            $existingConnection->fetchAll('SELECT 1');
+            $existingConnection->fetchOne('SELECT 1');
 
             $pluginLoader = new DbalKernelPluginLoader(self::$classLoader, null, $existingConnection);
-        } catch (\Throwable $e) {
+        } catch (\Throwable) {
             // if we don't have database yet, we'll boot the kernel without plugins
             $pluginLoader = new StaticKernelPluginLoader(self::$classLoader);
         }

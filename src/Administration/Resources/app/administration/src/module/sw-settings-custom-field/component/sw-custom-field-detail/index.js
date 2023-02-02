@@ -1,10 +1,13 @@
+/**
+ * @package system-settings
+ */
 import template from './sw-custom-field-detail.html.twig';
 import './sw-custom-field-detail.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-custom-field-detail', {
+export default {
     template,
 
     inject: ['customFieldDataProviderService', 'SwCustomFieldListIsCustomFieldNameUnique', 'acl'],
@@ -170,4 +173,4 @@ Component.register('sw-custom-field-detail', {
             };
         },
     },
-});
+};

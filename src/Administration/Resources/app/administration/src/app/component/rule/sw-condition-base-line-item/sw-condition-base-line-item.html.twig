@@ -1,15 +1,11 @@
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-{% block sw_condition_base_field_condition %}
-<div class="sw-condition-base-line-item">
-    {% parent() %}
-    <sw-arrow-field v-if="allowMatchesAll">
-        <sw-single-select
-            v-model="matchesAll"
-            class="sw-condition-base-line-item__matches-all"
-            size="medium"
-            :options="matchesAllOptions"
-            required
-        />
-    </sw-arrow-field>
-</div>
+{% block sw_condition_value_before_content %}
+<sw-single-select
+    v-if="allowMatchesAll"
+    v-model="matchesAll"
+    class="sw-condition-base-line-item__matches-all"
+    size="medium"
+    :options="matchesAllOptions"
+    required
+/>
 {% endblock %}

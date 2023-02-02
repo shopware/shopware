@@ -4,9 +4,10 @@ namespace Core\System\Test\SystemConfig;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigCollection;
@@ -14,6 +15,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigCollection;
 /**
  * @internal
  */
+#[Package('system-settings')]
 class SystemConfigRepositoryTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -24,7 +26,7 @@ class SystemConfigRepositoryTest extends TestCase
 
     public function testFilterByValue(): void
     {
-        /** @var EntityRepositoryInterface $repo */
+        /** @var EntityRepository $repo */
         $repo = $this->getContainer()->get('system_config.repository');
         $context = Context::createDefaultContext();
 

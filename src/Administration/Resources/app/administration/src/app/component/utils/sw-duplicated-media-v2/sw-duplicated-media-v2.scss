@@ -2,11 +2,11 @@
 @import "~scss/mixins";
 
 $sw-duplicated-media-v2-separator-color: $color-gray-300;
-$sw-duplicated-media-v2-font-size-preview: $font-size-small;
+$sw-duplicated-media-v2-font-size-preview: $font-size-xs;
 
 .sw-duplicated-media-v2 {
     .sw-duplicated-media-v2__description {
-        font-size: 14px;
+        font-size: $font-size-xs;
         margin-bottom: 10px;
     }
 
@@ -24,7 +24,7 @@ $sw-duplicated-media-v2-font-size-preview: $font-size-small;
     }
 
     .sw-duplicated-media-v2__options {
-        font-size: 14px;
+        font-size: $font-size-xs;
         margin-bottom: 0;
     }
 
@@ -70,7 +70,7 @@ $sw-duplicated-media-v2-font-size-preview: $font-size-small;
     }
 
     .sw-duplicated-media-v2__target-details {
-        font-size: $font-size-small;
+        font-size: $font-size-xs;
         color: $color-gray-300;
     }
 }

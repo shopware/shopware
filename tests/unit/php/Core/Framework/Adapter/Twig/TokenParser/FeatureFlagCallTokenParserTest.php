@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Core\Framework\Adapter\Twig\TokenParser;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\TokenParser\FeatureFlagCallTokenParser;
 use Shopware\Core\Framework\Feature;
-use Shopware\Core\Test\Annotation\ActiveFeatures;
 use Twig\Environment;
 use Twig\Loader\ArrayLoader;
 
@@ -17,7 +16,6 @@ use Twig\Loader\ArrayLoader;
 class FeatureFlagCallTokenParserTest extends TestCase
 {
     /**
-     * @ActiveFeatures(features={})
      * @dataProvider providerCode
      */
     public function testCodeRun(string $twigCode, bool $shouldThrow): void

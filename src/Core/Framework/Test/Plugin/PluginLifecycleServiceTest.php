@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
@@ -30,6 +30,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
+use Shopware\Core\System\CustomEntity\CustomEntityLifecycleService;
+use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
+use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use SwagTest\Migration\Migration1536761533Test;
 use SwagTest\SwagTest;
@@ -53,12 +56,9 @@ class PluginLifecycleServiceTest extends TestCase
 
     private ContainerInterface $container;
 
-    private EntityRepositoryInterface $pluginRepo;
+    private EntityRepository $pluginRepo;
 
-    /**
-     * @var PluginService
-     */
-    private $pluginService;
+    private PluginService $pluginService;
 
     private KernelPluginCollection $pluginCollection;
 
@@ -86,9 +86,10 @@ class PluginLifecycleServiceTest extends TestCase
         $this->container = $this->getContainer();
         $this->pluginRepo = $this->container->get('plugin.repository');
         $this->pluginService = $this->createPluginService(
+            __DIR__ . '/_fixture/plugins',
+            $this->container->getParameter('kernel.project_dir'),
             $this->pluginRepo,
             $this->container->get('language.repository'),
-            $this->container->getParameter('kernel.project_dir'),
             $this->container->get(PluginFinder::class)
         );
         $this->pluginCollection = $this->container->get(KernelPluginCollection::class);
@@ -98,8 +99,14 @@ class PluginLifecycleServiceTest extends TestCase
 
         require_once __DIR__ . '/_fixture/plugins/SwagTest/src/Migration/Migration1536761533Test.php';
 
-        $this->addTestPluginToKernel(self::PLUGIN_NAME);
-        $this->addTestPluginToKernel('SwagTestWithoutConfig');
+        $this->addTestPluginToKernel(
+            __DIR__ . '/_fixture/plugins/' . self::PLUGIN_NAME,
+            self::PLUGIN_NAME
+        );
+        $this->addTestPluginToKernel(
+            __DIR__ . '/_fixture/plugins/SwagTestWithoutConfig',
+            'SwagTestWithoutConfig'
+        );
 
         $this->context = Context::createDefaultContext();
     }
@@ -312,7 +319,10 @@ class PluginLifecycleServiceTest extends TestCase
             $this->container->get(RequirementsValidator::class),
             $this->container->get('cache.messenger.restart_workers_signal'),
             Kernel::SHOPWARE_FALLBACK_VERSION,
-            $this->systemConfigService
+            $this->systemConfigService,
+            $this->container->get(CustomEntityPersister::class),
+            $this->container->get(CustomEntitySchemaUpdater::class),
+            $this->container->get(CustomEntityLifecycleService::class),
         );
 
         $context = Context::createDefaultContext();
@@ -391,7 +401,10 @@ class PluginLifecycleServiceTest extends TestCase
 
     public function testDeactivatePluginWithDependencies(): void
     {
-        $this->addTestPluginToKernel(self::DEPENDENT_PLUGIN_NAME);
+        $this->addTestPluginToKernel(
+            __DIR__ . '/_fixture/plugins/' . self::DEPENDENT_PLUGIN_NAME,
+            self::DEPENDENT_PLUGIN_NAME
+        );
         $this->pluginService->refreshPlugins($this->context, new NullIO());
 
         $basePlugin = $this->pluginService->getPluginByName(self::PLUGIN_NAME, $this->context);
@@ -432,7 +445,10 @@ class PluginLifecycleServiceTest extends TestCase
 
     public function testActivateNotSupportedVersion(): void
     {
-        $this->addTestPluginToKernel(self::NOT_SUPPORTED_VERSION_PLUGIN_NAME);
+        $this->addTestPluginToKernel(
+            __DIR__ . '/_fixture/plugins/' . self::NOT_SUPPORTED_VERSION_PLUGIN_NAME,
+            self::NOT_SUPPORTED_VERSION_PLUGIN_NAME
+        );
 
         $this->pluginService->refreshPlugins($this->context, new NullIO());
 
@@ -450,7 +466,10 @@ class PluginLifecycleServiceTest extends TestCase
     public function testThemeRemovalOnUninstall(bool $keepUserData): void
     {
         static::markTestSkipped('This test needs the storefront bundle installed.');
-        $this->addTestPluginToKernel('SwagTestTheme');
+        $this->addTestPluginToKernel(
+            __DIR__ . '/_fixture/plugins/SwagTestTheme',
+            'SwagTestTheme'
+        );
 
         $this->pluginService->refreshPlugins($this->context, new NullIO());
 
@@ -475,6 +494,9 @@ class PluginLifecycleServiceTest extends TestCase
         static::assertCount($keepUserData ? 1 : 0, $themeRepo->search($criteria, $this->context)->getElements());
     }
 
+    /**
+     * @return array<string, array{bool}>
+     */
     public function themeProvideData(): array
     {
         return [
@@ -485,12 +507,11 @@ class PluginLifecycleServiceTest extends TestCase
 
     private function installNotSupportedPlugin(string $name): PluginEntity
     {
-        /** @var EntityRepositoryInterface $pluginRepository */
+        /** @var EntityRepository $pluginRepository */
         $pluginRepository = $this->getContainer()->get('plugin.repository');
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', $name));
         $result = $pluginRepository->search($criteria, $this->context);
-        /** @var PluginEntity $result */
         $result = $result->getEntities()->first();
         $date = new \DateTime();
         $result->setInstalledAt($date);
@@ -724,11 +745,10 @@ class PluginLifecycleServiceTest extends TestCase
         static::assertNotNull($exception, 'Expected exception to be thrown');
     }
 
-    private function addLanguage(string $iso, $id = 0): string
+    private function addLanguage(string $iso): string
     {
-        if ($id === 0) {
-            $id = Uuid::randomHex();
-        }
+        $id = Uuid::randomHex();
+
         $languageRepository = $this->getContainer()->get('language.repository');
         $localeId = $this->getIsoId($iso);
         $languageRepository->create(
@@ -775,11 +795,11 @@ class PluginLifecycleServiceTest extends TestCase
         $this->setNewSystemLanguage('en-GB');
     }
 
-    private function getIsoId(string $iso)
+    private function getIsoId(string $iso): string
     {
         $result = $this->connection->executeQuery('SELECT LOWER(HEX(id)) FROM locale WHERE code = ?', [$iso]);
 
-        return $result->fetchColumn();
+        return (string) $result->fetchOne();
     }
 
     private function getMigrationCount(string $namespacePrefix): int
@@ -788,7 +808,7 @@ class PluginLifecycleServiceTest extends TestCase
             'SELECT COUNT(*) FROM migration WHERE class LIKE :class',
             ['class' => addcslashes($namespacePrefix, '\\_%') . '%']
         )
-            ->fetchColumn();
+            ->fetchOne();
 
         return (int) $result;
     }
@@ -813,7 +833,10 @@ class PluginLifecycleServiceTest extends TestCase
             $this->container->get(RequirementsValidator::class),
             $this->container->get('cache.messenger.restart_workers_signal'),
             Kernel::SHOPWARE_FALLBACK_VERSION,
-            $this->systemConfigService
+            $this->systemConfigService,
+            $this->container->get(CustomEntityPersister::class),
+            $this->container->get(CustomEntitySchemaUpdater::class),
+            $this->container->get(CustomEntityLifecycleService::class),
         );
     }
 
@@ -824,7 +847,7 @@ class PluginLifecycleServiceTest extends TestCase
             [Migration1536761533Test::TEST_SYSTEM_CONFIG_KEY]
         );
 
-        return (int) $result->fetchColumn();
+        return (int) $result->fetchOne();
     }
 
     private function installPlugin(Context $context): PluginEntity

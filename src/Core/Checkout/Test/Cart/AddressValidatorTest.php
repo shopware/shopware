@@ -12,11 +12,11 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -26,6 +26,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
+#[Package('checkout')]
 class AddressValidatorTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -53,7 +54,7 @@ class AddressValidatorTest extends TestCase
 
         $context = $this->getContextMock($location);
 
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
         $errors = new ErrorCollection();
 
         $validator->validate($cart, $errors, $context);
@@ -72,7 +73,6 @@ class AddressValidatorTest extends TestCase
 
     /**
      * @dataProvider salutationProvider
-     * @dataProvider defaultSalutationProvider
      */
     public function testSalutationValidation(
         ?string $salutationId = null,
@@ -87,7 +87,7 @@ class AddressValidatorTest extends TestCase
         $country = $this->getCountryStub($id);
         $location = new ShippingLocation($country, null, null);
         $context = $this->getContextMock($location);
-        $cart = new Cart('test', 'test');
+        $cart = new Cart('test');
         $errors = new ErrorCollection();
 
         $context->method('getCustomer')
@@ -97,9 +97,7 @@ class AddressValidatorTest extends TestCase
 
         $allSalutationsSet = array_reduce(
             [$salutationId, $billingAddressSalutationId, $shippingAddressSalutationId],
-            static function (bool $carry, ?string $salutationId = null): bool {
-                return $carry && $salutationId !== null && $salutationId !== Defaults::SALUTATION;
-            },
+            static fn (bool $carry, ?string $salutationId = null): bool => $carry && $salutationId !== null,
             true
         );
 
@@ -133,15 +131,6 @@ class AddressValidatorTest extends TestCase
         yield 'every salutation' => [Uuid::randomHex(), Uuid::randomHex(), Uuid::randomHex()];
     }
 
-    public function defaultSalutationProvider(): \Generator
-    {
-        foreach ($this->salutationProvider() as $key => $params) {
-            yield $key => array_map(static function (?string $salutationId = null): ?string {
-                return $salutationId ? Defaults::SALUTATION : null;
-            }, $params);
-        }
-    }
-
     private function getSearchResultStub(?bool $assigned = true, ?string $id = null): IdSearchResult
     {
         if ($assigned) {
@@ -151,12 +140,9 @@ class AddressValidatorTest extends TestCase
         return new IdSearchResult(0, [], new Criteria(), Context::createDefaultContext());
     }
 
-    /**
-     * @return EntityRepositoryInterface|MockObject
-     */
-    private function getRepositoryMock(?IdSearchResult $result)
+    private function getRepositoryMock(?IdSearchResult $result): EntityRepository&MockObject
     {
-        $repository = $this->createMock(EntityRepositoryInterface::class);
+        $repository = $this->createMock(EntityRepository::class);
 
         $repository->method('searchIds')
             ->willReturn($result);
@@ -176,10 +162,7 @@ class AddressValidatorTest extends TestCase
         return $country;
     }
 
-    /**
-     * @return MockObject|SalesChannelContext
-     */
-    private function getContextMock(?ShippingLocation $shippingLocation = null)
+    private function getContextMock(?ShippingLocation $shippingLocation = null): MockObject&SalesChannelContext
     {
         $context = $this->createMock(SalesChannelContext::class);
 
@@ -194,6 +177,12 @@ class AddressValidatorTest extends TestCase
     private function getCustomerAddressMock(?string $salutationId = null): CustomerAddressEntity
     {
         $address = new CustomerAddressEntity();
+        $address->setId(Uuid::randomHex());
+        $address->setFirstName('Foo');
+        $address->setLastName('Foo');
+        $address->setZipcode('12345');
+        $address->setCity('Foo');
+
         if ($salutationId) {
             $address->setSalutationId($salutationId);
         }

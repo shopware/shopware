@@ -4,9 +4,11 @@ namespace Shopware\Core\Checkout\Payment\Cart\PaymentHandler;
 
 use Shopware\Core\Checkout\Payment\Cart\SyncPaymentTransactionStruct;
 use Shopware\Core\Checkout\Payment\Exception\SyncPaymentProcessException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+#[Package('checkout')]
 interface SynchronousPaymentHandlerInterface extends PaymentHandlerInterface
 {
     /**

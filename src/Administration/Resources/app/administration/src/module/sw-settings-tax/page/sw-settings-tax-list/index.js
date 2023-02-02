@@ -1,11 +1,15 @@
 import template from './sw-settings-tax-list.html.twig';
 import './sw-settings-tax-list.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
+/**
+ * @package customer-order
+ */
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-settings-tax-list', {
+export default {
     template,
 
     inject: ['repositoryFactory', 'acl', 'systemConfigApiService'],
@@ -18,6 +22,7 @@ Component.register('sw-settings-tax-list', {
     data() {
         return {
             tax: null,
+            taxProviders: null,
             sortBy: 'position',
             isLoading: false,
             sortDirection: 'ASC',
@@ -25,6 +30,7 @@ Component.register('sw-settings-tax-list', {
             showDeleteModal: false,
             defaultTaxRateId: null,
             selectedDefaultTaxRateId: null,
+            showSortingModal: false,
         };
     },
 
@@ -37,6 +43,24 @@ Component.register('sw-settings-tax-list', {
     computed: {
         taxRepository() {
             return this.repositoryFactory.create('tax');
+        },
+        taxProviderRepository() {
+            return this.repositoryFactory.create('tax_provider');
+        },
+        taxProviderCriteria() {
+            const criteria = new Criteria(this.page, this.limit);
+
+            criteria.addSorting(
+                Criteria.sort('priority', 'ASC'),
+            );
+
+            return criteria;
+        },
+        showChangePriority() {
+            return this.taxProviders?.length > 1;
+        },
+        noTaxProvidersFound() {
+            return this.taxProviders?.length < 1;
         },
     },
 
@@ -67,6 +91,17 @@ Component.register('sw-settings-tax-list', {
             }).catch(() => {
                 this.isLoading = false;
             });
+
+            this.loadTaxProviders();
+        },
+
+        editLink(taxProviderId) {
+            return {
+                name: 'sw.settings.tax.tax_provider.detail',
+                params: {
+                    id: taxProviderId,
+                },
+            };
         },
 
         onChangeLanguage(languageId) {
@@ -149,6 +184,7 @@ Component.register('sw-settings-tax-list', {
                 property: 'default',
                 inlineEdit: 'boolean',
                 label: 'sw-settings-tax.list.columnDefault',
+                align: 'center',
             }];
         },
 
@@ -174,5 +210,32 @@ Component.register('sw-settings-tax-list', {
                 .then(response => response['core.tax.defaultTaxRate'] ?? null)
                 .catch(() => null);
         },
+
+        loadTaxProviders() {
+            this.isLoading = true;
+
+            this.taxProviderRepository.search(this.taxProviderCriteria).then((items) => {
+                this.taxProviders = items;
+            }).finally(() => {
+                this.isLoading = false;
+            });
+        },
+
+        onChangeTaxProviderActive(taxProvider) {
+            taxProvider.active = !taxProvider.active;
+
+            this.taxProviderRepository.save(taxProvider, Shopware.Context.api)
+                .then(() => {
+                    const state = taxProvider.active ? 'active' : 'inactive';
+
+                    this.createNotificationSuccess({
+                        message: this.$tc(
+                            `sw-settings-tax.list.taxProvider.statusChangedSuccess.${state}`,
+                            0,
+                            { name: taxProvider.translated.name },
+                        ),
+                    });
+                });
+        },
     },
-});
+};

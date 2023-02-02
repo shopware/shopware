@@ -2,11 +2,7 @@
 
 describe('Delivery times: Visual testing', () => {
     beforeEach(() => {
-        // Clean previous state and prepare Administration
-        cy.loginViaApi()
-            .then(() => {
-                cy.setLocaleToEnGb();
-            })
+        cy.setLocaleToEnGb()
             .then(() => {
                 cy.openInitialPage(Cypress.env('admin'));
                 cy.get('.sw-skeleton').should('not.exist');
@@ -17,13 +13,13 @@ describe('Delivery times: Visual testing', () => {
     it('@visual: check appearance of delivery time module', { tags: ['pa-customers-orders'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/delivery-time`,
-            method: 'POST'
+            method: 'POST',
         }).as('getData');
 
         cy.get('.sw-dashboard-index__welcome-text').should('be.visible');
         cy.clickMainMenuItem({
             targetPath: '#/sw/settings/index',
-            mainMenuId: 'sw-settings'
+            mainMenuId: 'sw-settings',
         });
         cy.get('#sw-settings-delivery-time').click();
         cy.wait('@getData')

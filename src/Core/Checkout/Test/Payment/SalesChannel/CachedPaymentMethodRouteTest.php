@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Payment\Event\PaymentMethodRouteCacheTagsEvent;
 use Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -22,6 +23,7 @@ use Symfony\Component\HttpFoundation\Request;
  * @group cache
  * @group store-api
  */
+#[Package('checkout')]
 class CachedPaymentMethodRouteTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -95,7 +97,7 @@ class CachedPaymentMethodRouteTest extends TestCase
             function (): void {
             },
             function () use ($ids): void {
-                $paymentMethod = array_merge(self::DATA, self::ASSIGNED, ['id' => $ids->get('payment')]);
+                $paymentMethod = [...self::DATA, ...self::ASSIGNED, ...['id' => $ids->get('payment')]];
                 $this->getContainer()->get('payment_method.repository')->create([$paymentMethod], Context::createDefaultContext());
             },
             2,
@@ -103,7 +105,7 @@ class CachedPaymentMethodRouteTest extends TestCase
 
         yield 'Cache gets invalidated, if updated payment method assigned to the sales channel' => [
             function () use ($ids): void {
-                $paymentMethod = array_merge(self::DATA, self::ASSIGNED, ['id' => $ids->get('payment')]);
+                $paymentMethod = [...self::DATA, ...self::ASSIGNED, ...['id' => $ids->get('payment')]];
                 $this->getContainer()->get('payment_method.repository')->create([$paymentMethod], Context::createDefaultContext());
             },
             function () use ($ids): void {
@@ -115,7 +117,7 @@ class CachedPaymentMethodRouteTest extends TestCase
 
         yield 'Cache gets invalidated, if deleted payment method assigned to the sales channel' => [
             function () use ($ids): void {
-                $paymentMethod = array_merge(self::DATA, self::ASSIGNED, ['id' => $ids->get('payment')]);
+                $paymentMethod = [...self::DATA, ...self::ASSIGNED, ...['id' => $ids->get('payment')]];
                 $this->getContainer()->get('payment_method.repository')->create([$paymentMethod], Context::createDefaultContext());
             },
             function () use ($ids): void {
@@ -129,7 +131,7 @@ class CachedPaymentMethodRouteTest extends TestCase
             function (): void {
             },
             function () use ($ids): void {
-                $paymentMethod = array_merge(self::DATA, ['id' => $ids->get('payment')]);
+                $paymentMethod = [...self::DATA, ...['id' => $ids->get('payment')]];
                 $this->getContainer()->get('payment_method.repository')->create([$paymentMethod], Context::createDefaultContext());
             },
             1,
@@ -137,7 +139,7 @@ class CachedPaymentMethodRouteTest extends TestCase
 
         yield 'Cache gets not invalidated, if updated payment method not assigned to the sales channel' => [
             function () use ($ids): void {
-                $paymentMethod = array_merge(self::DATA, ['id' => $ids->get('payment')]);
+                $paymentMethod = [...self::DATA, ...['id' => $ids->get('payment')]];
                 $this->getContainer()->get('payment_method.repository')->create([$paymentMethod], Context::createDefaultContext());
             },
             function () use ($ids): void {
@@ -149,7 +151,7 @@ class CachedPaymentMethodRouteTest extends TestCase
 
         yield 'Cache gets invalidated, if deleted payment method is not assigned to the sales channel' => [
             function () use ($ids): void {
-                $paymentMethod = array_merge(self::DATA, ['id' => $ids->get('payment')]);
+                $paymentMethod = [...self::DATA, ...['id' => $ids->get('payment')]];
                 $this->getContainer()->get('payment_method.repository')->create([$paymentMethod], Context::createDefaultContext());
             },
             function () use ($ids): void {

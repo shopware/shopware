@@ -2,9 +2,12 @@
 
 namespace Shopware\Core\Framework\App\Event;
 
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 class AppDeactivatedEvent extends AppChangedEvent
 {
-    public const NAME = 'app.deactivated';
+    final public const NAME = 'app.deactivated';
 
     public function getName(): string
     {

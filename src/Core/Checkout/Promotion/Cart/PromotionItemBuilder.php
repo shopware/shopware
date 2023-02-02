@@ -2,8 +2,7 @@
 
 namespace Shopware\Core\Checkout\Promotion\Cart;
 
-use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
-use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
@@ -14,24 +13,25 @@ use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscountPrice\PromotionD
 use Shopware\Core\Checkout\Promotion\Exception\UnknownPromotionDiscountTypeException;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Content\Rule\RuleCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Container\OrRule;
 use Shopware\Core\Framework\Rule\Rule;
 
+#[Package('checkout')]
 class PromotionItemBuilder
 {
     /**
      * will be used as prefix for the key
      * within placeholder items
      */
-    public const PLACEHOLDER_PREFIX = 'promotion-';
+    final public const PLACEHOLDER_PREFIX = 'promotion-';
 
     /**
      * Builds a new placeholder promotion line item that does not have
      * any side effects for the calculation. It will contain the code
      * within the payload which can then be used to create a real promotion item.
      *
-     * @throws InvalidPayloadException
-     * @throws InvalidQuantityException
+     * @throws CartException
      */
     public function buildPlaceholderItem(string $code): LineItem
     {
@@ -57,8 +57,7 @@ class PromotionItemBuilder
      * Builds a new Line Item for the provided discount and its promotion.
      * It will automatically reference all provided "product" item Ids within the payload.
      *
-     * @throws InvalidPayloadException
-     * @throws InvalidQuantityException
+     * @throws CartException
      * @throws UnknownPromotionDiscountTypeException
      */
     public function buildDiscountLineItem(string $code, PromotionEntity $promotion, PromotionDiscountEntity $discount, string $currencyId, float $currencyFactor = 1.0): LineItem
@@ -160,8 +159,7 @@ class PromotionItemBuilder
      * shop owners, that delivery costs have been discounted by a promotion discount
      * if promotion is a auto promotion (no code) it may not be removed from cart
      *
-     * @throws InvalidPayloadException
-     * @throws InvalidQuantityException
+     * @throws CartException
      */
     public function buildDeliveryPlaceholderLineItem(LineItem $discount, QuantityPriceDefinition $priceDefinition, CalculatedPrice $price): LineItem
     {
@@ -186,6 +184,8 @@ class PromotionItemBuilder
      * Builds a custom payload array from the provided promotion data.
      * This will make sure we have our eligible items referenced as meta data
      * and also have the code in our payload.
+     *
+     * @return array<string, mixed>
      */
     private function buildPayload(string $code, PromotionDiscountEntity $discount, PromotionEntity $promotion, string $currencyId, float $currencyFactor): array
     {

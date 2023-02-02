@@ -11,35 +11,19 @@ use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Framework\Media\Exception\FileTypeNotAllowedException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
+#[Package('content')]
 class StorefrontMediaUploader
 {
     /**
-     * @var FileSaver
-     */
-    private $fileSaver;
-
-    /**
-     * @var MediaService
-     */
-    private $mediaService;
-
-    /**
-     * @var StorefrontMediaValidatorRegistry
-     */
-    private $validator;
-
-    /**
      * @internal
      */
-    public function __construct(MediaService $mediaService, FileSaver $fileSaver, StorefrontMediaValidatorRegistry $validator)
+    public function __construct(private readonly MediaService $mediaService, private readonly FileSaver $fileSaver, private readonly StorefrontMediaValidatorRegistry $validator)
     {
-        $this->mediaService = $mediaService;
-        $this->fileSaver = $fileSaver;
-        $this->validator = $validator;
     }
 
     /**

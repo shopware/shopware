@@ -6,10 +6,9 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
 use Shopware\Core\Framework\Api\Controller\FallbackController;
-use Shopware\Core\Framework\Migration\MigrationStep;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Util\VersionParser;
-use Shopware\Core\Maintenance\Maintenance;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\Config\ConfigCache;
 use Symfony\Component\Config\Loader\LoaderInterface;
@@ -20,23 +19,17 @@ use Symfony\Component\HttpKernel\Kernel as HttpKernel;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 use Symfony\Component\Routing\Route;
 
+#[Package('core')]
 class Kernel extends HttpKernel
 {
     use MicroKernelTrait;
 
-    /**
-     * @internal
-     *
-     * @deprecated tag:v6.5.0 The connection requirements should be fixed
-     */
-    public const PLACEHOLDER_DATABASE_URL = 'mysql://_placeholder.test';
-
-    public const CONFIG_EXTS = '.{php,xml,yaml,yml}';
+    final public const CONFIG_EXTS = '.{php,xml,yaml,yml}';
 
     /**
      * @var string Fallback version if nothing is provided via kernel constructor
      */
-    public const SHOPWARE_FALLBACK_VERSION = '6.4.9999999.9999999-dev';
+    final public const SHOPWARE_FALLBACK_VERSION = '6.5.9999999.9999999-dev';
 
     /**
      * @var Connection|null
@@ -65,8 +58,6 @@ class Kernel extends HttpKernel
 
     private bool $rebooting = false;
 
-    private string $cacheId;
-
     /**
      * {@inheritdoc}
      */
@@ -74,7 +65,7 @@ class Kernel extends HttpKernel
         string $environment,
         bool $debug,
         KernelPluginLoader $pluginLoader,
-        string $cacheId,
+        private string $cacheId,
         ?string $version = self::SHOPWARE_FALLBACK_VERSION,
         ?Connection $connection = null,
         ?string $projectDir = null
@@ -89,16 +80,13 @@ class Kernel extends HttpKernel
         $version = VersionParser::parseShopwareVersion($version);
         $this->shopwareVersion = $version['version'];
         $this->shopwareVersionRevision = $version['revision'];
-        $this->cacheId = $cacheId;
         $this->projectDir = $projectDir;
     }
 
     /**
-     * @return \Generator<BundleInterface>
-     *
-     * @deprecated tag:v6.5.0 - reason:return-type-change -  The return type will be native
+     * @return iterable<BundleInterface>
      */
-    public function registerBundles()/*: \Generator*/
+    public function registerBundles(): iterable
     {
         /** @var array<class-string<Bundle>, array<string, bool>> $bundles */
         $bundles = require $this->getProjectDir() . '/config/bundles.php';
@@ -113,20 +101,10 @@ class Kernel extends HttpKernel
             }
         }
 
-        /* @deprecated tag:v6.5.0 Maintenance bundle need to be added to config/bundles.php file */
-        if (!\in_array('Maintenance', $instanciatedBundleNames, true)) {
-            yield new Maintenance();
-        }
-
         yield from $this->pluginLoader->getBundles($this->getKernelParameters(), $instanciatedBundleNames);
     }
 
-    /**
-     * @return string
-     *
-     * @deprecated tag:v6.5.0 - reason:return-type-change - The return type will be native
-     */
-    public function getProjectDir()/*: string*/
+    public function getProjectDir(): string
     {
         if ($this->projectDir === null) {
             if ($dir = $_ENV['PROJECT_ROOT'] ?? $_SERVER['PROJECT_ROOT'] ?? false) {
@@ -294,7 +272,7 @@ class Kernel extends HttpKernel
         $activePluginMeta = [];
 
         foreach ($this->pluginLoader->getPluginInstances()->getActives() as $plugin) {
-            $class = \get_class($plugin);
+            $class = $plugin::class;
             $activePluginMeta[$class] = [
                 'name' => $plugin->getName(),
                 'path' => $plugin->getPath(),
@@ -366,35 +344,14 @@ class Kernel extends HttpKernel
 
             if ($setSessionVariables) {
                 $connectionVariables[] = 'SET @@group_concat_max_len = CAST(IF(@@group_concat_max_len > 320000, @@group_concat_max_len, 320000) AS UNSIGNED)';
-                $connectionVariables[] = "SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''))";
+                $connectionVariables[] = 'SET sql_mode=(SELECT REPLACE(@@sql_mode,\'ONLY_FULL_GROUP_BY\',\'\'))';
             }
-
-            /**
-             * @deprecated tag:v6.5.0 - old trigger logic is removed, therefore we don't need all those connection variables
-             */
-            $nonDestructiveMigrations = $connection->executeQuery('
-                SELECT `creation_timestamp`
-                FROM `migration`
-                WHERE `update` IS NOT NULL AND `update_destructive` IS NULL
-            ')->fetchFirstColumn();
-
-            $activeMigrations = $this->container->getParameter('migration.active');
-
-            $activeNonDestructiveMigrations = array_intersect($activeMigrations, $nonDestructiveMigrations);
-
-            foreach ($activeNonDestructiveMigrations as $migration) {
-                $connectionVariables[] = sprintf(
-                    'SET %s = TRUE',
-                    sprintf(MigrationStep::MIGRATION_VARIABLE_FORMAT, $migration)
-                );
-            }
-            // end deprecated
 
             if (empty($connectionVariables)) {
                 return;
             }
             $connection->executeQuery(implode(';', $connectionVariables));
-        } catch (\Throwable $_) {
+        } catch (\Throwable) {
         }
     }
 

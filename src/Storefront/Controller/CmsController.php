@@ -9,14 +9,11 @@ use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractProductDetailRoute
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\AbstractFindProductVariantRoute;
 use Shopware\Core\Content\Product\SalesChannel\Listing\AbstractProductListingRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Event\SwitchBuyBoxVariantEvent;
-use Shopware\Storefront\Framework\Cache\Annotation\HttpCache;
 use Shopware\Storefront\Page\Cms\CmsPageLoadedHook;
-use Shopware\Storefront\Page\Product\Configurator\ProductCombinationFinder;
 use Shopware\Storefront\Page\Product\Review\ProductReviewLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -26,61 +23,20 @@ use Symfony\Component\HttpKernel\EventListener\AbstractSessionListener;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route(defaults={"_routeScope"={"storefront"}})
- *
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
  */
+#[Route(defaults: ['_routeScope' => ['storefront']])]
+#[Package('content')]
 class CmsController extends StorefrontController
 {
-    private AbstractCmsRoute $cmsRoute;
-
-    private AbstractCategoryRoute $categoryRoute;
-
-    private AbstractProductListingRoute $listingRoute;
-
-    private AbstractProductDetailRoute $productRoute;
-
-    private ProductReviewLoader $productReviewLoader;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private AbstractFindProductVariantRoute $findVariantRoute;
-
-    /**
-     * @deprecated tag:v6.5.0 - will be removed
-     */
-    private ProductCombinationFinder $productCombinationFinder;
-
     /**
      * @internal
      */
-    public function __construct(
-        AbstractCmsRoute $cmsRoute,
-        AbstractCategoryRoute $categoryRoute,
-        AbstractProductListingRoute $listingRoute,
-        AbstractProductDetailRoute $productRoute,
-        ProductReviewLoader $productReviewLoader,
-        AbstractFindProductVariantRoute $findVariantRoute,
-        ProductCombinationFinder $productCombinationFinder,
-        EventDispatcherInterface $eventDispatcher
-    ) {
-        $this->cmsRoute = $cmsRoute;
-        $this->categoryRoute = $categoryRoute;
-        $this->listingRoute = $listingRoute;
-        $this->productRoute = $productRoute;
-        $this->productReviewLoader = $productReviewLoader;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->findVariantRoute = $findVariantRoute;
-        $this->productCombinationFinder = $productCombinationFinder;
+    public function __construct(private readonly AbstractCmsRoute $cmsRoute, private readonly AbstractCategoryRoute $categoryRoute, private readonly AbstractProductListingRoute $listingRoute, private readonly AbstractProductDetailRoute $productRoute, private readonly ProductReviewLoader $productReviewLoader, private readonly AbstractFindProductVariantRoute $findVariantRoute, private readonly EventDispatcherInterface $eventDispatcher)
+    {
     }
 
-    /**
-     * @Since("6.0.0.0")
-     * Route for cms data (used in XmlHttpRequest)
-     *
-     * @HttpCache()
-     * @Route("/widgets/cms/{id}", name="frontend.cms.page", methods={"GET", "POST"}, defaults={"id"=null, "XmlHttpRequest"=true})
-     */
+    #[Route(path: '/widgets/cms/{id}', name: 'frontend.cms.page', defaults: ['id' => null, 'XmlHttpRequest' => true, '_httpCache' => true], methods: ['GET', 'POST'])]
     public function page(?string $id, Request $request, SalesChannelContext $salesChannelContext): Response
     {
         if (!$id) {
@@ -98,12 +54,9 @@ class CmsController extends StorefrontController
     }
 
     /**
-     * @Since("6.0.0.0")
-     * Route to load a cms page which assigned to the provided navigation id.
      * Navigation id is required to load the slot config for the navigation
-     *
-     * @Route("/widgets/cms/navigation/{navigationId}", name="frontend.cms.navigation.page", methods={"GET", "POST"}, defaults={"navigationId"=null, "XmlHttpRequest"=true})
      */
+    #[Route(path: '/widgets/cms/navigation/{navigationId}', name: 'frontend.cms.navigation.page', defaults: ['navigationId' => null, 'XmlHttpRequest' => true], methods: ['GET', 'POST'])]
     public function category(?string $navigationId, Request $request, SalesChannelContext $salesChannelContext): Response
     {
         if (!$navigationId) {
@@ -126,13 +79,9 @@ class CmsController extends StorefrontController
     }
 
     /**
-     * @Since("6.0.0.0")
-     * @HttpCache()
-     *
      * Route to load the listing filters
-     *
-     * @Route("/widgets/cms/navigation/{navigationId}/filter", name="frontend.cms.navigation.filter", methods={"GET", "POST"}, defaults={"XmlHttpRequest"=true, "_routeScope"={"storefront"}})
      */
+    #[Route(path: '/widgets/cms/navigation/{navigationId}/filter', name: 'frontend.cms.navigation.filter', defaults: ['XmlHttpRequest' => true, '_routeScope' => ['storefront'], '_httpCache' => true], methods: ['GET', 'POST'])]
     public function filter(string $navigationId, Request $request, SalesChannelContext $context): Response
     {
         // Allows to fetch only aggregations over the gateway.
@@ -158,45 +107,30 @@ class CmsController extends StorefrontController
     }
 
     /**
-     * @Since("6.4.0.0")
-     * @HttpCache()
-     *
      * Route to load the cms element buy box product config which assigned to the provided product id.
      * Product id is required to load the slot config for the buy box
-     *
-     * @Route("/widgets/cms/buybox/{productId}/switch", name="frontend.cms.buybox.switch", methods={"GET"}, defaults={"productId"=null, "XmlHttpRequest"=true, "_routeScope"={"storefront"}})
      */
+    #[Route(path: '/widgets/cms/buybox/{productId}/switch', name: 'frontend.cms.buybox.switch', defaults: ['productId' => null, 'XmlHttpRequest' => true, '_routeScope' => ['storefront'], '_httpCache' => true], methods: ['GET'])]
     public function switchBuyBoxVariant(string $productId, Request $request, SalesChannelContext $context): Response
     {
         /** @var string $elementId */
         $elementId = $request->query->get('elementId');
 
-        /** @var array|null $options */
+        /** @var string[]|null $options */
         $options = json_decode($request->query->get('options', ''), true);
 
-        if (Feature::isActive('v6.5.0.0')) {
-            $variantResponse = $this->findVariantRoute->load(
-                $productId,
-                new Request(
-                    [
-                        'switchedGroup' => $request->query->get('switched'),
-                        'options' => $options ?? [],
-                    ]
-                ),
-                $context
-            );
+        $variantResponse = $this->findVariantRoute->load(
+            $productId,
+            new Request(
+                [
+                    'switchedGroup' => $request->query->get('switched'),
+                    'options' => $options ?? [],
+                ]
+            ),
+            $context
+        );
 
-            $newProductId = $variantResponse->getFoundCombination()->getVariantId();
-        } else {
-            $finderResponse = $this->productCombinationFinder->find(
-                $productId,
-                $request->query->get('switched'),
-                $options ?? [],
-                $context
-            );
-
-            $newProductId = $finderResponse->getVariantId();
-        }
+        $newProductId = $variantResponse->getFoundCombination()->getVariantId();
 
         $result = $this->productRoute->load($newProductId, $request, $context, new Criteria());
         $product = $result->getProduct();

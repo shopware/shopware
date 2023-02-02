@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\Util;
 
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 class MemorySizeCalculator
 {
     /**

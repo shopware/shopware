@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemTaxationRule;
 use Shopware\Core\Checkout\Test\Cart\Rule\Helper\CartRuleHelperTrait;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -17,6 +18,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * @internal
  * @group rules
  */
+#[Package('business-ops')]
 class LineItemTaxationRuleTest extends TestCase
 {
     use CartRuleHelperTrait;
@@ -65,6 +67,9 @@ class LineItemTaxationRuleTest extends TestCase
         static::assertSame($expected, $match);
     }
 
+    /**
+     * @return array<string, array<array<string>|string|bool>>
+     */
     public function getLineItemScopeTestData(): array
     {
         return [
@@ -104,6 +109,9 @@ class LineItemTaxationRuleTest extends TestCase
         static::assertSame($expected, $match);
     }
 
+    /**
+     * @return array<string, array<array<string>|string|bool>>
+     */
     public function getCartRuleScopeTestData(): array
     {
         return [

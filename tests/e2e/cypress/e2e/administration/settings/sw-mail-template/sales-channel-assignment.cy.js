@@ -2,29 +2,26 @@
 
 describe('Mail header & footer template: Sales Channel assignment', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
-            });
-
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/mail-template`,
-            method: 'POST'
+            method: 'POST',
         }).as('getData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/mail-header-footer`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveTemplate');
+
+        cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
     });
 
     it('@settings: Assign sales channel', { tags: ['pa-business-ops'] }, () => {
         cy.get('.sw-dashboard-index__welcome-text').should('be.visible');
         cy.clickMainMenuItem({
             targetPath: '#/sw/settings/index',
-            mainMenuId: 'sw-settings'
+            mainMenuId: 'sw-settings',
         });
 
         cy.get('#sw-mail-template').click();
@@ -63,7 +60,7 @@ describe('Mail header & footer template: Sales Channel assignment', () => {
         cy.get('.sw-dashboard-index__welcome-text').should('be.visible');
         cy.clickMainMenuItem({
             targetPath: '#/sw/settings/index',
-            mainMenuId: 'sw-settings'
+            mainMenuId: 'sw-settings',
         });
 
         cy.get('#sw-mail-template').click();
@@ -130,7 +127,7 @@ describe('Mail header & footer template: Sales Channel assignment', () => {
         cy.get('.sw-dashboard-index__welcome-text').should('be.visible');
         cy.clickMainMenuItem({
             targetPath: '#/sw/settings/index',
-            mainMenuId: 'sw-settings'
+            mainMenuId: 'sw-settings',
         });
 
         cy.get('#sw-mail-template').click();

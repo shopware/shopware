@@ -4,9 +4,11 @@ namespace Shopware\Core\Checkout\DependencyInjection\CompilerPass;
 
 use Shopware\Core\Checkout\Cart\CartPersister;
 use Shopware\Core\Checkout\Cart\RedisCartPersister;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
+#[Package('core')]
 class CartRedisCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void

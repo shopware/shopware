@@ -39,7 +39,8 @@
         </service>
 
         <service id="Shopware\Core\Checkout\Shipping\SalesChannel\SortedShippingMethodRoute" decorates="Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute" decoration-priority="-2000" public="true">
-            <argument type="service" id="Shopware\Core\Checkout\Shipping\SalesChannel\SortedShippingMethodRoute.inner"/>
+            <argument type="service" id=".inner"/>
+            <argument type="service" id="Shopware\Core\Framework\Script\Execution\ScriptExecutor"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Shipping\Validator\ShippingMethodValidator">

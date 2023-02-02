@@ -3,14 +3,10 @@
 import SettingsPageObject from '../../../../support/pages/module/sw-settings.page-object';
 
 describe('Flow builder: flow detail page', () => {
-    // eslint-disable-next-line no-undef
     beforeEach(() => {
-        // Clean previous state and prepare Administration
-        cy.loginViaApi().then(() => {
-                return cy.createProductFixture();
-            }).then(() => {
-                return cy.createCustomerFixture();
-            })
+        cy.createProductFixture().then(() => {
+            return cy.createCustomerFixture();
+        })
             .then(() => {
                 cy.visit(`${Cypress.env('admin')}#/sw/flow/index`);
                 cy.get('.sw-skeleton').should('not.exist');
@@ -22,7 +18,7 @@ describe('Flow builder: flow detail page', () => {
         const page = new SettingsPageObject();
         cy.intercept({
             url: `${Cypress.env('apiPath')}/flow`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         cy.get(`${page.elements.dataGridRow}--0 a`).click();
@@ -46,7 +42,7 @@ describe('Flow builder: flow detail page', () => {
         cy.get('.sw-flow-leave-page-modal__stay-on-page').click();
 
         // custom active checkbox
-        cy.get('.sw-flow-detail-general__general-active input[type=checkbox]').check()
+        cy.get('.sw-flow-detail-general__general-active input[type=checkbox]').check();
         cy.get(page.elements.smartBarBack).click();
         cy.get('.sw-flow-leave-page-modal').should('be.visible');
         cy.get('.sw-flow-leave-page-modal__leave-page').click();

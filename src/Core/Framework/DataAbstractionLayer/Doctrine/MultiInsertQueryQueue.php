@@ -5,51 +5,39 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Doctrine;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('core')]
 class MultiInsertQueryQueue
 {
     /**
-     * @var array[]
+     * @var array<string, array{data: array<string, mixed>, columns: list<string>, }>
      */
-    private $inserts = [];
-
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private array $inserts = [];
 
     /**
      * @var int<1, max>
      */
-    private $chunkSize;
-
-    /**
-     * @var bool
-     */
-    private $ignoreErrors;
-
-    /**
-     * @var bool
-     */
-    private $useReplace;
+    private readonly int $chunkSize;
 
     public function __construct(
-        Connection $connection,
+        private readonly Connection $connection,
         int $chunkSize = 250,
-        bool $ignoreErrors = false,
-        bool $useReplace = false
+        private readonly bool $ignoreErrors = false,
+        private readonly bool $useReplace = false
     ) {
         if ($chunkSize < 1) {
             throw new \InvalidArgumentException(
                 sprintf('Parameter $chunkSize needs to be a positive integer starting with 1, "%d" given', $chunkSize)
             );
         }
-        $this->connection = $connection;
         $this->chunkSize = $chunkSize;
-        $this->ignoreErrors = $ignoreErrors;
-        $this->useReplace = $useReplace;
     }
 
+    /**
+     * @param array<string, mixed>      $data
+     * @param array<string, ParameterType::*>|null $types
+     */
     public function addInsert(string $table, array $data, ?array $types = null): void
     {
         $columns = [];
@@ -111,7 +99,7 @@ class MultiInsertQueryQueue
             $columns = $this->prepareColumns($rows);
             $data = $this->prepareValues($columns, $rows);
 
-            $columns = array_map([EntityDefinitionQueryHelper::class, 'escape'], $columns);
+            $columns = array_map(EntityDefinitionQueryHelper::escape(...), $columns);
 
             $chunks = array_chunk($data, $this->chunkSize);
             foreach ($chunks as $chunk) {
@@ -142,6 +130,7 @@ class MultiInsertQueryQueue
     private function prepareValues(array $columns, array $rows): array
     {
         $stackedValues = [];
+        /** @var array<string, mixed> $defaults */
         $defaults = array_combine(
             $columns,
             array_fill(0, \count($columns), 'DEFAULT')
@@ -149,6 +138,14 @@ class MultiInsertQueryQueue
         foreach ($rows as $row) {
             $data = $row['data'];
             $values = $defaults;
+            if (!\is_array($values)) {
+                continue;
+            }
+
+            /**
+             * @var string $key
+             * @var mixed $value
+             */
             foreach ($data as $key => $value) {
                 $values[$key] = $value;
             }

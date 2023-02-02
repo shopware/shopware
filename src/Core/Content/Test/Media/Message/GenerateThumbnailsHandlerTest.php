@@ -11,7 +11,7 @@ use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
@@ -29,19 +29,16 @@ class GenerateThumbnailsHandlerTest extends TestCase
     private $urlGenerator;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $mediaRepository;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $thumbnailRepository;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     /**
      * @var GenerateThumbnailsHandler
@@ -79,7 +76,7 @@ class GenerateThumbnailsHandlerTest extends TestCase
         /** @var MediaEntity $media */
         $media = $this->mediaRepository->search(new Criteria([$media->getId()]), $this->context)->get($media->getId());
 
-        $this->getPublicFilesystem()->putStream(
+        $this->getPublicFilesystem()->writeStream(
             $this->urlGenerator->getRelativeMediaUrl($media),
             fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'rb')
         );
@@ -95,9 +92,11 @@ class GenerateThumbnailsHandlerTest extends TestCase
 
         /** @var MediaEntity $media */
         $media = $this->mediaRepository->search($criteria, $this->context)->get($media->getId());
-        static::assertEquals(2, $media->getThumbnails()->count());
+        $mediaThumbnailCollection = $media->getThumbnails();
+        static::assertNotNull($mediaThumbnailCollection);
+        static::assertEquals(2, $mediaThumbnailCollection->count());
 
-        foreach ($media->getThumbnails() as $thumbnail) {
+        foreach ($mediaThumbnailCollection as $thumbnail) {
             static::assertTrue(
                 ($thumbnail->getWidth() === 300 && $thumbnail->getHeight() === 300)
                 || ($thumbnail->getWidth() === 150 && $thumbnail->getHeight() === 150)
@@ -127,7 +126,7 @@ class GenerateThumbnailsHandlerTest extends TestCase
         /** @var MediaEntity $media */
         $media = $this->mediaRepository->search(new Criteria([$media->getId()]), $this->context)->get($media->getId());
 
-        $this->getPublicFilesystem()->putStream(
+        $this->getPublicFilesystem()->writeStream(
             $this->urlGenerator->getRelativeMediaUrl($media),
             fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'rb')
         );
@@ -144,9 +143,11 @@ class GenerateThumbnailsHandlerTest extends TestCase
 
         /** @var MediaEntity $media */
         $media = $this->mediaRepository->search($criteria, $this->context)->get($media->getId());
-        static::assertEquals(2, $media->getThumbnails()->count());
+        $mediaThumbnailCollection = $media->getThumbnails();
+        static::assertNotNull($mediaThumbnailCollection);
+        static::assertEquals(2, $mediaThumbnailCollection->count());
 
-        foreach ($media->getThumbnails() as $thumbnail) {
+        foreach ($mediaThumbnailCollection as $thumbnail) {
             static::assertTrue(
                 ($thumbnail->getWidth() === 300 && $thumbnail->getHeight() === 300)
                 || ($thumbnail->getWidth() === 150 && $thumbnail->getHeight() === 150)
@@ -197,13 +198,9 @@ class GenerateThumbnailsHandlerTest extends TestCase
 
         $consecutiveUpdateMessageParams = [
             // For UpdateMessage 1
-            ...array_map(function ($entity) {
-                return [$entity, $this->context, true];
-            }, array_values($testEntities2->getElements())),
+            ...array_map(fn ($entity) => [$entity, $this->context, true], array_values($testEntities2->getElements())),
             // For UpdateMessage 2
-            ...array_map(function ($entity) {
-                return [$entity, $this->context, false];
-            }, array_values($testEntities3->getElements())),
+            ...array_map(fn ($entity) => [$entity, $this->context, false], array_values($testEntities3->getElements())),
         ];
 
         $thumbnailServiceMock->expects(static::exactly($testEntities2->count() + $testEntities3->count()))
@@ -211,8 +208,8 @@ class GenerateThumbnailsHandlerTest extends TestCase
             ->withConsecutive(...$consecutiveUpdateMessageParams)
             ->willReturn(1);
 
-        $handler->handle($generateMessage);
-        $handler->handle($updateMessage1);
-        $handler->handle($updateMessage2);
+        $handler->__invoke($generateMessage);
+        $handler->__invoke($updateMessage1);
+        $handler->__invoke($updateMessage2);
     }
 }

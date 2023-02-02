@@ -97,7 +97,7 @@
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_media_modal_v2_tab_content_upload %}
-                    <template
+                    <div
                         v-if="active === tabNameUpload"
                         class="sw-media-modal-v2__uploads-content"
                     >
@@ -144,7 +144,7 @@
                             />
                         </sw-media-grid>
                         {% endblock %}
-                    </template>
+                    </div>
                     {% endblock %}
                 </div>
             </template>

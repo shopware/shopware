@@ -1,5 +1,8 @@
 const { Filter } = Shopware;
 
+/**
+ * @package content
+ */
 Filter.register('thumbnailSize', (value) => {
     if (!value || !(value.getEntityName() === 'media_thumbnail_size')) {
         return '';

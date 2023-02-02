@@ -11,8 +11,9 @@ use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -27,74 +28,36 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('inventory')]
 class ProductVisibilityTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var string
-     */
-    private $salesChannelId1;
+    private string $salesChannelId1;
 
-    /**
-     * @var string
-     */
-    private $salesChannelId2;
+    private string $salesChannelId2;
 
-    /**
-     * @var string
-     */
-    private $productId1;
+    private string $productId1;
 
-    /**
-     * @var string
-     */
-    private $productId2;
+    private string $productId2;
 
-    /**
-     * @var string
-     */
-    private $productId3;
+    private string $productId3;
 
-    /**
-     * @var string
-     */
-    private $productId4;
+    private string $productId4;
 
-    /**
-     * @var SearchPageLoader
-     */
-    private $searchPageLoader;
+    private SearchPageLoader $searchPageLoader;
 
-    /**
-     * @var SuggestPageLoader
-     */
-    private $suggestPageLoader;
+    private SuggestPageLoader $suggestPageLoader;
 
-    /**
-     * @var AbstractSalesChannelContextFactory
-     */
-    private $contextFactory;
+    private AbstractSalesChannelContextFactory $contextFactory;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $productRepository;
+    private EntityRepository $productRepository;
 
-    /**
-     * @var ProductPageLoader
-     */
-    private $productPageLoader;
+    private ProductPageLoader $productPageLoader;
 
-    /**
-     * @var string
-     */
-    private $categoryId;
+    private string $categoryId;
 
-    /**
-     * @var SearchKeywordUpdater
-     */
-    private $searchKeywordUpdater;
+    private SearchKeywordUpdater $searchKeywordUpdater;
 
     private IdsCollection $ids;
 
@@ -279,7 +242,7 @@ class ProductVisibilityTest extends TestCase
         $id = $this->ids->create($key);
 
         $snippetSetId = (string) $this->getContainer()->get(Connection::class)
-            ->fetchColumn('SELECT id FROM snippet_set LIMIT 1');
+            ->fetchOne('SELECT id FROM snippet_set LIMIT 1');
 
         $data = [
             'id' => $id,

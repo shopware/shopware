@@ -16,7 +16,6 @@ use Shopware\Core\Framework\App\Manifest\Xml\Permissions;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Test\App\GuzzleTestClientBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
 use Shopware\Core\Framework\Webhook\WebhookDispatcher;
@@ -24,6 +23,7 @@ use Shopware\Core\Kernel;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
+use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
@@ -251,7 +251,7 @@ class WebhookDispatcherTest extends TestCase
         $body = $request->getBody()->getContents();
         static::assertJson($body);
 
-        $data = json_decode($body, true);
+        $data = json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
         static::assertEquals('Max', $data['data']['payload']['customer']['firstName']);
         static::assertEquals('Mustermann', $data['data']['payload']['customer']['lastName']);
         static::assertArrayHasKey('timestamp', $data);
@@ -377,7 +377,7 @@ class WebhookDispatcherTest extends TestCase
                 'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
                 'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => 'test@gmail.com',
-                'password' => '123123',
+                'password' => 'shopware',
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
                 'salutationId' => $this->getValidSalutationId(),

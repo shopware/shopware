@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Customer\Rule;
 
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
@@ -12,31 +13,21 @@ use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
+#[Package('business-ops')]
 class CustomerCustomFieldRule extends Rule
 {
-    protected string $operator;
+    final public const RULE_NAME = 'customerCustomField';
 
-    protected array $renderedField;
-
-    /**
-     * @var string|int|float|bool|null
-     */
-    protected $renderedFieldValue;
+    protected string|int|bool|null|float $renderedFieldValue = null;
 
     /**
+     * @param array<string, string> $renderedField
+     *
      * @internal
      */
-    public function __construct(string $operator = self::OPERATOR_EQ, array $renderedField = [])
+    public function __construct(protected string $operator = self::OPERATOR_EQ, protected array $renderedField = [])
     {
         parent::__construct();
-
-        $this->operator = $operator;
-        $this->renderedField = $renderedField;
-    }
-
-    public function getName(): string
-    {
-        return 'customerCustomField';
     }
 
     /**
@@ -97,22 +88,15 @@ class CustomerCustomFieldRule extends Rule
             return false;
         }
 
-        switch ($this->operator) {
-            case self::OPERATOR_NEQ:
-                return $actual !== $expected;
-            case self::OPERATOR_GTE:
-                return $actual >= $expected;
-            case self::OPERATOR_LTE:
-                return $actual <= $expected;
-            case self::OPERATOR_EQ:
-                return $actual === $expected;
-            case self::OPERATOR_GT:
-                return $actual > $expected;
-            case self::OPERATOR_LT:
-                return $actual < $expected;
-            default:
-                throw new UnsupportedOperatorException($this->operator, self::class);
-        }
+        return match ($this->operator) {
+            self::OPERATOR_NEQ => $actual !== $expected,
+            self::OPERATOR_GTE => $actual >= $expected,
+            self::OPERATOR_LTE => $actual <= $expected,
+            self::OPERATOR_EQ => $actual === $expected,
+            self::OPERATOR_GT => $actual > $expected,
+            self::OPERATOR_LT => $actual < $expected,
+            default => throw new UnsupportedOperatorException($this->operator, self::class),
+        };
     }
 
     /**
@@ -134,9 +118,10 @@ class CustomerCustomFieldRule extends Rule
     }
 
     /**
-     * @return string|int|float|bool|null
+     * @param array<string, mixed> $customFields
+     * @param array<string, string> $renderedField
      */
-    private function getValue(array $customFields, array $renderedField)
+    private function getValue(array $customFields, array $renderedField): float|bool|int|string|null
     {
         if ($this->isSwitchOrBoolField($renderedField)) {
             if (!empty($customFields) && \array_key_exists($this->renderedField['name'], $customFields)) {
@@ -155,10 +140,9 @@ class CustomerCustomFieldRule extends Rule
 
     /**
      * @param string|int|float|bool|null $renderedFieldValue
-     *
-     * @return string|int|float|bool|null
+     * @param array<string, string> $renderedField
      */
-    private function getExpectedValue($renderedFieldValue, array $renderedField)
+    private function getExpectedValue($renderedFieldValue, array $renderedField): float|bool|int|string|null
     {
         if ($this->isSwitchOrBoolField($renderedField) && \is_string($renderedFieldValue)) {
             return filter_var($renderedFieldValue, \FILTER_VALIDATE_BOOLEAN);

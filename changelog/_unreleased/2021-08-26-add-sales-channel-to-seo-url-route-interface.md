@@ -1,7 +1,6 @@
 ---
 title: Add sales channel to seo url route interface
 issue: NEXT-13410
-flag: FEATURE_NEXT_13410
 ---
 # Core
 * Changed `\Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteInterface::prepareCriteria` to accept in future versions SalesChannelEntity as second required parameter

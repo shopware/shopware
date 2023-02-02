@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Test;
 use Composer\InstalledVersions;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Kernel;
 use Symfony\Component\Finder\Finder;
@@ -12,6 +13,7 @@ use Symfony\Component\Finder\Finder;
 /**
  * @internal
  */
+#[Package('core')]
 class DeprecatedTagTest extends TestCase
 {
     /**
@@ -177,22 +179,33 @@ class DeprecatedTagTest extends TestCase
             $manifestVersions[] = DeprecationTagTester::getVersionFromManifestFileName($file->getFilename());
         }
 
-        return $this->getHighestVersion($manifestVersions);
+        return $this->getCurrentManifestVersion($manifestVersions);
     }
 
     /**
      * @param array<string|null> $versions
      */
-    private function getHighestVersion(array $versions): string
+    private function getCurrentManifestVersion(array $versions): string
     {
         $versions = array_filter($versions);
         if (empty($versions)) {
             throw new \LogicException('no version applied');
         }
 
+        if (\count($versions) > 2) {
+            throw new \LogicException(
+                sprintf(
+                    'There should only be one live and one deprecated version at the same time. Found Manifest schema versions: %s',
+                    print_r($versions, true)
+                )
+            );
+        }
+
         $highest = null;
         foreach ($versions as $version) {
-            if ($highest === null || version_compare($highest, $version) === -1) {
+            // we have to search for the lowest version here
+            // because this is the already deprecated but still used version of the manifest schema
+            if ($highest === null || version_compare($highest, $version) === 1) {
                 $highest = $version;
             }
         }

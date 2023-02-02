@@ -4,7 +4,7 @@ namespace Shopware\Core\Checkout\Customer\Rule;
 
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleConfig;
@@ -12,31 +12,19 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\Tag\TagDefinition;
 
+#[Package('business-ops')]
 class CustomerTagRule extends Rule
 {
-    /**
-     * @var string
-     */
-    protected $operator;
-
-    /**
-     * @var array<string>|null
-     */
-    protected $identifiers;
+    final public const RULE_NAME = 'customerTag';
 
     /**
      * @internal
+     *
+     * @param list<string>|null $identifiers
      */
-    public function __construct(string $operator = self::OPERATOR_EQ, ?array $identifiers = null)
+    public function __construct(protected string $operator = self::OPERATOR_EQ, protected ?array $identifiers = null)
     {
         parent::__construct();
-        $this->operator = $operator;
-        $this->identifiers = $identifiers;
-    }
-
-    public function getName(): string
-    {
-        return 'customerTag';
     }
 
     public function match(RuleScope $scope): bool
@@ -46,10 +34,6 @@ class CustomerTagRule extends Rule
         }
 
         if (!$customer = $scope->getSalesChannelContext()->getCustomer()) {
-            if (!Feature::isActive('v6.5.0.0')) {
-                return false;
-            }
-
             return RuleComparison::isNegativeOperator($this->operator);
         }
 
@@ -78,6 +62,9 @@ class CustomerTagRule extends Rule
             ->entitySelectField('identifiers', TagDefinition::ENTITY_NAME, true);
     }
 
+    /**
+     * @return list<string>
+     */
     private function extractTagIds(CustomerEntity $customer): array
     {
         $tagIds = $customer->getTagIds();

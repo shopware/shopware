@@ -1,11 +1,15 @@
+/*
+ * @package inventory
+ */
+
 import template from './sw-product-variants-price-field.html.twig';
 import './sw-product-variants-price-field.scss';
 
-const { Component, Application } = Shopware;
+const { Application } = Shopware;
 const utils = Shopware.Utils;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-product-variants-price-field', {
+export default {
     template,
 
     props: {
@@ -26,13 +30,6 @@ Component.register('sw-product-variants-price-field', {
         },
 
         readonly: {
-            type: Boolean,
-            required: false,
-            default: false,
-        },
-
-        // @deprecated tag:v6.5.0 - Will be removed
-        onlyPositive: {
             type: Boolean,
             required: false,
             default: false,
@@ -135,7 +132,7 @@ Component.register('sw-product-variants-price-field', {
 
             return new Promise((resolve) => {
                 if (!value || typeof value !== 'number' || !this.price[outputType] || !this.taxRate || !outputType) {
-                    return null;
+                    return;
                 }
 
                 this.calculatePriceApiService.calculatePrice({
@@ -147,8 +144,7 @@ Component.register('sw-product-variants-price-field', {
                     resolve(data.calculatedTaxes[0].tax);
                     this.$emit('price-calculate', false);
                 });
-                return true;
             });
         },
     },
-});
+};

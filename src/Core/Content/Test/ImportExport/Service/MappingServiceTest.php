@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\Test\ImportExport\Service;
 
-use League\Flysystem\FilesystemInterface;
+use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
 use Shopware\Core\Content\ImportExport\Exception\FileEmptyException;
@@ -13,27 +13,30 @@ use Shopware\Core\Content\ImportExport\Service\FileService;
 use Shopware\Core\Content\ImportExport\Service\MappingService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use const PHP_EOL;
 
 /**
  * @internal
  */
+#[Package('system-settings')]
 class MappingServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
     private MappingService $mappingService;
 
-    private EntityRepositoryInterface $profileRepository;
+    private EntityRepository $profileRepository;
 
-    private EntityRepositoryInterface $fileRepository;
+    private EntityRepository $fileRepository;
 
-    private FilesystemInterface $fileSystem;
+    private FilesystemOperator $fileSystem;
 
     protected function setUp(): void
     {
@@ -116,7 +119,8 @@ class MappingServiceTest extends TestCase
         $filePath = tempnam(sys_get_temp_dir(), '');
         if (!isset($data['emptyFile']) || $data['emptyFile'] === false) {
             $file = fopen($filePath, 'wb');
-            fwrite($file, $data['csvHeader']);
+            static::assertIsResource($file);
+            fwrite($file, (string) $data['csvHeader']);
             fclose($file);
         }
         $uploadedFile = new UploadedFile($filePath, 'test', $data['fileType'] ?? 'text/csv');
@@ -132,13 +136,13 @@ class MappingServiceTest extends TestCase
                 throw $exception;
             }
 
-            static::assertSame($data['expectedErrorClass'], \get_class($exception));
+            static::assertSame($data['expectedErrorClass'], $exception::class);
 
             return;
         }
 
         $testCase = 'test case data: ' . var_export($data, true);
-        static::assertSame(\count($data['expectedMappings']), $guessedMapping->count(), $testCase);
+        static::assertSame(is_countable($data['expectedMappings']) ? \count($data['expectedMappings']) : 0, $guessedMapping->count(), $testCase);
 
         foreach ($data['expectedMappings'] as $mappedKey => $key) {
             $mapping = $guessedMapping->getMapped($mappedKey);
@@ -316,7 +320,7 @@ class MappingServiceTest extends TestCase
             [
                 'expectedErrorClass' => InvalidFileContentException::class,
                 'sourceEntity' => 'product',
-                'csvHeader' => '' . \PHP_EOL,
+                'csvHeader' => '' . PHP_EOL,
             ],
         ];
 

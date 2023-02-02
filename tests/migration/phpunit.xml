@@ -23,7 +23,7 @@
 
         <env name="SHELL_VERBOSITY" value="-1" />
         <env name="SYMFONY_DEPRECATIONS_HELPER" value="disabled" />
-        <server name="MAILER_URL" value="null://localhost"/>
+        <server name="MAILER_DSN" value="null://localhost"/>
         <server name="HTTPS" value="off"/>
         <!--To see the full stackTrace of a Deprecation set the value to a regex matching the deprecation warning-->
         <!--https://symfony.com/doc/current/components/phpunit_bridge.html#display-the-full-stack-trace-->

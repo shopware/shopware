@@ -18,9 +18,10 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\TestDefaults;
@@ -29,17 +30,18 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('system-settings')]
 class ProductSerializerTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private EntityRepositoryInterface $visibilityRepository;
+    private EntityRepository $visibilityRepository;
 
-    private EntityRepositoryInterface $salesChannelRepository;
+    private EntityRepository $salesChannelRepository;
 
-    private EntityRepositoryInterface $productMediaRepository;
+    private EntityRepository $productMediaRepository;
 
-    private EntityRepositoryInterface $productConfiguratorSettingRepository;
+    private EntityRepository $productConfiguratorSettingRepository;
 
     public function setUp(): void
     {
@@ -308,7 +310,7 @@ class ProductSerializerTest extends TestCase
             ],
         ];
 
-        /** @var EntityRepositoryInterface $productRepository */
+        /** @var EntityRepository $productRepository */
         $productRepository = $this->getContainer()->get('product.repository');
         $productRepository->create([$product], Context::createDefaultContext());
 

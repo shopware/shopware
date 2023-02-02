@@ -1,5 +1,8 @@
 <?php declare(strict_types=1);
 
+/**
+ * @package system-settings
+ */
 return [
     'title' => 'Shopware 6 - update script',
     'meta_text' => '<strong>Shopware update:</strong>',
@@ -62,6 +65,6 @@ return [
     'done_backend' => 'Open Administration',
     'deleted_files' => '&nbsp;deleted files from %d directories',
     'cache_clear_error' => 'An error occurred. Please delete the cache manually after finishing the update.',
-
     'finish_update' => 'Finish update',
+    'version' => 'Version',
 ];

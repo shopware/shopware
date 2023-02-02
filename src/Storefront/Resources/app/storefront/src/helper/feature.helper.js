@@ -1,3 +1,6 @@
+/**
+ * @package storefront
+ */
 class FeatureSingleton {
 
     constructor() {

@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Framework\App\Manifest\Xml\CustomFieldTypes;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
  */
+#[Package('core')]
 class SingleEntitySelectField extends CustomFieldType
 {
     protected const TRANSLATABLE_FIELDS = ['label', 'help-text', 'placeholder'];
@@ -14,7 +16,7 @@ class SingleEntitySelectField extends CustomFieldType
     protected const COMPONENT_NAME = 'sw-entity-single-select';
 
     /**
-     * @var array
+     * @var string[]
      */
     protected $placeholder = [];
 
@@ -23,6 +25,14 @@ class SingleEntitySelectField extends CustomFieldType
      */
     protected $entity;
 
+    /**
+     * @var string|null
+     */
+    protected $labelProperty;
+
+    /**
+     * @param array<string, mixed> $data
+     */
     protected function __construct(array $data)
     {
         foreach ($data as $property => $value) {
@@ -35,6 +45,9 @@ class SingleEntitySelectField extends CustomFieldType
         return new self(self::parse($element, self::TRANSLATABLE_FIELDS));
     }
 
+    /**
+     * @return string[]
+     */
     public function getPlaceholder(): array
     {
         return $this->placeholder;
@@ -45,9 +58,17 @@ class SingleEntitySelectField extends CustomFieldType
         return $this->entity;
     }
 
+    public function getLabelProperty(): ?string
+    {
+        return $this->labelProperty;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
     protected function toEntityArray(): array
     {
-        return [
+        $entityArray = [
             'type' => CustomFieldTypes::ENTITY,
             'config' => [
                 'entity' => $this->entity,
@@ -57,5 +78,11 @@ class SingleEntitySelectField extends CustomFieldType
                 'customFieldType' => 'select',
             ],
         ];
+
+        if ($this->labelProperty !== null) {
+            $entityArray['config']['labelProperty'] = $this->labelProperty;
+        }
+
+        return $entityArray;
     }
 }

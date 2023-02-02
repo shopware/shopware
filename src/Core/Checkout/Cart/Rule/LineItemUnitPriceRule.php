@@ -3,7 +3,7 @@
 namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
@@ -11,20 +11,19 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
+#[Package('business-ops')]
 class LineItemUnitPriceRule extends Rule
 {
-    protected float $amount;
+    final public const RULE_NAME = 'cartLineItemUnitPrice';
 
-    protected string $operator;
+    protected float $amount;
 
     /**
      * @internal
      */
-    public function __construct(string $operator = self::OPERATOR_EQ, ?float $amount = null)
+    public function __construct(protected string $operator = self::OPERATOR_EQ, ?float $amount = null)
     {
         parent::__construct();
-
-        $this->operator = $operator;
         $this->amount = (float) $amount;
     }
 
@@ -41,7 +40,7 @@ class LineItemUnitPriceRule extends Rule
             return false;
         }
 
-        foreach ($scope->getCart()->getLineItems()->getFlat() as $lineItem) {
+        foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
             if ($this->lineItemMatches($lineItem)) {
                 return true;
             }
@@ -58,11 +57,6 @@ class LineItemUnitPriceRule extends Rule
         ];
     }
 
-    public function getName(): string
-    {
-        return 'cartLineItemUnitPrice';
-    }
-
     public function getConfig(): RuleConfig
     {
         return (new RuleConfig())
@@ -74,10 +68,6 @@ class LineItemUnitPriceRule extends Rule
     {
         $lineItemPrice = $lineItem->getPrice();
         if ($lineItemPrice === null) {
-            if (!Feature::isActive('v6.5.0.0')) {
-                return false;
-            }
-
             return RuleComparison::isNegativeOperator($this->operator);
         }
 

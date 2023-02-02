@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\BreadcrumbField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -33,8 +34,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+#[Package('core')]
 class OpenApiDefinitionSchemaBuilder
 {
     /**
@@ -47,6 +50,7 @@ class OpenApiDefinitionSchemaBuilder
         bool $onlyFlat = false,
         string $apiType = DefinitionService::TypeJsonApi
     ): array {
+        $schema = [];
         $attributes = [];
         $requiredAttributes = [];
         $relationships = [];
@@ -115,11 +119,6 @@ class OpenApiDefinitionSchemaBuilder
         $extensionAttributes = $this->getExtensions($extensions, $exampleDetailPath);
 
         if (!empty($extensionAttributes)) {
-            $attributes['extensions'] = new Property([
-                'type' => 'object',
-                'properties' => $extensionAttributes,
-            ]);
-
             foreach ($extensions as $extension) {
                 if (!$extension instanceof AssociationField) {
                     continue;
@@ -127,6 +126,12 @@ class OpenApiDefinitionSchemaBuilder
 
                 $extensionRelationships[] = $extensionAttributes[$extension->getPropertyName()];
             }
+
+            $attributes[] = new Property([
+                'property' => 'extensions',
+                'type' => 'object',
+                'properties' => $extensionAttributes,
+            ]);
         }
 
         if ($definition->getTranslationDefinition()) {
@@ -141,7 +146,7 @@ class OpenApiDefinitionSchemaBuilder
             }
         }
 
-        $attributes = array_merge([new Property(['property' => 'id', 'type' => 'string', 'pattern' => '^[0-9a-f]{32}$'])], $attributes);
+        $attributes = [...[new Property(['property' => 'id', 'type' => 'string', 'pattern' => '^[0-9a-f]{32}$'])], ...$attributes];
 
         if (!$onlyFlat && $apiType === 'jsonapi') {
             $schema[$schemaName . 'JsonApi'] = new Schema([
@@ -172,12 +177,19 @@ class OpenApiDefinitionSchemaBuilder
         }
 
         if (!empty($extensionRelationships)) {
-            $attributes['extensions'] = clone $attributes['extensions'];
+            $extensionRelationshipsProperty = new Property([
+                'property' => 'extensions',
+                'type' => 'object',
+                'properties' => $extensionAttributes,
+            ]);
+
             foreach ($extensionRelationships as $property => $relationship) {
                 $entity = $this->getRelationShipEntity($relationship);
                 $entityName = $this->snakeCaseToCamelCase($entity);
-                $attributes['extensions']->properties[$property] = new Property(['ref' => '#/components/schemas/' . $entityName]);
+                $extensionRelationshipsProperty->properties[$property] = new Property(['ref' => '#/components/schemas/' . $entityName]);
             }
+
+            $attributes[] = $extensionRelationshipsProperty;
         }
 
         // In some entities all fields are hidden, but not the id. This creates unwanted schemas. This removes it again
@@ -222,10 +234,7 @@ class OpenApiDefinitionSchemaBuilder
         return true;
     }
 
-    /**
-     * @param ManyToOneAssociationField|OneToOneAssociationField $field
-     */
-    private function createToOneLinkage($field, string $basePath): Property
+    private function createToOneLinkage(ManyToOneAssociationField|OneToOneAssociationField $field, string $basePath): Property
     {
         return new Property([
             'type' => 'object',
@@ -259,10 +268,7 @@ class OpenApiDefinitionSchemaBuilder
         ]);
     }
 
-    /**
-     * @param ManyToManyAssociationField|OneToManyAssociationField|AssociationField $field
-     */
-    private function createToManyLinkage(AssociationField $field, string $basePath): Property
+    private function createToManyLinkage(ManyToManyAssociationField|OneToManyAssociationField|AssociationField $field, string $basePath): Property
     {
         $associationEntityName = $field->getReferenceDefinition()->getEntityName();
 
@@ -348,11 +354,11 @@ class OpenApiDefinitionSchemaBuilder
 
     private function resolveJsonField(JsonField $jsonField): Property
     {
-        if ($jsonField instanceof ListField) {
+        if ($jsonField instanceof ListField || $jsonField instanceof BreadcrumbField) {
             $definition = new Property([
                 'type' => 'array',
                 'property' => $jsonField->getPropertyName(),
-                'items' => $this->getPropertyAssocsByField($jsonField->getFieldType()),
+                'items' => $this->getPropertyAssocsByField($jsonField instanceof ListField ? $jsonField->getFieldType() : null),
             ]);
         } else {
             $definition = new Property([
@@ -397,7 +403,7 @@ class OpenApiDefinitionSchemaBuilder
 
     private function getPropertyByField(Field $field): Property
     {
-        $fieldClass = \get_class($field);
+        $fieldClass = $field::class;
 
         $property = new Property([
             'type' => $this->getType($fieldClass),

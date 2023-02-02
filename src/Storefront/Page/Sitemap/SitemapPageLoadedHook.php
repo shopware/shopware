@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Page\Sitemap;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\Awareness\SalesChannelContextAwareTrait;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\PageLoadedHook;
@@ -13,19 +14,17 @@ use Shopware\Storefront\Page\PageLoadedHook;
  *
  * @since 6.4.8.0
  */
+#[Package('sales-channel')]
 class SitemapPageLoadedHook extends PageLoadedHook
 {
     use SalesChannelContextAwareTrait;
 
-    public const HOOK_NAME = 'sitemap-page-loaded';
+    final public const HOOK_NAME = 'sitemap-page-loaded';
 
-    private SitemapPage $page;
-
-    public function __construct(SitemapPage $page, SalesChannelContext $context)
+    public function __construct(private readonly SitemapPage $page, SalesChannelContext $context)
     {
         parent::__construct($context->getContext());
         $this->salesChannelContext = $context;
-        $this->page = $page;
     }
 
     public function getName(): string

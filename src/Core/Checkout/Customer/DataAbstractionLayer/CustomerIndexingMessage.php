@@ -3,18 +3,29 @@
 namespace Shopware\Core\Checkout\Customer\DataAbstractionLayer;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('customer-order')]
 class CustomerIndexingMessage extends EntityIndexingMessage
 {
-    private array $getIdsWithEmailChange = [];
+    /**
+     * @var string[]
+     */
+    private array $ids = [];
 
-    public function setIdsWithEmailChange(array $ids): void
+    /**
+     * @return string[]
+     */
+    public function getIds(): array
     {
-        $this->getIdsWithEmailChange = $ids;
+        return $this->ids;
     }
 
-    public function getIdsWithEmailChange(): array
+    /**
+     * @param array<string> $ids
+     */
+    public function setIds(array $ids): void
     {
-        return $this->getIdsWithEmailChange;
+        $this->ids = $ids;
     }
 }

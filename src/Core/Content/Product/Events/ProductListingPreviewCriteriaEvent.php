@@ -6,8 +6,10 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+#[Package('inventory')]
 class ProductListingPreviewCriteriaEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
     /**

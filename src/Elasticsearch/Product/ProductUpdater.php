@@ -4,28 +4,27 @@ namespace Shopware\Elasticsearch\Product;
 
 use Shopware\Core\Content\Product\Events\ProductIndexerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * @internal
+ */
+#[Package('core')]
 class ProductUpdater implements EventSubscriberInterface
 {
-    private ElasticsearchIndexer $indexer;
-
-    private EntityDefinition $definition;
-
     /**
      * @internal
      */
-    public function __construct(ElasticsearchIndexer $indexer, EntityDefinition $definition)
+    public function __construct(private readonly ElasticsearchIndexer $indexer, private readonly EntityDefinition $definition)
     {
-        $this->indexer = $indexer;
-        $this->definition = $definition;
     }
 
     /**
      * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             ProductIndexerEvent::class => 'update',

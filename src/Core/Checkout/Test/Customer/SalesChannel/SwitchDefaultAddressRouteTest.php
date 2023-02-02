@@ -3,44 +3,28 @@
 namespace Shopware\Core\Checkout\Test\Customer\SalesChannel;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\PlatformRequest;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
  * @internal
  * @group store-api
  */
+#[Package('customer-order')]
 class SwitchDefaultAddressRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use CustomerTestTrait;
 
-    /**
-     * @var \Symfony\Bundle\FrameworkBundle\KernelBrowser
-     */
-    private $browser;
+    private KernelBrowser $browser;
 
-    /**
-     * @var TestDataCollection
-     */
-    private $ids;
+    private TestDataCollection $ids;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $customerRepository;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $addressRepository;
-
-    /**
-     * @var string
-     */
-    private $newAddressId;
+    private string $newAddressId;
 
     protected function setUp(): void
     {
@@ -50,8 +34,6 @@ class SwitchDefaultAddressRouteTest extends TestCase
             'id' => $this->ids->create('sales-channel'),
         ]);
         $this->assignSalesChannelContext($this->browser);
-        $this->customerRepository = $this->getContainer()->get('customer.repository');
-        $this->addressRepository = $this->getContainer()->get('customer_address.repository');
 
         $email = Uuid::randomHex() . '@example.com';
         $this->createCustomer('shopware', $email);
@@ -66,9 +48,12 @@ class SwitchDefaultAddressRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = $this->browser->getResponse();
 
-        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $response['contextToken']);
+        $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
+        static::assertNotEmpty($contextToken);
+
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
 
         $this->newAddressId = $this->createAddress();
     }
@@ -82,7 +67,7 @@ class SwitchDefaultAddressRouteTest extends TestCase
                 []
             );
 
-        $oldBillingId = json_decode($this->browser->getResponse()->getContent(), true)['defaultBillingAddressId'];
+        $oldBillingId = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR)['defaultBillingAddressId'];
         static::assertNotSame($oldBillingId, $this->newAddressId);
 
         $this->browser
@@ -99,7 +84,7 @@ class SwitchDefaultAddressRouteTest extends TestCase
                 []
             );
 
-        $newBillingId = json_decode($this->browser->getResponse()->getContent(), true)['defaultBillingAddressId'];
+        $newBillingId = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR)['defaultBillingAddressId'];
         static::assertSame($newBillingId, $this->newAddressId);
     }
 
@@ -112,7 +97,7 @@ class SwitchDefaultAddressRouteTest extends TestCase
                 []
             );
 
-        $oldShippingId = json_decode($this->browser->getResponse()->getContent(), true)['defaultShippingAddressId'];
+        $oldShippingId = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR)['defaultShippingAddressId'];
         static::assertNotSame($oldShippingId, $this->newAddressId);
 
         $this->browser
@@ -129,7 +114,7 @@ class SwitchDefaultAddressRouteTest extends TestCase
                 []
             );
 
-        $newShippingId = json_decode($this->browser->getResponse()->getContent(), true)['defaultShippingAddressId'];
+        $newShippingId = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR)['defaultShippingAddressId'];
         static::assertSame($newShippingId, $this->newAddressId);
     }
 
@@ -153,6 +138,6 @@ class SwitchDefaultAddressRouteTest extends TestCase
                 $data
             );
 
-        return json_decode($this->browser->getResponse()->getContent(), true)['id'];
+        return json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR)['id'];
     }
 }

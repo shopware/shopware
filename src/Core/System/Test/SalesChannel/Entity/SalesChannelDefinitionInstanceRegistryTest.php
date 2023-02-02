@@ -5,6 +5,7 @@ namespace Shopware\Core\System\Test\SalesChannel\Entity;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Shopware\Core\System\SalesChannel\Exception\SalesChannelRepositoryNotFoundException;
@@ -13,6 +14,7 @@ use Symfony\Component\DependencyInjection\Container;
 /**
  * @internal
  */
+#[Package('sales-channel')]
 class SalesChannelDefinitionInstanceRegistryTest extends TestCase
 {
     use IntegrationTestBehaviour;

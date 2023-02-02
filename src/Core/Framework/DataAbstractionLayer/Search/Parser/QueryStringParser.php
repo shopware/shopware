@@ -19,10 +19,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\PrefixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SuffixFilter;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
  */
+#[Package('core')]
 class QueryStringParser
 {
     public static function fromArray(EntityDefinition $definition, array $query, SearchRequestException $exception, string $path = ''): Filter
@@ -66,7 +68,7 @@ class QueryStringParser
             case 'multi':
                 $operator = MultiFilter::CONNECTION_AND;
 
-                if (isset($query['operator']) && mb_strtoupper($query['operator']) === MultiFilter::CONNECTION_OR) {
+                if (isset($query['operator']) && mb_strtoupper((string) $query['operator']) === MultiFilter::CONNECTION_OR) {
                     $operator = MultiFilter::CONNECTION_OR;
                 }
 
@@ -167,62 +169,49 @@ class QueryStringParser
 
     public static function toArray(Filter $query): array
     {
-        switch (true) {
-            case $query instanceof EqualsFilter:
-                return [
-                    'type' => 'equals',
-                    'field' => $query->getField(),
-                    'value' => $query->getValue(),
-                ];
-            case $query instanceof NotFilter:
-                return [
-                    'type' => 'not',
-                    'queries' => array_map(function (Filter $nested) {
-                        return self::toArray($nested);
-                    }, $query->getQueries()),
-                    'operator' => $query->getOperator(),
-                ];
-            case $query instanceof MultiFilter:
-                return [
-                    'type' => 'multi',
-                    'queries' => array_map(function (Filter $nested) {
-                        return self::toArray($nested);
-                    }, $query->getQueries()),
-                    'operator' => $query->getOperator(),
-                ];
-            case $query instanceof ContainsFilter:
-                return [
-                    'type' => 'contains',
-                    'field' => $query->getField(),
-                    'value' => $query->getValue(),
-                ];
-            case $query instanceof PrefixFilter:
-                return [
-                    'type' => 'prefix',
-                    'field' => $query->getField(),
-                    'value' => $query->getValue(),
-                ];
-            case $query instanceof SuffixFilter:
-                return [
-                    'type' => 'suffix',
-                    'field' => $query->getField(),
-                    'value' => $query->getValue(),
-                ];
-            case $query instanceof RangeFilter:
-                return [
-                    'type' => 'range',
-                    'field' => $query->getField(),
-                    'parameters' => $query->getParameters(),
-                ];
-            case $query instanceof EqualsAnyFilter:
-                return [
-                    'type' => 'equalsAny',
-                    'field' => $query->getField(),
-                    'value' => implode('|', $query->getValue()),
-                ];
-            default:
-                throw new \RuntimeException(sprintf('Unsupported filter type %s', \get_class($query)));
-        }
+        return match (true) {
+            $query instanceof EqualsFilter => [
+                'type' => 'equals',
+                'field' => $query->getField(),
+                'value' => $query->getValue(),
+            ],
+            $query instanceof NotFilter => [
+                'type' => 'not',
+                'queries' => array_map(fn (Filter $nested) => self::toArray($nested), $query->getQueries()),
+                'operator' => $query->getOperator(),
+            ],
+            $query instanceof MultiFilter => [
+                'type' => 'multi',
+                'queries' => array_map(fn (Filter $nested) => self::toArray($nested), $query->getQueries()),
+                'operator' => $query->getOperator(),
+            ],
+            $query instanceof ContainsFilter => [
+                'type' => 'contains',
+                'field' => $query->getField(),
+                'value' => $query->getValue(),
+            ],
+            $query instanceof PrefixFilter => [
+                'type' => 'prefix',
+                'field' => $query->getField(),
+                'value' => $query->getValue(),
+            ],
+            $query instanceof SuffixFilter => [
+                'type' => 'suffix',
+                'field' => $query->getField(),
+                'value' => $query->getValue(),
+            ],
+            $query instanceof RangeFilter => [
+                'type' => 'range',
+                'field' => $query->getField(),
+                'parameters' => $query->getParameters(),
+            ],
+            $query instanceof EqualsAnyFilter => [
+                'type' => 'equalsAny',
+                'field' => $query->getField(),
+                'value' => implode('|', $query->getValue()),
+            ],
+            default => throw new \RuntimeException(sprintf('Unsupported filter type %s', $query::class)),
+        };
     }
 
     private static function parseQueries(EntityDefinition $definition, string $path, SearchRequestException $exception, array $queries): array
@@ -269,7 +258,7 @@ class QueryStringParser
             $dateInterval->invert = 1;
         }
         $thresholdDate = $now->add($dateInterval);
-        $operator = $query['parameters']['operator'];
+        $operator = (string) $query['parameters']['operator'];
 
         // if we're matching for time until, date must be in the future
         // if we're matching for time since, date must be in the past
@@ -287,42 +276,30 @@ class QueryStringParser
             $operator = self::negateOperator($operator);
         }
 
-        switch ($operator) {
-            case 'eq':
-                $primaryFilter = new RangeFilter($fieldName, self::getDayRangeParameters($thresholdDate));
-
-                break;
-            case 'neq':
-                $primaryFilter = new NotFilter(
-                    NotFilter::CONNECTION_AND,
-                    [new RangeFilter($fieldName, self::getDayRangeParameters($thresholdDate))]
-                );
-
-                break;
-            default:
-                $primaryFilter = new RangeFilter(
-                    $fieldName,
-                    [$operator => $thresholdDate->format(Defaults::STORAGE_DATE_FORMAT)]
-                );
-        }
+        $primaryFilter = match ($operator) {
+            'eq' => new RangeFilter($fieldName, self::getDayRangeParameters($thresholdDate)),
+            'neq' => new NotFilter(
+                NotFilter::CONNECTION_AND,
+                [new RangeFilter($fieldName, self::getDayRangeParameters($thresholdDate))]
+            ),
+            default => new RangeFilter(
+                $fieldName,
+                [$operator => $thresholdDate->format(Defaults::STORAGE_DATE_FORMAT)]
+            ),
+        };
 
         return new MultiFilter(MultiFilter::CONNECTION_AND, [$primaryFilter, $secondaryFilter]);
     }
 
     private static function negateOperator(string $operator): string
     {
-        switch ($operator) {
-            case RangeFilter::LT:
-                return RangeFilter::GT;
-            case RangeFilter::GT:
-                return RangeFilter::LT;
-            case RangeFilter::LTE:
-                return RangeFilter::GTE;
-            case RangeFilter::GTE:
-                return RangeFilter::LTE;
-            default:
-                return $operator;
-        }
+        return match ($operator) {
+            RangeFilter::LT => RangeFilter::GT,
+            RangeFilter::GT => RangeFilter::LT,
+            RangeFilter::LTE => RangeFilter::GTE,
+            RangeFilter::GTE => RangeFilter::LTE,
+            default => $operator,
+        };
     }
 
     private static function buildFieldName(EntityDefinition $definition, string $fieldName): string

@@ -7,51 +7,28 @@ use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderDefinition;
 use Shopware\Core\Content\Media\Event\MediaFolderIndexerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ChildCountUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\TreeUpdater;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+#[Package('content')]
 class MediaFolderIndexer extends EntityIndexer
 {
-    public const CHILD_COUNT_UPDATER = 'media_folder.child-count';
-    public const TREE_UPDATER = 'media_folder.tree';
-
-    private IteratorFactory $iteratorFactory;
-
-    private EntityRepositoryInterface $folderRepository;
-
-    private Connection $connection;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private ChildCountUpdater $childCountUpdater;
-
-    private TreeUpdater $treeUpdater;
+    final public const CHILD_COUNT_UPDATER = 'media_folder.child-count';
+    final public const TREE_UPDATER = 'media_folder.tree';
 
     /**
      * @internal
      */
-    public function __construct(
-        IteratorFactory $iteratorFactory,
-        EntityRepositoryInterface $repository,
-        Connection $connection,
-        EventDispatcherInterface $eventDispatcher,
-        ChildCountUpdater $childCountUpdater,
-        TreeUpdater $treeUpdater
-    ) {
-        $this->iteratorFactory = $iteratorFactory;
-        $this->folderRepository = $repository;
-        $this->connection = $connection;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->childCountUpdater = $childCountUpdater;
-        $this->treeUpdater = $treeUpdater;
+    public function __construct(private readonly IteratorFactory $iteratorFactory, private readonly EntityRepository $folderRepository, private readonly Connection $connection, private readonly EventDispatcherInterface $eventDispatcher, private readonly ChildCountUpdater $childCountUpdater, private readonly TreeUpdater $treeUpdater)
+    {
     }
 
     public function getName(): string
@@ -59,20 +36,8 @@ class MediaFolderIndexer extends EntityIndexer
         return 'media_folder.indexer';
     }
 
-    /**
-     * @param array|null $offset
-     *
-     * @deprecated tag:v6.5.0 The parameter $offset will be native typed
-     */
-    public function iterate(/*?array */$offset): ?EntityIndexingMessage
+    public function iterate(?array $offset): ?EntityIndexingMessage
     {
-        if ($offset !== null && !\is_array($offset)) {
-            Feature::triggerDeprecationOrThrow(
-                'v6.5.0.0',
-                'Parameter `$offset` of method "iterate()" in class "MediaFolderIndexer" will be natively typed to `?array` in v6.5.0.0.'
-            );
-        }
-
         $iterator = $this->iteratorFactory->createIterator($this->folderRepository->getDefinition(), $offset);
 
         $ids = $iterator->fetch();
@@ -191,7 +156,7 @@ class MediaFolderIndexer extends EntityIndexer
      */
     private function fetchChildren(array $parentIds): array
     {
-        $childIds = $this->connection->fetchAll(
+        $childIds = $this->connection->fetchAllAssociative(
             'SELECT LOWER(HEX(id)) as id FROM media_folder WHERE parent_id IN (:ids) AND use_parent_configuration = 1',
             ['ids' => Uuid::fromHexToBytesList($parentIds)],
             ['ids' => Connection::PARAM_STR_ARRAY]

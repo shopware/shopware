@@ -23,10 +23,7 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class ProductListingTypeDataResolverTest extends TestCase
 {
-    /**
-     * @var ProductListingCmsElementResolver
-     */
-    private $listingResolver;
+    private ProductListingCmsElementResolver $listingResolver;
 
     protected function setUp(): void
     {

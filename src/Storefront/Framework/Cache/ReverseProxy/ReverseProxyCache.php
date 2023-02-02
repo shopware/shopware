@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Framework\Cache\ReverseProxy;
 
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\InvalidateCacheEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Framework\Cache\CacheResponseSubscriber;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Symfony\Component\HttpFoundation\Request;
@@ -14,31 +15,17 @@ use function array_values;
 /**
  * @template TCachedContent
  */
+#[Package('storefront')]
 class ReverseProxyCache implements StoreInterface
 {
-    private AbstractReverseProxyGateway $gateway;
-
-    /**
-     * @var AbstractCacheTracer<TCachedContent>
-     */
-    private AbstractCacheTracer $tracer;
-
-    /**
-     * @var string[]
-     */
-    private array $states;
-
     /**
      * @internal
      *
      * @param string[] $states
      * @param AbstractCacheTracer<TCachedContent> $tracer
      */
-    public function __construct(AbstractReverseProxyGateway $gateway, AbstractCacheTracer $tracer, array $states)
+    public function __construct(private readonly AbstractReverseProxyGateway $gateway, private readonly AbstractCacheTracer $tracer, private readonly array $states)
     {
-        $this->gateway = $gateway;
-        $this->tracer = $tracer;
-        $this->states = $states;
     }
 
     public function __destruct()
@@ -51,10 +38,7 @@ class ReverseProxyCache implements StoreInterface
         $this->gateway->invalidate($event->getKeys());
     }
 
-    /**
-     * @return Response|null
-     */
-    public function lookup(Request $request)
+    public function lookup(Request $request): ?Response
     {
         return null;
     }
@@ -65,12 +49,12 @@ class ReverseProxyCache implements StoreInterface
 
         $tags = array_values(array_filter($tags, static function (string $tag): bool {
             // remove tag for global theme cache, http cache will be invalidate for each key which gets accessed in the request
-            if (strpos($tag, 'theme-config') !== false) {
+            if (str_contains($tag, 'theme-config')) {
                 return false;
             }
 
             // remove tag for global config cache, http cache will be invalidate for each key which gets accessed in the request
-            if (strpos($tag, 'system-config') !== false) {
+            if (str_contains($tag, 'system-config')) {
                 return false;
             }
 
@@ -89,13 +73,7 @@ class ReverseProxyCache implements StoreInterface
 
     public function invalidate(Request $request): void
     {
-        $uri = $request->attributes->get(RequestTransformer::ORIGINAL_REQUEST_URI);
-
-        if ($uri === null) {
-            return;
-        }
-
-        $this->gateway->ban([$uri]);
+        // @see https://github.com/symfony/symfony/issues/48301
     }
 
     /**

@@ -83,9 +83,9 @@ interface Extension {
 }
 
 /**
+ * @package merchant-services
  * @private
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class ExtensionStoreActionService extends ApiService {
     constructor(httpClient: AxiosInstance, loginService: LoginService) {
         super(httpClient, loginService, 'extension', 'application/json');
@@ -183,13 +183,6 @@ export default class ExtensionStoreActionService extends ApiService {
         );
     }
 
-    /**
-     * @deprecated tag:v6.5.0 - will be removed. Use private method storeHeaders instead
-     */
-    public basicHeaders(context: ContextState['api']|null) {
-        return this.storeHeaders(context);
-    }
-
     public async getMyExtensions() {
         const headers = this.getBasicHeaders();
 
@@ -237,6 +230,9 @@ export default class ExtensionStoreActionService extends ApiService {
     }
 }
 
+/**
+ * @package merchant-services
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type {
     ExtensionStoreActionService,

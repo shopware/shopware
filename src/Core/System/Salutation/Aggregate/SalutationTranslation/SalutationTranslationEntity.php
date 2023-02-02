@@ -4,8 +4,10 @@ namespace Shopware\Core\System\Salutation\Aggregate\SalutationTranslation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Salutation\SalutationEntity;
 
+#[Package('customer-order')]
 class SalutationTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;

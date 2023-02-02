@@ -1,7 +1,11 @@
+/**
+ * @package sales-channel
+ */
+
 import template from './sw-sales-channel-product-assignment-categories.html.twig';
 import './sw-sales-channel-product-assignment-categories.scss';
 
-const { Component, Context, Mixin, Feature } = Shopware;
+const { Component, Context, Mixin } = Shopware;
 const { EntityCollection, Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -86,21 +90,6 @@ Component.register('sw-sales-channel-product-assignment-categories', {
                     });
             },
         },
-
-        /* @deprecated tag:v6.5.0 watcher not debounced anymore, use `@search-term-change` event */
-        searchTerm: {
-            handler(newTerm) {
-                if (!Feature.isActive('FEATURE_NEXT_16271')) {
-                    if (newTerm.length <= 0) {
-                        return;
-                    }
-
-                    this.searchCategories(newTerm).then((response) => {
-                        this.searchResult = response;
-                    });
-                }
-            },
-        },
     },
 
     created() {
@@ -109,15 +98,13 @@ Component.register('sw-sales-channel-product-assignment-categories', {
 
     methods: {
         onSearchTermChange(input) {
-            if (Feature.isActive('FEATURE_NEXT_16271')) {
-                if (input.length <= 0) {
-                    return;
-                }
-
-                this.searchCategories(input).then((response) => {
-                    this.searchResult = response;
-                });
+            if (input.length <= 0) {
+                return;
             }
+
+            this.searchCategories(input).then((response) => {
+                this.searchResult = response;
+            });
         },
         createdComponent() {
             this.categoriesCollection = new EntityCollection(

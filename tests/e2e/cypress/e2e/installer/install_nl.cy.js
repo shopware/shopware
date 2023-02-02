@@ -2,7 +2,7 @@
 
 describe('Minimal install', () => {
     before(() => {
-       Cypress.env('SKIP_INIT', 'true');
+        Cypress.env('SKIP_INIT', 'true');
     });
 
     /**
@@ -13,8 +13,8 @@ describe('Minimal install', () => {
     it('@install: nl-NL and Euro', { tags: ['pa-system-settings'] }, () => {
         cy.visit('/installer', {
             headers: {
-                'Accept-Language': Cypress.env('acceptLanguage')
-            }
+                'Accept-Language': Cypress.env('acceptLanguage'),
+            },
         });
 
         cy.get('.content--main').should('be.visible');
@@ -133,6 +133,7 @@ describe('Minimal install', () => {
 
         cy.get('.sw-step-display').should('be.visible');
         cy.contains('.sw-step-display .sw-step-item.sw-step-item--active span', 'Data import');
+        cy.get('.sw-first-run-wizard-data-import__headline').should('be.visible');
 
         cy.contains('.sw-button span', 'Next').click();
 
@@ -141,6 +142,7 @@ describe('Minimal install', () => {
         cy.get('.sw-step-display').should('be.visible');
         cy.contains('.sw-step-display .sw-step-item.sw-step-item--active span', 'Default values');
 
+        cy.contains('.sw-button', 'Next').should('not.be.disabled');
         cy.contains('.sw-button span', 'Next').click();
         cy.get('.sw-loader__element').should('not.exist');
 
@@ -190,7 +192,7 @@ describe('Minimal install', () => {
 
         cy.intercept({
             url: '/api/_action/store/frw/finish',
-            method: 'post'
+            method: 'post',
         }).as('finishCall');
 
         cy.contains('.sw-button span', 'Finish').click();

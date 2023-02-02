@@ -5,7 +5,9 @@ namespace Shopware\Core\Content\Product\Aggregate\ProductTranslation;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('inventory')]
 class ProductTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;

@@ -2,29 +2,21 @@
 
 namespace Shopware\Core\Framework\Rule;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Range;
 
+#[Package('business-ops')]
 class WeekdayRule extends Rule
 {
-    protected string $operator;
-
-    protected ?int $dayOfWeek;
+    final public const RULE_NAME = 'dayOfWeek';
 
     /**
      * @internal
      */
-    public function __construct(string $operator = self::OPERATOR_EQ, ?int $dayOfWeek = null)
+    public function __construct(protected string $operator = self::OPERATOR_EQ, protected ?int $dayOfWeek = null)
     {
         parent::__construct();
-
-        $this->operator = $operator;
-        $this->dayOfWeek = $dayOfWeek;
-    }
-
-    public function getName(): string
-    {
-        return 'dayOfWeek';
     }
 
     public function match(RuleScope $scope): bool

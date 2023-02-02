@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import template from './sw-radio-panel.html.twig';
 import './sw-radio-panel.scss';
 
@@ -5,6 +9,7 @@ const { Component } = Shopware;
 const utils = Shopware.Utils;
 
 /**
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @description Radio panel that can be used for radio input with bigger content.
  * It is possible to define custom content via slots.
@@ -18,7 +23,6 @@ const utils = Shopware.Utils;
  *     icon="regular-exclamation-triangle"
  * ></sw-radio-panel>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-radio-panel', {
     template,
 

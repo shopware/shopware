@@ -1,10 +1,13 @@
 import template from './sw-customer-detail-base.html.twig';
 
-const { Component } = Shopware;
+/**
+ * @package customer-order
+ */
+
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-customer-detail-base', {
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -44,6 +47,8 @@ Component.register('sw-customer-detail-base', {
 
             criteria
                 .addFilter(Criteria.equals('relations.entityName', 'customer'));
+            criteria.getAssociation('customFields')
+                .addSorting(Criteria.naturalSorting('config.customFieldPosition'));
 
             return criteria;
         },
@@ -63,4 +68,4 @@ Component.register('sw-customer-detail-base', {
                 });
         },
     },
-});
+};

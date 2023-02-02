@@ -35,7 +35,7 @@ trait SnapshotTesting
             return;
         }
 
-        $baseline = json_decode((string) file_get_contents($snapshot), true, \JSON_THROW_ON_ERROR);
+        $baseline = json_decode((string) file_get_contents($snapshot), true, \JSON_THROW_ON_ERROR, \JSON_THROW_ON_ERROR);
         static::assertSame($baseline, $actual, $message);
     }
 }

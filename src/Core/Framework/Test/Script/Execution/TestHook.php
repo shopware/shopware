@@ -10,8 +10,6 @@ use Shopware\Core\Framework\Script\Execution\Hook;
  */
 class TestHook extends Hook
 {
-    private string $name;
-
     private static array $serviceIds;
 
     private static array $deprecatedServices;
@@ -20,14 +18,13 @@ class TestHook extends Hook
      * @param array<string> $serviceIds
      */
     public function __construct(
-        string $name,
+        private readonly string $name,
         Context $context,
         array $data = [],
         array $serviceIds = [],
         array $deprecatedServices = []
     ) {
         parent::__construct($context);
-        $this->name = $name;
         self::$serviceIds = $serviceIds;
         self::$deprecatedServices = $deprecatedServices;
 

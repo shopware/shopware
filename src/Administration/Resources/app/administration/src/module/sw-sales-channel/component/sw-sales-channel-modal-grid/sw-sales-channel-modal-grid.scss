@@ -10,7 +10,7 @@
     }
 
     .sw-sales-channel-modal-grid__item-name {
-        font-size: 18px;
+        font-size: $font-size-m;
         margin-bottom: 0;
         color: $color-darkgray-200;
         font-weight: normal;
@@ -23,7 +23,7 @@
 
     .sw-sales-channel-modal-grid__item-description {
         color: $color-darkgray-200;
-        font-size: $font-size-small;
+        font-size: $font-size-xs;
         margin-top: 5px;
         cursor: pointer;
     }

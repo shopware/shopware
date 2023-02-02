@@ -6,6 +6,7 @@ const { debounce } = Shopware.Utils;
 
 /**
  * @public
+ * @package business-ops
  * @description This condition is shown, if the specific condition was not found.
  * This component must a be child of sw-condition-tree.
  * @status prototype

@@ -4,15 +4,11 @@ import RulePageObject from '../../../../support/pages/module/sw-rule.page-object
 
 describe('Rule builder: Test assigning tags', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createDefaultFixture('rule');
-            })
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/rule/index`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
-            });
+        cy.createDefaultFixture('rule').then(() => {
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/rule/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+        });
     });
 
     it('@base @rule: create rule with tags and verify assignment', { tags: ['pa-business-ops'] }, () => {
@@ -21,7 +17,7 @@ describe('Rule builder: Test assigning tags', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/rule`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         cy.get('.sw-loader').should('not.exist');
@@ -33,14 +29,15 @@ describe('Rule builder: Test assigning tags', () => {
         cy.get('.sw-skeleton').should('not.exist');
 
         cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-settings-rule-detail-base').should('exist');
 
         // fill basic data
-        cy.get('.sw-field').contains('.sw-field', 'Name').then((field) => {
+        cy.contains('.sw-field', 'Name').then((field) => {
             cy.get('input', { withinSubject: field }).type('Rule 1st');
             cy.wrap(field).should('not.have.class', 'has--error');
         });
 
-        cy.get('.sw-field').contains('.sw-field', 'Priority').then((field) => {
+        cy.contains('.sw-field', 'Priority').then((field) => {
             cy.get('input', { withinSubject: field }).type('1').blur();
             cy.wrap(field).should('not.have.class', 'has--error');
         });

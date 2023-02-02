@@ -1,0 +1,171 @@
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_media_preview_v2 %}
+<div
+    v-tooltip.bottom="{ message: mediaName, disabled: hideTooltip }"
+    class="sw-media-preview-v2"
+    :class="mediaPreviewClasses"
+>
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_media_preview_v2_no_media %}
+    <template v-if="!source">
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_media_preview_v2_no_media_icon %}
+        <sw-icon
+            name="regular-image"
+            size="16px"
+        />
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_media_preview_v2_file_types %}
+    <template v-else>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_media_preview_v2_file_type_check %}
+        <template v-if="mimeTypeGroup === 'image'">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_media_preview_v2_file_type_image %}
+            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
+            <img
+                v-if="!imagePreviewFailed"
+                class="sw-media-preview-v2__item"
+                :class="transparencyClass"
+                :src="previewUrl"
+                :alt="alt"
+                :srcset="sourceSet"
+                :sizes="`${width}px`"
+                draggable="false"
+                @click="$emit('click')"
+                @error="showEvent"
+            >
+            <img
+                v-else
+                class="sw-media-preview-v2__item"
+                :src="placeholderIconPath | asset"
+                :alt="mimeType"
+            >
+            <sw-icon
+                v-if="mediaIsPrivate && lockIsVisible"
+                class="sw-media-preview-v2__locked-icon sw-icon--small"
+                name="regular-lock"
+                multicolor
+            />
+            {% endblock %}
+        </template>
+
+        <template v-else-if="isPlayable && mimeTypeGroup === 'video'">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_media_preview_v2_file_type_video %}
+            <img
+                v-if="mediaIsPrivate"
+                class="sw-media-preview-v2__item"
+                :src="placeholderIconPath | asset"
+                :alt="mimeType"
+            >
+            <!-- eslint-disable-next-line vuejs-accessibility/media-has-caption -->
+            <video
+                :controls="showControls"
+                :autoplay="autoplay"
+                controlsList="nodownload"
+                class="sw-media-preview-v2__item"
+            >
+                <source
+                    :src="previewUrl"
+                    :type="mimeType"
+                >
+                {{ $tc('global.sw-media-preview-v2.fallbackVideoTagSupport') }}
+            </video>
+            <button
+                v-if="!showControls && !mediaIsPrivate"
+                class="sw-media-preview-v2__play-button"
+                @click="onPlayClick"
+            >
+                <sw-icon
+                    class="sw-media-preview-v2__play-icon"
+                    name="multicolor-action-play"
+                    multicolor
+                />
+            </button>
+            <sw-icon
+                v-if="mediaIsPrivate && lockIsVisible"
+                class="sw-media-preview-v2__locked-icon sw-icon--small"
+                name="regular-lock"
+                multicolor
+            />
+            {% endblock %}
+        </template>
+
+        <template v-else-if="isPlayable && mimeTypeGroup === 'audio'">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_media_preview_v2_file_type_audio %}
+            <img
+                class="sw-media-preview-v2__item"
+                :src="placeholderIconPath | asset"
+                :alt="mimeType"
+            >
+            <!-- eslint-disable-next-line vuejs-accessibility/media-has-caption -->
+            <audio
+                :controls="showControls"
+                :autoplay="autoplay"
+                controlsList="nodownload"
+                class="sw-media-preview-v2__item sw-media-preview-v2__item--audio"
+            >
+                <source
+                    :src="previewUrl"
+                    :type="mimeType"
+                >
+                {{ $tc('global.sw-media-preview-v2.fallbackAudioTagSupport') }}
+            </audio>
+            <button
+                v-if="!showControls"
+                class="sw-media-preview-v2__play-button"
+                @click="onPlayClick"
+            >
+                <sw-icon
+                    class="sw-media-preview-v2__play-icon"
+                    name="multicolor-action-play"
+                    multicolor
+                />
+            </button>
+            <sw-icon
+                v-if="mediaIsPrivate && lockIsVisible"
+                class="sw-media-preview-v2__locked-icon sw-icon--small"
+                name="regular-lock"
+                multicolor
+            />
+            {% endblock %}
+        </template>
+
+        <template v-else-if="isUrl && !urlPreviewFailed">
+            <img
+                :src="previewUrl"
+                class="sw-media-preview-v2__item"
+                draggable="false"
+                :alt="mimeType"
+                @error="removeUrlPreview"
+            >
+        </template>
+
+        <template v-else>
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_media_preview_v2_file_type_placeholder %}
+            <img
+                class="sw-media-preview-v2__item sw-media-preview-v2__placeholder"
+                :src="placeholderIconPath | asset"
+                :alt="mimeType"
+            >
+            {% endblock %}
+            <sw-icon
+                v-if="mediaIsPrivate && lockIsVisible"
+                class="sw-media-preview-v2__locked-icon sw-icon--small"
+                name="regular-lock"
+                multicolor
+            />
+        </template>
+        {% endblock %}
+    </template>
+    {% endblock %}
+</div>
+{% endblock %}

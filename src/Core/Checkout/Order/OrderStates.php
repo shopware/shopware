@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Checkout\Order;
 
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('customer-order')]
 final class OrderStates
 {
     public const STATE_MACHINE = 'order.state';

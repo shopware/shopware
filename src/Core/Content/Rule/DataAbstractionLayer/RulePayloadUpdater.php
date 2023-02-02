@@ -8,26 +8,26 @@ use Shopware\Core\Framework\App\Event\AppScriptConditionEvents;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Container\ContainerInterface;
+use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\ScriptRule;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * @internal
+ */
+#[Package('business-ops')]
 class RulePayloadUpdater implements EventSubscriberInterface
 {
-    private Connection $connection;
-
-    private RuleConditionRegistry $ruleConditionRegistry;
-
     /**
      * @internal
      */
-    public function __construct(Connection $connection, RuleConditionRegistry $ruleConditionRegistry)
+    public function __construct(private readonly Connection $connection, private readonly RuleConditionRegistry $ruleConditionRegistry)
     {
-        $this->connection = $connection;
-        $this->ruleConditionRegistry = $ruleConditionRegistry;
     }
 
     public static function getSubscribedEvents(): array
@@ -37,9 +37,14 @@ class RulePayloadUpdater implements EventSubscriberInterface
         ];
     }
 
+    /**
+     * @param list<string> $ids
+     *
+     * @return array<string, array{payload: string|null, invalid: bool}>
+     */
     public function update(array $ids): array
     {
-        $conditions = $this->connection->fetchAll(
+        $conditions = $this->connection->fetchAllAssociative(
             'SELECT LOWER(HEX(rc.rule_id)) as array_key, rc.*, rs.script, rs.identifier, rs.updated_at as lastModified
             FROM rule_condition rc
             LEFT JOIN app_script_condition rs ON rc.script_id = rs.id AND rs.active = 1
@@ -57,6 +62,7 @@ class RulePayloadUpdater implements EventSubscriberInterface
         );
 
         $updated = [];
+        /** @var string $id */
         foreach ($rules as $id => $rule) {
             $invalid = false;
             $serialized = null;
@@ -68,7 +74,7 @@ class RulePayloadUpdater implements EventSubscriberInterface
                 $nested = new AndRule($nested);
 
                 $serialized = serialize($nested);
-            } catch (ConditionTypeNotFound $exception) {
+            } catch (ConditionTypeNotFound) {
                 $invalid = true;
             } finally {
                 $update->execute([
@@ -102,6 +108,11 @@ class RulePayloadUpdater implements EventSubscriberInterface
         $this->update(Uuid::fromBytesToHexList($ruleIds));
     }
 
+    /**
+     * @param array<string, mixed> $rules
+     *
+     * @return list<Rule>
+     */
     private function buildNested(array $rules, ?string $parentId): array
     {
         $nested = [];
@@ -122,7 +133,7 @@ class RulePayloadUpdater implements EventSubscriberInterface
                     'script' => $rule['script'] ?? '',
                     'lastModified' => $rule['lastModified'] ? new \DateTimeImmutable($rule['lastModified']) : null,
                     'identifier' => $rule['identifier'] ?? null,
-                    'values' => $rule['value'] ? json_decode($rule['value'], true) : [],
+                    'values' => $rule['value'] ? json_decode((string) $rule['value'], true, 512, \JSON_THROW_ON_ERROR) : [],
                 ]);
 
                 $nested[] = $object;
@@ -131,7 +142,7 @@ class RulePayloadUpdater implements EventSubscriberInterface
             }
 
             if ($rule['value'] !== null) {
-                $object->assign(json_decode($rule['value'], true));
+                $object->assign(json_decode((string) $rule['value'], true, 512, \JSON_THROW_ON_ERROR));
             }
 
             if ($object instanceof ContainerInterface) {

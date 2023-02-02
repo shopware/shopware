@@ -11,24 +11,12 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_rule_modal_tabs %}
     <sw-tabs
-        default-item="rule"
+        default-item="detail"
         position-identifier="sw-flow-rule-modal"
     >
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_rule_headers %}
         <template #default="{ active }">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_flow_rule_modal_tab_rule %}
-            <sw-tabs-item
-                class="sw-flow-rule-modal__tab-rule"
-                v-bind="$props"
-                name="rule"
-                :active-tab="active"
-            >
-                {{ $tc('sw-flow.modals.rule.tabRule') }}
-            </sw-tabs-item>
-            {% endblock %}
-
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_flow_rule_modal_tab_detail %}
             <sw-tabs-item
@@ -40,6 +28,18 @@
                 {{ $tc('sw-flow.modals.rule.tabDetail') }}
             </sw-tabs-item>
             {% endblock %}
+
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_flow_rule_modal_tab_rule %}
+            <sw-tabs-item
+                class="sw-flow-rule-modal__tab-rule"
+                v-bind="$props"
+                name="rule"
+                :active-tab="active"
+            >
+                {{ $tc('sw-flow.modals.rule.tabRule') }}
+            </sw-tabs-item>
+            {% endblock %}
         </template>
         {% endblock %}
 
@@ -48,28 +48,8 @@
         <template #content="{ active }">
             <div class="sw-flow-rule-modal__content">
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_flow_rule_modal_tab_rule_content %}
-                <template v-if="active === 'rule'">
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_flow_rule_modal_conditions_card %}
-                    <sw-condition-tree
-                        v-if="conditionRepository"
-                        class="sw-flow-rule-modal__rule"
-                        association-field="ruleId"
-                        :initial-conditions="conditions"
-                        :condition-repository="conditionRepository"
-                        :condition-data-provider-service="ruleConditionDataProviderService"
-                        :association-value="rule.id"
-                        :root-condition="null"
-                        @conditions-changed="onConditionsChanged"
-                    />
-                {% endblock %}
-                </template>
-                {% endblock %}
-
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_flow_rule_modal_tab_detail_content %}
-                <template v-if="active === 'detail'">
+                <template v-if="active === 'detail' && rule">
                     <sw-container
                         columns="2fr 1fr"
                         gap="0px 32px"
@@ -128,9 +108,30 @@
                             {{ $tc(item.name) }}
                         </template>
                     </sw-multi-select>
-                {% endblock %}
+                    {% endblock %}
                 </template>
-            {% endblock %}
+                {% endblock %}
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_flow_rule_modal_tab_rule_content %}
+                <div v-show="active === 'rule'">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_flow_rule_modal_conditions_card %}
+                    <sw-condition-tree
+                        v-if="conditionRepository"
+                        class="sw-flow-rule-modal__rule"
+                        association-field="ruleId"
+                        :initial-conditions="conditions"
+                        :condition-repository="conditionRepository"
+                        :scopes="scopesOfRuleAwarenessKey"
+                        :condition-data-provider-service="ruleConditionDataProviderService"
+                        :association-value="rule.id"
+                        :root-condition="null"
+                        @conditions-changed="onConditionsChanged"
+                    />
+                    {% endblock %}
+                </div>
+                {% endblock %}
             </div>
         </template>
         {% endblock %}

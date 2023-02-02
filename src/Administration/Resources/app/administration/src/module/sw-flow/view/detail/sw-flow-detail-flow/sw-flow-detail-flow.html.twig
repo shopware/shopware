@@ -5,8 +5,16 @@
     {% block sw_flow_detail_flow_content %}
     <div
         class="sw-flow-detail-flow__content"
+        :class="{'sw-flow-detail-flow-template': isTemplate }"
         :style="flowContainerStyle"
     >
+        <sw-alert
+            v-if="showActionWarning"
+            variant="warning"
+            class="sw-flow-detail-flow__warning-box"
+        >
+            {{ $tc('sw-flow.detail.warningText') }}
+        </sw-alert>
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_detail_trigger_card %}
         <div class="sw-flow-detail-flow__trigger-card">
@@ -32,7 +40,7 @@
             >
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_flow_detail_flow_trigger_explains_title %}
-                <h3>{{ $tc('sw-flow.detail.trigger.title') }}</h3>
+                <h4>{{ $tc('sw-flow.detail.trigger.title') }}</h4>
                 {% endblock %}
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

@@ -6,7 +6,7 @@
         position-identifier="sw-cms-element-config-product-listing"
         default-item="content"
     >
-        <template slot-scope="{ active }">
+        <template #default="{ active }">
             <sw-tabs-item
                 name="content"
                 :active-tab="active"
@@ -30,8 +30,7 @@
         </template>
 
         <template
-            slot="content"
-            slot-scope="{ active }"
+            #content="{ active }"
         >
             <template v-if="active === 'content'">
 

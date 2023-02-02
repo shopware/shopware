@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 // this list contains all URLs which should be cached
 const allowUrlList = [
     '/search/user-config',
@@ -34,6 +38,8 @@ const flushCacheUrls = [
 const requestCacheTimeout = 1500;
 
 /**
+ * @deprecated tag:v6.6.0 - Will be private
+ *
  * This cacheAdapterFactory creates an adapter for the axios
  * library. The created adapter do short time caching for
  * identical requests.

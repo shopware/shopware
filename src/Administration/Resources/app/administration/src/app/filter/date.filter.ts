@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 const { Filter } = Shopware;
 const { date } = Shopware.Utils.format;
 
@@ -9,5 +13,7 @@ Filter.register('date', (value: string, options: Intl.DateTimeFormatOptions): st
     return date(value, options);
 });
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 export default {};

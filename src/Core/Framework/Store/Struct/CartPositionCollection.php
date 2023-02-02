@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Framework\Store\Struct;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
  * @codeCoverageIgnore
  * @extends Collection<CartPositionStruct>
  */
+#[Package('merchant-services')]
 class CartPositionCollection extends Collection
 {
     public function __construct(iterable $elements = [])

@@ -1,0 +1,36 @@
+diff --git a/node_modules/babel-plugin-require-context-hook/register.js b/node_modules/babel-plugin-require-context-hook/register.js
+index b1f0365..eb7e00d 100644
+--- a/node_modules/babel-plugin-require-context-hook/register.js
++++ b/node_modules/babel-plugin-require-context-hook/register.js
+@@ -1,3 +1,5 @@
++const path = require("path");
++
+ function context(
+ 	basedir,
+ 	directory,
+@@ -23,7 +25,24 @@ function context(
+ 		return result;
+ 	}
+ 
+-	const absoluteDirectory = path.resolve(basedir, directory);
++	const absoluteDirectory = (() => {
++        const absolutePathDirectory = path.resolve(basedir, directory);
++
++        if (fs.existsSync(absolutePathDirectory)) {
++            return absolutePathDirectory;
++        }
++
++        const possibleNodeModulesPaths = require.resolve.paths(directory);
++
++        const matchingPath = possibleNodeModulesPaths.find((possiblePath) => {
++            const absolutePath = path.resolve(possiblePath, directory);
++
++            return fs.existsSync(absolutePath);
++        })
++
++        return path.resolve(matchingPath, directory);
++    })();
++
+ 	const keys = enumerateFiles(absoluteDirectory, '.');
+ 
+ 	function requireContext(key) {

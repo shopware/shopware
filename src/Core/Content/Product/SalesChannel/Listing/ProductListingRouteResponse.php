@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Listing;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
+#[Package('inventory')]
 class ProductListingRouteResponse extends StoreApiResponse
 {
     /**

@@ -3,9 +3,11 @@
 namespace Shopware\Core\Checkout\Promotion\Exception;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+#[Package('checkout')]
 class PriceNotFoundException extends ShopwareHttpException
 {
     public function __construct(LineItem $item)

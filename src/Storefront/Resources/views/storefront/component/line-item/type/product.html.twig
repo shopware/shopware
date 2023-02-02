@@ -110,7 +110,7 @@
                 {% endblock %}
             {% else %}
                 {% block component_line_item_type_product_col_unit_price %}
-                    <div class="line-item-unit-price">
+                    <div class="line-item-unit-price{% if lineItem.quantity > 1 %} is-shown{% endif %}">
                         {% sw_include '@Storefront/storefront/component/line-item/element/unit-price.html.twig' %}
                     </div>
                 {% endblock %}
@@ -132,5 +132,13 @@
                 {% endblock %}
             {% endif %}
         </div>
+
+        {% if displayMode === 'order' %}
+            {% block component_line_item_type_product_downloads_table %}
+                <div class="order-detail-content-list">
+                    {% sw_include '@Storefront/storefront/component/line-item/element/downloads.html.twig' %}
+                </div>
+            {% endblock %}
+        {% endif %}
     </div>
 {% endblock %}

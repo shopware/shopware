@@ -4,10 +4,7 @@ import ShippingPageObject from '../../../../support/pages/module/sw-shipping.pag
 
 describe('Shipping: Test crud operations', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createShippingFixture();
-            })
+        cy.createShippingFixture()
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/shipping/index`);
                 cy.get('.sw-skeleton').should('not.exist');
@@ -21,7 +18,7 @@ describe('Shipping: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/shipping-method`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         cy.setEntitySearchable('shipping_method', 'name');
@@ -46,7 +43,7 @@ describe('Shipping: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/shipping-method/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
 
         cy.setEntitySearchable('shipping_method', 'name');
@@ -75,7 +72,7 @@ describe('Shipping: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/shipping-method/*`,
-            method: 'delete'
+            method: 'delete',
         }).as('deleteData');
 
         cy.setEntitySearchable('shipping_method', 'name');
@@ -85,7 +82,7 @@ describe('Shipping: Test crud operations', () => {
         cy.clickContextMenuItem(
             `${page.elements.contextMenu}-item--danger`,
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.get('.sw-modal__body').should('be.visible');
@@ -102,7 +99,7 @@ describe('Shipping: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/shipping-method`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         // Create shipping method

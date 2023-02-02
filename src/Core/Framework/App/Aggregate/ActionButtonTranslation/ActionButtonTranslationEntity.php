@@ -5,11 +5,13 @@ namespace Shopware\Core\Framework\App\Aggregate\ActionButtonTranslation;
 use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageEntity;
 
 /**
  * @internal
  */
+#[Package('core')]
 class ActionButtonTranslationEntity extends Entity
 {
     use EntityIdTrait;

@@ -56,6 +56,7 @@
       "labelExecutiveDirector": "Business executive",
       "labelDisplayAdditionalNoteDelivery": "Display \"intra-Community delivery\" label",
       "labelDeliveryCountries": "Member countries",
+      "labelDisplayCustomerVatId": "Display customer VAT-ID",
       "placeholderDisplayDeliveryCountries": "Search and add countries valid for intra-Community delivery...",
       "labelOptionMedia": "Company logo",
       "placeholderName": "Enter name...",

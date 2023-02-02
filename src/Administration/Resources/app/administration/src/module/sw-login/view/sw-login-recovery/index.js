@@ -1,9 +1,15 @@
+/**
+ * @package admin
+ */
+
 import { email } from 'src/core/service/validation.service';
 import template from './sw-login-recovery.html.twig';
 
 const { Component } = Shopware;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 Component.register('sw-login-recovery', {
     template,
 

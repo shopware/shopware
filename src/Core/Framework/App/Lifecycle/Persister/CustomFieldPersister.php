@@ -6,23 +6,19 @@ use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\CustomFields;
 use Shopware\Core\Framework\App\Manifest\Xml\CustomFieldSet;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
  */
+#[Package('core')]
 class CustomFieldPersister
 {
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $customFieldSetRepository;
-
-    public function __construct(EntityRepositoryInterface $customFieldSetRepository)
+    public function __construct(private readonly EntityRepository $customFieldSetRepository)
     {
-        $this->customFieldSetRepository = $customFieldSetRepository;
     }
 
     /**
@@ -45,9 +41,7 @@ class CustomFieldPersister
         $ids = $this->customFieldSetRepository->searchIds($criteria, $context)->getIds();
 
         if (!empty($ids)) {
-            $ids = array_map(static function (string $id): array {
-                return ['id' => $id];
-            }, $ids);
+            $ids = array_map(static fn (string $id): array => ['id' => $id], $ids);
 
             $this->customFieldSetRepository->delete($ids, $context);
         }

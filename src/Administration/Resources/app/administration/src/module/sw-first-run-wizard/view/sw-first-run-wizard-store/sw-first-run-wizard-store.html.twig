@@ -2,12 +2,7 @@
 {% block sw_first_run_wizard_store %}
 <div class="sw-first-run-wizard-store">
     <template v-if="loadStatus">
-        <sw-icon
-            class="sw-first-run-wizard-store__loading-icon"
-            name="default-web-loading-circle"
-            size="48px"
-            small
-        />
+        <sw-loader />
 
         <p class="message">
             {{ $tc('sw-first-run-wizard.store.loadStatusCollect') }}
@@ -29,17 +24,12 @@
         </sw-label>
 
         <h2>
-            {{ $tc('sw-first-run-wizard.store.takeMinutes') }}
+            {{ $tc('sw-first-run-wizard.store.alreadyActivated') }}
         </h2>
     </template>
 
     <template v-else-if="isActivating">
-        <sw-icon
-            class="sw-first-run-wizard-store__loading-icon"
-            name="default-web-loading-circle"
-            size="48px"
-            small
-        />
+        <sw-loader />
 
         <p class="message">
             {{ $tc('sw-first-run-wizard.store.enablingStore') }}

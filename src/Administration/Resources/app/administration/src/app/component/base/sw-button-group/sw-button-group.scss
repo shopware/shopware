@@ -57,6 +57,10 @@
             border-top-right-radius: $border-radius-default;
             border-bottom-right-radius: $border-radius-default;
         }
+
+        .sw-icon {
+            padding: 4px;
+        }
     }
 
     &.sw-button-group--split {

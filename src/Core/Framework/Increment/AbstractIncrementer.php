@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\Increment;
 
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 abstract class AbstractIncrementer
 {
     protected string $poolName;

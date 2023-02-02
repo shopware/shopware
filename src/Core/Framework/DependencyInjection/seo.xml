@@ -122,7 +122,6 @@
 
         <service id="Shopware\Core\Content\Seo\HreflangLoaderInterface" class="Shopware\Core\Content\Seo\HreflangLoader">
             <argument type="service" id="router.default"/>
-            <argument type="service" id="sales_channel_domain.repository"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 

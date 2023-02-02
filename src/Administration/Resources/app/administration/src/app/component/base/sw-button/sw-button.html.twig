@@ -57,10 +57,9 @@
 >
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_button_button_content %}
-    <sw-icon
+    <sw-loader
         v-if="isLoading"
-        name="default-web-loading-circle"
-        class="sw-button__loader"
+        class="sw-button_loader"
         size="20px"
     />
     <span

@@ -5,11 +5,16 @@ namespace Shopware\Core\Migration\V6_3;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingDefinition;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\Traits\ImportTranslationsTrait;
 use Shopware\Core\Migration\Traits\Translations;
 
+/**
+ * @internal
+ */
+#[Package('core')]
 class Migration1600338271AddTopsellerSorting extends MigrationStep
 {
     use ImportTranslationsTrait;
@@ -47,6 +52,9 @@ class Migration1600338271AddTopsellerSorting extends MigrationStep
         $this->importTranslation('product_sorting_translation', $translations, $connection);
     }
 
+    /**
+     * @return array{id: string, priority: int, active: int, locked: int, fields: string, created_at: string, translations: array{de-DE: string, en-GB: string}}
+     */
     private function getTopsellerSorting(): array
     {
         return [
@@ -55,7 +63,7 @@ class Migration1600338271AddTopsellerSorting extends MigrationStep
             'priority' => 0,
             'active' => 1,
             'locked' => 0,
-            'fields' => json_encode([['field' => 'product.sales', 'order' => 'desc', 'priority' => 1, 'naturalSorting' => 0]]),
+            'fields' => json_encode([['field' => 'product.sales', 'order' => 'desc', 'priority' => 1, 'naturalSorting' => 0]], \JSON_THROW_ON_ERROR),
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             'translations' => [
                 'de-DE' => 'Topseller',

@@ -1,5 +1,12 @@
+/**
+ * @package admin
+ */
+
 const { Mixin } = Shopware;
 
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 Mixin.register('generic-condition', {
     computed: {
         config() {

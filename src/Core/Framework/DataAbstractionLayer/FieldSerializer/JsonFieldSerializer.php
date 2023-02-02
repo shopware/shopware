@@ -15,20 +15,20 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\UnexpectedFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
  */
+#[Package('core')]
 class JsonFieldSerializer extends AbstractFieldSerializer
 {
     /**
      * mariadbs `JSON_VALID` function does not allow escaped unicode.
-     *
-     * @param mixed $value
      */
-    public static function encodeJson($value, int $options = \JSON_UNESCAPED_UNICODE | \JSON_PRESERVE_ZERO_FRACTION | \JSON_THROW_ON_ERROR | \JSON_INVALID_UTF8_IGNORE): string
+    public static function encodeJson(mixed $value, int $options = \JSON_UNESCAPED_UNICODE | \JSON_PRESERVE_ZERO_FRACTION | \JSON_THROW_ON_ERROR | \JSON_INVALID_UTF8_IGNORE): string
     {
         return (string) json_encode($value, $options);
     }
@@ -58,12 +58,7 @@ class JsonFieldSerializer extends AbstractFieldSerializer
         yield $field->getStorageName() => $value;
     }
 
-    /**
-     * @return array|null
-     *
-     * @deprecated tag:v6.5.0 - reason:return-type-change - The return type will be native typed
-     */
-    public function decode(Field $field, $value)/*: ?array*/
+    public function decode(Field $field, mixed $value): mixed
     {
         if (!$field instanceof JsonField) {
             throw new InvalidSerializerFieldException(JsonField::class, $field);
@@ -73,7 +68,7 @@ class JsonFieldSerializer extends AbstractFieldSerializer
             return $field->getDefault();
         }
 
-        $raw = json_decode($value, true);
+        $raw = json_decode((string) $value, true);
         $decoded = $raw;
         if (empty($field->getPropertyMapping())) {
             return $raw;
@@ -122,9 +117,7 @@ class JsonFieldSerializer extends AbstractFieldSerializer
         $existence = new EntityExistence(null, [], false, false, false, []);
         $fieldPath = $parameters->getPath() . '/' . $field->getPropertyName();
 
-        $propertyKeys = array_map(function (Field $field) {
-            return $field->getPropertyName();
-        }, $field->getPropertyMapping());
+        $propertyKeys = array_map(fn (Field $field) => $field->getPropertyName(), $field->getPropertyMapping());
 
         // If a mapping is defined, you should not send properties that are undefined.
         // Sending undefined fields will throw an UnexpectedFieldException
@@ -179,7 +172,7 @@ class JsonFieldSerializer extends AbstractFieldSerializer
 
                 foreach ($encoded as $fieldKey => $fieldValue) {
                     if ($nestedField instanceof JsonField && $fieldValue !== null) {
-                        $fieldValue = json_decode($fieldValue, true);
+                        $fieldValue = json_decode((string) $fieldValue, true, 512, \JSON_THROW_ON_ERROR);
                     }
 
                     $stack->update($fieldKey, $fieldValue);

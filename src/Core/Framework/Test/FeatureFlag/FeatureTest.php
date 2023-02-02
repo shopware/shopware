@@ -24,8 +24,6 @@ class FeatureTest extends TestCase
 
     public static string $customCacheId = 'beef3f0ee9c61829627676afd6294bb029';
 
-    private ?\stdClass $indicator;
-
     /**
      * @var string[]
      */
@@ -124,33 +122,19 @@ class FeatureTest extends TestCase
         static::assertTrue($indicator);
     }
 
-    public function testTheMethodGetsExecutes(): void
-    {
-        $this->setUpFixtures();
-        $this->indicator = null;
-
-        Feature::ifActiveCall('FEATURE_NEXT_101', $this, 'indicate');
-        static::assertNull($this->indicator);
-
-        $_SERVER['FEATURE_NEXT_101'] = '1';
-
-        Feature::ifActiveCall('FEATURE_NEXT_101', $this, 'indicate', new \stdClass());
-        static::assertInstanceOf(\stdClass::class, $this->indicator);
-    }
-
     public function testConfigGetAllReturnsAllAndTracksState(): void
     {
         $this->setUp();
         $currentConfig = array_keys(Feature::getAll(false));
         $featureFlags = array_keys($this->getContainer()->getParameter('shopware.feature.flags'));
 
-        static::assertEquals(\array_map([Feature::class, 'normalizeName'], $featureFlags), \array_map([Feature::class, 'normalizeName'], $currentConfig));
+        static::assertEquals(\array_map(Feature::normalizeName(...), $featureFlags), \array_map(Feature::normalizeName(...), $currentConfig));
 
         self::setUpFixtures();
         $featureFlags = array_merge($featureFlags, $this->fixtureFlags);
 
         $configAfterRegistration = array_keys(Feature::getAll(false));
-        static::assertEquals(\array_map([Feature::class, 'normalizeName'], $featureFlags), \array_map([Feature::class, 'normalizeName'], $configAfterRegistration));
+        static::assertEquals(\array_map(Feature::normalizeName(...), $featureFlags), \array_map(Feature::normalizeName(...), $configAfterRegistration));
     }
 
     public function testTwigFeatureFlag(): void
@@ -215,7 +199,7 @@ class FeatureTest extends TestCase
         Feature::registerFeatures($features);
 
         /** @var array<string, array{name?: string, default?: boolean, major?: boolean, description?: string}> $registeredFeatures */
-        $registeredFeatures = array_merge(array_keys(Feature::getAll(false)), ['FEATURE_NEXT_102']);
+        $registeredFeatures = [...array_keys(Feature::getAll(false)), ...['FEATURE_NEXT_102']];
         Feature::registerFeatures($registeredFeatures);
 
         $actualFeatures = Feature::getRegisteredFeatures();
@@ -607,10 +591,5 @@ class FeatureTest extends TestCase
         $registeredFlags = array_merge($registeredFlags, $this->fixtureFlags);
 
         Feature::registerFeatures($registeredFlags);
-    }
-
-    private function indicate(?\stdClass $arg = null): void
-    {
-        $this->indicator = $arg;
     }
 }

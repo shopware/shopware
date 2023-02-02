@@ -4,7 +4,6 @@ namespace Shopware\Storefront\Page\Checkout\Finish;
 
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
-use Shopware\Core\Checkout\Cart\Exception\OrderNotFoundException;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Order\SalesChannel\AbstractOrderRoute;
@@ -13,7 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaI
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Profiling\Profiler;
@@ -22,34 +21,14 @@ use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
+#[Package('storefront')]
 class CheckoutFinishPageLoader
 {
     /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
-     * @var GenericPageLoaderInterface
-     */
-    private $genericLoader;
-
-    /**
-     * @var AbstractOrderRoute
-     */
-    private $orderRoute;
-
-    /**
      * @internal
      */
-    public function __construct(
-        EventDispatcherInterface $eventDispatcher,
-        GenericPageLoaderInterface $genericLoader,
-        AbstractOrderRoute $orderRoute
-    ) {
-        $this->eventDispatcher = $eventDispatcher;
-        $this->genericLoader = $genericLoader;
-        $this->orderRoute = $orderRoute;
+    public function __construct(private readonly EventDispatcherInterface $eventDispatcher, private readonly GenericPageLoaderInterface $genericLoader, private readonly AbstractOrderRoute $orderRoute)
+    {
     }
 
     /**
@@ -57,7 +36,7 @@ class CheckoutFinishPageLoader
      * @throws CustomerNotLoggedInException
      * @throws InconsistentCriteriaIdsException
      * @throws MissingRequestParameterException
-     * @throws OrderNotFoundException
+     * @throws OrderException
      */
     public function load(Request $request, SalesChannelContext $salesChannelContext): CheckoutFinishPage
     {
@@ -96,7 +75,7 @@ class CheckoutFinishPageLoader
      * @throws CustomerNotLoggedInException
      * @throws InconsistentCriteriaIdsException
      * @throws MissingRequestParameterException
-     * @throws OrderNotFoundException
+     * @throws OrderException
      */
     private function getOrder(Request $request, SalesChannelContext $salesChannelContext): OrderEntity
     {
@@ -132,23 +111,15 @@ class CheckoutFinishPageLoader
             $searchResult = $this->orderRoute
                 ->load(new Request(), $salesChannelContext, $criteria)
                 ->getOrders();
-        } catch (InvalidUuidException $e) {
-            if (Feature::isActive('v6.5.0.0')) {
-                throw OrderException::orderNotFound($orderId);
-            }
-
-            throw new OrderNotFoundException($orderId);
+        } catch (InvalidUuidException) {
+            throw OrderException::orderNotFound($orderId);
         }
 
         /** @var OrderEntity|null $order */
         $order = $searchResult->get($orderId);
 
         if (!$order) {
-            if (Feature::isActive('v6.5.0.0')) {
-                throw OrderException::orderNotFound($orderId);
-            }
-
-            throw new OrderNotFoundException($orderId);
+            throw OrderException::orderNotFound($orderId);
         }
 
         return $order;

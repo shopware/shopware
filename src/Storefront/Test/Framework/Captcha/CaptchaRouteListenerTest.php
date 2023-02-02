@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Test\Framework\Captcha;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -12,7 +13,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Controller\ErrorController;
 use Shopware\Storefront\Framework\Captcha\AbstractCaptcha;
-use Shopware\Storefront\Framework\Captcha\Annotation\Captcha as CaptchaAnnotation;
 use Shopware\Storefront\Framework\Captcha\BasicCaptcha;
 use Shopware\Storefront\Framework\Captcha\CaptchaRouteListener;
 use Shopware\Storefront\Framework\Captcha\Exception\CaptchaInvalidException;
@@ -58,6 +58,9 @@ class CaptchaRouteListenerTest extends TestCase
         ))->validateCaptcha($event);
     }
 
+    /**
+     * @return array<int, array<int, ControllerEvent>>
+     */
     public function controllerEventProvider(): array
     {
         return [
@@ -103,13 +106,17 @@ class CaptchaRouteListenerTest extends TestCase
         );
 
         $response = $browser->getResponse();
-        $responseContent = $response->getContent();
-        $content = (array) json_decode($responseContent);
-        $type = $content[0]->type;
-
         static::assertInstanceOf(JsonResponse::class, $response);
         static::assertSame(200, $response->getStatusCode());
+
+        $responseContent = $response->getContent() ?: '';
+        $content = (array) json_decode($responseContent, null, 512, \JSON_THROW_ON_ERROR);
+
         static::assertCount(1, $content);
+        static::assertObjectHasAttribute('type', $content[0]);
+
+        $type = $content[0]->type;
+
         static::assertSame('danger', $type);
     }
 
@@ -139,11 +146,14 @@ class CaptchaRouteListenerTest extends TestCase
         $response = $browser->getResponse();
 
         static::assertInstanceOf(Response::class, $response);
-        static::assertSame(200, $response->getStatusCode(), $response->getContent());
+        static::assertSame(200, $response->getStatusCode(), $response->getContent() ?: '');
         static::assertSame('frontend.account.home.page', $response->getData()['redirectTo']);
     }
 
-    private function getCaptchas(bool $supports, bool $isValid)
+    /**
+     * @return array<int, AbstractCaptcha|MockObject>
+     */
+    private function getCaptchas(bool $supports, bool $isValid): array
     {
         $captcha = $this->getMockBuilder(AbstractCaptcha::class)->getMock();
 
@@ -162,26 +172,26 @@ class CaptchaRouteListenerTest extends TestCase
         return [$captcha];
     }
 
-    private function getControllerEventMock()
+    private function getControllerEventMock(): ControllerEvent
     {
         return new ControllerEvent(
             $this->createMock(HttpKernelInterface::class),
             function (): void {
             },
             self::getRequest($this->getRequestAttributes(true)),
-            HttpKernelInterface::MASTER_REQUEST
+            HttpKernelInterface::MAIN_REQUEST
         );
     }
 
     private static function getRequest(ParameterBag $attributes): Request
     {
-        return new Request([], [], $attributes->all(), [], [], [], []);
+        return new Request([], [], $attributes->all(), [], [], []);
     }
 
     private function getRequestAttributes(bool $isCheckEnabled): ParameterBag
     {
         $param = [
-            '_captcha' => $isCheckEnabled ? new CaptchaAnnotation() : null,
+            '_captcha' => $isCheckEnabled ? true : null,
         ];
 
         return new ParameterBag($isCheckEnabled ? $param : []);

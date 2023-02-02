@@ -4,10 +4,12 @@ namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlistProduct;
 
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<CustomerWishlistProductEntity>
  */
+#[Package('customer-order')]
 class CustomerWishlistProductCollection extends EntityCollection
 {
     public function getApiAlias(): string
@@ -17,9 +19,7 @@ class CustomerWishlistProductCollection extends EntityCollection
 
     public function getProducts(): ?ProductCollection
     {
-        return new ProductCollection($this->fmap(function (CustomerWishlistProductEntity $wishlistProductEntity) {
-            return $wishlistProductEntity->getProduct();
-        }));
+        return new ProductCollection($this->fmap(fn (CustomerWishlistProductEntity $wishlistProductEntity) => $wishlistProductEntity->getProduct()));
     }
 
     public function getByProductId(string $productId): ?CustomerWishlistProductEntity

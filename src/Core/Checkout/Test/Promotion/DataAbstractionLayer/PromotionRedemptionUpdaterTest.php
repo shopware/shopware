@@ -16,8 +16,9 @@ use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionTestFixtu
 use Shopware\Core\Checkout\Test\Customer\SalesChannel\CustomerTestTrait;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -28,6 +29,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
+#[Package('checkout')]
 class PromotionRedemptionUpdaterTest extends TestCase
 {
     use CustomerTestTrait;
@@ -112,7 +114,7 @@ class PromotionRedemptionUpdaterTest extends TestCase
             ['id' => Uuid::fromHexToBytes($voucherA)]
         );
 
-        $expected_json = json_encode([$this->ids->get('customer') => 1]);
+        $expected_json = json_encode([$this->ids->get('customer') => 1], \JSON_THROW_ON_ERROR);
         static::assertIsString($expected_json);
 
         static::assertCount(1, $promotions);
@@ -124,7 +126,7 @@ class PromotionRedemptionUpdaterTest extends TestCase
 
     private function createPromotionsAndOrder(): void
     {
-        /** @var EntityRepositoryInterface $promotionRepository */
+        /** @var EntityRepository $promotionRepository */
         $promotionRepository = $this->getContainer()->get('promotion.repository');
 
         $voucherA = $this->ids->create('voucherA');
@@ -136,28 +138,28 @@ class PromotionRedemptionUpdaterTest extends TestCase
         $this->ids->set('customer', $this->createCustomer('shopware', 'johndoe@example.com'));
         $this->createOrder($this->ids->get('customer'));
 
-        $lineItems = $this->connection->fetchAll('SELECT id FROM order_line_item;');
+        $lineItems = $this->connection->fetchAllAssociative('SELECT id FROM order_line_item;');
 
         static::assertCount(3, $lineItems);
     }
 
     private function assertUpdatedCounts(): void
     {
-        $promotions = $this->connection->fetchAll('SELECT * FROM promotion;');
+        $promotions = $this->connection->fetchAllAssociative('SELECT * FROM promotion;');
 
         static::assertCount(2, $promotions);
 
         $actualVoucherA = Uuid::fromBytesToHex($promotions[0]['id']) === $this->ids->get('voucherA') ? $promotions[0] : $promotions[1];
         static::assertNotEmpty($actualVoucherA);
         static::assertEquals('1', $actualVoucherA['order_count']);
-        $customerCount = json_decode($actualVoucherA['orders_per_customer_count'], true);
+        $customerCount = json_decode((string) $actualVoucherA['orders_per_customer_count'], true, 512, \JSON_THROW_ON_ERROR);
         static::assertEquals(1, $customerCount[$this->ids->get('customer')]);
 
         $actualVoucherB = Uuid::fromBytesToHex($promotions[0]['id']) === $this->ids->get('voucherB') ? $promotions[0] : $promotions[1];
         static::assertNotEmpty($actualVoucherB);
         // VoucherB is used twice, it's mean group by works
         static::assertEquals('2', $actualVoucherB['order_count']);
-        $customerCount = json_decode($actualVoucherB['orders_per_customer_count'], true);
+        $customerCount = json_decode((string) $actualVoucherB['orders_per_customer_count'], true, 512, \JSON_THROW_ON_ERROR);
         static::assertEquals(2, $customerCount[$this->ids->get('customer')]);
     }
 
@@ -263,8 +265,6 @@ class PromotionRedemptionUpdaterTest extends TestCase
 
     private function fetchFirstIdFromTable(string $table): string
     {
-        $connection = $this->getContainer()->get(Connection::class);
-
-        return Uuid::fromBytesToHex((string) $connection->fetchColumn("SELECT id FROM {$table} LIMIT 1"));
+        return Uuid::fromBytesToHex((string) $this->connection->fetchOne('SELECT id FROM ' . $table . ' LIMIT 1'));
     }
 }

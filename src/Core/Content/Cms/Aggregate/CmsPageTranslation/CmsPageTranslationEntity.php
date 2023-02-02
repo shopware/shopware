@@ -5,7 +5,9 @@ namespace Shopware\Core\Content\Cms\Aggregate\CmsPageTranslation;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('content')]
 class CmsPageTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;

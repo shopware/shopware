@@ -5,12 +5,13 @@ namespace Shopware\Core\Framework\Plugin\Command\Lifecycle;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
@@ -24,24 +25,15 @@ use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[Package('core')]
 abstract class AbstractPluginLifecycleCommand extends Command
 {
-    protected PluginLifecycleService $pluginLifecycleService;
-
-    protected CacheClearer $cacheClearer;
-
-    private EntityRepositoryInterface $pluginRepo;
-
     public function __construct(
-        PluginLifecycleService $pluginLifecycleService,
-        EntityRepositoryInterface $pluginRepo,
-        CacheClearer $cacheClearer
+        protected PluginLifecycleService $pluginLifecycleService,
+        private readonly EntityRepository $pluginRepo,
+        protected CacheClearer $cacheClearer
     ) {
         parent::__construct();
-
-        $this->pluginLifecycleService = $pluginLifecycleService;
-        $this->pluginRepo = $pluginRepo;
-        $this->cacheClearer = $cacheClearer;
     }
 
     protected function configureCommand(string $lifecycleMethod): void
@@ -124,7 +116,7 @@ abstract class AbstractPluginLifecycleCommand extends Command
 
             try {
                 $this->cacheClearer->clear();
-            } catch (\Exception $e) {
+            } catch (\Exception) {
                 $io->error('Error clearing cache');
 
                 return;
@@ -208,9 +200,7 @@ abstract class AbstractPluginLifecycleCommand extends Command
                         'Which plugin do you want to %s?',
                         $lifecycleMethod
                     ),
-                    $pluginCollection->map(function (PluginEntity $plugin) {
-                        return $plugin->getName();
-                    })
+                    $pluginCollection->map(fn (PluginEntity $plugin) => $plugin->getName())
                 )
             );
 

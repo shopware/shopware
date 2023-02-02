@@ -3,11 +3,13 @@
 namespace Shopware\Core\Framework\Migration\Command;
 
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\Exception\MigrateException;
 use Shopware\Core\Framework\Migration\Exception\UnknownMigrationSourceException;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -15,10 +17,13 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[AsCommand(
+    name: 'database:migrate',
+    description: 'Executes all migrations',
+)]
+#[Package('core')]
 class MigrationCommand extends Command
 {
-    protected static $defaultName = 'database:migrate';
-
     /**
      * @var MigrationCollectionLoader
      */
@@ -35,19 +40,13 @@ class MigrationCommand extends Command
     protected $shopwareVersion;
 
     /**
-     * @var TagAwareAdapterInterface
-     */
-    private $cache;
-
-    /**
      * @internal
      */
-    public function __construct(MigrationCollectionLoader $loader, TagAwareAdapterInterface $cache, string $shopwareVersion)
+    public function __construct(MigrationCollectionLoader $loader, private readonly TagAwareAdapterInterface $cache, string $shopwareVersion)
     {
         parent::__construct();
 
         $this->loader = $loader;
-        $this->cache = $cache;
         $this->shopwareVersion = $shopwareVersion;
     }
 

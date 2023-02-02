@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Test\TestCaseBase;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -18,14 +18,12 @@ trait CountryAddToSalesChannelTestBehaviour
      */
     protected function addCountriesToSalesChannel(array $additionalCountryIds = [], string $salesChannelId = TestDefaults::SALES_CHANNEL): void
     {
-        /** @var EntityRepositoryInterface $salesChannelRepository */
+        /** @var EntityRepository $salesChannelRepository */
         $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
 
         $countryIds = array_merge([
             ['id' => $this->getValidCountryId($salesChannelId)],
-        ], array_map(static function (string $countryId) {
-            return ['id' => $countryId];
-        }, $additionalCountryIds));
+        ], array_map(static fn (string $countryId) => ['id' => $countryId], $additionalCountryIds));
 
         $salesChannelRepository->update([[
             'id' => $salesChannelId,

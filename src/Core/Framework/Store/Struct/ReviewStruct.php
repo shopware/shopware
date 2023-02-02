@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Store\Struct;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
 use Shopware\Core\Framework\Store\Exception\InvalidExtensionRatingValueException;
 use Symfony\Component\HttpFoundation\Request;
@@ -9,10 +10,11 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @codeCoverageIgnore
  */
+#[Package('merchant-services')]
 class ReviewStruct extends StoreStruct
 {
-    public const MAX_RATING = 5;
-    public const MIN_RATING = 1;
+    final public const MAX_RATING = 5;
+    final public const MIN_RATING = 1;
 
     /**
      * @var int

@@ -3,14 +3,10 @@
 import SettingsPageObject from '../../../../support/pages/module/sw-settings.page-object';
 
 describe('Flow builder: Create mail template for send mail action testing', () => {
-    // eslint-disable-next-line no-undef
     beforeEach(() => {
-        // Clean previous state and prepare Administration
-        cy.loginViaApi().then(() => {
-                return cy.createProductFixture();
-            }).then(() => {
-                return cy.createCustomerFixture();
-            });
+        cy.createProductFixture().then(() => {
+            return cy.createCustomerFixture();
+        });
     });
 
     it('@settings: create mail template for send mail action', { tags: ['pa-business-ops'] }, () => {
@@ -21,12 +17,12 @@ describe('Flow builder: Create mail template for send mail action testing', () =
         const page = new SettingsPageObject();
         cy.intercept({
             url: `${Cypress.env('apiPath')}/flow`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/mail-template`,
-            method: 'POST'
+            method: 'POST',
         }).as('getMailTemplate');
 
         cy.get('.sw-flow-list').should('be.visible');
@@ -41,6 +37,8 @@ describe('Flow builder: Create mail template for send mail action testing', () =
         cy.get('.sw-flow-detail-general__general-active .sw-field--switch__input').click();
 
         cy.get('.sw-flow-detail__tab-flow').click();
+        cy.get('.sw-flow-trigger__input-field').should('be.visible');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-flow-trigger__input-field').type('checkout order placed');
         cy.get('.sw-flow-trigger__input-field').type('{enter}');
 
@@ -81,16 +79,20 @@ describe('Flow builder: Create mail template for send mail action testing', () =
         // Save
         cy.get('.sw-flow-detail__save').click();
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
-
-        cy.visit(`${Cypress.env('admin')}#/sw/mail/template/index`);
-        cy.get('.sw-empty-state').should('not.exist');
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
 
+        cy.visit(`${Cypress.env('admin')}#/sw/mail/template/index`);
+        cy.get('.sw-mail-templates-list-grid').should('exist');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+        cy.get('.sw-empty-state').should('not.exist');
+
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/mail-template`,
-            method: 'POST'
+            method: 'POST',
         }).as('getMailTemplateAfterSearch');
+
         cy.get('input.sw-search-bar__input').type('Contact form successful feedback description');
         cy.get('.sw-data-grid-skeleton').should('not.exist');
 

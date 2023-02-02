@@ -4,7 +4,7 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_salutation_list_search_bar %}
-    <template slot="search-bar">
+    <template #search-bar>
         <sw-search-bar
             initial-search-type="salutation"
             :placeholder="$tc('sw-settings-salutation.general.placeholderSearchBar')"
@@ -16,7 +16,7 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_salutation_list_smart_bar_header %}
-    <template slot="smart-bar-header">
+    <template #smart-bar-header>
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_salutation_list_smart_bar_header_title %}
         <h2>
@@ -46,14 +46,14 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_salutation_list_language_switch %}
-    <template slot="language-switch">
+    <template #language-switch>
         <sw-language-switch @on-change="onRefresh" />
     </template>
     {% endblock %}
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_salutation_list_actions %}
-    <template slot="smart-bar-actions">
+    <template #smart-bar-actions>
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_salutation_list_actions_create %}
         <sw-button
@@ -71,7 +71,7 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_salutation_list_cardview %}
-    <template slot="content">
+    <template #content>
         <sw-card-view>
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_salutation_list_card_content %}
@@ -81,7 +81,7 @@
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_salutation_list_grid %}
-                <template slot="grid">
+                <template #grid>
                     <sw-entity-listing
                         class="sw-settings-salutation-list-grid"
                         :repository="salutationRepository"

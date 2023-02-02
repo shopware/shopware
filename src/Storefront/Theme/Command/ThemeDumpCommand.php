@@ -4,55 +4,44 @@ namespace Shopware\Storefront\Theme\Command;
 
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\ConfigLoader\StaticFileConfigDumper;
 use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
 use Shopware\Storefront\Theme\ThemeEntity;
 use Shopware\Storefront\Theme\ThemeFileResolver;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[AsCommand(
+    name: 'theme:dump',
+    description: 'Dump the theme configuration',
+)]
+#[Package('storefront')]
 class ThemeDumpCommand extends Command
 {
-    protected static $defaultName = 'theme:dump';
-
-    private StorefrontPluginRegistryInterface$pluginRegistry;
-
-    private ThemeFileResolver $themeFileResolver;
-
-    private EntityRepositoryInterface $themeRepository;
-
-    private string $projectDir;
-
-    private Context $context;
+    private readonly Context $context;
 
     private SymfonyStyle $io;
-
-    private StaticFileConfigDumper $staticFileConfigDumper;
 
     /**
      * @internal
      */
     public function __construct(
-        StorefrontPluginRegistryInterface $pluginRegistry,
-        ThemeFileResolver $themeFileResolver,
-        EntityRepositoryInterface $themeRepository,
-        string $projectDir,
-        StaticFileConfigDumper $staticFileConfigDumper
+        private readonly StorefrontPluginRegistryInterface $pluginRegistry,
+        private readonly ThemeFileResolver $themeFileResolver,
+        private readonly EntityRepository $themeRepository,
+        private readonly string $projectDir,
+        private readonly StaticFileConfigDumper $staticFileConfigDumper
     ) {
         parent::__construct();
-
-        $this->pluginRegistry = $pluginRegistry;
-        $this->themeFileResolver = $themeFileResolver;
-        $this->themeRepository = $themeRepository;
-        $this->projectDir = $projectDir;
         $this->context = Context::createDefaultContext();
-        $this->staticFileConfigDumper = $staticFileConfigDumper;
     }
 
     protected function configure(): void

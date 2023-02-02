@@ -22,10 +22,11 @@ use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
@@ -43,6 +44,7 @@ use Symfony\Component\HttpKernel\Debug\TraceableEventDispatcher;
 /**
  * @internal
  */
+#[Package('system-settings')]
 abstract class AbstractImportExportTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -54,17 +56,11 @@ abstract class AbstractImportExportTest extends TestCase
     use RequestStackTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
-    public const TEST_IMAGE = __DIR__ . '/fixtures/shopware-logo.png';
+    final public const TEST_IMAGE = __DIR__ . '/fixtures/shopware-logo.png';
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    protected $productRepository;
+    protected EntityRepository $productRepository;
 
-    /**
-     * @var TraceableEventDispatcher
-     */
-    protected $listener;
+    protected TraceableEventDispatcher $listener;
 
     public function setUp(): void
     {
@@ -75,7 +71,7 @@ abstract class AbstractImportExportTest extends TestCase
 
     public static function assertImportExportSucceeded(Progress $progress, array $invalidLog = []): void
     {
-        static::assertSame(Progress::STATE_SUCCEEDED, $progress->getState(), json_encode($invalidLog));
+        static::assertSame(Progress::STATE_SUCCEEDED, $progress->getState(), json_encode($invalidLog, \JSON_THROW_ON_ERROR));
     }
 
     public static function assertImportExportFailed(Progress $progress): void
@@ -138,7 +134,7 @@ abstract class AbstractImportExportTest extends TestCase
 
     protected function createProduct(?string $productId = null): string
     {
-        $productId = $productId ?? Uuid::randomHex();
+        $productId ??= Uuid::randomHex();
 
         $data = [
             'id' => $productId,
@@ -158,7 +154,7 @@ abstract class AbstractImportExportTest extends TestCase
 
     protected function createPromotion(array $promotionOverride = []): array
     {
-        /** @var EntityRepositoryInterface $promotionRepository */
+        /** @var EntityRepository $promotionRepository */
         $promotionRepository = $this->getContainer()->get('promotion.repository');
 
         $promotion = array_merge([
@@ -175,7 +171,7 @@ abstract class AbstractImportExportTest extends TestCase
 
     protected function createPromotionCode(string $promotionId, array $promotionCodeOverride = []): array
     {
-        /** @var EntityRepositoryInterface $promotionCodeRepository */
+        /** @var EntityRepository $promotionCodeRepository */
         $promotionCodeRepository = $this->getContainer()->get('promotion_individual_code.repository');
 
         $promotionCode = array_merge([
@@ -191,7 +187,7 @@ abstract class AbstractImportExportTest extends TestCase
 
     protected function createRule(?string $ruleId = null): string
     {
-        $ruleId = $ruleId ?? Uuid::randomHex();
+        $ruleId ??= Uuid::randomHex();
         $this->getContainer()->get('rule.repository')->create(
             [['id' => $ruleId, 'name' => 'Demo rule', 'priority' => 1]],
             Context::createDefaultContext()
@@ -202,7 +198,7 @@ abstract class AbstractImportExportTest extends TestCase
 
     protected function getDefaultProfileId(string $entity): string
     {
-        /** @var EntityRepositoryInterface $profileRepository */
+        /** @var EntityRepository $profileRepository */
         $profileRepository = $this->getContainer()->get('import_export_profile.repository');
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('systemDefault', true));
@@ -213,7 +209,7 @@ abstract class AbstractImportExportTest extends TestCase
 
     protected function cloneDefaultProfile(string $entity): ImportExportProfileEntity
     {
-        /** @var EntityRepositoryInterface $profileRepository */
+        /** @var EntityRepository $profileRepository */
         $profileRepository = $this->getContainer()->get('import_export_profile.repository');
 
         $systemDefaultProfileId = $this->getDefaultProfileId($entity);
@@ -226,7 +222,7 @@ abstract class AbstractImportExportTest extends TestCase
 
     protected function updateProfileMapping(string $profileId, array $mappings): void
     {
-        /** @var EntityRepositoryInterface $profileRepository */
+        /** @var EntityRepository $profileRepository */
         $profileRepository = $this->getContainer()->get('import_export_profile.repository');
 
         $profileRepository->update([
@@ -239,7 +235,7 @@ abstract class AbstractImportExportTest extends TestCase
 
     protected function updateProfileUpdateBy(string $profileId, array $updateBy): void
     {
-        /** @var EntityRepositoryInterface $profileRepository */
+        /** @var EntityRepository $profileRepository */
         $profileRepository = $this->getContainer()->get('import_export_profile.repository');
 
         $profileRepository->update([
@@ -252,7 +248,7 @@ abstract class AbstractImportExportTest extends TestCase
 
     protected function updateProfileConfig(string $profileId, array $config): void
     {
-        /** @var EntityRepositoryInterface $profileRepository */
+        /** @var EntityRepository $profileRepository */
         $profileRepository = $this->getContainer()->get('import_export_profile.repository');
 
         $profileRepository->update([
@@ -275,20 +271,21 @@ abstract class AbstractImportExportTest extends TestCase
             ['id' => $manufacturerId, 'name' => 'test'],
         ], Context::createDefaultContext());
 
-        /** @var EntityRepositoryInterface $categoryRepository */
+        /** @var EntityRepository $categoryRepository */
         $categoryRepository = $this->getContainer()->get('category.repository');
         $categoryRepository->upsert([
             ['id' => $catId1, 'name' => 'test'],
             ['id' => $catId2, 'name' => 'bar'],
         ], Context::createDefaultContext());
 
-        /** @var EntityRepositoryInterface $taxRepository */
+        /** @var EntityRepository $taxRepository */
         $taxRepository = $this->getContainer()->get('tax.repository');
         $taxRepository->upsert([
             ['id' => $taxId, 'name' => 'test', 'taxRate' => 15],
         ], Context::createDefaultContext());
 
         $tempFile = tempnam(sys_get_temp_dir(), '');
+        static::assertIsString($tempFile);
         copy(self::TEST_IMAGE, $tempFile);
 
         $fileSize = filesize($tempFile);
@@ -437,7 +434,7 @@ abstract class AbstractImportExportTest extends TestCase
 
         $importExportService = $this->getContainer()->get(ImportExportService::class);
 
-        $profileId = $profileId ?? $this->getDefaultProfileId($entityName);
+        $profileId ??= $this->getDefaultProfileId($entityName);
 
         $expireDate = new \DateTimeImmutable('2099-01-01');
         $file = new UploadedFile((!$absolutePath ? __DIR__ : '') . $path, $originalName, 'text/csv');
@@ -467,7 +464,7 @@ abstract class AbstractImportExportTest extends TestCase
 
         $importExportService = $this->getContainer()->get(ImportExportService::class);
 
-        $profileId = $profileId ?? $this->getDefaultProfileId($entityName);
+        $profileId ??= $this->getDefaultProfileId($entityName);
 
         $expireDate = new \DateTimeImmutable('2099-01-01');
         $logEntity = $importExportService->prepareExport($context, $profileId, $expireDate);
@@ -475,7 +472,7 @@ abstract class AbstractImportExportTest extends TestCase
         $progress = new Progress($logEntity->getId(), Progress::STATE_PROGRESS, 0, null);
         do {
             $groupSize = $groupSize ? $groupSize - 1 : 0;
-            $criteria = $criteria ?? new Criteria();
+            $criteria ??= new Criteria();
             $importExport = $factory->create($logEntity->getId(), $groupSize, $groupSize);
             $progress = $importExport->export(Context::createDefaultContext(), $criteria, $progress->getOffset());
         } while (!$progress->isFinished());

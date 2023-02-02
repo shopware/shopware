@@ -4,19 +4,15 @@ import OrderPageObject from '../../../../support/pages/module/sw-order.page-obje
 
 describe('Order: Create credit note', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.createProductFixture();
-            })
-            .then(() => {
-                return cy.searchViaAdminApi({
-                    endpoint: 'product',
-                    data: {
-                        field: 'name',
-                        value: 'Product name'
-                    }
-                });
-            })
+        cy.createProductFixture().then(() => {
+            return cy.searchViaAdminApi({
+                endpoint: 'product',
+                data: {
+                    field: 'name',
+                    value: 'Product name',
+                },
+            });
+        })
             .then((result) => {
                 return cy.createGuestOrder(result.id);
             })
@@ -27,186 +23,146 @@ describe('Order: Create credit note', () => {
             });
     });
 
-    // NEXT-21363
-    it('@base @order: create credit note', { tags: ['quarantined', 'pa-customers-orders'] }, () => {
+    it('@base @order: create credit note', {tags: ['pa-customers-orders']}, () => {
         const page = new OrderPageObject();
 
-        cy.featureIsActive('v6.5.0.0').then(isActive => {
-            cy.intercept({
-                url: `**/${Cypress.env('apiPath')}/_action/order/**/recalculate`,
-                method: 'POST'
-            }).as('orderRecalculateCall');
+        cy.contains(`${page.elements.dataGridRow}--0`, 'Mustermann, Max');
+        cy.clickContextMenuItem(
+            '.sw-order-list__order-view-action',
+            page.elements.contextMenuButton,
+            `${page.elements.dataGridRow}--0`,
+        );
 
-            const createInvoiceUrl = isActive
-                ? `**/${Cypress.env('apiPath')}/_action/order/document/invoice/create`
-                : `**/${Cypress.env('apiPath')}/_action/order/**/document/invoice`;
+        cy.get(page.elements.tabs.general.gridCard).scrollIntoView();
 
-            cy.intercept({
-                url: createInvoiceUrl,
-                method: 'POST'
-            }).as('createInvoice');
+        cy.clickContextMenuItem(
+            '.sw-context-menu-item',
+            '.sw-order-line-items-grid__actions-container .sw-button-group .sw-context-button',
+            null,
+            'Add credit',
+        );
 
-            const createCreditNoteUrl = isActive
-                ? `**/${Cypress.env('apiPath')}/_action/order/document/credit_note/create`
-                : `**/${Cypress.env('apiPath')}/_action/order/**/document/credit_note`;
+        cy.get(`${page.elements.dataGridRow}--0 > .sw-data-grid__cell--label`).dblclick();
 
-            cy.intercept({
-                url: createCreditNoteUrl,
-                method: 'POST'
-            }).as('createCreditNote');
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/_action/order/**/recalculate`,
+            method: 'POST',
+        }).as('orderRecalculateCall');
 
-            cy.intercept({
-                url: `**/${Cypress.env('apiPath')}/_action/order/**/document/invoice/preview*`,
-                method: 'GET'
-            }).as('onPreview');
+        cy.get('#sw-field--item-label').type('Discount 100 Euro');
+        cy.get('#sw-field--item-priceDefinition-price').clearTypeAndCheck('-100');
 
-            cy.intercept({
-                url: `**/${Cypress.env('apiPath')}/search/document-type`,
-                method: 'POST'
-            }).as('getDocumentTypes');
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/search/order`,
+            method: 'POST',
+        }).as('orderSearchCall');
 
-            cy.intercept({
-                url: `**/${Cypress.env('apiPath')}/_action/version/merge/order/**`,
-                method: 'POST'
-            }).as('orderSaveCall');
+        cy.get(page.elements.dataGridInlineEditSave).click();
+        cy.wait('@orderRecalculateCall').its('response.statusCode').should('equal', 204);
+        cy.wait('@orderSearchCall').its('response.statusCode').should('equal', 200);
 
-            cy.intercept({
-                url: `**/${Cypress.env('apiPath')}/search/order`,
-                method: 'POST'
-            }).as('orderSearchCall');
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/_action/version/merge/order/**`,
+            method: 'POST',
+        }).as('orderSaveCall');
 
-            cy.contains(`${page.elements.dataGridRow}--0`, 'Mustermann, Max');
-            cy.clickContextMenuItem(
-                '.sw-order-list__order-view-action',
-                page.elements.contextMenuButton,
-                `${page.elements.dataGridRow}--0`
-            );
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/search/order`,
+            method: 'POST',
+        }).as('orderSearchCall');
 
-            cy.skipOnFeature('FEATURE_NEXT_7530', () => {
-                cy.contains(`${page.elements.userMetadata}-user-name`, 'Max Mustermann');
-                cy.get('.sw-order-detail__smart-bar-edit-button').click();
+        cy.get(page.elements.smartBarSave).click();
+        cy.wait('@orderSaveCall').its('response.statusCode').should('equal', 204);
+        cy.wait('@orderSearchCall').its('response.statusCode').should('equal', 200);
 
-                cy.get('.sw-order-detail-base__line-item-grid-card').scrollIntoView();
-            });
+        page.changeActiveTab('documents');
 
-            cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
-                cy.get(page.elements.tabs.general.gridCard).scrollIntoView();
-            });
+        // Open Invoice modal
+        cy.get(page.elements.tabs.documents.documentGrid)
+            .scrollIntoView()
+            .should('be.visible');
 
-            cy.clickContextMenuItem(
-                '.sw-context-menu-item',
-                '.sw-order-line-items-grid__actions-container .sw-button-group .sw-context-button',
-                null,
-                'Add credit'
-            );
+        cy.get(page.elements.loader).should('not.exist');
 
-            cy.get(`${page.elements.dataGridRow}--0 > .sw-data-grid__cell--label`).dblclick().click();
-            cy.get('#sw-field--item-label').type('Discount 100 Euro');
-            cy.get('#sw-field--item-priceDefinition-price').clear().type('-100');
+        cy.get(page.elements.tabs.documents.addDocumentButton).should('be.visible').click();
+        cy.get(page.elements.tabs.documents.documentTypeModal).should('be.visible');
 
-            cy.get(page.elements.dataGridInlineEditSave).click();
-            cy.wait('@orderRecalculateCall').its('response.statusCode').should('equal', 204);
-            cy.wait('@orderSearchCall').its('response.statusCode').should('equal', 200);
+        cy.contains('.sw-field__radio-option-label', 'Invoice').click();
 
-            cy.get(page.elements.smartBarSave).click();
-            cy.wait('@orderSaveCall').its('response.statusCode').should('equal', 204);
-            cy.wait('@orderSearchCall').its('response.statusCode').should('equal', 200);
+        cy.get('.sw-modal__footer .sw-button--primary')
+            .should('not.be.disabled')
+            .click();
 
-            cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
-                page.changeActiveTab('documents');
-            });
+        // Generate preview
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/_action/order/**/document/invoice/preview*`,
+            method: 'GET',
+        }).as('onPreview');
 
-            // Open Invoice modal
-            cy.get(page.elements.tabs.documents.documentGrid)
-                .scrollIntoView()
-                .should('be.visible');
+        cy.get(page.elements.tabs.documents.documentSettingsModal).should('be.visible');
+        cy.get('#sw-field--documentConfig-documentComment').type('New invoice');
+        cy.get('.sw-order-document-settings-modal__preview-button').click();
 
-            cy.get(page.elements.loader).should('not.exist');
+        cy.wait('@onPreview').its('response.statusCode').should('equal', 200);
 
-            cy.skipOnFeature('FEATURE_NEXT_7530', () => {
-                cy.clickContextMenuItem(
-                    '.sw-context-menu-item',
-                    '.sw-order-document-grid-button',
-                    null,
-                    'Invoice'
-                );
-            });
+        // Generate invoice
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/_action/order/document/invoice/create`,
+            method: 'POST',
+        }).as('createInvoice');
 
-            cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
-                cy.get(page.elements.tabs.documents.addDocumentButton).should('be.visible').click();
-                cy.get(page.elements.tabs.documents.documentTypeModal).should('be.visible');
+        cy.get(page.elements.tabs.documents.documentSettingsModal).should('be.visible');
+        cy.get('#sw-field--documentConfig-documentComment').type('New invoice');
+        cy.get(`${page.elements.tabs.documents.documentSettingsModal} .sw-order-document-settings-modal__create`).should('not.be.disabled').click();
 
-                cy.contains(page.elements.tabs.documents.documentTypeModalRadios, 'Invoice').click();
+        cy.wait('@createInvoice').its('response.statusCode').should('equal', 200);
 
-                cy.get('.sw-modal__footer .sw-button--primary')
-                    .should('not.be.disabled')
-                    .click();
-            });
+        cy.get(page.elements.loader).should('not.exist');
 
-            // Generate preview
-            cy.get(page.elements.tabs.documents.documentSettingsModal).should('be.visible');
-            cy.get('#sw-field--documentConfig-documentComment').type('New invoice');
-            cy.get('.sw-order-document-settings-modal__preview-button').click();
+        cy.reload();
 
-            cy.wait('@onPreview').its('response.statusCode').should('equal', 200);
+        cy.get(page.elements.tabs.documents.documentGrid).scrollIntoView();
 
-            // Generate invoice
-            cy.get(page.elements.tabs.documents.documentSettingsModal).should('be.visible');
-            cy.get('#sw-field--documentConfig-documentComment').type('New invoice');
-            cy.get(`${page.elements.tabs.documents.documentSettingsModal} .sw-button--primary`)
-                .should('not.be.disabled')
-                .click();
+        cy.get(page.elements.tabs.documents.addDocumentButton).should('be.visible').click();
+        cy.get(page.elements.tabs.documents.documentTypeModal).should('be.visible');
 
-            cy.wait('@createInvoice').its('response.statusCode').should('equal', 200);
+        cy.contains('.sw-field__radio-option-label', 'Credit note').click();
 
-            cy.get(page.elements.loader).should('not.exist');
+        cy.get('.sw-modal__footer .sw-button--primary')
+            .should('not.be.disabled')
+            .click();
 
-            cy.reload();
+        cy.get('.sw-order-document-settings-credit-note-modal__invoice-select .sw-block-field__block select').select(1);
+        cy.get('#sw-field--documentConfig-documentComment').type('Always get a credit note');
 
-            cy.get(page.elements.tabs.documents.documentGrid).scrollIntoView();
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/_action/order/document/credit_note/create`,
+            method: 'POST',
+        }).as('createCreditNote');
 
-            cy.skipOnFeature('FEATURE_NEXT_7530', () => {
-                cy.clickContextMenuItem(
-                    '.sw-context-menu-item',
-                    '.sw-order-document-grid-button',
-                    null,
-                    'Credit note'
-                );
-            });
+        cy.get('.sw-modal__footer .sw-order-document-settings-modal__create')
+            .should('be.visible')
+            .should('not.be.disabled')
+            .click();
 
-            cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
-                cy.get(page.elements.tabs.documents.addDocumentButton).should('be.visible').click();
-                cy.get(page.elements.tabs.documents.documentTypeModal).should('be.visible');
+        // Wait for the credit note to be created
+        cy.wait('@createCreditNote').its('response.statusCode').should('equal', 200);
 
-                cy.contains(page.elements.tabs.documents.documentTypeModalRadios, 'Credit note').click();
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/search/document-type`,
+            method: 'POST',
+        }).as('getDocumentTypes');
 
-                cy.get('.sw-modal__footer .sw-button--primary')
-                    .should('not.be.disabled')
-                    .click();
-            });
+        // Reloading the page is necessary to get rid off the view reloading after several $nextTicks
+        cy.reload();
 
-            cy.get('#sw-field--documentConfig-custom-invoiceNumber').select('1000');
-            cy.get('#sw-field--documentConfig-documentComment').type('Always get a credit note');
+        cy.wait('@getDocumentTypes').its('response.statusCode').should('equal', 200);
 
-            cy.get('.sw-modal__footer .sw-button--primary')
-                .should('be.visible')
-                .should('not.be.disabled')
-                .click();
+        // check exists credit note
+        cy.get('.sw-simple-search-field--form input[placeholder="Search all documents..."]')
+            .scrollIntoView()
+            .type('Credit note');
 
-            // Wait for the credit note to be created
-            cy.wait('@createCreditNote').its('response.statusCode').should('equal', 200);
-
-            // Reloading the page is necessary to get rid off the view reloading after several $nextTicks
-            cy.reload();
-
-            cy.wait('@getDocumentTypes').its('response.statusCode').should('equal', 200);
-
-            // check exists credit note
-            cy.get('.sw-simple-search-field--form input[placeholder="Search all documents..."]')
-                .scrollIntoView()
-                .type('Credit note');
-
-            cy.contains(`${page.elements.dataGridRow}--0`, 'Credit note');
-        });
+        cy.contains(`${page.elements.dataGridRow}--0`, 'Credit note');
     });
 });

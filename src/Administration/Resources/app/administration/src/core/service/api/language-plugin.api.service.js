@@ -4,6 +4,7 @@ const ApiService = Shopware.Classes.ApiService;
  * Gateway for the API end point "language-plugins"
  * @class
  * @extends ApiService
+ * @package system-settings
  */
 class LanguagePluginApiService extends ApiService {
     constructor(httpClient, loginService, apiEndpoint = 'language-plugins') {

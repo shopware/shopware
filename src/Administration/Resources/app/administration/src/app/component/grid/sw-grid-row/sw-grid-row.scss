@@ -67,7 +67,7 @@ $sw-grid-row-border-radius: $border-radius-default;
             justify-content: stretch;
             grid-gap: 10px;
             height: 100%;
-            line-height: 24px;
+            line-height: $line-height-md;
             padding: 10px;
             text-align: center;
         }

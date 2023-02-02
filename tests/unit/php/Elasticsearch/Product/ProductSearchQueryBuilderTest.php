@@ -3,10 +3,10 @@
 namespace Shopware\Tests\Unit\Elasticsearch\Product;
 
 use Doctrine\DBAL\Connection;
-use ONGR\ElasticsearchDSL\BuilderInterface;
-use ONGR\ElasticsearchDSL\Query\Compound\BoolQuery;
-use ONGR\ElasticsearchDSL\Query\FullText\MatchQuery;
-use ONGR\ElasticsearchDSL\Query\Joining\NestedQuery;
+use OpenSearchDSL\BuilderInterface;
+use OpenSearchDSL\Query\Compound\BoolQuery;
+use OpenSearchDSL\Query\FullText\MatchQuery;
+use OpenSearchDSL\Query\Joining\NestedQuery;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -66,9 +66,7 @@ class ProductSearchQueryBuilderTest extends TestCase
 
         static::assertCount(2, $tokenQueries, 'Expected 2 token queries due to token searches');
 
-        $nameQueries = array_map(function (BuilderInterface $query) {
-            return $query->toArray();
-        }, array_values($tokenQueries[0]->getQueries(BoolQuery::SHOULD)));
+        $nameQueries = array_map(fn (BuilderInterface $query) => $query->toArray(), array_values($tokenQueries[0]->getQueries(BoolQuery::SHOULD)));
 
         static::assertCount(8, $nameQueries);
 

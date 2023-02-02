@@ -19,7 +19,8 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\MailTemplateTestBehaviour;
@@ -39,6 +40,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 /**
  * @internal
  */
+#[Package('checkout')]
 class CartServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -46,11 +48,11 @@ class CartServiceTest extends TestCase
     use TaxAddToSalesChannelTestBehaviour;
     use CountryAddToSalesChannelTestBehaviour;
 
-    private EntityRepositoryInterface $customerRepository;
+    private EntityRepository $customerRepository;
 
-    private ?AccountService $accountService;
+    private AccountService $accountService;
 
-    private ?Connection $connection;
+    private Connection $connection;
 
     private string $productId;
 
@@ -94,12 +96,12 @@ class CartServiceTest extends TestCase
         $cartService = $this->getContainer()->get(CartService::class);
 
         $token = Uuid::randomHex();
-        $newCart = $cartService->createNew($token, __METHOD__);
+        $newCart = $cartService->createNew($token);
 
         static::assertInstanceOf(CartCreatedEvent::class, $caughtEvent);
         static::assertSame($newCart, $caughtEvent->getCart());
         static::assertSame($newCart, $cartService->getCart($token, $this->getSalesChannelContext()));
-        static::assertNotSame($newCart, $cartService->createNew($token, __METHOD__));
+        static::assertNotSame($newCart, $cartService->createNew($token));
     }
 
     public function testLineItemAddedEventFired(): void
@@ -132,6 +134,7 @@ class CartServiceTest extends TestCase
             $context
         );
 
+        /** @phpstan-ignore-next-line */
         static::assertTrue($isMerged);
     }
 
@@ -292,9 +295,15 @@ class CartServiceTest extends TestCase
 
         static::assertTrue($cart->has($productId));
         static::assertEquals(0, $cart->getPrice()->getTotalPrice());
+
         $calculatedLineItem = $cart->getLineItems()->get($productId);
+        static::assertNotNull($calculatedLineItem);
+        static::assertNotNull($calculatedLineItem->getPrice());
         static::assertEquals(0, $calculatedLineItem->getPrice()->getTotalPrice());
-        static::assertEquals(0, $calculatedLineItem->getPrice()->getCalculatedTaxes()->getAmount());
+
+        $calculatedTaxes = $calculatedLineItem->getPrice()->getCalculatedTaxes();
+        static::assertNotNull($calculatedTaxes);
+        static::assertEquals(0, $calculatedTaxes->getAmount());
     }
 
     public function testOrderCartSendMail(): void
@@ -367,7 +376,7 @@ class CartServiceTest extends TestCase
 
     private function createCustomer(string $addressId, string $mail, string $password, Context $context): void
     {
-        $this->connection->executeUpdate('DELETE FROM customer WHERE email = :mail', [
+        $this->connection->executeStatement('DELETE FROM customer WHERE email = :mail', [
             'mail' => $mail,
         ]);
 
@@ -407,7 +416,7 @@ class CartServiceTest extends TestCase
 
     private function setDomainForSalesChannel(string $domain, string $languageId, Context $context): void
     {
-        /** @var EntityRepositoryInterface $salesChannelRepository */
+        /** @var EntityRepository $salesChannelRepository */
         $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
 
         try {
@@ -424,7 +433,7 @@ class CartServiceTest extends TestCase
             ];
 
             $salesChannelRepository->update([$data], $context);
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             //ignore if domain already exists
         }
     }

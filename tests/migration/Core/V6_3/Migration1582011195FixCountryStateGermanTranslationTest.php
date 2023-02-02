@@ -4,7 +4,7 @@ namespace Shopware\Tests\Migration\Core\V6_3;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
-use Doctrine\DBAL\Statement;
+use Doctrine\DBAL\Result;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Migration\V6_3\Migration1582011195FixCountryStateGermanTranslation;
@@ -18,7 +18,7 @@ class Migration1582011195FixCountryStateGermanTranslationTest extends TestCase
     public function testNoGermanLanguageId(): void
     {
         $connectionMock = $this->createMock(Connection::class);
-        $resultStatement = $this->createMock(Statement::class);
+        $resultStatement = $this->createMock(Result::class);
         $resultStatement->method('fetchOne')->willReturn(false);
 
         // early return because of no german language id by locale de-DE
@@ -54,7 +54,7 @@ class Migration1582011195FixCountryStateGermanTranslationTest extends TestCase
             ->innerJoin('lang', 'locale', 'loc', 'lang.translation_code_id = loc.id')
             ->where('loc.code = :germanLocale')
             ->setParameter('germanLocale', 'de-DE')
-            ->execute()
+            ->executeQuery()
             ->fetchOne();
 
         $translationQuery = $connection->createQueryBuilder()
@@ -69,7 +69,7 @@ class Migration1582011195FixCountryStateGermanTranslationTest extends TestCase
             ->setParameter('germanLanguageId', $germanLanguageId)
             ->setParameter('shortCodes', array_keys($testTranslations), Connection::PARAM_STR_ARRAY);
 
-        $translations = $translationQuery->execute()->fetchAllAssociative();
+        $translations = $translationQuery->executeQuery()->fetchAllAssociative();
 
         foreach ($translations as $translation) {
             $connection->update(
@@ -85,7 +85,7 @@ class Migration1582011195FixCountryStateGermanTranslationTest extends TestCase
         $migration = new Migration1582011195FixCountryStateGermanTranslation();
         $migration->update($connection);
 
-        $afterTranslations = $translationQuery->execute()->fetchAllAssociative();
+        $afterTranslations = $translationQuery->executeQuery()->fetchAllAssociative();
 
         foreach ($afterTranslations as $afterTranslation) {
             if (\in_array($afterTranslation['short_code'], ['DE-SN', 'DE-SH', 'DE-ST'], true)) {

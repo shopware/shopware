@@ -1,7 +1,6 @@
 ---
 title: Fix templates of administration component extensions of components that have overrides
 issue: NEXT-17978
-flag: FEATURE_NEXT_17978
 author: Hannes Wernery
 author_email: hannes.wernery@pickware.de
 author_github: hanneswernery

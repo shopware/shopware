@@ -5,11 +5,11 @@ namespace Shopware\Core\System\Test\Snippet\Files;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
-use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\Snippet\Files\AppSnippetFileLoader;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\Files\SnippetFileLoader;
+use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 
 /**
  * @internal
@@ -19,10 +19,7 @@ class AppSnippetFileLoaderTest extends TestCase
     use IntegrationTestBehaviour;
     use AppSystemTestBehaviour;
 
-    /**
-     * @var SnippetFileLoader
-     */
-    private $snippetFileLoader;
+    private SnippetFileLoader $snippetFileLoader;
 
     public function setUp(): void
     {

@@ -10,12 +10,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Currency\Aggregate\CurrencyCountryRounding\CurrencyCountryRoundingCollection;
 use Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
+#[Package('inventory')]
 class CurrencyEntity extends Entity
 {
     use EntityIdTrait;
@@ -294,19 +295,6 @@ class CurrencyEntity extends Entity
     public function setTotalRounding(CashRoundingConfig $totalRounding): void
     {
         $this->totalRounding = $totalRounding;
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 - Use `itemRounding.decimals` or `totalRounding.decimals`
-     */
-    public function getDecimalPrecision(): int
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', '`itemRounding.decimals` or `totalRounding.decimals`')
-        );
-
-        return $this->itemRounding->getDecimals();
     }
 
     public function getTaxFreeFrom(): ?float

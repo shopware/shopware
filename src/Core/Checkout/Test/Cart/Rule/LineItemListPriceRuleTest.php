@@ -4,7 +4,7 @@ namespace Shopware\Core\Checkout\Test\Cart\Rule;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
@@ -19,7 +19,7 @@ use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -33,6 +33,7 @@ use Shopware\Core\Test\TestDefaults;
  * @internal
  * @group rules
  */
+#[Package('business-ops')]
 class LineItemListPriceRuleTest extends TestCase
 {
     use CartRuleHelperTrait;
@@ -86,6 +87,9 @@ class LineItemListPriceRuleTest extends TestCase
         static::assertSame($expected, $match);
     }
 
+    /**
+     * @return \Traversable<string, array<string|int|bool|null>>
+     */
     public function getMatchingRuleTestData(): \Traversable
     {
         // OPERATOR_EQ
@@ -114,13 +118,6 @@ class LineItemListPriceRuleTest extends TestCase
         // OPERATOR_EMPTY
         yield 'match / operator empty / is empty' => [Rule::OPERATOR_EMPTY, null, null, true];
         yield 'no match / operator empty / is not empty' => [Rule::OPERATOR_EMPTY, 100, 200, false];
-
-        if (!Feature::isActive('v6.5.0.0')) {
-            yield 'no match / operator not equals / without price' => [Rule::OPERATOR_NEQ, 200, 100, false, true];
-            yield 'no match / operator empty / without price' => [Rule::OPERATOR_EMPTY, 100, 200, false, true];
-
-            return;
-        }
 
         yield 'match / operator not equals / without price' => [Rule::OPERATOR_NEQ, 200, 100, true, true];
         yield 'match / operator empty / without price' => [Rule::OPERATOR_EMPTY, 100, 200, true, true];
@@ -215,6 +212,9 @@ class LineItemListPriceRuleTest extends TestCase
         static::assertSame($expected, $match);
     }
 
+    /**
+     * @return \Traversable<string, array<string|int|bool|null>>
+     */
     public function getCartRuleScopeTestData(): \Traversable
     {
         // OPERATOR_EQ
@@ -247,18 +247,6 @@ class LineItemListPriceRuleTest extends TestCase
         yield 'match / operator empty / is empty' => [Rule::OPERATOR_EMPTY, null, null, 100, true];
         yield 'no match / operator empty / is not empty' => [Rule::OPERATOR_EMPTY, 100, 100, 100, false, false, false, 100];
 
-        if (!Feature::isActive('v6.5.0.0')) {
-            yield 'no match / operator not equals / item 1 and 2 without price' => [Rule::OPERATOR_NEQ, 200, 100, 300, false, true, true];
-            yield 'no match / operator not equals / item 1 without price' => [Rule::OPERATOR_NEQ, 100, 100, 100, false, true];
-            yield 'no match / operator not equals / item 2 without price' => [Rule::OPERATOR_NEQ, 100, 100, 100, false, false, true];
-
-            yield 'no match / operator empty / item 1 and 2 without price' => [Rule::OPERATOR_EMPTY, 200, 100, 300, false, true, true];
-            yield 'no match / operator empty / item 1 without price' => [Rule::OPERATOR_EMPTY, 100, 100, 100, false, true];
-            yield 'no match / operator empty / item 2 without price' => [Rule::OPERATOR_EMPTY, 100, 100, 100, false, false, true];
-
-            return;
-        }
-
         yield 'match / operator not equals / item 1 and 2 without price' => [Rule::OPERATOR_NEQ, 200, 100, 300, true, true, true];
         yield 'match / operator not equals / item 1 without price' => [Rule::OPERATOR_NEQ, 100, 100, 100, true, true];
         yield 'match / operator not equals / item 2 without price' => [Rule::OPERATOR_NEQ, 100, 100, 100, true, false, true];
@@ -269,7 +257,7 @@ class LineItemListPriceRuleTest extends TestCase
     }
 
     /**
-     * @throws InvalidQuantityException
+     * @throws CartException
      */
     public function testMatchWithEmptyCalculatedPrice(): void
     {
@@ -284,7 +272,7 @@ class LineItemListPriceRuleTest extends TestCase
     }
 
     /**
-     * @throws InvalidQuantityException
+     * @throws CartException
      */
     public function testMatchWithEmptyListPrice(): void
     {
@@ -304,9 +292,9 @@ class LineItemListPriceRuleTest extends TestCase
     {
         $ids = new TestDataCollection();
 
-        $itemRounding = json_encode(new CashRoundingConfig(2, 0.01, true));
+        $itemRounding = json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR);
         static::assertNotFalse($itemRounding);
-        $totalRounding = json_encode(new CashRoundingConfig(2, 0.01, true));
+        $totalRounding = json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR);
         static::assertNotFalse($totalRounding);
 
         $currency = [
@@ -317,8 +305,8 @@ class LineItemListPriceRuleTest extends TestCase
             'isoCode' => 'US',
             'decimalPrecision' => 2,
             'shortName' => 'dollar',
-            'itemRounding' => json_decode($itemRounding, true),
-            'totalRounding' => json_decode($totalRounding, true),
+            'itemRounding' => json_decode($itemRounding, true, 512, \JSON_THROW_ON_ERROR),
+            'totalRounding' => json_decode($totalRounding, true, 512, \JSON_THROW_ON_ERROR),
         ];
 
         $this->getContainer()->get('currency.repository')
@@ -401,7 +389,7 @@ class LineItemListPriceRuleTest extends TestCase
             ->create('test', TestDefaults::SALES_CHANNEL, ['currencyId' => $ids->get('currency')]);
 
         // fetch cart for recalculation
-        $cart = $service->getCart('test', $context, CartService::SALES_CHANNEL, false);
+        $cart = $service->getCart('test', $context, false);
         $lineItem = $cart->get($ids->get('product'));
 
         $rules = [
@@ -416,9 +404,13 @@ class LineItemListPriceRuleTest extends TestCase
         static::assertInstanceOf(LineItem::class, $lineItem);
         $scope = new LineItemScope($lineItem, $context);
         foreach ($rules as $rule) {
-            // test combination with currency rule to validate currency list prices
+            // test combination with currency rule to validate currency list prices+
+
+            /** @var list<string> $currencyIds */
+            $currencyIds = array_values($ids->getList(['currency']));
+
             $wrapper = new AndRule([
-                new CurrencyRule(CurrencyRule::OPERATOR_EQ, $ids->getList(['currency'])),
+                new CurrencyRule(CurrencyRule::OPERATOR_EQ, $currencyIds),
                 $rule,
             ]);
 
@@ -429,7 +421,7 @@ class LineItemListPriceRuleTest extends TestCase
     private function createLineItemWithListPrice(?float $listPriceAmount): LineItem
     {
         $listPrice = $listPriceAmount === null ? null : ListPrice::createFromUnitPrice(400, $listPriceAmount);
-        $listPriceAmount = $listPriceAmount ?? 99.99;
+        $listPriceAmount ??= 99.99;
 
         return $this->createLineItemWithPrice(LineItem::PRODUCT_LINE_ITEM_TYPE, $listPriceAmount, $listPrice);
     }

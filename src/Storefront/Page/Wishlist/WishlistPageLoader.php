@@ -14,35 +14,25 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaI
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
+#[Package('storefront')]
 class WishlistPageLoader
 {
     private const LIMIT = 24;
 
     private const DEFAULT_PAGE = 1;
 
-    private GenericPageLoaderInterface $genericLoader;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private AbstractLoadWishlistRoute $wishlistLoadRoute;
-
     /**
      * @internal
      */
-    public function __construct(
-        GenericPageLoaderInterface $genericLoader,
-        AbstractLoadWishlistRoute $wishlistLoadRoute,
-        EventDispatcherInterface $eventDispatcher
-    ) {
-        $this->genericLoader = $genericLoader;
-        $this->wishlistLoadRoute = $wishlistLoadRoute;
-        $this->eventDispatcher = $eventDispatcher;
+    public function __construct(private readonly GenericPageLoaderInterface $genericLoader, private readonly AbstractLoadWishlistRoute $wishlistLoadRoute, private readonly EventDispatcherInterface $eventDispatcher)
+    {
     }
 
     /**
@@ -61,7 +51,7 @@ class WishlistPageLoader
 
         try {
             $page->setWishlist($this->wishlistLoadRoute->load($request, $context, $criteria, $customer));
-        } catch (CustomerWishlistNotFoundException $exception) {
+        } catch (CustomerWishlistNotFoundException) {
             $page->setWishlist(
                 new LoadWishlistRouteResponse(
                     new CustomerWishlistEntity(),

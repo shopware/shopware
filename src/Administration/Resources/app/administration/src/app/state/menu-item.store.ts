@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 import type { Module } from 'vuex';
 import type { menuItemAdd } from '@shopware-ag/admin-extension-sdk/es/ui/menu';
 
@@ -27,7 +31,9 @@ const MenuItemStore: Module<MenuItemState, VuexRootState> = {
     },
 };
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 export default MenuItemStore;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type { MenuItemState };

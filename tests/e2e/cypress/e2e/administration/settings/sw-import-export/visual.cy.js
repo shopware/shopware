@@ -12,11 +12,9 @@ describe('Import/Export:  Visual tests', () => {
 
         page = new SettingsPageObject();
 
-        cy.loginViaApi().then(() => {
-            // freezes the system time to Jan 1, 2018
-            const now = new Date(2018, 1, 1);
-            cy.clock(now, ['Date']);
-        }).then(() => {
+        // freezes the system time to Jan 1, 2018
+        const now = new Date(2018, 1, 1);
+        cy.clock(now, ['Date']).then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/import-export/index`);
             cy.get('.sw-skeleton').should('not.exist');
             cy.get('.sw-loader').should('not.exist');
@@ -31,21 +29,21 @@ describe('Import/Export:  Visual tests', () => {
     it('@visual: check appearance of basic im/ex profile workflow', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/import-export-profile`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
         cy.intercept({
             url: `${Cypress.env('apiPath')}//search/import-export-log`,
-            method: 'POST'
+            method: 'POST',
         }).as('getData');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/language`,
-            method: 'POST'
+            method: 'POST',
         }).as('getLanguages');
 
         cy.get('.sw-import-export-view-import').should('be.visible');
         cy.clickMainMenuItem({
             targetPath: '#/sw/settings/index',
-            mainMenuId: 'sw-settings'
+            mainMenuId: 'sw-settings',
         });
         cy.get('#sw-import-export').click();
         cy.wait('@getData')
@@ -70,17 +68,17 @@ describe('Import/Export:  Visual tests', () => {
     it('@visual: check appearance of basic export workflow', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/import-export/prepare`,
-            method: 'POST'
+            method: 'POST',
         }).as('prepare');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/import-export/process`,
-            method: 'POST'
+            method: 'POST',
         }).as('process');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/import-export-log`,
-            method: 'POST'
+            method: 'POST',
         }).as('importExportLog');
 
         cy.get('.sw-import-export-view-import').should('be.visible');
@@ -96,7 +94,7 @@ describe('Import/Export:  Visual tests', () => {
         cy.get('.sw-import-export-exporter__profile-select')
             .typeSingleSelectAndCheck(
                 'Default product',
-                '.sw-import-export-exporter__profile-select'
+                '.sw-import-export-exporter__profile-select',
             );
 
         cy.get('.sw-import-export-progress__start-process-action').click();
@@ -113,7 +111,7 @@ describe('Import/Export:  Visual tests', () => {
         cy.wait('@importExportLog')
             .its('response.statusCode').should('equal', 200);
 
-       cy.get('.sw-skeleton__listing').should('not.exist');
+        cy.get('.sw-skeleton__listing').should('not.exist');
 
         // Take snapshot for visual testing
         cy.awaitAndCheckNotification('Export started');
@@ -130,7 +128,7 @@ describe('Import/Export:  Visual tests', () => {
         cy.clickContextMenuItem(
             '.sw-import-export-activity__log-info-action',
             '.sw-context-button__button',
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.get('.sw-import-export-activity-log-info-modal').should('be.visible');
@@ -148,17 +146,17 @@ describe('Import/Export:  Visual tests', () => {
     it('@visual: check appearance of basic import workflow', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/import-export/prepare`,
-            method: 'POST'
+            method: 'POST',
         }).as('prepare');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/import-export/process`,
-            method: 'POST'
+            method: 'POST',
         }).as('process');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/import-export-log`,
-            method: 'POST'
+            method: 'POST',
         }).as('importExportLog');
 
         // Take snapshot for visual testing
@@ -213,7 +211,7 @@ describe('Import/Export:  Visual tests', () => {
         cy.clickContextMenuItem(
             '.sw-import-export-activity__results-action',
             '.sw-context-button__button',
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         cy.get('.sw-import-export-activity-result-modal').should('be.visible');
@@ -301,7 +299,7 @@ describe('Import/Export:  Visual tests', () => {
         cy.get(`${page.elements.importExportMappingGrid} ${page.elements.dataGridRow}--0 #mappedKey-0`).typeAndCheck('stock');
 
         cy.get(`${page.elements.importExportMappingGrid} ${page.elements.dataGridRow}--0 ${page.elements.importExportEntityPathSelect}`)
-            .click()
+            .click();
 
         cy.get('.sw-select-result-list__content')
             .should('be.visible')
@@ -316,7 +314,7 @@ describe('Import/Export:  Visual tests', () => {
         cy.get(`${page.elements.importExportMappingGrid} ${page.elements.dataGridRow}--0 ${page.elements.importExportEntityPathSelect}`)
             .typeSingleSelectAndCheck(
                 'translations.DEFAULT.name',
-                `${page.elements.dataGridRow}--0 ${page.elements.importExportEntityPathSelect}`
+                `${page.elements.dataGridRow}--0 ${page.elements.importExportEntityPathSelect}`,
             );
 
         // make sure the result list of the select element is closed
@@ -325,6 +323,6 @@ describe('Import/Export:  Visual tests', () => {
 
         cy.get('.sw-admin-menu__sales-channel-item').should('be.visible');
         cy.prepareAdminForScreenshot();
-        cy.takeSnapshot('[Import export] Wizard modal, mappings step', null, null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'})
+        cy.takeSnapshot('[Import export] Wizard modal, mappings step', null, null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
     });
 });

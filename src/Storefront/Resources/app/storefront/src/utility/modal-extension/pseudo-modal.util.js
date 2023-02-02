@@ -1,5 +1,4 @@
 import DomAccess from 'src/helper/dom-access.helper';
-import Feature from 'src/helper/feature.helper';
 import { REMOVE_BACKDROP_DELAY } from 'src/utility/backdrop/backdrop.util';
 
 const PSEUDO_MODAL_CLASS = 'js-pseudo-modal';
@@ -7,6 +6,9 @@ const PSEUDO_MODAL_TEMPLATE_CLASS = 'js-pseudo-modal-template';
 const PSEUDO_MODAL_TEMPLATE_CONTENT_CLASS = 'js-pseudo-modal-template-content-element';
 const PSEUDO_MODAL_TEMPLATE_TITLE_CLASS = 'js-pseudo-modal-template-title-element';
 
+/**
+ * @package storefront
+ */
 export default class PseudoModalUtil {
     constructor(
         content,
@@ -38,12 +40,7 @@ export default class PseudoModalUtil {
     close() {
         const modal = this.getModal();
 
-        /** @deprecated tag:v6.5.0 - Bootstrap v5 uses native HTML elements and events to handle Modal plugin */
-        if (Feature.isActive('v6.5.0.0')) {
-            this._modalInstance = bootstrap.Modal.getInstance(modal);
-        } else {
-            $(modal).modal('hide');
-        }
+        this._modalInstance = bootstrap.Modal.getInstance(modal);
     }
 
     /**
@@ -61,12 +58,7 @@ export default class PseudoModalUtil {
      * updates the modal position
      */
     updatePosition() {
-        /** @deprecated tag:v6.5.0 - Bootstrap v5 uses native HTML elements and events to handle Modal plugin */
-        if (Feature.isActive('v6.5.0.0')) {
-            this._modalInstance.handleUpdate();
-        } else {
-            this._$modal.modal('handleUpdate');
-        }
+        this._modalInstance.handleUpdate();
     }
 
     /**
@@ -94,22 +86,10 @@ export default class PseudoModalUtil {
     _open(cb) {
         this.getModal();
 
-        /** @deprecated tag:v6.5.0 - Bootstrap v5 uses native HTML elements and events to handle Modal plugin */
-        if (Feature.isActive('v6.5.0.0')) {
-            this._modal.addEventListener('hidden.bs.modal', this._modalWrapper.remove);
-            this._modal.addEventListener('shown.bs.modal', cb);
+        this._modal.addEventListener('hidden.bs.modal', this._modalWrapper.remove);
+        this._modal.addEventListener('shown.bs.modal', cb);
 
-            this._modalInstance = new bootstrap.Modal(this._modal, {
-                backdrop: this._useBackdrop,
-            });
-
-            this._modalInstance.show();
-        } else {
-            this._$modal.on('hidden.bs.modal', this._modalWrapper.remove);
-            this._$modal.on('shown.bs.modal', cb);
-            this._$modal.modal({ backdrop: this._useBackdrop });
-            this._$modal.modal('show');
-        }
+        this._modalInstance.show();
     }
 
     /**
@@ -126,10 +106,10 @@ export default class PseudoModalUtil {
         this._modalWrapper.innerHTML = this._content;
         this._modal = this._createModalMarkup();
 
-        /** @deprecated tag:v6.5.0 -  this._$modal will be removed. Bootstrap v5 uses native HTML elements */
-        if (!Feature.isActive('v6.5.0.0')) {
-            this._$modal = $(this._modal);
-        }
+        this._modalInstance = new bootstrap.Modal(this._modal, {
+            backdrop: this._useBackdrop,
+        });
+
         document.body.insertAdjacentElement('beforeend', this._modalWrapper);
     }
 

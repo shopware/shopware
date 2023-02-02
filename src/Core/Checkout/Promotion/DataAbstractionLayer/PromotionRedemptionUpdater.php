@@ -9,28 +9,27 @@ use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * @internal
+ */
+#[Package('core')]
 class PromotionRedemptionUpdater implements EventSubscriberInterface
 {
     /**
-     * @var Connection
-     */
-    private $connection;
-
-    /**
      * @internal
      */
-    public function __construct(Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     /**
      * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             CheckoutOrderPlacedEvent::class => 'orderPlaced',
@@ -62,7 +61,7 @@ class PromotionRedemptionUpdater implements EventSubscriberInterface
                 GROUP BY order_line_item.promotion_id, order_customer.customer_id
 SQL;
 
-        $promotions = $this->connection->fetchAll(
+        $promotions = $this->connection->fetchAllAssociative(
             $sql,
             ['type' => PromotionProcessor::LINE_ITEM_TYPE, 'ids' => Uuid::fromHexToBytesList($ids), 'versionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
             ['ids' => Connection::PARAM_STR_ARRAY]
@@ -85,7 +84,7 @@ SQL;
             $update->execute([
                 'id' => Uuid::fromHexToBytes($id),
                 'count' => (int) $total,
-                'customerCount' => json_encode($totals),
+                'customerCount' => json_encode($totals, \JSON_THROW_ON_ERROR),
             ]);
         }
     }
@@ -133,7 +132,7 @@ SQL;
 
             $update->execute([
                 'id' => Uuid::fromHexToBytes($promotionId),
-                'customerCount' => json_encode($allCustomerCounts[$promotionId]),
+                'customerCount' => json_encode($allCustomerCounts[$promotionId], \JSON_THROW_ON_ERROR),
             ]);
         }
     }
@@ -176,7 +175,7 @@ SQL;
                 continue;
             }
 
-            $customerCount = json_decode($row['orders_per_customer_count'], true);
+            $customerCount = json_decode($row['orders_per_customer_count'], true, 512, \JSON_THROW_ON_ERROR);
             if (!$customerCount) {
                 $allCustomerCounts[Uuid::fromBytesToHex($row['id'])] = [];
 

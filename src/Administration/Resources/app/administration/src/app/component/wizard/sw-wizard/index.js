@@ -4,6 +4,9 @@ import template from './sw-wizard.html.twig';
 const { Component } = Shopware;
 
 /**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @description Provides a wrapper to create a wizard modal. The wizard pages are placed in the default slot of the
  * component. Dot navigation as well as the navigation buttons are dynamically within the wizard itself.

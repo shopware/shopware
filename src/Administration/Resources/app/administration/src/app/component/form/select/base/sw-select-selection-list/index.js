@@ -4,12 +4,14 @@ import './sw-select-selection-list.scss';
 const { Component } = Shopware;
 
 /**
+ * @package admin
+ *
+ * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @status ready
  * @description Base component for rendering selection lists.
  * @example-type code-only
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-select-selection-list', {
     template,
 
@@ -87,13 +89,9 @@ Component.register('sw-select-selection-list', {
 
     computed: {
         showPlaceholder() {
-            if (this.feature.isActive('FEATURE_NEXT_7530')) {
-                return (this.alwaysShowPlaceholder || (this.selections.length === 0 && this.hideLabels))
-                    ? this.placeholder
-                    : '';
-            }
-
-            return (this.selections.length > 0 && !this.hideLabels) ? '' : this.placeholder;
+            return (this.alwaysShowPlaceholder || this.selections.length === 0 || this.hideLabels)
+                ? this.placeholder
+                : '';
         },
     },
 

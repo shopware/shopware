@@ -1,9 +1,9 @@
 import template from './sw-mail-template-create.html.twig';
 
-const { Component } = Shopware;
 const utils = Shopware.Utils;
 
-Component.extend('sw-mail-template-create', 'sw-mail-template-detail', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     beforeRouteEnter(to, from, next) {
@@ -38,4 +38,4 @@ Component.extend('sw-mail-template-create', 'sw-mail-template-detail', {
             this.$super('onSave');
         },
     },
-});
+};

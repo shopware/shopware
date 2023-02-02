@@ -3,30 +3,25 @@
 namespace Shopware\Core\Content\Flow\Dispatching\Action;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\Flow\Dispatching\DelayableAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Event\CustomerAware;
-use Shopware\Core\Framework\Event\DelayAware;
-use Shopware\Core\Framework\Event\FlowEvent;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-class AddCustomerAffiliateAndCampaignCodeAction extends FlowAction
+/**
+ * @internal
+ */
+#[Package('business-ops')]
+class AddCustomerAffiliateAndCampaignCodeAction extends FlowAction implements DelayableAction
 {
-    private Connection $connection;
-
-    private EntityRepositoryInterface $customerRepository;
-
     /**
      * @internal
      */
-    public function __construct(
-        Connection $connection,
-        EntityRepositoryInterface $customerRepository
-    ) {
-        $this->connection = $connection;
-        $this->customerRepository = $customerRepository;
+    public function __construct(private readonly Connection $connection, private readonly EntityRepository $customerRepository)
+    {
     }
 
     public static function getName(): string
@@ -35,49 +30,11 @@ class AddCustomerAffiliateAndCampaignCodeAction extends FlowAction
     }
 
     /**
-     *  @deprecated tag:v6.5.0 Will be removed
-     */
-    public static function getSubscribedEvents(): array
-    {
-        if (Feature::isActive('v6.5.0.0')) {
-            return [];
-        }
-
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
-        );
-
-        return [
-            self::getName() => 'handle',
-        ];
-    }
-
-    /**
      * @return array<int, string>
      */
     public function requirements(): array
     {
-        return [CustomerAware::class, DelayAware::class];
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 Will be removed, implement handleFlow instead
-     */
-    public function handle(FlowEvent $event): void
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
-        );
-
-        $baseEvent = $event->getEvent();
-
-        if (!$baseEvent instanceof CustomerAware) {
-            return;
-        }
-
-        $this->update($baseEvent->getContext(), $event->getConfig(), $baseEvent->getCustomerId());
+        return [CustomerAware::class];
     }
 
     public function handleFlow(StorableFlow $flow): void

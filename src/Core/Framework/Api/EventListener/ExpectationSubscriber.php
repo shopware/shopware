@@ -4,8 +4,8 @@ namespace Shopware\Core\Framework\Api\EventListener;
 
 use Composer\InstalledVersions;
 use Composer\Semver\Semver;
-use Shopware\Core\Framework\Api\Exception\ExceptionFailedException;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Api\Exception\ExpectationFailedException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\PlatformRequest;
@@ -14,6 +14,12 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
+/**
+ * @internal
+ *
+ * @phpstan-type PluginData array{'composerName': string, 'active': bool, 'version': string}
+ */
+#[Package('core')]
 class ExpectationSubscriber implements EventSubscriberInterface
 {
     private const SHOPWARE_CORE_PACKAGES = [
@@ -24,20 +30,13 @@ class ExpectationSubscriber implements EventSubscriberInterface
         'shopware/storefront',
     ];
 
-    private string $shopwareVersion;
-
-    /**
-     * @var array{'composerName': string, 'active': bool, 'version': string}[]
-     */
-    private array $plugins;
-
     /**
      * @internal
+     *
+     * @param list<PluginData> $plugins
      */
-    public function __construct(string $shopwareVersion, array $plugins)
+    public function __construct(private readonly string $shopwareVersion, private readonly array $plugins)
     {
-        $this->shopwareVersion = $shopwareVersion;
-        $this->plugins = $plugins;
     }
 
     public static function getSubscribedEvents(): array
@@ -55,12 +54,8 @@ class ExpectationSubscriber implements EventSubscriberInterface
             return;
         }
 
-        /** @var RouteScope|array $scope */
+        /** @var list<string> $scope */
         $scope = $request->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []);
-
-        if ($scope instanceof RouteScope) {
-            $scope = $scope->getScopes();
-        }
 
         if (!\in_array(ApiRouteScope::ID, $scope, true)) {
             return;
@@ -69,10 +64,13 @@ class ExpectationSubscriber implements EventSubscriberInterface
         $expectations = $this->checkPackages($request);
 
         if (\count($expectations)) {
-            throw new ExceptionFailedException($expectations);
+            throw new ExpectationFailedException($expectations);
         }
     }
 
+    /**
+     * @return list<string>
+     */
     private function checkPackages(Request $request): array
     {
         // swag/plugin1:~6.1,swag/plugin2:~6.1
@@ -101,7 +99,7 @@ class ExpectationSubscriber implements EventSubscriberInterface
             } else {
                 try {
                     $installedVersion = InstalledVersions::getPrettyVersion($name);
-                } catch (\OutOfBoundsException $e) {
+                } catch (\OutOfBoundsException) {
                     $fails[] = sprintf('Requested package: %s is not available', $name);
 
                     continue;
@@ -110,6 +108,11 @@ class ExpectationSubscriber implements EventSubscriberInterface
                 if (\in_array($name, self::SHOPWARE_CORE_PACKAGES, true)) {
                     $installedVersion = $this->shopwareVersion;
                 }
+            }
+
+            if ($installedVersion === null) {
+                // should never happen, but phpstan would complain otherwise
+                continue;
             }
 
             if (Semver::satisfies($installedVersion, $constraint)) {
@@ -124,6 +127,8 @@ class ExpectationSubscriber implements EventSubscriberInterface
 
     /**
      * Plugins are not in the InstalledPackages file until now
+     *
+     * @return array<string, string>
      */
     private function getIndexedPackages(): array
     {

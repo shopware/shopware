@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 const { Application, WorkerNotification } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -43,14 +47,6 @@ class WorkerNotificationListener {
         }, this._onPollIntervalChanged.bind(this));
 
         this._isIntervalWatcherSetup = true;
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 - the message_queue_stats entity will be deprecated
-     * @return {Repository}
-     */
-    getMessageQueueStatsRepository() {
-        return Shopware.Service().get('repositoryFactory').create('message_queue_stats');
     }
 
     _checkQueue() {
@@ -130,5 +126,7 @@ class WorkerNotificationListener {
     }
 }
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 export default WorkerNotificationListener;

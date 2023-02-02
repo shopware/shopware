@@ -20,9 +20,10 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -35,6 +36,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
+#[Package('customer-order')]
 class DocumentGeneratorControllerTest extends TestCase
 {
     use DocumentTrait;
@@ -49,7 +51,7 @@ class DocumentGeneratorControllerTest extends TestCase
 
     private DocumentGenerator $documentGenerator;
 
-    private EntityRepositoryInterface $orderRepository;
+    private EntityRepository $orderRepository;
 
     private string $customerId;
 
@@ -95,7 +97,7 @@ class DocumentGeneratorControllerTest extends TestCase
     {
         $context = Context::createDefaultContext();
 
-        /** @var EntityRepositoryInterface $documentTypeRepository */
+        /** @var EntityRepository $documentTypeRepository */
         $documentTypeRepository = $this->getContainer()->get('document_type.repository');
         $criteria = (new Criteria())->addFilter(new EqualsFilter('technicalName', 'invoice'));
         /** @var DocumentTypeEntity $type */
@@ -125,7 +127,7 @@ class DocumentGeneratorControllerTest extends TestCase
             json_encode([$document]) ?: ''
         );
 
-        $response = json_decode($this->getBrowser()->getResponse()->getContent() ?: '', true);
+        $response = json_decode($this->getBrowser()->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
         static::assertNotEmpty($response);
         static::assertNotEmpty($data = $response['data']);
         static::assertNotEmpty($item = $data[0]);
@@ -143,7 +145,7 @@ class DocumentGeneratorControllerTest extends TestCase
             $expectedFileContent
         );
 
-        $response = json_decode($this->getBrowser()->getResponse()->getContent() ?: '', true);
+        $response = json_decode($this->getBrowser()->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertNotEmpty($response['documentMediaId']);
         $this->getBrowser()->request('GET', $baseResource . '_action/document/' . $response['documentId'] . '/' . $response['documentDeepLink']);
@@ -222,12 +224,12 @@ class DocumentGeneratorControllerTest extends TestCase
 
             $response = $this->getBrowser()->getResponse();
             static::assertEquals(200, $response->getStatusCode());
-            $response = json_decode($response->getContent() ?: '', true);
+            $response = json_decode($response->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
             static::assertNotEmpty($response);
             static::assertNotEmpty($data = $response['data']);
             static::assertCount(2, $data);
 
-            $documentIds = array_merge($documentIds, $this->getDocumentIds($data));
+            $documentIds = [...$documentIds, ...$this->getDocumentIds($data)];
         }
 
         $documents = $this->getDocumentByDocumentIds($documentIds);
@@ -255,7 +257,7 @@ class DocumentGeneratorControllerTest extends TestCase
             json_encode($content) ?: ''
         );
 
-        $response = json_decode($this->getBrowser()->getResponse()->getContent() ?: '', true);
+        $response = json_decode($this->getBrowser()->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
         static::assertEquals(400, $this->getBrowser()->getResponse()->getStatusCode());
@@ -274,7 +276,7 @@ class DocumentGeneratorControllerTest extends TestCase
             json_encode([]) ?: ''
         );
 
-        $response = json_decode($this->getBrowser()->getResponse()->getContent() ?: '', true);
+        $response = json_decode($this->getBrowser()->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
         static::assertEquals(400, $this->getBrowser()->getResponse()->getStatusCode());
@@ -304,7 +306,7 @@ class DocumentGeneratorControllerTest extends TestCase
 
         $response = $this->getBrowser()->getResponse();
 
-        $response = json_decode($response->getContent() ?: '', true);
+        $response = json_decode($response->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
         static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
         static::assertArrayHasKey('errors', $response);
         static::assertArrayHasKey($order->getId(), $response['errors']);
@@ -324,7 +326,7 @@ class DocumentGeneratorControllerTest extends TestCase
         );
 
         static::assertIsString($this->getBrowser()->getResponse()->getContent());
-        $response = json_decode($this->getBrowser()->getResponse()->getContent() ?: '', true);
+        $response = json_decode($this->getBrowser()->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals(400, $this->getBrowser()->getResponse()->getStatusCode());
         static::assertArrayHasKey('errors', $response);
@@ -342,10 +344,8 @@ class DocumentGeneratorControllerTest extends TestCase
         );
 
         static::assertIsString($this->getBrowser()->getResponse()->getContent());
-        $response = json_decode($this->getBrowser()->getResponse()->getContent() ?: '', true);
 
         static::assertEquals(204, $this->getBrowser()->getResponse()->getStatusCode());
-        static::assertNull($response);
     }
 
     public function testDownloadDocuments(): void
@@ -407,7 +407,7 @@ class DocumentGeneratorControllerTest extends TestCase
             'paymentMethodId' => $this->getValidPaymentMethodId(),
             'currencyId' => Defaults::CURRENCY,
             'currencyFactor' => 1.0,
-            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'billingAddressId' => $billingAddressId,
             'addresses' => [
                 [

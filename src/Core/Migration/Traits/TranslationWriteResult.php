@@ -2,22 +2,17 @@
 
 namespace Shopware\Core\Migration\Traits;
 
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 class TranslationWriteResult
 {
     /**
-     * @var array<string>
+     * @param string[] $englishLanguages
+     * @param string[] $germanLanguages
      */
-    private $englishLanguages;
-
-    /**
-     * @var array<string>
-     */
-    private $germanLanguages;
-
-    public function __construct(array $englishLanguages, array $germanLanguages)
+    public function __construct(private readonly array $englishLanguages, private readonly array $germanLanguages)
     {
-        $this->englishLanguages = $englishLanguages;
-        $this->germanLanguages = $germanLanguages;
     }
 
     /**

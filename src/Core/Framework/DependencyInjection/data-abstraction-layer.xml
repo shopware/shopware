@@ -132,7 +132,10 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\CriteriaQueryBuilder"/>
             <argument type="service" id="logger"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\CriteriaFieldsResolver"/>
         </service>
+
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\CriteriaFieldsResolver"/>
 
         <service class="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityAggregator" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface" public="true">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
@@ -263,12 +266,9 @@
             <tag name="shopware.entity.definition"/>
         </service>
 
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IndexTableOperator">
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-        </service>
-
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Command\RefreshIndexCommand">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry"/>
+            <argument type="service" id="event_dispatcher"/>
             <tag name="kernel.event_subscriber"/>
             <tag name="console.command"/>
         </service>
@@ -479,6 +479,7 @@
         <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\PasswordFieldSerializer">
             <argument type="service" id="validator"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
 
             <tag name="shopware.field_serializer"/>
         </service>
@@ -488,8 +489,8 @@
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\PriceFieldSerializer">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="validator"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
 
             <tag name="shopware.field_serializer"/>
         </service>
@@ -601,9 +602,6 @@
         </service>
 
         <service id="Shopware\Core\Framework\Api\Sync\SyncService" public="true">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="Shopware\Core\Framework\Api\Converter\ApiVersionConverter"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter"/>
             <argument type="service" id="event_dispatcher"/>
         </service>
@@ -621,6 +619,10 @@
             <argument type="service" id="messenger.bus.shopware"/>
             <argument type="service" id="event_dispatcher"/>
             <tag name="messenger.message_handler" />
+        </service>
+
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\Subscriber\EntityIndexingSubscriber" >
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry"/>
             <tag name="kernel.event_subscriber" />
         </service>
 
@@ -649,16 +651,5 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument>%shopware.dal.versioning.expire_days%</argument>
         </service>
-
-        <service class="Shopware\Core\Framework\DataAbstractionLayer\EntityRepository" id="product.repository">
-            <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\VersionManager"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface"/>
-            <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory"/>
-        </service>
-
     </services>
 </container>

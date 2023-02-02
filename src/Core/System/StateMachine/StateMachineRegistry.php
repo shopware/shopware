@@ -6,17 +6,18 @@ use Shopware\Core\Content\Flow\Dispatching\Action\SetOrderStateAction;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StateMachineStateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateCollection;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionCollection;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionEntity;
 use Shopware\Core\System\StateMachine\Event\StateMachineStateChangeEvent;
 use Shopware\Core\System\StateMachine\Event\StateMachineTransitionEvent;
@@ -24,47 +25,22 @@ use Shopware\Core\System\StateMachine\Exception\IllegalTransitionException;
 use Shopware\Core\System\StateMachine\Exception\StateMachineInvalidEntityIdException;
 use Shopware\Core\System\StateMachine\Exception\StateMachineInvalidStateFieldException;
 use Shopware\Core\System\StateMachine\Exception\StateMachineNotFoundException;
-use Shopware\Core\System\StateMachine\Exception\StateMachineWithoutInitialStateException;
 use Shopware\Core\System\StateMachine\Exception\UnnecessaryTransitionException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+#[Package('checkout')]
 class StateMachineRegistry
 {
-    private EntityRepositoryInterface $stateMachineRepository;
-
-    private EntityRepositoryInterface $stateMachineStateRepository;
-
-    private EntityRepositoryInterface $stateMachineHistoryRepository;
-
     /**
      * @var StateMachineEntity[]
      */
     private array $stateMachines;
 
-    private EventDispatcherInterface $eventDispatcher;
-
-    private DefinitionInstanceRegistry $definitionRegistry;
-
-    /**
-     * @var StateMachineStateEntity[]
-     */
-    private array $initialStates = [];
-
     /**
      * @internal
      */
-    public function __construct(
-        EntityRepositoryInterface $stateMachineRepository,
-        EntityRepositoryInterface $stateMachineStateRepository,
-        EntityRepositoryInterface $stateMachineHistoryRepository,
-        EventDispatcherInterface $eventDispatcher,
-        DefinitionInstanceRegistry $definitionRegistry
-    ) {
-        $this->stateMachineRepository = $stateMachineRepository;
-        $this->stateMachineStateRepository = $stateMachineStateRepository;
-        $this->stateMachineHistoryRepository = $stateMachineHistoryRepository;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->definitionRegistry = $definitionRegistry;
+    public function __construct(private readonly EntityRepository $stateMachineRepository, private readonly EntityRepository $stateMachineStateRepository, private readonly EntityRepository $stateMachineHistoryRepository, private readonly EventDispatcherInterface $eventDispatcher, private readonly DefinitionInstanceRegistry $definitionRegistry)
+    {
     }
 
     /**
@@ -100,44 +76,13 @@ class StateMachineRegistry
     }
 
     /**
-     * @deprecated tag:v6.5.0 - Use `\Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader::get` instead
-     *
-     * @throws InconsistentCriteriaIdsException
-     * @throws StateMachineNotFoundException
-     * @throws StateMachineWithoutInitialStateException
-     */
-    public function getInitialState(string $stateMachineName, Context $context): StateMachineStateEntity
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'InitialStateIdLoader::get()')
-        );
-
-        if (isset($this->initialStates[$stateMachineName])) {
-            return $this->initialStates[$stateMachineName];
-        }
-
-        /** @var StateMachineEntity|null $stateMachine */
-        $stateMachine = $this->getStateMachine($stateMachineName, $context);
-
-        if ($stateMachine === null) {
-            throw new StateMachineNotFoundException($stateMachineName);
-        }
-
-        $initialState = $stateMachine->getInitialState();
-        if ($initialState === null) {
-            throw new StateMachineWithoutInitialStateException($stateMachineName);
-        }
-
-        return $this->initialStates[$stateMachineName] = $initialState;
-    }
-
-    /**
      * @throws DefinitionNotFoundException
      * @throws InconsistentCriteriaIdsException
      * @throws StateMachineInvalidEntityIdException
      * @throws StateMachineInvalidStateFieldException
      * @throws StateMachineNotFoundException
+     *
+     * @return array<StateMachineTransitionEntity>
      */
     public function getAvailableTransitions(
         string $entityName,
@@ -177,9 +122,7 @@ class StateMachineRegistry
 
         if (empty($transition->getTransitionName())) {
             $transitions = $this->getAvailableTransitionsById($stateMachine->getTechnicalName(), $fromPlace->getId(), $context);
-            $transitionNames = array_map(function (StateMachineTransitionEntity $transition) {
-                return $transition->getActionName();
-            }, $transitions);
+            $transitionNames = array_map(fn (StateMachineTransitionEntity $transition) => $transition->getActionName(), $transitions);
 
             throw new IllegalTransitionException($fromPlace->getId(), '', $transitionNames);
         }
@@ -191,7 +134,7 @@ class StateMachineRegistry
                 $transition->getTransitionName(),
                 $context
             );
-        } catch (UnnecessaryTransitionException $e) {
+        } catch (UnnecessaryTransitionException) {
             // No transition needed, therefore don't create a history entry and return
             $stateMachineStateCollection = new StateMachineStateCollection();
 
@@ -267,14 +210,23 @@ class StateMachineRegistry
     /**
      * @throws StateMachineNotFoundException
      * @throws InconsistentCriteriaIdsException
+     *
+     * @return array<StateMachineTransitionEntity>
      */
     private function getAvailableTransitionsById(string $stateMachineName, string $fromStateId, Context $context): array
     {
         $stateMachine = $this->getStateMachine($stateMachineName, $context);
 
+        $stateMachineTransitions = $stateMachine->getTransitions();
+        if ($stateMachineTransitions === null) {
+            return [];
+        }
+
         $transitions = [];
-        foreach ($stateMachine->getTransitions() as $transition) {
-            if ($transition->getFromStateMachineState()->getId() === $fromStateId) {
+        foreach ($stateMachineTransitions as $transition) {
+            /** @var StateMachineStateEntity $fromState */
+            $fromState = $transition->getFromStateMachineState();
+            if ($fromState->getId() === $fromStateId) {
                 $transitions[] = $transition;
             }
         }
@@ -291,10 +243,15 @@ class StateMachineRegistry
     {
         $stateMachine = $this->getStateMachine($stateMachineName, $context);
 
-        foreach ($stateMachine->getTransitions() as $transition) {
+        /** @var StateMachineTransitionCollection $stateMachineTransitions */
+        $stateMachineTransitions = $stateMachine->getTransitions();
+
+        foreach ($stateMachineTransitions as $transition) {
+            /** @var StateMachineStateEntity $toState */
+            $toState = $transition->getToStateMachineState();
             // Always allow to cancel a payment whether its a valid transition or not
             if ($transition->getActionName() === 'cancel' && $transitionName === 'cancel') {
-                return $transition->getToStateMachineState();
+                return $toState;
             }
 
             // Not the transition that was requested step over
@@ -303,13 +260,15 @@ class StateMachineRegistry
             }
 
             // Already transitioned, this exception is handled by StateMachineRegistry::transition
-            if ($transition->getToStateMachineState()->getId() === $fromStateId) {
+            if ($toState->getId() === $fromStateId) {
                 throw new UnnecessaryTransitionException($transitionName);
             }
 
+            /** @var StateMachineStateEntity $fromState */
+            $fromState = $transition->getFromStateMachineState();
             // Desired transition found
-            if ($transition->getFromStateMachineState()->getId() === $fromStateId) {
-                return $transition->getToStateMachineState();
+            if ($fromState->getId() === $fromStateId) {
+                return $toState;
             }
         }
 
@@ -323,9 +282,7 @@ class StateMachineRegistry
         }
 
         $transitions = $this->getAvailableTransitionsById($stateMachineName, $fromStateId, $context);
-        $transitionNames = array_map(function (StateMachineTransitionEntity $transition) {
-            return $transition->getActionName();
-        }, $transitions);
+        $transitionNames = array_map(fn (StateMachineTransitionEntity $transition) => $transition->getActionName(), $transitions);
 
         throw new IllegalTransitionException(
             $fromStateId,
@@ -360,7 +317,7 @@ class StateMachineRegistry
         string $entityId,
         string $stateFieldName,
         Context $context,
-        EntityRepositoryInterface $repository
+        EntityRepository $repository
     ): StateMachineStateEntity {
         $entity = $repository->search(new Criteria([$entityId]), $context)->get($entityId);
 

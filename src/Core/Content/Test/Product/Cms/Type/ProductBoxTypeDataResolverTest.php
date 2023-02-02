@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Test\Product\Cms\Type;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockCollection;
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockEntity;
@@ -34,7 +35,7 @@ class ProductBoxTypeDataResolverTest extends TestCase
 {
     private ProductBoxCmsElementResolver $productBoxResolver;
 
-    private $systemConfig;
+    private MockObject&SystemConfigService $systemConfig;
 
     protected function setUp(): void
     {

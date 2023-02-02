@@ -41,8 +41,10 @@ Gesamtkosten Brutto: {{ total|currency(currencyIsoCode,decimals=decimals) }}
 Gesamtkosten Brutto gerundet: {{ order.price.totalPrice|currency(currencyIsoCode,decimals=order.totalRounding.decimals) }}
 {% endif %}
 
+{% if delivery %}
 Gewählte Versandart: {{ delivery.shippingMethod.translated.name }}
 {{ delivery.shippingMethod.translated.description }}
+{% endif %}
 
 {% set billingAddress = order.addresses.get(order.billingAddressId) %}
 Rechnungsadresse:
@@ -52,12 +54,14 @@ Rechnungsadresse:
 {{ billingAddress.zipcode }} {{ billingAddress.city }}
 {{ billingAddress.country.translated.name }}
 
+{% if delivery %}
 Lieferadresse:
 {{ delivery.shippingOrderAddress.company }}
 {{ delivery.shippingOrderAddress.firstName }} {{ delivery.shippingOrderAddress.lastName }}
 {{ delivery.shippingOrderAddress.street }}
 {{ delivery.shippingOrderAddress.zipcode}} {{ delivery.shippingOrderAddress.city }}
 {{ delivery.shippingOrderAddress.country.translated.name }}
+{% endif %}
 
 {% if order.orderCustomer.vatIds %}
 Ihre Umsatzsteuer-ID: {{ order.orderCustomer.vatIds|first }}

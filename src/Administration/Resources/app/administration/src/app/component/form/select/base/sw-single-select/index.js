@@ -1,10 +1,16 @@
+/**
+ * @package admin
+ */
+
 import './sw-single-select.scss';
 import template from './sw-single-select.html.twig';
 
 const { Component, Mixin } = Shopware;
 const { debounce, get } = Shopware.Utils;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 Component.register('sw-single-select', {
     template,
 
@@ -136,11 +142,7 @@ Component.register('sw-single-select', {
          * @returns {Array}
          */
         visibleResults() {
-            if (this.feature.isActive('FEATURE_NEXT_7530')) {
-                return this.results.filter(result => !result.hidden);
-            }
-
-            return this.results;
+            return this.results.filter(result => !result.hidden);
         },
     },
 

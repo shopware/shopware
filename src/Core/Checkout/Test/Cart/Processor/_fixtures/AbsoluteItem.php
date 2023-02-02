@@ -7,11 +7,13 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CurrencyPriceDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
+#[Package('checkout')]
 class AbsoluteItem extends LineItem
 {
     public function __construct(float $price, ?string $id = null)

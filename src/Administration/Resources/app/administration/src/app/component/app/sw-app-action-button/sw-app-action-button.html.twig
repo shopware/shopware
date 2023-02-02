@@ -1,9 +1,7 @@
-{# @feature-deprecated (FEATURE_NEXT_14360) tag:v6.5.0 - `component` will be removed use `div` as a replacement,
-`:is="openInNewTab ? 'a' : 'div'"` and `v-bind="linkData"` will be removed #}
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_connect_action_button %}
-<component
-    :is="openInNewTab ? 'a' : 'div'"
+<!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
+<div
     v-tooltip.left="{
         message: $tc('sw-privileges.tooltip.warning'),
         disabled: acl.can(`app.${action.app}`),
@@ -14,7 +12,6 @@
         'sw-context-menu-item--icon': !!action.icon,
         'sw-context-menu-item--disabled': !acl.can(`app.${action.app}`)
     }"
-    v-bind="linkData"
     @click="runAction"
 >
 
@@ -27,12 +24,6 @@
 
     <span class="sw-context-menu-item__text">
         {{ buttonLabel }}
-        {# @feature-deprecated (FEATURE_NEXT_14360) tag:v6.5.0 - `sw-icon` will be removed #}
-        <sw-icon
-            v-if="openInNewTab"
-            name="regular-external-link"
-            size="12px"
-        />
     </span>
-</component>
+</div>
 {% endblock %}

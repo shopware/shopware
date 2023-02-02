@@ -1,3 +1,7 @@
+/**
+ * @package customer-order
+ */
+
 Shopware.Service('privileges').addPrivilegeMappingEntry({
     category: 'permissions',
     parent: 'settings',
@@ -7,6 +11,7 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
             privileges: [
                 'system_config:read',
                 'tax:read',
+                'tax_provider:read',
                 'tax_rule:read',
                 'tax_rule_type:read',
                 'country:read',

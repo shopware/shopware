@@ -3,8 +3,10 @@
 namespace Shopware\Storefront\Page\Checkout\Finish;
 
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Page\Page;
 
+#[Package('storefront')]
 class CheckoutFinishPage extends Page
 {
     /**

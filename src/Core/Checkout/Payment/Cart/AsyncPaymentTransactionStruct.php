@@ -4,7 +4,9 @@ namespace Shopware\Core\Checkout\Payment\Cart;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('checkout')]
 class AsyncPaymentTransactionStruct extends SyncPaymentTransactionStruct
 {
     /**

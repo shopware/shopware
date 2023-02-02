@@ -3,7 +3,7 @@
 namespace Shopware\Core\Installer\Controller;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Installer\Configuration\AdminConfigurationService;
 use Shopware\Core\Installer\Configuration\EnvConfigWriter;
 use Shopware\Core\Installer\Configuration\ShopConfigurationService;
@@ -20,54 +20,18 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  * @phpstan-type Shop array{name: string, locale: string, currency: string, additionalCurrencies: null|list<string>, country: string, email: string, host: string, basePath: string, schema: string, blueGreenDeployment: bool}
  * @phpstan-type AdminUser array{email: string, username: string, firstName: string, lastName: string, password: string}
  */
+#[Package('core')]
 class ShopConfigurationController extends InstallerController
 {
-    private DatabaseConnectionFactory $connectionFactory;
-
-    private EnvConfigWriter $envConfigWriter;
-
-    private ShopConfigurationService $shopConfigurationService;
-
-    private AdminConfigurationService $adminConfigurationService;
-
-    /**
-     * @var array<string, string>
-     */
-    private array $supportedLanguages;
-
-    /**
-     * @var list<string>
-     */
-    private array $supportedCurrencies;
-
-    private TranslatorInterface $translator;
-
     /**
      * @param array<string, string> $supportedLanguages
      * @param list<string> $supportedCurrencies
      */
-    public function __construct(
-        DatabaseConnectionFactory $connectionFactory,
-        EnvConfigWriter $envConfigWriter,
-        ShopConfigurationService $shopConfigurationService,
-        AdminConfigurationService $adminConfigurationService,
-        TranslatorInterface $translator,
-        array $supportedLanguages,
-        array $supportedCurrencies
-    ) {
-        $this->connectionFactory = $connectionFactory;
-        $this->envConfigWriter = $envConfigWriter;
-        $this->shopConfigurationService = $shopConfigurationService;
-        $this->adminConfigurationService = $adminConfigurationService;
-        $this->supportedLanguages = $supportedLanguages;
-        $this->supportedCurrencies = $supportedCurrencies;
-        $this->translator = $translator;
+    public function __construct(private readonly DatabaseConnectionFactory $connectionFactory, private readonly EnvConfigWriter $envConfigWriter, private readonly ShopConfigurationService $shopConfigurationService, private readonly AdminConfigurationService $adminConfigurationService, private readonly TranslatorInterface $translator, private readonly array $supportedLanguages, private readonly array $supportedCurrencies)
+    {
     }
 
-    /**
-     * @Since("6.4.15.0")
-     * @Route("/installer/configuration", name="installer.configuration", methods={"GET", "POST"})
-     */
+    #[Route(path: '/installer/configuration', name: 'installer.configuration', methods: ['GET', 'POST'])]
     public function shopConfiguration(Request $request): Response
     {
         $session = $request->getSession();
@@ -93,7 +57,7 @@ class ShopConfigurationController extends InstallerController
             ];
 
             /** @var list<string>|null $availableCurrencies */
-            $availableCurrencies = $request->request->get('available_currencies');
+            $availableCurrencies = $request->request->all('available_currencies');
 
             $schema = 'http';
             // This is for supporting Apache 2.2
@@ -113,7 +77,7 @@ class ShopConfigurationController extends InstallerController
                 'email' => (string) $request->request->get('config_mail'),
                 'host' => (string) $_SERVER['HTTP_HOST'],
                 'schema' => $schema,
-                'basePath' => str_replace('/index.php', '', $_SERVER['SCRIPT_NAME']),
+                'basePath' => str_replace('/index.php', '', (string) $_SERVER['SCRIPT_NAME']),
                 'blueGreenDeployment' => (bool) $session->get(BlueGreenDeploymentService::ENV_NAME),
             ];
 
@@ -160,22 +124,18 @@ class ShopConfigurationController extends InstallerController
         $localeIsoCode = mb_substr($this->supportedLanguages[$currentLocale], -2, 2);
 
         // flattening array
-        $countryIsos = array_map(function ($country) use ($localeIsoCode) {
-            return [
-                'iso3' => $country['iso3'],
-                'default' => $country['iso'] === $localeIsoCode,
-                'translated' => $this->translator->trans('shopware.installer.select_country_' . mb_strtolower($country['iso3'])),
-            ];
-        }, $countries);
+        $countryIsos = array_map(fn ($country) => [
+            'iso3' => $country['iso3'],
+            'default' => $country['iso'] === $localeIsoCode,
+            'translated' => $this->translator->trans('shopware.installer.select_country_' . mb_strtolower((string) $country['iso3'])),
+        ], $countries);
 
         usort(/**
          * sorting country by translated
          *
          * @param array<string, string> $first
          * @param array<string, string> $second
-         */ $countryIsos, function (array $first, array $second) {
-            return strcmp($first['translated'], $second['translated']);
-        });
+         */ $countryIsos, fn (array $first, array $second) => strcmp((string) $first['translated'], (string) $second['translated']));
 
         return $countryIsos;
     }

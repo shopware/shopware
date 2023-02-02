@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\StateAwareTrait;
 
 /**
@@ -13,29 +14,12 @@ use Shopware\Core\Framework\Struct\StateAwareTrait;
  *
  * @extends EntityCollection<Entity>
  */
+#[Package('core')]
 class EntitySearchResult extends EntityCollection
 {
     use StateAwareTrait;
 
-    /**
-     * @var string
-     */
-    protected $entity;
-
-    /**
-     * @var int
-     */
-    protected $total;
-
-    /**
-     * @var EntityCollection<Entity>
-     */
-    protected $entities;
-
-    /**
-     * @var AggregationResultCollection
-     */
-    protected $aggregations;
+    protected AggregationResultCollection $aggregations;
 
     /**
      * @var Criteria
@@ -61,23 +45,20 @@ class EntitySearchResult extends EntityCollection
      * @phpstan-ignore-next-line -> we can't generalize the type of EntityCollection here
      */
     final public function __construct(
-        string $entity,
-        int $total,
-        EntityCollection $entities,
+        protected string $entity,
+        protected int $total,
+        protected EntityCollection $entities,
         ?AggregationResultCollection $aggregations,
         Criteria $criteria,
         Context $context
     ) {
-        $this->entities = $entities;
-        $this->total = $total;
-        $this->aggregations = $aggregations ?? new AggregationResultCollection();
         $this->criteria = $criteria;
         $this->context = $context;
+        $this->aggregations = $aggregations ?? new AggregationResultCollection();
         $this->limit = $criteria->getLimit();
         $this->page = !$criteria->getLimit() ? 1 : (int) ceil((($criteria->getOffset() ?? 0) + 1) / $criteria->getLimit());
 
         parent::__construct($entities);
-        $this->entity = $entity;
     }
 
     public function filter(\Closure $closure)
@@ -189,13 +170,19 @@ class EntitySearchResult extends EntityCollection
     }
 
     /**
-     * @phpstan-ignore-next-line -> we can't generalize the iterable type here
+     * @return static
+     *
+     * @deprecated tag:v6.6.0  - reason:return-type-change - Return type will be changed to `static`
      */
     protected function createNew(iterable $elements = [])
     {
+        if (!($elements instanceof EntityCollection)) {
+            $elements = new EntityCollection($elements);
+        }
+
         return new static(
             $this->entity,
-            $this->total,
+            $elements->count(),
             $elements,
             $this->aggregations,
             $this->criteria,

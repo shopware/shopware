@@ -4,7 +4,9 @@ namespace Shopware\Core\Content\Product\Cart;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('inventory')]
 class ProductLineItemFactory
 {
     public function createList(array $products): LineItemCollection

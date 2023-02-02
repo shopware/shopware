@@ -1,11 +1,12 @@
 import template from './sw-advanced-selection-rule.html.twig';
 import './sw-advanced-selection-rule.scss';
 
-const { Component, Feature } = Shopware;
+const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
  * @private
+ * @package business-ops
  * @description Configures the advanced selection in entity selects.
  * Should only be used as a parameter `advanced-selection-component="sw-advanced-selection-rule"`
  * to `sw-entity-...-select` components.
@@ -209,9 +210,7 @@ Component.register('sw-advanced-selection-rule', {
                 'tags',
             ];
 
-            if (this.feature.isActive('FEATURE_NEXT_18215')) {
-                associations.push('conditions');
-            }
+            associations.push('conditions');
 
             return associations;
         },
@@ -242,7 +241,7 @@ Component.register('sw-advanced-selection-rule', {
 
     methods: {
         getColumnClass(item) {
-            if (!Feature.isActive('FEATURE_NEXT_18215') && !this.restrictedRuleIds.includes(item.id)) {
+            if (!this.restrictedRuleIds.includes(item.id)) {
                 return '';
             }
 
@@ -257,10 +256,6 @@ Component.register('sw-advanced-selection-rule', {
                 };
             }
 
-            if (!this.feature.isActive('FEATURE_NEXT_18215')) {
-                return { message: '', disabled: true };
-            }
-
             return this.ruleConditionDataProviderService.getRestrictedRuleTooltipConfig(
                 rule.conditions,
                 this.ruleAwareGroupKey,
@@ -268,11 +263,11 @@ Component.register('sw-advanced-selection-rule', {
         },
 
         isRestricted(item) {
-            const insideRestrictedRuleIds = this.restrictedRuleIds.includes(item.id);
-
-            if (!this.feature.isActive('FEATURE_NEXT_18215')) {
-                return insideRestrictedRuleIds;
+            if (item.areas?.includes('flow-condition') && this.ruleAwareGroupKey !== 'flowConditions') {
+                return true;
             }
+
+            const insideRestrictedRuleIds = this.restrictedRuleIds.includes(item.id);
 
             const isRuleRestricted = this.ruleConditionDataProviderService.isRuleRestricted(
                 item.conditions,
@@ -283,7 +278,7 @@ Component.register('sw-advanced-selection-rule', {
         },
 
         isRecordSelectable(item) {
-            if (!Feature.isActive('FEATURE_NEXT_18215') && !this.restrictedRuleIds.includes(item.id)) {
+            if (!this.restrictedRuleIds.includes(item.id)) {
                 return {};
             }
 

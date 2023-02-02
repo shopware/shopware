@@ -7,8 +7,10 @@ use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
+#[Package('customer-order')]
 class CustomerGroupEntity extends Entity
 {
     use EntityIdTrait;

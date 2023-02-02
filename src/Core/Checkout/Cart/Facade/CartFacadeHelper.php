@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\Service\ResetInterface;
@@ -19,24 +20,16 @@ use Symfony\Contracts\Service\ResetInterface;
 /**
  * @internal
  */
+#[Package('checkout')]
 class CartFacadeHelper implements ResetInterface
 {
-    private LineItemFactoryRegistry $factory;
-
-    private Processor $processor;
-
-    private Connection $connection;
-
     private array $currencies = [];
 
     /**
      * @internal
      */
-    public function __construct(LineItemFactoryRegistry $factory, Processor $processor, Connection $connection)
+    public function __construct(private readonly LineItemFactoryRegistry $factory, private readonly Processor $processor, private readonly Connection $connection)
     {
-        $this->factory = $factory;
-        $this->processor = $processor;
-        $this->connection = $connection;
     }
 
     public function product(string $productId, int $quantity, SalesChannelContext $context): LineItem

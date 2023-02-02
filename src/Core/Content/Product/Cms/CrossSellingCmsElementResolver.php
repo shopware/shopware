@@ -9,18 +9,17 @@ use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\CrossSellingStruct;
 use Shopware\Core\Content\Product\SalesChannel\CrossSelling\AbstractProductCrossSellingRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 
+#[Package('inventory')]
 class CrossSellingCmsElementResolver extends AbstractProductDetailCmsElementResolver
 {
-    private AbstractProductCrossSellingRoute $crossSellingLoader;
-
     /**
      * @internal
      */
-    public function __construct(AbstractProductCrossSellingRoute $crossSellingLoader)
+    public function __construct(private readonly AbstractProductCrossSellingRoute $crossSellingLoader)
     {
-        $this->crossSellingLoader = $crossSellingLoader;
     }
 
     public function getType(): string

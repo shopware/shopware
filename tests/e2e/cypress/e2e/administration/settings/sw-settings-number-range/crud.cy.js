@@ -4,26 +4,23 @@ const page = new SettingsPageObject();
 
 describe('Number Range: Test crud number range', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                return cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/number/range/index`);
-            });
+        cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/number/range/index`);
     });
 
     it('@settings: create and read number range', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: '/api/search/number-range',
-            method: 'POST'
+            method: 'POST',
         }).as('saveData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/number-range-type`,
-            method: 'POST'
+            method: 'POST',
         }).as('searchNumberRangeType');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/sales-channel`,
-            method: 'POST'
+            method: 'POST',
         }).as('searchSalesChannel');
 
         cy.get('.sw-skeleton').should('not.exist');
@@ -38,7 +35,7 @@ describe('Number Range: Test crud number range', () => {
         cy.get('#numberRangeTypes')
             .typeSingleSelectAndCheck(
                 'Cancellation',
-                '#numberRangeTypes'
+                '#numberRangeTypes',
             );
 
         cy.wait('@searchNumberRangeType')
@@ -63,7 +60,7 @@ describe('Number Range: Test crud number range', () => {
         // Request we want to wait for later
         cy.intercept({
             url: '/api/number-range/*',
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveData');
 
         cy.get('.sw-skeleton').should('not.exist');
@@ -72,7 +69,7 @@ describe('Number Range: Test crud number range', () => {
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--1`
+            `${page.elements.dataGridRow}--1`,
         );
 
         cy.get('input[name=sw-field--numberRange-name]').clear();
@@ -92,7 +89,7 @@ describe('Number Range: Test crud number range', () => {
         // Request we want to wait for later
         cy.intercept({
             url: '/api/number-range/*',
-            method: 'delete'
+            method: 'delete',
         }).as('deleteData');
 
         cy.get('.sw-skeleton').should('not.exist');
@@ -102,7 +99,7 @@ describe('Number Range: Test crud number range', () => {
         cy.clickContextMenuItem(
             `${page.elements.contextMenu}-item--danger`,
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
         cy.get('.sw-modal__body').should('be.visible');
         cy.get(`${page.elements.dataGridRow}--0 ${page.elements.numberRangeColumnName}`).then(row => {

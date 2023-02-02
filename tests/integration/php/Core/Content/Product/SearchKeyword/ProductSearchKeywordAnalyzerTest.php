@@ -10,7 +10,7 @@ use Shopware\Core\Content\Product\SearchKeyword\AnalyzedKeyword;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchKeywordAnalyzer;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
@@ -28,12 +28,12 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
     private const CUSTOM_FIELDS = 'customFields';
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $productRepository;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $productSearchConfigRepository;
 
@@ -42,25 +42,13 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
      */
     private $connection;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
-    /**
-     * @var TestDataCollection
-     */
-    private $ids;
+    private TestDataCollection $ids;
 
-    /**
-     * @var string
-     */
-    private $enSearchConfigId;
+    private string $enSearchConfigId;
 
-    /**
-     * @var string
-     */
-    private $deSearchConfigId;
+    private string $deSearchConfigId;
 
     protected function setUp(): void
     {
@@ -141,9 +129,7 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
 
         $result = $analyzer->analyze($product, Context::createDefaultContext(), $config);
 
-        $words = $result->map(function (AnalyzedKeyword $keyword) {
-            return $keyword->getKeyword();
-        });
+        $words = $result->map(fn (AnalyzedKeyword $keyword) => $keyword->getKeyword());
 
         static::assertEquals(
             ['searchable', 'match', 'array', '10000000', '10.99999', 'nested'],
@@ -340,7 +326,7 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
         $query->andWhere('searchable = 1');
         $query->setParameter('searchConfigId', Uuid::fromHexToBytes($searchConfigId));
 
-        return $query->execute()->fetchAll();
+        return $query->executeQuery()->fetchAllAssociative();
     }
 
     private function getProduct(): ProductEntity
@@ -590,7 +576,7 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
         bool $tokenize,
         int $ranking
     ): void {
-        $this->connection->executeUpdate(
+        $this->connection->executeStatement(
             'UPDATE `product_search_config_field`
                     SET `searchable` = :searchable, `tokenize` = :tokenize, `ranking` = :ranking
                     WHERE `product_search_config_id` =:searchConfigId',

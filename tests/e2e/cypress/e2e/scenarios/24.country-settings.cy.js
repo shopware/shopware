@@ -2,33 +2,31 @@
 
 describe('Storefront: test registration with country settings & invalid inputs', () => {
     beforeEach(() => {
-        cy.loginViaApi().then(() => {
-            cy.authenticate().then((result) => {
-                const requestConfig = {
-                    headers: {
-                        Authorization: `Bearer ${result.access}`
+        cy.authenticate().then((result) => {
+            const requestConfig = {
+                headers: {
+                    Authorization: `Bearer ${result.access}`,
+                },
+                method: 'POST',
+                url: `api/_action/system-config/batch`,
+                body: {
+                    null: {
+                        'core.loginRegistration.showAccountTypeSelection': true,
                     },
-                    method: 'POST',
-                    url: `api/_action/system-config/batch`,
-                    body: {
-                        null: {
-                            'core.loginRegistration.showAccountTypeSelection': true
-                        }
-                    }
-                };
-                return cy.request(requestConfig);
-            });
+                },
+            };
+            return cy.request(requestConfig);
         });
     });
 
     it('@package: should not validate registration with wrong VAT Reg.No format', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/country`,
-            method: 'POST'
+            method: 'POST',
         }).as('getCountrySettings');
         cy.intercept({
             url: `/account/register`,
-            method: 'POST'
+            method: 'POST',
         }).as('registerCustomer');
 
         // Country settings
@@ -68,12 +66,12 @@ describe('Storefront: test registration with country settings & invalid inputs',
     it('@package: should not validate registration with empty VAT-ID', () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/country`,
-            method: 'POST'
+            method: 'POST',
         }).as('getCountrySettings');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/country/**`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('saveCountrySettings');
 
         // Country settings
@@ -119,18 +117,24 @@ describe('Storefront: test registration with country settings & invalid inputs',
     it('@package: should not validate registration without required state selection', () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/country`,
-            method: 'POST'
+            method: 'POST',
         }).as('getCountrySettings');
 
         // Country settings
         cy.visit(`${Cypress.env('admin')}#/sw/dashboard/index`);
+        cy.get('.sw-dashboard-index__welcome-title').should('be.visible');
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
-        cy.goToSalesChannelDetail('E2E install test')
-            .selectCountryForSalesChannel('Germany');
+
+        cy.goToSalesChannelDetail('E2E install test');
+        cy.contains('.smart-bar__header', 'E2E install test');
+        cy.selectCountryForSalesChannel('Germany');
+
         cy.visit(`${Cypress.env('admin')}#/sw/settings/country/index`);
+        cy.contains('.sw-page__smart-bar-amount', '250');
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
+
         cy.get('.sw-search-bar__input').typeAndCheckSearchField('Germany');
         cy.wait('@getCountrySettings').its('response.statusCode').should('equal', 200);
         cy.get('.sw-skeleton').should('not.exist');
@@ -139,6 +143,16 @@ describe('Storefront: test registration with country settings & invalid inputs',
         cy.get(`.sw-data-grid__cell--name`).contains('Germany').click();
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
+
+        cy.featureIsActive('v6.5.0.0').then(isActive => {
+            if (isActive) {
+                // Country handling tab
+                cy.get('.sw-settings-country__address-handling-tab').click();
+                cy.get('[name="sw-field--country-postalCodeRequired"]').check();
+                cy.get('[name="sw-field--country-checkPostalCodePattern"]').check();
+                cy.get('[name="sw-field--country-checkAdvancedPostalCodePattern"]').check();
+            }
+        });
         cy.get('[name="sw-field--country-forceStateInRegistration"]').check();
         cy.get('.sw-button-process__content').click();
         cy.wait('@getCountrySettings').its('response.statusCode').should('equal', 200);

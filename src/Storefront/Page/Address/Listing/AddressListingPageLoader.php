@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaI
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Country\SalesChannel\AbstractCountryRoute;
@@ -22,55 +23,14 @@ use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
+#[Package('storefront')]
 class AddressListingPageLoader
 {
     /**
-     * @var GenericPageLoaderInterface
-     */
-    private $genericLoader;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
-     * @var CartService
-     */
-    private $cartService;
-
-    /**
-     * @var AbstractCountryRoute
-     */
-    private $countryRoute;
-
-    /**
-     * @var AbstractSalutationRoute
-     */
-    private $salutationRoute;
-
-    /**
-     * @var AbstractListAddressRoute
-     */
-    private $listAddressRoute;
-
-    /**
      * @internal
      */
-    public function __construct(
-        GenericPageLoaderInterface $genericLoader,
-        AbstractCountryRoute $countryRoute,
-        AbstractSalutationRoute $salutationRoute,
-        AbstractListAddressRoute $listAddressRoute,
-        EventDispatcherInterface $eventDispatcher,
-        CartService $cartService
-    ) {
-        $this->genericLoader = $genericLoader;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->cartService = $cartService;
-        $this->countryRoute = $countryRoute;
-        $this->salutationRoute = $salutationRoute;
-        $this->listAddressRoute = $listAddressRoute;
+    public function __construct(private readonly GenericPageLoaderInterface $genericLoader, private readonly AbstractCountryRoute $countryRoute, private readonly AbstractSalutationRoute $salutationRoute, private readonly AbstractListAddressRoute $listAddressRoute, private readonly EventDispatcherInterface $eventDispatcher, private readonly CartService $cartService)
+    {
     }
 
     /**
@@ -113,9 +73,7 @@ class AddressListingPageLoader
     {
         $salutations = $this->salutationRoute->load(new Request(), $context, new Criteria())->getSalutations();
 
-        $salutations->sort(function (SalutationEntity $a, SalutationEntity $b) {
-            return $b->getSalutationKey() <=> $a->getSalutationKey();
-        });
+        $salutations->sort(fn (SalutationEntity $a, SalutationEntity $b) => $b->getSalutationKey() <=> $a->getSalutationKey());
 
         return $salutations;
     }

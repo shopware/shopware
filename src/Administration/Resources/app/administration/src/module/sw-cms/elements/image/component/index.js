@@ -2,12 +2,13 @@ import CMS from '../../../constant/sw-cms.constant';
 import template from './sw-cms-el-image.html.twig';
 import './sw-cms-el-image.scss';
 
-const { Component, Mixin, Filter } = Shopware;
+const { Mixin, Filter } = Shopware;
 
 /**
- * @private since v6.5.0
+ * @private
+ * @package content
  */
-Component.register('sw-cms-el-image', {
+export default {
     template,
 
     mixins: [
@@ -107,4 +108,4 @@ Component.register('sw-cms-el-image', {
             this.initElementData('image');
         },
     },
-});
+};

@@ -13,7 +13,10 @@
     }
 
     .sw-media-breadcrumbs__entry {
-        font-size: $font-size-large;
+        font-size: $font-size-m;
+        display: flex;
+        align-items: center;
+        margin-top: 5px;
 
         @include truncate;
     }
@@ -24,9 +27,18 @@
 
     .sw-media-breadcrumbs__arrow-separator {
         color: $color-darkgray-200;
+
+        &.sw-icon {
+            width: 22px;
+            height: 22px;
+            padding-top: 7px;
+            padding-right: 7px;
+            padding-bottom: 6px;
+            padding-left: 10px;
+        }
     }
 
     &.is--small .sw-media-breadcrumbs__entry {
-        font-size: $font-size-small;
+        font-size: $font-size-xs;
     }
 }

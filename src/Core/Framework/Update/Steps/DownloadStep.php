@@ -2,22 +2,15 @@
 
 namespace Shopware\Core\Framework\Update\Steps;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Update\Services\Download;
 use Shopware\Core\Framework\Update\Struct\Version;
 
+#[Package('system-settings')]
 class DownloadStep
 {
-    private Version $version;
-
-    private string $destination;
-
-    private bool $testMode;
-
-    public function __construct(Version $version, string $destination, bool $testMode = false)
+    public function __construct(private readonly Version $version, private readonly string $destination, private readonly bool $testMode = false)
     {
-        $this->version = $version;
-        $this->destination = $destination;
-        $this->testMode = $testMode;
     }
 
     /**
@@ -39,9 +32,7 @@ class DownloadStep
 
         $download = new Download();
         $startTime = microtime(true);
-        $download->setHaltCallback(static function () use ($startTime) {
-            return microtime(true) - $startTime > 10;
-        });
+        $download->setHaltCallback(static fn () => microtime(true) - $startTime > 10);
 
         $offset = $download->downloadFile($this->version->uri, $this->destination, (int) $this->version->size, $this->version->sha1);
 

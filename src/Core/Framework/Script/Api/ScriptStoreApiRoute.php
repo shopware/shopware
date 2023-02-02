@@ -4,8 +4,7 @@ namespace Shopware\Core\Framework\Script\Api;
 
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
-use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\System\SalesChannel\Api\ResponseFields;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -16,36 +15,18 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @internal
- * @Route(defaults={"_routeScope"={"store-api"}})
  */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Package('core')]
 class ScriptStoreApiRoute
 {
-    public const INVALIDATION_STATES_HEADER = 'sw-invalidation-states';
+    final public const INVALIDATION_STATES_HEADER = 'sw-invalidation-states';
 
-    private ScriptExecutor $executor;
-
-    private ScriptResponseEncoder $scriptResponseEncoder;
-
-    private TagAwareAdapterInterface $cache;
-
-    private LoggerInterface $logger;
-
-    public function __construct(
-        ScriptExecutor $executor,
-        ScriptResponseEncoder $scriptResponseEncoder,
-        TagAwareAdapterInterface $cache,
-        LoggerInterface $logger
-    ) {
-        $this->executor = $executor;
-        $this->scriptResponseEncoder = $scriptResponseEncoder;
-        $this->cache = $cache;
-        $this->logger = $logger;
+    public function __construct(private readonly ScriptExecutor $executor, private readonly ScriptResponseEncoder $scriptResponseEncoder, private readonly TagAwareAdapterInterface $cache, private readonly LoggerInterface $logger)
+    {
     }
 
-    /**
-     * @Since("6.4.9.0")
-     * @Route("/store-api/script/{hook}", name="store-api.script_endpoint", methods={"GET", "POST"}, requirements={"hook"=".+"})
-     */
+    #[Route(path: '/store-api/script/{hook}', name: 'store-api.script_endpoint', methods: ['GET', 'POST'], requirements: ['hook' => '.+'])]
     public function execute(string $hook, Request $request, SalesChannelContext $context): Response
     {
         //  blog/update =>  blog-update

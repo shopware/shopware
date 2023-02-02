@@ -1,9 +1,6 @@
 describe('Basic Informaion: Edit assignments', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                cy.createDefaultFixture('category',{}, 'footer-category-first');
-            })
+        cy.createDefaultFixture('category',{}, 'footer-category-first')
             .then(() => {
                 cy.createDefaultFixture('category',{}, 'footer-category-second');
             })
@@ -15,8 +12,8 @@ describe('Basic Informaion: Edit assignments', () => {
                     endpoint: 'sales-channel',
                     data: {
                         field: 'name',
-                        value: 'Storefront'
-                    }
+                        value: 'Storefront',
+                    },
                 });
             })
             .then((salesChannel) => {
@@ -25,15 +22,15 @@ describe('Basic Informaion: Edit assignments', () => {
                     cy.updateViaAdminApi('sales-channel', salesChannel.id, {
                         data: {
                             footerCategoryId: category.id,
-                            maintenanceIpWhitelist: []
-                        }
+                            maintenanceIpWhitelist: [],
+                        },
                     });
-                })
+                });
             })
             .then(() => {
                 // We want to visit 404 page, so we need to accept that status code
                 cy.visit('/non-existent/', {
-                    failOnStatusCode: false
+                    failOnStatusCode: false,
                 });
             });
     });
@@ -46,7 +43,7 @@ describe('Basic Informaion: Edit assignments', () => {
             .first()
             .should('have.attr', 'src')
             .and('match', /404_error/);
-        cy.get('.btn').contains('Back to homepage');
+        cy.get('.btn').contains('Back to shop');
         cy.get('.main-navigation-link-text ').contains('Home');
 
         // Check footer navigation

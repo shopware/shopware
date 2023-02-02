@@ -10,7 +10,8 @@ use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionTestFixtu
 use Shopware\Core\Checkout\Test\Customer\SalesChannel\CustomerTestTrait;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -21,16 +22,14 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
+#[Package('checkout')]
 class PromotionIndexerTest extends TestCase
 {
     use CustomerTestTrait;
     use IntegrationTestBehaviour;
     use PromotionTestFixtureBehaviour;
 
-    /**
-     * @var TestDataCollection
-     */
-    private $ids;
+    private TestDataCollection $ids;
 
     protected function setUp(): void
     {
@@ -43,10 +42,10 @@ class PromotionIndexerTest extends TestCase
 
         $salesChannelContext = $this->createSalesChannelContext();
 
-        /** @var EntityRepositoryInterface $promotionRepository */
+        /** @var EntityRepository $promotionRepository */
         $promotionRepository = $this->getContainer()->get('promotion.repository');
 
-        /** @var EntityRepositoryInterface $promotionIndividualRepository */
+        /** @var EntityRepository $promotionIndividualRepository */
         $promotionIndividualRepository = $this->getContainer()->get('promotion_individual_code.repository');
 
         $voucherA = $this->ids->create('voucherA');
@@ -76,7 +75,7 @@ class PromotionIndexerTest extends TestCase
 
         $salesChannelContext = $this->createSalesChannelContext();
 
-        /** @var EntityRepositoryInterface $promotionRepository */
+        /** @var EntityRepository $promotionRepository */
         $promotionRepository = $this->getContainer()->get('promotion.repository');
 
         $voucherA = $this->ids->create('voucherA');

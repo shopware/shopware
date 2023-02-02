@@ -8,31 +8,21 @@ use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
 use Shopware\Core\Framework\App\Hmac\QuerySigner;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
  */
+#[Package('core')]
 class ModuleLoader
 {
-    private EntityRepositoryInterface $appRepository;
-
-    private ShopIdProvider $shopIdProvider;
-
-    private QuerySigner $querySigner;
-
-    public function __construct(
-        EntityRepositoryInterface $appRepository,
-        ShopIdProvider $shopIdProvider,
-        QuerySigner $signer
-    ) {
-        $this->appRepository = $appRepository;
-        $this->shopIdProvider = $shopIdProvider;
-        $this->querySigner = $signer;
+    public function __construct(private readonly EntityRepository $appRepository, private readonly ShopIdProvider $shopIdProvider, private readonly QuerySigner $querySigner)
+    {
     }
 
     public function loadModules(Context $context): array
@@ -59,7 +49,7 @@ class ModuleLoader
     {
         try {
             $this->shopIdProvider->getShopId();
-        } catch (AppUrlChangeDetectedException $e) {
+        } catch (AppUrlChangeDetectedException) {
             return [];
         }
 

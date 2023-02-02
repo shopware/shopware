@@ -4,69 +4,30 @@ namespace Shopware\Core\Framework\Adapter\Cache;
 
 use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-class CacheInvalidator extends ScheduledTaskHandler
+/**
+ * @final
+ */
+#[Package('core')]
+class CacheInvalidator
 {
     private const CACHE_KEY = 'invalidation';
 
     /**
-     * @var CacheItemPoolInterface[]
+     * @internal
+     *
+     * @param CacheItemPoolInterface[] $adapters
      */
-    private array $adapters;
-
-    private TagAwareAdapterInterface $cache;
-
-    private EventDispatcherInterface $dispatcher;
-
-    private int $delay;
-
-    private int $count;
+    public function __construct(private readonly int $delay, private readonly int $count, private readonly array $adapters, private readonly TagAwareAdapterInterface $cache, private readonly EventDispatcherInterface $dispatcher)
+    {
+    }
 
     /**
-     * @internal
+     * @param list<string> $tags
      */
-    public function __construct(
-        int $delay,
-        int $count,
-        array $adapters,
-        TagAwareAdapterInterface $cache,
-        EventDispatcherInterface $dispatcher,
-        EntityRepositoryInterface $scheduledTaskRepository
-    ) {
-        parent::__construct($scheduledTaskRepository);
-        $this->dispatcher = $dispatcher;
-        $this->adapters = $adapters;
-        $this->scheduledTaskRepository = $scheduledTaskRepository;
-        $this->cache = $cache;
-        $this->delay = $delay;
-        $this->count = $count;
-    }
-
-    public static function getHandledMessages(): iterable
-    {
-        return [InvalidateCacheTask::class];
-    }
-
-    public function run(): void
-    {
-        try {
-            if ($this->delay <= 0) {
-                $this->invalidateExpired(null);
-
-                return;
-            }
-
-            $time = new \DateTime();
-            $time->modify(sprintf('-%s second', $this->delay));
-            $this->invalidateExpired($time);
-        } catch (\Throwable $e) {
-        }
-    }
-
     public function invalidate(array $tags, bool $force = false): void
     {
         $tags = array_filter(array_unique($tags));
@@ -112,6 +73,9 @@ class CacheInvalidator extends ScheduledTaskHandler
         $this->purge($invalidate);
     }
 
+    /**
+     * @param list<string> $logs
+     */
     private function log(array $logs): void
     {
         $item = $this->cache->getItem(self::CACHE_KEY);
@@ -128,6 +92,9 @@ class CacheInvalidator extends ScheduledTaskHandler
         $this->cache->save($item);
     }
 
+    /**
+     * @param list<string> $keys
+     */
     private function purge(array $keys): void
     {
         $keys = array_unique(array_filter($keys));

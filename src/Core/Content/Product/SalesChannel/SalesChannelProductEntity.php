@@ -10,7 +10,9 @@ use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPri
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPriceContainer;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('inventory')]
 class SalesChannelProductEntity extends ProductEntity
 {
     /**
@@ -131,7 +133,7 @@ class SalesChannelProductEntity extends ProductEntity
         $this->calculatedCheapestPrice = $calculatedCheapestPrice;
     }
 
-    public function getCheapestPrice()
+    public function getCheapestPrice(): CheapestPrice|CheapestPriceContainer|null
     {
         return $this->cheapestPrice;
     }

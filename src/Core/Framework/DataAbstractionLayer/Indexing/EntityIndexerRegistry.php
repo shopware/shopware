@@ -3,74 +3,75 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Indexing;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\IterateEntityIndexerMessage;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
-use Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubscriberInterface
+/**
+ * @final
+ *
+ * @internal
+ *
+ * @phpstan-import-type Offset from IterableQuery
+ */
+#[AsMessageHandler]
+#[Package('core')]
+class EntityIndexerRegistry
 {
-    public const EXTENSION_INDEXER_SKIP = 'indexer-skip';
+    final public const EXTENSION_INDEXER_SKIP = 'indexer-skip';
 
-    /**
-     * @deprecated tag:v6.5.0 - `$context->addExtension(EntityIndexerRegistry::USE_INDEXING_QUEUE, ...)` will be ignored, use `context->addState(EntityIndexerRegistry::USE_INDEXING_QUEUE)` instead
-     */
-    public const USE_INDEXING_QUEUE = 'use-queue-indexing';
+    final public const USE_INDEXING_QUEUE = 'use-queue-indexing';
 
-    /**
-     * @deprecated tag:v6.5.0 - `$context->addExtension(EntityIndexerRegistry::DISABLE_INDEXING, ...)` will be ignored, use `context->addState(EntityIndexerRegistry::DISABLE_INDEXING)` instead
-     */
-    public const DISABLE_INDEXING = 'disable-indexing';
-
-    /**
-     * @var EntityIndexer[]
-     */
-    private iterable $indexer;
-
-    private MessageBusInterface $messageBus;
+    final public const DISABLE_INDEXING = 'disable-indexing';
 
     private bool $working = false;
-
-    private EventDispatcherInterface $dispatcher;
 
     /**
      * @internal
      *
-     * @param EntityIndexer[] $indexer
+     * @param iterable<EntityIndexer> $indexer
      */
-    public function __construct(iterable $indexer, MessageBusInterface $messageBus, EventDispatcherInterface $dispatcher)
-    {
-        $this->indexer = $indexer;
-        $this->messageBus = $messageBus;
-        $this->dispatcher = $dispatcher;
+    public function __construct(
+        private readonly iterable $indexer,
+        private readonly MessageBusInterface $messageBus,
+        private readonly EventDispatcherInterface $dispatcher
+    ) {
     }
 
-    public static function getSubscribedEvents(): array
+    public function __invoke(EntityIndexingMessage|IterateEntityIndexerMessage $message): void
     {
-        return [
-            EntityWrittenContainerEvent::class => [
-                ['refresh', 1000],
-            ],
-        ];
-    }
+        if ($message instanceof EntityIndexingMessage) {
+            $indexer = $this->getIndexer($message->getIndexer());
 
-    public static function getHandledMessages(): iterable
-    {
-        return [
-            EntityIndexingMessage::class,
-            IterateEntityIndexerMessage::class,
-        ];
+            if ($indexer) {
+                $indexer->handle($message);
+            }
+
+            return;
+        }
+
+        if ($message instanceof IterateEntityIndexerMessage) {
+            $next = $this->iterateIndexer($message->getIndexer(), $message->getOffset(), true, $message->getSkip());
+
+            if (!$next) {
+                return;
+            }
+
+            $this->messageBus->dispatch(new IterateEntityIndexerMessage($message->getIndexer(), $next->getOffset(), $message->getSkip()));
+        }
     }
 
     /**
-     * @param array<string> $skip
-     * @param array<string> $only
+     * @param list<string> $skip
+     * @param list<string> $only
      */
     public function index(bool $useQueue, array $skip = [], array $only = []): void
     {
@@ -98,7 +99,7 @@ class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubsc
                 try {
                     $count = \is_array($message->getData()) ? \count($message->getData()) : 1;
                     $this->dispatcher->dispatch(new ProgressAdvancedEvent($count));
-                } catch (\Exception $e) {
+                } catch (\Exception) {
                 }
             }
 
@@ -147,35 +148,13 @@ class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubsc
         /** @var ArrayStruct<string, mixed> $skip */
         $skip = $context->getExtension(self::EXTENSION_INDEXER_SKIP);
 
-        $message->addSkip(...$skip->all());
+        $message->addSkip(...$skip->get('skips'));
     }
 
     /**
-     * @param mixed $message
+     * @param list<string> $indexer
+     * @param list<string> $skip
      */
-    public function handle($message): void
-    {
-        if ($message instanceof EntityIndexingMessage) {
-            $indexer = $this->getIndexer($message->getIndexer());
-
-            if ($indexer) {
-                $indexer->handle($message);
-            }
-
-            return;
-        }
-
-        if ($message instanceof IterateEntityIndexerMessage) {
-            $next = $this->iterateIndexer($message->getIndexer(), $message->getOffset(), true, $message->getSkip());
-
-            if (!$next) {
-                return;
-            }
-
-            $this->messageBus->dispatch(new IterateEntityIndexerMessage($message->getIndexer(), $next->getOffset(), $message->getSkip()));
-        }
-    }
-
     public function sendIndexingMessage(array $indexer = [], array $skip = []): void
     {
         if (empty($indexer)) {
@@ -216,12 +195,12 @@ class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubsc
 
     private function useQueue(Context $context): bool
     {
-        return $context->hasExtension(self::USE_INDEXING_QUEUE) || $context->hasState(self::USE_INDEXING_QUEUE);
+        return $context->hasState(self::USE_INDEXING_QUEUE);
     }
 
     private function disabled(Context $context): bool
     {
-        return $context->hasExtension(self::DISABLE_INDEXING) || $context->hasState(self::DISABLE_INDEXING);
+        return $context->hasState(self::DISABLE_INDEXING);
     }
 
     private function sendOrHandle(EntityIndexingMessage $message, bool $useQueue): void
@@ -231,9 +210,13 @@ class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubsc
 
             return;
         }
-        $this->handle($message);
+        $this->__invoke($message);
     }
 
+    /**
+     * @param Offset|null $offset
+     * @param list<string> $skip
+     */
     private function iterateIndexer(string $name, ?array $offset, bool $useQueue, array $skip): ?EntityIndexingMessage
     {
         $indexer = $this->getIndexer($name);

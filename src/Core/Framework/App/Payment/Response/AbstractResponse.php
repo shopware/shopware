@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Framework\App\Payment\Response;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * @internal only for use by the app-system
  */
+#[Package('core')]
 abstract class AbstractResponse extends Struct
 {
     final public function __construct()

@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace Shopware\Storefront\Test\Theme\ConfigLoader;
 
 use League\Flysystem\Filesystem;
-use League\Flysystem\Memory\MemoryAdapter;
+use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -23,7 +23,7 @@ class StaticFileConfigLoaderTest extends TestCase
         static::expectException(\RuntimeException::class);
         static::expectExceptionMessage('Cannot find theme configuration. Did you run bin/console theme:dump');
 
-        $fs = new Filesystem(new MemoryAdapter());
+        $fs = new Filesystem(new InMemoryFilesystemAdapter());
         $s = new StaticFileConfigLoader($fs);
         $s->load(Uuid::randomHex(), Context::createDefaultContext());
     }
@@ -32,8 +32,8 @@ class StaticFileConfigLoaderTest extends TestCase
     {
         $id = Uuid::randomHex();
 
-        $fs = new Filesystem(new MemoryAdapter());
-        $fs->write('theme-config/' . $id . '.json', file_get_contents(__DIR__ . '/../fixtures/ConfigLoader/theme-config.json'));
+        $fs = new Filesystem(new InMemoryFilesystemAdapter());
+        $fs->write('theme-config/' . $id . '.json', (string) file_get_contents(__DIR__ . '/../fixtures/ConfigLoader/theme-config.json'));
 
         $s = new StaticFileConfigLoader($fs);
         $config = $s->load($id, Context::createDefaultContext());
@@ -42,6 +42,8 @@ class StaticFileConfigLoaderTest extends TestCase
         static::assertInstanceOf(FileCollection::class, $config->getScriptFiles());
         static::assertInstanceOf(FileCollection::class, $config->getStyleFiles());
 
+        $themeConfig = $config->getThemeConfig();
+        static::assertIsArray($themeConfig);
         static::assertSame(
             [
                 'blocks',
@@ -67,7 +69,7 @@ class StaticFileConfigLoaderTest extends TestCase
                 'sw-logo-share',
                 'sw-logo-favicon',
             ],
-            array_keys($config->getThemeConfig())
+            array_keys($themeConfig)
         );
     }
 
@@ -75,7 +77,7 @@ class StaticFileConfigLoaderTest extends TestCase
     {
         static::expectException(DecorationPatternException::class);
 
-        $fs = new Filesystem(new MemoryAdapter());
+        $fs = new Filesystem(new InMemoryFilesystemAdapter());
         $s = new StaticFileConfigLoader($fs);
         $s->getDecorated();
     }

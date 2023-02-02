@@ -4,32 +4,32 @@ namespace Shopware\Core\Content\Flow\Dispatching\Action;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
+use Shopware\Core\Content\Flow\Dispatching\DelayableAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\CustomerGroupAware;
-use Shopware\Core\Framework\Event\DelayAware;
-use Shopware\Core\Framework\Event\FlowEvent;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 
-class SetCustomerGroupCustomFieldAction extends FlowAction
+/**
+ * @internal
+ */
+#[Package('business-ops')]
+class SetCustomerGroupCustomFieldAction extends FlowAction implements DelayableAction
 {
     use CustomFieldActionTrait;
 
-    private Connection $connection;
-
-    private EntityRepositoryInterface $customerGroupRepository;
+    private readonly Connection $connection;
 
     /**
      * @internal
      */
     public function __construct(
         Connection $connection,
-        EntityRepositoryInterface $customerGroupRepository
+        private readonly EntityRepository $customerGroupRepository
     ) {
         $this->connection = $connection;
-        $this->customerGroupRepository = $customerGroupRepository;
     }
 
     public static function getName(): string
@@ -38,48 +38,11 @@ class SetCustomerGroupCustomFieldAction extends FlowAction
     }
 
     /**
-     *  @deprecated tag:v6.5.0 Will be removed
-     */
-    public static function getSubscribedEvents(): array
-    {
-        if (Feature::isActive('v6.5.0.0')) {
-            return [];
-        }
-
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
-        );
-
-        return [
-            self::getName() => 'handle',
-        ];
-    }
-
-    /**
      * @return array<int, string>
      */
     public function requirements(): array
     {
-        return [CustomerGroupAware::class, DelayAware::class];
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 Will be removed, implement handleFlow instead
-     */
-    public function handle(FlowEvent $event): void
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.5.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
-        );
-
-        $baseEvent = $event->getEvent();
-        if (!$baseEvent instanceof CustomerGroupAware) {
-            return;
-        }
-
-        $this->update($baseEvent->getContext(), $event->getConfig(), $baseEvent->getCustomerGroupId());
+        return [CustomerGroupAware::class];
     }
 
     public function handleFlow(StorableFlow $flow): void

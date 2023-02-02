@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Cart\Event\BeforeLineItemRemovedEvent;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionIntegrationTestBehaviour;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionTestFixtureBehaviour;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -19,6 +20,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
+#[Package('checkout')]
 class PromotionCartEventTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -109,6 +111,9 @@ class PromotionCartEventTest extends TestCase
         $this->cartService->remove($cart, $productId, $this->context);
     }
 
+    /**
+     * @param array<mixed> $codes
+     */
     private function createBulkPromotions(array $codes): void
     {
         /** @var int $percentage */

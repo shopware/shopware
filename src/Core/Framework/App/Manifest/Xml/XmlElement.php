@@ -3,16 +3,21 @@
 namespace Shopware\Core\Framework\App\Manifest\Xml;
 
 use Shopware\Core\Framework\App\Exception\InvalidArgumentException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
  */
+#[Package('core')]
 class XmlElement extends Struct
 {
     private const FALLBACK_LOCALE = 'en-GB';
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toArray(string $defaultLocale): array
     {
         $array = get_object_vars($this);
@@ -22,6 +27,11 @@ class XmlElement extends Struct
         return $array;
     }
 
+    /**
+     * @param array<int|string, mixed> $values
+     *
+     * @return array<int|string, mixed>
+     */
     protected static function mapTranslatedTag(\DOMElement $child, array $values): array
     {
         if (!\array_key_exists(self::kebabCaseToCamelCase($child->tagName), $values)) {
@@ -37,6 +47,9 @@ class XmlElement extends Struct
         return $values;
     }
 
+    /**
+     * @return array<mixed>
+     */
     protected static function parseChildNodes(\DOMElement $child, callable $transformer): array
     {
         $values = [];
@@ -59,6 +72,10 @@ class XmlElement extends Struct
     /**
      * if translations for system default language are not provided it tries to use the english translation as the default,
      * if english does not exist it uses the first translation
+     *
+     * @param array<string, string> $translations
+     *
+     * @return array<string, string>
      */
     protected function ensureTranslationForDefaultLanguageExist(array $translations, string $defaultLocale): array
     {
@@ -73,6 +90,10 @@ class XmlElement extends Struct
         return $translations;
     }
 
+    /**
+     * @param array<int|string, mixed> $data
+     * @param array<int|string, string> $requiredFields
+     */
     protected function validateRequiredElements(array $data, array $requiredFields): void
     {
         foreach ($requiredFields as $field) {
@@ -87,6 +108,9 @@ class XmlElement extends Struct
         return $element->getAttribute('lang') ?: self::FALLBACK_LOCALE;
     }
 
+    /**
+     * @param array<string, string> $translations
+     */
     private function getFallbackTranslation(array $translations): string
     {
         if (\array_key_exists(self::FALLBACK_LOCALE, $translations)) {

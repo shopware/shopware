@@ -1,10 +1,11 @@
 import template from './sw-category-entry-point-overwrite-modal.html.twig';
 import './sw-category-entry-point-overwrite-modal.scss';
 
-const { Component } = Shopware;
-
+/**
+ * @package content
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-category-entry-point-overwrite-modal', {
+export default {
     template,
 
     props: {
@@ -26,4 +27,4 @@ Component.register('sw-category-entry-point-overwrite-modal', {
             this.$emit('confirm');
         },
     },
-});
+};

@@ -9,21 +9,17 @@ use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection as CalculatedPriceC
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+#[Package('checkout')]
 class CurrencyPriceCalculator
 {
-    private QuantityPriceCalculator $priceCalculator;
-
-    private PercentageTaxRuleBuilder $percentageTaxRuleBuilder;
-
     /**
      * @internal
      */
-    public function __construct(QuantityPriceCalculator $priceCalculator, PercentageTaxRuleBuilder $percentageTaxRuleBuilder)
+    public function __construct(private readonly QuantityPriceCalculator $priceCalculator, private readonly PercentageTaxRuleBuilder $percentageTaxRuleBuilder)
     {
-        $this->priceCalculator = $priceCalculator;
-        $this->percentageTaxRuleBuilder = $percentageTaxRuleBuilder;
     }
 
     public function calculate(PriceCollection $price, CalculatedPriceCollection $prices, SalesChannelContext $context, int $quantity = 1): CalculatedPrice

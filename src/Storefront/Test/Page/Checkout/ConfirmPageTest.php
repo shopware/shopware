@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Address\Error\AddressValidationError;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -20,6 +20,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
+ * @covers \Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPage
  */
 class ConfirmPageTest extends TestCase
 {
@@ -40,8 +41,8 @@ class ConfirmPageTest extends TestCase
         static::assertInstanceOf(CheckoutConfirmPage::class, $page);
         static::assertSame(0.0, $page->getCart()->getPrice()->getNetPrice());
         static::assertSame($context->getToken(), $page->getCart()->getToken());
-        static::assertSame(StorefrontPageTestConstants::AVAILABLE_SHIPPING_METHOD_COUNT, $page->getShippingMethods()->count());
-        static::assertSame(StorefrontPageTestConstants::AVAILABLE_PAYMENT_METHOD_COUNT, $page->getPaymentMethods()->count());
+        static::assertCount(StorefrontPageTestConstants::AVAILABLE_SHIPPING_METHOD_COUNT, $page->getShippingMethods());
+        static::assertCount(StorefrontPageTestConstants::AVAILABLE_PAYMENT_METHOD_COUNT, $page->getPaymentMethods());
         static::assertNotEmpty($page->getPaymentMethods());
         self::assertPageEvent(CheckoutConfirmPageLoadedEvent::class, $event, $context, $request, $page);
     }
@@ -51,7 +52,7 @@ class ConfirmPageTest extends TestCase
         $request = new Request();
         $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
 
-        /** @var EntityRepositoryInterface $shippingMethodRepository */
+        /** @var EntityRepository $shippingMethodRepository */
         $shippingMethodRepository = $this->getContainer()->get('shipping_method.repository');
         $shippingMethods = $shippingMethodRepository->search(new Criteria(), $context->getContext())->getEntities();
 
@@ -77,7 +78,7 @@ class ConfirmPageTest extends TestCase
         $page = $this->getPageLoader()->load($request, $context);
 
         static::assertInstanceOf(CheckoutConfirmPage::class, $page);
-        static::assertSame(1, $page->getShippingMethods()->count());
+        static::assertCount(0, $page->getShippingMethods());
         self::assertPageEvent(CheckoutConfirmPageLoadedEvent::class, $event, $context, $request, $page);
     }
 
@@ -86,7 +87,7 @@ class ConfirmPageTest extends TestCase
         $request = new Request();
         $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
 
-        /** @var EntityRepositoryInterface $paymentMethodRepository */
+        /** @var EntityRepository $paymentMethodRepository */
         $paymentMethodRepository = $this->getContainer()->get('payment_method.repository');
         $criteria = (new Criteria())->addFilter(new EqualsFilter('active', true));
         /** @var PaymentMethodEntity $paymentMethod */
@@ -108,7 +109,7 @@ class ConfirmPageTest extends TestCase
         $page = $this->getPageLoader()->load($request, $context);
 
         static::assertInstanceOf(CheckoutConfirmPage::class, $page);
-        static::assertSame(StorefrontPageTestConstants::AVAILABLE_PAYMENT_METHOD_COUNT - 1, $page->getPaymentMethods()->count());
+        static::assertCount(StorefrontPageTestConstants::AVAILABLE_PAYMENT_METHOD_COUNT - 1, $page->getPaymentMethods());
         self::assertPageEvent(CheckoutConfirmPageLoadedEvent::class, $event, $context, $request, $page);
     }
 

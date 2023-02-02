@@ -2,18 +2,14 @@
 
 namespace Shopware\Storefront\Theme;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
+#[Package('storefront')]
 class ThemeSalesChannel extends Struct
 {
-    protected string $themeId;
-
-    protected string $salesChannelId;
-
-    public function __construct(string $themeId, string $salesChannelId)
+    public function __construct(protected string $themeId, protected string $salesChannelId)
     {
-        $this->themeId = $themeId;
-        $this->salesChannelId = $salesChannelId;
     }
 
     public function getThemeId(): string

@@ -6,9 +6,10 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -18,27 +19,28 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 /**
  * @internal
  */
+#[Package('system-settings')]
 class ImportExportLogRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $logRepository;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $profileRepository;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $fileRepository;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EntityRepository
      */
     private $userRepository;
 
@@ -47,10 +49,7 @@ class ImportExportLogRepositoryTest extends TestCase
      */
     private $connection;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     protected function setUp(): void
     {
@@ -70,7 +69,8 @@ class ImportExportLogRepositoryTest extends TestCase
 
         $this->logRepository->create([$data[$id]], $this->context);
 
-        $record = $this->connection->fetchAssoc('SELECT * FROM import_export_log WHERE id = :id', ['id' => $id]);
+        $record = $this->connection->fetchAssociative('SELECT * FROM import_export_log WHERE id = :id', ['id' => $id]);
+        static::assertIsArray($record);
 
         $expect = $data[$id];
         static::assertNotEmpty($record);
@@ -92,7 +92,7 @@ class ImportExportLogRepositoryTest extends TestCase
             $this->context->scope(Context::USER_SCOPE, function (Context $context) use ($data): void {
                 $this->logRepository->create(array_values($data), $context);
             });
-            static::fail(sprintf("Create within wrong scope '%s'", Context::USER_SCOPE));
+            static::fail(sprintf('Create within wrong scope \'%s\'', Context::USER_SCOPE));
         } catch (\Exception $e) {
             static::assertInstanceOf(AccessDeniedHttpException::class, $e);
         }
@@ -109,8 +109,9 @@ class ImportExportLogRepositoryTest extends TestCase
             unset($entry[$property]);
 
             try {
+                static::assertNotNull($entry);
                 $this->logRepository->create([$entry], $this->context);
-                static::fail(sprintf("Create without required property '%s'", $property));
+                static::fail(sprintf('Create without required property \'%s\'', $property));
             } catch (\Exception $e) {
                 static::assertInstanceOf(WriteException::class, $e);
                 static::assertInstanceOf(WriteConstraintViolationException::class, $e->getExceptions()[0]);
@@ -125,7 +126,7 @@ class ImportExportLogRepositoryTest extends TestCase
 
         $this->logRepository->create(array_values($data), $this->context);
 
-        $records = $this->connection->fetchAll('SELECT * FROM import_export_log');
+        $records = $this->connection->fetchAllAssociative('SELECT * FROM import_export_log');
 
         static::assertCount($num, $records);
 
@@ -152,10 +153,12 @@ class ImportExportLogRepositoryTest extends TestCase
         foreach ($requiredProperties as $property) {
             $entry = array_shift($incompleteData);
             unset($entry[$property]);
+            static::assertNotNull($entry);
             array_push($data, $entry);
         }
 
         try {
+            static::assertNotNull($data);
             $this->logRepository->create(array_values($data), $this->context);
             static::fail('Create without required properties');
         } catch (WriteException $e) {
@@ -169,9 +172,7 @@ class ImportExportLogRepositoryTest extends TestCase
                 }
             }
 
-            $missingPropertyPaths = array_map(function ($property) {
-                return '/' . $property;
-            }, $requiredProperties);
+            $missingPropertyPaths = array_map(fn ($property) => '/' . $property, $requiredProperties);
 
             static::assertEquals($missingPropertyPaths, $foundViolations);
         }
@@ -189,7 +190,7 @@ class ImportExportLogRepositoryTest extends TestCase
             $result = $this->logRepository->search(new Criteria([$id]), $this->context);
             /** @var ImportExportLogEntity $ImportExportLog */
             $ImportExportLog = $result->get($id);
-            static::assertSame(1, $result->count());
+            static::assertCount(1, $result);
             static::assertSame($expect['activity'], $ImportExportLog->getActivity());
             static::assertSame($expect['state'], $ImportExportLog->getState());
             static::assertSame($expect['userId'], $ImportExportLog->getUserId());
@@ -208,7 +209,7 @@ class ImportExportLogRepositoryTest extends TestCase
         $this->logRepository->create(array_values($data), $this->context);
 
         $result = $this->logRepository->search(new Criteria([Uuid::randomHex()]), $this->context);
-        static::assertSame(0, $result->count());
+        static::assertCount(0, $result);
     }
 
     public function testImportExportLogUpdateFull(): void
@@ -227,7 +228,7 @@ class ImportExportLogRepositoryTest extends TestCase
 
         $this->logRepository->upsert(array_values($data), $this->context);
 
-        $records = $this->connection->fetchAll('SELECT * FROM import_export_log');
+        $records = $this->connection->fetchAllAssociative('SELECT * FROM import_export_log');
 
         static::assertCount($num, $records);
 
@@ -248,7 +249,7 @@ class ImportExportLogRepositoryTest extends TestCase
             $this->context->scope(Context::USER_SCOPE, function (Context $context) use ($origDate): void {
                 $this->logRepository->upsert(array_values($origDate), $context);
             });
-            static::fail(sprintf("Update within wrong scope '%s'", Context::USER_SCOPE));
+            static::fail(sprintf('Update within wrong scope \'%s\'', Context::USER_SCOPE));
         } catch (\Exception $e) {
             static::assertInstanceOf(AccessDeniedHttpException::class, $e);
         }
@@ -256,8 +257,11 @@ class ImportExportLogRepositoryTest extends TestCase
 
     public function testImportExportLogUpdatePartial(): void
     {
+        $upsertData = [];
         $origDate = $data = $this->prepareImportExportLogTestData();
-        $properties = array_keys(array_pop($data));
+        $item = array_pop($data);
+        static::assertNotNull($item);
+        $properties = array_keys($item);
 
         $num = \count($properties);
         $data = $this->prepareImportExportLogTestData($num, 'x');
@@ -265,6 +269,7 @@ class ImportExportLogRepositoryTest extends TestCase
         $this->logRepository->create(array_values($data), $this->context);
 
         $new_data = array_values($this->prepareImportExportLogTestData($num, 'xxx'));
+        $upsertData = [];
         foreach ($data as $id => $value) {
             $new_value = array_pop($new_data);
             $new_value['id'] = $value['id'];
@@ -279,9 +284,10 @@ class ImportExportLogRepositoryTest extends TestCase
             unset($upsertData[$id][$property]);
         }
 
+        static::assertNotEmpty($upsertData);
         $this->logRepository->upsert(array_values($upsertData), $this->context);
 
-        $records = $this->connection->fetchAll('SELECT * FROM import_export_log');
+        $records = $this->connection->fetchAllAssociative('SELECT * FROM import_export_log');
 
         static::assertCount($num, $records);
 
@@ -302,7 +308,7 @@ class ImportExportLogRepositoryTest extends TestCase
             $this->context->scope(Context::USER_SCOPE, function (Context $context) use ($origDate): void {
                 $this->logRepository->upsert(array_values($origDate), $context);
             });
-            static::fail(sprintf("Update within wrong scope '%s'", Context::USER_SCOPE));
+            static::fail(sprintf('Update within wrong scope \'%s\'', Context::USER_SCOPE));
         } catch (\Exception $e) {
             static::assertInstanceOf(AccessDeniedHttpException::class, $e);
         }
@@ -321,7 +327,7 @@ class ImportExportLogRepositoryTest extends TestCase
 
         $this->logRepository->delete($ids, $this->context);
 
-        $records = $this->connection->fetchAll('SELECT * FROM import_export_log');
+        $records = $this->connection->fetchAllAssociative('SELECT * FROM import_export_log');
 
         static::assertCount(0, $records);
     }
@@ -339,7 +345,7 @@ class ImportExportLogRepositoryTest extends TestCase
 
         $this->logRepository->delete($ids, $this->context);
 
-        $records = $this->connection->fetchAll('SELECT * FROM import_export_log');
+        $records = $this->connection->fetchAllAssociative('SELECT * FROM import_export_log');
 
         static::assertCount($num, $records);
     }
@@ -359,22 +365,30 @@ class ImportExportLogRepositoryTest extends TestCase
             $this->context->scope(Context::USER_SCOPE, function (Context $context) use ($ids): void {
                 $this->logRepository->delete($ids, $context);
             });
-            static::fail(sprintf("Delete within wrong scope '%s'", Context::USER_SCOPE));
+            static::fail(sprintf('Delete within wrong scope \'%s\'', Context::USER_SCOPE));
         } catch (\Exception $e) {
             static::assertInstanceOf(AccessDeniedHttpException::class, $e);
         }
 
-        $records = $this->connection->fetchAll('SELECT * FROM import_export_log');
+        $records = $this->connection->fetchAllAssociative('SELECT * FROM import_export_log');
 
         static::assertCount($num, $records);
     }
 
     /**
      * Prepare a defined number of test data.
+     *
+     * @return array<string, array<string, mixed>>
      */
     protected function prepareImportExportLogTestData(int $num = 1, string $add = ''): array
     {
         $data = [];
+        $users = [];
+        $userIds = [];
+        $fileIds = [];
+        $profiles = [];
+        $profileIds = [];
+        $activities = [];
 
         if ($num > 0) {
             // Dependencies
@@ -394,7 +408,7 @@ class ImportExportLogRepositoryTest extends TestCase
 
             $data[Uuid::fromHexToBytes($uuid)] = [
                 'id' => $uuid,
-                'activity' => $activities[$i % 2] . $add,
+                'activity' => ($activities[$i % 2] ?? '') . $add,
                 'state' => sprintf('state %s', $i),
                 'userId' => $userIds[$i % 2],
                 'profileId' => $profileIds[$i % 2],
@@ -409,6 +423,9 @@ class ImportExportLogRepositoryTest extends TestCase
         return $data;
     }
 
+    /**
+     * @return array<string, array<string, mixed>>
+     */
     protected function prepareUsers(int $num = 1): array
     {
         $data = [];
@@ -419,7 +436,7 @@ class ImportExportLogRepositoryTest extends TestCase
                 'id' => $uuid,
                 'localeId' => $this->getLocaleIdOfSystemLanguage(),
                 'username' => sprintf('user_%s', Uuid::randomHex()),
-                'password' => sprintf('pw%s', $i),
+                'password' => sprintf('shopwarepw%s', $i),
                 'firstName' => sprintf('Foo%s', $i),
                 'lastName' => sprintf('Bar%s', $i),
                 'email' => sprintf('%s@foo.bar', $uuid),
@@ -430,6 +447,9 @@ class ImportExportLogRepositoryTest extends TestCase
         return $data;
     }
 
+    /**
+     * @return array<string, array<string, mixed>>
+     */
     protected function prepareFiles(int $num = 1): array
     {
         $data = [];
@@ -449,6 +469,9 @@ class ImportExportLogRepositoryTest extends TestCase
         return $data;
     }
 
+    /**
+     * @return array<string, array<string, mixed>>
+     */
     protected function prepareProfiles(int $num = 1): array
     {
         $data = [];

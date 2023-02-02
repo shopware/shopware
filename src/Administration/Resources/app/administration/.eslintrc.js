@@ -1,3 +1,7 @@
+/**
+ * @package admin
+ */
+
 const path = require('path');
 
 const baseRules = {
@@ -22,8 +26,8 @@ const baseRules = {
             'sw-extension-component-section',
         ],
     }],
-    'sw-core-rules/require-criteria-constructor-arguments': 'error',
     'sw-deprecation-rules/private-feature-declarations': 'error',
+    'no-restricted-exports': 'off',
 };
 
 module.exports = {
@@ -42,6 +46,7 @@ module.exports = {
         Cypress: true,
         cy: true,
         autoStub: true,
+        flushPromises: true,
     },
 
     plugins: [
@@ -52,6 +57,7 @@ module.exports = {
         'file-progress',
         'sw-core-rules',
         'sw-deprecation-rules',
+        'sw-test-rules',
     ],
 
     settings: {
@@ -94,7 +100,7 @@ module.exports = {
                 ...baseRules,
                 'vue/require-prop-types': 'error',
                 'vue/require-default-prop': 'error',
-                'vue/no-mutating-props': ['off'],
+                'vue/no-mutating-props': 'error',
                 'vue/component-definition-name-casing': ['error', 'kebab-case'],
                 'vue/no-boolean-default': ['error', 'default-false'],
                 'vue/order-in-components': ['error', {
@@ -156,7 +162,6 @@ module.exports = {
                 'vue/no-multiple-template-root': 'off',
                 'vue/no-unused-vars': 'off',
                 'vue/no-template-shadow': 'off',
-                'vue/no-lone-template': 'off',
                 'vue/no-v-html': 'off',
                 'vue/valid-template-root': 'off',
                 'vue/no-parsing-error': ['error', {
@@ -167,15 +172,28 @@ module.exports = {
                 }],
                 'vue/v-slot-style': 'error',
                 'vue/attributes-order': 'error',
+                'vue/no-deprecated-slot-attribute': ['error'],
+                'vue/no-deprecated-slot-scope-attribute': ['error'],
                 'sw-deprecation-rules/no-twigjs-blocks': 'error',
+                'vue/no-useless-template-attributes': 'error',
+                'vue/no-lone-template': 'error',
             },
         }, {
             files: ['**/*.spec.js', '**/*.spec.ts', '**/fixtures/*.js', 'test/**/*.js', 'test/**/*.ts'],
             rules: {
+                'sw-test-rules/await-async-functions': 'error',
                 'no-console': 0,
                 'comma-dangle': 0,
                 'max-len': 0,
                 'inclusive-language/use-inclusive-words': 0,
+                'sw-deprecation-rules/private-feature-declarations': 0,
+            },
+        }, {
+            files: ['**/*.spec.ts'],
+            rules: {
+                // Disable the base rule as it can report incorrect errors
+                'no-unused-vars': 'off',
+                '@typescript-eslint/no-unused-vars': 'error',
             },
         }, {
             files: ['**/snippet/*.json'],
@@ -220,6 +238,9 @@ module.exports = {
                     },
                 ],
                 'no-void': 'off',
+                // Disable the base rule as it can report incorrect errors
+                'no-unused-vars': 'off',
+                '@typescript-eslint/no-unused-vars': 'error',
             },
         },
     ],

@@ -1,13 +1,14 @@
 import template from './sw-cms-el-config-product-listing.html.twig';
 import './sw-cms-el-config-product-listing.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
 
 /**
- * @private since v6.5.0
+ * @private
+ * @package content
  */
-Component.register('sw-cms-el-config-product-listing', {
+export default {
     template,
 
     inject: ['repositoryFactory', 'feature'],
@@ -137,13 +138,6 @@ Component.register('sw-cms-el-config-product-listing', {
                 this.updateFilters('property-filter', !value);
                 this.sortProperties(this.properties);
             },
-        },
-
-        /**
-        * @deprecated tag:v6.5.0 - Use properties directly
-        */
-        displayedProperties() {
-            return this.properties;
         },
 
         showPropertySelection() {
@@ -386,4 +380,4 @@ Component.register('sw-cms-el-config-product-listing', {
                 }, []);
         },
     },
-});
+};

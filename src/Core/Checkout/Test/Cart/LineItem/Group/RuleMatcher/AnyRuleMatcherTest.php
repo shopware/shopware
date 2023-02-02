@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Test\Cart\LineItem\Group\RuleMatcher;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\Group\RulesMatcher\AnyRuleLineItemMatcher;
 use Shopware\Core\Checkout\Cart\LineItem\Group\RulesMatcher\AnyRuleMatcher;
@@ -32,10 +33,7 @@ class AnyRuleMatcherTest extends TestCase
     private const KEY_PACKAGER_COUNT = 'PACKAGER_COUNT';
     private const KEY_SORTER_PRICE_ASC = 'PRICE_ASC';
 
-    /**
-     * @var SalesChannelContext
-     */
-    private $context;
+    private MockObject&SalesChannelContext $context;
 
     protected function setUp(): void
     {

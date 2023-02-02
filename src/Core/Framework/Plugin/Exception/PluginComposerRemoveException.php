@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\Framework\Plugin\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+#[Package('core')]
 class PluginComposerRemoveException extends ShopwareHttpException
 {
     public function __construct(string $pluginName, string $pluginComposerName, string $output)

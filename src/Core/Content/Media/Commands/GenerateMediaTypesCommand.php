@@ -7,47 +7,32 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\TypeDetector\TypeDetector;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[AsCommand(
+    name: 'media:generate-media-types',
+    description: 'Generates media types for all media files',
+)]
+#[Package('content')]
 class GenerateMediaTypesCommand extends Command
 {
-    protected static $defaultName = 'media:generate-media-types';
+    private ShopwareStyle $io;
 
-    /**
-     * @var SymfonyStyle
-     */
-    private $io;
-
-    /**
-     * @var TypeDetector
-     */
-    private $typeDetector;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $mediaRepository;
-
-    /**
-     * @var int
-     */
-    private $batchSize;
+    private ?int $batchSize = null;
 
     /**
      * @internal
      */
-    public function __construct(TypeDetector $typeDetector, EntityRepositoryInterface $mediaRepository)
+    public function __construct(private readonly TypeDetector $typeDetector, private readonly EntityRepository $mediaRepository)
     {
         parent::__construct();
-
-        $this->typeDetector = $typeDetector;
-        $this->mediaRepository = $mediaRepository;
     }
 
     /**
@@ -55,9 +40,7 @@ class GenerateMediaTypesCommand extends Command
      */
     protected function configure(): void
     {
-        $this
-            ->setDescription('Generates the media type for all media entities')
-            ->addOption('batch-size', 'b', InputOption::VALUE_REQUIRED, 'Batch Size')
+        $this->addOption('batch-size', 'b', InputOption::VALUE_REQUIRED, 'Batch Size')
         ;
     }
 

@@ -2,27 +2,20 @@
 
 namespace Shopware\Core\Framework\Changelog;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - will be marked internal
+ * @internal
  */
+#[Package('core')]
 class ChangelogFile extends Struct
 {
-    /**
-     * @var string
-     */
-    protected $name;
+    protected string $name;
 
-    /**
-     * @var string
-     */
-    protected $path;
+    protected string $path;
 
-    /**
-     * @var ChangelogDefinition
-     */
-    protected $definition;
+    protected ChangelogDefinition $definition;
 
     public function getName(): string
     {

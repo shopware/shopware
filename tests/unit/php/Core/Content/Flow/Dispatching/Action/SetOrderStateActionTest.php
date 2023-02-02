@@ -9,33 +9,24 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Content\Flow\Dispatching\Action\SetOrderStateAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
-use Shopware\Core\Framework\Event\DelayAware;
 use Shopware\Core\Framework\Event\OrderAware;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
 /**
+ * @package business-ops
+ *
  * @internal
  * @covers \Shopware\Core\Content\Flow\Dispatching\Action\SetOrderStateAction
  */
 class SetOrderStateActionTest extends TestCase
 {
-    /**
-     * @var MockObject|Connection
-     */
-    private $connection;
+    private Connection&MockObject $connection;
 
-    /**
-     * @var MockObject|OrderService
-     */
-    private $orderService;
+    private MockObject&OrderService $orderService;
 
-    /**
-     * @var MockObject|StorableFlow
-     */
-    private $flow;
+    private MockObject&StorableFlow $flow;
 
     private SetOrderStateAction $action;
 
@@ -53,25 +44,8 @@ class SetOrderStateActionTest extends TestCase
     public function testRequirements(): void
     {
         static::assertSame(
-            [OrderAware::class, DelayAware::class],
+            [OrderAware::class],
             $this->action->requirements()
-        );
-    }
-
-    public function testSubscribedEvents(): void
-    {
-        if (Feature::isActive('v6.5.0.0')) {
-            static::assertSame(
-                [],
-                SetOrderStateAction::getSubscribedEvents()
-            );
-
-            return;
-        }
-
-        static::assertSame(
-            ['action.set.order.state' => 'handle'],
-            SetOrderStateAction::getSubscribedEvents()
         );
     }
 

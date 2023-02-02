@@ -3,74 +3,34 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Driver\Statement;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\WishlistMergedEvent;
 use Shopware\Core\Checkout\Customer\Exception\CustomerWishlistNotActivatedException;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SuccessResponse;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route(defaults={"_routeScope"={"store-api"}})
- */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Package('customer-order')]
 class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
 {
     /**
-     * @var EntityRepositoryInterface
-     */
-    private $wishlistRepository;
-
-    /**
-     * @var SalesChannelRepositoryInterface
-     */
-    private $productRepository;
-
-    /**
-     * @var SystemConfigService
-     */
-    private $systemConfigService;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
-     * @var Connection
-     */
-    private $connection;
-
-    /**
      * @internal
      */
-    public function __construct(
-        EntityRepositoryInterface $wishlistRepository,
-        SalesChannelRepositoryInterface $productRepository,
-        SystemConfigService $systemConfigService,
-        EventDispatcherInterface $eventDispatcher,
-        Connection $connection
-    ) {
-        $this->wishlistRepository = $wishlistRepository;
-        $this->productRepository = $productRepository;
-        $this->systemConfigService = $systemConfigService;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->connection = $connection;
+    public function __construct(private readonly EntityRepository $wishlistRepository, private readonly SalesChannelRepository $productRepository, private readonly SystemConfigService $systemConfigService, private readonly EventDispatcherInterface $eventDispatcher, private readonly Connection $connection)
+    {
     }
 
     public function getDecorated(): AbstractMergeWishlistProductRoute
@@ -78,10 +38,7 @@ class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
         throw new DecorationPatternException(self::class);
     }
 
-    /**
-    * @Since("6.3.4.0")
-     * @Route("/store-api/customer/wishlist/merge", name="store-api.customer.wishlist.merge", methods={"POST"}, defaults={"_loginRequired"=true})
-    */
+    #[Route(path: '/store-api/customer/wishlist/merge', name: 'store-api.customer.wishlist.merge', methods: ['POST'], defaults: ['_loginRequired' => true])]
     public function merge(RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer): SuccessResponse
     {
         if (!$this->systemConfigService->get('core.cart.wishlistEnabled', $context->getSalesChannel()->getId())) {
@@ -118,9 +75,16 @@ class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
         return $wishlistIds->firstId() ?? Uuid::randomHex();
     }
 
+    /**
+     * @return array<array{id: string, productId?: string, productVersionId?: Defaults::LIVE_VERSION}>
+     */
     private function buildUpsertProducts(RequestDataBag $data, string $wishlistId, SalesChannelContext $context): array
     {
         $ids = array_unique(array_filter($data->get('productIds')->all()));
+
+        if (\count($ids) === 0) {
+            return [];
+        }
 
         /** @var array<string> $ids */
         $ids = $this->productRepository->searchIds(new Criteria($ids), $context)->getIds();
@@ -139,11 +103,11 @@ class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
                 continue;
             }
 
-            $upsertData[] = array_filter([
+            $upsertData[] = [
                 'id' => Uuid::randomHex(),
                 'productId' => $id,
                 'productVersionId' => Defaults::LIVE_VERSION,
-            ]);
+            ];
         }
 
         return $upsertData;
@@ -151,6 +115,8 @@ class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
 
     /**
      * @param array<string> $productIds
+     *
+     * @return array<string, string>
      */
     private function loadCustomerProducts(string $wishlistId, array $productIds): array
     {
@@ -164,9 +130,11 @@ class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
         $query->andWhere('`product_id` IN (:productIds)');
         $query->setParameter('id', Uuid::fromHexToBytes($wishlistId));
         $query->setParameter('productIds', Uuid::fromHexToBytesList($productIds), Connection::PARAM_STR_ARRAY);
-        /** @var Statement $stmt */
-        $stmt = $query->execute();
+        $result = $query->executeQuery();
 
-        return FetchModeHelper::keyPair($stmt->fetchAll());
+        /** @var array<string, string> $values */
+        $values = $result->fetchAllKeyValue();
+
+        return $values;
     }
 }

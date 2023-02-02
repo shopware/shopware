@@ -2,56 +2,24 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
  * Defines the current state of an entity in relation to the parent-child inheritance and
  * existence in the storage or command queue.
  */
+#[Package('core')]
 class EntityExistence
 {
-    /**
-     * @var array
-     */
-    private $primaryKey;
-
-    /**
-     * @var bool
-     */
-    private $exists;
-
-    /**
-     * @var bool
-     */
-    private $isChild;
-
-    /**
-     * @var bool
-     */
-    private $wasChild;
-
-    /**
-     * @var array
-     */
-    private $state;
-
-    /**
-     * @var string|null
-     */
-    private $entityName;
-
     public function __construct(
-        ?string $entityName, // @see a hack in \Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer
-        array $primaryKey,
-        bool $exists,
-        bool $isChild,
-        bool $wasChild,
-        array $state
+        private readonly ?string $entityName,
+        // @see a hack in \Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer
+        private readonly array $primaryKey,
+        private readonly bool $exists,
+        private readonly bool $isChild,
+        private readonly bool $wasChild,
+        private readonly array $state
     ) {
-        $this->entityName = $entityName;
-        $this->primaryKey = $primaryKey;
-        $this->exists = $exists;
-        $this->isChild = $isChild;
-        $this->wasChild = $wasChild;
-        $this->state = $state;
     }
 
     public function exists(): bool

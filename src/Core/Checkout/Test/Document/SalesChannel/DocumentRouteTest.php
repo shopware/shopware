@@ -9,6 +9,8 @@ use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Test\Customer\SalesChannel\CustomerTestTrait;
 use Shopware\Core\Content\Test\Flow\OrderActionTrait;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -20,6 +22,7 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * @internal
  */
+#[Package('customer-order')]
 class DocumentRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -62,7 +65,7 @@ class DocumentRouteTest extends TestCase
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $token);
 
         $operation = new DocumentGenerateOperation($this->ids->get('order'));
-        $document = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$operation->getOrderId() => $operation], $this->ids->context)->getSuccess()->first();
+        $document = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$operation->getOrderId() => $operation], Context::createDefaultContext())->getSuccess()->first();
         static::assertNotNull($document);
         $deepLinkCode = '';
 
@@ -109,7 +112,7 @@ class DocumentRouteTest extends TestCase
             false,
             function (Response $response): void {
                 static::assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
-                $response = json_decode($response->getContent() ?: '', true);
+                $response = json_decode($response->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
                 static::assertArrayHasKey('errors', $response);
                 static::assertSame('DOCUMENT__INVALID_DOCUMENT_ID', $response['errors'][0]['code']);
             },
@@ -119,7 +122,7 @@ class DocumentRouteTest extends TestCase
             null,
             function (Response $response): void {
                 static::assertEquals(Response::HTTP_FORBIDDEN, $response->getStatusCode());
-                $response = json_decode($response->getContent() ?: '', true);
+                $response = json_decode($response->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
                 static::assertArrayHasKey('errors', $response);
                 static::assertSame('CHECKOUT__CUSTOMER_NOT_LOGGED_IN', $response['errors'][0]['code']);
             },
@@ -141,7 +144,7 @@ class DocumentRouteTest extends TestCase
             false,
             function (Response $response): void {
                 static::assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
-                $response = json_decode($response->getContent() ?: '', true);
+                $response = json_decode($response->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
                 static::assertArrayHasKey('errors', $response);
                 static::assertSame('DOCUMENT__INVALID_DOCUMENT_ID', $response['errors'][0]['code']);
             },

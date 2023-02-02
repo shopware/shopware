@@ -98,6 +98,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartRuleLoader"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer">
@@ -106,7 +107,6 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderConverter"/>
             <argument type="service" id="order.repository"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\CartRestorer"/>
             <argument type="service" id="event_dispatcher"/>
         </service>
 
@@ -135,27 +135,6 @@
         </service>
 
         <service id="Shopware\Core\System\SalesChannel\SalesChannel\ContextRoute"/>
-
-        <service id="Shopware\Core\System\SalesChannel\Command\SalesChannelCreateCommand">
-            <argument type="service" id="payment_method.repository"/>
-            <argument type="service" id="shipping_method.repository"/>
-            <argument type="service" id="country.repository"/>
-            <argument type="service" id="snippet_set.repository"/>
-            <argument type="service" id="category.repository"/>
-            <argument type="service" id="Shopware\Core\Maintenance\SalesChannel\Service\SalesChannelCreator"/>
-        </service>
-
-        <service id="Shopware\Core\System\SalesChannel\Command\SalesChannelListCommand">
-            <argument type="service" id="sales_channel.repository"/>
-        </service>
-
-        <service id="Shopware\Core\System\SalesChannel\Command\SalesChannelMaintenanceEnableCommand">
-            <argument type="service" id="sales_channel.repository"/>
-        </service>
-
-        <service id="Shopware\Core\System\SalesChannel\Command\SalesChannelMaintenanceDisableCommand">
-            <argument type="service" id="sales_channel.repository"/>
-        </service>
 
         <service id="Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry" public="true">
             <argument type="string"/>

@@ -22,6 +22,8 @@ class ProductCartTest extends TestCase
 
     /**
      * @dataProvider priceInCartProvider
+     *
+     * @param array<string, mixed> $contextOptions
      */
     public function testPriceInCart(ProductBuilder $builder, float $expected, array $contextOptions = []): void
     {

@@ -33,35 +33,34 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\DataStack;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteFieldException;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
- * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ * @internal
+ *
  * Builds the command queue for write operations.
  *
  * Contains recursive calls from extract->map->AssociationInterface->extract->map->....
  */
+#[Package('core')]
 class WriteCommandExtractor
 {
-    private EntityWriteGatewayInterface $entityExistenceGateway;
-
-    private DefinitionInstanceRegistry $definitionRegistry;
-
+    /**
+     * @var array<string, Field[]>
+     */
     private array $fieldsForPrimaryKeyMapping = [];
 
     /**
      * @internal
      */
     public function __construct(
-        EntityWriteGatewayInterface $entityExistenceGateway,
-        DefinitionInstanceRegistry $definitionRegistry
+        private readonly EntityWriteGatewayInterface $entityExistenceGateway,
+        private readonly DefinitionInstanceRegistry $definitionRegistry
     ) {
-        $this->entityExistenceGateway = $entityExistenceGateway;
-        $this->definitionRegistry = $definitionRegistry;
     }
 
     public function normalize(EntityDefinition $definition, array $rawData, WriteParameterBag $parameters): array
@@ -217,9 +216,7 @@ class WriteCommandExtractor
         }
 
         // call map with child associations only
-        $children = array_filter($fields, static function (Field $field) {
-            return $field instanceof ChildrenAssociationField;
-        });
+        $children = array_filter($fields, static fn (Field $field) => $field instanceof ChildrenAssociationField);
 
         if (\count($children) > 0) {
             $this->map($children, $rawData, $existence, $parameters);
@@ -229,19 +226,10 @@ class WriteCommandExtractor
     }
 
     /**
-     * @param array $data
-     *
-     * @deprecated tag:v6.5.0 - parameter $data will be natively typed to type array
+     * @param array<string, array<string, mixed>> $data
      */
-    public function extractJsonUpdate($data, EntityExistence $existence, WriteParameterBag $parameters): void
+    public function extractJsonUpdate(array $data, EntityExistence $existence, WriteParameterBag $parameters): void
     {
-        if (!\is_array($data)) {
-            Feature::triggerDeprecationOrThrow(
-                'v6.5.0.0',
-                'The first parameter of method "WriteCommandExtractor::extractJsonUpdate()" will be typed natively to type "array" in v6.5.0.0.'
-            );
-        }
-
         foreach ($data as $storageName => $attributes) {
             $entityName = $existence->getEntityName();
             if (!$entityName) {
@@ -514,9 +502,7 @@ class WriteCommandExtractor
 
         $primaryKeys = $definition->getPrimaryKeys()->getElements();
 
-        $references = array_filter($fields, static function (Field $field) {
-            return $field instanceof ManyToOneAssociationField;
-        });
+        $references = array_filter($fields, static fn (Field $field) => $field instanceof ManyToOneAssociationField);
 
         foreach ($primaryKeys as $primaryKey) {
             if (!$primaryKey instanceof FkField) {
@@ -529,9 +515,7 @@ class WriteCommandExtractor
             }
         }
 
-        usort($primaryKeys, static function (Field $a, Field $b) {
-            return $b->getExtractPriority() <=> $a->getExtractPriority();
-        });
+        usort($primaryKeys, static fn (Field $a, Field $b) => $b->getExtractPriority() <=> $a->getExtractPriority());
 
         return $this->fieldsForPrimaryKeyMapping[$definition->getEntityName()] = $primaryKeys;
     }

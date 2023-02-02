@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Adapter\Cache\Script;
 use Shopware\Core\Framework\Adapter\Cache\Script\Facade\CacheInvalidatorFacadeHookFactory;
 use Shopware\Core\Framework\Adapter\Cache\Script\Facade\WrittenEventScriptFacade;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\Hook;
 
 /**
@@ -14,11 +15,12 @@ use Shopware\Core\Framework\Script\Execution\Hook;
  *
  * @since 6.4.9.0
  */
+#[Package('core')]
 class CacheInvalidationHook extends Hook
 {
-    public const HOOK_NAME = 'cache-invalidation';
+    final public const HOOK_NAME = 'cache-invalidation';
 
-    private WrittenEventScriptFacade $event;
+    private readonly WrittenEventScriptFacade $event;
 
     public function __construct(EntityWrittenContainerEvent $event)
     {

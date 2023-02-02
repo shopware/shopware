@@ -7,10 +7,10 @@ use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Rule\EmailRule;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -23,14 +23,15 @@ use Symfony\Component\Validator\Constraints\Type;
 /**
  * @internal
  */
+#[Package('business-ops')]
 class EmailRuleTest extends TestCase
 {
     use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
 
-    private EntityRepositoryInterface $ruleRepository;
+    private EntityRepository $ruleRepository;
 
-    private EntityRepositoryInterface $conditionRepository;
+    private EntityRepository $conditionRepository;
 
     private Context $context;
 
@@ -177,6 +178,9 @@ class EmailRuleTest extends TestCase
         static::assertSame($expected, $match);
     }
 
+    /**
+     * @return \Traversable<string, array<string|bool>>
+     */
     public function getMatchValues(): \Traversable
     {
         // OPERATOR_EQ
@@ -199,12 +203,6 @@ class EmailRuleTest extends TestCase
         yield 'operator_neq / not match partially between / email' => [Rule::OPERATOR_NEQ, 'test@example.com', 'foo@*.com', true];
         yield 'operator_neq / not match partially start / email' => [Rule::OPERATOR_NEQ, 'test@example.com', '*@shopware.com', true];
         yield 'operator_neq / not match partially end / email' => [Rule::OPERATOR_NEQ, 'test@example.com', 'foo@*', true];
-
-        if (!Feature::isActive('v6.5.0.0')) {
-            yield 'operator_neq / no match / no customer' => [Rule::OPERATOR_NEQ, 'test@example.com', 'test@example.com', false, true];
-
-            return;
-        }
 
         yield 'operator_neq / match / no customer' => [Rule::OPERATOR_NEQ, 'test@example.com', 'test@example.com', true, true];
     }

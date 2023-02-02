@@ -41,16 +41,9 @@ Shopware.Component.register('sw-settings-storefront-index', {
 
             // Default when config is empty
             if (Object.keys(this.storefrontSettings).length === 0) {
-                /** @deprecated tag:v6.5.0 will be true from 6.5.0 on */
-                if (Shopware.Feature.isActive('v6.5.0.0')) {
-                    this.storefrontSettings = {
-                        'core.storefrontSettings.iconCache': true,
-                    };
-                } else {
-                    this.storefrontSettings = {
-                        'core.storefrontSettings.iconCache': false,
-                    };
-                }
+                this.storefrontSettings = {
+                    'core.storefrontSettings.iconCache': true,
+                };
             }
 
             this.isLoading = false;

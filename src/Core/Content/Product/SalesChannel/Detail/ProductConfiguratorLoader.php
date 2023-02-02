@@ -9,27 +9,21 @@ use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOp
 use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Content\Property\PropertyGroupDefinition;
 use Shopware\Core\Content\Property\PropertyGroupEntity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+#[Package('inventory')]
 class ProductConfiguratorLoader
 {
-    private EntityRepositoryInterface $configuratorRepository;
-
-    private AvailableCombinationLoader $combinationLoader;
-
     /**
      * @internal
      */
-    public function __construct(
-        EntityRepositoryInterface $configuratorRepository,
-        AvailableCombinationLoader $combinationLoader
-    ) {
-        $this->combinationLoader = $combinationLoader;
-        $this->configuratorRepository = $configuratorRepository;
+    public function __construct(private readonly EntityRepository $configuratorRepository, private readonly AbstractAvailableCombinationLoader $combinationLoader)
+    {
     }
 
     /**
@@ -175,7 +169,7 @@ class ProductConfiguratorLoader
                     }
 
                     if ($group->getSortingType() === PropertyGroupDefinition::SORTING_TYPE_ALPHANUMERIC) {
-                        return strnatcmp($a->getTranslation('name'), $b->getTranslation('name'));
+                        return strnatcmp((string) $a->getTranslation('name'), (string) $b->getTranslation('name'));
                     }
 
                     return ($a->getTranslation('position') ?? $a->getPosition() ?? 0) <=> ($b->getTranslation('position') ?? $b->getPosition() ?? 0);

@@ -1,8 +1,10 @@
+/**
+ * @package system-settings
+ */
 import template from './sw-custom-field-type-number.html.twig';
 
-const { Component } = Shopware;
-
-Component.extend('sw-custom-field-type-number', 'sw-custom-field-type-base', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     data() {
@@ -36,4 +38,4 @@ Component.extend('sw-custom-field-type-number', 'sw-custom-field-type-base', {
             }
         },
     },
-});
+};

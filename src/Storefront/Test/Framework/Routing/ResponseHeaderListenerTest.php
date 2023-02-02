@@ -38,7 +38,7 @@ class ResponseHeaderListenerTest extends TestCase
 
     public function testHomeController(): void
     {
-        $browser = KernelLifecycleManager::createBrowser(KernelLifecycleManager::getKernel(), false);
+        $browser = KernelLifecycleManager::createBrowser(KernelLifecycleManager::getKernel());
         $browser->setServerParameter('HTTP_' . PlatformRequest::HEADER_CONTEXT_TOKEN, '1234');
         $browser->setServerParameter('HTTP_' . PlatformRequest::HEADER_VERSION_ID, '1234');
         $browser->setServerParameter('HTTP_' . PlatformRequest::HEADER_LANGUAGE_ID, '1234');
@@ -54,7 +54,7 @@ class ResponseHeaderListenerTest extends TestCase
     {
         try {
             $this->toggleNotFoundSubscriber(false);
-            $browser = KernelLifecycleManager::createBrowser(KernelLifecycleManager::getKernel(), false);
+            $browser = KernelLifecycleManager::createBrowser(KernelLifecycleManager::getKernel());
             $browser->setServerParameter('HTTP_' . PlatformRequest::HEADER_CONTEXT_TOKEN, '1234');
             $browser->setServerParameter('HTTP_' . PlatformRequest::HEADER_VERSION_ID, '1234');
             $browser->setServerParameter('HTTP_' . PlatformRequest::HEADER_LANGUAGE_ID, '1234');
@@ -92,7 +92,7 @@ class ResponseHeaderListenerTest extends TestCase
      */
     public function testNoStoreHeaderPresent(string $route): void
     {
-        $browser = KernelLifecycleManager::createBrowser(KernelLifecycleManager::getKernel(), false);
+        $browser = KernelLifecycleManager::createBrowser(KernelLifecycleManager::getKernel());
         $browser->request('GET', $_SERVER['APP_URL'] . $route);
         $response = $browser->getResponse();
 

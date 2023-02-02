@@ -5,8 +5,7 @@ namespace Shopware\Core\Framework\Script\Api;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Controller\Exception\PermissionDeniedException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
-use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\Framework\Script\Execution\ScriptAppInformation;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
@@ -18,27 +17,16 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @internal
- * @Route(defaults={"_routeScope"={"api"}})
  */
+#[Route(defaults: ['_routeScope' => ['api']])]
+#[Package('core')]
 class ScriptApiRoute
 {
-    private ScriptExecutor $executor;
-
-    private ScriptLoader $loader;
-
-    private ScriptResponseEncoder $scriptResponseEncoder;
-
-    public function __construct(ScriptExecutor $executor, ScriptLoader $loader, ScriptResponseEncoder $scriptResponseEncoder)
+    public function __construct(private readonly ScriptExecutor $executor, private readonly ScriptLoader $loader, private readonly ScriptResponseEncoder $scriptResponseEncoder)
     {
-        $this->executor = $executor;
-        $this->loader = $loader;
-        $this->scriptResponseEncoder = $scriptResponseEncoder;
     }
 
-    /**
-     * @Since("6.4.9.0")
-     * @Route("/api/script/{hook}", name="api.script_endpoint", methods={"POST"}, requirements={"hook"=".+"})
-     */
+    #[Route(path: '/api/script/{hook}', name: 'api.script_endpoint', methods: ['POST'], requirements: ['hook' => '.+'])]
     public function execute(string $hook, Request $request, Context $context): Response
     {
         //  blog/update =>  blog-update

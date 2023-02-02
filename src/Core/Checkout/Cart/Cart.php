@@ -5,11 +5,6 @@ namespace Shopware\Core\Checkout\Cart;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
-use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
-use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
-use Shopware\Core\Checkout\Cart\Exception\LineItemNotRemovableException;
-use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
-use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
@@ -18,73 +13,34 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Transaction\Struct\TransactionCollection;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\StateAwareTrait;
 use Shopware\Core\Framework\Struct\Struct;
 
+#[Package('checkout')]
 class Cart extends Struct
 {
     use StateAwareTrait;
 
-    /**
-     * @var string
-     */
-    protected $name;
+    protected CartPrice $price;
 
-    /**
-     * @var string
-     */
-    protected $token;
+    protected LineItemCollection $lineItems;
 
-    /**
-     * @var CartPrice
-     */
-    protected $price;
+    protected ErrorCollection $errors;
 
-    /**
-     * @var LineItemCollection
-     */
-    protected $lineItems;
+    protected DeliveryCollection $deliveries;
 
-    /**
-     * @var ErrorCollection
-     */
-    protected $errors;
+    protected TransactionCollection $transactions;
 
-    /**
-     * @var DeliveryCollection
-     */
-    protected $deliveries;
+    protected bool $modified = false;
 
-    /**
-     * @var TransactionCollection
-     */
-    protected $transactions;
+    protected ?string $customerComment = null;
 
-    /**
-     * @var bool
-     */
-    protected $modified = false;
+    protected ?string $affiliateCode = null;
 
-    /**
-     * @var string|null
-     */
-    protected $customerComment;
+    protected ?string $campaignCode = null;
 
-    /**
-     * @var string|null
-     */
-    protected $affiliateCode;
-
-    /**
-     * @var string|null
-     */
-    protected $campaignCode;
-
-    /**
-     * @var CartDataCollection|null
-     */
-    private $data;
+    private ?CartDataCollection $data = null;
 
     /**
      * @var array<string>
@@ -96,25 +52,13 @@ class Cart extends Struct
     /**
      * @internal
      */
-    public function __construct(string $name, string $token)
+    public function __construct(protected string $token)
     {
-        $this->name = $name;
-        $this->token = $token;
         $this->lineItems = new LineItemCollection();
         $this->transactions = new TransactionCollection();
         $this->errors = new ErrorCollection();
         $this->deliveries = new DeliveryCollection();
         $this->price = new CartPrice(0, 0, 0, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS);
-    }
-
-    public function getName(): string
-    {
-        return $this->name;
-    }
-
-    public function setName(string $name): void
-    {
-        $this->name = $name;
     }
 
     public function getToken(): string
@@ -158,9 +102,7 @@ class Cart extends Struct
     }
 
     /**
-     * @throws InvalidQuantityException
-     * @throws LineItemNotStackableException
-     * @throws MixedLineItemTypeException
+     * @throws CartException
      */
     public function addLineItems(LineItemCollection $lineItems): void
     {
@@ -194,9 +136,7 @@ class Cart extends Struct
     }
 
     /**
-     * @throws InvalidQuantityException
-     * @throws LineItemNotStackableException
-     * @throws MixedLineItemTypeException
+     * @throws CartException
      */
     public function add(LineItem $lineItem): self
     {
@@ -219,27 +159,18 @@ class Cart extends Struct
     }
 
     /**
-     * @throws LineItemNotFoundException
-     * @throws LineItemNotRemovableException
+     * @throws CartException
      */
     public function remove(string $key): void
     {
         $item = $this->get($key);
 
         if (!$item) {
-            if (Feature::isActive('v6.5.0.0')) {
-                throw CartException::lineItemNotFound($key);
-            }
-
-            throw new LineItemNotFoundException($key);
+            throw CartException::lineItemNotFound($key);
         }
 
         if (!$item->isRemovable()) {
-            if (Feature::isActive('v6.5.0.0')) {
-                throw CartException::lineItemNotRemovable($key);
-            }
-
-            throw new LineItemNotRemovableException($key);
+            throw CartException::lineItemNotRemovable($key);
         }
 
         $this->lineItems->remove($key);

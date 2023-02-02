@@ -21,23 +21,22 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
+#[Package('inventory')]
 class ProductDescriptionReviewsCmsElementResolver extends AbstractProductDetailCmsElementResolver
 {
     private const LIMIT = 10;
     private const DEFAULT_PAGE = 1;
     private const FILTER_LANGUAGE = 'filter-language';
 
-    private AbstractProductReviewRoute $productReviewRoute;
-
     /**
      * @internal
      */
-    public function __construct(AbstractProductReviewRoute $productReviewRoute)
+    public function __construct(private readonly AbstractProductReviewRoute $productReviewRoute)
     {
-        $this->productReviewRoute = $productReviewRoute;
     }
 
     public function getType(): string

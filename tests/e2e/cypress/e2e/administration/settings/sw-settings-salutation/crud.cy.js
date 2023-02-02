@@ -4,12 +4,9 @@ import SettingsPageObject from '../../../../support/pages/module/sw-settings.pag
 
 describe('Salutation: crud salutations', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
-            });
+        cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
     });
 
     it('@settings: can create a new salutation', { tags: ['pa-system-settings'] }, () => {
@@ -17,7 +14,7 @@ describe('Salutation: crud salutations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/salutation`,
-            method: 'POST'
+            method: 'POST',
         }).as('createSalutation');
 
         // go to salutaion module
@@ -61,7 +58,7 @@ describe('Salutation: crud salutations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/salutation/*`,
-            method: 'PATCH'
+            method: 'PATCH',
         }).as('editSalutation');
 
         // go to salutation module
@@ -90,18 +87,23 @@ describe('Salutation: crud salutations', () => {
         cy.get(`${page.elements.dataGridRow}--0`).contains('Dear Boss').should('be.visible');
     });
 
-    it('@settings: can delete a salutation', { tags: ['pa-system-settings'] }, () => {
+    it('@settings: can delete a salutation', { tags: ['pa-system-settings', 'quarantined'] }, () => {
         const page = new SettingsPageObject();
         // Prepare api to delete salutation
         cy.intercept({
             url: `${Cypress.env('apiPath')}/salutation/*`,
-            method: 'delete'
+            method: 'delete',
         }).as('deleteSalutation');
 
         // go to salutaion module
         cy.get('.sw-admin-menu__item--sw-settings').click();
         cy.get('#sw-settings-salutation').click();
 
+        // wait for salutation list to load
+        cy.get(`${page.elements.salutationListContent}`).should('be.visible');
+
+        // wait for salutation list to load
+        cy.get(`${page.elements.salutationListContent}`).should('be.visible');
 
         // click on first element in grid
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('mr');
@@ -111,7 +113,7 @@ describe('Salutation: crud salutations', () => {
         cy.clickContextMenuItem(
             `${page.elements.contextMenu}-item--danger`,
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
         );
 
         // assert that confirmation modal appears

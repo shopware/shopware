@@ -11,40 +11,21 @@ use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\SalesChannelAware;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\JsonSerializableTrait;
 use Symfony\Contracts\EventDispatcher\Event;
 
+#[Package('customer-order')]
 class NewsletterUnsubscribeEvent extends Event implements SalesChannelAware, MailAware, NewsletterRecipientAware
 {
     use JsonSerializableTrait;
 
-    public const EVENT_NAME = 'newsletter.unsubscribe';
+    final public const EVENT_NAME = 'newsletter.unsubscribe';
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private ?MailRecipientStruct $mailRecipientStruct = null;
 
-    /**
-     * @var NewsletterRecipientEntity
-     */
-    private $newsletterRecipient;
-
-    /**
-     * @var MailRecipientStruct|null
-     */
-    private $mailRecipientStruct;
-
-    /**
-     * @var string
-     */
-    private $salesChannelId;
-
-    public function __construct(Context $context, NewsletterRecipientEntity $newsletterRecipient, string $salesChannelId)
+    public function __construct(private readonly Context $context, private readonly NewsletterRecipientEntity $newsletterRecipient, private readonly string $salesChannelId)
     {
-        $this->context = $context;
-        $this->newsletterRecipient = $newsletterRecipient;
-        $this->salesChannelId = $salesChannelId;
     }
 
     public function getName(): string

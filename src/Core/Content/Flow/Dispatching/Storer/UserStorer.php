@@ -3,22 +3,21 @@
 namespace Shopware\Core\Content\Flow\Dispatching\Storer;
 
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Event\UserAware;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryEntity;
 
+#[Package('business-ops')]
 class UserStorer extends FlowStorer
 {
-    private EntityRepositoryInterface $userRecoveryRepository;
-
     /**
      * @internal
      */
-    public function __construct(EntityRepositoryInterface $userRecoveryRepository)
+    public function __construct(private readonly EntityRepository $userRecoveryRepository)
     {
-        $this->userRecoveryRepository = $userRecoveryRepository;
     }
 
     public function store(FlowEventAware $event, array $stored): array
@@ -40,7 +39,7 @@ class UserStorer extends FlowStorer
 
         $storable->lazy(
             UserAware::USER_RECOVERY,
-            [$this, 'load'],
+            $this->load(...),
             [$storable->getStore(UserAware::USER_RECOVERY_ID), $storable->getContext()]
         );
     }
@@ -50,7 +49,7 @@ class UserStorer extends FlowStorer
      */
     public function load(array $args): ?UserRecoveryEntity
     {
-        list($id, $context) = $args;
+        [$id, $context] = $args;
 
         $criteria = new Criteria([$id]);
         $criteria->addAssociation('user');

@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\System\SystemConfig\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+#[Package('system-settings')]
 class InvalidDomainException extends ShopwareHttpException
 {
     public function __construct(string $domain)

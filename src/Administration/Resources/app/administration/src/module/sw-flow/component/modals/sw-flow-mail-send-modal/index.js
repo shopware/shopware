@@ -478,7 +478,7 @@ Component.register('sw-flow-mail-send-modal', {
                     return;
                 case 'contactFormMail':
                     this.replyToError = null;
-                    this.replyTo = null;
+                    this.replyTo = 'contactFormMail';
 
                     return;
                 default:

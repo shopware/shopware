@@ -7,6 +7,8 @@ use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\AmountCalculator;
+use Shopware\Core\Checkout\Cart\Price\CashRounding;
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\TaxProvider\Struct\TaxProviderResult;
@@ -19,8 +21,10 @@ class TaxAdjustment
     /**
      * @internal
      */
-    public function __construct(private readonly AmountCalculator $amountCalculator)
-    {
+    public function __construct(
+        private readonly AmountCalculator $amountCalculator,
+        private readonly CashRounding $rounding
+    ) {
     }
 
     public function adjust(Cart $cart, TaxProviderResult $result, SalesChannelContext $context): void
@@ -38,10 +42,45 @@ class TaxAdjustment
         );
 
         // either take the price from the tax provider result or take the calculated taxes
-        $taxes = $result->getCartPriceTaxes() ?: $price->getCalculatedTaxes()->filter(fn (CalculatedTax $tax) => $tax->getTax() > 0.0);
+        $taxes = $price->getCalculatedTaxes()->filter(fn (CalculatedTax $tax) => $tax->getTax() > 0.0);
         $price->setCalculatedTaxes($taxes);
 
+        if ($result->getCartPriceTaxes()) {
+            $price = $this->applyCartPriceTaxes($price, $result->getCartPriceTaxes(), $context);
+        }
+
         $cart->setPrice($price);
+    }
+
+    private function applyCartPriceTaxes(CartPrice $price, CalculatedTaxCollection $taxes, SalesChannelContext $context): CartPrice
+    {
+        $netPrice = $price->getNetPrice();
+        $grossPrice = $price->getTotalPrice();
+        $taxSum = $taxes->getAmount();
+
+        if ($context->getTaxState() === CartPrice::TAX_STATE_NET) {
+            $grossPrice = $this->rounding->cashRound(
+                $netPrice + $taxSum,
+                $context->getTotalRounding()
+            );
+        }
+
+        if ($context->getTaxState() === CartPrice::TAX_STATE_GROSS) {
+            $netPrice = $this->rounding->cashRound(
+                $grossPrice - $taxSum,
+                $context->getTotalRounding()
+            );
+        }
+
+        return new CartPrice(
+            $netPrice,
+            $grossPrice,
+            $price->getPositionPrice(),
+            $taxes,
+            $price->getTaxRules(),
+            $context->getTaxState(),
+            $grossPrice
+        );
     }
 
     /**

@@ -9,7 +9,6 @@ use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Storefront\Framework\Media\Exception\FileTypeNotAllowedException;
 use Shopware\Storefront\Framework\Media\Exception\MediaValidatorMissingException;
@@ -20,12 +19,11 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 /**
  * @internal
  */
-#[Package('content')]
 class StorefrontMediaUploaderTest extends TestCase
 {
     use KernelTestBehaviour;
 
-    final public const FIXTURE_DIR = __DIR__ . '/fixtures';
+    public const FIXTURE_DIR = __DIR__ . '/fixtures';
 
     public function testUploadDocument(): void
     {
@@ -112,7 +110,9 @@ class StorefrontMediaUploaderTest extends TestCase
         }
 
         $this->getContainer()->get('media.repository')->delete(
-            array_map(static fn (string $id) => ['id' => $id], $ids),
+            array_map(static function (string $id) {
+                return ['id' => $id];
+            }, $ids),
             Context::createDefaultContext()
         );
     }

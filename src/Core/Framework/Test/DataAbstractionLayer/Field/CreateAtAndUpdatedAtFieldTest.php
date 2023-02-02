@@ -31,7 +31,10 @@ class CreateAtAndUpdatedAtFieldTest extends TestCase
      */
     private $connection;
 
-    private EntityRepository $repo;
+    /**
+     * @var EntityRepository
+     */
+    private $repo;
 
     protected function setUp(): void
     {

@@ -1,14 +1,11 @@
 import template from './sw-order-select-document-type-modal.html.twig';
 import './sw-order-select-document-type-modal.scss';
 
-/**
- * @package customer-order
- */
-
+const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-order-select-document-type-modal', {
     template,
 
     inject: ['repositoryFactory'],
@@ -142,4 +139,4 @@ export default {
             this.$emit('change', this.documentTypeCollection.get(this.documentType));
         },
     },
-};
+});

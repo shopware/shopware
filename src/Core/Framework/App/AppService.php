@@ -6,16 +6,22 @@ use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycleIterator;
 use Shopware\Core\Framework\App\Lifecycle\RefreshableAppDryRun;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
  */
-#[Package('core')]
 class AppService
 {
-    public function __construct(private readonly AppLifecycleIterator $appLifecycleIterator, private readonly AbstractAppLifecycle $appLifecycle)
-    {
+    private AppLifecycleIterator $appLifecycleIterator;
+
+    private AbstractAppLifecycle $appLifecycle;
+
+    public function __construct(
+        AppLifecycleIterator $appLifecycleIterator,
+        AbstractAppLifecycle $appLifecycle
+    ) {
+        $this->appLifecycleIterator = $appLifecycleIterator;
+        $this->appLifecycle = $appLifecycle;
     }
 
     /**

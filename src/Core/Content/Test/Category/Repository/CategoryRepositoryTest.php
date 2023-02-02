@@ -8,7 +8,7 @@ use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -22,9 +22,15 @@ class CategoryRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private Connection $connection;
+    /**
+     * @var Connection
+     */
+    private $connection;
 
-    private EntityRepository $repository;
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $repository;
 
     protected function setUp(): void
     {
@@ -42,7 +48,7 @@ class CategoryRepositoryTest extends TestCase
             ['id' => $childId, 'name' => 'child', 'parentId' => $parentId],
         ], Context::createDefaultContext());
 
-        $exists = $this->connection->fetchAllAssociative(
+        $exists = $this->connection->fetchAll(
             'SELECT * FROM category WHERE id IN (:ids)',
             ['ids' => [Uuid::fromHexToBytes($parentId), Uuid::fromHexToBytes($childId)]],
             ['ids' => Connection::PARAM_STR_ARRAY]
@@ -50,14 +56,13 @@ class CategoryRepositoryTest extends TestCase
 
         static::assertCount(2, $exists);
 
-        $child = $this->connection->fetchAllAssociative(
+        $child = $this->connection->fetchAll(
             'SELECT * FROM category WHERE id IN (:ids)',
             ['ids' => [Uuid::fromHexToBytes($childId)]],
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
         $child = array_shift($child);
 
-        static::assertIsArray($child);
         static::assertEquals(Uuid::fromHexToBytes($parentId), $child['parent_id']);
 
         $result = $this->repository->delete(
@@ -76,7 +81,7 @@ class CategoryRepositoryTest extends TestCase
             $event->getIds()
         );
 
-        $exists = $this->connection->fetchAllAssociative(
+        $exists = $this->connection->fetchAll(
             'SELECT * FROM category WHERE id IN (:ids)',
             ['ids' => [Uuid::fromHexToBytes($parentId), Uuid::fromHexToBytes($childId)]],
             ['ids' => Connection::PARAM_STR_ARRAY]
@@ -95,21 +100,19 @@ class CategoryRepositoryTest extends TestCase
             ['id' => $childId, 'name' => 'child', 'parentId' => $parentId],
         ], Context::createDefaultContext());
 
-        $exists = $this->connection->fetchAllAssociative(
+        $exists = $this->connection->fetchAll(
             'SELECT * FROM category WHERE id IN (:ids)',
             ['ids' => [Uuid::fromHexToBytes($parentId), Uuid::fromHexToBytes($childId)]],
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
         static::assertCount(2, $exists);
 
-        $child = $this->connection->fetchAllAssociative(
+        $child = $this->connection->fetchAll(
             'SELECT * FROM category WHERE id IN (:ids)',
             ['ids' => [Uuid::fromHexToBytes($childId)]],
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
         $child = array_shift($child);
-
-        static::assertIsArray($child);
         static::assertEquals(Uuid::fromHexToBytes($parentId), $child['parent_id']);
 
         $result = $this->repository->delete(
@@ -123,14 +126,14 @@ class CategoryRepositoryTest extends TestCase
         static::assertInstanceOf(EntityDeletedEvent::class, $event);
         static::assertEquals([$childId], $event->getIds());
 
-        $exists = $this->connection->fetchAllAssociative(
+        $exists = $this->connection->fetchAll(
             'SELECT * FROM category WHERE id IN (:ids)',
             ['ids' => [Uuid::fromHexToBytes($childId)]],
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
         static::assertEmpty($exists);
 
-        $exists = $this->connection->fetchAllAssociative(
+        $exists = $this->connection->fetchAll(
             'SELECT * FROM category WHERE id IN (:ids)',
             ['ids' => [Uuid::fromHexToBytes($parentId)]],
             ['ids' => Connection::PARAM_STR_ARRAY]
@@ -148,7 +151,7 @@ class CategoryRepositoryTest extends TestCase
             ['id' => $childId, 'name' => 'child', 'parentId' => $parentId],
         ], Context::createDefaultContext());
 
-        $exists = $this->connection->fetchAllAssociative(
+        $exists = $this->connection->fetchAll(
             'SELECT * FROM category WHERE id IN (:ids)',
             ['ids' => [Uuid::fromHexToBytes($parentId), Uuid::fromHexToBytes($childId)]],
             ['ids' => Connection::PARAM_STR_ARRAY]
@@ -156,14 +159,13 @@ class CategoryRepositoryTest extends TestCase
 
         static::assertCount(2, $exists);
 
-        $child = $this->connection->fetchAllAssociative(
+        $child = $this->connection->fetchAll(
             'SELECT * FROM category WHERE id IN (:ids)',
             ['ids' => [Uuid::fromHexToBytes($childId)]],
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
         $child = array_shift($child);
 
-        static::assertIsArray($child);
         static::assertEquals(Uuid::fromHexToBytes($parentId), $child['parent_id']);
 
         $result = $this->repository->delete([

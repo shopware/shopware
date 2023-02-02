@@ -1,11 +1,8 @@
 import AccountPageObject from '../../../support/pages/account.page-object';
 
-/**
- * @package checkout
- */
 describe('Account: Forgot password', () => {
     beforeEach(() => {
-        return cy.createCustomerFixtureStorefront();
+        return cy.createCustomerFixtureStorefront()
     });
 
     it('@customer: Request a new password with existing customer mail', { tags: ['pa-customers-orders'] }, () => {

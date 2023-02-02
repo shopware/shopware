@@ -1,11 +1,10 @@
-/**
- * @package system-settings
- */
 import template from './sw-users-permissions-permissions-grid.html.twig';
 import './sw-users-permissions-permissions-grid.scss';
 
+const { Component } = Shopware;
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-users-permissions-permissions-grid', {
     template,
 
     inject: ['privileges'],
@@ -285,4 +284,4 @@ export default {
             });
         },
     },
-};
+});

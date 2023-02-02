@@ -2,24 +2,24 @@
 
 namespace Shopware\Core\Framework\Event\EventData;
 
-use Shopware\Core\Framework\Log\Package;
-
-#[Package('business-ops')]
 class ScalarValueType implements EventDataType
 {
-    final public const TYPE_STRING = 'string';
-    final public const TYPE_INT = 'int';
-    final public const TYPE_FLOAT = 'float';
-    final public const TYPE_BOOL = 'bool';
+    public const TYPE_STRING = 'string';
+    public const TYPE_INT = 'int';
+    public const TYPE_FLOAT = 'float';
+    public const TYPE_BOOL = 'bool';
 
-    final public const VALID_TYPES = [
+    public const VALID_TYPES = [
         self::TYPE_STRING,
         self::TYPE_INT,
         self::TYPE_FLOAT,
         self::TYPE_BOOL,
     ];
 
-    private readonly string $type;
+    /**
+     * @var string
+     */
+    private $type;
 
     public function __construct(string $type)
     {

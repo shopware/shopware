@@ -7,7 +7,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_4\Migration1628749113Migration1628749113AddDefaultSalesChannelLanguageIdsInLanguagesLists;
@@ -16,7 +15,6 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[Package('core')]
 class Migration1628749113Migration1628749113AddDefaultSalesChannelLanguageIdsInLanguagesListsTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -25,9 +23,6 @@ class Migration1628749113Migration1628749113AddDefaultSalesChannelLanguageIdsInL
 
     private Connection $connection;
 
-    /**
-     * @var array<string, string>
-     */
     private array $defaultLanguageIds = [];
 
     protected function setUp(): void
@@ -51,7 +46,7 @@ class Migration1628749113Migration1628749113AddDefaultSalesChannelLanguageIdsInL
         $languages = $this->fetchMappedLanguageData($salesChannelIds);
 
         foreach ($languages as $language) {
-            static::assertTrue(\in_array($language['languageId'], $language['languages'], true));
+            static::assertDefaultInList($language['languageId'], $language['languages']);
         }
     }
 
@@ -69,9 +64,6 @@ class Migration1628749113Migration1628749113AddDefaultSalesChannelLanguageIdsInL
         static::assertSame(self::CREATED_SALES_CHANNELS, $this->countSalesChannelLanguages($salesChannelIds));
     }
 
-    /**
-     * @param list<string> $ids
-     */
     private function countSalesChannelLanguages(array $ids): int
     {
         return (int) $this->connection->fetchOne(
@@ -83,11 +75,6 @@ class Migration1628749113Migration1628749113AddDefaultSalesChannelLanguageIdsInL
         );
     }
 
-    /**
-     * @param list<string> $ids
-     *
-     * @return array<string, array{languageId: string, languages: list<string>}>
-     */
     private function fetchMappedLanguageData(array $ids): array
     {
         $raw = $this->connection->fetchAllAssociative(
@@ -102,7 +89,7 @@ class Migration1628749113Migration1628749113AddDefaultSalesChannelLanguageIdsInL
 
         $languages = [];
         foreach ($raw as $record) {
-            $id = (string) $record['id'];
+            $id = $record['id'];
 
             $languages[$id]['languageId'] = $record['defaultLanguage'];
             $languages[$id]['languages'][] = $record['language'];
@@ -135,9 +122,6 @@ class Migration1628749113Migration1628749113AddDefaultSalesChannelLanguageIdsInL
         $this->connection->executeStatement('DELETE FROM sales_channel_language ');
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     private function getSalesChannelDataBase(string $languageId = Defaults::LANGUAGE_SYSTEM): array
     {
         $id = Uuid::randomHex();
@@ -166,5 +150,10 @@ class Migration1628749113Migration1628749113AddDefaultSalesChannelLanguageIdsInL
             'name' => 'first sales-channel',
             'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
         ];
+    }
+
+    private static function assertDefaultInList(string $expectedId, array $actualList): void
+    {
+        static::assertTrue(\in_array($expectedId, $actualList, true));
     }
 }

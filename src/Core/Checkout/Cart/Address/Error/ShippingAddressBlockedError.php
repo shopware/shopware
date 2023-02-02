@@ -3,15 +3,20 @@
 namespace Shopware\Core\Checkout\Cart\Address\Error;
 
 use Shopware\Core\Checkout\Cart\Error\Error;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('checkout')]
 class ShippingAddressBlockedError extends Error
 {
     private const KEY = 'shipping-address-blocked';
 
-    public function __construct(private readonly string $name)
+    /**
+     * @var string
+     */
+    private $name;
+
+    public function __construct(string $name)
     {
+        $this->name = $name;
+
         $this->message = sprintf(
             'Shippings to shipping address %s are not possible.',
             $name

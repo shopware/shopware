@@ -4,20 +4,21 @@ namespace Shopware\Core\Content\Flow\Dispatching\Storer;
 
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Event\OrderAware;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('business-ops')]
 class OrderStorer extends FlowStorer
 {
+    private EntityRepositoryInterface $orderRepository;
+
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $orderRepository)
+    public function __construct(EntityRepositoryInterface $orderRepository)
     {
+        $this->orderRepository = $orderRepository;
     }
 
     public function store(FlowEventAware $event, array $stored): array
@@ -39,7 +40,7 @@ class OrderStorer extends FlowStorer
 
         $storable->lazy(
             OrderAware::ORDER,
-            $this->load(...),
+            [$this, 'load'],
             [$storable->getStore(OrderAware::ORDER_ID), $storable->getContext()]
         );
     }
@@ -49,19 +50,15 @@ class OrderStorer extends FlowStorer
      */
     public function load(array $args): ?OrderEntity
     {
-        [$orderId, $context] = $args;
+        list($orderId, $context) = $args;
 
         $criteria = new Criteria([$orderId]);
-        $criteria->addAssociation('orderCustomer');
-        $criteria->addAssociation('lineItems');
-        $criteria->addAssociation('lineItems.downloads.media');
         $criteria->addAssociation('deliveries.shippingMethod');
         $criteria->addAssociation('deliveries.shippingOrderAddress.country');
         $criteria->addAssociation('deliveries.shippingOrderAddress.countryState');
         $criteria->addAssociation('transactions.paymentMethod');
         $criteria->addAssociation('currency');
         $criteria->addAssociation('addresses.country');
-        $criteria->addAssociation('tags');
 
         $order = $this->orderRepository->search($criteria, $context)->get($orderId);
 

@@ -2,14 +2,18 @@
 
 namespace Shopware\Core\Content\Flow\Exception;
 
-use Shopware\Core\Framework\Log\Package;
-
-#[Package('business-ops')]
 class ExecuteSequenceException extends \Exception
 {
-    public function __construct(private readonly string $flowId, private readonly string $sequenceId, string $message = '', int $code = 0, ?\Throwable $previous = null)
+    private string $flowId;
+
+    private string $sequenceId;
+
+    public function __construct(string $flowId, string $sequenceId, string $message = '', int $code = 0, ?\Throwable $previous = null)
     {
         parent::__construct($message, $code, $previous);
+
+        $this->flowId = $flowId;
+        $this->sequenceId = $sequenceId;
     }
 
     public function getFlowId(): string

@@ -1,0 +1,66 @@
+@startuml
+' uncomment the line below if you're using computer with a retina display
+' skinparam dpi 300
+!define Table(name,desc) class name as "desc" << (T,#FFAAAA) >>
+!define ForeignTable(name,desc) class name as "desc" << (T,#ada6a6) >>
+!define TranslationTable(name,desc) class name as "desc" << (I,#4286f4) >>
+' we use bold for primary key
+' green color for unique
+' and underscore for not_null
+!define primary_key(x) <b>x</b>
+!define unique(x) <color:green>x</color>
+!define not_null(x) <u>x</u>
+' other tags available:
+' <i></i>
+' <back:COLOR></color>, where color is a color name or html color code
+' (#FFAACC)
+' see: http://plantuml.com/classes.html#More
+hide methods
+hide stereotypes
+hide empty members
+skinparam backgroundColor #FFFFFF
+
+' entities
+
+Table(ShopwareCoreSystemSalutationSalutationDefinition, "salutation\n(Salutation configuration)") {
+   primary_key(id) id
+   not_null(salutationKey) string
+   displayName translated
+   letterName translated
+   customFields translated
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+   translated json
+}
+TranslationTable(ShopwareCoreSystemSalutationAggregateSalutationTranslationSalutationTranslationDefinition, "salutation_translation\n((Translations))") {
+   not_null(displayName) string
+   not_null(letterName) string
+   customFields customFields
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+   primary_key(salutationId) foreignKey
+   primary_key(languageId) foreignKey
+}
+ForeignTable(ShopwareCoreCheckoutCustomerCustomerDefinition, "customer") {
+}
+ForeignTable(ShopwareCoreCheckoutCustomerAggregateCustomerAddressCustomerAddressDefinition, "customer_address") {
+}
+ForeignTable(ShopwareCoreCheckoutOrderAggregateOrderCustomerOrderCustomerDefinition, "order_customer") {
+}
+ForeignTable(ShopwareCoreCheckoutOrderAggregateOrderAddressOrderAddressDefinition, "order_address") {
+}
+ForeignTable(ShopwareCoreContentNewsletterAggregateNewsletterRecipientNewsletterRecipientDefinition, "newsletter_recipient") {
+}
+ForeignTable(ShopwareCoreSystemLanguageLanguageDefinition, "language") {
+}
+
+' relationshipd
+
+ShopwareCoreSystemSalutationAggregateSalutationTranslationSalutationTranslationDefinition --> ShopwareCoreSystemSalutationSalutationDefinition
+ShopwareCoreSystemSalutationSalutationDefinition --> ShopwareCoreCheckoutCustomerCustomerDefinition
+ShopwareCoreSystemSalutationSalutationDefinition --> ShopwareCoreCheckoutCustomerAggregateCustomerAddressCustomerAddressDefinition
+ShopwareCoreSystemSalutationSalutationDefinition --> ShopwareCoreCheckoutOrderAggregateOrderCustomerOrderCustomerDefinition
+ShopwareCoreSystemSalutationSalutationDefinition --> ShopwareCoreCheckoutOrderAggregateOrderAddressOrderAddressDefinition
+ShopwareCoreSystemSalutationSalutationDefinition --> ShopwareCoreContentNewsletterAggregateNewsletterRecipientNewsletterRecipientDefinition
+ShopwareCoreSystemSalutationAggregateSalutationTranslationSalutationTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
+@enduml

@@ -12,9 +12,10 @@ use Shopware\Core\Content\ProductExport\Service\ProductExportGeneratorInterface;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
 use Shopware\Core\Content\ProductExport\Struct\ProductExportResult;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -24,18 +25,38 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Route(defaults: ['_routeScope' => ['api']])]
-#[Package('sales-channel')]
+/**
+ * @Route(defaults={"_routeScope"={"api"}})
+ */
 class ProductExportController extends AbstractController
 {
+    private EntityRepositoryInterface $salesChannelDomainRepository;
+
+    private EntityRepositoryInterface $salesChannelRepository;
+
+    private ProductExportGeneratorInterface $productExportGenerator;
+
+    private EventDispatcherInterface $eventDispatcher;
+
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $salesChannelDomainRepository, private readonly EntityRepository $salesChannelRepository, private readonly ProductExportGeneratorInterface $productExportGenerator, private readonly EventDispatcherInterface $eventDispatcher)
-    {
+    public function __construct(
+        EntityRepositoryInterface $salesChannelDomainRepository,
+        EntityRepositoryInterface $salesChannelRepository,
+        ProductExportGeneratorInterface $productExportGenerator,
+        EventDispatcherInterface $eventDispatcher
+    ) {
+        $this->salesChannelDomainRepository = $salesChannelDomainRepository;
+        $this->salesChannelRepository = $salesChannelRepository;
+        $this->productExportGenerator = $productExportGenerator;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
-    #[Route(path: '/api/_action/product-export/validate', name: 'api.action.product_export.validate', methods: ['POST'])]
+    /**
+     * @Since("6.1.0.0")
+     * @Route("/api/_action/product-export/validate", name="api.action.product_export.validate", methods={"POST"})
+     */
     public function validate(RequestDataBag $dataBag, Context $context): JsonResponse
     {
         $result = $this->generateExportPreview($dataBag, $context);
@@ -44,7 +65,9 @@ class ProductExportController extends AbstractController
             $errors = $result->getErrors();
             $errorMessages = array_merge(
                 ...array_map(
-                    fn (Error $error) => $error->getErrorMessages(),
+                    function (Error $error) {
+                        return $error->getErrorMessages();
+                    },
                     $errors
                 )
             );
@@ -64,7 +87,10 @@ class ProductExportController extends AbstractController
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
-    #[Route(path: '/api/_action/product-export/preview', name: 'api.action.product_export.preview', methods: ['POST'])]
+    /**
+     * @Since("6.1.0.0")
+     * @Route("/api/_action/product-export/preview", name="api.action.product_export.preview", methods={"POST"})
+     */
     public function preview(RequestDataBag $dataBag, Context $context): JsonResponse
     {
         $result = $this->generateExportPreview($dataBag, $context);
@@ -73,7 +99,9 @@ class ProductExportController extends AbstractController
             $errors = $result->getErrors();
             $errorMessages = array_merge(
                 ...array_map(
-                    fn (Error $error) => $error->getErrorMessages(),
+                    function (Error $error) {
+                        return $error->getErrorMessages();
+                    },
                     $errors
                 )
             );

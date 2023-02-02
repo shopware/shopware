@@ -15,7 +15,7 @@
     }
 
     &__list-item {
-        font-size: $font-size-xs;
+        font-size: $font-size-small;
     }
 
     &__list-item dt {
@@ -25,7 +25,7 @@
     &__download {
         color: $color-darkgray-200;
         text-decoration: none;
-        font-size: $font-size-xs;
+        font-size: 14px;
     }
 
     &__item-state--processing dd {

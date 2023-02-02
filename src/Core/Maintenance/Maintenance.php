@@ -3,7 +3,6 @@
 namespace Shopware\Core\Maintenance;
 
 use Shopware\Core\Framework\Bundle;
-use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
@@ -11,7 +10,6 @@ use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 /**
  * @internal
  */
-#[Package('core')]
 class Maintenance extends Bundle
 {
     /**

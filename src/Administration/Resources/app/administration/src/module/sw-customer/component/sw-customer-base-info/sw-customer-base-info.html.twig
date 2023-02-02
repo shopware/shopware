@@ -40,7 +40,6 @@
                     entity="customer_group"
                     size="small"
                     show-clearable-button
-                    :error="customerGroupIdError"
                 />
             </dd>
             {% endblock %}
@@ -77,7 +76,6 @@
                     label-property="distinguishableName"
                     size="small"
                     show-clearable-button
-                    :error="customerDefaultPaymentMethodIdError"
                 />
             </dd>
             {% endblock %}
@@ -281,6 +279,7 @@
             {% block sw_custoemr_base_metadata_birthday_editor %}
             <dd v-else>
                 <sw-datepicker
+                    slot="inline-edit"
                     v-model="customer.birthday"
                     size="small"
                     date-type="date"

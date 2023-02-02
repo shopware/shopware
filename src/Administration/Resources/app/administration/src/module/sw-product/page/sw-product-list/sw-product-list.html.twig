@@ -41,68 +41,21 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_list_smart_bar_actions %}
     <template #smart-bar-actions>
-        <sw-button-group
-            v-tooltip.bottom="{
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_product_list_smart_bar_actions_add %}
+        <sw-button
+            v-tooltip="{
                 message: $tc('sw-privileges.tooltip.warning'),
                 disabled: acl.can('product.creator'),
                 showOnDisabledElements: true
             }"
-            class="sw-product-list__add-button-group"
-            split-button
+            :router-link="{ name: 'sw.product.create' }"
+            variant="primary"
+            :disabled="!acl.can('product.creator')"
         >
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_product_list_smart_bar_actions_add %}
-            <sw-button
-                v-tooltip="{
-                    message: $tc('sw-privileges.tooltip.warning'),
-                    disabled: acl.can('product.creator'),
-                    showOnDisabledElements: true
-                }"
-                class="sw-product-list__add-physical-button"
-                :router-link="{ name: 'sw.product.create', query: { creationStates: ['is-physical'] } }"
-                variant="primary"
-                :disabled="!acl.can('product.creator')"
-            >
-                {{ $tc('sw-product.list.buttonAddProduct') }}
-            </sw-button>
-            {% endblock %}
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_product_list_smart_bar_actions_add_download %}
-            <sw-context-button class="sw-product-list__add-other-context-button">
-                <template #button>
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_product_list_smart_bar_actions_add_download_button %}
-                    <sw-button
-                        class="sw-product-list__button-context-menu"
-                        square
-                        variant="primary"
-                        :disabled="!acl.can('product.editor')"
-                    >
-                        <sw-icon
-                            name="regular-chevron-down-xs"
-                            size="16"
-                        />
-                    </sw-button>
-                    {% endblock %}
-                </template>
-
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_product_list_smart_bar_actions_add_download_context_menu_item_downloadable_product %}
-                <sw-context-menu-item
-                    v-tooltip="{
-                        message: $tc('sw-privileges.tooltip.warning'),
-                        disabled: acl.can('product.creator'),
-                        showOnDisabledElements: true
-                    }"
-                    :router-link="{ name: 'sw.product.create', query: { creationStates: ['is-download'] } }"
-                    :disabled="!acl.can('product.creator')"
-                >
-                    {{ $tc('sw-product.list.buttonAddDownloadableProduct') }}
-                </sw-context-menu-item>
-                {% endblock %}
-            </sw-context-button>
-            {% endblock %}
-        </sw-button-group>
+            {{ $tc('sw-product.list.buttonAddProduct') }}
+        </sw-button>
+        {% endblock %}
     </template>
     {% endblock %}
 
@@ -193,13 +146,6 @@
                             {{ item.translated ? item.translated.name : item.name }}
                         </router-link>
                         {% endblock %}
-
-                        <sw-label
-                            v-if="productIsDigital(item)"
-                            class="sw-product-list__digital-indicator"
-                        >
-                            {{ $tc('sw-product.variations.generatedListColumnContentProductState.is-download') }}
-                        </sw-label>
                     </div>
                     {% endblock %}
                 </template>
@@ -239,7 +185,8 @@
                 {% block sw_product_list_grid_columns_price %}
                 <template
                     v-for="currency in currencies"
-                    #[`column-price-${currency.isoCode}`]="{ item }"
+                    :slot="`column-price-${currency.isoCode}`"
+                    slot-scope="{ item }"
                 >
                     {{ getCurrencyPriceByCurrencyId(currency.id, item.price).gross | currency(currency.isoCode) }}
                 </template>
@@ -267,14 +214,6 @@
                     {% endblock %}
                 </template>
                 {% endblock %}
-
-                <template #column-createdAt="{ item }">
-                    {{ item.createdAt|date }}
-                </template>
-
-                <template #column-updatedAt="{ item }">
-                    {{ item.updatedAt|date }}
-                </template>
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_list_grid_columns_actions %}
@@ -342,7 +281,8 @@
                         {% block sw_product_list_bulk_edit_grid_columns_price %}
                         <template
                             v-for="currency in currencies"
-                            #[`column-price-${currency.isoCode}`]="{ item }"
+                            :slot="`column-price-${currency.isoCode}`"
+                            slot-scope="{ item }"
                         >
                             {{ getCurrencyPriceByCurrencyId(currency.id, item.price).gross | currency(currency.isoCode) }}
                         </template>
@@ -401,6 +341,9 @@
             </template>
             {% endblock %}
 
+            {# @deprecated tag:v6.5.0 - Will be removed #}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_product_list_grid_loader %}{% endblock %}
         </div>
         {% endblock %}
 

@@ -4,9 +4,6 @@ const { Component, Mixin } = Shopware;
 const { debounce, get } = Shopware.Utils;
 
 /**
- * @package admin
- *
- * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @status ready
  * @description Renders a multi select field with a defined list of options. This component uses the sw-field base
@@ -25,6 +22,7 @@ const { debounce, get } = Shopware.Utils;
  *     value="">
  * </sw-multi-select>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-multi-select', {
     template,
     inheritAttrs: false,

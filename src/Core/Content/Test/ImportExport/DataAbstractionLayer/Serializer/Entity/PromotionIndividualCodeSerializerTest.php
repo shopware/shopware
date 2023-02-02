@@ -10,21 +10,19 @@ use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Serialize
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
  * @internal
  */
-#[Package('system-settings')]
 class PromotionIndividualCodeSerializerTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private EntityRepository $promoRepository;
+    private EntityRepositoryInterface $promoRepository;
 
-    private EntityRepository $promoCodeRepository;
+    private EntityRepositoryInterface $promoCodeRepository;
 
     private PromotionIndividualCodeSerializer $serializer;
 
@@ -81,8 +79,7 @@ class PromotionIndividualCodeSerializerTest extends TestCase
             'id' => '',
         ];
 
-        $deserialized = $this->serializer->deserialize($config, $this->promoCodeRepository->getDefinition(), $promoCode);
-        $deserialized = \is_array($deserialized) ? $deserialized : iterator_to_array($deserialized);
+        $deserialized = iterator_to_array($this->serializer->deserialize($config, $this->promoCodeRepository->getDefinition(), $promoCode));
 
         static::assertSame([
             'promotion' => [
@@ -113,8 +110,7 @@ class PromotionIndividualCodeSerializerTest extends TestCase
             'id' => '',
         ];
 
-        $deserialized = $this->serializer->deserialize($config, $this->promoCodeRepository->getDefinition(), $promoCode);
-        $deserialized = \is_array($deserialized) ? $deserialized : iterator_to_array($deserialized);
+        $deserialized = iterator_to_array($this->serializer->deserialize($config, $this->promoCodeRepository->getDefinition(), $promoCode));
 
         static::assertSame([
             'promotion' => [
@@ -147,8 +143,7 @@ class PromotionIndividualCodeSerializerTest extends TestCase
             'id' => '',
         ];
 
-        $deserialized = $this->serializer->deserialize($config, $this->promoCodeRepository->getDefinition(), $promoCode);
-        $deserialized = \is_array($deserialized) ? $deserialized : iterator_to_array($deserialized);
+        $deserialized = iterator_to_array($this->serializer->deserialize($config, $this->promoCodeRepository->getDefinition(), $promoCode));
 
         static::assertSame([
             'promotion' => [

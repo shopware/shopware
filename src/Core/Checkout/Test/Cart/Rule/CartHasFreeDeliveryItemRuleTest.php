@@ -9,9 +9,8 @@ use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\Test\Cart\Rule\Helper\CartRuleHelperTrait;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -20,15 +19,14 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * @internal
  * @group rules
  */
-#[Package('business-ops')]
 class CartHasFreeDeliveryItemRuleTest extends TestCase
 {
     use CartRuleHelperTrait;
     use IntegrationTestBehaviour;
 
-    private EntityRepository $ruleRepository;
+    private EntityRepositoryInterface $ruleRepository;
 
-    private EntityRepository $conditionRepository;
+    private EntityRepositoryInterface $conditionRepository;
 
     private Context $context;
 

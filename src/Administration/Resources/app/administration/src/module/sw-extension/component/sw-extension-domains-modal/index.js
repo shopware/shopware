@@ -1,11 +1,10 @@
 import template from './sw-extension-domains-modal.html.twig';
 import './sw-extension-domains-modal.scss';
 
-/**
- * @package merchant-services
- * @private
- */
-export default {
+const { Component } = Shopware;
+
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+Component.register('sw-extension-domains-modal', {
     template,
 
     props: {
@@ -34,4 +33,4 @@ export default {
             this.$emit('modal-close');
         },
     },
-};
+});

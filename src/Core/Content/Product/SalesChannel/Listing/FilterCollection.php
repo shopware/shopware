@@ -2,13 +2,11 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Listing;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
  * @extends Collection<Filter>
  */
-#[Package('inventory')]
 class FilterCollection extends Collection
 {
     /**
@@ -49,12 +47,16 @@ class FilterCollection extends Collection
 
     public function filtered(): FilterCollection
     {
-        return $this->filter(fn (Filter $filter) => $filter->isFiltered() ? $filter : null);
+        return $this->filter(function (Filter $filter) {
+            return $filter->isFiltered() ? $filter : null;
+        });
     }
 
     public function getFilters(): array
     {
-        return $this->fmap(fn (Filter $filter) => $filter->getFilter());
+        return $this->fmap(function (Filter $filter) {
+            return $filter->getFilter();
+        });
     }
 
     protected function getExpectedClass(): ?string

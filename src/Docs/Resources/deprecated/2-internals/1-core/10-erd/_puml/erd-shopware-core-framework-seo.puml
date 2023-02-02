@@ -1,0 +1,79 @@
+@startuml
+' uncomment the line below if you're using computer with a retina display
+' skinparam dpi 300
+!define Table(name,desc) class name as "desc" << (T,#FFAAAA) >>
+!define ForeignTable(name,desc) class name as "desc" << (T,#ada6a6) >>
+!define TranslationTable(name,desc) class name as "desc" << (I,#4286f4) >>
+' we use bold for primary key
+' green color for unique
+' and underscore for not_null
+!define primary_key(x) <b>x</b>
+!define unique(x) <color:green>x</color>
+!define not_null(x) <u>x</u>
+' other tags available:
+' <i></i>
+' <back:COLOR></color>, where color is a color name or html color code
+' (#FFAACC)
+' see: http://plantuml.com/classes.html#More
+hide methods
+hide stereotypes
+hide empty members
+skinparam backgroundColor #FFFFFF
+
+' entities
+
+Table(ShopwareCoreFrameworkSeoSeoUrlSeoUrlDefinition, "seo_url\n(__EMPTY__)") {
+   primary_key(id) id
+   salesChannelId foreignKey
+   not_null(languageId) foreignKey
+   not_null(foreignKey) id
+   not_null(routeName) string
+   not_null(pathInfo) string
+   not_null(seoPathInfo) string
+   isCanonical bool
+   isModified bool
+   isDeleted bool
+   url string
+   customFields customFields
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
+}
+Table(ShopwareCoreFrameworkSeoSeoUrlTemplateSeoUrlTemplateDefinition, "seo_url_template\n(__EMPTY__)") {
+   primary_key(id) id
+   salesChannelId foreignKey
+   not_null(entityName) string
+   not_null(routeName) string
+   not_null(template) string
+   isValid bool
+   customFields customFields
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
+}
+Table(ShopwareCoreFrameworkSeoMainCategoryMainCategoryDefinition, "main_category\n(__EMPTY__)") {
+   primary_key(id) id
+   not_null(productId) foreignKey
+   not_null(productVersionId) referenceVersion
+   not_null(categoryId) foreignKey
+   not_null(categoryVersionId) referenceVersion
+   not_null(salesChannelId) foreignKey
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
+}
+ForeignTable(ShopwareCoreFrameworkLanguageLanguageDefinition, "language") {
+}
+ForeignTable(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channel") {
+}
+ForeignTable(ShopwareCoreContentProductProductDefinition, "product") {
+}
+ForeignTable(ShopwareCoreContentCategoryCategoryDefinition, "category") {
+}
+
+' relationshipd
+
+ShopwareCoreFrameworkSeoSeoUrlSeoUrlDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
+ShopwareCoreFrameworkSeoSeoUrlSeoUrlDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
+ShopwareCoreFrameworkSeoSeoUrlTemplateSeoUrlTemplateDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
+ShopwareCoreFrameworkSeoMainCategoryMainCategoryDefinition --> ShopwareCoreContentProductProductDefinition
+ShopwareCoreFrameworkSeoMainCategoryMainCategoryDefinition --> ShopwareCoreContentCategoryCategoryDefinition
+ShopwareCoreFrameworkSeoMainCategoryMainCategoryDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
+@enduml

@@ -3,9 +3,6 @@ import BaseWishlistStoragePlugin from 'src/plugin/wishlist/base-wishlist-storage
 import Storage from 'src/helper/storage/storage.helper';
 import DomAccessHelper from 'src/helper/dom-access.helper';
 
-/**
- * @package checkout
- */
 export default class WishlistPersistStoragePlugin extends BaseWishlistStoragePlugin {
     init() {
         super.init();
@@ -23,7 +20,9 @@ export default class WishlistPersistStoragePlugin extends BaseWishlistStoragePlu
     }
 
     add(productId, router) {
-        this.httpClient.post(router.path, null, response => {
+        this.httpClient.post(router.path, JSON.stringify({
+            _csrf_token: router.token,
+        }), response => {
             const res = JSON.parse(response);
 
             if (res.success) {
@@ -37,7 +36,9 @@ export default class WishlistPersistStoragePlugin extends BaseWishlistStoragePlu
     }
 
     remove(productId, router) {
-        this.httpClient.post(router.path, null, response => {
+        this.httpClient.post(router.path, JSON.stringify({
+            _csrf_token: router.token,
+        }), response => {
             const res = JSON.parse(response);
             // even if the call returns false, the item should be removed from storage because it may be already deleted
             if (Object.prototype.hasOwnProperty.call(res, 'success')) {
@@ -65,6 +66,7 @@ export default class WishlistPersistStoragePlugin extends BaseWishlistStoragePlu
 
         if (products) {
             this.httpClient.post(this.options.mergePath, JSON.stringify({
+                _csrf_token: this.options.tokenMergePath,
                 'productIds' : Object.keys(products),
             }), response => {
                 if (!response) {
@@ -89,7 +91,9 @@ export default class WishlistPersistStoragePlugin extends BaseWishlistStoragePlu
      * @private
      */
     _pagelet() {
-        this.httpClient.post(this.options.pageletPath, '', response => {
+        this.httpClient.post(this.options.pageletPath, JSON.stringify({
+            _csrf_token: this.options.tokenPageletPath,
+        }), response => {
             if (!response) {
                 return;
             }

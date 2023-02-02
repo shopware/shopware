@@ -10,12 +10,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('checkout')]
 class PromotionPersonaRuleDefinition extends MappingEntityDefinition
 {
-    final public const ENTITY_NAME = 'promotion_persona_rule';
+    public const ENTITY_NAME = 'promotion_persona_rule';
 
     /**
      * This class is used as m:n relation between promotions and persona rules.

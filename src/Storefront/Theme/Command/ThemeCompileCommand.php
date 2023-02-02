@@ -3,31 +3,32 @@
 namespace Shopware\Storefront\Theme\Command;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\ConfigLoader\AbstractAvailableThemeProvider;
 use Shopware\Storefront\Theme\ThemeService;
-use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-#[AsCommand(
-    name: 'theme:compile',
-    description: 'Compile the theme',
-)]
-#[Package('storefront')]
 class ThemeCompileCommand extends Command
 {
+    protected static $defaultName = 'theme:compile';
+
     private SymfonyStyle $io;
+
+    private ThemeService $themeService;
+
+    private AbstractAvailableThemeProvider $themeProvider;
 
     /**
      * @internal
      */
-    public function __construct(private readonly ThemeService $themeService, private readonly AbstractAvailableThemeProvider $themeProvider)
+    public function __construct(ThemeService $themeService, AbstractAvailableThemeProvider $themeProvider)
     {
         parent::__construct();
+        $this->themeService = $themeService;
+        $this->themeProvider = $themeProvider;
     }
 
     public function configure(): void

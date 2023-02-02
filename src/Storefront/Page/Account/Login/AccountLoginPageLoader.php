@@ -6,7 +6,6 @@ use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Country\SalesChannel\AbstractCountryRoute;
@@ -18,14 +17,41 @@ use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('customer-order')]
 class AccountLoginPageLoader
 {
     /**
+     * @var GenericPageLoaderInterface
+     */
+    private $genericLoader;
+
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
+    /**
+     * @var AbstractCountryRoute
+     */
+    private $countryRoute;
+
+    /**
+     * @var AbstractSalutationRoute
+     */
+    private $salutationRoute;
+
+    /**
      * @internal
      */
-    public function __construct(private readonly GenericPageLoaderInterface $genericLoader, private readonly EventDispatcherInterface $eventDispatcher, private readonly AbstractCountryRoute $countryRoute, private readonly AbstractSalutationRoute $salutationRoute)
-    {
+    public function __construct(
+        GenericPageLoaderInterface $genericLoader,
+        EventDispatcherInterface $eventDispatcher,
+        AbstractCountryRoute $countryRoute,
+        AbstractSalutationRoute $salutationRoute
+    ) {
+        $this->genericLoader = $genericLoader;
+        $this->eventDispatcher = $eventDispatcher;
+        $this->countryRoute = $countryRoute;
+        $this->salutationRoute = $salutationRoute;
     }
 
     /**
@@ -61,7 +87,9 @@ class AccountLoginPageLoader
     {
         $salutations = $this->salutationRoute->load(new Request(), $salesChannelContext, new Criteria())->getSalutations();
 
-        $salutations->sort(fn (SalutationEntity $a, SalutationEntity $b) => $b->getSalutationKey() <=> $a->getSalutationKey());
+        $salutations->sort(function (SalutationEntity $a, SalutationEntity $b) {
+            return $b->getSalutationKey() <=> $a->getSalutationKey();
+        });
 
         return $salutations;
     }

@@ -2,12 +2,9 @@
 
 namespace Shopware\Core\Framework\App\Event;
 
-use Shopware\Core\Framework\Log\Package;
-
-#[Package('core')]
 class AppActivatedEvent extends AppChangedEvent
 {
-    final public const NAME = 'app.activated';
+    public const NAME = 'app.activated';
 
     public function getName(): string
     {

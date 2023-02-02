@@ -4,8 +4,6 @@ namespace Shopware\Recovery\Update;
 
 /**
  * Changes the permissions defined in the given array.
- *
- * @package system-settings
  */
 class FilePermissionChanger
 {

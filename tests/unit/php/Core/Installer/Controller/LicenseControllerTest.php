@@ -8,7 +8,6 @@ use Shopware\Core\Installer\Controller\LicenseController;
 use Shopware\Core\Installer\License\LicenseFetcher;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 use Twig\Environment;
 
@@ -121,7 +120,7 @@ class LicenseControllerTest extends TestCase
 
         $router = $this->createMock(RouterInterface::class);
         $router->expects(static::once())->method('generate')
-            ->with('installer.database-configuration', [], UrlGeneratorInterface::ABSOLUTE_PATH)
+            ->with('installer.database-configuration', [], RouterInterface::ABSOLUTE_PATH)
             ->willReturn('/installer/database-configuration');
 
         $controller = new LicenseController($licenseFetcher);

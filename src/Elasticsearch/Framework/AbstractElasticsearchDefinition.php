@@ -2,24 +2,31 @@
 
 namespace Shopware\Elasticsearch\Framework;
 
-use OpenSearchDSL\Query\Compound\BoolQuery;
-use OpenSearchDSL\Query\FullText\MatchPhrasePrefixQuery;
-use OpenSearchDSL\Query\FullText\MatchQuery;
-use OpenSearchDSL\Query\TermLevel\WildcardQuery;
+use ONGR\ElasticsearchDSL\Query\Compound\BoolQuery;
+use ONGR\ElasticsearchDSL\Query\FullText\MatchPhrasePrefixQuery;
+use ONGR\ElasticsearchDSL\Query\FullText\MatchQuery;
+use ONGR\ElasticsearchDSL\Query\TermLevel\WildcardQuery;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Elasticsearch\Framework\Indexing\EntityMapper;
 
-#[Package('core')]
 abstract class AbstractElasticsearchDefinition
 {
-    abstract public function getEntityDefinition(): EntityDefinition;
+    /**
+     * @deprecated tag:v6.5.0 - Will be removed, create your mapping by own instead
+     */
+    protected EntityMapper $mapper;
 
     /**
-     * @return array<mixed>
+     * @deprecated tag:v6.5.0 - Default constructor will be removed - reason:class-hierarchy-chang
      */
-    abstract public function getMapping(Context $context): array;
+    public function __construct(EntityMapper $mapper)
+    {
+        $this->mapper = $mapper;
+    }
+
+    abstract public function getEntityDefinition(): EntityDefinition;
 
     /**
      * @param array<string> $ids
@@ -29,6 +36,19 @@ abstract class AbstractElasticsearchDefinition
     public function fetch(array $ids, Context $context): array
     {
         return [];
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    public function getMapping(Context $context): array
+    {
+        $definition = $this->getEntityDefinition();
+
+        return [
+            '_source' => ['includes' => ['id', 'fullText', 'fullTextBoosted']],
+            'properties' => $this->mapper->mapFields($definition, $context),
+        ];
     }
 
     public function buildTermQuery(Context $context, Criteria $criteria): BoolQuery

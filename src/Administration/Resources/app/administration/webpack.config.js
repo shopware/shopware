@@ -1,7 +1,3 @@
-/**
- * @package admin
- */
-
 const webpack = require('webpack');
 const webpackMerge = require('webpack-merge');
 const FriendlyErrorsPlugin = require('friendly-errors-webpack-plugin');
@@ -14,27 +10,13 @@ const TerserPlugin = require('terser-webpack-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const WebpackCopyAfterBuildPlugin = require('@shopware-ag/webpack-copy-after-build');
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
-const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
-const WebpackDynamicPublicPathPlugin = require('webpack-dynamic-public-path');
 const path = require('path');
 const fs = require('fs');
 const chalk = require('chalk');
-const crypto = require('crypto');
-
-if (process.env.IPV4FIRST) {
-    require('dns').setDefaultResultOrder('ipv4first');
-}
-
-/** HACK: OpenSSL 3 does not support md4 anymore,
-* but webpack hardcodes it all over the place: https://github.com/webpack/webpack/issues/13572
-*/
-const cryptoOrigCreateHash = crypto.createHash;
-crypto.createHash = algorithm => cryptoOrigCreateHash(algorithm === 'md4' ? 'sha256' : algorithm);
 
 /* eslint-disable */
 
 const buildOnlyExtensions = process.env.SHOPWARE_ADMIN_BUILD_ONLY_EXTENSIONS === '1';
-const openBrowserForWatch = process.env.DISABLE_DEVSERVER_OPEN  !== '1';
 
 const flagsPath = path.join(process.env.PROJECT_ROOT, 'var', 'config_js_features.json');
 let featureFlags = {};
@@ -44,11 +26,16 @@ if (fs.existsSync(flagsPath)) {
     global.featureFlags = featureFlags;
 }
 
+let refactorAlias = false;
+if (featureFlags.hasOwnProperty('FEATURE_NEXT_11634')) {
+    refactorAlias = featureFlags.FEATURE_NEXT_11634;
+}
+
 // https://regex101.com/r/OGpZFt/1
-const versionRegex = /18\.\d{1,2}\.\d{1,2}/;
+const versionRegex = /16\.\d{1,2}\.\d{1,2}/;
 if (!versionRegex.test(process.versions.node)) {
     console.log();
-    console.log(chalk.red('@Deprecated: You are using an incompatible Node.js version. Supported version range: ^18.0.0'));
+    console.log(chalk.red('@Deprecated: You are using an incompatible Node.js version. Supported version range: ^16.0.0'));
     console.log();
 }
 
@@ -86,15 +73,6 @@ if (!process.env.PROJECT_ROOT) {
     console.error(chalk.red('\n \u{26A0}️  You need to add the "PROJECT_ROOT" as an environment variable for compiling the code. \u{26A0}️\n'));
     process.exit(1);
 }
-
-const cssUrlMatcher = (url) => {
-    // Only handle font urls
-    if (url.match(/\.(woff2?|eot|ttf|otf)(\?.*)?$/)) {
-        return true;
-    }
-
-    return false;
-};
 
 /**
  * Create an array with information about all injected plugins.
@@ -163,7 +141,7 @@ const assetsPluginInstance = new AssetsPlugin({
     processOutput: function filterAssetsOutput(output) {
         const filteredOutput = { ...output };
 
-        ['', 'app', 'runtime'].forEach((key) => {
+        ['', 'app', 'commons', 'runtime', 'vendors-node'].forEach((key) => {
             delete filteredOutput[key];
         });
 
@@ -235,11 +213,25 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
     },
 
     ...(() => {
+        if (refactorAlias) {
+            return {
+                resolve: {
+                    extensions: ['.js', '.ts', '.vue', '.json', '.less', '.twig'],
+                    alias: {
+                        scss: path.join(__dirname, 'src/app/assets/scss'),
+                    },
+                },
+            };
+        }
+
         return {
             resolve: {
                 extensions: ['.js', '.ts', '.vue', '.json', '.less', '.twig'],
                 alias: {
+                    vue$: 'vue/dist/vue.esm.js',
+                    src: path.join(__dirname, 'src'),
                     scss: path.join(__dirname, 'src/app/assets/scss'),
+                    assets: path.join(__dirname, 'static'),
                 },
             },
         };
@@ -259,7 +251,7 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
                                   replace: '',
                               },
                               {
-                                  search: /^(?!\{#-)\{#[\s\S]*?#\}/gm,
+                                  search: /\{#[\s\S]*?#\}/gm,
                                   replace: '',
                               }
                           ],
@@ -315,9 +307,10 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
             },
             {
                 test: /\.(woff2?|eot|ttf|otf)(\?.*)?$/,
-                loader: 'file-loader',
+                loader: 'url-loader',
                 options: {
-                    name: 'static/fonts/[name].[hash:7].[ext]'
+                    limit: 10000,
+                    name: 'static/fonts/[name].[hash:7].[ext]',
                 },
             },
             {
@@ -338,7 +331,7 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
                         loader: 'css-loader',
                         options: {
                             sourceMap: true,
-                            url: cssUrlMatcher
+                            url: false,
                         },
                     },
                 ],
@@ -352,7 +345,7 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
                         loader: 'css-loader',
                         options: {
                             sourceMap: true,
-                            url: cssUrlMatcher,
+                            url: false,
                         },
                     },
                 ],
@@ -366,7 +359,7 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
                         loader: 'css-loader',
                         options: {
                             sourceMap: true,
-                            url: cssUrlMatcher,
+                            url: false,
                         },
                     },
                     {
@@ -387,7 +380,7 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
                         loader: 'css-loader',
                         options: {
                             sourceMap: true,
-                            url: cssUrlMatcher,
+                            url: false,
                         },
                     },
                     {
@@ -403,17 +396,12 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
                 test: /\.scss$/,
                 use: [
                     'vue-style-loader',
-                    {
-                        loader: MiniCssExtractPlugin.loader,
-                        options: {
-                            publicPath: isDev ? '/' : `../../`,
-                        }
-                    },
+                    MiniCssExtractPlugin.loader,
                     {
                         loader: 'css-loader',
                         options: {
                             sourceMap: true,
-                            url: cssUrlMatcher,
+                            url: false,
                         },
                     },
                     {
@@ -433,7 +421,7 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
                         loader: 'css-loader',
                         options: {
                             sourceMap: true,
-                            url: cssUrlMatcher,
+                            url: false,
                         },
                     },
                     {
@@ -453,7 +441,7 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
                         loader: 'css-loader',
                         options: {
                             sourceMap: true,
-                            url: cssUrlMatcher,
+                            url: false,
                         },
                     },
                     {
@@ -501,7 +489,7 @@ const coreConfig = {
                     host: process.env.HOST,
                     port: process.env.PORT,
                     disableHostCheck: true,
-                    open: openBrowserForWatch,
+                    open: true,
                     proxy: {
                         '/api': {
                             target: process.env.APP_URL,
@@ -533,19 +521,24 @@ const coreConfig = {
     })(),
 
     entry: {
-        app: `${path.resolve('src')}/index.ts`,
+        commons: [`${path.resolve('src')}/core/shopware.ts`],
+        app: `${path.resolve('src')}/app/main.ts`,
     },
 
     ...(() => {
-        return {
-            resolve: {
-                alias: {
-                    vue$: 'vue/dist/vue.esm.js',
-                    src: path.join(__dirname, 'src'),
-                    assets: path.join(__dirname, 'static'),
+        if (refactorAlias) {
+            return {
+                resolve: {
+                    alias: {
+                        vue$: 'vue/dist/vue.esm.js',
+                        src: path.join(__dirname, 'src'),
+                        assets: path.join(__dirname, 'static'),
+                    },
                 },
-            },
-        };
+            };
+        }
+
+        return {};
     })(),
 
     output: {
@@ -555,44 +548,40 @@ const coreConfig = {
             ? path.resolve(__dirname, 'v_dist/')
             : path.resolve(__dirname, '../../public/'),
         filename: isDev ? 'bundles/administration/static/js/[name].js' : 'static/js/[name].js',
-        chunkFilename: isDev ? 'bundles/administration/static/js/[chunkhash].js' : 'static/js/[chunkhash].js',
+        chunkFilename: isDev ? 'bundles/administration/static/js/[name].js' : 'static/js/[name].js',
         publicPath: isDev ? '/' : `bundles/administration/`,
         globalObject: 'this',
         jsonpFunction: `webpackJsonpAdministration`
     },
 
     optimization: {
+        runtimeChunk: { name: 'runtime' },
         splitChunks: {
-            chunks: 'async',
-            minSize: 30000,
+            cacheGroups: {
+                'runtime-vendor': {
+                    chunks: 'all',
+                    name: 'vendors-node',
+                    test: path.join(__dirname, 'node_modules'),
+                },
+            },
+            minSize: 0,
         },
     },
 
     plugins: [
-        ...(() => {
-            if (process.env.ENABLE_ANALYZE) {
-                return [
-                    new BundleAnalyzerPlugin(),
-                ]
-            }
-
-            return [];
-        })(),
-
         new MiniCssExtractPlugin({
             filename: isDev ? 'bundles/administration/static/css/[name].css' : 'static/css/[name].css',
-            chunkFilename: isDev ? 'bundles/administration/static/css/[chunkhash].css' : 'static/css/[chunkhash].css',
         }),
 
         ...(() => {
-            if (isProd || process.env.DISABLE_ADMIN_COMPILATION_TYPECHECK) {
+            if (process.env.DISABLE_ADMIN_COMPILATION_TYPECHECK) {
                 return [];
             }
 
             return [
                 new ForkTsCheckerWebpackPlugin({
                     typescript: {
-                        mode: 'write-references',
+                        mode: 'write-references'
                     },
                     logger: {
                         infrastructure: 'console',
@@ -606,7 +595,7 @@ const coreConfig = {
         ...(() => {
             if (isProd) {
                 return [
-                    // copy custom static assets
+                // copy custom static assets
                     new CopyWebpackPlugin({
                         patterns: [
                             {
@@ -618,16 +607,12 @@ const coreConfig = {
                             },
                         ],
                     }),
-                    // needed to set paths for chunks dynamically (e.g. needed for S3 asset bucket)
-                    new WebpackDynamicPublicPathPlugin({
-                        externalPublicPath: `(window.__sw__.assetPath + '/bundles/administration/')`,
-                    }),
                 ];
             }
 
             if (isDev) {
                 return [
-                    // https://github.com/glenjamin/webpack-hot-middleware#installation--usage
+                // https://github.com/glenjamin/webpack-hot-middleware#installation--usage
                     new webpack.HotModuleReplacementPlugin(),
                     new webpack.NoEmitOnErrorsPlugin(),
                     // https://github.com/ampedandwired/html-webpack-plugin
@@ -642,13 +627,14 @@ const coreConfig = {
                     new FriendlyErrorsPlugin(),
                 ];
             }
-        })()
+        })(),
+
     ],
 };
 
 /**
  * We iterate through all activated plugins and create a separate webpack configuration for each plugin. We use the
- * base configuration for this. Additionally, we allow plugin developers to extend or modify their webpack configuration
+ * base configuration for this. Additionally we allow plugin developers to extend or modify their webpack configuration
  * when needed.
  *
  * The entry file and the output will be defined for each plugin so that the generated files are in the correct folders.
@@ -687,13 +673,17 @@ const configsForPlugins = pluginEntries.map((plugin) => {
             },
 
             ...(() => {
-                return {
-                    resolve: {
-                        alias: {
-                            '@administration': path.join(__dirname, 'src'),
+                if (refactorAlias) {
+                    return {
+                        resolve: {
+                            alias: {
+                                '@administration': path.join(__dirname, 'src'),
+                            },
                         },
-                    },
-                };
+                    };
+                }
+
+                return {};
             })(),
 
             output: {
@@ -730,21 +720,15 @@ const configsForPlugins = pluginEntries.map((plugin) => {
                 }),
 
                 ...(() => {
-                    if (isProd && !hasHtmlFile) {
+                    if (isProd) {
                         return [
-                            // needed to set paths for chunks dynamically (e.g. needed for S3 asset bucket)
-                            new WebpackDynamicPublicPathPlugin({
-                                externalPublicPath: `(window.__sw__.assetPath + '/bundles/${plugin.technicalFolderName}/')`,
-                            }),
-
                             new ESLintPlugin({
                                 context: path.resolve(plugin.path),
                                 useEslintrc: false,
                                 baseConfig: {
-                                    parser: '@babel/eslint-parser',
+                                    parser: 'babel-eslint',
                                     parserOptions: {
-                                        sourceType: 'module',
-                                        requireConfigFile: false,
+                                        sourceType: 'module'
                                     },
                                     plugins: [ 'plugin-rules' ],
                                     rules: {

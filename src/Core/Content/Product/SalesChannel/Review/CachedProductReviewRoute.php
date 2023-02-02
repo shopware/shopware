@@ -8,10 +8,11 @@ use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\Annotation\Entity;
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -19,33 +20,49 @@ use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('inventory')]
+/**
+ * @Route(defaults={"_routeScope"={"store-api"}})
+ */
 class CachedProductReviewRoute extends AbstractProductReviewRoute
 {
-    final public const ALL_TAG = 'product-review-route';
+    public const ALL_TAG = 'product-review-route';
+
+    private AbstractProductReviewRoute $decorated;
+
+    private CacheInterface $cache;
+
+    private EntityCacheKeyGenerator $generator;
 
     /**
-     * @var string[]
+     * @var AbstractCacheTracer<ProductReviewRouteResponse>
      */
-    private readonly array $states;
+    private AbstractCacheTracer $tracer;
+
+    private array $states;
+
+    private EventDispatcherInterface $dispatcher;
 
     /**
      * @internal
      *
      * @param AbstractCacheTracer<ProductReviewRouteResponse> $tracer
-     * @param string[] $states
      */
     public function __construct(
-        private readonly AbstractProductReviewRoute $decorated,
-        private readonly CacheInterface $cache,
-        private readonly EntityCacheKeyGenerator $generator,
-        private readonly AbstractCacheTracer $tracer,
-        private readonly EventDispatcherInterface $dispatcher,
+        AbstractProductReviewRoute $decorated,
+        CacheInterface $cache,
+        EntityCacheKeyGenerator $generator,
+        AbstractCacheTracer $tracer,
+        EventDispatcherInterface $dispatcher,
         array $states
     ) {
+        $this->decorated = $decorated;
+        $this->cache = $cache;
+        $this->generator = $generator;
+        $this->tracer = $tracer;
+
         $states[] = CacheStateSubscriber::STATE_LOGGED_IN;
         $this->states = array_unique($states);
+        $this->dispatcher = $dispatcher;
     }
 
     public function getDecorated(): AbstractProductReviewRoute
@@ -53,7 +70,11 @@ class CachedProductReviewRoute extends AbstractProductReviewRoute
         return $this->decorated;
     }
 
-    #[Route(path: '/store-api/product/{productId}/reviews', name: 'store-api.product-review.list', methods: ['POST'], defaults: ['_entity' => 'product_review'])]
+    /**
+     * @Since("6.3.2.0")
+     * @Entity("product_review")
+     * @Route("/store-api/product/{productId}/reviews", name="store-api.product-review.list", methods={"POST"})
+     */
     public function load(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductReviewRouteResponse
     {
         if ($context->hasState(...$this->states)) {
@@ -64,7 +85,9 @@ class CachedProductReviewRoute extends AbstractProductReviewRoute
 
         $value = $this->cache->get($key, function (ItemInterface $item) use ($productId, $request, $context, $criteria) {
             $name = self::buildName($productId);
-            $response = $this->tracer->trace($name, fn () => $this->getDecorated()->load($productId, $request, $context, $criteria));
+            $response = $this->tracer->trace($name, function () use ($productId, $request, $context, $criteria) {
+                return $this->getDecorated()->load($productId, $request, $context, $criteria);
+            });
 
             $item->tag($this->generateTags($productId, $request, $response, $context, $criteria));
 
@@ -83,7 +106,7 @@ class CachedProductReviewRoute extends AbstractProductReviewRoute
     {
         $parts = [
             $this->generator->getCriteriaHash($criteria),
-            $this->generator->getSalesChannelContextHash($context, [RuleAreas::PRODUCT_AREA]),
+            $this->generator->getSalesChannelContextHash($context),
         ];
 
         $event = new ProductDetailRouteCacheKeyEvent($parts, $request, $context, $criteria);
@@ -92,9 +115,6 @@ class CachedProductReviewRoute extends AbstractProductReviewRoute
         return self::buildName($productId) . '-' . md5(JsonFieldSerializer::encodeJson($event->getParts()));
     }
 
-    /**
-     * @return string[]
-     */
     private function generateTags(string $productId, Request $request, ProductReviewRouteResponse $response, SalesChannelContext $context, Criteria $criteria): array
     {
         $tags = array_merge(

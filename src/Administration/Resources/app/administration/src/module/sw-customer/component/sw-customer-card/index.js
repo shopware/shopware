@@ -3,16 +3,12 @@ import './sw-customer-card.scss';
 import errorConfig from '../../error-config.json';
 import CUSTOMER from '../../constant/sw-customer.constant';
 
-/**
- * @package customer-order
- */
-
-const { Mixin, Defaults } = Shopware;
+const { Component, Mixin, Defaults } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-customer-card', {
     template,
 
     inject: ['repositoryFactory'],
@@ -81,10 +77,7 @@ export default {
             return criteria;
         },
 
-        ...mapPropertyErrors(
-            'customer',
-            [...errorConfig['sw.customer.detail.base'].customer],
-        ),
+        ...mapPropertyErrors('customer', [...errorConfig['sw.customer.detail.base'].customer, 'company']),
 
         accountTypeOptions() {
             return [{
@@ -99,24 +92,9 @@ export default {
         },
     },
 
-    watch: {
-        'customer.accountType'(value) {
-            if (value === CUSTOMER.ACCOUNT_TYPE_BUSINESS || !this.customerCompanyError) {
-                return;
-            }
-
-            Shopware.State.dispatch(
-                'error/removeApiError',
-                {
-                    expression: `customer.${this.customer.id}.company`,
-                },
-            );
-        },
-    },
-
     methods: {
         getMailTo(mail) {
             return `mailto:${mail}`;
         },
     },
-};
+});

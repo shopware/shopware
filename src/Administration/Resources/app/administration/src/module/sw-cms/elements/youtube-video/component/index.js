@@ -1,13 +1,12 @@
 import template from './sw-cms-el-youtube-video.html.twig';
 import './sw-cms-el-youtube-video.scss';
 
-const { Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 
 /**
- * @private
- * @package content
+ * @private since v6.5.0
  */
-export default {
+Component.register('sw-cms-el-youtube-video', {
     template,
 
     mixins: [
@@ -91,4 +90,4 @@ export default {
             this.initElementData('youtube-video');
         },
     },
-};
+});

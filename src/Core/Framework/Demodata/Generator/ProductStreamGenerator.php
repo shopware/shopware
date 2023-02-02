@@ -8,20 +8,27 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-/**
- * @internal
- */
-#[Package('core')]
 class ProductStreamGenerator implements DemodataGeneratorInterface
 {
     /**
+     * @var EntityWriterInterface
+     */
+    private $writer;
+
+    /**
+     * @var ProductStreamDefinition
+     */
+    private $productStreamDefinition;
+
+    /**
      * @internal
      */
-    public function __construct(private readonly EntityWriterInterface $writer, private readonly ProductStreamDefinition $productStreamDefinition)
+    public function __construct(EntityWriterInterface $writer, ProductStreamDefinition $productStreamDefinition)
     {
+        $this->writer = $writer;
+        $this->productStreamDefinition = $productStreamDefinition;
     }
 
     public function getDefinition(): string

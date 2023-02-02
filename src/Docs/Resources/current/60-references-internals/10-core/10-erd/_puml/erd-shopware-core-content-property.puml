@@ -1,0 +1,92 @@
+@startuml
+' uncomment the line below if you're using computer with a retina display
+' skinparam dpi 300
+!define Table(name,desc) class name as "desc" << (T,#FFAAAA) >>
+!define ForeignTable(name,desc) class name as "desc" << (T,#ada6a6) >>
+!define TranslationTable(name,desc) class name as "desc" << (I,#4286f4) >>
+' we use bold for primary key
+' green color for unique
+' and underscore for not_null
+!define primary_key(x) <b>x</b>
+!define unique(x) <color:green>x</color>
+!define not_null(x) <u>x</u>
+' other tags available:
+' <i></i>
+' <back:COLOR></color>, where color is a color name or html color code
+' (#FFAACC)
+' see: http://plantuml.com/classes.html#More
+hide methods
+hide stereotypes
+hide empty members
+skinparam backgroundColor #FFFFFF
+
+' entities
+
+Table(ShopwareCoreContentPropertyPropertyGroupDefinition, "property_group\n(Property Group)") {
+   primary_key(id) id
+   name translated
+   description translated
+   not_null(displayType) string
+   not_null(sortingType) string
+   filterable bool
+   visibleOnProductDetailPage bool
+   position translated
+   customFields translated
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+   translated json
+}
+Table(ShopwareCoreContentPropertyAggregatePropertyGroupOptionPropertyGroupOptionDefinition, "property_group_option\n(Property option)") {
+   primary_key(id) id
+   not_null(groupId) foreignKey
+   name translated
+   position translated
+   colorHexCode string
+   mediaId foreignKey
+   customFields translated
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+   translated json
+}
+TranslationTable(ShopwareCoreContentPropertyAggregatePropertyGroupOptionTranslationPropertyGroupOptionTranslationDefinition, "property_group_option_translation\n((Translations))") {
+   not_null(name) string
+   position int
+   customFields customFields
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+   primary_key(propertyGroupOptionId) foreignKey
+   primary_key(languageId) foreignKey
+}
+TranslationTable(ShopwareCoreContentPropertyAggregatePropertyGroupTranslationPropertyGroupTranslationDefinition, "property_group_translation\n((Translations))") {
+   not_null(name) string
+   description longText
+   position int
+   customFields customFields
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+   primary_key(propertyGroupId) foreignKey
+   primary_key(languageId) foreignKey
+}
+ForeignTable(ShopwareCoreContentMediaMediaDefinition, "media") {
+}
+ForeignTable(ShopwareCoreContentProductAggregateProductConfiguratorSettingProductConfiguratorSettingDefinition, "product_configurator_setting") {
+}
+ForeignTable(ShopwareCoreContentProductAggregateProductPropertyProductPropertyDefinition, "product_property") {
+}
+ForeignTable(ShopwareCoreContentProductAggregateProductOptionProductOptionDefinition, "product_option") {
+}
+ForeignTable(ShopwareCoreSystemLanguageLanguageDefinition, "language") {
+}
+
+' relationshipd
+
+ShopwareCoreContentPropertyAggregatePropertyGroupOptionPropertyGroupOptionDefinition --> ShopwareCoreContentPropertyPropertyGroupDefinition
+ShopwareCoreContentPropertyAggregatePropertyGroupTranslationPropertyGroupTranslationDefinition --> ShopwareCoreContentPropertyPropertyGroupDefinition
+ShopwareCoreContentPropertyAggregatePropertyGroupOptionPropertyGroupOptionDefinition --> ShopwareCoreContentMediaMediaDefinition
+ShopwareCoreContentPropertyAggregatePropertyGroupOptionTranslationPropertyGroupOptionTranslationDefinition --> ShopwareCoreContentPropertyAggregatePropertyGroupOptionPropertyGroupOptionDefinition
+ShopwareCoreContentPropertyAggregatePropertyGroupOptionPropertyGroupOptionDefinition --> ShopwareCoreContentProductAggregateProductConfiguratorSettingProductConfiguratorSettingDefinition
+ShopwareCoreContentPropertyAggregatePropertyGroupOptionPropertyGroupOptionDefinition --> ShopwareCoreContentProductAggregateProductPropertyProductPropertyDefinition
+ShopwareCoreContentPropertyAggregatePropertyGroupOptionPropertyGroupOptionDefinition --> ShopwareCoreContentProductAggregateProductOptionProductOptionDefinition
+ShopwareCoreContentPropertyAggregatePropertyGroupOptionTranslationPropertyGroupOptionTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
+ShopwareCoreContentPropertyAggregatePropertyGroupTranslationPropertyGroupTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
+@enduml

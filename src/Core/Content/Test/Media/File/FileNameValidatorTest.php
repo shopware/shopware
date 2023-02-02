@@ -15,7 +15,9 @@ class FileNameValidatorTest extends TestCase
     public function restrictedCharacters()
     {
         return array_map(
-            fn ($value) => [$value],
+            function ($value) {
+                return [$value];
+            },
             [
                 '\\',
                 '/',

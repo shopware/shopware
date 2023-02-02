@@ -2,14 +2,18 @@
 
 namespace Shopware\Storefront\Framework\Captcha\BasicCaptcha;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('storefront')]
 class BasicCaptchaImage extends Struct
 {
-    public function __construct(private readonly string $code, private readonly string $imageBase64)
+    private string $code;
+
+    private string $imageBase64;
+
+    public function __construct(string $code, string $imageBase64)
     {
+        $this->code = $code;
+        $this->imageBase64 = $imageBase64;
     }
 
     public function getCode(): string

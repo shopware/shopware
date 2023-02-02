@@ -1,15 +1,8 @@
-/**
- * @package admin
- */
-
 import template from './sw-entity-listing.html.twig';
 
 const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
-/**
- * @deprecated tag:v6.6.0 - Will be private
- */
 Component.extend('sw-entity-listing', 'sw-data-grid', {
     template,
 

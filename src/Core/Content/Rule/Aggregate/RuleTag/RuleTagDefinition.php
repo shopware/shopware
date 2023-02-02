@@ -9,13 +9,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Tag\TagDefinition;
 
-#[Package('business-ops')]
 class RuleTagDefinition extends MappingEntityDefinition
 {
-    final public const ENTITY_NAME = 'rule_tag';
+    public const ENTITY_NAME = 'rule_tag';
 
     public function getEntityName(): string
     {

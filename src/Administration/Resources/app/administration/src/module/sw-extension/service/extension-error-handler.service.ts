@@ -85,18 +85,12 @@ function mapErrors(errors: StoreApiException[]) {
     return errors.map(getNotification);
 }
 
-/**
- * @package merchant-services
- * @private
- */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     mapErrors,
 };
 
-/**
- * @package merchant-services
- * @private
- */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type {
     MappedError,
 };

@@ -10,11 +10,10 @@ use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -38,7 +37,7 @@ class ProductListingLoaderTest extends TestCase
     use TaxAddToSalesChannelTestBehaviour;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepositoryInterface
      */
     private $repository;
 
@@ -47,31 +46,40 @@ class ProductListingLoaderTest extends TestCase
      */
     private $productListingLoader;
 
-    private SalesChannelContext $salesChannelContext;
+    /**
+     * @var SalesChannelContext
+     */
+    private $salesChannelContext;
 
     /**
      * @var SystemConfigService
      */
     private $systemConfigService;
 
-    private ?string $productId = null;
+    /**
+     * @var string
+     */
+    private $productId;
 
-    private ?string $mainVariantId = null;
+    /**
+     * @var string
+     */
+    private $mainVariantId;
 
     /**
      * @var array<string>
      */
-    private array $optionIds = [];
+    private $optionIds = [];
 
     /**
      * @var array<string>
      */
-    private array $variantIds = [];
+    private $variantIds = [];
 
     /**
      * @var array<string>
      */
-    private array $groupIds = [];
+    private $groupIds = [];
 
     protected function setUp(): void
     {
@@ -116,8 +124,6 @@ class ProductListingLoaderTest extends TestCase
         static::assertContains($this->optionIds['red'], $mainVariant->getOptionIds() ?: []);
         static::assertContains($this->optionIds['l'], $mainVariant->getOptionIds() ?: []);
         static::assertTrue($mainVariant->hasExtension('search'));
-
-        static::assertTrue($listing->getCriteria()->hasState(Criteria::STATE_ELASTICSEARCH_AWARE));
     }
 
     public function testMainVariantInactive(): void
@@ -197,11 +203,9 @@ class ProductListingLoaderTest extends TestCase
         // update product with a main variant
         $this->repository->update([[
             'id' => $this->productId,
-            'variantListingConfig' => [
-                'displayParent' => false,
-                'mainVariantId' => $this->mainVariantId,
-                'configuratorGroupConfig' => [],
-            ],
+            'displayParent' => false,
+            'mainVariantId' => $this->mainVariantId,
+            'configuratorGroupConfig' => [],
         ]], $this->salesChannelContext->getContext());
 
         $listing = $this->fetchListing();
@@ -223,16 +227,12 @@ class ProductListingLoaderTest extends TestCase
         $this->createProduct(['color', 'size'], false);
 
         // update product with a main variant
-        $this->repository->update([
-            [
-                'id' => $this->productId,
-                'variantListingConfig' => [
-                    'displayParent' => true,
-                    'mainVariantId' => $this->mainVariantId,
-                    'configuratorGroupConfig' => [],
-                ],
-            ],
-        ], $this->salesChannelContext->getContext());
+        $this->repository->update([[
+            'id' => $this->productId,
+            'displayParent' => true,
+            'mainVariantId' => $this->mainVariantId,
+            'configuratorGroupConfig' => [],
+        ]], $this->salesChannelContext->getContext());
 
         $listing = $this->fetchListing();
 
@@ -319,10 +319,8 @@ class ProductListingLoaderTest extends TestCase
         // update product with no main variant
         $this->repository->update([[
             'id' => $this->productId,
-            'variantListingConfig' => [
-                'mainVariantId' => null,
-                'configuratorGroupConfig' => $this->getListingConfiguration(['color', 'size']),
-            ],
+            'mainVariantId' => null,
+            'configuratorGroupConfig' => $this->getListingConfiguration(['color', 'size']),
         ]], $this->salesChannelContext->getContext());
 
         $listing = $this->fetchListing();
@@ -416,27 +414,6 @@ class ProductListingLoaderTest extends TestCase
         }
     }
 
-    public function testMainVariantHasScoreInSearchExtension(): void
-    {
-        $this->createProduct([], true);
-
-        $listing = $this->fetchListing();
-
-        static::assertEquals(1, $listing->getTotal());
-
-        /** @var ProductEntity $mainVariant */
-        $mainVariant = $listing->getEntities()->first();
-
-        static::assertEquals($this->mainVariantId, $mainVariant->getId());
-        static::assertContains($this->optionIds['red'], $mainVariant->getOptionIds() ?: []);
-        static::assertContains($this->optionIds['l'], $mainVariant->getOptionIds() ?: []);
-        static::assertTrue($mainVariant->hasExtension('search'));
-
-        /** @var ArrayEntity $searchData */
-        $searchData = $mainVariant->get('search');
-        static::assertTrue($searchData->get('_score') > 0);
-    }
-
     private function fetchListing(?Criteria $criteria = null): EntitySearchResult
     {
         if (!$criteria) {
@@ -486,11 +463,7 @@ class ProductListingLoaderTest extends TestCase
         $data = [
             [
                 'id' => $this->productId,
-                'variantListingConfig' => [
-                    'displayParent' => null,
-                    'mainVariantId' => null,
-                    'configuratorGroupConfig' => $config,
-                ],
+                'configuratorGroupConfig' => $config,
                 'productNumber' => 'a.0',
                 'manufacturer' => ['name' => 'test'],
                 'tax' => $tax,
@@ -600,15 +573,11 @@ class ProductListingLoaderTest extends TestCase
         $this->repository->create($data, $this->salesChannelContext->getContext());
 
         if ($hasMainVariant) {
-            // Update parent product, configure to use selected mainVariantId in listing config
+            // udpate main variant
             $this->repository->update([
                 [
                     'id' => $this->productId,
-                    'variantListingConfig' => [
-                        'displayParent' => null,
-                        'mainVariantId' => $this->mainVariantId,
-                        'configuratorGroupConfig' => $config,
-                    ],
+                    'mainVariantId' => $this->mainVariantId,
                 ],
             ], $this->salesChannelContext->getContext());
         }

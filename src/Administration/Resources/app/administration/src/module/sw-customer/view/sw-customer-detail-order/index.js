@@ -1,14 +1,11 @@
 import template from './sw-customer-detail-order.html.twig';
 import './sw-customer-detail-order.scss';
 
-/**
- * @package customer-order
- */
-
+const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-customer-detail-order', {
     template,
 
     inject: ['repositoryFactory', 'acl'],
@@ -110,4 +107,4 @@ export default {
             });
         },
     },
-};
+});

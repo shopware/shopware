@@ -5,12 +5,10 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FkFieldSerializer;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
 class FkField extends Field implements StorageAware
 {
-    final public const PRIORITY = 70;
+    public const PRIORITY = 70;
 
     /**
      * @var string

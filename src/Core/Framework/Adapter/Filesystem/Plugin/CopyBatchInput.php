@@ -2,9 +2,6 @@
 
 namespace Shopware\Core\Framework\Adapter\Filesystem\Plugin;
 
-use Shopware\Core\Framework\Log\Package;
-
-#[Package('core')]
 class CopyBatchInput
 {
     /**
@@ -13,18 +10,24 @@ class CopyBatchInput
     private $sourceFile;
 
     /**
+     * @var array<string>
+     */
+    private $targetFiles;
+
+    /**
      * @param string|resource $sourceFile
      * @param array<string>        $targetFiles
      */
-    public function __construct($sourceFile, private readonly array $targetFiles)
+    public function __construct($sourceFile, array $targetFiles)
     {
         if (!\is_resource($sourceFile) && !\is_string($sourceFile)) {
             throw new \InvalidArgumentException(sprintf(
-                'CopyBatchInput expects first parameter to be either a resource or the filepath as a string, "%s" given.',
+                'CopyBatchInpit expects first parameter to be either a resource or the filepath as a string, "%s" given.',
                 \gettype($sourceFile)
             ));
         }
         $this->sourceFile = $sourceFile;
+        $this->targetFiles = $targetFiles;
     }
 
     /**

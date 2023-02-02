@@ -7,12 +7,10 @@ use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\DevOps\Environment\EnvironmentHelperTransformerInterface;
 use Shopware\Core\DevOps\Test\Environment\_fixtures\EnvironmentHelperTransformer;
 use Shopware\Core\DevOps\Test\Environment\_fixtures\EnvironmentHelperTransformer2;
-use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
-#[Package('core')]
 class EnvironmentHelperTest extends TestCase
 {
     public function tearDown(): void

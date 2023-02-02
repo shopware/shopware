@@ -1,0 +1,40 @@
+{# @deprecated tag:v6.5.0 - file will be removed, menu has been moved to footer #}
+
+{% block layout_header_actions_service_menu_widget %}
+    {% if position is empty %}
+        {% set position = 'top-bar' %}
+    {% endif %}
+
+    {% if page.header.serviceMenu|length > 0 %}
+        <div class="top-bar-nav-item top-bar-menu">
+            {% block layout_header_actions_service_menu_list %}
+                <div class="service-menu dropdown">
+                    <button class="btn dropdown-toggle top-bar-nav-btn"
+                            type="button"
+                            id="serviceMenuDropdown-{{ position }}"
+                            {{ dataBsToggleAttr }}="dropdown"
+                            aria-haspopup="true"
+                            aria-expanded="false">
+                        {% sw_icon 'help' %}
+                        <span class="top-bar-nav-text">{{ "header.indexLinkService"|trans|sw_sanitize }}</span>
+                    </button>
+                    {% block layout_header_actions_service_menu_items %}
+                        <div class="dropdown-menu dropdown-menu-right"
+                             aria-labelledby="serviceMenuDropdown-{{ position }}">
+                            {% for category in page.header.serviceMenu %}
+
+                                {# @deprecated tag:v6.5.0 - Use "category.translated.externalLink" directly or category_url function instead. #}
+                                {% set externalLink = category.translated.externalLink %}
+
+                                <a class="top-bar-list-item dropdown-item"
+                                   href="{{ category_url(category) }}"
+                                   {% if category_linknewtab(category) %}target="_blank"{% endif %}
+                                   title="{{ category.translated.name }}">{{ category.translated.name }}</a>
+                            {% endfor %}
+                        </div>
+                    {% endblock %}
+                </div>
+            {% endblock %}
+        </div>
+    {% endif %}
+{% endblock %}

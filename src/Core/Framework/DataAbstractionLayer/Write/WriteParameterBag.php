@@ -5,29 +5,61 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Write;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @internal
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
  */
-#[Package('core')]
 class WriteParameterBag
 {
-    private ?string $currentWriteLanguageId = null;
+    /**
+     * Defines the entity definition where the field placed in
+     *
+     * @var EntityDefinition
+     */
+    private $definition;
+
+    /**
+     * Contains the write context instance of the current write process
+     *
+     * @var WriteContext
+     */
+    private $context;
+
+    /**
+     * Contains the current property path for the proccessed field e.g product/{id}/name
+     *
+     * @var string
+     */
+    private $path;
+
+    /**
+     * Contains all already applied write commands of the current write process
+     *
+     * @var WriteCommandQueue
+     */
+    private $commandQueue;
+
+    /**
+     * @var string|null
+     */
+    private $currentWriteLanguageId;
+
+    private PrimaryKeyBag $primaryKeyBag;
 
     public function __construct(
-        /** Defines the entity definition where the field placed in */
-        private readonly EntityDefinition $definition,
-        /** Contains the write context instance of the current write process */
-        private readonly WriteContext $context,
-        /** Contains the current property path for the proccessed field e.g product/{id}/name */
-        private string $path,
-        /** Contains all already applied write commands of the current write process */
-        private readonly WriteCommandQueue $commandQueue,
-        private PrimaryKeyBag $primaryKeyBag = new PrimaryKeyBag()
+        EntityDefinition $definition,
+        WriteContext $context,
+        string $path,
+        WriteCommandQueue $commandQueue,
+        ?PrimaryKeyBag $primaryKeyBag = null
     ) {
+        $this->definition = $definition;
+        $this->context = $context;
+        $this->path = $path;
+        $this->commandQueue = $commandQueue;
+        $this->primaryKeyBag = $primaryKeyBag ?? new PrimaryKeyBag();
     }
 
     public function getDefinition(): EntityDefinition

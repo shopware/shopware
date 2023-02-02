@@ -11,33 +11,32 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\AggregationParser;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\StateAwareTrait;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
- * @final
+ * @final tag:v6.5.0
  */
-#[Package('core')]
 class Criteria extends Struct implements \Stringable
 {
     use StateAwareTrait;
-    final public const STATE_ELASTICSEARCH_AWARE = 'elasticsearchAware';
+    public const STATE_ELASTICSEARCH_AWARE = 'elasticsearchAware';
 
     /**
      * no total count will be selected. Should be used if no pagination required (fastest)
      */
-    final public const TOTAL_COUNT_MODE_NONE = 0;
+    public const TOTAL_COUNT_MODE_NONE = 0;
 
     /**
      * exact total count will be selected. Should be used if an exact pagination is required (slow)
      */
-    final public const TOTAL_COUNT_MODE_EXACT = 1;
+    public const TOTAL_COUNT_MODE_EXACT = 1;
 
     /**
      * fetches limit * 5 + 1. Should be used if pagination can work with "next page exists" (fast)
      */
-    final public const TOTAL_COUNT_MODE_NEXT_PAGES = 2;
+    public const TOTAL_COUNT_MODE_NEXT_PAGES = 2;
 
     /**
      * @var FieldSorting[]
@@ -130,7 +129,13 @@ class Criteria extends Struct implements \Stringable
 
         $ids = array_filter($ids);
         if (empty($ids)) {
-            throw new \RuntimeException('Empty ids provided in criteria');
+            Feature::triggerDeprecationOrThrow(
+                'v6.5.0.0',
+                'The `Criteria()` constructor does not support passing an empty array of ids from v6.5.0.0 onwards'
+            );
+            if (Feature::isActive('FEATURE_NEXT_16710')) {
+                throw new \RuntimeException('Empty ids provided in criteria');
+            }
         }
 
         $this->ids = $ids;
@@ -200,7 +205,10 @@ class Criteria extends Struct implements \Stringable
      */
     public function hasEqualsFilter($field): bool
     {
-        return \count(array_filter($this->filters, static fn (Filter $filter) /* EqualsFilter $filter */ => $filter instanceof EqualsFilter && $filter->getField() === $field)) > 0;
+        return \count(array_filter($this->filters, static function (Filter $filter) use ($field) {
+            /* EqualsFilter $filter */
+            return $filter instanceof EqualsFilter && $filter->getField() === $field;
+        })) > 0;
     }
 
     /**
@@ -605,6 +613,8 @@ class Criteria extends Struct implements \Stringable
      */
     public function addFields(array $fields): self
     {
+        Feature::throwException('v6.5.0.0', 'Partial data loading is not active', false);
+
         $this->fields = array_merge($this->fields, $fields);
 
         return $this;

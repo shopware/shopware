@@ -3,19 +3,17 @@
 namespace Shopware\Storefront\Pagelet\Newsletter\Account;
 
 use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Pagelet\Pagelet;
 
-#[Package('customer-order')]
+/**
+ * @internal (flag:FEATURE_NEXT_14001) remove comment on feature release
+ */
 class NewsletterAccountPagelet extends Pagelet
 {
     protected CustomerEntity $customer;
 
     protected ?bool $success = null;
 
-    /**
-     * @var array<array<string, mixed>>|null
-     */
     protected ?array $messages = null;
 
     protected ?bool $newsletterDoi = null;
@@ -42,25 +40,16 @@ class NewsletterAccountPagelet extends Pagelet
         $this->success = $success;
     }
 
-    /**
-     * @return array<array<string, mixed>>|null
-     */
     public function getMessages(): ?array
     {
         return $this->messages;
     }
 
-    /**
-     * @param array<array<string, mixed>> $messages
-     */
     public function setMessages(array $messages): void
     {
         $this->messages = $messages;
     }
 
-    /**
-     * @param array<array<string, mixed>> $messages
-     */
     public function addMessages(array $messages): void
     {
         if (!\is_array($this->messages)) {

@@ -13,10 +13,9 @@ use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Checkout\Customer\SalesChannel\ChangePaymentMethodRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\LoginRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\LogoutRoute;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
@@ -30,22 +29,39 @@ use Symfony\Component\HttpKernel\Debug\TraceableEventDispatcher;
 /**
  * @internal
  */
-#[Package('customer-order')]
 class AccountServiceEventTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;
 
-    private AccountService $accountService;
+    /**
+     * @var AccountService
+     */
+    private $accountService;
 
-    private EntityRepository $customerRepository;
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $customerRepository;
 
-    private SalesChannelContext $salesChannelContext;
+    /**
+     * @var SalesChannelContext
+     */
+    private $salesChannelContext;
 
-    private LoginRoute $loginRoute;
+    /**
+     * @var LoginRoute
+     */
+    private $loginRoute;
 
-    private LogoutRoute $logoutRoute;
+    /**
+     * @var LogoutRoute
+     */
+    private $logoutRoute;
 
-    private ChangePaymentMethodRoute $changePaymentMethodRoute;
+    /**
+     * @var ChangePaymentMethodRoute
+     */
+    private $changePaymentMethodRoute;
 
     protected function setUp(): void
     {
@@ -80,7 +96,7 @@ class AccountServiceEventTest extends TestCase
 
         try {
             $this->loginRoute->login($dataBag->toRequestDataBag(), $this->salesChannelContext);
-        } catch (BadCredentialsException) {
+        } catch (BadCredentialsException $e) {
             // nth
         }
         static::assertFalse($eventDidRun, 'Event "' . CustomerBeforeLoginEvent::class . '" did run');
@@ -89,7 +105,7 @@ class AccountServiceEventTest extends TestCase
 
         try {
             $this->accountService->login('', $this->salesChannelContext);
-        } catch (BadCredentialsException) {
+        } catch (BadCredentialsException $e) {
             // nth
         }
         static::assertFalse($eventDidRun, 'Event "' . CustomerBeforeLoginEvent::class . '" did run');
@@ -134,7 +150,6 @@ class AccountServiceEventTest extends TestCase
             $eventDidRun = false;
 
             $this->accountService->login('info@example.com', $this->salesChannelContext);
-            /** @phpstan-ignore-next-line - $eventDidRun updated value on listener */
             static::assertTrue($eventDidRun, 'Event "' . $eventClass . '" did not run');
 
             $dispatcher->removeListener($eventClass, $listenerClosure);
@@ -159,8 +174,7 @@ class AccountServiceEventTest extends TestCase
 
         $this->salesChannelContext->assign(['customer' => $customer]);
 
-        static::assertNotNull($customer = $this->salesChannelContext->getCustomer());
-        static::assertSame($email, $customer->getEmail());
+        static::assertSame($email, $this->salesChannelContext->getCustomer()->getEmail());
 
         $this->logoutRoute->logout($this->salesChannelContext, new RequestDataBag());
 
@@ -188,8 +202,7 @@ class AccountServiceEventTest extends TestCase
 
         $this->salesChannelContext->assign(['customer' => $customer]);
 
-        static::assertNotNull($customer = $this->salesChannelContext->getCustomer());
-        static::assertSame($email, $customer->getEmail());
+        static::assertSame($email, $this->salesChannelContext->getCustomer()->getEmail());
 
         $this->changePaymentMethodRoute->change(
             $customer->getDefaultPaymentMethodId(),
@@ -202,7 +215,7 @@ class AccountServiceEventTest extends TestCase
         $dispatcher->removeListener(CustomerChangedPaymentMethodEvent::class, $listenerClosure);
     }
 
-    private function getEmailListenerClosure(bool &$eventDidRun, self $phpunit): callable
+    private function getEmailListenerClosure(bool &$eventDidRun, self $phpunit)
     {
         return function ($event) use (&$eventDidRun, $phpunit): void {
             $eventDidRun = true;
@@ -210,7 +223,7 @@ class AccountServiceEventTest extends TestCase
         };
     }
 
-    private function getCustomerListenerClosure(bool &$eventDidRun, self $phpunit): callable
+    private function getCustomerListenerClosure(bool &$eventDidRun, self $phpunit)
     {
         return function ($event) use (&$eventDidRun, $phpunit): void {
             $eventDidRun = true;

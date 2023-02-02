@@ -11,9 +11,7 @@ use Shopware\Core\Content\Property\PropertyGroupEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('inventory')]
 class PropertyGroupOptionEntity extends Entity
 {
     use EntityIdTrait;
@@ -75,14 +73,18 @@ class PropertyGroupOptionEntity extends Entity
     protected $media;
 
     /**
+     * @var ProductConfiguratorSettingEntity|null
+     *
      * @internal
      */
-    private ?ProductConfiguratorSettingEntity $configuratorSetting = null;
+    private $configuratorSetting;
 
     /**
      * @internal
+     *
+     * @var bool
      */
-    private bool $combinable = false;
+    private $combinable;
 
     public function getGroupId(): string
     {

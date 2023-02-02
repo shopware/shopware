@@ -1,10 +1,10 @@
 import template from './sw-mail-header-footer-list.html.twig';
 
-const { Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-mail-header-footer-list', {
     template,
 
     inject: ['repositoryFactory', 'acl'],
@@ -89,7 +89,6 @@ export default {
                 dataIndex: 'name',
                 label: 'sw-mail-header-footer.list.columnName',
                 allowResize: true,
-                routerLink: 'sw.mail.template.detail_head_foot',
                 primary: true,
             }, {
                 property: 'description',
@@ -147,7 +146,7 @@ export default {
                 this.showDeleteErrorNotification(item);
             }
 
-            return this.mailHeaderFooterRepository.delete(item.id)
+            this.mailHeaderFooterRepository.delete(item.id)
                 .then(() => {
                     this.$refs.listing.resetSelection();
                     this.$refs.listing.doSearch();
@@ -194,4 +193,4 @@ export default {
             this.mailHeaderFooters = result;
         },
     },
-};
+});

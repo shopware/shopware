@@ -4,12 +4,10 @@ namespace Shopware\Core\Checkout\Test\Cart\Processor\_fixtures;
 
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
-#[Package('checkout')]
 class HighTaxes extends TaxRuleCollection
 {
     public function __construct()

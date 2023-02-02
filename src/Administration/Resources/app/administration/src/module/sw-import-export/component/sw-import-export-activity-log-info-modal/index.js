@@ -1,16 +1,13 @@
-/**
- * @package system-settings
- */
 import template from './sw-import-export-activity-log-info-modal.html.twig';
 import './sw-import-export-activity-log-info-modal.scss';
 
-const { Mixin } = Shopware;
+const { Mixin, Component } = Shopware;
 const { format } = Shopware.Utils;
 
 /**
  * @private
  */
-export default {
+Component.register('sw-import-export-activity-log-info-modal', {
     template,
 
     inject: ['importExport'],
@@ -56,4 +53,4 @@ export default {
             return this.$te(translationKey) ? this.$tc(translationKey) : state;
         },
     },
-};
+});

@@ -18,13 +18,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
-#[Package('customer-order')]
 class CustomerGroupDefinition extends EntityDefinition
 {
-    final public const ENTITY_NAME = 'customer_group';
+    public const ENTITY_NAME = 'customer_group';
 
     public function getEntityName(): string
     {

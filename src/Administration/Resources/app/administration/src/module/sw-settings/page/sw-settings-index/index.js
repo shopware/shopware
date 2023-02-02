@@ -1,13 +1,11 @@
-/**
- * @package system-settings
- */
 import template from './sw-settings-index.html.twig';
 import './sw-settings-index.scss';
 
+const { Component } = Shopware;
 const { hasOwnProperty } = Shopware.Utils.object;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-settings-index', {
     template,
 
     inject: ['acl'],
@@ -95,4 +93,4 @@ export default {
             return this.$tc(settingsItem.label.label);
         },
     },
-};
+});

@@ -3,23 +3,22 @@
 namespace Shopware\Core\Checkout\Customer\Rule;
 
 use Shopware\Core\Checkout\CheckoutRuleScope;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-#[Package('business-ops')]
 class IsGuestCustomerRule extends Rule
 {
-    final public const RULE_NAME = 'customerIsGuest';
+    protected bool $isGuest;
 
     /**
      * @internal
      */
-    public function __construct(protected bool $isGuest = true)
+    public function __construct(bool $isGuest = true)
     {
         parent::__construct();
+        $this->isGuest = $isGuest;
     }
 
     public function match(RuleScope $scope): bool
@@ -44,6 +43,11 @@ class IsGuestCustomerRule extends Rule
         return [
             'isGuest' => RuleConstraints::bool(true),
         ];
+    }
+
+    public function getName(): string
+    {
+        return 'customerIsGuest';
     }
 
     public function getConfig(): RuleConfig

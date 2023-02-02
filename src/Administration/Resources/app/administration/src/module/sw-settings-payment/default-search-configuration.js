@@ -1,9 +1,5 @@
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 
-/**
- * @package checkout
- */
-
 const defaultSearchConfiguration = {
     _searchable: false,
     name: {

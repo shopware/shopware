@@ -1,12 +1,6 @@
-/**
- * @package admin
- */
-
 import template from './sw-gtc-checkbox.html.twig';
 
-/**
- * @deprecated tag:v6.6.0 - Will be private
- */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Component.register('sw-gtc-checkbox', {
     template,
 

@@ -10,10 +10,6 @@
         transition: max-width 0.3s ease-in-out;
     }
 
-    &__warning-box.sw-alert {
-        margin-bottom: 40px;
-    }
-
     &__trigger-card {
         display: grid;
         grid-template-columns: auto 1fr;
@@ -27,22 +23,23 @@
         border-radius: 8px;
         border: 1px solid $color-gray-300;
         box-shadow: 0 3px 6px 0 rgba(120, 138, 155, 20%);
-        padding: 24px;
+        padding: 24px 24px 17px;
     }
 
     &__trigger-explain {
-        padding: 24px;
+        padding: 32px;
         border: 2px dashed $color-gray-300;
         border-radius: 8px;
         color: $color-darkgray-200;
         width: 420px;
 
-        h4 {
-            margin-bottom: 12px;
+        h3 {
+            font-size: $font-size-large;
         }
 
         p {
-            font-size: $font-size-xs;
+            font-size: $font-size-small;
+            letter-spacing: 0.1px;
             line-height: 22px;
         }
     }
@@ -103,10 +100,6 @@
             border: 1px solid $color-gray-500;
             z-index: 2;
 
-            .sw-icon {
-                @include size(12px);
-            }
-
             &:hover:not([disabled]) {
                 background: $color-shopware-brand-500;
                 color: $color-white;
@@ -148,10 +141,6 @@
     &__sequences {
         margin-left: 32px;
     }
-}
-
-.sw-flow-detail-flow-template {
-    pointer-events: none;
 }
 
 // style for transition group.

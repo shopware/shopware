@@ -2,14 +2,11 @@ import CheckoutPageObject from '../../../support/pages/checkout.page-object';
 
 let product = {};
 
-/**
- * @package checkout
- */
 describe('Checkout: Use rounding', () => {
 
     beforeEach(() => {
         return cy.createProductFixture().then(() => {
-            return cy.createDefaultFixture('category');
+            return cy.createDefaultFixture('category')
         }).then(() => {
             cy.createProductFixture({
                 name: 'Test product',
@@ -18,21 +15,23 @@ describe('Checkout: Use rounding', () => {
                     {
                         currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
                         linked: true,
-                        gross: 10.51,
-                    },
-                ],
+                        gross: 10.51
+                    }
+                ]
             });
         }).then((result) => {
             product = result;
-            return cy.createCustomerFixtureStorefront();
+            return cy.createCustomerFixtureStorefront()
         });
     });
 
     it('@base @checkout: Run checkout with 0.50', { tags: ['pa-checkout'] }, () => {
         cy.intercept({
             url: '/api/currency/**',
-            method: 'PATCH',
+            method: 'PATCH'
         }).as('saveData');
+
+        cy.loginViaApi();
 
         cy.visit('/admin#/sw/settings/currency/detail/b7d2554b0ce847cd82f3ac9bd1c0dfca');
 
@@ -50,22 +49,27 @@ describe('Checkout: Use rounding', () => {
 
         cy.visit('/');
 
-        const page = new CheckoutPageObject();
+        cy.window().then((win) => {
+            const page = new CheckoutPageObject();
 
-        cy.get('.header-search-input')
-            .should('be.visible')
-            .type(product.name);
-        cy.contains('.search-suggest-product-name', product.name).click();
-        cy.get('.product-detail-buy .btn-buy').click();
+            /** @deprecated tag:v6.5.0 - Use `CheckoutPageObject.elements.lineItem` instead */
+            const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
 
-        // Off canvas
-        cy.get(page.elements.offCanvasCart).should('be.visible');
-        cy.get('.line-item-label').contains(product.name);
+            cy.get('.header-search-input')
+                .should('be.visible')
+                .type(product.name);
+            cy.contains('.search-suggest-product-name', product.name).click();
+            cy.get('.product-detail-buy .btn-buy').click();
 
-        // Checkout
-        cy.get('.offcanvas-cart-actions .btn-primary').click();
+            // Off canvas
+            cy.get(page.elements.offCanvasCart).should('be.visible');
+            cy.get(`${lineItemSelector}-label`).contains(product.name);
 
-        cy.get('.checkout-aside-summary-value.checkout-aside-summary-total-rounded').contains('10.50');
-        cy.get('.checkout-aside-summary-value.checkout-aside-summary-total').contains('10.51');
+            // Checkout
+            cy.get('.offcanvas-cart-actions .btn-primary').click();
+
+            cy.get('.checkout-aside-summary-value.checkout-aside-summary-total-rounded').contains('10.50');
+            cy.get('.checkout-aside-summary-value.checkout-aside-summary-total').contains('10.51');
+        });
     });
 });

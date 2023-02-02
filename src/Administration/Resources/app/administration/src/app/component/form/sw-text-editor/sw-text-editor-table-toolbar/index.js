@@ -4,8 +4,6 @@ import './sw-text-editor-table-toolbar.scss';
 const { Component } = Shopware;
 
 /**
- * @package admin
- *
  * @private
  */
 Component.register('sw-text-editor-table-toolbar', {
@@ -245,11 +243,11 @@ Component.register('sw-text-editor-table-toolbar', {
             this.setSelectionRange();
             this.keepSelection();
 
-            if (!this.selection || !this.selection.anchorNode) {
+            if (!this.selection || !this.selection.baseNode) {
                 return null;
             }
 
-            let node = this.selection.anchorNode;
+            let node = this.selection.baseNode;
             if (node.nodeName === '#text') {
                 node = node.parentNode;
             }

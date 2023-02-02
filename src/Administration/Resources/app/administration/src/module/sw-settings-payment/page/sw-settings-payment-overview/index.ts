@@ -1,15 +1,20 @@
 import type CriteriaType from 'src/core/data/criteria.data';
 import type Repository from 'src/core/data/repository.data';
 import type { Entity } from '@shopware-ag/admin-extension-sdk/es/data/_internals/Entity';
-import type EntityCollection from '@shopware-ag/admin-extension-sdk/es/data/_internals/EntityCollection';
+import type EntityCollection from 'src/core/data/entity-collection.data';
 import type { MetaInfo } from 'vue-meta';
 import type { PaymentOverviewCard } from '../../state/overview-cards.store';
 import template from './sw-settings-payment-overview.html.twig';
 import './sw-settings-payment-overview.scss';
 
-/**
- * @package checkout
- */
+interface PaymentMethodEntity extends Entity {
+    active: boolean;
+    position: number;
+    formattedHandlerIdentifier: string;
+    translated: {
+        name: string;
+    }
+}
 
 interface PaymentMethodCard {
     id: string;
@@ -17,16 +22,16 @@ interface PaymentMethodCard {
     component?: string;
     positionId: string;
     position: number;
-    paymentMethod?: Entity<'payment_method'>;
-    paymentMethods?: EntityCollection<'payment_method'>;
+    paymentMethod?: PaymentMethodEntity;
+    paymentMethods?: Array<PaymentMethodEntity>;
 }
 
-const { Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { cloneDeep } = Shopware.Utils.object;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default Shopware.Component.wrapComponentConfig({
+Component.register('sw-settings-payment-overview', {
     template,
 
     inject: ['repositoryFactory', 'acl'],
@@ -38,7 +43,7 @@ export default Shopware.Component.wrapComponentConfig({
     data(): {
         isLoading: boolean,
         showSortingModal: boolean,
-        paymentMethods: EntityCollection<'payment_method'>|[],
+        paymentMethods: Array<PaymentMethodEntity>,
         } {
         return {
             paymentMethods: [],
@@ -49,7 +54,8 @@ export default Shopware.Component.wrapComponentConfig({
 
     metaInfo(): MetaInfo {
         return {
-            title: this.$createTitle(),
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+            title: this.$createTitle() as string,
         };
     },
 
@@ -58,7 +64,7 @@ export default Shopware.Component.wrapComponentConfig({
             return Shopware.State.get('paymentOverviewCardState').cards ?? [];
         },
 
-        paymentMethodRepository(): Repository<'payment_method'> {
+        paymentMethodRepository(): Repository {
             return this.repositoryFactory.create('payment_method');
         },
 
@@ -85,7 +91,6 @@ export default Shopware.Component.wrapComponentConfig({
 
             this.customCards.forEach((customCard: PaymentOverviewCard) => {
                 const customPaymentMethods = paymentMethods
-                    // @ts-expect-error - can be undefined
                     .filter(pm => customCard.paymentMethodHandlers.includes(pm.formattedHandlerIdentifier));
 
                 if (customPaymentMethods.length === 0) {
@@ -96,15 +101,12 @@ export default Shopware.Component.wrapComponentConfig({
                     id: customPaymentMethods[0].id,
                     hasCustomCard: true,
                     component: customCard.component,
-                    // @ts-expect-error - can be undefined
                     position: Math.min(...customPaymentMethods.map(pm => pm.position)),
                     positionId: customCard.positionId,
                     paymentMethods: customPaymentMethods,
                 });
 
-                // @ts-expect-error - can be undefined
                 paymentMethods = paymentMethods
-                    // @ts-expect-error - can be undefined
                     .filter(pm => !customCard.paymentMethodHandlers.includes(pm.formattedHandlerIdentifier));
             });
 
@@ -134,8 +136,8 @@ export default Shopware.Component.wrapComponentConfig({
         loadPaymentMethods(): void {
             this.isLoading = true;
 
-            this.paymentMethodRepository.search(this.paymentMethodCriteria).then((items) => {
-                this.paymentMethods = items;
+            this.paymentMethodRepository.search(this.paymentMethodCriteria).then((items: EntityCollection) => {
+                this.paymentMethods = items as unknown as Array<PaymentMethodEntity>;
             }).finally(() => {
                 this.isLoading = false;
             });
@@ -146,26 +148,16 @@ export default Shopware.Component.wrapComponentConfig({
             this.loadPaymentMethods();
         },
 
-        togglePaymentMethodActive(paymentMethod: Entity<'payment_method'>): void {
+        togglePaymentMethodActive(paymentMethod: PaymentMethodEntity): void {
             const paymentMethodEntity = this.paymentMethods
-                .find((pm) => pm.id === paymentMethod.id);
-
-            if (!paymentMethodEntity) {
-                return;
-            }
-
+                .find((pm: PaymentMethodEntity) => pm.id === paymentMethod.id) as PaymentMethodEntity;
             paymentMethodEntity.active = paymentMethod.active;
 
             this.paymentMethodRepository.save(paymentMethodEntity).then(() => {
                 this.loadPaymentMethods();
-                this.showActivationSuccessNotification(
-                    paymentMethodEntity.translated?.name ?? '',
-                    // @ts-expect-error - can be undefined
-                    paymentMethodEntity.active,
-                );
+                this.showActivationSuccessNotification(paymentMethodEntity.translated.name, paymentMethodEntity.active);
             }).catch(() => {
-                // @ts-expect-error - can be undefined
-                this.showActivationErrorNotification(paymentMethodEntity.translated?.name ?? '', paymentMethodEntity.active);
+                this.showActivationErrorNotification(paymentMethodEntity.translated.name, paymentMethodEntity.active);
                 this.$nextTick(() => {
                     paymentMethodEntity.active = !paymentMethodEntity.active;
                 });

@@ -1,15 +1,10 @@
-/*
- * @package inventory
- */
-
 import template from './sw-product-variants-media-upload.html.twig';
 import './sw-product-variants-media-upload.scss';
 
-const { Mixin, Context } = Shopware;
+const { Component, Mixin, Context } = Shopware;
 const { isEmpty } = Shopware.Utils.types;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.extend('sw-product-variants-media-upload', 'sw-media-upload-v2', {
     template,
 
     inject: ['repositoryFactory', 'mediaDefaultFolderService'],
@@ -229,4 +224,4 @@ export default {
             });
         },
     },
-};
+});

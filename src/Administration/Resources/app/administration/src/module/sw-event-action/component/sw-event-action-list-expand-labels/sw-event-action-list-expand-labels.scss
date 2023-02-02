@@ -1,0 +1,30 @@
+@import "~scss/variables";
+
+.sw-event-action-list-expand-labels {
+    margin-top: -5px;
+
+    .sw-event-action-list-expand-labels__label {
+        margin-top: 5px;
+    }
+
+    .sw-event-action-list-expand-labels__increase {
+        margin-top: 5px;
+        min-width: auto;
+        font-weight: $font-weight-bold;
+        color: $color-shopware-brand-500;
+        cursor: pointer;
+
+        &:hover {
+            background-color: $color-gray-100;
+        }
+    }
+
+    &.is--disabled {
+        .sw-event-action-list-expand-labels__label,
+        .sw-event-action-list-expand-labels__increase {
+            opacity: 0.5;
+            pointer-events: none;
+            cursor: default;
+        }
+    }
+}

@@ -2,19 +2,21 @@
 
 namespace Shopware\Core\Framework\Api\Converter\Exceptions;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareException;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('core')]
 class ApiConversionException extends ShopwareHttpException
 {
     /**
-     * @param array<string, \Throwable[]> $exceptions
+     * @var array<string, \Throwable[]>
      */
-    public function __construct(private array $exceptions = [])
+    private $exceptions;
+
+    public function __construct(array $exceptions = [])
     {
+        $this->exceptions = $exceptions;
+
         parent::__construct('Api Version conversion failed, got {{ numberOfFailures }} failure(s).', ['numberOfFailures' => \count($exceptions)]);
     }
 

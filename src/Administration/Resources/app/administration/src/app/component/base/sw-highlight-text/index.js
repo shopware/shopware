@@ -1,11 +1,8 @@
 import './sw-highlight-text.scss';
 
-const { Component, Context } = Shopware;
+const { Component } = Shopware;
 
 /**
- * @package admin
- *
- * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @description This component highlights text based on the searchTerm using regex
  * @status ready
@@ -13,6 +10,7 @@ const { Component, Context } = Shopware;
  * @component-example
  * <sw-highlight-text text="Lorem ipsum dolor sit amet, consetetur sadipscing elitr" searchTerm="sit"></sw-highlight-text>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-highlight-text', {
     template: '',
 
@@ -58,11 +56,6 @@ Component.register('sw-highlight-text', {
 
         // Remove regex special characters from search string
         escapeRegExp(string) {
-            if (Context.app.adminEsEnable) {
-                // remove simple query string syntax
-                return string.replace(/[+-.*~"|()]/g, '').replace(/ AND | and | OR | or |  +/g, ' ').replace(/[?^${}[\]\\]/g, '\\$&'); // $& means the whole matched string
-            }
-
             return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
         },
     },

@@ -1,7 +1,7 @@
 @import "~scss/variables";
 
 .sw-flow-sequence-selector {
-    padding: 24px;
+    padding: 32px;
     border: 2px dashed $color-gray-300;
     border-radius: 8px;
     color: $color-darkgray-200;
@@ -9,26 +9,33 @@
     margin-right: 32px;
 
     &__title {
-        h4 {
-            margin-bottom: 12px;
+        font-size: $font-size-large;
+
+        h3 {
+            font-weight: normal;
         }
     }
 
     &__help-text {
-        font-size: $font-size-xs;
+        font-size: $font-size-small;
+        letter-spacing: 0.1px;
         line-height: 22px;
-        margin-bottom: 16px;
+        margin-bottom: 32px;
     }
 
     &__actions {
         display: flex;
         flex-direction: column;
-        gap: 12px;
+    }
+
+    &__actions .sw-button:first-child {
+        margin-bottom: 8px;
     }
 
     &__actions .sw-button {
+        font-size: 15px;
+        font-weight: bold;
         color: $color-darkgray-200;
-        padding: 2px 12px;
     }
 
     &__actions .sw-button .sw-button__content {

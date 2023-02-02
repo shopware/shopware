@@ -1,6 +1,4 @@
 /**
- * @package admin
- *
  * @module core/service/utils/file-reader
  */
 

@@ -16,27 +16,25 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_condition_generic_fields %}
-    <template v-if="operator !== 'empty'">
-        <sw-form-field-renderer
-            v-for="(field, index) in config.fields"
-            :key="index"
-            v-bind="getBind(field)"
-            :disabled="disabled"
-            :value="values[field.name]"
-            size="medium"
-            show-clearable-button
-            :hide-hint="field.type === 'datetime'"
-            @input="updateFieldValue(field.name, $event)"
-            @change="updateFieldValue(field.name, $event)"
+    <sw-form-field-renderer
+        v-for="(field, index) in config.fields"
+        :key="index"
+        v-bind="getBind(field)"
+        :disabled="disabled"
+        :value="values[field.name]"
+        size="medium"
+        show-clearable-button
+        :hide-hint="field.type === 'datetime'"
+        @input="updateFieldValue(field.name, $event)"
+        @change="updateFieldValue(field.name, $event)"
+    >
+        <template
+            v-if="field.config.unit"
+            slot="suffix"
         >
-            <template
-                v-if="field.config.unit"
-                #suffix
-            >
-                <span>{{ $tc(`global.sw-condition-generic.units.${field.config.unit}`) }}</span>
-            </template>
-        </sw-form-field-renderer>
-    </template>
+            <span>{{ $tc(`global.sw-condition-generic.units.${field.config.unit}`) }}</span>
+        </template>
+    </sw-form-field-renderer>
     {% endblock %}
 </div>
 {% endblock %}

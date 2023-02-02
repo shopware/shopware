@@ -1,14 +1,12 @@
 import template from './sw-category-tree.html.twig';
 import './sw-category-tree.scss';
 
+const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapState } = Shopware.Component.getComponentHelper();
 
-/**
- * @package content
- */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-category-tree', {
     template,
 
     inject: ['repositoryFactory', 'syncService'],
@@ -119,6 +117,31 @@ export default {
 
         productRepository() {
             return this.repositoryFactory.create('product');
+        },
+
+        /**
+        * @deprecated tag:v6.5.0 - succeed by custom default layout introduced in NEXT-19261
+        */
+        defaultLayout() {
+            return Shopware.State.get('swCategoryDetail').defaultLayout;
+        },
+
+        /**
+        * @deprecated tag:v6.5.0 - succeed by custom default layout introduced in NEXT-19261
+        */
+        defaultLayoutCriteria() {
+            const criteria = new Criteria(1, 1);
+            criteria
+                .addSorting(Criteria.sort('createdAt', 'ASC'))
+                .addFilter(Criteria.multi(
+                    'AND',
+                    [
+                        Criteria.equals('type', 'product_list'),
+                        Criteria.equals('locked', true),
+                    ],
+                ));
+
+            return criteria;
         },
     },
 
@@ -533,6 +556,15 @@ export default {
                 || (category.footerSalesChannels !== null && category.footerSalesChannels.length > 0);
         },
 
+        /**
+        * @deprecated tag:v6.5.0 - succeed by custom default layout introduced in NEXT-19261
+        */
+        loadDefaultLayout() {
+            return this.cmsPageRepository.search(this.defaultLayoutCriteria).then((response) => {
+                Shopware.State.commit('swCategoryDetail/setDefaultLayout', response[0]);
+            });
+        },
+
         isErrorNavigationEntryPoint(category) {
             const { navigationSalesChannels, serviceSalesChannels, footerSalesChannels } = category;
 
@@ -569,4 +601,4 @@ export default {
             );
         },
     },
-};
+});

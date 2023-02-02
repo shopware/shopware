@@ -1,10 +1,11 @@
 {% block cms_form_contact %}
     <form action="{{ path(action) }}"
           method="post"
+          data-form-csrf-handler="true"
           data-form-validation="true">
 
         <div class="form-content">
-        <div class="row g-2">
+        <div class="{{ formRowClass }}">
             {% block cms_form_contact_select_salutation %}
                 {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-select-salutation.html.twig'
                     with {
@@ -41,7 +42,7 @@
             {% endblock %}
         </div>
 
-        <div class="row g-2">
+        <div class="{{ formRowClass }}">
             {% block cms_form_contact_input_email %}
                 {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-input.html.twig'
                     with {
@@ -69,7 +70,7 @@
             {% endblock %}
         </div>
 
-        <div class="row g-2">
+        <div class="{{ formRowClass }}">
             {% block cms_form_contact_input_subject %}
                 {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-input.html.twig'
                     with {
@@ -83,7 +84,7 @@
             {% endblock %}
         </div>
 
-        <div class="row g-2">
+        <div class="{{ formRowClass }}">
             {% block cms_form_contact_comment_textarea %}
                 {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-textarea.html.twig'
                     with {
@@ -107,9 +108,7 @@
         {% endblock %}
 
         {% block cms_form_contact_privacy %}
-            {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-privacy.html.twig'
-                with { 'requiresTermsOfService': false }
-            %}
+            {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-privacy.html.twig' %}
         {% endblock %}
 
         {% block cms_form_contact_submit %}
@@ -119,6 +118,10 @@
 
         {% block cms_form_contact_hidden_fields %}
             <div class="form-hidden-fields">
+                {% block cms_form_contact_csrf %}
+                    {{ sw_csrf(action) }}
+                {% endblock %}
+
                 {% if page.navigationId and page.entityName %}
                     <input type="hidden" name="navigationId" value="{{ page.navigationId }}"/>
                     <input type="hidden" name="entityName" value="{{ page.entityName }}"/>

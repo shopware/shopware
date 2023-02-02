@@ -1,15 +1,12 @@
-/**
- * @package system-settings
- */
 import Sanitizer from 'src/core/helper/sanitizer.helper';
 import template from './sw-settings-snippet-detail.html.twig';
 
-const { Mixin, Data: { Criteria } } = Shopware;
+const { Component, Mixin, Data: { Criteria } } = Shopware;
 const ShopwareError = Shopware.Classes.ShopwareError;
 const utils = Shopware.Utils;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-settings-snippet-detail', {
     template,
 
     inject: [
@@ -355,4 +352,4 @@ export default {
             };
         },
     },
-};
+});

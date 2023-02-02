@@ -1,8 +1,5 @@
 import AccountPageObject from '../../../support/pages/account.page-object';
 
-/**
- * @package checkout
- */
 describe('Account: Register via account menu', () => {
     it('@login: Trigger validation error', { tags: ['pa-customers-orders'] }, () => {
         const page = new AccountPageObject();
@@ -48,15 +45,15 @@ describe('Account: Register via account menu', () => {
         cy.authenticate().then((result) => {
             const requestConfig = {
                 headers: {
-                    Authorization: `Bearer ${result.access}`,
+                    Authorization: `Bearer ${result.access}`
                 },
                 method: 'POST',
                 url: `api/_action/system-config/batch`,
                 body: {
                     null: {
-                        'core.loginRegistration.showAccountTypeSelection': true,
-                    },
-                },
+                        'core.loginRegistration.showAccountTypeSelection': true
+                    }
+                }
             };
 
             return cy.request(requestConfig);
@@ -115,15 +112,15 @@ describe('Account: Register via account menu', () => {
         cy.authenticate().then((result) => {
             const requestConfig = {
                 headers: {
-                    Authorization: `Bearer ${result.access}`,
+                    Authorization: `Bearer ${result.access}`
                 },
                 method: 'POST',
                 url: `api/_action/system-config/batch`,
                 body: {
                     null: {
-                        'core.loginRegistration.showAccountTypeSelection': false,
-                    },
-                },
+                        'core.loginRegistration.showAccountTypeSelection': false
+                    }
+                }
             };
 
             return cy.request(requestConfig);
@@ -134,15 +131,15 @@ describe('Account: Register via account menu', () => {
         cy.authenticate().then((result) => {
             const requestConfig = {
                 headers: {
-                    Authorization: `Bearer ${result.access}`,
+                    Authorization: `Bearer ${result.access}`
                 },
                 method: 'POST',
                 url: `api/_action/system-config/batch`,
                 body: {
                     null: {
-                        'core.loginRegistration.showAccountTypeSelection': true,
-                    },
-                },
+                        'core.loginRegistration.showAccountTypeSelection': true
+                    }
+                }
             };
 
             return cy.request(requestConfig);
@@ -171,15 +168,15 @@ describe('Account: Register via account menu', () => {
         cy.authenticate().then((result) => {
             const requestConfig = {
                 headers: {
-                    Authorization: `Bearer ${result.access}`,
+                    Authorization: `Bearer ${result.access}`
                 },
                 method: 'POST',
                 url: `api/_action/system-config/batch`,
                 body: {
                     null: {
-                        'core.loginRegistration.showAccountTypeSelection': false,
-                    },
-                },
+                        'core.loginRegistration.showAccountTypeSelection': false
+                    }
+                }
             };
 
             return cy.request(requestConfig);
@@ -190,15 +187,15 @@ describe('Account: Register via account menu', () => {
         cy.authenticate().then((result) => {
             const requestConfig = {
                 headers: {
-                    Authorization: `Bearer ${result.access}`,
+                    Authorization: `Bearer ${result.access}`
                 },
                 method: 'POST',
                 url: `api/_action/system-config/batch`,
                 body: {
                     null: {
-                        'core.loginRegistration.showAccountTypeSelection': true,
-                    },
-                },
+                        'core.loginRegistration.showAccountTypeSelection': true
+                    }
+                }
             };
 
             return cy.request(requestConfig);
@@ -264,15 +261,15 @@ describe('Account: Register via account menu', () => {
         cy.authenticate().then((result) => {
             const requestConfig = {
                 headers: {
-                    Authorization: `Bearer ${result.access}`,
+                    Authorization: `Bearer ${result.access}`
                 },
                 method: 'POST',
                 url: `api/_action/system-config/batch`,
                 body: {
                     null: {
-                        'core.loginRegistration.showAccountTypeSelection': false,
-                    },
-                },
+                        'core.loginRegistration.showAccountTypeSelection': false
+                    }
+                }
             };
 
             return cy.request(requestConfig);
@@ -283,15 +280,15 @@ describe('Account: Register via account menu', () => {
         cy.authenticate().then((result) => {
             const requestConfig = {
                 headers: {
-                    Authorization: `Bearer ${result.access}`,
+                    Authorization: `Bearer ${result.access}`
                 },
                 method: 'POST',
                 url: `api/_action/system-config/batch`,
                 body: {
                     null: {
-                        'core.loginRegistration.showAccountTypeSelection': true,
-                    },
-                },
+                        'core.loginRegistration.showAccountTypeSelection': true
+                    }
+                }
             };
 
             return cy.request(requestConfig);
@@ -354,15 +351,15 @@ describe('Account: Register via account menu', () => {
         cy.authenticate().then((result) => {
             const requestConfig = {
                 headers: {
-                    Authorization: `Bearer ${result.access}`,
+                    Authorization: `Bearer ${result.access}`
                 },
                 method: 'POST',
                 url: `api/_action/system-config/batch`,
                 body: {
                     null: {
-                        'core.loginRegistration.showAccountTypeSelection': false,
-                    },
-                },
+                        'core.loginRegistration.showAccountTypeSelection': false
+                    }
+                }
             };
 
             return cy.request(requestConfig);
@@ -403,15 +400,15 @@ describe('Account: Register via account menu', () => {
         cy.authenticate().then((result) => {
             const requestConfig = {
                 headers: {
-                    Authorization: `Bearer ${result.access}`,
+                    Authorization: `Bearer ${result.access}`
                 },
                 method: 'POST',
                 url: `api/_action/system-config/batch`,
                 body: {
                     null: {
-                        'core.loginRegistration.showAccountTypeSelection': true,
-                    },
-                },
+                        'core.loginRegistration.showAccountTypeSelection': true
+                    }
+                }
             };
 
             return cy.request(requestConfig);
@@ -452,19 +449,19 @@ describe('Account: Register via account menu', () => {
     });
 
     it('@registration: Trigger validation error with account type selection', { tags: ['pa-customers-orders'] }, () => {
-        cy.window().then(() => {
+        cy.window().then((win) => {
             cy.authenticate().then((result) => {
                 const requestConfig = {
                     headers: {
-                        Authorization: `Bearer ${result.access}`,
+                        Authorization: `Bearer ${result.access}`
                     },
                     method: 'POST',
                     url: `api/_action/system-config/batch`,
                     body: {
                         null: {
-                            'core.loginRegistration.showAccountTypeSelection': true,
-                        },
-                    },
+                            'core.loginRegistration.showAccountTypeSelection': true
+                        }
+                    }
                 };
 
                 return cy.request(requestConfig);
@@ -504,7 +501,7 @@ describe('Account: Register via account menu', () => {
         cy.authenticate().then((result) => {
             const requestConfig = {
                 headers: {
-                    Authorization: `Bearer ${result.access}`,
+                    Authorization: `Bearer ${result.access}`
                 },
                 method: 'POST',
                 url: `api/_action/system-config/batch`,
@@ -522,9 +519,9 @@ describe('Account: Register via account menu', () => {
                         'core.loginRegistration.showAdditionalAddressField2': true,
                         'core.loginRegistration.additionalAddressField2Required': true,
                         'core.loginRegistration.requireDataProtectionCheckbox': true,
-                        'core.loginRegistration.allowCustomerDeletion': true,
-                    },
-                },
+                        'core.loginRegistration.allowCustomerDeletion': true
+                    }
+                }
             };
             return cy.request(requestConfig);
         });
@@ -579,15 +576,15 @@ describe('Account: Register via account menu', () => {
         cy.authenticate().then((result) => {
             const requestConfig = {
                 headers: {
-                    Authorization: `Bearer ${result.access}`,
+                    Authorization: `Bearer ${result.access}`
                 },
                 method: 'POST',
                 url: `api/_action/system-config/batch`,
                 body: {
                     null: {
-                        'core.loginRegistration.passwordMinLength': 9,
-                    },
-                },
+                        'core.loginRegistration.passwordMinLength': 9
+                    }
+                }
             };
             return cy.request(requestConfig);
         });

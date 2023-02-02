@@ -1,12 +1,12 @@
 import template from './sw-promotion-v2-detail.html.twig';
 import errorConfig from './error-config.json';
 
-const { Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapPageErrors } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-promotion-v2-detail', {
     template,
 
     inject: [
@@ -129,11 +129,6 @@ export default {
 
     methods: {
         createdComponent() {
-            Shopware.ExtensionAPI.publishData({
-                id: 'sw-promotion-detail__promotion',
-                path: 'promotion',
-                scope: this,
-            });
             this.isLoading = true;
 
             if (!this.promotionId) {
@@ -293,4 +288,4 @@ export default {
             this.savePromotion();
         },
     },
-};
+});

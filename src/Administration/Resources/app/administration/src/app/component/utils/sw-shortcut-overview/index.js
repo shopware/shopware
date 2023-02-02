@@ -4,9 +4,7 @@ import './sw-shortcut-overview.scss';
 const { Component } = Shopware;
 const utils = Shopware.Utils;
 
-/**
- * @deprecated tag:v6.6.0 - Will be private
- */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-shortcut-overview', {
     template,
 

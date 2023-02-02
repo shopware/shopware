@@ -11,34 +11,31 @@ const product = {
             "currencyId": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
             "net": 8.40,
             "linked": false,
-            "gross": 10,
-        },
+            "gross": 10
+        }
     ],
     "url": "/product-name.html",
     "manufacturer": {
         "id": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
-        "name": "Test variant manufacturer",
+        "name": "Test variant manufacturer"
     },
 };
 
-/**
- * @package checkout
- */
 describe('Wishlist: for wishlist', () => {
     beforeEach(() => {
         cy.authenticate().then((result) => {
             const requestConfig = {
                 headers: {
-                    Authorization: `Bearer ${result.access}`,
+                    Authorization: `Bearer ${result.access}`
                 },
                 method: 'POST',
                 url: `api/_action/system-config/batch`,
                 body: {
                     null: {
                         'core.cart.wishlistEnabled': true,
-                        'core.listing.productsPerPage': 4,
-                    },
-                },
+                        'core.listing.productsPerPage': 4
+                    }
+                }
             };
 
             return cy.request(requestConfig);
@@ -47,8 +44,8 @@ describe('Wishlist: for wishlist', () => {
         return cy.createCustomerFixtureStorefront().then(() => {
             return cy.createProductFixture(product).then(() => {
                 cy.setCookie('wishlist-enabled', '1');
-            });
-        });
+            })
+        })
     });
 
     it('@wishlist: Wishlist state is set correctly', { tags: ['pa-checkout'] }, () => {
@@ -70,36 +67,42 @@ describe('Wishlist: for wishlist', () => {
             cy.window().then((win) => {
                 cy.expect(win.customerLoggedInState).to.equal(1);
             });
-        });
+        })
     });
 
     it('@wishlist: Heart icon badge display on header', { tags: ['pa-checkout'] }, () => {
         cy.visit('/');
 
-        cy.window().then(() => {
+        cy.window().then((win) => {
             cy.get('.header-actions-btn .header-wishlist-icon .icon-heart svg').should('be.visible');
-        });
+        })
     });
 
     it('@wishlist: Heart icon badge display on product box in product listing', { tags: ['pa-checkout'] }, () => {
         cy.visit('/');
 
-        cy.get('.product-box .product-wishlist-action-circle').first().should('be.visible');
-        cy.get('.product-box .product-wishlist-action-circle').first().should('have.class', 'product-wishlist-not-added');
-        cy.get('.product-box .product-wishlist-action-circle').first().get('.icon-wishlist-not-added').should('be.visible');
-        cy.get('.product-box .product-wishlist-action-circle').first().should('not.have.class', 'product-wishlist-added');
+        cy.window().then((win) => {
+            let heartIcon = cy.get('.product-box .product-wishlist-action-circle').first();
 
-        cy.get('.product-box .product-wishlist-action-circle').first().click();
+            heartIcon.first().should('be.visible');
+            heartIcon.first().should('have.class', 'product-wishlist-not-added');
+            heartIcon.get('.icon-wishlist-not-added').should('be.visible');
+            heartIcon.should('not.have.class', 'product-wishlist-added');
 
-        cy.get('.product-box .product-wishlist-action-circle').first().should('have.class', 'product-wishlist-added');
-        cy.get('.product-box .product-wishlist-action-circle').first().get('.icon-wishlist-added').first().should('be.visible');
-        cy.get('.product-box .product-wishlist-action-circle').first().should('not.have.class', 'product-wishlist-not-added');
+            heartIcon.click();
+
+            heartIcon = cy.get('.product-box .product-wishlist-action-circle').first();
+
+            heartIcon.should('have.class', 'product-wishlist-added');
+            heartIcon.get('.icon-wishlist-added').first().should('be.visible');
+            heartIcon.should('not.have.class', 'product-wishlist-not-added');
+        })
     });
 
     it('@wishlist: Heart icon badge display in product detail', { tags: ['pa-checkout'] }, () => {
         cy.visit('/');
 
-        cy.window().then(() => {
+        cy.window().then((win) => {
             cy.get('.product-image-wrapper').click();
 
             cy.get('.product-wishlist-action').first().should('be.visible');
@@ -113,13 +116,13 @@ describe('Wishlist: for wishlist', () => {
             cy.get('.product-wishlist-btn-content.text-wishlist-remove').first().should('be.visible');
             cy.get('.product-wishlist-btn-content.text-wishlist-not-added').first().should('not.be.visible');
             cy.get('.product-wishlist-btn-content.text-wishlist-remove').first().contains('Remove from wishlist');
-        });
+        })
     });
 
     it('@wishlist: Heart icon badge display the counter', { tags: ['pa-checkout'] }, () => {
         cy.visit('/');
 
-        cy.window().then(() => {
+        cy.window().then((win) => {
             cy.get('#wishlist-basket').should('not.be.visible');
             cy.get('.product-box .product-wishlist-action-circle').first().click();
 
@@ -128,13 +131,13 @@ describe('Wishlist: for wishlist', () => {
 
             cy.get('.product-box .product-wishlist-action-circle').first().click();
             cy.get('#wishlist-basket').should('not.be.visible');
-        });
+        })
     });
 
     it('@wishlist: Click add to wishlist icon redirect to login page if cookie is not accepted', { tags: ['pa-checkout'] }, () => {
         cy.visit('/');
 
-        cy.window().then(() => {
+        cy.window().then((win) => {
             cy.clearCookie('wishlist-enabled');
 
             cy.get('#wishlist-basket').should('not.be.visible');
@@ -150,8 +153,8 @@ describe('Wishlist: for wishlist', () => {
             cy.get('.flashbags').should('be.visible');
             cy.get('.flashbags .alert-success').should('be.visible');
 
-            cy.get('.alert-content').contains('You have successfully added the product to your wishlist.');
-        });
+            cy.get('.alert-content').contains('You have successfully added the product to your wishlist.')
+        })
     });
 
     it('@wishlist: Order in which the products are displayed is based on the time they were added to the wishlist', { tags: ['pa-checkout'] }, () => {
@@ -166,13 +169,13 @@ describe('Wishlist: for wishlist', () => {
                     "currencyId": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
                     "net": 8.40,
                     "linked": false,
-                    "gross": 10,
-                },
+                    "gross": 10
+                }
             ],
             "url": "/product-name.html",
             "manufacturer": {
                 "id": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
-                "name": "Test variant manufacturer",
+                "name": "Test variant manufacturer"
             },
         });
 
@@ -183,15 +186,17 @@ describe('Wishlist: for wishlist', () => {
             url: '/wishlist/guest-pagelet',
         }).as('guestPagelet');
 
-        cy.get(`.product-wishlist-${product.id}`).first().should('be.visible');
-        cy.get(`.product-wishlist-${product.id}`).first().should('have.class', 'product-wishlist-not-added');
+        let heartIcon = cy.get(`.product-wishlist-${product.id}`).first();
+        heartIcon.should('be.visible');
+        heartIcon.should('have.class', 'product-wishlist-not-added');
 
-        cy.get(`.product-wishlist-${product.id}`).first().click();
+        heartIcon.click();
 
-        cy.get(`.product-wishlist-6dfd9dc216ab4ac99598b837ac600369`).first().should('be.visible');
-        cy.get(`.product-wishlist-6dfd9dc216ab4ac99598b837ac600369`).first().should('have.class', 'product-wishlist-not-added');
+        heartIcon = cy.get(`.product-wishlist-6dfd9dc216ab4ac99598b837ac600369`).first();
+        heartIcon.should('be.visible');
+        heartIcon.should('have.class', 'product-wishlist-not-added');
 
-        cy.get(`.product-wishlist-6dfd9dc216ab4ac99598b837ac600369`).first().click();
+        heartIcon.click();
 
         cy.visit('/wishlist');
         cy.title().should('eq', 'Your wishlist');
@@ -209,12 +214,17 @@ describe('Wishlist: for wishlist', () => {
         cy.visit('/');
 
         Array.from(products).slice(0, 4).forEach(item => {
-            cy.get(`.product-wishlist-${item.id}`, {timeout: 10000}).first().should('have.class', 'product-wishlist-not-added');
-            cy.get(`.product-wishlist-${item.id}`, {timeout: 10000}).first().should('not.have.class', 'product-wishlist-added');
-            cy.get(`.product-wishlist-${item.id}`, {timeout: 10000}).first().click();
+            let heartIcon = cy.get(`.product-wishlist-${item.id}`, {timeout: 10000}).first();
 
-            cy.get(`.product-wishlist-${item.id}`, {timeout: 10000}).first().should('have.class', 'product-wishlist-added');
-            cy.get(`.product-wishlist-${item.id}`, {timeout: 10000}).first().should('not.have.class', 'product-wishlist-not-added');
+            heartIcon.should('have.class', 'product-wishlist-not-added');
+            heartIcon.should('not.have.class', 'product-wishlist-added');
+
+            heartIcon.click();
+
+            heartIcon = cy.get(`.product-wishlist-${item.id}`, {timeout: 10000}).first();
+
+            heartIcon.should('have.class', 'product-wishlist-added');
+            heartIcon.should('not.have.class', 'product-wishlist-not-added');
         });
 
         cy.get('#wishlist-basket').contains('4');
@@ -222,13 +232,17 @@ describe('Wishlist: for wishlist', () => {
         cy.get('.pagination-nav .page-next').eq(0).click();
 
         Array.from(products).slice(4, 8).forEach(item => {
-            cy.get(`.product-wishlist-${item.id}`, {timeout: 10000}).first().should('have.class', 'product-wishlist-not-added');
-            cy.get(`.product-wishlist-${item.id}`, {timeout: 10000}).first().should('not.have.class', 'product-wishlist-added');
+            let heartIcon = cy.get(`.product-wishlist-${item.id}`, {timeout: 10000}).first();
 
-            cy.get(`.product-wishlist-${item.id}`, {timeout: 10000}).first().click();
+            heartIcon.should('have.class', 'product-wishlist-not-added');
+            heartIcon.should('not.have.class', 'product-wishlist-added');
 
-            cy.get(`.product-wishlist-${item.id}`, {timeout: 10000}).first().should('have.class', 'product-wishlist-added');
-            cy.get(`.product-wishlist-${item.id}`, {timeout: 10000}).first().should('not.have.class', 'product-wishlist-not-added');
+            heartIcon.click();
+
+            heartIcon = cy.get(`.product-wishlist-${item.id}`, {timeout: 10000}).first();
+
+            heartIcon.should('have.class', 'product-wishlist-added');
+            heartIcon.should('not.have.class', 'product-wishlist-not-added');
         });
 
         cy.get('#wishlist-basket').contains('8');

@@ -4,15 +4,19 @@ import OrderPageObject from '../../../../support/pages/module/sw-order.page-obje
 
 describe('Order: Read order', () => {
     beforeEach(() => {
-        cy.createProductFixture().then(() => {
-            return cy.searchViaAdminApi({
-                endpoint: 'product',
-                data: {
-                    field: 'name',
-                    value: 'Product name',
-                },
-            });
-        })
+        cy.loginViaApi()
+            .then(() => {
+                return cy.createProductFixture();
+            })
+            .then(() => {
+                return cy.searchViaAdminApi({
+                    endpoint: 'product',
+                    data: {
+                        field: 'name',
+                        value: 'Product name'
+                    }
+                });
+            })
             .then((result) => {
                 return cy.createGuestOrder(result.id);
             })
@@ -30,44 +34,67 @@ describe('Order: Read order', () => {
         cy.clickContextMenuItem(
             '.sw-order-list__order-view-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`,
+            `${page.elements.dataGridRow}--0`
         );
 
-        cy.get(page.elements.tabs.general.generalInfoCard).should('exist');
-        cy.contains(page.elements.tabs.general.summaryMainHeader, ' - Max Mustermann (max.mustermann@example.com)');
-        cy.contains(page.elements.tabs.general.summaryMainTotal, '49.98');
-        cy.contains(page.elements.tabs.general.summarySubDescription, `with Cash on delivery and`);
+        cy.skipOnFeature('FEATURE_NEXT_7530', () => {
+            cy.contains(`${page.elements.userMetadata}-user-name`, 'Max Mustermann');
+            cy.contains('.sw-order-user-card__metadata-price', '49.98');
+            cy.contains('.sw-order-base__label-sales-channel', 'Storefront');
+        });
 
-        cy.get(page.elements.tabs.general.summaryStateSelects)
-            .should('exist')
-            .should('have.length', 3);
+        cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
+            cy.get(page.elements.tabs.general.generalInfoCard).should('exist');
+            cy.contains(page.elements.tabs.general.summaryMainHeader, ' - Max Mustermann (max.mustermann@example.com)');
+            cy.contains(page.elements.tabs.general.summaryMainTotal, '49.98');
+            cy.contains(page.elements.tabs.general.summarySubDescription, `with Cash on delivery and`);
 
-        cy.get(page.elements.stateSelects.orderTransactionStateSelect)
-            .find('.sw-single-select__selection-input')
-            .should('have.attr', 'placeholder', 'Open');
+            cy.get(page.elements.tabs.general.summaryStateSelects)
+                .should('exist')
+                .should('have.length', 3);
 
-        cy.get(page.elements.stateSelects.orderDeliveryStateSelect)
-            .find('.sw-single-select__selection-input')
-            .should('have.attr', 'placeholder', 'Open');
+            cy.get(page.elements.stateSelects.orderTransactionStateSelect)
+                .find('.sw-single-select__selection-input')
+                .should('have.attr', 'placeholder', 'Open');
 
-        cy.get(page.elements.stateSelects.orderStateSelect)
-            .find('.sw-single-select__selection-input')
-            .should('have.attr', 'placeholder', 'Open');
+            cy.get(page.elements.stateSelects.orderDeliveryStateSelect)
+                .find('.sw-single-select__selection-input')
+                .should('have.attr', 'placeholder', 'Open');
+
+            cy.get(page.elements.stateSelects.orderStateSelect)
+                .find('.sw-single-select__selection-input')
+                .should('have.attr', 'placeholder', 'Open');
+        });
 
         cy.get('.sw-order-detail__summary').scrollIntoView();
         cy.contains(`${page.elements.dataGridRow}--0`, 'Product name');
         cy.contains(`${page.elements.dataGridRow}--0`, '49.98');
         cy.contains(`${page.elements.dataGridRow}--0`, '19 %');
 
-        cy.get('.sw-order-detail-general__line-item-grid-card').scrollIntoView();
+        cy.skipOnFeature('FEATURE_NEXT_7530', () => {
+            cy.get('.sw-order-detail__summary').scrollIntoView();
+            cy.contains('.sw-address__headline', 'Shipping address');
+            cy.contains('.sw-order-delivery-metadata .sw-address__location', 'Bielefeld');
 
-        cy.clickContextMenuItem(
-            '.sw-context-menu__content',
-            page.elements.contextMenuButton,
-            '.sw-order-detail-general__line-item-grid-card',
-            'Show product',
-        );
+            cy.get('.sw-order-detail-base__line-item-grid-card').scrollIntoView();
 
+            cy.clickContextMenuItem(
+                '.sw-context-menu__content',
+                page.elements.contextMenuButton,
+                '.sw-order-detail-base'
+            );
+        });
+
+        cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
+            cy.get('.sw-order-detail-general__line-item-grid-card').scrollIntoView();
+
+            cy.clickContextMenuItem(
+                '.sw-context-menu__content',
+                page.elements.contextMenuButton,
+                '.sw-order-detail-general__line-item-grid-card',
+                'Show product'
+            );
+        });
         cy.contains(page.elements.smartBarHeader, 'Product name');
     });
 });

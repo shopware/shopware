@@ -2,20 +2,29 @@
 
 namespace Shopware\Core\Framework\Event\EventData;
 
-use Shopware\Core\Framework\Log\Package;
-
-#[Package('business-ops')]
 class MailRecipientStruct
 {
-    private ?string $bcc = null;
+    /**
+     * @var array
+     */
+    private $recipients;
 
-    private ?string $cc = null;
+    /**
+     * @var string|null
+     */
+    private $bcc;
+
+    /**
+     * @var string|null
+     */
+    private $cc;
 
     /**
      * @param array $recipients ['email' => 'firstName lastName']
      */
-    public function __construct(private array $recipients)
+    public function __construct(array $recipients)
     {
+        $this->recipients = $recipients;
     }
 
     public function getRecipients(): array

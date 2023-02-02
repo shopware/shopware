@@ -18,28 +18,26 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationFiel
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Integration\Aggregate\IntegrationRole\IntegrationRoleDefinition;
 use Shopware\Core\System\Integration\IntegrationDefinition;
 use Shopware\Core\System\User\UserDefinition;
 
-#[Package('core')]
 class AclRoleDefinition extends EntityDefinition
 {
-    final public const PRIVILEGE_READ = 'read';
-    final public const PRIVILEGE_CREATE = 'create';
-    final public const PRIVILEGE_UPDATE = 'update';
-    final public const PRIVILEGE_DELETE = 'delete';
+    public const PRIVILEGE_READ = 'read';
+    public const PRIVILEGE_CREATE = 'create';
+    public const PRIVILEGE_UPDATE = 'update';
+    public const PRIVILEGE_DELETE = 'delete';
 
-    final public const PRIVILEGE_DEPENDENCE = [
+    public const PRIVILEGE_DEPENDENCE = [
         AclRoleDefinition::PRIVILEGE_READ => [],
         AclRoleDefinition::PRIVILEGE_CREATE => [AclRoleDefinition::PRIVILEGE_READ],
         AclRoleDefinition::PRIVILEGE_UPDATE => [AclRoleDefinition::PRIVILEGE_READ],
         AclRoleDefinition::PRIVILEGE_DELETE => [AclRoleDefinition::PRIVILEGE_READ],
     ];
 
-    final public const ENTITY_NAME = 'acl_role';
-    final public const ALL_ROLE_KEY = 'all';
+    public const ENTITY_NAME = 'acl_role';
+    public const ALL_ROLE_KEY = 'all';
 
     public function getEntityName(): string
     {
@@ -79,7 +77,7 @@ class AclRoleDefinition extends EntityDefinition
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             (new StringField('name', 'name'))->addFlags(new Required()),
             new LongTextField('description', 'description'),
-            (new ListField('privileges', 'privileges'))->addFlags(new Required()),
+            (new ListField('privileges', 'privileges'))->setStrict(true)->addFlags(new Required()),
             new DateTimeField('deleted_at', 'deletedAt'),
             (new ManyToManyAssociationField('users', UserDefinition::class, AclUserRoleDefinition::class, 'acl_role_id', 'user_id')),
             (new OneToOneAssociationField('app', 'id', 'acl_role_id', AppDefinition::class, false))->addFlags(new RestrictDelete()),

@@ -7,10 +7,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Exception\DeleteDefaultProfileException;
 use Shopware\Core\Content\ImportExport\ImportExportProfileEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
@@ -18,13 +17,12 @@ use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 /**
  * @internal
  */
-#[Package('system-settings')]
 class ImportExportProfileRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepositoryInterface
      */
     private $repository;
 
@@ -33,7 +31,10 @@ class ImportExportProfileRepositoryTest extends TestCase
      */
     private $connection;
 
-    private Context $context;
+    /**
+     * @var Context
+     */
+    private $context;
 
     protected function setUp(): void
     {
@@ -53,19 +54,18 @@ class ImportExportProfileRepositoryTest extends TestCase
 
         $this->repository->create([$data[$id]], $this->context);
 
-        $record = $this->connection->fetchAssociative(
+        $record = $this->connection->fetchAssoc(
             'SELECT * FROM import_export_profile WHERE id = :id',
             ['id' => $id]
         );
 
-        $translationRecord = $this->connection->fetchAssociative(
+        $translationRecord = $this->connection->fetchAssoc(
             'SELECT * FROM import_export_profile_translation WHERE import_export_profile_id = :id',
             ['id' => $id]
         );
-        static::assertIsArray($translationRecord);
 
         $expect = $data[$id];
-        static::assertIsArray($record);
+        static::assertNotEmpty($record);
         static::assertEquals($id, $record['id']);
         static::assertEquals($expect['name'], $record['name']);
         static::assertEquals($expect['label'], $translationRecord['label']);
@@ -74,7 +74,7 @@ class ImportExportProfileRepositoryTest extends TestCase
         static::assertEquals($expect['fileType'], $record['file_type']);
         static::assertEquals($expect['delimiter'], $record['delimiter']);
         static::assertEquals($expect['enclosure'], $record['enclosure']);
-        static::assertEquals(json_encode($expect['mapping'], \JSON_THROW_ON_ERROR), $record['mapping']);
+        static::assertEquals(json_encode($expect['mapping']), $record['mapping']);
     }
 
     public function testImportExportProfileSingleCreateMissingRequired(): void
@@ -89,7 +89,7 @@ class ImportExportProfileRepositoryTest extends TestCase
 
             try {
                 $this->repository->create([$entry], $this->context);
-                static::fail(sprintf('Create without required property \'%s\'', $property));
+                static::fail(sprintf("Create without required property '%s'", $property));
             } catch (\Exception $e) {
                 static::assertInstanceOf(WriteException::class, $e);
             }
@@ -103,7 +103,7 @@ class ImportExportProfileRepositoryTest extends TestCase
 
         $this->repository->create(array_values($data), $this->context);
 
-        $records = $this->connection->fetchAllAssociative(
+        $records = $this->connection->fetchAll(
             'SELECT * FROM import_export_profile'
         );
         $translationRecords = $this->getTranslationRecords();
@@ -119,7 +119,7 @@ class ImportExportProfileRepositoryTest extends TestCase
             static::assertEquals($expect['fileType'], $record['file_type']);
             static::assertEquals($expect['delimiter'], $record['delimiter']);
             static::assertEquals($expect['enclosure'], $record['enclosure']);
-            static::assertEquals(json_encode($expect['mapping'], \JSON_THROW_ON_ERROR), $record['mapping']);
+            static::assertEquals(json_encode($expect['mapping']), $record['mapping']);
             unset($data[$record['id']]);
         }
     }
@@ -151,7 +151,9 @@ class ImportExportProfileRepositoryTest extends TestCase
                 }
             }
 
-            $missingPropertyPaths = array_map(fn ($property) => '/' . $property, $requiredProperties);
+            $missingPropertyPaths = array_map(function ($property) {
+                return '/' . $property;
+            }, $requiredProperties);
 
             static::assertEquals($missingPropertyPaths, $foundViolations);
         }
@@ -206,7 +208,7 @@ class ImportExportProfileRepositoryTest extends TestCase
 
         $this->repository->upsert(array_values($data), $this->context);
 
-        $records = $this->connection->fetchAllAssociative(
+        $records = $this->connection->fetchAll(
             'SELECT * FROM import_export_profile'
         );
         $translationRecords = $this->getTranslationRecords();
@@ -222,14 +224,13 @@ class ImportExportProfileRepositoryTest extends TestCase
             static::assertEquals($expect['fileType'], $record['file_type']);
             static::assertEquals($expect['delimiter'], $record['delimiter']);
             static::assertEquals($expect['enclosure'], $record['enclosure']);
-            static::assertEquals(json_encode($expect['mapping'], \JSON_THROW_ON_ERROR), $record['mapping']);
+            static::assertEquals(json_encode($expect['mapping']), $record['mapping']);
             unset($data[$record['id']]);
         }
     }
 
     public function testImportExportProfileUpdatePartial(): void
     {
-        $upsertData = [];
         $data = $this->prepareImportExportProfileTestData();
         $properties = array_keys(array_pop($data));
 
@@ -255,7 +256,7 @@ class ImportExportProfileRepositoryTest extends TestCase
 
         $this->repository->upsert(array_values($upsertData), $this->context);
 
-        $records = $this->connection->fetchAllAssociative('SELECT * FROM import_export_profile');
+        $records = $this->connection->fetchAll('SELECT * FROM import_export_profile');
         $translationRecords = $this->getTranslationRecords();
 
         static::assertCount($num, $records);
@@ -269,7 +270,7 @@ class ImportExportProfileRepositoryTest extends TestCase
             static::assertEquals($expect['fileType'], $record['file_type']);
             static::assertEquals($expect['delimiter'], $record['delimiter']);
             static::assertEquals($expect['enclosure'], $record['enclosure']);
-            static::assertEquals(json_encode($expect['mapping'], \JSON_THROW_ON_ERROR), $record['mapping']);
+            static::assertEquals(json_encode($expect['mapping']), $record['mapping']);
             unset($data[$record['id']]);
         }
     }
@@ -289,7 +290,7 @@ class ImportExportProfileRepositoryTest extends TestCase
             }
         }
 
-        $records = $this->connection->fetchAllAssociative('SELECT * FROM import_export_profile');
+        $records = $this->connection->fetchAll('SELECT * FROM import_export_profile');
 
         static::assertEquals($num - $deleted, \count($records));
     }
@@ -312,7 +313,7 @@ class ImportExportProfileRepositoryTest extends TestCase
             }
         }
 
-        $records = $this->connection->fetchAllAssociative('SELECT * FROM import_export_profile');
+        $records = $this->connection->fetchAll('SELECT * FROM import_export_profile');
 
         static::assertCount($num, $records);
     }
@@ -330,7 +331,7 @@ class ImportExportProfileRepositoryTest extends TestCase
 
         $this->repository->delete($ids, $this->context);
 
-        $records = $this->connection->fetchAllAssociative('SELECT * FROM import_export_profile');
+        $records = $this->connection->fetchAll('SELECT * FROM import_export_profile');
 
         static::assertCount($num, $records);
     }
@@ -366,7 +367,7 @@ class ImportExportProfileRepositoryTest extends TestCase
     protected function getTranslationRecords(): array
     {
         return array_reduce(
-            $this->connection->fetchAllAssociative('SELECT * FROM import_export_profile_translation'),
+            $this->connection->fetchAll('SELECT * FROM import_export_profile_translation'),
             static function ($carry, $translationRecord) {
                 $carry[$translationRecord['import_export_profile_id']] = $translationRecord;
 

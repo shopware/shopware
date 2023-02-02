@@ -1,8 +1,4 @@
-/**
- * @package admin
- *
- * @deprecated tag:v6.6.0 - Will be private
- */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function initializeModal(): void {
     Shopware.ExtensionAPI.handle('uiModalOpen', (modalConfig, { _event_ }) => {
         const extension = Object.values(Shopware.State.get('extensions'))

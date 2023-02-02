@@ -2,7 +2,7 @@
 {% block sw_shopware_updates_plugins %}
 <sw-card
     position-identifier="sw-shopware-updates-plugins"
-    :title="$t('sw-settings-shopware-updates.cards.extensions')"
+    :title="cardTitle"
     :is-loading="isLoading"
 >
     <template #grid>
@@ -15,7 +15,8 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_shopware_updates_plugins_column_icon %}
             <template
-                #column-icon="{ item, isInlineEdit }"
+                slot="column-icon"
+                slot-scope="{ item, isInlineEdit }"
             >
                 <sw-color-badge
                     v-if="item.statusVariant"

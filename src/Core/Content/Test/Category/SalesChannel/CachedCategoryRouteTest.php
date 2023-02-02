@@ -106,7 +106,7 @@ class CachedCategoryRouteTest extends TestCase
             ->removeListener(CategoryRouteCacheTagsEvent::class, $listener);
     }
 
-    public function invalidationProvider(): \Generator
+    public function invalidationProvider()
     {
         $ids = new IdsCollection();
 
@@ -257,21 +257,6 @@ class CachedCategoryRouteTest extends TestCase
             },
             1,
         ];
-
-        yield 'Test create product included in stream' => [
-            $ids,
-            function (IdsCollection $ids, SalesChannelContext $context): void {
-                $product = (new ProductBuilder($ids, 'in-stream'))
-                    ->name('foobar')
-                    ->price(100)
-                    ->visibility()
-                    ->build();
-
-                $this->getContainer()->get('product.repository')
-                    ->create([$product], $context->getContext());
-            },
-            2,
-        ];
     }
 
     private function initData(IdsCollection $ids): void
@@ -281,20 +266,6 @@ class CachedCategoryRouteTest extends TestCase
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         $ids->set('navigation', $context->getSalesChannel()->getNavigationCategoryId());
-
-        $this->getContainer()->get('product_stream.repository')->create([
-            [
-                'id' => $ids->get('stream'),
-                'filters' => [
-                    [
-                        'type' => 'equals',
-                        'field' => 'name',
-                        'value' => 'foobar',
-                    ],
-                ],
-                'name' => 'testStream',
-            ],
-        ], $context->getContext());
 
         $products = [
             (new ProductBuilder($ids, 'to-update'))
@@ -348,7 +319,6 @@ class CachedCategoryRouteTest extends TestCase
             ->productSlider(['other-slider-product', 'slider-delete', 'slider-remove'])
             ->listing()
             ->productThreeColumnBlock(['other-box-product', 'box-delete', 'other-box-product'])
-            ->productStreamSlider('stream')
         ;
 
         // generate layout with product boxes, listing and slider

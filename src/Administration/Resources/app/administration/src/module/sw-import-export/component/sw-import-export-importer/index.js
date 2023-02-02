@@ -1,6 +1,3 @@
-/**
- * @package system-settings
- */
 import template from './sw-import-export-importer.html.twig';
 import './sw-import-export-importer.scss';
 
@@ -10,7 +7,7 @@ const { Criteria } = Shopware.Data;
 /**
  * @private
  */
-export default {
+Shopware.Component.register('sw-import-export-importer', {
     template,
 
     inject: ['importExport', 'repositoryFactory', 'feature'],
@@ -125,4 +122,4 @@ export default {
             this.importModalProfile = profileName;
         },
     },
-};
+});

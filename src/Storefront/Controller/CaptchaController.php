@@ -2,7 +2,8 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -15,20 +16,31 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @internal
+ * @Route(defaults={"_routeScope"={"storefront"}})
+ *
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
  */
-#[Route(defaults: ['_routeScope' => ['storefront']])]
-#[Package('storefront')]
 class CaptchaController extends StorefrontController
 {
+    private AbstractBasicCaptchaPageletLoader $basicCaptchaPageletLoader;
+
+    private AbstractCaptcha $basicCaptcha;
+
     /**
      * @internal
      */
-    public function __construct(private readonly AbstractBasicCaptchaPageletLoader $basicCaptchaPageletLoader, private readonly AbstractCaptcha $basicCaptcha)
-    {
+    public function __construct(
+        AbstractBasicCaptchaPageletLoader $basicCaptchaPageletLoader,
+        AbstractCaptcha $basicCaptcha
+    ) {
+        $this->basicCaptchaPageletLoader = $basicCaptchaPageletLoader;
+        $this->basicCaptcha = $basicCaptcha;
     }
 
-    #[Route(path: '/basic-captcha', name: 'frontend.captcha.basic-captcha.load', defaults: ['XmlHttpRequest' => true], methods: ['GET'])]
+    /**
+     * @Since("6.4.2.0")
+     * @Route("/basic-captcha", name="frontend.captcha.basic-captcha.load", methods={"GET"}, defaults={"auth_required"=false}, defaults={"XmlHttpRequest"=true})
+     */
     public function loadBasicCaptcha(Request $request, SalesChannelContext $context): Response
     {
         $formId = $request->get('formId');
@@ -41,10 +53,12 @@ class CaptchaController extends StorefrontController
         ]);
     }
 
-    #[Route(path: '/basic-captcha-validate', name: 'frontend.captcha.basic-captcha.validate', defaults: ['XmlHttpRequest' => true], methods: ['POST'])]
+    /**
+     * @Since("6.4.0.0")
+     * @Route("/basic-captcha-validate", name="frontend.captcha.basic-captcha.validate", methods={"POST"}, defaults={"XmlHttpRequest"=true})
+     */
     public function validate(Request $request): JsonResponse
     {
-        $response = [];
         $formId = $request->get('formId');
         if (!$formId) {
             throw new MissingRequestParameterException('formId');

@@ -4,29 +4,48 @@ namespace Shopware\Core\System\SalesChannel\Context;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\AbstractCartPersister;
+use Shopware\Core\Checkout\Cart\CartPersisterInterface;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelContextTokenChangeEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Package('core')]
 class SalesChannelContextPersister
 {
-    private readonly string $lifetimeInterval;
+    private Connection $connection;
+
+    private EventDispatcherInterface $eventDispatcher;
+
+    private string $lifetimeInterval;
+
+    /**
+     * @deprecated tag:v6.5.0 - CartPersisterInterface will be removed, type hint with AbstractCartPersister
+     */
+    private CartPersisterInterface $cartPersister;
 
     /**
      * @internal
      */
     public function __construct(
-        private readonly Connection $connection,
-        private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly AbstractCartPersister $cartPersister,
+        Connection $connection,
+        EventDispatcherInterface $eventDispatcher,
+        CartPersisterInterface $cartPersister,      // @deprecated tag:v6.5.0 - CartPersisterInterface will be removed, type hint with AbstractCartPersister
         ?string $lifetimeInterval = 'P1D'
     ) {
+        $this->connection = $connection;
+        $this->eventDispatcher = $eventDispatcher;
         $this->lifetimeInterval = $lifetimeInterval ?? 'P1D';
+
+        if (!$cartPersister instanceof AbstractCartPersister) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.5.0.0',
+                'CartPersister parameter in SalesChannelContextPersister::__construct needs to be instance of AbstractCartPersister in v6.5.0.0'
+            );
+        }
+        $this->cartPersister = $cartPersister;
     }
 
     /**
@@ -43,12 +62,12 @@ class SalesChannelContextPersister
 
         unset($parameters['token']);
 
-        $this->connection->executeStatement(
+        $this->connection->executeUpdate(
             'REPLACE INTO sales_channel_api_context (`token`, `payload`, `sales_channel_id`, `customer_id`, `updated_at`)
                 VALUES (:token, :payload, :salesChannelId, :customerId, :updatedAt)',
             [
                 'token' => $token,
-                'payload' => json_encode($parameters, \JSON_THROW_ON_ERROR),
+                'payload' => json_encode($parameters),
                 'salesChannelId' => $salesChannelId ? Uuid::fromHexToBytes($salesChannelId) : null,
                 'customerId' => $customerId ? Uuid::fromHexToBytes($customerId) : null,
                 'updatedAt' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -56,9 +75,19 @@ class SalesChannelContextPersister
         );
     }
 
-    public function delete(string $token, string $salesChannelId, ?string $customerId = null): void
+    /**
+     * @deprecated tag:v6.5.0 - parameter $salesChannelId will be required
+     */
+    public function delete(string $token, ?string $salesChannelId = null, ?string $customerId = null): void
     {
-        $this->connection->executeStatement(
+        if ($salesChannelId === null) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.5.0.0',
+                'Parameter `$salesChannelId` in `SalesChannelContextPersister::delete` will be required with v6.5.0.0'
+            );
+        }
+
+        $this->connection->executeUpdate(
             'DELETE FROM sales_channel_api_context WHERE token = :token',
             [
                 'token' => $token,
@@ -70,7 +99,7 @@ class SalesChannelContextPersister
     {
         $newToken = Random::getAlphanumericString(32);
 
-        $affected = $this->connection->executeStatement(
+        $affected = $this->connection->executeUpdate(
             'UPDATE `sales_channel_api_context`
                    SET `token` = :newToken,
                        `updated_at` = :updatedAt
@@ -94,7 +123,12 @@ class SalesChannelContextPersister
             ]);
         }
 
-        $this->cartPersister->replace($oldToken, $newToken, $context);
+        // @deprecated tag:v6.5.0 - Remove else part
+        if ($this->cartPersister instanceof AbstractCartPersister) {
+            $this->cartPersister->replace($oldToken, $newToken, $context);
+        } else {
+            $this->connection->executeUpdate('UPDATE `cart` SET `token` = :newToken WHERE `token` = :oldToken', ['newToken' => $newToken, 'oldToken' => $oldToken]);
+        }
 
         $context->assign(['token' => $newToken]);
         $this->eventDispatcher->dispatch(new SalesChannelContextTokenChangeEvent($context, $oldToken, $newToken));
@@ -126,7 +160,7 @@ class SalesChannelContextPersister
             $qb->setMaxResults(1);
         }
 
-        $data = $qb->executeQuery()->fetchAllAssociative();
+        $data = $qb->execute()->fetchAllAssociative();
 
         if (empty($data)) {
             return [];
@@ -139,7 +173,7 @@ class SalesChannelContextPersister
         $updatedAt = new \DateTimeImmutable($context['updated_at']);
         $expiredTime = $updatedAt->add(new \DateInterval($this->lifetimeInterval));
 
-        $payload = array_filter(json_decode((string) $context['payload'], true, 512, \JSON_THROW_ON_ERROR));
+        $payload = array_filter(json_decode($context['payload'], true));
         $now = new \DateTimeImmutable();
         if ($expiredTime < $now) {
             // context is expired
@@ -181,7 +215,7 @@ class SalesChannelContextPersister
                 ->setParameter('preserveTokens', $preserveTokens, Connection::PARAM_STR_ARRAY);
         }
 
-        $qb->executeStatement();
+        $qb->execute();
     }
 
     /**

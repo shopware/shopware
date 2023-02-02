@@ -4,7 +4,8 @@
     margin: 10px 40px 10px 0;
 
     kbd span {
-        font-size: $font-size-xs;
+        font-family: $font-family-default;
+        font-size: $font-size-small;
         color: $color-darkgray-200;
         border: 1px solid $color-gray-300;
         background-color: $color-white;
@@ -14,7 +15,8 @@
     }
 
     span.sw-shortcut-overview-item__title {
-        font-size: $font-size-xs;
+        font-family: $font-family-default;
+        font-size: $font-size-small;
         color: $color-darkgray-200;
     }
 }

@@ -9,13 +9,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
-#[Package('sales-channel')]
 class SalesChannelShippingMethodDefinition extends MappingEntityDefinition
 {
-    final public const ENTITY_NAME = 'sales_channel_shipping_method';
+    public const ENTITY_NAME = 'sales_channel_shipping_method';
 
     public function getEntityName(): string
     {

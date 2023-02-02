@@ -3,22 +3,26 @@
 namespace Shopware\Core\Framework\Plugin\Context;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Plugin;
 
-#[Package('core')]
 class UninstallContext extends InstallContext
 {
+    /**
+     * @var bool
+     */
+    private $keepUserData;
+
     public function __construct(
         Plugin $plugin,
         Context $context,
         string $currentShopwareVersion,
         string $currentPluginVersion,
         MigrationCollection $migrationCollection,
-        private readonly bool $keepUserData
+        bool $keepUserData
     ) {
         parent::__construct($plugin, $context, $currentShopwareVersion, $currentPluginVersion, $migrationCollection);
+        $this->keepUserData = $keepUserData;
     }
 
     /**

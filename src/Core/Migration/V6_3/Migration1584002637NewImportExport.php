@@ -4,14 +4,9 @@ namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-/**
- * @internal
- */
-#[Package('core')]
 class Migration1584002637NewImportExport extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -38,14 +33,14 @@ class Migration1584002637NewImportExport extends MigrationStep
      */
     private function clearOldImportExportTables(Connection $connection): void
     {
-        $connection->executeStatement('DELETE FROM `import_export_log`');
-        $connection->executeStatement('DELETE FROM `import_export_file`');
-        $connection->executeStatement('DELETE FROM `import_export_profile`');
+        $connection->executeUpdate('DELETE FROM `import_export_log`');
+        $connection->executeUpdate('DELETE FROM `import_export_file`');
+        $connection->executeUpdate('DELETE FROM `import_export_profile`');
     }
 
     private function addConfigField(Connection $connection): void
     {
-        $connection->executeStatement(
+        $connection->executeUpdate(
             'ALTER TABLE import_export_log
             ADD COLUMN config JSON,
             ADD CONSTRAINT `json.import_export_log.config` CHECK (JSON_VALID(`config`))'
@@ -60,7 +55,7 @@ class Migration1584002637NewImportExport extends MigrationStep
             $profile['file_type'] = 'text/csv';
             $profile['delimiter'] = ';';
             $profile['enclosure'] = '"';
-            $profile['mapping'] = json_encode($profile['mapping'], \JSON_THROW_ON_ERROR);
+            $profile['mapping'] = json_encode($profile['mapping']);
             $profile['created_at'] = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
             $connection->insert('import_export_profile', $profile);
@@ -69,7 +64,7 @@ class Migration1584002637NewImportExport extends MigrationStep
 
     private function addInvalidRecordsLog(Connection $connection): void
     {
-        $connection->executeStatement(
+        $connection->executeUpdate(
             'ALTER TABLE `import_export_log`
             ADD COLUMN `invalid_records_log_id` BINARY(16),
             ADD CONSTRAINT `fk.import_export_log.invalid_records_log_id`
@@ -92,7 +87,7 @@ class Migration1584002637NewImportExport extends MigrationStep
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
-        $connection->executeStatement('
+        $connection->executeUpdate('
                 INSERT INTO `media_folder_configuration` (`id`, `thumbnail_quality`, `create_thumbnails`, `private`, created_at)
                 VALUES (:id, 80, 1, :private, :createdAt)
             ', [
@@ -102,7 +97,7 @@ class Migration1584002637NewImportExport extends MigrationStep
         ]);
 
         foreach ($this->getThumbnailSizes($connection) as $thumbnailSize) {
-            $connection->executeStatement('
+            $connection->executeUpdate('
                     REPLACE INTO `media_folder_configuration_media_thumbnail_size` (`media_folder_configuration_id`, `media_thumbnail_size_id`)
                     VALUES (:folderConfigurationId, :thumbnailSizeId)
                 ', [
@@ -120,9 +115,6 @@ class Migration1584002637NewImportExport extends MigrationStep
         ]);
     }
 
-    /**
-     * @return array<int, array{id: string, width: int, height: int}>
-     */
     private function getThumbnailSizes(Connection $connection): array
     {
         $thumbnailSizes = [
@@ -131,27 +123,22 @@ class Migration1584002637NewImportExport extends MigrationStep
             ['width' => 1920, 'height' => 1920],
         ];
 
-        $sizes = [];
+        $stmt = $connection->prepare('SELECT id FROM media_thumbnail_size WHERE width = :width AND height = :height');
         foreach ($thumbnailSizes as $i => $thumbnailSize) {
-            /** @var string|false $id */
-            $id = $connection->fetchOne(
-                'SELECT id FROM media_thumbnail_size WHERE width = :width AND height = :height',
-                ['width' => $thumbnailSize['width'], 'height' => $thumbnailSize['height']]
-            );
+            $stmt->execute(['width' => $thumbnailSize['width'], 'height' => $thumbnailSize['height']]);
+            $id = $stmt->fetchColumn();
             if (!$id) {
+                unset($thumbnailSizes[$i]);
+
                 continue;
             }
 
-            $thumbnailSize['id'] = $id;
-            $sizes[] = $thumbnailSize;
+            $thumbnailSizes[$i]['id'] = $id;
         }
 
-        return $sizes;
+        return $thumbnailSizes;
     }
 
-    /**
-     * @return list<array{name: string, source_entity: string, mapping: list<array{key: string, mappedKey: string}>}>
-     */
     private function getSystemDefaultProfiles(): array
     {
         return [

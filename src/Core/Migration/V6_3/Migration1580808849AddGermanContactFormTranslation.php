@@ -5,13 +5,8 @@ namespace Shopware\Core\Migration\V6_3;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\MailTemplate\MailTemplateTypes;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
-/**
- * @internal
- */
-#[Package('core')]
 class Migration1580808849AddGermanContactFormTranslation extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -33,7 +28,7 @@ class Migration1580808849AddGermanContactFormTranslation extends MigrationStep
             return;
         }
 
-        $germanTranslation = $connection->fetchOne(
+        $germanTranslation = $connection->fetchColumn(
             'SELECT `mail_template_id` FROM `mail_template_translation` WHERE `mail_template_id` = :mail_template_id AND `language_id` = :language_id LIMIT 1',
             [
                 'mail_template_id' => $contactTemplateId,
@@ -67,7 +62,7 @@ class Migration1580808849AddGermanContactFormTranslation extends MigrationStep
 
     private function getGermanLanguageId(Connection $connection): ?string
     {
-        $result = $connection->fetchOne('
+        $result = $connection->fetchColumn('
             SELECT `id` FROM `language` WHERE LOWER(`name`) = \'deutsch\'
         ');
 
@@ -86,7 +81,7 @@ SQL;
         $result = $connection->executeQuery(
             $sql,
             ['technical_name' => MailTemplateTypes::MAILTYPE_CONTACT_FORM]
-        )->fetchOne();
+        )->fetchColumn();
 
         return $result === false ? null : (string) $result;
     }

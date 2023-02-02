@@ -2,28 +2,29 @@
 
 namespace Shopware\Core\System\SystemConfig\Command;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(
-    name: 'system:config:set',
-    description: 'Get a config value',
-)]
-#[Package('system-settings')]
 class ConfigSet extends Command
 {
+    protected static $defaultName = 'system:config:set';
+
+    /**
+     * @var SystemConfigService
+     */
+    private $systemConfigService;
+
     /**
      * @internal
      */
-    public function __construct(private readonly SystemConfigService $systemConfigService)
+    public function __construct(SystemConfigService $systemConfigService)
     {
         parent::__construct();
+        $this->systemConfigService = $systemConfigService;
     }
 
     protected function configure(): void
@@ -43,7 +44,7 @@ class ConfigSet extends Command
             $input->getOption('salesChannelId')
         );
 
-        return (int) Command::SUCCESS;
+        return 0;
     }
 
     /**
@@ -53,7 +54,7 @@ class ConfigSet extends Command
     {
         $value = $input->getArgument('value');
         if ($input->getOption('json')) {
-            $decodedValue = json_decode((string) $value, true);
+            $decodedValue = json_decode($value, true);
 
             if (json_last_error() === \JSON_ERROR_NONE) {
                 return $decodedValue;

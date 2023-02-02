@@ -18,15 +18,21 @@ interface UserInfoResponse {
 }
 
 /**
- * @private
- * @package merchant-services
  * Gateway for the API end point "store"
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class StoreApiService extends ApiService {
     constructor(httpClient: AxiosInstance, loginService: LoginService, apiEndpoint = 'store') {
         super(httpClient, loginService, apiEndpoint, 'application/json');
 
         this.name = 'storeService';
+    }
+
+    public async ping() {
+        await this.httpClient.get(
+            `/_action/${this.getApiBasePath()}/ping`,
+            { headers: this.getBasicHeaders() },
+        );
     }
 
     public async login(shopwareId: string, password: string) {
@@ -64,6 +70,19 @@ export default class StoreApiService extends ApiService {
         );
     }
 
+    /**
+     * @deprecated tag:v6.5.0 Unused method will be removed
+     */
+    public async getLicenseList(): Promise<unknown> {
+        const headers = this.getBasicHeaders();
+        const params = this.getBasicParams();
+
+        return ApiService.handleResponse(await this.httpClient.get(
+            `/_action/${this.getApiBasePath()}/licenses`,
+            { params, headers },
+        ));
+    }
+
     public async getUpdateList() {
         const headers = this.getBasicHeaders();
         const params = this.getBasicParams();
@@ -72,6 +91,40 @@ export default class StoreApiService extends ApiService {
             `/_action/${this.getApiBasePath()}/updates`,
             { params, headers },
         ));
+    }
+
+    /**
+     * @deprecated tag:v6.5.0 - Use ExtensionStoreActionService.downloadExtension() instead
+     */
+    public async downloadPlugin(pluginName: string, unauthenticated = false, onlyDownload = false) {
+        const headers = this.getBasicHeaders();
+        const params = this.getBasicParams({
+            pluginName,
+            unauthenticated,
+        });
+
+        const downloadResponse = await this.httpClient.get(
+            `/_action/${this.getApiBasePath()}/download`,
+            { params, headers },
+        );
+
+        if (onlyDownload) {
+            return ApiService.handleResponse(downloadResponse);
+        }
+
+        return ApiService.handleResponse(await this.httpClient.post(
+            '/_action/plugin/update',
+            null,
+            { params, headers },
+        ));
+    }
+
+    /**
+     * @deprecated tag:v6.5.0 - Use ExtensionStoreActionService.downloadExtension() and
+     * ExtensionStoreActionService.updateExtension() instead
+     */
+    public async downloadAndUpdatePlugin(pluginName: string, unauthenticated = false) {
+        return this.downloadPlugin(pluginName, unauthenticated, true);
     }
 
     public async getLicenseViolationList() {
@@ -85,17 +138,17 @@ export default class StoreApiService extends ApiService {
         ));
     }
 
-    private getBasicParams(additionalParams = {}): StoreParams {
+    /**
+     * @deprecated tag:v6.5.0 - will be private in future versions
+     */
+    public getBasicParams(additionalParams = {}): StoreParams {
         const basicParams = {
             language: localStorage.getItem('sw-admin-locale'),
         };
 
-        return { ...basicParams, ...additionalParams };
+        return Object.assign({}, basicParams, additionalParams);
     }
 }
 
-/**
- * @private
- * @package merchant-services
- */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type { StoreApiService, UserInfo };

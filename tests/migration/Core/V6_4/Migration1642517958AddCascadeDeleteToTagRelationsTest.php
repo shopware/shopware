@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Migration\Core\V6_4;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use PHPUnit\Framework\TestCase;
@@ -29,9 +28,6 @@ class Migration1642517958AddCascadeDeleteToTagRelationsTest extends TestCase
 
     private Connection $connection;
 
-    /**
-     * @var AbstractSchemaManager<MySQLPlatform>
-     */
     private AbstractSchemaManager $schemaManager;
 
     private Migration1642517958AddCascadeDeleteToTagRelations $migration;
@@ -41,7 +37,7 @@ class Migration1642517958AddCascadeDeleteToTagRelationsTest extends TestCase
         parent::setUp();
 
         $this->connection = KernelLifecycleManager::getConnection();
-        $this->schemaManager = KernelLifecycleManager::getConnection()->createSchemaManager();
+        $this->schemaManager = KernelLifecycleManager::getConnection()->getSchemaManager();
         $this->migration = new Migration1642517958AddCascadeDeleteToTagRelations();
     }
 
@@ -67,7 +63,7 @@ class Migration1642517958AddCascadeDeleteToTagRelationsTest extends TestCase
                 continue;
             }
 
-            if ($foreignKey->getForeignTableName() === 'tag' && $foreignKey->getLocalColumns() === ['tag_id']) {
+            if ($foreignKey->getForeignTableName() === 'tag' && $foreignKey->getColumns() === ['tag_id']) {
                 return $foreignKey;
             }
         }

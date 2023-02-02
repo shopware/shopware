@@ -1,13 +1,10 @@
-/**
- * @package system-settings
- */
 import template from './sw-import-export-progress.html.twig';
 import './sw-import-export-progress.scss';
 
 /**
  * @private
  */
-export default {
+Shopware.Component.register('sw-import-export-progress', {
     template,
 
     inject: ['feature'],
@@ -37,4 +34,4 @@ export default {
             default: true,
         },
     },
-};
+});

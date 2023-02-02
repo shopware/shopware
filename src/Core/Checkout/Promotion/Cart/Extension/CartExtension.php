@@ -2,17 +2,15 @@
 
 namespace Shopware\Core\Checkout\Promotion\Cart\Extension;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('checkout')]
 class CartExtension extends Struct
 {
     /**
      * this is the key that should be
      * used for the cart extension
      */
-    final public const KEY = 'cart-promotions';
+    public const KEY = 'cart-promotions';
 
     /**
      * @var array<string>

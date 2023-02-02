@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Adapter\Twig\Extension;
 
 use Shopware\Core\Framework\Adapter\Twig\TokenParser\ReturnNodeTokenParser;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Facade\ArrayFacade;
 use Squirrel\TwigPhpSyntax\Operator\NotSameAsBinary;
 use Squirrel\TwigPhpSyntax\Operator\SameAsBinary;
@@ -29,7 +28,6 @@ use Twig\TwigFilter;
 use Twig\TwigFunction;
 use Twig\TwigTest;
 
-#[Package('core')]
 class PhpSyntaxExtension extends AbstractExtension
 {
     public function getTokenParsers(): array
@@ -48,7 +46,7 @@ class PhpSyntaxExtension extends AbstractExtension
     public function getFilters()
     {
         return [
-            new TwigFilter('intval', /** @param mixed $var */ function (mixed $var): int {
+            new TwigFilter('intval', /** @param mixed $var */ function ($var): int {
                 if (\is_int($var)) {
                     return $var;
                 }
@@ -57,7 +55,7 @@ class PhpSyntaxExtension extends AbstractExtension
 
                 return (int) $var;
             }),
-            new TwigFilter('floatval', /** @param mixed $var */ function (mixed $var): float {
+            new TwigFilter('floatval', /** @param mixed $var */ function ($var): float {
                 if (\is_float($var)) {
                     return $var;
                 }
@@ -66,7 +64,7 @@ class PhpSyntaxExtension extends AbstractExtension
 
                 return (float) $var;
             }),
-            new TwigFilter('strval', /** @param mixed $var */ function (mixed $var): string {
+            new TwigFilter('strval', /** @param mixed $var */ function ($var): string {
                 if (\is_string($var)) {
                     return $var;
                 }
@@ -75,7 +73,7 @@ class PhpSyntaxExtension extends AbstractExtension
 
                 return (string) $var;
             }),
-            new TwigFilter('boolval', /** @param mixed $var */ function (mixed $var): bool {
+            new TwigFilter('boolval', /** @param mixed $var */ function ($var): bool {
                 if (\is_bool($var)) {
                     return $var;
                 }
@@ -84,29 +82,23 @@ class PhpSyntaxExtension extends AbstractExtension
 
                 return (bool) $var;
             }),
-            new TwigFilter(
-                'json_encode',
-                /**
-                 * @param int<1, max> $depth
-                 */
-                function (mixed $var, int $options = 0, $depth = 512) {
-                    try {
-                        FieldVisibility::$isInTwigRenderingContext = true;
+            new TwigFilter('json_encode', /** @param mixed $var */ function ($var) {
+                try {
+                    FieldVisibility::$isInTwigRenderingContext = true;
 
-                        return json_encode($var, $options | \JSON_PRESERVE_ZERO_FRACTION, $depth);
-                    } finally {
-                        FieldVisibility::$isInTwigRenderingContext = false;
-                    }
+                    return json_encode($var, \JSON_PRESERVE_ZERO_FRACTION);
+                } finally {
+                    FieldVisibility::$isInTwigRenderingContext = false;
                 }
-            ),
-            new TwigFilter('md5', /** @param mixed $var */ function (mixed $var) {
+            }),
+            new TwigFilter('md5', /** @param mixed $var */ function ($var) {
                 if (\is_array($var)) {
                     $var = \json_encode($var, \JSON_THROW_ON_ERROR);
                 }
 
                 if (!\is_string($var)) {
                     throw new \InvalidArgumentException(
-                        sprintf('The md5 filter expects a string or array as input, %s given', $var::class)
+                        sprintf('The md5 filter expects a string or array as input, %s given', \get_class($var))
                     );
                 }
 
@@ -121,7 +113,7 @@ class PhpSyntaxExtension extends AbstractExtension
     public function getFunctions()
     {
         return [
-            new TwigFunction('array', $this->createArray(...)),
+            new TwigFunction('array', [$this, 'createArray']),
         ];
     }
 

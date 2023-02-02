@@ -29,9 +29,6 @@ use Slim\Views\PhpRenderer;
 use Symfony\Component\Dotenv\Dotenv;
 use const SW_PATH;
 
-/**
- * @package system-settings
- */
 class Container extends BaseContainer
 {
     public function setup(\Pimple\Container $container): void

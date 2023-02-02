@@ -2,13 +2,30 @@
 
 namespace Shopware\Core\Content\Media\File;
 
-use Shopware\Core\Framework\Log\Package;
-
-#[Package('content')]
 class MediaFile
 {
-    public function __construct(private readonly string $fileName, private readonly string $mimeType, private readonly string $fileExtension, private readonly int $fileSize, private readonly ?string $hash = null)
-    {
+    private string $fileName;
+
+    private string $mimeType;
+
+    private string $fileExtension;
+
+    private int $fileSize;
+
+    private ?string $hash;
+
+    public function __construct(
+        string $fileName,
+        string $mimeType,
+        string $fileExtension,
+        int $fileSize,
+        ?string $hash = null
+    ) {
+        $this->fileName = $fileName;
+        $this->mimeType = $mimeType;
+        $this->fileExtension = $fileExtension;
+        $this->fileSize = $fileSize;
+        $this->hash = $hash;
     }
 
     public function getFileName(): string

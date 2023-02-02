@@ -16,15 +16,10 @@ describe('Minimal auto update', () => {
 
         cy.visit('/admin');
 
-        cy.getCookie('bearerAuth')
-            .then((val) => {
-                if (!val) {
-                    cy.get('.sw-login__content').should('be.visible');
-                    cy.get('#sw-field--username').clear().type(Cypress.env('user'));
-                    cy.get('#sw-field--password').clear().type(Cypress.env('pass'));
-                    cy.get('.sw-button__content').click();
-                }
-            });
+        cy.get('.sw-login__content').should('be.visible');
+        cy.get('#sw-field--username').clear().type(Cypress.env('user'));
+        cy.get('#sw-field--password').clear().type(Cypress.env('pass'));
+        cy.get('.sw-button__content').click();
 
         let tag = Cypress.env('expectedVersion');
         let version = tag[0] === 'v' ? tag.slice(1) : tag;
@@ -35,11 +30,13 @@ describe('Minimal auto update', () => {
 
         // TODO: plugin step
 
-        cy.get('.smart-bar__actions button.sw-button--primary')
+        cy.get('.sw-button__content')
+            .contains('Update starten')
             .should('be.visible')
             .click();
 
-        cy.get('.sw-settings-shopware-updates-check__start-update .sw-field--checkbox label')
+        cy.get('.sw-field--checkbox label')
+            .contains('Ja, ich habe ein Backup erstellt.')
             .should('be.visible')
             .click();
 
@@ -73,10 +70,10 @@ describe('Minimal auto update', () => {
         cy.get('.content--main h2').contains('Dateien aufräumen');
 
         // Change display of the element to ensure consistent snapshots
-        cy.changeElementStyling(
-            '[name="cleanupForm"] table',
-            'display: none',
-        );
+         cy.changeElementStyling(
+             '[name="cleanupForm"] table',
+             'display: none'
+         );
 
         // Take snapshot for visual testing
         cy.takeSnapshot('Cleanup');
@@ -101,7 +98,7 @@ describe('Minimal auto update', () => {
                     cy.get('#sw-field--password').clear().type(Cypress.env('pass'));
                     cy.get('.sw-button__content').click();
                 }
-            });
+            })
 
         cy.get('.sw-version__info').should('be.visible');
     });

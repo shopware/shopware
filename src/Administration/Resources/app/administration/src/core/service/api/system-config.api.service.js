@@ -1,8 +1,6 @@
 import ApiService from '../api.service';
 
-/**
- * @package system-settings
- */
+
 class SystemConfigApiService extends ApiService {
     constructor(httpClient, loginService, apiEndpoint = 'system-config') {
         super(httpClient, loginService, apiEndpoint);
@@ -48,14 +46,12 @@ class SystemConfigApiService extends ApiService {
 
     saveValues(values, salesChannelId = null, additionalParams = {}, additionalHeaders = {}) {
         return this.httpClient
-            .post(
-                '_action/system-config',
+            .post('_action/system-config',
                 values,
                 {
                     params: { salesChannelId, ...additionalParams },
                     headers: this.getBasicHeaders(additionalHeaders),
-                },
-            )
+                })
             .then((response) => {
                 return ApiService.handleResponse(response);
             });
@@ -63,14 +59,12 @@ class SystemConfigApiService extends ApiService {
 
     batchSave(values, additionalParams = {}, additionalHeaders = {}) {
         return this.httpClient
-            .post(
-                '_action/system-config/batch',
+            .post('_action/system-config/batch',
                 values,
                 {
                     params: { ...additionalParams },
                     headers: this.getBasicHeaders(additionalHeaders),
-                },
-            )
+                })
             .then((response) => {
                 return ApiService.handleResponse(response);
             });

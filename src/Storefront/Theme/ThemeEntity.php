@@ -7,59 +7,101 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Storefront\Theme\Aggregate\ThemeTranslationCollection;
 
-#[Package('storefront')]
 class ThemeEntity extends Entity
 {
     use EntityIdTrait;
     use EntityCustomFieldsTrait;
 
-    protected ?string $technicalName = null;
-
-    protected string $name;
-
-    protected string $author;
-
-    protected ?string $description = null;
+    /**
+     * @var string|null
+     */
+    protected $technicalName;
 
     /**
-     * @var array<string, mixed>|null
+     * @var string
      */
-    protected ?array $labels = null;
+    protected $name;
 
     /**
-     * @var array<string, string>|null
+     * @var string
      */
-    protected ?array $helpTexts = null;
-
-    protected ?string $previewMediaId = null;
-
-    protected ?string $parentThemeId = null;
+    protected $author;
 
     /**
-     * @var array<string, mixed>|null
+     * @var string|null
      */
-    protected ?array $baseConfig = null;
+    protected $description;
 
     /**
-     * @var array<string, mixed>|null
+     * @var array|null
      */
-    protected ?array $configValues = null;
+    protected $labels;
 
-    protected bool $active;
+    /**
+     * @var array|null
+     */
+    protected $helpTexts;
 
-    protected ?ThemeCollection $dependentThemes = null;
+    /**
+     * @var string|null
+     */
+    protected $previewMediaId;
 
-    protected ?MediaEntity $previewMedia = null;
+    /**
+     * @var string|null
+     */
+    protected $parentThemeId;
 
-    protected ?MediaCollection $media = null;
+    /**
+     * @var array|null
+     */
+    protected $baseConfig;
 
-    protected ?SalesChannelCollection $salesChannels = null;
+    /**
+     * @var array|null
+     */
+    protected $configValues;
 
-    protected ?ThemeTranslationCollection $translations = null;
+    /**
+     * @var bool
+     */
+    protected $active;
+
+    /**
+     * @var ThemeCollection|null
+     *
+     * @deprecated tag:v6.5.0 Property `childThemes` will be removed in  v6.5.0
+     */
+    protected $childThemes;
+
+    /**
+     * @var ThemeCollection|null
+     */
+    protected $dependentThemes;
+
+    /**
+     * @var MediaEntity|null
+     */
+    protected $previewMedia;
+
+    /**
+     * @var MediaCollection|null
+     */
+    protected $media;
+
+    /**
+     * @var SalesChannelCollection|null
+     */
+    protected $salesChannels;
+
+    /**
+     * @var ThemeTranslationCollection|null
+     */
+    protected $translations;
 
     public function getTechnicalName(): ?string
     {
@@ -101,33 +143,21 @@ class ThemeEntity extends Entity
         $this->description = $description;
     }
 
-    /**
-     * @return array<string, mixed>|null
-     */
     public function getLabels(): ?array
     {
         return $this->labels;
     }
 
-    /**
-     * @param array<string, mixed>|null $labels
-     */
     public function setLabels(?array $labels): void
     {
         $this->labels = $labels;
     }
 
-    /**
-     * @return array<string, string>|null
-     */
     public function getHelpTexts(): ?array
     {
         return $this->helpTexts;
     }
 
-    /**
-     * @param array<string, string>|null $helpTexts
-     */
     public function setHelpTexts(?array $helpTexts): void
     {
         $this->helpTexts = $helpTexts;
@@ -153,33 +183,21 @@ class ThemeEntity extends Entity
         $this->parentThemeId = $parentThemeId;
     }
 
-    /**
-     * @return array<string, mixed>|null
-     */
     public function getBaseConfig(): ?array
     {
         return $this->baseConfig;
     }
 
-    /**
-     * @param array<string, mixed>|null $baseConfig
-     */
     public function setBaseConfig(?array $baseConfig): void
     {
         $this->baseConfig = $baseConfig;
     }
 
-    /**
-     * @return array<string, mixed>|null
-     */
     public function getConfigValues(): ?array
     {
         return $this->configValues;
     }
 
-    /**
-     * @param array<string, mixed>|null $configValues
-     */
     public function setConfigValues(?array $configValues): void
     {
         $this->configValues = $configValues;
@@ -223,6 +241,32 @@ class ThemeEntity extends Entity
     public function setPreviewMedia(?MediaEntity $previewMedia): void
     {
         $this->previewMedia = $previewMedia;
+    }
+
+    /**
+     * @deprecated tag:v6.5.0 `getChildThemes` will be removed in v6.5.0
+     */
+    public function getChildThemes(): ?ThemeCollection
+    {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
+        );
+
+        return $this->childThemes;
+    }
+
+    /**
+     * @deprecated tag:v6.5.0 `setChildThemes` will be removed in  v6.5.0
+     */
+    public function setChildThemes(ThemeCollection $childThemes): void
+    {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
+        );
+
+        $this->childThemes = $childThemes;
     }
 
     public function getTranslations(): ?ThemeTranslationCollection

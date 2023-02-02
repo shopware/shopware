@@ -3,13 +3,8 @@
 namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
-/**
- * @internal
- */
-#[Package('core')]
 class Migration1571981437AddSeoColumns extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -26,7 +21,7 @@ class Migration1571981437AddSeoColumns extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        $connection->executeStatement('
+        $connection->executeUpdate('
             ALTER TABLE `product_translation`
             DROP COLUMN `additional_text`
         ');
@@ -34,11 +29,11 @@ class Migration1571981437AddSeoColumns extends MigrationStep
 
     private function addProductColum(Connection $connection): void
     {
-        $connection->executeStatement('
+        $connection->executeUpdate('
             ALTER TABLE `product_translation`
             ADD COLUMN `meta_description` varchar(255) NULL AFTER `additional_text`
         ');
-        $connection->executeStatement('
+        $connection->executeUpdate('
             UPDATE `product_translation`
             SET `meta_description` = `additional_text`;
         ');
@@ -46,17 +41,17 @@ class Migration1571981437AddSeoColumns extends MigrationStep
 
     private function addCategoryColumns(Connection $connection): void
     {
-        $connection->executeStatement('
+        $connection->executeUpdate('
             ALTER TABLE `category_translation`
             ADD COLUMN `meta_title` varchar(255) NULL AFTER `description`
         ');
 
-        $connection->executeStatement('
+        $connection->executeUpdate('
             ALTER TABLE `category_translation`
             ADD COLUMN `meta_description` varchar(255) NULL AFTER `meta_title`
         ');
 
-        $connection->executeStatement('
+        $connection->executeUpdate('
             ALTER TABLE `category_translation`
             ADD COLUMN `keywords` varchar(255) NULL AFTER `meta_description`
         ');

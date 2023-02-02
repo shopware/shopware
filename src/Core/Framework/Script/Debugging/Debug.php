@@ -2,14 +2,14 @@
 
 namespace Shopware\Core\Framework\Script\Debugging;
 
-use Shopware\Core\Framework\Log\Package;
-
-#[Package('core')]
 class Debug
 {
     protected array $dumps = [];
 
-    public function dump(mixed $value, ?string $key = null): void
+    /**
+     * @param mixed $value
+     */
+    public function dump($value, ?string $key = null): void
     {
         if ($key !== null) {
             $this->dumps[$key] = $value;

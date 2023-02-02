@@ -1,41 +1,33 @@
-/*
- * @package inventory
- */
-
 import template from './sw-product-detail-specifications.html.twig';
 
 const { Component } = Shopware;
 const { mapState, mapGetters } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-product-detail-specifications', {
     template,
 
-    inject: ['acl', 'feature', 'repositoryFactory'],
-
-    data() {
-        return {
-            showMediaModal: false,
-        };
-    },
+    inject: ['acl', 'feature'],
 
     computed: {
         ...mapState('swProductDetail', [
             'product',
             'parentProduct',
             'customFieldSets',
-            'loading',
         ]),
 
         ...mapGetters('swProductDetail', [
             'isLoading',
             'showModeSetting',
             'showProductCard',
-            'productStates',
         ]),
 
         customFieldsExists() {
-            return !this.customFieldSets.length <= 0;
+            if (!this.customFieldSets.length > 0) {
+                return false;
+            }
+
+            return true;
         },
 
         showCustomFieldsCard() {
@@ -44,4 +36,4 @@ export default {
                 this.customFieldsExists;
         },
     },
-};
+});

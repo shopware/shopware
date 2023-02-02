@@ -1,6 +1,3 @@
-/**
- * @package system-settings
- */
 const { Mixin, Data: { Criteria } } = Shopware;
 const { debug } = Shopware.Utils;
 

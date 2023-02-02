@@ -5,22 +5,39 @@ namespace Shopware\Core\Checkout\Customer\Event;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Event\SalesChannelAware;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('customer-order')]
-class CustomerSetDefaultBillingAddressEvent extends Event implements SalesChannelAware, ShopwareSalesChannelEvent
+class CustomerSetDefaultBillingAddressEvent extends Event implements BusinessEventInterface, SalesChannelAware, ShopwareSalesChannelEvent
 {
-    final public const EVENT_NAME = 'checkout.customer.default.billing.address.event';
+    public const EVENT_NAME = 'checkout.customer.default.billing.address.event';
 
-    public function __construct(private readonly SalesChannelContext $salesChannelContext, private readonly CustomerEntity $customer, private string $addressId)
+    /**
+     * @var CustomerEntity
+     */
+    private $customer;
+
+    /**
+     * @var SalesChannelContext
+     */
+    private $salesChannelContext;
+
+    /**
+     * @var string
+     */
+    private $addressId;
+
+    public function __construct(SalesChannelContext $salesChannelContext, CustomerEntity $customer, string $addressId)
     {
+        $this->customer = $customer;
+        $this->salesChannelContext = $salesChannelContext;
+        $this->addressId = $addressId;
     }
 
     public function getName(): string

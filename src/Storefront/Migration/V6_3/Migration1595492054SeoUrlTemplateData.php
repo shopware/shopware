@@ -4,16 +4,11 @@ namespace Shopware\Storefront\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\NavigationPageSeoUrlRoute;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 
-/**
- * @internal
- */
-#[Package('core')]
 class Migration1595492054SeoUrlTemplateData extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -24,12 +19,12 @@ class Migration1595492054SeoUrlTemplateData extends MigrationStep
     public function update(Connection $connection): void
     {
         $stmt = $connection->prepare('SELECT count(`id`) FROM seo_url_template WHERE `entity_name` = ? AND `route_name` = ?');
-        $result = $stmt->executeQuery([
+        $stmt->execute([
             'product',
             ProductPageSeoUrlRoute::ROUTE_NAME,
         ]);
 
-        if ((int) $result->fetchOne() === 0) {
+        if ((int) $stmt->fetch(\PDO::FETCH_COLUMN) === 0) {
             $connection->insert('seo_url_template', [
                 'id' => Uuid::randomBytes(),
                 'sales_channel_id' => null,
@@ -40,12 +35,12 @@ class Migration1595492054SeoUrlTemplateData extends MigrationStep
             ]);
         }
 
-        $result = $stmt->executeQuery([
+        $stmt->execute([
             'category',
             NavigationPageSeoUrlRoute::ROUTE_NAME,
         ]);
 
-        if ((int) $result->fetchOne() === 0) {
+        if ((int) $stmt->fetch(\PDO::FETCH_COLUMN) === 0) {
             $connection->insert('seo_url_template', [
                 'id' => Uuid::randomBytes(),
                 'sales_channel_id' => null,

@@ -1,6 +1,3 @@
-/**
- * @package system-settings
- */
 import template from './sw-settings-shopware-updates-wizard.html.twig';
 import './sw-settings-shopware-updates-wizard.scss';
 

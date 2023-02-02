@@ -2,13 +2,17 @@
 import CustomerPageObject from '../../../../support/pages/module/sw-customer.page-object';
 
 describe('Flow builder: change customer group testing', () => {
+    // eslint-disable-next-line no-undef
     beforeEach(() => {
-        cy.createCustomerFixture().then(() => {
-            return cy.setCustomerGroup('RS-1232123', {
-                name: 'Net customergroup',
-                displayGross: false,
+        // Clean previous state and prepare Administration
+        cy.loginViaApi().then(() => {
+                return cy.createCustomerFixture();
+            }).then(() => {
+                return cy.setCustomerGroup('RS-1232123', {
+                    name: 'Net customergroup',
+                    displayGross: false
+                });
             });
-        });
     });
 
     it('@settings: change customer group flow', { tags: ['pa-business-ops'] }, () => {
@@ -18,7 +22,7 @@ describe('Flow builder: change customer group testing', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/flow`,
-            method: 'POST',
+            method: 'POST'
         }).as('saveData');
 
         cy.get('.sw-flow-list').should('be.visible');
@@ -67,7 +71,7 @@ describe('Flow builder: change customer group testing', () => {
 
         const page = new CustomerPageObject();
 
-        cy.authenticate().then(() => {
+        cy.loginViaApi().then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/customer/index`);
             cy.get('.sw-skeleton').should('not.exist');
             cy.get('.sw-loader').should('not.exist');
@@ -77,7 +81,7 @@ describe('Flow builder: change customer group testing', () => {
         cy.clickContextMenuItem(
             '.sw-customer-list__view-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`,
+            `${page.elements.dataGridRow}--0`
         );
 
         cy.get('.sw-loader').should('not.exist');

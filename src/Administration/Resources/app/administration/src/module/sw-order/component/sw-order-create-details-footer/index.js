@@ -1,15 +1,16 @@
 import template from './sw-order-create-details-footer.html.twig';
 
-/**
- * @package customer-order
- */
-
-const { State, Service } = Shopware;
+const { Component, State, Service } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-order-create-details-footer', {
     template,
+
+    /**
+     * @deprecated tag:v6.5.0 will be removed without replacement.
+     */
+    inject: ['feature'],
 
     props: {
         cart: {
@@ -165,4 +166,4 @@ export default {
             });
         },
     },
-};
+});

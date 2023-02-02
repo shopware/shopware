@@ -71,10 +71,12 @@
             :default-item="defaultTab"
             @new-item-active="setActiveTab($event.name)"
         >
-            <slot
-                name="tabs"
-                v-bind="{ activeTab }"
-            ></slot>
+            <template>
+                <slot
+                    name="tabs"
+                    v-bind="{ activeTab }"
+                ></slot>
+            </template>
         </sw-tabs>
         {% endblock %}
     </div>

@@ -32,9 +32,6 @@ php.ini
 /var/config_administration_plugins.json
 /var/jwt/public.pem
 /var/jwt/private.pem
-.eslintcache
-.stylelintcache
-.jestcache
 
 /public/*
 !/public/index.php
@@ -68,6 +65,7 @@ npm-debug.log
 
 # User configurations
 app/config/parameters.yml
+src/Docs/Command/wiki.secret
 
 # tooling
 /dev-ops/docker/_volumes
@@ -85,6 +83,7 @@ app/config/parameters.yml
 .env.dev
 /dev-ops/check_requirements.php
 /performance/_fixtures.php
+/src/Docs/**/dist
 src/Core/DevOps/Locust/fixtures/*
 src/Core/DevOps/Locust/env.json
 src/Core/DevOps/Locust/**/__pycache__/
@@ -112,7 +111,6 @@ src/Core/Framework/Test/Plugin/_fixture/SwagFashionTheme.zip
 /public/bundles/
 /var/
 /vendor/
-phpstan.neon
 ###< symfony/framework-bundle ###
 
 config/jwt/
@@ -131,8 +129,3 @@ vendor-bin/**/composer.lock
 # nix
 .direnv/
 .phpbench/*
-
-# Devenv
-.devenv*
-devenv.local.nix
-

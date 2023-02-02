@@ -2,17 +2,21 @@
 
 namespace Shopware\Core\Checkout\Document\Event;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ExtendableTrait;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('customer-order')]
 class DocumentTemplateRendererParameterEvent extends Event
 {
     use ExtendableTrait;
 
-    public function __construct(private readonly array $parameters)
+    /**
+     * @var array
+     */
+    private $parameters;
+
+    public function __construct(array $parameters)
     {
+        $this->parameters = $parameters;
     }
 
     public function getParameters(): array

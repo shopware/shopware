@@ -2,17 +2,14 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\EntityProtection;
 
-use Shopware\Core\Framework\Log\Package;
-
-#[Package('core')]
 class WriteProtection extends EntityProtection
 {
-    final public const PROTECTION = 'write_protection';
+    public const PROTECTION = 'write_protection';
 
     /**
      * @var array<string, bool>
      */
-    private array $allowedScopes = [];
+    private $allowedScopes = [];
 
     public function __construct(string ...$allowedScopes)
     {

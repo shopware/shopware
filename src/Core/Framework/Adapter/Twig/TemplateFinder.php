@@ -3,33 +3,40 @@
 namespace Shopware\Core\Framework\Adapter\Twig;
 
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder;
-use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\Service\ResetInterface;
 use Twig\Cache\FilesystemCache;
 use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Loader\LoaderInterface;
 
-#[Package('core')]
 class TemplateFinder implements TemplateFinderInterface, ResetInterface
 {
+    private Environment $twig;
+
+    private LoaderInterface $loader;
+
     /**
      * @var string[]
      */
     private array $namespaceHierarchy = [];
 
-    private readonly string $cacheDir;
+    private string $cacheDir;
+
+    private NamespaceHierarchyBuilder $namespaceHierarchyBuilder;
 
     /**
      * @internal
      */
     public function __construct(
-        private readonly Environment $twig,
-        private readonly LoaderInterface $loader,
+        Environment $twig,
+        LoaderInterface $loader,
         string $cacheDir,
-        private readonly NamespaceHierarchyBuilder $namespaceHierarchyBuilder
+        NamespaceHierarchyBuilder $namespaceHierarchyBuilder
     ) {
+        $this->twig = $twig;
+        $this->loader = $loader;
         $this->cacheDir = $cacheDir . '/twig';
+        $this->namespaceHierarchyBuilder = $namespaceHierarchyBuilder;
     }
 
     public function getTemplateName(string $template): string
@@ -147,7 +154,7 @@ class TemplateFinder implements TemplateFinderInterface, ResetInterface
     private function defineCache(array $queue): void
     {
         if ($this->twig->getCache(false) instanceof FilesystemCache) {
-            $configHash = md5((string) json_encode($queue, \JSON_THROW_ON_ERROR));
+            $configHash = md5((string) json_encode($queue));
 
             $fileSystemCache = new ConfigurableFilesystemCache($this->cacheDir);
             $fileSystemCache->setConfigHash($configHash);

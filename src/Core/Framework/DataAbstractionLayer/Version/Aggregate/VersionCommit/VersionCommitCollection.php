@@ -3,12 +3,10 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommit;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<VersionCommitEntity>
  */
-#[Package('core')]
 class VersionCommitCollection extends EntityCollection
 {
     /**
@@ -16,12 +14,16 @@ class VersionCommitCollection extends EntityCollection
      */
     public function getUserIds(): array
     {
-        return $this->fmap(fn (VersionCommitEntity $versionChange) => $versionChange->getUserId());
+        return $this->fmap(function (VersionCommitEntity $versionChange) {
+            return $versionChange->getUserId();
+        });
     }
 
     public function filterByUserId(string $id): self
     {
-        return $this->filter(fn (VersionCommitEntity $versionChange) => $versionChange->getUserId() === $id);
+        return $this->filter(function (VersionCommitEntity $versionChange) use ($id) {
+            return $versionChange->getUserId() === $id;
+        });
     }
 
     public function getApiAlias(): string

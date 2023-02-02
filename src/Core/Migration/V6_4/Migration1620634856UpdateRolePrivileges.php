@@ -4,16 +4,11 @@ namespace Shopware\Core\Migration\V6_4;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
-/**
- * @internal
- */
-#[Package('core')]
 class Migration1620634856UpdateRolePrivileges extends MigrationStep
 {
-    final public const NEW_PRIVILEGES = [
+    public const NEW_PRIVILEGES = [
         'newsletter_recipient.viewer' => [
             'user_config:read',
             'user_config:create',
@@ -208,13 +203,13 @@ class Migration1620634856UpdateRolePrivileges extends MigrationStep
     {
         $roles = $connection->fetchAllAssociative('SELECT * from `acl_role`');
         foreach ($roles as $role) {
-            $currentPrivileges = json_decode((string) $role['privileges'], null, 512, \JSON_THROW_ON_ERROR);
+            $currentPrivileges = json_decode($role['privileges']);
             $newPrivileges = $this->fixRolePrivileges($currentPrivileges);
             if ($currentPrivileges === $newPrivileges) {
                 continue;
             }
 
-            $role['privileges'] = json_encode($newPrivileges, \JSON_THROW_ON_ERROR);
+            $role['privileges'] = json_encode($newPrivileges);
             $role['updated_at'] = (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_FORMAT);
 
             $connection->update('acl_role', $role, ['id' => $role['id']]);
@@ -226,11 +221,6 @@ class Migration1620634856UpdateRolePrivileges extends MigrationStep
         // implement update destructive
     }
 
-    /**
-     * @param list<string> $rolePrivileges
-     *
-     * @return list<string>
-     */
     private function fixRolePrivileges(array $rolePrivileges): array
     {
         foreach (self::NEW_PRIVILEGES as $key => $new) {

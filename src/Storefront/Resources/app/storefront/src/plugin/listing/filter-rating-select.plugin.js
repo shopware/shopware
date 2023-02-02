@@ -1,7 +1,3 @@
-/*
- * @package inventory
- */
-
 import FilterMultiSelectPlugin from 'src/plugin/listing/filter-multi-select.plugin'
 import Iterator from 'src/helper/iterator.helper';
 import DomAccess from 'src/helper/dom-access.helper';

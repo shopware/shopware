@@ -2,7 +2,10 @@ import SettingsPageObject from '../../../../support/pages/module/sw-settings.pag
 
 describe('Country: Test can setting VAT id field required', () => {
     beforeEach(() => {
-        cy.createDefaultFixture('country');
+        cy.loginViaApi()
+            .then(() => {
+                return cy.createDefaultFixture('country');
+            });
     });
 
     it('@settings: can setting VAT id field required', { tags: ['pa-system-settings'] }, () => {
@@ -12,12 +15,12 @@ describe('Country: Test can setting VAT id field required', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/system-config/batch`,
-            method: 'POST',
+            method: 'POST'
         }).as('saveSettings');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/country/*`,
-            method: 'PATCH',
+            method: 'PATCH'
         }).as('saveCountry');
 
         cy.get('input[name="core.loginRegistration.showAccountTypeSelection"]').scrollIntoView();

@@ -1,22 +1,9 @@
-/**
- * @private
- * @package content
- */
-Shopware.Component.register('sw-cms-el-preview-text', () => import('./preview'));
-/**
- * @private
- * @package content
- */
-Shopware.Component.register('sw-cms-el-config-text', () => import('./config'));
-/**
- * @private
- * @package content
- */
-Shopware.Component.register('sw-cms-el-text', () => import('./component'));
+import './component';
+import './config';
+import './preview';
 
 /**
- * @private
- * @package content
+ * @private since v6.5.0
  */
 Shopware.Service('cmsService').registerCmsElement({
     name: 'text',

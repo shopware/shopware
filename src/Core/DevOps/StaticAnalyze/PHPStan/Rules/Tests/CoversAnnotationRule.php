@@ -8,13 +8,11 @@ use PHPStan\Node\InClassNode;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  * @implements Rule<InClassNode>
  */
-#[Package('core')]
 class CoversAnnotationRule implements Rule
 {
     public function getNodeType(): string

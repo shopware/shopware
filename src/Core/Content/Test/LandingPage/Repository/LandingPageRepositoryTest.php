@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Test\LandingPage\Repository;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -23,17 +23,17 @@ class LandingPageRepositoryTest extends TestCase
     private $connection;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepositoryInterface
      */
     private $repository;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepositoryInterface
      */
     private $salesChannelRepo;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepositoryInterface
      */
     private $cmsPageRepo;
 
@@ -64,7 +64,7 @@ class LandingPageRepositoryTest extends TestCase
             $update,
         ], Context::createDefaultContext());
 
-        $result = $this->connection->fetchAllAssociative(
+        $result = $this->connection->fetchAll(
             'SELECT * FROM landing_page_translation WHERE landing_page_id = :id',
             ['id' => Uuid::fromHexToBytes($uuid)]
         );
@@ -82,7 +82,7 @@ class LandingPageRepositoryTest extends TestCase
             'id' => $uuid,
         ]], Context::createDefaultContext());
 
-        $exists = $this->connection->fetchAllAssociative(
+        $exists = $this->connection->fetchAll(
             'SELECT * FROM landing_page WHERE id = :id',
             ['id' => Uuid::fromHexToBytes($uuid)]
         );
@@ -127,28 +127,28 @@ class LandingPageRepositoryTest extends TestCase
             $landingPage,
         ], Context::createDefaultContext());
 
-        $exists = $this->connection->fetchAllAssociative(
+        $exists = $this->connection->fetchAll(
             'SELECT * FROM landing_page WHERE id = :id',
             ['id' => $id]
         );
 
         static::assertCount(1, $exists);
 
-        $exists = $this->connection->fetchAllAssociative(
+        $exists = $this->connection->fetchAll(
             'SELECT * FROM landing_page_translation WHERE landing_page_id = :id',
             ['id' => $id]
         );
 
         static::assertCount(1, $exists);
 
-        $exists = $this->connection->fetchAllAssociative(
+        $exists = $this->connection->fetchAll(
             'SELECT * FROM landing_page_sales_channel WHERE landing_page_id = :id',
             ['id' => $id]
         );
 
         static::assertCount(\count($saleChannels), $exists);
 
-        $exists = $this->connection->fetchAllAssociative(
+        $exists = $this->connection->fetchAll(
             'SELECT * FROM landing_page_tag WHERE landing_page_id = :id',
             ['id' => $id]
         );

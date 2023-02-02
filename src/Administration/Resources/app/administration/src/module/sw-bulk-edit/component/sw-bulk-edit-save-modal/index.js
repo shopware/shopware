@@ -1,11 +1,10 @@
-/**
- * @package system-settings
- */
 import template from './sw-bulk-edit-save-modal.html.twig';
 import './sw-bulk-edit-save-modal.scss';
 
+const { Component } = Shopware;
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-bulk-edit-save-modal', {
     template,
 
     props: {
@@ -168,4 +167,4 @@ export default {
             action.call();
         },
     },
-};
+});

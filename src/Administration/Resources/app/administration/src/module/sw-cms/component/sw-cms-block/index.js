@@ -1,14 +1,10 @@
 import template from './sw-cms-block.html.twig';
 import './sw-cms-block.scss';
 
-/**
- * @package content
- */
-
-const { Filter, State } = Shopware;
+const { Component, Filter } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-cms-block', {
     template,
 
     inject: ['cmsService'],
@@ -50,7 +46,6 @@ export default {
     data() {
         return {
             backgroundUrl: null,
-            isCollapsed: true,
         };
     },
 
@@ -114,24 +109,6 @@ export default {
         assetFilter() {
             return Filter.getByName('asset');
         },
-
-        isVisible() {
-            const view = State.get('cmsPageState').currentCmsDeviceView;
-
-            return (view === 'desktop' && !this.block.visibility.desktop) ||
-                (view === 'tablet-landscape' && !this.block.visibility.tablet) ||
-                (view === 'mobile' && !this.block.visibility.mobile);
-        },
-
-        toggleButtonText() {
-            return this.$tc('sw-cms.sidebar.contentMenu.visibilityBlockTextButton', !this.isCollapsed);
-        },
-
-        expandedClass() {
-            return {
-                'is--expanded': this.isVisible && !this.isCollapsed,
-            };
-        },
     },
 
     created() {
@@ -143,14 +120,6 @@ export default {
             if (!this.block.backgroundMediaMode) {
                 this.block.backgroundMediaMode = 'cover';
             }
-
-            if (!this.block.visibility) {
-                this.block.visibility = {
-                    mobile: true,
-                    tablet: true,
-                    desktop: true,
-                };
-            }
         },
 
         onBlockOverlayClick() {
@@ -158,9 +127,5 @@ export default {
                 this.$emit('block-overlay-click');
             }
         },
-
-        toggleVisibility() {
-            this.isCollapsed = !this.isCollapsed;
-        },
     },
-};
+});

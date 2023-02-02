@@ -5,9 +5,6 @@ const { Component } = Shopware;
 const { warn } = Shopware.Utils.debug;
 
 /**
- * @package admin
- *
- * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @description Number field component which supports Int and Float with optional min, max and step.
  * @status ready
@@ -231,6 +228,34 @@ Component.extend('sw-number-field', 'sw-text-field', {
                 });
             }
             return floor;
+        },
+
+        // @deprecated tag:v6.5.0 - Will be removed
+        applyDigits(decimals) {
+            if (decimals.length <= this.digits) {
+                return {
+                    decimals,
+                    transfer: 0,
+                };
+            }
+
+            let asString = decimals.substr(0, this.digits + 1);
+            let asNumber = parseFloat(asString);
+            asNumber = Math.round(asNumber / 10);
+            asString = asNumber.toString();
+
+            if (asString.length > this.digits) {
+                return {
+                    decimals: asString.substr(1, asString.length),
+                    transfer: 1,
+                };
+            }
+
+            asString = '0'.repeat(this.digits - asString.length) + asString;
+            return {
+                decimals: asString,
+                transfer: 0,
+            };
         },
     },
 });

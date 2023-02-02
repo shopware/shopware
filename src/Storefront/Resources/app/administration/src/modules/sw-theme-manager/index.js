@@ -1,7 +1,3 @@
-/**
- * @package sales-channel
- */
-
 import './mixin/sw-theme.mixin';
 import './page/sw-theme-manager-detail';
 import './page/sw-theme-manager-list';
@@ -60,7 +56,6 @@ Module.register('sw-theme-manager', {
                 isChildren: true,
                 path: '/sw/sales/channel/detail/:id/theme',
                 meta: {
-                    parentPath: 'sw.sales.channel.list',
                     privilege: 'sales_channel.viewer'
                 }
             });

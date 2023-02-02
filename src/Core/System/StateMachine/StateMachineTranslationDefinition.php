@@ -8,12 +8,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('checkout')]
 class StateMachineTranslationDefinition extends EntityTranslationDefinition
 {
-    final public const ENTITY_NAME = 'state_machine_translation';
+    public const ENTITY_NAME = 'state_machine_translation';
 
     public function getEntityName(): string
     {

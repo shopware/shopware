@@ -41,12 +41,18 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="serializer"/>
             <argument type="service" id="api.request_criteria_builder"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\CompositeEntitySearcher"/>
             <argument type="service" id="Shopware\Core\Framework\Api\Converter\ApiVersionConverter"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\EntityProtectionValidator"/>
             <argument type="service" id="Shopware\Core\Framework\Api\Acl\AclCriteriaValidator"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
+        </service>
+
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\CompositeEntitySearcher">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="tagged" tag="shopware.composite_search.definition"/>
         </service>
 
         <service id="Shopware\Core\Framework\Api\Controller\SyncController" public="true">
@@ -108,10 +114,16 @@
         <!-- Converter -->
         <service id="Shopware\Core\Framework\Api\Converter\ConverterRegistry">
             <argument type="tagged" tag="shopware.api.converter"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\Converter\DefaultApiConverter"/>
         </service>
 
         <service id="Shopware\Core\Framework\Api\Converter\ApiVersionConverter">
             <argument type="service" id="Shopware\Core\Framework\Api\Converter\ConverterRegistry"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Api\Converter\DefaultApiConverter">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="request_stack"/>
         </service>
 
         <!-- API Docs -->
@@ -131,6 +143,10 @@
             <argument>%kernel.shopware_version%</argument>
         </service>
 
+        <service id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiLoader">
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Api\ApiDefinition\Generator\BundleSchemaPathCollection">
             <argument type="service" id="kernel.bundles"/>
         </service>
@@ -139,6 +155,7 @@
             <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiSchemaBuilder"/>
             <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiPathBuilder"/>
             <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiDefinitionSchemaBuilder"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiLoader"/>
             <argument>%kernel.bundles_metadata%</argument>
             <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\Generator\BundleSchemaPathCollection"/>
         </service>
@@ -146,16 +163,12 @@
         <service id="Shopware\Core\Framework\Api\ApiDefinition\Generator\StoreApiGenerator">
             <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiSchemaBuilder"/>
             <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiDefinitionSchemaBuilder"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiLoader"/>
             <argument>%kernel.bundles_metadata%</argument>
             <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\Generator\BundleSchemaPathCollection"/>
         </service>
 
         <service id="Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator">
-        </service>
-
-        <service id="Shopware\Core\Framework\Api\ApiDefinition\Generator\CachedEntitySchemaGenerator" decorates="Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator">
-            <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\Generator\CachedEntitySchemaGenerator.inner"/>
-            <argument type="service" id="cache.object"/>
         </service>
 
         <service id="Shopware\Core\Framework\Api\Controller\InfoController" public="true">
@@ -166,7 +179,6 @@
             <argument type="service" id="Shopware\Core\Framework\Event\BusinessEventCollector" />
             <argument type="service" id="shopware.increment.gateway.registry"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="Shopware\Core\Maintenance\System\Service\AppUrlVerifier"/>
             <argument type="service" id="Shopware\Core\Content\Flow\Api\FlowActionCollector" on-invalid="null"/>
             <argument>%shopware.media.enable_url_upload_feature%</argument>
             <argument>%shopware.security.csp_templates%</argument>
@@ -339,11 +351,6 @@
 
         <service id="Shopware\Core\Framework\Validation\HappyPathValidator" decorates="validator">
             <argument type="service" id="Shopware\Core\Framework\Validation\HappyPathValidator.inner"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\Api\Controller\CustomSnippetFormatController" public="true">
-            <argument type="service" id="Shopware\Core\Framework\Plugin\KernelPluginCollection" />
-            <argument type="service" id="twig"/>
         </service>
     </services>
 </container>

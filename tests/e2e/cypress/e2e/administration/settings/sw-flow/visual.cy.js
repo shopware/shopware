@@ -1,32 +1,38 @@
 // / <reference types="Cypress" />
 
 describe('Flow builder: Visual testing', () => {
+    // eslint-disable-next-line no-undef
     beforeEach(() => {
-        cy.setLocaleToEnGb().then(() => {
-            cy.openInitialPage(Cypress.env('admin'));
-            cy.get('.sw-skeleton').should('not.exist');
-            cy.get('.sw-loader').should('not.exist');
-        });
+        // Clean previous state and prepare Administration
+        cy.loginViaApi()
+            .then(() => {
+                cy.setLocaleToEnGb();
+            })
+            .then(() => {
+                cy.openInitialPage(Cypress.env('admin'));
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
+            });
     });
 
     it('@visual: @check appearance of flow builder workflow', { tags: ['pa-business-ops'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/flow`,
-            method: 'POST',
+            method: 'POST'
         }).as('getData');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/tag`,
-            method: 'POST',
+            method: 'POST'
         }).as('setTag');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/tag`,
-            method: 'POST',
+            method: 'POST'
         }).as('getTag');
 
         cy.get('.sw-dashboard-index__welcome-text').should('be.visible');
         cy.clickMainMenuItem({
             targetPath: '#/sw/settings/index',
-            mainMenuId: 'sw-settings',
+            mainMenuId: 'sw-settings'
         });
         cy.get('#sw-flow').click();
         cy.wait('@getData').its('response.statusCode').should('equal', 200);
@@ -62,8 +68,8 @@ describe('Flow builder: Visual testing', () => {
         cy.takeSnapshot('[Flow builder] Detail, Condition IF with 2 selectors', '.sw-flow-detail', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
         cy.get('.sw-flow-sequence__false-block .sw-flow-sequence-selector__add-action').click();
-        cy.get('.sw-flow-sequence__false-block .sw-flow-sequence-action__selection-action')
-            .typeSingleSelect('Add tag', '.sw-flow-sequence__false-block .sw-flow-sequence-action__selection-action');
+        cy.get('.sw-flow-sequence-action__selection-action')
+            .typeSingleSelect('Add tag', '.sw-flow-sequence-action__selection-action');
         cy.handleModalSnapshot('Add tag');
         cy.prepareAdminForScreenshot();
         cy.takeSnapshot('[Flow builder] Tag modal', '.sw-flow-tag-modal', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
@@ -84,8 +90,8 @@ describe('Flow builder: Visual testing', () => {
         cy.get('.sw-flow-tag-modal').should('not.exist');
 
         cy.get('.sw-flow-sequence__true-block .sw-flow-sequence-selector__add-action').click();
-        cy.get('.sw-flow-sequence__true-block .sw-flow-sequence-action__selection-action')
-            .typeSingleSelect('Assign status', '.sw-flow-sequence__true-block .sw-flow-sequence-action__selection-action');
+        cy.get('.sw-flow-sequence-action__selection-action')
+            .typeSingleSelect('Assign status', '.sw-flow-sequence-action__selection-action');
 
         cy.get('.sw-flow-set-order-state-modal').should('be.visible');
         cy.handleModalSnapshot('Assign status');
@@ -96,8 +102,9 @@ describe('Flow builder: Visual testing', () => {
         cy.get('.sw-flow-set-order-state-modal__save-button').click();
         cy.get('.sw-flow-set-order-state-modal').should('not.exist');
 
+        cy.get('.sw-flow-sequence__true-block .sw-flow-sequence-action__add-button').click();
         cy.get('.sw-flow-sequence__true-block .sw-flow-sequence-action__selection-action')
-            .typeSingleSelect('Generate documents', '.sw-flow-sequence__true-block .sw-flow-sequence-action__selection-action');
+            .typeSingleSelect('Generate documents', '.sw-flow-sequence-action__selection-action');
 
         cy.get('.sw-flow-generate-document-modal').should('be.visible');
         cy.handleModalSnapshot('Generate documents');
@@ -109,8 +116,9 @@ describe('Flow builder: Visual testing', () => {
         cy.get('.sw-flow-generate-document-modal__save-button').click();
         cy.get('.sw-flow-generate-document-modal').should('not.exist');
 
+        cy.get('.sw-flow-sequence__true-block .sw-flow-sequence-action__add-button').click();
         cy.get('.sw-flow-sequence__true-block .sw-flow-sequence-action__selection-action')
-            .typeSingleSelect('Send email', '.sw-flow-sequence__true-block .sw-flow-sequence-action__selection-action');
+            .typeSingleSelect('Send email', '.sw-flow-sequence-action__selection-action');
 
         cy.get('.sw-flow-mail-send-modal').should('be.visible');
         cy.handleModalSnapshot('Send email');

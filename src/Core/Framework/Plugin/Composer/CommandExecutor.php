@@ -3,24 +3,32 @@
 namespace Shopware\Core\Framework\Plugin\Composer;
 
 use Composer\Console\Application;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\PluginComposerRemoveException;
 use Shopware\Core\Framework\Plugin\Exception\PluginComposerRequireException;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 
-#[Package('core')]
 class CommandExecutor
 {
-    private readonly Application $application;
+    /**
+     * @var Application
+     */
+    private $application;
+
+    /**
+     * @var string
+     */
+    private $projectDir;
 
     /**
      * @internal
      */
-    public function __construct(private readonly string $projectDir)
+    public function __construct(string $projectDir)
     {
         $this->application = new Application();
         $this->application->setAutoExit(false);
+
+        $this->projectDir = $projectDir;
     }
 
     public function require(string $pluginComposerName, string $pluginName): void
@@ -33,7 +41,6 @@ class CommandExecutor
                 '--working-dir' => $this->projectDir,
                 '--no-interaction' => null,
                 '--update-with-dependencies' => null,
-                '--no-scripts' => null,
             ]
         );
 
@@ -55,7 +62,6 @@ class CommandExecutor
                 'packages' => [$pluginComposerName],
                 '--working-dir' => $this->projectDir,
                 '--no-interaction' => null,
-                '--no-scripts' => null,
             ]
         );
 

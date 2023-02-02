@@ -1,11 +1,10 @@
-/**
- * @package system-settings
- */
 import template from './sw-users-permissions-additional-permissions.html.twig';
 import './sw-users-permissions-additional-permissions.scss';
 
+const { Component } = Shopware;
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-users-permissions-additional-permissions', {
     template,
 
     inject: ['privileges'],
@@ -44,7 +43,19 @@ export default {
         },
     },
 
+    /**
+     * @deprecated tag:v6.5.0 - Will be removed
+     */
+    created() {
+        this.createdComponent();
+    },
+
     methods: {
+        /**
+         * @deprecated tag:v6.5.0 - Will be removed
+         */
+        createdComponent() {},
+
         isPrivilegeSelected(privilegeKey) {
             if (!this.role.privileges) {
                 return false;
@@ -79,4 +90,4 @@ export default {
             });
         },
     },
-};
+});

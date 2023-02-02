@@ -3,15 +3,18 @@
 namespace Shopware\Core\Content\Media\Message;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
 
-#[Package('content')]
-class GenerateThumbnailsMessage implements AsyncMessageInterface
+class GenerateThumbnailsMessage
 {
-    private array $mediaIds = [];
+    /**
+     * @var array
+     */
+    private $mediaIds = [];
 
-    private string $contextData;
+    /**
+     * @var string
+     */
+    private $contextData;
 
     public function getMediaIds(): array
     {

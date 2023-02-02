@@ -1,17 +1,13 @@
-/*
- * @package inventory
- */
-
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import template from './sw-product-list.html.twig';
 import './sw-product-list.scss';
 
-const { Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { cloneDeep } = Shopware.Utils.object;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-product-list', {
     template,
 
     inject: [
@@ -365,16 +361,6 @@ export default {
                 label: this.$tc('sw-product.list.columnAvailableStock'),
                 allowResize: true,
                 align: 'right',
-            }, {
-                property: 'createdAt',
-                label: this.$tc('sw-product.list.columnCreatedAt'),
-                allowResize: true,
-                visible: false,
-            }, {
-                property: 'updatedAt',
-                label: this.$tc('sw-product.list.columnUpdatedAt'),
-                allowResize: true,
-                visible: false,
             }];
         },
 
@@ -402,10 +388,6 @@ export default {
             return childCount !== null && childCount > 0;
         },
 
-        productIsDigital(productEntity) {
-            return productEntity.states && productEntity.states.includes('is-download');
-        },
-
         openVariantModal(item) {
             this.productEntityVariantModal = item;
         },
@@ -431,4 +413,4 @@ export default {
             this.showBulkEditModal = false;
         },
     },
-};
+});

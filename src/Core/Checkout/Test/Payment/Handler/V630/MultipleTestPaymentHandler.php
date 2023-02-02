@@ -7,7 +7,6 @@ use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PreparedPaymentHandlerInt
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\SynchronousPaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\PreparedPaymentTransactionStruct;
 use Shopware\Core\Checkout\Payment\Cart\SyncPaymentTransactionStruct;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -16,7 +15,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
-#[Package('checkout')]
 class MultipleTestPaymentHandler implements SynchronousPaymentHandlerInterface, PreparedPaymentHandlerInterface
 {
     public function validate(

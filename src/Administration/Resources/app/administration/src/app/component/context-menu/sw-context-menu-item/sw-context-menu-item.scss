@@ -12,7 +12,7 @@ $sw-context-menu-color-warning: $color-pumpkin-spice-500;
     position: relative;
     border-radius: $border-radius-default;
     margin: 0;
-    line-height: $line-height-xs;
+    line-height: 18px;
     padding: 4px 14px;
     text-decoration: none;
     color: $sw-context-menu-color-text;
@@ -86,7 +86,7 @@ $sw-context-menu-color-warning: $color-pumpkin-spice-500;
     }
 
     &.sw-context-menu-item--headline {
-        font-weight: $font-weight-semi-bold;
+        text-align: center;
         cursor: default;
 
         &:hover {

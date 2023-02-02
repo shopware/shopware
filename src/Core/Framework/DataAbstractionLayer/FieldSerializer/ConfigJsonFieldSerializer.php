@@ -8,12 +8,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
-use Shopware\Core\Framework\Log\Package;
 
 /**
- * @internal
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
  */
-#[Package('core')]
 class ConfigJsonFieldSerializer extends JsonFieldSerializer
 {
     public function encode(Field $field, EntityExistence $existence, KeyValuePair $data, WriteParameterBag $parameters): \Generator
@@ -28,7 +26,12 @@ class ConfigJsonFieldSerializer extends JsonFieldSerializer
         return parent::encode($field, $existence, $data, $parameters);
     }
 
-    public function decode(Field $field, mixed $value): mixed
+    /**
+     * @return array|null
+     *
+     * @deprecated tag:v6.5.0 - reason:return-type-change - The return type will be native typed
+     */
+    public function decode(Field $field, $value)/*: ?array*/
     {
         if (!$field instanceof ConfigJsonField) {
             throw new InvalidSerializerFieldException(ConfigJsonField::class, $field);

@@ -6,28 +6,27 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SetNullOnDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\MessageQueue\DeadMessage\DeadMessageDefinition;
 
-#[Package('core')]
 class ScheduledTaskDefinition extends EntityDefinition
 {
-    final public const ENTITY_NAME = 'scheduled_task';
+    public const ENTITY_NAME = 'scheduled_task';
 
-    final public const STATUS_SCHEDULED = 'scheduled';
+    public const STATUS_SCHEDULED = 'scheduled';
 
-    final public const STATUS_QUEUED = 'queued';
+    public const STATUS_QUEUED = 'queued';
 
-    final public const STATUS_SKIPPED = 'skipped';
+    public const STATUS_RUNNING = 'running';
 
-    final public const STATUS_RUNNING = 'running';
+    public const STATUS_FAILED = 'failed';
 
-    final public const STATUS_FAILED = 'failed';
-
-    final public const STATUS_INACTIVE = 'inactive';
+    public const STATUS_INACTIVE = 'inactive';
 
     public function getEntityName(): string
     {
@@ -64,6 +63,8 @@ class ScheduledTaskDefinition extends EntityDefinition
             (new StringField('status', 'status'))->addFlags(new Required()),
             new DateTimeField('last_execution_time', 'lastExecutionTime'),
             (new DateTimeField('next_execution_time', 'nextExecutionTime'))->addFlags(new Required()),
+
+            (new OneToManyAssociationField('deadMessages', DeadMessageDefinition::class, 'scheduled_task_id'))->addFlags(new SetNullOnDelete()),
         ]);
     }
 }

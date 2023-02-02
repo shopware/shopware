@@ -4,28 +4,12 @@ import SnippetPageObject from '../../../../support/pages/module/sw-snippet.page-
 
 describe('Snippets: Test crud operations', () => {
     beforeEach(() => {
-        cy.createSnippetFixture()
+        cy.loginViaApi()
             .then(() => {
-                cy.fixture('snippet').as('testSnippet');
+                return cy.createSnippetFixture();
             })
             .then(() => {
-                cy.authenticate().then((auth) => {
-                    cy.request({
-                        headers: {
-                            Accept: 'application/vnd.api+json',
-                            Authorization: `Bearer ${auth.access}`,
-                            'Content-Type': 'application/json',
-                        },
-                        method: 'POST',
-                        url: '/api/_info/config-me',
-                        qs: {
-                            response: true,
-                        },
-                        body: {
-                            'grid.filter.setting-snippet-list': null,
-                        },
-                    });
-                });
+                cy.fixture('snippet').as('testSnippet');
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/snippet/index`);
@@ -36,11 +20,6 @@ describe('Snippets: Test crud operations', () => {
 
     it('@settings: create, read and delete snippets', { tags: ['pa-system-settings'] }, () => {
         const page = new SnippetPageObject();
-
-        cy.intercept({
-            url: `${Cypress.env('apiPath')}/_action/snippet-set`,
-            method: 'post',
-        }).as('searchResultCall');
 
         // Open snippet set
         cy.get(`${page.elements.gridRow}--1 .sw-field__checkbox input`).click();
@@ -58,7 +37,7 @@ describe('Snippets: Test crud operations', () => {
 
         page.createSnippet('a.Woodech', {
             de: 'Ech',
-            en: 'Blach',
+            en: 'Blach'
         });
 
         // Open all snippet sets
@@ -72,17 +51,16 @@ describe('Snippets: Test crud operations', () => {
         page.openAllSnippetSets();
 
         // Filter for and verify snippet to be deleted
+        cy.get('.sw-search-bar__input').type('a.Woodech');
         page.filterSnippets('a.Woodech');
-        cy.wait('@searchResultCall').its('response.statusCode').should('equal', 200);
-        cy.get(`${page.elements.dataGridRow}--0`)
-            .should('be.visible')
-            .contains('a.Woodech');
+
+        cy.get(`${page.elements.dataGridRow}--1`).should('not.exist');
 
         // Delete snippet
         cy.clickContextMenuItem(
             `${page.elements.contextMenu}-item--danger`,
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`,
+            `${page.elements.dataGridRow}--0`
         );
         cy.contains(`${page.elements.modal}__body`, 'Are you sure you want to delete the snippets');
 
@@ -91,16 +69,11 @@ describe('Snippets: Test crud operations', () => {
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
 
-        cy.get(`${page.elements.dataGridRow}--0`).should('not.contain', 'a.Woodech');
+        cy.get(`${page.elements.dataGridRow}--0`).should('not.exist');
     });
 
-    it('@settings: update and read snippets', { tags: ['pa-system-settings', 'quarantined'] }, () => {
+    it('@settings: update and read snippets', { tags: ['pa-system-settings'] }, () => {
         const page = new SnippetPageObject();
-
-        cy.intercept({
-            url: `${Cypress.env('apiPath')}/_action/snippet-set`,
-            method: 'post',
-        }).as('searchResultCall');
 
         // Open snippet set
         cy.get(`${page.elements.gridRow}--1 .sw-field__checkbox input`).click();
@@ -112,19 +85,13 @@ describe('Snippets: Test crud operations', () => {
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
         cy.contains(page.elements.smartBarHeader, 'Snippets of "BASE en-GB"');
+        cy.contains(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--id`, 'aWonderful.customSnip');
 
         // Edit snippet
-        cy.log('Edit snippet');
-        cy.wait('@searchResultCall').its('response.statusCode').should('equal', 200);
-        cy.get(`${page.elements.dataGridRow}--0`)
-            .should('be.visible')
-            .contains('aWonderful.customSnip');
-
-        cy.clickContextMenuItem(
-            '.sw-settings-snippet-list__edit-action',
-            page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`,
-        );
+        cy.get('.sw-data-grid__row--0 .sw-context-button__button').click({
+            scrollBehavior: false
+        });
+        cy.get('.sw-settings-snippet-list__edit-action').click();
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
 
@@ -145,18 +112,11 @@ describe('Snippets: Test crud operations', () => {
         cy.get('.sw-loader').should('not.exist');
 
         // check if it was saved
-        cy.get(`${page.elements.dataGridRow}--0`)
-            .should('be.visible')
-            .contains('Mine yours theirs');
+        cy.contains(`${page.elements.dataGridRow}--0`, 'Mine yours theirs');
     });
 
-    it('@settings: update, read, reset snippets', { tags: ['pa-system-settings', 'quarantined'] }, () => {
+    it('@settings: update, read, reset snippets', { tags: ['pa-system-settings'] }, () => {
         const page = new SnippetPageObject();
-
-        cy.intercept({
-            url: `${Cypress.env('apiPath')}/_action/snippet-set`,
-            method: 'post',
-        }).as('searchResultCall');
 
         // Open snippet set
         cy.get(`${page.elements.gridRow}--1 .sw-field__checkbox input`).click();
@@ -171,9 +131,16 @@ describe('Snippets: Test crud operations', () => {
 
         // Search for snippet
         cy.log('Search for snippet');
+
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/_action/snippet-set`,
+            method: 'post',
+        }).as('searchResultCall');
+
         cy.get('.sw-search-bar__input').type('account.addressCreateBtn').should('have.value', 'account.addressCreateBtn');
 
-        cy.wait('@searchResultCall').its('response.statusCode').should('equal', 200);
+        cy.wait('@searchResultCall')
+            .its('response.statusCode').should('equal', 200);
         cy.url().should('include', encodeURI('account.addressCreateBtn'));
 
         cy.get('.sw-skeleton').should('not.exist');
@@ -181,15 +148,12 @@ describe('Snippets: Test crud operations', () => {
 
         // Edit snippet
         cy.log('Edit snippet');
-        cy.wait('@searchResultCall').its('response.statusCode').should('equal', 200);
-        cy.get(`${page.elements.dataGridRow}--0`)
-            .should('be.visible')
-            .contains('account.addressCreateBtn');
+        cy.contains(`${page.elements.dataGridRow}--0`, 'account.addressCreateBtn');
 
         cy.clickContextMenuItem(
             '.sw-settings-snippet-list__edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`,
+            `${page.elements.dataGridRow}--0`
         );
         cy.contains(page.elements.smartBarHeader, 'account.addressCreateBtn');
         // sometimes vue renders really slow placeholder values and intercepts our typing… so we ensure that vue filled that value before
@@ -215,15 +179,13 @@ describe('Snippets: Test crud operations', () => {
         cy.get('.sw-search-bar__input').typeAndCheckSearchField('account.addressCreateBtn');
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
-        cy.get(`${page.elements.dataGridRow}--0`)
-            .should('be.visible')
-            .contains('Mine yours theirs');
+        cy.contains(`${page.elements.dataGridRow}--0`, 'Mine yours theirs');
 
 
         cy.clickContextMenuItem(
             `${page.elements.contextMenu}-item--danger`,
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`,
+            `${page.elements.dataGridRow}--0`
         );
 
         cy.get(':nth-child(1) > .sw-grid__cell-content').click();

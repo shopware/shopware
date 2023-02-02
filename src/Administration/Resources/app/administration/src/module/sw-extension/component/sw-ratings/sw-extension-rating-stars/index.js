@@ -2,10 +2,9 @@ import template from './sw-extension-rating-stars.html.twig';
 import './sw-extension-rating-stars.scss';
 
 /**
- * @package merchant-services
  * @private
  */
-export default {
+Shopware.Component.register('sw-extension-rating-stars', {
     template,
 
     model: {
@@ -111,4 +110,4 @@ export default {
                 && (this.maxRating - Math.ceil(this.ratingValue)) === key;
         },
     },
-};
+});

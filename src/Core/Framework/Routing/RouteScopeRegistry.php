@@ -2,19 +2,22 @@
 
 namespace Shopware\Core\Framework\Routing;
 
-use Shopware\Core\Framework\Log\Package;
-
-#[Package('core
-Contains all registered RouteScopes in the system')]
+/**
+ * Contains all registered RouteScopes in the system
+ */
 class RouteScopeRegistry
 {
     /**
-     * @internal
-     *
-     * @param AbstractRouteScope[] $routeScopes
+     * @var AbstractRouteScope[]
      */
-    public function __construct(private readonly iterable $routeScopes)
+    private $routeScopes;
+
+    /**
+     * @internal
+     */
+    public function __construct(iterable $routeScopes)
     {
+        $this->routeScopes = $routeScopes;
     }
 
     /**

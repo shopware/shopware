@@ -10,12 +10,12 @@ use Shopware\Core\Framework\App\Event\AppDeletedEvent;
 use Shopware\Core\Framework\App\Event\AppInstalledEvent;
 use Shopware\Core\Framework\App\Event\AppUpdatedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\IterateEntityIndexerMessage;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Event\PluginPostActivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostDeactivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostInstallEvent;
@@ -26,17 +26,33 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @internal
- */
-#[Package('business-ops')]
 class FlowIndexer extends EntityIndexer implements EventSubscriberInterface
 {
+    private IteratorFactory $iteratorFactory;
+
+    private EntityRepositoryInterface $repository;
+
+    private FlowPayloadUpdater $payloadUpdater;
+
+    private EventDispatcherInterface $eventDispatcher;
+
+    private MessageBusInterface $messageBus;
+
     /**
      * @internal
      */
-    public function __construct(private readonly IteratorFactory $iteratorFactory, private readonly EntityRepository $repository, private readonly FlowPayloadUpdater $payloadUpdater, private readonly EventDispatcherInterface $eventDispatcher, private readonly MessageBusInterface $messageBus)
-    {
+    public function __construct(
+        IteratorFactory $iteratorFactory,
+        EntityRepositoryInterface $repository,
+        FlowPayloadUpdater $payloadUpdater,
+        EventDispatcherInterface $eventDispatcher,
+        MessageBusInterface $messageBus
+    ) {
+        $this->iteratorFactory = $iteratorFactory;
+        $this->repository = $repository;
+        $this->payloadUpdater = $payloadUpdater;
+        $this->eventDispatcher = $eventDispatcher;
+        $this->messageBus = $messageBus;
     }
 
     public function getName(): string
@@ -66,8 +82,20 @@ class FlowIndexer extends EntityIndexer implements EventSubscriberInterface
         $this->messageBus->dispatch(new IterateEntityIndexerMessage($this->getName(), null));
     }
 
-    public function iterate(?array $offset): ?EntityIndexingMessage
+    /**
+     * @param array|null $offset
+     *
+     * @deprecated tag:v6.5.0 The parameter $offset will be native typed
+     */
+    public function iterate(/*?array */$offset): ?EntityIndexingMessage
     {
+        if ($offset !== null && !\is_array($offset)) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.5.0.0',
+                'Parameter `$offset` of method "iterate()" in class "FlowIndexer" will be natively typed to `?array` in v6.5.0.0.'
+            );
+        }
+
         $iterator = $this->iteratorFactory->createIterator($this->repository->getDefinition(), $offset);
 
         $ids = $iterator->fetch();

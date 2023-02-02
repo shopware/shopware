@@ -26,16 +26,65 @@
                 <template #filter>
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_order_document_card_header_create_document_context_button %}
+                    <sw-context-button
+                        v-if="!attachView && !feature.isActive('FEATURE_NEXT_7530')"
+                        :disabled="!acl.can('order.editor')"
+                    >
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_order_document_card_header_create_document_button %}
+                        <sw-button
+                            slot="button"
+                            v-tooltip="{
+                                message: $tc('sw-privileges.tooltip.warning'),
+                                disabled: acl.can('order.editor'),
+                                showOnDisabledElements: true
+                            }"
+                            size="small"
+                            :disabled="!acl.can('order.editor')"
+                            class="sw-order-document-grid-button"
+                        >
+
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_order_document_card_header_create_document_button_label %}
+                            {{ $tc('sw-order.documentCard.labelCreateNew') }}
+                            {% endblock %}
+
+                        </sw-button>
+                        {% endblock %}
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_order_document_card_header_create_document_options %}
+                        <template v-for="(documentType, index) in documentTypes">
+                            <sw-context-menu-item
+                                :key="index"
+                                class="sw-order-list_order-view-action"
+                                :disabled="!documentTypeAvailable(documentType)"
+                                @click="onPrepareDocument(documentType)"
+                            >
+
+                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                {% block sw_order_document_card_header_create_document_option_label %}
+                                {{ placeholder(documentType, 'name') }}
+                                {% endblock %}
+
+                            </sw-context-menu-item>
+                        </template>
+                        {% endblock %}
+
+                    </sw-context-button>
+
                     <sw-button
-                        v-if="!attachView"
+                        v-if="!attachView && feature.isActive('FEATURE_NEXT_7530')"
+                        slot="button"
                         v-tooltip="{
-                            message: tooltipCreateDocumentButton,
-                            disabled: acl.can('document.viewer') && !isEditing,
+                            message: $tc('sw-privileges.tooltip.warning'),
+                            disabled: acl.can('order.editor'),
                             showOnDisabledElements: true
                         }"
                         size="small"
                         variant="ghost"
-                        :disabled="!acl.can('document.viewer') || isEditing"
+                        :disabled="!acl.can('order.editor')"
                         class="sw-order-document-grid-button"
                         @click="onShowSelectDocumentTypeModal"
                     >
@@ -119,7 +168,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_document_card_grid_action_open %}
                 <sw-context-menu-item
-                    :disabled="!acl.can('document.viewer')"
+                    v-if="feature.isActive('FEATURE_NEXT_7530')"
                     @click="onOpenDocument(item.id, item.deepLinkCode)"
                 >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -131,10 +180,7 @@
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_document_card_grid_action_download %}
-                <sw-context-menu-item
-                    :disabled="!acl.can('document.viewer')"
-                    @click="onDownload(item.id, item.deepLinkCode)"
-                >
+                <sw-context-menu-item @click="onDownload(item.id, item.deepLinkCode)">
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_order_document_card_grid_action_download_label %}
                     {{ $tc('sw-order.documentCard.labelDownloadPdf') }}
@@ -145,7 +191,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_document_card_grid_action_send %}
                 <sw-context-menu-item
-                    :disabled="!acl.can('document.viewer')"
+                    v-if="feature.isActive('FEATURE_NEXT_7530')"
                     @click="onSendDocument(item.id)"
                 >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -158,7 +204,8 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_document_card_grid_action_mark_sent %}
                 <sw-context-menu-item
-                    :disabled="!acl.can('document.viewer') || item.sent"
+                    v-if="feature.isActive('FEATURE_NEXT_7530')"
+                    :disabled="item.sent"
                     @click="onMarkDocumentAsSent(item.id)"
                 >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -171,7 +218,8 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_document_card_grid_action_mark_unsent %}
                 <sw-context-menu-item
-                    :disabled="!acl.can('document.viewer') || !item.sent"
+                    v-if="feature.isActive('FEATURE_NEXT_7530')"
+                    :disabled="!item.sent"
                     @click="onMarkDocumentAsUnsent(item.id)"
                 >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -229,7 +277,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_document_card_empty_state %}
     <sw-empty-state
-        v-if="documentsEmpty"
+        v-if="documentsEmpty && feature.isActive('FEATURE_NEXT_7530')"
         :title="emptyStateTitle"
         :show-description="false"
     >/
@@ -244,13 +292,13 @@
             <sw-button
                 v-if="showCreateDocumentButton"
                 v-tooltip="{
-                    message: tooltipCreateDocumentButton,
-                    disabled: acl.can('document.viewer') && !isEditing,
+                    message: $tc('sw-privileges.tooltip.warning'),
+                    disabled: acl.can('order.editor'),
                     showOnDisabledElements: true
                 }"
                 size="small"
                 variant="ghost"
-                :disabled="!acl.can('document.viewer') || isEditing"
+                :disabled="!acl.can('order.editor')"
                 class="sw-order-document-grid-button"
                 @click="onShowSelectDocumentTypeModal"
             >
@@ -263,6 +311,13 @@
             </sw-button>
         </template>
     </sw-empty-state>
+
+    <sw-empty-state
+        v-if="documentsEmpty && !feature.isActive('FEATURE_NEXT_7530')"
+        :title="$tc('sw-order.documentCard.messageEmptyTitle')"
+        icon="regular-file-text"
+        :subline="$tc('sw-order.documentCard.messageEmptySubline')"
+    />
     {% endblock %}
 </sw-card>
 {% endblock %}

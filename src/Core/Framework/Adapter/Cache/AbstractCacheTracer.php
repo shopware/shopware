@@ -2,12 +2,9 @@
 
 namespace Shopware\Core\Framework\Adapter\Cache;
 
-use Shopware\Core\Framework\Log\Package;
-
 /**
  * @template TCachedContent
  */
-#[Package('core')]
 abstract class AbstractCacheTracer
 {
     /**

@@ -12,27 +12,28 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\SetNullOnDeleteCo
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-/**
- * @internal
- */
-#[Package('inventory')]
 class ProductLineItemCommandValidator implements EventSubscriberInterface
 {
     /**
+     * @var Connection
+     */
+    private $connection;
+
+    /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection)
+    public function __construct(Connection $connection)
     {
+        $this->connection = $connection;
     }
 
     /**
      * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
      */
-    public static function getSubscribedEvents(): array
+    public static function getSubscribedEvents()
     {
         return [
             PreWriteValidationEvent::class => 'preValidate',
@@ -63,7 +64,7 @@ class ProductLineItemCommandValidator implements EventSubscriberInterface
 
             $referenceIdChanged = \array_key_exists('referenced_id', $payload);
 
-            $lineItemPayload = isset($payload['payload']) ? json_decode((string) $payload['payload'], true, 512, \JSON_THROW_ON_ERROR) : [];
+            $lineItemPayload = isset($payload['payload']) ? json_decode($payload['payload'], true) : [];
             $orderNumberChanged = \array_key_exists('productNumber', $lineItemPayload);
 
             if (!$this->isProduct($products, $payload, $lineItemId)) {
@@ -99,12 +100,7 @@ class ProductLineItemCommandValidator implements EventSubscriberInterface
         }
     }
 
-    /**
-     * @param list<WriteCommand> $commands
-     *
-     * @return array<string, int>
-     */
-    private function findProducts(array $commands): array
+    private function findProducts(array $commands)
     {
         $ids = array_map(function (WriteCommand $command) {
             if ($command->getDefinition()->getClass() !== OrderLineItemDefinition::class) {
@@ -121,23 +117,18 @@ class ProductLineItemCommandValidator implements EventSubscriberInterface
         $ids = array_values(array_filter($ids));
 
         if (empty($ids)) {
-            return [];
+            return $ids;
         }
 
-        /** @var array<string, int> $products */
-        $products = \array_flip($this->connection->fetchFirstColumn(
-            'SELECT DISTINCT LOWER(HEX(id)) FROM order_line_item WHERE id IN (:ids) AND type = \'product\'',
+        $products = $this->connection->fetchAll(
+            'SELECT LOWER(HEX(id)) as id FROM order_line_item WHERE id IN (:ids) AND type = \'product\'',
             ['ids' => $ids],
             ['ids' => Connection::PARAM_STR_ARRAY]
-        ));
+        );
 
-        return $products;
+        return array_flip(array_column($products, 'id'));
     }
 
-    /**
-     * @param array<string, mixed> $products
-     * @param array<string, mixed> $payload
-     */
     private function isProduct(array $products, array $payload, string $lineItemId): bool
     {
         if (isset($payload['type'])) {

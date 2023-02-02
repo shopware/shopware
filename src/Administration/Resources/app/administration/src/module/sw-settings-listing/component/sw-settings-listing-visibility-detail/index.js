@@ -1,9 +1,10 @@
 import template from './sw-settings-listing-visibility-detail.html.twig';
 
+const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-settings-listing-visibility-detail', {
     template,
 
     inject: ['repositoryFactory'],
@@ -79,4 +80,4 @@ export default {
             });
         },
     },
-};
+});

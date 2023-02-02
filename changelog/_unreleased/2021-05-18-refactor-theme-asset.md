@@ -1,6 +1,7 @@
 ---
 title: Refactor theme asset
 issue: NEXT-14699
+flag: FEATURE_NEXT_14699
 ---
 
 # Storefront

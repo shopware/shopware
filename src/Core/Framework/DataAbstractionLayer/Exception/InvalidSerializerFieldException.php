@@ -4,22 +4,26 @@ declare(strict_types=1);
 namespace Shopware\Core\Framework\DataAbstractionLayer\Exception;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('core')]
 class InvalidSerializerFieldException extends ShopwareHttpException
 {
-    private readonly string $expectedClass;
+    /**
+     * @var string
+     */
+    private $expectedClass;
 
-    private readonly Field $field;
+    /**
+     * @var Field
+     */
+    private $field;
 
     public function __construct(string $expectedClass, Field $field)
     {
         parent::__construct(
             'Expected field of type "{{ expectedField }}" got "{{ field }}".',
-            ['expectedField' => $expectedClass, 'field' => $field::class]
+            ['expectedField' => $expectedClass, 'field' => \get_class($field)]
         );
 
         $this->expectedClass = $expectedClass;

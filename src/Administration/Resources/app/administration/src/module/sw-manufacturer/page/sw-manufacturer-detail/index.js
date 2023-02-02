@@ -1,16 +1,12 @@
-/*
- * @package inventory
- */
-
 import template from './sw-manufacturer-detail.html.twig';
 import './sw-manufacturer-detail.scss';
 
-const { Mixin, Data: { Criteria } } = Shopware;
+const { Component, Mixin, Data: { Criteria } } = Shopware;
 
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-manufacturer-detail', {
     template,
 
     inject: ['repositoryFactory', 'acl'],
@@ -124,11 +120,6 @@ export default {
 
     methods: {
         createdComponent() {
-            Shopware.ExtensionAPI.publishData({
-                id: 'sw-manufacturer-detail__manufacturer',
-                path: 'manufacturer',
-                scope: this,
-            });
             if (this.manufacturerId) {
                 this.loadEntityData();
                 return;
@@ -138,31 +129,19 @@ export default {
             this.manufacturer = this.manufacturerRepository.create();
         },
 
-        async loadEntityData() {
+        loadEntityData() {
             this.isLoading = true;
 
-            const [manufacturerResponse, customFieldResponse] = await Promise.allSettled([
-                this.manufacturerRepository.get(this.manufacturerId),
-                this.customFieldSetRepository.search(this.customFieldSetCriteria),
-            ]);
+            this.manufacturerRepository.get(this.manufacturerId).then((manufacturer) => {
+                this.isLoading = false;
+                this.manufacturer = manufacturer;
+            });
 
-            if (manufacturerResponse.status === 'fulfilled') {
-                this.manufacturer = manufacturerResponse.value;
-            }
-
-            if (customFieldResponse.status === 'fulfilled') {
-                this.customFieldSets = customFieldResponse.value;
-            }
-
-            if (manufacturerResponse.status === 'rejected' || customFieldResponse.status === 'rejected') {
-                this.createNotificationError({
-                    message: this.$tc(
-                        'global.notification.notificationLoadingDataErrorMessage',
-                    ),
+            this.customFieldSetRepository
+                .search(this.customFieldSetCriteria)
+                .then((result) => {
+                    this.customFieldSets = result;
                 });
-            }
-
-            this.isLoading = false;
         },
 
         abortOnLanguageChange() {
@@ -228,4 +207,4 @@ export default {
             this.$router.push({ name: 'sw.manufacturer.index' });
         },
     },
-};
+});

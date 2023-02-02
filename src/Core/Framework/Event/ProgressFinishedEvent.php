@@ -2,16 +2,20 @@
 
 namespace Shopware\Core\Framework\Event;
 
-use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('core')]
 class ProgressFinishedEvent extends Event
 {
-    final public const NAME = self::class;
+    public const NAME = self::class;
 
-    public function __construct(private readonly string $message)
+    /**
+     * @var string
+     */
+    private $message;
+
+    public function __construct(string $message)
     {
+        $this->message = $message;
     }
 
     public function getMessage(): string

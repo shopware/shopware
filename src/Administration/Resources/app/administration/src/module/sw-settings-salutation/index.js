@@ -1,9 +1,7 @@
-import './acl';
+import './page/sw-settings-salutation-list';
+import './page/sw-settings-salutation-detail';
 
-/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
-Shopware.Component.register('sw-settings-salutation-list', () => import('./page/sw-settings-salutation-list'));
-Shopware.Component.register('sw-settings-salutation-detail', () => import('./page/sw-settings-salutation-detail'));
-/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
+import './acl';
 
 const { Module } = Shopware;
 

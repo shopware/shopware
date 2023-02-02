@@ -9,9 +9,7 @@ use Lcobucci\JWT\Signer;
 use Lcobucci\JWT\Signer\Key\InMemory;
 use Lcobucci\JWT\Validation\Constraint\SignedWith;
 use League\OAuth2\Server\CryptKey;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('checkout')]
 class JWTConfigurationFactory
 {
     public static function createJWTConfiguration(
@@ -21,14 +19,9 @@ class JWTConfigurationFactory
         ?Encoder $encoder = null,
         ?Decoder $decoder = null
     ): Configuration {
-        /** @var non-empty-string $privateKeyText */
-        $privateKeyText = $privateKey->getKeyContents();
-        /** @var non-empty-string $publicKeyText */
-        $publicKeyText = $publicKey->getKeyContents();
-
         if ($privateKey->getKeyPath() === '') {
-            $privateKey = InMemory::plainText($privateKeyText, $privateKey->getPassPhrase() ?? '');
-            $publicKey = InMemory::plainText($publicKeyText, $publicKey->getPassPhrase() ?? '');
+            $privateKey = InMemory::plainText($privateKey->getKeyContents(), $privateKey->getPassPhrase() ?? '');
+            $publicKey = InMemory::plainText($publicKey->getKeyContents(), $publicKey->getPassPhrase() ?? '');
         } else {
             $privateKey = InMemory::file($privateKey->getKeyPath(), $privateKey->getPassPhrase() ?? '');
             $publicKey = InMemory::file($publicKey->getKeyPath(), $publicKey->getPassPhrase() ?? '');

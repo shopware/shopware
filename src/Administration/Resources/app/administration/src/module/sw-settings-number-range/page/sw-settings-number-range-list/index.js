@@ -1,14 +1,11 @@
-/**
- * @package system-settings
- */
 import template from './sw-settings-number-range-list.html.twig';
 import './sw-settings-number-range-list.scss';
 
-const { Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-settings-number-range-list', {
     template,
 
     inject: [
@@ -135,4 +132,4 @@ export default {
             });
         },
     },
-};
+});

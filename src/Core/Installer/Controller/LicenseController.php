@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Installer\Controller;
 
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Installer\License\LicenseFetcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -11,14 +11,19 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @internal
  */
-#[Package('core')]
 class LicenseController extends InstallerController
 {
-    public function __construct(private readonly LicenseFetcher $licenseFetcher)
+    private LicenseFetcher $licenseFetcher;
+
+    public function __construct(LicenseFetcher $licenseFetcher)
     {
+        $this->licenseFetcher = $licenseFetcher;
     }
 
-    #[Route(path: '/installer/license', name: 'installer.license', methods: ['GET', 'POST'])]
+    /**
+     * @Since("6.4.15.0")
+     * @Route("/installer/license", name="installer.license", methods={"GET", "POST"})
+     */
     public function license(Request $request): Response
     {
         if ($request->isMethod('POST') && $request->request->get('tos', false)) {

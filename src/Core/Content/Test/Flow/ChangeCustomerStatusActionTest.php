@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Test\Flow;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -9,28 +10,28 @@ use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Content\Flow\Dispatching\Action\ChangeCustomerStatusAction;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\PlatformRequest;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
  * @internal
  */
-#[Package('business-ops')]
 class ChangeCustomerStatusActionTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
     use CountryAddToSalesChannelTestBehaviour;
 
-    private EntityRepository $flowRepository;
+    private EntityRepositoryInterface $flowRepository;
+
+    private Connection $connection;
 
     private KernelBrowser $browser;
 
@@ -42,6 +43,8 @@ class ChangeCustomerStatusActionTest extends TestCase
     {
         $this->flowRepository = $this->getContainer()->get('flow.repository');
 
+        $this->connection = $this->getContainer()->get(Connection::class);
+
         $this->customerRepository = $this->getContainer()->get('customer.repository');
 
         $this->ids = new TestDataCollection();
@@ -51,6 +54,9 @@ class ChangeCustomerStatusActionTest extends TestCase
         ]);
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $this->ids->create('token'));
+
+        // all business event should be inactive.
+        $this->connection->executeStatement('DELETE FROM event_action;');
     }
 
     public function testChangeCustomerStatusAction(): void
@@ -62,51 +68,46 @@ class ChangeCustomerStatusActionTest extends TestCase
         $sequenceId = Uuid::randomHex();
         $ruleId = Uuid::randomHex();
 
-        $this->flowRepository->create([
-            [
-                'name' => 'Create Order',
-                'eventName' => CustomerLoginEvent::EVENT_NAME,
-                'priority' => 1,
-                'active' => true,
-                'sequences' => [
-                    [
-                        'id' => $sequenceId,
-                        'parentId' => null,
-                        'ruleId' => $ruleId,
-                        'actionName' => null,
-                        'config' => [],
-                        'position' => 1,
-                        'rule' => [
-                            'id' => $ruleId,
-                            'name' => 'Test rule',
-                            'priority' => 1,
-                            'conditions' => [
-                                ['type' => (new AlwaysValidRule())->getName()],
-                            ],
+        $this->flowRepository->create([[
+            'name' => 'Create Order',
+            'eventName' => CustomerLoginEvent::EVENT_NAME,
+            'priority' => 1,
+            'active' => true,
+            'sequences' => [
+                [
+                    'id' => $sequenceId,
+                    'parentId' => null,
+                    'ruleId' => $ruleId,
+                    'actionName' => null,
+                    'config' => [],
+                    'position' => 1,
+                    'rule' => [
+                        'id' => $ruleId,
+                        'name' => 'Test rule',
+                        'priority' => 1,
+                        'conditions' => [
+                            ['type' => (new AlwaysValidRule())->getName()],
                         ],
-                    ],
-                    [
-                        'id' => Uuid::randomHex(),
-                        'parentId' => $sequenceId,
-                        'ruleId' => null,
-                        'actionName' => ChangeCustomerStatusAction::getName(),
-                        'config' => [
-                            'active' => false,
-                        ],
-                        'position' => 1,
-                        'trueCase' => true,
                     ],
                 ],
+                [
+                    'id' => Uuid::randomHex(),
+                    'parentId' => $sequenceId,
+                    'ruleId' => null,
+                    'actionName' => ChangeCustomerStatusAction::getName(),
+                    'config' => [
+                        'active' => false,
+                    ],
+                    'position' => 1,
+                    'trueCase' => true,
+                ],
             ],
-        ], Context::createDefaultContext());
+        ]], Context::createDefaultContext());
 
         $this->login($email, $password);
 
         /** @var CustomerEntity $customer */
-        $customer = $this->customerRepository->search(
-            new Criteria([$this->ids->get('customer')]),
-            Context::createDefaultContext()
-        )->first();
+        $customer = $this->customerRepository->search(new Criteria([$this->ids->get('customer')]), Context::createDefaultContext())->first();
 
         static::assertFalse($customer->getActive());
     }
@@ -123,13 +124,11 @@ class ChangeCustomerStatusActionTest extends TestCase
                 ]
             );
 
-        $response = $this->browser->getResponse();
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
-        // After login successfully, the context token will be set in the header
-        $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
-        static::assertNotEmpty($contextToken);
+        static::assertArrayHasKey('contextToken', $response);
 
-        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $response['contextToken']);
     }
 
     private function createCustomer(string $password, ?string $email = null): void

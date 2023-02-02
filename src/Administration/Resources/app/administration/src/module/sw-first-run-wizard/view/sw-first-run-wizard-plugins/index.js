@@ -1,11 +1,10 @@
 import template from './sw-first-run-wizard-plugins.html.twig';
 import './sw-first-run-wizard-plugins.scss';
 
-/**
- * @package merchant-services
- */
+const { Component } = Shopware;
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-first-run-wizard-plugins', {
     template,
 
     inject: ['recommendationsService'],
@@ -144,4 +143,4 @@ export default {
             this.getRecommendations();
         },
     },
-};
+});

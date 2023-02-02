@@ -4,41 +4,40 @@ namespace Shopware\Core\Content\ImportExport\Event\Subscriber;
 
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\ImportExport\Event\ImportExportBeforeImportRecordEvent;
+use Shopware\Core\Content\ImportExport\Exception\ProcessingException;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Api\Sync\SyncBehavior;
 use Shopware\Core\Framework\Api\Sync\SyncOperation;
 use Shopware\Core\Framework\Api\Sync\SyncServiceInterface;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Contracts\Service\ResetInterface;
 
-/**
- * @internal
- */
-#[Package('system-settings')]
-class ProductCategoryPathsSubscriber implements EventSubscriberInterface, ResetInterface
+class ProductCategoryPathsSubscriber implements EventSubscriberInterface
 {
-    /**
-     * @var array<string, string>
-     */
+    private EntityRepositoryInterface $categoryRepository;
+
+    private SyncServiceInterface $syncService;
+
     private array $categoryIdCache = [];
 
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $categoryRepository, private readonly SyncServiceInterface $syncService)
+    public function __construct(EntityRepositoryInterface $categoryRepository, SyncServiceInterface $syncService)
     {
+        $this->categoryRepository = $categoryRepository;
+        $this->syncService = $syncService;
     }
 
     /**
      * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
      */
-    public static function getSubscribedEvents(): array
+    public static function getSubscribedEvents()
     {
         return [
             ImportExportBeforeImportRecordEvent::class => 'categoryPathsToAssignment',
@@ -55,7 +54,7 @@ class ProductCategoryPathsSubscriber implements EventSubscriberInterface, ResetI
         }
 
         $result = [];
-        $categoriesPaths = explode('|', (string) $row['category_paths']);
+        $categoriesPaths = explode('|', $row['category_paths']);
         $newCategoriesPayload = [];
 
         foreach ($categoriesPaths as $path) {
@@ -109,7 +108,7 @@ class ProductCategoryPathsSubscriber implements EventSubscriberInterface, ResetI
         }
 
         if (!empty($newCategoriesPayload)) {
-            $this->createNewCategories($newCategoriesPayload);
+            $this->createNewCategories($newCategoriesPayload, $row['category_paths']);
         }
 
         $record = $event->getRecord();
@@ -118,23 +117,36 @@ class ProductCategoryPathsSubscriber implements EventSubscriberInterface, ResetI
         $event->setRecord($record);
     }
 
-    public function reset(): void
+    private function createNewCategories(array $payload, string $categoryPaths): void
     {
-        $this->categoryIdCache = [];
-    }
+        if (Feature::isActive('FEATURE_NEXT_15815')) {
+            $behavior = new SyncBehavior();
+        } else {
+            $behavior = new SyncBehavior(true, true);
+        }
 
-    /**
-     * @param list<array<string, mixed>> $payload
-     */
-    private function createNewCategories(array $payload): void
-    {
-        $this->syncService->sync([
+        $result = $this->syncService->sync([
             new SyncOperation(
                 'write',
                 CategoryDefinition::ENTITY_NAME,
                 SyncOperation::ACTION_UPSERT,
                 $payload
             ),
-        ], Context::createDefaultContext(), new SyncBehavior());
+        ], Context::createDefaultContext(), $behavior);
+
+        if (Feature::isActive('FEATURE_NEXT_15815')) {
+            // @internal (flag:FEATURE_NEXT_15815) - remove code below, "isSuccess" function will be removed, simply return because sync service would throw an exception in error case
+            return;
+        }
+
+        if (!$result->isSuccess()) {
+            $operation = $result->get('write');
+
+            throw new ProcessingException(sprintf(
+                'Failed writing categories for path %s with errors: %s',
+                $categoryPaths,
+                $operation ? json_encode(array_column($operation->getResult(), 'errors')) : ''
+            ));
+        }
     }
 }

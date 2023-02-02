@@ -2,9 +2,6 @@
 
 namespace Shopware\Core\Framework\Validation\DataBag;
 
-use Shopware\Core\Framework\Log\Package;
-
-#[Package('core')]
 class QueryDataBag extends DataBag
 {
 }

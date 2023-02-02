@@ -3,22 +3,34 @@
 namespace Shopware\Core\Framework\Test\Webhook\_fixtures\BusinessEvents;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
-use Shopware\Core\Framework\Event\FlowEventAware;
 
 /**
  * @internal
  */
-class ScalarBusinessEvent implements FlowEventAware, BusinessEventEncoderTestInterface
+class ScalarBusinessEvent implements BusinessEventInterface, BusinessEventEncoderTestInterface
 {
-    private string $string = 'string';
+    /**
+     * @var string
+     */
+    private $string = 'string';
 
-    private bool $bool = true;
+    /**
+     * @var bool
+     */
+    private $bool = true;
 
-    private int $int = 3;
+    /**
+     * @var int
+     */
+    private $int = 3;
 
-    private float $float = 1.3;
+    /**
+     * @var float
+     */
+    private $float = 1.3;
 
     public static function getAvailableData(): EventDataCollection
     {

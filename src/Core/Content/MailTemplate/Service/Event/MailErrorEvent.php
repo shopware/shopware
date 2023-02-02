@@ -5,30 +5,41 @@ namespace Shopware\Core\Content\MailTemplate\Service\Event;
 use Monolog\Logger;
 use Shopware\Core\Content\Flow\Dispatching\Aware\NameAware;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Log\LogAware;
-use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('sales-channel')]
-class MailErrorEvent extends Event implements LogAware, FlowEventAware, NameAware
+class MailErrorEvent extends Event implements LogAware, FlowEventAware, BusinessEventInterface, NameAware
 {
-    final public const NAME = 'mail.sent.error';
+    public const NAME = 'mail.sent.error';
+
+    private $context;
+
+    /**
+     * @var 100|200|250|300|400|500|550|600
+     */
+    private $logLevel;
+
+    private ?\Throwable $throwable;
+
+    private ?string $message;
 
     /**
      * @param 100|200|250|300|400|500|550|600|null $logLevel
-     * @param array<string, mixed> $templateData
      */
     public function __construct(
-        private readonly Context $context,
-        private readonly ?int $logLevel = Logger::DEBUG,
-        private readonly ?\Throwable $throwable = null,
-        private readonly ?string $message = null,
-        private readonly ?string $template = null,
-        private readonly ?array $templateData = []
+        Context $context,
+        ?int $logLevel,
+        ?\Throwable $throwable = null,
+        ?string $message = null
     ) {
+        $this->context = $context;
+        $this->logLevel = $logLevel ?? Logger::DEBUG;
+        $this->throwable = $throwable;
+        $this->message = $message;
     }
 
     public function getThrowable(): ?\Throwable
@@ -51,7 +62,7 @@ class MailErrorEvent extends Event implements LogAware, FlowEventAware, NameAwar
      */
     public function getLogLevel(): int
     {
-        return $this->logLevel ?? Logger::DEBUG;
+        return $this->logLevel;
     }
 
     /**
@@ -70,17 +81,6 @@ class MailErrorEvent extends Event implements LogAware, FlowEventAware, NameAwar
             $logData['message'] = $this->message;
         }
 
-        if ($this->template) {
-            $logData['template'] = $this->template;
-        }
-
-        $logData['eventName'] = null;
-
-        if ($this->templateData) {
-            $logData['templateData'] = $this->templateData;
-            $logData['eventName'] = $this->templateData['eventName'] ?? null;
-        }
-
         return $logData;
     }
 
@@ -93,18 +93,5 @@ class MailErrorEvent extends Event implements LogAware, FlowEventAware, NameAwar
     {
         return (new EventDataCollection())
             ->add('name', new ScalarValueType(ScalarValueType::TYPE_STRING));
-    }
-
-    public function getTemplate(): ?string
-    {
-        return $this->template;
-    }
-
-    /**
-     * @return mixed[]|null
-     */
-    public function getTemplateData(): ?array
-    {
-        return $this->templateData;
     }
 }

@@ -1,42 +1,20 @@
 @import "~scss/variables";
 
-.sw-condition .sw-contidion-line-item-goods-total__numfield.sw-block-field {
-    border: none;
-}
-
-.sw-condition-line-item-goods-total__value {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    width: 100%;
-    border: 1px solid $color-gray-500;
-    border-radius: $border-radius-default;
-    overflow: hidden;
-}
-
 .sw-condition-line-item-goods-total {
     display: grid;
-    gap: 4px;
-    grid-template-columns: auto 1fr;
+    grid-template-columns: auto 1fr 40px;
 
     .sw-condition-line-item-goods-total__filter {
-        background-color: $color-white;
-        padding: 4px;
+        border-left: 1px solid $color-gray-300;
+        color: $color-darkgray-200;
 
         .sw-button {
             height: 100%;
             display: flex;
             align-items: center;
             border: none;
-            background: $color-gray-100;
+            background: transparent;
             padding: 2px 11px;
-
-            &:hover {
-                background: $color-gray-200;
-            }
-        }
-
-        .sw-icon {
-            color: $color-darkgray-200;
         }
     }
 }

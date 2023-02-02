@@ -1,8 +1,5 @@
 import HistoryUtil from 'src/utility/history/history.util';
 
-/**
- * @package storefront
- */
 describe('history.util tests', () => {
     test('returns the current location', () => {
         HistoryUtil.push('/listing', '?page=5', { some: 'state' });

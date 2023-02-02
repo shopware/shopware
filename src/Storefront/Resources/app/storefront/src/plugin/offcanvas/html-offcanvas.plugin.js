@@ -1,8 +1,5 @@
 import OffCanvas from 'src/plugin/offcanvas/offcanvas.plugin';
 
-/**
- * @package storefront
- */
 export default class HtmlOffCanvas extends OffCanvas {
 
     /**

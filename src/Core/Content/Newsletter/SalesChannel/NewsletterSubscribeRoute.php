@@ -8,13 +8,15 @@ use Shopware\Core\Content\Newsletter\Event\NewsletterRegisterEvent;
 use Shopware\Core\Content\Newsletter\Event\NewsletterSubscribeUrlEvent;
 use Shopware\Core\Content\Newsletter\Exception\NewsletterRecipientNotFoundException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
@@ -34,47 +36,88 @@ use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
+ * @Route(defaults={"_routeScope"={"store-api"}})
+ *
  * @phpstan-type SubscribeRequest array{email: string, storefrontUrl: string, option: string, firstName?: string, lastName?: string, zipCode?: string, city?: string, street?: string, salutationId?: string}
  */
-#[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('customer-order')]
 class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
 {
-    final public const STATUS_NOT_SET = 'notSet';
-    final public const STATUS_OPT_IN = 'optIn';
-    final public const STATUS_OPT_OUT = 'optOut';
-    final public const STATUS_DIRECT = 'direct';
+    public const STATUS_NOT_SET = 'notSet';
+    public const STATUS_OPT_IN = 'optIn';
+    public const STATUS_OPT_OUT = 'optOut';
+    public const STATUS_DIRECT = 'direct';
 
     /**
      * The subscription is directly active and does not need a confirmation.
+     *
+     * @internal (flag:FEATURE_NEXT_14001) remove this comment on feature release
      */
-    final public const OPTION_DIRECT = 'direct';
+    public const OPTION_DIRECT = 'direct';
 
     /**
      * An email will be send to the provided email addrees containing a link to the /newsletter/confirm route.
+     *
+     * @internal (flag:FEATURE_NEXT_14001) remove this comment on feature release
      */
-    final public const OPTION_SUBSCRIBE = 'subscribe';
+    public const OPTION_SUBSCRIBE = 'subscribe';
 
     /**
      * The email address will be removed from the newsletter subscriptions.
+     *
+     * @internal (flag:FEATURE_NEXT_14001) remove this comment on feature release
      */
-    final public const OPTION_UNSUBSCRIBE = 'unsubscribe';
+    public const OPTION_UNSUBSCRIBE = 'unsubscribe';
 
     /**
-     * Confirms the newsletter subscription for the provided email address.
+     * Confirmes the newsletter subscription for the provided email address.
+     *
+     * @internal (flag:FEATURE_NEXT_14001) remove this comment on feature release
      */
-    final public const OPTION_CONFIRM_SUBSCRIBE = 'confirmSubscribe';
+    public const OPTION_CONFIRM_SUBSCRIBE = 'confirmSubscribe';
 
     /**
      * The regex to check if string contains an url
      */
-    final public const DOMAIN_NAME_REGEX = '/((https?:\/\/))/';
+    public const DOMAIN_NAME_REGEX = '/((https?:\/\/))/';
+
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $newsletterRecipientRepository;
+
+    /**
+     * @var DataValidator
+     */
+    private $validator;
+
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
+    private SystemConfigService $systemConfigService;
+
+    private RequestStack $requestStack;
+
+    private RateLimiter $rateLimiter;
 
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $newsletterRecipientRepository, private readonly DataValidator $validator, private readonly EventDispatcherInterface $eventDispatcher, private readonly SystemConfigService $systemConfigService, private readonly RateLimiter $rateLimiter, private readonly RequestStack $requestStack)
-    {
+    public function __construct(
+        EntityRepositoryInterface $newsletterRecipientRepository,
+        DataValidator $validator,
+        EventDispatcherInterface $eventDispatcher,
+        SystemConfigService $systemConfigService,
+        RateLimiter $rateLimiter,
+        RequestStack $requestStack
+    ) {
+        $this->newsletterRecipientRepository = $newsletterRecipientRepository;
+        $this->validator = $validator;
+        $this->eventDispatcher = $eventDispatcher;
+        $this->systemConfigService = $systemConfigService;
+        $this->rateLimiter = $rateLimiter;
+        $this->requestStack = $requestStack;
     }
 
     public function getDecorated(): AbstractNewsletterSubscribeRoute
@@ -82,16 +125,22 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/newsletter/subscribe', name: 'store-api.newsletter.subscribe', methods: ['POST'])]
+    /**
+     * @Since("6.2.0.0")
+     * @Route("/store-api/newsletter/subscribe", name="store-api.newsletter.subscribe", methods={"POST"})
+     */
     public function subscribe(RequestDataBag $dataBag, SalesChannelContext $context, bool $validateStorefrontUrl = true): NoContentResponse
     {
-        $doubleOptInDomain = $this->systemConfigService->getString(
-            'core.newsletter.doubleOptInDomain',
-            $context->getSalesChannelId()
-        );
-        if ($doubleOptInDomain !== '') {
-            $dataBag->set('storefrontUrl', $doubleOptInDomain);
-            $validateStorefrontUrl = false;
+        /* @feature-deprecated (flag:FEATURE_NEXT_16200) remove the if condition, keep its body */
+        if (Feature::isActive('FEATURE_NEXT_16200')) {
+            $doubleOptInDomain = $this->systemConfigService->getString(
+                'core.newsletter.doubleOptInDomain',
+                $context->getSalesChannelId()
+            );
+            if ($doubleOptInDomain !== '') {
+                $dataBag->set('storefrontUrl', $doubleOptInDomain);
+                $validateStorefrontUrl = false;
+            }
         }
 
         $validator = $this->getOptInValidator($dataBag, $context, $validateStorefrontUrl);
@@ -135,7 +184,7 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
 
         $recipient = $this->getNewsletterRecipient('email', $data['email'], $context->getContext());
 
-        if (!$this->isNewsletterDoi($context)) {
+        if ($data['status'] === self::STATUS_DIRECT) {
             $event = new NewsletterConfirmEvent($context->getContext(), $recipient, $context->getSalesChannel()->getId());
             $this->eventDispatcher->dispatch($event);
 
@@ -151,20 +200,11 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
         return new NoContentResponse();
     }
 
-    public function isNewsletterDoi(SalesChannelContext $context): ?bool
-    {
-        if ($context->getCustomerId() === null) {
-            return $this->systemConfigService->getBool('core.newsletter.doubleOptIn', $context->getSalesChannelId());
-        }
-
-        return $this->systemConfigService->getBool('core.newsletter.doubleOptInRegistered', $context->getSalesChannelId());
-    }
-
     private function getOptInValidator(DataBag $dataBag, SalesChannelContext $context, bool $validateStorefrontUrl): DataValidationDefinition
     {
         $definition = new DataValidationDefinition('newsletter_recipient.create');
         $definition->add('email', new NotBlank(), new Email())
-            ->add('option', new NotBlank(), new Choice(array_keys($this->getOptionSelection($context))));
+            ->add('option', new NotBlank(), new Choice(array_keys($this->getOptionSelection())));
 
         if (!empty($dataBag->get('firstName'))) {
             $definition->add('firstName', new NotBlank(), new Regex([
@@ -203,7 +243,7 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
         $data['id'] = $id ?: Uuid::randomHex();
         $data['languageId'] = $context->getContext()->getLanguageId();
         $data['salesChannelId'] = $context->getSalesChannel()->getId();
-        $data['status'] = $this->getOptionSelection($context)[$data['option']];
+        $data['status'] = $this->getOptionSelection()[$data['option']];
         $data['hash'] = Uuid::randomHex();
 
         return $data;
@@ -228,11 +268,11 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
     /**
      * @return array<string, string>
      */
-    private function getOptionSelection(SalesChannelContext $context): array
+    private function getOptionSelection(): array
     {
         return [
-            self::OPTION_DIRECT => $this->isNewsletterDoi($context) ? self::STATUS_NOT_SET : self::STATUS_DIRECT,
-            self::OPTION_SUBSCRIBE => $this->isNewsletterDoi($context) ? self::STATUS_NOT_SET : self::STATUS_DIRECT,
+            self::OPTION_DIRECT => self::STATUS_DIRECT,
+            self::OPTION_SUBSCRIBE => self::STATUS_NOT_SET,
             self::OPTION_CONFIRM_SUBSCRIBE => self::STATUS_OPT_IN,
             self::OPTION_UNSUBSCRIBE => self::STATUS_OPT_OUT,
         ];
@@ -264,7 +304,9 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
             return [];
         }
 
-        return array_map(static fn (SalesChannelDomainEntity $domainEntity) => rtrim($domainEntity->getUrl(), '/'), $salesChannelDomainCollection->getElements());
+        return array_map(static function (SalesChannelDomainEntity $domainEntity) {
+            return rtrim($domainEntity->getUrl(), '/');
+        }, $salesChannelDomainCollection->getElements());
     }
 
     /**

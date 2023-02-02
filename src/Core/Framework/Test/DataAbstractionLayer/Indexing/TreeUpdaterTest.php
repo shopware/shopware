@@ -201,7 +201,7 @@ class TreeUpdaterTest extends TestCase
  */
 class TestTreeDefinition extends EntityDefinition
 {
-    final public const ENTITY_NAME = 'test_tree';
+    public const ENTITY_NAME = 'test_tree';
 
     public function getEntityName(): string
     {
@@ -233,7 +233,7 @@ class TestTreeDefinition extends EntityDefinition
  */
 class TestTreeDefinitionWithoutVersion extends EntityDefinition
 {
-    final public const ENTITY_NAME = 'test_tree_without_version';
+    public const ENTITY_NAME = 'test_tree_without_version';
 
     public function getEntityName(): string
     {

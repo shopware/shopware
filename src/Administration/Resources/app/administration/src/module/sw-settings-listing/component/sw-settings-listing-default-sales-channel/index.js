@@ -1,12 +1,13 @@
 import template from './sw-settings-listing-default-sales-channel.html.twig';
 import './sw-settings-listing-default-sales-channel.scss';
 
+const { Component } = Shopware;
 const { EntityCollection } = Shopware.Data;
 const { isEmpty } = Shopware.Utils.types;
 const { cloneDeep } = Shopware.Utils.object;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-settings-listing-default-sales-channel', {
     template,
 
     inject: ['repositoryFactory', 'systemConfigApiService'],
@@ -136,4 +137,4 @@ export default {
             this.salesChannel = salesChannel;
         },
     },
-};
+});

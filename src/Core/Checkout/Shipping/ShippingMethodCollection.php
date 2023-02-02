@@ -4,19 +4,19 @@ namespace Shopware\Core\Checkout\Shipping;
 
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @extends EntityCollection<ShippingMethodEntity>
  */
-#[Package('checkout')]
 class ShippingMethodCollection extends EntityCollection
 {
     public function filterByActiveRules(SalesChannelContext $salesChannelContext): ShippingMethodCollection
     {
         return $this->filter(
-            fn (ShippingMethodEntity $shippingMethod) => \in_array($shippingMethod->getAvailabilityRuleId(), $salesChannelContext->getRuleIds(), true)
+            function (ShippingMethodEntity $shippingMethod) use ($salesChannelContext) {
+                return \in_array($shippingMethod->getAvailabilityRuleId(), $salesChannelContext->getRuleIds(), true);
+            }
         );
     }
 
@@ -39,7 +39,7 @@ class ShippingMethodCollection extends EntityCollection
         $prices = [[]];
 
         foreach ($this->getIterator() as $element) {
-            $prices[] = $element->getPrices()->getElements();
+            $prices[] = $element->getPrices();
         }
 
         $prices = array_merge(...$prices);

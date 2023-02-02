@@ -15,7 +15,6 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -27,7 +26,6 @@ use Symfony\Component\Console\Output\NullOutput;
 /**
  * @internal
  */
-#[Package('checkout')]
 class CartMigrateCommandTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -42,7 +40,7 @@ class CartMigrateCommandTest extends TestCase
 
         $this->getContainer()->get(Connection::class)->executeStatement('DELETE FROM cart');
 
-        $redisCart = new Cart(Uuid::randomHex());
+        $redisCart = new Cart('shopware', Uuid::randomHex());
         $redisCart->add(
             (new LineItem('A', 'test'))
                 ->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()))
@@ -85,7 +83,7 @@ class CartMigrateCommandTest extends TestCase
 
         $this->getContainer()->get(Connection::class)->executeStatement('DELETE FROM cart');
 
-        $redisCart = new Cart(Uuid::randomHex());
+        $redisCart = new Cart('shopware', Uuid::randomHex());
         $redisCart->add(
             (new LineItem('A', 'test'))
                 ->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()))
@@ -128,7 +126,7 @@ class CartMigrateCommandTest extends TestCase
 
         $this->getContainer()->get(Connection::class)->executeStatement('DELETE FROM cart');
 
-        $sqlCart = new Cart(Uuid::randomHex());
+        $sqlCart = new Cart('shopware', Uuid::randomHex());
         $sqlCart->add(
             (new LineItem('A', 'test'))
                 ->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()))

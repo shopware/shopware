@@ -2,16 +2,16 @@
 
 namespace Shopware\Core\Installer\Finish;
 
-use Shopware\Core\Framework\Log\Package;
-
 /**
  * @internal
  */
-#[Package('core')]
 class SystemLocker
 {
-    public function __construct(private readonly string $projectDir)
+    private string $projectDir;
+
+    public function __construct(string $projectDir)
     {
+        $this->projectDir = $projectDir;
     }
 
     public function lock(): void

@@ -9,14 +9,12 @@ use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Dispatching\Storer\CustomerStorer;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\CustomerAware;
 use Shopware\Core\System\User\Recovery\UserRecoveryRequestEvent;
 
 /**
- * @package business-ops
- *
  * @internal
  *
  * @covers \Shopware\Core\Content\Flow\Dispatching\Storer\CustomerStorer
@@ -25,11 +23,14 @@ class CustomerStorerTest extends TestCase
 {
     private CustomerStorer $storer;
 
-    private MockObject&EntityRepository $repository;
+    /**
+     * @var MockObject|EntityRepositoryInterface
+     */
+    private $repository;
 
     public function setUp(): void
     {
-        $this->repository = $this->createMock(EntityRepository::class);
+        $this->repository = $this->createMock(EntityRepositoryInterface::class);
         $this->storer = new CustomerStorer($this->repository);
     }
 
@@ -51,7 +52,7 @@ class CustomerStorerTest extends TestCase
 
     public function testRestoreHasStored(): void
     {
-        /** @var MockObject&StorableFlow $storable */
+        /** @var MockObject|StorableFlow $storable */
         $storable = $this->createMock(StorableFlow::class);
 
         $storable->expects(static::exactly(1))
@@ -70,7 +71,7 @@ class CustomerStorerTest extends TestCase
 
     public function testRestoreEmptyStored(): void
     {
-        /** @var MockObject&StorableFlow $storable */
+        /** @var MockObject|StorableFlow $storable */
         $storable = $this->createMock(StorableFlow::class);
 
         $storable->expects(static::exactly(1))

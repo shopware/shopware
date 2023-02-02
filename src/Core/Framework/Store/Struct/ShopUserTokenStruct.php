@@ -2,29 +2,26 @@
 
 namespace Shopware\Core\Framework\Store\Struct;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * @codeCoverageIgnore
  */
-#[Package('merchant-services')]
 class ShopUserTokenStruct extends Struct
 {
-    public function __construct(
-        protected string $token,
-        protected \DateTimeInterface $expirationDate,
-    ) {
-    }
+    /**
+     * @var string
+     */
+    protected $token;
+
+    /**
+     * @var \DateTimeInterface
+     */
+    protected $expirationDate;
 
     public function getToken(): string
     {
         return $this->token;
-    }
-
-    public function getExpirationDate(): \DateTimeInterface
-    {
-        return $this->expirationDate;
     }
 
     public function getApiAlias(): string

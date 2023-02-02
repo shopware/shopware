@@ -6,7 +6,7 @@
 
     <monolog:config>
         <monolog:handler
-                id="Monolog\Handler\NullHandler"
+                id="Shopware\Core\Framework\Test\Logging\Monolog\DiscardHandler"
                 name="business_event_handler_discard"
                 type="service"
                 priority="1">
@@ -126,11 +126,7 @@
             <argument type="service" id="test.client.cookiejar" />
         </service>
 
-        <service id="Monolog\Handler\NullHandler">
-        </service>
-
-        <service id="Shopware\Core\Framework\Test\MessageQueue\fixtures\TestMessageHandler">
-            <tag name="messenger.message_handler"/>
+        <service id="Shopware\Core\Framework\Test\Logging\Monolog\DiscardHandler">
         </service>
 
         <service id="Shopware\Core\Content\Test\Category\Service\CountingEntityReader" decorates="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface">
@@ -155,7 +151,7 @@
                 <argument key="handler" type="service">
                     <service class="GuzzleHttp\HandlerStack">
                         <factory class="GuzzleHttp\HandlerStack" method="create" />
-                        <argument type="service" id="Shopware\Tests\Integration\Core\Framework\App\TestAppServer"/>
+                        <argument type="service" id="Shopware\Core\Framework\Test\App\TestAppServer"/>
                         <call method="push">
                             <argument type="service" id="shopware.app_system.guzzle.middleware"/>
                         </call>
@@ -167,7 +163,7 @@
             </argument>
         </service>
 
-        <service id="Shopware\Tests\Integration\Core\Framework\App\TestAppServer">
+        <service id="Shopware\Core\Framework\Test\App\TestAppServer">
             <argument type="service" id="GuzzleHttp\Handler\MockHandler"/>
         </service>
 
@@ -177,17 +173,18 @@
         </service>
 
         <service id="test.guzzle.history.middleware" class="callable">
-            <factory service="Shopware\Tests\Integration\Core\Framework\App\GuzzleHistoryCollector" method="getHistoryMiddleWare"/>
+            <factory service="Shopware\Core\Framework\Test\App\GuzzleHistoryCollector" method="getHistoryMiddleWare"/>
         </service>
 
-        <service id="Shopware\Tests\Integration\Core\Framework\App\GuzzleHistoryCollector" public="true" />
+        <service id="Shopware\Core\Framework\Test\App\GuzzleHistoryCollector" public="true">
+        </service>
 
         <service id="Shopware\Core\Framework\Test\Api\Acl\fixtures\AclTestController" public="true"/>
 
         <service id="test_payment_decoration" class="Shopware\Core\Framework\App\Payment\Handler\AppAsyncPaymentHandler" decorates="Shopware\Core\Framework\App\Payment\Handler\AppAsyncPaymentHandler">
             <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
             <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
-            <argument type="service" id="Shopware\Core\Framework\App\Payment\Payload\PaymentPayloadService"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Payment\Payload\PayloadService"/>
             <argument type="service" id="order_transaction_capture_refund.repository"/>
         </service>
 

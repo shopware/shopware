@@ -311,7 +311,7 @@
           "placeholderTextarea": ""
         },
         "generateCancellationInvoice": {
-          "label": "Generate: Cancellation invoice",
+          "label": "Generate: Storno bill",
           "helpText": "This action increases the value of the corresponding number range.",
           "changeSubLabel": "The latest reference invoice number will  be used."
         },

@@ -1,7 +1,3 @@
-/**
- * @package sales-channel
- */
-
 import './modules/sw-theme-manager';
 import './modules/sw-settings-storefront';
 

@@ -94,7 +94,7 @@ class ProductControllerTest extends TestCase
             ])
         );
 
-        $responseContent = (string) $response->getContent();
+        $responseContent = $response->getContent();
         $content = (array) json_decode($responseContent);
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
@@ -135,7 +135,7 @@ class ProductControllerTest extends TestCase
             ->manufacturer('m1')
             ->name('test')
             ->price(10)
-            ->visibility()
+            ->visibility(TestDefaults::SALES_CHANNEL)
             ->configuratorSetting('red', 'color')
             ->configuratorSetting('green', 'color')
             ->configuratorSetting('blue', 'color')
@@ -143,7 +143,7 @@ class ProductControllerTest extends TestCase
             ->configuratorSetting('xl', 'size')
             ->configuratorSetting('m', 'size')
             ->stock(10)
-            ->closeout()
+            ->closeout(true)
             ->variant(
                 (new ProductBuilder($this->ids, 'a.1'))
                     ->option('red', 'color')
@@ -180,7 +180,7 @@ class ProductControllerTest extends TestCase
                 (new ProductBuilder($this->ids, 'a.5'))
                     ->option('blue', 'color')
                     ->option('xl', 'size')
-                    ->visibility()
+                    ->visibility(TestDefaults::SALES_CHANNEL)
                     ->visibility($this->ids->get('sales-channel'))
                     ->stock(10)
                     ->closeout(null) // inherited
@@ -238,7 +238,7 @@ class ProductControllerTest extends TestCase
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
         $crawler = new Crawler();
-        $crawler->addHtmlContent((string) $response->getContent());
+        $crawler->addHtmlContent($response->getContent());
 
         $blueFound = false;
         $greenFound = false;
@@ -287,9 +287,6 @@ class ProductControllerTest extends TestCase
         static::assertFalse($mFound, 'Option m was found.');
     }
 
-    /**
-     * @return iterable<string, array<int, string|bool>>
-     */
     public function variantProvider(): iterable
     {
         yield 'test color: red - size: xl' => ['a.1', true, false, true, true, true]; // a.1 all options should be normal
@@ -367,7 +364,7 @@ class ProductControllerTest extends TestCase
         return $request;
     }
 
-    private function createProduct(): string
+    private function createProduct(array $config = []): string
     {
         $id = Uuid::randomHex();
 
@@ -383,8 +380,12 @@ class ProductControllerTest extends TestCase
             'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
             'tax' => ['id' => Uuid::randomHex(), 'name' => 'test', 'taxRate' => 19],
             'manufacturer' => ['name' => 'test'],
-            'visibilities' => array_map(static fn ($id) => ['salesChannelId' => $id, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL], $ids),
+            'visibilities' => array_map(static function ($id) {
+                return ['salesChannelId' => $id, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL];
+            }, $ids),
         ];
+
+        $product = array_replace_recursive($product, $config);
 
         $repository = $this->getContainer()->get('product.repository');
 
@@ -416,7 +417,7 @@ class ProductControllerTest extends TestCase
                 'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
                 'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => 'testuser@example.com',
-                'password' => 'test12345',
+                'password' => 'test',
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
                 'salutationId' => $this->getValidSalutationId(),
@@ -441,17 +442,16 @@ class ProductControllerTest extends TestCase
             $_SERVER['APP_URL'] . '/account/login',
             $this->tokenize('frontend.account.login', [
                 'username' => $customer->getEmail(),
-                'password' => 'test12345',
+                'password' => 'test',
             ])
         );
         $response = $browser->getResponse();
-        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
 
         $browser->request('GET', '/');
         /** @var StorefrontResponse $response */
         $response = $browser->getResponse();
-        static::assertNotNull($context = $response->getContext());
-        static::assertNotNull($context->getCustomer());
+        static::assertNotNull($response->getContext()->getCustomer());
 
         return $browser;
     }

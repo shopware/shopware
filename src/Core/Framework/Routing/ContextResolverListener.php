@@ -2,22 +2,24 @@
 
 namespace Shopware\Core\Framework\Routing;
 
-use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
-/**
- * @internal
- */
-#[Package('core')]
 class ContextResolverListener implements EventSubscriberInterface
 {
     /**
+     * @var RequestContextResolverInterface
+     */
+    private $requestContextResolver;
+
+    /**
      * @internal
      */
-    public function __construct(private readonly RequestContextResolverInterface $requestContextResolver)
-    {
+    public function __construct(
+        RequestContextResolverInterface $requestContextResolver
+    ) {
+        $this->requestContextResolver = $requestContextResolver;
     }
 
     public static function getSubscribedEvents(): array

@@ -1,7 +1,3 @@
-/**
- * @package admin
- */
-
 const { Component } = Shopware;
 const utils = Shopware.Utils;
 

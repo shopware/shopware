@@ -1,7 +1,5 @@
-/**
- * @package storefront
- */
 export default class StringHelper {
+
 
     /**
      * turns first character of word to uppercase

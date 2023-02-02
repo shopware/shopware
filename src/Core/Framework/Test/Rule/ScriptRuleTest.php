@@ -14,11 +14,9 @@ use Shopware\Core\Framework\App\AppStateService;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
-use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\ScriptRule;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -32,17 +30,16 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 /**
  * @internal
  */
-#[Package('business-ops')]
 class ScriptRuleTest extends TestCase
 {
     use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
 
-    private EntityRepository $ruleRepository;
+    private EntityRepositoryInterface $ruleRepository;
 
-    private EntityRepository $conditionRepository;
+    private EntityRepositoryInterface $conditionRepository;
 
-    private EntityRepository $appRepository;
+    private EntityRepositoryInterface $appRepository;
 
     private AppStateService $appStateService;
 
@@ -66,8 +63,6 @@ class ScriptRuleTest extends TestCase
 
     /**
      * @runInSeparateProcess
-     *
-     * @param array<string, string> $values
      * @dataProvider scriptProvider
      */
     public function testRuleScriptExecution(string $path, array $values, bool $expectedTrue): void
@@ -151,12 +146,10 @@ class ScriptRuleTest extends TestCase
 
         /** @var RuleEntity $rule */
         $rule = $this->ruleRepository->search(new Criteria([$ruleId]), $this->context)->get($ruleId);
-        $payload = $rule->getPayload();
-        static::assertInstanceOf(Rule::class, $payload);
 
-        static::assertFalse($payload->match($expectedFalseScope));
+        static::assertFalse($rule->getPayload()->match($expectedFalseScope));
 
-        static::assertTrue($payload->match($expectedTrueScope));
+        static::assertTrue($rule->getPayload()->match($expectedTrueScope));
     }
 
     public function testRuleValidation(): void
@@ -205,18 +198,15 @@ class ScriptRuleTest extends TestCase
 
         /** @var RuleEntity $rule */
         $rule = $this->ruleRepository->search(new Criteria([$ruleId]), $this->context)->get($ruleId);
-        $payload = $rule->getPayload();
-        static::assertInstanceOf(Rule::class, $payload);
-        static::assertFalse($payload->match($scope));
+
+        static::assertFalse($rule->getPayload()->match($scope));
 
         $this->appStateService->activateApp($this->appId, $this->context);
 
         /** @var RuleEntity $rule */
         $rule = $this->ruleRepository->search(new Criteria([$ruleId]), $this->context)->get($ruleId);
-        $payload = $rule->getPayload();
-        static::assertInstanceOf(Rule::class, $payload);
 
-        static::assertTrue($payload->match($scope));
+        static::assertTrue($rule->getPayload()->match($scope));
     }
 
     public function testRuleWithUninstalledApp(): void
@@ -227,18 +217,15 @@ class ScriptRuleTest extends TestCase
 
         /** @var RuleEntity $rule */
         $rule = $this->ruleRepository->search(new Criteria([$ruleId]), $this->context)->get($ruleId);
-        $payload = $rule->getPayload();
-        static::assertInstanceOf(Rule::class, $payload);
-        static::assertTrue($payload->match($scope));
+
+        static::assertTrue($rule->getPayload()->match($scope));
 
         $this->appLifecycle->delete('test', ['id' => $this->appId], $this->context);
 
         /** @var RuleEntity $rule */
         $rule = $this->ruleRepository->search(new Criteria([$ruleId]), $this->context)->get($ruleId);
 
-        $payload = $rule->getPayload();
-        static::assertInstanceOf(Rule::class, $payload);
-        static::assertFalse($payload->match($scope));
+        static::assertFalse($rule->getPayload()->match($scope));
     }
 
     private function getCheckoutScope(string $ruleId): CheckoutRuleScope
@@ -274,9 +261,7 @@ class ScriptRuleTest extends TestCase
 
     private function installApp(): void
     {
-        $fixturesPath = __DIR__ . '/../../../../../tests/integration/php/Core/Framework/App/Manifest/_fixtures';
-
-        $manifest = Manifest::createFromXmlFile($fixturesPath . '/test/manifest.xml');
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../App/Manifest/_fixtures/test/manifest.xml');
         $this->appLifecycle->install($manifest, false, $this->context);
         /** @var AppEntity $app */
         $app = $this->appRepository->search((new Criteria())->addAssociation('scriptConditions'), $this->context)->first();

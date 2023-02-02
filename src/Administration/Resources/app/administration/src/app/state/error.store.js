@@ -1,7 +1,3 @@
-/**
- * @package admin
- */
-
 const { Application } = Shopware;
 const { ErrorStore } = Shopware.Data;
 const utils = Shopware.Utils;
@@ -66,10 +62,6 @@ class VuexErrorStore {
                 return getters.getApiErrorFromPath(entity.getEntityName(), entity.id, path);
             },
 
-            getAllApiErrors: (state) => () => {
-                return Object.values(state.api);
-            },
-
             existsErrorInProperty: (state) => (entity, properties) => {
                 const entityErrors = state.api[entity];
                 if (!entityErrors) {
@@ -114,7 +106,5 @@ class VuexErrorStore {
     }
 }
 
-/**
- * @deprecated tag:v6.6.0 - Will be private
- */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default new VuexErrorStore();

@@ -1,19 +1,15 @@
 import template from './sw-cms-slot.html.twig';
 import './sw-cms-slot.scss';
 
-const { deepCopyObject } = Shopware.Utils.object;
+const { Component } = Shopware;
 
 /**
  * @private since v6.5.0
- * @package content
  */
-export default {
+Component.register('sw-cms-slot', {
     template,
 
-    inject: [
-        'cmsService',
-        'cmsElementFavorites',
-    ],
+    inject: ['cmsService'],
 
     props: {
         element: {
@@ -54,33 +50,7 @@ export default {
         },
 
         cmsElements() {
-            const currentPageType = Shopware.State.get('cmsPageState').currentPageType;
-
-            const blocks = Object.entries(this.cmsService.getCmsElementRegistry())
-                .filter(([name]) => this.cmsService.isElementAllowedInPageType(name, currentPageType));
-
-            return Object.fromEntries(blocks);
-        },
-
-        groupedCmsElements() {
-            const result = [];
-            const elements = Object.values(this.cmsElements).sort((a, b) => a.name.localeCompare(b.name));
-            const favorites = elements.filter(element => this.cmsElementFavorites.isFavorite(element.name));
-            const nonFavorites = elements.filter(element => !this.cmsElementFavorites.isFavorite(element.name));
-
-            if (favorites.length) {
-                result.push({
-                    title: 'sw-cms.elements.general.switch.groups.favorites',
-                    items: favorites,
-                });
-            }
-
-            result.push({
-                title: 'sw-cms.elements.general.switch.groups.all',
-                items: nonFavorites,
-            });
-
-            return result;
+            return this.cmsService.getCmsElementRegistry();
         },
 
         componentClasses() {
@@ -135,24 +105,13 @@ export default {
         onCloseElementModal() {
             this.showElementSelection = false;
         },
-        onSelectElement(element) {
-            this.element.data = deepCopyObject(element?.defaultData || {});
-            this.element.config = deepCopyObject(element?.defaultConfig || {});
-            this.element.type = element.name;
+
+        onSelectElement(elementType) {
+            this.element.data = {};
+            this.element.config = {};
+            this.element.type = elementType;
             this.element.locked = false;
             this.showElementSelection = false;
         },
-
-        onToggleElementFavorite(elementName) {
-            this.cmsElementFavorites.update(!this.cmsElementFavorites.isFavorite(elementName), elementName);
-        },
-
-        elementInElementGroup(element, elementGroup) {
-            if (elementGroup === 'favorite') {
-                return this.cmsElementFavorites.isFavorite(element.name);
-            }
-
-            return true;
-        },
     },
-};
+});

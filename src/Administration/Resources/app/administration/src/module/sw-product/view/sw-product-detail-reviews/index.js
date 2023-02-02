@@ -1,7 +1,3 @@
-/*
- * @package inventory
- */
-
 import template from './sw-product-detail-reviews.html.twig';
 import './sw-product-detail-reviews.scss';
 
@@ -10,7 +6,7 @@ const { Criteria } = Data;
 const { mapState, mapGetters } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-product-detail-reviews', {
     template,
 
     inject: ['repositoryFactory', 'acl'],
@@ -153,4 +149,4 @@ export default {
             this.getReviews();
         },
     },
-};
+});

@@ -1,6 +1,7 @@
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_product_visibility_detail %}
 <sw-grid
+    slot="grid"
     table
     :items="items"
     :selectable="false"
@@ -8,7 +9,8 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_visibility_detail_columns %}
     <template
-        #columns="{ item }"
+        slot="columns"
+        slot-scope="{ item }"
     >
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_visibility_detail_columns_sales_channel %}
@@ -86,7 +88,7 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_product_visibility_detail_pagination %}
-    <template #pagination>
+    <template slot="pagination">
         <sw-pagination
             :page="page"
             :limit="limit"

@@ -1,7 +1,3 @@
-/**
- * @package admin
- */
-
 // eslint-disable
 import Twig from 'twig';
 import { cloneDeep } from 'src/core/service/utils/object.utils';
@@ -35,19 +31,22 @@ let TwigTemplates = null;
  */
 Twig.extend(TwigCore => {
     /**
-     * Remove tokens output_whitespace_pre, output_whitespace_post, output_whitespace_both and output.
+     * Remove tokens 2 (output_whitespace_pre), 3 (output_whitespace_post), 4 (output_whitespace_both) and 8 (output).
      * This tokens are used for functions and data output.
      * Since the data binding is done in Vue this could lead to syntax issues.
      * We are only using the block system for template inheritance.
      *
      * @type {Array<any>}
      */
-    TwigCore.token.definitions = TwigCore.token.definitions.filter(token => {
-        return token.type !== TwigCore.token.type.output_whitespace_pre &&
-            token.type !== TwigCore.token.type.output_whitespace_post &&
-            token.type !== TwigCore.token.type.output_whitespace_both &&
-            token.type !== TwigCore.token.type.output;
-    });
+    TwigCore.token.definitions = [
+        TwigCore.token.definitions[0],
+        TwigCore.token.definitions[1],
+        TwigCore.token.definitions[5],
+        TwigCore.token.definitions[6],
+        TwigCore.token.definitions[7],
+        TwigCore.token.definitions[9],
+        TwigCore.token.definitions[10],
+    ];
 
     /**
      * Twig inheritance extension.
@@ -64,10 +63,13 @@ Twig.extend(TwigCore => {
         parse(token, context, chain) {
             return {
                 chain,
-                output: '{{|PARENT|}}',
+                output: TwigCore.placeholders.parent,
             };
         },
     });
+
+    /** Make the placeholders available in the exposed Twig object. */
+    TwigCore.exports.placeholders = TwigCore.placeholders;
 
     /** Make the Twig template cache registry available. */
     TwigCore.exports.getRegistry = function getRegistry() {
@@ -87,7 +89,7 @@ Twig.extend(TwigCore => {
  * Escaped parent placeholder
  * @type {string}
  */
-const parentPlaceholder = '{{\\|PARENT\\|}}';
+const parentPlaceholder = Twig.placeholders.parent.replace(/\|/g, '\\|');
 
 /**
  * Parent placeholder as regular expression
@@ -222,7 +224,7 @@ function registerNormalizedTemplate(item) {
 
         return component.extend.overrides.length > 0 || hasOverridesInExtensionChain(component.extend);
     };
-    if (hasOverridesInExtensionChain(templateDefinition)) {
+    if (hasOverridesInExtensionChain(templateDefinition) && Shopware.Feature.isActive('FEATURE_NEXT_17978')) {
         // If this component extends (transitively) a component that is overwritten, resolve that extended component
         // with all its overrides first, before resolving this component with it.
         registerNormalizedTemplate(templateRegistry.get(templateDefinition.extend.name));
@@ -321,11 +323,11 @@ function resolveTokens(tokens, overrideTokens) {
     }
 
     return tokens.reduce((acc, token) => {
-        if (token.type !== 'logic' || !token.token || !token.token.blockName) {
+        if (token.type !== 'logic' || !token.token || !token.token.block) {
             return [...acc, token];
         }
 
-        const blockName = token.token.blockName;
+        const blockName = token.token.block;
         const isInOverrides = findBlock(blockName, overrideTokens);
 
         if (isInOverrides) {
@@ -387,7 +389,7 @@ function resolveExtendTokens(tokens, item) {
     }
 
     let extendedComponentTokens;
-    if (normalizedTemplateRegistry.has(item.extend.name)) {
+    if (normalizedTemplateRegistry.has(item.extend.name) && Shopware.Feature.isActive('FEATURE_NEXT_17978')) {
         // If the component was already registered in the normalizedTemplateRegistry (i.e. their overrides and tokens
         // have been resolved), use that template's tokens instead of the raw tokens of an unresolved component.
         // Use a clone of the tokens so the already registered template is not altered.
@@ -414,7 +416,7 @@ function resolveExtendTokens(tokens, item) {
  */
 function normalizeTokens(tokens, extensionTokens) {
     const result = tokens.reduce((acc, token) => {
-        if (token.token && !findNestedBlock(token.token.blockName, extensionTokens)) {
+        if (token.token && !findNestedBlock(token.token.block, extensionTokens)) {
             return [...acc, ...token.token.output];
         }
 
@@ -432,7 +434,7 @@ function normalizeTokens(tokens, extensionTokens) {
  */
 function findNestedBlock(blockName, tokens) {
     const result = tokens.find((t) => {
-        const exists = t.token && t.token.blockName === blockName;
+        const exists = t.token && t.token.block === blockName;
 
         return exists || (t.token && findNestedBlock(blockName, t.token.output));
     });
@@ -448,7 +450,7 @@ function findNestedBlock(blockName, tokens) {
  */
 function findBlock(blockName, tokens) {
     const result = tokens.find((t) => {
-        return t.token && t.token.blockName === blockName;
+        return t.token && t.token.block === blockName;
     });
 
     return result;
@@ -460,7 +462,7 @@ function resolveToken(token, itemTokens, name) {
         return token;
     }
 
-    const tokenBlockName = token.token.blockName;
+    const tokenBlockName = token.token.block;
     const isIn = findBlock(tokenBlockName, itemTokens);
 
     if (isIn) {
@@ -597,19 +599,30 @@ function getTemplateOverrides(componentName) {
  * @returns {null|string}
  */
 function getRenderedTemplate(componentName) {
-    const component = templateRegistry.get(componentName);
+    if (Shopware.Feature.isActive('FEATURE_NEXT_19822')) {
+        const component = templateRegistry.get(componentName);
 
-    if (!component) {
-        return null;
+        if (!component) {
+            return null;
+        }
+
+        registerNormalizedTemplate(component);
+
+        const componentTemplate = normalizedTemplateRegistry.get(componentName);
+
+        if (!componentTemplate) {
+            return null;
+        }
+
+        return componentTemplate.html;
+        // eslint-disable-next-line no-else-return
+    } else {
+        const componentTemplate = normalizedTemplateRegistry.get(componentName);
+
+        if (!componentTemplate) {
+            return null;
+        }
+
+        return componentTemplate.html;
     }
-
-    registerNormalizedTemplate(component);
-
-    const componentTemplate = normalizedTemplateRegistry.get(componentName);
-
-    if (!componentTemplate) {
-        return null;
-    }
-
-    return componentTemplate.html;
 }

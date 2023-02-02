@@ -1,17 +1,20 @@
 describe('Import/Export - Profiles:  Visual tests', () => {
     beforeEach(() => {
-        cy.createDefaultFixture('import-export-profile')
+        cy.loginViaApi()
             .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/import-export/index/profiles`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
-            });
+                return cy.createDefaultFixture('import-export-profile');
+            })
+            .then(() => {
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/import-export/index/profiles`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+        });
     });
 
     it('@visual: check appearance of basic im/ex profile workflow', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: '/api/import-export-profile',
-            method: 'post',
+            method: 'post'
         }).as('saveData');
 
         // Take snapshot for visual testing
@@ -23,7 +26,7 @@ describe('Import/Export - Profiles:  Visual tests', () => {
         cy.get('.sw-data-grid__cell--systemDefault').should('contain', profileType);
         cy.prepareAdminForScreenshot();
         cy.takeSnapshot(`${Cypress.env('testDataUsage') ? '[Update]' : '[Install]'} Import export - Profiles overview`,
-            '.sw-import-export-view-profiles__listing',
+            '.sw-import-export-view-profiles__listing'
         );
 
         // Perform create new profile action

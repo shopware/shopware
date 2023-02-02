@@ -3,12 +3,10 @@
 namespace Shopware\Core\Framework\Script\Execution;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Log\Package;
 
 /**
- * @internal
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal
  */
-#[Package('core')]
 abstract class Hook
 {
     protected Context $context;
@@ -21,8 +19,6 @@ abstract class Hook
     /**
      * The services returned here must all extend the abstract HookServiceFactory.
      * These are then available in the script under the variable `services`.
-     *
-     * @return list<class-string<object>>
      */
     abstract public static function getServiceIds(): array;
 

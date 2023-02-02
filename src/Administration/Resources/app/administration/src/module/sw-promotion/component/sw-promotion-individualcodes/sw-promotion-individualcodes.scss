@@ -1,0 +1,64 @@
+@import "~scss/variables";
+
+.sw-promotion-individualcodes {
+    min-height: 700px;
+
+    .sw-promotion-individualcodes__top-bar {
+        background-color: $color-gray-100;
+        border-bottom: 1px solid $color-gray-100;
+        padding: 25px;
+
+        input {
+            padding: 6px 16px;
+            height: 32px;
+        }
+
+        .sw-field {
+            margin-bottom: 0;
+
+            .sw-field__help-text {
+                position: relative;
+                top: 33px;
+                right: 15px;
+            }
+        }
+
+        .sw-button {
+            height: 32px;
+            line-height: 16px;
+            position: relative;
+            top: 25px;
+            width: auto;
+        }
+    }
+
+    .sw-promotion-individualcodes__progress-bar {
+        background-color: $color-gray-100;
+        border-bottom: 1px solid $color-gray-100;
+        padding-left: 25px;
+        padding-right: 25px;
+
+        .sw-progress-bar {
+            margin-bottom: 25px;
+        }
+    }
+
+    .sw-empty-state {
+        height: 500px;
+    }
+
+    .sw-promotion-individualcodes__selected-codes-delete {
+        z-index: 20;
+        position: absolute;
+        right: 28px;
+        top: 155px;
+    }
+
+    .is--inactive {
+        color: $color-gray-700;
+    }
+
+    .is--active {
+        color: $color-emerald-500;
+    }
+}

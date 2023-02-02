@@ -3,16 +3,19 @@
 namespace Shopware\Core\Framework\Test\Webhook\_fixtures\BusinessEvents;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\ObjectType;
-use Shopware\Core\Framework\Event\FlowEventAware;
 
 /**
  * @internal
  */
-class UnstructuredObjectBusinessEvent implements FlowEventAware, BusinessEventEncoderTestInterface
+class UnstructuredObjectBusinessEvent implements BusinessEventInterface, BusinessEventEncoderTestInterface
 {
-    private array $nested = [
+    /**
+     * @var array
+     */
+    private $nested = [
         'string' => 'test',
         'bool' => true,
     ];

@@ -23,6 +23,7 @@
           "personaPromotions": "Rabattaktion-Kundenregeln",
           "promotionSetGroups": "Rabattaktion-Setgruppenregeln",
           "promotionDiscounts": "Rabatte",
+          "eventActions": "Business-Events",
           "flowSequences": "Flows",
           "paymentMethods": "Zahlungsarten",
           "productPrices": "Produktpreise",
@@ -51,6 +52,7 @@
       "columnPersonaPromotions": "Rabattaktion-Kundenregel-Zuweisungen",
       "columnPromotionSetGroups": "Rabattaktion-Setgruppenregel-Zuweisungen",
       "columnPromotionDiscounts": "Rabatt-Zuweisungen",
+      "columnEventActions": "Business-Event-Zuweisungen",
       "columnFlowSequences": "Flow-Zuweisungen",
       "columnPaymentMethods": "Zahlungsart-Zuweisungen",
       "columnProductPrices": "Produktpreis-Zuweisungen",
@@ -68,6 +70,7 @@
         "personaPromotions": "Rabattaktion-Kundenregel | Rabattaktion-Kundenregeln",
         "promotionSetGroups": "Rabattaktion-Setgruppenregel | Rabattaktion-Setgruppenregeln",
         "promotionDiscounts": "Rabatt | Rabatte",
+        "eventActions": "Business-Event | Business-Events",
         "flowSequences": "Flow | Flows",
         "paymentMethods": "Zahlungsart | Zahlungsarten",
         "productPrices": "Produktpreis | Produktpreise",
@@ -91,7 +94,7 @@
       "placeholderTags": "Gib Tags ein ...",
       "messageSaveSuccess": "Die Regel \"{name}\" wurde erfolgreich gespeichert.",
       "ruleCard": "Bedingungen",
-      "messageSaveError": "Beim Speichern der Regel ist ein Fehler aufgetreten",
+      "messageSaveError": "Beim Speichern der Regel \"{name}\" ist ein Fehler aufgetreten.",
       "tabGeneral": "Allgemein",
       "tabAssignments": "Zuweisungen",
       "buttonAddAssignment":  "Zuweisung hinzufügen",
@@ -107,8 +110,8 @@
         "promotionDiscountRules": "Rabattaktion-Produktregeln",
         "promotionGroupRules": "Rabattaktion-Setgruppenregeln",
         "shippingMethodAvailabilityRule": "Versandart-Verfügbarkeitsregeln",
-        "flows": "Flow-Builders",
-        "taxProviders": "Steuerservice-Anbieter"
+        "eventActions": "Business-Events",
+        "flows": "Flow-Builders"
       },
       "typeHasNoAssociations": "Keine Regeln zugewiesen",
       "hasNoAssociations": "Diese Regel wird nicht verwendet",
@@ -128,7 +131,6 @@
         "items": "Positionen im Warenkorb",
         "customers": "Kunden",
         "promotions": "Marketing & Rabattaktionen",
-        "flow": "Flow Builder",
         "misc": "Sonstige"
       },
       "textUnsavedConditions": "Es gibt ungespeicherte Änderungen in dieser Regel. Speichere die Änderungen, um Zuweisungen hinzufügen zu können."

@@ -1,9 +1,8 @@
-Shopware.Component.extend('sw-cms-el-config-manufacturer-logo', 'sw-cms-el-config-image', () => import('./config'));
-Shopware.Component.extend('sw-cms-el-manufacturer-logo', 'sw-cms-el-image', () => import('./component'));
+import './component';
+import './config';
 
 /**
- * @private
- * @package content
+ * @private since v6.5.0
  */
 Shopware.Service('cmsService').registerCmsElement({
     name: 'manufacturer-logo',

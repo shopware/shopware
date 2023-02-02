@@ -3,13 +3,8 @@
 namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
-/**
- * @internal
- */
-#[Package('core')]
 class Migration1602494495SetUsersAsAdmins extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -19,7 +14,7 @@ class Migration1602494495SetUsersAsAdmins extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeStatement('UPDATE `user` SET `admin` = 1, `title` = `Admin`');
+        $connection->executeUpdate('UPDATE `user` SET `admin` = 1, `title` = `Admin`');
     }
 
     public function updateDestructive(Connection $connection): void

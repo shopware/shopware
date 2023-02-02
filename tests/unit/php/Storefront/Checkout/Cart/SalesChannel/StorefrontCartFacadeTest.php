@@ -2,9 +2,7 @@
 
 namespace Shopware\Tests\Unit\Storefront\Checkout\Cart\SalesChannel;
 
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartCalculator;
 use Shopware\Core\Checkout\Cart\CartPersister;
@@ -36,404 +34,103 @@ use Shopware\Storefront\Checkout\Shipping\BlockedShippingMethodSwitcher;
  */
 class StorefrontCartFacadeTest extends TestCase
 {
-    public function testGetNoBlockedMethods(): void
+    /**
+     * @dataProvider getTestData
+     *
+     * @param array<string> $targets
+     */
+    public function testGet(array $targets): void
     {
-        $cart = $this->getCart();
-        $cart->setErrors($this->getCartErrorCollection());
+        $storefrontCartFacade = $this->getStorefrontCartFacade($targets);
+        $cart = $storefrontCartFacade->get('test', $this->getSalesChannelContext($targets));
+        $cartErrors = $cart->getErrors();
 
-        $cartFacade = $this->getStorefrontCartFacade($cart);
-        $salesChannelContext = $this->getSalesChannelContext();
-        $returnedCart = $cartFacade->get('', $salesChannelContext);
-
-        static::assertEquals($this->getCart(), $returnedCart);
-    }
-
-    public function testGetBlockedShippingMethodAllowFallback(): void
-    {
-        $errorCollection = $this->getCartErrorCollection(true);
-
-        $cart = $this->getCart();
-        $cart->setErrors($errorCollection);
-
-        $salesChannelContext = $this->getSalesChannelContext();
-        $salesChannelContext
-            ->method('assign')
-            ->willReturnCallback(
-                function ($newMethods): void {
-                    static::assertSame('fallback-shipping-method-name', $newMethods['shippingMethod']->getName());
-                }
+        if (\in_array('block-shipping-method', $targets, true)) {
+            static::assertCount(
+                (int) (!\in_array('shipping-allow-switch', $targets, true) || \in_array('recalculation-cart-block-shipping', $targets, true)),
+                $cartErrors->filterInstance(ShippingMethodBlockedError::class)
             );
-
-        $cartFacade = $this->getStorefrontCartFacade(
-            $cart,
-            $this->callbackShippingMethodSwitcherReturnFallbackMethod(...)
-        );
-        $returnedCart = $cartFacade->get('', $salesChannelContext);
-
-        static::assertCount(1, $errorCollection->filterInstance(ShippingMethodChangedError::class));
-        static::assertSame([
-            'newShippingMethodName' => 'fallback-shipping-method-name',
-            'oldShippingMethodName' => 'original-shipping-method-name',
-        ], $errorCollection->filterInstance(ShippingMethodChangedError::class)->first()->getParameters());
-
-        $controlCart = $this->getCart();
-        $controlCart->setErrors($this->getCartErrorCollection(true));
-        static::assertNotEquals($controlCart, $returnedCart);
-    }
-
-    public function testGetBlockedPaymentMethodAllowFallback(): void
-    {
-        $errorCollection = $this->getCartErrorCollection(false, true);
-
-        $cart = $this->getCart();
-        $cart->setErrors($errorCollection);
-
-        $salesChannelContext = $this->getSalesChannelContext();
-        $salesChannelContext
-            ->method('assign')
-            ->willReturnCallback(
-                function ($newMethods): void {
-                    static::assertSame('fallback-payment-method-name', $newMethods['paymentMethod']->getName());
-                }
-            );
-
-        $cartFacade = $this->getStorefrontCartFacade(
-            $cart,
-            $this->callbackShippingMethodSwitcherReturnOriginalMethod(...),
-            $this->callbackPaymentMethodSwitcherReturnFallbackMethod(...)
-        );
-        $returnedCart = $cartFacade->get('', $salesChannelContext);
-
-        static::assertCount(1, $errorCollection->filterInstance(PaymentMethodChangedError::class));
-        static::assertSame([
-            'newPaymentMethodName' => 'fallback-payment-method-name',
-            'oldPaymentMethodName' => 'original-payment-method-name',
-        ], $errorCollection->filterInstance(PaymentMethodChangedError::class)->first()->getParameters());
-
-        $controlCart = $this->getCart();
-        $controlCart->setErrors($this->getCartErrorCollection(false, true));
-        static::assertNotEquals($controlCart, $returnedCart);
-    }
-
-    public function testGetBlockedPaymentAndShippingMethodAllowFallback(): void
-    {
-        $errorCollection = $this->getCartErrorCollection(true, true);
-
-        $cart = $this->getCart();
-        $cart->setErrors($errorCollection);
-
-        $salesChannelContext = $this->getSalesChannelContext();
-        $salesChannelContext
-            ->method('assign')
-            ->willReturnCallback(
-                function ($newMethods): void {
-                    static::assertSame('fallback-payment-method-name', $newMethods['paymentMethod']->getName());
-                    static::assertSame('fallback-shipping-method-name', $newMethods['shippingMethod']->getName());
-                }
-            );
-
-        $cartFacade = $this->getStorefrontCartFacade(
-            $cart,
-            $this->callbackShippingMethodSwitcherReturnFallbackMethod(...),
-            $this->callbackPaymentMethodSwitcherReturnFallbackMethod(...)
-        );
-        $returnedCart = $cartFacade->get('', $salesChannelContext);
-
-        static::assertCount(1, $errorCollection->filterInstance(PaymentMethodChangedError::class));
-        static::assertSame([
-            'newPaymentMethodName' => 'fallback-payment-method-name',
-            'oldPaymentMethodName' => 'original-payment-method-name',
-        ], $errorCollection->filterInstance(PaymentMethodChangedError::class)->first()->getParameters());
-
-        static::assertCount(1, $errorCollection->filterInstance(ShippingMethodChangedError::class));
-        static::assertSame([
-            'newShippingMethodName' => 'fallback-shipping-method-name',
-            'oldShippingMethodName' => 'original-shipping-method-name',
-        ], $errorCollection->filterInstance(ShippingMethodChangedError::class)->first()->getParameters());
-
-        $controlCart = $this->getCart();
-        $controlCart->setErrors($this->getCartErrorCollection(true, true));
-        static::assertNotEquals($controlCart, $returnedCart);
-    }
-
-    public function testGetBlockedShippingMethodNoFallback(): void
-    {
-        $errorCollection = $this->getCartErrorCollection(true);
-
-        $cart = $this->getCart();
-        $cart->setErrors($errorCollection);
-
-        $salesChannelContext = $this->getSalesChannelContext();
-        $salesChannelContext
-            ->method('assign')
-            ->willReturnCallback(
-                function ($newMethods): void {
-                    static::assertSame('original-shipping-method-name', $newMethods['shippingMethod']->getName());
-                }
-            );
-
-        $cartFacade = $this->getStorefrontCartFacade($cart);
-        $returnedCart = $cartFacade->get('', $salesChannelContext);
-
-        static::assertCount(0, $errorCollection->filterInstance(ShippingMethodChangedError::class));
-        static::assertCount(1, $errorCollection->filterInstance(ShippingMethodBlockedError::class));
-        static::assertSame([
-            'name' => 'original-shipping-method-name',
-        ], $errorCollection->filterInstance(ShippingMethodBlockedError::class)->first()->getParameters());
-
-        $controlCart = $this->getCart();
-        $controlCart->setErrors($this->getCartErrorCollection(true));
-        static::assertEquals($controlCart, $returnedCart);
-    }
-
-    public function testGetBlockedPaymentMethodNoFallback(): void
-    {
-        $errorCollection = $this->getCartErrorCollection(false, true);
-
-        $cart = $this->getCart();
-        $cart->setErrors($errorCollection);
-
-        $salesChannelContext = $this->getSalesChannelContext();
-        $salesChannelContext
-            ->method('assign')
-            ->willReturnCallback(
-                function ($newMethods): void {
-                    static::assertSame('original-payment-method-name', $newMethods['paymentMethod']->getName());
-                }
-            );
-
-        $cartFacade = $this->getStorefrontCartFacade($cart);
-        $returnedCart = $cartFacade->get('', $salesChannelContext);
-
-        static::assertCount(0, $errorCollection->filterInstance(PaymentMethodChangedError::class));
-        static::assertCount(1, $errorCollection->filterInstance(PaymentMethodBlockedError::class));
-        static::assertSame([
-            'name' => 'original-payment-method-name',
-        ], $errorCollection->filterInstance(PaymentMethodBlockedError::class)->first()->getParameters());
-
-        $controlCart = $this->getCart();
-        $controlCart->setErrors($this->getCartErrorCollection(false, true));
-        static::assertEquals($controlCart, $returnedCart);
-    }
-
-    public function testGetUnswitchableCart(): void
-    {
-        $errorCollection = $this->getCartErrorCollection(true, true);
-
-        $cart = $this->getCart();
-        $cart->setErrors($errorCollection);
-
-        $salesChannelContext = $this->getSalesChannelContext();
-        $salesChannelContext
-            ->method('assign')
-            ->willReturnCallback(
-                function ($newMethods): void {
-                    static::assertSame('fallback-payment-method-name', $newMethods['paymentMethod']->getName());
-                    static::assertSame('fallback-shipping-method-name', $newMethods['shippingMethod']->getName());
-                }
-            );
-
-        $cartFacade = $this->getStorefrontCartFacade(
-            $cart,
-            $this->callbackShippingMethodSwitcherUnswitchableCart(...),
-            $this->callbackPaymentMethodSwitcherUnswitchableCart(...)
-        );
-        $returnedCart = $cartFacade->get('', $salesChannelContext);
-
-        static::assertCount(0, $errorCollection->filterInstance(ShippingMethodChangedError::class));
-        static::assertCount(1, $errorCollection->filterInstance(ShippingMethodBlockedError::class));
-        static::assertSame([
-            'name' => 'original-shipping-method-name',
-        ], $errorCollection->filterInstance(ShippingMethodBlockedError::class)->first()->getParameters());
-
-        static::assertCount(0, $errorCollection->filterInstance(PaymentMethodChangedError::class));
-        static::assertCount(1, $errorCollection->filterInstance(PaymentMethodBlockedError::class));
-        static::assertSame([
-            'name' => 'original-payment-method-name',
-        ], $errorCollection->filterInstance(PaymentMethodBlockedError::class)->first()->getParameters());
-
-        $controlCart = $this->getCart();
-        $controlCart->setErrors($this->getCartErrorCollection(true, true));
-        static::assertEquals($controlCart, $returnedCart);
-    }
-
-    public function testCartServiceIsCalledTaxedAndWithNoCaching(): void
-    {
-        $cartService = static::createMock(CartService::class);
-        $cartService
-            ->expects(static::once())
-            ->method('getCart')
-            ->with(
-                'token',
-                static::isInstanceOf(SalesChannelContext::class),
-                false,
-                true
-            );
-
-        $cartFacade = new StorefrontCartFacade(
-            $cartService,
-            static::createMock(BlockedShippingMethodSwitcher::class),
-            static::createMock(BlockedPaymentMethodSwitcher::class),
-            static::createMock(ContextSwitchRoute::class),
-            static::createMock(CartCalculator::class),
-            static::createMock(AbstractCartPersister::class),
-        );
-
-        $cartFacade->get(
-            'token',
-            static::createMock(SalesChannelContext::class),
-            false,
-            true
-        );
-    }
-
-    public function callbackShippingMethodSwitcherReturnOriginalMethod(ErrorCollection $errors, SalesChannelContext $salesChannelContext): ShippingMethodEntity
-    {
-        return $salesChannelContext->getShippingMethod();
-    }
-
-    public function callbackShippingMethodSwitcherReturnFallbackMethod(ErrorCollection $errors, SalesChannelContext $salesChannelContext): ShippingMethodEntity
-    {
-        foreach ($errors as $error) {
-            if (!$error instanceof ShippingMethodBlockedError) {
-                continue;
-            }
-
-            // Exchange cart blocked warning with notice
-            $errors->remove($error->getId());
-            $errors->add(new ShippingMethodChangedError(
-                $error->getName(),
-                'fallback-shipping-method-name'
-            ));
-        }
-
-        $shippingMethod = new ShippingMethodEntity();
-        $shippingMethod->setId('fallback-shipping-method-id');
-        $shippingMethod->setName('fallback-shipping-method-name');
-
-        return $shippingMethod;
-    }
-
-    public function callbackShippingMethodSwitcherUnswitchableCart(ErrorCollection $errors, SalesChannelContext $salesChannelContext): ShippingMethodEntity
-    {
-        foreach ($errors as $error) {
-            if (!$error instanceof ShippingMethodBlockedError) {
-                continue;
-            }
-
-            // Exchange cart blocked warning with notice
-            $errors->add(new ShippingMethodChangedError(
-                $error->getName(),
-                'fallback-shipping-method-name'
-            ));
-        }
-
-        $shippingMethod = new ShippingMethodEntity();
-        $shippingMethod->setId('fallback-shipping-method-id');
-        $shippingMethod->setName('fallback-shipping-method-name');
-
-        return $shippingMethod;
-    }
-
-    public function callbackPaymentMethodSwitcherReturnOriginalMethod(ErrorCollection $errors, SalesChannelContext $salesChannelContext): PaymentMethodEntity
-    {
-        return $salesChannelContext->getPaymentMethod();
-    }
-
-    public function callbackPaymentMethodSwitcherReturnFallbackMethod(ErrorCollection $errors, SalesChannelContext $salesChannelContext): PaymentMethodEntity
-    {
-        foreach ($errors as $error) {
-            if (!$error instanceof PaymentMethodBlockedError) {
-                continue;
-            }
-
-            // Exchange cart blocked warning with notice
-            $errors->remove($error->getId());
-            $errors->add(new PaymentMethodChangedError(
-                $error->getName(),
-                'fallback-payment-method-name'
-            ));
-        }
-
-        $paymentMethod = new PaymentMethodEntity();
-        $paymentMethod->setId('fallback-payment-method-id');
-        $paymentMethod->setName('fallback-payment-method-name');
-
-        return $paymentMethod;
-    }
-
-    public function callbackPaymentMethodSwitcherUnswitchableCart(ErrorCollection $errors, SalesChannelContext $salesChannelContext): PaymentMethodEntity
-    {
-        foreach ($errors as $error) {
-            if (!$error instanceof PaymentMethodBlockedError) {
-                continue;
-            }
-
-            // Exchange cart blocked warning with notice
-            $errors->add(new PaymentMethodChangedError(
-                $error->getName(),
-                'fallback-payment-method-name'
-            ));
-        }
-
-        $paymentMethod = new PaymentMethodEntity();
-        $paymentMethod->setId('fallback-payment-method-id');
-        $paymentMethod->setName('fallback-payment-method-name');
-
-        return $paymentMethod;
-    }
-
-    private function getCart(): Cart
-    {
-        $cart = new Cart('cart-token');
-        $cart->add(
-            (new LineItem('line-item-id-1', 'line-item-type-1'))
-                ->setPrice(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()))
-                ->setLabel('line-item-label-1')
-                ->assign(['uniqueIdentifier' => 'line-item-id-1'])
-        )->add(
-            (new LineItem('line-item-id-2', 'line-item-type-2'))
-                ->setPrice(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()))
-                ->setLabel('line-item-label-2')
-                ->assign(['uniqueIdentifier' => 'line-item-id-2'])
-        );
-
-        return $cart;
-    }
-
-    private function getCartErrorCollection(bool $blockShippingMethod = false, bool $blockPaymentMethod = false): ErrorCollection
-    {
-        $cartErrors = new ErrorCollection();
-        if ($blockShippingMethod) {
-            $cartErrors->add(
-                new ShippingMethodBlockedError(
-                    'original-shipping-method-name'
-                )
+            static::assertCount(
+                (int) (\in_array('shipping-allow-switch', $targets, true) && !\in_array('recalculation-cart-block-shipping', $targets, true)),
+                $cartErrors->filterInstance(ShippingMethodChangedError::class)
             );
         }
 
-        if ($blockPaymentMethod) {
-            $cartErrors->add(
-                new PaymentMethodBlockedError(
-                    'original-payment-method-name',
-                    ''
-                )
+        if (\in_array('block-payment-method', $targets, true)) {
+            static::assertCount(
+                (int) (!\in_array('payment-allow-switch', $targets, true) || \in_array('recalculation-cart-block-payment', $targets, true)),
+                $cartErrors->filterInstance(PaymentMethodBlockedError::class)
+            );
+            static::assertCount(
+                (int) (\in_array('payment-allow-switch', $targets, true) && !\in_array('recalculation-cart-block-payment', $targets, true)),
+                $cartErrors->filterInstance(PaymentMethodChangedError::class)
             );
         }
 
-        return $cartErrors;
+        if (\in_array('output-cart-equals-input-cart', $targets, true)) {
+            static::assertEquals($this->getCart($targets), $cart);
+        }
     }
 
-    private function getStorefrontCartFacade(Cart $cart, ?callable $shippingSwitcherCallbackMethod = null, ?callable $paymentSwitcherCallbackMethod = null): StorefrontCartFacade
+    /**
+     * @return array<int, array<int, array<int, string>>>
+     */
+    public function getTestData(): array
+    {
+        return [
+            [
+                ['output-cart-equals-input-cart'],
+            ],
+            [
+                ['block-shipping-method', 'shipping-allow-switch'],
+            ],
+            [
+                ['block-payment-method', 'payment-allow-switch'],
+            ],
+            [
+                [
+                    'block-shipping-method', 'shipping-allow-switch',
+                    'block-payment-method', 'payment-allow-switch',
+                ],
+            ],
+            [
+                ['block-shipping-method'],
+            ],
+            [
+                ['block-payment-method'],
+            ],
+            [
+                ['block-shipping-method', 'block-payment-method'],
+            ],
+            [
+                [
+                    'recalculation-cart-block-shipping',
+                    'recalculation-cart-block-payment',
+                    'block-shipping-method', 'shipping-allow-switch', // only to get through the function
+                    'block-payment-method', 'payment-allow-switch', // only to get through the function
+                    'output-cart-equals-input-cart',
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @param array<string> $targets
+     */
+    private function getStorefrontCartFacade(array $targets): StorefrontCartFacade
     {
         $cartService = $this->createMock(CartService::class);
-        $cartService->method('getCart')->willReturn($cart);
+        $cartService->method('getCart')->willReturn($this->getCart($targets));
 
         $blockedShippingMethodSwitcher = $this->createMock(BlockedShippingMethodSwitcher::class);
-        $blockedShippingMethodSwitcher->method('switch')->willReturnCallback($shippingSwitcherCallbackMethod ?? $this->callbackShippingMethodSwitcherReturnOriginalMethod(...));
+        $blockedShippingMethodSwitcher->method('switch')->willReturnCallback(
+            $this->getBlockedShippingMethodSwitcherCallback($targets)
+        );
 
         $blockedPaymentMethodSwitcher = $this->createMock(BlockedPaymentMethodSwitcher::class);
-        $blockedPaymentMethodSwitcher->method('switch')->willReturnCallback($paymentSwitcherCallbackMethod ?? $this->callbackPaymentMethodSwitcherReturnOriginalMethod(...));
+        $blockedPaymentMethodSwitcher->method('switch')->willReturnCallback(
+            $this->getBlockedPaymentMethodSwitcherCallback($targets)
+        );
 
         $contextSwitchRoute = $this->createMock(ContextSwitchRoute::class);
 
@@ -453,9 +150,55 @@ class StorefrontCartFacadeTest extends TestCase
     }
 
     /**
-     * @return MockObject&SalesChannelContext
+     * @param array<string> $targets
      */
-    private function getSalesChannelContext(): MockObject
+    private function getCart(array $targets): Cart
+    {
+        $cart = new Cart('cart-name', 'cart-token');
+        $cart->add(
+            (new LineItem('line-item-id-1', 'line-item-type-1'))
+                ->setPrice(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()))
+                ->setLabel('line-item-label-1')
+        )->add(
+            (new LineItem('line-item-id-2', 'line-item-type-2'))
+                ->setPrice(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()))
+                ->setLabel('line-item-label-2')
+        );
+
+        $cart->setErrors($this->getCartErrorCollection($targets));
+
+        return $cart;
+    }
+
+    /**
+     * @param array<string> $targets
+     */
+    private function getCartErrorCollection(array $targets): ErrorCollection
+    {
+        $cartErrors = new ErrorCollection();
+        if (\in_array('block-shipping-method', $targets, true)) {
+            $cartErrors->add(new ShippingMethodBlockedError('shipping-method-name'));
+        }
+
+        if (\in_array('block-payment-method', $targets, true)) {
+            $cartErrors->add(new PaymentMethodBlockedError('payment-method-name', ''));
+        }
+
+        if (\in_array('change-shipping-method', $targets, true)) {
+            $cartErrors->add(new ShippingMethodChangedError('shipping-method-name', 'change-shipping-method-name'));
+        }
+
+        if (\in_array('change-payment-method', $targets, true)) {
+            $cartErrors->add(new PaymentMethodChangedError('payment-method-name', 'change-payment-method-name'));
+        }
+
+        return $cartErrors;
+    }
+
+    /**
+     * @param array<string> $targets
+     */
+    private function getSalesChannelContext(array $targets): SalesChannelContext
     {
         $salesChannel = new SalesChannelEntity();
         $salesChannel->setId(TestDefaults::SALES_CHANNEL);
@@ -466,16 +209,98 @@ class StorefrontCartFacadeTest extends TestCase
         $salesChannelContext->method('getContext')->willReturn(Context::createDefaultContext());
 
         $shippingMethod = new ShippingMethodEntity();
-        $shippingMethod->setId('original-shipping-method-id');
-        $shippingMethod->setName('original-shipping-method-name');
+        $shippingMethod->setId('shipping-method-id');
+        $shippingMethod->setName('shipping-method-name');
 
         $paymentMethod = new PaymentMethodEntity();
-        $paymentMethod->setId('original-payment-method-id');
-        $paymentMethod->setName('original-payment-method-name');
+        $paymentMethod->setId('payment-method-id');
+        $paymentMethod->setName('payment-method-name');
 
         $salesChannelContext->method('getShippingMethod')->willReturn($shippingMethod);
         $salesChannelContext->method('getPaymentMethod')->willReturn($paymentMethod);
 
+        if (\in_array('block-payment-method', $targets, true) || \in_array('block-shipping-method', $targets, true)) {
+            $salesChannelContext->method('assign')->willReturnCallback(
+                function ($newMethods) use ($targets): void {
+                    if (\in_array('block-shipping-method', $targets, true) && \in_array('shipping-allow-switch', $targets, true)) {
+                        static::assertSame('shipping-method-name-new', $newMethods['shippingMethod']->getName());
+                    } else {
+                        static::assertSame('shipping-method-name', $newMethods['shippingMethod']->getName());
+                    }
+
+                    if (\in_array('block-payment-method', $targets, true) && \in_array('payment-allow-switch', $targets, true)) {
+                        static::assertSame('payment-method-name-new', $newMethods['paymentMethod']->getName());
+                    } else {
+                        static::assertSame('payment-method-name', $newMethods['paymentMethod']->getName());
+                    }
+                }
+            );
+        }
+
         return $salesChannelContext;
+    }
+
+    /**
+     * @param array<string> $targets
+     */
+    private function getBlockedShippingMethodSwitcherCallback(array $targets): callable
+    {
+        return function (ErrorCollection $errors, SalesChannelContext $salesChannelContext) use ($targets): ShippingMethodEntity {
+            if ((\in_array('block-shipping-method', $targets, true) && !\in_array('shipping-allow-switch', $targets, true)) || !\in_array('block-shipping-method', $targets, true)) {
+                return $salesChannelContext->getShippingMethod();
+            }
+
+            foreach ($errors as $error) {
+                if (!$error instanceof ShippingMethodBlockedError) {
+                    continue;
+                }
+
+                // Exchange cart blocked warning with notice
+                if (!\in_array('recalculation-cart-block-shipping', $targets, true)) {
+                    $errors->remove($error->getId());
+                }
+                $errors->add(new ShippingMethodChangedError(
+                    $error->getName(),
+                    'shipping-method-name-new'
+                ));
+            }
+            $shippingMethod = new ShippingMethodEntity();
+            $shippingMethod->setId('shipping-method-id-new');
+            $shippingMethod->setName('shipping-method-name-new');
+
+            return $shippingMethod;
+        };
+    }
+
+    /**
+     * @param array<string> $targets
+     */
+    private function getBlockedPaymentMethodSwitcherCallback(array $targets): callable
+    {
+        return function (ErrorCollection $errors, SalesChannelContext $salesChannelContext) use ($targets): PaymentMethodEntity {
+            if ((\in_array('block-payment-method', $targets, true) && !\in_array('payment-allow-switch', $targets, true)) || !\in_array('block-payment-method', $targets, true)) {
+                return $salesChannelContext->getPaymentMethod();
+            }
+
+            foreach ($errors as $error) {
+                if (!$error instanceof PaymentMethodBlockedError) {
+                    continue;
+                }
+
+                // Exchange cart blocked warning with notice
+                if (!\in_array('recalculation-cart-block-payment', $targets, true)) {
+                    $errors->remove($error->getId());
+                }
+                $errors->add(new PaymentMethodChangedError(
+                    $error->getName(),
+                    'payment-method-name-new'
+                ));
+            }
+            $paymentMethod = new PaymentMethodEntity();
+            $paymentMethod->setId('payment-method-id-new');
+            $paymentMethod->setName('payment-method-name-new');
+
+            return $paymentMethod;
+        };
     }
 }

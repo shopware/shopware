@@ -1,10 +1,11 @@
 import template from './sw-cms-block-text-on-image.html.twig';
 import './sw-cms-block-text-on-image.scss';
 
+const { Component } = Shopware;
+
 /**
- * @private
- * @package content
+ * @private since v6.5.0
  */
-export default {
+Component.register('sw-cms-block-text-on-image', {
     template,
-};
+});

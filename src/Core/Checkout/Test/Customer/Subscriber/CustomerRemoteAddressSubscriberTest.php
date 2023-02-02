@@ -7,10 +7,8 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Test\Cart\LineItem\Group\Helpers\Traits\LineItemTestFixtureBehaviour;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\PlatformRequest;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\IpUtils;
@@ -18,7 +16,6 @@ use Symfony\Component\HttpFoundation\IpUtils;
 /**
  * @internal
  */
-#[Package('customer-order')]
 class CustomerRemoteAddressSubscriberTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;
@@ -47,7 +44,7 @@ class CustomerRemoteAddressSubscriberTest extends TestCase
         $customer = $this->fetchCustomerById($customerId);
 
         static::assertNotSame($customer->getRemoteAddress(), $remoteAddress);
-        static::assertSame($customer->getRemoteAddress(), IpUtils::anonymize((string) $remoteAddress));
+        static::assertSame($customer->getRemoteAddress(), IpUtils::anonymize($remoteAddress));
     }
 
     private function login(string $email, string $password): string
@@ -60,12 +57,9 @@ class CustomerRemoteAddressSubscriberTest extends TestCase
         ]);
 
         $response = $this->browser->getResponse();
+        $content = json_decode($response->getContent(), true);
 
-        // After login successfully, the context token will be set in the header
-        $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
-        static::assertNotEmpty($contextToken);
-
-        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $content['contextToken']);
 
         return $customerId;
     }

@@ -1,15 +1,12 @@
 import template from './sw-settings-rule-add-assignment-listing.html.twig';
 import './sw-settings-rule-add-assignment-listing.scss';
 
-const { Context } = Shopware;
+const { Component, Context } = Shopware;
 const { Criteria } = Shopware.Data;
 const { cloneDeep } = Shopware.Utils.object;
 
-/**
- * @private
- * @package business-ops
- */
-export default {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+Component.register('sw-settings-rule-add-assignment-listing', {
     template,
 
     props: {
@@ -124,4 +121,4 @@ export default {
             return tax?.label;
         },
     },
-};
+});

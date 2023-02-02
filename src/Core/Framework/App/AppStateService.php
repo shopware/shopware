@@ -12,20 +12,50 @@ use Shopware\Core\Framework\App\Lifecycle\Persister\ScriptPersister;
 use Shopware\Core\Framework\App\Payment\PaymentMethodStateService;
 use Shopware\Core\Framework\App\Template\TemplateStateService;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
  */
-#[Package('core')]
 class AppStateService
 {
-    public function __construct(private readonly EntityRepository $appRepo, private readonly EventDispatcherInterface $eventDispatcher, private readonly ActiveAppsLoader $activeAppsLoader, private readonly TemplateStateService $templateStateService, private readonly ScriptPersister $scriptPersister, private readonly PaymentMethodStateService $paymentMethodStateService, private readonly ScriptExecutor $scriptExecutor, private readonly RuleConditionPersister $ruleConditionPersister)
-    {
+    private EntityRepositoryInterface $appRepo;
+
+    private EventDispatcherInterface $eventDispatcher;
+
+    private ActiveAppsLoader $activeAppsLoader;
+
+    private TemplateStateService $templateStateService;
+
+    private ScriptPersister $scriptPersister;
+
+    private PaymentMethodStateService $paymentMethodStateService;
+
+    private ScriptExecutor $scriptExecutor;
+
+    private RuleConditionPersister $ruleConditionPersister;
+
+    public function __construct(
+        EntityRepositoryInterface $appRepo,
+        EventDispatcherInterface $eventDispatcher,
+        ActiveAppsLoader $activeAppsLoader,
+        TemplateStateService $templateStateService,
+        ScriptPersister $scriptPersister,
+        PaymentMethodStateService $paymentMethodStateService,
+        ScriptExecutor $scriptExecutor,
+        RuleConditionPersister $ruleConditionPersister
+    ) {
+        $this->appRepo = $appRepo;
+        $this->eventDispatcher = $eventDispatcher;
+        $this->activeAppsLoader = $activeAppsLoader;
+        $this->templateStateService = $templateStateService;
+        $this->paymentMethodStateService = $paymentMethodStateService;
+        $this->scriptPersister = $scriptPersister;
+        $this->scriptExecutor = $scriptExecutor;
+        $this->ruleConditionPersister = $ruleConditionPersister;
     }
 
     public function activateApp(string $appId, Context $context): void

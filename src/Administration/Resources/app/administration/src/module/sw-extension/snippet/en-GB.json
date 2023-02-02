@@ -92,14 +92,6 @@
       "store": "Store",
       "purchased": "My extensions",
       "support": "Support"
-    },
-    "sw-extension-app-module-error-page": {
-      "error": {
-        "heading": "Whoops! You’ve moved too fast and lost orientation.",
-        "phrase": "The page you were looking for is beyond our reach. Maybe the page has moved, no longer exists or you just like our 404-page. We’ll probably never know.",
-        "info": "Don’t worry! We’ve dispatched a rescue space-cat to guide you back to safety.",
-        "lblBackButton": "Back"
-      }
     }
   },
   "sw-extension-store": {
@@ -226,8 +218,8 @@
           "labelRating": "No ratings | {numberOfRatings} rating | {numberOfRatings} ratings"
         },
         "sw-extension-review": {
-          "labelLastChangeDate": "{author}, {lastChangeDate}",
-          "labelExtensionVersion": "Version: {extensionVersion}"
+          "labelLastChangeDate": "By {author} on {lastChangeDate}",
+          "labelExtensionVersion": "Extension version {extensionVersion}"
         },
         "sw-extension-ratings-card": {
           "cardTitle": "Ratings and reviews",
@@ -249,9 +241,9 @@
       "sw-extension-card-base": {
         "subscriptionLabel": "Subscription:",
         "inactiveLabel": "(inactive)",
-        "purchasedLabel": "Purchased:",
-        "installedLabel": "Installed:",
-        "openExtensionLabel": "Open",
+        "purchasedLabel": "Purchased on",
+        "installedLabel": "Installed on",
+        "openExtensionLabel": "Open app",
         "installExtensionLabel": "Install",
         "labelAcceptAndInstall": "Accept and install",
         "allowDisableTooltip": "This app uses its own data structures, that affect your system. Therefore, the app cannot be deactivated.",
@@ -266,7 +258,7 @@
           "updateLabel": "Update to {version}",
           "rateLabel": "Rate extension",
           "policyExtensions": "Privacy policy extensions",
-          "permissions": "See permissions",
+          "permissions": "Set permissions",
           "openExtension": "Open extension"
         }
       },
@@ -491,6 +483,7 @@
         "acl_role": "ACL role",
         "acl_user_role": "ACL user role",
         "dead_message": "Dead message",
+        "event_action": "Event action",
         "message_queue_stats": "Message queue stats",
         "notification": "Notification",
         "plugin": "Plugin",

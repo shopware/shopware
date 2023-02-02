@@ -3,13 +3,8 @@
 namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
-/**
- * @internal
- */
-#[Package('core')]
 class Migration1536232820UserAccessKey extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -19,7 +14,7 @@ class Migration1536232820UserAccessKey extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeStatement('
+        $connection->executeUpdate('
             CREATE TABLE `user_access_key` (
               `id`                  BINARY(16)      NOT NULL,
               `user_id`             BINARY(16)      NOT NULL,

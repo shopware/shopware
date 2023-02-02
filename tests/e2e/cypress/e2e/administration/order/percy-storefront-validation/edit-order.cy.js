@@ -6,25 +6,28 @@ describe('Account - Order: Visual tests', () => {
             return cy.setShippingMethodInSalesChannel('Standard');
         }).then(() => {
             return cy.createProductFixture();
-        }).then(() => {
-            return cy.createCustomerFixture();
-        }).then(() => {
-            return cy.searchViaAdminApi({
-                endpoint: 'product',
-                data: {
-                    field: 'name',
-                    value: 'Product name',
-                },
+        })
+            .then(() => {
+                return cy.createCustomerFixture();
+            })
+            .then(() => {
+                return cy.searchViaAdminApi({
+                    endpoint: 'product',
+                    data: {
+                        field: 'name',
+                        value: 'Product name'
+                    }
+                });
+            })
+            .then((result) => {
+                return cy.createOrder(result.id, {
+                    username: 'test@example.com',
+                    password: 'shopware'
+                });
             });
-        }).then((result) => {
-            return cy.createOrder(result.id, {
-                username: 'test@example.com',
-                password: 'shopware',
-            });
-        });
     });
 
-    it('@visual: check appearance of basic account order workflow', {tags: ['pa-customers-orders']}, () => {
+    it('@visual: check appearance of basic account order workflow', { tags: ['pa-customers-orders'] }, () => {
         // Login
         cy.visit('/account/order');
         cy.get('.login-card').should('be.visible');
@@ -43,6 +46,6 @@ describe('Account - Order: Visual tests', () => {
             .should('have.css', 'visibility', 'hidden');
 
         // Take snapshot for visual testing
-        cy.takeSnapshot('[Account] Overview', '.order-table', {widths: [375, 1920]});
+        cy.takeSnapshot('[Account] Overview', '.order-table', { widths: [375, 1920] });
     });
 });

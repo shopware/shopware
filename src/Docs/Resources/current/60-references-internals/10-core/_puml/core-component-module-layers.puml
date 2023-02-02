@@ -1,0 +1,23 @@
+@startuml LAYOUT_TOP_DOWN
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+LAYOUT_TOP_DOWN
+
+title Module layers
+
+Container(dataAccess, "Data access", "Data Abstraction Layer", "Read, search and modify related data, comes with basic validation and rich types")
+
+Container(business, "Business", "Core Domain Logic", "Central domain concepts like price calculation and other business critical processes")
+
+Container(application, "Application", "Context dependant use case", "Special cases like validation of sales channel input.")
+
+Container(presentation, "Presentation", "Transport aware", "Usually REST and JSON dependant.")
+
+Rel_U(business, dataAccess, "access and write data")
+Rel_U(application, business, "trigger processes")
+Rel_U(presentation, application, "read composite data")
+Rel_U(application, dataAccess, "Prepare composite data")
+Rel_U(presentation, business, "Trigger globally valid processes")
+Rel_U(presentation, dataAccess, "read data")
+
+@enduml

@@ -31,31 +31,35 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
-use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(
-    name: 'dal:create:hydrators',
-    description: 'Creates the hydrator classes',
-)]
-#[Package('core')]
 class CreateHydratorCommand extends Command
 {
-    private readonly string $dir;
+    protected static $defaultName = 'dal:create:hydrators';
+
+    /**
+     * @var DefinitionInstanceRegistry
+     */
+    private $registry;
+
+    /**
+     * @var string
+     */
+    private $dir;
 
     /**
      * @internal
      */
     public function __construct(
-        private readonly DefinitionInstanceRegistry $registry,
+        DefinitionInstanceRegistry $registry,
         string $rootDir
     ) {
         parent::__construct();
+        $this->registry = $registry;
         $this->dir = $rootDir . '/platform/src';
     }
 
@@ -90,7 +94,7 @@ class CreateHydratorCommand extends Command
 
             foreach ($entities as $definition) {
                 foreach ($startsWith as $prefix) {
-                    if (str_starts_with($definition->getEntityName(), $prefix)) {
+                    if (strpos($definition->getEntityName(), $prefix) === 0) {
                         $whitelist[] = $definition->getEntityName();
 
                         break;
@@ -154,12 +158,12 @@ EOF;
             $output->writeln($e->getMessage());
         }
 
-        return Command::SUCCESS;
+        return 0;
     }
 
     private function getDefinitionFile(EntityDefinition $definition): string
     {
-        $class = $definition::class;
+        $class = \get_class($definition);
 
         $class = explode('\\', $class);
 
@@ -178,7 +182,7 @@ EOF;
 
         $content = (string) file_get_contents($file);
 
-        if (str_contains($content, 'getHydratorClass')) {
+        if (strpos($content, 'getHydratorClass') !== false) {
             return null;
         }
 
@@ -300,7 +304,7 @@ EOF;
 
     private function getClass(EntityDefinition $definition): string
     {
-        $parts = explode('_', (string) $definition->getEntityName());
+        $parts = explode('_', $definition->getEntityName());
 
         $parts = array_map('ucfirst', $parts);
 
@@ -336,7 +340,7 @@ class #class# extends EntityHydrator
 
 EOF;
 
-        $entity = explode('\\', (string) $definition->getEntityClass());
+        $entity = explode('\\', $definition->getEntityClass());
         $entity = array_pop($entity);
 
         $callTemplate = '';
@@ -375,9 +379,9 @@ EOF;
 
     private function renderField(Field $field): string
     {
-        $template = 'if (isset($row[$root . \'.#property#\'])) {
+        $template = "if (isset(\$row[\$root . '.#property#'])) {
             #inner#
-        }';
+        }";
         $arrayKeyExists = "if (\array_key_exists(\$root . '.#property#', \$row)) {
             #inner#
         }";
@@ -386,19 +390,19 @@ EOF;
             case $field instanceof FkField:
             case $field instanceof VersionField:
             case $field instanceof ReferenceVersionField:
-                $inner = str_replace('#property#', $field->getPropertyName(), '$entity->#property# = Uuid::fromBytesToHex($row[$root . \'.#property#\']);');
+                $inner = str_replace('#property#', $field->getPropertyName(), "\$entity->#property# = Uuid::fromBytesToHex(\$row[\$root . '.#property#']);");
 
                 break;
             case $field instanceof StringField:
-                $inner = str_replace('#property#', $field->getPropertyName(), '$entity->#property# = $row[$root . \'.#property#\'];');
+                $inner = str_replace('#property#', $field->getPropertyName(), "\$entity->#property# = \$row[\$root . '.#property#'];");
 
                 break;
             case $field instanceof FloatField:
-                $inner = str_replace('#property#', $field->getPropertyName(), '$entity->#property# = (float) $row[$root . \'.#property#\'];');
+                $inner = str_replace('#property#', $field->getPropertyName(), "\$entity->#property# = (float) \$row[\$root . '.#property#'];");
 
                 break;
             case $field instanceof IntField:
-                $inner = str_replace('#property#', $field->getPropertyName(), '$entity->#property# = (int) $row[$root . \'.#property#\'];');
+                $inner = str_replace('#property#', $field->getPropertyName(), "\$entity->#property# = (int) \$row[\$root . '.#property#'];");
 
                 break;
             case $field instanceof DateField:
@@ -407,12 +411,12 @@ EOF;
 
                 break;
             case $field instanceof BoolField:
-                $inner = str_replace('#property#', $field->getPropertyName(), '$entity->#property# = (bool) $row[$root . \'.#property#\'];');
+                $inner = str_replace('#property#', $field->getPropertyName(), "\$entity->#property# = (bool) \$row[\$root . '.#property#'];");
 
                 break;
             default:
                 $template = $arrayKeyExists;
-                $inner = str_replace('#property#', $field->getPropertyName(), '$entity->#property# = $definition->decode(\'#property#\', self::value($row, $root, \'#property#\'));');
+                $inner = str_replace('#property#', $field->getPropertyName(), "\$entity->#property# = \$definition->decode('#property#', self::value(\$row, \$root, '#property#'));");
 
                 return str_replace(['#property#', '#inner#'], [$field->getPropertyName(), $inner], $template);
         }

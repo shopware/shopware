@@ -18,23 +18,84 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterfac
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelProcessCriteriaEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @final
+ * @final tag:v6.5.0
  */
-#[Package('sales-channel')]
-class SalesChannelRepository
+class SalesChannelRepository implements SalesChannelRepositoryInterface
 {
     /**
-     * @internal
+     * @var EntityDefinition
      */
-    public function __construct(private readonly EntityDefinition $definition, private readonly EntityReaderInterface $reader, private readonly EntitySearcherInterface $searcher, private readonly EntityAggregatorInterface $aggregator, private readonly EventDispatcherInterface $eventDispatcher, private readonly EntityLoadedEventFactory $eventFactory)
+    protected $definition;
+
+    /**
+     * @var EntityReaderInterface
+     */
+    protected $reader;
+
+    /**
+     * @var EntitySearcherInterface
+     */
+    protected $searcher;
+
+    /**
+     * @var EntityAggregatorInterface
+     */
+    protected $aggregator;
+
+    /**
+     * @var EventDispatcherInterface
+     */
+    protected $eventDispatcher;
+
+    private ?EntityLoadedEventFactory $eventFactory;
+
+    /**
+     * @internal
+     *
+     * @deprecated tag:v6.5.0 - $eventFactory parameter will be required
+     */
+    public function __construct(
+        EntityDefinition $definition,
+        EntityReaderInterface $reader,
+        EntitySearcherInterface $searcher,
+        EntityAggregatorInterface $aggregator,
+        EventDispatcherInterface $eventDispatcher,
+        ?EntityLoadedEventFactory $eventFactory
+    ) {
+        $this->definition = $definition;
+        $this->reader = $reader;
+        $this->searcher = $searcher;
+        $this->aggregator = $aggregator;
+        $this->eventDispatcher = $eventDispatcher;
+
+        if ($eventFactory !== null) {
+            $this->eventFactory = $eventFactory;
+        } else {
+            Feature::triggerDeprecationOrThrow(
+                'v6.5.0.0',
+                sprintf('SalesChannelRepository constructor for definition %s requires the event factory as required 6th parameter in v6.5.0.0', $definition->getEntityName())
+            );
+        }
+    }
+
+    /**
+     * @deprecated tag:v6.5.0 - Will be removed
+     */
+    public function setEntityLoadedEventFactory(EntityLoadedEventFactory $eventFactory): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
+        );
+
+        $this->eventFactory = $eventFactory;
     }
 
     /**
@@ -131,6 +192,10 @@ class SalesChannelRepository
 
         $entities = $this->reader->read($this->definition, $criteria, $salesChannelContext->getContext());
 
+        if ($this->eventFactory === null) {
+            throw new \RuntimeException('Event loaded factory was not injected');
+        }
+
         if ($criteria->getFields() === []) {
             $events = $this->eventFactory->createForSalesChannel($entities->getElements(), $salesChannelContext);
         } else {
@@ -176,7 +241,7 @@ class SalesChannelRepository
             $definition = $cur['definition'];
             $criteria = $cur['criteria'];
 
-            if (isset($processed[$definition::class])) {
+            if (isset($processed[\get_class($definition)])) {
                 continue;
             }
 
@@ -189,7 +254,7 @@ class SalesChannelRepository
                 $this->eventDispatcher->dispatch($event, $eventName);
             }
 
-            $processed[$definition::class] = true;
+            $processed[\get_class($definition)] = true;
 
             foreach ($criteria->getAssociations() as $associationName => $associationCriteria) {
                 // find definition

@@ -4,18 +4,18 @@ namespace Shopware\Core\Migration\Test;
 
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Result;
-use Doctrine\DBAL\Statement;
-use Shopware\Core\Framework\Log\Package;
+use Doctrine\DBAL\Driver\Statement;
+use Doctrine\DBAL\ForwardCompatibility\DriverResultStatement;
+use Doctrine\DBAL\ForwardCompatibility\DriverStatement;
+use Doctrine\DBAL\ForwardCompatibility\Result;
 use Shopware\Core\Profiling\Doctrine\DebugStack;
 
 /**
  * @internal
  */
-#[Package('core')]
 class NullConnection extends Connection
 {
-    final public const EXCEPTION_MESSAGE = 'Write operations are not supported when using executeQuery.';
+    public const EXCEPTION_MESSAGE = 'Write operations are not supported when using executeQuery.';
 
     private Connection $originalConnection;
 
@@ -29,8 +29,10 @@ class NullConnection extends Connection
 
     /**
      * {@inheritdoc}
+     *
+     * @return DriverResultStatement<mixed>|DriverStatement<mixed>|Result
      */
-    public function executeQuery($sql, array $params = [], $types = [], ?QueryCacheProfile $qcp = null): Result
+    public function executeQuery($sql, array $params = [], $types = [], ?QueryCacheProfile $qcp = null)
     {
         $matches = preg_match_all(DebugStack::$writeSqlRegex, $sql);
 
@@ -41,12 +43,12 @@ class NullConnection extends Connection
         return $this->originalConnection->executeQuery($sql, $params, $types, $qcp);
     }
 
-    public function prepare($statement): Statement
+    public function prepare($statement)
     {
         return $this->originalConnection->prepare($statement);
     }
 
-    public function executeUpdate(string $sql, array $params = [], array $types = []): int
+    public function executeUpdate($sql, array $params = [], array $types = [])
     {
         return 0;
     }
@@ -56,17 +58,19 @@ class NullConnection extends Connection
         return 0;
     }
 
-    public function exec(string $statement): int
+    public function exec($statement)
     {
         return 0;
     }
 
     /**
      * {@inheritdoc}
+     *
+     * @return Statement<mixed>
      */
-    public function query(string $sql): Result
+    public function query()
     {
-        return $this->originalConnection->executeQuery($sql);
+        return $this->originalConnection->query(...\func_get_args());
     }
 
     public function insert($table, array $data, array $types = [])
@@ -87,5 +91,15 @@ class NullConnection extends Connection
     public function setOriginalConnection(Connection $originalConnection): void
     {
         $this->originalConnection = $originalConnection;
+    }
+
+    public function getWrappedConnection()
+    {
+        return $this->originalConnection;
+    }
+
+    public function getSchemaManager()
+    {
+        return $this->originalConnection->getSchemaManager();
     }
 }

@@ -6,20 +6,18 @@ use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFi
 use Shopware\Core\Content\ImportExport\ImportExportProfileEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\User\UserEntity;
 
-#[Package('system-settings')]
 class ImportExportLogEntity extends Entity
 {
     use EntityIdTrait;
 
-    final public const ACTIVITY_IMPORT = 'import';
-    final public const ACTIVITY_EXPORT = 'export';
-    final public const ACTIVITY_DRYRUN = 'dryrun';
-    final public const ACTIVITY_INVALID_RECORDS_EXPORT = 'invalid_records_export';
+    public const ACTIVITY_IMPORT = 'import';
+    public const ACTIVITY_EXPORT = 'export';
+    public const ACTIVITY_DRYRUN = 'dryrun';
+    public const ACTIVITY_INVALID_RECORDS_EXPORT = 'invalid_records_export';
 
-    final public const ACTIVITY_TEMPLATE = 'template';
+    public const ACTIVITY_TEMPLATE = 'template';
 
     /**
      * @var string

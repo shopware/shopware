@@ -8,7 +8,6 @@ const { cloneDeep } = Shopware.Utils.object;
 /**
  * @class
  * @extends BulkEditBaseHandler
- * @package system-settings
  */
 class BulkEditProductHandler extends BulkEditBaseHandler {
     constructor() {

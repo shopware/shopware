@@ -3,7 +3,7 @@
 namespace Shopware\Core\Checkout\Customer\Rule;
 
 use Shopware\Core\Checkout\CheckoutRuleScope;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
@@ -11,19 +11,26 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-#[Package('business-ops')]
 class CustomerNumberRule extends Rule
 {
-    final public const RULE_NAME = 'customerCustomerNumber';
+    /**
+     * @var array<string>|null
+     */
+    protected $numbers;
+
+    /**
+     * @var string
+     */
+    protected $operator;
 
     /**
      * @internal
-     *
-     * @param list<string>|null $numbers
      */
-    public function __construct(protected string $operator = self::OPERATOR_EQ, protected ?array $numbers = null)
+    public function __construct(string $operator = self::OPERATOR_EQ, ?array $numbers = null)
     {
         parent::__construct();
+        $this->operator = $operator;
+        $this->numbers = $numbers;
     }
 
     public function match(RuleScope $scope): bool
@@ -33,6 +40,10 @@ class CustomerNumberRule extends Rule
         }
 
         if (!$customer = $scope->getSalesChannelContext()->getCustomer()) {
+            if (!Feature::isActive('v6.5.0.0')) {
+                return false;
+            }
+
             return RuleComparison::isNegativeOperator($this->operator);
         }
 
@@ -49,6 +60,11 @@ class CustomerNumberRule extends Rule
             'numbers' => RuleConstraints::stringArray(),
             'operator' => RuleConstraints::stringOperators(false),
         ];
+    }
+
+    public function getName(): string
+    {
+        return 'customerCustomerNumber';
     }
 
     public function getConfig(): RuleConfig

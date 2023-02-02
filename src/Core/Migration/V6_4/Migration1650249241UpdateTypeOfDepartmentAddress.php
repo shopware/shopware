@@ -3,13 +3,8 @@
 namespace Shopware\Core\Migration\V6_4;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
-/**
- * @internal
- */
-#[Package('core')]
 class Migration1650249241UpdateTypeOfDepartmentAddress extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -19,12 +14,12 @@ class Migration1650249241UpdateTypeOfDepartmentAddress extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeStatement('
+        $connection->executeUpdate('
             ALTER TABLE `customer_address`
                 MODIFY COLUMN `department` VARCHAR(255) COLLATE utf8mb4_unicode_ci NULL;
         ');
 
-        $connection->executeStatement('
+        $connection->executeUpdate('
             ALTER TABLE `order_address`
                 MODIFY COLUMN `department` VARCHAR(255) COLLATE utf8mb4_unicode_ci NULL;
         ');

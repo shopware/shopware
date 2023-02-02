@@ -6,11 +6,8 @@ const { Component, Utils, Classes: { ShopwareError } } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapState } = Component.getComponentHelper();
 
-/**
- * @private
- * @package business-ops
- */
-export default {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+Component.register('sw-flow-mail-send-modal', {
     template,
 
     inject: [
@@ -35,8 +32,6 @@ export default {
             selectedRecipient: null,
             mailTemplateIdError: null,
             recipientGridError: null,
-            replyTo: null,
-            replyToError: null,
         };
     },
 
@@ -124,14 +119,6 @@ export default {
                     ...this.recipientCustom,
                 ];
             }
-            if (['newsletter.confirm', 'newsletter.register', 'newsletter.unsubscribe']
-                .includes(this.triggerEvent.name)) {
-                return [
-                    ...this.recipientCustomer,
-                    ...this.recipientAdmin,
-                    ...this.recipientCustom,
-                ];
-            }
 
             const hasEntityAware = allowAwareConverted.some(allowedAware => this.entityAware.includes(allowedAware));
 
@@ -159,36 +146,6 @@ export default {
                 label: 'sw-flow.modals.mail.columnRecipientName',
                 inlineEdit: 'string',
             }];
-        },
-
-        replyToOptions() {
-            if (this.triggerEvent.name === 'contact_form.send') {
-                return [
-                    ...this.recipientDefault,
-                    ...this.recipientContactFormMail,
-                    ...this.recipientCustom,
-                ];
-            }
-
-            return [
-                ...this.recipientDefault,
-                ...this.recipientCustom,
-            ];
-        },
-
-        replyToSelection() {
-            switch (this.replyTo) {
-                case null:
-                    return 'default';
-                case 'contactFormMail':
-                    return 'contactFormMail';
-                default:
-                    return 'custom';
-            }
-        },
-
-        showReplyToField() {
-            return !(this.replyTo === null || this.replyTo === 'contactFormMail');
         },
 
         ...mapState('swFlowState', ['mailTemplates', 'triggerEvent', 'triggerActions']),
@@ -221,10 +178,6 @@ export default {
 
                     this.addRecipient();
                     this.showRecipientEmails = true;
-                }
-
-                if (config.replyTo) {
-                    this.replyTo = config.replyTo;
                 }
 
                 this.mailTemplateId = config.mailTemplateId;
@@ -278,12 +231,9 @@ export default {
 
         onAddAction() {
             this.mailTemplateIdError = this.fieldError(this.mailTemplateId);
-            if (this.showReplyToField) {
-                this.replyToError = this.setMailError(this.replyTo);
-            }
             this.recipientGridError = this.isRecipientGridError();
 
-            if (this.mailTemplateIdError || this.replyToError || this.recipientGridError) {
+            if (this.mailTemplateIdError || this.recipientGridError) {
                 return;
             }
 
@@ -298,7 +248,6 @@ export default {
                         type: this.mailRecipient,
                         data: this.getRecipientData(),
                     },
-                    replyTo: this.replyTo,
                 },
             };
 
@@ -476,33 +425,5 @@ export default {
         allowDeleteRecipient(itemIndex) {
             return itemIndex !== this.recipients.length - 1;
         },
-
-        changeShowReplyToField(value) {
-            switch (value) {
-                case 'default':
-                    this.replyToError = null;
-                    this.replyTo = null;
-
-                    return;
-                case 'contactFormMail':
-                    this.replyToError = null;
-                    this.replyTo = null;
-
-                    return;
-                default:
-                    this.replyTo = '';
-            }
-        },
-
-        buildReplyToTooltip(snippet) {
-            const route = { name: 'sw.settings.basic.information.index' };
-            const routeData = this.$router.resolve(route);
-
-            const data = {
-                settingsLink: routeData.href,
-            };
-
-            return this.$tc(snippet, 0, data);
-        },
     },
-};
+});

@@ -3,19 +3,29 @@
 namespace Shopware\Core\Installer\Finish;
 
 use GuzzleHttp\Client;
-use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
-#[Package('core')]
 class Notifier
 {
-    final public const EVENT_INSTALL_STARTED = 'Installer started';
-    final public const EVENT_INSTALL_FINISHED = 'Installer finished';
+    public const EVENT_INSTALL_STARTED = 'Installer started';
+    public const EVENT_INSTALL_FINISHED = 'Installer finished';
 
-    public function __construct(private readonly string $apiEndPoint, private readonly UniqueIdGenerator $idGenerator, private readonly Client $client, private readonly string $shopwareVersion)
+    private string $apiEndPoint;
+
+    private Client $client;
+
+    private UniqueIdGenerator $idGenerator;
+
+    private string $shopwareVersion;
+
+    public function __construct(string $apiEndPoint, UniqueIdGenerator $idGenerator, Client $client, string $shopwareVersion)
     {
+        $this->apiEndPoint = $apiEndPoint;
+        $this->client = $client;
+        $this->idGenerator = $idGenerator;
+        $this->shopwareVersion = $shopwareVersion;
     }
 
     /**
@@ -32,7 +42,7 @@ class Notifier
 
         try {
             $this->client->postAsync($this->apiEndPoint . '/swplatform/tracking/events', ['json' => $payload]);
-        } catch (\Exception) {
+        } catch (\Exception $ex) {
             // ignore
         }
     }

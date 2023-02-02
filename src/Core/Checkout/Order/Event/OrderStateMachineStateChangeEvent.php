@@ -14,16 +14,35 @@ use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Event\SalesChannelAware;
-use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('customer-order')]
 class OrderStateMachineStateChangeEvent extends Event implements SalesChannelAware, OrderAware, MailAware, CustomerAware
 {
-    private ?MailRecipientStruct $mailRecipientStruct = null;
+    /**
+     * @var OrderEntity
+     */
+    private $order;
 
-    public function __construct(private readonly string $name, private readonly OrderEntity $order, private readonly Context $context)
+    /**
+     * @var Context
+     */
+    private $context;
+
+    /**
+     * @var string
+     */
+    private $name;
+
+    /**
+     * @var MailRecipientStruct
+     */
+    private $mailRecipientStruct;
+
+    public function __construct(string $eventName, OrderEntity $order, Context $context)
     {
+        $this->order = $order;
+        $this->context = $context;
+        $this->name = $eventName;
     }
 
     public function getOrder(): OrderEntity

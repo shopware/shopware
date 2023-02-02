@@ -62,9 +62,10 @@
                 @click="openDetailsModal(key)"
             >
                 {{ $tc('sw-extension-store.component.sw-extension-permissions-modal.textEntities') }}
+                {# @deprecated tag:v6.5.0 - Size can be removed #}
                 <sw-icon
                     name="regular-long-arrow-right"
-                    size="12px"
+                    size="18"
                 />
             </sw-button>
             {% endblock %}
@@ -88,9 +89,10 @@
             >
                 {{ $tc('sw-extension-store.component.sw-extension-permissions-modal.showDomains') }}
 
+                {# @deprecated tag:v6.5.0 - Size can be removed #}
                 <sw-icon
                     name="regular-long-arrow-right"
-                    size="12px"
+                    size="18"
                 />
             </sw-button>
         </div>

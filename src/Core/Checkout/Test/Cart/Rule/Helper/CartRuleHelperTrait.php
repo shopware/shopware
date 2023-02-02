@@ -11,10 +11,8 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\ListPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-#[Package('business-ops')]
 trait CartRuleHelperTrait
 {
     protected function createLineItem(
@@ -75,7 +73,7 @@ trait CartRuleHelperTrait
 
     protected function createCart(LineItemCollection $lineItemCollection): Cart
     {
-        $cart = new Cart(Uuid::randomHex());
+        $cart = new Cart('test', Uuid::randomHex());
         $cart->addLineItems($lineItemCollection);
 
         return $cart;

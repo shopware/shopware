@@ -1,14 +1,12 @@
-@import "~scss/variables";
-
 .sw-sales-channel-detail {
     .sw-sales-channel-detail-analytics__headline-text {
-        font-weight: $font-weight-semi-bold;
-        font-size: $font-size-m;
+        font-weight: 600;
+        font-size: 18px;
         margin-bottom: 20px;
     }
 
     .sw-sales-channel-detail-analytics__description {
-        font-size: $font-size-xs;
+        font-size: 14px;
         margin-bottom: 30px;
     }
 }

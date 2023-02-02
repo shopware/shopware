@@ -5,20 +5,14 @@ namespace Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits;
 use Shopware\Core\Checkout\Cart\Rule\LineItemRule;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionSetGroup\PromotionSetGroupEntity;
 use Shopware\Core\Content\Rule\RuleCollection;
-use Shopware\Core\Content\Rule\RuleEntity;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-#[Package('checkout')]
 trait PromotionSetGroupTestFixtureBehaviour
 {
-    /**
-     * @param RuleEntity[] $rules
-     */
     private function createSetGroup(string $packagerKey, float $value, string $sorterKey, array $rules): PromotionSetGroupEntity
     {
         $group = new PromotionSetGroupEntity();

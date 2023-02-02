@@ -9,16 +9,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
-use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Range;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
- * @internal
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
  */
-#[Package('core')]
 class IntFieldSerializer extends AbstractFieldSerializer
 {
     public function encode(
@@ -36,7 +34,7 @@ class IntFieldSerializer extends AbstractFieldSerializer
         yield $field->getStorageName() => $data->getValue();
     }
 
-    public function decode(Field $field, mixed $value): ?int
+    public function decode(Field $field, $value): ?int
     {
         return $value === null ? null : (int) $value;
     }

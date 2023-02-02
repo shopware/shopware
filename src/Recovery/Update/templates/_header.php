@@ -36,7 +36,7 @@
         </div>
 
         <div class="version--notice">
-            <?= $language['version'] ?? 'version'; ?> <?= $version; ?>
+            <?= $version; ?>
         </div>
     </header>
 

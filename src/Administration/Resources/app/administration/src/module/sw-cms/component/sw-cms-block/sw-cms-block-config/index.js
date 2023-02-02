@@ -1,13 +1,12 @@
 import template from './sw-cms-block-config.html.twig';
 import './sw-cms-block-config.scss';
 
-const { Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 
 /**
- * @private
- * @package content
+ * @private since v6.5.0
  */
-export default {
+Component.register('sw-cms-block-config', {
     template,
 
     inject: [
@@ -93,4 +92,4 @@ export default {
             this.$emit('block-duplicate', this.block);
         },
     },
-};
+});

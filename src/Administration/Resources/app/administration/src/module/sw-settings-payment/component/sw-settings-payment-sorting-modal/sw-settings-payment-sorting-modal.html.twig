@@ -23,8 +23,6 @@
             <sw-sortable-list
                 class="sw-settings-payment-sorting-modal__payment-method-list"
                 :items="sortedPaymentMethods"
-                :scroll-on-drag="true"
-                :scroll-on-drag-conf="scrollOnDragConf"
                 @itemsSorted="onSort"
             >
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -38,7 +36,7 @@
                         {% block sw_settings_payment_sorting_modal_content_payment_method_action %}
                         <sw-icon
                             class="sw-settings-payment-sorting-modal__payment-method-list-item__action"
-                            name="regular-grip-vertical"
+                            name="default-action-drag-horizontal"
                         />
                         {% endblock %}
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -58,7 +56,7 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_payment_sorting_modal_content_payment_method_name %}
                         <div class="sw-settings-payment-sorting-modal__payment-method-list-item__name">
-                            {{ paymentMethod.translated.distinguishableName }}
+                            {{ paymentMethod.translated.name }}
                         </div>
                         {% endblock %}
                     </div>

@@ -154,7 +154,9 @@ class Migration1642732351AddAppFlowActionIdTest extends TestCase
     {
         return \count(array_filter(
             $this->connection->getSchemaManager()->listTableColumns($table),
-            static fn (Column $column): bool => $column->getName() === $columnName
+            static function (Column $column) use ($columnName): bool {
+                return $column->getName() === $columnName;
+            }
         )) > 0;
     }
 }

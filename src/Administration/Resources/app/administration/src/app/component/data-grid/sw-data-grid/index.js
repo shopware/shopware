@@ -6,9 +6,6 @@ const { Criteria } = Shopware.Data;
 const utils = Shopware.Utils;
 
 /**
- * @package admin
- *
- * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @status ready
  * @description The sw-data-grid is a component to render tables with data.
@@ -29,6 +26,7 @@ const utils = Shopware.Utils;
  *     ]">
  * </sw-data-grid>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-data-grid', {
     template,
 
@@ -201,7 +199,7 @@ Component.register('sw-data-grid', {
             currentSetting: {},
             currentColumns: [],
             columnIndex: null,
-            selection: { ...this.preSelection || {} },
+            selection: Object.assign({}, this.preSelection || {}),
             originalTarget: null,
             compact: this.compactMode,
             previews: this.showPreviews,
@@ -464,18 +462,14 @@ Component.register('sw-data-grid', {
                     return column;
                 }
 
-                return utils.object.mergeWith(
-                    {},
-                    column,
-                    userColumnSettings[column.dataIndex],
+                return utils.object.mergeWith({}, column, userColumnSettings[column.dataIndex],
                     (localValue, serverValue) => {
                         if (serverValue !== undefined && serverValue !== null) {
                             return serverValue;
                         }
 
                         return localValue;
-                    },
-                );
+                    });
             }).sort((column1, column2) => column1.position - column2.position);
         },
 
@@ -511,7 +505,7 @@ Component.register('sw-data-grid', {
                     column.dataIndex = column.property;
                 }
 
-                return { ...defaults, ...column };
+                return Object.assign({}, defaults, column);
             });
         },
 

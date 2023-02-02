@@ -4,9 +4,6 @@ import template from './sw-inherit-wrapper.html.twig';
 const { Component } = Shopware;
 
 /**
- * @package admin
- *
- * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @description Wrapper for inherited data with toggle
  * @status ready
@@ -111,12 +108,6 @@ Component.register('sw-inherit-wrapper', {
             required: false,
             default: null,
         },
-
-        error: {
-            type: Object,
-            required: false,
-            default: null,
-        },
     },
 
     data() {
@@ -168,12 +159,6 @@ Component.register('sw-inherit-wrapper', {
             }
 
             return this.value === null || this.value === undefined;
-        },
-
-        labelClasses() {
-            return {
-                'has--error': !!this.error,
-            };
         },
     },
 

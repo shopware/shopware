@@ -2,12 +2,15 @@
 
 describe('Cache module', () => {
     beforeEach(() => {
-        cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/cache/index`);
-        cy.get('.sw-skeleton').should('not.exist');
-        cy.get('.sw-loader').should('not.exist');
+        cy.loginViaApi()
+            .then(() => {
+                cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/cache/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
+            });
     });
 
-    it('@settings: clear cache shortcut', { tags: ['quarantined', 'pa-system-settings'] }, () => {
+    it('@settings: clear cache shortcut', { tags: ['pa-system-settings'] }, () => {
         cy.get('.sw-loader').should('not.exist');
         cy.get('body').type('{alt}c', { release: false });
         cy.get('.sw-modal__dialog').should('be.visible');
@@ -25,14 +28,14 @@ describe('Cache module', () => {
         cy.awaitAndCheckNotification('All caches cleared.');
     });
 
-    it('@base @settings: rebuild index', { tags: ['quarantined', 'pa-system-settings'] }, () => {
+    it('@base @settings: rebuild index', { tags: ['pa-system-settings'] }, () => {
         cy.contains('Caches & indexes');
 
         cy.get('.sw-card__content .sw-container:last .sw-button').click();
         cy.awaitAndCheckNotification('Building indexes.');
     });
 
-    it('@base @settings: rebuild index with skip options', { tags: ['quarantined', 'pa-system-settings'] }, () => {
+    it('@base @settings: rebuild index with skip options', { tags: ['pa-system-settings'] }, () => {
         cy.contains('Caches & indexes');
 
         cy.get('.sw-settings-cache__indexers-select').should('be.visible').click();

@@ -1,0 +1,8 @@
+@import "~scss/variables";
+
+.sw-promotion-rule-select {
+    .sw-promotion-rule-select__add-new-rule:hover {
+        color: $color-shopware-brand-500;
+        background-color: lighten($color-shopware-brand-500, 40%);
+    }
+}

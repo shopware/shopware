@@ -5,8 +5,6 @@ import template from './sw-modals-renderer.html.twig';
 const { Component } = Shopware;
 
 /**
- * @package admin
- *
  * @private
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

@@ -11,13 +11,14 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\CriteriaQueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntitySearcher;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
@@ -31,9 +32,9 @@ class EntitySearcherTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private EntityRepository $groupRepository;
+    private EntityRepositoryInterface $groupRepository;
 
-    private EntityRepository $productRepository;
+    private EntityRepositoryInterface $productRepository;
 
     protected function setUp(): void
     {
@@ -572,10 +573,18 @@ class EntitySearcherTest extends TestCase
 
         static::assertNotEmpty($result->getIds());
 
-        /** @var array<string, string> $ids */
         foreach ($result->getIds() as $ids) {
             static::assertArrayHasKey('productId', $ids);
             static::assertArrayHasKey('categoryId', $ids);
+
+            if (Feature::isActive('v6.5.0.0')) {
+                continue;
+            }
+
+            static::assertArrayHasKey('product_id', $ids);
+            static::assertArrayHasKey('category_id', $ids);
+            static::assertEquals($ids['categoryId'], $ids['category_id']);
+            static::assertEquals($ids['productId'], $ids['product_id']);
         }
     }
 

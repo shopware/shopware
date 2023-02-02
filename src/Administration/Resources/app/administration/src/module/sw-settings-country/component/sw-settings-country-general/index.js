@@ -1,6 +1,3 @@
-/**
- * @package system-settings
- */
 import template from './sw-settings-country-general.html.twig';
 import './sw-settings-country-general.scss';
 
@@ -10,7 +7,7 @@ const { Criteria } = Shopware.Data;
 
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-settings-country-general', {
     template,
 
     inject: [
@@ -209,4 +206,4 @@ export default {
             this.$emit('modal-save');
         },
     },
-};
+});

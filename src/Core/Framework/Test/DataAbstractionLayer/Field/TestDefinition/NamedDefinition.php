@@ -17,7 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
  */
 class NamedDefinition extends EntityDefinition
 {
-    final public const ENTITY_NAME = 'named';
+    public const ENTITY_NAME = 'named';
 
     public function getEntityName(): string
     {

@@ -15,17 +15,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\Count
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\EntityAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\MaxAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\MinAggregation;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\RangeAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\StatsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\SumAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Log\Package;
 
 /**
- * @internal
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
  */
-#[Package('core')]
 class AggregationParser
 {
     public function buildAggregations(EntityDefinition $definition, array $payload, Criteria $criteria, SearchRequestException $searchRequestException): void
@@ -166,7 +163,7 @@ class AggregationParser
             return $data;
         }
 
-        throw new InvalidAggregationQueryException(sprintf('The aggregation of type "%s" is not supported.', $aggregation::class));
+        throw new InvalidAggregationQueryException(sprintf('The aggregation of type "%s" is not supported.', \get_class($aggregation)));
     }
 
     private function parseAggregation(int $index, EntityDefinition $definition, array $aggregation, SearchRequestException $exceptions): ?Aggregation
@@ -216,14 +213,6 @@ class AggregationParser
                 return new SumAggregation($name, $field);
             case 'count':
                 return new CountAggregation($name, $field);
-            case 'range':
-                if (!isset($aggregation['ranges'])) {
-                    $exceptions->add(new InvalidAggregationQueryException('The aggregation should contain "ranges".'), '/aggregations/' . $index . '/' . $type . '/field');
-
-                    return null;
-                }
-
-                return new RangeAggregation($name, (string) $field, $aggregation['ranges']);
             case 'entity':
                 if (!isset($aggregation['definition'])) {
                     $exceptions->add(new InvalidAggregationQueryException('The aggregation should contain a "definition".'), '/aggregations/' . $index . '/' . $type . '/field');
@@ -280,7 +269,7 @@ class AggregationParser
                     $order = $sort['order'] ?? FieldSorting::ASCENDING;
                     $naturalSorting = $sort['naturalSorting'] ?? false;
 
-                    if (strcasecmp((string) $order, 'desc') === 0) {
+                    if (strcasecmp($order, 'desc') === 0) {
                         $order = FieldSorting::DESCENDING;
                     } else {
                         $order = FieldSorting::ASCENDING;
@@ -308,7 +297,7 @@ class AggregationParser
                     $order = $sort['order'] ?? FieldSorting::ASCENDING;
                     $naturalSorting = $sort['naturalSorting'] ?? false;
 
-                    if (strcasecmp((string) $order, 'desc') === 0) {
+                    if (strcasecmp($order, 'desc') === 0) {
                         $order = FieldSorting::DESCENDING;
                     } else {
                         $order = FieldSorting::ASCENDING;

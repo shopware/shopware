@@ -6,23 +6,29 @@ use Monolog\Logger;
 use Shopware\Core\Content\Flow\Dispatching\Aware\NameAware;
 use Shopware\Core\Content\MailTemplate\Exception\MailEventConfigurationException;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Log\LogAware;
-use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('sales-channel')]
-class ProductExportLoggingEvent extends Event implements LogAware, MailAware, NameAware
+class ProductExportLoggingEvent extends Event implements BusinessEventInterface, LogAware, MailAware, NameAware
 {
-    final public const NAME = 'product_export.log';
+    public const NAME = 'product_export.log';
+
+    /**
+     * @var Context
+     */
+    private $context;
 
     /**
      * @var 100|200|250|300|400|500|550|600
      */
-    private readonly int $logLevel;
+    private $logLevel;
+
+    private ?\Throwable $throwable = null;
 
     private string $name = self::NAME;
 
@@ -32,13 +38,15 @@ class ProductExportLoggingEvent extends Event implements LogAware, MailAware, Na
      * @param 100|200|250|300|400|500|550|600|null $logLevel
      */
     public function __construct(
-        private readonly Context $context,
+        Context $context,
         ?string $name,
         ?int $logLevel,
-        private readonly ?\Throwable $throwable = null
+        ?\Throwable $throwable = null
     ) {
+        $this->context = $context;
         $this->name = $name ?? self::NAME;
         $this->logLevel = $logLevel ?? Logger::DEBUG;
+        $this->throwable = $throwable;
     }
 
     public function getThrowable(): ?\Throwable

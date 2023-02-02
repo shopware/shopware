@@ -1,15 +1,11 @@
-/*
- * @package inventory
- */
-
 import template from './sw-product-price-form.html.twig';
 import './sw-product-price-form.scss';
 
-const { Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 const { mapPropertyErrors, mapState, mapGetters } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-product-price-form', {
     template,
 
     mixins: [
@@ -156,4 +152,4 @@ export default {
             return tax.name;
         },
     },
-};
+});

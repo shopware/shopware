@@ -9,12 +9,15 @@ describe('Tag: Test listing filters', () => {
         const taxId = uuid().replace(/-/g, '');
         const categoryId = uuid().replace(/-/g, '');
 
-        cy.createDefaultFixture('tag', {
-            name: 'Tag without associations',
-        })
+        cy.loginViaApi()
+            .then(() => {
+                cy.createDefaultFixture('tag', {
+                    name: 'Tag without associations'
+                });
+            })
             .then(() => {
                 cy.createDefaultFixture('tax', {
-                    id: taxId,
+                    id: taxId
                 });
             })
             .then(() => {
@@ -23,9 +26,9 @@ describe('Tag: Test listing filters', () => {
                     taxId,
                     tags: [
                         {
-                            name: 'Example tag',
-                        },
-                    ],
+                            name: 'Example tag'
+                        }
+                    ]
                 });
             })
             .then(() => {
@@ -33,25 +36,25 @@ describe('Tag: Test listing filters', () => {
                     id: categoryId,
                     tags: [
                         {
-                            name: 'Example tag 2',
-                        },
-                    ],
+                            name: 'Example tag 2'
+                        }
+                    ]
                 });
             })
             .then(() => {
                 cy.createDefaultFixture('tag', {
                     name: 'Duplicate tag',
                     categories: [{
-                        id: categoryId,
-                    }],
+                        id: categoryId
+                    }]
                 });
             })
             .then(() => {
                 cy.createDefaultFixture('tag', {
                     name: 'Duplicate tag',
                     categories: [{
-                        id: categoryId,
-                    }],
+                        id: categoryId
+                    }]
                 });
             })
             .then(() => {
@@ -66,7 +69,7 @@ describe('Tag: Test listing filters', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/tag`,
-            method: 'POST',
+            method: 'POST'
         }).as('loadTags');
 
         const checkFilterlessListing = () => {
@@ -87,7 +90,7 @@ describe('Tag: Test listing filters', () => {
         cy.get('.sw-settings-tag-list__filter-menu-trigger').click();
         cy.get('.sw-settings-tag-list__filter-assignment-select').typeMultiSelectAndCheck(
             'Product',
-            '.sw-settings-tag-list__filter-assignment-select',
+            '.sw-settings-tag-list__filter-assignment-select'
         );
 
         cy.wait('@loadTags').its('response.statusCode').should('equal', 200);

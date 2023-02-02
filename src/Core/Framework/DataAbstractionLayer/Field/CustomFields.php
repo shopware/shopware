@@ -4,9 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\CustomFieldsAccessorBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\CustomFieldsSerializer;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
 class CustomFields extends JsonField
 {
     public function __construct($storageName = 'custom_fields', $propertyName = 'customFields')

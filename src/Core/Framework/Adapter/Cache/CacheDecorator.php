@@ -3,30 +3,45 @@
 namespace Shopware\Core\Framework\Adapter\Cache;
 
 use Psr\Cache\CacheItemInterface;
-use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\Cache\CacheItem;
 use Symfony\Contracts\Cache\CacheTrait;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
-#[Package('core')]
 class CacheDecorator implements TagAwareAdapterInterface, TagAwareCacheInterface
 {
     use CacheTrait;
 
     /**
-     * @internal
+     * @var TagAwareCacheInterface&TagAwareAdapterInterface
      */
-    public function __construct(
-        private readonly TagAwareCacheInterface&TagAwareAdapterInterface $decorated,
-        private readonly CacheTagCollection $collection
-    ) {
+    private $decorated;
+
+    private CacheTagCollection $collection;
+
+    private \ReflectionProperty $property;
+
+    /**
+     * @internal
+     *
+     * @param TagAwareCacheInterface&TagAwareAdapterInterface $decorated
+     */
+    public function __construct($decorated, CacheTagCollection $collection)
+    {
+        $this->decorated = $decorated;
+        $this->collection = $collection;
+
+        // hack to get access to tags in save() - https://github.com/symfony/symfony/issues/36697
+        $this->property = (new \ReflectionClass(CacheItem::class))->getProperty('newMetadata');
+        $this->property->setAccessible(true);
     }
 
     /**
      * @param string $key
+     *
+     * @return CacheItem
      */
-    public function getItem($key): CacheItem
+    public function getItem($key)
     {
         $item = $this->decorated->getItem($key);
 
@@ -38,7 +53,7 @@ class CacheDecorator implements TagAwareAdapterInterface, TagAwareCacheInterface
     /**
      * @return \Generator<CacheItem>
      */
-    public function getItems(array $keys = []): \Generator
+    public function getItems(array $keys = [])
     {
         foreach ($this->decorated->getItems($keys) as $item) {
             $this->collection->add($this->getTags($item));
@@ -46,68 +61,94 @@ class CacheDecorator implements TagAwareAdapterInterface, TagAwareCacheInterface
         }
     }
 
-    public function clear(string $prefix = ''): bool
+    /**
+     * @return bool
+     */
+    public function clear(string $prefix = '')
     {
         return $this->decorated->clear($prefix);
     }
 
-    public function hasItem(string $key): bool
+    /**
+     * @param string $key
+     *
+     * @return bool
+     */
+    public function hasItem($key)
     {
         return $this->decorated->hasItem($key);
     }
 
-    public function deleteItem(string $key): bool
+    /**
+     * @param string $key
+     *
+     * @return bool
+     */
+    public function deleteItem($key)
     {
         return $this->decorated->deleteItem($key);
     }
 
-    public function deleteItems(array $keys): bool
+    /**
+     * @param array<string> $keys
+     *
+     * @return bool
+     */
+    public function deleteItems(array $keys)
     {
         return $this->decorated->deleteItems($keys);
     }
 
-    public function save(CacheItemInterface $item): bool
+    /**
+     * @return bool
+     */
+    public function save(CacheItemInterface $item)
     {
-        $result = $this->decorated->save($item);
-
-        // add tags after saving to get the newly added tags
         $this->collection->add($this->getTags($item));
 
-        return $result;
+        return $this->decorated->save($item);
     }
 
-    public function saveDeferred(CacheItemInterface $item): bool
+    /**
+     * @return bool
+     */
+    public function saveDeferred(CacheItemInterface $item)
     {
-        $result = $this->decorated->saveDeferred($item);
-
-        // add tags after saving to get the newly added tags
         $this->collection->add($this->getTags($item));
 
-        return $result;
+        return $this->decorated->saveDeferred($item);
     }
 
-    public function commit(): bool
+    /**
+     * @return bool
+     */
+    public function commit()
     {
         return $this->decorated->commit();
     }
 
     /**
      * @param array<string> $tags
+     *
+     * @return bool
      */
-    public function invalidateTags(array $tags): bool
+    public function invalidateTags(array $tags)
     {
         return $this->decorated->invalidateTags($tags);
     }
 
-    /**
-     * @return array<string>
-     */
     private function getTags(CacheItemInterface $item): array
     {
         if (!$item instanceof CacheItem) {
             return [];
         }
+        $metaData = $item->getMetadata();
 
-        return $item->getMetadata()['tags'] ?? [];
+        $new = $this->property->getValue($item);
+
+        return array_merge(
+            $metaData['tags'] ?? [],
+            $new['tags'] ?? []
+        );
     }
 }

@@ -3,7 +3,7 @@ Button
 ==============================================
 Custom skin styling for bootstrap button component.
 
-https://getbootstrap.com/docs/5.2/components/buttons
+https://getbootstrap.com/docs/4.3/components/buttons/
 */
 
 .btn {
@@ -17,10 +17,27 @@ https://getbootstrap.com/docs/5.2/components/buttons
 .btn-buy {
     @extend .btn-lg;
     @include button-variant($buy-btn-bg, $buy-btn-bg);
+    color: $buy-btn-color;
+
+    // @deprecated tag:v6.5.0 - Bootstrap v5 uses more aggressive contrast ratio in text color
+    @if feature('v6.5.0.0') {
+        &:hover,
+        &:focus {
+            color: $buy-btn-color;
+        }
+    }
 }
 
-.btn-primary {
-    @include button-variant($buy-btn-bg, $buy-btn-bg);
+// @deprecated tag:v6.5.0 - Bootstrap v5 uses more aggressive contrast ratio in text color
+@if feature('v6.5.0.0') {
+    .btn-primary {
+        color: $white;
+
+        &:hover,
+        &:focus {
+            color: $white;
+        }
+    }
 }
 
 .btn,

@@ -7,108 +7,102 @@ use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PreparedPaymentHandlerInt
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\RefundPaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\SynchronousPaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\PaymentEvents;
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
-use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
-/**
- * @internal
- */
-#[Package('core')]
 class PaymentHandlerIdentifierSubscriber implements EventSubscriberInterface
 {
     public static function getSubscribedEvents(): array
     {
         return [
             PaymentEvents::PAYMENT_METHOD_LOADED_EVENT => 'formatHandlerIdentifier',
-            'payment_method.partial_loaded' => 'formatHandlerIdentifier',
         ];
     }
 
     public function formatHandlerIdentifier(EntityLoadedEvent $event): void
     {
-        /** @var Entity $entity */
+        /** @var PaymentMethodEntity $entity */
         foreach ($event->getEntities() as $entity) {
-            $entity->assign([
-                'shortName' => $this->getShortName($entity),
-                'formattedHandlerIdentifier' => $this->getHandlerIdentifier($entity),
-                'synchronous' => $this->isSynchronous($entity),
-                'asynchronous' => $this->isAsynchronous($entity),
-                'prepared' => $this->isPrepared($entity),
-                'refundable' => $this->isRefundable($entity),
-            ]);
+            $this->setPaymentMethodHandlerRuntimeFields($entity);
+
+            $explodedHandlerIdentifier = explode('\\', $entity->getHandlerIdentifier());
+
+            $last = $explodedHandlerIdentifier[\count($explodedHandlerIdentifier) - 1];
+            $entity->setShortName((new CamelCaseToSnakeCaseNameConverter())->normalize($last));
+
+            if (\count($explodedHandlerIdentifier) < 2) {
+                $entity->setFormattedHandlerIdentifier($entity->getHandlerIdentifier());
+
+                continue;
+            }
+
+            /** @var string|null $firstHandlerIdentifier */
+            $firstHandlerIdentifier = array_shift($explodedHandlerIdentifier);
+            $lastHandlerIdentifier = array_pop($explodedHandlerIdentifier);
+            if ($firstHandlerIdentifier === null || $lastHandlerIdentifier === null) {
+                continue;
+            }
+
+            $formattedHandlerIdentifier = 'handler_'
+                . mb_strtolower($firstHandlerIdentifier)
+                . '_'
+                . mb_strtolower($lastHandlerIdentifier);
+
+            $entity->setFormattedHandlerIdentifier($formattedHandlerIdentifier);
         }
     }
 
-    private function getHandlerIdentifier(Entity $entity): string
+    private function setPaymentMethodHandlerRuntimeFields(PaymentMethodEntity $paymentMethod): void
     {
-        $explodedHandlerIdentifier = explode('\\', (string) $entity->get('handlerIdentifier'));
+        if ($paymentMethod->getAppPaymentMethod()) {
+            $this->setFieldsByAppPaymentMethod($paymentMethod);
 
-        if (\count($explodedHandlerIdentifier) < 2) {
-            return $entity->get('handlerIdentifier');
+            return;
         }
 
-        /** @var string|null $firstHandlerIdentifier */
-        $firstHandlerIdentifier = array_shift($explodedHandlerIdentifier);
-        $lastHandlerIdentifier = array_pop($explodedHandlerIdentifier);
-        if ($firstHandlerIdentifier === null || $lastHandlerIdentifier === null) {
-            return '';
+        $handlerIdentifier = $paymentMethod->getHandlerIdentifier();
+
+        if (\is_a($handlerIdentifier, SynchronousPaymentHandlerInterface::class, true)) {
+            $paymentMethod->setSynchronous(true);
         }
 
-        return 'handler_'
-            . mb_strtolower($firstHandlerIdentifier)
-            . '_'
-            . mb_strtolower($lastHandlerIdentifier);
+        if (\is_a($handlerIdentifier, AsynchronousPaymentHandlerInterface::class, true)) {
+            $paymentMethod->setAsynchronous(true);
+        }
+
+        if (\is_a($handlerIdentifier, PreparedPaymentHandlerInterface::class, true)) {
+            $paymentMethod->setPrepared(true);
+        }
+
+        if (\is_a($handlerIdentifier, RefundPaymentHandlerInterface::class, true)) {
+            $paymentMethod->setRefundable(true);
+        }
     }
 
-    private function isSynchronous(Entity $entity): bool
+    private function setFieldsByAppPaymentMethod(PaymentMethodEntity $paymentMethod): void
     {
-        if (($app = $entity->get('appPaymentMethod')) !== null) {
-            /** @var Entity $app */
-            return !($app->get('payUrl') && $app->get('finalizeUrl'));
+        if (!$paymentMethod->getAppPaymentMethod()) {
+            return;
         }
 
-        return \is_a($entity->get('handlerIdentifier'), SynchronousPaymentHandlerInterface::class, true);
-    }
+        $appPaymentMethod = $paymentMethod->getAppPaymentMethod();
 
-    private function isAsynchronous(Entity $entity): bool
-    {
-        if (($app = $entity->get('appPaymentMethod')) !== null) {
-            /** @var Entity $app */
-            return $app->get('payUrl') && $app->get('finalizeUrl');
+        if ($appPaymentMethod->getRefundUrl()) {
+            $paymentMethod->setRefundable(true);
         }
 
-        return \is_a($entity->get('handlerIdentifier'), AsynchronousPaymentHandlerInterface::class, true);
-    }
-
-    private function getShortName(Entity $entity): string
-    {
-        $explodedHandlerIdentifier = explode('\\', (string) $entity->get('handlerIdentifier'));
-
-        $last = $explodedHandlerIdentifier[\count($explodedHandlerIdentifier) - 1];
-
-        return (new CamelCaseToSnakeCaseNameConverter())->normalize($last);
-    }
-
-    private function isPrepared(Entity $entity): bool
-    {
-        if (($app = $entity->get('appPaymentMethod')) !== null) {
-            /** @var Entity $app */
-            return $app->get('validateUrl') && $app->get('captureUrl');
+        if ($appPaymentMethod->getValidateUrl() && $appPaymentMethod->getCaptureUrl()) {
+            $paymentMethod->setPrepared(true);
         }
 
-        return \is_a($entity->get('handlerIdentifier'), PreparedPaymentHandlerInterface::class, true);
-    }
-
-    private function isRefundable(Entity $entity): bool
-    {
-        if (($app = $entity->get('appPaymentMethod')) !== null) {
-            /** @var Entity $app */
-            return $app->get('refundUrl') !== null;
+        if ($appPaymentMethod->getPayUrl() && $appPaymentMethod->getFinalizeUrl()) {
+            $paymentMethod->setAsynchronous(true);
         }
 
-        return \is_a($entity->get('handlerIdentifier'), RefundPaymentHandlerInterface::class, true);
+        if ($paymentMethod->isAsynchronous()) {
+            $paymentMethod->setSynchronous(true);
+        }
     }
 }

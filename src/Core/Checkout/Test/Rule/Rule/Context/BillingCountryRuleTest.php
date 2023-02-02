@@ -8,21 +8,19 @@ use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Rule\BillingCountryRule;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
  */
-#[Package('business-ops')]
 class BillingCountryRuleTest extends TestCase
 {
     public function testWithExactMatch(): void
     {
         $rule = (new BillingCountryRule())->assign(['countryIds' => ['SWAG-AREA-COUNTRY-ID-1']]);
 
-        $cart = new Cart('test');
+        $cart = new Cart('test', 'test');
 
         $context = $this->createMock(SalesChannelContext::class);
 
@@ -48,7 +46,7 @@ class BillingCountryRuleTest extends TestCase
     {
         $rule = (new BillingCountryRule())->assign(['countryIds' => ['SWAG-AREA-COUNTRY-ID-2']]);
 
-        $cart = new Cart('test');
+        $cart = new Cart('test', 'test');
 
         $context = $this->createMock(SalesChannelContext::class);
 
@@ -74,7 +72,7 @@ class BillingCountryRuleTest extends TestCase
     {
         $rule = (new BillingCountryRule())->assign(['countryIds' => ['SWAG-AREA-COUNTRY-ID-1', 'SWAG-AREA-COUNTRY-ID-3', 'SWAG-AREA-COUNTRY-ID-2']]);
 
-        $cart = new Cart('test');
+        $cart = new Cart('test', 'test');
 
         $context = $this->createMock(SalesChannelContext::class);
 
@@ -100,7 +98,7 @@ class BillingCountryRuleTest extends TestCase
     {
         $rule = (new BillingCountryRule())->assign(['countryIds' => ['SWAG-AREA-COUNTRY-ID-1', 'SWAG-AREA-COUNTRY-ID-3', 'SWAG-AREA-COUNTRY-ID-2']]);
 
-        $cart = new Cart('test');
+        $cart = new Cart('test', 'test');
 
         $context = $this->createMock(SalesChannelContext::class);
 

@@ -11,26 +11,36 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\CustomFieldService;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
- * @internal
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
  */
-#[Package('core')]
 class CustomFieldsSerializer extends JsonFieldSerializer
 {
+    /**
+     * @var WriteCommandExtractor
+     */
+    private $writeExtractor;
+
+    /**
+     * @var CustomFieldService
+     */
+    private $attributeService;
+
     /**
      * @internal
      */
     public function __construct(
         DefinitionInstanceRegistry $compositeHandler,
         ValidatorInterface $validator,
-        private readonly CustomFieldService $attributeService,
-        private readonly WriteCommandExtractor $writeExtractor
+        CustomFieldService $attributeService,
+        WriteCommandExtractor $writeExtractor
     ) {
         parent::__construct($validator, $compositeHandler);
+        $this->attributeService = $attributeService;
+        $this->writeExtractor = $writeExtractor;
     }
 
     public function encode(Field $field, EntityExistence $existence, KeyValuePair $data, WriteParameterBag $parameters): \Generator
@@ -71,7 +81,12 @@ class CustomFieldsSerializer extends JsonFieldSerializer
         yield $field->getStorageName() => parent::encodeJson($encoded);
     }
 
-    public function decode(Field $field, mixed $value): array|object|null
+    /**
+     * @return array|null
+     *
+     * @deprecated tag:v6.5.0 - reason:return-type-change - The return type will be native typed
+     */
+    public function decode(Field $field, $value)/*: ?array*/
     {
         if (!$field instanceof CustomFields) {
             throw new InvalidSerializerFieldException(CustomFields::class, $field);
@@ -79,7 +94,7 @@ class CustomFieldsSerializer extends JsonFieldSerializer
 
         if ($value) {
             // set fields dynamically
-            $field->setPropertyMapping($this->getFields(array_keys(json_decode((string) $value, true, 512, \JSON_THROW_ON_ERROR))));
+            $field->setPropertyMapping($this->getFields(array_keys(json_decode($value, true))));
         }
 
         return parent::decode($field, $value);

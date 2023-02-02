@@ -18,7 +18,10 @@ class HoneypotCaptchaTest extends TestCase
     private const IS_VALID = true;
     private const IS_INVALID = false;
 
-    private HoneypotCaptcha $captcha;
+    /**
+     * @var HoneypotCaptcha
+     */
+    private $captcha;
 
     public function setUp(): void
     {

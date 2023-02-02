@@ -3,13 +3,8 @@
 namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
-/**
- * @internal
- */
-#[Package('core')]
 class Migration1585056571AddLanguageToMailTemplateMedia extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -19,7 +14,7 @@ class Migration1585056571AddLanguageToMailTemplateMedia extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeStatement(
+        $connection->executeUpdate(
             <<<'SQL'
             ALTER TABLE `mail_template_media` ADD `language_id` BINARY(16) NULL AFTER `mail_template_id`,
             ADD CONSTRAINT `fk.mail_template_media.language_id` FOREIGN KEY (`language_id`)

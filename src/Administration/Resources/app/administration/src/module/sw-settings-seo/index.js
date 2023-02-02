@@ -1,13 +1,8 @@
-/**
- * @package sales-channel
- */
+import './component/sw-seo-url-template-card';
+import './component/sw-seo-url';
+import './component/sw-seo-main-category';
 
-/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
-Shopware.Component.register('sw-seo-url-template-card', () => import('./component/sw-seo-url-template-card'));
-Shopware.Component.register('sw-seo-url', () => import('./component/sw-seo-url'));
-Shopware.Component.register('sw-seo-main-category', () => import('./component/sw-seo-main-category'));
-Shopware.Component.register('sw-settings-seo', () => import('./page/sw-settings-seo'));
-/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
+import './page/sw-settings-seo';
 
 const { Module } = Shopware;
 

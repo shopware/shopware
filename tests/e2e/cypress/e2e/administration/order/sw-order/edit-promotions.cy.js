@@ -6,15 +6,19 @@ let salesChannelId;
 
 describe('Order: Test promotions in existing orders', () => {
     beforeEach(() => {
-        cy.createProductFixture().then(() => {
-            return cy.searchViaAdminApi({
-                endpoint: 'product',
-                data: {
-                    field: 'name',
-                    value: 'Product name',
-                },
-            });
-        })
+        cy.loginViaApi()
+            .then(() => {
+                return cy.createProductFixture();
+            })
+            .then(() => {
+                return cy.searchViaAdminApi({
+                    endpoint: 'product',
+                    data: {
+                        field: 'name',
+                        value: 'Product name'
+                    }
+                });
+            })
             .then((result) => {
                 return cy.createGuestOrder(result.id);
             })
@@ -23,8 +27,8 @@ describe('Order: Test promotions in existing orders', () => {
                     endpoint: 'sales-channel',
                     data: {
                         field: 'name',
-                        value: 'Storefront',
-                    },
+                        value: 'Storefront'
+                    }
                 });
             })
             .then((data) => {
@@ -46,40 +50,49 @@ describe('Order: Test promotions in existing orders', () => {
             active: true,
             salesChannels: [{
                 salesChannelId: salesChannelId,
-                priority: 1,
+                priority: 1
             }],
             discounts: [{
                 scope: 'cart',
                 type: 'absolute',
                 value: 5.0,
-                considerAdvancedRules: false,
-            }],
+                considerAdvancedRules: false
+            }]
         });
 
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/order`,
-            method: 'POST',
+            method: 'POST'
         }).as('orderCall');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/order/**/promotion-item`,
-            method: 'POST',
+            method: 'POST'
         }).as('orderAddPromotionCall');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/order/**/`,
-            method: 'POST',
+            method: 'POST'
         }).as('orderRemovePromotionCall');
 
         cy.contains(`${page.elements.dataGridRow}--0`, 'Mustermann, Max');
         cy.clickContextMenuItem(
             '.sw-order-list__order-view-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`,
+            `${page.elements.dataGridRow}--0`
         );
 
-        page.changeActiveTab('details');
+        cy.skipOnFeature('FEATURE_NEXT_7530', () => {
+            cy.contains(`${page.elements.userMetadata}-user-name`, 'Max Mustermann');
+            cy.contains('Edit').click();
+        });
+
+        cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
+            page.changeActiveTab('details');
+        });
 
         cy.wait('@orderCall').its('response.statusCode').should('equal', 200);
+
+        cy.get('input[name="sw-field--disabledAutoPromotionVisibility"]').should('be.checked');
 
         cy.get('.sw-tagged-field__input')
             .click()
@@ -89,7 +102,9 @@ describe('Order: Test promotions in existing orders', () => {
         cy.wait('@orderAddPromotionCall').its('response.statusCode').should('equal', 200);
         cy.awaitAndCheckNotification('Discount GET5 has been added');
 
-        page.changeActiveTab('general');
+        cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
+            page.changeActiveTab('general');
+        });
 
         cy.contains('.sw-data-grid__row--1', 'GET5')
             .scrollIntoView();
@@ -104,42 +119,57 @@ describe('Order: Test promotions in existing orders', () => {
             active: true,
             salesChannels: [{
                 salesChannelId: salesChannelId,
-                priority: 1,
+                priority: 1
             }],
             discounts: [{
                 scope: 'cart',
                 type: 'absolute',
                 value: 5.0,
-                considerAdvancedRules: false,
-            }],
+                considerAdvancedRules: false
+            }]
         });
 
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/order`,
-            method: 'POST',
+            method: 'POST'
         }).as('orderCall');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/order/**/toggleAutomaticPromotions`,
-            method: 'POST',
+            method: 'POST'
         }).as('toggleAutomaticPromotionsCall');
 
         cy.contains(`${page.elements.dataGridRow}--0`, 'Mustermann, Max');
         cy.clickContextMenuItem(
             '.sw-order-list__order-view-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`,
+            `${page.elements.dataGridRow}--0`
         );
+
+        cy.skipOnFeature('FEATURE_NEXT_7530', () => {
+            cy.contains(`${page.elements.userMetadata}-user-name`, 'Max Mustermann');
+            cy.contains('Edit').click();
+        });
 
         cy.wait('@orderCall').its('response.statusCode').should('equal', 200);
 
-        page.changeActiveTab('details');
+        cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
+            page.changeActiveTab('details');
+        });
 
         cy.get('input[name="sw-field--disabledAutoPromotionVisibility"]').should('be.checked');
 
-        cy.get(page.elements.tabs.details.disableAutomaticPromotionsSwitch)
-            .scrollIntoView()
-            .click();
+        cy.skipOnFeature('FEATURE_NEXT_7530', () => {
+            cy.get('.sw-order-detail-summary__switch-promotions')
+                .scrollIntoView()
+                .click();
+        });
+
+        cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
+            cy.get(page.elements.tabs.details.disableAutomaticPromotionsSwitch)
+                .scrollIntoView()
+                .click();
+        });
 
         cy.wait('@toggleAutomaticPromotionsCall')
             .its('response.statusCode')
@@ -147,18 +177,28 @@ describe('Order: Test promotions in existing orders', () => {
 
         cy.awaitAndCheckNotification('Discount Automatic promotion has been added');
 
-        page.changeActiveTab('general');
+        cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
+            page.changeActiveTab('general');
+        });
 
         cy.contains('.sw-data-grid__row--1', 'Automatic promotion')
             .scrollIntoView();
 
-        page.changeActiveTab('details');
+        cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
+            page.changeActiveTab('details');
+        });
 
         cy.get('input[name="sw-field--disabledAutoPromotionVisibility"]').should('not.be.checked');
 
-        cy.get(page.elements.tabs.details.disableAutomaticPromotionsSwitch)
-            .scrollIntoView()
-            .click();
+        cy.skipOnFeature('FEATURE_NEXT_7530', () => {
+            cy.get('.sw-order-detail-summary__switch-promotions').click();
+        });
+
+        cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
+            cy.get(page.elements.tabs.details.disableAutomaticPromotionsSwitch)
+                .scrollIntoView()
+                .click();
+        });
 
         cy.wait('@toggleAutomaticPromotionsCall')
             .its('response.statusCode')

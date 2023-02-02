@@ -5,8 +5,6 @@ const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
- * @private
- * @package business-ops
  * @status ready
  * @description The <u>sw-select-rule-create</u> component is used to create or select a rule.
  * @example-type code-only
@@ -18,6 +16,7 @@ const { Criteria } = Shopware.Data;
  *     \@dismiss-rule="onDismissRule">
  * </sw-select-rule-create>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-select-rule-create', {
     template,
 
@@ -45,13 +44,16 @@ Component.register('sw-select-rule-create', {
             required: false,
             default() {
                 const criteria = new Criteria(1, 25);
-                criteria.addSorting(Criteria.sort('name', 'ASC', false))
-                    .addAssociation('conditions');
+                criteria.addSorting(Criteria.sort('name', 'ASC', false));
+                if (this.feature.isActive('FEATURE_NEXT_18215')) {
+                    criteria.addAssociation('conditions');
+                }
 
                 return criteria;
             },
         },
 
+        /* @internal (flag:FEATURE_NEXT_18215) */
         ruleAwareGroupKey: {
             type: String,
             required: false,
@@ -59,6 +61,7 @@ Component.register('sw-select-rule-create', {
         },
 
         /**
+         * @internal (flag:FEATURE_NEXT_18215)
          * Contains an array of rule ids which should not be selectable,
          * for example because they are already used in a different place
          */
@@ -71,6 +74,7 @@ Component.register('sw-select-rule-create', {
         },
 
         /**
+         * @internal (flag:FEATURE_NEXT_18215)
          * Tooltip label to show for any rule in the restrictedRuleIds array
          */
         restrictedRuleIdsTooltipLabel: {
@@ -142,11 +146,11 @@ Component.register('sw-select-rule-create', {
         },
 
         isRuleRestricted(rule) {
-            if (rule.areas?.includes('flow-condition') && this.ruleAwareGroupKey !== 'flowConditions') {
-                return true;
-            }
-
             const insideRestrictedRuleIds = this.restrictedRuleIds.includes(rule.id);
+
+            if (!this.feature.isActive('FEATURE_NEXT_18215')) {
+                return insideRestrictedRuleIds;
+            }
 
             const isRuleRestricted = this.ruleConditionDataProviderService.isRuleRestricted(
                 rule.conditions,
@@ -170,6 +174,10 @@ Component.register('sw-select-rule-create', {
                     message: this.restrictedRuleIdsTooltipLabel,
                     disabled: false,
                 };
+            }
+
+            if (!this.feature.isActive('FEATURE_NEXT_18215')) {
+                return { message: '', disabled: true };
             }
 
             return this.ruleConditionDataProviderService.getRestrictedRuleTooltipConfig(

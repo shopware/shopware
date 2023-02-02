@@ -7,29 +7,47 @@ use Shopware\Core\Content\Flow\Dispatching\Aware\ContentsAware;
 use Shopware\Core\Content\Flow\Dispatching\Aware\RecipientsAware;
 use Shopware\Core\Content\Flow\Dispatching\Aware\SubjectAware;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Event\EventData\ArrayType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Log\LogAware;
-use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('sales-channel')]
-class MailSentEvent extends Event implements LogAware, SubjectAware, ContentsAware, RecipientsAware
+class MailSentEvent extends Event implements BusinessEventInterface, LogAware, SubjectAware, ContentsAware, RecipientsAware
 {
-    final public const EVENT_NAME = 'mail.sent';
+    public const EVENT_NAME = 'mail.sent';
+
+    /**
+     * @var Context
+     */
+    private $context;
+
+    /**
+     * @var string
+     */
+    private $subject;
+
+    /**
+     * @var array<string, mixed>
+     */
+    private $contents;
+
+    /**
+     * @var array<string, mixed>
+     */
+    private $recipients;
 
     /**
      * @param array<string, mixed> $recipients
      * @param array<string, mixed> $contents
      */
-    public function __construct(
-        private readonly string $subject,
-        private readonly array $recipients,
-        private readonly array $contents,
-        private readonly Context $context,
-        private readonly ?string $eventName = null
-    ) {
+    public function __construct(string $subject, array $recipients, array $contents, Context $context)
+    {
+        $this->subject = $subject;
+        $this->recipients = $recipients;
+        $this->contents = $contents;
+        $this->context = $context;
     }
 
     public static function getAvailableData(): EventDataCollection
@@ -77,7 +95,6 @@ class MailSentEvent extends Event implements LogAware, SubjectAware, ContentsAwa
     public function getLogData(): array
     {
         return [
-            'eventName' => $this->eventName,
             'subject' => $this->subject,
             'recipients' => $this->recipients,
             'contents' => $this->contents,

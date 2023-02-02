@@ -19,7 +19,6 @@ use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethod
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -29,7 +28,6 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[Package('checkout')]
 class DeliveryProcessorTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -60,8 +58,8 @@ class DeliveryProcessorTest extends TestCase
             DeliveryProcessor::buildKey($this->salesChannelContext->getShippingMethod()->getId()),
             $this->salesChannelContext->getShippingMethod()
         );
-        $originalCart = new Cart('original');
-        $calculatedCart = new Cart('calculated');
+        $originalCart = new Cart('original', 'original');
+        $calculatedCart = new Cart('calculated', 'calculated');
 
         $lineItem = new LineItem('test', LineItem::PRODUCT_LINE_ITEM_TYPE);
         $lineItem->setDeliveryInformation(new DeliveryInformation(5, 0, false));

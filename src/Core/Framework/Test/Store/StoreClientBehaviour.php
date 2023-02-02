@@ -5,10 +5,10 @@ namespace Shopware\Core\Framework\Test\Store;
 use GuzzleHttp\Handler\MockHandler;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Store\Services\FirstRunWizardService;
+use Shopware\Core\Framework\Store\Services\FirstRunWizardClient;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -54,10 +54,7 @@ trait StoreClientBehaviour
 
         $this->getUserRepository()->create($data, Context::createDefaultContext());
 
-        $source = new AdminApiSource($userId);
-        $source->setIsAdmin(true);
-
-        return Context::createDefaultContext($source);
+        return Context::createDefaultContext(new AdminApiSource($userId));
     }
 
     protected function getStoreTokenFromContext(Context $context): string
@@ -87,13 +84,13 @@ trait StoreClientBehaviour
         $source = $context->getSource();
         $criteria = (new Criteria())->addFilter(
             new EqualsFilter('userId', $source->getUserId()),
-            new EqualsFilter('key', FirstRunWizardService::USER_CONFIG_KEY_FRW_USER_TOKEN),
+            new EqualsFilter('key', FirstRunWizardClient::USER_CONFIG_KEY_FRW_USER_TOKEN),
         );
 
         /** @var UserConfigEntity|null $config */
         $config = $this->getContainer()->get('user_config.repository')->search($criteria, $context)->first();
 
-        return $config ? $config->getValue()[FirstRunWizardService::USER_CONFIG_VALUE_FRW_USER_TOKEN] ?? null : null;
+        return $config ? $config->getValue()[FirstRunWizardClient::USER_CONFIG_VALUE_FRW_USER_TOKEN] ?? null : null;
     }
 
     protected function setFrwUserToken(Context $context, string $frwUserToken): void
@@ -106,9 +103,9 @@ trait StoreClientBehaviour
         $this->getContainer()->get('user_config.repository')->create([
             [
                 'userId' => $source->getUserId(),
-                'key' => FirstRunWizardService::USER_CONFIG_KEY_FRW_USER_TOKEN,
+                'key' => FirstRunWizardClient::USER_CONFIG_KEY_FRW_USER_TOKEN,
                 'value' => [
-                    FirstRunWizardService::USER_CONFIG_VALUE_FRW_USER_TOKEN => $frwUserToken,
+                    FirstRunWizardClient::USER_CONFIG_VALUE_FRW_USER_TOKEN => $frwUserToken,
                 ],
             ],
         ], Context::createDefaultContext());
@@ -141,7 +138,7 @@ trait StoreClientBehaviour
         return $version === Kernel::SHOPWARE_FALLBACK_VERSION ? '___VERSION___' : $version;
     }
 
-    protected function getUserRepository(): EntityRepository
+    protected function getUserRepository(): EntityRepositoryInterface
     {
         return $this->getContainer()->get('user.repository');
     }

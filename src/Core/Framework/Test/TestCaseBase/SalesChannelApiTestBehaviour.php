@@ -8,7 +8,7 @@ use Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Util\Random;
@@ -117,15 +117,11 @@ trait SalesChannelApiTestBehaviour
                 ]
             );
 
-        $response = $browser->getResponse();
+        /** @var string $content */
+        $content = $browser->getResponse()->getContent();
+        $response = json_decode($content, true);
 
-        // After login successfully, the context token will be set in the header
-        $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
-        if (empty($contextToken)) {
-            throw new \RuntimeException('Cannot login with the given credential account');
-        }
-
-        $browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
+        $browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $response['contextToken']);
 
         return $customerId;
     }
@@ -232,8 +228,8 @@ trait SalesChannelApiTestBehaviour
     }
 
     /**
-     * @param array<string, string> $salesChannel
-     * @param array<string, mixed> $options
+     * @param array<mixed> $salesChannel
+     * @param array<mixed> $options
      */
     private function createContext(array $salesChannel, array $options): SalesChannelContext
     {
@@ -247,7 +243,7 @@ trait SalesChannelApiTestBehaviour
     }
 
     /**
-     * @param array<string, mixed> $salesChannelOverride
+     * @param array<mixed> $salesChannelOverride
      */
     private function authorizeSalesChannelBrowser(KernelBrowser $salesChannelApiClient, array $salesChannelOverride = []): void
     {
@@ -267,7 +263,7 @@ trait SalesChannelApiTestBehaviour
      */
     private function createSalesChannel(array $salesChannelOverride = []): array
     {
-        /** @var EntityRepository $salesChannelRepository */
+        /** @var EntityRepositoryInterface $salesChannelRepository */
         $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
         $paymentMethod = $this->getAvailablePaymentMethod();
 

@@ -1,22 +1,9 @@
-/**
- * @private
- * @package content
- */
-Shopware.Component.register('sw-cms-el-preview-image-slider', () => import('./preview'));
-/**
- * @private
- * @package content
- */
-Shopware.Component.register('sw-cms-el-config-image-slider', () => import('./config'));
-/**
- * @private
- * @package content
- */
-Shopware.Component.register('sw-cms-el-image-slider', () => import('./component'));
+import './component';
+import './config';
+import './preview';
 
 /**
- * @private
- * @package content
+ * @private since v6.5.0
  */
 Shopware.Service('cmsService').registerCmsElement({
     name: 'image-slider',

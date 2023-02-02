@@ -4,8 +4,6 @@ import './sw-text-editor-toolbar.scss';
 const { Component, Utils } = Shopware;
 
 /**
- * @package admin
- *
  * @private
  */
 Component.register('sw-text-editor-toolbar', {
@@ -103,6 +101,13 @@ Component.register('sw-text-editor-toolbar', {
         this.mountedComponent();
     },
 
+    /**
+     * @deprecated tag:v6.5.0 - Use unmounted instead.
+     */
+    beforeDestroy() {
+        this.beforeDestroyComponent();
+    },
+
     unmounted() {
         this.beforeUnmountedComponent();
     },
@@ -126,7 +131,7 @@ Component.register('sw-text-editor-toolbar', {
                     this.setToolbarPosition();
                 }, 16);
 
-                document.addEventListener('scroll', this.scrollEventHandler, true);
+                document.querySelector('#app').addEventListener('scroll', this.scrollEventHandler, true);
 
                 this.$device.onResize({
                     listener: this.setToolbarPosition,
@@ -167,23 +172,27 @@ Component.register('sw-text-editor-toolbar', {
             }
         },
 
+        /**
+         * @deprecated tag:v6.5.0 - Use `beforeUnmountedComponent` instead.
+         */
+        beforeDestroyComponent() {
+            this.beforeUnmountedComponent();
+        },
+
         destroyedComponent() {
             this.closeExpandedMenu();
 
             document.removeEventListener('scroll', this.scrollEventListener, true);
             document.removeEventListener('mouseup', this.onMouseUp);
 
-            if (this.$el?.parentElement?.contains(this.$el)) {
-                this.$el.parentElement.removeChild(this.$el);
-            }
-
             this.$emit('destroyed-el');
         },
 
-        /*
-         * @deprecated tag:v6.6.0 - Will be removed
-         */
-        beforeUnmountedComponent() {},
+        beforeUnmountedComponent() {
+            if (this.$el?.parentElement?.contains(this.$el)) {
+                this.$el.parentElement.removeChild(this.$el);
+            }
+        },
 
         onMouseUp(event) {
             const path = [];

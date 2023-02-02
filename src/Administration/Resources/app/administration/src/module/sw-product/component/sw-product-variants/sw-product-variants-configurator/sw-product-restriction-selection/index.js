@@ -1,12 +1,10 @@
-/*
- * @package inventory
- */
-
 import template from './sw-product-restriction-selection.html.twig';
 import './sw-product-restriction-selection.scss';
 
+const { Component } = Shopware;
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-product-restriction-selection', {
     template,
 
     props: {
@@ -91,4 +89,4 @@ export default {
             this.$emit('restriction-delete', this.restriction);
         },
     },
-};
+});

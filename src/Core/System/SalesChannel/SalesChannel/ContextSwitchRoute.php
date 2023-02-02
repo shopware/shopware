@@ -6,8 +6,9 @@ use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
@@ -19,8 +20,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('core')]
+/**
+ * @Route(defaults={"_routeScope"={"store-api"}})
+ */
 class ContextSwitchRoute extends AbstractContextSwitchRoute
 {
     private const SHIPPING_METHOD_ID = SalesChannelContextService::SHIPPING_METHOD_ID;
@@ -43,15 +45,21 @@ class ContextSwitchRoute extends AbstractContextSwitchRoute
     protected $validator;
 
     /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
+    /**
      * @internal
      */
     public function __construct(
         DataValidator $validator,
         SalesChannelContextPersister $contextPersister,
-        private readonly EventDispatcherInterface $eventDispatcher
+        EventDispatcherInterface $eventDispatcher
     ) {
         $this->contextPersister = $contextPersister;
         $this->validator = $validator;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function getDecorated(): AbstractContextSwitchRoute
@@ -59,7 +67,10 @@ class ContextSwitchRoute extends AbstractContextSwitchRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/context', name: 'store-api.switch-context', methods: ['PATCH'])]
+    /**
+     * @Since("6.2.0.0")
+     * @Route("/store-api/context", name="store-api.switch-context", methods={"PATCH"})
+     */
     public function switchContext(RequestDataBag $data, SalesChannelContext $context): ContextTokenResponse
     {
         $definition = new DataValidationDefinition('context_switch');
@@ -139,9 +150,6 @@ class ContextSwitchRoute extends AbstractContextSwitchRoute
         return new ContextTokenResponse($context->getToken(), $changeUrl);
     }
 
-    /**
-     * @param array<mixed> $parameters
-     */
     private function checkNewDomain(array $parameters, SalesChannelContext $context): ?string
     {
         if (

@@ -2,17 +2,16 @@
 
 namespace Shopware\Elasticsearch\Sort;
 
-use OpenSearchDSL\BuilderInterface;
-use OpenSearchDSL\Sort\FieldSort;
-use Shopware\Core\Framework\Log\Package;
+use ONGR\ElasticsearchDSL\Sort\FieldSort;
 
-#[Package('core')]
 class CountSort extends FieldSort
 {
     /**
+     * @param string $field
+     * @param string|null $order
      * @param array<mixed> $params
      */
-    public function __construct(string $field, ?string $order = null, ?BuilderInterface $nestedFilter = null, $params = [])
+    public function __construct($field, $order = null, $params = [])
     {
         $path = explode('.', $field);
         array_pop($path);
@@ -28,6 +27,6 @@ class CountSort extends FieldSort
 
         $path[] = '_count';
 
-        parent::__construct(implode('.', $path), $order, $nestedFilter, $params);
+        parent::__construct(implode('.', $path), $order, $params);
     }
 }

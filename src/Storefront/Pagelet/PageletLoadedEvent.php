@@ -5,11 +5,9 @@ namespace Shopware\Storefront\Pagelet;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('storefront')]
 abstract class PageletLoadedEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
     /**

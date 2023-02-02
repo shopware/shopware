@@ -4,7 +4,7 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_list_search_bar %}
-    <template #search-bar>
+    <template slot="search-bar">
         <sw-search-bar
             initial-search-type="media"
             :initial-search="term"
@@ -17,7 +17,7 @@
     {% block sw_media_index_smart_bar %}
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_index_bread_crumb_navigation %}
-    <template #smart-bar-back>
+    <template slot="smart-bar-back">
         <div class="sw-media-index__navigation">
 
             <template v-if="parentFolder">
@@ -26,7 +26,8 @@
                 <router-link :to="{ name: 'sw.media.index', params: { folderId: null } }">
                     <sw-icon
                         class="sw-media-index__navigation-breadcrumb"
-                        name="regular-double-chevron-left-s"
+                        name="multicolor-folder-breadcrumbs-back-to-root"
+                        large
                         multicolor
                     />
                 </router-link>
@@ -48,7 +49,7 @@
     {% block sw_media_index_smart_bar_header %}
     <template
         v-if="currentFolder"
-        #smart-bar-header
+        slot="smart-bar-header"
     >
         <h2>
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -59,7 +60,7 @@
     </template>
     {% endblock %}
 
-    <template #smart-bar-actions>
+    <template slot="smart-bar-actions">
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_index_smart_bar_media_upload %}
         <sw-media-upload-v2
@@ -80,14 +81,14 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_index_language_switch %}
-    <template #language-switch>
+    <template slot="language-switch">
         <sw-language-switch @on-change="reloadList" />
     </template>
     {% endblock %}
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_index_page_content %}
-    <template #content>
+    <template slot="content">
         <div class="sw-media-index__page-content">
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_media_index_listing_grid %}

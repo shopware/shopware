@@ -1,10 +1,10 @@
 import template from './sw-mail-template-list.html.twig';
 
-const { Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-mail-template-list', {
     template,
 
     inject: ['repositoryFactory', 'acl'],
@@ -78,7 +78,6 @@ export default {
                 dataIndex: 'mailTemplateType.name',
                 label: 'sw-mail-template.list.columnMailType',
                 allowResize: true,
-                routerLink: 'sw.mail.template.detail',
                 primary: true,
             }, {
                 property: 'description',
@@ -110,4 +109,4 @@ export default {
             this.mailTemplates = result;
         },
     },
-};
+});

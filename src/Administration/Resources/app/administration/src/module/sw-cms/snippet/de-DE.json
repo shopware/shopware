@@ -19,7 +19,11 @@
       "labelSortByCreatedDsc": "Erstelldatum, absteigend",
       "labelSortByUpdatedAsc": "Bearbeitungsdatum, aufsteigend",
       "labelSortByUpdatedDsc": "Bearbeitungsdatum, absteigend",
-      "labelSortByAllPages": "Alle Typen"
+      "labelSortByAllPages": "Alle Typen",
+      "labelSortByShopPages": "Shopseiten",
+      "labelSortByLandingPages": "Landingpages",
+      "labelSortByProductPages": "Produktseiten",
+      "labelSortByCategoryPages": "Kategorieseiten"
     },
     "list": {
       "gridHeaderName": "Name",
@@ -47,27 +51,17 @@
         "generalSettings": "Allgemein",
         "settings": "Einstellungen",
         "layoutSettings": "Layout",
-        "visibilitySettings": "Sichtbarkeit",
-        "visibilityMobile": "Mobil",
-        "visibilityTablet": "Tablet",
-        "visibilityDesktop": "Desktop",
-        "visibilityBlockTextButton": "Block einklappen | Block ausklappen",
-        "visibilitySectionTextButton": "Sektion einklappen | Sektion ausklappen",
-        "visibilityLabelCheckboxGroup": "Anzeigegeräte"
+        "duplicate": "Duplizieren"
       },
       "layoutAssignment": {
         "headline": "Verwalte wo dieses Layout zu sehen ist",
         "infoText": "Du kannst Layouts für unterschiedliche Kategorien in Deinem Shop verwenden. Hier kannst Du einsehen, in welchen Kategorien dieses Layout bereits eingesetzt wird, oder es anderen Kategorien zuweisen.",
-        "actionAssignLayout": "Layout-Zuweisung fehlgeschlagen"
+        "actionAssignLayout": "Layout zuweisen"
       },
       "layoutSetAsDefault": {
         "headline": "Standardlayouts",
+        "infoText": "Standardlayouts werden neuen Kategorie- und Produktseiten bei der Erstellung automatisch zugewiesen. Möchtest Du dieses Layout als Standardlayout verwenden?",
         "actionSetAsDefaultLayout": "Als Standardlayout verwenden"
-      }
-    },
-    "create": {
-      "notification":{
-        "assignToEntityError": "Layout-Zuweisung fehlgeschlagen"
       }
     },
     "createWizard": {
@@ -91,22 +85,14 @@
       "label": {
         "buttonSave": "Speichern",
         "pageName": "Layout-Name",
-        "pageNamePlaceholder": "Layout-Namen eingeben ...",
-        "pageEntity": "Individuelle Entität",
-        "pageEntityPlaceholder": "Individuelle Entität auswählen ...",
         "pageCssClass": "CSS-Klassen",
-        "pageTypeSelection": "Layout-Typ",
-        "pageType": {
-          "landingpage": "Landingpage",
-          "page": "Shopseite",
-          "productList": "Kategorieseite",
-          "productDetail": "Produktseite",
-          "customEntityDetail": "Content-Detailseite",
-          "customEntityList": "Content-Liste"
-        },
+        "pageType": "Layout-Typ",
+        "pageTypeLandingpage": "Landingpage",
+        "pageTypeShopPage": "Shopseite",
+        "pageTypeCategory": "Kategorieseite",
+        "pageTypeProduct": "Produktseite",
         "demoEntity": "Vorschau-Datensatz",
         "blockCategorySelection": "Block-Kategorie",
-        "blockCategoryFavorite": "Favoriten",
         "blockCategoryText": "Text",
         "blockCategoryTextImage": "Text & Bild",
         "blockCategorySidebar": "Sidebar",
@@ -146,10 +132,8 @@
         "labelNavigation": "Navigation",
         "lockedNotification": "Dieses Layout ist gesperrt und kann nicht angepasst werden. Solltest Du dieses Standard-Template, an Deine eigenen Bedürfnisse anpassen möchtest, kannst du es einfach duplizieren und dann das Duplikat anpassen.",
         "headlineEmptyState": "Raum für Kreativität",
-        "claimEmptyState": "Stelle neue Layouts mithilfe von Sektionen zusammen. Wähle eine Sektion und füge einfach per Drag-&-Drop-Blöcke zu jeder Sektion hinzu und befülle die Blöcke dann mit Deinem individuellen Inhalt.",
-        "defaultLayout": "Standardlayout",
-        "blockFavoriteEmptyState": "Klicke auf das Herz in einem Block, um ihn als Favorit zu markieren und finde ihn hier wieder.",
-        "visibilityParagraph": "Auf ausgewählten Geräten unsichtbar"
+        "claimEmptyState": "Stelle neue Layouts mithilfe von Sektionen zusammen. Wähle eine Sektion und füge einfach per Drag & Drop Blöcke zu jeder Sektion hinzu und befülle die Blöcke dann mit deinem individuellen Inhalt.",
+        "defaultLayout": "Standardlayout"
       },
       "notification": {
         "pageInvalid": "Einige Fehler sind aufgetreten. Bitte überprüfe die Liste im Editor.",
@@ -183,8 +167,7 @@
       },
       "title": {
         "elementSettingsModal": "Element-Einstellungen",
-        "elementChangeModal": "Element austauschen",
-        "blockFavoriteEmptyState": "Noch keine Favoriten"
+        "elementChangeModal": "Element austauschen"
       },
       "tooltip": {
         "blockNameField": "Benenne jeden Block individuell und eindeutig, um einen guten Überblick über Deine Arbeit zu behalten.",
@@ -226,12 +209,6 @@
           "infoText": {
             "listingElement": "Die Produktdaten für dieses Element werden automatisiert über die Kategoriezuweisung befüllt. Der Inhalt zeigt nur eine ungefähre Vorschau."
           }
-        },
-        "switch": {
-          "groups": {
-            "all": "Alle Elemente",
-            "favorites": "Favorisierte Elemente"
-          }
         }
       },
       "image": {
@@ -239,7 +216,6 @@
         "config": {
           "label": {
             "minHeight": "Minimale Höhe",
-            "minHeightHelpText": "Gib die Mindesthöhe in der gewünschten Einheit an. Zum Beispiel: 200px",
             "linkNewTab": "Link in neuem Tab öffnen"
           },
           "placeholder": {
@@ -689,13 +665,12 @@
         "form": {
           "label": "Formular"
         }
-      },
-      "blockDisableState": "Dieser Block ist auf keinem Gerät sichtbar. Sie können den Block bearbeiten, aber die Änderungen werden in Ihrem Shop nicht sichtbar sein. Bearbeiten Sie dieses Layout im Modul Einkaufserlebnisse, um die Sichtbarkeit des Blocks zu ändern."
+      }
     },
     "components": {
       "setDefaultLayoutModal": {
         "title": "Standardlayout zuweisen",
-        "infoText": "Bitte beachte, dass alle Kategorien, die derzeit einem Standardlayout zugewiesen sind, diesem Layout zugewiesen werden und dass neu erstellte Kategorien diesem Layout automatisch zugewiesen werden. Möchtest Du dieses Layout wirklich als Standard verwenden?"
+        "infoText": "Bist Du sicher, dass Du dieses Layout verwenden möchtest, um es allen Kategorien ohne Layout zuzuweisen?"
       },
       "cmsLayoutModal": {
         "actionCancel": "Abbrechen",
@@ -763,22 +738,18 @@
       "cmsListItem": {
         "emptyText": "Kein Layout zugewiesen",
         "edit": "Bearbeiten",
-        "rename": "Umbenennen",
         "delete": "Löschen",
         "duplicate": "Duplizieren",
         "addPreviewImage": "Vorschau hinzufügen",
-        "setAsDefaultProductList": "Als Standard für Kategorieseiten festlegen",
+        "setAsDefaultProductList": "Als Standard für Produktlistings festlegen", 
         "setAsDefaultProductDetail": "Als Standard für Produkseiten festlegen",
         "defaultLayout": "Standardlayout",
-        "defaultLayoutProductList": "Standardlayout - Kategorieseite",
-        "defaultLayoutProductDetail": "Standardlayout - Produktseite",
+        "defaultLayoutProductList": "Standardlayout - Produktseite", 
+        "defaultLayoutProductDetail": "Standardlayout - Produktlisting",
         "removePreviewImage": "Vorschau entfernen",
         "notificationDeleteErrorMessage": "Das Layout ist noch mindestens einer Kategorie zugewiesen.",
         "modal": {
-          "renameModalTitle": "Layout umbenennen",
-          "textRenameConfirm": "Wähle einen neuen Namen für \"{pageName}\":",
           "textDeleteConfirm": "Möchtest Du das Layout \"{pageName}\" wirklich löschen?",
-          "buttonRename": "Umbenennen",
           "buttonCancel": "Abbrechen",
           "buttonDelete": "Löschen"
         }

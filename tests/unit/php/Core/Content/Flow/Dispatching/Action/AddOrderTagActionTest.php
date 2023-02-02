@@ -6,28 +6,34 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Dispatching\Action\AddOrderTagAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\Event\DelayAware;
 use Shopware\Core\Framework\Event\OrderAware;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package business-ops
- *
  * @internal
  * @covers \Shopware\Core\Content\Flow\Dispatching\Action\AddOrderTagAction
  */
 class AddOrderTagActionTest extends TestCase
 {
-    private MockObject&EntityRepository $repository;
+    /**
+     * @var MockObject|EntityRepositoryInterface
+     */
+    private $repository;
 
     private AddOrderTagAction $action;
 
-    private MockObject&StorableFlow $flow;
+    /**
+     * @var MockObject|StorableFlow
+     */
+    private $flow;
 
     public function setUp(): void
     {
-        $this->repository = $this->createMock(EntityRepository::class);
+        $this->repository = $this->createMock(EntityRepositoryInterface::class);
         $this->action = new AddOrderTagAction($this->repository);
 
         $this->flow = $this->createMock(StorableFlow::class);
@@ -36,8 +42,25 @@ class AddOrderTagActionTest extends TestCase
     public function testRequirements(): void
     {
         static::assertSame(
-            [OrderAware::class],
+            [OrderAware::class, DelayAware::class],
             $this->action->requirements()
+        );
+    }
+
+    public function testSubscribedEvents(): void
+    {
+        if (Feature::isActive('v6.5.0.0')) {
+            static::assertSame(
+                [],
+                AddOrderTagAction::getSubscribedEvents()
+            );
+
+            return;
+        }
+
+        static::assertSame(
+            ['action.add.order.tag' => 'handle'],
+            AddOrderTagAction::getSubscribedEvents()
         );
     }
 

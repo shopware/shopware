@@ -3,13 +3,11 @@
 namespace Shopware\Core\System\Test\Snippet\Filter;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Filter\AuthorFilter;
 
 /**
  * @internal
  */
-#[Package('system-settings')]
 class AuthorFilterTest extends TestCase
 {
     public function testGetFilterName(): void

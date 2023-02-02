@@ -16,13 +16,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageDefinition;
 
-#[Package('inventory')]
 class ProductSearchConfigDefinition extends EntityDefinition
 {
-    final public const ENTITY_NAME = 'product_search_config';
+    public const ENTITY_NAME = 'product_search_config';
 
     public function getEntityName(): string
     {
@@ -65,7 +63,7 @@ class ProductSearchConfigDefinition extends EntityDefinition
             (new FkField('language_id', 'languageId', LanguageDefinition::class))->addFlags(new Required()),
             (new BoolField('and_logic', 'andLogic'))->addFlags(new Required()),
             (new IntField('min_search_length', 'minSearchLength'))->addFlags(new Required()),
-            new ListField('excluded_terms', 'excludedTerms', StringField::class),
+            (new ListField('excluded_terms', 'excludedTerms', StringField::class))->setStrict(true),
             new OneToOneAssociationField('language', 'language_id', 'id', LanguageDefinition::class, false),
             (new OneToManyAssociationField('configFields', ProductSearchConfigFieldDefinition::class, 'product_search_config_id', 'id'))->addFlags(new CascadeDelete()),
         ]);

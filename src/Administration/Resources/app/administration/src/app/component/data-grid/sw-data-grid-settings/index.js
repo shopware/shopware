@@ -4,8 +4,6 @@ import './sw-data-grid-settings.scss';
 const { Component } = Shopware;
 
 /**
- * @package admin
- *
  * @private
  */
 Component.register('sw-data-grid-settings', {

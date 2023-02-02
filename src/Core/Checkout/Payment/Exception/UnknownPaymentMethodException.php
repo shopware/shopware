@@ -2,11 +2,9 @@
 
 namespace Shopware\Core\Checkout\Payment\Exception;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('checkout')]
 class UnknownPaymentMethodException extends ShopwareHttpException
 {
     public function __construct(string $paymentMethodId, ?\Throwable $e = null)

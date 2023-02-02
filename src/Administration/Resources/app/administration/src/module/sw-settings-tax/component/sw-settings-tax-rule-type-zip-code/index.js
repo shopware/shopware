@@ -1,11 +1,9 @@
 import template from './sw-settings-tax-rule-type-zip-code.html.twig';
 
-/**
- * @package customer-order
- */
+const { Component } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-settings-tax-rule-type-zip-code', {
     template,
 
     props: {
@@ -28,4 +26,4 @@ export default {
             }
         },
     },
-};
+});

@@ -65,10 +65,7 @@ class ImageTypeDetectorTest extends TestCase
             $publicPath
         );
 
-        static::assertIsString(
-            $appUrl = EnvironmentHelper::getVariable('APP_URL')
-        );
-        $webPath = rtrim($appUrl, '/') . '/animate.gif';
+        $webPath = rtrim(EnvironmentHelper::getVariable('APP_URL'), '/') . '/animate.gif';
 
         $type = $this->getImageTypeDetector()->detect(
             new MediaFile(
@@ -91,7 +88,7 @@ class ImageTypeDetectorTest extends TestCase
     public function testDetectWebp(): void
     {
         $type = $this->getImageTypeDetector()->detect(
-            $this->createMediaFile(__DIR__ . '/../fixtures/shopware-logo.vp8x.webp'),
+            $this->createMediaFile(__DIR__ . '/../fixtures/shopware.webp'),
             null
         );
 
@@ -124,10 +121,7 @@ class ImageTypeDetectorTest extends TestCase
             $publicPath
         );
 
-        static::assertIsString(
-            $appUrl = EnvironmentHelper::getVariable('APP_URL')
-        );
-        $webPath = rtrim($appUrl, '/') . '/animate.webp';
+        $webPath = rtrim(EnvironmentHelper::getVariable('APP_URL'), '/') . '/animate.webp';
 
         $type = $this->getImageTypeDetector()->detect(
             new MediaFile(
@@ -291,14 +285,11 @@ class ImageTypeDetectorTest extends TestCase
 
     private function createMediaFile(string $filePath): MediaFile
     {
-        static::assertIsString($mimeContentType = mime_content_type($filePath));
-        static::assertIsInt($filesize = filesize($filePath));
-
         return new MediaFile(
             $filePath,
-            $mimeContentType,
+            mime_content_type($filePath),
             pathinfo($filePath, \PATHINFO_EXTENSION),
-            $filesize
+            filesize($filePath)
         );
     }
 }

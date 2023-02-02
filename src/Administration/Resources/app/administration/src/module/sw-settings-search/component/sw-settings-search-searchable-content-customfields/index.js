@@ -1,13 +1,10 @@
-/**
- * @package system-settings
- */
 import template from './sw-settings-search-searchable-content-customfields.html.twig';
 
-const { Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-settings-search-searchable-content-customfields', {
     template,
 
     inject: [
@@ -214,4 +211,4 @@ export default {
             this.$emit('config-delete', currentField.id);
         },
     },
-};
+});

@@ -1,18 +1,11 @@
-/*
- * @package inventory
- */
-
 import template from './sw-product-stream-list.html.twig';
 import './sw-product-stream-list.scss';
 
-const { Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
-/**
- * @private
- * @package business-ops
- */
-export default {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+Component.register('sw-product-stream-list', {
     template,
 
     inject: [
@@ -205,4 +198,4 @@ export default {
             });
         },
     },
-};
+});

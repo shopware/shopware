@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\BundleHierarchyBuilder;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\HttpKernel\KernelInterface;
 
@@ -20,7 +20,7 @@ class BundleHierarchyBuilderTest extends TestCase
 
     public function testItAddsAppNamespace(): void
     {
-        /** @var EntityRepository $appRepository */
+        /** @var EntityRepositoryInterface $appRepository */
         $appRepository = $this->getContainer()->get('app.repository');
 
         $appRepository->create([
@@ -63,7 +63,7 @@ class BundleHierarchyBuilderTest extends TestCase
 
     public function testItExcludesInactiveApps(): void
     {
-        /** @var EntityRepository $appRepository */
+        /** @var EntityRepositoryInterface $appRepository */
         $appRepository = $this->getContainer()->get('app.repository');
 
         $appRepository->create([
@@ -99,7 +99,7 @@ class BundleHierarchyBuilderTest extends TestCase
 
     public function testItExcludesInactiveAppTemplates(): void
     {
-        /** @var EntityRepository $appRepository */
+        /** @var EntityRepositoryInterface $appRepository */
         $appRepository = $this->getContainer()->get('app.repository');
 
         $appRepository->create([
@@ -136,7 +136,7 @@ class BundleHierarchyBuilderTest extends TestCase
 
     public function testItExcludesAppNamespacesWithNoTemplates(): void
     {
-        /** @var EntityRepository $appRepository */
+        /** @var EntityRepositoryInterface $appRepository */
         $appRepository = $this->getContainer()->get('app.repository');
 
         $appRepository->create([
@@ -177,7 +177,11 @@ class BundleHierarchyBuilderTest extends TestCase
         $bundles = [];
 
         foreach ($plugins as $plugin => $prio) {
-            $bundles[] = new MockBundle($plugin, $prio, __DIR__ . '/../fixtures/Plugins/TestPlugin1/');
+            $bundle = $this->createMock(Bundle::class);
+            $bundle->method('getName')->willReturn($plugin);
+            $bundle->method('getTemplatePriority')->willReturn($prio);
+            $bundle->method('getPath')->willReturn(__DIR__ . '/../fixtures/Plugins/TestPlugin1/');
+            $bundles[] = $bundle;
         }
 
         $kernel->method('getBundles')->willReturn($bundles);
@@ -264,22 +268,5 @@ class BundleHierarchyBuilderTest extends TestCase
                 array_keys($this->getContainer()->getParameter('kernel.bundles'))
             )
         );
-    }
-}
-
-/**
- * @internal
- */
-class MockBundle extends Bundle
-{
-    public function __construct(string $name, private readonly int $templatePriority, string $path)
-    {
-        $this->name = $name;
-        $this->path = $path;
-    }
-
-    public function getTemplatePriority(): int
-    {
-        return $this->templatePriority;
     }
 }

@@ -3,16 +3,13 @@ import './sw-flow-detail.scss';
 
 import { ACTION } from '../../constant/flow.constant';
 
-const { Component, Mixin, Context, State, Utils, Service } = Shopware;
-const { Criteria, EntityCollection } = Shopware.Data;
+const { Component, Mixin, Context, State } = Shopware;
+const { Criteria } = Shopware.Data;
 const { cloneDeep } = Shopware.Utils.object;
 const { mapState, mapGetters, mapPropertyErrors } = Component.getComponentHelper();
 
-/**
- * @private
- * @package business-ops
- */
-export default {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+Component.register('sw-flow-detail', {
     template,
 
     inject: [
@@ -58,14 +55,6 @@ export default {
             return this.repositoryFactory.create('flow');
         },
 
-        flowTemplateRepository() {
-            return this.repositoryFactory.create('flow_template');
-        },
-
-        flowSequenceRepository() {
-            return this.repositoryFactory.create('flow_sequence');
-        },
-
         isNewFlow() {
             return !this.flowId;
         },
@@ -81,10 +70,6 @@ export default {
                 .addSorting(Criteria.sort('position', 'ASC'));
 
             return criteria;
-        },
-
-        flowTemplateCriteria() {
-            return new Criteria(1, 25);
         },
 
         documentTypeRepository() {
@@ -156,10 +141,6 @@ export default {
             return criteria;
         },
 
-        isTemplate() {
-            return this.$route.query?.type === 'template';
-        },
-
         ...mapState('swFlowState', ['flow']),
         ...mapGetters('swFlowState', [
             'sequences',
@@ -173,9 +154,7 @@ export default {
 
     watch: {
         flowId() {
-            if (!this.$route.params.flowTemplateId) {
-                this.getDetailFlow();
-            }
+            this.getDetailFlow();
         },
     },
 
@@ -203,17 +182,6 @@ export default {
 
     methods: {
         createdComponent() {
-            Shopware.ExtensionAPI.publishData({
-                id: 'sw-flow-detail__flow',
-                path: 'flow',
-                scope: this,
-            });
-
-            if (this.isTemplate) {
-                this.getDetailFlowTemplate();
-                return;
-            }
-
             if (this.flowId) {
                 this.getDetailFlow();
                 return;
@@ -227,55 +195,26 @@ export default {
         },
 
         routeDetailTab(tabName) {
-            if (!tabName) return {};
+            if (!tabName) return '';
 
             if (this.isNewFlow) {
-                return { name: `sw.flow.create.${tabName}` };
+                return `sw.flow.create.${tabName}`;
             }
 
-            if (this.isTemplate) {
-                return { name: `sw.flow.detail.${tabName}`, query: { type: 'template' } };
-            }
-
-            return { name: `sw.flow.detail.${tabName}` };
+            return `sw.flow.detail.${tabName}`;
         },
 
         createNewFlow() {
-            if (this.$route.params.flowTemplateId) {
-                return this.createFromFlowTemplate();
-            }
-
             const flow = this.flowRepository.create();
-            flow.id = Utils.createId();
             flow.priority = 0;
             flow.eventName = '';
 
-            return State.commit('swFlowState/setFlow', flow);
+            State.commit('swFlowState/setFlow', flow);
         },
 
         getDetailFlow() {
             this.isLoading = true;
-
             return this.flowRepository.get(this.flowId, Context.api, this.flowCriteria)
-                .then((data) => {
-                    State.commit('swFlowState/setFlow', data);
-                    State.commit('swFlowState/setOriginFlow', cloneDeep(data));
-                    this.getDataForActionDescription();
-                })
-                .catch(() => {
-                    this.createNotificationError({
-                        message: this.$tc('sw-flow.flowNotification.messageError'),
-                    });
-                })
-                .finally(() => {
-                    this.isLoading = false;
-                });
-        },
-
-        getDetailFlowTemplate() {
-            this.isLoading = true;
-
-            return this.flowTemplateRepository.get(this.flowId, Context.api, this.flowTemplateCriteria)
                 .then((data) => {
                     State.commit('swFlowState/setFlow', data);
                     State.commit('swFlowState/setOriginFlow', cloneDeep(data));
@@ -309,23 +248,9 @@ export default {
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
-            if (this.isTemplate) {
-                this.createNotificationError({
-                    message: this.$tc('sw-flow.flowNotification.messageWarningSave'),
-                });
-
-                this.isLoading = false;
-
-                return null;
-            }
-
             return this.flowRepository.save(this.flow)
                 .then(() => {
-                    if ((typeof this.flow.isNew === 'function' && this.flow.isNew()) || this.$route.params.flowTemplateId) {
-                        this.createNotificationSuccess({
-                            message: this.$tc('sw-flow.flowNotification.messageCreateSuccess'),
-                        });
-
+                    if (typeof this.flow.isNew === 'function' && this.flow.isNew()) {
                         this.$router.push({
                             name: 'sw.flow.detail',
                             params: { id: this.flow.id },
@@ -487,82 +412,5 @@ export default {
 
             return Promise.all(promises);
         },
-
-        createFromFlowTemplate() {
-            const flow = this.flowRepository.create();
-            flow.id = Utils.createId();
-            flow.priority = 0;
-
-            return this.flowTemplateRepository.get(this.$route.params.flowTemplateId, Context.api, this.flowTemplateCriteria)
-                .then((data) => {
-                    flow.name = data.name;
-                    flow.eventName = data.config?.eventName;
-                    flow.description = data.config?.description;
-                    flow.sequences = this.buildSequencesFromConfig(data.config?.sequences ?? []);
-
-                    State.commit('swFlowState/setFlow', flow);
-                    State.commit('swFlowState/setOriginFlow', cloneDeep(flow));
-                    this.getDataForActionDescription();
-                })
-                .catch(() => {
-                    this.createNotificationError({
-                        message: this.$tc('sw-flow.flowNotification.messageError'),
-                    });
-                })
-                .finally(() => {
-                    this.isLoading = false;
-                });
-        },
-
-        createSequenceEntity(flowSequence) {
-            const entity = this.flowSequenceRepository.create();
-            Object.keys(flowSequence).forEach((key) => {
-                if (key === 'trueCase') {
-                    entity[key] = Boolean(flowSequence[key]);
-
-                    return;
-                }
-
-                if (key === 'config') {
-                    entity[key] = { ...flowSequence[key] };
-
-                    return;
-                }
-
-                entity[key] = flowSequence[key];
-            });
-
-            return entity;
-        },
-
-        buildSequencesFromConfig(sequences) {
-            const parentIds = {};
-
-            sequences = sequences.map(sequence => {
-                sequence = this.createSequenceEntity(sequence);
-
-                parentIds[sequence.id] = Utils.createId();
-                sequence.id = parentIds[sequence.id];
-
-                return sequence;
-            });
-
-            // update parentId of sequence
-            for (let i = 0; i < sequences.length; i += 1) {
-                if (sequences[i].parentId !== null) {
-                    sequences[i].parentId = parentIds[sequences[i].parentId];
-                }
-            }
-
-            sequences = Service('flowBuilderService').rearrangeArrayObjects(sequences);
-
-            return new EntityCollection(
-                this.flowSequenceRepository.source,
-                this.flowSequenceRepository.entityName,
-                Context.api,
-                null,
-                sequences,
-            );
-        },
     },
-};
+});

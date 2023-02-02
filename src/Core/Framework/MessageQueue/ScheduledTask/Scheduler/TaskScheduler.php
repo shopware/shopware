@@ -4,30 +4,45 @@ namespace Shopware\Core\Framework\MessageQueue\ScheduledTask\Scheduler;
 
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\MinAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\MinResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskEntity;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
-#[Package('core')]
-final class TaskScheduler
+class TaskScheduler
 {
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $scheduledTaskRepository;
+
+    /**
+     * @var MessageBusInterface
+     */
+    private $bus;
+
+    private ParameterBagInterface $parameterBag;
+
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $scheduledTaskRepository, private readonly MessageBusInterface $bus, private readonly ParameterBagInterface $parameterBag)
-    {
+    public function __construct(
+        EntityRepositoryInterface $scheduledTaskRepository,
+        MessageBusInterface $bus,
+        ParameterBagInterface $parameterBag
+    ) {
+        $this->scheduledTaskRepository = $scheduledTaskRepository;
+        $this->bus = $bus;
+        $this->parameterBag = $parameterBag;
     }
 
     public function queueScheduledTasks(): void
@@ -45,7 +60,13 @@ final class TaskScheduler
         // queued, thus breaking the task.
         /** @var ScheduledTaskEntity $task */
         foreach ($tasks as $task) {
-            $this->queueTask($task, $context);
+            $this->scheduledTaskRepository->update([
+                [
+                    'id' => $task->getId(),
+                    'status' => ScheduledTaskDefinition::STATUS_QUEUED,
+                ],
+            ], $context);
+            $this->queueTask($task);
         }
     }
 
@@ -96,16 +117,13 @@ final class TaskScheduler
                     RangeFilter::LT => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 ]
             ),
-            new EqualsAnyFilter('status', [
-                ScheduledTaskDefinition::STATUS_SCHEDULED,
-                ScheduledTaskDefinition::STATUS_SKIPPED,
-            ])
+            new EqualsFilter('status', ScheduledTaskDefinition::STATUS_SCHEDULED)
         );
 
         return $criteria;
     }
 
-    private function queueTask(ScheduledTaskEntity $taskEntity, Context $context): void
+    private function queueTask(ScheduledTaskEntity $taskEntity): void
     {
         $taskClass = $taskEntity->getScheduledTaskClass();
 
@@ -117,23 +135,8 @@ final class TaskScheduler
         }
 
         if (!$taskClass::shouldRun($this->parameterBag)) {
-            $this->scheduledTaskRepository->update([
-                [
-                    'id' => $taskEntity->getId(),
-                    'nextExecutionTime' => $this->calculateNextExecutionTime($taskEntity),
-                    'status' => ScheduledTaskDefinition::STATUS_SKIPPED,
-                ],
-            ], $context);
-
             return;
         }
-
-        $this->scheduledTaskRepository->update([
-            [
-                'id' => $taskEntity->getId(),
-                'status' => ScheduledTaskDefinition::STATUS_QUEUED,
-            ],
-        ], $context);
 
         $task = new $taskClass();
         $task->setTaskId($taskEntity->getId());
@@ -145,10 +148,7 @@ final class TaskScheduler
     {
         $criteria = new Criteria();
         $criteria->addFilter(
-            new EqualsAnyFilter('status', [
-                ScheduledTaskDefinition::STATUS_SCHEDULED,
-                ScheduledTaskDefinition::STATUS_SKIPPED,
-            ])
+            new EqualsFilter('status', ScheduledTaskDefinition::STATUS_SCHEDULED)
         )
         ->addAggregation(new MinAggregation('nextExecutionTime', 'nextExecutionTime'));
 
@@ -166,16 +166,5 @@ final class TaskScheduler
         ->addAggregation(new MinAggregation('runInterval', 'runInterval'));
 
         return $criteria;
-    }
-
-    private function calculateNextExecutionTime(ScheduledTaskEntity $taskEntity): \DateTimeImmutable
-    {
-        $now = new \DateTimeImmutable();
-
-        $nextExecutionTimeString = $taskEntity->getNextExecutionTime()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
-        $nextExecutionTime = new \DateTimeImmutable($nextExecutionTimeString);
-        $newNextExecutionTime = $nextExecutionTime->modify(sprintf('+%d seconds', $taskEntity->getRunInterval()));
-
-        return $newNextExecutionTime < $now ? $now : $newNextExecutionTime;
     }
 }

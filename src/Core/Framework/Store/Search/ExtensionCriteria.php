@@ -2,32 +2,45 @@
 
 namespace Shopware\Core\Framework\Store\Search;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * @internal
  */
-#[Package('merchant-services')]
 class ExtensionCriteria extends Struct
 {
-    final public const ORDER_SEQUENCE_ASC = 'asc';
-    final public const ORDER_SEQUENCE_DESC = 'desc';
+    public const ORDER_SEQUENCE_ASC = 'asc';
+    public const ORDER_SEQUENCE_DESC = 'desc';
 
-    private int $limit = 10;
+    /**
+     * @var int
+     */
+    private $limit = 10;
 
-    private int $offset = 0;
+    /**
+     * @var int
+     */
+    private $offset = 0;
 
-    private ?string $search = null;
+    /**
+     * @var string|null
+     */
+    private $search;
 
-    private ?string $orderBy = null;
+    /**
+     * @var string|null
+     */
+    private $orderBy;
 
-    private string $orderSequence = self::ORDER_SEQUENCE_ASC;
+    /**
+     * @var string
+     */
+    private $orderSequence = self::ORDER_SEQUENCE_ASC;
 
     /**
      * @var FilterStruct[]
      */
-    private array $filter = [];
+    private $filter = [];
 
     public static function fromArray(array $parameter): ExtensionCriteria
     {
@@ -80,7 +93,7 @@ class ExtensionCriteria extends Struct
         }
 
         foreach ($this->getFilter() as $filter) {
-            $options = [...$options, ...$filter->getQueryParameter()];
+            $options = array_merge($options, $filter->getQueryParameter());
         }
 
         return $options;

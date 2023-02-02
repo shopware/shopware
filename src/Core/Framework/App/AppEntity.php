@@ -13,17 +13,14 @@ use Shopware\Core\Framework\App\Template\TemplateCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\ScriptCollection;
 use Shopware\Core\Framework\Webhook\WebhookCollection;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetCollection;
 use Shopware\Core\System\Integration\IntegrationEntity;
-use Shopware\Core\System\TaxProvider\TaxProviderCollection;
 
 /**
  * @internal
  */
-#[Package('core')]
 class AppEntity extends Entity
 {
     use EntityIdTrait;
@@ -77,23 +74,20 @@ class AppEntity extends Entity
     protected ?string $baseAppUrl = null;
 
     /**
-     * @var mixed[]
+     * @var array
      */
-    protected array $modules;
+    protected $modules;
 
     /**
-     * @var mixed[]|null
+     * @var array|null
      */
-    protected ?array $mainModule = null;
+    protected $mainModule;
 
     /**
-     * @var mixed[]
+     * @var array
      */
-    protected array $cookies;
+    protected $cookies;
 
-    /**
-     * @var string[]|null
-     */
     protected ?array $allowedHosts = null;
 
     /**
@@ -194,8 +188,6 @@ class AppEntity extends Entity
      * @var AppPaymentMethodCollection|null
      */
     protected $paymentMethods;
-
-    protected ?TaxProviderCollection $taxProviders = null;
 
     /**
      * @internal
@@ -314,65 +306,41 @@ class AppEntity extends Entity
         $this->baseAppUrl = $baseAppUrl;
     }
 
-    /**
-     * @return mixed[]
-     */
     public function getModules(): array
     {
         return $this->modules;
     }
 
-    /**
-     * @param mixed[] $modules
-     */
     public function setModules(array $modules): void
     {
         $this->modules = $modules;
     }
 
-    /**
-     * @return mixed[]|null
-     */
     public function getMainModule(): ?array
     {
         return $this->mainModule;
     }
 
-    /**
-     * @param mixed[] $mainModule
-     */
     public function setMainModule(array $mainModule): void
     {
         $this->mainModule = $mainModule;
     }
 
-    /**
-     * @return mixed[]
-     */
     public function getCookies(): array
     {
         return $this->cookies;
     }
 
-    /**
-     * @param mixed[] $cookies
-     */
     public function setCookies(array $cookies): void
     {
         $this->cookies = $cookies;
     }
 
-    /**
-     * @return string[]|null
-     */
     public function getAllowedHosts(): ?array
     {
         return $this->allowedHosts;
     }
 
-    /**
-     * @param string[]|null $allowedHosts
-     */
     public function setAllowedHosts(?array $allowedHosts): void
     {
         $this->allowedHosts = $allowedHosts;
@@ -590,16 +558,6 @@ class AppEntity extends Entity
     public function setPaymentMethods(AppPaymentMethodCollection $paymentMethods): void
     {
         $this->paymentMethods = $paymentMethods;
-    }
-
-    public function getTaxProviders(): ?TaxProviderCollection
-    {
-        return $this->taxProviders;
-    }
-
-    public function setTaxProviders(TaxProviderCollection $taxProviders): void
-    {
-        $this->taxProviders = $taxProviders;
     }
 
     /**

@@ -1,8 +1,6 @@
 const { Application } = Shopware;
 
 /**
- * @package admin
- *
  * @module core/service/shopware-updates-listener
  */
 
@@ -40,14 +38,12 @@ export default function addShopwareUpdatesListener(loginService, serviceContaine
 
         const notification = {
             title: getApplicationRootReference().$t(
-                'global.notification-center.shopware-updates-listener.updatesAvailableTitle',
-                {
+                'global.notification-center.shopware-updates-listener.updatesAvailableTitle', {
                     version: response.version,
                 },
             ),
             message: getApplicationRootReference().$t(
-                'global.notification-center.shopware-updates-listener.updatesAvailableMessage',
-                {
+                'global.notification-center.shopware-updates-listener.updatesAvailableMessage', {
                     version: response.version,
                 },
             ),

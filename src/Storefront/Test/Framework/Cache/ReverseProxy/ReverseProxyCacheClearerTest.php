@@ -7,7 +7,6 @@ use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
-use Psr\Http\Message\RequestInterface;
 use Shopware\Storefront\Framework\Cache\ReverseProxy\RedisReverseProxyGateway;
 use Shopware\Storefront\Framework\Cache\ReverseProxy\ReverseProxyCacheClearer;
 
@@ -54,8 +53,6 @@ class ReverseProxyCacheClearerTest extends TestCase
         $clearer = new ReverseProxyCacheClearer($this->gateway);
         $clearer->clear('noop');
 
-        static::assertInstanceOf(RequestInterface::class, $this->mockHandler->getLastRequest());
-
         static::assertSame('PURGE', $this->mockHandler->getLastRequest()->getMethod());
         static::assertSame('/', $this->mockHandler->getLastRequest()->getRequestTarget());
         static::assertFalse($this->mockHandler->getLastRequest()->hasHeader('foo'));
@@ -67,8 +64,6 @@ class ReverseProxyCacheClearerTest extends TestCase
 
         $clearer = new ReverseProxyCacheClearer($this->gateway);
         $clearer->clear('noop');
-
-        static::assertInstanceOf(RequestInterface::class, $this->mockHandler->getLastRequest());
 
         static::assertSame('PURGE', $this->mockHandler->getLastRequest()->getMethod());
         static::assertSame('/', $this->mockHandler->getLastRequest()->getRequestTarget());

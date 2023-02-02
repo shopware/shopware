@@ -5,8 +5,6 @@ const { Component, Mixin } = Shopware;
 const { dom, types } = Shopware.Utils;
 
 /**
- * @package admin
- *
  * @private
  */
 Component.register('sw-admin-menu', {
@@ -18,7 +16,6 @@ Component.register('sw-admin-menu', {
         'userService',
         'appModulesService',
         'feature',
-        'customEntityDefinitionService',
     ],
 
     mixins: [
@@ -131,7 +128,6 @@ The admin menu only supports up to three levels of nesting.`,
                 ...this.adminModuleNavigation,
                 ...this.appModuleNavigation,
                 ...this.extensionModuleNavigation,
-                ...this.customEntityDefinitionService.getMenuEntries(),
             ];
         },
 
@@ -255,7 +251,7 @@ The admin menu only supports up to three levels of nesting.`,
 
         refreshApps() {
             return this.appModulesService.fetchAppModules().then((modules) => {
-                return Shopware.State.commit('shopwareApps/setApps', modules);
+                return Shopware.State.dispatch('shopwareApps/setAppModules', modules);
             });
         },
 
@@ -553,7 +549,7 @@ The admin menu only supports up to three levels of nesting.`,
                 const yj = polygon[j][1];
 
                 const intersect = ((yi > y) !== (yj > y)) &&
-                    (x < (((xj - xi) * (y - yi)) / (yj - yi)) + xi);
+                    (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
                 if (intersect) inside = !inside;
             }
 

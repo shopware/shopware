@@ -3,17 +3,16 @@
 namespace Shopware\Core\Checkout\Test\Customer;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerValueResolver;
 use Shopware\Core\Checkout\Customer\Exception\BadCredentialsException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Checkout\Test\Customer\SalesChannel\CustomerTestTrait;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
 use Shopware\Core\Framework\Routing\SalesChannelRequestContextResolver;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
@@ -22,6 +21,8 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Request;
@@ -30,26 +31,60 @@ use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 /**
  * @internal
  */
-#[Package('customer-order')]
 class CustomerValueResolverTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use CustomerTestTrait;
 
-    private TestDataCollection $ids;
+    /**
+     * @var TestDataCollection
+     */
+    private $ids;
 
-    private EntityRepository $repository;
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $repository;
 
-    private AccountService $accountService;
+    /**
+     * @var SalesChannelContextServiceInterface
+     */
+    private $contextService;
 
-    private SalesChannelContext $salesChannelContext;
+    /**
+     * @var \Symfony\Bundle\FrameworkBundle\KernelBrowser
+     */
+    private $browser;
+
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $customerRepository;
+
+    /**
+     * @var string
+     */
+    private $contextToken;
+
+    /**
+     * @var AccountService
+     */
+    private $accountService;
+
+    /**
+     * @var SalesChannelContext
+     */
+    private $salesChannelContext;
 
     public function setUp(): void
     {
         $this->ids = new TestDataCollection();
         $this->repository = $this->getContainer()->get('currency.repository');
+        $this->contextService = $this->getContainer()->get(SalesChannelContextService::class);
 
         $this->createTestSalesChannel();
+
+        $this->customerRepository = $this->getContainer()->get('customer.repository');
 
         $this->accountService = $this->getContainer()->get(AccountService::class);
         /** @var AbstractSalesChannelContextFactory $salesChannelContextFactory */
@@ -86,10 +121,8 @@ class CustomerValueResolverTest extends TestCase
         $exception = null;
 
         try {
-            $generator = $resolver->resolve($request, new ArgumentMetadata('', CustomerEntity::class, false, false, ''));
-            if ($generator instanceof \Traversable) {
-                iterator_to_array($generator);
-            }
+            $generator = $resolver->resolve($request, new ArgumentMetadata('', 'CustomerEntity', false, false, ''));
+            $generator->next();
         } catch (\Exception $e) {
             $exception = $e;
         }
@@ -101,9 +134,6 @@ class CustomerValueResolverTest extends TestCase
         }
     }
 
-    /**
-     * @return array<string, array{0: bool, 1: bool, 2: bool}>
-     */
     public function loginRequiredAnnotationData(): array
     {
         return [
@@ -133,7 +163,7 @@ class CustomerValueResolverTest extends TestCase
 
         try {
             return $this->accountService->login($email, $this->salesChannelContext, $isGuest);
-        } catch (BadCredentialsException) {
+        } catch (BadCredentialsException $e) {
             // nth
         }
 

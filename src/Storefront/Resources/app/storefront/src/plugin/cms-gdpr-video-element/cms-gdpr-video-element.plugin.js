@@ -1,9 +1,9 @@
 import Plugin from 'src/plugin-system/plugin.class';
 import HttpClient from 'src/service/http-client.service';
+import PseudoModalUtil from 'src/utility/modal-extension/pseudo-modal.util';
+import DomAccess from 'src/helper/dom-access.helper';
+import Feature from 'src/helper/feature.helper';
 
-/**
- * @package content
- */
 export default class CmsGdprVideoElement extends Plugin {
     /**
      * Plugin options
@@ -16,7 +16,11 @@ export default class CmsGdprVideoElement extends Plugin {
         overlayText: null,
         backdropClasses: ['element-loader-backdrop', 'element-loader-backdrop-open'],
         confirmButtonText: null,
-        modalTriggerSelector: '[data-bs-toggle="modal"][data-url]',
+        /**
+         * @deprecated tag:v6.5.0 - Bootstrap v5 renames `data-toggle` attribute to `data-bs-toggle`
+         * @see https://getbootstrap.com/docs/5.0/migration/#javascript
+         */
+        modalTriggerSelector: Feature.isActive('v6.5.0.0') ? '[data-bs-toggle="modal"][data-url]' : '[data-toggle="modal"][data-url]',
         urlAttribute: 'data-url',
     };
 
@@ -107,5 +111,38 @@ export default class CmsGdprVideoElement extends Plugin {
         parentNode.removeChild(this.el);
 
         return true;
+    }
+
+    /**
+     * Event handler which will be fired when the user clicks on the privacy link in the overlay text. The method
+     * fetches the information from the URL provided in the `data-url` property.
+     *
+     * @deprecated tag:v6.5.0 - No longer in use, will be removed with 6.5.0
+     *
+     * @param {Event} event
+     * @returns {void}
+     */
+    onClickHandleAjaxModal(event) {
+        const trigger = event.currentTarget;
+        const url = DomAccess.getAttribute(trigger, this.options.urlAttribute);
+
+        this._client.get(url, response => this.openModal(response));
+    }
+
+    /**
+     * After the HTTP client fetched the information from the server, we're opening up a modal box and fill it
+     * with the response we got.
+     *
+     * @deprecated tag:v6.5.0 - No longer in use, will be removed with 6.5.0
+     *
+     * @param {String} response
+     * @returns {void}
+     */
+    openModal(response) {
+        const pseudoModal = new PseudoModalUtil(response);
+
+        pseudoModal.open(() => {
+            window.PluginManager.initializePlugins();
+        });
     }
 }

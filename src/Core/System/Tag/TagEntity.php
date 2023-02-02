@@ -13,9 +13,7 @@ use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('business-ops')]
 class TagEntity extends Entity
 {
     use EntityIdTrait;

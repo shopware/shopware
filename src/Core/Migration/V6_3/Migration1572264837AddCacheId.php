@@ -3,15 +3,10 @@
 namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Exception;
-use Shopware\Core\Framework\Log\Package;
+use Doctrine\DBAL\DBALException;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-/**
- * @internal
- */
-#[Package('core')]
 class Migration1572264837AddCacheId extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -21,15 +16,15 @@ class Migration1572264837AddCacheId extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeStatement('DELETE FROM app_config');
+        $connection->executeUpdate('DELETE FROM app_config');
 
         try {
-            $connection->executeStatement('ALTER TABLE app_config ADD PRIMARY KEY (`key`)');
-        } catch (Exception) {
+            $connection->exec('ALTER TABLE app_config ADD PRIMARY KEY (`key`)');
+        } catch (DBALException $e) {
             // PK already exists
         }
 
-        $connection->executeStatement(
+        $connection->executeUpdate(
             '
             INSERT IGNORE INTO app_config (`key`, `value`)
             VALUES (?, ?)',

@@ -9,7 +9,6 @@ use League\OAuth2\Server\Grant\RefreshTokenGrant;
 use League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface;
 use League\OAuth2\Server\Repositories\UserRepositoryInterface;
 use League\OAuth2\Server\ResourceServer;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiContextRouteScopeDependant;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\Framework\Routing\RouteScopeCheckTrait;
@@ -20,19 +19,57 @@ use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
-/**
- * @internal
- */
-#[Package('core')]
 class ApiAuthenticationListener implements EventSubscriberInterface
 {
     use RouteScopeCheckTrait;
 
     /**
+     * @var ResourceServer
+     */
+    private $resourceServer;
+
+    /**
+     * @var AuthorizationServer
+     */
+    private $authorizationServer;
+
+    /**
+     * @var UserRepositoryInterface
+     */
+    private $userRepository;
+
+    /**
+     * @var RefreshTokenRepositoryInterface
+     */
+    private $refreshTokenRepository;
+
+    /**
+     * @var PsrHttpFactory
+     */
+    private $psrHttpFactory;
+
+    /**
+     * @var RouteScopeRegistry
+     */
+    private $routeScopeRegistry;
+
+    /**
      * @internal
      */
-    public function __construct(private readonly ResourceServer $resourceServer, private readonly AuthorizationServer $authorizationServer, private readonly UserRepositoryInterface $userRepository, private readonly RefreshTokenRepositoryInterface $refreshTokenRepository, private readonly PsrHttpFactory $psrHttpFactory, private readonly RouteScopeRegistry $routeScopeRegistry)
-    {
+    public function __construct(
+        ResourceServer $resourceServer,
+        AuthorizationServer $authorizationServer,
+        UserRepositoryInterface $userRepository,
+        RefreshTokenRepositoryInterface $refreshTokenRepository,
+        PsrHttpFactory $psrHttpFactory,
+        RouteScopeRegistry $routeScopeRegistry
+    ) {
+        $this->resourceServer = $resourceServer;
+        $this->authorizationServer = $authorizationServer;
+        $this->userRepository = $userRepository;
+        $this->refreshTokenRepository = $refreshTokenRepository;
+        $this->psrHttpFactory = $psrHttpFactory;
+        $this->routeScopeRegistry = $routeScopeRegistry;
     }
 
     public static function getSubscribedEvents(): array

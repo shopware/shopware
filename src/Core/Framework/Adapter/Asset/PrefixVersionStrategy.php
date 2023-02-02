@@ -2,25 +2,32 @@
 
 namespace Shopware\Core\Framework\Adapter\Asset;
 
-use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Asset\VersionStrategy\VersionStrategyInterface;
 
-#[Package('core')]
 class PrefixVersionStrategy implements VersionStrategyInterface
 {
-    private readonly string $prefix;
+    private string $prefix;
 
-    public function __construct(string $prefix, private readonly VersionStrategyInterface $strategy)
+    private VersionStrategyInterface $strategy;
+
+    public function __construct(string $prefix, VersionStrategyInterface $strategy)
     {
         $this->prefix = rtrim($prefix, '/');
+        $this->strategy = $strategy;
     }
 
-    public function getVersion(string $path): string
+    /**
+     * @return string
+     */
+    public function getVersion(string $path)
     {
         return $this->applyVersion($path);
     }
 
-    public function applyVersion(string $path): string
+    /**
+     * @return string
+     */
+    public function applyVersion(string $path)
     {
         $prefixLength = \strlen($this->prefix);
 

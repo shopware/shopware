@@ -2,11 +2,12 @@ import template from './sw-extension-review-reply.html.twig';
 import './sw-extension-review-reply.scss';
 
 const { date } = Shopware.Utils.format;
+const { Component } = Shopware;
 
 /**
  * @private
  */
-export default {
+Component.register('sw-extension-review-reply', {
     template,
 
     props: {
@@ -26,4 +27,4 @@ export default {
             return this.reply.creationDate !== null ? date(this.reply.creationDate) : null;
         },
     },
-};
+});

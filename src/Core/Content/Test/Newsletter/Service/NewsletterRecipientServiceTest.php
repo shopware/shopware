@@ -11,10 +11,9 @@ use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterUnsubscribeRoute;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -26,7 +25,6 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[Package('customer-order')]
 class NewsletterRecipientServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -135,7 +133,7 @@ class NewsletterRecipientServiceTest extends TestCase
             ->get(NewsletterSubscribeRoute::class)
             ->subscribe($dataBag, $context, false);
 
-        /** @var EntityRepository $repository */
+        /** @var EntityRepositoryInterface $repository */
         $repository = $this->getContainer()->get('newsletter_recipient.repository');
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('email', $email));
@@ -195,7 +193,7 @@ class NewsletterRecipientServiceTest extends TestCase
             ->get(NewsletterConfirmRoute::class)
             ->confirm($dataBag, $context);
 
-        /** @var EntityRepository $repository */
+        /** @var EntityRepositoryInterface $repository */
         $repository = $this->getContainer()->get('newsletter_recipient.repository');
 
         $criteria = new Criteria();
@@ -246,7 +244,7 @@ class NewsletterRecipientServiceTest extends TestCase
             ->get(NewsletterUnsubscribeRoute::class)
             ->unsubscribe($dataBag, $context);
 
-        /** @var EntityRepository $repository */
+        /** @var EntityRepositoryInterface $repository */
         $repository = $this->getContainer()->get('newsletter_recipient.repository');
 
         $criteria = new Criteria();
@@ -264,7 +262,7 @@ class NewsletterRecipientServiceTest extends TestCase
     private function getRandomId(string $table)
     {
         return $this->getContainer()->get(Connection::class)
-            ->fetchOne('SELECT LOWER(HEX(id)) FROM ' . $table);
+            ->fetchColumn('SELECT LOWER(HEX(id)) FROM ' . $table);
     }
 
     private function installTestData(): void

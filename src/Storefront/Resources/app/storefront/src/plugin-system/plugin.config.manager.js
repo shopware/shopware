@@ -1,8 +1,6 @@
 import PluginConfigRegistry from 'src/plugin-system/plugin.config.registry';
 
-/**
- * @package storefront
- */
+
 class PluginConfigManagerSingleton {
 
     constructor() {

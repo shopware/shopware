@@ -8,29 +8,55 @@ use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\Tax\TaxEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Route(defaults: ['_routeScope' => ['api']])]
-#[Package('checkout')]
+/**
+ * @Route(defaults={"_routeScope"={"api"}})
+ */
 class PriceActionController extends AbstractController
 {
     /**
+     * @var EntityRepositoryInterface
+     */
+    private $taxRepository;
+
+    /**
+     * @var NetPriceCalculator
+     */
+    private $netCalculator;
+
+    /**
+     * @var GrossPriceCalculator
+     */
+    private $grossCalculator;
+
+    /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $taxRepository, private readonly NetPriceCalculator $netCalculator, private readonly GrossPriceCalculator $grossCalculator)
-    {
+    public function __construct(
+        EntityRepositoryInterface $taxRepository,
+        NetPriceCalculator $netCalculator,
+        GrossPriceCalculator $grossCalculator
+    ) {
+        $this->taxRepository = $taxRepository;
+        $this->netCalculator = $netCalculator;
+        $this->grossCalculator = $grossCalculator;
     }
 
-    #[Route(path: 'api/_action/calculate-price', name: 'api.action.calculate-price', methods: ['POST'])]
+    /**
+     * @Since("6.0.0.0")
+     * @Route("api/_action/calculate-price", name="api.action.calculate-price", methods={"POST"})
+     */
     public function calculate(Request $request, Context $context): JsonResponse
     {
         if (!$request->request->has('price')) {
@@ -59,7 +85,10 @@ class PriceActionController extends AbstractController
         );
     }
 
-    #[Route(path: 'api/_action/calculate-prices', name: 'api.action.calculate-prices', methods: ['POST'])]
+    /**
+     * @Since("6.4.9.0")
+     * @Route("api/_action/calculate-prices", name="api.action.calculate-prices", methods={"POST"})
+     */
     public function calculatePrices(Request $request, Context $context): JsonResponse
     {
         if (!$request->request->has('taxId')) {
@@ -114,6 +143,6 @@ class PriceActionController extends AbstractController
 
         $calculated = $calculator->calculate($definition, $config);
 
-        return json_decode(json_encode($calculated, \JSON_PRESERVE_ZERO_FRACTION), true, 512, \JSON_THROW_ON_ERROR);
+        return json_decode(json_encode($calculated, \JSON_PRESERVE_ZERO_FRACTION), true);
     }
 }

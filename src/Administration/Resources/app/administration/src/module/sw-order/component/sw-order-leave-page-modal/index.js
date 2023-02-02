@@ -1,11 +1,9 @@
 import template from './sw-order-leave-page-modal.html.twig';
 
-/**
- * @package customer-order
- */
+const { Component } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-order-leave-page-modal', {
     template,
     methods: {
         onConfirm() {
@@ -15,4 +13,4 @@ export default {
             this.$emit('page-leave-cancel');
         },
     },
-};
+});

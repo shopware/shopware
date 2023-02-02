@@ -23,17 +23,7 @@ module.exports = (config) => {
         });
     }
 
-    return utils.glob(
-        config.components,
-        {
-            ignore: [
-                '**/*.spec.js',
-                '**/*.js.snap',
-                '**/_fixtures/*.js',
-                '**/_sw-admin-menu-item/*.js',
-                '**/fixtures/*.js',
-            ],
-        }).then((files) => {
+    return utils.glob(config.components).then((files) => {
         return files.map((file) => {
             const source = fs.readFileSync(file, {
                 encoding: 'utf-8'

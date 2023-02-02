@@ -7,8 +7,6 @@ import Iterator from 'src/helper/iterator.helper';
 /**
  * This Plugin handles the
  * Subcategory display of the main navigation.
- *
- * @package storefront
  */
 export default class FlyoutMenuPlugin extends Plugin {
 

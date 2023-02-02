@@ -2,10 +2,9 @@
 
 namespace Shopware\Core\Checkout\Cart\Rule;
 
-use Shopware\Core\Checkout\Cart\CartException;
+use Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
@@ -13,19 +12,31 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-#[Package('business-ops')]
 class LineItemInProductStreamRule extends Rule
 {
-    final public const RULE_NAME = 'cartLineItemInProductStream';
+    /**
+     * @var array<string>
+     */
+    protected array $streamIds;
+
+    protected string $operator;
 
     /**
      * @internal
      *
-     * @param list<string> $streamIds
+     * @param array<string> $streamIds
      */
-    public function __construct(protected string $operator = self::OPERATOR_EQ, protected array $streamIds = [])
+    public function __construct(string $operator = self::OPERATOR_EQ, array $streamIds = [])
     {
         parent::__construct();
+
+        $this->streamIds = $streamIds;
+        $this->operator = $operator;
+    }
+
+    public function getName(): string
+    {
+        return 'cartLineItemInProductStream';
     }
 
     public function match(RuleScope $scope): bool
@@ -38,7 +49,7 @@ class LineItemInProductStreamRule extends Rule
             return false;
         }
 
-        foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
+        foreach ($scope->getCart()->getLineItems()->getFlat() as $lineItem) {
             if ($this->matchesOneOfProductStream($lineItem)) {
                 return true;
             }
@@ -71,7 +82,7 @@ class LineItemInProductStreamRule extends Rule
 
     /**
      * @throws UnsupportedOperatorException
-     * @throws CartException
+     * @throws PayloadKeyNotFoundException
      */
     private function matchesOneOfProductStream(LineItem $lineItem): bool
     {

@@ -5,7 +5,6 @@ const { Component, Mixin } = Shopware;
 
 /**
  * @private
- * @package business-ops
  * @description Contains some sw-base-conditions / sw-condition-and-container connected by or.
  * This component must be a child of sw-condition-tree
  * @status prototype

@@ -1,6 +1,3 @@
-/**
- * @package system-settings
- */
 const ApiService = Shopware.Classes.ApiService;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

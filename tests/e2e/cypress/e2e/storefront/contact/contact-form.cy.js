@@ -1,8 +1,5 @@
-/**
- * @package content
- */
 const selector = {
-    footerLinkContact: '.footer-contact-form a[data-ajax-modal="true"]',
+    footerLinkContact: '.footer-contact-form a[data-toggle="modal"]',
     formContact: 'form[action="/form/contact"]',
     formContactSalutation: '#form-Salutation',
     formContactFirstName: '#form-firstName',
@@ -14,7 +11,7 @@ const selector = {
     formContactDataProtectionCheckbox: '.privacy-notice input[type="checkbox"]',
     formContactButtonSubmit: 'button[type="submit"]',
     modalButtonDismiss: '.modal-content .close',
-};
+}
 
 describe('Contact form', () => {
     function openContactForm(callback) {
@@ -50,7 +47,7 @@ describe('Contact form', () => {
         });
     }
 
-    function submitContactForm() {
+    function submitContactForm(callback) {
         cy.intercept({
             method: 'POST',
             url: '/form/contact',
@@ -76,7 +73,7 @@ describe('Contact form', () => {
         openContactForm();
     });
 
-    it('@contact @package: Should be possible to fill out and submit the contact form', { tags: ['pa-customers-orders', 'quarantined'] }, () => {
+    it('@contact @package: Should be possible to fill out and submit the contact form', { tags: ['pa-customers-orders'] }, () => {
         /**
          * This is a regression test for NEXT-12092.
          *

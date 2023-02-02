@@ -17,12 +17,11 @@ use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -30,7 +29,6 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 /**
  * @internal
  */
-#[Package('system-settings')]
 class MediaSerializerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -44,8 +42,8 @@ class MediaSerializerTest extends TestCase
         $mediaService = $this->createMock(MediaService::class);
         $fileSaver = $this->createMock(FileSaver::class);
 
-        $mediaFolderRepository = $this->createMock(EntityRepository::class);
-        $mediaRepository = $this->createMock(EntityRepository::class);
+        $mediaFolderRepository = $this->createMock(EntityRepositoryInterface::class);
+        $mediaRepository = $this->createMock(EntityRepositoryInterface::class);
 
         $mediaSerializer = new MediaSerializer($mediaService, $fileSaver, $mediaFolderRepository, $mediaRepository);
         $mediaSerializer->setRegistry($serializerRegistry);
@@ -81,7 +79,6 @@ class MediaSerializerTest extends TestCase
             });
 
         $result = $mediaSerializer->deserialize(new Config([], [], []), $mediaDefinition, $record);
-        $result = \is_array($result) ? $result : iterator_to_array($result);
 
         $writtenResult = new EntityWriteResult($mediaId, $result, 'media', 'insert');
         $writtenEvent = new EntityWrittenEvent('media', [$writtenResult], $context);
@@ -97,8 +94,8 @@ class MediaSerializerTest extends TestCase
         $mediaService = $this->createMock(MediaService::class);
         $fileSaver = $this->createMock(FileSaver::class);
 
-        $mediaFolderRepository = $this->createMock(EntityRepository::class);
-        $mediaRepository = $this->createMock(EntityRepository::class);
+        $mediaFolderRepository = $this->createMock(EntityRepositoryInterface::class);
+        $mediaRepository = $this->createMock(EntityRepositoryInterface::class);
 
         $mediaSerializer = new MediaSerializer($mediaService, $fileSaver, $mediaFolderRepository, $mediaRepository);
         $mediaSerializer->setRegistry($serializerRegistry);
@@ -133,7 +130,6 @@ class MediaSerializerTest extends TestCase
         $mediaRepository->method('search')->willReturn($searchResult);
 
         $result = $mediaSerializer->deserialize(new Config([], [], []), $mediaDefinition, $record);
-        $result = \is_array($result) ? $result : iterator_to_array($result);
 
         static::assertArrayNotHasKey('url', $result);
 
@@ -158,7 +154,7 @@ class MediaSerializerTest extends TestCase
         $fileSaver = $this->createMock(FileSaver::class);
 
         $mediaFolderRepository = $this->getContainer()->get('media_folder.repository');
-        $mediaRepository = $this->createMock(EntityRepository::class);
+        $mediaRepository = $this->createMock(EntityRepositoryInterface::class);
 
         $mediaSerializer = new MediaSerializer($mediaService, $fileSaver, $mediaFolderRepository, $mediaRepository);
         $mediaSerializer->setRegistry($serializerRegistry);
@@ -187,9 +183,9 @@ class MediaSerializerTest extends TestCase
                 $this->assertSame($expectedMediaFile, $m);
                 $this->assertSame($expectedDestination, $dest);
             });
+        $config = new Config([], [], []);
 
-        $result = $mediaSerializer->deserialize(new Config([], [], []), $mediaDefinition, $record);
-        $result = \is_array($result) ? $result : iterator_to_array($result);
+        $result = $mediaSerializer->deserialize($config, $mediaDefinition, $record);
 
         $writtenResult = new EntityWriteResult($result['id'], $result, 'media', 'insert');
         $writtenEvent = new EntityWrittenEvent('media', [$writtenResult], $context);
@@ -205,14 +201,13 @@ class MediaSerializerTest extends TestCase
         $fileSaver = $this->createMock(FileSaver::class);
 
         $mediaFolderRepository = $this->getContainer()->get('media_folder.repository');
-        $mediaRepository = $this->createMock(EntityRepository::class);
+        $mediaRepository = $this->createMock(EntityRepositoryInterface::class);
 
         $mediaSerializer = new MediaSerializer($mediaService, $fileSaver, $mediaFolderRepository, $mediaRepository);
         $mediaSerializer->setRegistry($serializerRegistry);
+        $config = new Config([], [], []);
 
-        $actual = $mediaSerializer->deserialize(new Config([], [], []), $mediaDefinition, ['url' => 'invalid']);
-        $actual = \is_array($actual) ? $actual : iterator_to_array($actual);
-
+        $actual = $mediaSerializer->deserialize($config, $mediaDefinition, ['url' => 'invalid']);
         // only the error should be in the result
         static::assertCount(1, $actual);
         static::assertInstanceOf(InvalidMediaUrlException::class, $actual['_error']);
@@ -227,7 +222,7 @@ class MediaSerializerTest extends TestCase
         $fileSaver = $this->createMock(FileSaver::class);
 
         $mediaFolderRepository = $this->getContainer()->get('media_folder.repository');
-        $mediaRepository = $this->createMock(EntityRepository::class);
+        $mediaRepository = $this->createMock(EntityRepositoryInterface::class);
 
         $mediaSerializer = new MediaSerializer($mediaService, $fileSaver, $mediaFolderRepository, $mediaRepository);
         $mediaSerializer->setRegistry($serializerRegistry);
@@ -247,17 +242,17 @@ class MediaSerializerTest extends TestCase
         $fileSaver = $this->createMock(FileSaver::class);
 
         $mediaFolderRepository = $this->getContainer()->get('media_folder.repository');
-        $mediaRepository = $this->createMock(EntityRepository::class);
+        $mediaRepository = $this->createMock(EntityRepositoryInterface::class);
 
         $mediaSerializer = new MediaSerializer($mediaService, $fileSaver, $mediaFolderRepository, $mediaRepository);
         $mediaSerializer->setRegistry($serializerRegistry);
+        $config = new Config([], [], []);
 
         $record = [
             'url' => 'http://localhost/some/path/to/non/existing/image.png',
         ];
 
-        $actual = $mediaSerializer->deserialize(new Config([], [], []), $mediaDefinition, $record);
-        $actual = \is_array($actual) ? $actual : iterator_to_array($actual);
+        $actual = $mediaSerializer->deserialize($config, $mediaDefinition, $record);
         static::assertInstanceOf(MediaDownloadException::class, $actual['_error']);
     }
 

@@ -9,9 +9,6 @@ use Shopware\Recovery\Common\Utils as CommonUtils;
 use Shopware\Recovery\Update\Utils;
 use Slim\App;
 
-/**
- * @package system-settings
- */
 class RequirementsController
 {
     /**

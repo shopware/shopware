@@ -11,7 +11,7 @@ This filter item should only be used inside a filter panel.
     padding-left: 12px;
     padding-right: 12px;
     height: 40px;
-    border-radius: $border-radius;
+    border-radius: 3px;
     cursor: pointer;
 
     &.is-active {
@@ -35,13 +35,14 @@ This filter item should only be used inside a filter panel.
     }
 }
 
-.filter-boolean-input {
-    margin-top: 11px;
-}
-
 .filter-boolean-label {
     cursor: pointer;
     height: 38px;
     line-height: 38px;
     width: 100%;
+
+    &::before,
+    &::after {
+        top: 11px;
+    }
 }

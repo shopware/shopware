@@ -1,11 +1,10 @@
 import template from './sw-category-view.html.twig';
 import './sw-category-view.scss';
 
-/**
- * @package content
- */
+const { Component } = Shopware;
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-category-view', {
     template,
 
     inject: ['acl'],
@@ -43,9 +42,5 @@ export default {
         isPage() {
             return this.type !== 'folder' && this.type !== 'link';
         },
-
-        isCustomEntity() {
-            return this.type === 'custom_entity';
-        },
     },
-};
+});

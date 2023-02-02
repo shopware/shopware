@@ -21,8 +21,7 @@ use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -34,7 +33,6 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[Package('customer-order')]
 class StornoRendererTest extends TestCase
 {
     use DocumentTrait;
@@ -43,7 +41,7 @@ class StornoRendererTest extends TestCase
 
     private Context $context;
 
-    private EntityRepository $productRepository;
+    private EntityRepositoryInterface $productRepository;
 
     private StornoRenderer $stornoRenderer;
 
@@ -125,8 +123,6 @@ class StornoRendererTest extends TestCase
         );
 
         static::assertInstanceOf(StornoOrdersEvent::class, $caughtEvent);
-        static::assertCount(1, $caughtEvent->getOperations());
-        static::assertSame($operation, $caughtEvent->getOperations()[$orderId] ?? null);
         static::assertCount(1, $caughtEvent->getOrders());
         $order = $caughtEvent->getOrders()->get($orderId);
         static::assertNotNull($order);
@@ -187,7 +183,7 @@ class StornoRendererTest extends TestCase
             function (?RenderedDocument $rendered = null): void {
                 static::assertNotNull($rendered);
                 static::assertEquals('STORNO_9999', $rendered->getNumber());
-                static::assertEquals('cancellation_invoice_STORNO_9999', $rendered->getName());
+                static::assertEquals('storno_STORNO_9999', $rendered->getName());
             },
         ];
     }
@@ -225,7 +221,7 @@ class StornoRendererTest extends TestCase
      */
     private function generateDemoCart(array $taxes): Cart
     {
-        $cart = $this->cartService->createNew('A');
+        $cart = $this->cartService->createNew('a-b-c', 'A');
 
         $keywords = ['awesome', 'epic', 'high quality'];
 

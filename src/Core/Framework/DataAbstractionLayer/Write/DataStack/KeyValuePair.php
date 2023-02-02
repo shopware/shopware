@@ -2,16 +2,28 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack;
 
-use Shopware\Core\Framework\Log\Package;
-
 /**
- * @internal
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
  */
-#[Package('core')]
 class KeyValuePair
 {
-    public function __construct(private readonly string $key, private mixed $value, private bool $isRaw)
+    /**
+     * @var string
+     */
+    private $key;
+
+    private $value;
+
+    /**
+     * @var bool
+     */
+    private $isRaw;
+
+    public function __construct(string $key, $value, bool $isRaw)
     {
+        $this->key = $key;
+        $this->value = $value;
+        $this->isRaw = $isRaw;
     }
 
     public function getKey(): string
@@ -19,7 +31,7 @@ class KeyValuePair
         return $this->key;
     }
 
-    public function getValue(): mixed
+    public function getValue()
     {
         return $this->value;
     }
@@ -29,7 +41,7 @@ class KeyValuePair
         return $this->isRaw;
     }
 
-    public function setValue(mixed $value): void
+    public function setValue($value): void
     {
         $this->isRaw = false;
         $this->value = $value;

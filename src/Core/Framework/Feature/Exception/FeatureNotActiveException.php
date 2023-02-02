@@ -2,11 +2,9 @@
 
 namespace Shopware\Core\Framework\Feature\Exception;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('core')]
 class FeatureNotActiveException extends ShopwareHttpException
 {
     public function __construct(string $feature, ?\Throwable $previous = null)

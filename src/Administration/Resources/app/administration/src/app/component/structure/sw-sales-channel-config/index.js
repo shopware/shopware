@@ -1,14 +1,9 @@
-/**
- * @package sales-channel
- */
 import template from './sw-sales-channel-config.html.twig';
 
 const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
-/**
- * @deprecated tag:v6.6.0 - Will be private
- */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-sales-channel-config', {
     template,
 

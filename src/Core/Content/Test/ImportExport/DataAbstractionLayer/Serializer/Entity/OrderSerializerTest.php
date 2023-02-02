@@ -11,16 +11,14 @@ use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Serialize
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
-#[Package('system-settings')]
 class OrderSerializerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -29,7 +27,7 @@ class OrderSerializerTest extends TestCase
 
     private OrderSerializer $serializer;
 
-    private EntityRepository $orderRepository;
+    private EntityRepositoryInterface $orderRepository;
 
     protected function setUp(): void
     {
@@ -92,7 +90,7 @@ class OrderSerializerTest extends TestCase
         $productId = Uuid::randomHex();
         $product = $this->getProductData($productId);
 
-        /** @var EntityRepository $productRepository */
+        /** @var EntityRepositoryInterface $productRepository */
         $productRepository = $this->getContainer()->get('product.repository');
         $productRepository->create([$product], Context::createDefaultContext());
 

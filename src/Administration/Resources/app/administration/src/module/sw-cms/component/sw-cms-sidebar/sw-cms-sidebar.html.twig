@@ -19,110 +19,118 @@
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_sidebar_page_settings_header %}
-            <template #header>
-                <span>{{ $tc('sw-cms.detail.sidebar.headerPageSettings') }}</span>
-            </template>
+            <span slot="header">{{ $tc('sw-cms.detail.sidebar.headerPageSettings') }}</span>
             {% endblock %}
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_sidebar_page_settings_form %}
-            <template #content>
-                <div class="sw-cms-sidebar__settings">
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_cms_sidebar_page_settings_name_field %}
-                    <sw-text-field
-                        v-model="page.name"
-                        :label="$tc('sw-cms.detail.label.pageName')"
-                        :placeholder="placeholder(page, 'name')"
-                        :error="pageNameError"
-                    />
-                    {% endblock %}
+            <div
+                slot="content"
+                class="sw-cms-sidebar__settings"
+            >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_cms_sidebar_page_settings_name_field %}
+                <sw-text-field
+                    v-model="page.name"
+                    :label="$tc('sw-cms.detail.label.pageName')"
+                    :placeholder="placeholder(page, 'name')"
+                    :error="pageNameError"
+                />
+                {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_cms_sidebar_page_settings_css_class_field %}
-                    <sw-text-field
-                        v-model="page.cssClass"
-                        :label="$tc('sw-cms.detail.label.pageCssClass')"
-                        :placeholder="placeholder(page, 'cssClass')"
-                        :help-text="$tc('sw-cms.detail.helpText.cssClassField')"
-                    />
-                    {% endblock %}
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_cms_sidebar_page_settings_css_class_field %}
+                <sw-text-field
+                    v-model="page.cssClass"
+                    :label="$tc('sw-cms.detail.label.pageCssClass')"
+                    :placeholder="placeholder(page, 'cssClass')"
+                    :help-text="$tc('sw-cms.detail.helpText.cssClassField')"
+                />
+                {% endblock %}
 
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_cms_sidebar_page_settings_type_field %}
+                <sw-select-field
+                    v-model="page.type"
+                    v-tooltip.bottom="tooltipDisabled"
+                    :label="$tc('sw-cms.detail.label.pageType')"
+                    :disabled="!isSystemDefaultLanguage || page.type === 'product_detail'"
+                    @change="onPageTypeChange"
+                >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_cms_sidebar_page_settings_type_field %}
-                    <sw-select-field
-                        v-tooltip.bottom="tooltipDisabled"
-                        :value="page.type"
-                        :label="$tc('sw-cms.detail.label.pageTypeSelection')"
-                        :disabled="!isSystemDefaultLanguage || page.type === 'product_detail'"
-                        @change="onPageTypeChange"
+                    {% block sw_cms_sidebar_page_settings_type_field_options %}
+                    <option value="page">
+                        {{ $tc('sw-cms.detail.label.pageTypeShopPage') }}
+                    </option>
+                    <option value="landingpage">
+                        {{ $tc('sw-cms.detail.label.pageTypeLandingpage') }}
+                    </option>
+                    <option value="product_list">
+                        {{ $tc('sw-cms.detail.label.pageTypeCategory') }}
+                    </option>
+                    <option
+                        value="product_detail"
+                        :disabled="page.type !== 'product_detail'"
                     >
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_cms_sidebar_page_settings_type_field_options %}
-                        <option
-                            v-for="pageType in pageTypes"
-                            :key="pageType.name"
-                            :value="pageType.name"
-                            :disabled="isDisabledPageType(pageType)"
-                        >
-                            {{ $tc(pageType.title) }}
-                        </option>
-                        {% endblock %}
-                    </sw-select-field>
+                        {{ $tc('sw-cms.detail.label.pageTypeProduct') }}
+                    </option>
+                    {% endblock %}
+                </sw-select-field>
+                {% endblock %}
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_cms_sidebar_page_settings_demo_field %}
+                {# @deprecated tag:v6.5.0 - ref cmsDemoSelection will be removed #}
+                <sw-entity-single-select
+                    v-if="demoEntity !== null"
+                    ref="cmsDemoSelection"
+                    v-model="demoEntityId"
+                    :label="$tc('sw-cms.detail.label.demoEntity')"
+                    :placeholder="$tc('sw-cms.detail.placeholder.demoEntity')"
+                    :entity="demoEntity"
+                    :criteria="demoCriteria"
+                    :context="demoContext"
+                    show-clearable-button
+                    @change="onDemoEntityChange"
+                >
+
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_cms_sidebar_page_settings_demo_field_variant_label %}
+                    <template
+                        v-if="demoEntity === 'product'"
+                        #selection-label-property="{ item }"
+                    >
+                        <sw-product-variant-info :variations="item.variation">
+                            {{ item.translated.name || item.name }}
+                        </sw-product-variant-info>
+                    </template>
                     {% endblock %}
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_cms_sidebar_page_settings_demo_field %}
-                    <sw-entity-single-select
-                        v-if="demoEntity !== null"
-                        v-model="demoEntityId"
-                        :label="$tc('sw-cms.detail.label.demoEntity')"
-                        :placeholder="$tc('sw-cms.detail.placeholder.demoEntity')"
-                        :entity="demoEntity"
-                        :criteria="demoCriteria"
-                        :context="demoContext"
-                        show-clearable-button
-                        @change="onDemoEntityChange"
+                    {% block sw_cms_sidebar_page_settings_demo_field_result_item %}
+                    <template
+                        v-if="demoEntity === 'product'"
+                        #result-item="{ item, index }"
                     >
-
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_cms_sidebar_page_settings_demo_field_variant_label %}
-                        <template
-                            v-if="demoEntity === 'product'"
-                            #selection-label-property="{ item }"
+                        <li
+                            is="sw-select-result"
+                            v-bind="{ item, index }"
                         >
-                            <sw-product-variant-info :variations="item.variation">
-                                {{ item.translated.name || item.name }}
-                            </sw-product-variant-info>
-                        </template>
-                        {% endblock %}
 
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_cms_sidebar_page_settings_demo_field_result_item %}
-                        <template
-                            v-if="demoEntity === 'product'"
-                            #result-item="{ item, index }"
-                        >
-                            <li
-                                is="sw-select-result"
-                                v-bind="{ item, index }"
-                            >
-
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                                {% block sw_cms_sidebar_page_settings_demo_field_result_label %}
-                                <span class="sw-select-result__result-item-text">
-                                    <sw-product-variant-info :variations="item.variation">
-                                        {{ item.translated.name || item.name }}
-                                    </sw-product-variant-info>
-                                </span>
-                                {% endblock %}
-                            </li>
-                        </template>
-                        {% endblock %}
-                    </sw-entity-single-select>
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_cms_sidebar_page_settings_demo_field_result_label %}
+                            <span class="sw-select-result__result-item-text">
+                                <sw-product-variant-info :variations="item.variation">
+                                    {{ item.translated.name || item.name }}
+                                </sw-product-variant-info>
+                            </span>
+                            {% endblock %}
+                        </li>
+                    </template>
                     {% endblock %}
-                </div>
-            </template>
+                </sw-entity-single-select>
+                {% endblock %}
+            </div>
             {% endblock %}
         </sw-sidebar-collapse>
         {% endblock %}
@@ -150,9 +158,6 @@
                 >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_sidebar_block_overview_category_options %}
-                    <option value="favorite">
-                        {{ $tc('sw-cms.detail.label.blockCategoryFavorite') }}
-                    </option>
                     <option value="text">
                         {{ $tc('sw-cms.detail.label.blockCategoryText') }}
                     </option>
@@ -184,55 +189,22 @@
             <div
                 class="sw-cms-sidebar__block-selection"
             >
-                <sw-empty-state
-                    v-if="cmsBlocksBySelectedBlockCategory.length === 0 && currentBlockCategory === 'favorite'"
-                    icon="solid-heart"
-                    :absolute="false"
-                    :title="$tc('sw-cms.detail.title.blockFavoriteEmptyState')"
-                >
-                    {{ $tc('sw-cms.detail.label.blockFavoriteEmptyState') }}
-                </sw-empty-state>
+                <!-- eslint-disable vue/no-use-v-if-with-v-for -->
                 <div
-                    v-for="block in cmsBlocksBySelectedBlockCategory"
+                    v-for="block in cmsBlocks"
+                    v-if="block.category === currentBlockCategory && block.hidden !== true"
                     :key="block.name"
-                    class="sw-cms-sidebar__block"
                 >
 
-                    <div class="sw-cms-sidebar__block-preview-with-actions">
-                        <div
-                            v-draggable="{ dragGroup: 'cms-stage', data: { block }, onDrop: onBlockStageDrop }"
-                            class="sw-cms-sidebar__block-preview"
-                            :class="{ 'has--no-label': !block.label }"
-                        >
-
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                            {% block sw_cms_sidebar_block_overview_preview_component %}
-                            <component :is="block.previewComponent" />
-                            {% endblock %}
-                        </div>
+                    <div
+                        v-draggable="{ dragGroup: 'cms-stage', data: { block }, onDrop: onBlockStageDrop }"
+                        class="sw-cms-sidebar__block-preview"
+                        :class="{ 'has--no-label': !block.label }"
+                    >
 
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_cms_sidebar_block_overview_preview_favorite_action %}
-                        <sw-button
-                            class="sw-cms-sidebar__block-favorite"
-                            size="small"
-                            square
-                            block
-                            @click="onToggleBlockFavorite(block.name)"
-                        >
-                            <sw-icon
-                                v-if="cmsBlockFavorites.isFavorite(block.name)"
-                                name="solid-heart"
-                                size="20"
-                                class="sw-cms-sidebar__icon-cms-block-favorite"
-                            />
-                            <sw-icon
-                                v-else
-                                name="regular-heart"
-                                size="20"
-                                class="sw-cms-sidebar__icon-cms-block-favorite"
-                            />
-                        </sw-button>
+                        {% block sw_cms_sidebar_block_overview_preview_component %}
+                        <component :is="block.previewComponent" />
                         {% endblock %}
                     </div>
 
@@ -274,22 +246,19 @@
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_sidebar_block_settings_header %}
-                    <template #header>
-                        <span>
-                            {{ $tc('sw-cms.sidebar.contentMenu.generalSettings') }}
-                        </span>
-                    </template>
+                    <span slot="header">
+                        {{ $tc('sw-cms.sidebar.contentMenu.generalSettings') }}
+                    </span>
                     {% endblock %}
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_sidebar_block_settings_form %}
-                    <template #content>
-                        <sw-cms-block-config
-                            :block="selectedBlock"
-                            @block-delete="onBlockDelete"
-                            @block-duplicate="onBlockDuplicate"
-                        />
-                    </template>
+                    <sw-cms-block-config
+                        slot="content"
+                        :block="selectedBlock"
+                        @block-delete="onBlockDelete"
+                        @block-duplicate="onBlockDuplicate"
+                    />
                     {% endblock %}
                 </sw-sidebar-collapse>
                 {% endblock %}
@@ -300,28 +269,18 @@
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_sidebar_block_layout_settings_header %}
-                    <template #header>
-                        <span> {{ $tc('sw-cms.sidebar.contentMenu.layoutSettings') }}</span>
-                    </template>
+                    <span slot="header"> {{ $tc('sw-cms.sidebar.contentMenu.layoutSettings') }}</span>
                     {% endblock %}
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_sidebar_block_layout_settings_form %}
-                    <template #content>
-                        <sw-cms-block-layout-config :block="selectedBlock" />
-                    </template>
+                    <sw-cms-block-layout-config
+                        slot="content"
+                        :block="selectedBlock"
+                    />
                     {% endblock %}
                 </sw-sidebar-collapse>
                 {% endblock %}
-
-                <sw-sidebar-collapse :expand-on-loading="false">
-                    <template #header>
-                        <span>{{ $tc('sw-cms.sidebar.contentMenu.visibilitySettings') }}</span>
-                    </template>
-                    <template #content>
-                        <sw-cms-visibility-config :visibility="selectedBlock.visibility" />
-                    </template>
-                </sw-sidebar-collapse>
             </template>
         </div>
         {% endblock %}
@@ -337,32 +296,20 @@
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_sidebar_section_settings_header %}
-                    <template #header>
-                        <span>
-                            {{ $tc('sw-cms.sidebar.contentMenu.generalSettings') }}
-                        </span>
-                    </template>
+                    <span slot="header">
+                        {{ $tc('sw-cms.sidebar.contentMenu.generalSettings') }}
+                    </span>
                     {% endblock %}
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_sidebar_section_settings_form %}
-                    <template #content>
-                        <sw-cms-section-config
-                            :section="selectedSection"
-                            @section-duplicate="onSectionDuplicate"
-                            @section-delete="onSectionDelete"
-                        />
-                    </template>
+                    <sw-cms-section-config
+                        slot="content"
+                        :section="selectedSection"
+                        @section-duplicate="onSectionDuplicate"
+                        @section-delete="onSectionDelete"
+                    />
                     {% endblock %}
-                </sw-sidebar-collapse>
-
-                <sw-sidebar-collapse :expand-on-loading="false">
-                    <template #header>
-                        <span>{{ $tc('sw-cms.sidebar.contentMenu.visibilitySettings') }}</span>
-                    </template>
-                    <template #content>
-                        <sw-cms-visibility-config :visibility="selectedSection.visibility" />
-                    </template>
                 </sw-sidebar-collapse>
                 {% endblock %}
             </template>
@@ -451,7 +398,7 @@
                             :disabled="!sectionIsDuplicable(section)"
                             @click="onSectionDuplicate(section)"
                         >
-                            {{ $tc('global.default.duplicate') }}
+                            {{ $tc('sw-cms.sidebar.contentMenu.duplicate') }}
                         </sw-context-menu-item>
                         {% endblock %}
 
@@ -601,7 +548,7 @@
             </h3>
 
             <p class="sw-cms-sidebar__layout-set-as-default-info-text">
-                {{ $tc('sw-cms.components.setDefaultLayoutModal.infoText') }}
+                {{ $tc('sw-cms.sidebar.layoutSetAsDefault.infoText') }}
             </p>
 
             <sw-button

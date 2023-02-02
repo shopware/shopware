@@ -31,17 +31,17 @@
     row-gap: 25px;
 
     &-heading {
-        font-weight: $font-weight-semi-bold;
+        font-weight: 600;
     }
 }
 
 .sw-settings-cache__card-section-heading {
-    font-weight: $font-weight-semi-bold;
+    font-weight: 600;
 }
 
 .sw-settings-cache__indexers-list {
     list-style: none;
-    font-size: $font-size-xs;
+    font-size: 14px;
     padding-top: 8px;
     margin: 0 12px;
 

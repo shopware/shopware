@@ -2,26 +2,47 @@
 
 namespace Shopware\Core\Framework\Migration;
 
-use Shopware\Core\Framework\Log\Package;
-
-#[Package('core')]
 class Trigger
 {
-    final public const TIME_BEFORE = 'BEFORE';
-    final public const TIME_AFTER = 'AFTER';
+    public const TIME_BEFORE = 'BEFORE';
+    public const TIME_AFTER = 'AFTER';
 
-    final public const EVENT_INSERT = 'INSERT';
-    final public const EVENT_UPDATE = 'UPDATE';
-    final public const EVENT_DELETE = 'DELETE';
+    public const EVENT_INSERT = 'INSERT';
+    public const EVENT_UPDATE = 'UPDATE';
+    public const EVENT_DELETE = 'DELETE';
 
-    private readonly string $time;
+    /**
+     * @var string
+     */
+    private $name;
 
-    private readonly string $event;
+    /**
+     * @var string
+     */
+    private $table;
 
-    public function __construct(private readonly string $name, private readonly string $table, string $time, string $event, private readonly string $onTrigger)
+    /**
+     * @var string
+     */
+    private $onTrigger;
+
+    /**
+     * @var string
+     */
+    private $time;
+
+    /**
+     * @var string
+     */
+    private $event;
+
+    public function __construct(string $name, string $table, string $time, string $event, string $onTrigger)
     {
+        $this->name = $name;
         $this->time = $this->validateArgumentTime($time);
         $this->event = $this->validateArgumentEvent($event);
+        $this->table = $table;
+        $this->onTrigger = $onTrigger;
     }
 
     public function getName(): string

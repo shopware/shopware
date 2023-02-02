@@ -4,9 +4,13 @@ import RulePageObject from '../../../../support/pages/module/sw-rule.page-object
 
 describe('Rule builder: Use advanced selection for entity selection', () => {
     beforeEach(() => {
-        cy.createDefaultFixture('rule').then(() => {
-            return cy.createProductFixture();
-        })
+        cy.loginViaApi()
+            .then(() => {
+                return cy.createDefaultFixture('rule');
+            })
+            .then(() => {
+                return cy.createProductFixture();
+            })
             .then(() => {
                 return cy.createProductFixture({
                     name: 'another product',
@@ -33,7 +37,12 @@ describe('Rule builder: Use advanced selection for entity selection', () => {
 
         // add the "item" condition
         cy.get('.sw-condition-and-container').should('be.visible');
-        page.selectTypeAndOperator('.sw-condition-and-container .sw-condition', 'Items in cart', 'Is one of');
+        cy.onlyOnFeature('FEATURE_NEXT_17016', () => {
+            page.selectTypeAndOperator('.sw-condition-and-container .sw-condition', 'Item', 'Is one of');
+        });
+        cy.skipOnFeature('FEATURE_NEXT_17016', () => {
+            page.selectTypeAndOperator('.sw-condition-and-container .sw-condition', 'Line items in cart', 'Is one of');
+        });
 
         // open advanced selection modal
         cy.get('.sw-condition-and-container .sw-select-selection-list__input').click();

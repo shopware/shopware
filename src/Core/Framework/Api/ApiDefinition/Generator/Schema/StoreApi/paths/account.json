@@ -586,7 +586,14 @@
                 },
                 "responses": {
                     "200": {
-                        "$ref": "#/components/responses/ContextTokenResponse"
+                        "description": "A successful login returns a context token which is associated with the logged in user. Use that as your `sw-context-token` header for subsequent requests.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ContextTokenResponse"
+                                }
+                            }
+                        }
                     },
                     "401": {
                         "description": "If credentials are incorrect an error is returned",
@@ -616,7 +623,14 @@
                 "operationId": "logoutCustomer",
                 "responses": {
                     "200": {
-                        "$ref": "#/components/responses/ContextTokenResponse"
+                        "description": "A successful logout returns a context token for the anonymous user. Use that as your `sw-context-token` header for subsequent requests.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ContextTokenResponse"
+                                }
+                            }
+                        }
                     },
                     "403": {
                         "$ref": "#/components/responses/403"

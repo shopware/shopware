@@ -139,6 +139,11 @@
             <argument type="service" id="payment_method.repository"/>
         </service>
 
+        <!--Repository Decorators-->
+        <service id="Shopware\Core\Checkout\Payment\DataAbstractionLayer\PaymentMethodRepositoryDecorator" decorates="payment_method.repository">
+            <argument type="service" id="Shopware\Core\Checkout\Payment\DataAbstractionLayer\PaymentMethodRepositoryDecorator.inner"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Payment\Cart\PaymentMethodValidator">
             <tag name="shopware.cart.validator"/>
         </service>
@@ -158,8 +163,7 @@
         </service>
 
         <service id="Shopware\Core\Checkout\Payment\SalesChannel\SortedPaymentMethodRoute" decorates="Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute" decoration-priority="-2000" public="true">
-            <argument type="service" id=".inner"/>
-            <argument type="service" id="Shopware\Core\Framework\Script\Execution\ScriptExecutor"/>
+            <argument type="service" id="Shopware\Core\Checkout\Payment\SalesChannel\SortedPaymentMethodRoute.inner"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Payment\SalesChannel\HandlePaymentMethodRoute" public="true">

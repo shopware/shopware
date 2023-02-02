@@ -9,7 +9,8 @@
     :table="true"
 >
     <template
-        #columns="{ item }"
+        slot="columns"
+        slot-scope="{ item }"
     >
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_grid_columns %}

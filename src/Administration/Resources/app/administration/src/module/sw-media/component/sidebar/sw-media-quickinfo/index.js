@@ -1,17 +1,15 @@
 import template from './sw-media-quickinfo.html.twig';
 import './sw-media-quickinfo.scss';
 
-const { Mixin, Context, Utils } = Shopware;
+const { Component, Mixin, Context, Utils, Data } = Shopware;
 const { dom, format } = Utils;
+const { Criteria } = Data;
 
-/**
- * @package content
- */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-media-quickinfo', {
     template,
 
-    inject: ['mediaService', 'repositoryFactory', 'acl', 'customFieldDataProviderService'],
+    inject: ['mediaService', 'repositoryFactory', 'acl'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -41,7 +39,6 @@ export default {
             isLoading: false,
             isSaveSuccessful: false,
             showModalReplace: false,
-            fileNameError: null,
         };
     },
 
@@ -50,6 +47,9 @@ export default {
             return this.repositoryFactory.create('media');
         },
 
+        customFieldSetRepository() {
+            return this.repositoryFactory.create('custom_field_set');
+        },
         isMediaObject() {
             return this.item.type === 'media';
         },
@@ -62,20 +62,6 @@ export default {
             const date = this.item.uploadedAt || this.item.createdAt;
             return format.date(date);
         },
-
-        fileNameClasses() {
-            return {
-                'has--error': this.fileNameError,
-            };
-        },
-    },
-
-    watch: {
-        'item.id': {
-            handler() {
-                this.fileNameError = null;
-            },
-        },
     },
 
     created() {
@@ -84,13 +70,14 @@ export default {
 
     methods: {
         createdComponent() {
-            this.loadCustomFieldSets();
+            this.getCustomFieldSets();
         },
 
-        loadCustomFieldSets() {
-            return this.customFieldDataProviderService.getCustomFieldSets('media').then((sets) => {
-                this.customFieldSets = sets;
-            });
+        async getCustomFieldSets() {
+            const criteria = new Criteria(1, 100)
+                .addFilter(Criteria.equals('relations.entityName', 'media'));
+
+            this.customFieldSets = await this.customFieldSetRepository.search(criteria);
         },
 
         async onSaveCustomFields(item) {
@@ -139,22 +126,9 @@ export default {
         async onChangeFileName(value) {
             const { item } = this;
             item.isLoading = true;
-            this.fileNameError = null;
 
             try {
-                await this.mediaService.renameMedia(item.id, value).catch((error) => {
-                    const fileNameErrorCodes = ['CONTENT__MEDIA_EMPTY_FILE', 'CONTENT__MEDIA_ILLEGAL_FILE_NAME'];
-
-                    error.response.data.errors.forEach((e) => {
-                        if (this.fileNameError || !fileNameErrorCodes.includes(e.code)) {
-                            return;
-                        }
-
-                        this.fileNameError = e;
-                    });
-
-                    return Promise.reject(error);
-                });
+                await this.mediaService.renameMedia(item.id, value);
                 item.fileName = value;
 
                 this.createNotificationSuccess({
@@ -195,9 +169,5 @@ export default {
                 'sw-media-sidebar__quickaction--disabled': disabled,
             }];
         },
-
-        onRemoveFileNameError() {
-            this.fileNameError = null;
-        },
     },
-};
+});

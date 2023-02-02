@@ -21,12 +21,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('content')]
 class CmsSlotDefinition extends EntityDefinition
 {
-    final public const ENTITY_NAME = 'cms_slot';
+    public const ENTITY_NAME = 'cms_slot';
 
     public function getEntityName(): string
     {

@@ -3,9 +3,7 @@
 namespace Shopware\Core\Checkout\Promotion\Cart\Discount\Composition;
 
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('checkout')]
 class DiscountCompositionBuilder
 {
     /**

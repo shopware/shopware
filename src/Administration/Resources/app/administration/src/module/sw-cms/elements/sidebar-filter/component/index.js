@@ -2,10 +2,9 @@ import template from './sw-cms-el-sidebar-filter.html.twig';
 import './sw-cms-el-sidebar-filter.scss';
 
 /**
- * @private
- * @package content
+ * @private since v6.5.0
  */
-export default {
+Shopware.Component.register('sw-cms-el-sidebar-filter', {
     template,
 
     mixins: [
@@ -29,4 +28,4 @@ export default {
             this.initElementConfig('sidebar-filter');
         },
     },
-};
+});

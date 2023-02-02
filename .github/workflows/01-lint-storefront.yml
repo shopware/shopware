@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - trunk
-    paths:
-      - src/Storefront/Resources/app/storefront/**/*
   pull_request:
     paths:
       - src/Storefront/Resources/app/storefront/**/*
@@ -13,39 +11,16 @@ on:
 jobs:
   check:
     runs-on: ubuntu-latest
-    env:
-      PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
+    container: shopware/development:7.4-composer-2
 
     steps:
       - name: Clone platform
         uses: actions/checkout@v2
 
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 18
-
-      - name: Retrieve the cached "node_modules" directory (if present)
-        uses: actions/cache@v2
-        id: node-cache
-        with:
-          path: src/Storefront/Resources/app/storefront/node_modules
-          key: storefront-node-modules-${{ runner.os }}-${{ hashFiles('src/Storefront/Resources/app/storefront/package-lock.json') }}
-
-      - name: Install dependencies (if the cached directory was not found)
-        if: steps.node-cache.outputs.cache-hit != 'true'
-        run: npm --prefix src/Storefront/Resources/app/storefront ci
-
-      - name: Cache ESLint
-        uses: actions/cache@v2
-        with:
-          path: src/Storefront/Resources/app/storefront/node_modules/.eslintcache
-          key: storefront-eslint-${{ runner.os }}
-
-      - name: Cache Stylelint
-        uses: actions/cache@v2
-        with:
-          path: src/Storefront/Resources/app/storefront/node_modules/.stylelintcache
-          key: storefront-stylelint-${{ runner.os }}
+      - name: NPM Setup
+        run: |
+          cd src/Storefront/Resources/app/storefront
+          npm clean-install
 
       - name: Check Code
         run: |

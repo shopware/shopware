@@ -1,8 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Storefront\Checkout\Shipping;
+namespace Shopware\Tests\Unit\Store\Checkout\Shipping;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Shipping\Cart\Error\ShippingMethodBlockedError;
 use Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute;
@@ -11,15 +12,11 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NandFilter;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Checkout\Cart\Error\ShippingMethodChangedError;
 use Shopware\Storefront\Checkout\Shipping\BlockedShippingMethodSwitcher;
-use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
@@ -27,270 +24,194 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class BlockedShippingMethodSwitcherTest extends TestCase
 {
-    private ShippingMethodCollection $shippingMethodCollection;
-
-    private SalesChannelContext $salesChannelContext;
-
-    private BlockedShippingMethodSwitcher $switcher;
-
     protected function setUp(): void
     {
-        $this->shippingMethodCollection = new ShippingMethodCollection([
-            (new ShippingMethodEntity())->assign([
-                'id' => 'original-shipping-method-id',
-                'name' => 'original-shipping-method-name',
-                'translated' => ['name' => 'original-shipping-method-name'],
-            ]),
-            (new ShippingMethodEntity())->assign([
-                'id' => 'any-other-shipping-method-id',
-                'name' => 'any-other-shipping-method-name',
-                'translated' => ['name' => 'any-other-shipping-method-name'],
-            ]),
-            (new ShippingMethodEntity())->assign([
-                'id' => 'default-shipping-method-id',
-                'name' => 'default-shipping-method-name',
-                'translated' => ['name' => 'default-shipping-method-name'],
-            ]),
-        ]);
-
-        $this->salesChannelContext = $this->getSalesChannelContext();
-        $this->switcher = new BlockedShippingMethodSwitcher(
-            $this->getShippingMethodRoute()
-        );
-    }
-
-    public function testSwitchDoesNotSwitchWithNoErrors(): void
-    {
-        $errorCollection = $this->getErrorCollection();
-        $newShippingMethod = $this->switcher->switch($errorCollection, $this->salesChannelContext);
-
-        static::assertSame('original-shipping-method-id', $newShippingMethod->getId());
-
-        // Assert notices
-        $errorCollectionFiltered = $errorCollection->filter(
-            fn ($error) => $error instanceof ShippingMethodChangedError
-        );
-
-        static::assertCount(0, $errorCollectionFiltered);
-    }
-
-    public function testSwitchBlockedOriginalSwitchToDefault(): void
-    {
-        $errorCollection = $this->getErrorCollection(['original-shipping-method-name']);
-        $newShippingMethod = $this->switcher->switch($errorCollection, $this->salesChannelContext);
-
-        static::assertSame('default-shipping-method-id', $newShippingMethod->getId());
-
-        // Assert notices
-        $errorCollectionFiltered = $errorCollection->filter(
-            fn ($error) => $error instanceof ShippingMethodChangedError
-        );
-        static::assertCount(1, $errorCollectionFiltered);
-        static::assertSame([
-            'newShippingMethodName' => 'default-shipping-method-name',
-            'oldShippingMethodName' => 'original-shipping-method-name',
-        ], $errorCollectionFiltered->first()->getParameters());
-    }
-
-    public function testSwitchBlockedOriginalWithTranslatedName(): void
-    {
-        $errorCollection = $this->getErrorCollection(['original-shipping-method-name']);
-
-        $this->shippingMethodCollection->remove('any-other-shipping-method-id');
-        $this->shippingMethodCollection->remove('default-shipping-method-id');
-        $this->shippingMethodCollection->add((new ShippingMethodEntity())->assign([
-            'id' => 'translated-shipping-method-id',
-            'name' => null,
-            'translated' => ['name' => 'translated-shipping-method-name'],
-        ]));
-
-        $newPaymentMethod = $this->switcher->switch($errorCollection, $this->salesChannelContext);
-        static::assertSame('translated-shipping-method-id', $newPaymentMethod->getId());
-
-        // Assert notices
-        $errorCollectionFiltered = $errorCollection->filter(
-            fn ($error) => $error instanceof ShippingMethodChangedError
-        );
-        static::assertCount(1, $errorCollectionFiltered);
-        static::assertSame([
-            'newShippingMethodName' => 'translated-shipping-method-name',
-            'oldShippingMethodName' => 'original-shipping-method-name',
-        ], $errorCollectionFiltered->first()->getParameters());
-    }
-
-    public function testSwitchBlockedOriginalAndDefaultSwitchToAnyOther(): void
-    {
-        $errorCollection = $this->getErrorCollection(['original-shipping-method-name', 'default-shipping-method-name']);
-        $newShippingMethod = $this->switcher->switch($errorCollection, $this->salesChannelContext);
-
-        static::assertSame('any-other-shipping-method-id', $newShippingMethod->getId());
-
-        // Assert notices
-        $errorCollectionFiltered = $errorCollection->filter(
-            fn ($error) => $error instanceof ShippingMethodChangedError
-        );
-        static::assertCount(2, $errorCollectionFiltered);
-
-        $expectedParameters = [
-            [
-                'newShippingMethodName' => 'any-other-shipping-method-name',
-                'oldShippingMethodName' => 'original-shipping-method-name',
-            ],
-            [
-                'newShippingMethodName' => 'any-other-shipping-method-name',
-                'oldShippingMethodName' => 'default-shipping-method-name',
-            ],
-        ];
-
-        foreach ($errorCollectionFiltered as $error) {
-            static::assertContainsEquals($error->getParameters(), $expectedParameters);
-        }
-    }
-
-    public function testSwitchBlockedOriginalAndNoDefaultSwitchToAnyOther(): void
-    {
-        $errorCollection = $this->getErrorCollection(['original-shipping-method-name']);
-        $salesChannelContext = $this->getSalesChannelContext(true);
-        $newShippingMethod = $this->switcher->switch($errorCollection, $salesChannelContext);
-
-        static::assertSame('any-other-shipping-method-id', $newShippingMethod->getId());
-
-        // Assert notices
-        $errorCollectionFiltered = $errorCollection->filter(
-            fn ($error) => $error instanceof ShippingMethodChangedError
-        );
-
-        static::assertCount(1, $errorCollectionFiltered);
-        static::assertSame([
-            'newShippingMethodName' => 'any-other-shipping-method-name',
-            'oldShippingMethodName' => 'original-shipping-method-name',
-        ], $errorCollectionFiltered->first()->getParameters());
-    }
-
-    public function testSwitchBlockedOriginalAndDefaultAndAnyOtherDoesNotSwitch(): void
-    {
-        $switcher = new BlockedShippingMethodSwitcher(
-            $this->getShippingMethodRoute(true)
-        );
-        $errorCollection = $this->getErrorCollection(['original-shipping-method-name', 'default-shipping-method-name']);
-        $newShippingMethod = $switcher->switch($errorCollection, $this->salesChannelContext);
-
-        static::assertSame('original-shipping-method-id', $newShippingMethod->getId());
-
-        // Assert notices
-        $errorCollectionFiltered = $errorCollection->filter(
-            fn ($error) => $error instanceof ShippingMethodChangedError
-        );
-
-        static::assertCount(0, $errorCollectionFiltered);
-    }
-
-    public function callbackLoadShippingMethods(Request $request, SalesChannelContext $context, Criteria $criteria): ShippingMethodRouteResponse
-    {
-        $searchIds = $criteria->getIds();
-
-        if (!$searchIds) {
-            static::assertCount(1, $criteria->getFilters());
-
-            $nand = $criteria->getFilters()[0];
-
-            static::assertInstanceOf(NandFilter::class, $nand);
-            static::assertCount(1, $nand->getQueries());
-
-            $nameFilter = $nand->getQueries()[0];
-
-            static::assertInstanceOf(EqualsAnyFilter::class, $nameFilter);
-
-            $names = $nameFilter->getValue();
-
-            $collection = $this->shippingMethodCollection->filter(
-                fn (ShippingMethodEntity $entity) => !\in_array($entity->getName() ?? '', $names, true)
-            );
-        } else {
-            $collection = $this->shippingMethodCollection->filter(
-                fn (ShippingMethodEntity $entity) => \in_array($entity->getId(), $searchIds, true)
-            );
-        }
-
-        $shippingMethodResponse = $this->createMock(ShippingMethodRouteResponse::class);
-        $shippingMethodResponse
-            ->expects(static::once())
-            ->method('getShippingMethods')
-            ->willReturn($collection);
-
-        return $shippingMethodResponse;
-    }
-
-    public function callbackLoadShippingMethodsForAllBlocked(Request $request, SalesChannelContext $context, Criteria $criteria): ShippingMethodRouteResponse
-    {
-        $searchIds = $criteria->getIds();
-
-        if (!$searchIds) {
-            $collection = new ShippingMethodCollection();
-        } else {
-            $collection = $this->shippingMethodCollection->filter(
-                fn (ShippingMethodEntity $entity) => \in_array($entity->getId(), $searchIds, true)
-            );
-        }
-
-        $shippingMethodResponse = $this->createMock(ShippingMethodRouteResponse::class);
-        $shippingMethodResponse
-            ->expects(static::once())
-            ->method('getShippingMethods')
-            ->willReturn($collection);
-
-        return $shippingMethodResponse;
     }
 
     /**
-     * @param array<string> $blockedShippingMethodNames
+     * @dataProvider getSwitchData
+     *
+     * @param array<string> $targets
      */
-    private function getErrorCollection(array $blockedShippingMethodNames = []): ErrorCollection
+    public function testSwitch(array $targets): void
+    {
+        $blockedShippingMethodSwitcher = $this->getBlockedShippingMethodSwitcher($targets);
+        $errorCollection = $this->getErrorCollection($targets);
+        $salesChannelContext = $this->getSalesChannelContext($targets);
+        $newShippingMethod = $blockedShippingMethodSwitcher->switch($errorCollection, $salesChannelContext);
+
+        if (\in_array('block', $targets, true)) {
+            if (\in_array('empty-any-shipping-method', $targets, true)) {
+                static::assertEquals($this->getOriginalShippingMethod(), $newShippingMethod);
+            } elseif (\in_array('empty-default-shipping-method', $targets, true)) {
+                static::assertEquals($this->getAnyShippingMethod(), $newShippingMethod);
+            } elseif (\in_array('block-default-shipping-method', $targets, true)) {
+                static::assertEquals($this->getAnyShippingMethod(), $newShippingMethod);
+            } elseif (\in_array('block-original-shipping-method', $targets, true)) {
+                static::assertEquals($this->getDefaultShippingMethod(), $newShippingMethod);
+            }
+        } else {
+            static::assertEquals($this->getOriginalShippingMethod(), $newShippingMethod);
+        }
+
+        if (\in_array('check-notice', $targets, true)) {
+            $shippingMethodChangedErrors = $errorCollection->filter(static function (Error $error) {
+                return $error instanceof ShippingMethodChangedError;
+            });
+
+            $possibleErrors = [];
+            if (\in_array('notice-original-to-default', $targets, true)) {
+                array_push($possibleErrors, [
+                    'newShippingMethodName' => $this->getDefaultShippingMethod()->getName(),
+                    'oldShippingMethodName' => $this->getOriginalShippingMethod()->getName(),
+                ]);
+            }
+            if (\in_array('notice-original-to-any', $targets, true)) {
+                array_push($possibleErrors, [
+                    'newShippingMethodName' => $this->getAnyShippingMethod()->getName(),
+                    'oldShippingMethodName' => $this->getOriginalShippingMethod()->getName(),
+                ]);
+            }
+            if (\in_array('notice-default-to-any', $targets, true)) {
+                array_push($possibleErrors, [
+                    'newShippingMethodName' => $this->getAnyShippingMethod()->getName(),
+                    'oldShippingMethodName' => $this->getDefaultShippingMethod()->getName(),
+                ]);
+            }
+
+            static::assertCount(\count($possibleErrors), $shippingMethodChangedErrors);
+
+            foreach ($shippingMethodChangedErrors as $error) {
+                static::assertContains($error->getParameters(), $possibleErrors);
+            }
+        }
+    }
+
+    /**
+     * @return array<int, array<int, array<int, string>>>
+     */
+    public function getSwitchData(): array
+    {
+        return [
+            [
+                [''],
+            ],
+            [
+                ['block', 'block-original-shipping-method', 'check-notice', 'notice-original-to-default'],
+            ],
+            [
+                ['block', 'block-original-shipping-method', 'block-default-shipping-method', 'check-notice', 'notice-original-to-any', 'notice-default-to-any'],
+            ],
+            [
+                ['block', 'block-original-shipping-method', 'empty-default-shipping-method', 'check-notice', 'notice-original-to-any'],
+            ],
+            [
+                ['block', 'block-original-shipping-method', 'empty-default-shipping-method', 'empty-any-shipping-method'],
+            ],
+        ];
+    }
+
+    /**
+     * @param array<string> $targets
+     */
+    private function getErrorCollection(array $targets): ErrorCollection
     {
         $errorCollection = new ErrorCollection();
-
-        foreach ($blockedShippingMethodNames as $name) {
-            $errorCollection->add(new ShippingMethodBlockedError($name));
+        if (\in_array('block-original-shipping-method', $targets, true)) {
+            $errorCollection->add(new ShippingMethodBlockedError($this->getOriginalShippingMethod()->getName() ?? ''));
+        }
+        if (\in_array('block-default-shipping-method', $targets, true)) {
+            $errorCollection->add(new ShippingMethodBlockedError($this->getDefaultShippingMethod()->getName() ?? ''));
         }
 
         return $errorCollection;
     }
 
-    private function getSalesChannelContext(bool $dontReturnDefaultShippingMethod = false): SalesChannelContext
+    /**
+     * @param array<string> $targets
+     */
+    private function getSalesChannelContext(array $targets): SalesChannelContext
     {
+        $shippingMethod = $this->getOriginalShippingMethod();
+
         $salesChannel = new SalesChannelEntity();
         $salesChannel->setId(TestDefaults::SALES_CHANNEL);
         $salesChannel->setLanguageId(Defaults::LANGUAGE_SYSTEM);
-        if ($dontReturnDefaultShippingMethod) {
-            $salesChannel->setShippingMethodId('not-a-valid-id');
-        } else {
-            $salesChannel->setShippingMethodId('default-shipping-method-id');
-        }
+        $salesChannel->setShippingMethodId($shippingMethod->getId());
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $salesChannelContext->method('getSalesChannel')->willReturn($salesChannel);
         $salesChannelContext->method('getContext')->willReturn(Context::createDefaultContext());
-        $salesChannelContext->method('getShippingMethod')->willReturn($this->shippingMethodCollection->get('original-shipping-method-id'));
+
+        $salesChannelContext->method('getShippingMethod')->willReturn($shippingMethod);
 
         return $salesChannelContext;
     }
 
-    private function getShippingMethodRoute(bool $dontReturnAnyOtherShippingMethod = false): ShippingMethodRoute
+    private function getOriginalShippingMethod(): ShippingMethodEntity
+    {
+        $shippingMethod = new ShippingMethodEntity();
+        $shippingMethod->setId('original-shipping-method-id');
+        $shippingMethod->setName('original-shipping-method-name');
+
+        return $shippingMethod;
+    }
+
+    private function getDefaultShippingMethod(): ShippingMethodEntity
+    {
+        $shippingMethod = new ShippingMethodEntity();
+        $shippingMethod->setId('default-shipping-method-id');
+        $shippingMethod->setName('default-shipping-method-name');
+
+        return $shippingMethod;
+    }
+
+    private function getAnyShippingMethod(): ShippingMethodEntity
+    {
+        $shippingMethod = new ShippingMethodEntity();
+        $shippingMethod->setId('any-shipping-method-id');
+        $shippingMethod->setName('any-shipping-method-name');
+
+        return $shippingMethod;
+    }
+
+    /**
+     * @param array<string> $targets
+     */
+    private function getBlockedShippingMethodSwitcher(array $targets): BlockedShippingMethodSwitcher
+    {
+        $shippingMethodRoute = $this->getShippingMethodRoute($targets);
+
+        return new BlockedShippingMethodSwitcher($shippingMethodRoute);
+    }
+
+    /**
+     * @param array<string> $targets
+     */
+    private function getShippingMethodRoute(array $targets): ShippingMethodRoute
     {
         $shippingMethodRoute = $this->createMock(ShippingMethodRoute::class);
-
-        if ($dontReturnAnyOtherShippingMethod) {
-            $shippingMethodRoute
-                ->method('load')
-                ->withAnyParameters()
-                ->willReturnCallback($this->callbackLoadShippingMethodsForAllBlocked(...));
-        } else {
-            $shippingMethodRoute
-                ->method('load')
-                ->withAnyParameters()
-                ->willReturnCallback($this->callbackLoadShippingMethods(...));
-        }
+        $shippingMethodRoute->method('load')->willReturnOnConsecutiveCalls(
+            $this->getShippingMethodRouteResponse(
+                \in_array('empty-default-shipping-method', $targets, true) ? null : $this->getDefaultShippingMethod()
+            ),
+            $this->getShippingMethodRouteResponse(
+                \in_array('empty-any-shipping-method', $targets, true) ? null : $this->getAnyShippingMethod()
+            )
+        );
 
         return $shippingMethodRoute;
+    }
+
+    private function getShippingMethodRouteResponse(?ShippingMethodEntity $shippingMethod = null): ShippingMethodRouteResponse
+    {
+        $shippingMethodCollection = new ShippingMethodCollection();
+        if ($shippingMethod !== null) {
+            $shippingMethodCollection->add($shippingMethod);
+        }
+        $shippingMethodRouteResponse = $this->createMock(ShippingMethodRouteResponse::class);
+        $shippingMethodRouteResponse->method('getShippingMethods')->willReturn($shippingMethodCollection);
+
+        return $shippingMethodRouteResponse;
     }
 }

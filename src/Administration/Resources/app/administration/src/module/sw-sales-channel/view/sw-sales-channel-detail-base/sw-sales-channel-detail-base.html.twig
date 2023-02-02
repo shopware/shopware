@@ -41,9 +41,10 @@
         >
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_product_comparison_template_modal_notification %}
-            <p>{{ $tc('sw-sales-channel.detail.productComparison.templates.modal-message') }}</p>
-
-            <template #modal-footer>
+            <slot>
+                <p>{{ $tc('sw-sales-channel.detail.productComparison.templates.modal-message') }}</p>
+            </slot>
+            <slot slot="modal-footer">
                 <sw-button
                     size="small"
                     @click="$emit('template-modal-close')"
@@ -57,7 +58,7 @@
                 >
                     {{ $tc('sw-sales-channel.detail.productComparison.templates.modal-confirm') }}
                 </sw-button>
-            </template>
+            </slot>
             {% endblock %}
         </sw-modal>
         {% endblock %}
@@ -180,7 +181,7 @@
             :variant="disabledCountryVariant"
             :title="$tc('global.default.' + disabledCountryVariant)"
         >
-            <span v-html="buildDisabledPaymentAlert('sw-sales-channel.detail.warningDisabledCountries', disabledCountries)"></span>
+            <span v-html="buildDisabledAlert('sw-sales-channel.detail.warningDisabledCountries', disabledCountries)"></span>
         </sw-alert>
         {% endblock %}
 
@@ -200,14 +201,6 @@
             should-show-active-state
         />
         {% endblock %}
-
-        <sw-alert
-            v-if="unservedLanguages.length > 0"
-            :variant="unservedLanguageVariant"
-            :title="$tc('global.default.' + unservedLanguageVariant)"
-        >
-            <span v-html="buildUnservedLanguagesAlert('sw-sales-channel.detail.warningUnservedLanguage', unservedLanguages)"></span>
-        </sw-alert>
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_general_input_languages %}
@@ -297,14 +290,12 @@
             :disabled="!acl.can('sales_channel.editor')"
             :default-property-label="$tc('sw-sales-channel.detail.labelInputDefaultCurrency')"
             property-name-in-domain="currencyId"
-            :criteria="currencyCriteria"
         />
         {% endblock %}
 
         <sw-radio-field
             v-model="salesChannel.taxCalculationType"
             :label="$tc('sw-sales-channel.detail.labelTaxCalculation')"
-            :help-text="helpTextTaxCalculation"
             block
             class="sw-sales-channel-detail__tax-calculation"
             identification="taxCalculation"
@@ -792,7 +783,7 @@
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_options_delete_modal_footer %}
-            <template #modal-footer>
+            <template slot="modal-footer">
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_sales_channel_detail_options_delete_modal_abort %}
                 <sw-button

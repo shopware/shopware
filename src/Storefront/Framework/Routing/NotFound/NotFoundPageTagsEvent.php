@@ -4,18 +4,22 @@ namespace Shopware\Storefront\Framework\Routing\NotFound;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\ShopwareEvent;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('storefront')]
 class NotFoundPageTagsEvent implements ShopwareEvent
 {
-    /**
-     * @param array<string> $tags
-     */
-    public function __construct(private array $tags, private readonly Request $request, private readonly SalesChannelContext $context)
+    private array $tags;
+
+    private Request $request;
+
+    private SalesChannelContext $context;
+
+    public function __construct(array $tags, Request $request, SalesChannelContext $context)
     {
+        $this->tags = $tags;
+        $this->request = $request;
+        $this->context = $context;
     }
 
     public function getContext(): Context
@@ -33,17 +37,11 @@ class NotFoundPageTagsEvent implements ShopwareEvent
         return $this->request;
     }
 
-    /**
-     * @return array<string>
-     */
     public function getTags(): array
     {
         return $this->tags;
     }
 
-    /**
-     * @param array<string> $tags
-     */
     public function addTags(array $tags): void
     {
         $this->tags = array_merge($this->tags, $tags);

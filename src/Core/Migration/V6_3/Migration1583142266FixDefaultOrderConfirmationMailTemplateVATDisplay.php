@@ -4,13 +4,8 @@ namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\MailTemplate\MailTemplateTypes;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
-/**
- * @internal
- */
-#[Package('core')]
 class Migration1583142266FixDefaultOrderConfirmationMailTemplateVATDisplay extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -55,11 +50,11 @@ class Migration1583142266FixDefaultOrderConfirmationMailTemplateVATDisplay exten
     {
         $templateTypeId = $connection->executeQuery('
         SELECT `id` from `mail_template_type` WHERE `technical_name` = :type
-        ', ['type' => $mailTemplateType])->fetchOne();
+        ', ['type' => $mailTemplateType])->fetchColumn();
 
         $templateId = $connection->executeQuery('
         SELECT `id` from `mail_template` WHERE `mail_template_type_id` = :typeId AND `system_default` = 1 AND `updated_at` IS NULL
-        ', ['typeId' => $templateTypeId])->fetchOne();
+        ', ['typeId' => $templateTypeId])->fetchColumn();
 
         if ($templateId === false || !\is_string($templateId)) {
             return null;
@@ -71,7 +66,7 @@ class Migration1583142266FixDefaultOrderConfirmationMailTemplateVATDisplay exten
     private function fetchLanguageId(string $code, Connection $connection): ?string
     {
         /** @var string|null $langId */
-        $langId = $connection->fetchOne('
+        $langId = $connection->fetchColumn('
         SELECT `language`.`id` FROM `language`
         INNER JOIN `locale` ON `language`.`translation_code_id` = `locale`.`id`
         WHERE `code` = :code LIMIT 1
@@ -119,7 +114,7 @@ class Migration1583142266FixDefaultOrderConfirmationMailTemplateVATDisplay exten
 
         $sqlString = 'UPDATE `mail_template_translation` SET ' . $sqlString . 'WHERE `mail_template_id`= :templateId AND `language_id` = :enLangId AND `updated_at` IS NULL';
 
-        $connection->executeStatement($sqlString, $sqlParams);
+        $connection->executeUpdate($sqlString, $sqlParams);
     }
 
     private function getOrderConfirmationHtmlTemplateEn(): string

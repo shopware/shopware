@@ -2,14 +2,11 @@ import RuleAssignmentConfigurationService from 'src/module/sw-settings-rule/serv
 import template from './sw-settings-rule-detail-assignments.html.twig';
 import './sw-settings-rule-detail-assignments.scss';
 
-const { Mixin, Context, Utils } = Shopware;
+const { Component, Mixin, Context, Utils } = Shopware;
 const { Criteria } = Shopware.Data;
 
-/**
- * @private
- * @package business-ops
- */
-export default {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+Component.register('sw-settings-rule-detail-assignments', {
     // eslint-disable-next-line max-len
     template,
 
@@ -30,12 +27,14 @@ export default {
             required: true,
         },
 
+        /* @internal (flag:FEATURE_NEXT_18215) */
         conditions: {
             type: Array,
             required: false,
             default: null,
         },
 
+        /* @internal (flag:FEATURE_NEXT_18215) */
         detailPageLoading: {
             type: Boolean,
             required: false,
@@ -52,6 +51,7 @@ export default {
             shippingMethods: null,
             paymentMethods: null,
             promotions: null,
+            eventActions: null,
             associationSteps: [5, 10],
             associationEntities: null,
             deleteModal: false,
@@ -64,7 +64,13 @@ export default {
 
     computed: {
         getRuleAssignmentConfiguration() {
-            return RuleAssignmentConfigurationService(this.rule.id, this.associationLimit).getConfiguration();
+            const config = RuleAssignmentConfigurationService(this.rule.id, this.associationLimit).getConfiguration();
+
+            if (this.feature.isActive('v6.5.0.0')) {
+                delete config.event_action;
+            }
+
+            return config;
         },
 
         /* eslint-disable max-len */
@@ -93,15 +99,20 @@ export default {
         },
 
         disableAdd(entity) {
-            const association = entity.associationName ?? null;
-            if (this.ruleConditionDataProviderService.isRuleRestricted(this.conditions, association)) {
-                return true;
+            if (this.feature.isActive('FEATURE_NEXT_18215')) {
+                const association = entity.associationName ?? null;
+                if (this.ruleConditionDataProviderService.isRuleRestricted(this.conditions, association)) {
+                    return true;
+                }
             }
-
             return entity.notAssignedDataTotal === 0;
         },
 
+        /* @internal (flag:FEATURE_NEXT_18215) */
         getTooltipConfig(entity) {
+            if (!this.feature.isActive('FEATURE_NEXT_18215')) {
+                return { message: '', disabled: true };
+            }
             const association = entity.associationName ?? null;
 
             return this.ruleConditionDataProviderService.getRestrictedRuleTooltipConfig(this.conditions, association);
@@ -259,4 +270,4 @@ export default {
                 });
         },
     },
-};
+});

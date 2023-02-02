@@ -3,21 +3,22 @@
 namespace Shopware\Core\Framework\Adapter\Cache\Script\Facade;
 
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
-use Shopware\Core\Framework\Log\Package;
 
 /**
  * The `cache` service allows you to invalidate the cache if some entity is updated.
  *
  * @script-service custom_endpoint
  **/
-#[Package('core')]
 class CacheInvalidatorFacade
 {
+    private CacheInvalidator $cacheInvalidator;
+
     /**
      * @internal
      */
-    public function __construct(private readonly CacheInvalidator $cacheInvalidator)
+    public function __construct(CacheInvalidator $cacheInvalidator)
     {
+        $this->cacheInvalidator = $cacheInvalidator;
     }
 
     /**

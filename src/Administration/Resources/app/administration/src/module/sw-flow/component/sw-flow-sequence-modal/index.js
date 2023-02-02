@@ -1,10 +1,9 @@
 import template from './sw-flow-sequence-modal.html.twig';
 
-/**
- * @private
- * @package business-ops
- */
-export default {
+const { Component } = Shopware;
+
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+Component.register('sw-flow-sequence-modal', {
     template,
 
     props: {
@@ -34,4 +33,4 @@ export default {
             this.$emit('modal-close');
         },
     },
-};
+});

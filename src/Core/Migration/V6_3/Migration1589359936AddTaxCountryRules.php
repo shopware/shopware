@@ -4,20 +4,15 @@ namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-/**
- * @internal
- */
-#[Package('core')]
 class Migration1589359936AddTaxCountryRules extends MigrationStep
 {
     /**
-     * @var array<string, string>
+     * @var array
      */
-    private array $countryIds;
+    private $countryIds;
 
     public function getCreationTimestamp(): int
     {
@@ -43,7 +38,7 @@ class Migration1589359936AddTaxCountryRules extends MigrationStep
 
     private function isMigrationAllowed(Connection $connection): bool
     {
-        $count = (int) $connection->executeQuery('SELECT COUNT(id) FROM tax WHERE tax_rate IN (7, 19) AND updated_at IS NULL')->fetchOne();
+        $count = (int) $connection->executeQuery('SELECT COUNT(id) FROM tax WHERE tax_rate IN (7, 19) AND updated_at IS NULL')->fetchColumn();
 
         return $count === 2;
     }
@@ -61,11 +56,11 @@ class Migration1589359936AddTaxCountryRules extends MigrationStep
 
     private function addCountryTaxRules(Connection $connection): void
     {
-        $standardRate = $connection->executeQuery('SELECT id FROM tax WHERE tax_rate = 19')->fetchOne();
-        $reducedRate = $connection->executeQuery('SELECT id FROM tax WHERE tax_rate = 7')->fetchOne();
-        $reducedRate2 = $connection->executeQuery('SELECT id FROM tax WHERE tax_rate = 0')->fetchOne();
+        $standardRate = $connection->executeQuery('SELECT id FROM tax WHERE tax_rate = 19')->fetchColumn();
+        $reducedRate = $connection->executeQuery('SELECT id FROM tax WHERE tax_rate = 7')->fetchColumn();
+        $reducedRate2 = $connection->executeQuery('SELECT id FROM tax WHERE tax_rate = 0')->fetchColumn();
         $this->fetchCountryIds($connection);
-        $taxRuleTypeId = $connection->executeQuery('SELECT id FROM tax_rule_type WHERE technical_name = "entire_country"')->fetchOne();
+        $taxRuleTypeId = $connection->executeQuery('SELECT id FROM tax_rule_type WHERE technical_name = "entire_country"')->fetchColumn();
 
         foreach ($this->getCountryTaxes() as $isoCode => $countryTax) {
             if (!\array_key_exists($isoCode, $this->countryIds)) {
@@ -108,17 +103,13 @@ class Migration1589359936AddTaxCountryRules extends MigrationStep
 
     private function fetchCountryIds(Connection $connection): void
     {
-        /** @var list<array{id: string, iso: string}> $countries */
-        $countries = $connection->executeQuery('SELECT id, iso FROM country')->fetchAllAssociative();
+        $countries = $connection->executeQuery('SELECT id, iso FROM country')->fetchAll();
 
         foreach ($countries as $country) {
             $this->countryIds[$country['iso']] = $country['id'];
         }
     }
 
-    /**
-     * @return array<string, array{standardRate: float, reduced1?: float, reduced2?: float}>
-     */
     private function getCountryTaxes(): array
     {
         return [

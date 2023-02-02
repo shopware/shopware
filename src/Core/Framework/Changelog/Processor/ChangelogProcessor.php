@@ -5,8 +5,6 @@ namespace Shopware\Core\Framework\Changelog\Processor;
 use Shopware\Core\Framework\Changelog\ChangelogFile;
 use Shopware\Core\Framework\Changelog\ChangelogFileCollection;
 use Shopware\Core\Framework\Changelog\ChangelogParser;
-use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Validator\ConstraintViolation;
@@ -17,25 +15,29 @@ use function iterator_to_array;
 use function sprintf;
 
 /**
- * @internal
- *
- * @phpstan-import-type FeatureFlagConfig from Feature
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - will be marked internal
  */
-#[Package('core')]
 class ChangelogProcessor
 {
-    private ?string $platformRoot = null;
+    protected Filesystem $filesystem;
 
-    /**
-     * @param array<string, FeatureFlagConfig> $featureFlags
-     */
-    public function __construct(
-        protected ChangelogParser $parser,
-        protected ValidatorInterface $validator,
-        protected Filesystem $filesystem,
-        private readonly string $projectDir,
-        protected array $featureFlags
-    ) {
+    protected ChangelogParser $parser;
+
+    protected ValidatorInterface $validator;
+
+    protected array $featureFlags;
+
+    private string $projectDir;
+
+    private ?string $platformRoot;
+
+    public function __construct(ChangelogParser $parser, ValidatorInterface $validator, Filesystem $filesystem, string $projectDir, array $featureFlags)
+    {
+        $this->parser = $parser;
+        $this->validator = $validator;
+        $this->filesystem = $filesystem;
+        $this->projectDir = $projectDir;
+        $this->featureFlags = $featureFlags;
     }
 
     /**
@@ -48,8 +50,6 @@ class ChangelogProcessor
 
     /**
      * @internal
-     *
-     * @param array<string, FeatureFlagConfig> $flags
      */
     public function setActiveFlags(array $flags): void
     {
@@ -137,7 +137,9 @@ class ChangelogProcessor
                 /** @var \Countable&\IteratorAggregate<ConstraintViolation> $issues */
                 $issues = $this->validator->validate($definition);
                 if ($issues->count()) {
-                    $messages = array_map(static fn (ConstraintViolation $violation) => $violation->getMessage(), iterator_to_array($issues));
+                    $messages = array_map(static function (ConstraintViolation $violation) {
+                        return $violation->getMessage();
+                    }, iterator_to_array($issues));
 
                     throw new \InvalidArgumentException(sprintf('Invalid file at path: %s, errors: %s', $file->getRealPath(), implode(', ', $messages)));
                 }
@@ -168,7 +170,7 @@ class ChangelogProcessor
     {
         if (!isset($this->platformRoot)) {
             $platformRoot = $this->projectDir;
-            $composerJson = json_decode((string) file_get_contents($this->projectDir . '/composer.json'), true, 512, \JSON_THROW_ON_ERROR);
+            $composerJson = json_decode((string) file_get_contents($this->projectDir . '/composer.json'), true);
 
             if ($composerJson === null || $composerJson['name'] !== 'shopware/platform') {
                 $platformRoot .= '/platform';

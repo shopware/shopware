@@ -4,11 +4,15 @@ import ManufacturerPageObject from '../../../../support/pages/module/sw-manufact
 
 describe('Manufacturer: Test crud operations', () => {
     beforeEach(() => {
-        cy.createDefaultFixture('product-manufacturer').then(() => {
-            cy.openInitialPage(`${Cypress.env('admin')}#/sw/manufacturer/index`);
-            cy.get('.sw-skeleton').should('not.exist');
-            cy.get('.sw-loader').should('not.exist');
-        });
+        cy.loginViaApi()
+            .then(() => {
+                return cy.createDefaultFixture('product-manufacturer');
+            })
+            .then(() => {
+                cy.openInitialPage(`${Cypress.env('admin')}#/sw/manufacturer/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
+            });
     });
 
     it('@catalogue: create and read manufacturer', { tags: ['pa-inventory'] }, () => {
@@ -17,7 +21,7 @@ describe('Manufacturer: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/product-manufacturer`,
-            method: 'POST',
+            method: 'POST'
         }).as('saveData');
 
         cy.contains(`${page.elements.smartBarHeader} > h2`, 'Manufacturer');
@@ -39,7 +43,7 @@ describe('Manufacturer: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/product-manufacturer/**`,
-            method: 'PATCH',
+            method: 'PATCH'
         }).as('saveData');
 
         // Edit base data
@@ -55,17 +59,19 @@ describe('Manufacturer: Test crud operations', () => {
         cy.get(page.elements.successIcon).should('be.visible');
     });
 
-    it('@catalogue: edit and read manufacturer with input purification', { tags: ['pa-inventory'] }, () => {
+    it('@catalogue: edit and read manufacturer with input purification [FEATURE_NEXT_15172]', { tags: ['pa-inventory'] }, () => {
+        cy.onlyOnFeature('FEATURE_NEXT_15172');
+
         const page = new ManufacturerPageObject();
 
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/product-manufacturer/**`,
-            method: 'PATCH',
+            method: 'PATCH'
         }).as('saveData');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_admin/sanitize-html`,
-            method: 'POST',
+            method: 'POST'
         }).as('sanitizePreview');
 
         // Edit base data
@@ -101,17 +107,17 @@ describe('Manufacturer: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/product-manufacturer/**`,
-            method: 'delete',
+            method: 'delete'
         }).as('saveData');
 
         // Delete manufacturer
         cy.clickContextMenuItem(
             '.sw-context-menu-item--danger',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`,
+            `${page.elements.dataGridRow}--0`
         );
         cy.contains(`${page.elements.modal} ${page.elements.modal}__body p`,
-            'Are you sure you want to delete this item?',
+            'Are you sure you want to delete this item?'
         );
         cy.get(`${page.elements.modal}__footer ${page.elements.dangerButton}`).click();
         cy.get(page.elements.modal).should('not.exist');

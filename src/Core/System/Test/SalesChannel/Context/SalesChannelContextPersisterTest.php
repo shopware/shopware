@@ -9,7 +9,7 @@ use Shopware\Core\Checkout\Cart\CartPersister;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
@@ -25,7 +25,6 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 /**
  * @internal
  */
-#[Package('sales-channel')]
 class SalesChannelContextPersisterTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -278,7 +277,7 @@ class SalesChannelContextPersisterTest extends TestCase
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)
             ->create($token, TestDefaults::SALES_CHANNEL);
 
-        $cart = new Cart($token);
+        $cart = new Cart('test', $token);
         $cart->addLineItems(new LineItemCollection([new LineItem('test', 'test', Uuid::randomHex(), 10)]));
         $this->getContainer()->get(CartPersister::class)->save($cart, $context);
 
@@ -348,37 +347,6 @@ class SalesChannelContextPersisterTest extends TestCase
         static::assertArrayNotHasKey(SalesChannelContextService::CUSTOMER_ID, $result);
     }
 
-    /**
-     * @dataProvider testRevokeTokensDataProvider
-     */
-    public function testRevokeTokens(string $token, string|null $preserveToken): void
-    {
-        $customerId = $this->createCustomer();
-        $this->contextPersister->save($token, [], TestDefaults::SALES_CHANNEL, $customerId);
-
-        //check token is valid here
-        static::assertNotEmpty($result = $this->contextPersister->load($token, TestDefaults::SALES_CHANNEL, $customerId));
-        static::assertEquals($token, $result['token']);
-
-        if ($preserveToken) {
-            $this->contextPersister->revokeAllCustomerTokens($customerId, $preserveToken);
-        } else {
-            $this->contextPersister->revokeAllCustomerTokens($customerId);
-        }
-
-        if ($preserveToken) {
-            static::assertNotNull($this->connection->fetchOne('SELECT customer_id FROM sales_channel_api_context'));
-        } else {
-            static::assertNull($this->connection->fetchOne('SELECT customer_id FROM sales_channel_api_context'));
-        }
-    }
-
-    public function testRevokeTokensDataProvider(): \Generator
-    {
-        yield [Uuid::randomHex(), ''];
-        yield [$token = Uuid::randomHex(), $token];
-    }
-
     private function cartExists(string $token): bool
     {
         $result = (int) $this->connection->executeQuery(
@@ -386,7 +354,7 @@ class SalesChannelContextPersisterTest extends TestCase
             [
                 'token' => $token,
             ]
-        )->fetchOne();
+        )->fetchColumn();
 
         return $result > 0;
     }
@@ -398,7 +366,7 @@ class SalesChannelContextPersisterTest extends TestCase
             [
                 'token' => $token,
             ]
-        )->fetchOne();
+        )->fetchColumn();
 
         return $result > 0;
     }

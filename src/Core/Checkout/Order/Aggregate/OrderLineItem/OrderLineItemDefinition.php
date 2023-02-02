@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderLineItem;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\OrderDeliveryPositionDefinition;
-use Shopware\Core\Checkout\Order\Aggregate\OrderLineItemDownload\OrderLineItemDownloadDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefundPosition\OrderTransactionCaptureRefundPositionDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Promotion\PromotionDefinition;
@@ -26,7 +25,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
@@ -37,12 +35,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('customer-order')]
 class OrderLineItemDefinition extends EntityDefinition
 {
-    final public const ENTITY_NAME = 'order_line_item';
+    public const ENTITY_NAME = 'order_line_item';
 
     public function getEntityName(): string
     {
@@ -59,9 +55,6 @@ class OrderLineItemDefinition extends EntityDefinition
         return OrderLineItemEntity::class;
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     public function getDefaults(): array
     {
         return ['position' => 1];
@@ -102,7 +95,6 @@ class OrderLineItemDefinition extends EntityDefinition
             (new BoolField('removable', 'removable'))->addFlags(new ApiAware()),
             (new BoolField('stackable', 'stackable'))->addFlags(new ApiAware()),
             (new IntField('position', 'position'))->addFlags(new ApiAware(), new Required()),
-            (new ListField('states', 'states', StringField::class))->addFlags(new ApiAware(), new Required()),
 
             (new CalculatedPriceField('price', 'price'))->addFlags(new Required()),
             (new PriceDefinitionField('price_definition', 'priceDefinition'))->addFlags(new ApiAware()),
@@ -117,7 +109,6 @@ class OrderLineItemDefinition extends EntityDefinition
             new ManyToOneAssociationField('promotion', 'promotion_id', PromotionDefinition::class, 'id', false),
             (new OneToManyAssociationField('orderDeliveryPositions', OrderDeliveryPositionDefinition::class, 'order_line_item_id', 'id'))->addFlags(new ApiAware(), new CascadeDelete(), new WriteProtected()),
             (new OneToManyAssociationField('orderTransactionCaptureRefundPositions', OrderTransactionCaptureRefundPositionDefinition::class, 'order_line_item_id'))->addFlags(new CascadeDelete()),
-            (new OneToManyAssociationField('downloads', OrderLineItemDownloadDefinition::class, 'order_line_item_id'))->addFlags(new ApiAware(), new CascadeDelete()),
             (new ParentAssociationField(self::class))->addFlags(new ApiAware()),
             (new ChildrenAssociationField(self::class))->addFlags(new ApiAware(), new Required()),
         ]);

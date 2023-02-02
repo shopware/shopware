@@ -1,13 +1,9 @@
-/**
- * @package sales-channel
- */
-
 import template from './sw-mail-header-footer-create.html.twig';
 
+const { Component } = Shopware;
 const utils = Shopware.Utils;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.extend('sw-mail-header-footer-create', 'sw-mail-header-footer-detail', {
     template,
 
     beforeRouteEnter(to, from, next) {
@@ -41,4 +37,4 @@ export default {
             this.$super('onSave');
         },
     },
-};
+});

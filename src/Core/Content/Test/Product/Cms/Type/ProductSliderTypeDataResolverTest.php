@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Test\Product\Cms\Type;
 
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
@@ -48,18 +47,30 @@ class ProductSliderTypeDataResolverTest extends TestCase
     use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
 
-    private ProductSliderCmsElementResolver $sliderResolver;
+    /**
+     * @var ProductSliderCmsElementResolver
+     */
+    private $sliderResolver;
 
-    private string $productStreamId;
+    /**
+     * @var string
+     */
+    private $productStreamId;
 
-    private Context $context;
+    /**
+     * @var Context
+     */
+    private $context;
 
     /**
      * @var array<mixed>
      */
     private array $randomProductIds;
 
-    private MockObject&SystemConfigService $systemConfig;
+    /**
+     * @var \PHPUnit\Framework\MockObject\MockObject|SystemConfigService
+     */
+    private $systemConfig;
 
     protected function setUp(): void
     {
@@ -219,7 +230,7 @@ class ProductSliderTypeDataResolverTest extends TestCase
         static::assertInstanceOf(CriteriaCollection::class, $collection);
 
         static::assertCount(1, $collection->all());
-        static::assertEquals(ProductDefinition::class, key($collection->all()));
+        static::assertEquals('Shopware\Core\Content\Product\ProductDefinition', key($collection->all()));
 
         /** @phpstan-ignore-next-line - will fail because return type of getIterator will change */
         static::assertEquals('product-slider-entity-fallback_id', key($collection->getIterator()->current()));

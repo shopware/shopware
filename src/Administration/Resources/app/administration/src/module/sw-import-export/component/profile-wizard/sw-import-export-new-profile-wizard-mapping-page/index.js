@@ -1,13 +1,11 @@
-/**
- * @package system-settings
- */
 import unionBy from 'lodash/unionBy';
 
 import template from './sw-import-export-new-profile-wizard-mapping-page.html.twig';
 import './sw-import-export-new-profile-wizard-mapping-page.scss';
 
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Shopware.Component.register('sw-import-export-new-profile-wizard-mapping-page', {
     template,
 
     inject: [
@@ -78,4 +76,4 @@ export default {
             }, 0);
         },
     },
-};
+});

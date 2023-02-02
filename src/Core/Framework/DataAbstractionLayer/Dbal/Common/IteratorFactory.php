@@ -6,22 +6,29 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\Log\Package;
 
 /**
- * @final
+ * @final tag:v6.5.0
  */
-#[Package('core')]
 class IteratorFactory
 {
+    private Connection $connection;
+
+    private DefinitionInstanceRegistry $registry;
+
     /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection, private readonly DefinitionInstanceRegistry $registry)
+    public function __construct(Connection $connection, DefinitionInstanceRegistry $registry)
     {
+        $this->connection = $connection;
+        $this->registry = $registry;
     }
 
-    public function createIterator(string|EntityDefinition $definition, ?array $lastId = null, int $limit = 50): IterableQuery
+    /**
+     * @param string|EntityDefinition $definition
+     */
+    public function createIterator($definition, ?array $lastId = null, int $limit = 50): IterableQuery
     {
         if (\is_string($definition)) {
             $definition = $this->registry->getByEntityName($definition);

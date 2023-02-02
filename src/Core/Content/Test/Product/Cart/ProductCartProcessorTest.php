@@ -21,8 +21,10 @@ use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -38,25 +40,34 @@ class ProductCartProcessorTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    final public const TEST_LANGUAGE_LOCALE_CODE = 'sw-AG';
-    final public const TEST_LANGUAGE_ID = 'cc72c24b82684d72a4ce91054da264bf';
-    final public const TEST_LOCALE_ID = 'cf735c44dc7b4428bb3870fe4ffea2df';
-    final public const CUSTOM_FIELD_ID = '24c8b3e8cacc4bf2a743b8c5a7522a33';
-    final public const PURCHASE_STEP_QUANTITY_ERROR_KEY = 'purchase-steps-quantity';
-    final public const MIN_ORDER_QUANTITY_ERROR_KEY = 'min-order-quantity';
-    final public const PRODUCT_STOCK_REACHED_ERROR_KEY = 'product-stock-reached';
+    public const TEST_LANGUAGE_LOCALE_CODE = 'sw-AG';
+    public const TEST_LANGUAGE_ID = 'cc72c24b82684d72a4ce91054da264bf';
+    public const TEST_LOCALE_ID = 'cf735c44dc7b4428bb3870fe4ffea2df';
+    public const CUSTOM_FIELD_ID = '24c8b3e8cacc4bf2a743b8c5a7522a33';
+    public const PURCHASE_STEP_QUANTITY_ERROR_KEY = 'purchase-steps-quantity';
+    public const MIN_ORDER_QUANTITY_ERROR_KEY = 'min-order-quantity';
+    public const PRODUCT_STOCK_REACHED_ERROR_KEY = 'product-stock-reached';
 
-    private IdsCollection $ids;
+    /**
+     * @var TestDataCollection
+     */
+    private $ids;
 
-    private CartService $cartService;
+    /**
+     * @var CartService
+     */
+    private $cartService;
 
-    private QuantityPriceCalculator $calculator;
+    /**
+     * @var QuantityPriceCalculator
+     */
+    private $calculator;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->ids = new IdsCollection();
+        $this->ids = new TestDataCollection();
         $this->cartService = $this->getContainer()->get(CartService::class);
         $this->calculator = $this->getContainer()->get(QuantityPriceCalculator::class);
     }
@@ -80,6 +91,7 @@ class ProductCartProcessorTest extends TestCase
 
     public function testDeliveryInformationWithEmptyWeight(): void
     {
+        Feature::skipTestIfInActive('v6.5.0.0', $this);
         $this->createProduct(['weight' => null]);
 
         $cart = $this->getProductCart();
@@ -90,7 +102,7 @@ class ProductCartProcessorTest extends TestCase
 
         $info = $lineItem->getDeliveryInformation();
 
-        static::assertNull($info->getWeight());
+        static::assertNotNull($info->getWeight()); // Has to be changed to assertNull, when type has changed to ?float
     }
 
     public function testNotCompletedLogic(): void
@@ -107,7 +119,7 @@ class ProductCartProcessorTest extends TestCase
         $update = ['id' => $this->ids->get('product'), 'name' => 'update'];
         $this->getContainer()->get('product.repository')->upsert([$update], $context->getContext());
 
-        $cart = $this->cartService->getCart($context->getToken(), $this->getContext(), false);
+        $cart = $this->cartService->getCart($context->getToken(), $this->getContext(), CartService::SALES_CHANNEL, false);
 
         $lineItem = $cart->get($this->ids->get('product'));
         static::assertInstanceOf(LineItem::class, $lineItem);
@@ -182,9 +194,6 @@ class ProductCartProcessorTest extends TestCase
         static::assertEquals($price, $calcPrice->getTotalPrice());
     }
 
-    /**
-     * @return \Traversable<string, array{0: bool, 1: int}>
-     */
     public function advancedPricingProvider(): \Traversable
     {
         yield 'Test not matching rule' => [false, 100];
@@ -290,7 +299,7 @@ class ProductCartProcessorTest extends TestCase
 
         static::assertInstanceOf(LineItem::class, $lineItem);
         $payload = $lineItem->getPayload();
-        $purchasePrices = json_decode((string) $payload['purchasePrices'], null, 512, \JSON_THROW_ON_ERROR);
+        $purchasePrices = json_decode($payload['purchasePrices']);
         static::assertSame(Defaults::CURRENCY, $purchasePrices->currencyId);
         static::assertSame(7.5, $purchasePrices->gross);
         static::assertSame(5, $purchasePrices->net);
@@ -310,10 +319,6 @@ class ProductCartProcessorTest extends TestCase
 
     /**
      * @dataProvider productFeatureProdiver
-     *
-     * @param array{type: string} $testedFeature
-     * @param array<string, mixed> $productData
-     * @param array{type: string, value: array{price: string}, label: string} $expectedFeature
      * @group slow
      */
     public function testProductFeaturesContainCorrectInformation(array $testedFeature, array $productData, array $expectedFeature): void
@@ -324,9 +329,9 @@ class ProductCartProcessorTest extends TestCase
             $this->createCustomField([]);
         }
 
-        $this->createProduct([...[
+        $this->createProduct(array_merge([
             'featureSet' => $this->createFeatureSet([$testedFeature]),
-        ], ...$productData]);
+        ], $productData));
 
         $cart = $this->getProductCart();
         $lineItem = $cart->get($this->ids->get('product'));
@@ -346,13 +351,6 @@ class ProductCartProcessorTest extends TestCase
         static::assertEquals($expectedFeature, $feature);
     }
 
-    /**
-     * @return array{
-     *     0: array{type: string},
-     *     1: array<string, mixed>,
-     *     2: array{type: string, value: mixed, label: string}
-     *     }[]
-     */
     public function productFeatureProdiver(): array
     {
         return [
@@ -631,9 +629,6 @@ class ProductCartProcessorTest extends TestCase
         }
     }
 
-    /**
-     * @return array<string, array{0: int, 1: int, 2: int, 3: int, 4: int, 5: string}>
-     */
     public function productDeliverabilityProvider(): array
     {
         return [
@@ -764,7 +759,7 @@ class ProductCartProcessorTest extends TestCase
         $update = ['id' => $this->ids->get('product'), 'active' => false];
         $this->getContainer()->get('product.repository')->upsert([$update], $context->getContext());
 
-        $cart = $this->cartService->getCart($context->getToken(), $this->getContext(), false);
+        $cart = $this->cartService->getCart($context->getToken(), $this->getContext(), CartService::SALES_CHANNEL, false);
 
         $lineItem = $cart->get($this->ids->get('product'));
         static::assertNull($lineItem);
@@ -778,7 +773,7 @@ class ProductCartProcessorTest extends TestCase
 
         $this->getContainer()->get('product.repository')->delete([['id' => $this->ids->get('product')]], $context->getContext());
 
-        $cart = $this->cartService->getCart($context->getToken(), $this->getContext(), false);
+        $cart = $this->cartService->getCart($context->getToken(), $this->getContext(), CartService::SALES_CHANNEL, false);
 
         $lineItem = $cart->get($this->ids->get('product'));
         static::assertNull($lineItem);
@@ -806,9 +801,6 @@ class ProductCartProcessorTest extends TestCase
             ->get(new SalesChannelContextServiceParameters(TestDefaults::SALES_CHANNEL, $token));
     }
 
-    /**
-     * @param array<string, mixed>|null $additionalData
-     */
     private function createProduct(?array $additionalData = []): void
     {
         if ($additionalData === null) {
@@ -849,9 +841,6 @@ class ProductCartProcessorTest extends TestCase
             ->create([$data], Context::createDefaultContext());
     }
 
-    /**
-     * @param array<string, mixed>|null $additionalData
-     */
     private function createCustomField(?array $additionalData = []): void
     {
         if ($additionalData === null) {
@@ -878,11 +867,6 @@ class ProductCartProcessorTest extends TestCase
             ->create([$data], Context::createDefaultContext());
     }
 
-    /**
-     * @param array{type: string}[]|null $features
-     *
-     * @return array<string, mixed>
-     */
     private function createFeatureSet(?array $features = []): array
     {
         return [

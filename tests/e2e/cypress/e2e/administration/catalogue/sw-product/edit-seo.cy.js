@@ -5,21 +5,25 @@ import CategoryPageObject from '../../../../support/pages/module/sw-category.pag
 
 describe('Product: Edit in various ways', () => {
     beforeEach(() => {
-        cy.createPropertyFixture({
-            options: [{ name: 'Red' }, { name: 'Yellow' }, { name: 'Green' }],
-        }).then(() => {
-            return cy.createProductFixture();
-        })
+        cy.loginViaApi()
+            .then(() => {
+                return cy.createPropertyFixture({
+                    options: [{ name: 'Red' }, { name: 'Yellow' }, { name: 'Green' }]
+                });
+            })
+            .then(() => {
+                return cy.createProductFixture();
+            })
             .then(() => {
                 return cy.createCategoryFixture({
                     name: 'Sport',
-                    active: true,
+                    active: true
                 });
             })
             .then(() => {
                 return cy.createCategoryFixture({
                     name: 'Anime',
-                    active: true,
+                    active: true
                 });
             })
             .then(() => {
@@ -32,7 +36,7 @@ describe('Product: Edit in various ways', () => {
     it('@catalogue: set list price', { tags: ['pa-inventory'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product`,
-            method: 'POST',
+            method: 'POST'
         }).as('saveProduct');
 
         const page = new ProductPageObject();
@@ -88,14 +92,14 @@ describe('Product: Edit in various ways', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST',
+            method: 'POST'
         }).as('updateProduct');
 
         // Navigate to variant generator listing and start
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`,
+            `${page.elements.dataGridRow}--0`
         );
 
         categoryPage.resetCategory();
@@ -119,14 +123,14 @@ describe('Product: Edit in various ways', () => {
         cy.get('#salesChannelSelect')
             .typeSingleSelectAndCheck(
                 'Storefront',
-                '#salesChannelSelect',
+                '#salesChannelSelect'
             );
 
         cy.get('.sw-seo-main-category').scrollIntoView();
         cy.get('.sw-seo-main-category')
             .typeSingleSelectAndCheck(
                 'Sport',
-                '.sw-seo-main-category',
+                '.sw-seo-main-category'
             );
 
         cy.get(page.elements.productSaveAction).click();
@@ -160,7 +164,7 @@ describe('Product: Edit in various ways', () => {
         cy.get('#salesChannelSelect')
             .typeSingleSelectAndCheck(
                 'Storefront',
-                '#salesChannelSelect',
+                '#salesChannelSelect'
             );
 
         cy.get('.sw-seo-main-category').scrollIntoView().contains('Sport');
@@ -178,14 +182,14 @@ describe('Product: Edit in various ways', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST',
+            method: 'POST'
         }).as('updateProduct');
 
         // Navigate to variant generator listing and start
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`,
+            `${page.elements.dataGridRow}--0`
         );
 
         categoryPage.resetCategory();
@@ -209,14 +213,14 @@ describe('Product: Edit in various ways', () => {
         cy.get('#salesChannelSelect')
             .typeSingleSelectAndCheck(
                 'Storefront',
-                '#salesChannelSelect',
+                '#salesChannelSelect'
             );
 
         cy.get('.sw-seo-main-category').scrollIntoView();
         cy.get('.sw-seo-main-category')
             .typeSingleSelectAndCheck(
                 'Sport',
-                '.sw-seo-main-category',
+                '.sw-seo-main-category'
             );
 
         cy.get(page.elements.productSaveAction).click();
@@ -250,7 +254,7 @@ describe('Product: Edit in various ways', () => {
         cy.get('#salesChannelSelect')
             .typeSingleSelectAndCheck(
                 'Storefront',
-                '#salesChannelSelect',
+                '#salesChannelSelect'
             );
 
         cy.get('.sw-seo-main-category').scrollIntoView().contains('Sport');
@@ -266,7 +270,7 @@ describe('Product: Edit in various ways', () => {
         cy.get('.sw-seo-main-category')
             .typeSingleSelectAndCheck(
                 'Anime',
-                '.sw-seo-main-category',
+                '.sw-seo-main-category'
             );
 
         cy.get(page.elements.productSaveAction).click();
@@ -282,7 +286,7 @@ describe('Product: Edit in various ways', () => {
             .scrollIntoView()
             .typeSingleSelectAndCheck(
                 'Storefront',
-                '#salesChannelSelect',
+                '#salesChannelSelect'
             );
         cy.get('.sw-seo-main-category').scrollIntoView().contains('Anime');
     });
@@ -294,14 +298,14 @@ describe('Product: Edit in various ways', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST',
+            method: 'POST'
         }).as('updateProduct');
 
         // Navigate to variant generator listing and start
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`,
+            `${page.elements.dataGridRow}--0`
         );
 
         categoryPage.resetCategory();
@@ -326,14 +330,14 @@ describe('Product: Edit in various ways', () => {
         cy.get('#salesChannelSelect')
             .typeSingleSelectAndCheck(
                 'Storefront',
-                '#salesChannelSelect',
+                '#salesChannelSelect'
             );
 
         cy.get('.sw-seo-main-category').scrollIntoView();
         cy.get('.sw-seo-main-category')
             .typeSingleSelectAndCheck(
                 'Sport',
-                '.sw-seo-main-category',
+                '.sw-seo-main-category'
             );
 
         cy.get(page.elements.productSaveAction).click();
@@ -361,7 +365,7 @@ describe('Product: Edit in various ways', () => {
         cy.get('.sw-loader').should('not.exist');
 
         // Check field inheritance in variant
-        cy.get('.sw-data-grid__row--2 .sw-product-variants-overview__variation-link');
+        cy.get('.sw-data-grid__row--2 .sw-product-variants-overview__variation-link')
         cy.get('.sw-data-grid__row--2 .sw-product-variants-overview__variation-link').should('be.visible');
         cy.get('.sw-data-grid__row--2 .sw-product-variants-overview__variation-link').contains('Green');
         cy.get('.sw-data-grid__row--2 .sw-product-variants-overview__variation-link').realHover();
@@ -387,7 +391,7 @@ describe('Product: Edit in various ways', () => {
         cy.get('#salesChannelSelect')
             .typeSingleSelectAndCheck(
                 'Storefront',
-                '#salesChannelSelect',
+                '#salesChannelSelect'
             );
 
         cy.get('.sw-seo-url__card-seo-additional .sw-inheritance-switch--is-inherited').should('not.exist');
@@ -396,7 +400,7 @@ describe('Product: Edit in various ways', () => {
             .scrollIntoView()
             .typeSingleSelectAndCheck(
                 'Anime',
-                '.sw-seo-main-category',
+                '.sw-seo-main-category'
             );
 
         cy.get(page.elements.productSaveAction).click();
@@ -412,7 +416,7 @@ describe('Product: Edit in various ways', () => {
             .scrollIntoView()
             .typeSingleSelectAndCheck(
                 'Storefront',
-                '#salesChannelSelect',
+                '#salesChannelSelect'
             );
         cy.get('.sw-seo-main-category').scrollIntoView().contains('Anime');
     });

@@ -2,25 +2,27 @@
 
 namespace Shopware\Core\Checkout\Payment\SalesChannel;
 
-use Shopware\Core\Checkout\Payment\Hook\PaymentMethodRouteHook;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
+use Shopware\Core\Framework\Routing\Annotation\Entity;
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('checkout')]
+/**
+ * @Route(defaults={"_routeScope"={"store-api"}})
+ */
 class SortedPaymentMethodRoute extends AbstractPaymentMethodRoute
 {
+    private AbstractPaymentMethodRoute $decorated;
+
     /**
      * @internal
      */
-    public function __construct(
-        private readonly AbstractPaymentMethodRoute $decorated,
-        private readonly ScriptExecutor $scriptExecutor
-    ) {
+    public function __construct(AbstractPaymentMethodRoute $decorated)
+    {
+        $this->decorated = $decorated;
     }
 
     public function getDecorated(): AbstractPaymentMethodRoute
@@ -28,18 +30,16 @@ class SortedPaymentMethodRoute extends AbstractPaymentMethodRoute
         return $this->decorated;
     }
 
-    #[Route(path: '/store-api/payment-method', name: 'store-api.payment.method', methods: ['GET', 'POST'], defaults: ['_entity' => 'payment_method'])]
+    /**
+     * @Since("6.2.0.0")
+     * @Entity("payment_method")
+     * @Route("/store-api/payment-method", name="store-api.payment.method", methods={"GET", "POST"})
+     */
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): PaymentMethodRouteResponse
     {
         $response = $this->getDecorated()->load($request, $context, $criteria);
 
         $response->getPaymentMethods()->sortPaymentMethodsByPreference($context);
-
-        $this->scriptExecutor->execute(new PaymentMethodRouteHook(
-            $response->getPaymentMethods(),
-            $request->query->getBoolean('onlyAvailable') || $request->request->getBoolean('onlyAvailable'),
-            $context
-        ));
 
         return $response;
     }

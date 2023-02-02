@@ -89,7 +89,6 @@
                     @media-folder-remove="removeNewFolder"
                     @media-folder-dissolve="refreshList"
                     @media-folder-move="refreshList"
-                    @media-folder-changed="refreshList"
                     v-on="mediaItemSelectionHandler"
                 />
                 {% endblock %}
@@ -127,7 +126,7 @@
         v-if="shouldDisplayEmptyState"
         :title="$tc('sw-empty-state.messageNoResultTitle')"
     >
-        <template #icon>
+        <template slot="icon">
             <img
                 :src="'/administration/static/img/empty-states/media-empty-state.svg' | asset"
                 :alt="$tc('sw-empty-state.messageNoResultSubline')"
@@ -135,16 +134,22 @@
         </template>
 
         <template #default>
-            {{ $tc('sw-empty-state.messageNoResultSublineBefore') }}
-            <router-link
-                class="sw-empty-state__description-link"
-                :to="{ name: 'sw.profile.index.searchPreferences' }"
-            >
-                {{ $tc('sw-empty-state.messageNoResultSublineLink') }}
-            </router-link>
-            {{ $tc('sw-empty-state.messageNoResultSublineAfter') }}
+            <template>
+                {{ $tc('sw-empty-state.messageNoResultSublineBefore') }}
+                <router-link
+                    class="sw-empty-state__description-link"
+                    :to="{ name: 'sw.profile.index.searchPreferences' }"
+                >
+                    {{ $tc('sw-empty-state.messageNoResultSublineLink') }}
+                </router-link>
+                {{ $tc('sw-empty-state.messageNoResultSublineAfter') }}
+            </template>
         </template>
     </sw-empty-state>
     {% endblock %}
+
+    {# @deprecated tag:v6.5.0 - Will be removed #}
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_media_library_loader %}{% endblock %}
 </div>
 {% endblock %}

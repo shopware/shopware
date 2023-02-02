@@ -22,26 +22,41 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @final
- */
-#[Package('customer-order')]
-class DocumentGenerator
+final class DocumentGenerator
 {
+    private DocumentRendererRegistry $rendererRegistry;
+
+    private PdfRenderer $pdfRenderer;
+
+    private MediaService $mediaService;
+
+    private EntityRepositoryInterface $documentRepository;
+
+    private Connection $connection;
+
     /**
      * @internal
      */
-    public function __construct(private readonly DocumentRendererRegistry $rendererRegistry, private readonly PdfRenderer $pdfRenderer, private readonly MediaService $mediaService, private readonly EntityRepository $documentRepository, private readonly Connection $connection)
-    {
+    public function __construct(
+        DocumentRendererRegistry $rendererRegistry,
+        PdfRenderer $pdfRenderer,
+        MediaService $mediaService,
+        EntityRepositoryInterface $documentRepository,
+        Connection $connection
+    ) {
+        $this->rendererRegistry = $rendererRegistry;
+        $this->pdfRenderer = $pdfRenderer;
+        $this->mediaService = $mediaService;
+        $this->documentRepository = $documentRepository;
+        $this->connection = $connection;
     }
 
     public function readDocument(string $documentId, Context $context, string $deepLinkCode = ''): ?RenderedDocument
@@ -57,10 +72,9 @@ class DocumentGenerator
             'documentType',
         ]);
 
-        /** @var DocumentEntity|null $document */
         $document = $this->documentRepository->search($criteria, $context)->get($documentId);
 
-        if (!$document instanceof DocumentEntity) {
+        if ($document === null) {
             throw new InvalidDocumentException($documentId);
         }
 
@@ -74,7 +88,9 @@ class DocumentGenerator
         /** @var MediaEntity $documentMedia */
         $documentMedia = $document->getDocumentMediaFile();
 
-        $fileBlob = $context->scope(Context::SYSTEM_SCOPE, fn (Context $context): string => $this->mediaService->loadFile($documentMediaId, $context));
+        $fileBlob = $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($documentMediaId): string {
+            return $this->mediaService->loadFile($documentMediaId, $context);
+        });
 
         $fileName = $documentMedia->getFileName() . '.' . $documentMedia->getFileExtension();
         $contentType = $documentMedia->getMimeType();
@@ -193,7 +209,9 @@ class DocumentGenerator
             throw new DocumentGenerationException('Parameter "fileName" is missing');
         }
 
-        $mediaId = $context->scope(Context::SYSTEM_SCOPE, fn (Context $context): string => $this->mediaService->saveMediaFile($mediaFile, $fileName, $context, 'document'));
+        $mediaId = $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($fileName, $mediaFile): string {
+            return $this->mediaService->saveMediaFile($mediaFile, $fileName, $context, 'document');
+        });
 
         $this->connection->executeStatement(
             'UPDATE `document` SET `updated_at` = :now, `document_media_file_id` = :mediaId WHERE `id` = :id',
@@ -207,9 +225,6 @@ class DocumentGenerator
         return new DocumentIdStruct($documentId, $document->getDeepLinkCode(), $mediaId);
     }
 
-    /**
-     * @param array<mixed> $records
-     */
     private function writeRecords(array $records, Context $context): void
     {
         if (empty($records)) {
@@ -305,14 +320,16 @@ class DocumentGenerator
             return null;
         }
 
-        return $context->scope(Context::SYSTEM_SCOPE, fn (Context $context): string => $this->mediaService->saveFile(
-            $this->pdfRenderer->render($document),
-            $document->getFileExtension(),
-            $this->pdfRenderer->getContentType(),
-            $document->getName(),
-            $context,
-            'document'
-        ));
+        return $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($document): string {
+            return $this->mediaService->saveFile(
+                $this->pdfRenderer->render($document),
+                $document->getFileExtension(),
+                $this->pdfRenderer->getContentType(),
+                $document->getName(),
+                $context,
+                'document'
+            );
+        });
     }
 
     private function getReferenceId(string $orderId, string $invoiceNumber): string

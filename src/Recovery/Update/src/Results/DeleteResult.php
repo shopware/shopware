@@ -2,9 +2,6 @@
 
 namespace Shopware\Recovery\Update\Results;
 
-/**
- * @package system-settings
- */
 class DeleteResult
 {
     /**

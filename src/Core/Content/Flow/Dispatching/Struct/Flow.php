@@ -2,17 +2,24 @@
 
 namespace Shopware\Core\Content\Flow\Dispatching\Struct;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * @internal not intended for decoration or replacement
  */
-#[Package('business-ops')]
 class Flow extends Struct
 {
-    public function __construct(protected string $id, protected array $sequences = [], protected array $flat = [])
+    protected string $id;
+
+    protected array $sequences = [];
+
+    protected array $flat = [];
+
+    public function __construct(string $id, array $sequences = [], array $flat = [])
     {
+        $this->id = $id;
+        $this->sequences = $sequences;
+        $this->flat = $flat;
     }
 
     public function getId(): string

@@ -55,6 +55,11 @@
                               method="post"
                               data-form-ajax-submit="true"
                               data-form-ajax-submit-options='{{ formAjaxSubmitOptions|json_encode }}'>
+
+                            {% block page_product_detail_review_filter_csrf %}
+                                {{ sw_csrf('frontend.product.reviews') }}
+                            {% endblock %}
+
                             {% if app.request.get('limit') %}
                                 <input type="hidden" name="limit" value="{{ app.request.get('limit') }}">
                             {% endif %}
@@ -73,11 +78,11 @@
 
                                         {% block page_product_detail_review_filter_checkbox %}
                                             <div class="col-md-8 col-lg-5 product-detail-review-checkbox">
-                                                <div class="form-check">
+                                                <div class="{{ formCheckboxWrapperClass }}">
 
                                                     {% block page_product_detail_review_filter_checkbox_input %}
                                                         <input type="checkbox"
-                                                               class="form-check-input"
+                                                               class="{{ formCheckInputClass }}"
                                                                id="reviewRating{{ matrix.points }}"
                                                                name="points[]"
                                                             {% if app.request.get('points') %}
@@ -148,7 +153,7 @@
 
                 {% block page_product_detail_review_form_teaser_text %}
                     <p>
-                        {% if not reviews.customerReview %}
+                        {% if not page.customerReview %}
                             {{ "detail.reviewTeaserText"|trans|sw_sanitize }}
                         {% else %}
                             {{ "detail.reviewExistsTeaserText"|trans|sw_sanitize }}
@@ -159,8 +164,8 @@
                 {% block page_product_detail_review_form_teaser_button %}
                     <button class="btn btn-primary product-detail-review-teaser-btn"
                             type="button"
-                            data-bs-toggle="collapse"
-                            data-bs-target=".multi-collapse"
+                            {{ dataBsToggleAttr }}="collapse"
+                            {{ dataBsTargetAttr }}=".multi-collapse"
                             aria-expanded="false"
                             aria-controls="review-form review-list">
                         <span class="product-detail-review-teaser-show">

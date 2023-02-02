@@ -2,9 +2,6 @@
 
 namespace Shopware\Core\System\NumberRange\ValueGenerator\Pattern;
 
-use Shopware\Core\Framework\Log\Package;
-
-#[Package('checkout')]
 abstract class AbstractValueGenerator
 {
     /**

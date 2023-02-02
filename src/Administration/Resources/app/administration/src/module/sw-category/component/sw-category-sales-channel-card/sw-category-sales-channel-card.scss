@@ -1,0 +1,16 @@
+@import "~scss/variables";
+
+.sw-category-sales-channel-card {
+    .sw-category-sales-channel-card__list {
+        margin: 16px 0;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .sw-category-sales-channel-card__entry {
+        color: $color-shopware-brand-500;
+        text-decoration: none;
+        line-height: 24px;
+    }
+}

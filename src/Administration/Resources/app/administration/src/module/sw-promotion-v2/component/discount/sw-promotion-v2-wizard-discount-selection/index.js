@@ -1,7 +1,8 @@
 import template from './sw-promotion-v2-wizard-discount-selection.html.twig';
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+const { Component } = Shopware;
+
+Component.extend('sw-promotion-v2-wizard-discount-selection', 'sw-wizard-page', {
     template,
 
     data() {
@@ -32,4 +33,4 @@ export default {
             this.$emit('change-selection', value);
         },
     },
-};
+});

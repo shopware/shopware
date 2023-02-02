@@ -3,25 +3,28 @@
 namespace Shopware\Core\System\Test\SalesChannel\SalesChannel;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
-use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
  * @internal
  * @group store-api
  */
-#[Package('sales-channel')]
 class ContextLoadRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
-    private KernelBrowser $browser;
+    /**
+     * @var \Symfony\Bundle\FrameworkBundle\KernelBrowser
+     */
+    private $browser;
 
-    private TestDataCollection $ids;
+    /**
+     * @var TestDataCollection
+     */
+    private $ids;
 
     protected function setUp(): void
     {
@@ -42,7 +45,7 @@ class ContextLoadRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
         static::assertArrayHasKey('salesChannel', $response);

@@ -4,8 +4,6 @@ namespace Shopware\Core\Framework\Test\Api\Serializer\fixtures;
 
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\System\User\UserEntity;
 
@@ -14,10 +12,7 @@ use Shopware\Core\System\User\UserEntity;
  */
 class TestCollectionWithToOneRelationship extends SerializationFixture
 {
-    /**
-     * @return MediaCollection|MediaEntity
-     */
-    public function getInput(): EntityCollection|Entity
+    public function getInput()
     {
         $mediaCollection = new MediaCollection();
         $userId = '6f51622eb3814c75ae0263cece27ce72';
@@ -64,9 +59,6 @@ class TestCollectionWithToOneRelationship extends SerializationFixture
         return $mediaCollection;
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     protected function getJsonApiFixtures(string $baseUrl): array
     {
         return [
@@ -125,10 +117,10 @@ class TestCollectionWithToOneRelationship extends SerializationFixture
                                 'related' => sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/product-media', $baseUrl),
                             ],
                         ],
-                        'avatarUsers' => [
-                            'data' => [],
+                        'avatarUser' => [
+                            'data' => null,
                             'links' => [
-                                'related' => sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/avatar-users', $baseUrl),
+                                'related' => sprintf('%s/media/3e352be2d85846dd97529c0f6b544870/avatar-user', $baseUrl),
                             ],
                         ],
                         'translations' => [
@@ -277,10 +269,10 @@ class TestCollectionWithToOneRelationship extends SerializationFixture
                                 'related' => sprintf('%s/media/f1ad1d0c02454a40abf250f764d16248/product-media', $baseUrl),
                             ],
                         ],
-                        'avatarUsers' => [
-                            'data' => [],
+                        'avatarUser' => [
+                            'data' => null,
                             'links' => [
-                                'related' => sprintf('%s/media/f1ad1d0c02454a40abf250f764d16248/avatar-users', $baseUrl),
+                                'related' => sprintf('%s/media/f1ad1d0c02454a40abf250f764d16248/avatar-user', $baseUrl),
                             ],
                         ],
                         'translations' => [
@@ -454,9 +446,6 @@ class TestCollectionWithToOneRelationship extends SerializationFixture
         ];
     }
 
-    /**
-     * @return array<array<string,mixed>>
-     */
     protected function getJsonFixtures(): array
     {
         return [
@@ -505,7 +494,7 @@ class TestCollectionWithToOneRelationship extends SerializationFixture
                 'categories' => null,
                 'productManufacturers' => null,
                 'productMedia' => null,
-                'avatarUsers' => null,
+                'avatarUser' => null,
                 'thumbnails' => null,
                 'mediaFolderId' => null,
                 'mediaFolder' => null,
@@ -576,7 +565,7 @@ class TestCollectionWithToOneRelationship extends SerializationFixture
                 'categories' => null,
                 'productManufacturers' => null,
                 'productMedia' => null,
-                'avatarUsers' => null,
+                'avatarUser' => null,
                 'thumbnails' => null,
                 'mediaFolderId' => null,
                 'mediaFolder' => null,
@@ -606,11 +595,6 @@ class TestCollectionWithToOneRelationship extends SerializationFixture
         ];
     }
 
-    /**
-     * @param array<string, mixed> $fixtures
-     *
-     * @return array<string, mixed>
-     */
     protected function removeProtectedSalesChannelJsonApiData(array $fixtures): array
     {
         unset(
@@ -618,7 +602,7 @@ class TestCollectionWithToOneRelationship extends SerializationFixture
             $fixtures['data'][0]['attributes']['mediaType'],
             $fixtures['data'][0]['attributes']['mediaFolderId'],
             $fixtures['data'][0]['relationships']['user'],
-            $fixtures['data'][0]['relationships']['avatarUsers'],
+            $fixtures['data'][0]['relationships']['avatarUser'],
             $fixtures['data'][0]['relationships']['categories'],
             $fixtures['data'][0]['relationships']['productManufacturers'],
             $fixtures['data'][0]['relationships']['productMedia'],
@@ -640,7 +624,7 @@ class TestCollectionWithToOneRelationship extends SerializationFixture
             $fixtures['data'][1]['attributes']['mediaType'],
             $fixtures['data'][1]['attributes']['mediaFolderId'],
             $fixtures['data'][1]['relationships']['user'],
-            $fixtures['data'][1]['relationships']['avatarUsers'],
+            $fixtures['data'][1]['relationships']['avatarUser'],
             $fixtures['data'][1]['relationships']['categories'],
             $fixtures['data'][1]['relationships']['productManufacturers'],
             $fixtures['data'][1]['relationships']['productMedia'],
@@ -664,17 +648,12 @@ class TestCollectionWithToOneRelationship extends SerializationFixture
         return $fixtures;
     }
 
-    /**
-     * @param array<int, mixed> $fixtures
-     *
-     * @return array<int, mixed>
-     */
     protected function removeProtectedSalesChannelJsonData(array $fixtures): array
     {
         unset(
             $fixtures[0]['userId'],
             $fixtures[0]['user'],
-            $fixtures[0]['avatarUsers'],
+            $fixtures[0]['avatarUser'],
             $fixtures[0]['mediaType'],
             $fixtures[0]['categories'],
             $fixtures[0]['productManufacturers'],
@@ -696,7 +675,7 @@ class TestCollectionWithToOneRelationship extends SerializationFixture
 
             $fixtures[1]['userId'],
             $fixtures[1]['user'],
-            $fixtures[1]['avatarUsers'],
+            $fixtures[1]['avatarUser'],
             $fixtures[1]['mediaType'],
             $fixtures[1]['categories'],
             $fixtures[1]['productManufacturers'],

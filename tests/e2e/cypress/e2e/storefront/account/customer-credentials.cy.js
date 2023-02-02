@@ -1,8 +1,5 @@
 import AccountPageObject from '../../../support/pages/account.page-object';
 
-/**
- * @package checkout
- */
 describe('Account: Login as customer', () => {
     beforeEach(() => {
         return cy.createCustomerFixtureStorefront().then(() => {

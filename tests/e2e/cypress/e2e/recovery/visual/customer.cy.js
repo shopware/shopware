@@ -4,12 +4,26 @@ import CustomerPageObject from '../../../support/pages/module/sw-customer.page-o
 
 let customer = {
     salutation: 'Mr.',
-    country: 'Germany',
+    country: 'Germany'
+};
+const newAddress = {
+    salutation: 'Mr.',
+    firstName: 'Harry',
+    lastName: 'Potter',
+    addresses: [{
+        street: 'Ligusterweg 4',
+        zipcode: '333333',
+        city: 'Little Whinging'
+    }],
+    country: 'United Kingdom'
 };
 
 describe('Customer:  Visual test', () => {
     beforeEach(() => {
         cy.setLocaleToEnGb()
+            .then(() => {
+                cy.loginViaApi();
+            })
             .then(() => {
                 return cy.fixture('customer');
             })
@@ -33,7 +47,7 @@ describe('Customer:  Visual test', () => {
         // Request we want to wait for later
         cy.intercept({
             url: 'api/customer',
-            method: 'post',
+            method: 'post'
         }).as('saveData');
 
         // Take snapshot for visual testing

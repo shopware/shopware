@@ -1,7 +1,3 @@
-/**
- * @package admin
- */
-
 const { Criteria } = Shopware.Data;
 const { types } = Shopware.Utils;
 const { cloneDeep } = Shopware.Utils.object;

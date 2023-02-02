@@ -1,7 +1,3 @@
-/**
- * @package admin
- */
-
 import { mapState, mapMutations, mapGetters, mapActions } from 'vuex';
 import * as mapErrors from 'src/app/service/map-errors.service';
 

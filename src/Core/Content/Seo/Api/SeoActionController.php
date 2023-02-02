@@ -5,7 +5,6 @@ namespace Shopware\Core\Content\Seo\Api;
 use Shopware\Core\Content\Seo\Exception\InvalidTemplateException;
 use Shopware\Core\Content\Seo\Exception\NoEntitiesForPreviewException;
 use Shopware\Core\Content\Seo\Exception\SeoUrlRouteNotFoundException;
-use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Core\Content\Seo\SeoUrlGenerator;
 use Shopware\Core\Content\Seo\SeoUrlPersister;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteConfig;
@@ -16,15 +15,19 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Exception\InvalidSalesChannelIdException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidator;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -33,18 +36,58 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Route(defaults: ['_routeScope' => ['api']])]
-#[Package('sales-channel')]
+/**
+ * @Route(defaults={"_routeScope"={"api"}})
+ */
 class SeoActionController extends AbstractController
 {
+    private SeoUrlGenerator $seoUrlGenerator;
+
+    private DefinitionInstanceRegistry $definitionRegistry;
+
+    private SeoUrlRouteRegistry $seoUrlRouteRegistry;
+
+    private SeoUrlPersister $seoUrlPersister;
+
+    private SeoUrlDataValidationFactoryInterface $seoUrlValidator;
+
+    private DataValidator $validator;
+
+    private EntityRepositoryInterface $salesChannelRepository;
+
+    private RequestCriteriaBuilder $requestCriteriaBuilder;
+
+    private DefinitionInstanceRegistry $definitionInstanceRegistry;
+
     /**
      * @internal
      */
-    public function __construct(private readonly SeoUrlGenerator $seoUrlGenerator, private readonly SeoUrlPersister $seoUrlPersister, private readonly DefinitionInstanceRegistry $definitionRegistry, private readonly SeoUrlRouteRegistry $seoUrlRouteRegistry, private readonly SeoUrlDataValidationFactoryInterface $seoUrlValidator, private readonly DataValidator $validator, private readonly EntityRepository $salesChannelRepository, private readonly RequestCriteriaBuilder $requestCriteriaBuilder, private readonly DefinitionInstanceRegistry $definitionInstanceRegistry)
-    {
+    public function __construct(
+        SeoUrlGenerator $seoUrlGenerator,
+        SeoUrlPersister $seoUrlPersister,
+        DefinitionInstanceRegistry $definitionRegistry,
+        SeoUrlRouteRegistry $seoUrlRouteRegistry,
+        SeoUrlDataValidationFactoryInterface $seoUrlValidation,
+        DataValidator $validator,
+        EntityRepositoryInterface $salesChannelRepository,
+        RequestCriteriaBuilder $requestCriteriaBuilder,
+        DefinitionInstanceRegistry $definitionInstanceRegistry
+    ) {
+        $this->seoUrlGenerator = $seoUrlGenerator;
+        $this->definitionRegistry = $definitionRegistry;
+        $this->seoUrlRouteRegistry = $seoUrlRouteRegistry;
+        $this->seoUrlPersister = $seoUrlPersister;
+        $this->seoUrlValidator = $seoUrlValidation;
+        $this->validator = $validator;
+        $this->salesChannelRepository = $salesChannelRepository;
+        $this->requestCriteriaBuilder = $requestCriteriaBuilder;
+        $this->definitionInstanceRegistry = $definitionInstanceRegistry;
     }
 
-    #[Route(path: '/api/_action/seo-url-template/validate', name: 'api.seo-url-template.validate', methods: ['POST'])]
+    /**
+     * @Since("6.0.0.0")
+     * @Route("/api/_action/seo-url-template/validate", name="api.seo-url-template.validate", methods={"POST"})
+     */
     public function validate(Request $request, Context $context): JsonResponse
     {
         $context->setConsiderInheritance(true);
@@ -58,7 +101,10 @@ class SeoActionController extends AbstractController
         return new JsonResponse();
     }
 
-    #[Route(path: '/api/_action/seo-url-template/preview', name: 'api.seo-url-template.preview', methods: ['POST'])]
+    /**
+     * @Since("6.0.0.0")
+     * @Route("/api/_action/seo-url-template/preview", name="api.seo-url-template.preview", methods={"POST"})
+     */
     public function preview(Request $request, Context $context): Response
     {
         $this->validateSeoUrlTemplate($request);
@@ -66,6 +112,7 @@ class SeoActionController extends AbstractController
 
         $previewCriteria = new Criteria();
         if (\array_key_exists('criteria', $seoUrlTemplate) && \is_string($seoUrlTemplate['entityName']) && \is_array($seoUrlTemplate['criteria'])) {
+            /** @var SalesChannelDefinitionInterface|EntityDefinition $definition */
             $definition = $this->definitionInstanceRegistry->getByEntityName($seoUrlTemplate['entityName']);
 
             $previewCriteria = $this->requestCriteriaBuilder->handleRequest(
@@ -79,14 +126,17 @@ class SeoActionController extends AbstractController
 
         try {
             $preview = $this->getPreview($seoUrlTemplate, $context, $previewCriteria);
-        } catch (NoEntitiesForPreviewException) {
+        } catch (NoEntitiesForPreviewException $e) {
             return new Response('', Response::HTTP_NO_CONTENT);
         }
 
         return new JsonResponse($preview);
     }
 
-    #[Route(path: '/api/_action/seo-url-template/context', name: 'api.seo-url-template.context', methods: ['POST'])]
+    /**
+     * @Since("6.0.0.0")
+     * @Route("/api/_action/seo-url-template/context", name="api.seo-url-template.context", methods={"POST"})
+     */
     public function getSeoUrlContext(RequestDataBag $data, Context $context): JsonResponse
     {
         $routeName = $data->get('routeName');
@@ -118,7 +168,10 @@ class SeoActionController extends AbstractController
         return new JsonResponse($mapping->getSeoPathInfoContext());
     }
 
-    #[Route(path: '/api/_action/seo-url/canonical', name: 'api.seo-url.canonical', methods: ['PATCH'])]
+    /**
+     * @Since("6.0.0.0")
+     * @Route("/api/_action/seo-url/canonical", name="api.seo-url.canonical", methods={"PATCH"})
+     */
     public function updateCanonicalUrl(RequestDataBag $seoUrl, Context $context): Response
     {
         $seoUrlRoute = $this->seoUrlRouteRegistry->findByRouteName($seoUrl->get('routeName') ?? '');
@@ -130,19 +183,22 @@ class SeoActionController extends AbstractController
 
         $seoUrlData = $seoUrl->all();
         $this->validator->validate($seoUrlData, $validation);
-        $seoUrlData['isModified'] ??= true;
+        $seoUrlData['isModified'] = $seoUrlData['isModified'] ?? true;
 
-        $salesChannelId = $seoUrlData['salesChannelId'] ?? null;
+        $salesChannel = null;
 
-        if ($salesChannelId === null) {
-            throw new MissingRequestParameterException('salesChannelId');
-        }
+        if (Feature::isActive('FEATURE_NEXT_13410')) {
+            $salesChannelId = $seoUrlData['salesChannelId'] ?? null;
 
-        /** @var SalesChannelEntity|null $salesChannel */
-        $salesChannel = $this->salesChannelRepository->search(new Criteria([$salesChannelId]), $context)->first();
+            if ($salesChannelId === null) {
+                throw new MissingRequestParameterException('salesChannelId');
+            }
 
-        if ($salesChannel === null) {
-            throw new InvalidRequestParameterException('salesChannelId');
+            $salesChannel = $this->salesChannelRepository->search(new Criteria([$salesChannelId]), $context)->first();
+
+            if ($salesChannel === null) {
+                throw new InvalidRequestParameterException('salesChannelId');
+            }
         }
 
         $this->seoUrlPersister->updateSeoUrls(
@@ -156,7 +212,10 @@ class SeoActionController extends AbstractController
         return new Response('', Response::HTTP_NO_CONTENT);
     }
 
-    #[Route(path: '/api/_action/seo-url/create-custom-url', name: 'api.seo-url.create', methods: ['POST'])]
+    /**
+     * @Since("6.3.1.0")
+     * @Route("/api/_action/seo-url/create-custom-url", name="api.seo-url.create", methods={"POST"})
+     */
     public function createCustomSeoUrls(RequestDataBag $dataBag, Context $context): Response
     {
         $urls = $dataBag->get('urls')->all();
@@ -167,10 +226,12 @@ class SeoActionController extends AbstractController
         $validation = $validatorBuilder->buildValidation($context, null);
         $salesChannels = new SalesChannelCollection();
 
-        $salesChannelIds = array_column($urls, 'salesChannelId');
+        if (Feature::isActive('FEATURE_NEXT_13410')) {
+            $salesChannelIds = array_column($urls, 'salesChannelId');
 
-        if (!empty($salesChannelIds)) {
-            $salesChannels = $this->salesChannelRepository->search(new Criteria($salesChannelIds), $context)->getEntities();
+            if (!empty($salesChannelIds)) {
+                $salesChannels = $this->salesChannelRepository->search(new Criteria($salesChannelIds), $context)->getEntities();
+            }
         }
 
         $writeData = [];
@@ -179,7 +240,7 @@ class SeoActionController extends AbstractController
             $id = $seoUrlData['salesChannelId'] ?? null;
 
             $this->validator->validate($seoUrlData, $validation);
-            $seoUrlData['isModified'] ??= true;
+            $seoUrlData['isModified'] = $seoUrlData['isModified'] ?? true;
 
             $writeData[$id][] = $seoUrlData;
         }
@@ -187,12 +248,13 @@ class SeoActionController extends AbstractController
         foreach ($writeData as $salesChannelId => $writeRows) {
             $salesChannelEntity = null;
 
-            if ($salesChannelId === '') {
-                throw new InvalidRequestParameterException('salesChannelId');
-            }
+            if (Feature::isActive('FEATURE_NEXT_13410')) {
+                if ($salesChannelId === '') {
+                    throw new InvalidRequestParameterException('salesChannelId');
+                }
 
-            /** @var SalesChannelEntity $salesChannelEntity */
-            $salesChannelEntity = $salesChannels->get($salesChannelId);
+                $salesChannelEntity = $salesChannels->get($salesChannelId);
+            }
 
             $this->seoUrlPersister->updateSeoUrls(
                 $context,
@@ -206,14 +268,13 @@ class SeoActionController extends AbstractController
         return new Response('', Response::HTTP_NO_CONTENT);
     }
 
-    #[Route(path: '/api/_action/seo-url-template/default/{routeName}', name: 'api.seo-url-template.default', methods: ['GET'])]
+    /**
+     * @Since("6.0.0.0")
+     * @Route("/api/_action/seo-url-template/default/{routeName}", name="api.seo-url-template.default", methods={"GET"})
+     */
     public function getDefaultSeoTemplate(string $routeName, Context $context): JsonResponse
     {
         $seoUrlRoute = $this->seoUrlRouteRegistry->findByRouteName($routeName);
-
-        if (!$seoUrlRoute) {
-            throw new SeoUrlRouteNotFoundException($routeName);
-        }
 
         return new JsonResponse(['defaultTemplate' => $seoUrlRoute->getConfig()->getTemplate()]);
     }
@@ -228,11 +289,6 @@ class SeoActionController extends AbstractController
         }
     }
 
-    /**
-     * @param array<string, mixed> $seoUrlTemplate
-     *
-     * @return list<SeoUrlEntity>
-     */
     private function getPreview(array $seoUrlTemplate, Context $context, ?Criteria $previewCriteria = null): array
     {
         $seoUrlRoute = $this->seoUrlRouteRegistry->findByRouteName($seoUrlTemplate['routeName']);
@@ -277,7 +333,7 @@ class SeoActionController extends AbstractController
                 ->first();
         }
 
-        if ($salesChannel === null) {
+        if ($salesChannel === null && Feature::isActive('FEATURE_NEXT_13410')) {
             throw new InvalidRequestParameterException('salesChannelId');
         }
 
@@ -289,7 +345,7 @@ class SeoActionController extends AbstractController
         return iterator_to_array($result);
     }
 
-    private function getRepository(SeoUrlRouteConfig $config): EntityRepository
+    private function getRepository(SeoUrlRouteConfig $config): EntityRepositoryInterface
     {
         return $this->definitionRegistry->getRepository($config->getDefinition()->getEntityName());
     }

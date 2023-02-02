@@ -10,21 +10,19 @@ use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\GoodsPriceRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
  */
-#[Package('business-ops')]
 class GoodsPriceRuleTest extends TestCase
 {
     public function testRuleWithExactPriceMatch(): void
     {
         $rule = (new GoodsPriceRule())->assign(['amount' => 270.0, 'operator' => Rule::OPERATOR_EQ]);
 
-        $cart = new Cart('test');
+        $cart = new Cart('test', 'test');
         $cart->add(
             (new LineItem('a', 'a'))
                 ->setPrice(new CalculatedPrice(270, 270, new CalculatedTaxCollection(), new TaxRuleCollection()))
@@ -41,7 +39,7 @@ class GoodsPriceRuleTest extends TestCase
     {
         $rule = (new GoodsPriceRule())->assign(['amount' => 1.0, 'operator' => Rule::OPERATOR_EQ]);
 
-        $cart = new Cart('test');
+        $cart = new Cart('test', 'test');
         $context = $this->createMock(SalesChannelContext::class);
 
         static::assertFalse(
@@ -53,7 +51,7 @@ class GoodsPriceRuleTest extends TestCase
     {
         $rule = (new GoodsPriceRule())->assign(['amount' => 270.0, 'operator' => Rule::OPERATOR_LTE]);
 
-        $cart = new Cart('test');
+        $cart = new Cart('test', 'test');
         $context = $this->createMock(SalesChannelContext::class);
 
         static::assertTrue(
@@ -65,7 +63,7 @@ class GoodsPriceRuleTest extends TestCase
     {
         $rule = (new GoodsPriceRule())->assign(['amount' => 300.0, 'operator' => Rule::OPERATOR_LTE]);
 
-        $cart = new Cart('test');
+        $cart = new Cart('test', 'test');
         $context = $this->createMock(SalesChannelContext::class);
 
         static::assertTrue(
@@ -77,7 +75,7 @@ class GoodsPriceRuleTest extends TestCase
     {
         $rule = (new GoodsPriceRule())->assign(['amount' => -1.0, 'operator' => Rule::OPERATOR_LTE]);
 
-        $cart = new Cart('test');
+        $cart = new Cart('test', 'test');
         $context = $this->createMock(SalesChannelContext::class);
 
         static::assertFalse(
@@ -89,7 +87,7 @@ class GoodsPriceRuleTest extends TestCase
     {
         $rule = (new GoodsPriceRule())->assign(['amount' => 270.0, 'operator' => Rule::OPERATOR_GTE]);
 
-        $cart = new Cart('test');
+        $cart = new Cart('test', 'test');
         $cart->add(
             (new LineItem('a', 'a'))
                 ->setPrice(new CalculatedPrice(270, 270, new CalculatedTaxCollection(), new TaxRuleCollection()))
@@ -105,7 +103,7 @@ class GoodsPriceRuleTest extends TestCase
     {
         $rule = (new GoodsPriceRule())->assign(['amount' => 250.0, 'operator' => Rule::OPERATOR_GTE]);
 
-        $cart = new Cart('test');
+        $cart = new Cart('test', 'test');
         $cart->add(
             (new LineItem('a', 'a'))
                 ->setPrice(new CalculatedPrice(270, 270, new CalculatedTaxCollection(), new TaxRuleCollection()))
@@ -122,7 +120,7 @@ class GoodsPriceRuleTest extends TestCase
     {
         $rule = (new GoodsPriceRule())->assign(['amount' => 300.0, 'operator' => Rule::OPERATOR_GTE]);
 
-        $cart = new Cart('test');
+        $cart = new Cart('test', 'test');
         $context = $this->createMock(SalesChannelContext::class);
 
         static::assertFalse(
@@ -134,7 +132,7 @@ class GoodsPriceRuleTest extends TestCase
     {
         $rule = (new GoodsPriceRule())->assign(['amount' => 200.0, 'operator' => Rule::OPERATOR_NEQ]);
 
-        $cart = new Cart('test');
+        $cart = new Cart('test', 'test');
         $context = $this->createMock(SalesChannelContext::class);
 
         static::assertTrue(
@@ -146,7 +144,7 @@ class GoodsPriceRuleTest extends TestCase
     {
         $rule = (new GoodsPriceRule())->assign(['amount' => 270.0, 'operator' => Rule::OPERATOR_NEQ]);
 
-        $cart = new Cart('test');
+        $cart = new Cart('test', 'test');
         $cart->add(
             (new LineItem('a', 'a'))
                 ->setPrice(new CalculatedPrice(270, 270, new CalculatedTaxCollection(), new TaxRuleCollection()))

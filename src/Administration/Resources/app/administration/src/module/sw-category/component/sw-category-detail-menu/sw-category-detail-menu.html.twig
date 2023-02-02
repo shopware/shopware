@@ -35,19 +35,8 @@
         :allow-multi-select="false"
         :default-folder="category.getEntityName()"
         @media-drop="onMediaDropped"
-        @media-upload-sidebar-open="showMediaModal = true"
+        @media-upload-sidebar-open="openMediaSidebar"
         @media-upload-remove-image="onRemoveMediaItem"
-    />
-    {% endblock %}
-
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-    {% block sw_category_detail_menu_media_modal %}
-    <sw-media-modal-v2
-        v-if="showMediaModal"
-        :allow-multi-select="false"
-        :entity-context="category.getEntityName()"
-        @media-modal-selection-change="onMediaSelectionChange"
-        @modal-close="showMediaModal = false"
     />
     {% endblock %}
 

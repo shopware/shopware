@@ -1,13 +1,10 @@
-/**
- * @package system-settings
- */
 import template from './sw-settings-custom-field-set-detail.html.twig';
 
-const { Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-settings-custom-field-set-detail', {
     template,
 
     inject: [
@@ -190,4 +187,4 @@ export default {
             this.technicalNameError = null;
         },
     },
-};
+});

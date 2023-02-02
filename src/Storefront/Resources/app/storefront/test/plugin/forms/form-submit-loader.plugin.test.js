@@ -15,9 +15,6 @@ function setUpFormLoader(formSelector) {
     return { form, plugin };
 }
 
-/**
- * @package content
- */
 describe('Form submit loader tests', () => {
     let formSubmitLoaderPlugin;
     let form;

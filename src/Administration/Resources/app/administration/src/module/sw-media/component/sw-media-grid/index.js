@@ -3,9 +3,8 @@ import './sw-media-grid.scss';
 
 /**
  * @private
- * @package content
  */
-export default {
+Shopware.Component.register('sw-media-grid', {
     template,
 
     props: {
@@ -89,4 +88,4 @@ export default {
             });
         },
     },
-};
+});

@@ -6,9 +6,10 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\ScheduledTask\LogCleanupTask;
 use Shopware\Core\Framework\Log\ScheduledTask\LogCleanupTaskHandler;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\Registry\TaskRegistry;
@@ -23,26 +24,44 @@ class LogCleanupTaskHandlerTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private EntityRepository $scheduledTaskRepository;
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $scheduledTaskRepository;
 
-    private EntityRepository $logEntryRepository;
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $logEntryRepository;
 
-    private SystemConfigService $systemConfigService;
+    /**
+     * @var SystemConfigService
+     */
+    private $systemConfigService;
 
-    private Connection $connection;
+    /**
+     * @var Connection
+     */
+    private $connection;
 
-    private Context $context;
+    /**
+     * @var Context
+     */
+    private $context;
 
     public function setUp(): void
     {
         parent::setUp();
 
-        $this->connection = $this->getContainer()->get(Connection::class);
-        $this->connection->executeStatement('DELETE FROM `log_entry`');
+        if (Feature::isActive('v6.5.0.0')) {
+            $connection = $this->getContainer()->get(Connection::class);
+            $connection->executeStatement('DELETE FROM `log_entry`');
+        }
 
         $this->systemConfigService = $this->getContainer()->get(SystemConfigService::class);
         $this->scheduledTaskRepository = $this->getContainer()->get('scheduled_task.repository');
         $this->logEntryRepository = $this->getContainer()->get('log_entry.repository');
+        $this->connection = $this->getContainer()->get(Connection::class);
         $this->context = Context::createDefaultContext();
     }
 
@@ -84,9 +103,6 @@ class LogCleanupTaskHandlerTest extends TestCase
         static::assertSame(LogCleanupTask::getDefaultInterval(), $task->getRunInterval());
     }
 
-    /**
-     * @param list<string> $expectedMessages
-     */
     private function runWithOptions(int $age, int $maxEntries, array $expectedMessages): void
     {
         $this->systemConfigService->set('core.logging.entryLifetimeSeconds', $age);

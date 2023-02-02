@@ -3,20 +3,19 @@
 namespace Shopware\Core\Checkout\Cart\LineItem;
 
 use Shopware\Core\Checkout\Cart\CartException;
+use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
+use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
+use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
  * @extends Collection<LineItem>
  */
-#[Package('checkout')]
 class LineItemCollection extends Collection
 {
-    /**
-     * @param LineItem[] $elements
-     */
     public function __construct(iterable $elements = [])
     {
         parent::__construct();
@@ -29,7 +28,9 @@ class LineItemCollection extends Collection
     /**
      * @param LineItem $lineItem
      *
-     * @throws CartException
+     * @throws MixedLineItemTypeException
+     * @throws InvalidQuantityException
+     * @throws LineItemNotStackableException
      */
     public function add($lineItem): void
     {
@@ -38,7 +39,11 @@ class LineItemCollection extends Collection
         $exists = $this->get($lineItem->getId());
 
         if ($exists && $exists->getType() !== $lineItem->getType()) {
-            throw CartException::mixedLineItemType($lineItem->getId(), $lineItem->getType());
+            if (Feature::isActive('v6.5.0.0')) {
+                throw CartException::mixedLineItemType($lineItem->getId(), $lineItem->getType());
+            }
+
+            throw new MixedLineItemTypeException($lineItem->getId(), $exists->getType());
         }
 
         if ($exists) {
@@ -100,33 +105,25 @@ class LineItemCollection extends Collection
     public function filterType(string $type): LineItemCollection
     {
         return $this->filter(
-            fn (LineItem $lineItem) => $lineItem->getType() === $type
+            function (LineItem $lineItem) use ($type) {
+                return $lineItem->getType() === $type;
+            }
         );
     }
 
-    public function hasLineItemWithState(string $state): bool
-    {
-        foreach ($this->buildFlat($this) as $lineItem) {
-            if (\in_array($state, $lineItem->getStates(), true)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * @return array<array<string, mixed>>
-     */
     public function getPayload(): array
     {
-        return $this->map(fn (LineItem $lineItem) => $lineItem->getPayload());
+        return $this->map(function (LineItem $lineItem) {
+            return $lineItem->getPayload();
+        });
     }
 
     public function getPrices(): PriceCollection
     {
         return new PriceCollection(
-            array_filter(array_map(static fn (LineItem $lineItem) => $lineItem->getPrice(), array_values($this->getElements())))
+            array_filter(array_map(static function (LineItem $lineItem) {
+                return $lineItem->getPrice();
+            }, array_values($this->getElements())))
         );
     }
 
@@ -165,7 +162,9 @@ class LineItemCollection extends Collection
     public function filterGoods(): self
     {
         return $this->filter(
-            fn (LineItem $lineItem) => $lineItem->isGood()
+            function (LineItem $lineItem) {
+                return $lineItem->isGood();
+            }
         );
     }
 
@@ -186,23 +185,21 @@ class LineItemCollection extends Collection
         return $filtered;
     }
 
-    /**
-     * @return array<string>
-     */
     public function getTypes(): array
     {
         return $this->fmap(
-            fn (LineItem $lineItem) => $lineItem->getType()
+            function (LineItem $lineItem) {
+                return $lineItem->getType();
+            }
         );
     }
 
-    /**
-     * @return array<string|null>
-     */
     public function getReferenceIds(): array
     {
         return $this->fmap(
-            fn (LineItem $lineItem) => $lineItem->getReferencedId()
+            function (LineItem $lineItem) {
+                return $lineItem->getReferencedId();
+            }
         );
     }
 
@@ -213,7 +210,9 @@ class LineItemCollection extends Collection
 
     public function getTotalQuantity(): int
     {
-        return $this->reduce(fn ($result, $item) => $result + $item->getQuantity(), 0);
+        return $this->reduce(function ($result, $item) {
+            return $result + $item->getQuantity();
+        }, 0);
     }
 
     protected function getKey(LineItem $element): string
@@ -226,9 +225,6 @@ class LineItemCollection extends Collection
         return LineItem::class;
     }
 
-    /**
-     * @return array<mixed>
-     */
     private function buildFlat(LineItemCollection $lineItems): array
     {
         $flat = [];

@@ -1,7 +1,3 @@
-/**
- * @package admin
- */
-
 import types from 'src/core/service/utils/types.utils';
 
 function castValueToNullIfNecessary(value) {

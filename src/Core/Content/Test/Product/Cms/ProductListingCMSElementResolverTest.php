@@ -31,7 +31,10 @@ class ProductListingCMSElementResolverTest extends TestCase
      */
     private $productListingCMSElementResolver;
 
-    private SalesChannelContext $salesChannelContext;
+    /**
+     * @var SalesChannelContext
+     */
+    private $salesChannelContext;
 
     protected function setUp(): void
     {
@@ -146,7 +149,9 @@ class ProductListingCMSElementResolverTest extends TestCase
         /** @var ProductListingResult $listing */
         $listing = $data->getListing();
 
-        $actualSortings = $listing->getAvailableSortings()->map(fn (ProductSortingEntity $actualSorting) => $actualSorting->getKey());
+        $actualSortings = $listing->getAvailableSortings()->map(function (ProductSortingEntity $actualSorting) {
+            return $actualSorting->getKey();
+        });
 
         $availableSortings = array_keys($availableSortings);
 
@@ -191,7 +196,9 @@ class ProductListingCMSElementResolverTest extends TestCase
         /** @var ProductListingResult $listing */
         $listing = $data->getListing();
 
-        $actualSortings = $listing->getAvailableSortings()->map(fn (ProductSortingEntity $actualSorting) => $actualSorting->getKey());
+        $actualSortings = $listing->getAvailableSortings()->map(function (ProductSortingEntity $actualSorting) {
+            return $actualSorting->getKey();
+        });
 
         $actualSortings = array_values($actualSortings);
 
@@ -261,7 +268,7 @@ class ProductListingCMSElementResolverTest extends TestCase
 
         foreach ($expectations as $field => $expected) {
             if ($field === ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM) {
-                $value = $request->request->all($field);
+                $value = $request->request->get($field, null);
             } else {
                 $value = $request->request->get($field, true);
             }
@@ -283,7 +290,7 @@ class ProductListingCMSElementResolverTest extends TestCase
                     'rating-filter' => true,
                     'shipping-free-filter' => true,
                     'property-filter' => true,
-                    ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => [],
+                    ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => null,
                 ],
                 [
                     'filters' => [
@@ -299,7 +306,7 @@ class ProductListingCMSElementResolverTest extends TestCase
                     'rating-filter' => false,
                     'shipping-free-filter' => false,
                     'property-filter' => false,
-                    ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => [],
+                    ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => null,
                 ],
                 [
                     'filters' => [
@@ -315,7 +322,7 @@ class ProductListingCMSElementResolverTest extends TestCase
                     'rating-filter' => true,
                     'shipping-free-filter' => false,
                     'property-filter' => false,
-                    ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => [],
+                    ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => null,
                 ],
                 [
                     'filters' => [
@@ -331,7 +338,7 @@ class ProductListingCMSElementResolverTest extends TestCase
                     'rating-filter' => true,
                     'shipping-free-filter' => true,
                     'property-filter' => true,
-                    ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => [],
+                    ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => null,
                 ],
                 [
                     'filters' => [
@@ -347,7 +354,7 @@ class ProductListingCMSElementResolverTest extends TestCase
                     'rating-filter' => true,
                     'shipping-free-filter' => true,
                     'property-filter' => true,
-                    ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => [],
+                    ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => null,
                 ],
                 [
                     'filters' => [
@@ -363,7 +370,7 @@ class ProductListingCMSElementResolverTest extends TestCase
                     'rating-filter' => true,
                     'shipping-free-filter' => true,
                     'property-filter' => true,
-                    ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => [],
+                    ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => null,
                 ],
                 [
                     'filters' => [
@@ -379,7 +386,7 @@ class ProductListingCMSElementResolverTest extends TestCase
                     'rating-filter' => false,
                     'shipping-free-filter' => true,
                     'property-filter' => true,
-                    ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => [],
+                    ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => null,
                 ],
                 [
                     'filters' => [
@@ -395,7 +402,7 @@ class ProductListingCMSElementResolverTest extends TestCase
                     'rating-filter' => false,
                     'shipping-free-filter' => false,
                     'property-filter' => true,
-                    ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => [],
+                    ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => null,
                 ],
                 [
                     'filters' => [
@@ -411,7 +418,7 @@ class ProductListingCMSElementResolverTest extends TestCase
                     'rating-filter' => false,
                     'shipping-free-filter' => false,
                     'property-filter' => false,
-                    ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => [],
+                    ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => null,
                 ],
                 [
                     'filters' => [

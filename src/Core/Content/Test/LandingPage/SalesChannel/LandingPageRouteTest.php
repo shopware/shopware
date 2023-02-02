@@ -20,9 +20,15 @@ class LandingPageRouteTest extends TestCase
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
-    private KernelBrowserAlias $browser;
+    /**
+     * @var KernelBrowserAlias
+     */
+    private $browser;
 
-    private TestDataCollection $ids;
+    /**
+     * @var TestDataCollection
+     */
+    private $ids;
 
     protected function setUp(): void
     {
@@ -73,7 +79,7 @@ class LandingPageRouteTest extends TestCase
             '/store-api/landing-page/' . $this->ids->get('landing-page')
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertEquals($this->ids->get('landing-page'), $response['id']);
         static::assertIsArray($response['cmsPage']);
@@ -115,7 +121,7 @@ class LandingPageRouteTest extends TestCase
             ]
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         $listing = $response['cmsPage']['sections'][0]['blocks'][0]['slots'][0]['data']['listing'];
 
@@ -139,7 +145,7 @@ class LandingPageRouteTest extends TestCase
 
     private function assertError(string $landingPageId): void
     {
-        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
         $error = new LandingPageNotFoundException($landingPageId);
         $expectedError = [
             'status' => (string) $error->getStatusCode(),

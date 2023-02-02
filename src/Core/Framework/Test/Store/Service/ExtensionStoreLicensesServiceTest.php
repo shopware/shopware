@@ -102,10 +102,10 @@ class ExtensionStoreLicensesServiceTest extends TestCase
 
     private function setCancelationResponses(): void
     {
-        $licenses = json_decode(file_get_contents(__DIR__ . '/../_fixtures/responses/licenses.json'), true, 512, \JSON_THROW_ON_ERROR);
+        $licenses = json_decode(file_get_contents(__DIR__ . '/../_fixtures/responses/licenses.json'), true);
         $licenses[0]['extension']['name'] = 'TestApp';
 
-        $this->setLicensesRequest(json_encode($licenses, \JSON_THROW_ON_ERROR));
+        $this->setLicensesRequest(json_encode($licenses));
         $this->getRequestHandler()->append(new Response(204));
 
         unset($licenses[0]);
@@ -113,7 +113,7 @@ class ExtensionStoreLicensesServiceTest extends TestCase
             new Response(
                 200,
                 [ExtensionDataProvider::HEADER_NAME_TOTAL_COUNT => '0'],
-                json_encode($licenses, \JSON_THROW_ON_ERROR)
+                json_encode($licenses)
             )
         );
     }

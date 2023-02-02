@@ -8,11 +8,9 @@ use Shopware\Core\Content\Flow\Dispatching\Aware\NameAware;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Dispatching\Storer\NameStorer;
 use Shopware\Core\Content\ProductExport\Event\ProductExportLoggingEvent;
-use Shopware\Core\Content\Test\Flow\TestFlowBusinessEvent;
+use Shopware\Core\Framework\Test\Event\TestBusinessEvent;
 
 /**
- * @package business-ops
- *
  * @internal
  *
  * @covers \Shopware\Core\Content\Flow\Dispatching\Storer\NameStorer
@@ -36,7 +34,7 @@ class NameStorerTest extends TestCase
 
     public function testStoreWithNotAware(): void
     {
-        $event = $this->createMock(TestFlowBusinessEvent::class);
+        $event = $this->createMock(TestBusinessEvent::class);
         $stored = [];
         $stored = $this->storer->store($event, $stored);
         static::assertArrayNotHasKey(NameAware::EVENT_NAME, $stored);
@@ -46,7 +44,7 @@ class NameStorerTest extends TestCase
     {
         $name = 'test.event';
 
-        /** @var MockObject&StorableFlow $storable */
+        /** @var MockObject|StorableFlow $storable */
         $storable = $this->createMock(StorableFlow::class);
 
         $storable->expects(static::exactly(1))
@@ -66,7 +64,7 @@ class NameStorerTest extends TestCase
 
     public function testRestoreEmptyStored(): void
     {
-        /** @var MockObject&StorableFlow $storable */
+        /** @var MockObject|StorableFlow $storable */
         $storable = $this->createMock(StorableFlow::class);
 
         $storable->expects(static::exactly(1))

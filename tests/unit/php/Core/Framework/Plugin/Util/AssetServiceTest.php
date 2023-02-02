@@ -2,15 +2,14 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Plugin\Util;
 
-use Composer\Autoload\ClassLoader;
 use League\Flysystem\Filesystem;
+use League\Flysystem\Memory\MemoryAdapter;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
-use Shopware\Core\Framework\Adapter\Filesystem\MemoryFilesystemAdapter;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
+use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
-use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Kernel;
 use Shopware\Tests\Unit\Core\Framework\Plugin\_fixtures\ExampleBundle\ExampleBundle;
@@ -26,16 +25,10 @@ class AssetServiceTest extends TestCase
 {
     public function testCopyAssetsFromBundlePluginDoesNotExists(): void
     {
-        $kernelMock = $this->createMock(KernelInterface::class);
-        $kernelMock->expects(static::once())
-            ->method('getBundle')
-            ->with('bundleName')
-            ->willThrowException(new \InvalidArgumentException());
-
         $assetService = new AssetService(
-            new Filesystem(new MemoryFilesystemAdapter()),
-            $kernelMock,
-            new StaticKernelPluginLoader($this->createMock(ClassLoader::class)),
+            new Filesystem(new MemoryAdapter()),
+            $this->createMock(KernelInterface::class),
+            $this->createMock(KernelPluginLoader::class),
             $this->createMock(CacheInvalidator::class),
             $this->createMock(AbstractAppLoader::class),
             'coreDir',
@@ -54,11 +47,11 @@ class AssetServiceTest extends TestCase
             ->with('ExampleBundle')
             ->willReturn($this->getBundle());
 
-        $filesystem = new Filesystem(new MemoryFilesystemAdapter());
+        $filesystem = new Filesystem(new MemoryAdapter());
         $assetService = new AssetService(
             $filesystem,
             $kernel,
-            new StaticKernelPluginLoader($this->createMock(ClassLoader::class)),
+            $this->createMock(KernelPluginLoader::class),
             $this->createMock(CacheInvalidator::class),
             $this->createMock(AbstractAppLoader::class),
             'coreDir',
@@ -69,36 +62,17 @@ class AssetServiceTest extends TestCase
 
         static::assertTrue($filesystem->has('bundles/example'));
         static::assertTrue($filesystem->has('bundles/example/test.txt'));
-        static::assertSame('TEST', trim($filesystem->read('bundles/example/test.txt')));
+        static::assertSame('TEST', trim((string) $filesystem->read('bundles/example/test.txt')));
         static::assertTrue($filesystem->has('bundles/featurea'));
     }
 
     public function testCopyAssetsFromBundlePluginInactivePlugin(): void
     {
-        $filesystem = new Filesystem(new MemoryFilesystemAdapter());
+        $filesystem = new Filesystem(new MemoryAdapter());
 
-        $classLoader = $this->createMock(ClassLoader::class);
-        $classLoader->method('findFile')->willReturn(__FILE__);
-        $pluginLoader = new StaticKernelPluginLoader(
-            $classLoader,
-            null,
-            [
-                [
-                    'name' => 'ExampleBundle',
-                    'baseClass' => ExampleBundle::class,
-                    'path' => __DIR__ . '/_fixtures/ExampleBundle',
-                    'active' => true,
-                    'managedByComposer' => false,
-                    'autoload' => [
-                        'psr-4' => [
-                            'ExampleBundle' => '',
-                        ],
-                    ],
-                ],
-            ]
-        );
-
-        $pluginLoader->initializePlugins(__DIR__);
+        $pluginLoader = $this->createMock(KernelPluginLoader::class);
+        $pluginLoader
+            ->method('getPluginInstances')->willReturn(new KernelPluginCollection(['ExampleBundle' => $this->getBundle()]));
 
         $kernel = $this->createMock(KernelInterface::class);
         $kernel
@@ -115,11 +89,11 @@ class AssetServiceTest extends TestCase
             new ParameterBag()
         );
 
-        $assetService->copyAssetsFromBundle(ExampleBundle::class);
+        $assetService->copyAssetsFromBundle('ExampleBundle');
 
         static::assertTrue($filesystem->has('bundles/example'));
         static::assertTrue($filesystem->has('bundles/example/test.txt'));
-        static::assertSame('TEST', trim($filesystem->read('bundles/example/test.txt')));
+        static::assertSame('TEST', trim((string) $filesystem->read('bundles/example/test.txt')));
     }
 
     public function testBundleDeletion(): void
@@ -130,11 +104,11 @@ class AssetServiceTest extends TestCase
             ->with('ExampleBundle')
             ->willReturn($this->getBundle());
 
-        $filesystem = new Filesystem(new MemoryFilesystemAdapter());
+        $filesystem = new Filesystem(new MemoryAdapter());
         $assetService = new AssetService(
             $filesystem,
             $kernel,
-            new StaticKernelPluginLoader($this->createMock(ClassLoader::class)),
+            $this->createMock(KernelPluginLoader::class),
             $this->createMock(CacheInvalidator::class),
             $this->createMock(AbstractAppLoader::class),
             'coreDir',
@@ -153,7 +127,7 @@ class AssetServiceTest extends TestCase
 
     public function testCopyRecoveryFiles(): void
     {
-        $filesystem = new Filesystem(new MemoryFilesystemAdapter());
+        $filesystem = new Filesystem(new MemoryAdapter());
         $assetService = new AssetService(
             $filesystem,
             $this->createMock(KernelInterface::class),
@@ -171,7 +145,7 @@ class AssetServiceTest extends TestCase
 
     public function testCopyAssetsWithoutApp(): void
     {
-        $filesystem = new Filesystem(new MemoryFilesystemAdapter());
+        $filesystem = new Filesystem(new MemoryAdapter());
         $assetService = new AssetService(
             $filesystem,
             $this->createMock(KernelInterface::class),
@@ -184,12 +158,12 @@ class AssetServiceTest extends TestCase
 
         $assetService->copyAssetsFromApp('TestApp', __DIR__ . '/foo');
 
-        static::assertEmpty($filesystem->listContents('bundles')->toArray());
+        static::assertEmpty($filesystem->listContents('bundles'));
     }
 
     public function testCopyAssetsWithApp(): void
     {
-        $filesystem = new Filesystem(new MemoryFilesystemAdapter());
+        $filesystem = new Filesystem(new MemoryAdapter());
 
         $appLoader = $this->createMock(AbstractAppLoader::class);
         $appLoader
@@ -211,7 +185,7 @@ class AssetServiceTest extends TestCase
 
         static::assertTrue($filesystem->has('bundles/example'));
         static::assertTrue($filesystem->has('bundles/example/test.txt'));
-        static::assertSame('TEST', trim($filesystem->read('bundles/example/test.txt')));
+        static::assertSame('TEST', trim((string) $filesystem->read('bundles/example/test.txt')));
     }
 
     private function getBundle(): ExampleBundle

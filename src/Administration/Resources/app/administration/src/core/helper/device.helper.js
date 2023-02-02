@@ -1,6 +1,4 @@
 /**
- * @package admin
- *
  * @module core/helper/device
  */
 import utils from 'src/core/service/util.service';

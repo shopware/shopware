@@ -1,11 +1,9 @@
 import template from './sw-newsletter-recipient-filter-switch.html.twig';
 
-/**
- * @package customer-order
- */
+const { Component } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-newsletter-recipient-filter-switch', {
     template,
 
     props: {
@@ -32,4 +30,4 @@ export default {
             this.$emit('change', { id: this.id, group: this.group, value });
         },
     },
-};
+});

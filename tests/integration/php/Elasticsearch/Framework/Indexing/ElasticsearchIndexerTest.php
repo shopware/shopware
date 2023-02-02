@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Integration\Elasticsearch\Framework\Indexing;
 
 use Doctrine\DBAL\Connection;
-use OpenSearch\Client;
+use Elasticsearch\Client;
 use PHPUnit\Framework\TestCase;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Log\NullLogger;
@@ -30,8 +30,6 @@ use Symfony\Component\Messenger\MessageBusInterface;
 /**
  * @internal
  * @group skip-paratest
- *
- * @package system-settings
  */
 class ElasticsearchIndexerTest extends TestCase
 {
@@ -63,15 +61,13 @@ class ElasticsearchIndexerTest extends TestCase
     public function testSecondIndexingCreatesTask(): void
     {
         $c = $this->getContainer()->get(Connection::class);
-        $before = $c->fetchAllAssociative('SELECT * FROM elasticsearch_index_task');
-        static::assertEmpty($before);
+        static::assertEmpty($c->fetchAllAssociative('SELECT * FROM elasticsearch_index_task'));
 
         $indexer = $this->getContainer()->get(ElasticsearchIndexer::class);
         $indexer->iterate(null);
         $indexer->iterate(null);
 
-        $after = $c->fetchAllAssociative('SELECT * FROM elasticsearch_index_task');
-        static::assertNotEmpty($after);
+        static::assertNotEmpty($c->fetchAllAssociative('SELECT * FROM elasticsearch_index_task'));
     }
 
     public function testItSkipsIndexGenerationForUnusedLanguages(): void

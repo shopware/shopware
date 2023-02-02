@@ -1,0 +1,238 @@
+{# @deprecated tag:v6.5.0 - Template `offcanvas-item.html.twig` is deprecated. Use `storefront/component/line-item/line-item.html.twig` instead. #}
+
+{% block component_offcanvas_cart_item_inner %}
+    {% set PRODUCT_LINE_ITEM_TYPE = constant('Shopware\\Core\\Checkout\\Cart\\LineItem\\LineItem::PRODUCT_LINE_ITEM_TYPE') %}
+    {% set DISCOUNT_LINE_ITEM_TYPE = constant('Shopware\\Core\\Checkout\\Cart\\LineItem\\LineItem::DISCOUNT_LINE_ITEM') %}
+
+    {% set price = lineItem.price %}
+    {% set isDiscount = (not lineItem.good and price.totalPrice <= 0) || lineItem.type == DISCOUNT_LINE_ITEM_TYPE %}
+    {% set isNested = lineItem.children.count > 0 %}
+    {% set label = lineItem.label|trans|sw_sanitize %}
+    {% set label = label !== '' ? label : lineItem.label %}
+
+    {% set referencedId = lineItem.referencedId %}
+    {% set type = lineItem.type %}
+    {% set quantity = lineItem.quantity %}
+    {% set id = lineItem.id %}
+    {% set childrenTemplate = '@Storefront/storefront/component/checkout/offcanvas-item-children.html.twig' %}
+
+    {# @deprecated tag:v6.5.0 - var will be removed with no replacement #}
+    {% set cartItemClasses = '' %}
+
+    {% block component_offcanvas_cart_item_container %}
+        <div class="cart-item cart-item-{{ type }}{% if isDiscount %} is-discount{% endif %}{{ cartItemClasses }} js-cart-item">
+            <div class="row cart-item-row">
+                {% block component_offcanvas_product_image %}
+                    <div class="col-auto">
+                        {% block component_offcanvas_product_image_inner %}
+                            <div class="cart-item-img">
+                                {% if isDiscount %}
+                                    <div class="cart-item-discount-icon">
+                                        {% sw_icon 'marketing' style {
+                                            'color': 'success'
+                                        } %}
+                                    </div>
+                                {% elseif isNested %}
+                                    <div class="cart-item-nested-icon">
+                                        {% sw_icon 'bag-product' style {
+                                            'color': 'light'
+                                        } %}
+                                    </div>
+                                {% else %}
+                                    <a href="{{ seoUrl('frontend.detail.page', {'productId': referencedId}) }}"
+                                       class="cart-item-img-link"
+                                       title="{{ label }}">
+                                        {% if lineItem.cover.url %}
+                                            {% sw_thumbnails 'cart-item-img-thumbnails' with {
+                                                media: lineItem.cover,
+                                                sizes: {
+                                                    'default': '100px'
+                                                },
+                                                attributes: {
+                                                    'class': 'img-fluid cart-item-img-source',
+                                                    'alt': label,
+                                                    'title': label
+                                                }
+                                            } %}
+                                        {% else %}
+                                            {% sw_icon 'placeholder' style {
+                                                'size': 'fluid'
+                                            } %}
+                                        {% endif %}
+                                    </a>
+                                {% endif %}
+                            </div>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+
+                {% block component_offcanvas_product_details %}
+                    <div class="col-7 cart-item-details">
+                        {% block component_offcanvas_product_details_inner %}
+                            <div class="cart-item-details-container">
+                                {% block component_offcanvas_product_label %}
+                                    <div class="cart-item-details">
+                                        {% if type == PRODUCT_LINE_ITEM_TYPE %}
+                                            <a href="{{ seoUrl('frontend.detail.page', {'productId': referencedId}) }}"
+                                               class="cart-item-label"
+                                               title="{{ label }}">
+                                                {{ quantity }}{{ "checkout.quantityTimes"|trans|sw_sanitize }} {{ label|u.truncate(60, '...', false)|raw }}
+                                            </a>
+                                        {% else %}
+                                            <div class="cart-item-label">
+                                                {{ label|u.truncate(60, '...', false)|raw }}
+                                            </div>
+                                        {% endif  %}
+                                    </div>
+                                {% endblock %}
+
+                                {% block cart_item_variant_characteristics %}
+                                    <div class="cart-item-characteristics">
+                                        {% for option in lineItem.payload.options %}
+                                            {{ option.group }}:
+                                            <span class="cart-item-characteristics-option">{{ option.option }}</span>
+
+                                            {% if lineItem.payload.options|last != option %}
+                                                {{ " | " }}
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                {% endblock %}
+
+                                {% block component_offcanvas_product_details_features %}
+                                    {% if lineItem.type == PRODUCT_LINE_ITEM_TYPE and lineItem.payload.features is not null %}
+                                        {% sw_include '@Storefront/storefront/component/product/feature/list.html.twig' with {
+                                            'features': lineItem.payload.features
+                                        } %}
+                                    {% endif %}
+                                {% endblock %}
+
+                                {% block component_offcanvas_product_quantity_price %}
+                                    <div class="cart-quantity-price">
+                                        {% block component_offcanvas_product_quantity %}
+                                            <div class="cart-item-quantity">
+                                                {% block component_offcanvas_product_quantity_form %}
+                                                    {% if lineItem.quantityInformation and lineItem.stackable %}
+                                                        <form action="{{ path('frontend.checkout.line-item.change-quantity', {'id': id}) }}"
+                                                              class="cart-item-quantity-container"
+                                                              method="post">
+
+                                                            {% block component_offcanvas_product_quantity_form_csrf %}
+                                                                {{ sw_csrf('frontend.checkout.line-item.change-quantity') }}
+                                                            {% endblock %}
+
+                                                            {% block component_offcanvas_product_quantity_form_redirect %}
+                                                                <input type="hidden"
+                                                                       name="redirectTo"
+                                                                       value="frontend.cart.offcanvas"/>
+                                                            {% endblock %}
+
+                                                            {% set quantityInformation = lineItem.quantityInformation %}
+                                                            {% if quantityInformation.maxPurchase %}
+                                                                {% set maxQuantity = quantityInformation.maxPurchase %}
+                                                            {% else %}
+                                                                {% set maxQuantity = config('core.cart.maxQuantity') %}
+                                                            {% endif %}
+
+                                                            {% set selectQuantityThreshold = 100 %}
+                                                            {% block component_offcanvas_product_buy_quantity %}
+                                                                {% if (maxQuantity - quantityInformation.minPurchase) / quantityInformation.purchaseSteps > selectQuantityThreshold %}
+                                                                    {% block component_offcanvas_product_buy_quantity_input %}
+                                                                        <input
+                                                                            type="number"
+                                                                            name="quantity"
+                                                                            class="form-control js-offcanvas-cart-change-quantity-number"
+                                                                            min="{{ quantityInformation.minPurchase }}"
+                                                                            max="{{ maxQuantity }}"
+                                                                            step="{{ quantityInformation.purchaseSteps }}"
+                                                                            value="{{ quantity }}"
+                                                                        />
+                                                                    {% endblock %}
+                                                                {% else %}
+                                                                    {% block component_offcanvas_product_buy_quantity_select %}
+                                                                        <select name="quantity" class="{{ formSelectClass }} quantity-select-{{ id }} js-offcanvas-cart-change-quantity">
+                                                                            {% for quantityItem in range(quantityInformation.minPurchase, maxQuantity, quantityInformation.purchaseSteps) %}
+                                                                                <option value="{{ quantityItem }}"
+                                                                                    {% if quantityItem == quantity %} selected="selected"{% endif %}>
+                                                                                    {{ quantityItem }}
+                                                                                </option>
+                                                                            {% endfor %}
+                                                                        </select>
+                                                                    {% endblock %}
+                                                                {% endif %}
+                                                            {% endblock %}
+                                                        </form>
+                                                    {% endif %}
+                                                {% endblock %}
+                                            </div>
+                                        {% endblock %}
+
+                                        {% block component_offcanvas_product_total_price %}
+                                            <div class="cart-item-price">
+                                                {# Shipping costs discounts always have a price of 0, which might be confusing, therefore we do not show those #}
+                                                {% if lineItem.payload.discountScope != 'delivery' %}
+                                                    {{ price.totalPrice|currency }}{{ "general.star"|trans|sw_sanitize }}
+                                                {% endif %}
+                                                {% set referencePrice = price.referencePrice %}
+                                                {% if referencePrice is not null %}
+                                                    <small class="cart-item-reference-price">
+                                                        ({{ referencePrice.price|currency }}{{ "general.star"|trans|sw_sanitize }} / {{ referencePrice.referenceUnit }}&nbsp;{{ referencePrice.unitName }})
+                                                    </small>
+                                                {% endif %}
+                                            </div>
+                                        {% endblock %}
+                                    </div>
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+
+                {% block component_offcanvas_product_remove %}
+                    <div class="cart-item-remove">
+                        {% block component_offcanvas_product_remove_form %}
+                            {% if lineItem.removable %}
+                                <form action="{{ path('frontend.checkout.line-item.delete', {'id': id}) }}"
+                                      class="cart-item-remove js-offcanvas-cart-remove-product"
+                                      method="post">
+
+                                    {% block component_offcanvas_product_remove_form_csrf %}
+                                        {{ sw_csrf('frontend.checkout.line-item.delete') }}
+                                    {% endblock %}
+
+                                    {% block component_offcanvas_product_remove_redirect %}
+                                        <input type="hidden"
+                                               name="redirectTo"
+                                               value="frontend.cart.offcanvas"/>
+                                    {% endblock %}
+
+                                    {% block component_offcanvas_product_remove_submit %}
+                                        <button type="submit"
+                                                title="{{ "checkout.removeLineItem"|trans|striptags }}"
+                                                data-product-id="{{ lineItem.id }}"
+                                                class="btn btn-light cart-item-remove-button">
+                                            {% sw_icon 'x' style { 'size': 'sm' } %}
+                                        </button>
+                                    {% endblock %}
+                                </form>
+                            {% endif %}
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+
+                {% block component_offcanvas_children %}
+                    {% if isNested %}
+                        {# @deprecated tag:v6.5.0 - block will be removed, use `component_offcanvas_item_children` in `@Storefront/storefront/component/checkout/offcanvas-item-children.html.twig` instead #}
+                        {% block component_offcanvas_cart_item_children %}
+                            {% sw_include childrenTemplate %}
+                        {% endblock %}
+                    {% endif %}
+                {% endblock %}
+
+            </div>
+        </div>
+    {% endblock %}
+
+    {# @deprecated tag:v6.5.0 - block will be removed #}
+    {% block component_offcanvas_cart_item_child %}{% endblock %}
+{% endblock %}

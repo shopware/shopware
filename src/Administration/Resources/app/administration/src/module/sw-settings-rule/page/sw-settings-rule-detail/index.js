@@ -2,14 +2,10 @@ import template from './sw-settings-rule-detail.html.twig';
 import './sw-settings-rule-detail.scss';
 
 const { Component, Mixin, Context } = Shopware;
-const { mapPropertyErrors } = Component.getComponentHelper();
 const { Criteria } = Shopware.Data;
 
-/**
- * @private
- * @package business-ops
- */
-export default {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+Component.register('sw-settings-rule-detail', {
     template,
 
     inject: [
@@ -22,6 +18,8 @@ export default {
 
     mixins: [
         Mixin.getByName('notification'),
+        /** @deprecated tag:v6.5.0 - the 'discard-detail-page-changes' mixin will be removed */
+        Mixin.getByName('discard-detail-page-changes')('rule'),
     ],
 
     shortcuts: {
@@ -72,17 +70,15 @@ export default {
             const criteria = new Criteria(1, 25);
             criteria.addAssociation('tags');
 
+            if (!this.feature.isActive('FEATURE_NEXT_18215')) {
+                return criteria;
+            }
+
             criteria.addAssociation('personaPromotions');
             criteria.addAssociation('orderPromotions');
             criteria.addAssociation('cartPromotions');
             criteria.addAssociation('promotionDiscounts');
             criteria.addAssociation('promotionSetGroups');
-            criteria.addAssociation('flowSequences.flow');
-            criteria.addAssociation('shippingMethodPriceCalculations');
-            criteria.addAssociation('shippingMethodPrices');
-            criteria.addAssociation('productPrices');
-            criteria.addAssociation('shippingMethods');
-            criteria.addAssociation('paymentMethods');
 
             return criteria;
         },
@@ -140,8 +136,6 @@ export default {
                 },
             ];
         },
-
-        ...mapPropertyErrors('rule', ['name', 'priority']),
     },
 
     watch: {
@@ -177,6 +171,10 @@ export default {
         },
 
         $route(newRoute, oldRoute) {
+            if (!this.feature.isActive('v6.5.0.0')) {
+                return;
+            }
+
             // Reload the rule data when switching from assignments to base tab because changes to the assignments
             // can affect the conditions that are selectable - rule awareness
             if (newRoute.name === 'sw.settings.rule.detail.base' &&
@@ -203,6 +201,10 @@ export default {
             const context = { ...Context.api, languageId: Shopware.State.get('session').languageId };
             const criteria = new Criteria(1, 500);
 
+            if (!this.feature.isActive('v6.5.0.0')) {
+                return this.appScriptConditionRepository.search(criteria, context);
+            }
+
             return Promise.all([
                 this.appScriptConditionRepository.search(criteria, context),
                 this.ruleConditionsConfigApiService.load(),
@@ -227,6 +229,11 @@ export default {
         },
 
         unsavedDataLeaveHandler(to, from, next) {
+            if (!this.feature.isActive('v6.5.0.0')) {
+                next();
+                return;
+            }
+
             if (this.forceDiscardChanges) {
                 this.forceDiscardChanges = false;
                 next();
@@ -392,14 +399,6 @@ export default {
             this.isLoading = false;
         },
 
-        tabHasError(tab) {
-            if (tab.route.name !== 'sw.settings.rule.detail.base') {
-                return false;
-            }
-
-            return !!this.ruleNameError || !!this.rulePriorityError;
-        },
-
         onCancel() {
             this.$router.push({ name: 'sw.settings.rule.index' });
         },
@@ -425,4 +424,4 @@ export default {
             });
         },
     },
-};
+});

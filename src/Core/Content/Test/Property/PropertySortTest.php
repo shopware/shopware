@@ -15,15 +15,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
  */
 class PropertySortTest extends TestCase
 {
-    /**
-     * @var array<string>
-     */
-    private static array $notShuffledName = [];
+    private static $notShuffledName = [];
 
-    /**
-     * @var array<string>
-     */
-    private static array $notShuffledPosition = [];
+    private static $notShuffledPosition = [];
 
     /**
      * Expected: [0,1,2,3,4,5,6...]
@@ -32,7 +26,7 @@ class PropertySortTest extends TestCase
     {
         $propertyGroup = $this->getPropertyGroupAlphaNumericOnlyNumbers();
         $propertyGroup->sortByConfig();
-        $propertyOptionsArray = json_decode(json_encode($propertyGroup->first()->getOptions(), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
+        $propertyOptionsArray = json_decode(json_encode($propertyGroup->first()->getOptions()), true);
 
         $equalsArray = [];
         for ($x = 0; $x < 50; ++$x) {
@@ -52,7 +46,7 @@ class PropertySortTest extends TestCase
     {
         $propertyGroup = $this->getPropertyGroupAlphaNumericOnlyLetters();
         $propertyGroup->sortByConfig();
-        $propertyOptionsArray = json_decode(json_encode($propertyGroup->first()->getOptions(), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
+        $propertyOptionsArray = json_decode(json_encode($propertyGroup->first()->getOptions()), true);
 
         $equalsArray = [];
         $letterArray = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'];
@@ -73,7 +67,7 @@ class PropertySortTest extends TestCase
     {
         $propertyGroup = $this->getPropertyGroupAlphaNumericNumbersFirstThenLetters();
         $propertyGroup->sortByConfig();
-        $propertyOptionsArray = json_decode(json_encode($propertyGroup->first()->getOptions(), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
+        $propertyOptionsArray = json_decode(json_encode($propertyGroup->first()->getOptions()), true);
 
         $equalsArray = [];
         $letterArray = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'];
@@ -94,7 +88,7 @@ class PropertySortTest extends TestCase
     {
         $propertyGroup = $this->getPropertyGroupPosition();
         $propertyGroup->sortByConfig();
-        $propertyOptionsArray = json_decode(json_encode($propertyGroup->first()->getOptions(), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
+        $propertyOptionsArray = json_decode(json_encode($propertyGroup->first()->getOptions()), true);
 
         $equalsArray = [];
         for ($x = 10; $x < 500; ++$x) {
@@ -114,7 +108,7 @@ class PropertySortTest extends TestCase
     {
         $propertyGroup = $this->getPropertyGroupPositionMixed();
         $propertyGroup->sortByConfig();
-        $propertyOptionsArray = json_decode(json_encode($propertyGroup->first()->getOptions(), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
+        $propertyOptionsArray = json_decode(json_encode($propertyGroup->first()->getOptions()), true);
 
         static::assertEquals(
             self::$notShuffledPosition,
@@ -129,7 +123,7 @@ class PropertySortTest extends TestCase
     {
         $propertyGroup = $this->getPropertyGroupAlphaNumericMixed();
         $propertyGroup->sortByConfig();
-        $propertyOptionsArray = json_decode(json_encode($propertyGroup->first()->getOptions(), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
+        $propertyOptionsArray = json_decode(json_encode($propertyGroup->first()->getOptions()), true);
 
         static::assertEquals(
             self::$notShuffledName,
@@ -322,7 +316,7 @@ class PropertySortTest extends TestCase
             $propertyOptions[] = $propertyOption;
         }
         self::$notShuffledName = ['1a', '2aa', '3-x$e', '3d', '3e', '20aa', '44f', '55g', 'h6', 'i7', 'j2'];
-        self::$notShuffledPosition = array_column(json_decode(json_encode($propertyOptions, \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR), 'position');
+        self::$notShuffledPosition = array_column(json_decode(json_encode($propertyOptions), true), 'position');
         shuffle($propertyOptions);
 
         return new PropertyGroupOptionCollection($propertyOptions);

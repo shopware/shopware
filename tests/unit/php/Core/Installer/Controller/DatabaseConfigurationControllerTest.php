@@ -17,7 +17,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Environment;
@@ -31,19 +30,40 @@ class DatabaseConfigurationControllerTest extends TestCase
 {
     use InstallerControllerTestTrait;
 
-    private MockObject&Environment $twig;
+    /**
+     * @var Environment&MockObject
+     */
+    private $twig;
 
-    private MockObject&TranslatorInterface $translator;
+    /**
+     * @var TranslatorInterface&MockObject
+     */
+    private $translator;
 
-    private MockObject&BlueGreenDeploymentService $blueGreenDeploymentService;
+    /**
+     * @var BlueGreenDeploymentService&MockObject
+     */
+    private $blueGreenDeploymentService;
 
-    private MockObject&JwtCertificateGenerator $jwtCertificateGenerator;
+    /**
+     * @var JwtCertificateGenerator&MockObject
+     */
+    private $jwtCertificateGenerator;
 
-    private MockObject&SetupDatabaseAdapter $setupDatabaseAdapter;
+    /**
+     * @var SetupDatabaseAdapter&MockObject
+     */
+    private $setupDatabaseAdapter;
 
-    private MockObject&DatabaseConnectionFactory $connectionFactory;
+    /**
+     * @var DatabaseConnectionFactory&MockObject
+     */
+    private $connectionFactory;
 
-    private MockObject&RouterInterface $router;
+    /**
+     * @var RouterInterface&MockObject
+     */
+    private $router;
 
     private DatabaseConfigurationController $controller;
 
@@ -116,7 +136,7 @@ class DatabaseConfigurationControllerTest extends TestCase
         $this->twig->expects(static::never())->method('render');
 
         $this->router->expects(static::once())->method('generate')
-            ->with('installer.database-import', [], UrlGeneratorInterface::ABSOLUTE_PATH)
+            ->with('installer.database-import', [], RouterInterface::ABSOLUTE_PATH)
             ->willReturn('/installer/database-import');
 
         $request = Request::create('/installer/database-configuration', 'POST', ['databaseName' => 'test']);
@@ -213,7 +233,7 @@ class DatabaseConfigurationControllerTest extends TestCase
         $this->twig->expects(static::never())->method('render');
 
         $this->router->expects(static::once())->method('generate')
-            ->with('installer.database-import', [], UrlGeneratorInterface::ABSOLUTE_PATH)
+            ->with('installer.database-import', [], RouterInterface::ABSOLUTE_PATH)
             ->willReturn('/installer/database-import');
 
         $request = Request::create('/installer/database-configuration', 'POST', ['databaseName' => 'test']);

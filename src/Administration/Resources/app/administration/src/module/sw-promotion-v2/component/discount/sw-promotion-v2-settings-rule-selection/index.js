@@ -1,9 +1,10 @@
 import template from './sw-promotion-v2-settings-rule-selection.html.twig';
 
+const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-promotion-v2-settings-rule-selection', {
     template,
 
     inject: [
@@ -23,4 +24,4 @@ export default {
                 .addSorting(Criteria.sort('name', 'ASC', false));
         },
     },
-};
+});

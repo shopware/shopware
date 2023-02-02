@@ -1,11 +1,10 @@
 import template from './sw-extension-permissions-details-modal.html.twig';
 import './sw-extension-permissions-details-modal.scss';
 
-/**
- * @package merchant-services
- * @private
- */
-export default {
+const { Component } = Shopware;
+
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+Component.register('sw-extension-permissions-details-modal', {
     template,
 
     props: {
@@ -89,4 +88,4 @@ export default {
             return this.$te(translation) ? this.$tc(translation) : entity;
         },
     },
-};
+});

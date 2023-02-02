@@ -8,7 +8,7 @@ use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
@@ -21,7 +21,7 @@ trait BasicTestDataBehaviour
 {
     public function getDeDeLanguageId(): string
     {
-        /** @var EntityRepository $repository */
+        /** @var EntityRepositoryInterface $repository */
         $repository = $this->getContainer()->get('language.repository');
 
         $criteria = new Criteria();
@@ -37,7 +37,7 @@ trait BasicTestDataBehaviour
 
     protected function getValidPaymentMethodId(?string $salesChannelId = null): string
     {
-        /** @var EntityRepository $repository */
+        /** @var EntityRepositoryInterface $repository */
         $repository = $this->getContainer()->get('payment_method.repository');
 
         $criteria = (new Criteria())
@@ -56,7 +56,7 @@ trait BasicTestDataBehaviour
 
     protected function getInactivePaymentMethodId(?string $salesChannelId = null): string
     {
-        /** @var EntityRepository $repository */
+        /** @var EntityRepositoryInterface $repository */
         $repository = $this->getContainer()->get('payment_method.repository');
 
         $criteria = (new Criteria())
@@ -75,7 +75,7 @@ trait BasicTestDataBehaviour
 
     protected function getAvailablePaymentMethod(?string $salesChannelId = null): PaymentMethodEntity
     {
-        /** @var EntityRepository $repository */
+        /** @var EntityRepositoryInterface $repository */
         $repository = $this->getContainer()->get('payment_method.repository');
 
         $criteria = (new Criteria())
@@ -99,7 +99,7 @@ trait BasicTestDataBehaviour
 
     protected function getValidShippingMethodId(?string $salesChannelId = null): string
     {
-        /** @var EntityRepository $repository */
+        /** @var EntityRepositoryInterface $repository */
         $repository = $this->getContainer()->get('shipping_method.repository');
 
         $criteria = (new Criteria())
@@ -119,7 +119,7 @@ trait BasicTestDataBehaviour
 
     protected function getAvailableShippingMethod(?string $salesChannelId = null): ShippingMethodEntity
     {
-        /** @var EntityRepository $repository */
+        /** @var EntityRepositoryInterface $repository */
         $repository = $this->getContainer()->get('shipping_method.repository');
 
         $criteria = (new Criteria())
@@ -146,7 +146,7 @@ trait BasicTestDataBehaviour
 
     protected function getValidSalutationId(): string
     {
-        /** @var EntityRepository $repository */
+        /** @var EntityRepositoryInterface $repository */
         $repository = $this->getContainer()->get('salutation.repository');
 
         $criteria = (new Criteria())
@@ -161,7 +161,7 @@ trait BasicTestDataBehaviour
 
     protected function getLocaleIdOfSystemLanguage(): string
     {
-        /** @var EntityRepository $repository */
+        /** @var EntityRepositoryInterface $repository */
         $repository = $this->getContainer()->get('language.repository');
 
         /** @var LanguageEntity $language */
@@ -172,7 +172,7 @@ trait BasicTestDataBehaviour
 
     protected function getSnippetSetIdForLocale(string $locale): ?string
     {
-        /** @var EntityRepository $repository */
+        /** @var EntityRepositoryInterface $repository */
         $repository = $this->getContainer()->get('snippet_set.repository');
 
         $criteria = (new Criteria())
@@ -187,10 +187,11 @@ trait BasicTestDataBehaviour
      */
     protected function getValidCountryId(?string $salesChannelId = TestDefaults::SALES_CHANNEL): string
     {
-        /** @var EntityRepository $repository */
+        /** @var EntityRepositoryInterface $repository */
         $repository = $this->getContainer()->get('country.repository');
 
         $criteria = (new Criteria())->setLimit(1)
+            ->addFilter(new EqualsFilter('taxFree', 0))
             ->addFilter(new EqualsFilter('active', true))
             ->addFilter(new EqualsFilter('shippingAvailable', true))
             ->addSorting(new FieldSorting('iso'));
@@ -209,7 +210,7 @@ trait BasicTestDataBehaviour
 
     protected function getDeCountryId(): string
     {
-        /** @var EntityRepository $repository */
+        /** @var EntityRepositoryInterface $repository */
         $repository = $this->getContainer()->get('country.repository');
 
         $criteria = (new Criteria())->setLimit(1)
@@ -223,7 +224,7 @@ trait BasicTestDataBehaviour
 
     protected function getValidCategoryId(): string
     {
-        /** @var EntityRepository $repository */
+        /** @var EntityRepositoryInterface $repository */
         $repository = $this->getContainer()->get('category.repository');
 
         $criteria = (new Criteria())
@@ -238,7 +239,7 @@ trait BasicTestDataBehaviour
 
     protected function getValidTaxId(): string
     {
-        /** @var EntityRepository $repository */
+        /** @var EntityRepositoryInterface $repository */
         $repository = $this->getContainer()->get('tax.repository');
 
         $criteria = (new Criteria())
@@ -253,7 +254,7 @@ trait BasicTestDataBehaviour
 
     protected function getValidDocumentTypeId(): string
     {
-        /** @var EntityRepository $repository */
+        /** @var EntityRepositoryInterface $repository */
         $repository = $this->getContainer()->get('document_type.repository');
 
         $criteria = (new Criteria())
@@ -268,7 +269,7 @@ trait BasicTestDataBehaviour
 
     protected function getStateMachineState(string $stateMachine = OrderStates::STATE_MACHINE, string $state = OrderStates::STATE_OPEN): string
     {
-        /** @var EntityRepository $repository */
+        /** @var EntityRepositoryInterface $repository */
         $repository = $this->getContainer()->get('state_machine_state.repository');
 
         $criteria = new Criteria();

@@ -4,15 +4,13 @@ namespace Shopware\Core\Framework\App\Delta;
 
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Manifest\Manifest;
-use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal only for use by the app-system
  */
-#[Package('core')]
 class DomainsDeltaProvider extends AbstractAppDeltaProvider
 {
-    final public const DELTA_NAME = 'domains';
+    public const DELTA_NAME = 'domains';
 
     public function getDeltaName(): string
     {

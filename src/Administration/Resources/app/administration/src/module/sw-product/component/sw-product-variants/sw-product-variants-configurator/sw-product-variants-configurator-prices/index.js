@@ -1,14 +1,11 @@
-/*
- * @package inventory
- */
-
 import template from './sw-product-variants-configurator-prices.html.twig';
 import './sw-product-variants-configurator-prices.scss';
 
+const { Component, Feature } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-product-variants-configurator-prices', {
     template,
 
     inject: ['repositoryFactory'],
@@ -77,6 +74,12 @@ export default {
         'activeGroup'() {
             this.getOptionsForGroup();
         },
+        /* @deprecated tag:v6.5.0 watcher is not debounced anymore, use `@search-term-change` handler */
+        'term'() {
+            if (!Feature.isActive('FEATURE_NEXT_16271')) {
+                this.getOptionsForGroup();
+            }
+        },
     },
 
     mounted() {
@@ -85,7 +88,9 @@ export default {
 
     methods: {
         onSearchTermChange() {
-            this.getOptionsForGroup();
+            if (Feature.isActive('FEATURE_NEXT_16271')) {
+                this.getOptionsForGroup();
+            }
         },
         mountedComponent() {
             this.isLoading = false;
@@ -139,4 +144,4 @@ export default {
             return option.price.find((currency) => currency.currencyId === currencyId);
         },
     },
-};
+});

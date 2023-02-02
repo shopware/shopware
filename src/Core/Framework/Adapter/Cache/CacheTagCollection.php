@@ -2,9 +2,6 @@
 
 namespace Shopware\Core\Framework\Adapter\Cache;
 
-use Shopware\Core\Framework\Log\Package;
-
-#[Package('core')]
 class CacheTagCollection
 {
     private array $keys = ['all' => true];
@@ -17,7 +14,10 @@ class CacheTagCollection
         $this->keys = ['all' => true];
     }
 
-    public function add(string|array $tags): void
+    /**
+     * @param string|array $tags
+     */
+    public function add($tags): void
     {
         foreach (array_keys($this->keys) as $trace) {
             if (\is_string($tags)) {

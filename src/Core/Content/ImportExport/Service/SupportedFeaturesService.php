@@ -2,30 +2,24 @@
 
 namespace Shopware\Core\Content\ImportExport\Service;
 
-use Shopware\Core\Framework\Log\Package;
-
 /**
  * @internal We might break this in v6.2
  */
-#[Package('system-settings')]
 class SupportedFeaturesService
 {
     /**
-     * @var list<string>
+     * @var array<string>
      */
-    private array $entities = [];
+    private $entities;
 
     /**
-     * @var list<string>
+     * @var array<string>
      */
-    private array $fileTypes = [];
+    private $fileTypes;
 
-    /**
-     * @param iterable<string> $entities
-     * @param iterable<string> $fileTypes
-     */
     public function __construct(iterable $entities, iterable $fileTypes)
     {
+        $this->entities = [];
         foreach ($entities as $entityName) {
             if (!\is_string($entityName)) {
                 throw new \InvalidArgumentException(sprintf(
@@ -36,6 +30,7 @@ class SupportedFeaturesService
             $this->entities[] = $entityName;
         }
 
+        $this->fileTypes = [];
         foreach ($fileTypes as $fileType) {
             if (!\is_string($fileType)) {
                 throw new \InvalidArgumentException(sprintf(
@@ -47,17 +42,11 @@ class SupportedFeaturesService
         }
     }
 
-    /**
-     * @return list<string>
-     */
     public function getEntities(): array
     {
         return $this->entities;
     }
 
-    /**
-     * @return list<string>
-     */
     public function getFileTypes(): array
     {
         return $this->fileTypes;
@@ -67,14 +56,21 @@ class SupportedFeaturesService
     {
         $twoGiB = 2 * 1024 * 1024 * 1024;
         $values = [
-            self::toBytes((string) \ini_get('upload_max_filesize')),
-            self::toBytes((string) \ini_get('post_max_size')),
+            self::toBytes(\ini_get('upload_max_filesize')),
+            self::toBytes(\ini_get('post_max_size')),
             $twoGiB, // 2 GiB as fallback, because file size is stored in MySQL INT column
         ];
 
-        $limits = array_filter($values, static fn (int $value) => $value > 0);
+        $limits = array_filter($values, static function (int $value) {
+            return $value > 0;
+        });
 
-        return min($limits);
+        $min = min(...$limits);
+        if ($min === false) {
+            return $twoGiB;
+        }
+
+        return $min;
     }
 
     private static function toBytes(string $value): int
@@ -85,12 +81,20 @@ class SupportedFeaturesService
         $length = mb_strlen($value);
         $qty = (int) mb_substr($value, 0, $length - 1);
         $unit = mb_strtolower(mb_substr($value, $length - 1));
-        match ($unit) {
-            'k' => $qty *= 1024,
-            'm' => $qty *= 1048576,
-            'g' => $qty *= 1073741824,
-            default => $qty,
-        };
+        switch ($unit) {
+            case 'k':
+                $qty *= 1024;
+
+                break;
+            case 'm':
+                $qty *= 1048576;
+
+                break;
+            case 'g':
+                $qty *= 1073741824;
+
+                break;
+        }
 
         return $qty;
     }

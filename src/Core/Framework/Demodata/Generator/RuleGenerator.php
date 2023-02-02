@@ -5,10 +5,10 @@ namespace Shopware\Core\Framework\Demodata\Generator;
 use Faker\Generator;
 use Shopware\Core\Checkout\Cart\Rule\GoodsPriceRule;
 use Shopware\Core\Checkout\Customer\Rule\CustomerGroupRule;
-use Shopware\Core\Checkout\Customer\Rule\DaysSinceFirstLoginRule;
+use Shopware\Core\Checkout\Customer\Rule\IsNewCustomerRule;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
@@ -16,7 +16,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Container\Container;
 use Shopware\Core\Framework\Rule\Container\FilterRule;
@@ -27,24 +26,50 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\Rule\CurrencyRule;
 use Shopware\Core\Test\TestDefaults;
 
-/**
- * @internal
- */
-#[Package('core')]
 class RuleGenerator implements DemodataGeneratorInterface
 {
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $ruleRepository;
+
+    /**
+     * @var EntityWriterInterface
+     */
+    private $writer;
+
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $paymentMethodRepository;
+
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $shippingMethodRepository;
+
+    /**
+     * @var RuleDefinition
+     */
+    private $ruleDefinition;
+
     private Generator $faker;
 
     /**
      * @internal
      */
     public function __construct(
-        private readonly EntityRepository $ruleRepository,
-        private readonly EntityWriterInterface $writer,
-        private readonly EntityRepository $paymentMethodRepository,
-        private readonly EntityRepository $shippingMethodRepository,
-        private readonly RuleDefinition $ruleDefinition
+        EntityRepositoryInterface $ruleRepository,
+        EntityWriterInterface $writer,
+        EntityRepositoryInterface $paymentMethodRepository,
+        EntityRepositoryInterface $shippingMethodRepository,
+        RuleDefinition $ruleDefinition
     ) {
+        $this->ruleRepository = $ruleRepository;
+        $this->writer = $writer;
+        $this->paymentMethodRepository = $paymentMethodRepository;
+        $this->shippingMethodRepository = $shippingMethodRepository;
+        $this->ruleDefinition = $ruleDefinition;
     }
 
     public function getDefinition(): string
@@ -56,17 +81,15 @@ class RuleGenerator implements DemodataGeneratorInterface
     {
         $this->faker = $context->getFaker();
 
-        /** @var list<string> $paymentMethodIds */
-        $paymentMethodIds = $this->paymentMethodRepository->searchIds(new Criteria(), $context->getContext())->getIds();
-        /** @var list<string> $shippingMethodIds */
-        $shippingMethodIds = $this->shippingMethodRepository->searchIds(new Criteria(), $context->getContext())->getIds();
+        $paymentMethodIds = $this->paymentMethodRepository->searchIds(new Criteria(), $context->getContext());
+        $shippingMethodIds = $this->shippingMethodRepository->searchIds(new Criteria(), $context->getContext());
 
         $criteria = (new Criteria())->addFilter(
             new NotFilter(
                 NotFilter::CONNECTION_AND,
                 [
-                    new EqualsAnyFilter('rule.shippingMethods.id', $shippingMethodIds),
-                    new EqualsAnyFilter('rule.paymentMethods.id', $paymentMethodIds),
+                    new EqualsAnyFilter('rule.shippingMethods.id', $shippingMethodIds->getIds()),
+                    new EqualsAnyFilter('rule.paymentMethods.id', $paymentMethodIds->getIds()),
                 ]
             )
         );
@@ -79,7 +102,7 @@ class RuleGenerator implements DemodataGeneratorInterface
 
         $pool = [
             [
-                'rule' => (new DaysSinceFirstLoginRule())->assign(['daysPassed' => 0]),
+                'rule' => new IsNewCustomerRule(),
                 'name' => 'New customer',
             ],
             [
@@ -140,9 +163,6 @@ class RuleGenerator implements DemodataGeneratorInterface
         $this->writer->insert($this->ruleDefinition, $payload, $writeContext);
     }
 
-    /**
-     * @param list<array{rule: Rule, name: string}> $pool
-     */
     private function buildNestedRule(Rule $rule, array $pool, int $currentDepth, int $depth): Rule
     {
         if ($currentDepth === $depth) {
@@ -164,9 +184,6 @@ class RuleGenerator implements DemodataGeneratorInterface
         return $rule;
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     private function buildChildRule(?string $parentId, Rule $rule): array
     {
         $data = [];

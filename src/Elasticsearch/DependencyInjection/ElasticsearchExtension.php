@@ -2,14 +2,12 @@
 
 namespace Shopware\Elasticsearch\DependencyInjection;
 
-use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 
-#[Package('core')]
 class ElasticsearchExtension extends Extension
 {
     public function load(array $configs, ContainerBuilder $container): void
@@ -22,7 +20,10 @@ class ElasticsearchExtension extends Extension
         $loader->load('services.xml');
     }
 
-    public function getConfiguration(array $config, ContainerBuilder $container): ConfigurationInterface
+    /**
+     * @return ConfigurationInterface
+     */
+    public function getConfiguration(array $config, ContainerBuilder $container)
     {
         return new Configuration();
     }

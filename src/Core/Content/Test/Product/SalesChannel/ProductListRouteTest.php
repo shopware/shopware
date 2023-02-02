@@ -24,9 +24,15 @@ class ProductListRouteTest extends TestCase
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
-    private KernelBrowser $browser;
+    /**
+     * @var KernelBrowser
+     */
+    private $browser;
 
-    private TestDataCollection $ids;
+    /**
+     * @var TestDataCollection
+     */
+    private $ids;
 
     protected function setUp(): void
     {
@@ -51,7 +57,7 @@ class ProductListRouteTest extends TestCase
             ]
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertSame(15, $response['total']);
         static::assertCount(15, $response['elements']);
@@ -69,7 +75,7 @@ class ProductListRouteTest extends TestCase
             ]
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('elements', $response);
         static::assertCount(1, $response['elements']);
@@ -97,7 +103,7 @@ class ProductListRouteTest extends TestCase
             ]
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertSame(1, $response['total']);
         static::assertCount(1, $response['elements']);
@@ -116,7 +122,7 @@ class ProductListRouteTest extends TestCase
             ]
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertSame(1, $response['total']);
         static::assertCount(1, $response['elements']);
@@ -135,7 +141,7 @@ class ProductListRouteTest extends TestCase
             ]
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertSame(15, $response['total']);
         static::assertSame('product', $response['elements'][0]['apiAlias']);
@@ -171,7 +177,7 @@ class ProductListRouteTest extends TestCase
             ],
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertSame(1, $response['total']);
         static::assertSame('product', $response['elements'][0]['apiAlias']);
@@ -213,7 +219,7 @@ class ProductListRouteTest extends TestCase
             ],
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertSame(1, $response['total']);
         static::assertSame('product', $response['elements'][0]['apiAlias']);

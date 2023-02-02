@@ -1,6 +1,3 @@
-/**
- * @package storefront
- */
 module.exports = {
     plugins: {
         'autoprefixer': {},

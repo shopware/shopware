@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -13,7 +14,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\Constraint\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\Validator\Constraints\Collection;
@@ -22,13 +22,23 @@ use Symfony\Component\Validator\Constraints\Optional;
 use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
- * @internal
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
  */
-#[Package('core')]
 class PriceFieldSerializer extends AbstractFieldSerializer
 {
+    /**
+     * @internal
+     */
+    public function __construct(
+        DefinitionInstanceRegistry $definitionRegistry,
+        ValidatorInterface $validator
+    ) {
+        parent::__construct($validator, $definitionRegistry);
+    }
+
     public function encode(
         Field $field,
         EntityExistence $existence,
@@ -102,7 +112,12 @@ class PriceFieldSerializer extends AbstractFieldSerializer
         yield $field->getStorageName() => $value;
     }
 
-    public function decode(Field $field, mixed $value): ?PriceCollection
+    /**
+     * @return PriceCollection|null
+     *
+     * @deprecated tag:v6.5.0 - reason:return-type-change - The return type will be native typed
+     */
+    public function decode(Field $field, $value)/*: ?PriceCollection*/
     {
         if ($value === null) {
             return null;
@@ -110,7 +125,7 @@ class PriceFieldSerializer extends AbstractFieldSerializer
 
         // used for nested hydration (example cheapest-price-hydrator)
         if (\is_string($value)) {
-            $value = json_decode($value, true, 512, \JSON_THROW_ON_ERROR);
+            $value = json_decode($value, true);
         }
 
         $collection = new PriceCollection();

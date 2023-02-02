@@ -1,13 +1,10 @@
-/**
- * @package system-settings
- */
 import template from './sw-bulk-edit-order-documents-generate-invoice.html.twig';
 import './sw-bulk-edit-order-documents-generate-invoice.scss';
 
-const { State } = Shopware;
+const { Component, State } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-bulk-edit-order-documents-generate-invoice', {
     template,
 
     computed: {
@@ -23,4 +20,4 @@ export default {
             },
         },
     },
-};
+});

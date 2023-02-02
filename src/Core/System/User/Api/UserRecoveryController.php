@@ -3,26 +3,39 @@
 namespace Shopware\Core\System\User\Api;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\User\Recovery\UserRecoveryService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Route(defaults: ['_routeScope' => ['api']])]
-#[Package('system-settings')]
+/**
+ * @Route(defaults={"_routeScope"={"api"}})
+ */
 class UserRecoveryController extends AbstractController
 {
+    private UserRecoveryService $userRecoveryService;
+
+    private RateLimiter $rateLimiter;
+
     /**
      * @internal
      */
-    public function __construct(private readonly UserRecoveryService $userRecoveryService, private readonly RateLimiter $rateLimiter)
-    {
+    public function __construct(
+        UserRecoveryService $userRecoveryService,
+        RateLimiter $rateLimiter
+    ) {
+        $this->userRecoveryService = $userRecoveryService;
+        $this->rateLimiter = $rateLimiter;
     }
 
-    #[Route(path: '/api/_action/user/user-recovery', defaults: ['auth_required' => false], name: 'api.action.user.user-recovery', methods: ['POST'])]
+    /**
+     * @Since("6.0.0.0")
+     * @Route("/api/_action/user/user-recovery", defaults={"auth_required"=false}, name="api.action.user.user-recovery", methods={"POST"})
+     */
     public function createUserRecovery(Request $request, Context $context): Response
     {
         $email = (string) $request->request->get('email');
@@ -37,7 +50,10 @@ class UserRecoveryController extends AbstractController
         return new Response();
     }
 
-    #[Route(path: '/api/_action/user/user-recovery/hash', defaults: ['auth_required' => false], name: 'api.action.user.user-recovery.hash', methods: ['GET'])]
+    /**
+     * @Since("6.0.0.0")
+     * @Route("/api/_action/user/user-recovery/hash", defaults={"auth_required"=false}, name="api.action.user.user-recovery.hash", methods={"GET"})
+     */
     public function checkUserRecovery(Request $request, Context $context): Response
     {
         $hash = (string) $request->query->get('hash');
@@ -49,7 +65,10 @@ class UserRecoveryController extends AbstractController
         return $this->getErrorResponse();
     }
 
-    #[Route(path: '/api/_action/user/user-recovery/password', defaults: ['auth_required' => false], name: 'api.action.user.user-recovery.password', methods: ['PATCH'])]
+    /**
+     * @Since("6.0.0.0")
+     * @Route("/api/_action/user/user-recovery/password", defaults={"auth_required"=false}, name="api.action.user.user-recovery.password", methods={"PATCH"})
+     */
     public function updateUserPassword(Request $request, Context $context): Response
     {
         $hash = (string) $request->request->get('hash');

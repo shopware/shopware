@@ -11,7 +11,7 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_quickinfo_folder_quickactions_content %}
-        <template #content>
+        <template slot="content">
             <ul class="sw-media-sidebar__quickactions-list">
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_quickinfo_folder_quickactions_move %}
@@ -109,13 +109,12 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_quickinfo_folder_metadata_content %}
-        <template #content>
+        <template slot="content">
             <dl class="sw-media-sidebar__metadata-list">
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_quickinfo_folder_metadata_content_base %}
                 <sw-media-quickinfo-metadata-item
                     class="sw-media-quickinfo-metadata-name"
-                    :class="nameItemClasses"
                     :label-name="$tc('sw-media.sidebar.metadata.name')"
                     :truncated="false"
                 >
@@ -125,7 +124,6 @@
                         :disabled="!acl.can('media.creator')"
                         compact
                         :value="mediaFolder.name"
-                        :error="mediaFolderNameError"
                         @input="onChangeFolderName"
                     />
                     <template v-else>
@@ -151,7 +149,7 @@
     <sw-media-modal-folder-settings
         v-if="showFolderSettings"
         :disabled="!acl.can('media.editor')"
-        :media-folder-id="mediaFolder.id"
+        :folder="mediaFolder"
         @media-settings-modal-save="closeFolderSettings"
         @media-settings-modal-close="closeFolderSettings"
     />

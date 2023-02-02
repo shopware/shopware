@@ -1,15 +1,11 @@
 import template from './sw-tax-rule-card.html.twig';
 import './sw-tax-rule-card.scss';
 
-/**
- * @package customer-order
- */
-
-const { Context } = Shopware;
+const { Component, Context } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-tax-rule-card', {
     template,
 
     inject: [
@@ -178,4 +174,4 @@ export default {
             return this.$options.components[`sw-settings-tax-rule-type-${subComponentName}-cell`];
         },
     },
-};
+});

@@ -1,11 +1,12 @@
 import template from './sw-cms-block-layout-config.html.twig';
 import './sw-cms-block-layout-config.scss';
 
+const { Component } = Shopware;
+
 /**
- * @private
- * @package content
+ * @private since v6.5.0
  */
-export default {
+Component.register('sw-cms-block-layout-config', {
     template,
 
     inject: ['cmsService'],
@@ -16,4 +17,4 @@ export default {
             required: true,
         },
     },
-};
+});

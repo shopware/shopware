@@ -1,11 +1,9 @@
 import template from './sw-customer-address-form-options.html.twig';
 
-/**
- * @package customer-order
- */
+const { Component } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-customer-address-form-options', {
     template,
 
     props: {
@@ -52,4 +50,4 @@ export default {
         },
     },
 
-};
+});

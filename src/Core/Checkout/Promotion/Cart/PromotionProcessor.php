@@ -4,34 +4,44 @@ namespace Shopware\Core\Checkout\Promotion\Cart;
 
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
-use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\CartProcessorInterface;
+use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
+use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
+use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
+use Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilder;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Promotion\Cart\Error\AutoPromotionNotFoundError;
 use Shopware\Core\Checkout\Promotion\Exception\InvalidPriceDefinitionException;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('checkout')]
 class PromotionProcessor implements CartProcessorInterface
 {
-    final public const DATA_KEY = 'promotions';
-    final public const LINE_ITEM_TYPE = 'promotion';
+    public const DATA_KEY = 'promotions';
+    public const LINE_ITEM_TYPE = 'promotion';
 
-    final public const SKIP_PROMOTION = 'skipPromotion';
+    public const SKIP_PROMOTION = 'skipPromotion';
+
+    private PromotionCalculator $promotionCalculator;
+
+    private LineItemGroupBuilder $groupBuilder;
 
     /**
      * @internal
      */
-    public function __construct(private readonly PromotionCalculator $promotionCalculator, private readonly LineItemGroupBuilder $groupBuilder)
+    public function __construct(PromotionCalculator $promotionCalculator, LineItemGroupBuilder $groupBuilder)
     {
+        $this->promotionCalculator = $promotionCalculator;
+        $this->groupBuilder = $groupBuilder;
     }
 
     /**
-     * @throws CartException
+     * @throws InvalidQuantityException
+     * @throws LineItemNotStackableException
+     * @throws MixedLineItemTypeException
+     * @throws PayloadKeyNotFoundException
      * @throws InvalidPriceDefinitionException
      */
     public function process(CartDataCollection $data, Cart $original, Cart $toCalculate, SalesChannelContext $context, CartBehavior $behavior): void

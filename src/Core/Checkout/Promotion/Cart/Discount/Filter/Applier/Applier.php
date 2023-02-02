@@ -2,14 +2,11 @@
 
 namespace Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\Applier;
 
-use Shopware\Core\Framework\Log\Package;
-
-#[Package('checkout')]
 class Applier
 {
-    final public const APPLIER_ALL = 'ALL';
+    public const APPLIER_ALL = 'ALL';
 
-    final public const UNLIMITED = -1;
+    public const UNLIMITED = -1;
 
     /**
      * Returns a list of index offsets for

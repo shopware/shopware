@@ -1,15 +1,14 @@
 import template from './sw-media-quickinfo-usage.html.twig';
 import './sw-media-quickinfo-usage.scss';
 
-const { Application } = Shopware;
+const { Application, Component } = Shopware;
 const types = Shopware.Utils.types;
 
-/**
- * @package content
- */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-media-quickinfo-usage', {
     template,
+
+    inject: ['feature'],
 
     props: {
         item: {
@@ -33,7 +32,7 @@ export default {
             manufacturers: [],
             mailTemplates: [],
             documentBaseConfigs: [],
-            avatarUsers: [],
+            avatarUser: {},
             paymentMethods: [],
             shippingMethods: [],
             layouts: [],
@@ -83,10 +82,8 @@ export default {
                 usages.push(this.getLayoutUsage(layout));
             });
 
-            if (!types.isEmpty(this.avatarUsers)) {
-                this.avatarUsers.forEach((avatarUser) => {
-                    usages.push(this.getAvatarUserUsage(avatarUser));
-                });
+            if (!types.isEmpty(this.avatarUser)) {
+                usages.push(this.getAvatarUserUsage(this.avatarUser));
             }
 
             return usages;
@@ -141,7 +138,7 @@ export default {
         },
 
         loadAvatarUserAssociations() {
-            this.avatarUsers = this.item.avatarUsers;
+            this.avatarUser = this.item.avatarUser;
         },
 
         loadPaymentMethodAssociations() {
@@ -304,4 +301,4 @@ export default {
             };
         },
     },
-};
+});

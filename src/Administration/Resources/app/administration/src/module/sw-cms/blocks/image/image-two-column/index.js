@@ -1,19 +1,9 @@
 import CMS from '../../../constant/sw-cms.constant';
+import './component';
+import './preview';
 
 /**
- * @private
- * @package content
- */
-Shopware.Component.register('sw-cms-preview-image-two-column', () => import('./preview'));
-/**
- * @private
- * @package content
- */
-Shopware.Component.register('sw-cms-block-image-two-column', () => import('./component'));
-
-/**
- * @private
- * @package content
+ * @private since v6.5.0
  */
 Shopware.Service('cmsService').registerCmsBlock({
     name: 'image-two-column',

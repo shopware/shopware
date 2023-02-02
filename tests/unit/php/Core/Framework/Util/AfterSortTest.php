@@ -66,7 +66,9 @@ class AfterSortTest extends TestCase
             $entity4->getName(),
         ];
 
-        $actualNames = array_map(fn (TestEntity $entity) => $entity->getName(), $afterSortCollection->getElements());
+        $actualNames = array_map(function (TestEntity $entity) {
+            return $entity->getName();
+        }, $afterSortCollection->getElements());
 
         static::assertEquals($expectedNames, \array_values($actualNames));
     }
@@ -102,7 +104,9 @@ class AfterSortTest extends TestCase
             $entity4->getName(),
         ];
 
-        $actualNames = array_map(fn (TestEntity $entity) => $entity->getName(), $entities->getElements());
+        $actualNames = array_map(function (TestEntity $entity) {
+            return $entity->getName();
+        }, $entities->getElements());
 
         static::assertEquals($expectedNames, \array_values($actualNames));
     }
@@ -138,7 +142,9 @@ class AfterSortTest extends TestCase
             $entity3->getName(),
         ];
 
-        $actualNames = array_map(fn (TestEntity $entity) => $entity->getName(), $entities->getElements());
+        $actualNames = array_map(function (TestEntity $entity) {
+            return $entity->getName();
+        }, $entities->getElements());
 
         static::assertEquals($expectedNames, \array_values($actualNames));
     }
@@ -172,9 +178,13 @@ class AfterSortTest extends TestCase
 
         $afterSortCollection->sortByAfter();
 
-        $expectedNames = $afterSortCollection->map(fn (TestEntity $entity) => $entity->getName());
+        $expectedNames = $afterSortCollection->map(function (TestEntity $entity) {
+            return $entity->getName();
+        });
 
-        $actualNames = array_map(fn (TestEntity $entity) => $entity->getName(), $afterSortCollection->getElements());
+        $actualNames = array_map(function (TestEntity $entity) {
+            return $entity->getName();
+        }, $afterSortCollection->getElements());
 
         static::assertEquals($expectedNames, $actualNames);
     }
@@ -206,11 +216,17 @@ class TestEntity extends Entity
 {
     use EntityIdTrait;
 
-    protected ?string $afterId = null;
+    /**
+     * @var string
+     */
+    protected $afterId;
 
-    protected string $name;
+    /**
+     * @var string
+     */
+    protected $name;
 
-    public function getAfterId(): ?string
+    public function getAfterId(): string
     {
         return $this->afterId;
     }

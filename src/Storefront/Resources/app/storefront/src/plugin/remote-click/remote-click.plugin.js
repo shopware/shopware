@@ -3,8 +3,6 @@ import DomAccess from 'src/helper/dom-access.helper';
 
 /**
  * this plugin is used to remotely click on another element
- *
- * @package storefront
  */
 export default class RemoteClickPlugin extends Plugin {
 

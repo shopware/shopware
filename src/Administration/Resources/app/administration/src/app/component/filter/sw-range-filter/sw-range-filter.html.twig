@@ -10,7 +10,7 @@
     <sw-container
         :class="{ 'sw-container--has-divider': isShowDivider }"
     >
-        <slot></slot>
+        <slot v-if="feature.isActive('FEATURE_NEXT_7530')"></slot>
 
         <slot name="from-field">
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

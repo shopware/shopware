@@ -2,10 +2,8 @@
 
 namespace Shopware\Core\Framework\Update\Services;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Update\Exception\UpdateFailedException;
 
-#[Package('system-settings')]
 class Download
 {
     /**
@@ -41,13 +39,10 @@ class Download
     }
 
     /**
-     * @param non-empty-string $sourceUri
+     * @throws \Exception
      */
     public function downloadFile(string $sourceUri, string $destinationUri, int $totalSize, string $hash): int
     {
-        if ($sourceUri === '') {
-            throw new UpdateFailedException('Source URI must not be empty');
-        }
         if (($destination = fopen($destinationUri, 'a+b')) === false) {
             throw new UpdateFailedException(sprintf('Destination "%s" is invalid.', $destinationUri));
         }

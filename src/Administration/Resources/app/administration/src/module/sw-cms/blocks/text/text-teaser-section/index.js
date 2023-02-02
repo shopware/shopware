@@ -1,17 +1,8 @@
-/**
- * @private
- * @package content
- */
-Shopware.Component.register('sw-cms-preview-text-teaser-section', () => import('./preview'));
-/**
- * @private
- * @package content
- */
-Shopware.Component.register('sw-cms-block-text-teaser-section', () => import('./component'));
+import './component';
+import './preview';
 
 /**
- * @private
- * @package content
+ * @private since v6.5.0
  */
 Shopware.Service('cmsService').registerCmsBlock({
     name: 'text-teaser-section',

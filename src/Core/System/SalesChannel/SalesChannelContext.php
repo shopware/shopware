@@ -12,15 +12,15 @@ use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\StateAwareTrait;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\Exception\ContextPermissionsLockedException;
+use Shopware\Core\System\SalesChannel\Exception\ContextRulesLockedException;
 use Shopware\Core\System\Tax\Exception\TaxNotFoundException;
 use Shopware\Core\System\Tax\TaxCollection;
 
-#[Package('core')]
 class SalesChannelContext extends Struct
 {
     use StateAwareTrait;
@@ -36,6 +36,11 @@ class SalesChannelContext extends Struct
      * @var CustomerGroupEntity
      */
     protected $currentCustomerGroup;
+
+    /**
+     * @var CustomerGroupEntity
+     */
+    protected $fallbackCustomerGroup;
 
     /**
      * @var CurrencyEntity
@@ -73,7 +78,17 @@ class SalesChannelContext extends Struct
     protected $shippingLocation;
 
     /**
-     * @var mixed[]
+     * @var array
+     */
+    protected $rulesIds;
+
+    /**
+     * @var bool
+     */
+    protected $rulesLocked = false;
+
+    /**
+     * @var array
      */
     protected $permissions = [];
 
@@ -88,27 +103,45 @@ class SalesChannelContext extends Struct
     protected $context;
 
     /**
-     * @internal
+     * @var CashRoundingConfig
+     */
+    private $itemRounding;
+
+    /**
+     * @var CashRoundingConfig
+     */
+    private $totalRounding;
+
+    /**
+     * @var string|null
+     */
+    private $domainId;
+
+    /**
+     * @deprecated tag:v6.5.0 - __construct will be internal, use context factory to create a new context
+     * @deprecated tag:v6.5.0 - Parameter $fallbackCustomerGroup is deprecated and will be removed
      *
-     * @param array<string, string[]> $areaRuleIds
+     * @param array<string> $rulesIds
      */
     public function __construct(
         Context $baseContext,
         string $token,
-        private ?string $domainId,
+        ?string $domainId,
         SalesChannelEntity $salesChannel,
         CurrencyEntity $currency,
         CustomerGroupEntity $currentCustomerGroup,
+        CustomerGroupEntity $fallbackCustomerGroup,
         TaxCollection $taxRules,
         PaymentMethodEntity $paymentMethod,
         ShippingMethodEntity $shippingMethod,
         ShippingLocation $shippingLocation,
         ?CustomerEntity $customer,
-        private CashRoundingConfig $itemRounding,
-        private CashRoundingConfig $totalRounding,
-        protected array $areaRuleIds = []
+        CashRoundingConfig $itemRounding,
+        CashRoundingConfig $totalRounding,
+        array $rulesIds = []
     ) {
         $this->currentCustomerGroup = $currentCustomerGroup;
+        $this->fallbackCustomerGroup = $fallbackCustomerGroup;
         $this->currency = $currency;
         $this->salesChannel = $salesChannel;
         $this->taxRules = $taxRules;
@@ -116,13 +149,30 @@ class SalesChannelContext extends Struct
         $this->paymentMethod = $paymentMethod;
         $this->shippingMethod = $shippingMethod;
         $this->shippingLocation = $shippingLocation;
+        $this->rulesIds = $rulesIds;
         $this->token = $token;
         $this->context = $baseContext;
+        $this->itemRounding = $itemRounding;
+        $this->totalRounding = $totalRounding;
+        $this->domainId = $domainId;
     }
 
     public function getCurrentCustomerGroup(): CustomerGroupEntity
     {
         return $this->currentCustomerGroup;
+    }
+
+    /**
+     * @deprecated tag:v6.5.0 - Fallback customer group is deprecated and will be removed, use getCurrentCustomerGroup instead
+     */
+    public function getFallbackCustomerGroup(): CustomerGroupEntity
+    {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'getCurrentCustomerGroup()')
+        );
+
+        return $this->fallbackCustomerGroup;
     }
 
     public function getCurrency(): CurrencyEntity
@@ -191,12 +241,9 @@ class SalesChannelContext extends Struct
         return $this->context;
     }
 
-    /**
-     * @return string[]
-     */
     public function getRuleIds(): array
     {
-        return $this->getContext()->getRuleIds();
+        return $this->rulesIds;
     }
 
     /**
@@ -204,54 +251,17 @@ class SalesChannelContext extends Struct
      */
     public function setRuleIds(array $ruleIds): void
     {
-        $this->getContext()->setRuleIds($ruleIds);
-    }
-
-    /**
-     * @internal
-     *
-     * @return array<string, string[]>
-     */
-    public function getAreaRuleIds(): array
-    {
-        return $this->areaRuleIds;
-    }
-
-    /**
-     * @internal
-     *
-     * @param string[] $areas
-     *
-     * @return string[]
-     */
-    public function getRuleIdsByAreas(array $areas): array
-    {
-        $ruleIds = [];
-
-        foreach ($areas as $area) {
-            if (empty($this->areaRuleIds[$area])) {
-                continue;
-            }
-
-            $ruleIds = array_unique(array_merge($ruleIds, $this->areaRuleIds[$area]));
+        if ($this->rulesLocked) {
+            throw new ContextRulesLockedException();
         }
 
-        return array_values($ruleIds);
-    }
-
-    /**
-     * @internal
-     *
-     * @param array<string, string[]> $areaRuleIds
-     */
-    public function setAreaRuleIds(array $areaRuleIds): void
-    {
-        $this->areaRuleIds = $areaRuleIds;
+        $this->rulesIds = array_filter(array_values($ruleIds));
+        $this->getContext()->setRuleIds($this->rulesIds);
     }
 
     public function lockRules(): void
     {
-        $this->getContext()->lockRules();
+        $this->rulesLocked = true;
     }
 
     public function lockPermissions(): void
@@ -279,17 +289,11 @@ class SalesChannelContext extends Struct
         return $this->getSalesChannel()->getTaxCalculationType();
     }
 
-    /**
-     * @return mixed[]
-     */
     public function getPermissions(): array
     {
         return $this->permissions;
     }
 
-    /**
-     * @param mixed[] $permissions
-     */
     public function setPermissions(array $permissions): void
     {
         if ($this->permisionsLocked) {
@@ -306,7 +310,7 @@ class SalesChannelContext extends Struct
 
     public function hasPermission(string $permission): bool
     {
-        return \array_key_exists($permission, $this->permissions) && (bool) $this->permissions[$permission];
+        return $this->permissions[$permission] ?? false;
     }
 
     public function getSalesChannelId(): string
@@ -329,9 +333,6 @@ class SalesChannelContext extends Struct
         return $this->context->hasState(...$states);
     }
 
-    /**
-     * @return string[]
-     */
     public function getStates(): array
     {
         return $this->context->getStates();
@@ -347,9 +348,6 @@ class SalesChannelContext extends Struct
         $this->domainId = $domainId;
     }
 
-    /**
-     * @return string[]
-     */
     public function getLanguageIdChain(): array
     {
         return $this->context->getLanguageIdChain();

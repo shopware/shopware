@@ -13,6 +13,7 @@ use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\TextStruct;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -25,7 +26,10 @@ class TextTypeDataResolverTest extends TestCase
 {
     use KernelTestBehaviour;
 
-    private TextCmsElementResolver $textResolver;
+    /**
+     * @var TextCmsElementResolver
+     */
+    private $textResolver;
 
     protected function setUp(): void
     {
@@ -95,6 +99,10 @@ class TextTypeDataResolverTest extends TestCase
 
     public function testWithUnsanitizedStaticContent(): void
     {
+        if (!Feature::isActive('FEATURE_NEXT_15172')) {
+            static::markTestSkipped('NEXT-15172');
+        }
+
         $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
         $result = new ElementDataCollection();
 
@@ -340,8 +348,6 @@ class TextTypeDataResolverTest extends TestCase
         /** @var TextStruct|null $textStruct */
         $textStruct = $slot->getData();
         static::assertInstanceOf(TextStruct::class, $textStruct);
-        $content = $textStruct->getContent();
-        static::assertIsString($content);
-        static::assertNotFalse(strtotime($content));
+        static::assertNotFalse(strtotime($textStruct->getContent()));
     }
 }

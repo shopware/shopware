@@ -3,7 +3,6 @@
 namespace Shopware\Core\System\Annotation\Concept\DeprecationPattern;
 
 use Doctrine\Common\Annotations\Annotation;
-use Shopware\Core\Framework\Log\Package;
 
 /**
  * @Annotation
@@ -18,7 +17,6 @@ use Shopware\Core\Framework\Log\Package;
  *
  * If you can remove the deprecation you have to copy the code over from the old to the new Service and can than delete the old service with it's service definition in the DIC.
  */
-#[Package('core')]
 class RenameService
 {
     public function __construct(array $info)

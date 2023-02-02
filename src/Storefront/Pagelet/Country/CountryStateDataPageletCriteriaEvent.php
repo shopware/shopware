@@ -6,15 +6,25 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('storefront')]
 class CountryStateDataPageletCriteriaEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
-    public function __construct(private readonly Criteria $criteria, private readonly SalesChannelContext $salesChannelContext, private readonly Request $request)
-    {
+    private Criteria $criteria;
+
+    private SalesChannelContext $salesChannelContext;
+
+    private Request $request;
+
+    public function __construct(
+        Criteria $criteria,
+        SalesChannelContext $salesChannelContext,
+        Request $request
+    ) {
+        $this->criteria = $criteria;
+        $this->salesChannelContext = $salesChannelContext;
+        $this->request = $request;
     }
 
     public function getCriteria(): Criteria

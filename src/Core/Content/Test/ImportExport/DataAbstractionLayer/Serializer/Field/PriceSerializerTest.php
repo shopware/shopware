@@ -6,22 +6,20 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Field\PriceSerializer;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 
 /**
  * @internal
  */
-#[Package('system-settings')]
 class PriceSerializerTest extends TestCase
 {
     use KernelTestBehaviour;
 
-    private EntityRepository $currencyRepository;
+    private EntityRepositoryInterface $currencyRepository;
 
     protected function setUp(): void
     {

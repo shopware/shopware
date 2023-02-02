@@ -2,9 +2,6 @@
 
 namespace Shopware\Recovery\Update\Struct;
 
-/**
- * @package system-settings
- */
 abstract class Struct
 {
     public function __construct(array $values = [])

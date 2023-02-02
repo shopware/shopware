@@ -6,7 +6,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -26,11 +26,11 @@ class ThemeChangeCommandTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;
 
-    private EntityRepository $salesChannelRepository;
+    private EntityRepositoryInterface $salesChannelRepository;
 
     private MockObject $pluginRegistry;
 
-    private EntityRepository $themeRepository;
+    private EntityRepositoryInterface $themeRepository;
 
     public function setUp(): void
     {
@@ -203,7 +203,10 @@ class ThemeChangeCommandTest extends TestCase
         ]);
     }
 
-    private function getPluginRegistryMock(): MockObject&StorefrontPluginRegistry
+    /**
+     * @return MockObject|StorefrontPluginRegistry
+     */
+    private function getPluginRegistryMock()
     {
         $storePluginConfiguration1 = new StorefrontPluginConfiguration('parentTheme');
         $storePluginConfiguration1->setThemeConfig([

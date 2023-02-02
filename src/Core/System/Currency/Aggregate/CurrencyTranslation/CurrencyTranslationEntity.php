@@ -4,10 +4,8 @@ namespace Shopware\Core\System\Currency\Aggregate\CurrencyTranslation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Currency\CurrencyEntity;
 
-#[Package('inventory')]
 class CurrencyTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;

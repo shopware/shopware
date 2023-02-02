@@ -3,8 +3,6 @@
 namespace Shopware\Core\Framework\Changelog\Command;
 
 use Shopware\Core\Framework\Changelog\Processor\ChangelogReleaseCreator;
-use Shopware\Core\Framework\Log\Package;
-use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -13,32 +11,40 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * @internal
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - will be marked internal
  */
-#[AsCommand(
-    name: 'changelog:release',
-    description: 'Creates a new changelog release',
-)]
-#[Package('core')]
 class ChangelogReleaseCommand extends Command
 {
+    protected static $defaultName = 'changelog:release';
+
+    /**
+     * @var ChangelogReleaseCreator
+     */
+    private $releaseCreator;
+
     /**
      * @internal
      */
-    public function __construct(private readonly ChangelogReleaseCreator $releaseCreator)
+    public function __construct(ChangelogReleaseCreator $releaseCreator)
     {
         parent::__construct();
+        $this->releaseCreator = $releaseCreator;
     }
 
     protected function configure(): void
     {
-        $this->setHelp('Collect all markdown files, which do not have a flag meta field, inside the `/changelog/_unreleased` directory and move them to a new directory for the release in `/changelog/release-6-x-x-x`. After that the command will update the global `/CHANGELOG.md` file with a new section for the release with a list of links to the single changelog files. For major and minor releases it will also create or update the corresponding UPGRADE-6.x.md file with the markdown content from the "Upgrade Information" section of the single changelog files.')
+        $this
+            ->setDescription('Creating or updating the final changelog for a new release')
+            ->setHelp('Collect all markdown files, which do not have a flag meta field, inside the `/changelog/_unreleased` directory and move them to a new directory for the release in `/changelog/release-6-x-x-x`. After that the command will update the global `/CHANGELOG.md` file with a new section for the release with a list of links to the single changelog files. For major and minor releases it will also create or update the corresponding UPGRADE-6.x.md file with the markdown content from the "Upgrade Information" section of the single changelog files.')
             ->addArgument('version', InputArgument::OPTIONAL, 'A version of release. It should be 4-digits type')
             ->addOption('dry-run', null, InputOption::VALUE_NONE, 'Use the --dry-run argument to preview the changelog content and prevent actually writing to file.')
             ->addOption('force', 'f', InputOption::VALUE_NONE, 'Use the --force argument to override an existing release.');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output): int
+    /**
+     * @return int
+     */
+    protected function execute(InputInterface $input, OutputInterface $output)
     {
         $IOHelper = new SymfonyStyle($input, $output);
         $IOHelper->title('Creating or updating the final changelog for a new release');
@@ -51,7 +57,7 @@ class ChangelogReleaseCommand extends Command
 
                 return $version;
             });
-        if (!preg_match("/^\d+(\.\d+){3}$/", (string) $version)) {
+        if (!preg_match("/^\d+(\.\d+){3}$/", $version)) {
             throw new \RuntimeException('Invalid version of release ("' . $version . '"). It should be 4-digits type');
         }
 

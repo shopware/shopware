@@ -2,8 +2,7 @@ import { kebabCase } from 'lodash';
 import '../sw-settings-listing-option-base';
 import template from './sw-settings-listing-option-create.html.twig';
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Shopware.Component.extend('sw-settings-listing-option-create', 'sw-settings-listing-option-base', {
     template,
 
     computed: {
@@ -87,4 +86,4 @@ export default {
             this.toBeDeletedCriteria = null;
         },
     },
-};
+});

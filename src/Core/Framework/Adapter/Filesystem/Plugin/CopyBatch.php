@@ -2,23 +2,37 @@
 
 namespace Shopware\Core\Framework\Adapter\Filesystem\Plugin;
 
-use League\Flysystem\FilesystemOperator;
-use Shopware\Core\Framework\Log\Package;
+use League\Flysystem\FilesystemInterface;
+use League\Flysystem\PluginInterface;
 
-#[Package('core')]
-class CopyBatch
+class CopyBatch implements PluginInterface
 {
-    public static function copy(FilesystemOperator $filesystem, CopyBatchInput ...$files): void
+    /**
+     * @var FilesystemInterface
+     */
+    private $filesystem;
+
+    public function getMethod(): string
+    {
+        return 'copyBatch';
+    }
+
+    public function setFilesystem(FilesystemInterface $filesystem): void
+    {
+        $this->filesystem = $filesystem;
+    }
+
+    public function handle(CopyBatchInput ...$files): void
     {
         foreach ($files as $batchInput) {
-            $handle = $batchInput->getSourceFile();
+            if (\is_resource($batchInput->getSourceFile())) {
+                $handle = $batchInput->getSourceFile();
+            } else {
+                $handle = fopen($batchInput->getSourceFile(), 'rb');
+            }
 
             foreach ($batchInput->getTargetFiles() as $targetFile) {
-                if (!\is_resource($batchInput->getSourceFile())) {
-                    $handle = fopen($batchInput->getSourceFile(), 'rb');
-                }
-
-                $filesystem->writeStream($targetFile, $handle);
+                $this->filesystem->putStream($targetFile, $handle);
             }
 
             if (\is_resource($handle)) {

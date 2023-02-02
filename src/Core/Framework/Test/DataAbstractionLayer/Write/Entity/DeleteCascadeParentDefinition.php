@@ -22,7 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
  */
 class DeleteCascadeParentDefinition extends EntityDefinition
 {
-    final public const ENTITY_NAME = 'delete_cascade_parent';
+    public const ENTITY_NAME = 'delete_cascade_parent';
 
     public function getEntityName(): string
     {
@@ -52,7 +52,7 @@ class DeleteCascadeParentDefinition extends EntityDefinition
  */
 class DeleteCascadeChildDefinition extends EntityDefinition
 {
-    final public const ENTITY_NAME = 'delete_cascade_child';
+    public const ENTITY_NAME = 'delete_cascade_child';
 
     public function getEntityName(): string
     {
@@ -82,7 +82,7 @@ class DeleteCascadeChildDefinition extends EntityDefinition
  */
 class DeleteCascadeManyToOneDefinition extends EntityDefinition
 {
-    final public const ENTITY_NAME = 'delete_cascade_many_to_one';
+    public const ENTITY_NAME = 'delete_cascade_many_to_one';
 
     public function getEntityName(): string
     {

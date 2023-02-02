@@ -1,15 +1,9 @@
-/**
- * @package admin
- */
-
 const util = Shopware.Utils;
 const { warn } = Shopware.Utils.debug;
 
 let pluginInstalled = false;
 
-/**
- * @deprecated tag:v6.6.0 - Will be private
- */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     install(Vue) {
         if (pluginInstalled) {

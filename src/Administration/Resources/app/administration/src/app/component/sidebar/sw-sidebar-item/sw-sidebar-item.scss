@@ -21,7 +21,7 @@ $sw-sidebar-item-width-content: 400px;
 
     .sw-sidebar-item__title {
         margin: 0;
-        font-size: $font-size-m;
+        font-size: 18px;
         color: $sw-sidebar-item-headline-color;
     }
 
@@ -34,12 +34,6 @@ $sw-sidebar-item-width-content: 400px;
         border: none;
         outline: none;
         cursor: pointer;
-
-        .sw-icon {
-            width: 20px;
-            height: 20px;
-            padding: 4px;
-        }
     }
 
     .sw-sidebar-item__content {

@@ -5,7 +5,6 @@ namespace Shopware\Storefront\Framework\Script\Api;
 use Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryFacadeHookFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryWriterFacadeHookFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Facade\SalesChannelRepositoryFacadeHookFactory;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Api\ScriptResponseFactoryFacadeHookFactory;
 use Shopware\Core\Framework\Script\Execution\Awareness\SalesChannelContextAware;
 use Shopware\Core\Framework\Script\Execution\Awareness\ScriptResponseAwareTrait;
@@ -23,39 +22,39 @@ use Shopware\Storefront\Page\Page;
  *
  * @since 6.4.9.0
  */
-#[Package('core')]
 class StorefrontHook extends Hook implements SalesChannelContextAware, StoppableHook
 {
     use StoppableHookTrait;
     use ScriptResponseAwareTrait;
 
-    final public const HOOK_NAME = 'storefront-{hook}';
+    public const HOOK_NAME = 'storefront-{hook}';
 
-    /**
-     * @param array<string, mixed> $request
-     * @param array<string, mixed> $query
-     */
-    public function __construct(
-        private readonly string $script,
-        private readonly array $request,
-        private readonly array $query,
-        private readonly Page $page,
-        private readonly SalesChannelContext $salesChannelContext
-    ) {
+    private array $request;
+
+    private array $query;
+
+    private SalesChannelContext $salesChannelContext;
+
+    private string $script;
+
+    private Page $page;
+
+    public function __construct(string $name, array $request, array $query, Page $page, SalesChannelContext $salesChannelContext)
+    {
+        $this->request = $request;
+        $this->query = $query;
+        $this->salesChannelContext = $salesChannelContext;
+
         parent::__construct($salesChannelContext->getContext());
+        $this->script = $name;
+        $this->page = $page;
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     public function getRequest(): array
     {
         return $this->request;
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     public function getQuery(): array
     {
         return $this->query;

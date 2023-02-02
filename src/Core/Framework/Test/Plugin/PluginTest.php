@@ -15,7 +15,10 @@ class PluginTest extends TestCase
      */
     private static $swagTestPluginPath;
 
-    private static string $symlinkedSwagTestPluginPath;
+    /**
+     * @var string
+     */
+    private static $symlinkedSwagTestPluginPath;
 
     public static function setUpBeforeClass(): void
     {

@@ -1,7 +1,3 @@
-/*
- * @package inventory
- */
-
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 
 const defaultSearchConfiguration = {
@@ -12,8 +8,5 @@ const defaultSearchConfiguration = {
     },
 };
 
-/**
- * @private
- * @package business-ops
- */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default defaultSearchConfiguration;

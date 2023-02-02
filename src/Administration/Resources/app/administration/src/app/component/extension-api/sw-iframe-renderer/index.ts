@@ -2,8 +2,6 @@ import template from './sw-iframe-renderer.html.twig';
 import type { Extension } from '../../../state/extensions.store';
 
 /**
- * @package admin
- *
  * @private
  * @description This component renders iFrame views for extensions
  * @status ready
@@ -11,6 +9,7 @@ import type { Extension } from '../../../state/extensions.store';
  * @component-example
  * <sw-iframe-renderer src="https://www.my-source.com" locationId="my-special-location" />
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Component.register('sw-iframe-renderer', {
     template,
 

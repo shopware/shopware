@@ -1,7 +1,3 @@
-/**
- * @package admin
- */
-
 const eslintPluginVueProcessor = require('eslint-plugin-vue/lib/processor');
 
 const templateTagBefore = '<template>\n';

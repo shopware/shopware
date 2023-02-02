@@ -2,16 +2,25 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Filter;
 
-use Shopware\Core\Framework\Log\Package;
-
 /**
- * @final
+ * @final tag:v6.5.0
  */
-#[Package('core')]
 class ContainsFilter extends SingleFieldFilter
 {
-    public function __construct(private readonly string $field, private readonly mixed $value)
+    /**
+     * @var string
+     */
+    protected $field;
+
+    /**
+     * @var string|float|int|null
+     */
+    protected $value;
+
+    public function __construct(string $field, $value)
     {
+        $this->field = $field;
+        $this->value = $value;
     }
 
     public function getField(): string
@@ -19,7 +28,7 @@ class ContainsFilter extends SingleFieldFilter
         return $this->field;
     }
 
-    public function getValue(): mixed
+    public function getValue()
     {
         return $this->value;
     }

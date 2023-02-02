@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterEntity;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -20,11 +20,20 @@ class MailHeaderFooterRepositoryTest extends TestCase
     use IntegrationTestBehaviour;
     use MediaFixtures;
 
-    private EntityRepository $repository;
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $repository;
 
-    private Connection $connection;
+    /**
+     * @var Connection
+     */
+    private $connection;
 
-    private Context $context;
+    /**
+     * @var Context
+     */
+    private $context;
 
     protected function setUp(): void
     {
@@ -35,12 +44,14 @@ class MailHeaderFooterRepositoryTest extends TestCase
         try {
             $this->connection->executeStatement('DELETE FROM mail_header_footer');
         } catch (\Exception $e) {
-            static::fail('Failed to remove testdata: ' . $e->getMessage());
+            static::assertTrue(false . 'Failed to remove testdata: ' . $e->getMessage());
         }
     }
 
     /**
      * Test single CREATE
+     *
+     * @throws \Doctrine\DBAL\DBALException
      */
     public function testMailHeaderFooterSingleCreate(): void
     {
@@ -50,17 +61,16 @@ class MailHeaderFooterRepositoryTest extends TestCase
 
         $this->repository->create([$data[$id]], $this->context);
 
-        $record = $this->connection->fetchAssociative(
+        $record = $this->connection->fetchAssoc(
             'SELECT *
-             FROM mail_header_footer mhf
-             JOIN mail_header_footer_translation mhft
-                 ON mhf.id=mhft.mail_header_footer_id
-             WHERE id = :id',
+                        FROM mail_header_footer mhf
+                        JOIN mail_header_footer_translation mhft ON mhf.id=mhft.mail_header_footer_id
+                        WHERE id = :id',
             ['id' => $id]
         );
 
         $expect = $data[$id];
-        static::assertIsArray($record);
+        static::assertNotEmpty($record);
         static::assertEquals($id, $record['id']);
         static::assertEquals($expect['systemDefault'], (bool) $record['system_default']);
         static::assertEquals($expect['name'], $record['name']);
@@ -81,11 +91,10 @@ class MailHeaderFooterRepositoryTest extends TestCase
 
         $this->repository->create(array_values($data), $this->context);
 
-        $records = $this->connection->fetchAllAssociative(
+        $records = $this->connection->fetchAll(
             'SELECT *
-             FROM mail_header_footer mhf
-             JOIN mail_header_footer_translation mhft
-                 ON mhf.id=mhft.mail_header_footer_id'
+                        FROM mail_header_footer mhf
+                        JOIN mail_header_footer_translation mhft ON mhf.id=mhft.mail_header_footer_id'
         );
 
         static::assertCount($num, $records);
@@ -105,6 +114,8 @@ class MailHeaderFooterRepositoryTest extends TestCase
 
     /**
      * Test READ
+     *
+     * @throws \Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException
      */
     public function testMailHeaderFooterRead(): void
     {
@@ -115,8 +126,8 @@ class MailHeaderFooterRepositoryTest extends TestCase
 
         foreach ($data as $expect) {
             $id = $expect['id'];
+            /** @var MailHeaderFooterEntity $mailHeaderFooter */
             $mailHeaderFooter = $this->repository->search(new Criteria([$id]), $this->context)->get($id);
-            static::assertInstanceOf(MailHeaderFooterEntity::class, $mailHeaderFooter);
             static::assertEquals($expect['systemDefault'], $mailHeaderFooter->getSystemDefault());
             static::assertEquals($expect['name'], $mailHeaderFooter->getName());
             static::assertEquals($expect['description'], $mailHeaderFooter->getDescription());
@@ -146,10 +157,10 @@ class MailHeaderFooterRepositoryTest extends TestCase
 
         $this->repository->upsert(array_values($data), $this->context);
 
-        $records = $this->connection->fetchAllAssociative(
+        $records = $this->connection->fetchAll(
             'SELECT *
-             FROM mail_header_footer mhf
-             JOIN mail_header_footer_translation mhft ON mhf.id=mhft.mail_header_footer_id'
+                        FROM mail_header_footer mhf
+                        JOIN mail_header_footer_translation mhft ON mhf.id=mhft.mail_header_footer_id'
         );
 
         static::assertCount($num, $records);
@@ -184,10 +195,10 @@ class MailHeaderFooterRepositoryTest extends TestCase
 
         $this->repository->delete($ids, $this->context);
 
-        $records = $this->connection->fetchAllAssociative(
+        $records = $this->connection->fetchAll(
             'SELECT *
-             FROM mail_header_footer mhf
-             JOIN mail_header_footer_translation mhft ON mhf.id=mhft.mail_header_footer_id'
+                        FROM mail_header_footer mhf
+                        JOIN mail_header_footer_translation mhft ON mhf.id=mhft.mail_header_footer_id'
         );
 
         static::assertCount(0, $records);
@@ -196,9 +207,10 @@ class MailHeaderFooterRepositoryTest extends TestCase
     /**
      * Prepare a defined number of test data.
      *
-     * @return array<string, array<string, mixed>>
+     * @param int    $num
+     * @param string $add
      */
-    private function prepareHeaderFooterTestData(int $num = 1, string $add = ''): array
+    protected function prepareHeaderFooterTestData($num = 1, $add = ''): array
     {
         $data = [];
         for ($i = 1; $i <= $num; ++$i) {
@@ -206,7 +218,7 @@ class MailHeaderFooterRepositoryTest extends TestCase
 
             $data[Uuid::fromHexToBytes($uuid)] = [
                 'id' => $uuid,
-                'systemDefault' => $i % 2 !== 0,
+                'systemDefault' => (($i % 2 === 0) ? false : true),
                 'name' => sprintf('Test-Template %d %s', $i, $add),
                 'description' => sprintf('John Doe %d %s', $i, $add),
                 'headerPlain' => sprintf('Test header 123 %d %s', $i, $add),

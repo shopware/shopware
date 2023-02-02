@@ -13,25 +13,56 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Serializer\Encoder\DecoderInterface;
+use Symfony\Component\Serializer\Serializer;
 
-#[Package('administration')]
 class AdminSearchController extends AbstractController
 {
+    private RequestCriteriaBuilder $requestCriteriaBuilder;
+
+    private AdminSearcher $searcher;
+
+    private DefinitionInstanceRegistry $definitionInstanceRegistry;
+
+    private Serializer $serializer;
+
+    private AclCriteriaValidator $criteriaValidator;
+
+    private JsonEntityEncoder $entityEncoder;
+
+    private DefinitionInstanceRegistry $definitionRegistry;
+
     /**
      * @internal
      */
-    public function __construct(private readonly RequestCriteriaBuilder $requestCriteriaBuilder, private readonly DefinitionInstanceRegistry $definitionInstanceRegistry, private readonly AdminSearcher $searcher, private readonly DecoderInterface $serializer, private readonly AclCriteriaValidator $criteriaValidator, private readonly DefinitionInstanceRegistry $definitionRegistry, private readonly JsonEntityEncoder $entityEncoder)
-    {
+    public function __construct(
+        RequestCriteriaBuilder $requestCriteriaBuilder,
+        DefinitionInstanceRegistry $definitionInstanceRegistry,
+        AdminSearcher $searcher,
+        Serializer $serializer,
+        AclCriteriaValidator $criteriaValidator,
+        DefinitionInstanceRegistry $definitionRegistry,
+        JsonEntityEncoder $entityEncoder
+    ) {
+        $this->requestCriteriaBuilder = $requestCriteriaBuilder;
+        $this->searcher = $searcher;
+        $this->definitionInstanceRegistry = $definitionInstanceRegistry;
+        $this->serializer = $serializer;
+        $this->criteriaValidator = $criteriaValidator;
+        $this->definitionRegistry = $definitionRegistry;
+        $this->entityEncoder = $entityEncoder;
     }
 
-    #[Route(path: '/api/_admin/search', name: 'api.admin.search', defaults: ['_routeScope' => ['administration']], methods: ['POST'])]
+    /**
+     * @Since("6.4.5.0")
+     * @Route("/api/_admin/search", name="api.admin.search", methods={"POST"}, defaults={"_routeScope"={"administration"}})
+     */
     public function search(Request $request, Context $context): Response
     {
         $criteriaCollection = $this->buildSearchEntities($request, $context);

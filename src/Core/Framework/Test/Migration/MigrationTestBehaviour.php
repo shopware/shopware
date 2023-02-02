@@ -95,7 +95,7 @@ trait MigrationTestBehaviour
         $migrationSource = ReflectionHelper::getPropertyValue($migrationCollection, 'migrationSource');
 
         $dbMigrations = $connection
-            ->fetchAllAssociative(
+            ->fetchAll(
                 'SELECT * FROM `migration` WHERE `class` REGEXP :pattern ORDER BY `creation_timestamp`',
                 ['pattern' => $migrationSource->getNamespacePattern()]
             );

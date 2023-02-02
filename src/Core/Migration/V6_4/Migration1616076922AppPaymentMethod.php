@@ -5,14 +5,9 @@ namespace Shopware\Core\Migration\V6_4;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-/**
- * @internal
- */
-#[Package('core')]
 class Migration1616076922AppPaymentMethod extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -32,7 +27,7 @@ class Migration1616076922AppPaymentMethod extends MigrationStep
 
     private function addAppPaymentMethod(Connection $connection): void
     {
-        $connection->executeStatement('
+        $connection->executeUpdate('
             CREATE TABLE IF NOT EXISTS `app_payment_method` (
                 `id`                        BINARY(16)          NOT NULL,
                 `app_id`                    BINARY(16)          NULL,

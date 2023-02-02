@@ -1,11 +1,10 @@
 import template from './sw-plugin-box.html.twig';
 import './sw-plugin-box.scss';
 
-/**
- * @package checkout
- */
+const { Component } = Shopware;
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-plugin-box', {
     template,
 
     inject: ['systemConfigApiService', 'repositoryFactory'],
@@ -63,4 +62,4 @@ export default {
             });
         },
     },
-};
+});

@@ -7,17 +7,18 @@ use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupSorterInterface;
 use Shopware\Core\Checkout\Cart\LineItem\Group\Sorter\LineItemGroupPriceAscSorter;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
 use Shopware\Core\Checkout\Test\Cart\LineItem\Group\Helpers\Traits\LineItemTestFixtureBehaviour;
-use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
-#[Package('checkout')]
 class LineItemGroupPriceAscSorterTest extends TestCase
 {
     use LineItemTestFixtureBehaviour;
 
-    private LineItemGroupSorterInterface $sorter;
+    /**
+     * @var LineItemGroupSorterInterface
+     */
+    private $sorter;
 
     protected function setUp(): void
     {

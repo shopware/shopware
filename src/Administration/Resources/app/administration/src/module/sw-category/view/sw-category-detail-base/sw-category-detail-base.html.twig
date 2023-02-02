@@ -74,6 +74,8 @@
     </sw-card>
     {% endblock %}
 
+    <!-- Type specific settings -->
+
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_detail_entry_point %}
     <sw-category-entry-point-card
@@ -90,11 +92,61 @@
     />
     {% endblock %}
 
+    {# @deprecated tag:v6.5.0 - moved to cms tab in block `sw_category_detail_cms_layout` #}
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_category_detail_layout %}{% endblock %}
+
     <template v-if="category.type !== 'link'">
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_category_detail_menu %}
         <sw-category-detail-menu v-bind="{ category, isLoading }" />
         {% endblock %}
+
+        {# @deprecated tag:v6.5.0 - moved to separate tab with same block name #}
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_category_detail_products %}
+
+        {# @deprecated tag:v6.5.0 - moved to separate tab with same block name #}
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_category_detail_product_assignment_type_select %}
+
+        {# @deprecated tag:v6.5.0 - moved to separate tab with same block name #}
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_category_detail_product_assignment_type_select_field %}{% endblock %}
+
+        {# @deprecated tag:v6.5.0 - moved to separate tab with same block name #}
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_category_detail_product_assignment_manual_alert %}{% endblock %}
+
+        {% endblock %}
+
+        {# @deprecated tag:v6.5.0 - moved to separate tab with same block name #}
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_category_detail_product_assignment_stream_select %}
+
+        {# @deprecated tag:v6.5.0 - moved to separate tab with same block name #}
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_category_detail_product_assignment_stream_select_field %}{% endblock %}
+
+        {# @deprecated tag:v6.5.0 - moved to separate tab with same block name #}
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_category_detail_product_assignment_stream_preview_link %}{% endblock %}
+
+        {% endblock %}
+
+        {# @deprecated tag:v6.5.0 - moved to separate tab with same block name #}
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_category_detail_product_assignment_stream_preview_grid %}{% endblock %}
+
+        {% endblock %}
+
+        {# @deprecated tag:v6.5.0 - moved to separate tab with same block name #}
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_category_detail_seo %}{% endblock %}
+
+        {# @deprecated tag:v6.5.0 - will be removed #}
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_category_detail_seo_card %}{% endblock %}
     </template>
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

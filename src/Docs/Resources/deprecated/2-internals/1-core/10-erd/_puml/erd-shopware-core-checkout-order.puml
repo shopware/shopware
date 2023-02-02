@@ -1,0 +1,221 @@
+@startuml
+' uncomment the line below if you're using computer with a retina display
+' skinparam dpi 300
+!define Table(name,desc) class name as "desc" << (T,#FFAAAA) >>
+!define ForeignTable(name,desc) class name as "desc" << (T,#ada6a6) >>
+!define TranslationTable(name,desc) class name as "desc" << (I,#4286f4) >>
+' we use bold for primary key
+' green color for unique
+' and underscore for not_null
+!define primary_key(x) <b>x</b>
+!define unique(x) <color:green>x</color>
+!define not_null(x) <u>x</u>
+' other tags available:
+' <i></i>
+' <back:COLOR></color>, where color is a color name or html color code
+' (#FFAACC)
+' see: http://plantuml.com/classes.html#More
+hide methods
+hide stereotypes
+hide empty members
+skinparam backgroundColor #FFFFFF
+
+' entities
+
+Table(ShopwareCoreCheckoutOrderOrderDefinition, "order\n(Order root table)") {
+   primary_key(id) id
+   primary_key(versionId) version
+   autoIncrement int
+   orderNumber numberRange
+   not_null(billingAddressId) foreignKey
+   not_null(billingAddressVersionId) referenceVersion
+   not_null(currencyId) foreignKey
+   not_null(languageId) foreignKey
+   not_null(salesChannelId) foreignKey
+   not_null(orderDateTime) dateTime
+   orderDate date
+   price cartPrice
+   amountTotal float
+   amountNet float
+   positionPrice float
+   taxStatus string
+   shippingCosts calculatedPrice
+   shippingTotal float
+   not_null(currencyFactor) float
+   deepLinkCode string
+   not_null(stateId) stateMachineState
+   customFields customFields
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
+}
+Table(ShopwareCoreCheckoutOrderAggregateOrderAddressOrderAddressDefinition, "order_address\n(Order address)") {
+   primary_key(id) id
+   primary_key(versionId) version
+   not_null(countryId) foreignKey
+   countryStateId foreignKey
+   not_null(orderId) foreignKey
+   not_null(orderVersionId) referenceVersion
+   not_null(salutationId) foreignKey
+   not_null(firstName) string
+   not_null(lastName) string
+   not_null(street) string
+   not_null(zipcode) string
+   not_null(city) string
+   company string
+   department string
+   title string
+   vatId string
+   phoneNumber string
+   additionalAddressLine1 string
+   additionalAddressLine2 string
+   customFields customFields
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
+}
+Table(ShopwareCoreCheckoutOrderAggregateOrderCustomerOrderCustomerDefinition, "order_customer\n(Order customer)") {
+   primary_key(id) id
+   primary_key(versionId) version
+   customerId foreignKey
+   not_null(orderId) foreignKey
+   not_null(orderVersionId) referenceVersion
+   not_null(email) string
+   not_null(salutationId) foreignKey
+   not_null(firstName) string
+   not_null(lastName) string
+   company string
+   title string
+   customerNumber string
+   customFields customFields
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
+}
+Table(ShopwareCoreCheckoutOrderAggregateOrderDeliveryOrderDeliveryDefinition, "order_delivery\n(Delivery)") {
+   primary_key(id) id
+   primary_key(versionId) version
+   not_null(orderId) foreignKey
+   not_null(orderVersionId) referenceVersion
+   not_null(shippingOrderAddressId) foreignKey
+   not_null(shippingOrderAddressVersionId) referenceVersion
+   not_null(shippingMethodId) foreignKey
+   not_null(stateId) foreignKey
+   trackingCodes json
+   not_null(shippingDateEarliest) dateTime
+   not_null(shippingDateLatest) dateTime
+   shippingCosts calculatedPrice
+   customFields customFields
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
+}
+Table(ShopwareCoreCheckoutOrderAggregateOrderDeliveryPositionOrderDeliveryPositionDefinition, "order_delivery_position\n(Delivery position)") {
+   primary_key(id) id
+   primary_key(versionId) version
+   not_null(orderDeliveryId) foreignKey
+   not_null(orderDeliveryVersionId) referenceVersion
+   not_null(orderLineItemId) foreignKey
+   not_null(orderLineItemVersionId) referenceVersion
+   price calculatedPrice
+   unitPrice float
+   totalPrice float
+   quantity int
+   customFields customFields
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
+}
+Table(ShopwareCoreCheckoutOrderAggregateOrderLineItemOrderLineItemDefinition, "order_line_item\n(Order line item)") {
+   primary_key(id) id
+   primary_key(versionId) version
+   not_null(orderId) foreignKey
+   not_null(orderVersionId) referenceVersion
+   parentId parentFk
+   not_null(parentVersionId) referenceVersion
+   coverId foreignKey
+   not_null(identifier) string
+   referencedId string
+   not_null(quantity) int
+   not_null(label) string
+   payload json
+   good bool
+   removable bool
+   stackable bool
+   not_null(price) calculatedPrice
+   priceDefinition priceDefinition
+   unitPrice float
+   totalPrice float
+   description string
+   type string
+   customFields customFields
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
+}
+Table(ShopwareCoreCheckoutOrderAggregateOrderTagOrderTagDefinition, "order_tag\n(M:N Mapping)") {
+   primary_key(orderId) foreignKey
+   primary_key(orderVersionId) referenceVersion
+   primary_key(tagId) foreignKey
+}
+Table(ShopwareCoreCheckoutOrderAggregateOrderTransactionOrderTransactionDefinition, "order_transaction\n(Order transaction)") {
+   primary_key(id) id
+   primary_key(versionId) version
+   not_null(orderId) foreignKey
+   not_null(orderVersionId) referenceVersion
+   not_null(paymentMethodId) foreignKey
+   not_null(amount) calculatedPrice
+   not_null(stateId) stateMachineState
+   customFields customFields
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
+}
+ForeignTable(ShopwareCoreSystemStateMachineAggregationStateMachineStateStateMachineStateDefinition, "state_machine_state") {
+}
+ForeignTable(ShopwareCoreSystemCurrencyCurrencyDefinition, "currency") {
+}
+ForeignTable(ShopwareCoreFrameworkLanguageLanguageDefinition, "language") {
+}
+ForeignTable(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channel") {
+}
+ForeignTable(ShopwareCoreCheckoutDocumentDocumentDefinition, "document") {
+}
+ForeignTable(ShopwareCoreSystemCountryCountryDefinition, "country") {
+}
+ForeignTable(ShopwareCoreSystemCountryAggregateCountryStateCountryStateDefinition, "country_state") {
+}
+ForeignTable(ShopwareCoreSystemSalutationSalutationDefinition, "salutation") {
+}
+ForeignTable(ShopwareCoreCheckoutCustomerCustomerDefinition, "customer") {
+}
+ForeignTable(ShopwareCoreCheckoutShippingShippingMethodDefinition, "shipping_method") {
+}
+ForeignTable(ShopwareCoreContentMediaMediaDefinition, "media") {
+}
+ForeignTable(ShopwareCoreSystemTagTagDefinition, "tag") {
+}
+ForeignTable(ShopwareCoreCheckoutPaymentPaymentMethodDefinition, "payment_method") {
+}
+
+' relationshipd
+
+ShopwareCoreCheckoutOrderOrderDefinition --> ShopwareCoreSystemStateMachineAggregationStateMachineStateStateMachineStateDefinition
+ShopwareCoreCheckoutOrderAggregateOrderCustomerOrderCustomerDefinition --> ShopwareCoreCheckoutOrderOrderDefinition
+ShopwareCoreCheckoutOrderOrderDefinition --> ShopwareCoreSystemCurrencyCurrencyDefinition
+ShopwareCoreCheckoutOrderOrderDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
+ShopwareCoreCheckoutOrderOrderDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
+ShopwareCoreCheckoutOrderAggregateOrderAddressOrderAddressDefinition --> ShopwareCoreCheckoutOrderOrderDefinition
+ShopwareCoreCheckoutOrderAggregateOrderDeliveryOrderDeliveryDefinition --> ShopwareCoreCheckoutOrderOrderDefinition
+ShopwareCoreCheckoutOrderAggregateOrderLineItemOrderLineItemDefinition --> ShopwareCoreCheckoutOrderOrderDefinition
+ShopwareCoreCheckoutOrderAggregateOrderTransactionOrderTransactionDefinition --> ShopwareCoreCheckoutOrderOrderDefinition
+ShopwareCoreCheckoutOrderOrderDefinition --> ShopwareCoreCheckoutDocumentDocumentDefinition
+ShopwareCoreCheckoutOrderAggregateOrderTagOrderTagDefinition --> ShopwareCoreCheckoutOrderOrderDefinition
+ShopwareCoreCheckoutOrderAggregateOrderAddressOrderAddressDefinition --> ShopwareCoreSystemCountryCountryDefinition
+ShopwareCoreCheckoutOrderAggregateOrderAddressOrderAddressDefinition --> ShopwareCoreSystemCountryAggregateCountryStateCountryStateDefinition
+ShopwareCoreCheckoutOrderAggregateOrderAddressOrderAddressDefinition --> ShopwareCoreSystemSalutationSalutationDefinition
+ShopwareCoreCheckoutOrderAggregateOrderDeliveryOrderDeliveryDefinition --> ShopwareCoreCheckoutOrderAggregateOrderAddressOrderAddressDefinition
+ShopwareCoreCheckoutOrderAggregateOrderCustomerOrderCustomerDefinition --> ShopwareCoreCheckoutCustomerCustomerDefinition
+ShopwareCoreCheckoutOrderAggregateOrderCustomerOrderCustomerDefinition --> ShopwareCoreSystemSalutationSalutationDefinition
+ShopwareCoreCheckoutOrderAggregateOrderDeliveryOrderDeliveryDefinition --> ShopwareCoreSystemStateMachineAggregationStateMachineStateStateMachineStateDefinition
+ShopwareCoreCheckoutOrderAggregateOrderDeliveryOrderDeliveryDefinition --> ShopwareCoreCheckoutShippingShippingMethodDefinition
+ShopwareCoreCheckoutOrderAggregateOrderDeliveryPositionOrderDeliveryPositionDefinition --> ShopwareCoreCheckoutOrderAggregateOrderDeliveryOrderDeliveryDefinition
+ShopwareCoreCheckoutOrderAggregateOrderLineItemOrderLineItemDefinition --> ShopwareCoreCheckoutOrderAggregateOrderDeliveryPositionOrderDeliveryPositionDefinition
+ShopwareCoreCheckoutOrderAggregateOrderLineItemOrderLineItemDefinition --> ShopwareCoreContentMediaMediaDefinition
+ShopwareCoreCheckoutOrderAggregateOrderTagOrderTagDefinition --> ShopwareCoreSystemTagTagDefinition
+ShopwareCoreCheckoutOrderAggregateOrderTransactionOrderTransactionDefinition --> ShopwareCoreSystemStateMachineAggregationStateMachineStateStateMachineStateDefinition
+ShopwareCoreCheckoutOrderAggregateOrderTransactionOrderTransactionDefinition --> ShopwareCoreCheckoutPaymentPaymentMethodDefinition
+@enduml

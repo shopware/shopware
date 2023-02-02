@@ -36,7 +36,7 @@ class IconTemplateLoaderTest extends TestCase
         sort($templates);
 
         static::assertEquals(
-            ['app/storefront/src/assets/icon-pack/custom-icons/activity.svg', 'storefront/layout/header/logo.html.twig'],
+            ['../app/storefront/src/assets/icon-pack/custom-icons/activity.svg', 'storefront/layout/header/logo.html.twig'],
             $templates
         );
     }
@@ -47,7 +47,7 @@ class IconTemplateLoaderTest extends TestCase
 
         static::assertStringEqualsFile(
             __DIR__ . '/../../../Theme/fixtures/Apps/theme/Resources/app/storefront/src/assets/icon-pack/custom-icons/activity.svg',
-            $this->templateLoader->getTemplateContent('app/storefront/src/assets/icon-pack/custom-icons/activity.svg', $manifest)
+            $this->templateLoader->getTemplateContent('../app/storefront/src/assets/icon-pack/custom-icons/activity.svg', $manifest)
         );
     }
 }

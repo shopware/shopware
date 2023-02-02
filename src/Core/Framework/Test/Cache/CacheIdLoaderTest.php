@@ -32,7 +32,7 @@ class CacheIdLoaderTest extends TestCase
         $id = Uuid::randomHex();
 
         $connection = $this->createMock(Connection::class);
-        $connection->method('fetchOne')
+        $connection->method('fetchColumn')
             ->willReturn($id);
 
         $loader = new CacheIdLoader($connection);
@@ -43,12 +43,12 @@ class CacheIdLoaderTest extends TestCase
     public function testMissingCacheIdWritesId(): void
     {
         $connection = $this->createMock(Connection::class);
-        $connection->method('fetchOne')
+        $connection->method('fetchColumn')
             ->willReturn(false);
 
         $connection
             ->expects(static::once())
-            ->method('executeStatement');
+            ->method('executeUpdate');
 
         $loader = new CacheIdLoader($connection);
 
@@ -58,12 +58,12 @@ class CacheIdLoaderTest extends TestCase
     public function testCacheIdIsNotAString(): void
     {
         $connection = $this->createMock(Connection::class);
-        $connection->method('fetchOne')
+        $connection->method('fetchColumn')
             ->willReturn(0);
 
         $connection
             ->expects(static::once())
-            ->method('executeStatement');
+            ->method('executeUpdate');
 
         $loader = new CacheIdLoader($connection);
 
@@ -77,7 +77,7 @@ class CacheIdLoaderTest extends TestCase
 
         $new = Uuid::randomHex();
         $this->getContainer()->get(Connection::class)
-            ->executeStatement(
+            ->executeUpdate(
                 'REPLACE INTO app_config (`key`, `value`) VALUES (:key, :cacheId)',
                 ['cacheId' => $new, 'key' => 'cache-id']
             );

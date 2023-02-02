@@ -7,13 +7,11 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Dispatching\Storer\MailStorer;
-use Shopware\Core\Content\Test\Flow\TestFlowBusinessEvent;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\MailAware;
+use Shopware\Core\Framework\Test\Event\TestBusinessEvent;
 
 /**
- * @package business-ops
- *
  * @internal
  *
  * @covers \Shopware\Core\Content\Flow\Dispatching\Storer\MailStorer
@@ -38,7 +36,7 @@ class MailStorerTest extends TestCase
 
     public function testStoreWithNotAware(): void
     {
-        $event = $this->createMock(TestFlowBusinessEvent::class);
+        $event = $this->createMock(TestBusinessEvent::class);
         $stored = [];
         $stored = $this->storer->store($event, $stored);
         static::assertArrayNotHasKey(MailAware::MAIL_STRUCT, $stored);
@@ -57,7 +55,7 @@ class MailStorerTest extends TestCase
         $mailStruct->setBcc('bcc');
         $mailStruct->setCc('cc');
 
-        /** @var MockObject&StorableFlow $storable */
+        /** @var MockObject|StorableFlow $storable */
         $storable = $this->createMock(StorableFlow::class);
 
         $storable->expects(static::exactly(1))
@@ -81,7 +79,7 @@ class MailStorerTest extends TestCase
         $mailStruct->setBcc('bcc');
         $mailStruct->setCc('cc');
 
-        /** @var MockObject&StorableFlow $storable */
+        /** @var MockObject|StorableFlow $storable */
         $storable = $this->createMock(StorableFlow::class);
 
         $storable->expects(static::exactly(1))

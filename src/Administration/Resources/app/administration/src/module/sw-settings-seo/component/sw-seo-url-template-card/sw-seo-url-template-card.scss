@@ -1,7 +1,7 @@
 @import "~scss/variables";
 
 $sw-seo-url-template-card-color-preview: $color-darkgray-200;
-$sw-seo-url-template-card-font-size-preview: $font-size-xs;
+$sw-seo-url-template-card-font-size-preview: $font-size-small;
 
 .sw-seo-url-template-card {
     .sw-loader {
@@ -34,13 +34,16 @@ $sw-seo-url-template-card-font-size-preview: $font-size-xs;
     }
 
     .sw-field__addition .sw-icon {
-        width: $font-size-s;
-        height: $font-size-s;
-        line-height: $font-size-s;
+        width: $font-size-default;
+        height: $font-size-default;
+        line-height: $font-size-default;
 
         &.icon--regular {
             &-checkmark {
                 color: $color-emerald-500;
+
+                // @deprecated tag:v6.5.0 - padding can be removed
+                padding: 0 !important;
             }
 
             &-exclamation-triangle {

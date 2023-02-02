@@ -16,16 +16,21 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReverseInherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Feature;
 
 /**
  * @internal
  */
-#[Package('core')]
 class ManyToOneAssociationFieldResolver extends AbstractFieldResolver
 {
-    public function __construct(private readonly EntityDefinitionQueryHelper $queryHelper)
+    /**
+     * @var EntityDefinitionQueryHelper
+     */
+    private $queryHelper;
+
+    public function __construct(EntityDefinitionQueryHelper $queryHelper)
     {
+        $this->queryHelper = $queryHelper;
     }
 
     public function join(FieldResolverContext $context): string
@@ -102,7 +107,12 @@ class ManyToOneAssociationFieldResolver extends AbstractFieldResolver
         $fk = $definition->getFields()->getByStorageName($field->getStorageName());
 
         if (!$fk) {
-            throw new \RuntimeException(sprintf('Can not find foreign key for table column %s.%s', $definition->getEntityName(), $field->getStorageName()));
+            //@internal remove "else" part, we should throw an exception here
+            if (Feature::isActive('FEATURE_NEXT_19163')) {
+                throw new \RuntimeException(sprintf('Can not find foreign key for table column %s.%s', $definition->getEntityName(), $field->getStorageName()));
+            }
+
+            return $inherited;
         }
 
         if ($fk instanceof IdField && $field->is(PrimaryKey::class)) {

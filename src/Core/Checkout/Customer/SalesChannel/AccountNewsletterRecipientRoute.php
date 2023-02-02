@@ -5,22 +5,28 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
+use Shopware\Core\Framework\Routing\Annotation\Entity;
+use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('customer-order')]
+/**
+ * @internal (flag:FEATURE_NEXT_14001) remove this comment on feature release
+ * @Route(defaults={"_routeScope"={"store-api"}})
+ */
 class AccountNewsletterRecipientRoute extends AbstractAccountNewsletterRecipientRoute
 {
-    /**
-     * @internal
-     */
-    public function __construct(private readonly SalesChannelRepository $newsletterRecipientRepository)
-    {
+    private SalesChannelRepositoryInterface $newsletterRecipientRepository;
+
+    public function __construct(
+        SalesChannelRepositoryInterface $newsletterRecipientRepository
+    ) {
+        $this->newsletterRecipientRepository = $newsletterRecipientRepository;
     }
 
     public function getDecorated(): AbstractAccountNewsletterRecipientRoute
@@ -28,7 +34,11 @@ class AccountNewsletterRecipientRoute extends AbstractAccountNewsletterRecipient
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/account/newsletter-recipient', name: 'store-api.newsletter.recipient', methods: ['GET', 'POST'], defaults: ['_loginRequired' => true, '_entity' => 'newsletter_recipient'])]
+    /**
+     * @Since("6.4.3.0")
+     * @Entity("newsletter_recipient")
+     * @Route("/store-api/account/newsletter-recipient", name="store-api.newsletter.recipient", methods={"GET", "POST"}, defaults={"_loginRequired"=true})
+     */
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria, CustomerEntity $customer): AccountNewsletterRecipientRouteResponse
     {
         $criteria->addFilter(new EqualsFilter('email', $customer->getEmail()));

@@ -1,9 +1,6 @@
 import ElementReplaceHelper from 'src/helper/element-replace.helper';
 import template from './element-replace.helper.template.html';
 
-/**
- * @package storefront
- */
 describe('element-replace.helper', () => {
     beforeEach(() => {
         document.body.innerHTML = template;

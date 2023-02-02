@@ -4,14 +4,9 @@ namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-/**
- * @internal
- */
-#[Package('core')]
 class Migration1561712450NewSystemConfigsAndDefaultValues extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -32,7 +27,7 @@ class Migration1561712450NewSystemConfigsAndDefaultValues extends MigrationStep
             ->from('system_config')
             ->where('configuration_key = "core.loginRegistration.passwordMinLength"');
 
-        $configId = $builder->executeQuery()->fetchOne();
+        $configId = $builder->execute()->fetchColumn();
         if (!$configId) {
             $connection->insert('system_config', [
                 'id' => Uuid::randomBytes(),
@@ -46,7 +41,7 @@ class Migration1561712450NewSystemConfigsAndDefaultValues extends MigrationStep
             ->from('system_config')
             ->where('configuration_key = "core.address.showZipcodeInFrontOfCity"');
 
-        $configId = $builder->executeQuery()->fetchOne();
+        $configId = $builder->execute()->fetchColumn();
         if (!$configId) {
             $connection->insert('system_config', [
                 'id' => Uuid::randomBytes(),

@@ -1,17 +1,14 @@
 import template from './sw-settings-payment-detail.html.twig';
 import './sw-settings-payment-detail.scss';
 
-const { Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { warn } = Shopware.Utils.debug;
-const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
+const { mapPropertyErrors } = Component.getComponentHelper();
 const { hasOwnProperty } = Shopware.Utils.object;
 
-/**
- * @package checkout
- */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-settings-payment-detail', {
     template,
 
     inject: [
@@ -103,8 +100,11 @@ export default {
                 ],
             ));
 
-            criteria.addAssociation('conditions')
-                .addSorting(Criteria.sort('name', 'ASC', false));
+            if (this.feature.isActive('FEATURE_NEXT_18215')) {
+                criteria.addAssociation('conditions');
+            }
+
+            criteria.addSorting(Criteria.sort('name', 'ASC', false));
 
             return criteria;
         },
@@ -240,4 +240,4 @@ export default {
             this.$refs.mediaSidebarItem.openContent();
         },
     },
-};
+});

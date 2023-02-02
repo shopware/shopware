@@ -1,18 +1,10 @@
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_order_create_details %}
 <div class="sw-order-create-details">
-    <sw-loader v-if="isLoading" />
-
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_create_details_promotion_modal %}
-    <sw-order-create-promotion-modal
-        v-if="showPromotionModal"
-        :is-loading="isLoading"
-        :currency="currency"
-        :sales-channel-id="salesChannelId"
-        @close="onClosePromotionModal"
-        @save="onSavePromotionModal"
-    />
+    TODO: NEXT-16672 - Add promotion modal that shows auto promotion list here
+    {#        <sw-order-create-promotion-modal />#}
     {% endblock %}
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -27,14 +19,8 @@
             gap="0px 30px"
             columns="1fr 1fr"
         >
-            <sw-order-customer-address-select
-                v-model="context.billingAddressId"
-                :label="$tc('sw-order.createBase.labelBillingAddress')"
-                :placeholder="$tc('sw-order.createBase.placeholderBillingAddress')"
-                :same-address-value="context.shippingAddressId"
-                :customer="customer"
-            />
-
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_order_create_details_payment_method %}
             <sw-entity-single-select
                 v-model="context.paymentMethodId"
                 entity="payment_method"
@@ -42,22 +28,23 @@
                 class="sw_order_create-details__payment-method"
                 :criteria="paymentMethodCriteria"
                 :label="$tc('sw-order.createBase.labelPaymentMethod')"
-                :help-text="$tc('sw-order.createBase.detailsFooter.helpTextPaymentMethod')"
                 :placeholder="$tc('sw-order.createBase.placeholderPaymentMethod')"
                 show-clearable-button
-                required
             />
+            {% endblock %}
 
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_order_create_details_order_currency %}
             <sw-entity-single-select
                 v-model="context.currencyId"
                 class="sw_order_create-details__currency"
                 entity="currency"
-                :criteria="currencyCriteria"
+                :criteria="salesChannelCriteria"
                 :label="$tc('sw-order.createBase.labelCurrency')"
                 :placeholder="$tc('sw-order.createBase.placeholderCurrency')"
                 show-clearable-button
-                required
             />
+        {% endblock %}
         </sw-container>
     </sw-card>
     {% endblock %}
@@ -74,15 +61,8 @@
             gap="0px 30px"
             columns="1fr 1fr"
         >
-            <sw-order-customer-address-select
-                v-model="context.shippingAddressId"
-                :label="$tc('sw-order.createBase.labelShippingAddress')"
-                :placeholder="$tc('sw-order.createBase.placeholderShippingAddress')"
-                :same-address-label="$tc('sw-order.initialModal.options.textSameAsBillingAddress')"
-                :same-address-value="context.billingAddressId"
-                :customer="customer"
-            />
-
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_order_create_details_shipping_method %}
             <sw-entity-single-select
                 v-model="context.shippingMethodId"
                 show-clearable-button
@@ -91,26 +71,8 @@
                 :criteria="shippingMethodCriteria"
                 :label="$tc('sw-order.createBase.labelShippingMethod')"
                 :placeholder="$tc('sw-order.createBase.placeholderShippingMethod')"
-                required
             />
-
-            <sw-number-field
-                v-model="shippingCosts"
-                :label="$tc('sw-order.createBase.labelShippingCosts')"
-                :min="0"
-                fill-digits
-                required
-            >
-                <template #suffix>
-                    {{ currency.symbol }}
-                </template>
-            </sw-number-field>
-
-            <sw-datepicker
-                v-model="deliveryDate"
-                disabled
-                :label="$tc('sw-order.detailDeliveries.labelDeliveryDate')"
-            />
+            {% endblock %}
         </sw-container>
     </sw-card>
     {% endblock %}
@@ -135,7 +97,6 @@
                 class="sw-order-create-details__email"
                 :label="$tc('sw-order.createBase.labelEmail')"
                 :placeholder="$tc('sw-order.createBase.placeholderEmail')"
-                required
             />
             {% endblock %}
 
@@ -147,7 +108,6 @@
                 class="sw-order-create-details__phone-number"
                 :label="$tc('sw-order.createBase.labelPhoneNumber')"
                 :placeholder="$tc('sw-order.createBase.placeholderPhoneNumber')"
-                required
             />
             {% endblock %}
 
@@ -159,7 +119,6 @@
                 entity="sales_channel"
                 class="sw-order-create-options__sales-channel"
                 :label="$tc('sw-order.createBase.labelSalesChannel')"
-                required
             />
             {% endblock %}
 
@@ -169,11 +128,10 @@
                 v-model="context.languageId"
                 entity="language"
                 class="sw-order-create-options__order-language"
-                :criteria="languageCriteria"
+                :criteria="salesChannelCriteria"
                 :label="$tc('sw-order.createBase.labelOrderLanguage')"
                 :placeholder="$tc('sw-order.createBase.placeholderOrderLanguage')"
                 show-clearable-button
-                required
             />
         {% endblock %}
         </sw-container>
@@ -197,7 +155,7 @@
             class="sw-order-create-details__disable-auto-promotion"
             :value="disabledAutoPromotion"
             :label="$tc('sw-order.createBase.labelToggleAutomaticPromotions')"
-            @change="toggleAutomaticPromotions"
+            @change="changeDisableAutoPromotions"
         />
         {% endblock %}
     </sw-card>

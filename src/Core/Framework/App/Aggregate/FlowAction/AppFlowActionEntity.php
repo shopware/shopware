@@ -8,9 +8,7 @@ use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
 class AppFlowActionEntity extends Entity
 {
     use EntityIdTrait;
@@ -22,43 +20,29 @@ class AppFlowActionEntity extends Entity
 
     protected string $name;
 
-    protected ?string $badge = null;
+    protected ?string $badge;
 
     protected string $label;
 
-    protected ?string $description = null;
+    protected ?string $description;
 
-    protected ?string $headline = null;
+    protected ?string $headline;
 
-    /**
-     * @var array<string, mixed>
-     */
     protected array $parameters;
 
-    /**
-     * @var array<string, mixed>
-     */
     protected array $config;
 
-    /**
-     * @var array<string, mixed>
-     */
     protected array $headers;
 
-    /**
-     * @var array<string>
-     */
     protected array $requirements;
 
     protected ?string $iconRaw = null;
 
-    protected ?string $icon = null;
+    protected ?string $icon;
 
-    protected ?string $swIcon = null;
+    protected ?string $swIcon;
 
     protected string $url;
-
-    protected bool $delayable = false;
 
     protected ?AppFlowActionTranslationCollection $translations = null;
 
@@ -114,65 +98,41 @@ class AppFlowActionEntity extends Entity
         $this->label = $label;
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     public function getParameters(): array
     {
         return $this->parameters;
     }
 
-    /**
-     * @param array<string, mixed> $parameters
-     */
     public function setParameters(array $parameters): void
     {
         $this->parameters = $parameters;
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     public function getConfig(): array
     {
         return $this->config;
     }
 
-    /**
-     * @param array<string, mixed> $config
-     */
     public function setConfig(array $config): void
     {
         $this->config = $config;
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     public function getHeaders(): array
     {
         return $this->headers;
     }
 
-    /**
-     * @param array<string, mixed> $headers
-     */
     public function setHeaders(array $headers): void
     {
         $this->headers = $headers;
     }
 
-    /**
-     * @return array<string>
-     */
     public function getRequirements(): array
     {
         return $this->requirements;
     }
 
-    /**
-     * @param array<string> $requirements
-     */
     public function setRequirements(array $requirements): void
     {
         $this->requirements = $requirements;
@@ -238,16 +198,6 @@ class AppFlowActionEntity extends Entity
         $this->url = $url;
     }
 
-    public function getDelayable(): bool
-    {
-        return $this->delayable;
-    }
-
-    public function setDelayable(bool $delayable): void
-    {
-        $this->delayable = $delayable;
-    }
-
     public function getTranslations(): ?AppFlowActionTranslationCollection
     {
         return $this->translations;
@@ -268,9 +218,6 @@ class AppFlowActionEntity extends Entity
         $this->flowSequences = $flowSequences;
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     public function jsonSerialize(): array
     {
         $serializedData = parent::jsonSerialize();

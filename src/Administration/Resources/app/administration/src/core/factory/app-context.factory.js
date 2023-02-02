@@ -1,11 +1,9 @@
 /**
- * @package admin
- *
- * @deprecated tag:v6.6.0 - Will be private
  * @module core/factory/context
  * @param {Object} context
  * @type factory
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function createContext(context = {}) {
     // set initial context
     Shopware.State.commit('context/setAppEnvironment', process.env.NODE_ENV);
@@ -14,12 +12,6 @@ export default function createContext(context = {}) {
     // assign unknown context information
     Object.entries(context).forEach(([key, value]) => {
         Shopware.State.commit('context/addAppValue', { key, value });
-    });
-
-    // set initial last activity to prevent immediate logout
-    Shopware.State.commit('context/addAppValue', {
-        key: 'lastActivity',
-        value: Math.round(+new Date() / 1000),
     });
 
     return Shopware.Context.app;

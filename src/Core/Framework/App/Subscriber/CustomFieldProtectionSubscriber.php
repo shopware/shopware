@@ -9,7 +9,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
@@ -21,19 +20,24 @@ use Symfony\Component\Validator\ConstraintViolationList;
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
  */
-#[Package('core')]
 class CustomFieldProtectionSubscriber implements EventSubscriberInterface
 {
-    final public const VIOLATION_NO_PERMISSION = 'no_permission_violation';
+    public const VIOLATION_NO_PERMISSION = 'no_permission_violation';
 
-    public function __construct(private readonly Connection $connection)
+    /**
+     * @var Connection
+     */
+    private $connection;
+
+    public function __construct(Connection $connection)
     {
+        $this->connection = $connection;
     }
 
     /**
      * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
      */
-    public static function getSubscribedEvents(): array
+    public static function getSubscribedEvents()
     {
         return [
             PreWriteValidationEvent::class => 'checkWrite',
@@ -91,7 +95,7 @@ class CustomFieldProtectionSubscriber implements EventSubscriberInterface
             FROM `app`
             INNER JOIN `custom_field_set` ON `custom_field_set`.`app_id` = `app`.`id`
             WHERE `custom_field_set`.`id` = :customFieldSetId
-        ', ['customFieldSetId' => $id])->fetchOne();
+        ', ['customFieldSetId' => $id])->fetchColumn();
 
         if (!$integrationId) {
             return null;

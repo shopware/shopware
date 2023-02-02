@@ -4,15 +4,19 @@ import ProductPageObject from '../../../../support/pages/module/sw-product.page-
 
 describe('Category: SDK Test', ()=> {
     beforeEach(() => {
-        cy.createProductFixture().then(() => {
-            cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
+        cy.loginViaApi()
+            .then(() => {
+                return cy.createProductFixture();
+            })
+            .then(() => {
+                cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
 
-            cy.get('.sw-skeleton').should('not.exist');
-            cy.get('.sw-loader').should('not.exist');
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
 
-            cy.getSDKiFrame('sw-main-hidden')
-                .should('exist');
-        });
+                cy.getSDKiFrame('sw-main-hidden')
+                    .should('exist');
+            });
     });
     it('@sdk: action button', { tags: ['ct-admin'] }, ()=> {
         const Page = new ProductPageObject();
@@ -24,7 +28,7 @@ describe('Category: SDK Test', ()=> {
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             Page.elements.contextMenuButton,
-            `${Page.elements.dataGridRow}--0`,
+            `${Page.elements.dataGridRow}--0`
         );
 
         cy.get('.sw-product-detail__tab-general')
@@ -47,5 +51,5 @@ describe('Category: SDK Test', ()=> {
 
         cy.contains('.sw-alert__message',
             'The action button in the product detail page was clicked');
-    });
-});
+    })
+})

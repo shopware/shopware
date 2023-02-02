@@ -1,11 +1,12 @@
 import template from './sw-extension-review-creation-inputs.html.twig';
 import './sw-extension-review-creation-inputs.scss';
 
+const { Component } = Shopware;
+
 /**
- * @package merchant-services
  * @private
  */
-export default {
+Component.register('sw-extension-review-creation-inputs', {
     template,
 
     props: {
@@ -40,4 +41,4 @@ export default {
             this.$emit('changed', 'text', text);
         },
     },
-};
+});

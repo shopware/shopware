@@ -10,30 +10,44 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityE
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-#[Package('core')]
 class ProductSerializer extends EntitySerializer
 {
-    final public const VISIBILITY_MAPPING = [
+    public const VISIBILITY_MAPPING = [
         ProductVisibilityDefinition::VISIBILITY_ALL => 'all',
         ProductVisibilityDefinition::VISIBILITY_LINK => 'link',
         ProductVisibilityDefinition::VISIBILITY_SEARCH => 'search',
     ];
 
+    private EntityRepositoryInterface $visibilityRepository;
+
+    private EntityRepositoryInterface $salesChannelRepository;
+
+    private EntityRepositoryInterface $productMediaRepository;
+
+    private EntityRepositoryInterface $productConfiguratorSettingRepository;
+
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $visibilityRepository, private readonly EntityRepository $salesChannelRepository, private readonly EntityRepository $productMediaRepository, private readonly EntityRepository $productConfiguratorSettingRepository)
-    {
+    public function __construct(
+        EntityRepositoryInterface $visibilityRepository,
+        EntityRepositoryInterface $salesChannelRepository,
+        EntityRepositoryInterface $productMediaRepository,
+        EntityRepositoryInterface $productConfiguratorSettingRepository
+    ) {
+        $this->visibilityRepository = $visibilityRepository;
+        $this->salesChannelRepository = $salesChannelRepository;
+        $this->productMediaRepository = $productMediaRepository;
+        $this->productConfiguratorSettingRepository = $productConfiguratorSettingRepository;
     }
 
     /**
@@ -67,7 +81,7 @@ class ProductSerializer extends EntitySerializer
             $visibility = $visibility instanceof ProductVisibilityEntity
                 ? $visibility->jsonSerialize()
                 : $visibility;
-            $groups[$visibility['visibility']] ??= [];
+            $groups[$visibility['visibility']] = $groups[$visibility['visibility']] ?? [];
             $groups[$visibility['visibility']][] = $visibility['salesChannelId'];
         }
 
@@ -108,7 +122,7 @@ class ProductSerializer extends EntitySerializer
                 continue;
             }
 
-            $ids = array_filter(explode('|', (string) $entity['visibilities'][$key]));
+            $ids = array_filter(explode('|', $entity['visibilities'][$key]));
 
             $ids = $this->convertSalesChannelNamesToIds($ids);
 
@@ -263,7 +277,7 @@ class ProductSerializer extends EntitySerializer
         }
 
         $productMedias = [];
-        $urls = explode('|', (string) $entity['media']);
+        $urls = explode('|', $entity['media']);
 
         $productMediaField = $definition->getField('media');
 

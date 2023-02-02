@@ -2,15 +2,18 @@
 
 namespace Shopware\Core\Framework\Event\EventData;
 
-use Shopware\Core\Framework\Log\Package;
-
-#[Package('business-ops')]
 class EntityCollectionType implements EventDataType
 {
-    final public const TYPE = 'collection';
+    public const TYPE = 'collection';
 
-    public function __construct(private readonly string $definitionClass)
+    /**
+     * @var string
+     */
+    private $definitionClass;
+
+    public function __construct(string $definitionClass)
     {
+        $this->definitionClass = $definitionClass;
     }
 
     public function toArray(): array

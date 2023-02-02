@@ -1,11 +1,8 @@
 import template from './sw-order-document-settings-delivery-note-modal.html.twig';
 
-/**
- * @package customer-order
- */
+const { Component } = Shopware;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.extend('sw-order-document-settings-delivery-note-modal', 'sw-order-document-settings-modal', {
     template,
 
     inject: ['feature'],
@@ -59,4 +56,4 @@ export default {
             this.$super('onPreview');
         },
     },
-};
+});

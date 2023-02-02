@@ -4,7 +4,6 @@ namespace Shopware\Core\System\SystemConfig;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ConfigJsonField;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -13,14 +12,19 @@ use function array_shift;
 use function explode;
 use function json_decode;
 
-#[Package('system-settings')]
 class SystemConfigLoader extends AbstractSystemConfigLoader
 {
+    protected Connection $connection;
+
+    protected Kernel $kernel;
+
     /**
      * @internal
      */
-    public function __construct(protected Connection $connection, protected Kernel $kernel)
+    public function __construct(Connection $connection, Kernel $kernel)
     {
+        $this->connection = $connection;
+        $this->kernel = $kernel;
     }
 
     public function getDecorated(): AbstractSystemConfigLoader
@@ -45,7 +49,7 @@ class SystemConfigLoader extends AbstractSystemConfigLoader
 
         $query->addOrderBy('sales_channel_id', 'ASC');
 
-        $result = $query->executeQuery();
+        $result = $query->execute();
 
         return $this->buildSystemConfigArray($result->fetchAllKeyValue());
     }
@@ -58,7 +62,7 @@ class SystemConfigLoader extends AbstractSystemConfigLoader
             $keys = explode('.', (string) $key);
 
             if ($value !== null) {
-                $value = json_decode((string) $value, true, 512, \JSON_THROW_ON_ERROR);
+                $value = json_decode($value, true, 512);
 
                 if ($value === false || !isset($value[ConfigJsonField::STORAGE_KEY])) {
                     $value = null;
@@ -103,7 +107,9 @@ class SystemConfigLoader extends AbstractSystemConfigLoader
 
     private function filterNotActivatedPlugins(array $configValues): array
     {
-        $notActivatedPlugins = $this->kernel->getPluginLoader()->getPluginInstances()->filter(fn (Plugin $plugin) => !$plugin->isActive())->all();
+        $notActivatedPlugins = $this->kernel->getPluginLoader()->getPluginInstances()->filter(function (Plugin $plugin) {
+            return !$plugin->isActive();
+        })->all();
 
         foreach ($notActivatedPlugins as $plugin) {
             if (isset($configValues[$plugin->getName()])) {

@@ -14,13 +14,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Plugin\PluginDefinition;
 
-#[Package('core')]
 class CustomEntityDefinition extends EntityDefinition
 {
-    final public const ENTITY_NAME = 'custom_entity';
+    public const ENTITY_NAME = 'custom_entity';
 
     public function getCollectionClass(): string
     {
@@ -55,9 +52,7 @@ class CustomEntityDefinition extends EntityDefinition
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             (new StringField('name', 'name'))->addFlags(new Required()),
             (new JsonField('fields', 'fields'))->addFlags(new Required()),
-            new JsonField('flags', 'flags'),
             new FkField('app_id', 'appId', AppDefinition::class),
-            new FkField('plugin_id', 'pluginId', PluginDefinition::class),
         ]);
     }
 }

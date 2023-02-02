@@ -8,7 +8,7 @@ function createTestRoleViaApi({ roleID, roleName }) {
         let headers = {
             Accept: 'application/vnd.api+json',
             Authorization: `Bearer ${$w.Shopware.Context.api.authToken.access}`,
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/json'
         };
 
         cy.request({
@@ -20,14 +20,14 @@ function createTestRoleViaApi({ roleID, roleName }) {
                 client_id: 'administration',
                 scope: 'user-verified',
                 username: 'admin',
-                password: 'shopware',
-            },
+                password: 'shopware'
+            }
         }).then(response => {
             // overwrite headers with new scope
             headers = {
                 Accept: 'application/vnd.api+json',
                 Authorization: `Bearer ${response.body.access_token}`,
-                'Content-Type': 'application/json',
+                'Content-Type': 'application/json'
             };
 
             return cy.request({
@@ -37,8 +37,8 @@ function createTestRoleViaApi({ roleID, roleName }) {
                 body: {
                     id: roleID,
                     name: roleName,
-                    privileges: [],
-                },
+                    privileges: []
+                }
             });
         });
     });
@@ -46,7 +46,10 @@ function createTestRoleViaApi({ roleID, roleName }) {
 
 describe('Integration: Test acl privileges', () => {
     beforeEach(() => {
-        cy.createDefaultFixture('integration')
+        cy.loginViaApi()
+            .then(() => {
+                return cy.createDefaultFixture('integration');
+            })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
             });
@@ -58,8 +61,8 @@ describe('Integration: Test acl privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'integration',
-                role: 'viewer',
-            },
+                role: 'viewer'
+            }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/integration/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -74,16 +77,16 @@ describe('Integration: Test acl privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'integration',
-                role: 'viewer',
+                role: 'viewer'
             },
             {
                 key: 'integration',
-                role: 'editor',
+                role: 'editor'
             },
             {
                 key: 'integration',
-                role: 'creator',
-            },
+                role: 'creator'
+            }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/integration/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -93,7 +96,7 @@ describe('Integration: Test acl privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/integration`,
-            method: 'POST',
+            method: 'POST'
         }).as('createIntegration');
 
         // go to create page
@@ -117,12 +120,12 @@ describe('Integration: Test acl privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'integration',
-                role: 'viewer',
+                role: 'viewer'
             },
             {
                 key: 'integration',
-                role: 'editor',
-            },
+                role: 'editor'
+            }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/integration/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -132,7 +135,7 @@ describe('Integration: Test acl privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/integration/*`,
-            method: 'PATCH',
+            method: 'PATCH'
         }).as('editIntegration');
 
         // click on the first element in grid
@@ -154,11 +157,11 @@ describe('Integration: Test acl privileges', () => {
         // Insert some test roles
         createTestRoleViaApi({
             roleID: uuid().replace(/-/g, ''),
-            roleName: 'e2e-test-role',
+            roleName: 'e2e-test-role'
         });
         createTestRoleViaApi({
             roleID: uuid().replace(/-/g, ''),
-            roleName: 'another-test-role',
+            roleName: 'another-test-role'
         });
 
         const page = new SettingsPageObject();
@@ -166,12 +169,12 @@ describe('Integration: Test acl privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'integration',
-                role: 'viewer',
+                role: 'viewer'
             },
             {
                 key: 'integration',
-                role: 'editor',
-            },
+                role: 'editor'
+            }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/integration/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -181,11 +184,11 @@ describe('Integration: Test acl privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/acl-role`,
-            method: 'POST',
+            method: 'POST'
         }).as('loadAclRoles');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/integration/*`,
-            method: 'PATCH',
+            method: 'PATCH'
         }).as('editIntegration');
 
         // click on the first element in grid
@@ -247,12 +250,12 @@ describe('Integration: Test acl privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'integration',
-                role: 'viewer',
+                role: 'viewer'
             },
             {
                 key: 'integration',
-                role: 'deleter',
-            },
+                role: 'deleter'
+            }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/integration/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -262,14 +265,14 @@ describe('Integration: Test acl privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/integration/*`,
-            method: 'delete',
+            method: 'delete'
         }).as('deleteIntegration');
 
         // click on the first element in grid
         cy.clickContextMenuItem(
             `${page.elements.contextMenu}-item--danger`,
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`,
+            `${page.elements.dataGridRow}--0`
         );
 
         cy.get('.sw-button--primary.sw-button--small span.sw-button__content').contains('Delete').click();

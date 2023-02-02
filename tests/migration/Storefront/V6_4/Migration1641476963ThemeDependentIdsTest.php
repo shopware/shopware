@@ -9,13 +9,10 @@ use Shopware\Storefront\Migration\V6_4\Migration1641476963ThemeDependentIds;
 
 /**
  * @internal
- * @covers \Shopware\Storefront\Migration\V6_4\Migration1641476963ThemeDependentIds
+ * @covers \Shopware\Core\Migration\V6_4\Migration1641476963ThemeDependentIds
  */
 class Migration1641476963ThemeDependentIdsTest extends TestCase
 {
-    /**
-     * @phpstan-ignore-next-line remove when test skip is removed
-     */
     private Connection $connection;
 
     public function setUp(): void
@@ -26,9 +23,6 @@ class Migration1641476963ThemeDependentIdsTest extends TestCase
 
     public function testUpdate(): void
     {
-        static::markTestSkipped('Flaky coverage');
-
-        /** @phpstan-ignore-next-line remove when test skip is removed */
         $migration = new Migration1641476963ThemeDependentIds();
         $migration->update($this->connection);
 

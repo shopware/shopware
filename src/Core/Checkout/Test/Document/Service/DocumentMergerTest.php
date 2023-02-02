@@ -16,10 +16,9 @@ use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Test\Document\DocumentTrait;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -33,7 +32,6 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * @internal
  */
-#[Package('customer-order')]
 class DocumentMergerTest extends TestCase
 {
     use DocumentTrait;
@@ -44,7 +42,7 @@ class DocumentMergerTest extends TestCase
 
     private DocumentGenerator $documentGenerator;
 
-    private EntityRepository $documentRepository;
+    private EntityRepositoryInterface $documentRepository;
 
     private DocumentMerger $documentMerger;
 

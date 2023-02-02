@@ -3,9 +3,7 @@
 namespace Shopware\Core\Migration\Traits;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
 trait StateMachineMigrationTrait
 {
     private function import(StateMachineMigration $migration, Connection $connection): StateMachineMigration

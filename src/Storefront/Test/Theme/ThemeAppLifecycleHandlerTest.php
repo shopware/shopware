@@ -8,12 +8,12 @@ use Shopware\Core\Framework\App\Event\AppDeactivatedEvent;
 use Shopware\Core\Framework\App\Event\AppUpdatedEvent;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Theme\ThemeCollection;
-use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -24,9 +24,15 @@ class ThemeAppLifecycleHandlerTest extends TestCase
     use IntegrationTestBehaviour;
     use AppSystemTestBehaviour;
 
-    private EventDispatcherInterface $eventDispatcher;
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
 
-    private EntityRepository $themeRepository;
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $themeRepository;
 
     public function setUp(): void
     {

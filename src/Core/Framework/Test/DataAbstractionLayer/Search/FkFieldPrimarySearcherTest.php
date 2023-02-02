@@ -9,6 +9,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -28,7 +29,7 @@ class FkFieldPrimarySearcherTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private EntityRepository $productRepository;
+    private EntityRepositoryInterface $productRepository;
 
     private string $productId;
 
@@ -63,7 +64,7 @@ class FkFieldPrimarySearcherTest extends TestCase
             Context::createDefaultContext()
         );
 
-        /** @var EntityRepository $fkFieldPrimaryRepository */
+        /** @var EntityRepositoryInterface $fkFieldPrimaryRepository */
         $fkFieldPrimaryRepository = $this->getContainer()->get($definition->getEntityName() . '.repository');
 
         $fkFieldPrimaryRepository->create(
@@ -77,7 +78,7 @@ class FkFieldPrimarySearcherTest extends TestCase
         );
 
         $criteria = new Criteria([$this->productId]);
-        /** @var EntityRepository $fkFieldPrimaryRepository */
+        /** @var EntityRepositoryInterface $fkFieldPrimaryRepository */
         $fkFieldPrimaryRepository = $this->getContainer()->get('fk_field_primary.repository');
         /** @var array<string, ArrayEntity> $fkFieldPrimaryTupel */
         $fkFieldPrimaryTupel = $fkFieldPrimaryRepository->search($criteria, Context::createDefaultContext())->getElements();
@@ -90,7 +91,7 @@ class FkFieldPrimarySearcherTest extends TestCase
     {
         $this->addMultiPrimaryFkField();
 
-        /** @var EntityRepository $multiPrimaryRepository */
+        /** @var EntityRepositoryInterface $multiPrimaryRepository */
         $multiPrimaryRepository = $this->getContainer()->get('multi_fk_field_primary.repository');
         $firstId = Uuid::randomHex();
         $secondId = Uuid::randomHex();
@@ -105,7 +106,7 @@ class FkFieldPrimarySearcherTest extends TestCase
             Context::createDefaultContext()
         );
 
-        $criteria = new Criteria([['firstId' => $firstId, 'secondId' => $secondId]]);
+        $criteria = new Criteria([['first_id' => $firstId, 'second_id' => $secondId]]);
         $multiFkFieldPrimaryTupel = $multiPrimaryRepository->search($criteria, Context::createDefaultContext());
         $key = $firstId . '-' . $secondId;
         static::assertArrayHasKey($key, $multiFkFieldPrimaryTupel->getElements());
@@ -131,7 +132,7 @@ class FkFieldPrimarySearcherTest extends TestCase
             Context::createDefaultContext()
         );
 
-        $criteria = new Criteria([['productId' => $this->productId, 'languageId' => Defaults::LANGUAGE_SYSTEM]]);
+        $criteria = new Criteria([['product_id' => $this->productId, 'language_id' => Defaults::LANGUAGE_SYSTEM]]);
 
         $productTranslationRepository = $this->getContainer()->get('product_translation.repository');
         /** @var ProductTranslationCollection $productTranslation */

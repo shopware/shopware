@@ -1,7 +1,3 @@
-/**
- * @package admin
- */
-
 /* eslint-disable no-console */
 const fs = require('fs');
 const puppeteer = require('puppeteer');
@@ -31,7 +27,7 @@ if (!PROJECT_ROOT) {
 if (!DD_API_KEY) {
     // eslint-disable-next-line no-console
     console.warn('' +
-      'WARNING: The environment variable "DD_API_KEY" has to be defined. ' +
+      'WARNING: The environment variable "DD_API_KEY" have to defined. ' +
       'Otherwise it can\'t send metrics to datadog.');
 }
 

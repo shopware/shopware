@@ -2,9 +2,6 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy;
 
-use Shopware\Core\Framework\Log\Package;
-
-#[Package('core')]
 interface TemplateNamespaceHierarchyBuilderInterface
 {
     /**

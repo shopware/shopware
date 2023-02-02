@@ -8,23 +8,76 @@ use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\Tax\TaxCollection;
 
 /**
  * @internal Use SalesChannelContext for extensions
  */
-#[Package('core')]
 class BaseContext
 {
-    public function __construct(protected Context $context, protected SalesChannelEntity $salesChannel, protected CurrencyEntity $currency, protected CustomerGroupEntity $currentCustomerGroup, protected TaxCollection $taxRules, protected PaymentMethodEntity $paymentMethod, protected ShippingMethodEntity $shippingMethod, protected ShippingLocation $shippingLocation, private readonly CashRoundingConfig $itemRounding, private readonly CashRoundingConfig $totalRounding)
-    {
+    protected CustomerGroupEntity $currentCustomerGroup;
+
+    protected CustomerGroupEntity $fallbackCustomerGroup;
+
+    protected CurrencyEntity $currency;
+
+    protected SalesChannelEntity $salesChannel;
+
+    protected TaxCollection $taxRules;
+
+    protected PaymentMethodEntity $paymentMethod;
+
+    protected ShippingMethodEntity $shippingMethod;
+
+    protected ShippingLocation $shippingLocation;
+
+    protected Context $context;
+
+    private CashRoundingConfig $itemRounding;
+
+    private CashRoundingConfig $totalRounding;
+
+    /**
+     * @deprecated tag:v6.5.0 - Parameter $fallbackCustomerGroup is deprecated and will be removed
+     */
+    public function __construct(
+        Context $baseContext,
+        SalesChannelEntity $salesChannel,
+        CurrencyEntity $currency,
+        CustomerGroupEntity $currentCustomerGroup,
+        CustomerGroupEntity $fallbackCustomerGroup,
+        TaxCollection $taxRules,
+        PaymentMethodEntity $paymentMethod,
+        ShippingMethodEntity $shippingMethod,
+        ShippingLocation $shippingLocation,
+        CashRoundingConfig $itemRounding,
+        CashRoundingConfig $totalRounding
+    ) {
+        $this->currentCustomerGroup = $currentCustomerGroup;
+        $this->fallbackCustomerGroup = $fallbackCustomerGroup;
+        $this->currency = $currency;
+        $this->salesChannel = $salesChannel;
+        $this->taxRules = $taxRules;
+        $this->paymentMethod = $paymentMethod;
+        $this->shippingMethod = $shippingMethod;
+        $this->shippingLocation = $shippingLocation;
+        $this->context = $baseContext;
+        $this->itemRounding = $itemRounding;
+        $this->totalRounding = $totalRounding;
     }
 
     public function getCurrentCustomerGroup(): CustomerGroupEntity
     {
         return $this->currentCustomerGroup;
+    }
+
+    /**
+     * @deprecated tag:v6.5.0 - Fallback customer group is deprecated and will be removed, use getCurrentCustomerGroup instead
+     */
+    public function getFallbackCustomerGroup(): CustomerGroupEntity
+    {
+        return $this->fallbackCustomerGroup;
     }
 
     public function getCurrency(): CurrencyEntity

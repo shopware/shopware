@@ -7,10 +7,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType\SalesChannelTypeEntity;
@@ -21,7 +20,6 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[Package('sales-channel')]
 class SalesChannelRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -32,32 +30,32 @@ class SalesChannelRepositoryTest extends TestCase
     private $connection;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepositoryInterface
      */
     private $salesChannelRepository;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepositoryInterface
      */
     private $currencyRepository;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepositoryInterface
      */
     private $languageRepository;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepositoryInterface
      */
     private $paymentMethodRepository;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepositoryInterface
      */
     private $countryRepository;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepositoryInterface
      */
     private $shippingMethodRepository;
 

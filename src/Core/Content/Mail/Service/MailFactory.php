@@ -2,32 +2,36 @@
 
 namespace Shopware\Core\Content\Mail\Service;
 
+use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ConstraintBuilder;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-#[Package('system-settings')]
 class MailFactory extends AbstractMailFactory
 {
     /**
-     * @internal
+     * @var ValidatorInterface
      */
-    public function __construct(private readonly ValidatorInterface $validator)
-    {
-    }
+    private $validator;
 
     /**
-     * @param string[] $sender
-     * @param string[] $recipients
-     * @param string[] $contents
-     * @param string[] $attachments
-     * @param mixed[] $additionalData
-     * @param array<int, mixed[]>|null $binAttachments
+     * @var FilesystemInterface
      */
+    private $filesystem;
+
+    /**
+     * @internal
+     */
+    public function __construct(ValidatorInterface $validator, FilesystemInterface $filesystem)
+    {
+        $this->validator = $validator;
+        $this->filesystem = $filesystem;
+    }
+
     public function create(
         string $subject,
         array $sender,
@@ -39,11 +43,10 @@ class MailFactory extends AbstractMailFactory
     ): Email {
         $this->assertValidAddresses(array_keys($recipients));
 
-        $mail = (new Mail())
+        $mail = (new Email())
             ->subject($subject)
             ->from(...$this->formatMailAddresses($sender))
-            ->to(...$this->formatMailAddresses($recipients))
-            ->setMailAttachmentsConfig($additionalData['attachmentsConfig'] ?? null);
+            ->to(...$this->formatMailAddresses($recipients));
 
         foreach ($contents as $contentType => $data) {
             if ($contentType === 'text/html') {
@@ -53,13 +56,15 @@ class MailFactory extends AbstractMailFactory
             }
         }
 
+        $attach = Feature::isActive('v6.5.0.0') ? 'attach' : 'embed';
+
         foreach ($attachments as $url) {
-            $mail->addAttachmentUrl($url);
+            $mail->$attach($this->filesystem->read($url) ?: '', basename($url), $this->filesystem->getMimetype($url) ?: null);
         }
 
         if (isset($binAttachments)) {
             foreach ($binAttachments as $binAttachment) {
-                $mail->attach(
+                $mail->$attach(
                     $binAttachment['content'],
                     $binAttachment['fileName'],
                     $binAttachment['mimeType']
@@ -95,8 +100,6 @@ class MailFactory extends AbstractMailFactory
     }
 
     /**
-     * @param string[] $addresses
-     *
      * @throws ConstraintViolationException
      */
     private function assertValidAddresses(array $addresses): void
@@ -116,11 +119,6 @@ class MailFactory extends AbstractMailFactory
         }
     }
 
-    /**
-     * @param string[] $addresses
-     *
-     * @return string[]
-     */
     private function formatMailAddresses(array $addresses): array
     {
         $formattedAddresses = [];

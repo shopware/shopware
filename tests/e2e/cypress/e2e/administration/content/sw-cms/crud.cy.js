@@ -1,22 +1,23 @@
-/**
- * @package content
- */
 // / <reference types="Cypress" />
 
 describe('CMS: Test crud operations of layouts', () => {
     beforeEach(() => {
-        cy.createCmsFixture().then(() => {
-            cy.viewport(1920, 1080);
-            cy.openInitialPage(`${Cypress.env('admin')}#/sw/cms/index`);
-            cy.get('.sw-skeleton').should('not.exist');
-            cy.get('.sw-loader').should('not.exist');
-        });
+        cy.loginViaApi()
+            .then(() => {
+                return cy.createCmsFixture();
+            })
+            .then(() => {
+                cy.viewport(1920, 1080);
+                cy.openInitialPage(`${Cypress.env('admin')}#/sw/cms/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
+            });
     });
 
     it('@base @content @package: create and read layout', { tags: ['pa-content-management'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page`,
-            method: 'POST',
+            method: 'POST'
         }).as('saveData');
 
         // Fill in basic data
@@ -62,12 +63,12 @@ describe('CMS: Test crud operations of layouts', () => {
     it('@base @content @package: update and read layout', { tags: ['pa-content-management'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
-            method: 'PATCH',
+            method: 'PATCH'
         }).as('saveData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/category/*`,
-            method: 'PATCH',
+            method: 'PATCH'
         }).as('saveCategory');
 
         cy.get('.sw-cms-list-item--0').click();
@@ -115,7 +116,7 @@ describe('CMS: Test crud operations of layouts', () => {
     it('@base @content @package: delete layout', { tags: ['pa-content-management'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
-            method: 'delete',
+            method: 'delete'
         }).as('deleteData');
 
         cy.clickContextMenuItem(
@@ -123,7 +124,7 @@ describe('CMS: Test crud operations of layouts', () => {
             '.sw-cms-list-item__options',
             '.sw-cms-list-item--0',
             '',
-            true,
+            true
         );
         cy.contains('.sw_tree__confirm-delete-text',
             'Are you sure you really want to delete the layout "Vierte Wand"?');

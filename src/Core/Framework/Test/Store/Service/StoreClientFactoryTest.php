@@ -2,10 +2,9 @@
 
 namespace Shopware\Core\Framework\Test\Store\Service;
 
-use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Services\StoreClientFactory;
 use Shopware\Core\Framework\Store\Services\VerifyResponseSignatureMiddleware;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -14,7 +13,6 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 /**
  * @internal
  */
-#[Package('merchant-services')]
 class StoreClientFactoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -23,7 +21,7 @@ class StoreClientFactoryTest extends TestCase
 
     private const STORE_URI_CONFIG_KEY = 'core.store.apiUri';
 
-    private ?string $originalStoreUri = null;
+    private ?string $originalStoreUri;
 
     /**
      * @before
@@ -71,10 +69,7 @@ class StoreClientFactoryTest extends TestCase
         return $this->getContainer()->get(SystemConfigService::class);
     }
 
-    /**
-     * @return array<string, mixed>
-     */
-    private function getConfigFromClient(ClientInterface $client): array
+    private function getConfigFromClient(Client $client): array
     {
         $reflObject = new \ReflectionObject($client);
         $reflProp = $reflObject->getProperty('config');

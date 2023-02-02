@@ -14,7 +14,7 @@ $sw-label-pill-border-radius: 50px;
     margin: 0 6px 6px 0;
     padding: 8px 12px;
     line-height: 14px;
-    font-size: $font-size-xxs;
+    font-size: $font-size-extra-small;
     height: 32px;
     border: 1px solid $color-gray-300;
     background: $color-gray-50;
@@ -66,9 +66,8 @@ $sw-label-pill-border-radius: 50px;
         outline: none;
 
         .sw-icon {
-            width: 16px;
-            height: 16px;
-            padding: 4px;
+            width: 12px;
+            height: 12px;
         }
     }
 
@@ -80,7 +79,7 @@ $sw-label-pill-border-radius: 50px;
     &.sw-label--appearance-badged {
         background: transparent;
         border: 0;
-        font-size: $font-size-xs;
+        font-size: $font-size-small;
         padding: 4px 0;
         line-height: 22px;
 
@@ -112,9 +111,9 @@ $sw-label-pill-border-radius: 50px;
     &.sw-label--warning,
     &.sw-label--neutral {
         &.sw-label--small {
-            font-weight: $font-weight-semi-bold;
+            font-weight: 600;
             line-height: 14px;
-            font-size: $font-size-xxs;
+            font-size: 12px;
             padding: 0 5px;
             padding-left: 15px;
             height: 16px;

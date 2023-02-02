@@ -19,7 +19,8 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_maintain_currencies_modal_grid_column_name %}
         <template
-            #column-name="{ item }"
+            slot="column-name"
+            slot-scope="{ item }"
         >
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -42,7 +43,7 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_maintain_currencies_modal_grid_column_price %}
-        <template #column-label-price>
+        <template slot="column-label-price">
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_maintain_currencies_modal_grid_column_price_field_label %}
             <div class="sw-maintain-currencies-modal__price-label-wrapper">
@@ -66,7 +67,8 @@
         </template>
 
         <template
-            #column-price="{ item }"
+            slot="column-price"
+            slot-scope="{ item }"
         >
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_maintain_currencies_modal_grid_column_price_field %}
@@ -91,7 +93,7 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_maintain_currencies_modal_footer %}
-    <template #modal-footer>
+    <template slot="modal-footer">
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_maintain_currencies_modal_footer_button_cancel %}

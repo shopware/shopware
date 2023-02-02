@@ -3,16 +3,14 @@
 namespace Shopware\Storefront\Theme\Command;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
 use Shopware\Storefront\Theme\ThemeEntity;
 use Shopware\Storefront\Theme\ThemeService;
-use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -21,27 +19,37 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-#[AsCommand(
-    name: 'theme:change',
-    description: 'Change the active theme for a sales channel',
-)]
-#[Package('storefront')]
 class ThemeChangeCommand extends Command
 {
-    private readonly Context $context;
+    protected static $defaultName = 'theme:change';
+
+    private ThemeService $themeService;
+
+    private StorefrontPluginRegistryInterface $pluginRegistry;
+
+    private EntityRepositoryInterface $salesChannelRepository;
+
+    private Context $context;
 
     private SymfonyStyle $io;
+
+    private EntityRepositoryInterface $themeRepository;
 
     /**
      * @internal
      */
     public function __construct(
-        private readonly ThemeService $themeService,
-        private readonly StorefrontPluginRegistryInterface $pluginRegistry,
-        private readonly EntityRepository $salesChannelRepository,
-        private readonly EntityRepository $themeRepository
+        ThemeService $themeService,
+        StorefrontPluginRegistryInterface $pluginRegistry,
+        EntityRepositoryInterface $salesChannelRepository,
+        EntityRepositoryInterface $themeRepository
     ) {
         parent::__construct();
+
+        $this->themeService = $themeService;
+        $this->pluginRegistry = $pluginRegistry;
+        $this->salesChannelRepository = $salesChannelRepository;
+        $this->themeRepository = $themeRepository;
         $this->context = Context::createDefaultContext();
     }
 
@@ -110,9 +118,7 @@ class ThemeChangeCommand extends Command
 
         /** @var SalesChannelEntity $salesChannel */
         foreach ($selectedSalesChannel as $salesChannel) {
-            $this->io->writeln(
-                sprintf('Set and compiling theme "%s" (%s) as new theme for sales channel "%s"', $themeName, $theme->getId(), $salesChannel->getName())
-            );
+            $this->io->writeln(sprintf('Set and compiling theme "%s" (%s) as new theme for sales channel "%s"', $themeName, $theme->getId(), $salesChannel->getName()));
 
             $this->themeService->assignTheme(
                 $theme->getId(),
@@ -125,9 +131,6 @@ class ThemeChangeCommand extends Command
         return self::SUCCESS;
     }
 
-    /**
-     * @return array<string>
-     */
     protected function getSalesChannelChoices(SalesChannelCollection $salesChannels): array
     {
         $choices = [];
@@ -139,9 +142,6 @@ class ThemeChangeCommand extends Command
         return $choices;
     }
 
-    /**
-     * @return array<string>
-     */
     protected function getThemeChoices(): array
     {
         $choices = [];

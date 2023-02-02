@@ -20,7 +20,7 @@ use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -40,7 +40,10 @@ class BuyBoxTypeDataResolverTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private BuyBoxCmsElementResolver $buyBoxResolver;
+    /**
+     * @var BuyBoxCmsElementResolver
+     */
+    private $buyBoxResolver;
 
     protected function setUp(): void
     {
@@ -53,7 +56,7 @@ class BuyBoxTypeDataResolverTest extends TestCase
 
         $deprecatedEntityDefinition = new DeprecatedEntityDefinition();
         $deprecatedEntityDefinition->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
-        $repositoryMock = $this->createMock(EntityRepository::class);
+        $repositoryMock = $this->createMock(EntityRepositoryInterface::class);
 
         $this->buyBoxResolver = new BuyBoxCmsElementResolver($mockConfiguratorLoader, $repositoryMock);
     }

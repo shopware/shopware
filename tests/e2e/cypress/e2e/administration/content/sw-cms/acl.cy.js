@@ -1,21 +1,22 @@
-/**
- * @package content
- */
 // / <reference types="Cypress" />
 
 describe('Category: Test ACL privileges', () => {
     beforeEach(() => {
-        cy.createCmsFixture().then(() => {
-            cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
-        });
+        cy.loginViaApi()
+            .then(() => {
+                return cy.createCmsFixture();
+            })
+            .then(() => {
+                cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
+            });
     });
 
     it('@base @catalogue: can view shopping experiences listing', { tags: ['pa-content-management'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'cms',
-                role: 'viewer',
-            },
+                role: 'viewer'
+            }
         ]);
 
         cy.viewport(1920, 1080);
@@ -31,8 +32,8 @@ describe('Category: Test ACL privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'cms',
-                role: 'viewer',
-            },
+                role: 'viewer'
+            }
         ]);
 
         cy.viewport(1920, 1080);
@@ -54,12 +55,12 @@ describe('Category: Test ACL privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'cms',
-                role: 'viewer',
+                role: 'viewer'
             },
             {
                 key: 'cms',
-                role: 'editor',
-            },
+                role: 'editor'
+            }
         ]);
 
         cy.viewport(1920, 1080);
@@ -69,12 +70,12 @@ describe('Category: Test ACL privileges', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
-            method: 'PATCH',
+            method: 'PATCH'
         }).as('saveData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/category/*`,
-            method: 'PATCH',
+            method: 'PATCH'
         }).as('saveCategory');
 
         cy.get('.sw-cms-list-item--0').click();
@@ -104,16 +105,16 @@ describe('Category: Test ACL privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'cms',
-                role: 'viewer',
+                role: 'viewer'
             },
             {
                 key: 'cms',
-                role: 'editor',
+                role: 'editor'
             },
             {
                 key: 'cms',
-                role: 'creator',
-            },
+                role: 'creator'
+            }
         ]);
 
         cy.viewport(1920, 1080);
@@ -123,7 +124,7 @@ describe('Category: Test ACL privileges', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page`,
-            method: 'POST',
+            method: 'POST'
         }).as('saveData');
 
         // Fill in basic data

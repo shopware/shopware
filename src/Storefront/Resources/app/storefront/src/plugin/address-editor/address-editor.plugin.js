@@ -5,10 +5,9 @@ import PseudoModalUtil from 'src/utility/modal-extension/pseudo-modal.util';
 import DomAccess from 'src/helper/dom-access.helper';
 import Iterator from 'src/helper/iterator.helper';
 import PluginManager from 'src/plugin-system/plugin.manager';
+import Feature from 'src/helper/feature.helper';
 
 /**
- * @package checkout
- *
  * this plugins opens a modal
  * where an address can be edited or created
  */
@@ -21,6 +20,7 @@ export default class AddressEditorPlugin extends Plugin {
         changeBilling: false,
         editorModalClass: 'address-editor-modal',
         closeEditorClass: 'js-close-address-editor',
+        csrfToken: '',
     };
 
     init() {
@@ -78,6 +78,10 @@ export default class AddressEditorPlugin extends Plugin {
                 changeBilling: this.options.changeBilling,
             },
         };
+
+        if (window.csrf.enabled && window.csrf.mode === 'twig') {
+            data['_csrf_token'] = this.options.csrfToken;
+        }
 
         return data;
     }
@@ -142,20 +146,41 @@ export default class AddressEditorPlugin extends Plugin {
     _registerCollapseCallback(pseudoModal) {
         const modal = pseudoModal.getModal();
 
-        const collapseTriggers = DomAccess.querySelectorAll(modal, '[data-bs-toggle="collapse"]', false);
+        /**
+         * @deprecated tag:v6.5.0 - Bootstrap v5 renames `data-toggle` attribute to `data-bs-toggle`
+         * Replace variable `dataBsToggleSelector` with string `[data-bs-toggle="collapse"]`.
+         */
+        const dataBsToggleSelector = Feature.isActive('v6.5.0.0') ? '[data-bs-toggle="collapse"]' : '[data-toggle="collapse"]';
+
+        /**
+         * @deprecated tag:v6.5.0 - Bootstrap v5 renames `data-target` attribute to `data-bs-target`
+         * Replace variable `dataBsTargetAttr` with string `data-bs-target`.
+         */
+        const dataBsTargetAttr = Feature.isActive('v6.5.0.0') ? 'data-bs-target' : 'data-target';
+
+        const collapseTriggers = DomAccess.querySelectorAll(modal, dataBsToggleSelector, false);
 
         if (collapseTriggers) {
             Iterator.iterate(collapseTriggers, collapseTrigger => {
-                const targetSelector = DomAccess.getDataAttribute(collapseTrigger, 'data-bs-target');
+                const targetSelector = DomAccess.getDataAttribute(collapseTrigger, dataBsTargetAttr);
                 const target = DomAccess.querySelector(modal, targetSelector);
                 const parentSelector = DomAccess.getDataAttribute(target, 'data-parent');
                 const parent = DomAccess.querySelector(modal, parentSelector);
 
-                parent.addEventListener('hidden.bs.collapse', () => {
-                    pseudoModal.updatePosition();
+                /** @deprecated tag:v6.5.0 - Bootstrap v5 uses native HTML elements and events to subscribe to Collapse plugin events */
+                if (Feature.isActive('v6.5.0.0')) {
+                    parent.addEventListener('hidden.bs.collapse', () => {
+                        pseudoModal.updatePosition();
 
-                    this.$emitter.publish('collapseHidden', { pseudoModal });
-                });
+                        this.$emitter.publish('collapseHidden', { pseudoModal });
+                    });
+                } else {
+                    $(parent).on('hidden.bs.collapse', () => {
+                        pseudoModal.updatePosition();
+
+                        this.$emitter.publish('collapseHidden', { pseudoModal });
+                    });
+                }
             });
         }
 
@@ -163,8 +188,7 @@ export default class AddressEditorPlugin extends Plugin {
     }
 
     /**
-     * callback to close the modal after address selection success
-     * callback to display the validation message nearby the invalid field
+     * callback to close the modal after address selection
      * callback to register the modal events after ajax submit
      *
      * @param {PseudoModalUtil} pseudoModal
@@ -185,38 +209,18 @@ export default class AddressEditorPlugin extends Plugin {
                     FormAjaxSubmitInstance.addCallback(() => {
                         this._registerAjaxSubmitCallback(pseudoModal);
 
-                        const invalidFields = DomAccess.querySelectorAll(
-                            modal,
-                            `${FormAjaxSubmitInstance.options.replaceSelectors[0]}.is-invalid`,
-                            false
-                        );
-
-                        if (invalidFields) {
-                            return;
-                        }
-
                         const shouldBeClosed = ajaxForm.classList.contains(this.options.closeEditorClass);
                         if (shouldBeClosed) {
                             pseudoModal.close();
                             PageLoadingIndicatorUtil.create();
-
-                            // dirty hack, because chromium cache is weird
-                            // basically a window.location.reload() but chrome reloads
-                            // with ?redirected=1 which is not the wanted behaviour
-                            // this replaces the redirected=1 to a redirected=0
-                            if (typeof URL === 'function') {
-                                const url = new URL(window.location.href);
-                                url.searchParams.delete('redirected');
-                                window.location.assign(url.toString());
-                            } else {
-                                window.location.reload();
-                            }
+                            window.location.reload();
                         }
                     });
                 }
 
             });
         }
+
         this.$emitter.publish('registerAjaxSubmitCallback', { pseudoModal });
     }
 }

@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Page\Address\Detail;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\Awareness\SalesChannelContextAwareTrait;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\PageLoadedHook;
@@ -14,17 +13,19 @@ use Shopware\Storefront\Page\PageLoadedHook;
  *
  * @since 6.4.8.0
  */
-#[Package('storefront')]
 class AddressDetailPageLoadedHook extends PageLoadedHook
 {
     use SalesChannelContextAwareTrait;
 
-    final public const HOOK_NAME = 'address-detail-page-loaded';
+    public const HOOK_NAME = 'address-detail-page-loaded';
 
-    public function __construct(private readonly AddressDetailPage $page, SalesChannelContext $context)
+    private AddressDetailPage $page;
+
+    public function __construct(AddressDetailPage $page, SalesChannelContext $context)
     {
         parent::__construct($context->getContext());
         $this->salesChannelContext = $context;
+        $this->page = $page;
     }
 
     public function getName(): string

@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\Plugin\Util;
 use Composer\Composer;
 use Composer\IO\IOInterface;
 use Composer\Package\CompletePackageInterface;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Composer\Factory;
 use Shopware\Core\Framework\Plugin\Composer\PackageProvider;
 use Shopware\Core\Framework\Plugin\Exception\ExceptionCollection;
@@ -14,17 +13,22 @@ use Shopware\Core\Framework\Plugin\Struct\PluginFromFileSystemStruct;
 use Symfony\Component\Finder\Exception\DirectoryNotFoundException;
 use Symfony\Component\Finder\Finder;
 
-#[Package('core')]
 class PluginFinder
 {
-    final public const COMPOSER_TYPE = 'shopware-platform-plugin';
+    public const COMPOSER_TYPE = 'shopware-platform-plugin';
     private const SHOPWARE_PLUGIN_CLASS_EXTRA_IDENTIFIER = 'shopware-plugin-class';
+
+    /**
+     * @var PackageProvider
+     */
+    private $packageProvider;
 
     /**
      * @internal
      */
-    public function __construct(private readonly PackageProvider $packageProvider)
+    public function __construct(PackageProvider $packageProvider)
     {
+        $this->packageProvider = $packageProvider;
     }
 
     /**
@@ -37,8 +41,8 @@ class PluginFinder
         IOInterface $composerIO
     ): array {
         return array_merge(
-            $this->loadLocalPlugins($pluginDir, $composerIO, $errors),
             $this->loadVendorInstalledPlugins($projectDir, $composerIO, $errors),
+            $this->loadLocalPlugins($pluginDir, $composerIO, $errors)
         );
     }
 
@@ -80,7 +84,7 @@ class PluginFinder
                     'composerPackage' => $package,
                 ]);
             }
-        } catch (DirectoryNotFoundException) {
+        } catch (DirectoryNotFoundException $e) {
         }
 
         return $plugins;

@@ -1,14 +1,11 @@
 import template from './sw-order-state-history-card.html.twig';
+import '../sw-order-state-change-modal';
 
-/**
- * @package customer-order
- */
-
-const { Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-order-state-history-card', {
     template,
 
     inject: [
@@ -84,11 +81,15 @@ export default {
         stateMachineHistoryCriteria() {
             const criteria = new Criteria(1, null);
 
-            const entityIds = [
-                this.order.id,
-                ...this.order.transactions?.getIds() || [],
-                ...this.order.deliveries?.getIds() || [],
-            ];
+            const entityIds = [this.order.id];
+
+            if (this.transaction) {
+                entityIds.push(this.transaction.id);
+            }
+
+            if (this.delivery) {
+                entityIds.push(this.delivery.id);
+            }
 
             criteria.addFilter(
                 Criteria.equalsAny(
@@ -145,40 +146,23 @@ export default {
 
         getStateHistoryEntries() {
             return this.stateMachineHistoryRepository.search(this.stateMachineHistoryCriteria).then((fetchedEntries) => {
-                this.orderHistory = this.buildStateHistory(
-                    this.order,
-                    this.fetchEntries([this.order.id], fetchedEntries),
-                );
-
-                if (this.transaction && this.order.transactions) {
-                    this.transactionHistory = this.buildStateHistory(
-                        this.transaction,
-                        this.fetchEntries(this.order.transactions.getIds(), fetchedEntries),
-                    );
+                this.orderHistory = this.buildStateHistory(this.order, fetchedEntries);
+                if (this.transaction) {
+                    this.transactionHistory = this.buildStateHistory(this.transaction, fetchedEntries);
                 }
-
-                if (this.delivery && this.order.deliveries) {
-                    this.deliveryHistory = this.buildStateHistory(
-                        this.delivery,
-                        this.fetchEntries(this.order.deliveries.getIds(), fetchedEntries),
-                    );
+                if (this.delivery) {
+                    this.deliveryHistory = this.buildStateHistory(this.delivery, fetchedEntries);
                 }
 
                 return Promise.resolve(fetchedEntries);
             });
         },
 
-        fetchEntries(ids, allEntries) {
-            if (!ids.length || !allEntries.length) {
-                return [];
-            }
-
-            return allEntries.filter((entry) => {
-                return ids.includes(entry.entityId.id);
+        buildStateHistory(entity, allEntries) {
+            const fetchedEntries = allEntries.filter((entry) => {
+                return entry.entityId.id === entity.id;
             });
-        },
 
-        buildStateHistory(entity, fetchedEntries) {
             // this entity has no state history
             if (fetchedEntries.length === 0) {
                 return [{
@@ -192,7 +176,7 @@ export default {
             // Prepend start state
             entries.push({
                 state: fetchedEntries[0].fromStateMachineState,
-                createdAt: fetchedEntries[0].createdAt,
+                createdAt: entity.createdAt,
                 user: null,
             });
 
@@ -276,12 +260,18 @@ export default {
             });
 
             const options = entries.map((state, index) => {
-                return {
+                const option = {
                     stateName: state.technicalName,
-                    id: index,
+                    id: null,
                     name: state.translated.name,
                     disabled: true,
                 };
+
+                if (this.feature.isActive('FEATURE_NEXT_7530')) {
+                    option.id = index;
+                }
+
+                return option;
             });
 
             options.forEach((option) => {
@@ -402,4 +392,4 @@ export default {
             });
         },
     },
-};
+});

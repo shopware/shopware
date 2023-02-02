@@ -1,12 +1,10 @@
-/*
- * @package inventory
- */
-
 import template from './sw-product-variants-delivery-order.html.twig';
 import './sw-product-variants-delivery-order.scss';
 
+const { Component } = Shopware;
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-product-variants-delivery-order', {
     template,
 
     props: {
@@ -43,16 +41,15 @@ export default {
             const selectedGroupsCopy = [...this.selectedGroups];
 
             // check if sorting exists on server
-            if (this.product.variantListingConfig.configuratorGroupConfig
-                && this.product.variantListingConfig.configuratorGroupConfig.length > 0) {
+            if (this.product.configuratorGroupConfig && this.product.configuratorGroupConfig.length > 0) {
                 // add server sorting to the sortedGroups
-                sortedGroups = this.product.variantListingConfig.configuratorGroupConfig.reduce((acc, configGroup) => {
+                sortedGroups = this.product.configuratorGroupConfig.reduce((acc, configGroup) => {
                     const relatedGroup = selectedGroupsCopy.find(group => group.id === configGroup.id);
 
                     if (relatedGroup) {
                         acc.push(relatedGroup);
 
-                        // remove from original array
+                        // remove from orignal array
                         selectedGroupsCopy.splice(selectedGroupsCopy.indexOf(relatedGroup), 1);
                     }
 
@@ -120,8 +117,8 @@ export default {
             const groups = this.orderObjects.filter((object) => object.parentId === null);
 
             // when configuratorGroupConfig is null then add empty array
-            if (!this.product.variantListingConfig.configuratorGroupConfig) {
-                this.product.variantListingConfig.configuratorGroupConfig = [];
+            if (!this.product.configuratorGroupConfig) {
+                this.product.configuratorGroupConfig = [];
             }
 
             // get order from administration ui
@@ -136,36 +133,25 @@ export default {
 
             // create new groupConfig Objects in sorted order
             const newConfiguratorGroupConfig = [];
-            const currentConfiguratorGroupConfig = this.product.variantListingConfig.configuratorGroupConfig ?? [];
+            orderedGroupIds.forEach((groupId) => {
+                const foundGroup = this.product.configuratorGroupConfig.find((group) => group.id === groupId);
 
-            if (currentConfiguratorGroupConfig.length) {
-                orderedGroupIds.forEach((groupId) => {
-                    const foundGroup = currentConfiguratorGroupConfig.find((group) => group.id === groupId);
-                    // when group exists
-                    if (foundGroup) {
-                        // add to newConfiguratorGroupConfig
-                        newConfiguratorGroupConfig.push(foundGroup);
-                    } else {
-                        // otherwise create new group
-                        newConfiguratorGroupConfig.push({
-                            id: groupId,
-                            expressionForListings: false,
-                            representation: 'box',
-                        });
-                    }
-                });
-            } else {
-                orderedGroupIds.forEach((groupId) => {
+                // when group exists
+                if (foundGroup) {
+                    // add to newConfiguratorGroupConfig
+                    newConfiguratorGroupConfig.push(foundGroup);
+                } else {
+                    // otherwise create new group
                     newConfiguratorGroupConfig.push({
                         id: groupId,
                         expressionForListings: false,
                         representation: 'box',
                     });
-                });
-            }
+                }
+            });
 
             // set new order
-            this.product.variantListingConfig.configuratorGroupConfig = newConfiguratorGroupConfig;
+            this.product.configuratorGroupConfig = newConfiguratorGroupConfig;
 
             // Set option ordering
             const options = this.orderObjects.filter((object) => object.parentId);
@@ -183,4 +169,4 @@ export default {
             });
         },
     },
-};
+});

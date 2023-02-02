@@ -1,10 +1,6 @@
 import template from './sw-theme-list-item.html.twig';
 import './sw-theme-list-item.scss';
 
-/**
- * @package sales-channel
- */
-
 const { Component, Application } = Shopware;
 
 Component.register('sw-theme-list-item', {

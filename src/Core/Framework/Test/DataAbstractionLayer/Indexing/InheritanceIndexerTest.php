@@ -280,12 +280,11 @@ class InheritanceIndexerTest extends TestCase
     {
         $connection = $this->getContainer()->get(Connection::class);
 
-        $inheritance = $connection->fetchAssociative(
+        $inheritance = $connection->fetchAssoc(
             'SELECT LOWER(HEX(product_manufacturer_id)) as fk, LOWER(HEX(manufacturer)) as association FROM product WHERE id = :id',
             ['id' => Uuid::fromHexToBytes($id)]
         );
 
-        static::assertIsArray($inheritance);
         static::assertEquals($fk, $inheritance['fk']);
         static::assertEquals($association, $inheritance['association']);
 
@@ -308,15 +307,14 @@ class InheritanceIndexerTest extends TestCase
     {
         $connection = $this->getContainer()->get(Connection::class);
 
-        $inheritance = $connection->fetchAssociative(
+        $inheritance = $connection->fetchAssoc(
             'SELECT LOWER(HEX(prices)) as association FROM product WHERE id = :id',
             ['id' => Uuid::fromHexToBytes($id)]
         );
 
-        static::assertIsArray($inheritance);
         static::assertEquals($association, $inheritance['association']);
 
-        $prices = $connection->fetchOne(
+        $prices = $connection->fetchColumn(
             'SELECT LOWER(HEX(id)) FROM product_price WHERE product_id = :id',
             ['id' => Uuid::fromHexToBytes($id)]
         );
@@ -346,12 +344,11 @@ class InheritanceIndexerTest extends TestCase
     {
         $connection = $this->getContainer()->get(Connection::class);
 
-        $inheritance = $connection->fetchAssociative(
+        $inheritance = $connection->fetchAssoc(
             'SELECT LOWER(HEX(categories)) as association FROM product WHERE id = :id',
             ['id' => Uuid::fromHexToBytes($id)]
         );
 
-        static::assertIsArray($inheritance);
         static::assertEquals($association, $inheritance['association']);
 
         $context = Context::createDefaultContext();

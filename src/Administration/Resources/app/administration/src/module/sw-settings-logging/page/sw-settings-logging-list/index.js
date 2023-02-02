@@ -1,10 +1,10 @@
 import template from './sw-settings-logging-list.html.twig';
 
-const { Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-settings-logging-list', {
     template,
 
     inject: ['repositoryFactory'],
@@ -127,4 +127,4 @@ export default {
             }];
         },
     },
-};
+});

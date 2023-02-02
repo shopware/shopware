@@ -6,16 +6,14 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
-use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Migration\V6_4\Migration1610523204AddInheritanceForProductCmsPage;
+use Shopware\Core\Migration\Migration1610523204AddInheritanceForProductCmsPage;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
@@ -25,14 +23,19 @@ use Shopware\Core\Test\TestDefaults;
  * NEXT-21735 - Not deterministic due to SalesChannelContextFactory
  * @group not-deterministic
  */
-#[Package('core')]
 class Migration1610523204AddInheritanceForProductCmsPageTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private TestDataCollection $ids;
+    /**
+     * @var TestDataCollection
+     */
+    private $ids;
 
-    private EntityRepository $repository;
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $repository;
 
     protected function setUp(): void
     {
@@ -44,14 +47,14 @@ class Migration1610523204AddInheritanceForProductCmsPageTest extends TestCase
     {
         $connection = $this->getContainer()->get(Connection::class);
 
-        $database = $connection->fetchOne('select database();');
+        $database = $connection->fetchColumn('select database();');
 
-        $cmsPageColumnExist = $connection->fetchOne('SELECT 1 FROM information_schema.COLUMNS WHERE TABLE_NAME = \'product\' AND COLUMN_NAME = \'cmsPage\' AND TABLE_SCHEMA = "' . $database . '";');
+        $cmsPageColumnExist = $connection->fetchColumn('SELECT 1 FROM information_schema.COLUMNS WHERE TABLE_NAME = \'product\' AND COLUMN_NAME = \'cmsPage\' AND TABLE_SCHEMA = "' . $database . '";');
 
         $connection->rollBack();
 
         if ($cmsPageColumnExist) {
-            $connection->executeStatement('ALTER TABLE product DROP COLUMN cmsPage');
+            $connection->executeUpdate('ALTER TABLE product DROP COLUMN cmsPage');
         }
 
         $migration = new Migration1610523204AddInheritanceForProductCmsPage();
@@ -109,19 +112,13 @@ class Migration1610523204AddInheritanceForProductCmsPageTest extends TestCase
 
         $result = $this->repository->search($criteria, $context->getContext());
 
-        $childProduct = $result->get($childProduct['id']);
-        static::assertInstanceOf(ProductEntity::class, $childProduct);
+        static::assertNotEmpty($childProduct = $result->get($childProduct['id']));
         static::assertEquals($product['id'], $childProduct->getParentId());
         static::assertInstanceOf(CmsPageEntity::class, $cmsPage = $childProduct->getCmsPage());
         static::assertEquals($expectedCmsPageId, $cmsPage->getId());
         static::assertEquals('product_detail', $cmsPage->getType());
     }
 
-    /**
-     * @param array<string, mixed> $config
-     *
-     * @return array<string, mixed>
-     */
     private function createData(array $config = []): array
     {
         $product = [

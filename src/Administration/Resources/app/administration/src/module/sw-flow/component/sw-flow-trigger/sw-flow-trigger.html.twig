@@ -9,11 +9,11 @@
     <div class="sw-flow-trigger__select-toolbar">
         <sw-contextual-field
             v-tooltip="{
-                message: getEventName(eventName),
+                message: getBreadcrumb(eventName),
                 disabled: !eventName,
             }"
             class="sw-flow-trigger__search-field"
-            :required="!isTemplate"
+            required
             :label="$tc('sw-flow.detail.trigger.name')"
             :disabled="disabled"
             :error="flowEventNameError"
@@ -47,7 +47,7 @@
                 <sw-icon
                     class="sw-flow-trigger__dropdown-icon"
                     name="regular-chevron-down-xs"
-                    size="10px"
+                    small
                     @click="openDropdown({ setFocusClass, removeFocusClass });"
                 />
                 {% endblock %}
@@ -165,7 +165,7 @@
                             {% block sw_flow_trigger_search_list_item_name_highlight %}
                             <sw-highlight-text
                                 :search-term="searchTerm"
-                                :text="getEventName(item.name)"
+                                :text="getBreadcrumb(item.name)"
                             />
                             {% endblock %}
                         </span>

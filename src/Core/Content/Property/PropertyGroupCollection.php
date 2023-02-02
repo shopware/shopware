@@ -2,19 +2,14 @@
 
 namespace Shopware\Core\Content\Property;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<PropertyGroupEntity>
  */
-#[Package('inventory')]
 class PropertyGroupCollection extends EntityCollection
 {
-    /**
-     * @return array<string, string>
-     */
     public function getOptionIdMap(): array
     {
         $map = [];
@@ -34,11 +29,11 @@ class PropertyGroupCollection extends EntityCollection
 
     public function sortByPositions(): void
     {
-        usort($this->elements, function (Entity $a, Entity $b) {
+        usort($this->elements, function (PropertyGroupEntity $a, PropertyGroupEntity $b) {
             $posA = $a->getTranslation('position') ?? $a->getPosition() ?? 0;
             $posB = $b->getTranslation('position') ?? $b->getPosition() ?? 0;
             if ($posA === $posB) {
-                return strnatcmp((string) $a->getTranslation('name'), (string) $b->getTranslation('name'));
+                return strnatcmp($a->getTranslation('name'), $b->getTranslation('name'));
             }
 
             return $posA <=> $posB;
@@ -47,19 +42,18 @@ class PropertyGroupCollection extends EntityCollection
 
     public function sortByConfig(): void
     {
-        /** @var Entity $group */
+        /** @var PropertyGroupEntity $group */
         foreach ($this->elements as $group) {
-            $options = $group->get('options');
-            if (!$options instanceof EntityCollection) {
+            if ($group->getOptions() === null) {
                 continue;
             }
 
-            $options->sort(static function (Entity $a, Entity $b) use ($group) {
-                if ($group->get('sortingType') === PropertyGroupDefinition::SORTING_TYPE_ALPHANUMERIC) {
-                    return strnatcmp((string) $a->getTranslation('name'), (string) $b->getTranslation('name'));
+            $group->getOptions()->sort(static function (PropertyGroupOptionEntity $a, PropertyGroupOptionEntity $b) use ($group) {
+                if ($group->getSortingType() === PropertyGroupDefinition::SORTING_TYPE_ALPHANUMERIC) {
+                    return strnatcmp($a->getTranslation('name'), $b->getTranslation('name'));
                 }
 
-                return ($a->getTranslation('position') ?? $a->get('position') ?? 0) <=> ($b->getTranslation('position') ?? $b->get('position') ?? 0);
+                return ($a->getTranslation('position') ?? $a->getPosition() ?? 0) <=> ($b->getTranslation('position') ?? $b->getPosition() ?? 0);
             });
         }
     }

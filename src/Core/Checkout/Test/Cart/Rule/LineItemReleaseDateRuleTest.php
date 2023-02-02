@@ -10,7 +10,6 @@ use Shopware\Core\Checkout\Cart\Rule\LineItemReleaseDateRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Test\Cart\Rule\Helper\CartRuleHelperTrait;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Validator\Constraints\Choice;
@@ -21,7 +20,6 @@ use Symfony\Component\Validator\Constraints\Type;
  * @internal
  * @group rules
  */
-#[Package('business-ops')]
 class LineItemReleaseDateRuleTest extends TestCase
 {
     use CartRuleHelperTrait;
@@ -71,9 +69,6 @@ class LineItemReleaseDateRuleTest extends TestCase
         static::assertEquals(new Choice($expectedOperators), $operators[1]);
     }
 
-    /**
-     * @return array<string, array<bool|string|null>>
-     */
     public function getMatchValues(): array
     {
         return [
@@ -215,9 +210,6 @@ class LineItemReleaseDateRuleTest extends TestCase
         static::assertSame($expected, $match);
     }
 
-    /**
-     * @return array<string, array<bool|string>>
-     */
     public function getCartRuleScopeTestData(): array
     {
         return [

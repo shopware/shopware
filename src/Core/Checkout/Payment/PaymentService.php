@@ -21,9 +21,8 @@ use Shopware\Core\Checkout\Payment\Exception\SyncPaymentProcessException;
 use Shopware\Core\Checkout\Payment\Exception\TokenExpiredException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
@@ -32,14 +31,45 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('checkout')]
 class PaymentService
 {
+    private PaymentTransactionChainProcessor $paymentProcessor;
+
+    private TokenFactoryInterfaceV2 $tokenFactory;
+
+    private PaymentHandlerRegistry $paymentHandlerRegistry;
+
+    private EntityRepositoryInterface $orderTransactionRepository;
+
+    private OrderTransactionStateHandler $transactionStateHandler;
+
+    private LoggerInterface $logger;
+
+    private EntityRepositoryInterface $orderRepository;
+
+    private SalesChannelContextServiceInterface $contextService;
+
     /**
      * @internal
      */
-    public function __construct(private readonly PaymentTransactionChainProcessor $paymentProcessor, private readonly TokenFactoryInterfaceV2 $tokenFactory, private readonly PaymentHandlerRegistry $paymentHandlerRegistry, private readonly EntityRepository $orderTransactionRepository, private readonly OrderTransactionStateHandler $transactionStateHandler, private readonly LoggerInterface $logger, private readonly EntityRepository $orderRepository, private readonly SalesChannelContextServiceInterface $contextService)
-    {
+    public function __construct(
+        PaymentTransactionChainProcessor $paymentProcessor,
+        TokenFactoryInterfaceV2 $tokenFactory,
+        PaymentHandlerRegistry $paymentHandlerRegistry,
+        EntityRepositoryInterface $orderTransactionRepository,
+        OrderTransactionStateHandler $transactionStateHandler,
+        LoggerInterface $logger,
+        EntityRepositoryInterface $orderRepository,
+        SalesChannelContextServiceInterface $contextService
+    ) {
+        $this->paymentProcessor = $paymentProcessor;
+        $this->tokenFactory = $tokenFactory;
+        $this->paymentHandlerRegistry = $paymentHandlerRegistry;
+        $this->orderTransactionRepository = $orderTransactionRepository;
+        $this->transactionStateHandler = $transactionStateHandler;
+        $this->logger = $logger;
+        $this->orderRepository = $orderRepository;
+        $this->contextService = $contextService;
     }
 
     /**
@@ -116,7 +146,7 @@ class PaymentService
         $transactionId = $token->getTransactionId();
 
         if ($transactionId === null || !Uuid::isValid($transactionId)) {
-            throw new AsyncPaymentProcessException((string) $transactionId, 'Payment JWT didn\'t contain a valid orderTransactionId');
+            throw new AsyncPaymentProcessException((string) $transactionId, "Payment JWT didn't contain a valid orderTransactionId");
         }
 
         $transaction = $this->getPaymentTransactionStruct($transactionId, $context->getContext());

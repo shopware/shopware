@@ -2,11 +2,12 @@ import template from './sw-extension-card-bought.html.twig';
 import './sw-extension-card-bought.scss';
 import extensionErrorHandler from '../../service/extension-error-handler.service';
 
+const { Component } = Shopware;
+
 /**
- * @package merchant-services
  * @private
  */
-export default {
+Component.extend('sw-extension-card-bought', 'sw-extension-card-base', {
     template,
 
     mixins: ['sw-extension-error'],
@@ -243,4 +244,4 @@ export default {
             this.showExtensionInstallationFailedModal = false;
         },
     },
-};
+});

@@ -7,29 +7,24 @@ use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseCon
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Contracts\Service\ResetInterface;
 
-/**
- * @internal
- */
-#[Package('customer-order')]
 final class DocumentConfigLoader implements EventSubscriberInterface, ResetInterface
 {
-    /**
-     * @var array<string, array<string, DocumentConfiguration>>
-     */
     private array $configs = [];
+
+    private EntityRepositoryInterface $documentConfigRepository;
 
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $documentConfigRepository)
+    public function __construct(EntityRepositoryInterface $documentConfigRepository)
     {
+        $this->documentConfigRepository = $documentConfigRepository;
     }
 
     public static function getSubscribedEvents(): array
@@ -56,11 +51,13 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
 
         $globalConfig = $documentConfigs->filterByProperty('global', true)->first();
 
-        $salesChannelConfig = $documentConfigs->filter(fn (DocumentBaseConfigEntity $config) => $config->getSalesChannels()->count() > 0)->first();
+        $salesChannelConfig = $documentConfigs->filter(function (DocumentBaseConfigEntity $config) {
+            return $config->getSalesChannels()->count() > 0;
+        })->first();
 
         $config = DocumentConfigurationFactory::createConfiguration([], $globalConfig, $salesChannelConfig);
 
-        $this->configs[$documentType] ??= [];
+        $this->configs[$documentType] = $this->configs[$documentType] ?? [];
 
         return $this->configs[$documentType][$salesChannelId] = $config;
     }

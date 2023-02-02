@@ -1,9 +1,10 @@
 import template from './sw-cms-block-image-slider.html.twig';
 
+const { Component } = Shopware;
+
 /**
- * @private
- * @package content
+ * @private since v6.5.0
  */
-export default {
+Component.register('sw-cms-block-image-slider', {
     template,
-};
+});

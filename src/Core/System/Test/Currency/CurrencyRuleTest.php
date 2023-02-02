@@ -4,10 +4,9 @@ namespace Shopware\Core\System\Test\Currency;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -19,23 +18,25 @@ use Symfony\Component\Validator\Constraints\Type;
 /**
  * @internal
  */
-#[Package('business-ops')]
 class CurrencyRuleTest extends TestCase
 {
     use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepositoryInterface
      */
     private $ruleRepository;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepositoryInterface
      */
     private $conditionRepository;
 
-    private Context $context;
+    /**
+     * @var Context
+     */
+    private $context;
 
     protected function setUp(): void
     {

@@ -3,34 +3,67 @@
 namespace Shopware\Core\Checkout\Promotion\Cart\Discount;
 
 use Shopware\Core\Checkout\Cart\CartException;
+use Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Feature;
 
-#[Package('checkout')]
 class DiscountLineItem
 {
     /**
-     * @var array<mixed>
+     * @var string
      */
-    private array $payload;
-
-    private readonly string $scope;
-
-    private readonly string $type;
-
-    private readonly string $filterSorterKey;
-
-    private readonly string $filterApplierKey;
-
-    private readonly string $filterUsageKey;
-
-    private readonly string $filterPickerKey;
+    private $label;
 
     /**
-     * @param array<mixed> $payload
+     * @var PriceDefinitionInterface
      */
-    public function __construct(private readonly string $label, private readonly PriceDefinitionInterface $priceDefinition, array $payload, private readonly ?string $code)
+    private $priceDefinition;
+
+    /**
+     * @var array
+     */
+    private $payload;
+
+    /**
+     * @var string|null
+     */
+    private $code;
+
+    /**
+     * @var string
+     */
+    private $scope;
+
+    /**
+     * @var string
+     */
+    private $type;
+
+    /**
+     * @var string
+     */
+    private $filterSorterKey;
+
+    /**
+     * @var string
+     */
+    private $filterApplierKey;
+
+    /**
+     * @var string
+     */
+    private $filterUsageKey;
+
+    /**
+     * @var string
+     */
+    private $filterPickerKey;
+
+    public function __construct(string $label, PriceDefinitionInterface $priceDefinition, array $payload, ?string $code)
     {
+        $this->label = $label;
+        $this->priceDefinition = $priceDefinition;
+        $this->code = $code;
         $this->scope = $payload['discountScope'];
         $this->type = $payload['discountType'];
         $this->payload = $payload;
@@ -76,8 +109,6 @@ class DiscountLineItem
 
     /**
      * Gets the discount payload data
-     *
-     * @return array<mixed>
      */
     public function getPayload(): array
     {
@@ -85,14 +116,18 @@ class DiscountLineItem
     }
 
     /**
-     * @throws CartException
+     * @throws PayloadKeyNotFoundException
      *
-     * @return string|array<mixed>
+     * @return string|array
      */
-    public function getPayloadValue(string $key): string|array
+    public function getPayloadValue(string $key)
     {
         if (!$this->hasPayloadValue($key)) {
-            throw CartException::payloadKeyNotFound($key, (string) $this->getCode());
+            if (Feature::isActive('v6.5.0.0')) {
+                throw CartException::payloadKeyNotFound($key, (string) $this->getCode());
+            }
+
+            throw new PayloadKeyNotFoundException($key, $this->getLabel());
         }
 
         return $this->payload[$key];

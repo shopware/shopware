@@ -4,11 +4,17 @@
             {% block page_account_address_actions_set_default_shipping %}
                 {% if defaultShippingAddress.id != address.id %}
                     <form action="{{ path('frontend.account.address.set-default-address', {'type': 'shipping', 'addressId': address.id}) }}"
+                          data-form-csrf-handler="true"
                           method="post">
+
+                        {% block page_account_address_actions_set_default_shipping_csrf %}
+                            {{ sw_csrf('frontend.account.address.set-default-address') }}
+                        {% endblock %}
+
                         <button type="submit"
                                 title="{{ "account.addressesSetAsDefaultShippingAction"|trans|striptags }}"
                                 class="btn btn-link address-action-set-default address-action-set-default-shipping"
-                                {% if not address.country.shippingAvailable %} disabled="disabled"{% endif %}>
+                                {% if feature('FEATURE_NEXT_15707') and not address.country.shippingAvailable %} disabled="disabled"{% endif %}>
                             {{ "account.addressesSetAsDefaultShippingAction"|trans|sw_sanitize }}
                         </button>
                     </form>
@@ -18,7 +24,13 @@
             {% block page_account_address_actions_set_default_billing %}
                 {% if defaultBillingAddress.id != address.id %}
                     <form action="{{ path('frontend.account.address.set-default-address', {'type': 'billing', 'addressId': address.id}) }}"
+                          data-form-csrf-handler="true"
                           method="post">
+
+                        {% block page_account_address_actions_set_default_billing_csrf %}
+                            {{ sw_csrf('frontend.account.address.set-default-address') }}
+                        {% endblock %}
+
                         <button type="submit"
                                 title="{{ "account.addressesSetAsDefaultBillingAction"|trans|striptags }}"
                                 class="btn btn-link address-action-set-default address-action-set-default-billing">
@@ -31,7 +43,7 @@
     {% endblock %}
 
     {% block page_account_address_actions_buttons %}
-        <div class="row g-0 address-actions-buttons">
+        <div class="row {{ gridNoGuttersClass }} address-actions-buttons">
             {% block page_account_address_actions_update %}
                 <div class="col-auto">
                     <a href="{{ path('frontend.account.address.edit.page', {'addressId': address.id}) }}"
@@ -46,8 +58,14 @@
                 {% if defaultShippingAddress.id != address.id and defaultBillingAddress.id != address.id %}
                     <div class="col-auto">
                         <form action="{{ path('frontend.account.address.delete', {'addressId': address.id}) }}"
+                              data-form-csrf-handler="true"
                               class="address-action-delete"
                               method="post">
+
+                            {% block page_account_address_actions_delete_csrf %}
+                                {{ sw_csrf('frontend.account.address.delete') }}
+                            {% endblock %}
+
                             <button type="submit"
                                     class="btn btn-light btn-sm"
                                     title="{{ "account.addressesContentItemActionDelete"|trans|striptags }}">

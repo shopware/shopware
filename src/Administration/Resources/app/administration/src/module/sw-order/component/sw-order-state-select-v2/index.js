@@ -1,17 +1,15 @@
 import './sw-order-state-select-v2.scss';
 import template from './sw-order-state-select-v2.html.twig';
 
-/**
- * @package customer-order
- */
+const { Component } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-order-state-select-v2', {
     template,
     props: {
         transitionOptions: {
             type: Array,
-            required: false,
+            required: true,
             default() {
                 return [];
             },
@@ -84,4 +82,4 @@ export default {
             });
         },
     },
-};
+});

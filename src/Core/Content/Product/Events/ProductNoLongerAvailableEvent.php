@@ -4,14 +4,18 @@ namespace Shopware\Core\Content\Product\Events;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\ShopwareEvent;
-use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('inventory')]
 class ProductNoLongerAvailableEvent extends Event implements ShopwareEvent, ProductChangedEventInterface
 {
-    public function __construct(protected array $ids, protected Context $context)
+    protected array $ids;
+
+    protected Context $context;
+
+    public function __construct(array $ids, Context $context)
     {
+        $this->ids = $ids;
+        $this->context = $context;
     }
 
     public function getIds(): array

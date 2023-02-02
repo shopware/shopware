@@ -1,13 +1,10 @@
 import template from './sw-flow-sequence-selector.html.twig';
 import './sw-flow-sequence-selector.scss';
 
-const { State } = Shopware;
+const { Component, State } = Shopware;
 
-/**
- * @private
- * @package business-ops
- */
-export default {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+Component.register('sw-flow-sequence-selector', {
     template,
 
     props: {
@@ -65,4 +62,4 @@ export default {
             });
         },
     },
-};
+});

@@ -1,15 +1,9 @@
-/**
- * @package admin
- */
-
 const { warn } = Shopware.Utils.debug;
 const Sanitizer = Shopware.Helper.SanitizerHelper;
 
 let pluginInstalled = false;
 
-/**
- * @deprecated tag:v6.6.0 - Will be private
- */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     install(Vue) {
         if (pluginInstalled) {

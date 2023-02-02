@@ -9,7 +9,7 @@ use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandler;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -27,17 +27,25 @@ class SeoUrlPlaceholderHandlerTest extends TestCase
     use BasicTestDataBehaviour;
     use StorefrontSalesChannelTestHelper;
 
-    private SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler;
+    /**
+     * @var SeoUrlPlaceholderHandlerInterface
+     */
+    private $seoUrlPlaceholderHandler;
 
     public function setUp(): void
     {
         /** @var Router|MockObject $router */
         $router = $this->createMock(Router::class);
         $router->method('generate')
-            ->willReturnCallback(fn ($name, $params) => match ($name) {
-                'frontend.detail.page' => '/detail/' . ($params['productId'] ?? ''),
-                'frontend.navigation.page' => '/navigation/' . ($params['navigationId'] ?? ''),
-                default => '',
+            ->willReturnCallback(function ($name, $params) {
+                switch ($name) {
+                    case 'frontend.detail.page':
+                        return '/detail/' . ($params['productId'] ?? '');
+                    case 'frontend.navigation.page':
+                        return '/navigation/' . ($params['navigationId'] ?? '');
+                    default:
+                        return '';
+                }
             });
 
         $this->seoUrlPlaceholderHandler = new SeoUrlPlaceholderHandler(
@@ -182,7 +190,7 @@ class SeoUrlPlaceholderHandlerTest extends TestCase
             ],
         ];
 
-        /** @var EntityRepository $repo */
+        /** @var EntityRepositoryInterface $repo */
         $repo = $this->getContainer()->get('seo_url.repository');
         $repo->create($seoUrls, Context::createDefaultContext());
 

@@ -1,16 +1,11 @@
 import template from './sw-order-line-items-grid-sales-channel.html.twig';
-import { LineItemType } from '../../order.types';
 import './sw-order-line-items-grid-sales-channel.scss';
 
-/**
- * @package customer-order
- */
-
-const { Utils, State, Service } = Shopware;
+const { Component, Utils, State, Service } = Shopware;
 const { get, format } = Utils;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-order-line-items-grid-sales-channel', {
     template,
 
     inject: ['feature'],
@@ -47,6 +42,7 @@ export default {
         return {
             selectedItems: {},
             searchTerm: '',
+            showItemsModal: false,
         };
     },
 
@@ -72,7 +68,7 @@ export default {
         },
 
         lineItemTypes() {
-            return LineItemType;
+            return Service('cartStoreService').getLineItemTypes();
         },
 
         isCartTokenAvailable() {
@@ -115,7 +111,6 @@ export default {
                 allowResize: false,
                 primary: true,
                 inlineEdit: true,
-                multiLine: true,
             }, {
                 property: 'unitPrice',
                 dataIndex: 'unitPrice',
@@ -163,11 +158,6 @@ export default {
             if (item._isNew) {
                 this.initLineItem(item);
                 delete item.identifier;
-            }
-
-            // Reset quantity
-            if (item.initialQuantity) {
-                item.quantity = item.initialQuantity;
             }
         },
 
@@ -240,10 +230,10 @@ export default {
             });
 
             if (selectedIds.length > 0) {
+                this.$refs.dataGrid.resetSelection();
+
                 this.$emit('on-remove-items', selectedIds);
             }
-
-            this.$refs.dataGrid.resetSelection();
         },
 
         itemCreatedFromProduct(item) {
@@ -314,12 +304,24 @@ export default {
             return get(item, 'price.calculatedTaxes') && item.price.calculatedTaxes.length > 1;
         },
 
-        changeItemQuantity(value, item) {
-            if (!item.initialQuantity) {
-                item.initialQuantity = item.quantity;
-            }
+        /**
+         * @deprecated tag:v6.5.0 will be removed, use "toggleAddItemsModal" instead.
+         */
+        openItemsModal() {
+            this.showItemsModal = true;
+        },
 
-            item.quantity = value;
+        toggleAddItemsModal() {
+            this.showItemsModal = !this.showItemsModal;
+        },
+
+        async addItemsFinished() {
+            this.toggleAddItemsModal();
+            await this.$nextTick();
+            State.dispatch('swOrder/getCart', {
+                salesChannelId: this.salesChannelId,
+                contextToken: this.cart.token,
+            });
         },
     },
-};
+});

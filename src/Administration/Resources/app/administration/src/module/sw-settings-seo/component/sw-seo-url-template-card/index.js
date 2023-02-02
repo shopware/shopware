@@ -1,18 +1,14 @@
-/**
- * @package sales-channel
- */
-
 import template from './sw-seo-url-template-card.html.twig';
 import './sw-seo-url-template-card.scss';
 
-const { Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 const { mapCollectionPropertyErrors } = Shopware.Component.getComponentHelper();
 const EntityCollection = Shopware.Data.EntityCollection;
 const Criteria = Shopware.Data.Criteria;
 const utils = Shopware.Utils;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-seo-url-template-card', {
     template,
 
     inject: ['seoUrlTemplateService', 'repositoryFactory'],
@@ -301,4 +297,4 @@ export default {
             });
         },
     },
-};
+});

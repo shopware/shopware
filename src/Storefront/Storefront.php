@@ -3,7 +3,6 @@
 namespace Shopware\Storefront;
 
 use Shopware\Core\Framework\Bundle;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Kernel;
 use Shopware\Storefront\DependencyInjection\DisableTemplateCachePass;
 use Shopware\Storefront\DependencyInjection\ReverseProxyCompilerPass;
@@ -24,7 +23,6 @@ use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 /**
  * @internal
  */
-#[Package('storefront')]
 class Storefront extends Bundle implements ThemeInterface
 {
     /**

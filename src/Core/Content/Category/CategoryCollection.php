@@ -4,12 +4,10 @@ namespace Shopware\Core\Content\Category;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Util\AfterSort;
-use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<CategoryEntity>
  */
-#[Package('content')]
 class CategoryCollection extends EntityCollection
 {
     /**
@@ -17,12 +15,16 @@ class CategoryCollection extends EntityCollection
      */
     public function getParentIds(): array
     {
-        return $this->fmap(fn (CategoryEntity $category) => $category->getParentId());
+        return $this->fmap(function (CategoryEntity $category) {
+            return $category->getParentId();
+        });
     }
 
     public function filterByParentId(string $id): self
     {
-        return $this->filter(fn (CategoryEntity $category) => $category->getParentId() === $id);
+        return $this->filter(function (CategoryEntity $category) use ($id) {
+            return $category->getParentId() === $id;
+        });
     }
 
     /**
@@ -30,12 +32,16 @@ class CategoryCollection extends EntityCollection
      */
     public function getMediaIds(): array
     {
-        return $this->fmap(fn (CategoryEntity $category) => $category->getMediaId());
+        return $this->fmap(function (CategoryEntity $category) {
+            return $category->getMediaId();
+        });
     }
 
     public function filterByMediaId(string $id): self
     {
-        return $this->filter(fn (CategoryEntity $category) => $category->getMediaId() === $id);
+        return $this->filter(function (CategoryEntity $category) use ($id) {
+            return $category->getMediaId() === $id;
+        });
     }
 
     public function sortByPosition(): self
@@ -47,7 +53,9 @@ class CategoryCollection extends EntityCollection
 
     public function sortByName(): self
     {
-        $this->sort(fn (CategoryEntity $a, CategoryEntity $b) => strnatcasecmp((string) $a->getTranslated()['name'], (string) $b->getTranslated()['name']));
+        $this->sort(function (CategoryEntity $a, CategoryEntity $b) {
+            return strnatcasecmp($a->getTranslated()['name'], $b->getTranslated()['name']);
+        });
 
         return $this;
     }

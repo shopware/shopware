@@ -1,18 +1,17 @@
 const { Application } = Shopware;
 
 /**
- * @package admin
- *
  * @module core/service/plugin-updates-listener
  */
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ *
  * @memberOf module:core/service/plugin-updates-listener
  * @method addPluginUpdatesListener
  * @param loginService
  * @param serviceContainer
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function addPluginUpdatesListener(loginService, serviceContainer) {
     /** @var {String} localStorage token */
     const localStorageKey = 'lastPluginUpdateCheck';

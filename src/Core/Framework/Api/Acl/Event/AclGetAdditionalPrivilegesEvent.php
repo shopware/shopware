@@ -4,13 +4,23 @@ namespace Shopware\Core\Framework\Api\Acl\Event;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
 class AclGetAdditionalPrivilegesEvent extends NestedEvent
 {
-    public function __construct(private readonly Context $context, private array $privileges)
+    /**
+     * @var array
+     */
+    private $privileges;
+
+    /**
+     * @var Context
+     */
+    private $context;
+
+    public function __construct(Context $context, array $privileges)
     {
+        $this->privileges = $privileges;
+        $this->context = $context;
     }
 
     public function getPrivileges(): array

@@ -1,10 +1,11 @@
 import template from './sw-cms-el-preview-cross-selling.html.twig';
 import './sw-cms-el-preview-cross-selling.scss';
 
+const { Component } = Shopware;
+
 /**
- * @private
- * @package content
+ * @private since v6.5.0
  */
-export default {
+Component.register('sw-cms-el-preview-cross-selling', {
     template,
-};
+});

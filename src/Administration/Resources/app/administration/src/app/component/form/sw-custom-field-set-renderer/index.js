@@ -5,15 +5,14 @@ const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
- * @package admin
- *
- * @private
+ * @public - @deprecated tag:v6.5.0 - Will be changed to private
  * @status ready
  * @description
  * Renders custom-field sets
  * @example-type code-only
  * @component-example
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-custom-field-set-renderer', {
     template,
 
@@ -101,8 +100,45 @@ Component.register('sw-custom-field-set-renderer', {
             return this.parentEntity ? !!this.parentEntity.id : false;
         },
 
+        // Check if it is possible to use custom field set selection
+        customFieldSetSelectionAvailable() {
+            return this.showCustomFieldSetSelection
+                && this.entity.hasOwnProperty('customFieldSets')
+                && this.entity.hasOwnProperty('customFieldSetSelectionActive');
+        },
+
+        filterCustomFields() {
+            if (!this.customFieldSetSelectionAvailable) {
+                return false;
+            }
+
+            if (this.entity.customFieldSetSelectionActive === false) {
+                return false;
+            }
+
+            // Main product with customFieldSetSelectionActive not set
+            if (this.entity.customFieldSetSelectionActive === null && !this.hasParent) {
+                return false;
+            }
+
+            // customFieldSetSelectionActive not set and parent product has no selection
+            return !(this.entity.customFieldSetSelectionActive === null
+                && this.getInheritValue('customFieldSetSelectionActive') === null);
+        },
+
         visibleCustomFieldSets() {
-            return this.sortSets(this.sets);
+            if (!this.filterCustomFields) {
+                return this.sortSets(this.sets);
+            }
+
+            return this.sortSets(this.sets.filter(set => {
+                // Return custom field sets of parent if current state is inherited
+                if (this.hasParent && this.entity.customFieldSets.length < 1) {
+                    return this.parentEntity.customFieldSets.has(set.id) || set.global;
+                }
+
+                return this.entity.customFieldSets.has(set.id) || set.global;
+            }));
         },
 
         customFieldSetRepository() {
@@ -152,7 +188,6 @@ Component.register('sw-custom-field-set-renderer', {
 
         customFields: {
             handler(customFields) {
-                // eslint-disable-next-line vue/no-mutating-props
                 this.entity.customFields = customFields;
             },
             deep: true,
@@ -171,11 +206,6 @@ Component.register('sw-custom-field-set-renderer', {
 
         initializeCustomFields() {
             if (!this.entity.customFields && !this.entity.translated?.customFields) {
-                return;
-            }
-
-            // Check if translated custom fields are available
-            if (this.entity.translated?.customFields && Object.keys(this.entity.translated?.customFields).length <= 0) {
                 return;
             }
 
@@ -367,14 +397,6 @@ Component.register('sw-custom-field-set-renderer', {
             });
         },
 
-        getTabLabel(set) {
-            if (set.config && this.getInlineSnippet(set.config.label)) {
-                return this.getInlineSnippet(set.config.label);
-            }
-
-            return set.name;
-        },
-
         onChangeCustomFieldSets(value, updateFn) {
             if (!this.$refs.tabComponent && (this.visibleCustomFieldSets.length > 0 || value)) {
                 // when rendered initially we wait for the tabcomponent to load so we can activate the first item
@@ -395,7 +417,6 @@ Component.register('sw-custom-field-set-renderer', {
                     this.initializeCustomFields();
                     return;
                 }
-                // eslint-disable-next-line vue/no-mutating-props
                 this.entity.customFieldSets = this.entity.customFieldSets.filter(() => {
                     return false;
                 });
@@ -407,10 +428,6 @@ Component.register('sw-custom-field-set-renderer', {
          */
         sortSets(sets) {
             return sets.sort((a, b) => a.position - b.position);
-        },
-
-        onUpdateActiveSelection(value) {
-            this.$emit('change-active-selection', value);
         },
     },
 });

@@ -5,10 +5,9 @@ namespace Shopware\Core\Content\Test\ImportExport\Commands;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Command\ImportEntityCommand;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Demodata\DemodataService;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -18,7 +17,6 @@ use Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException;
  * @internal
  * @group slow
  */
-#[Package('system-settings')]
 class ImportEntityCommandTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -29,12 +27,12 @@ class ImportEntityCommandTest extends TestCase
     private const TEST_INVALID_IMPORT_FILE_PATH = __DIR__ . '/../fixtures/products_with_invalid.csv';
 
     /**
-     * @var EntityRepository
+     * @var EntityRepositoryInterface
      */
     private $fileRepository;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepositoryInterface
      */
     private $profileRepository;
 
@@ -48,7 +46,10 @@ class ImportEntityCommandTest extends TestCase
      */
     private $demoDataService;
 
-    private Context $context;
+    /**
+     * @var Context
+     */
+    private $context;
 
     protected function setUp(): void
     {

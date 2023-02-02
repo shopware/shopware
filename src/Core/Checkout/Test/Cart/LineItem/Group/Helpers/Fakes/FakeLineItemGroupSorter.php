@@ -4,18 +4,31 @@ namespace Shopware\Core\Checkout\Test\Cart\LineItem\Group\Helpers\Fakes;
 
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupSorterInterface;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
-use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
-#[Package('checkout')]
 class FakeLineItemGroupSorter implements LineItemGroupSorterInterface
 {
-    private int $sequenceCount = 0;
+    /**
+     * @var string
+     */
+    private $key;
 
-    public function __construct(private readonly string $key, private readonly FakeSequenceSupervisor $sequenceSupervisor)
+    /**
+     * @var FakeSequenceSupervisor
+     */
+    private $sequenceSupervisor;
+
+    /**
+     * @var int
+     */
+    private $sequenceCount;
+
+    public function __construct(string $key, FakeSequenceSupervisor $sequenceSupervisor)
     {
+        $this->key = $key;
+        $this->sequenceSupervisor = $sequenceSupervisor;
     }
 
     public function getSequenceCount(): int

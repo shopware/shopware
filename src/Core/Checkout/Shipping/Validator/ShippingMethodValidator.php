@@ -8,34 +8,32 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
 
-/**
- * @internal
- */
-#[Package('checkout')]
 class ShippingMethodValidator implements EventSubscriberInterface
 {
-    final public const VIOLATION_TAX_TYPE_INVALID = 'tax_type_invalid';
+    public const VIOLATION_TAX_TYPE_INVALID = 'tax_type_invalid';
 
-    final public const VIOLATION_TAX_ID_REQUIRED = 'c1051bb4-d103-4f74-8988-acbcafc7fdc3';
+    public const VIOLATION_TAX_ID_REQUIRED = 'c1051bb4-d103-4f74-8988-acbcafc7fdc3';
+
+    private Connection $connection;
 
     /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection)
+    public function __construct(Connection $connection)
     {
+        $this->connection = $connection;
     }
 
     /**
      * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
      */
-    public static function getSubscribedEvents(): array
+    public static function getSubscribedEvents()
     {
         return [
             PreWriteValidationEvent::class => 'preValidate',
@@ -103,9 +101,6 @@ class ShippingMethodValidator implements EventSubscriberInterface
         }
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     private function findShippingMethod(string $shippingMethodId): array
     {
         $shippingMethod = $this->connection->executeQuery(
@@ -113,12 +108,9 @@ class ShippingMethodValidator implements EventSubscriberInterface
             ['id' => $shippingMethodId]
         );
 
-        return $shippingMethod->fetchAssociative() ?: [];
+        return $shippingMethod->fetchAll();
     }
 
-    /**
-     * @param array<string, mixed> $parameters
-     */
     private function buildViolation(
         string $messageTemplate,
         array $parameters,
@@ -142,9 +134,9 @@ class ShippingMethodValidator implements EventSubscriberInterface
      * Gets a value from an array. It also does clean checks if
      * the key is set, and also provides the option for default values.
      *
-     * @param array<string, mixed> $data  the data array
-     * @param string               $key   the requested key in the array
-     * @param array<string, mixed> $dbRow the db row of from the database
+     * @param array  $data  the data array
+     * @param string $key   the requested key in the array
+     * @param array  $dbRow the db row of from the database
      *
      * @return mixed the object found in the key, or the default value
      */

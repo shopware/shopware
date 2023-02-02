@@ -13,18 +13,15 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
-#[Package('business-ops')]
 trait OrderActionTrait
 {
     use IntegrationTestBehaviour;
@@ -35,12 +32,12 @@ trait OrderActionTrait
 
     private TestDataCollection $ids;
 
-    private ?EntityRepository $customerRepository = null;
+    private ?EntityRepository $customerRepository;
 
     private function createCustomerAndLogin(?string $email = null, ?string $password = null): void
     {
-        $email ??= Uuid::randomHex() . '@example.com';
-        $password ??= 'shopware';
+        $email = $email ?? (Uuid::randomHex() . '@example.com');
+        $password = $password ?? 'shopware';
         $this->prepareCustomer($password, $email);
 
         $this->login($email, $password);
@@ -94,13 +91,11 @@ trait OrderActionTrait
                 ]
             );
 
-        $response = $this->browser->getResponse();
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
-        // After login successfully, the context token will be set in the header
-        $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
-        static::assertNotEmpty($contextToken);
+        static::assertArrayHasKey('contextToken', $response);
 
-        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $response['contextToken']);
     }
 
     private function prepareProductTest(): void
@@ -237,7 +232,7 @@ trait OrderActionTrait
     private function getStateId(string $state, string $machine): string
     {
         return $this->getContainer()->get(Connection::class)
-            ->fetchOne('
+            ->fetchColumn('
                 SELECT LOWER(HEX(state_machine_state.id))
                 FROM state_machine_state
                     INNER JOIN  state_machine

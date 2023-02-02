@@ -2,19 +2,16 @@
 
 namespace Shopware\Storefront\Test\Page\Cms;
 
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Cms\AbstractDefaultMediaResolver;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Page\Cms\DefaultMediaResolver;
 
 /**
  * @internal
  */
-#[Package('content')]
 class DefaultMediaResolverTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -23,7 +20,7 @@ class DefaultMediaResolverTest extends TestCase
 
     private DefaultMediaResolver $mediaResolver;
 
-    private MockObject&AbstractDefaultMediaResolver $decorated;
+    private $decorated;
 
     public function setUp(): void
     {

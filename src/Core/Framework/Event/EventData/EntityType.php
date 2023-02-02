@@ -2,28 +2,17 @@
 
 namespace Shopware\Core\Framework\Event\EventData;
 
-use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\Log\Package;
-
-#[Package('business-ops')]
 class EntityType implements EventDataType
 {
-    final public const TYPE = 'entity';
+    public const TYPE = 'entity';
 
     /**
-     * @var class-string<EntityDefinition>
+     * @var string
      */
-    private readonly string $definitionClass;
+    private $definitionClass;
 
-    /**
-     * @param class-string<EntityDefinition>|EntityDefinition $definitionClass
-     */
-    public function __construct(string|EntityDefinition $definitionClass)
+    public function __construct(string $definitionClass)
     {
-        if ($definitionClass instanceof EntityDefinition) {
-            $definitionClass = $definitionClass::class;
-        }
-
         $this->definitionClass = $definitionClass;
     }
 

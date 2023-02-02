@@ -1,6 +1,3 @@
-/**
- * @package system-settings
- */
 Shopware.Service('privileges')
     .addPrivilegeMappingEntry({
         category: 'permissions',
@@ -17,8 +14,6 @@ Shopware.Service('privileges')
                     'user_config:read',
                     'user_config:create',
                     'user_config:update',
-                    'currency:read',
-                    'system_config:read',
                 ],
                 dependencies: [],
             },
@@ -30,10 +25,6 @@ Shopware.Service('privileges')
                     'user_access_key:create',
                     'user_access_key:update',
                     'user_access_key:delete',
-                    'system_config:read',
-                    'system_config:create',
-                    'system_config:update',
-                    'system_config:delete',
                 ],
                 dependencies: [
                     'users_and_permissions.viewer',

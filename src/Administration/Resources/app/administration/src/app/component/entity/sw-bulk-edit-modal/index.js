@@ -3,9 +3,7 @@ import './sw-bulk-edit-modal.scss';
 
 const { Component } = Shopware;
 
-/**
- * @deprecated tag:v6.6.0 - Will be private
- */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-bulk-edit-modal', {
     template,
 

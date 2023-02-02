@@ -1,7 +1,3 @@
-/**
- * @package admin
- */
-
 import Vue from 'vue';
 import Vuex from 'vuex';
 import VuexModules from 'src/app/state/index';

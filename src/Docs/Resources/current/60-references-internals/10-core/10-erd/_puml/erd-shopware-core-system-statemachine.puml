@@ -1,0 +1,109 @@
+@startuml
+' uncomment the line below if you're using computer with a retina display
+' skinparam dpi 300
+!define Table(name,desc) class name as "desc" << (T,#FFAAAA) >>
+!define ForeignTable(name,desc) class name as "desc" << (T,#ada6a6) >>
+!define TranslationTable(name,desc) class name as "desc" << (I,#4286f4) >>
+' we use bold for primary key
+' green color for unique
+' and underscore for not_null
+!define primary_key(x) <b>x</b>
+!define unique(x) <color:green>x</color>
+!define not_null(x) <u>x</u>
+' other tags available:
+' <i></i>
+' <back:COLOR></color>, where color is a color name or html color code
+' (#FFAACC)
+' see: http://plantuml.com/classes.html#More
+hide methods
+hide stereotypes
+hide empty members
+skinparam backgroundColor #FFFFFF
+
+' entities
+
+Table(ShopwareCoreSystemStateMachineStateMachineDefinition, "state_machine\n(State machine)") {
+   primary_key(id) id
+   not_null(technicalName) string
+   name translated
+   customFields translated
+   initialStateId foreignKey
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+   translated json
+}
+TranslationTable(ShopwareCoreSystemStateMachineStateMachineTranslationDefinition, "state_machine_translation\n((Translations))") {
+   not_null(name) string
+   customFields customFields
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+   primary_key(stateMachineId) foreignKey
+   primary_key(languageId) foreignKey
+}
+Table(ShopwareCoreSystemStateMachineAggregationStateMachineStateStateMachineStateDefinition, "state_machine_state\n(State)") {
+   primary_key(id) id
+   not_null(technicalName) string
+   name translated
+   not_null(stateMachineId) foreignKey
+   customFields translated
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+   translated json
+}
+TranslationTable(ShopwareCoreSystemStateMachineAggregationStateMachineStateStateMachineStateTranslationDefinition, "state_machine_state_translation\n((Translations))") {
+   not_null(name) string
+   customFields customFields
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+   primary_key(stateMachineStateId) foreignKey
+   primary_key(languageId) foreignKey
+}
+Table(ShopwareCoreSystemStateMachineAggregationStateMachineTransitionStateMachineTransitionDefinition, "state_machine_transition\n(State transition)") {
+   primary_key(id) id
+   not_null(actionName) string
+   not_null(stateMachineId) foreignKey
+   not_null(fromStateId) foreignKey
+   not_null(toStateId) foreignKey
+   customFields customFields
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+}
+Table(ShopwareCoreSystemStateMachineAggregationStateMachineHistoryStateMachineHistoryDefinition, "state_machine_history\n(State transition history)") {
+   primary_key(id) id
+   not_null(stateMachineId) foreignKey
+   not_null(entityName) string
+   not_null(entityId) json
+   not_null(fromStateId) foreignKey
+   not_null(toStateId) foreignKey
+   transitionActionName string
+   userId foreignKey
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+}
+ForeignTable(ShopwareCoreSystemLanguageLanguageDefinition, "language") {
+}
+ForeignTable(ShopwareCoreCheckoutOrderAggregateOrderTransactionOrderTransactionDefinition, "order_transaction") {
+}
+ForeignTable(ShopwareCoreCheckoutOrderAggregateOrderDeliveryOrderDeliveryDefinition, "order_delivery") {
+}
+ForeignTable(ShopwareCoreCheckoutOrderOrderDefinition, "order") {
+}
+ForeignTable(ShopwareCoreSystemUserUserDefinition, "user") {
+}
+
+' relationshipd
+
+ShopwareCoreSystemStateMachineAggregationStateMachineStateStateMachineStateDefinition --> ShopwareCoreSystemStateMachineStateMachineDefinition
+ShopwareCoreSystemStateMachineAggregationStateMachineTransitionStateMachineTransitionDefinition --> ShopwareCoreSystemStateMachineStateMachineDefinition
+ShopwareCoreSystemStateMachineStateMachineTranslationDefinition --> ShopwareCoreSystemStateMachineStateMachineDefinition
+ShopwareCoreSystemStateMachineAggregationStateMachineHistoryStateMachineHistoryDefinition --> ShopwareCoreSystemStateMachineStateMachineDefinition
+ShopwareCoreSystemStateMachineStateMachineTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
+ShopwareCoreSystemStateMachineAggregationStateMachineTransitionStateMachineTransitionDefinition --> ShopwareCoreSystemStateMachineAggregationStateMachineStateStateMachineStateDefinition
+ShopwareCoreSystemStateMachineAggregationStateMachineStateStateMachineStateTranslationDefinition --> ShopwareCoreSystemStateMachineAggregationStateMachineStateStateMachineStateDefinition
+ShopwareCoreSystemStateMachineAggregationStateMachineStateStateMachineStateDefinition --> ShopwareCoreCheckoutOrderAggregateOrderTransactionOrderTransactionDefinition
+ShopwareCoreSystemStateMachineAggregationStateMachineStateStateMachineStateDefinition --> ShopwareCoreCheckoutOrderAggregateOrderDeliveryOrderDeliveryDefinition
+ShopwareCoreSystemStateMachineAggregationStateMachineStateStateMachineStateDefinition --> ShopwareCoreCheckoutOrderOrderDefinition
+ShopwareCoreSystemStateMachineAggregationStateMachineHistoryStateMachineHistoryDefinition --> ShopwareCoreSystemStateMachineAggregationStateMachineStateStateMachineStateDefinition
+ShopwareCoreSystemStateMachineAggregationStateMachineStateStateMachineStateTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
+ShopwareCoreSystemStateMachineAggregationStateMachineHistoryStateMachineHistoryDefinition --> ShopwareCoreSystemUserUserDefinition
+@enduml

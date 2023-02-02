@@ -1,0 +1,28 @@
+@startuml
+
+hide empty description
+
+title Order State Machine
+
+state "Open" as open
+state "In Progress" as inProgress
+state "Done" as completed
+state "Cancelled" as cancelled
+
+open : a new Order is received
+inProgress : work on the order begins
+completed : success state
+completed : all work on the order is done
+cancelled : failure state
+cancelled : all work on the order is done
+
+[*] --> open
+open --> inProgress : process
+open --> cancelled : cancel
+cancelled --> open : reopen
+inProgress --> cancelled : cancel
+inProgress --> completed : complete
+
+cancelled --> [*]
+completed --> [*]
+@enduml

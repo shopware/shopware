@@ -1,25 +1,12 @@
-/**
- * @package admin
- */
-
 import template from './sw-login-recovery-recovery.html.twig';
 
-const { Component, Mixin, State } = Shopware;
-const { mapPropertyErrors } = Component.getComponentHelper();
+const { Component } = Shopware;
 
-/**
- * @deprecated tag:v6.6.0 - Will be private
- */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-login-recovery-recovery', {
     template,
 
-    inject: [
-        'userRecoveryService',
-    ],
-
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    inject: ['userRecoveryService'],
 
     props: {
         hash: {
@@ -30,28 +17,17 @@ Component.register('sw-login-recovery-recovery', {
 
     data() {
         return {
-            // Mock an empty user so that we can send out the error
-            user: {
-                id: this.hash,
-                getEntityName: () => 'user',
-            },
             newPassword: '',
             newPasswordConfirm: '',
             hashValid: null,
         };
     },
 
-    computed: {
-        ...mapPropertyErrors('user', [
-            'password',
-        ]),
-    },
-
     watch: {
         hashValid(val) {
             if (val === true) {
                 this.$nextTick(() => this.$refs.swLoginRecoveryRecoveryNewPasswordField
-                    .$el.querySelector('input')?.focus());
+                    .$el.querySelector('input').focus());
             }
         },
     },
@@ -84,17 +60,11 @@ Component.register('sw-login-recovery-recovery', {
         updatePassword() {
             if (this.validatePasswords()) {
                 this.userRecoveryService.updateUserPassword(
-                    this.hash,
-                    this.newPassword,
+                    this.hash, this.newPassword,
                     this.newPasswordConfirm,
                 ).then(() => {
                     this.$router.push({ name: 'sw.login.index' });
                 }).catch((error) => {
-                    State.dispatch('error/addApiError', {
-                        expression: `user.${this.hash}.password`,
-                        error: new Shopware.Classes.ShopwareError(error.response.data.errors[0]),
-                    });
-
                     this.createNotificationError({
                         message: error.message,
                     });

@@ -4,7 +4,6 @@ import './sw-progress-bar.scss';
 const { Component } = Shopware;
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @description Renders a progressbar to indicate progress
  * @status ready
@@ -15,8 +14,6 @@ const { Component } = Shopware;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-progress-bar', {
     template,
-
-    inject: ['userActivityService'],
 
     props: {
         value: {
@@ -32,7 +29,7 @@ Component.register('sw-progress-bar', {
 
     computed: {
         styleWidth() {
-            let percentage = (this.value / this.maxValue) * 100;
+            let percentage = this.value / this.maxValue * 100;
             if (percentage > 100) {
                 percentage = 100;
             }
@@ -48,12 +45,6 @@ Component.register('sw-progress-bar', {
             return {
                 'sw-progress-bar__value--no-transition': this.value < 1 || this.value >= this.maxValue,
             };
-        },
-    },
-
-    watch: {
-        value() {
-            this.userActivityService.updateLastUserActivity();
         },
     },
 });

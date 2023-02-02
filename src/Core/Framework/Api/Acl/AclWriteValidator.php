@@ -11,28 +11,29 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @internal
- */
-#[Package('system-settings')]
 class AclWriteValidator implements EventSubscriberInterface
 {
     /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
+    /**
      * @internal
      */
-    public function __construct(private readonly EventDispatcherInterface $eventDispatcher)
+    public function __construct(EventDispatcherInterface $eventDispatcher)
     {
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
      * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
      */
-    public static function getSubscribedEvents(): array
+    public static function getSubscribedEvents()
     {
         return [PreWriteValidationEvent::class => 'preValidate'];
     }
@@ -81,9 +82,6 @@ class AclWriteValidator implements EventSubscriberInterface
         $this->tryToThrow($missingPrivileges);
     }
 
-    /**
-     * @param list<string> $missingPrivileges
-     */
     private function tryToThrow(array $missingPrivileges): void
     {
         if (!empty($missingPrivileges)) {

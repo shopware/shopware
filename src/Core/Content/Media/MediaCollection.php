@@ -3,12 +3,10 @@
 namespace Shopware\Core\Content\Media;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<MediaEntity>
  */
-#[Package('content')]
 class MediaCollection extends EntityCollection
 {
     /**
@@ -16,12 +14,16 @@ class MediaCollection extends EntityCollection
      */
     public function getUserIds(): array
     {
-        return $this->fmap(fn (MediaEntity $media) => $media->getUserId());
+        return $this->fmap(function (MediaEntity $media) {
+            return $media->getUserId();
+        });
     }
 
     public function filterByUserId(string $id): self
     {
-        return $this->filter(fn (MediaEntity $media) => $media->getUserId() === $id);
+        return $this->filter(function (MediaEntity $media) use ($id) {
+            return $media->getUserId() === $id;
+        });
     }
 
     public function getApiAlias(): string

@@ -9,19 +9,25 @@ use Shopware\Core\Checkout\Cart\Exception\InvalidCartException;
 use Shopware\Core\Checkout\Order\Exception\DeliveryWithoutAddressException;
 use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('checkout')]
 class OrderPersister implements OrderPersisterInterface
 {
+    private EntityRepositoryInterface $orderRepository;
+
+    private OrderConverter $converter;
+
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $orderRepository, private readonly OrderConverter $converter)
-    {
+    public function __construct(
+        EntityRepositoryInterface $repository,
+        OrderConverter $converter
+    ) {
+        $this->orderRepository = $repository;
+        $this->converter = $converter;
     }
 
     /**

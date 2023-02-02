@@ -13,7 +13,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- *
  * @group slow
  */
 class AdminSearchControllerTest extends TestCase
@@ -36,9 +35,9 @@ class AdminSearchControllerTest extends TestCase
      */
     public function testSearch(array $data, bool $hasResponse, array $expectedEntities, array $expectedErrors = []): void
     {
-        $this->getBrowser()->request('POST', '/api/_admin/search', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR) ?: null);
+        $this->getBrowser()->request('POST', '/api/_admin/search', [], [], [], json_encode($data) ?: null);
         $response = $this->getBrowser()->getResponse();
-        $content = json_decode($response->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
+        $content = json_decode($response->getContent() ?: '', true);
 
         static::assertArrayHasKey('data', $content, print_r($content, true));
 
@@ -62,7 +61,7 @@ class AdminSearchControllerTest extends TestCase
             static::assertEquals($expectedErrorDetail, $actual['detail']);
         }
 
-        static::assertEquals(\count($expectedEntities), is_countable($data) ? \count($data) : 0);
+        static::assertEquals(\count($expectedEntities), \count($data));
 
         foreach ($expectedEntities as $entity => $expectedTotal) {
             static::assertArrayHasKey($entity, $data);
@@ -81,7 +80,7 @@ class AdminSearchControllerTest extends TestCase
             ],
         ]) ?: null);
         $response = $this->getBrowser()->getResponse();
-        $content = json_decode($response->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
+        $content = json_decode($response->getContent() ?: '', true);
 
         static::assertArrayHasKey('data', $content, print_r($content, true));
 

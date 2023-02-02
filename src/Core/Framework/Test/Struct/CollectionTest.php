@@ -79,7 +79,9 @@ class CollectionTest extends TestCase
 
         $collection->add('a');
         $collection->add('b');
-        $result = $collection->map(fn ($element) => $element . '_test');
+        $result = $collection->map(function ($element) {
+            return $element . '_test';
+        });
         static::assertEquals(['a_test', 'b_test'], $result);
     }
 
@@ -92,7 +94,9 @@ class CollectionTest extends TestCase
 
         $collection->add('a');
         $collection->add('b');
-        $filtered = $collection->fmap(fn ($element) => $element === 'a' ? false : $element . '_test');
+        $filtered = $collection->fmap(function ($element) {
+            return $element === 'a' ? false : $element . '_test';
+        });
         static::assertEquals([1 => 'b_test'], $filtered);
     }
 
@@ -108,7 +112,9 @@ class CollectionTest extends TestCase
         $collection->add('c');
         $collection->add('a');
 
-        $collection->sort(fn ($a, $b) => strcmp((string) $a, (string) $b));
+        $collection->sort(function ($a, $b) {
+            return strcmp($a, $b);
+        });
 
         static::assertEquals([2 => 'a', 0 => 'b', 1 => 'c'], $collection->getElements());
     }
@@ -139,7 +145,9 @@ class CollectionTest extends TestCase
         $collection->add('b');
         $collection->add('c');
 
-        $filtered = $collection->filter(fn ($element) => $element !== 'b');
+        $filtered = $collection->filter(function ($element) {
+            return $element !== 'b';
+        });
         static::assertEquals(['a', 'c'], array_values($filtered->getElements()));
     }
 

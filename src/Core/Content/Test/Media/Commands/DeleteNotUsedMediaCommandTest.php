@@ -7,7 +7,7 @@ use Shopware\Core\Content\Media\Commands\DeleteNotUsedMediaCommand;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -26,7 +26,7 @@ class DeleteNotUsedMediaCommandTest extends TestCase
     private const FIXTURE_FILE = __DIR__ . '/../fixtures/shopware-logo.png';
 
     /**
-     * @var EntityRepository
+     * @var EntityRepositoryInterface
      */
     private $mediaRepository;
 
@@ -35,7 +35,10 @@ class DeleteNotUsedMediaCommandTest extends TestCase
      */
     private $deleteMediaCommand;
 
-    private Context $context;
+    /**
+     * @var Context
+     */
+    private $context;
 
     protected function setUp(): void
     {
@@ -72,10 +75,10 @@ class DeleteNotUsedMediaCommandTest extends TestCase
 
         $resource = fopen(self::FIXTURE_FILE, 'rb');
         static::assertIsResource($resource);
-        $this->getPublicFilesystem()->writeStream($firstPath, $resource);
-        $this->getPublicFilesystem()->writeStream($secondPath, $resource);
-        $this->getPublicFilesystem()->writeStream($thirdPath, $resource);
-        $this->getPublicFilesystem()->writeStream($fourthPath, $resource);
+        $this->getPublicFilesystem()->putStream($firstPath, $resource);
+        $this->getPublicFilesystem()->putStream($secondPath, $resource);
+        $this->getPublicFilesystem()->putStream($thirdPath, $resource);
+        $this->getPublicFilesystem()->putStream($fourthPath, $resource);
 
         $commandTester = new CommandTester($this->deleteMediaCommand);
         $commandTester->setInputs(['yes']);
@@ -125,10 +128,10 @@ class DeleteNotUsedMediaCommandTest extends TestCase
 
         $resource = fopen(self::FIXTURE_FILE, 'rb');
         static::assertIsResource($resource);
-        $this->getPublicFilesystem()->writeStream($firstPath, $resource);
-        $this->getPublicFilesystem()->writeStream($secondPath, $resource);
-        $this->getPublicFilesystem()->writeStream($thirdPath, $resource);
-        $this->getPublicFilesystem()->writeStream($fourthPath, $resource);
+        $this->getPublicFilesystem()->putStream($firstPath, $resource);
+        $this->getPublicFilesystem()->putStream($secondPath, $resource);
+        $this->getPublicFilesystem()->putStream($thirdPath, $resource);
+        $this->getPublicFilesystem()->putStream($fourthPath, $resource);
 
         $commandTester = new CommandTester($this->deleteMediaCommand);
         $commandTester->setInputs(['no']);
@@ -183,8 +186,8 @@ class DeleteNotUsedMediaCommandTest extends TestCase
 
         $resource = fopen(self::FIXTURE_FILE, 'rb');
         static::assertIsResource($resource);
-        $this->getPublicFilesystem()->writeStream($firstPath, $resource);
-        $this->getPublicFilesystem()->writeStream($secondPath, $resource);
+        $this->getPublicFilesystem()->putStream($firstPath, $resource);
+        $this->getPublicFilesystem()->putStream($secondPath, $resource);
 
         $commandTester = new CommandTester($this->deleteMediaCommand);
         $commandTester->setInputs(['yes']);

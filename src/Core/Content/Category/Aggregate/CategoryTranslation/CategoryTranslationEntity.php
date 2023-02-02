@@ -5,10 +5,8 @@ namespace Shopware\Core\Content\Category\Aggregate\CategoryTranslation;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageEntity;
 
-#[Package('content')]
 class CategoryTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;

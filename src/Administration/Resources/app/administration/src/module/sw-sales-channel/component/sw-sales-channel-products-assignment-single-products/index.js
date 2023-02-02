@@ -1,11 +1,7 @@
-/**
- * @package sales-channel
- */
-
 import template from './sw-sales-channel-products-assignment-single-products.html.twig';
 import './sw-sales-channel-products-assignment-single-products.scss';
 
-const { Component, Mixin } = Shopware;
+const { Component, Mixin, Feature } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -104,8 +100,9 @@ Component.register('sw-sales-channel-products-assignment-single-products', {
         },
 
         onChangeSearchTerm(searchTerm) {
-            this.searchTerm = searchTerm;
-
+            if (!Feature.isActive('FEATURE_NEXT_16271')) {
+                this.searchTerm = searchTerm;
+            }
             if (searchTerm) {
                 this.page = 1;
             }

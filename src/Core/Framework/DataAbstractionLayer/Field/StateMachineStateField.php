@@ -4,12 +4,20 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\StateMachineStateFieldSerializer;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateDefinition;
 
-#[Package('core')]
 class StateMachineStateField extends FkField
 {
+    /**
+     * @var string
+     */
+    private $stateMachineName;
+
+    /**
+     * @var array
+     */
+    private $allowedWriteScopes;
+
     /**
      * @param array $allowedWriteScopes List of scopes, for which changing the status value is still allowed without
      *                                  using the StateMachine
@@ -17,9 +25,12 @@ class StateMachineStateField extends FkField
     public function __construct(
         string $storageName,
         string $propertyName,
-        private readonly string $stateMachineName,
-        private readonly array $allowedWriteScopes = [Context::SYSTEM_SCOPE]
+        string $stateMachineName,
+        array $allowedWriteScopes = [Context::SYSTEM_SCOPE]
     ) {
+        $this->stateMachineName = $stateMachineName;
+        $this->allowedWriteScopes = $allowedWriteScopes;
+
         parent::__construct($storageName, $propertyName, StateMachineStateDefinition::class);
     }
 

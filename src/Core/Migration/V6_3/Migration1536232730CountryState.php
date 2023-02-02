@@ -3,13 +3,8 @@
 namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
-/**
- * @internal
- */
-#[Package('core')]
 class Migration1536232730CountryState extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -19,7 +14,7 @@ class Migration1536232730CountryState extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeStatement('
+        $connection->executeUpdate('
             CREATE TABLE `country_state` (
               `id`          BINARY(16)                              NOT NULL,
               `country_id`  BINARY(16)                              NOT NULL,
@@ -34,7 +29,7 @@ class Migration1536232730CountryState extends MigrationStep
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
 
-        $connection->executeStatement('
+        $connection->executeUpdate('
             CREATE TABLE `country_state_translation` (
               `country_state_id`    BINARY(16)                              NOT NULL,
               `language_id`         BINARY(16)                              NOT NULL,

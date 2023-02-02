@@ -1,11 +1,10 @@
 import template from './sw-landing-page-detail-cms.html.twig';
 import './sw-landing-page-detail-cms.scss';
 
-/**
- * @package content
- */
+const { Component } = Shopware;
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-landing-page-detail-cms', {
     template,
 
     props: {
@@ -24,4 +23,4 @@ export default {
             return Shopware.State.get('cmsPageState').currentPage;
         },
     },
-};
+});

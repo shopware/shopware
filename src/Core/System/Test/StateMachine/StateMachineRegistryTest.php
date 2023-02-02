@@ -12,7 +12,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -36,15 +36,30 @@ class StateMachineRegistryTest extends TestCase
      */
     private $connection;
 
-    private string $stateMachineId;
+    /**
+     * @var string
+     */
+    private $stateMachineId;
 
-    private string $openId;
+    /**
+     * @var string
+     */
+    private $openId;
 
-    private string $inProgressId;
+    /**
+     * @var string
+     */
+    private $inProgressId;
 
-    private string $closedId;
+    /**
+     * @var string
+     */
+    private $closedId;
 
-    private string $stateMachineName;
+    /**
+     * @var string
+     */
+    private $stateMachineName;
 
     /**
      * @var StateMachineRegistry
@@ -52,13 +67,19 @@ class StateMachineRegistryTest extends TestCase
     private $stateMachineRegistry;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepositoryInterface
      */
     private $stateMachineRepository;
 
-    private string $stateMachineWithoutInitialId;
+    /**
+     * @var string
+     */
+    private $stateMachineWithoutInitialId;
 
-    private string $stateMachineWithoutInitialName;
+    /**
+     * @var string
+     */
+    private $stateMachineWithoutInitialName;
 
     protected function setUp(): void
     {
@@ -90,7 +111,7 @@ EOF;
     public function tearDown(): void
     {
         $this->connection->rollBack();
-        $this->connection->executeStatement('DROP TABLE `_test_nullable`');
+        $this->connection->executeUpdate('DROP TABLE `_test_nullable`');
     }
 
     public function testNonExistingStateMachine(): void
@@ -182,9 +203,9 @@ EOF;
 
         $connection = $this->getContainer()->get(Connection::class);
 
-        $stateMachineId = $connection->fetchOne('SELECT id FROM state_machine WHERE technical_name = :name', ['name' => 'order_delivery.state']);
+        $stateMachineId = $connection->fetchColumn('SELECT id FROM state_machine WHERE technical_name = :name', ['name' => 'order_delivery.state']);
         /** @var string $returnedPartially */
-        $returnedPartially = $connection->fetchOne('SELECT id FROM state_machine_state WHERE technical_name = :name AND state_machine_id = :id', ['name' => OrderDeliveryStates::STATE_PARTIALLY_RETURNED, 'id' => $stateMachineId]);
+        $returnedPartially = $connection->fetchColumn('SELECT id FROM state_machine_state WHERE technical_name = :name AND state_machine_id = :id', ['name' => OrderDeliveryStates::STATE_PARTIALLY_RETURNED, 'id' => $stateMachineId]);
         $returnedPartially = Uuid::fromBytesToHex($returnedPartially);
 
         $orderDeliveryId = Uuid::randomHex();
@@ -321,7 +342,7 @@ EOF;
     {
         $connection = $this->getContainer()->get(Connection::class);
 
-        return Uuid::fromBytesToHex((string) $connection->fetchOne('SELECT id FROM ' . $table . ' LIMIT 1'));
+        return Uuid::fromBytesToHex((string) $connection->fetchColumn("SELECT id FROM {$table} LIMIT 1"));
     }
 
     private function createCustomer(): string

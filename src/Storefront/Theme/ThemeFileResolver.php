@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Theme;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\Exception\InvalidThemeException;
 use Shopware\Storefront\Theme\Exception\ThemeCompileException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\File;
@@ -10,22 +9,21 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 
-#[Package('storefront')]
 class ThemeFileResolver
 {
-    final public const SCRIPT_FILES = 'script';
-    final public const STYLE_FILES = 'style';
+    public const SCRIPT_FILES = 'script';
+    public const STYLE_FILES = 'style';
+
+    private ThemeFileImporterInterface $themeFileImporter;
 
     /**
      * @internal
      */
-    public function __construct(private readonly ThemeFileImporterInterface $themeFileImporter)
+    public function __construct(ThemeFileImporterInterface $themeFileImporter)
     {
+        $this->themeFileImporter = $themeFileImporter;
     }
 
-    /**
-     * @return array<string, FileCollection>
-     */
     public function resolveFiles(
         StorefrontPluginConfiguration $themeConfig,
         StorefrontPluginConfigurationCollection $configurationCollection,
@@ -74,14 +72,13 @@ class ThemeFileResolver
                 $themeConfig,
                 $configurationCollection,
                 $onlySourceFiles,
-                fn (StorefrontPluginConfiguration $configuration) => $configuration->getStyleFiles()
+                function (StorefrontPluginConfiguration $configuration) {
+                    return $configuration->getStyleFiles();
+                }
             ),
         ];
     }
 
-    /**
-     * @param array<int, string> $included
-     */
     private function resolve(
         StorefrontPluginConfiguration $themeConfig,
         StorefrontPluginConfigurationCollection $configurationCollection,
@@ -162,7 +159,7 @@ class ThemeFileResolver
 
     private function isInclude(string $file): bool
     {
-        return str_starts_with($file, '@');
+        return strpos($file, '@') === 0;
     }
 
     private function convertPathsToAbsolute(FileCollection $files): void

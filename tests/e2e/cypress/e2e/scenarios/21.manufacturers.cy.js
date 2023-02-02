@@ -5,14 +5,16 @@ import ManufacturerPageObject from '../../support/pages/module/sw-manufacturer.p
 
 describe('Manufacturers: Appearance in Storefront & Product Filter', () => {
     beforeEach(() => {
-        cy.createProductFixture({
-            name: 'Test Product',
-            productNumber: 'TEST-3096',
-            price: [{
-                currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
-                linked: true,
-                gross: 10.99,
-            }],
+        cy.loginViaApi().then(() => {
+            cy.createProductFixture({
+                name: 'Test Product',
+                productNumber: 'TEST-3096',
+                price: [{
+                    currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
+                    linked: true,
+                    gross: 10.99
+                }]
+            });
         }).then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/manufacturer/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -23,27 +25,27 @@ describe('Manufacturers: Appearance in Storefront & Product Filter', () => {
     it('@package: create a manufacturer and verify appearance from the storefront', { tags: ['pa-inventory'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/product-visibility`,
-            method: 'POST',
+            method: 'POST'
         }).as('setProductVisibility');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/sales-channel`,
-            method: 'POST',
+            method: 'POST'
         }).as('assignProductToSalesChannel');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/category`,
-            method: 'POST',
+            method: 'POST'
         }).as('assignProductToCategory');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/product`,
-            method: 'POST',
+            method: 'POST'
         }).as('getProductDetail');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/product-manufacturer`,
-            method: 'POST',
+            method: 'POST'
         }).as('saveManufacturer');
 
         const page = new ProductPageObject();
@@ -75,7 +77,6 @@ describe('Manufacturers: Appearance in Storefront & Product Filter', () => {
 
         // assign manufacturer to the product
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
-        cy.contains('.sw-page__smart-bar-amount', '1');
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'product/index');
@@ -86,7 +87,7 @@ describe('Manufacturers: Appearance in Storefront & Product Filter', () => {
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`,
+            `${page.elements.dataGridRow}--0`
         );
         cy.url().should('include', 'product/detail');
 

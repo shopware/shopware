@@ -41,6 +41,10 @@ class EntityCompilerPassTest extends TestCase
         $entityCompilerPass = new EntityCompilerPass();
         $entityCompilerPass->process($container);
 
+        // Make sure the correct aliases have been set
+        static::assertNotNull($container->getAlias('Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface $customerRepository'));
+        static::assertNotNull($container->getAlias('Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface $customerAddressRepository'));
+
         static::assertNotNull($container->getAlias('Shopware\Core\Framework\DataAbstractionLayer\EntityRepository $customerRepository'));
         static::assertNotNull($container->getAlias('Shopware\Core\Framework\DataAbstractionLayer\EntityRepository $customerAddressRepository'));
     }
@@ -73,6 +77,7 @@ class EntityCompilerPassTest extends TestCase
         $entityCompilerPass = new EntityCompilerPass();
         $entityCompilerPass->process($container);
 
+        static::assertTrue($container->hasAlias('Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface $productRepository'));
         static::assertTrue($container->hasAlias('Shopware\Core\Framework\DataAbstractionLayer\EntityRepository $productRepository'));
     }
 }

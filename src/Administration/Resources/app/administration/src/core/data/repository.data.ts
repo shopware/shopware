@@ -1,7 +1,3 @@
-/**
- * @package admin
- */
-
 import type { AxiosInstance, AxiosResponse } from 'axios';
 import type { Entity } from '@shopware-ag/admin-extension-sdk/es/data/_internals/Entity';
 import Criteria from './criteria.data';
@@ -61,10 +57,10 @@ type ErrorResponse = {
 };
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default class Repository<EntityName extends keyof EntitySchema.Entities> {
+export default class Repository {
     route: string;
 
-    entityName: EntityName;
+    entityName: string;
 
     httpClient: AxiosInstance;
 
@@ -80,7 +76,7 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
 
     constructor(
         route: string,
-        entityName: EntityName,
+        entityName: string,
         httpClient: AxiosInstance,
         hydrator: EntityHydrator,
         changesetGenerator: ChangesetGenerator,
@@ -120,7 +116,7 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
     /**
      * Sends a search request for the repository entity.
      */
-    search(criteria: Criteria, context = Shopware.Context.api): Promise<EntityCollection<EntityName>> {
+    search(criteria: Criteria, context = Shopware.Context.api): Promise<EntityCollection> {
         const headers = this.buildHeaders(context);
 
         const url = `/search${this.route}`;
@@ -136,7 +132,7 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
     /**
      * Short hand to fetch a single entity from the server
      */
-    get(id: string, context = Shopware.Context.api, criteria: Criteria | null = null): Promise<Entity<EntityName> | null> {
+    get(id: string, context = Shopware.Context.api, criteria: Criteria | null = null): Promise<Entity | null> {
         criteria = criteria || new Criteria(1, 1);
         criteria.setIds([id]);
 
@@ -150,7 +146,7 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
      * If the entity is marked as new, the repository will send a POST create. Updates will be send as PATCH request.
      * Deleted associations will be send as additional request
      */
-    save(entity: Entity<EntityName>, context = Shopware.Context.api): Promise<void | AxiosResponse> {
+    save(entity: Entity, context = Shopware.Context.api): Promise<void | AxiosResponse> {
         if (this.options.useSync === true) {
             return this.saveWithSync(entity, context);
         }
@@ -161,7 +157,7 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
     /**
      * @private
      */
-    async saveWithRest(entity: Entity<EntityName>, context: apiContext): Promise<void | AxiosResponse> {
+    async saveWithRest(entity: Entity, context: apiContext): Promise<void | AxiosResponse> {
         const { changes, deletionQueue } = this.changesetGenerator.generate(entity) as Changeset;
 
         if (!this.options.keepApiErrors) {
@@ -175,7 +171,7 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
     /**
      * @private
      */
-    async saveWithSync(entity: Entity<EntityName>, context: apiContext): Promise<void | AxiosResponse> {
+    async saveWithSync(entity: Entity, context: apiContext): Promise<void | AxiosResponse> {
         const { changes, deletionQueue } = this.changesetGenerator.generate(entity) as Changeset;
 
         if (entity.isNew()) {
@@ -228,10 +224,8 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
     }
 
     /**
-     * @deprecated tag:v6.6.0.0 - Default param context will be last
      * Clones an existing entity
      */
-    // eslint-disable-next-line default-param-last
     clone(entityId: string, context = Shopware.Context.api, behavior: $TSDangerUnknownObject): Promise<unknown> {
         if (!entityId) {
             return Promise.reject(new Error('Missing required argument: id'));
@@ -249,7 +243,7 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
     /**
      * Detects if the entity or the relations has remaining changes which are not synchronized with the server
      */
-    hasChanges(entity: Entity<EntityName>): boolean {
+    hasChanges(entity: Entity): boolean {
         const { changes, deletionQueue } = this.changesetGenerator.generate(entity) as Changeset;
 
         return changes !== null || deletionQueue.length > 0;
@@ -258,7 +252,7 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
     /**
      * Detects changes of all provided entities and send the changes to the server
      */
-    saveAll(entities: EntityCollection<EntityName>, context = Shopware.Context.api): Promise<unknown> {
+    saveAll(entities: EntityCollection, context = Shopware.Context.api): Promise<unknown> {
         const promises: Promise<unknown>[] = [];
 
         entities.forEach((entity) => {
@@ -271,11 +265,7 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
     /**
      * Detects changes of all provided entities and send the changes to the server
      */
-    async sync(
-        entities: EntityCollection<EntityName>,
-        context = Shopware.Context.api,
-        failOnError = true,
-    ): Promise<unknown> {
+    async sync(entities: EntityCollection, context = Shopware.Context.api, failOnError = true): Promise<unknown> {
         const { changeset, deletions } = this.getSyncChangeset(entities);
 
         if (!this.options.keepApiErrors) {
@@ -289,7 +279,7 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
     /**
      * Detects changes of the provided entity and resets its first-level attributes to its origin state
      */
-    discard(entity: Entity<EntityName>): void {
+    discard(entity: Entity): void {
         if (!entity) {
             return;
         }
@@ -350,33 +340,43 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
      * @private
      */
     getSyncErrors(errorResponse: ErrorResponse): Error[] {
-        const errors: Error[] = errorResponse?.response?.data?.errors ?? [];
+        if (Shopware.Feature.isActive('FEATURE_NEXT_15815')) {
+            const errors: Error[] = errorResponse?.response?.data?.errors ?? [];
 
-        errors.forEach((current) => {
-            if (!current.source || !current.source.pointer) {
-                return;
-            }
+            errors.forEach((current) => {
+                if (!current.source || !current.source.pointer) {
+                    return;
+                }
 
-            const segments = current.source.pointer.split('/');
+                const segments = current.source.pointer.split('/');
 
-            // remove first empty element in list
-            if (segments[0] === '') {
+                // remove first empty element in list
+                if (segments[0] === '') {
+                    segments.shift();
+                }
                 segments.shift();
-            }
-            segments.shift();
 
-            current.source.pointer = segments.join('/');
-        });
+                current.source.pointer = segments.join('/');
+            });
 
-        return errors;
+            return errors;
+        }
+
+        const operation = errorResponse?.response?.data?.data[this.entityName];
+        if (!operation) {
+            return [];
+        }
+
+        return operation.result.reduce((acc, result) => {
+            acc.push(...result.errors);
+            return acc;
+        }, [] as Error[]);
     }
 
     /**
      * @private
      */
-    getSyncChangeset(
-        entities: EntityCollection<EntityName>,
-    ): { changeset: $TSDangerUnknownObject[], deletions: DeletionQueue } {
+    getSyncChangeset(entities: EntityCollection): { changeset: $TSDangerUnknownObject[], deletions: DeletionQueue } {
         return entities.reduce((acc, entity) => {
             const { changes, deletionQueue } = this.changesetGenerator.generate(entity) as Changeset;
 
@@ -508,8 +508,8 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
      * Creates a new entity for the local schema.
      * To Many association are initialed with a collection with the corresponding remote api route
      */
-    create(context = Shopware.Context.api, id: string | null = null): Entity<EntityName> {
-        return this.entityFactory.create(this.entityName, id, context) as unknown as Entity<EntityName>;
+    create(context = Shopware.Context.api, id: string | null = null): Entity | null {
+        return this.entityFactory.create(this.entityName, id, context) as unknown as Entity;
     }
 
     /**
@@ -570,11 +570,7 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
     /**
      * @private
      */
-    sendChanges(
-        entity: Entity<EntityName>,
-        changes: Changeset,
-        context = Shopware.Context.api,
-    ): Promise<AxiosResponse | void> {
+    sendChanges(entity: Entity, changes: Changeset, context = Shopware.Context.api): Promise<AxiosResponse | void> {
         const headers = this.buildHeaders(context);
 
         if (entity.isNew()) {
@@ -642,7 +638,7 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
         const compatibility = hasOwnProperty(this.options, 'compatibility') ? this.options.compatibility : true;
         const appId = hasOwnProperty(this.options, 'sw-app-integration-id') ? this.options['sw-app-integration-id'] : false;
 
-        let headers: { [key: string]: unknown } = {
+        let headers = {
             Accept: 'application/vnd.api+json',
             // @ts-expect-error
             Authorization: `Bearer ${context.authToken.access}`,
@@ -651,47 +647,41 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
         };
 
         if (context.languageId) {
-            headers = {
-                'sw-language-id': context.languageId,
-                ...headers,
-            };
+            headers = Object.assign(
+                { 'sw-language-id': context.languageId },
+                headers,
+            );
         }
 
         if (context.currencyId) {
-            headers = {
-                'sw-currency-id': context.currencyId,
-                ...headers,
-            };
+            headers = Object.assign(
+                { 'sw-currency-id': context.currencyId },
+                headers,
+            );
         }
 
         if (context.versionId) {
-            headers = {
-                'sw-version-id': context.versionId,
-                ...headers,
-            };
+            headers = Object.assign(
+                { 'sw-version-id': context.versionId },
+                headers,
+            );
         }
 
         if (context.inheritance) {
-            headers = {
-                'sw-inheritance': context.inheritance,
-                ...headers,
-            };
+            headers = Object.assign(
+                { 'sw-inheritance': context.inheritance },
+                headers,
+            );
         }
 
         if (appId) {
-            headers = {
-                'sw-app-integration-id': appId,
-                ...headers,
-            };
+            headers = Object.assign(
+                { 'sw-app-integration-id': appId },
+                headers,
+            );
         }
 
-        return headers as {
-            Accept: string,
-            Authorization: string,
-            'Content-Type': string,
-            'sw-api-compatibility': boolean,
-            [key: string]: string | number | boolean,
-        };
+        return headers;
     }
 
     /**

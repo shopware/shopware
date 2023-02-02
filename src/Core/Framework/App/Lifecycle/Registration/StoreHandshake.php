@@ -8,21 +8,37 @@ use GuzzleHttp\Psr7\Uri;
 use Psr\Http\Message\RequestInterface;
 use Shopware\Core\Framework\App\Exception\AppLicenseCouldNotBeVerifiedException;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Services\StoreClient;
 
 /**
  * @internal only for use by the app-system
  */
-#[Package('core')]
 class StoreHandshake implements AppHandshakeInterface
 {
     private const SBP_EXCEPTION_UNAUTHORIZED = 'ShopwarePlatformException-1';
 
     private const SBP_EXCEPTION_NO_LICENSE = 'ShopwarePlatformException-16';
 
-    public function __construct(private readonly string $shopUrl, private readonly string $appEndpoint, private readonly string $appName, private readonly string $shopId, private readonly StoreClient $storeClient, private readonly string $shopwareVersion)
+    private string $shopUrl;
+
+    private string $appEndpoint;
+
+    private string $appName;
+
+    private string $shopId;
+
+    private StoreClient $storeClient;
+
+    private string $shopwareVersion;
+
+    public function __construct(string $shopUrl, string $appEndpoint, string $appName, string $shopId, StoreClient $storeClient, string $shopwareVersion)
     {
+        $this->shopUrl = $shopUrl;
+        $this->appEndpoint = $appEndpoint;
+        $this->appName = $appName;
+        $this->shopId = $shopId;
+        $this->storeClient = $storeClient;
+        $this->shopwareVersion = $shopwareVersion;
     }
 
     public function assembleRequest(): RequestInterface
@@ -33,7 +49,7 @@ class StoreHandshake implements AppHandshakeInterface
         $uri = Uri::withQueryValues($uri, [
             'shop-id' => $this->shopId,
             'shop-url' => $this->shopUrl,
-            'timestamp' => (string) $date->getTimestamp(),
+            'timestamp' => $date->getTimestamp(),
         ]);
 
         $signature = $this->signPayload($uri->getQuery());
@@ -61,7 +77,7 @@ class StoreHandshake implements AppHandshakeInterface
             return $this->storeClient->signPayloadWithAppSecret($payload, $this->appName);
         } catch (\Exception $e) {
             if ($e instanceof ClientException) {
-                $response = \json_decode($e->getResponse()->getBody()->getContents(), true, \JSON_THROW_ON_ERROR, \JSON_THROW_ON_ERROR);
+                $response = \json_decode($e->getResponse()->getBody()->getContents(), true, \JSON_THROW_ON_ERROR);
 
                 if ($response['code'] === self::SBP_EXCEPTION_UNAUTHORIZED || $response['code'] === self::SBP_EXCEPTION_NO_LICENSE) {
                     throw new AppLicenseCouldNotBeVerifiedException(

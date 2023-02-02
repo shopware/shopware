@@ -1,4 +1,3 @@
-import { mapState } from 'vuex';
 import template from './sw-flow-rule-modal.html.twig';
 import './sw-flow-rule-modal.scss';
 
@@ -6,11 +5,8 @@ const { Component, Mixin, Context } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
-/**
- * @private
- * @package business-ops
- */
-export default {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+Component.register('sw-flow-rule-modal', {
     template,
 
     inject: [
@@ -93,17 +89,6 @@ export default {
             },
         },
 
-        scopesOfRuleAwarenessKey() {
-            const ruleAwarenessKey = `flowTrigger.${this.flow.eventName}`;
-            const awarenessConfig = this.ruleConditionDataProviderService
-                .getAwarenessConfigurationByAssignmentName(ruleAwarenessKey);
-
-
-            return awarenessConfig?.scopes ?? undefined;
-        },
-
-        ...mapState('swFlowState', ['flow']),
-
         ...mapPropertyErrors('rule', ['name', 'priority']),
     },
 
@@ -134,6 +119,10 @@ export default {
             const context = { ...Context.api, languageId: Shopware.State.get('session').languageId };
             const criteria = new Criteria(1, 500);
 
+            if (!this.feature.isActive('v6.5.0.0')) {
+                return this.appScriptConditionRepository.search(criteria, context);
+            }
+
             return Promise.all([
                 this.appScriptConditionRepository.search(criteria, context),
                 this.ruleConditionsConfigApiService.load(),
@@ -143,9 +132,8 @@ export default {
         },
 
         createRule() {
-            this.rule = this.ruleRepository.create();
+            this.rule = this.ruleRepository.create(Context.api);
             this.conditions = this.rule?.conditions;
-            this.conditionTree = this.conditions;
         },
 
         loadRule(ruleId) {
@@ -276,4 +264,4 @@ export default {
             this.$emit('modal-close');
         },
     },
-};
+});

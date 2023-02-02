@@ -2,17 +2,21 @@
 
 namespace Shopware\Core\System\Snippet\Filter;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Exception\FilterNotFoundException;
 
-#[Package('system-settings')]
 class SnippetFilterFactory
 {
     /**
+     * @var array
+     */
+    private $filters = [];
+
+    /**
      * @internal
      */
-    public function __construct(private readonly iterable $filters)
+    public function __construct(iterable $filters)
     {
+        $this->filters = $filters;
     }
 
     /**

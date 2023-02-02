@@ -3,12 +3,10 @@
 namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<CustomerGroupEntity>
  */
-#[Package('customer-order')]
 class CustomerGroupCollection extends EntityCollection
 {
     public function getApiAlias(): string

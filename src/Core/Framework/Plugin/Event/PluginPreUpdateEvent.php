@@ -2,16 +2,20 @@
 
 namespace Shopware\Core\Framework\Plugin\Event;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Context\UpdateContext;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 
-#[Package('core')]
 class PluginPreUpdateEvent extends PluginLifecycleEvent
 {
-    public function __construct(PluginEntity $plugin, private readonly UpdateContext $context)
+    /**
+     * @var UpdateContext
+     */
+    private $context;
+
+    public function __construct(PluginEntity $plugin, UpdateContext $context)
     {
         parent::__construct($plugin);
+        $this->context = $context;
     }
 
     public function getContext(): UpdateContext

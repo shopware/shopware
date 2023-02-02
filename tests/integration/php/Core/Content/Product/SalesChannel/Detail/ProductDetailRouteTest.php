@@ -21,9 +21,15 @@ class ProductDetailRouteTest extends TestCase
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
-    private KernelBrowser $browser;
+    /**
+     * @var KernelBrowser
+     */
+    private $browser;
 
-    private TestDataCollection $ids;
+    /**
+     * @var TestDataCollection
+     */
+    private $ids;
 
     protected function setUp(): void
     {
@@ -40,7 +46,7 @@ class ProductDetailRouteTest extends TestCase
     {
         $this->browser->request('POST', $this->getUrl($this->ids->get('product')));
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertSame('product_detail', $response['apiAlias']);
         static::assertArrayHasKey('product', $response);
@@ -58,7 +64,7 @@ class ProductDetailRouteTest extends TestCase
             ]
         );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertSame('product_detail', $response['apiAlias']);
         static::assertArrayHasKey('product', $response);
@@ -88,7 +94,7 @@ class ProductDetailRouteTest extends TestCase
             ]
         );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertSame('product_detail', $response['apiAlias']);
         static::assertArrayHasKey('product', $response);
@@ -113,13 +119,13 @@ class ProductDetailRouteTest extends TestCase
             ]
         );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertEquals(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode(), print_r($response, true));
 
         $expected = (string) file_get_contents(__DIR__ . '/_fixtures/recursion_encoding_with_layout_result.json');
 
-        $expected = json_decode($expected, true, 512, \JSON_THROW_ON_ERROR);
+        $expected = json_decode($expected, true);
 
         $this->assertArray($expected, $response);
     }

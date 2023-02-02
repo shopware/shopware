@@ -2,17 +2,41 @@
 
 namespace Shopware\Core\Framework\Routing\Annotation;
 
-use Doctrine\Common\Annotations\Annotation\NamedArgumentConstructor;
-use Shopware\Core\Framework\Log\Package;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ConfigurationAnnotation;
 
 /**
  * @Annotation
- * @NamedArgumentConstructor
  */
-#[Package('core')]
-class Since
+class Since extends ConfigurationAnnotation
 {
-    public function __construct(public string $version)
+    /**
+     * @var string
+     */
+    private $value;
+
+    /**
+     * @return string
+     */
+    public function getAliasName()
     {
+        return 'since';
+    }
+
+    /**
+     * @return bool
+     */
+    public function allowArray()
+    {
+        return false;
+    }
+
+    public function getValue(): string
+    {
+        return $this->value;
+    }
+
+    public function setValue(string $entity): void
+    {
+        $this->value = $entity;
     }
 }

@@ -1,6 +1,3 @@
-/**
- * @package system-settings
- */
 import template from './sw-import-export-activity.html.twig';
 import './sw-import-export-activity.scss';
 
@@ -11,7 +8,7 @@ const { format } = Shopware.Utils;
 /**
  * @private
  */
-export default {
+Shopware.Component.register('sw-import-export-activity', {
     template,
 
     inject: ['repositoryFactory', 'importExport', 'feature'],
@@ -325,6 +322,22 @@ export default {
             this.showResultModal = false;
         },
 
+        /**
+         * @deprecated tag:v6.5.0 - Remove unused method, use openProcessFileDownload instead
+         */
+        getDownloadUrl() {
+            Shopware.Utils.debug.error('The method getDownloadUrl has been replaced with openDownload.');
+
+            return '';
+        },
+
+        /**
+         * @deprecated tag:v6.5.0 - Remove unused method, use openProcessFileDownload instead
+         */
+        async openDownload(id) {
+            return window.open(await this.importExport.getDownloadUrl(id), '_blank');
+        },
+
         async openProcessFileDownload(item) {
             if (this.type === 'export' && item.state !== 'succeeded') {
                 return null;
@@ -365,4 +378,4 @@ export default {
             };
         },
     },
-};
+});

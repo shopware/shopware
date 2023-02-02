@@ -22,7 +22,7 @@ class Migration1631625055AddPositionToImportExportMappingsTest extends TestCase
         $profiles = $connection->fetchAllAssociative('SELECT * FROM `import_export_profile`');
 
         foreach ($profiles as $profile) {
-            $mappings = json_decode((string) $profile['mapping'], true, 512, \JSON_THROW_ON_ERROR);
+            $mappings = json_decode($profile['mapping'], true);
 
             foreach ($mappings as $mapping) {
                 static::assertArrayNotHasKey('position', $mapping);
@@ -36,7 +36,7 @@ class Migration1631625055AddPositionToImportExportMappingsTest extends TestCase
         $profiles = $connection->fetchAllAssociative('SELECT * FROM `import_export_profile`');
 
         foreach ($profiles as $profile) {
-            $mappings = json_decode((string) $profile['mapping'], true, 512, \JSON_THROW_ON_ERROR);
+            $mappings = json_decode($profile['mapping'], true);
 
             foreach ($mappings as $index => $mapping) {
                 static::assertEquals($index, $mapping['position']);
@@ -49,13 +49,13 @@ class Migration1631625055AddPositionToImportExportMappingsTest extends TestCase
         $profiles = $conn->fetchAllAssociative('SELECT * FROM `import_export_profile`');
 
         foreach ($profiles as $profile) {
-            $mappings = json_decode((string) $profile['mapping'], true, 512, \JSON_THROW_ON_ERROR);
+            $mappings = json_decode($profile['mapping'], true);
 
             foreach ($mappings as &$mapping) {
                 unset($mapping['position']);
             }
 
-            $mappings = json_encode($mappings, \JSON_THROW_ON_ERROR);
+            $mappings = json_encode($mappings);
 
             $conn->update('import_export_profile', ['mapping' => $mappings], ['id' => $profile['id']]);
         }

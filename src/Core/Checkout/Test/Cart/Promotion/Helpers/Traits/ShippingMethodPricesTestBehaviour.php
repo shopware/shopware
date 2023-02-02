@@ -3,15 +3,12 @@
 namespace Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Exception;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('checkout')]
 trait ShippingMethodPricesTestBehaviour
 {
     /**
-     * @var array<mixed>
+     * @var array
      */
     private $oldValues = [];
 
@@ -19,12 +16,12 @@ trait ShippingMethodPricesTestBehaviour
      * read all shipping method prices from db, store them in oldValues variable
      * and update all prices to $price value
      *
-     * @throws Exception
+     * @throws \Doctrine\DBAL\DBALException
      */
     public function setNewShippingPrices(Connection $conn, float $price): void
     {
-        $rows = $conn->fetchAllAssociative(
-            'SELECT id, currency_price FROM shipping_method_price'
+        $rows = $conn->executeQuery(
+            'SELECT id,currency_price FROM shipping_method_price'
         );
 
         foreach ($rows as $row) {
@@ -43,7 +40,7 @@ trait ShippingMethodPricesTestBehaviour
             ],
         ]);
 
-        $conn->executeStatement(
+        $conn->executeUpdate(
             'UPDATE shipping_method_price SET currency_price=:currencyPrice WHERE id in(:ids)',
             ['currencyPrice' => $priceStruct, 'ids' => array_keys($this->oldValues)],
             ['ids' => Connection::PARAM_STR_ARRAY]
@@ -53,12 +50,12 @@ trait ShippingMethodPricesTestBehaviour
     /**
      * restore all prices that have been stored in $oldValues
      *
-     * @throws Exception
+     * @throws \Doctrine\DBAL\DBALException
      */
     private function restorePrices(Connection $conn): void
     {
         foreach ($this->oldValues as $k => $v) {
-            $conn->executeStatement(
+            $conn->executeUpdate(
                 'UPDATE shipping_method_price SET currency_price=:currencyPrice WHERE id=:id',
                 ['currencyPrice' => $v, 'id' => $k]
             );

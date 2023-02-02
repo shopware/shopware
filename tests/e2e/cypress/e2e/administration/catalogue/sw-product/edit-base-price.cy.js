@@ -4,7 +4,10 @@ import ProductPageObject from '../../../../support/pages/module/sw-product.page-
 
 describe('Product: Base price', () => {
     beforeEach(() => {
-        cy.createProductFixture()
+        cy.loginViaApi()
+            .then(() => {
+                return cy.createProductFixture();
+            })
             .then(() => {
                 return cy.createDefaultFixture('unit');
             })
@@ -21,13 +24,13 @@ describe('Product: Base price', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST',
+            method: 'POST'
         }).as('saveData');
 
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`,
+            `${page.elements.dataGridRow}--0`
         );
 
         // Set base price data
@@ -47,18 +50,26 @@ describe('Product: Base price', () => {
         // Verify in storefront
         cy.visit('/');
 
-        cy.contains('.product-price-unit', 'Content: 50 Gramm (€99.96* / 100 Gramm)');
+        cy.window().then((win) => {
+            /** @deprecated tag:v6.5.0 - Use `CheckoutPageObject.elements.lineItem` instead */
+            const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
 
-        cy.get('input[name=search]').type('Product name');
-        cy.get('.search-suggest-container').should('be.visible');
-        cy.contains('.search-suggest-product-name', 'Product name')
-            .click();
+            /** @deprecated tag:v6.5.0 - Use `${CheckoutPageObject.elements.lineItem}-total-price` instead */
+            const lineItemTotalPriceSelector = win.features['v6.5.0.0'] ? '.line-item-total-price' : '.cart-item-price';
 
-        cy.contains('.product-detail-price-unit', 'Content: 50 Gramm (€99.96* / 100 Gramm)');
-        cy.contains('.product-detail-price', '49.98');
+            cy.contains('.product-price-unit', 'Content: 50 Gramm (€99.96* / 100 Gramm)');
 
-        cy.get('.btn-buy').click();
-        cy.contains('.line-item-total-price', '€49.98*');
-        cy.contains('.line-item-reference-price', '€99.96* / 100 Gramm');
+            cy.get('input[name=search]').type('Product name');
+            cy.get('.search-suggest-container').should('be.visible');
+            cy.contains('.search-suggest-product-name', 'Product name')
+                .click();
+
+            cy.contains('.product-detail-price-unit', 'Content: 50 Gramm (€99.96* / 100 Gramm)');
+            cy.contains('.product-detail-price', '49.98');
+
+            cy.get('.btn-buy').click();
+            cy.contains(`${lineItemTotalPriceSelector}`, '€49.98*');
+            cy.contains(`${lineItemSelector}-reference-price`, '€99.96* / 100 Gramm');
+        });
     });
 });

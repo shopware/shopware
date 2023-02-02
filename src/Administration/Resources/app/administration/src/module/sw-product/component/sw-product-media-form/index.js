@@ -1,7 +1,3 @@
-/*
- * @package inventory
- */
-
 import template from './sw-product-media-form.html.twig';
 import './sw-product-media-form.scss';
 
@@ -9,7 +5,7 @@ const { Component, Mixin } = Shopware;
 const { mapGetters } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-product-media-form', {
     template,
 
     inject: ['repositoryFactory', 'acl'],
@@ -109,6 +105,14 @@ export default {
     },
 
     methods: {
+        /**
+         * @deprecated tag:v6.5.0 - The method "onMediaUploadButtonOpenSidebar" will be removed because
+         * its relevant view was removed
+         */
+        onMediaUploadButtonOpenSidebar() {
+            this.$root.$emit('sidebar-toggle-open');
+        },
+
         onOpenMedia() {
             this.$emit('media-open');
         },
@@ -285,4 +289,4 @@ export default {
             });
         },
     },
-};
+});

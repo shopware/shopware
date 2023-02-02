@@ -12,10 +12,9 @@ const { Criteria } = Shopware.Data;
 const debounceTimeout = 800;
 
 /**
- * @private
- * @package content
+ * @private since v6.5.0
  */
-export default {
+Component.register('sw-cms-detail', {
     template,
 
     inject: [
@@ -28,7 +27,6 @@ export default {
         'acl',
         'appCmsService',
         'systemConfigApiService',
-        'cmsPageTypeService',
     ],
 
     mixins: [
@@ -111,9 +109,17 @@ export default {
             ],
             showLayoutAssignmentModal: false,
             showLayoutSetAsDefaultModal: false,
-            isDefaultLayout: false,
             showMissingElementModal: false,
+            isDefaultLayout: false,
+
+            /** @deprecated tag:v6.5.0 - will be removed without replacement */
+            isSaveable: false,
+
+            /** @deprecated tag:v6.5.0 - will be removed without replacement */
             missingElements: [],
+
+            /** @deprecated tag:v6.5.0 - will be removed without replacement */
+            previousRoute: '',
         };
     },
 
@@ -121,6 +127,13 @@ export default {
         return {
             title: this.$createTitle(this.identifier),
         };
+    },
+
+    /** @deprecated tag:v6.5.0 navigation guard can be removed completely */
+    beforeRouteEnter(to, from, next) {
+        next((vm) => {
+            vm.previousRoute = from.name;
+        });
     },
 
     computed: {
@@ -164,6 +177,29 @@ export default {
             return [
                 `is--${this.currentDeviceView}`,
             ];
+        },
+
+        /** @deprecated tag:v6.5.0 - Will be removed, use CMS.TYPE_MAPPING_ENTITIES instead */
+        cmsTypeMappingEntities() {
+            return {
+                product_detail: {
+                    entity: 'product',
+                    mode: 'single',
+                },
+                product_list: {
+                    entity: 'category',
+                    mode: 'single',
+                },
+            };
+        },
+
+        cmsPageTypes() {
+            return {
+                page: this.$tc('sw-cms.detail.label.pageTypeShopPage'),
+                landingpage: this.$tc('sw-cms.detail.label.pageTypeLandingpage'),
+                product_list: this.$tc('sw-cms.detail.label.pageTypeCategory'),
+                product_detail: this.$tc('sw-cms.detail.label.pageTypeProduct'),
+            };
         },
 
         cmsPageTypeSettings() {
@@ -224,6 +260,10 @@ export default {
             const sortCriteria = Criteria.sort('position', 'ASC', true);
 
             criteria
+                .addAssociation('categories')
+                .addAssociation('landingPages')
+                .addAssociation('products.manufacturer')
+
                 .getAssociation('sections')
                 .addSorting(sortCriteria)
                 .addAssociation('backgroundMedia')
@@ -232,16 +272,6 @@ export default {
                 .addSorting(sortCriteria)
                 .addAssociation('backgroundMedia')
                 .addAssociation('slots');
-
-            criteria
-                .getAssociation('categories')
-                .setLimit(25);
-            criteria
-                .getAssociation('landingPages')
-                .setLimit(25);
-
-            criteria.getAssociation('products').setLimit(25);
-            criteria.getAssociation('products.manufacturer').setLimit(25);
 
             return criteria;
         },
@@ -258,6 +288,7 @@ export default {
         currentDeviceView() {
             return this.cmsPageState.currentCmsDeviceView;
         },
+
 
         isProductPage() {
             return this.page.type === CMS.PAGE_TYPES.PRODUCT_DETAIL;
@@ -281,10 +312,6 @@ export default {
             return this.pageErrors.length > 0;
         },
 
-        pageType() {
-            this.cmsPageTypeService.getType(this.page.type);
-        },
-
         ...mapPropertyErrors('page', [
             'name',
             'sections',
@@ -304,11 +331,6 @@ export default {
 
     methods: {
         createdComponent() {
-            Shopware.ExtensionAPI.publishData({
-                id: 'sw-cms-detail__page',
-                path: 'page',
-                scope: this,
-            });
             Shopware.State.commit('adminMenu/collapseSidebar');
 
             const isSystemDefaultLanguage = Shopware.State.getters['context/isSystemDefaultLanguage'];
@@ -320,8 +342,6 @@ export default {
                 this.pageId = this.$route.params.id;
                 this.isLoading = true;
                 const defaultStorefrontId = '8A243080F92E4C719546314B577CF82B';
-
-                Shopware.State.commit('shopwareApps/setSelectedIds', [this.pageId]);
 
                 const criteria = new Criteria(1, 25);
                 criteria.addFilter(
@@ -376,14 +396,23 @@ export default {
             Shopware.State.commit('cmsPageState/removeSelectedSection');
         },
 
+        /** @deprecated tag:v6.5.0 - will be removed without replacement */
+        onBlockNavigatorSort(isCrossSectionMove = false) {
+            if (isCrossSectionMove) {
+                this.loadPage(this.pageId);
+                return;
+            }
+
+            this.onPageUpdate();
+            this.debouncedPageSave();
+        },
+
         loadPage(pageId) {
             this.isLoading = true;
 
-            return this.pageRepository.get(pageId, Shopware.Context.api, this.loadPageCriteria).then((page) => {
+            this.pageRepository.get(pageId, Shopware.Context.api, this.loadPageCriteria).then((page) => {
                 this.page = { sections: [] };
                 this.page = page;
-
-                Shopware.State.commit('cmsPageState/setCurrentPageType', page.type);
 
                 this.cmsDataResolverService.resolve(this.page).then(() => {
                     this.updateSectionAndBlockPositions();
@@ -405,12 +434,6 @@ export default {
                             }
                         });
                     }
-
-                    Shopware.ExtensionAPI.publishData({
-                        id: 'sw-cms-detail__page',
-                        path: 'page',
-                        scope: this,
-                    });
 
                     this.isLoading = false;
                 }).catch((exception) => {
@@ -653,6 +676,10 @@ export default {
                 return Promise.reject();
             }
 
+            if (this.showMissingElementModal) {
+                return Promise.reject();
+            }
+
             return this.onSaveEntity();
         },
 
@@ -734,11 +761,33 @@ export default {
             };
         },
 
-        pageIsValid() {
-            if (localStorage.getItem('cmsMissingElementDontRemind') === 'true') {
-                this.cmsMissingElementDontRemind = true;
-            }
+        /**
+         * @deprecated tag:v6.5.0 - Will be removed without replacement
+         */
+        getRedundantElementsWarning(uniqueSlotCount) {
+            const warningMessages = [];
 
+            Object.entries(uniqueSlotCount).forEach(([key, value]) => {
+                if (value > 1) {
+                    warningMessages.push(
+                        this.$tc('sw-cms.detail.notification.messageRedundantElements', 0, {
+                            name: this.$tc(`sw-cms.elements.${key}.label`),
+                        }),
+                    );
+                }
+            });
+
+            return warningMessages;
+        },
+
+        /**
+         * @deprecated tag:v6.5.0 - Will be removed without replacement
+         */
+        getMissingElements(elements) {
+            return Object.keys(elements).filter((key) => elements[key] === 0);
+        },
+
+        pageIsValid() {
             this.validationWarnings = [];
             Shopware.State.dispatch('error/resetApiErrors');
 
@@ -749,7 +798,7 @@ export default {
                 this.slotValidation(),
             ].every(validation => validation);
 
-            if (!this.cmsMissingElementDontRemind && valid && this.validationWarnings.length > 0) {
+            if (valid && this.validationWarnings.length > 0) {
                 this.showMissingElementModal = true;
             }
 
@@ -938,6 +987,42 @@ export default {
             this.onSave();
         },
 
+        /**
+        * @deprecated tag:v6.5.0 - Superseded by the clone API
+        */
+        cloneBlockInSection(block, section) {
+            const newBlock = this.blockRepository.create();
+
+            const blockClone = cloneDeep(block);
+            blockClone.id = newBlock.id;
+            blockClone.position = block.position + 1;
+            blockClone.sectionId = section.id;
+            blockClone.sectionPosition = block.sectionPosition;
+            blockClone.slots = [];
+
+            Object.assign(newBlock, blockClone);
+
+            this.cloneSlotsInBlock(block, newBlock);
+
+            section.blocks.splice(newBlock.position, 0, newBlock);
+        },
+
+        /**
+        * @deprecated tag:v6.5.0 - Superseded by the clone API
+        */
+        cloneSlotsInBlock(block, newBlock) {
+            block.slots.forEach((slot) => {
+                const element = this.slotRepository.create();
+                element.blockId = newBlock.id;
+                element.slot = slot.slot;
+                element.type = slot.type;
+                element.config = cloneDeep(slot.config);
+                element.data = cloneDeep(slot.data);
+
+                newBlock.slots.push(element);
+            });
+        },
+
         async onSectionDuplicate(section) {
             const behavior = {
                 overwrites: {
@@ -956,13 +1041,31 @@ export default {
             this.onSave();
         },
 
-        onPageTypeChange(pageType) {
-            // if pageType wasn't passed along just assume the page was directly mutated
-            if (typeof pageType === 'string') {
-                Shopware.State.commit('cmsPageState/setCurrentPageType', pageType);
-                this.page.type = pageType;
-            }
+        /**
+        * @deprecated tag:v6.5.0 - Superseded by the clone API
+        */
+        prepareSectionClone(section) {
+            const newSection = this.sectionRepository.create();
 
+            const sectionClone = cloneDeep(section);
+            sectionClone.id = newSection.id;
+            sectionClone.position = section.position + 1;
+            sectionClone.pageId = this.page.id;
+            sectionClone.blocks = [];
+
+            Object.assign(newSection, sectionClone);
+
+            section.blocks.forEach((block) => {
+                this.cloneBlockInSection(block, newSection);
+            });
+
+            this.page.sections.splice(newSection.position, 0, newSection);
+            this.updateSectionAndBlockPositions();
+
+            return newSection;
+        },
+
+        onPageTypeChange() {
             if (this.page.type === CMS.PAGE_TYPES.LISTING) {
                 this.processProductListingType();
             } else {
@@ -1093,6 +1196,11 @@ export default {
             }
         },
 
+        /** @deprecated tag:v6.5.0 method can be removed completely */
+        onConfirmLayoutAssignment() {
+            this.previousRoute = '';
+        },
+
         onOpenLayoutSetAsDefault() {
             this.showLayoutSetAsDefaultModal = true;
         },
@@ -1127,7 +1235,6 @@ export default {
 
         onCloseMissingElementModal() {
             this.showMissingElementModal = false;
-            this.cmsMissingElementDontRemind = false;
 
             this.$nextTick(() => {
                 this.loadPage(this.pageId);
@@ -1135,19 +1242,11 @@ export default {
         },
 
         onSaveMissingElementModal() {
-            if (this.cmsMissingElementDontRemind) {
-                localStorage.setItem('cmsMissingElementDontRemind', true);
-            }
-
             this.showMissingElementModal = false;
 
             this.$nextTick(() => {
                 this.onSaveEntity();
             });
         },
-
-        onChangeDontRemindCheckbox() {
-            this.cmsMissingElementDontRemind = !this.cmsMissingElementDontRemind;
-        },
     },
-};
+});

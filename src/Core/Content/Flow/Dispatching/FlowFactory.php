@@ -5,19 +5,23 @@ namespace Shopware\Core\Content\Flow\Dispatching;
 use Shopware\Core\Content\Flow\Dispatching\Storer\FlowStorer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\FlowEventAware;
-use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
-#[Package('business-ops')]
 class FlowFactory
 {
     /**
+     * @var FlowStorer[]
+     */
+    private iterable $storer;
+
+    /**
      * @param FlowStorer[] $storer
      */
-    public function __construct(private $storer)
+    public function __construct($storer)
     {
+        $this->storer = $storer;
     }
 
     public function create(FlowEventAware $event): StorableFlow

@@ -3,23 +3,28 @@
 namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-#[Package('business-ops')]
 class LineItemPromotedRule extends Rule
 {
-    final public const RULE_NAME = 'cartLineItemPromoted';
+    protected bool $isPromoted;
 
     /**
      * @internal
      */
-    public function __construct(protected bool $isPromoted = false)
+    public function __construct(bool $isPromoted = false)
     {
         parent::__construct();
+
+        $this->isPromoted = $isPromoted;
+    }
+
+    public function getName(): string
+    {
+        return 'cartLineItemPromoted';
     }
 
     public function match(RuleScope $scope): bool
@@ -32,7 +37,7 @@ class LineItemPromotedRule extends Rule
             return false;
         }
 
-        foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
+        foreach ($scope->getCart()->getLineItems()->getFlat() as $lineItem) {
             if ($this->isItemMatching($lineItem)) {
                 return true;
             }

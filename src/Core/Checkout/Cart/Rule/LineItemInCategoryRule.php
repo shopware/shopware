@@ -2,28 +2,39 @@
 
 namespace Shopware\Core\Checkout\Cart\Rule;
 
-use Shopware\Core\Checkout\Cart\CartException;
+use Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-#[Package('business-ops')]
 class LineItemInCategoryRule extends Rule
 {
-    final public const RULE_NAME = 'cartLineItemInCategory';
+    /**
+     * @var array<string>
+     */
+    protected array $categoryIds;
+
+    protected string $operator;
 
     /**
      * @internal
      *
-     * @param list<string> $categoryIds
+     * @param array<string> $categoryIds
      */
-    public function __construct(protected string $operator = self::OPERATOR_EQ, protected array $categoryIds = [])
+    public function __construct(string $operator = self::OPERATOR_EQ, array $categoryIds = [])
     {
         parent::__construct();
+
+        $this->categoryIds = $categoryIds;
+        $this->operator = $operator;
+    }
+
+    public function getName(): string
+    {
+        return 'cartLineItemInCategory';
     }
 
     public function match(RuleScope $scope): bool
@@ -36,7 +47,7 @@ class LineItemInCategoryRule extends Rule
             return false;
         }
 
-        foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
+        foreach ($scope->getCart()->getLineItems()->getFlat() as $lineItem) {
             if ($this->matchesOneOfCategory($lineItem)) {
                 return true;
             }
@@ -62,7 +73,7 @@ class LineItemInCategoryRule extends Rule
 
     /**
      * @throws UnsupportedOperatorException
-     * @throws CartException
+     * @throws PayloadKeyNotFoundException
      */
     private function matchesOneOfCategory(LineItem $lineItem): bool
     {

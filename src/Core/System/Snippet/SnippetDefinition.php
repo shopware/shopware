@@ -16,13 +16,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetDefinition;
 
-#[Package('system-settings')]
 class SnippetDefinition extends EntityDefinition
 {
-    final public const ENTITY_NAME = 'snippet';
+    public const ENTITY_NAME = 'snippet';
 
     public function getEntityName(): string
     {

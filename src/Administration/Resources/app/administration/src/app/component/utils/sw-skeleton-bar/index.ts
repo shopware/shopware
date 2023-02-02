@@ -6,6 +6,7 @@ const { Component } = Shopware;
 /**
  * @private
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-skeleton-bar', {
     template,
 });

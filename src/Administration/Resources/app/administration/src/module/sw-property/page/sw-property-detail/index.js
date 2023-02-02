@@ -1,15 +1,11 @@
-/*
- * @package inventory
- */
-
 import template from './sw-property-detail.html.twig';
 import './sw-property-detail.scss';
 
-const { Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-property-detail', {
     template,
 
     inject: [
@@ -124,11 +120,6 @@ export default {
 
     methods: {
         createdComponent() {
-            Shopware.ExtensionAPI.publishData({
-                id: 'sw-property-group-detail__propertyGroup',
-                path: 'propertyGroup',
-                scope: this,
-            });
             this.loadEntityData();
             this.loadCustomFieldSets();
         },
@@ -188,4 +179,4 @@ export default {
             this.$router.push({ name: 'sw.property.index' });
         },
     },
-};
+});

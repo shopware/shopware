@@ -4,7 +4,6 @@ import ApiService from '../api.service';
  * Custom gateway for the "user/user-recovery" routes
  * @class
  * @extends ApiService
- * @package system-settings
  */
 class UserRecoveryApiService extends ApiService {
     constructor(httpClient, loginService, apiEndpoint = 'user') {

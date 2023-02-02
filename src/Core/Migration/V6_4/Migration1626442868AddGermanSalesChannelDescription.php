@@ -3,13 +3,8 @@
 namespace Shopware\Core\Migration\V6_4;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
-/**
- * @internal
- */
-#[Package('core')]
 class Migration1626442868AddGermanSalesChannelDescription extends MigrationStep
 {
     public function getCreationTimestamp(): int

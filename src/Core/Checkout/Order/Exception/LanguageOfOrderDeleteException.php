@@ -2,14 +2,15 @@
 
 namespace Shopware\Core\Checkout\Order\Exception;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('customer-order')]
 class LanguageOfOrderDeleteException extends ShopwareHttpException
 {
-    public function __construct(?\Throwable $e = null)
+    /**
+     * @deprecated tag:v6.5.0 - $language parameter will be removed
+     */
+    public function __construct(string $language = '', ?\Throwable $e = null)
     {
         parent::__construct('The language is still linked in some orders.', [], $e);
     }

@@ -1,13 +1,10 @@
-/*
- * @package inventory
- */
-
 import template from './sw-product-settings-form.html.twig';
 
+const { Component } = Shopware;
 const { mapPropertyErrors, mapState } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-product-settings-form', {
     template,
 
     props: {
@@ -37,4 +34,4 @@ export default {
             'markAsTopseller',
         ]),
     },
-};
+});

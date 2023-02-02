@@ -7,7 +7,9 @@ use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\Annotation\Entity;
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\Language\Event\LanguageRouteCacheKeyEvent;
 use Shopware\Core\System\Language\Event\LanguageRouteCacheTagsEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -18,20 +20,47 @@ use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('system-settings')]
+/**
+ * @Route(defaults={"_routeScope"={"store-api"}})
+ */
 class CachedLanguageRoute extends AbstractLanguageRoute
 {
-    final public const ALL_TAG = 'language-route';
+    public const ALL_TAG = 'language-route';
+
+    private AbstractLanguageRoute $decorated;
+
+    private CacheInterface $cache;
+
+    private EntityCacheKeyGenerator $generator;
+
+    /**
+     * @var AbstractCacheTracer<LanguageRouteResponse>
+     */
+    private AbstractCacheTracer $tracer;
+
+    private array $states;
+
+    private EventDispatcherInterface $dispatcher;
 
     /**
      * @internal
      *
      * @param AbstractCacheTracer<LanguageRouteResponse> $tracer
-     * @param array<string> $states
      */
-    public function __construct(private readonly AbstractLanguageRoute $decorated, private readonly CacheInterface $cache, private readonly EntityCacheKeyGenerator $generator, private readonly AbstractCacheTracer $tracer, private readonly EventDispatcherInterface $dispatcher, private readonly array $states)
-    {
+    public function __construct(
+        AbstractLanguageRoute $decorated,
+        CacheInterface $cache,
+        EntityCacheKeyGenerator $generator,
+        AbstractCacheTracer $tracer,
+        EventDispatcherInterface $dispatcher,
+        array $states
+    ) {
+        $this->decorated = $decorated;
+        $this->cache = $cache;
+        $this->generator = $generator;
+        $this->tracer = $tracer;
+        $this->states = $states;
+        $this->dispatcher = $dispatcher;
     }
 
     public static function buildName(string $id): string
@@ -44,7 +73,11 @@ class CachedLanguageRoute extends AbstractLanguageRoute
         return $this->decorated;
     }
 
-    #[Route(path: '/store-api/language', name: 'store-api.language', methods: ['GET', 'POST'], defaults: ['_entity' => 'language'])]
+    /**
+     * @Since("6.2.0.0")
+     * @Entity("language")
+     * @Route("/store-api/language", name="store-api.language", methods={"GET", "POST"})
+     */
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): LanguageRouteResponse
     {
         if ($context->hasState(...$this->states)) {
@@ -53,13 +86,11 @@ class CachedLanguageRoute extends AbstractLanguageRoute
 
         $key = $this->generateKey($request, $context, $criteria);
 
-        if ($key === null) {
-            return $this->getDecorated()->load($request, $context, $criteria);
-        }
-
         $value = $this->cache->get($key, function (ItemInterface $item) use ($request, $context, $criteria) {
             $name = self::buildName($context->getSalesChannelId());
-            $response = $this->tracer->trace($name, fn () => $this->getDecorated()->load($request, $context, $criteria));
+            $response = $this->tracer->trace($name, function () use ($request, $context, $criteria) {
+                return $this->getDecorated()->load($request, $context, $criteria);
+            });
 
             $item->tag($this->generateTags($request, $response, $context, $criteria));
 
@@ -69,7 +100,7 @@ class CachedLanguageRoute extends AbstractLanguageRoute
         return CacheValueCompressor::uncompress($value);
     }
 
-    private function generateKey(Request $request, SalesChannelContext $context, Criteria $criteria): ?string
+    private function generateKey(Request $request, SalesChannelContext $context, Criteria $criteria): string
     {
         $parts = [
             $this->generator->getCriteriaHash($criteria),
@@ -79,16 +110,9 @@ class CachedLanguageRoute extends AbstractLanguageRoute
         $event = new LanguageRouteCacheKeyEvent($parts, $request, $context, $criteria);
         $this->dispatcher->dispatch($event);
 
-        if (!$event->shouldCache()) {
-            return null;
-        }
-
         return self::buildName($context->getSalesChannelId()) . '-' . md5(JsonFieldSerializer::encodeJson($event->getParts()));
     }
 
-    /**
-     * @return array<string>
-     */
     private function generateTags(Request $request, StoreApiResponse $response, SalesChannelContext $context, Criteria $criteria): array
     {
         $tags = array_merge(

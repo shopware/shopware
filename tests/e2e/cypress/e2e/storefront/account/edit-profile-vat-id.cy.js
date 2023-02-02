@@ -1,9 +1,6 @@
 import AccountPageObject from '../../../support/pages/account.page-object';
 import SettingsPageObject from '../../../support/pages/module/sw-settings.page-object';
 
-/**
- * @package checkout
- */
 describe('Account: Edit profile\'s Vat Id', () => {
     beforeEach(() => {
         return cy.createCustomerFixtureStorefront().then(() => {
@@ -18,12 +15,12 @@ describe('Account: Edit profile\'s Vat Id', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/system-config/batch`,
-            method: 'POST',
+            method: 'POST'
         }).as('saveSettings');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/country/*`,
-            method: 'PATCH',
+            method: 'PATCH'
         }).as('saveCountry');
 
         cy.get('input[name="core.loginRegistration.showAccountTypeSelection"]').scrollIntoView();

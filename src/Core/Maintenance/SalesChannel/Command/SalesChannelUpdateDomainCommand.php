@@ -3,30 +3,30 @@
 namespace Shopware\Core\Maintenance\SalesChannel\Command;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
-use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(
-    name: 'sales-channel:update:domain',
-    description: 'Updates a sales channel domain',
-)]
-#[Package('core')]
 class SalesChannelUpdateDomainCommand extends Command
 {
+    public static $defaultName = 'sales-channel:update:domain';
+
+    public static $defaultDescription = 'Changes the domain of all sales channels';
+
+    private EntityRepositoryInterface $salesChannelDomainRepository;
+
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $salesChannelDomainRepository)
+    public function __construct(EntityRepositoryInterface $salesChannelDomainRepository)
     {
         parent::__construct();
+        $this->salesChannelDomainRepository = $salesChannelDomainRepository;
     }
 
     protected function configure(): void

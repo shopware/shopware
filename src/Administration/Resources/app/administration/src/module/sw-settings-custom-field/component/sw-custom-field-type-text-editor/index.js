@@ -1,8 +1,6 @@
-/**
- * @package system-settings
- */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+const { Component } = Shopware;
+
+Component.extend('sw-custom-field-type-text-editor', 'sw-custom-field-type-base', {
     data() {
         return {
             propertyNames: {
@@ -11,4 +9,4 @@ export default {
             },
         };
     },
-};
+});

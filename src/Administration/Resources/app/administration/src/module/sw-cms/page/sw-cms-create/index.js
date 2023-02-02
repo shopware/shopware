@@ -1,13 +1,12 @@
 import template from './sw-cms-create.html.twig';
 
-const { Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 const utils = Shopware.Utils;
 
 /**
- * @private
- * @package content
+ * @private since v6.5.0
  */
-export default {
+Component.extend('sw-cms-create', 'sw-cms-detail', {
     template,
 
     mixins: [
@@ -63,7 +62,14 @@ export default {
                 return Promise.reject();
             }
 
-            this.page = await this.assignToEntity(this.page);
+            const { type, id } = this.$route.params;
+            if (type === 'category') {
+                const category = await this.categoryRepository.get(id);
+
+                if (category) {
+                    this.page.categories.add(category);
+                }
+            }
 
             this.deleteEntityAndRequiredConfigKey(this.page.sections);
 
@@ -85,46 +91,13 @@ export default {
             });
         },
 
-        async assignToEntity(page) {
-            const { type, id } = this.$route.params;
-
-            if (!id || !type) {
-                return page;
-            }
-
-            try {
-                if (type === 'category') {
-                    const category = await this.categoryRepository.get(id);
-
-                    if (category) {
-                        page.categories.push(category);
-                    }
-                }
-
-                if (type.startsWith('ce_') || type.startsWith('custom_entity_')) {
-                    const customEntityRepository = this.repositoryFactory.create(type);
-                    const entity = await customEntityRepository.get(id);
-
-                    if (entity) {
-                        page.extensions[`${utils.string.camelCase(type)}SwCmsPage`].push(entity);
-                    }
-                }
-            } catch (e) {
-                this.createNotificationError({
-                    message: this.$tc('sw-cms.create.notification.assignToEntityError'),
-                });
-            }
-
-            return page;
-        },
-
         onWizardComplete() {
             if (this.page.type === 'product_list' || this.page.type === 'product_detail') {
-                this.onPageTypeChange(this.page.type);
+                this.onPageTypeChange();
             }
 
             this.wizardComplete = true;
             this.onSave();
         },
     },
-};
+});

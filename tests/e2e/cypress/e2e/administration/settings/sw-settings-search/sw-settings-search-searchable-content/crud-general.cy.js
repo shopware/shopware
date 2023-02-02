@@ -4,7 +4,10 @@ import SettingsPageObject from '../../../../../support/pages/module/sw-settings.
 
 describe('Product Search: Test crud operations', () => {
     beforeEach(() => {
-        cy.createDefaultFixture('custom-field-set')
+        cy.loginViaApi()
+            .then(() => {
+                return cy.createDefaultFixture('custom-field-set');
+            })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/search/index`);
                 cy.get('.sw-skeleton').should('not.exist');
@@ -23,13 +26,13 @@ describe('Product Search: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/product-search-config-field/*`,
-            method: 'PATCH',
+            method: 'PATCH'
         }).as('updateSearchConfig');
 
         cy.get('.sw-settings-search__view-general .sw-card').eq(1).scrollIntoView();
 
-        cy.get('.sw-settings-search__searchable-content-general').should('exist');
-        cy.get('.sw-settings-search__searchable-content-list').should('be.visible');
+        cy.get('.sw-skeleton.sw-skeleton__detail').should('not.exist');
+
         cy.get(`.sw-settings-search__searchable-content-general ${page.elements.dataGridRow}--0`).dblclick();
 
         cy.get('.sw-settings-search__searchable-content-general ' +
@@ -63,10 +66,9 @@ describe('Product Search: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}//product-search-config-field/*`,
-            method: 'PATCH',
+            method: 'PATCH'
         }).as('updateSearchConfig');
 
-        cy.get('.sw-settings-search__searchable-content-general').should('exist');
         cy.get('.sw-settings-search__searchable-content-general ' +
             `${page.elements.dataGridRow}--0`).dblclick();
 
@@ -95,12 +97,12 @@ describe('Product Search: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/product-search-config-field/*`,
-            method: 'PATCH',
+            method: 'PATCH'
         }).as('updateSearchConfig');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product-search-config-field`,
-            method: 'POST',
+            method: 'POST'
         }).as('getData');
 
         // update the value ranking which is not same default value
@@ -122,7 +124,7 @@ describe('Product Search: Test crud operations', () => {
         cy.clickContextMenuItem(
             '.sw-settings-search__searchable-content-list-reset',
             page.elements.contextMenuButton,
-            `.sw-settings-search__searchable-content-general ${page.elements.dataGridRow}--0`,
+            `.sw-settings-search__searchable-content-general ${page.elements.dataGridRow}--0`
         );
 
         cy.wait('@updateSearchConfig')

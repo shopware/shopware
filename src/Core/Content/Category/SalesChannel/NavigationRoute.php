@@ -14,28 +14,40 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Routing\Annotation\Entity;
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @phpstan-type CategoryMetaInformation array{id: string, level: int, path: string}
+ * @Route(defaults={"_routeScope"={"store-api"}})
  */
-#[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('content')]
 class NavigationRoute extends AbstractNavigationRoute
 {
+    /**
+     * @var SalesChannelRepositoryInterface
+     */
+    private $categoryRepository;
+
+    /**
+     * @var Connection
+     */
+    private $connection;
+
     /**
      * @internal
      */
     public function __construct(
-        private readonly Connection $connection,
-        private readonly SalesChannelRepository $categoryRepository
+        Connection $connection,
+        SalesChannelRepositoryInterface $repository
     ) {
+        $this->categoryRepository = $repository;
+        $this->connection = $connection;
     }
 
     public function getDecorated(): AbstractNavigationRoute
@@ -43,7 +55,11 @@ class NavigationRoute extends AbstractNavigationRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/navigation/{activeId}/{rootId}', name: 'store-api.navigation', methods: ['GET', 'POST'], defaults: ['_entity' => 'category'])]
+    /**
+     * @Since("6.2.0.0")
+     * @Entity("category")
+     * @Route("/store-api/navigation/{activeId}/{rootId}", name="store-api.navigation", methods={"GET", "POST"})
+     */
     public function load(
         string $activeId,
         string $rootId,
@@ -83,9 +99,6 @@ class NavigationRoute extends AbstractNavigationRoute
         return new NavigationRouteResponse($categories);
     }
 
-    /**
-     * @param string[] $ids
-     */
     private function loadCategories(array $ids, SalesChannelContext $context, Criteria $criteria): CategoryCollection
     {
         $criteria->setIds($ids);
@@ -121,9 +134,6 @@ class NavigationRoute extends AbstractNavigationRoute
         return $levels;
     }
 
-    /**
-     * @return array<string, CategoryMetaInformation>
-     */
     private function getCategoryMetaInfo(string $activeId, string $rootId): array
     {
         $result = $this->connection->fetchAllAssociative('
@@ -140,11 +150,6 @@ class NavigationRoute extends AbstractNavigationRoute
         return FetchModeHelper::groupUnique($result);
     }
 
-    /**
-     * @param array<string, CategoryMetaInformation> $metaInfo
-     *
-     * @return CategoryMetaInformation
-     */
     private function getMetaInfoById(string $id, array $metaInfo): array
     {
         if (!\array_key_exists($id, $metaInfo)) {
@@ -154,9 +159,6 @@ class NavigationRoute extends AbstractNavigationRoute
         return $metaInfo[$id];
     }
 
-    /**
-     * @param array<string, CategoryMetaInformation> $metaInfo
-     */
     private function loadChildren(string $activeId, SalesChannelContext $context, string $rootId, array $metaInfo, CategoryCollection $categories, Criteria $criteria): CategoryCollection
     {
         $active = $this->getMetaInfoById($activeId, $metaInfo);
@@ -180,8 +182,6 @@ class NavigationRoute extends AbstractNavigationRoute
 
     /**
      * @param array<string> $childIds
-     *
-     * @return list<string>
      */
     private function getMissingIds(string $activeId, ?string $path, array $childIds, CategoryCollection $alreadyLoaded): array
     {
@@ -191,7 +191,7 @@ class NavigationRoute extends AbstractNavigationRoute
         $included = $alreadyLoaded->getIds();
         $included = array_flip($included);
 
-        return array_values(array_diff($haveToBeIncluded, $included));
+        return array_diff($haveToBeIncluded, $included);
     }
 
     private function validate(string $activeId, ?string $path, SalesChannelContext $context): void
@@ -237,7 +237,7 @@ class NavigationRoute extends AbstractNavigationRoute
             }
 
             $parentId = $category->getParentId();
-            $counts[$parentId] ??= 0;
+            $counts[$parentId] = $counts[$parentId] ?? 0;
             ++$counts[$parentId];
         }
         foreach ($levels as $category) {

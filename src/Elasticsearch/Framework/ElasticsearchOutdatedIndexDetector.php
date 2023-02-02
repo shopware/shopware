@@ -2,21 +2,35 @@
 
 namespace Shopware\Elasticsearch\Framework;
 
-use OpenSearch\Client;
+use Elasticsearch\Client;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageCollection;
 
-#[Package('core')]
 class ElasticsearchOutdatedIndexDetector
 {
+    private Client $client;
+
+    private ElasticsearchRegistry $registry;
+
+    private EntityRepositoryInterface $languageRepository;
+
+    private ElasticsearchHelper $helper;
+
     /**
      * @internal
      */
-    public function __construct(private readonly Client $client, private readonly ElasticsearchRegistry $registry, private readonly EntityRepository $languageRepository, private readonly ElasticsearchHelper $helper)
-    {
+    public function __construct(
+        Client $client,
+        ElasticsearchRegistry $esRegistry,
+        EntityRepositoryInterface $languageRepository,
+        ElasticsearchHelper $helper
+    ) {
+        $this->client = $client;
+        $this->registry = $esRegistry;
+        $this->languageRepository = $languageRepository;
+        $this->helper = $helper;
     }
 
     /**
@@ -49,7 +63,9 @@ class ElasticsearchOutdatedIndexDetector
     {
         $allIndices = $this->getAllIndices();
 
-        return array_map(fn (array $index) => $index['settings']['index']['provided_name'], $allIndices);
+        return array_map(function (array $index) {
+            return $index['settings']['index']['provided_name'];
+        }, $allIndices);
     }
 
     private function getLanguages(): LanguageCollection

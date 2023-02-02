@@ -8,16 +8,15 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductConfiguratorLoader;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_4\Migration1618989442AddProductConfigurationSettingsUniqKey;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 
@@ -26,21 +25,35 @@ use Shopware\Core\Test\TestDefaults;
  * NEXT-21735 - Not deterministic due to SalesChannelContextFactory
  * @group not-deterministic
  */
-#[Package('core')]
 class Migration1618989442AddProductConfigurationSettingsUniqKeyTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use TaxAddToSalesChannelTestBehaviour;
 
-    private EntityRepository $productRepository;
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $productRepository;
 
-    private SalesChannelRepository $salesChannelProductRepository;
+    /**
+     * @var SalesChannelRepositoryInterface
+     */
+    private $salesChannelProductRepository;
 
-    private SalesChannelContext $context;
+    /**
+     * @var SalesChannelContext
+     */
+    private $context;
 
-    private ProductConfiguratorLoader $loader;
+    /**
+     * @var ProductConfiguratorLoader
+     */
+    private $loader;
 
-    private Connection $connection;
+    /**
+     * @var Connection
+     */
+    private $connection;
 
     protected function setUp(): void
     {
@@ -192,29 +205,14 @@ class Migration1618989442AddProductConfigurationSettingsUniqKeyTest extends Test
                 DROP INDEX `uniq.product_configurator_setting.prod_id.vers_id.prop_group_id`
             ');
         }
-
-        if ($this->hasNewIndex()) {
-            $this->connection->executeStatement('
-                ALTER TABLE `product_configurator_setting`
-                DROP INDEX `uniq.product_configurator_setting.p_id.vers_id.prop_group_id.cS`
-            ');
-        }
     }
 
     private function hasIndex(): bool
     {
-        return (bool) $this->connection->executeQuery('
+        return (bool) $this->connection->executeQuery("
             SHOW INDEXES IN `product_configurator_setting`
-            WHERE `Key_name` = \'uniq.product_configurator_setting.prod_id.vers_id.prop_group_id\'
-        ')->fetchOne();
-    }
-
-    private function hasNewIndex(): bool
-    {
-        return (bool) $this->connection->executeQuery('
-            SHOW INDEXES IN `product_configurator_setting`
-            WHERE `Key_name` = \'uniq.product_configurator_setting.p_id.vers_id.prop_group_id.cS\'
-        ')->fetchOne();
+            WHERE `Key_name` = 'uniq.product_configurator_setting.prod_id.vers_id.prop_group_id'
+        ")->fetchOne();
     }
 
     private function insertDuplicateData(): string
@@ -290,7 +288,10 @@ class Migration1618989442AddProductConfigurationSettingsUniqKeyTest extends Test
                 'stock' => 10,
                 'active' => true,
                 'parentId' => $productId,
-                'options' => array_map(fn (array $group) => ['id' => $group[0]], $optionIds),
+                'options' => array_map(function (array $group) {
+                    // Assign first option from each group
+                    return ['id' => $group[0]];
+                }, $optionIds),
             ],
         ];
 

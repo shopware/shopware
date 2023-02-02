@@ -2,14 +2,18 @@
 
 namespace Shopware\Storefront\Theme\Event;
 
-use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('storefront')]
 class ThemeAssignedEvent extends Event
 {
-    public function __construct(private readonly string $themeId, private readonly string $salesChannelId)
+    private string $themeId;
+
+    private string $salesChannelId;
+
+    public function __construct(string $themeId, string $salesChannelId)
     {
+        $this->themeId = $themeId;
+        $this->salesChannelId = $salesChannelId;
     }
 
     public function getThemeId(): string

@@ -2,15 +2,13 @@
 
 namespace Shopware\Administration\Framework\Routing;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\AbstractRouteScope;
 use Shopware\Core\Framework\Routing\ApiContextRouteScopeDependant;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('administration')]
 class AdministrationRouteScope extends AbstractRouteScope implements ApiContextRouteScopeDependant
 {
-    final public const ID = 'administration';
+    public const ID = 'administration';
 
     /**
      * @var string[]

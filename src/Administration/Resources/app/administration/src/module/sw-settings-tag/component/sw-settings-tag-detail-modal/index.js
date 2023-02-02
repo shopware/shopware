@@ -1,11 +1,11 @@
 import template from './sw-settings-tag-detail-modal.html.twig';
 import './sw-settings-tag-detail-modal.scss';
 
-const { Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-settings-tag-detail-modal', {
     template,
 
     inject: [
@@ -104,7 +104,7 @@ export default {
         },
 
         computedCounts() {
-            const counts = { ...this.counts };
+            const counts = Object.assign({}, this.counts);
 
             Object.keys(this.assignmentsToBeDeleted).forEach((propertyName) => {
                 if (!counts.hasOwnProperty(propertyName)) {
@@ -224,4 +224,4 @@ export default {
             this.$set(this.assignmentsToBeDeleted[assignment], id, item);
         },
     },
-};
+});

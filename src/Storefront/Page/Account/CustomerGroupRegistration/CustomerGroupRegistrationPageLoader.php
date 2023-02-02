@@ -3,21 +3,40 @@
 namespace Shopware\Storefront\Page\Account\CustomerGroupRegistration;
 
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractCustomerGroupRegistrationSettingsRoute;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Package('customer-order')]
 class CustomerGroupRegistrationPageLoader extends AbstractCustomerGroupRegistrationPageLoader
 {
     /**
+     * @var AbstractCustomerGroupRegistrationSettingsRoute
+     */
+    private $customerGroupRegistrationRoute;
+
+    /**
+     * @var AccountLoginPageLoader
+     */
+    private $accountLoginPageLoader;
+
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
+    /**
      * @internal
      */
-    public function __construct(private readonly AccountLoginPageLoader $accountLoginPageLoader, private readonly AbstractCustomerGroupRegistrationSettingsRoute $customerGroupRegistrationRoute, private readonly EventDispatcherInterface $eventDispatcher)
-    {
+    public function __construct(
+        AccountLoginPageLoader $accountLoginPageLoader,
+        AbstractCustomerGroupRegistrationSettingsRoute $customerGroupRegistrationRoute,
+        EventDispatcherInterface $eventDispatcher
+    ) {
+        $this->customerGroupRegistrationRoute = $customerGroupRegistrationRoute;
+        $this->accountLoginPageLoader = $accountLoginPageLoader;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function load(Request $request, SalesChannelContext $salesChannelContext): CustomerGroupRegistrationPage
@@ -29,16 +48,12 @@ class CustomerGroupRegistrationPageLoader extends AbstractCustomerGroupRegistrat
             $this->customerGroupRegistrationRoute->load($customerGroupId, $salesChannelContext)->getRegistration()
         );
 
-        if ($page->getMetaInformation()) {
-            $metaDescription = $page->getGroup()->getTranslation('registrationSeoMetaDescription');
-            if ($metaDescription) {
-                $page->getMetaInformation()->setMetaDescription($metaDescription);
-            }
+        if ($metaDescription = $page->getGroup()->getTranslation('registrationSeoMetaDescription')) {
+            $page->getMetaInformation()->setMetaDescription($metaDescription);
+        }
 
-            $title = $page->getGroup()->getTranslation('registrationTitle');
-            if ($title) {
-                $page->getMetaInformation()->setMetaTitle($title);
-            }
+        if ($title = $page->getGroup()->getTranslation('registrationTitle')) {
+            $page->getMetaInformation()->setMetaTitle($title);
         }
 
         $this->eventDispatcher->dispatch(new CustomerGroupRegistrationPageLoadedEvent($page, $salesChannelContext, $request));

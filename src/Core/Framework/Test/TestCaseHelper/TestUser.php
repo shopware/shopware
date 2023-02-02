@@ -12,8 +12,26 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
  */
 class TestUser
 {
-    private function __construct(private readonly string $password, private readonly string $name, private readonly ?string $userId = null)
+    /**
+     * @var string
+     */
+    private $password;
+
+    /**
+     * @var string
+     */
+    private $name;
+
+    /**
+     * @var string|null
+     */
+    private $userId;
+
+    private function __construct(string $password, string $name, ?string $userId = null)
     {
+        $this->password = $password;
+        $this->name = $name;
+        $this->userId = $userId;
     }
 
     public static function getAdmin(): TestUser
@@ -78,7 +96,7 @@ class TestUser
 
         $browser->request('POST', '/api/oauth/token', $authPayload);
 
-        $data = json_decode($browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $data = json_decode($browser->getResponse()->getContent(), true);
 
         if (!\array_key_exists('access_token', $data)) {
             throw new \RuntimeException(
@@ -119,8 +137,8 @@ class TestUser
             ->innerJoin('language', 'locale', 'locale', 'language.locale_id = locale.id')
             ->where('language.id = :id')
             ->setParameter('id', Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM))
-            ->executeQuery()
-            ->fetchOne();
+            ->execute()
+            ->fetchColumn();
     }
 
     private static function buildRole(array $permissions, Connection $connection): ?string
@@ -135,7 +153,7 @@ class TestUser
             'id' => $roleId,
             'name' => $roleName,
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT),
-            'privileges' => json_encode($permissions, \JSON_THROW_ON_ERROR),
+            'privileges' => json_encode($permissions),
         ]);
 
         return $roleId;

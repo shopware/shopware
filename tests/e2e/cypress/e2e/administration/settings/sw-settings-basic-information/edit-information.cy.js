@@ -4,9 +4,12 @@ import SalesChannelPageObject from '../../../../support/pages/module/sw-sales-ch
 
 describe('Basic Informaion: Edit assignments', () => {
     beforeEach(() => {
-        cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/basic/information/index`);
-        cy.get('.sw-skeleton').should('not.exist');
-        cy.get('.sw-loader').should('not.exist');
+        cy.loginViaApi()
+            .then(() => {
+                cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/basic/information/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
+            });
     });
 
     it('@settings: assign 404 error layout and test rollout', { tags: ['pa-system-settings'] }, () => {
@@ -15,7 +18,7 @@ describe('Basic Informaion: Edit assignments', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/system-config/batch`,
-            method: 'POST',
+            method: 'POST'
         }).as('saveData');
 
         // Assign 404 layout to all sales channels
@@ -28,7 +31,7 @@ describe('Basic Informaion: Edit assignments', () => {
         cy.get('.sw-cms-page-select[name="core.basicInformation.http404Page"]')
             .typeSingleSelectAndCheck(
                 '404 Layout',
-                '.sw-cms-page-select[name="core.basicInformation.http404Page"] .sw-entity-single-select',
+                '.sw-cms-page-select[name="core.basicInformation.http404Page"] .sw-entity-single-select'
             );
 
         cy.get('.smart-bar__content .sw-button--primary').click();
@@ -51,12 +54,12 @@ describe('Basic Informaion: Edit assignments', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/system-config/batch`,
-            method: 'POST',
+            method: 'POST'
         }).as('saveSettings');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/sales-channel/*`,
-            method: 'PATCH',
+            method: 'PATCH'
         }).as('saveSalesChannel');
 
         // Assign Maintenance layout to all sales channels
@@ -69,7 +72,7 @@ describe('Basic Informaion: Edit assignments', () => {
         cy.get('.sw-cms-page-select[name="core.basicInformation.maintenancePage"]')
             .typeSingleSelectAndCheck(
                 'Maintenance',
-                '.sw-cms-page-select[name="core.basicInformation.maintenancePage"] .sw-entity-single-select',
+                '.sw-cms-page-select[name="core.basicInformation.maintenancePage"] .sw-entity-single-select'
             );
 
         cy.get('.smart-bar__content .sw-button--primary').click();
@@ -98,7 +101,7 @@ describe('Basic Informaion: Edit assignments', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/sales-channel/*`,
-            method: 'PATCH',
+            method: 'PATCH'
         }).as('saveSalesChannel');
 
         salesChannelPage.openSalesChannel('Storefront', 1);
@@ -113,14 +116,14 @@ describe('Basic Informaion: Edit assignments', () => {
         cy.contains('.content-main h1', 'Maintenance mode');
     });
 
-    it('@settings: change active captcha and test input field show when google recaptcha selected', { tags: ['pa-system-settings'] }, () => {
+    // NEXT-16105 - Flaky, looks like the test does not wait for the clear of the multi select
+    it('@settings: change active captcha and test input field show when google recaptcha selected', { tags: ['quarantined', 'pa-system-settings'] }, () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/system-config/batch`,
-            method: 'POST',
+            method: 'POST'
         }).as('saveData');
 
-        cy.get('.sw-card.sw-system-config__card--3').scrollIntoView();
         cy.get('.sw-card.sw-system-config__card--3').should('be.visible');
         cy.contains('.sw-card.sw-system-config__card--3 .sw-card__title', 'CAPTCHA');
         cy.get('.sw-settings-captcha-select-v2').scrollIntoView();
@@ -131,11 +134,9 @@ describe('Basic Informaion: Edit assignments', () => {
         cy.get('.sw-settings-captcha-select-v2 .sw-multi-select input').clear();
         cy.get('.sw-settings-captcha-select-v2 .sw-multi-select input').should('be.empty');
 
-        cy.get('.sw-settings-captcha-select-v2 .sw-multi-select input').type('3');
-        cy.get('.sw-select-result').should('be.visible');
-        cy.get('.sw-select-result.sw-select-option--0').contains('Google reCAPTCHA v3').click();
+        cy.get('.sw-settings-captcha-select-v2 .sw-multi-select')
+            .typeMultiSelectAndCheck('Google reCAPTCHA v3');
 
-        cy.get('.sw-settings-captcha-select-v2__google-recaptcha-v3').scrollIntoView();
         cy.get('.sw-settings-captcha-select-v2__google-recaptcha-v3 input[name="googleReCaptchaV3ThresholdScore"]').clear().type('0.5');
 
         cy.get('.smart-bar__content .sw-button--primary').click();

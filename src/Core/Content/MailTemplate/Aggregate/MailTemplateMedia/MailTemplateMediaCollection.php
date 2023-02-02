@@ -4,12 +4,10 @@ namespace Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateMedia;
 
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<MailTemplateMediaEntity>
  */
-#[Package('sales-channel')]
 class MailTemplateMediaCollection extends EntityCollection
 {
     /**
@@ -17,12 +15,16 @@ class MailTemplateMediaCollection extends EntityCollection
      */
     public function getMailTemplateIds(): array
     {
-        return $this->fmap(fn (MailTemplateMediaEntity $mailTemplateAttachment) => $mailTemplateAttachment->getMailTemplateId());
+        return $this->fmap(function (MailTemplateMediaEntity $mailTemplateAttachment) {
+            return $mailTemplateAttachment->getMailTemplateId();
+        });
     }
 
     public function filterByMailTemplateId(string $id): self
     {
-        return $this->filter(fn (MailTemplateMediaEntity $mailTemplateMedia) => $mailTemplateMedia->getMailTemplateId() === $id);
+        return $this->filter(function (MailTemplateMediaEntity $mailTemplateMedia) use ($id) {
+            return $mailTemplateMedia->getMailTemplateId() === $id;
+        });
     }
 
     /**
@@ -30,18 +32,24 @@ class MailTemplateMediaCollection extends EntityCollection
      */
     public function getMediaIds(): array
     {
-        return $this->fmap(fn (MailTemplateMediaEntity $mailTemplateMedia) => $mailTemplateMedia->getMediaId());
+        return $this->fmap(function (MailTemplateMediaEntity $mailTemplateMedia) {
+            return $mailTemplateMedia->getMediaId();
+        });
     }
 
     public function filterByMediaId(string $id): self
     {
-        return $this->filter(fn (MailTemplateMediaEntity $mailTemplateMedia) => $mailTemplateMedia->getMediaId() === $id);
+        return $this->filter(function (MailTemplateMediaEntity $mailTemplateMedia) use ($id) {
+            return $mailTemplateMedia->getMediaId() === $id;
+        });
     }
 
     public function getMedia(): MediaCollection
     {
         return new MediaCollection(
-            $this->fmap(fn (MailTemplateMediaEntity $mailTemplateMedia) => $mailTemplateMedia->getMedia())
+            $this->fmap(function (MailTemplateMediaEntity $mailTemplateMedia) {
+                return $mailTemplateMedia->getMedia();
+            })
         );
     }
 

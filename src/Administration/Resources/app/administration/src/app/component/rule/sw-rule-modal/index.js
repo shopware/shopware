@@ -6,8 +6,6 @@ const { EntityCollection, Criteria } = Shopware.Data;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
 /**
- * @private
- * @package business-ops
  * @status ready
  * @description The <u>sw-rule-modal</u> component is used to create or modify a rule.
  * @example-type code-only
@@ -15,6 +13,7 @@ const { mapPropertyErrors } = Component.getComponentHelper();
  * <sw-rule-modal ruleId="0fd38734776f41e9a1ba431f1667e677" @save="onSave" @modal-close="onCloseModal">
  * </sw-rule-modal>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-rule-modal', {
     template,
 
@@ -96,6 +95,10 @@ Component.register('sw-rule-modal', {
             const context = { ...Context.api, languageId: Shopware.State.get('session').languageId };
             const criteria = new Criteria(1, 500);
 
+            if (!this.feature.isActive('v6.5.0.0')) {
+                return this.appScriptConditionRepository.search(criteria, context);
+            }
+
             return Promise.all([
                 this.appScriptConditionRepository.search(criteria, context),
                 this.ruleConditionsConfigApiService.load(),
@@ -117,7 +120,9 @@ Component.register('sw-rule-modal', {
             );
 
             const titleSaveError = this.$tc('global.default.error');
-            const messageSaveError = this.$tc('sw-rule-modal.messageSaveError', 0, { name: this.rule.name });
+            const messageSaveError = this.$tc(
+                'sw-rule-modal.messageSaveError', 0, { name: this.rule.name },
+            );
 
             this.isLoading = true;
             return this.ruleRepository.save(this.rule, Context.api).then(() => {

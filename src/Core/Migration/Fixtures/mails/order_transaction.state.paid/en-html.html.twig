@@ -112,11 +112,9 @@ Order number: {{ order.orderNumber }}<br>
     {{ order.transactions.first.paymentMethod.translated.description }}<br>
     <br>
 
-    {% if delivery %}
-        <strong>Selected shipping type:</strong> {{ delivery.shippingMethod.translated.name }}<br>
-        {{ delivery.shippingMethod.translated.description }}<br>
-        <br>
-    {% endif %}
+    <strong>Selected shipping type:</strong> {{ delivery.shippingMethod.translated.name }}<br>
+    {{ delivery.shippingMethod.translated.description }}<br>
+    <br>
 
     {% set billingAddress = order.addresses.get(order.billingAddressId) %}
     <strong>Billing address:</strong><br>
@@ -127,15 +125,13 @@ Order number: {{ order.orderNumber }}<br>
     {{ billingAddress.country.translated.name }}<br>
     <br>
 
-    {% if delivery %}
-        <strong>Shipping address:</strong><br>
-        {{ delivery.shippingOrderAddress.company }}<br>
-        {{ delivery.shippingOrderAddress.firstName }} {{ delivery.shippingOrderAddress.lastName }}<br>
-        {{ delivery.shippingOrderAddress.street }} <br>
-        {{ delivery.shippingOrderAddress.zipcode}} {{ delivery.shippingOrderAddress.city }}<br>
-        {{ delivery.shippingOrderAddress.country.translated.name }}<br>
-        <br>
-    {% endif %}
+    <strong>Shipping address:</strong><br>
+    {{ delivery.shippingOrderAddress.company }}<br>
+    {{ delivery.shippingOrderAddress.firstName }} {{ delivery.shippingOrderAddress.lastName }}<br>
+    {{ delivery.shippingOrderAddress.street }} <br>
+    {{ delivery.shippingOrderAddress.zipcode}} {{ delivery.shippingOrderAddress.city }}<br>
+    {{ delivery.shippingOrderAddress.country.translated.name }}<br>
+    <br>
     {% if order.orderCustomer.vatIds %}
         Your VAT-ID: {{ order.orderCustomer.vatIds|first }}
         In case of a successful order and if you are based in one of the EU countries, you will receive your goods exempt from turnover tax.<br>

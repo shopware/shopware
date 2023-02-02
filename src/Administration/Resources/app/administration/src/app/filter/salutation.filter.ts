@@ -1,7 +1,3 @@
-/**
- * @package admin
- */
-
 const { Filter, Defaults } = Shopware;
 
 type SalutationType = {
@@ -42,7 +38,5 @@ Filter.register('salutation', (
     return fullName;
 });
 
-/**
- * @deprecated tag:v6.6.0 - Will be private
- */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {};

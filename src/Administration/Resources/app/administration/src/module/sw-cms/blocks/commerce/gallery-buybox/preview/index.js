@@ -1,10 +1,11 @@
 import template from './sw-cms-preview-gallery-buybox.html.twig';
 import './sw-cms-preview-gallery-buybox.scss';
 
+const { Component } = Shopware;
+
 /**
- * @private
- * @package content
+ * @private since v6.5.0
  */
-export default {
+Component.register('sw-cms-preview-gallery-buybox', {
     template,
-};
+});

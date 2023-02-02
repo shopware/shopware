@@ -3,10 +3,7 @@ import './sw-condition-operator-select.scss';
 
 const { Component } = Shopware;
 
-/**
- * @private
- * @package business-ops
- */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-condition-operator-select', {
     template: template,
 
@@ -48,10 +45,8 @@ Component.register('sw-condition-operator-select', {
             },
             set(operator) {
                 if (!this.condition.value) {
-                    // eslint-disable-next-line vue/no-mutating-props
                     this.condition.value = {};
                 }
-                // eslint-disable-next-line vue/no-mutating-props
                 this.condition.value = { ...this.condition.value, operator };
             },
         },

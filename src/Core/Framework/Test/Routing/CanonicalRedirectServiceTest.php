@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class CanonicalRedirectServiceTest extends TestCase
 {
-    final public const CONFIG_KEY = 'core.seo.redirectToCanonicalUrl';
+    public const CONFIG_KEY = 'core.seo.redirectToCanonicalUrl';
 
     /**
      * @dataProvider requestDataProvider

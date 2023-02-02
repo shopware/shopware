@@ -2,15 +2,13 @@
 
 namespace Shopware\Core\Framework\Rule\Container;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-#[Package('business-ops
-OrRule returns true, if at least one child rule is true')]
+/**
+ * OrRule returns true, if at least one child rule is true
+ */
 class OrRule extends Container
 {
-    final public const RULE_NAME = 'orContainer';
-
     public function match(RuleScope $scope): bool
     {
         foreach ($this->rules as $rule) {
@@ -20,5 +18,10 @@ class OrRule extends Container
         }
 
         return false;
+    }
+
+    public function getName(): string
+    {
+        return 'orContainer';
     }
 }

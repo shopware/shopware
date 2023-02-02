@@ -1,15 +1,11 @@
 import template from './sw-customer-list.html.twig';
 import './sw-customer-list.scss';
 
-/**
- * @package customer-order
- */
-
-const { Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-customer-list', {
     template,
 
     inject: ['repositoryFactory', 'acl', 'filterFactory', 'feature'],
@@ -31,6 +27,16 @@ export default {
             filterLoading: false,
             availableAffiliateCodes: [],
             availableCampaignCodes: [],
+
+            /** @deprecated tag:v6.5.0 - values will be handled by filterFactory */
+            affiliateCodeFilter: [],
+
+            /** @deprecated tag:v6.5.0 - values will be handled by filterFactory */
+            campaignCodeFilter: [],
+
+            /** @deprecated tag:v6.5.0 - values will be handled by filterFactory */
+            showOnlyCustomerGroupRequests: false,
+
             filterCriteria: [],
             defaultFilters: [
                 'affiliate-code-filter',
@@ -357,6 +363,24 @@ export default {
                 });
         },
 
+        /** @deprecated tag:v6.5.0 - will be handled by filterFactory */
+        onChangeAffiliateCodeFilter(value) {
+            this.affiliateCodeFilter = value;
+            this.getList();
+        },
+
+        /** @deprecated tag:v6.5.0 - will be handled by filterFactory */
+        onChangeCampaignCodeFilter(value) {
+            this.campaignCodeFilter = value;
+            this.getList();
+        },
+
+        /** @deprecated tag:v6.5.0 - will be handled by filterFactory */
+        onChangeRequestedGroupFilter(value) {
+            this.showOnlyCustomerGroupRequests = value;
+            this.getList();
+        },
+
         updateCriteria(criteria) {
             this.page = 1;
             this.filterCriteria = criteria;
@@ -375,4 +399,4 @@ export default {
             this.showBulkEditModal = false;
         },
     },
-};
+});

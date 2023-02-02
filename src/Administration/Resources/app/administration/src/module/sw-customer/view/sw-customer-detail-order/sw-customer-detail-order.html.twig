@@ -27,7 +27,7 @@
                     @click="navigateToCreateOrder"
                 >
                     <sw-icon
-                        name="regular-plus-circle-s"
+                        name="small-default-plus-circle"
                         small
                     />
                     {{ $tc('sw-customer.detailOrder.buttonCreateOrder') }}
@@ -71,6 +71,10 @@
                 {{ item.amountTotal | currency(item.currency.shortName) }}
             </template>
             {% endblock %}
+
+            {# @deprecated tag:v6.5.0 - block will be removed - Use block `sw_customer_detail_order_card_grid_columns_order_date_time` instead #}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_customer_detail_order_card_grid_columns_date %}{% endblock %}
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_customer_detail_order_card_grid_columns_order_date_time %}

@@ -6,11 +6,10 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
-use Shopware\Core\Content\Property\PropertyGroupEntity;
 use Shopware\Core\Content\Test\Product\SalesChannel\Fixture\ListingTestData;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\EntityResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -29,19 +28,40 @@ class ProductListingTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;
 
-    private string $categoryId;
+    /**
+     * @var string
+     */
+    private $categoryId;
 
-    private ListingTestData $testData;
+    /**
+     * @var ListingTestData
+     */
+    private $testData;
 
-    private string $categoryStreamId;
+    /**
+     * @var string
+     */
+    private $categoryStreamId;
 
-    private Context $context;
+    /**
+     * @var Context
+     */
+    private $context;
 
-    private string $productIdWidth100;
+    /**
+     * @var string
+     */
+    private $productIdWidth100;
 
-    private string $productIdWidth150;
+    /**
+     * @var string
+     */
+    private $productIdWidth150;
 
-    private string $salesChannelId;
+    /**
+     * @var string
+     */
+    private $salesChannelId;
 
     protected function setUp(): void
     {
@@ -209,7 +229,6 @@ class ProductListingTest extends TestCase
         $propertyGroups = $result->getEntities();
         $propertyGroupIds = [];
 
-        /** @var PropertyGroupEntity $propertyGroup */
         foreach ($propertyGroups as $propertyGroup) {
             $propertyGroupIds[] = $propertyGroup->getId();
         }
@@ -222,8 +241,6 @@ class ProductListingTest extends TestCase
 
     /**
      * Small helper function which asserts the one of the provided pool ids are in the result set but the remaining ids are excluded.
-     *
-     * @param array<string> $pool
      */
     private static function assertVariationsInListing(EntitySearchResult $result, array $pool): void
     {
@@ -287,10 +304,6 @@ class ProductListingTest extends TestCase
         );
     }
 
-    /**
-     * @param array<array<string>> $options
-     * @param array<string> $listingGroups
-     */
     private function createProduct(string $key, array $options, array $listingGroups): void
     {
         $config = [];
@@ -313,9 +326,7 @@ class ProductListingTest extends TestCase
         $data = [
             [
                 'id' => $id,
-                'variantListingConfig' => [
-                    'configuratorGroupConfig' => $config,
-                ],
+                'configuratorGroupConfig' => $config,
                 'productNumber' => $id,
                 'manufacturer' => ['name' => 'test'],
                 'tax' => ['taxRate' => 19, 'name' => 'test'],
@@ -349,7 +360,9 @@ class ProductListingTest extends TestCase
                     'name' => $variantKey,
                     'active' => true,
                     'parentId' => $this->testData->getId($key),
-                    'options' => array_map(static fn ($id) => ['id' => $id], $combination),
+                    'options' => array_map(static function ($id) {
+                        return ['id' => $id];
+                    }, $combination),
                 ];
             }
         }
@@ -359,16 +372,7 @@ class ProductListingTest extends TestCase
         $repo->create($data, Context::createDefaultContext());
     }
 
-    /**
-     * Rec. Function to find all possible combinations of $data input
-     *
-     * @param array<array<string>> $data
-     * @param array<array<string>>$all
-     * @param array<string> $group
-     *
-     * @return array<array<string>>
-     */
-    private function combos(array $data, &$all = [], $group = [], ?string $val = null, int $i = 0): array
+    private function combos(array $data, &$all = [], $group = [], $val = null, $i = 0): array
     {
         if (isset($val)) {
             $group[] = $val;
@@ -424,7 +428,7 @@ class ProductListingTest extends TestCase
             ],
         ];
 
-        /** @var EntityRepository $repo */
+        /** @var EntityRepositoryInterface $repo */
         $repo = $this->getContainer()->get('property_group.repository');
         $repo->create($data, Context::createDefaultContext());
     }
@@ -467,9 +471,6 @@ class ProductListingTest extends TestCase
             ->create([['id' => $categoryStreamId, 'productStreamId' => $streamId, 'name' => 'test', 'parentId' => null, 'productAssignmentType' => 'product_stream']], Context::createDefaultContext());
     }
 
-    /**
-     * @return array<array{id: string, productNumber: string, width: string, stock: int, name: string}>
-     */
     private function createProducts(): array
     {
         $ids = new TestDataCollection();

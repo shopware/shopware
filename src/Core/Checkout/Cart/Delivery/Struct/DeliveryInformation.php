@@ -2,10 +2,8 @@
 
 namespace Shopware\Core\Checkout\Cart\Delivery\Struct;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('checkout')]
 class DeliveryInformation extends Struct
 {
     /**
@@ -14,7 +12,9 @@ class DeliveryInformation extends Struct
     protected $stock;
 
     /**
-     * @var float|null
+     * @deprecated tag:v6.5.0 - Type will change to ?float
+     *
+     * @var float
      */
     protected $weight;
 
@@ -59,7 +59,7 @@ class DeliveryInformation extends Struct
         ?float $length = null
     ) {
         $this->stock = $stock;
-        $this->weight = $weight;
+        $this->weight = (float) $weight; // Cast has to be removed, if type of weight has changed
         $this->freeDelivery = $freeDelivery;
         $this->restockTime = $restockTime;
         $this->deliveryTime = $deliveryTime;
@@ -78,7 +78,10 @@ class DeliveryInformation extends Struct
         $this->stock = $stock;
     }
 
-    public function getWeight(): ?float
+    /**
+     * @deprecated tag:v6.5.0 - reason:return-type-change - return type will be changed to ?float
+     */
+    public function getWeight(): float /* ?float */
     {
         return $this->weight;
     }

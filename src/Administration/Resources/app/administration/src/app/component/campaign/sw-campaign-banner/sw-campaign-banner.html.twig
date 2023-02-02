@@ -1,0 +1,66 @@
+<sw-meteor-card class="sw-campaign-banner">
+    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
+    <div
+        class="sw-campaign-banner__container"
+        :style="containerStyles"
+        @click="handleBannerClick"
+    >
+        <div
+            class="sw-campaign-banner__image"
+            :style="{ background: leftImageBgColor }"
+            :class="imageClasses"
+        >
+            <img
+                :src="leftImage"
+                :srcset="leftImageSourceSet"
+                alt=""
+            >
+        </div>
+
+        <div class="sw-campaign-banner__content">
+            <div class="sw-campaign-banner__text">
+                <span
+                    v-if="labelText"
+                    class="sw-campaign-banner__label"
+                    :style="labelStyles"
+                >
+                    {{ labelText }}
+                </span>
+
+                <h3
+                    :style="{ color: textColor }"
+                    v-html="headline"
+                ></h3>
+
+                <p
+                    :style="{ color: textColor }"
+                >
+                    <i18n :path="'marketing.' + componentName + '.content.description.text'">
+                        <template
+                            v-for="slot in inlineActionsSlots"
+                            #[slot.placeholder]
+                        >
+                            <a
+                                :key="slot.placeholder"
+                                :class="'sw-campaign-banner__description-action-' + slot.placeholder"
+                                :style="{ color: linkColor }"
+                                href="#"
+                                @click.prevent.stop="slot.clickHandler"
+                            >{{ slot.text }}</a>
+                        </template>
+                    </i18n>
+                </p>
+            </div>
+
+            <div class="sw-campaign-banner__action">
+                <component
+                    :is="actionComponent.name"
+                    v-if="actionComponent"
+                    v-bind="actionComponent.props"
+                    v-on="actionComponent.handlers"
+                    v-text="actionComponent.text"
+                />
+            </div>
+        </div>
+    </div>
+</sw-meteor-card>

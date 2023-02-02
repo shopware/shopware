@@ -12,8 +12,7 @@ use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Checkout\Test\Payment\Handler\V630\AsyncTestPaymentHandler as AsyncTestPaymentHandlerV630;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
@@ -25,7 +24,6 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 /**
  * @internal
  */
-#[Package('checkout')]
 class HandlePaymentMethodRouteResponseTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -33,13 +31,13 @@ class HandlePaymentMethodRouteResponseTest extends TestCase
 
     private KernelBrowser $browser;
 
-    private EntityRepository $orderRepository;
+    private EntityRepositoryInterface $orderRepository;
 
-    private EntityRepository $customerRepository;
+    private EntityRepositoryInterface $customerRepository;
 
-    private EntityRepository $orderTransactionRepository;
+    private EntityRepositoryInterface $orderTransactionRepository;
 
-    private EntityRepository $paymentMethodRepository;
+    private EntityRepositoryInterface $paymentMethodRepository;
 
     private TestDataCollection $ids;
 
@@ -68,7 +66,7 @@ class HandlePaymentMethodRouteResponseTest extends TestCase
             );
 
         static::assertIsString($this->browser->getResponse()->getContent());
-        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('errors', $response);
         static::assertSame('VIOLATION::IS_BLANK_ERROR', $response['errors'][0]['code']);
@@ -86,7 +84,7 @@ class HandlePaymentMethodRouteResponseTest extends TestCase
             );
 
         static::assertIsString($this->browser->getResponse()->getContent());
-        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('errors', $response);
         static::assertSame('CHECKOUT__INVALID_ORDER_ID', $response['errors'][0]['code']);
@@ -109,7 +107,7 @@ class HandlePaymentMethodRouteResponseTest extends TestCase
             );
 
         static::assertIsString($this->browser->getResponse()->getContent());
-        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
         static::assertArrayHasKey('redirectUrl', $response);
         static::assertSame(AsyncTestPaymentHandlerV630::REDIRECT_URL, $response['redirectUrl']);
     }

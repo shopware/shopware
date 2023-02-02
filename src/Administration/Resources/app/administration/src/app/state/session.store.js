@@ -1,7 +1,3 @@
-/**
- * @package admin
- */
-
 const { Application } = Shopware;
 const debug = Shopware.Utils.debug;
 

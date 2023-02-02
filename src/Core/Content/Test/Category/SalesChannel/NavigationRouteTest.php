@@ -7,7 +7,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
-use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
  * @internal
@@ -18,9 +17,15 @@ class NavigationRouteTest extends TestCase
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
-    private KernelBrowser $browser;
+    /**
+     * @var \Symfony\Bundle\FrameworkBundle\KernelBrowser
+     */
+    private $browser;
 
-    private TestDataCollection $ids;
+    /**
+     * @var TestDataCollection
+     */
+    private $ids;
 
     protected function setUp(): void
     {
@@ -46,7 +51,7 @@ class NavigationRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertCount(2, $response);
         static::assertSame('Toys', $response[0]['name']);
@@ -66,7 +71,7 @@ class NavigationRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertCount(5, $response);
         static::assertArrayHasKey('name', $response[0]);
@@ -93,7 +98,7 @@ class NavigationRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertCount(5, $response);
         static::assertArrayHasKey('name', $response[0]);
@@ -121,7 +126,7 @@ class NavigationRouteTest extends TestCase
                     ]
                 );
 
-            $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+            $response = json_decode($this->browser->getResponse()->getContent(), true);
 
             static::assertCount(2, $response);
             $ids = array_column($response, 'id');
@@ -154,7 +159,7 @@ class NavigationRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('errors', $response);
         static::assertSame('FRAMEWORK__INVALID_UUID', $response['errors'][0]['code']);
@@ -170,7 +175,7 @@ class NavigationRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertCount(2, $response);
         static::assertSame('Toys', $response[0]['name']);
@@ -190,7 +195,7 @@ class NavigationRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         // root is Toys
         static::assertCount(1, $response);
@@ -209,7 +214,7 @@ class NavigationRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         // root is Toys
         static::assertCount(1, $response);
@@ -231,7 +236,7 @@ class NavigationRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertCount(1, $response);
         static::assertArrayHasKey('name', $response[0]);

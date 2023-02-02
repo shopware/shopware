@@ -103,12 +103,6 @@
         "socialMediaLinks": "Social media links",
         "favicon": "Favicon",
         "shopLogo": "Shop logo"
-      },
-      "error": {
-        "themeCompile": {
-          "title": "Error compiling theme",
-          "message": "The theme could not be compiled. Please check the full error message to resolve this issue."
-        }
       }
     },
     "themeModal": {

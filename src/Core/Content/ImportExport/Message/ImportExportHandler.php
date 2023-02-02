@@ -7,25 +7,35 @@ use Shopware\Core\Content\ImportExport\Exception\ProcessingException;
 use Shopware\Core\Content\ImportExport\ImportExportFactory;
 use Shopware\Core\Content\ImportExport\Struct\Progress;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Log\Package;
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
+use Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
 
-/**
- * @internal
- */
-#[AsMessageHandler]
-#[Package('system-settings')]
-final class ImportExportHandler
+class ImportExportHandler extends AbstractMessageHandler
 {
+    private MessageBusInterface $messageBus;
+
+    private ImportExportFactory $importExportFactory;
+
     /**
      * @internal
      */
-    public function __construct(private readonly MessageBusInterface $messageBus, private readonly ImportExportFactory $importExportFactory)
+    public function __construct(MessageBusInterface $messageBus, ImportExportFactory $importExportFactory)
     {
+        $this->messageBus = $messageBus;
+        $this->importExportFactory = $importExportFactory;
     }
 
-    public function __invoke(ImportExportMessage $message): void
+    public static function getHandledMessages(): iterable
+    {
+        return [
+            ImportExportMessage::class,
+        ];
+    }
+
+    /**
+     * @param ImportExportMessage $message
+     */
+    public function handle($message): void
     {
         $importExport = $this->importExportFactory->create($message->getLogId(), 50, 50);
         $logEntity = $importExport->getLogEntity();

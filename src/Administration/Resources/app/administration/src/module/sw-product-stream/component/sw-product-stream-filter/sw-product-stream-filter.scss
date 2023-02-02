@@ -53,14 +53,7 @@ $sw-condition-base-z-index-arrow: 100;
         display: none;
     }
 
-    &.has--error {
-        .sw-product-stream-filter__container {
-            border: 1px solid $color-crimson-500;
-            background: $color-crimson-50;
-        }
-
-        .sw-product-stream-filter__context-button {
-            border-left: 1px solid $color-crimson-500;
-        }
+    &.has--error .sw-product-stream-filter__container {
+        border: 1px solid $color-crimson-500;
     }
 }

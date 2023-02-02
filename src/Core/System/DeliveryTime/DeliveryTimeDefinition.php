@@ -16,13 +16,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\DeliveryTime\Aggregate\DeliveryTimeTranslation\DeliveryTimeTranslationDefinition;
 
-#[Package('customer-order')]
 class DeliveryTimeDefinition extends EntityDefinition
 {
-    final public const ENTITY_NAME = 'delivery_time';
+    public const ENTITY_NAME = 'delivery_time';
 
     public function getEntityName(): string
     {

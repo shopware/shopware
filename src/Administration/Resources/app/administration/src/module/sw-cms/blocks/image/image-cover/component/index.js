@@ -1,10 +1,11 @@
 import template from './sw-cms-block-image-cover.html.twig';
 import './sw-cms-block-image-cover.scss';
 
+const { Component } = Shopware;
+
 /**
- * @private
- * @package content
+ * @private since v6.5.0
  */
-export default {
+Component.register('sw-cms-block-image-cover', {
     template,
-};
+});

@@ -2,10 +2,8 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Pricing;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('core')]
 class Price extends Struct
 {
     /**

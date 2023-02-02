@@ -37,7 +37,12 @@ class PackageProviderTest extends TestCase
         $pluginPath = __DIR__ . '/invalid_path';
 
         $this->expectException(PluginComposerJsonInvalidException::class);
-        $this->expectExceptionMessage('The file "' . $pluginPath . '/composer.json" is not readable.');
+
+        if (\PHP_VERSION_ID >= 80000) {
+            $this->expectExceptionMessage('Failed to open stream: No such file or directory');
+        } else {
+            $this->expectExceptionMessage('failed to open stream: No such file or directory');
+        }
 
         $packageProvider->getPluginComposerPackage($pluginPath, new NullIO());
     }

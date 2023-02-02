@@ -8,6 +8,8 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
+use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
+use Shopware\Core\Checkout\Cart\Rule\CartAmountRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition;
@@ -17,10 +19,10 @@ use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PrePayment;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\Framework\Test\TestDataCollection;
@@ -33,7 +35,6 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[Package('customer-order')]
 class OrderStateChangeEventListenerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -103,6 +104,93 @@ class OrderStateChangeEventListenerTest extends TestCase
                 ),
                 Context::createDefaultContext()
             );
+    }
+
+    public function testReEvaluateRuleForOrderContext(): void
+    {
+        $ids = new TestDataCollection();
+        $this->createCustomer($ids);
+        $this->createOrder($ids);
+        $ruleId = Uuid::randomHex();
+        $rule = [
+            'id' => $ruleId,
+            'name' => 'Test rule',
+            'priority' => 1,
+            'conditions' => [
+                ['type' => (new AlwaysValidRule())->getName()],
+            ],
+        ];
+
+        // Create rule after create order
+        $this->getContainer()->get('rule.repository')
+            ->create([$rule], Context::createDefaultContext());
+
+        $validator = new RuleValidator();
+        $this->getContainer()
+            ->get('event_dispatcher')
+            ->addListener('state_enter.order.state.in_progress', $validator);
+
+        $this->getContainer()
+            ->get(StateMachineRegistry::class)
+            ->transition(
+                new Transition(
+                    OrderDefinition::ENTITY_NAME,
+                    $ids->get('order'),
+                    StateMachineTransitionActions::ACTION_PROCESS,
+                    'stateId'
+                ),
+                Context::createDefaultContext()
+            );
+
+        $event = $validator->event;
+        static::assertNotNull($event);
+        static::assertTrue(\in_array($ruleId, $event->getContext()->getRuleIds(), true));
+    }
+
+    public function testRulesForOrder(): void
+    {
+        $ids = new TestDataCollection();
+
+        $rule = [
+            'id' => $ids->create('rule'),
+            'name' => 'Demo rule',
+            'priority' => 1,
+            'conditions' => [
+                [
+                    'type' => (new CartAmountRule())->getName(),
+                    'value' => [
+                        'operator' => Rule::OPERATOR_GTE,
+                        'amount' => 200,
+                    ],
+                ],
+            ],
+        ];
+
+        $this->getContainer()->get('rule.repository')
+            ->create([$rule], Context::createDefaultContext());
+
+        $this->createCustomer($ids);
+        $this->createOrder($ids);
+
+        $validator = new RuleValidator();
+        $this->getContainer()
+            ->get('event_dispatcher')
+            ->addListener('state_enter.order.state.in_progress', $validator);
+
+        $this->getContainer()
+            ->get(StateMachineRegistry::class)
+            ->transition(
+                new Transition(
+                    OrderDefinition::ENTITY_NAME,
+                    $ids->get('order'),
+                    StateMachineTransitionActions::ACTION_PROCESS,
+                    'stateId'
+                ),
+                Context::createDefaultContext()
+            );
+
+        static::assertInstanceOf(OrderStateMachineStateChangeEvent::class, $validator->event);
+        static::assertContains($ids->get('rule'), $validator->event->getContext()->getRuleIds());
     }
 
     private function assertEvent(string $event): void
@@ -246,7 +334,7 @@ class OrderStateChangeEventListenerTest extends TestCase
 
     private function getPrePaymentMethodId(): string
     {
-        /** @var EntityRepository $repository */
+        /** @var EntityRepositoryInterface $repository */
         $repository = $this->getContainer()->get('payment_method.repository');
 
         $criteria = (new Criteria())
@@ -263,7 +351,7 @@ class OrderStateChangeEventListenerTest extends TestCase
     private function getStateId(string $state, string $machine): ?string
     {
         return $this->getContainer()->get(Connection::class)
-            ->fetchOne('
+            ->fetchColumn('
                 SELECT LOWER(HEX(state_machine_state.id))
                 FROM state_machine_state
                     INNER JOIN  state_machine

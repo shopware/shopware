@@ -81,12 +81,10 @@
                             {% endblock %}
 
                             {% block page_checkout_finish_order_dispatch_method %}
-                                {% if page.order.deliveries.first.shippingMethod is defined %}
-                                    <p>
-                                        <strong>{{ "checkout.finishInfoShipping"|trans|sw_sanitize }}</strong>
-                                        {{ page.order.deliveries.first.shippingMethod.translated.name }}
-                                    </p>
-                                {% endif %}
+                                <p>
+                                    <strong>{{ "checkout.finishInfoShipping"|trans|sw_sanitize }}</strong>
+                                    {{ page.order.deliveries.first.shippingMethod.translated.name }}
+                                </p>
                             {% endblock %}
                         </div>
                     </div>

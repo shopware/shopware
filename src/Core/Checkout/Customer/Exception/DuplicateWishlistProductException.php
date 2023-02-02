@@ -2,14 +2,15 @@
 
 namespace Shopware\Core\Checkout\Customer\Exception;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('customer-order')]
 class DuplicateWishlistProductException extends ShopwareHttpException
 {
-    public function __construct()
+    /**
+     * @deprecated tag:v6.5.0 - Product id will be removed
+     */
+    public function __construct(string $productId = '')
     {
         parent::__construct('Product already added in wishlist');
     }

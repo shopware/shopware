@@ -52,7 +52,7 @@ class DatadogListener implements TestListener
             return;
         }
 
-        $key = $test::class;
+        $key = \get_class($test);
 
         if (!class_exists($key)) {
             return;
@@ -82,9 +82,9 @@ class DatadogListener implements TestListener
         $this->failedTests[] = [
             'ddsource' => 'phpunit',
             'ddtags' => 'phpunit,test:failed',
-            'message' => sprintf('Test %s:%s failed with error: %s', $test::class, $test->getName(), $e->getMessage()),
+            'message' => sprintf('Test %s:%s failed with error: %s', \get_class($test), $test->getName(), $e->getMessage()),
             'service' => 'PHPUnit',
-            'test-description' => $test::class,
+            'test-description' => \get_class($test),
             'test-duration' => $time,
         ];
     }
@@ -139,7 +139,10 @@ class DatadogListener implements TestListener
         }
 
         $ch = curl_init('https://http-intake.logs.datadoghq.eu/v1/input');
-        \assert($ch instanceof \CurlHandle);
+        if (!$ch) {
+            return;
+        }
+
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($logs, JSON_THROW_ON_ERROR));

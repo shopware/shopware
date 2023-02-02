@@ -7,12 +7,10 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ResetUrlAware;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Dispatching\Storer\ResetUrlStorer;
-use Shopware\Core\Content\Test\Flow\TestFlowBusinessEvent;
+use Shopware\Core\Framework\Test\Event\TestBusinessEvent;
 use Shopware\Core\System\User\Recovery\UserRecoveryRequestEvent;
 
 /**
- * @package business-ops
- *
  * @internal
  *
  * @covers \Shopware\Core\Content\Flow\Dispatching\Storer\ResetUrlStorer
@@ -36,7 +34,7 @@ class ResetUrlStorerTest extends TestCase
 
     public function testStoreWithNotAware(): void
     {
-        $event = $this->createMock(TestFlowBusinessEvent::class);
+        $event = $this->createMock(TestBusinessEvent::class);
         $stored = [];
         $stored = $this->storer->store($event, $stored);
         static::assertArrayNotHasKey(ResetUrlAware::RESET_URL, $stored);
@@ -46,7 +44,7 @@ class ResetUrlStorerTest extends TestCase
     {
         $resetUrl = 'shopware-test.com/reset';
 
-        /** @var MockObject&StorableFlow $storable */
+        /** @var MockObject|StorableFlow $storable */
         $storable = $this->createMock(StorableFlow::class);
 
         $storable->expects(static::exactly(1))
@@ -66,7 +64,7 @@ class ResetUrlStorerTest extends TestCase
 
     public function testRestoreEmptyStored(): void
     {
-        /** @var MockObject&StorableFlow $storable */
+        /** @var MockObject|StorableFlow $storable */
         $storable = $this->createMock(StorableFlow::class);
 
         $storable->expects(static::exactly(1))

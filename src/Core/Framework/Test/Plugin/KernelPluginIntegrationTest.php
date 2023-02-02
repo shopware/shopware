@@ -6,7 +6,7 @@ use Google\Auth\Cache\MemoryCacheItemPool;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -22,12 +22,8 @@ use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
-use Shopware\Core\System\CustomEntity\CustomEntityLifecycleService;
-use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
-use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use SwagTest\SwagTest;
-use Symfony\Bundle\FrameworkBundle\Test\TestContainer;
 
 /**
  * @internal
@@ -38,15 +34,17 @@ class KernelPluginIntegrationTest extends TestCase
 {
     use PluginIntegrationTestBehaviour;
 
-    private ?Kernel $kernel = null;
+    /**
+     * @var Kernel|null
+     */
+    private $kernel;
 
     public function tearDown(): void
     {
         if ($this->kernel) {
-            /** @var TestContainer $serviceContainer */
-            $serviceContainer = $this->kernel->getContainer()
-                ->get('test.service_container');
-            $serviceContainer->get('cache.object')
+            $this->kernel->getContainer()
+                ->get('test.service_container')
+                ->get('cache.object')
                 ->clear();
         }
     }
@@ -117,7 +115,6 @@ class KernelPluginIntegrationTest extends TestCase
         // should always be public
         static::assertTrue($this->kernel->getContainer()->has(SwagTest::class));
 
-        /** @var SwagTest $swagTestPlugin */
         $swagTestPlugin = $this->kernel->getContainer()->get(SwagTest::class);
 
         // autowired
@@ -139,7 +136,6 @@ class KernelPluginIntegrationTest extends TestCase
         $lifecycleService = $this->makePluginLifecycleService();
         $lifecycleService->activatePlugin($inactive, Context::createDefaultContext());
 
-        /** @var SwagTest $swagTestPlugin */
         $swagTestPlugin = $this->kernel->getPluginLoader()->getPluginInstances()->get($inactive->getBaseClass());
         static::assertNotNull($swagTestPlugin);
 
@@ -168,7 +164,6 @@ class KernelPluginIntegrationTest extends TestCase
         $lifecycleService = $this->makePluginLifecycleService();
         $lifecycleService->activatePlugin($inactive, Context::createDefaultContext());
 
-        /** @var SwagTest $swagTestPlugin */
         $swagTestPlugin = $this->kernel->getPluginLoader()->getPluginInstances()->get($inactive->getBaseClass());
         static::assertNotNull($swagTestPlugin);
 
@@ -197,7 +192,6 @@ class KernelPluginIntegrationTest extends TestCase
         $lifecycleService = $this->makePluginLifecycleService();
         $lifecycleService->activatePlugin($inactive, Context::createDefaultContext(new AdminApiSource(Uuid::randomHex())));
 
-        /** @var SwagTest $swagTestPlugin */
         $swagTestPlugin = $this->kernel->getPluginLoader()->getPluginInstances()->get($inactive->getBaseClass());
         static::assertNotNull($swagTestPlugin);
 
@@ -225,12 +219,10 @@ class KernelPluginIntegrationTest extends TestCase
 
         $lifecycleService = $this->makePluginLifecycleService();
 
-        /** @var SwagTest $oldPluginInstance */
         $oldPluginInstance = $this->kernel->getPluginLoader()->getPluginInstances()->get($active->getBaseClass());
 
         $lifecycleService->deactivatePlugin($active, Context::createDefaultContext());
 
-        /** @var SwagTest $swagTestPlugin */
         $swagTestPlugin = $this->kernel->getPluginLoader()->getPluginInstances()->get($active->getBaseClass());
 
         // only the preDeactivate is called with the plugin still active
@@ -300,44 +292,40 @@ class KernelPluginIntegrationTest extends TestCase
 
         $loader = new DbalKernelPluginLoader($this->classLoader, null, $this->connection);
         $this->makeKernel($loader);
-        /** @var Kernel $kernel */
-        $kernel = $this->kernel;
-        $kernel->boot();
+        $this->kernel->boot();
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', 'swag_test.test_task'));
 
         $context = Context::createDefaultContext();
 
-        /** @var EntityRepository $scheduledTasksRepo */
-        $scheduledTasksRepo = $kernel->getContainer()->get('scheduled_task.repository');
+        /** @var EntityRepositoryInterface $scheduledTasksRepo */
+        $scheduledTasksRepo = $this->kernel->getContainer()->get('scheduled_task.repository');
         $result = $scheduledTasksRepo->search($criteria, $context)->getEntities()->first();
         static::assertNull($result);
 
         $pluginLifecycleManager = $this->makePluginLifecycleService();
         $pluginLifecycleManager->activatePlugin($plugin, $context);
 
-        /** @var EntityRepository $scheduledTasksRepo */
-        $scheduledTasksRepo = $kernel->getContainer()->get('scheduled_task.repository');
+        /** @var EntityRepositoryInterface $scheduledTasksRepo */
+        $scheduledTasksRepo = $this->kernel->getContainer()->get('scheduled_task.repository');
         $result = $scheduledTasksRepo->search($criteria, $context)->getEntities();
         static::assertNotNull($result);
 
         $pluginLifecycleManager->deactivatePlugin($plugin, $context);
 
-        /** @var EntityRepository $scheduledTasksRepo */
-        $scheduledTasksRepo = $kernel->getContainer()->get('scheduled_task.repository');
+        /** @var EntityRepositoryInterface $scheduledTasksRepo */
+        $scheduledTasksRepo = $this->kernel->getContainer()->get('scheduled_task.repository');
         $result = $scheduledTasksRepo->search($criteria, $context)->getEntities()->first();
         static::assertNull($result);
     }
 
     private function makePluginLifecycleService(): PluginLifecycleService
     {
-        /** @var Kernel $kernel */
-        $kernel = $this->kernel;
-        $container = $kernel->getContainer();
+        $container = $this->kernel->getContainer();
 
         $emptyPluginCollection = new PluginCollection();
-        $pluginRepoMock = $this->createMock(EntityRepository::class);
+        $pluginRepoMock = $this->createMock(EntityRepositoryInterface::class);
 
         $pluginRepoMock
             ->method('search')
@@ -346,7 +334,7 @@ class KernelPluginIntegrationTest extends TestCase
         return new PluginLifecycleService(
             $pluginRepoMock,
             $container->get('event_dispatcher'),
-            $kernel->getPluginLoader()->getPluginInstances(),
+            $this->kernel->getPluginLoader()->getPluginInstances(),
             $container,
             $this->createMock(MigrationCollectionLoader::class),
             $this->createMock(AssetService::class),
@@ -354,10 +342,7 @@ class KernelPluginIntegrationTest extends TestCase
             $this->createMock(RequirementsValidator::class),
             new MemoryCacheItemPool(),
             $container->getParameter('kernel.shopware_version'),
-            $this->createMock(SystemConfigService::class),
-            $this->createMock(CustomEntityPersister::class),
-            $this->createMock(CustomEntitySchemaUpdater::class),
-            $this->createMock(CustomEntityLifecycleService::class),
+            $container->get(SystemConfigService::class)
         );
     }
 

@@ -14,19 +14,41 @@ use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\SalesChannelAware;
-use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('customer-order')]
 class CustomerGroupRegistrationAccepted extends Event implements SalesChannelAware, CustomerAware, MailAware, CustomerGroupAware
 {
-    final public const EVENT_NAME = 'customer.group.registration.accepted';
+    public const EVENT_NAME = 'customer.group.registration.accepted';
+
+    /**
+     * @var CustomerEntity
+     */
+    private $customer;
+
+    /**
+     * @var CustomerGroupEntity
+     */
+    private $customerGroup;
+
+    /**
+     * @var Context
+     */
+    private $context;
+
+    /**
+     * @var MailRecipientStruct|null
+     */
+    private $mailRecipientStruct;
 
     /**
      * @internal
      */
-    public function __construct(private readonly CustomerEntity $customer, private readonly CustomerGroupEntity $customerGroup, private readonly Context $context, private readonly ?MailRecipientStruct $mailRecipientStruct = null)
+    public function __construct(CustomerEntity $customer, CustomerGroupEntity $customerGroup, Context $context, ?MailRecipientStruct $mailRecipientStruct = null)
     {
+        $this->customer = $customer;
+        $this->customerGroup = $customerGroup;
+        $this->context = $context;
+        $this->mailRecipientStruct = $mailRecipientStruct;
     }
 
     public static function getAvailableData(): EventDataCollection

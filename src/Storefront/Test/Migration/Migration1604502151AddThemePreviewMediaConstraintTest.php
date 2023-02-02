@@ -24,9 +24,15 @@ class Migration1604502151AddThemePreviewMediaConstraintTest extends TestCase
 
     private const FK_INDEX = 'fk.theme.preview_media_id';
 
-    private Connection $connection;
+    /**
+     * @var Connection
+     */
+    private $connection;
 
-    private Migration1604502151AddThemePreviewMediaConstraint $migration;
+    /**
+     * @var Migration1604502151AddThemePreviewMediaConstraint
+     */
+    private $migration;
 
     public function setUp(): void
     {
@@ -91,14 +97,14 @@ class Migration1604502151AddThemePreviewMediaConstraintTest extends TestCase
 
         if ($foreignKeyName !== null) {
             $this->connection->rollBack();
-            $this->connection->executeStatement(self::dropIndexAndForeignKeyQuery($foreignKeyName));
+            $this->connection->executeUpdate(self::dropIndexAndForeignKeyQuery($foreignKeyName));
             $this->connection->beginTransaction();
         }
     }
 
     private function getPreviewMediaForeignKeyName(): ?string
     {
-        $foreignKeyName = $this->connection->fetchOne(self::getForeignKeyQuery());
+        $foreignKeyName = $this->connection->fetchColumn(self::getForeignKeyQuery());
 
         if (\is_string($foreignKeyName) && !empty($foreignKeyName)) {
             return $foreignKeyName;

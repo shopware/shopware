@@ -13,7 +13,7 @@
     }
 
     .sw-cms-mapping-field__label {
-        font-size: $font-size-xs;
+        font-size: 14px;
         line-height: 16px;
         color: $color-darkgray-200;
         font-weight: normal;
@@ -28,7 +28,7 @@
         align-items: center;
         justify-content: end;
         justify-items: end;
-        font-size: $font-size-xs;
+        font-size: 14px;
         color: $color-shopware-brand-500;
         cursor: pointer;
 
@@ -48,17 +48,11 @@
         align-items: center;
         justify-content: end;
         justify-items: end;
-        font-size: $font-size-xs;
+        font-size: 14px;
         cursor: pointer;
 
         &:hover {
             color: $color-crimson-500;
-        }
-
-        .sw-icon {
-            width: 16px;
-            height: 16px;
-            padding: 2px;
         }
     }
 

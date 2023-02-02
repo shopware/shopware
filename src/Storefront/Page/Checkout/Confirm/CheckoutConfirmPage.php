@@ -5,21 +5,24 @@ namespace Shopware\Storefront\Page\Checkout\Confirm;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Page\Page;
 
-#[Package('storefront')]
 class CheckoutConfirmPage extends Page
 {
-    protected Cart $cart;
+    /**
+     * @var Cart
+     */
+    protected $cart;
 
-    protected PaymentMethodCollection $paymentMethods;
+    /**
+     * @var PaymentMethodCollection
+     */
+    protected $paymentMethods;
 
-    protected ShippingMethodCollection $shippingMethods;
-
-    protected bool $showRevocation = false;
-
-    protected bool $hideShippingAddress = false;
+    /**
+     * @var ShippingMethodCollection
+     */
+    protected $shippingMethods;
 
     public function getCart(): Cart
     {
@@ -49,25 +52,5 @@ class CheckoutConfirmPage extends Page
     public function setShippingMethods(ShippingMethodCollection $shippingMethods): void
     {
         $this->shippingMethods = $shippingMethods;
-    }
-
-    public function isShowRevocation(): bool
-    {
-        return $this->showRevocation;
-    }
-
-    public function setShowRevocation(bool $showRevocation): void
-    {
-        $this->showRevocation = $showRevocation;
-    }
-
-    public function isHideShippingAddress(): bool
-    {
-        return $this->hideShippingAddress;
-    }
-
-    public function setHideShippingAddress(bool $hideShippingAddress): void
-    {
-        $this->hideShippingAddress = $hideShippingAddress;
     }
 }

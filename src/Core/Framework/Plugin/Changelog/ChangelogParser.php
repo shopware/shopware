@@ -2,11 +2,9 @@
 
 namespace Shopware\Core\Framework\Plugin\Changelog;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\PluginChangelogInvalidException;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 
-#[Package('core')]
 class ChangelogParser
 {
     /**
@@ -54,11 +52,11 @@ class ChangelogParser
 
     private function parseTitle($line): string
     {
-        return mb_strtolower(trim(mb_substr((string) $line, 1)));
+        return mb_strtolower(trim(mb_substr($line, 1)));
     }
 
     private function parseItem($line): string
     {
-        return trim(mb_substr((string) $line, 1));
+        return trim(mb_substr($line, 1));
     }
 }

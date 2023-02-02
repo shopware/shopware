@@ -22,10 +22,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-#[Package('core')]
 class FieldSerializer extends AbstractFieldSerializer
 {
     public function serialize(Config $config, Field $field, $value): iterable
@@ -75,7 +73,7 @@ class FieldSerializer extends AbstractFieldSerializer
         } elseif ($field instanceof BoolField) {
             yield $key => $value === true ? '1' : '0';
         } elseif ($field instanceof JsonField) {
-            yield $key => $value === null ? null : json_encode($value, \JSON_THROW_ON_ERROR);
+            yield $key => $value === null ? null : json_encode($value);
         } else {
             $value = $value === null ? $value : (string) $value;
             yield $key => $value;
@@ -109,7 +107,7 @@ class FieldSerializer extends AbstractFieldSerializer
 
                         return ['id' => $id];
                     },
-                    explode('|', (string) $value)
+                    explode('|', $value)
                 )
             );
         }
@@ -130,7 +128,7 @@ class FieldSerializer extends AbstractFieldSerializer
 
                         return $id;
                     },
-                    explode('|', (string) $value)
+                    explode('|', $value)
                 )
             );
         }
@@ -158,7 +156,7 @@ class FieldSerializer extends AbstractFieldSerializer
         }
 
         if ($field instanceof JsonField) {
-            return json_decode((string) $value, true, 512, \JSON_THROW_ON_ERROR);
+            return json_decode((string) $value, true);
         }
 
         if ($field instanceof IntField) {

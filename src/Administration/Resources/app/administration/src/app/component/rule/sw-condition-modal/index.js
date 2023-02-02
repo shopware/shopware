@@ -4,10 +4,7 @@ import './sw-condition-modal.scss';
 const { Component } = Shopware;
 const { EntityCollection } = Shopware.Data;
 
-/**
- * @private
- * @package business-ops
- */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-condition-modal', {
     template,
 
@@ -76,7 +73,6 @@ Component.register('sw-condition-modal', {
             const childrenToDelete = this.condition[this.childAssociationField].filter((child) => !child.isNew()).getIds();
 
             this.deleteChildren(childrenToDelete, this.condition[this.childAssociationField].context).then(() => {
-                // eslint-disable-next-line vue/no-mutating-props
                 this.condition[this.childAssociationField] = new EntityCollection(
                     this.condition[this.childAssociationField].source,
                     this.condition[this.childAssociationField].entity,
@@ -88,7 +84,6 @@ Component.register('sw-condition-modal', {
 
         saveAndCloseModal() {
             this.deleteChildren(this.deletedIds, this.condition[this.childAssociationField].context).then(() => {
-                // eslint-disable-next-line vue/no-mutating-props
                 this.condition[this.childAssociationField] = this.childConditions;
                 this.closeModal();
             });

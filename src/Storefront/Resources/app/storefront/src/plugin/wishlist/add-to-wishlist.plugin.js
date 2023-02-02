@@ -1,9 +1,6 @@
 import Plugin from 'src/plugin-system/plugin.class';
 import DomAccess from 'src/helper/dom-access.helper';
 
-/**
- * @package checkout
- */
 export default class AddToWishlistPlugin extends Plugin {
     init() {
         this.classList = {

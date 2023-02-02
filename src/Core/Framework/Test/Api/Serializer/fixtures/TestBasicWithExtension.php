@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Test\Api\Serializer\fixtures;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use function sprintf;
@@ -12,7 +11,7 @@ use function sprintf;
  */
 class TestBasicWithExtension extends SerializationFixture
 {
-    public function getInput(): EntityCollection|Entity
+    public function getInput()
     {
         $extendable = new ArrayEntity([
             'id' => '1d23c1b015bf43fb97e89008cf42d6fe',

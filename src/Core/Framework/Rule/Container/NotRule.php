@@ -2,17 +2,15 @@
 
 namespace Shopware\Core\Framework\Rule\Container;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-#[Package('business-ops
-NotRule inverses the return value of the child rule. Only one child is possible')]
+/**
+ * NotRule inverses the return value of the child rule. Only one child is possible
+ */
 class NotRule extends Container
 {
-    final public const RULE_NAME = 'notContainer';
-
     public function addRule(Rule $rule): void
     {
         parent::addRule($rule);
@@ -36,6 +34,11 @@ class NotRule extends Container
         }
 
         return !$rule->match($scope);
+    }
+
+    public function getName(): string
+    {
+        return 'notContainer';
     }
 
     /**

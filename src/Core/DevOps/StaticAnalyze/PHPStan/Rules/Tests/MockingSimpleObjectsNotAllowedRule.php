@@ -16,7 +16,6 @@ use PHPStan\Rules\Rule;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\ParameterBag;
@@ -24,9 +23,9 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
+ *
  * @implements Rule<MethodCall>
  */
-#[Package('core')]
 class MockingSimpleObjectsNotAllowedRule implements Rule
 {
     private const DISALLOWED_CLASSES = [
@@ -44,8 +43,11 @@ class MockingSimpleObjectsNotAllowedRule implements Rule
 
     private const MOCK_METHODS = ['createMock', 'createMockObject', 'createStub', 'createPartialMock', 'createConfiguredMock', 'createTestProxy'];
 
-    public function __construct(private readonly ReflectionProvider $reflectionProvider)
+    private ReflectionProvider $reflectionProvider;
+
+    public function __construct(ReflectionProvider $reflectionProvider)
     {
+        $this->reflectionProvider = $reflectionProvider;
     }
 
     public function getNodeType(): string

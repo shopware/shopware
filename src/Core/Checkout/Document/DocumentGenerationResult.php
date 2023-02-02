@@ -3,16 +3,11 @@
 namespace Shopware\Core\Checkout\Document;
 
 use Shopware\Core\Framework\Api\EventListener\ErrorResponseFactory;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-/**
- * @final
- */
-#[Package('customer-order')]
-class DocumentGenerationResult extends Struct
+final class DocumentGenerationResult extends Struct
 {
-    private readonly DocumentIdCollection $success;
+    private DocumentIdCollection $success;
 
     /**
      * @var \Throwable[]
@@ -34,9 +29,6 @@ class DocumentGenerationResult extends Struct
         $this->success->add($document);
     }
 
-    /**
-     * @return \Throwable[]
-     */
     public function getErrors(): array
     {
         return $this->errors;
@@ -56,11 +48,13 @@ class DocumentGenerationResult extends Struct
         }
 
         return [
-            'data' => $this->success->map(fn (DocumentIdStruct $documentIdStruct) => [
-                'documentId' => $documentIdStruct->getId(),
-                'documentMediaId' => $documentIdStruct->getMediaId(),
-                'documentDeepLink' => $documentIdStruct->getDeepLinkCode(),
-            ]),
+            'data' => $this->success->map(function (DocumentIdStruct $documentIdStruct) {
+                return [
+                    'documentId' => $documentIdStruct->getId(),
+                    'documentMediaId' => $documentIdStruct->getMediaId(),
+                    'documentDeepLink' => $documentIdStruct->getDeepLinkCode(),
+                ];
+            }),
             'errors' => $errors,
         ];
     }

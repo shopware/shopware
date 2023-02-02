@@ -4,13 +4,8 @@ namespace Shopware\Core\Migration\V6_4;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
-/**
- * @internal
- */
-#[Package('core')]
 class Migration1629700169AddEnqueueIndex extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -22,7 +17,7 @@ class Migration1629700169AddEnqueueIndex extends MigrationStep
     {
         try {
             $connection->executeStatement('ALTER TABLE `enqueue` ADD INDEX `delivery_id` (`delivery_id`);');
-        } catch (Exception) {
+        } catch (Exception $e) {
             // index already exists
         }
     }

@@ -2,33 +2,50 @@
 
 namespace Shopware\Core\Framework\App\Manifest\Xml;
 
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Util\XmlReader;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
  */
-#[Package('core')]
 class ActionButton extends XmlElement
 {
-    final public const TRANSLATABLE_FIELDS = ['label'];
+    public const TRANSLATABLE_FIELDS = ['label'];
 
     /**
-     * @var array<string>
+     * @var array
      */
-    protected array $label = [];
-
-    protected string $action;
-
-    protected string $entity;
-
-    protected string $view;
-
-    protected string $url;
+    protected $label = [];
 
     /**
-     * @param array<string, string> $data
+     * @var string
      */
+    protected $action;
+
+    /**
+     * @var string
+     */
+    protected $entity;
+
+    /**
+     * @var string
+     */
+    protected $view;
+
+    /**
+     * @var string
+     */
+    protected $url;
+
+    /**
+     * @var bool
+     *
+     * @feature-deprecated (FEATURE_NEXT_14360) tag:v6.5.0 - will be removed.
+     * It will no longer be used in the manifest.xml file
+     * and will be processed in the Executor with an OpenNewTabResponse response instead.
+     */
+    protected $openNewTab = false;
+
     private function __construct(array $data)
     {
         foreach ($data as $property => $value) {
@@ -41,9 +58,6 @@ class ActionButton extends XmlElement
         return new self(self::parse($element));
     }
 
-    /**
-     * @return array<string, string>
-     */
     public function toArray(string $defaultLocale): array
     {
         $data = parent::toArray($defaultLocale);
@@ -60,9 +74,6 @@ class ActionButton extends XmlElement
         return $data;
     }
 
-    /**
-     * @return array<string>
-     */
     public function getLabel(): array
     {
         return $this->label;
@@ -89,16 +100,25 @@ class ActionButton extends XmlElement
     }
 
     /**
-     * @return array<string, mixed>
+     * @feature-deprecated (FEATURE_NEXT_14360) tag:v6.5.0 - Will be remove on version 6.5.0.
+     * It will no longer be used in the manifest.xml file
+     * and will be processed in the Executor with an OpenNewTabResponse response instead.
      */
+    public function isOpenNewTab(): bool
+    {
+        if (Feature::isActive('FEATURE_NEXT_14360')) {
+            throw new \Exception('Deprecated: isOpenNewTab property is deprecated...');
+        }
+
+        return $this->openNewTab;
+    }
+
     private static function parse(\DOMElement $element): array
     {
         $values = [];
 
-        if (is_iterable($element->attributes)) {
-            foreach ($element->attributes as $attribute) {
-                $values[$attribute->name] = XmlReader::phpize($attribute->value);
-            }
+        foreach ($element->attributes as $attribute) {
+            $values[$attribute->name] = XmlReader::phpize($attribute->value);
         }
 
         foreach ($element->childNodes as $child) {

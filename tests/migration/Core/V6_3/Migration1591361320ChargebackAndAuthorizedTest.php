@@ -54,21 +54,21 @@ class Migration1591361320ChargebackAndAuthorizedTest extends TestCase
     protected function rollbackMigrationChanges(): void
     {
         $this->connection->executeStatement(
-            'DELETE FROM state_machine_transition WHERE from_state_id = (SELECT id FROM state_machine_state WHERE technical_name = \'chargeback\')'
+            "DELETE FROM state_machine_transition WHERE from_state_id = (SELECT id FROM state_machine_state WHERE technical_name = 'chargeback')"
         );
         $this->connection->executeStatement(
-            'DELETE FROM state_machine_transition WHERE to_state_id = (SELECT id FROM state_machine_state WHERE technical_name = \'chargeback\')'
+            "DELETE FROM state_machine_transition WHERE to_state_id = (SELECT id FROM state_machine_state WHERE technical_name = 'chargeback')"
         );
 
         $this->connection->executeStatement(
-            'DELETE FROM state_machine_transition WHERE from_state_id = (SELECT id FROM state_machine_state WHERE technical_name = \'authorized\')'
+            "DELETE FROM state_machine_transition WHERE from_state_id = (SELECT id FROM state_machine_state WHERE technical_name = 'authorized')"
         );
         $this->connection->executeStatement(
-            'DELETE FROM state_machine_transition WHERE to_state_id = (SELECT id FROM state_machine_state WHERE technical_name = \'authorized\')'
+            "DELETE FROM state_machine_transition WHERE to_state_id = (SELECT id FROM state_machine_state WHERE technical_name = 'authorized')"
         );
 
-        $this->connection->executeStatement('DELETE FROM state_machine_state WHERE technical_name = \'chargeback\'');
-        $this->connection->executeStatement('DELETE FROM state_machine_state WHERE technical_name = \'authorized\'');
+        $this->connection->executeStatement("DELETE FROM state_machine_state WHERE technical_name = 'chargeback'");
+        $this->connection->executeStatement("DELETE FROM state_machine_state WHERE technical_name = 'authorized'");
     }
 
     /**
@@ -77,7 +77,7 @@ class Migration1591361320ChargebackAndAuthorizedTest extends TestCase
     private function fetchTransitions(): array
     {
         /** @var array{action_name: string, from_state_name: string, to_state_name: string}[] $result */
-        $result = $this->connection->fetchAllAssociative('
+        $result = $this->connection->fetchAllAssociative("
 SELECT trans.action_name, from_state.technical_name as from_state, to_state.technical_name as to_state
 FROM state_machine_transition trans
 	INNER JOIN state_machine_state from_state
@@ -85,14 +85,14 @@ FROM state_machine_transition trans
 	INNER JOIN state_machine_state to_state
 		ON to_state.id = trans.to_state_id
 
-WHERE trans.state_machine_id = (SELECT id FROM state_machine WHERE technical_name = \'order_transaction.state\' LIMIT 1)
+WHERE trans.state_machine_id = (SELECT id FROM state_machine WHERE technical_name = 'order_transaction.state' LIMIT 1)
 AND (
-		from_state.technical_name IN (\'chargeback\', \'authorized\')
-	OR  to_state.technical_name  IN (\'chargeback\', \'authorized\')
+		from_state.technical_name IN ('chargeback', 'authorized')
+	OR  to_state.technical_name  IN ('chargeback', 'authorized')
 )
 ORDER BY trans.action_name, from_state.technical_name, to_state.technical_name
 ;
-        ');
+        ");
 
         return $result;
     }

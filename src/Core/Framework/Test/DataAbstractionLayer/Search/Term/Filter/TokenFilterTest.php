@@ -101,7 +101,7 @@ class TokenFilterTest extends TestCase
         $this->connection->executeStatement(
             'UPDATE `product_search_config` SET `excluded_terms` = :excludedTerms WHERE `language_id` = UNHEX(:id)',
             [
-                'excludedTerms' => json_encode($excludedTerms, \JSON_THROW_ON_ERROR),
+                'excludedTerms' => json_encode($excludedTerms),
                 'id' => $this->context->getLanguageId(),
             ]
         );

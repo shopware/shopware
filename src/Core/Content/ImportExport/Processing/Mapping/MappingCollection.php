@@ -2,19 +2,16 @@
 
 namespace Shopware\Core\Content\ImportExport\Processing\Mapping;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @extends Collection<Mapping>
- * @phpstan-import-type MappingArray from Mapping
  */
-#[Package('system-settings')]
 class MappingCollection extends Collection
 {
     /**
-     * @var array<string, string>
+     * @var array
      */
     protected $reverseIndex = [];
 
@@ -34,15 +31,15 @@ class MappingCollection extends Collection
     public function set($key, $mapping): void
     {
         $this->validateType($mapping);
-        $mappingKey = $mapping->getKey();
-        if (empty($mappingKey)) {
+        $key = $mapping->getKey();
+        if (empty($key)) {
             // prevent collision with multiple not mapped mappings (key = '').
             // there is no direct lookup needed for these, but they should be stored and not overridden!
-            $mappingKey = Uuid::randomHex();
+            $key = Uuid::randomHex();
         }
 
-        parent::set($mappingKey, $mapping);
-        $this->reverseIndex[$mapping->getMappedKey()] = $mappingKey;
+        parent::set($key, $mapping);
+        $this->reverseIndex[$mapping->getMappedKey()] = $key;
     }
 
     public function getMapped(string $readKey): ?Mapping
@@ -61,9 +58,6 @@ class MappingCollection extends Collection
         return Mapping::class;
     }
 
-    /**
-     * @param iterable<string|MappingArray|Mapping|MappingCollection> $data
-     */
     public static function fromIterable(iterable $data): self
     {
         if ($data instanceof MappingCollection) {
@@ -87,14 +81,13 @@ class MappingCollection extends Collection
         return $mappingCollection;
     }
 
-    /**
-     * @return array<Mapping>
-     */
     public function sortByPosition(): array
     {
         $mappings = $this->getElements();
 
-        usort($mappings, fn (Mapping $firstMapping, Mapping $secondMapping) => $firstMapping->getPosition() - $secondMapping->getPosition());
+        usort($mappings, function (Mapping $firstMapping, Mapping $secondMapping) {
+            return $firstMapping->getPosition() - $secondMapping->getPosition();
+        });
 
         return $mappings;
     }

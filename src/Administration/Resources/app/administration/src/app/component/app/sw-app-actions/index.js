@@ -1,7 +1,3 @@
-/**
- * @package admin
- */
-
 import template from './sw-app-actions.html.twig';
 import './sw-app-actions.scss';
 
@@ -25,9 +21,7 @@ const modalSizeMapping = {
 
 const IFRAME_KEY = 'app.action_button.iframe';
 
-/**
- * @deprecated tag:v6.6.0 - Will be private
- */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-app-actions', {
     template,
 

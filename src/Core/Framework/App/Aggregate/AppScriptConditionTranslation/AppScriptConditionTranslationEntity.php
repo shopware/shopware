@@ -4,14 +4,12 @@ namespace Shopware\Core\Framework\App\Aggregate\AppScriptConditionTranslation;
 
 use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
 class AppScriptConditionTranslationEntity extends TranslationEntity
 {
     protected ?string $name = null;
 
-    protected ?AppScriptConditionEntity $appScriptCondition = null;
+    protected ?AppScriptConditionEntity $appScriptCondition;
 
     protected string $appScriptConditionId;
 

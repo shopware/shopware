@@ -1,23 +1,14 @@
 import './sw-media-quickinfo-metadata-item.scss';
 
-/**
- * @package content
- */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Shopware.Component.register('sw-media-quickinfo-metadata-item', {
     functional: true,
 
     render(createElement, context) {
         const title = createElement(
             'dt',
             {
-                class: [
-                    context.data.staticClass,
-                    {
-                        'sw-media-quickinfo-metadata-item__term': true,
-                        ...context.data.class,
-                    },
-                ],
+                class: 'sw-media-quickinfo-metadata-item__term',
             },
             [
                 `${context.props.labelName}:`,
@@ -48,4 +39,4 @@ export default {
             type: String,
         },
     },
-};
+});

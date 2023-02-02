@@ -1,14 +1,10 @@
-/*
- * @package inventory
- */
-
 import template from './sw-property-option-list.html.twig';
 import './sw-property-option-list.scss';
 
-const { State } = Shopware;
+const { Component, State } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-property-option-list', {
     template,
 
     inject: [
@@ -184,4 +180,4 @@ export default {
             }];
         },
     },
-};
+});

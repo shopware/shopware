@@ -10,7 +10,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
@@ -35,7 +35,7 @@ class ProductLineItemCommandValidatorTest extends TestCase
     use CountryAddToSalesChannelTestBehaviour;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepositoryInterface
      */
     private $repository;
 
@@ -49,10 +49,13 @@ class ProductLineItemCommandValidatorTest extends TestCase
      */
     private $contextFactory;
 
-    private SalesChannelContext $context;
+    /**
+     * @var SalesChannelContext
+     */
+    private $context;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepositoryInterface
      */
     private $lineItemRepository;
 

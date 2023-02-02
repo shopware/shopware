@@ -2,11 +2,12 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Script\Api\ScriptResponseEncoder;
-use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Api\ResponseFields;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Storefront\Framework\Cache\Annotation\HttpCache;
 use Shopware\Storefront\Framework\Cache\CacheStore;
 use Shopware\Storefront\Framework\Script\Api\StorefrontHook;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
@@ -16,17 +17,26 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @internal
- * @internal
+ * @Route(defaults={"_routeScope"={"storefront"}})
+ *
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
  */
-#[Route(defaults: ['_routeScope' => ['storefront']])]
-#[Package('core')]
 class ScriptController extends StorefrontController
 {
-    public function __construct(private readonly GenericPageLoaderInterface $pageLoader, private readonly ScriptResponseEncoder $scriptResponseEncoder)
+    private GenericPageLoaderInterface $pageLoader;
+
+    private ScriptResponseEncoder $scriptResponseEncoder;
+
+    public function __construct(GenericPageLoaderInterface $pageLoader, ScriptResponseEncoder $scriptResponseEncoder)
     {
+        $this->pageLoader = $pageLoader;
+        $this->scriptResponseEncoder = $scriptResponseEncoder;
     }
 
-    #[Route(path: '/storefront/script/{hook}', name: 'frontend.script_endpoint', requirements: ['hook' => '.+'], defaults: ['XmlHttpRequest' => true], methods: ['GET', 'POST'])]
+    /**
+     * @Since("6.4.9.0")
+     * @Route("/storefront/script/{hook}", name="frontend.script_endpoint", defaults={"XmlHttpRequest"=true}, methods={"GET", "POST"}, requirements={"hook"=".+"})
+     */
     public function execute(string $hook, Request $request, SalesChannelContext $context): Response
     {
         //  blog/update =>  blog-update
@@ -52,7 +62,7 @@ class ScriptController extends StorefrontController
         );
 
         if ($response->getCache()->isEnabled()) {
-            $request->attributes->set(PlatformRequest::ATTRIBUTE_HTTP_CACHE, ['maxAge' => $response->getCache()->getMaxAge(), 'states' => $response->getCache()->getInvalidationStates()]);
+            $request->attributes->set('_' . HttpCache::ALIAS, [HttpCache::fromScriptResponseCacheConfig($response->getCache())]);
             $symfonyResponse->headers->set(CacheStore::TAG_HEADER, \json_encode($response->getCache()->getCacheTags(), \JSON_THROW_ON_ERROR));
         }
 

@@ -1,14 +1,11 @@
-/**
- * @package system-settings
- */
 import { POLL_BACKGROUND_INTERVAL, POLL_FOREGROUND_INTERVAL } from 'src/core/worker/worker-notification-listener';
 import template from './sw-settings-cache-index.html.twig';
 import './sw-settings-cache-index.scss';
 
-const { Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-settings-cache-index', {
     template,
 
     inject: [
@@ -225,4 +222,4 @@ export default {
             }
         },
     },
-};
+});

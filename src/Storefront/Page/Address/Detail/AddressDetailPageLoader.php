@@ -10,7 +10,6 @@ use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -24,14 +23,45 @@ use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('storefront')]
 class AddressDetailPageLoader
 {
     /**
+     * @var GenericPageLoaderInterface
+     */
+    private $genericLoader;
+
+    /**
+     * @var AbstractCountryRoute
+     */
+    private $countryRoute;
+
+    /**
+     * @var AbstractSalutationRoute
+     */
+    private $salutationRoute;
+
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
+    private AbstractListAddressRoute $listAddressRoute;
+
+    /**
      * @internal
      */
-    public function __construct(private readonly GenericPageLoaderInterface $genericLoader, private readonly AbstractCountryRoute $countryRoute, private readonly AbstractSalutationRoute $salutationRoute, private readonly EventDispatcherInterface $eventDispatcher, private readonly AbstractListAddressRoute $listAddressRoute)
-    {
+    public function __construct(
+        GenericPageLoaderInterface $genericLoader,
+        AbstractCountryRoute $countryRoute,
+        AbstractSalutationRoute $salutationRoute,
+        EventDispatcherInterface $eventDispatcher,
+        AbstractListAddressRoute $listAddressRoute
+    ) {
+        $this->genericLoader = $genericLoader;
+        $this->countryRoute = $countryRoute;
+        $this->salutationRoute = $salutationRoute;
+        $this->eventDispatcher = $eventDispatcher;
+        $this->listAddressRoute = $listAddressRoute;
     }
 
     /**
@@ -71,7 +101,9 @@ class AddressDetailPageLoader
     {
         $salutations = $this->salutationRoute->load(new Request(), $salesChannelContext, new Criteria())->getSalutations();
 
-        $salutations->sort(fn (SalutationEntity $a, SalutationEntity $b) => $b->getSalutationKey() <=> $a->getSalutationKey());
+        $salutations->sort(function (SalutationEntity $a, SalutationEntity $b) {
+            return $b->getSalutationKey() <=> $a->getSalutationKey();
+        });
 
         return $salutations;
     }

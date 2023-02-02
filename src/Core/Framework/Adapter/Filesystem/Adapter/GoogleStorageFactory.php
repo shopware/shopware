@@ -3,15 +3,13 @@
 namespace Shopware\Core\Framework\Adapter\Filesystem\Adapter;
 
 use Google\Cloud\Storage\StorageClient;
-use League\Flysystem\FilesystemAdapter;
-use League\Flysystem\GoogleCloudStorage\GoogleCloudStorageAdapter;
-use Shopware\Core\Framework\Log\Package;
+use League\Flysystem\AdapterInterface;
+use Superbalist\Flysystem\GoogleStorage\GoogleStorageAdapter;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-#[Package('core')]
 class GoogleStorageFactory implements AdapterFactoryInterface
 {
-    public function create(array $config): FilesystemAdapter
+    public function create(array $config): AdapterInterface
     {
         $options = $this->resolveStorageConfig($config);
         $storageConfig = ['projectId' => $options['projectId']];
@@ -21,9 +19,11 @@ class GoogleStorageFactory implements AdapterFactoryInterface
             $storageConfig['keyFilePath'] = $options['keyFilePath'];
         }
 
-        $bucket = (new StorageClient($storageConfig))->bucket($options['bucket']);
+        $storageClient = new StorageClient($storageConfig);
 
-        return new GoogleCloudStorageAdapter($bucket, $options['root']);
+        $bucket = $storageClient->bucket($options['bucket']);
+
+        return new GoogleStorageAdapter($storageClient, $bucket, $options['root']);
     }
 
     public function getType(): string

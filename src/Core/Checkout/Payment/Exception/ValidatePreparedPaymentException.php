@@ -2,10 +2,8 @@
 
 namespace Shopware\Core\Checkout\Payment\Exception;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
-#[Package('checkout')]
 class ValidatePreparedPaymentException extends ShopwareHttpException
 {
     public function __construct(string $errorMessage, ?\Throwable $e = null)

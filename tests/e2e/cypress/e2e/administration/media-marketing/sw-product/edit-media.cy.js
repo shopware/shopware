@@ -4,11 +4,15 @@ import ProductPageObject from '../../../../support/pages/module/sw-product.page-
 
 describe('Product: Edit product media', () => {
     beforeEach(() => {
-        cy.createProductFixture().then(() => {
-            cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
-            cy.get('.sw-skeleton').should('not.exist');
-            cy.get('.sw-loader').should('not.exist');
-        });
+        cy.loginViaApi()
+            .then(() => {
+                return cy.createProductFixture();
+            })
+            .then(() => {
+                cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
+            });
     });
 
     it('@catalogue: change media sorting', { tags: ['pa-inventory'] }, () => {
@@ -17,7 +21,7 @@ describe('Product: Edit product media', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST',
+            method: 'POST'
         }).as('saveProduct');
 
         // Open product
@@ -25,12 +29,12 @@ describe('Product: Edit product media', () => {
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`,
+            `${page.elements.dataGridRow}--0`
         );
 
         // Add first image to product
         cy.get('.sw-product-media-form__previews').scrollIntoView();
-        cy.get('.sw-product-media-form .sw-media-upload-v2__file-input')
+        cy.get('#files')
             .attachFile('img/sw-login-background.png');
         cy.get('.sw-product-image__image img')
             .should('have.attr', 'src')
@@ -38,7 +42,7 @@ describe('Product: Edit product media', () => {
         cy.awaitAndCheckNotification('File has been saved.');
 
         // Add second image to product
-        cy.get('.sw-product-media-form .sw-media-upload-v2__file-input')
+        cy.get('#files')
             .attachFile('img/sw-test-image.png');
         cy.get('.sw-product-image:nth-of-type(2) img')
             .first()
@@ -47,7 +51,7 @@ describe('Product: Edit product media', () => {
         cy.awaitAndCheckNotification('File has been saved.');
 
         // Add third image to product
-        cy.get('.sw-product-media-form .sw-media-upload-v2__file-input')
+        cy.get('#files')
             .attachFile('img/plugin-manager--login.png');
         cy.get('.sw-product-image:nth-of-type(3) img')
             .first()
@@ -100,7 +104,7 @@ describe('Product: Edit product media', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST',
+            method: 'POST'
         }).as('saveProduct');
 
         // Open product
@@ -108,12 +112,12 @@ describe('Product: Edit product media', () => {
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`,
+            `${page.elements.dataGridRow}--0`
         );
 
         // Add first image to product
         cy.get('.sw-product-media-form__previews').scrollIntoView();
-        cy.get('.sw-product-media-form .sw-media-upload-v2__file-input')
+        cy.get('#files')
             .attachFile('img/sw-login-background.png');
         cy.get('.sw-product-image__image img')
             .should('have.attr', 'src')
@@ -121,7 +125,7 @@ describe('Product: Edit product media', () => {
         cy.awaitAndCheckNotification('File has been saved.');
 
         // Add second image to product
-        cy.get('.sw-product-media-form .sw-media-upload-v2__file-input')
+        cy.get('#files')
             .attachFile('img/sw-test-image.png');
         cy.get('.sw-product-image:nth-of-type(2) img')
             .first()
@@ -130,7 +134,7 @@ describe('Product: Edit product media', () => {
         cy.awaitAndCheckNotification('File has been saved.');
 
         // Add third image to product
-        cy.get('.sw-product-media-form .sw-media-upload-v2__file-input')
+        cy.get('#files')
             .attachFile('img/plugin-manager--login.png');
         cy.get('.sw-product-image:nth-of-type(3) img')
             .first()
@@ -176,20 +180,20 @@ describe('Product: Edit product media', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST',
+            method: 'POST'
         }).as('saveProduct');
 
         // Open product
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`,
+            `${page.elements.dataGridRow}--0`
         );
 
         // Add first image to product
         cy.get('.sw-product-media-form__previews').scrollIntoView();
 
-        cy.get('.sw-product-media-form .sw-media-upload-v2__file-input')
+        cy.get('#files')
             .attachFile('img/sw-login-background.png');
 
         cy.get('.sw-product-image__image img')

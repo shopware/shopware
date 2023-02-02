@@ -4,7 +4,6 @@ namespace Shopware\Storefront\Theme\Twig;
 
 use Shopware\Core\Checkout\Document\Event\DocumentTemplateRendererParameterEvent;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\TemplateNamespaceHierarchyBuilderInterface;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Theme\SalesChannelThemeLoader;
@@ -14,10 +13,6 @@ use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Contracts\Service\ResetInterface;
 
-/**
- * @internal
- */
-#[Package('storefront')]
 class ThemeNamespaceHierarchyBuilder implements TemplateNamespaceHierarchyBuilderInterface, EventSubscriberInterface, ResetInterface
 {
     /**
@@ -25,17 +20,25 @@ class ThemeNamespaceHierarchyBuilder implements TemplateNamespaceHierarchyBuilde
      */
     private array $themes = [];
 
+    private ThemeInheritanceBuilderInterface $themeInheritanceBuilder;
+
+    private SalesChannelThemeLoader $salesChannelThemeLoader;
+
     /**
      * @internal
      */
-    public function __construct(private readonly ThemeInheritanceBuilderInterface $themeInheritanceBuilder, private readonly SalesChannelThemeLoader $salesChannelThemeLoader)
-    {
+    public function __construct(
+        ThemeInheritanceBuilderInterface $themeInheritanceBuilder,
+        SalesChannelThemeLoader $salesChannelThemeLoader
+    ) {
+        $this->themeInheritanceBuilder = $themeInheritanceBuilder;
+        $this->salesChannelThemeLoader = $salesChannelThemeLoader;
     }
 
     /**
      * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
      */
-    public static function getSubscribedEvents(): array
+    public static function getSubscribedEvents()
     {
         return [
             KernelEvents::REQUEST => 'requestEvent',
@@ -95,7 +98,6 @@ class ThemeNamespaceHierarchyBuilder implements TemplateNamespaceHierarchyBuilde
      */
     private function detectedThemes(Request $request): array
     {
-        $themes = [];
         // get name if theme is not inherited
         $theme = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_THEME_NAME);
 

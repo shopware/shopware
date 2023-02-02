@@ -3,12 +3,10 @@
 namespace Shopware\Core\Content\Product\Aggregate\ProductCrossSelling;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<ProductCrossSellingEntity>
  */
-#[Package('inventory')]
 class ProductCrossSellingCollection extends EntityCollection
 {
     public function getExpectedClass(): string

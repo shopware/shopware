@@ -2,9 +2,6 @@
 
 namespace Shopware\Core\Framework\App\Manifest\Xml;
 
-use Shopware\Core\Framework\Log\Package;
-
-#[Package('core')]
 class MainModule extends XmlElement
 {
     protected string $source;

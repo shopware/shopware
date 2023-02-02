@@ -1,0 +1,57 @@
+@startuml
+' uncomment the line below if you're using computer with a retina display
+' skinparam dpi 300
+!define Table(name,desc) class name as "desc" << (T,#FFAAAA) >>
+!define ForeignTable(name,desc) class name as "desc" << (T,#ada6a6) >>
+!define TranslationTable(name,desc) class name as "desc" << (I,#4286f4) >>
+' we use bold for primary key
+' green color for unique
+' and underscore for not_null
+!define primary_key(x) <b>x</b>
+!define unique(x) <color:green>x</color>
+!define not_null(x) <u>x</u>
+' other tags available:
+' <i></i>
+' <back:COLOR></color>, where color is a color name or html color code
+' (#FFAACC)
+' see: http://plantuml.com/classes.html#More
+hide methods
+hide stereotypes
+hide empty members
+skinparam backgroundColor #FFFFFF
+
+' entities
+
+Table(ShopwareCoreContentDeliveryTimeDeliveryTimeDefinition, "delivery_time\n(Delivery time)") {
+   primary_key(id) id
+   not_null(name) translated
+   not_null(min) int
+   not_null(max) int
+   not_null(unit) string
+   customFields translated
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
+   translated json
+}
+TranslationTable(ShopwareCoreContentDeliveryTimeAggregateDeliveryTimeTranslationDeliveryTimeTranslationDefinition, "delivery_time_translation\n((Translations))") {
+   not_null(name) string
+   customFields customFields
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
+   primary_key(deliveryTimeId) foreignKey
+   primary_key(languageId) foreignKey
+}
+ForeignTable(ShopwareCoreCheckoutShippingShippingMethodDefinition, "shipping_method") {
+}
+ForeignTable(ShopwareCoreContentProductProductDefinition, "product") {
+}
+ForeignTable(ShopwareCoreFrameworkLanguageLanguageDefinition, "language") {
+}
+
+' relationshipd
+
+ShopwareCoreContentDeliveryTimeDeliveryTimeDefinition --> ShopwareCoreCheckoutShippingShippingMethodDefinition
+ShopwareCoreContentDeliveryTimeDeliveryTimeDefinition --> ShopwareCoreContentProductProductDefinition
+ShopwareCoreContentDeliveryTimeAggregateDeliveryTimeTranslationDeliveryTimeTranslationDefinition --> ShopwareCoreContentDeliveryTimeDeliveryTimeDefinition
+ShopwareCoreContentDeliveryTimeAggregateDeliveryTimeTranslationDeliveryTimeTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
+@enduml

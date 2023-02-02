@@ -3,9 +3,7 @@
 namespace Shopware\Storefront\Pagelet;
 
 use Shopware\Core\Content\Category\Tree\Tree;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('storefront')]
 abstract class NavigationPagelet extends Pagelet
 {
     /**

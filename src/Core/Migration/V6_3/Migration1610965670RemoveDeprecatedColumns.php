@@ -3,13 +3,8 @@
 namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
-/**
- * @internal
- */
-#[Package('core')]
 class Migration1610965670RemoveDeprecatedColumns extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -34,61 +29,68 @@ class Migration1610965670RemoveDeprecatedColumns extends MigrationStep
     private function dropDecimalPrecisionColumn(Connection $connection): void
     {
         try {
-            $connection->executeStatement(
-                'DROP TRIGGER `currency_cash_rounding_insert`'
+            $connection->executeUpdate(
+                '
+                DROP TRIGGER `currency_cash_rounding_insert`'
             );
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
         }
 
         try {
-            $connection->executeStatement(
-                'DROP TRIGGER `currency_cash_rounding_update`'
+            $connection->executeUpdate(
+                '
+                DROP TRIGGER `currency_cash_rounding_update`'
             );
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
         }
 
         try {
-            $connection->executeStatement(
-                'ALTER TABLE `currency`
+            $connection->executeUpdate(
+                '
+                ALTER TABLE `currency`
                 DROP COLUMN `decimal_precision`'
             );
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
         }
     }
 
     private function dropPurchasePrice(Connection $connection): void
     {
         try {
-            $connection->executeStatement(
-                'DROP TRIGGER `product_purchase_prices_insert`'
+            $connection->executeUpdate(
+                '
+                DROP TRIGGER `product_purchase_prices_insert`'
             );
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
         }
 
         try {
-            $connection->executeStatement(
-                'DROP TRIGGER `product_purchase_prices_update`'
+            $connection->executeUpdate(
+                '
+                DROP TRIGGER `product_purchase_prices_update`'
             );
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
         }
 
         try {
-            $connection->executeStatement(
-                'ALTER TABLE `product`
+            $connection->executeUpdate(
+                '
+                ALTER TABLE `product`
                 DROP COLUMN `purchase_price`'
             );
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
         }
     }
 
     private function dropCustomFields(Connection $connection): void
     {
         try {
-            $connection->executeStatement(
-                'ALTER TABLE `customer_wishlist_product`
+            $connection->executeUpdate(
+                '
+                ALTER TABLE `customer_wishlist_product`
                 DROP COLUMN `custom_fields`'
             );
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
         }
     }
 }

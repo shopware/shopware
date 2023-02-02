@@ -1,12 +1,11 @@
-/**
- * @package system-settings
- */
 import string from 'src/core/service/utils/string.utils';
 import template from './sw-import-export-new-profile-wizard-general-page.html.twig';
 import './sw-import-export-new-profile-wizard-general-page.scss';
 
+const { Component } = Shopware;
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-import-export-new-profile-wizard-general-page', {
     template,
 
     props: {
@@ -43,4 +42,4 @@ export default {
             return !!field || !string.isEmptyOrSpaces(field);
         },
     },
-};
+});

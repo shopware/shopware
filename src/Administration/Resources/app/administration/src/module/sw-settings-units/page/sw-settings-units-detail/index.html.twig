@@ -1,6 +1,6 @@
 <sw-page class="sw-settings-units">
 
-    <template #smart-bar-actions>
+    <template slot="smart-bar-actions">
 
         <sw-button-process
             class="sw-settings-units__create-action"
@@ -15,35 +15,32 @@
 
     </template>
 
-    <template #language-switch>
-        <sw-language-switch
-            :disabled="unit === null || unit.isNew()"
-            @on-change="onChangeLanguage"
-        />
-    </template>
+    <sw-language-switch
+        slot="language-switch"
+        :disabled="unit === null || unit.isNew()"
+        @on-change="onChangeLanguage"
+    />
 
-    <template #content>
-        <sw-card-view>
-            <sw-card
-                v-if="!isLoading"
-                position-identifier="sw-settings-units-content"
-            >
-                <sw-text-field
-                    v-model="unit.name"
-                    :label="$tc('sw-settings-units.detail.fieldLabels.name')"
-                    :error="unitNameError"
-                    required
-                />
+    <sw-card-view slot="content">
+        <sw-card
+            v-if="!isLoading"
+            position-identifier="sw-settings-units-content"
+        >
+            <sw-text-field
+                v-model="unit.name"
+                :label="$tc('sw-settings-units.detail.fieldLabels.name')"
+                :error="unitNameError"
+                required
+            />
 
-                <sw-text-field
-                    v-model="unit.shortCode"
-                    :label="$tc('sw-settings-units.detail.fieldLabels.shortCode')"
-                    :error="unitShortCodeError"
-                    required
-                />
-            </sw-card>
+            <sw-text-field
+                v-model="unit.shortCode"
+                :label="$tc('sw-settings-units.detail.fieldLabels.shortCode')"
+                :error="unitShortCodeError"
+                required
+            />
+        </sw-card>
 
-            <sw-skeleton v-else />
-        </sw-card-view>
-    </template>
+        <sw-skeleton v-else />
+    </sw-card-view>
 </sw-page>

@@ -6,8 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\TestUser;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -17,13 +16,12 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Package('system-settings')]
 class ImportExportActionControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepositoryInterface
      */
     private $repository;
 
@@ -32,7 +30,10 @@ class ImportExportActionControllerTest extends TestCase
      */
     private $connection;
 
-    private Context $context;
+    /**
+     * @var Context
+     */
+    private $context;
 
     protected function setUp(): void
     {
@@ -105,7 +106,7 @@ class ImportExportActionControllerTest extends TestCase
 
             $response = $client->getResponse();
             static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode());
-            $response = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+            $response = json_decode($response->getContent(), true);
             static::assertEquals('FRAMEWORK__MISSING_PRIVILEGE_ERROR', $response['errors'][0]['code'] ?? null);
             static::assertStringContainsString('product:read', $response['errors'][0]['detail']);
             static::assertStringContainsString('tax:read', $response['errors'][0]['detail']);
@@ -149,7 +150,7 @@ class ImportExportActionControllerTest extends TestCase
             $response = $client->getResponse();
             static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
-            $content = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+            $content = json_decode($response->getContent(), true);
             static::assertSame(ImportExportLogEntity::ACTIVITY_DRYRUN, $content['log']['activity']);
         }
     }
@@ -179,7 +180,7 @@ class ImportExportActionControllerTest extends TestCase
         );
 
         $response = $client->getResponse();
-        $content = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $content = json_decode($response->getContent(), true);
 
         if ($expectedErrorCode !== null) {
             static::assertSame($expectedErrorCode, $response->getStatusCode());
@@ -194,7 +195,9 @@ class ImportExportActionControllerTest extends TestCase
         }
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
-        $result = array_map(fn ($mapping) => ['key' => $mapping['key'], 'mappedKey' => $mapping['mappedKey']], $content);
+        $result = array_map(function ($mapping) {
+            return ['key' => $mapping['key'], 'mappedKey' => $mapping['mappedKey']];
+        }, $content);
         static::assertSame($expectedMapping, $result);
     }
 
@@ -316,22 +319,21 @@ class ImportExportActionControllerTest extends TestCase
     private function getUploadFile(string $type = 'text/csv', string $forceFileName = '', ?string $content = null): UploadedFile
     {
         $file = tempnam(sys_get_temp_dir(), 'upl');
-        static::assertIsString($file);
 
         switch ($type) {
             case 'text/html':
-                $content ??= '<!DOCTYPE html><html><body></body></html>';
+                $content = $content ?? '<!DOCTYPE html><html><body></body></html>';
                 $fileName = 'test.html';
 
                 break;
             case 'text/xml':
-                $content ??= '<?xml version="1.0" ?><foo></foo>';
+                $content = $content ?? '<?xml version="1.0" ?><foo></foo>';
                 $fileName = 'test.xml';
 
                 break;
             case 'text/csv':
             default:
-                $content ??= '"foo";"bar";"123"';
+                $content = $content ?? '"foo";"bar";"123"';
                 $fileName = 'test.csv';
         }
         file_put_contents($file, $content);

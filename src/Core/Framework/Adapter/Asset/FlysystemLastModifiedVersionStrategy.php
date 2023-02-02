@@ -2,58 +2,69 @@
 
 namespace Shopware\Core\Framework\Adapter\Asset;
 
-use League\Flysystem\FilesystemOperator;
-use Shopware\Core\Framework\Log\Package;
+use League\Flysystem\FileNotFoundException;
+use League\Flysystem\FilesystemInterface;
 use Symfony\Component\Asset\VersionStrategy\VersionStrategyInterface;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 
-#[Package('core')]
 class FlysystemLastModifiedVersionStrategy implements VersionStrategyInterface
 {
+    private FilesystemInterface $filesystem;
+
+    private TagAwareAdapterInterface $cacheAdapter;
+
+    private string $cacheTag;
+
     /**
      * @internal
      */
-    public function __construct(private readonly string $cacheTag, private readonly FilesystemOperator $filesystem, private readonly TagAwareAdapterInterface $cacheAdapter)
+    public function __construct(string $cacheTag, FilesystemInterface $filesystem, TagAwareAdapterInterface $cacheAdapter)
     {
+        $this->filesystem = $filesystem;
+        $this->cacheAdapter = $cacheAdapter;
+        $this->cacheTag = $cacheTag;
     }
 
-    public function getVersion(string $path): string
+    /**
+     * @return string
+     */
+    public function getVersion(string $path)
     {
         return $this->applyVersion($path);
     }
 
-    public function applyVersion(string $path): string
+    /**
+     * @return string
+     */
+    public function applyVersion(string $path)
     {
-        $lastModified = $this->getLastModified($path);
-
-        return $path . $lastModified;
-    }
-
-    private function getLastModified(string $path): string
-    {
-        if ($path === '') {
-            return '';
+        try {
+            $metaData = $this->getMetaData($path);
+        } catch (FileNotFoundException $e) {
+            return $path;
         }
 
-        $cacheKey = 'metaDataFlysystem-' . md5($path);
+        return $path . '?' . $metaData['timestamp'] . ($metaData['size'] ?? '0');
+    }
+
+    private function getMetaData(string $path): array
+    {
+        $cacheKey = 'metaDataFlySystem-' . md5($path);
 
         /** @var ItemInterface $item */
         $item = $this->cacheAdapter->getItem($cacheKey);
 
         if ($item->isHit()) {
-            return (string) $item->get();
+            return $item->get();
         }
 
-        $metaData = '';
-        if ($this->filesystem->fileExists($path)) {
-            $metaData = '?' . $this->filesystem->lastModified($path);
-        }
+        $metaData = $this->filesystem->getMetadata($path);
 
         $item->set($metaData);
         $item->tag($this->cacheTag);
         $this->cacheAdapter->saveDeferred($item);
 
-        return (string) $item->get();
+        return $item->get();
     }
 }

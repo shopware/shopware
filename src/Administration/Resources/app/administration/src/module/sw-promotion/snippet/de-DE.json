@@ -1,0 +1,229 @@
+{
+  "global": {
+    "error-codes": {
+      "PROMOTION_VALID_UNTIL_VIOLATION": "Das Beginn der Aktion muss vor deren Ende liegen.",
+      "PROMOTION_DISCOUNT_MAX_VALUE_VIOLATION": "Der Rabattwert darf nicht größer sein als {value}.",
+      "PROMOTION_DISCOUNT_MIN_VALUE_VIOLATION": "Der Rabattwert darf nicht kleiner sein als {value}.",
+      "PROMOTION_DUPLICATED_CODE_VIOLATION": "Dieser Aktionscode wird bereits von einer anderen Aktion benutzt.",
+      "PROMOTION_CODE_WHITESPACE_VIOLATION": "Der Aktionscode darf nicht mit Leerzeichen beginnen oder enden.",
+      "PROMOTION_EMPTY_CODE_VIOLATION": "Der Aktionscode darf nicht leer sein.",
+      "PROMOTION_DUPLICATE_PATTERN_VIOLATION": "Das Code-Muster wurde bereits in einer anderen Aktion verwendet."
+    }
+  },
+  "sw-promotion": {
+    "setgroup": {
+      "packager": {
+        "COUNT": "Anzahl",
+        "PRICE_UNIT_GROSS": "Wert (Brutto)",
+        "PRICE_UNIT_NET": "Wert (Netto)"
+      },
+      "sorter": {
+        "PRICE_ASC": "Preis aufsteigend",
+        "PRICE_DESC": "Preis absteigend"
+      }
+    },
+    "filter": {
+      "sorter": {
+        "PRICE_ASC": "Preis aufsteigend",
+        "PRICE_DESC": "Preis absteigend"
+      },
+      "applier": {
+        "ALL": "Jedes Produkt",
+        "SELECT": "{count}. Produkt"
+      },
+      "counter": {
+        "ALL": "Unbegrenzt",
+        "SELECT": "{count} x"
+      },
+      "picker": {
+        "VERTICAL": "Vertikal",
+        "HORIZONTAL": "Horizontal"
+      }
+    },
+    "general": {
+      "mainMenuItemGeneral": "Rabatte & Aktionen",
+      "mainMenuItemList": "Rabatte & Aktionen",
+      "description": "Verwalte Rabattaktionen."
+    },
+    "swPromotionRuleSelect": {
+      "labelAddNewRule": "Neue Regel erstellen"
+    },
+    "list": {
+      "textTitle": "Rabatte & Aktionen",
+      "buttonAddPromotion": "Aktion anlegen",
+      "buttonCancel": "Abbrechen",
+      "buttonDelete": "Löschen",
+      "columnActive": "Aktiv",
+      "columnName": "Name",
+      "columnValidFrom": "Gültig von:",
+      "columnValidUntil": "Gültig bis:",
+      "contextMenuDelete": "Löschen",
+      "contextMenuDuplicate": "Duplizieren",
+      "contextMenuEdit": "Bearbeiten",
+      "messageEmpty": "Noch keine Rabattaktionen",
+      "placeholderSearchBar": "Durchsuche alle Rabattaktionen ...",
+      "textDeleteConfirm": "Möchtest Du die Rabattaktion \"{name}\" wirklich löschen?",
+      "titleSidebarItemRefresh": "Aktualisieren"
+    },
+    "detail": {
+      "header": {
+        "titleCreate": "Neue Aktion",
+        "titleEdit": "Aktion",
+        "buttonCancel": "Abbrechen",
+        "buttonSave": "Speichern",
+        "messageSaveSuccess": "Die Rabattaktion \"{name}\" wurde gespeichert."
+      },
+      "tabs": {
+        "tabGeneral": "Allgemein",
+        "tabPreconditions": "Bedingungen",
+        "tabDiscounts": "Rabatte"
+      },
+      "main": {
+        "general": {
+          "cardTitlePromotionInfo": "Einstellungen",
+          "cardTitleCode": "Aktionscodes",
+          "labelTitle": "Name",
+          "placeholderName": "Namen eingeben ...",
+          "labelActive": "Aktiv",
+          "labelSalesChannels": "Verkaufskanäle",
+          "placeholderSalesChannels": "Verkaufskanal hinzufügen ...",
+          "labelValidFrom": "Gültig von:",
+          "labelValidUntil": "Gültig bis:",
+          "labelMaxRedemptionsGlobal": "Anzahl insgesamt",
+          "placeholderMaxRedemptionsGlobal": "Wert eingeben ...",
+          "helpTextMaxRedemptionsGlobal":"Gib '0' ein, um die Aktion unbegrenzt oft zu erlauben.",
+          "labelMaxRedemptionsPerCustomer": "Anzahl pro Kunde",
+          "placeholderMaxRedemptionsPerCustomer": "Wert eingeben ...",
+          "helpTextMaxRedemptionsPerCustomer":"Gib '0' ein, um die Aktion für jeden einzelnen Kunden unbegrenzt oft zu erlauben.",
+          "labelPromotionExclusions": "Nicht kombinieren mit",
+          "placeholderPromotionExclusions": "Aktion hinzufügen ...",
+          "codes": {
+            "card": "Aktionscodes",
+            "labelCode": "Allgemeiner Aktionscode",
+            "helpTextIndividual": "Ein allgemeiner Aktionscode kann nicht gleichzeitig mit individuellen Codes verwendet werden.",
+            "placeholderCode": "Gib einen Code für die Rabattaktion ein ...",
+            "switchUseCodes": "Aktionscodes verwenden",
+            "switchUseIndividualCodes": "Individuelle Aktionscodes verwenden.",
+            "linkEditIndividualCodes": "Individuelle Aktionscodes verwalten.",
+            "individual": {
+              "title": "Individuelle Aktionscodes",
+              "labelPattern": "Muster",
+              "helpTextPattern": "Gib hier das gewünschte Code-Muster an. Nutze dabei die Platzhalter \"%s\" für Buchstaben oder \"%d\" für Ziffern. Beispiel: code-%s%s%d.",
+              "labelCount": "Anzahl",
+              "buttonGenerate": "Speichern und Codes generieren",
+              "labelNoCodesExist": "Keine individuellen Codes vorhanden",
+              "columnCode": "Aktionscode",
+              "columnRedeemed": "Eingelöst",
+              "columnCustomer": "Kunde",
+              "buttonDeleteCode": "Löschen",
+              "buttonOpenCustomer": "Kunde öffnen",
+              "alerts": {
+                "errorNoPatternTitle": "Fehlendes Muster",
+                "errorNoPatternMessage": "Bitte gib ein Muster für Deine Codes an.",
+                "successGeneratedTitle": "Code-Erstellung abgeschlossen.",
+                "successGeneratedMessage": "{count} neue Codes wurden generiert.",
+                "successDeletedTitle": "Code gelöscht",
+                "errorDeletedTitle": "Fehler beim Löschen.",
+                "warningFormatCodes": "Ungültiges Code-Muster. Passe Dein Muster an und verwende \"%s\" als Platzhalter für Buchstaben und/oder \"%d\" als Platzhalter für Ziffern.",
+                "warningNotAllowPattern": "Mit dem eingegebenen Muster ist es nicht möglich {generateCount} Codes zu generieren. Passe das Muster an um die gewünschte Anzahl an Codes erstellen zu können."
+              }
+            },
+            "warningEmptyPromotionName": "Diese Rabattaktion hat noch keinen Namen. Bitte gib einen Namen ein, bevor Du Rabatt-Codes generierst."
+          }
+        },
+        "preconditions": {
+          "ruleModuleLink": "Regelmodul öffnen",
+          "persona": {
+            "card": "Zielgruppe",
+            "title": "Bestimme, welche Kunden von dieser Aktion profitieren können.",
+            "text": "Nutze Regeln aus dem Rule Builder, um die Zielgruppe dieser Marketingaktion einzugrenzen. Ohne eine Eingrenzung haben alle Deine Kunden Zugriff auf diese Aktion.",
+            "labelRules": "Kundenregeln",
+            "placeholderRules": "Regel hinzufügen ...",
+            "switchAssignCustomers": "Aktion einzelnen Kunden zuweisen",
+            "placeholderAddCustomers": "Kunden durchsuchen und hinzufügen ...",
+            "customers": {
+              "grid": {
+                "headerName": "Name",
+                "headerCustomerNumber": "Kundennummer",
+                "delete": "Entfernen"
+              }
+            }
+          },
+          "order": {
+            "card": "Qualifizierte Bestellungen",
+            "title": "Definiere qualifizierte Bestellungs-Eigenschaften für diese Rabattaktion.",
+            "text": "Nutze Regeln aus dem Rule Builder, um zu definieren, welche Eigenschaften einer Bestellung vorhanden sein müssen, um die Aktionsauflagen zu erfüllen. Ohne eine Eingrenzung wird die Aktion auf alle Bestellungen angewendet.",
+            "rulesModuleLink": "Regelmodul öffnen",
+            "rulesCaption": "Bestellregeln",
+            "rulesPlaceholder": "Bestellregel zuweisen ..."
+          },
+          "cart": {
+            "card": "Warenkörbe",
+            "title": "Definiere qualifizierte Warenkörbe für diese Rabatt-Aktion.",
+            "text": "Nutze Regeln aus dem Rule Builder, um zu definieren, welche Eigenschaften eines Warenkorbes vorhanden sein müssen, um die Aktionsauflagen zu erfüllen. Ohne eine Eingrenzung wird die Aktion auf alle Warenkörbe angewendet.",
+            "rulesModuleLink": "Regelmodul öffnen",
+            "rulesCaption": "Warenkorbregeln",
+            "rulesPlaceholder": "Warenkorbregel zuweisen ...",
+            "setgroups": {
+              "switchGroupsEnabled": "Aktion auf Produkt-Sets anwenden",
+              "buttonAddGroup": "Set-Gruppe hinzufügen",
+              "titleName": "Set-Gruppe",
+              "labelMode": "Modus",
+              "labelValue": "Wert",
+              "labelSorting": "Sortierung",
+              "labelRules": "Produktregeln",
+              "buttonDuplicate": "Duplizieren",
+              "buttonDelete": "Löschen"
+            }
+          }
+        },
+        "discounts": {
+          "card": "Rabatt",
+          "labelValue": "Wert",
+          "labelMaxValue": "Maximaler Rabattwert",
+          "helpTextMaxValueAdvancedPrices": "Der maximale Betrag besitzt erweiterte Preise.",
+          "placeholderValue": "Gib den Wert der Rabattaktion an ...",
+          "labelScope": "Anwenden auf:",
+          "flagProductScopeLabel": "Nur auf ausgewählte Produkte anwenden.",
+          "labelRules": "Produktregeln",
+          "placeholder": "Produktregeln zuweisen ...",
+          "labelType": "Art",
+          "valueScopeCart": "Warenkorb",
+          "valueScopeDelivery": "Versandkosten",
+          "valueScopeSet": "Gesamtes Set",
+          "valueScopeSetGroup": "Set-Gruppe",
+          "valueTypeAbsolute": "Absolut",
+          "valueTypePercentage": "Prozentual",
+          "valueTypeFixed": "Festpreis",
+          "valueTypeFixedUnit": "Fester Stückpreis",
+          "buttonAddDiscount": "Rabatt hinzufügen",
+          "buttonDeleteDiscount": "Rabatt entfernen",
+          "delete": {
+            "confirmTitle": "Rabatt entfernen",
+            "confirmText": "Möchtest Du diesen Rabatt wirklich aus der Rabattaktion entfernen?",
+            "buttonCancel": "Abbrechen",
+            "buttonDelete": "Rabatt entfernen"
+          },
+          "labelSorting": "Sortieren nach",
+          "labelPicking": "Produktauswahl Modus",
+          "labelApplyCount": "Anwenden auf",
+          "labelMaxCount": "Maximale Anwendung",
+          "linkAdvancedPrices": "Erweiterte Preisansicht öffnen",
+          "pricesModal": {
+            "advancedPricesHeader": "Erweiterte Preise",
+            "closeModal": "Schließen",
+            "labelCurrency": "Währung",
+            "labelPrice": "Wert"
+          }
+        }
+      }
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "promotion": {
+        "label": "Rabatte & Aktionen"
+      }
+    }
+  }
+}

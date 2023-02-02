@@ -37,7 +37,7 @@ class Migration1625304609UpdateRolePrivilegesTest extends TestCase
         $appPrivileges = $this->getAppPrivileges($apps);
 
         $privileges = $connection->fetchOne('SELECT privileges FROM acl_role WHERE id = :id', ['id' => $aclRoleId]);
-        $privileges = \json_decode((string) $privileges, true, 512, \JSON_THROW_ON_ERROR);
+        $privileges = \json_decode($privileges, true, 512, \JSON_THROW_ON_ERROR);
 
         foreach ($appPrivileges as $appPrivilege) {
             static::assertContains($appPrivilege, $privileges);
@@ -54,11 +54,11 @@ class Migration1625304609UpdateRolePrivilegesTest extends TestCase
         $aclRoleId = Uuid::randomBytes();
         $this->createAclRole($aclRoleId);
 
-        $connection->executeStatement('
+        $connection->executeStatement("
             UPDATE `acl_role`
-            SET `privileges` = \'{"0": "users_and_permissions.viewer"}\'
+            SET `privileges` = '{\"0\": \"users_and_permissions.viewer\"}'
             WHERE id = :id
-        ', ['id' => $aclRoleId]);
+        ", ['id' => $aclRoleId]);
 
         $this->createAclUserRole($userId, $aclRoleId);
 
@@ -69,7 +69,7 @@ class Migration1625304609UpdateRolePrivilegesTest extends TestCase
         $appPrivileges = $this->getAppPrivileges($apps);
 
         $privileges = $connection->fetchOne('SELECT privileges FROM acl_role WHERE id = :id', ['id' => $aclRoleId]);
-        $privileges = \json_decode((string) $privileges, true, 512, \JSON_THROW_ON_ERROR);
+        $privileges = \json_decode($privileges, true, 512, \JSON_THROW_ON_ERROR);
 
         foreach ($appPrivileges as $appPrivilege) {
             static::assertContains($appPrivilege, $privileges);
@@ -132,9 +132,9 @@ class Migration1625304609UpdateRolePrivilegesTest extends TestCase
         ];
 
         foreach ($appNames as $appName) {
-            $privileges = [...$privileges, ...[
+            $privileges = array_merge($privileges, [
                 'app.' . $appName,
-            ]];
+            ]);
         }
 
         return $privileges;

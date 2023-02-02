@@ -2,32 +2,21 @@
 
 namespace Shopware\Core\Framework\Adapter\Filesystem\Adapter;
 
-use League\Flysystem\FilesystemAdapter;
-use League\Flysystem\Local\LocalFilesystemAdapter;
-use League\Flysystem\UnixVisibility\PortableVisibilityConverter;
-use Shopware\Core\Framework\Log\Package;
+use League\Flysystem\Adapter\Local;
+use League\Flysystem\AdapterInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-#[Package('core')]
 class LocalFactory implements AdapterFactoryInterface
 {
-    public function create(array $config): FilesystemAdapter
+    public function create(array $config): AdapterInterface
     {
         $options = $this->resolveOptions($config);
 
-        return new LocalFilesystemAdapter(
+        return new Local(
             $options['root'],
-            PortableVisibilityConverter::fromArray([
-                'file' => $options['file'],
-                'dir' => $options['dir'],
-            ]),
-
-            // Write flags
             \LOCK_EX,
-
-            // How to deal with links, either DISALLOW_LINKS or SKIP_LINKS
-            // Disallowing them causes exceptions when encountered
-            LocalFilesystemAdapter::DISALLOW_LINKS
+            Local::DISALLOW_LINKS,
+            $options
         );
     }
 

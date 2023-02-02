@@ -4,17 +4,12 @@ namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-/**
- * @internal
- */
-#[Package('core')]
 class Migration1603179023AddDefaultSettingConfigValueForProductListingPerPage extends MigrationStep
 {
-    final public const CONFIG_KEY = 'core.listing.productsPerPage';
+    public const CONFIG_KEY = 'core.listing.productsPerPage';
 
     public function getCreationTimestamp(): int
     {
@@ -42,7 +37,7 @@ class Migration1603179023AddDefaultSettingConfigValueForProductListingPerPage ex
 
     private function configPresent(Connection $connection): bool
     {
-        return $connection->fetchOne(
+        return $connection->fetchColumn(
             'SELECT `id` FROM `system_config` WHERE `configuration_key` = :config_key LIMIT 1;',
             ['config_key' => self::CONFIG_KEY]
         ) !== false;

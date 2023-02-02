@@ -4,22 +4,27 @@ namespace Shopware\Core\Framework\Rule\Container;
 
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Symfony\Component\Validator\Constraints\Type;
 
-#[Package('business-ops
-MatchAllLineItemsRule returns true, if all rules are true for all line items')]
+/**
+ * MatchAllLineItemsRule returns true, if all rules are true for all line items
+ */
 class MatchAllLineItemsRule extends Container
 {
-    final public const RULE_NAME = 'allLineItemsContainer';
+    protected ?int $minimumShouldMatch = null;
+
+    protected ?string $type = null;
 
     /**
      * @internal
      */
-    public function __construct(array $rules = [], protected ?int $minimumShouldMatch = null, protected ?string $type = null)
+    public function __construct(array $rules = [], ?int $minimumShouldMatch = null, ?string $type = null)
     {
         parent::__construct($rules);
+
+        $this->minimumShouldMatch = $minimumShouldMatch;
+        $this->type = $type;
     }
 
     public function match(RuleScope $scope): bool
@@ -66,6 +71,11 @@ class MatchAllLineItemsRule extends Container
         }
 
         return true;
+    }
+
+    public function getName(): string
+    {
+        return 'allLineItemsContainer';
     }
 
     public function getConstraints(): array

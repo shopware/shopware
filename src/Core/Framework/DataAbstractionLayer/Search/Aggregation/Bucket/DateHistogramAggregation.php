@@ -4,32 +4,45 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Log\Package;
 
 /**
- * @final
+ * @final tag:v6.5.0
  */
-#[Package('core')]
 class DateHistogramAggregation extends BucketAggregation
 {
-    final public const PER_MINUTE = 'minute';
-    final public const PER_HOUR = 'hour';
-    final public const PER_DAY = 'day';
-    final public const PER_WEEK = 'week';
-    final public const PER_MONTH = 'month';
-    final public const PER_QUARTER = 'quarter';
-    final public const PER_YEAR = 'year';
+    public const PER_MINUTE = 'minute';
+    public const PER_HOUR = 'hour';
+    public const PER_DAY = 'day';
+    public const PER_WEEK = 'week';
+    public const PER_MONTH = 'month';
+    public const PER_QUARTER = 'quarter';
+    public const PER_YEAR = 'year';
 
-    private readonly string $interval;
+    /**
+     * @var FieldSorting|null
+     */
+    protected $sorting;
+
+    /**
+     * @var string|null
+     */
+    protected $format;
+
+    /**
+     * @var string
+     */
+    protected $interval;
+
+    protected ?string $timeZone;
 
     public function __construct(
         string $name,
         string $field,
         string $interval,
-        private readonly ?FieldSorting $sorting = null,
+        ?FieldSorting $sorting = null,
         ?Aggregation $aggregation = null,
-        private readonly ?string $format = null,
-        private readonly ?string $timeZone = null
+        ?string $format = null,
+        ?string $timeZone = null
     ) {
         parent::__construct($name, $field, $aggregation);
 
@@ -43,6 +56,9 @@ class DateHistogramAggregation extends BucketAggregation
         }
 
         $this->interval = $interval;
+        $this->format = $format;
+        $this->sorting = $sorting;
+        $this->timeZone = $timeZone;
     }
 
     public function getFormat(): ?string

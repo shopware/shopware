@@ -5,28 +5,54 @@ namespace Shopware\Core\Checkout\Cart;
 use Shopware\Core\Checkout\Cart\Hook\CartHook;
 use Shopware\Core\Checkout\Cart\Price\AmountCalculator;
 use Shopware\Core\Checkout\Cart\Transaction\TransactionProcessor;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('checkout')]
 class Processor
 {
+    private Validator $validator;
+
+    private AmountCalculator $amountCalculator;
+
+    private TransactionProcessor $transactionProcessor;
+
+    /**
+     * @var CartProcessorInterface[]
+     */
+    private $processors;
+
+    /**
+     * @var CartDataCollectorInterface[]
+     */
+    private $collectors;
+
+    private ScriptExecutor $executor;
+
     /**
      * @internal
-     *
-     * @param iterable<CartProcessorInterface> $processors
-     * @param iterable<CartDataCollectorInterface> $collectors
      */
-    public function __construct(private readonly Validator $validator, private readonly AmountCalculator $amountCalculator, private readonly TransactionProcessor $transactionProcessor, private readonly iterable $processors, private readonly iterable $collectors, private readonly ScriptExecutor $executor)
-    {
+    public function __construct(
+        Validator $validator,
+        AmountCalculator $amountCalculator,
+        TransactionProcessor $transactionProcessor,
+        iterable $processors,
+        iterable $collectors,
+        ScriptExecutor $executor
+    ) {
+        $this->validator = $validator;
+        $this->amountCalculator = $amountCalculator;
+        $this->transactionProcessor = $transactionProcessor;
+        $this->processors = $processors;
+        $this->collectors = $collectors;
+        $this->executor = $executor;
     }
 
     public function process(Cart $original, SalesChannelContext $context, CartBehavior $behavior): Cart
     {
         return Profiler::trace('cart::process', function () use ($original, $context, $behavior) {
-            $cart = new Cart($original->getToken());
+            $cart = new Cart($original->getName(), $original->getToken());
             $cart->setCustomerComment($original->getCustomerComment());
             $cart->setAffiliateCode($original->getAffiliateCode());
             $cart->setCampaignCode($original->getCampaignCode());
@@ -60,7 +86,9 @@ class Processor
 
     private function runProcessors(Cart $original, Cart $cart, SalesChannelContext $context, CartBehavior $behavior): void
     {
-        if ($original->getLineItems()->count() <= 0) {
+        if ($original->getLineItems()->count() <= 0
+            && (Feature::isActive('v6.5.0.0') || Feature::isActive('PERFORMANCE_TWEAKS'))
+        ) {
             $cart->addErrors(...array_values($original->getErrors()->getPersistent()->getElements()));
 
             $cart->setExtensions($original->getExtensions());

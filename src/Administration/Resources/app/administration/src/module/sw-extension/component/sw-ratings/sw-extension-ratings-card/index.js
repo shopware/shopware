@@ -2,10 +2,9 @@ import template from './sw-extension-ratings-card.html.twig';
 import './sw-extension-ratings-card.scss';
 
 /**
- * @package merchant-services
  * @private
  */
-export default {
+Shopware.Component.register('sw-extension-ratings-card', {
     template,
 
     mixins: ['sw-extension-error'],
@@ -108,4 +107,4 @@ export default {
             );
         },
     },
-};
+});

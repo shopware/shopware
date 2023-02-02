@@ -12,25 +12,27 @@ use Shopware\Core\Content\Media\MediaEvents;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Contracts\Service\ResetInterface;
 
-/**
- * @internal
- */
-#[Package('core')]
-class MediaSerializer extends EntitySerializer implements EventSubscriberInterface, ResetInterface
+class MediaSerializer extends EntitySerializer implements EventSubscriberInterface
 {
+    private FileSaver $fileSaver;
+
+    private MediaService $mediaService;
+
+    private EntityRepositoryInterface $mediaFolderRepository;
+
+    private EntityRepositoryInterface $mediaRepository;
+
     /**
-     * @var array<string, array{media: MediaFile, destination: string}>
+     * @var array[]
      */
     private array $cacheMediaFiles = [];
 
@@ -38,15 +40,19 @@ class MediaSerializer extends EntitySerializer implements EventSubscriberInterfa
      * @internal
      */
     public function __construct(
-        private readonly MediaService $mediaService,
-        private readonly FileSaver $fileSaver,
-        private readonly EntityRepository $mediaFolderRepository,
-        private readonly EntityRepository $mediaRepository
+        MediaService $mediaService,
+        FileSaver $fileSaver,
+        EntityRepositoryInterface $mediaFolderRepository,
+        EntityRepositoryInterface $mediaRepository
     ) {
+        $this->mediaService = $mediaService;
+        $this->fileSaver = $fileSaver;
+        $this->mediaFolderRepository = $mediaFolderRepository;
+        $this->mediaRepository = $mediaRepository;
     }
 
     /**
-     * @param array<mixed>|Struct|null $entity
+     * @param array|Struct|null $entity
      *
      * @return \Generator
      */
@@ -56,9 +62,9 @@ class MediaSerializer extends EntitySerializer implements EventSubscriberInterfa
     }
 
     /**
-     * @param array<mixed>|\Traversable<mixed> $entity
+     * @param array|\Traversable $entity
      *
-     * @return array<mixed>|\Traversable<mixed>
+     * @return array|\Traversable
      */
     public function deserialize(Config $config, EntityDefinition $definition, $entity)
     {
@@ -87,16 +93,13 @@ class MediaSerializer extends EntitySerializer implements EventSubscriberInterfa
 
         if ($isNew || $media->getUrl() !== $url) {
             $entityName = $config->get('sourceEntity') ?? $definition->getEntityName();
-            $deserialized['mediaFolderId'] ??= $this->getMediaFolderId($deserialized['id'] ?? null, $entityName);
+            $deserialized['mediaFolderId'] = $deserialized['mediaFolderId']
+                ?? $this->getMediaFolderId($deserialized['id'] ?? null, $entityName);
 
-            $deserialized['id'] ??= Uuid::randomHex();
+            $deserialized['id'] = $deserialized['id'] ?? Uuid::randomHex();
 
-            $parsed = parse_url((string) $url);
-            if (!$parsed) {
-                throw new \RuntimeException('Error parsing media URL: ' . $url);
-            }
-
-            $pathInfo = pathinfo($parsed['path'] ?? '');
+            $parsed = parse_url($url);
+            $pathInfo = pathinfo($parsed['path']);
 
             $media = $this->fetchFileFromURL((string) $url, $pathInfo['extension'] ?? '');
 
@@ -110,7 +113,7 @@ class MediaSerializer extends EntitySerializer implements EventSubscriberInterfa
                 $deserialized = $this->fetchExistingMediaByHash($deserialized, $media->getHash());
             }
 
-            $this->cacheMediaFiles[(string) $deserialized['id']] = [
+            $this->cacheMediaFiles[$deserialized['id']] = [
                 'media' => $media,
                 'destination' => $pathInfo['filename'],
             ];
@@ -127,7 +130,7 @@ class MediaSerializer extends EntitySerializer implements EventSubscriberInterfa
     /**
      * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
      */
-    public static function getSubscribedEvents(): array
+    public static function getSubscribedEvents()
     {
         return [
             MediaEvents::MEDIA_WRITTEN_EVENT => 'persistMedia',
@@ -162,12 +165,7 @@ class MediaSerializer extends EntitySerializer implements EventSubscriberInterfa
         }
     }
 
-    public function reset(): void
-    {
-        $this->cacheMediaFiles = [];
-    }
-
-    private function getMediaFolderId(?string $id, string $entity): string
+    private function getMediaFolderId(?string $id, $entity): string
     {
         if ($id !== null) {
             /** @var MediaFolderEntity|null $folder */
@@ -215,17 +213,12 @@ class MediaSerializer extends EntitySerializer implements EventSubscriberInterfa
             if ($file !== null && $file->getFileSize() > 0) {
                 return $file;
             }
-        } catch (\Throwable) {
+        } catch (\Throwable $throwable) {
         }
 
         return null;
     }
 
-    /**
-     * @param array<string, mixed> $deserialized
-     *
-     * @return array<string, mixed>
-     */
     private function fetchExistingMediaByHash(array $deserialized, string $hash): array
     {
         $criteria = new Criteria();

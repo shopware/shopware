@@ -3,12 +3,10 @@
 namespace Shopware\Core\Framework\Plugin\Aggregate\PluginTranslation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<PluginTranslationEntity>
  */
-#[Package('core')]
 class PluginTranslationCollection extends EntityCollection
 {
     public function getApiAlias(): string

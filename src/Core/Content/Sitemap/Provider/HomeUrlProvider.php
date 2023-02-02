@@ -4,15 +4,13 @@ namespace Shopware\Core\Content\Sitemap\Provider;
 
 use Shopware\Core\Content\Sitemap\Struct\Url;
 use Shopware\Core\Content\Sitemap\Struct\UrlResult;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('sales-channel')]
 class HomeUrlProvider extends AbstractUrlProvider
 {
-    final public const CHANGE_FREQ = 'daily';
-    final public const PRIORITY = 1.0;
+    public const CHANGE_FREQ = 'daily';
+    public const PRIORITY = 1.0;
 
     public function getDecorated(): AbstractUrlProvider
     {

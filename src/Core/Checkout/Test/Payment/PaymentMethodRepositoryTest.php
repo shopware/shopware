@@ -4,15 +4,15 @@ namespace Shopware\Core\Checkout\Test\Payment;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\DefaultPayment;
+use Shopware\Core\Checkout\Payment\DataAbstractionLayer\PaymentMethodRepositoryDecorator;
 use Shopware\Core\Checkout\Payment\Exception\PluginPaymentMethodsDeleteRestrictionException;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Test\Payment\Handler\V630\AsyncTestPaymentHandler;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
@@ -20,12 +20,11 @@ use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 /**
  * @internal
  */
-#[Package('checkout')]
 class PaymentMethodRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private EntityRepository $paymentRepository;
+    private PaymentMethodRepositoryDecorator $paymentRepository;
 
     private string $paymentMethodId;
 
@@ -185,7 +184,7 @@ class PaymentMethodRepositoryTest extends TestCase
         try {
             $this->paymentRepository->delete([$primaryKey], $defaultContext);
             static::fail('this should not be reached');
-        } catch (PluginPaymentMethodsDeleteRestrictionException) {
+        } catch (PluginPaymentMethodsDeleteRestrictionException $e) {
         }
 
         $criteria = new Criteria([$this->paymentMethodId]);
@@ -272,7 +271,7 @@ class PaymentMethodRepositoryTest extends TestCase
     {
         $pluginId = Uuid::randomHex();
 
-        /** @var EntityRepository $pluginRepo */
+        /** @var EntityRepositoryInterface $pluginRepo */
         $pluginRepo = $this->getContainer()->get('plugin.repository');
         $pluginRepo->create([[
             'id' => $pluginId,

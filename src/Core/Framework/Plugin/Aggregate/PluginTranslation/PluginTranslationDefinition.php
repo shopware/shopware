@@ -10,13 +10,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginDefinition;
 
-#[Package('core')]
 class PluginTranslationDefinition extends EntityTranslationDefinition
 {
-    final public const ENTITY_NAME = 'plugin_translation';
+    public const ENTITY_NAME = 'plugin_translation';
 
     public function getEntityName(): string
     {

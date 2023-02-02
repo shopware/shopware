@@ -57,6 +57,12 @@
             {% endblock %}
         {% endblock %}
 
+        {% if not feature('FEATURE_NEXT_16992') %}
+            {# @deprecated tag:v6.5.0 tag:)(FEATURE_NEXT_16992) - Block will be removed in v6.5.0 #}
+            {% block page_product_detail_not_available %}
+            {% endblock %}
+        {% endif %}
+
         {% block page_product_detail_buy_container %}
             <div itemprop="offers"
                  itemscope
@@ -111,7 +117,7 @@
                                     <a class="product-detail-tax-link"
                                        href="{{ path('frontend.cms.page',{ id: config('core.basicInformation.shippingPaymentInfoPage') }) }}"
                                        title="{{ taxText }}"
-                                       data-bs-toggle="modal"
+                                       {{ dataBsToggleAttr }}="modal"
                                        data-url="{{ path('frontend.cms.page',{ id: config('core.basicInformation.shippingPaymentInfoPage') }) }}">
                                         {{ taxText }}
                                     </a>
@@ -133,7 +139,7 @@
                                     points: page.product.ratingAverage,
                                     style: 'text-primary'
                                 } %}
-                                <a data-bs-toggle="tab"
+                                <a {{ dataBsToggleAttr }}="tab"
                                    class="product-detail-reviews-link"
                                    data-offcanvas-tabs="true"
                                    data-remote-click="true"

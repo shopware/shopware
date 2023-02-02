@@ -4,7 +4,7 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_logging_list_search_bar %}
-    <template #search-bar>
+    <template slot="search-bar">
         <sw-search-bar
             initial-search-type="Logs"
             :placeholder="$tc('sw-settings-logging.general.placeholderSearchBar')"
@@ -16,7 +16,7 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_logging_list_smart_bar_header %}
-    <template #smart-bar-header>
+    <template slot="smart-bar-header">
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_logging_list_smart_bar_header_title %}
         <h2>
@@ -36,12 +36,12 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_logging_list_smart_bar_actions %}
-    <template #smart-bar-actions></template>
+    <template slot="smart-bar-actions"></template>
     {% endblock %}
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_logging_list_content %}
-    <template #content>
+    <template slot="content">
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_logging_list_content_listing %}
         <sw-entity-listing
@@ -60,7 +60,8 @@
         >
 
             <template
-                #column-createdAt="{ item }"
+                slot="column-createdAt"
+                slot-scope="{ item }"
             >
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_logging_list_column_created_at %}
@@ -69,7 +70,8 @@
             </template>
 
             <template
-                #column-level="{ item }"
+                slot="column-level"
+                slot-scope="{ item }"
             >
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_logging_list_column_level %}
@@ -78,7 +80,8 @@
             </template>
 
             <template
-                #column-context="{ item }"
+                slot="column-context"
+                slot-scope="{ item }"
             >
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_logging_list_column_context %}
@@ -87,7 +90,7 @@
                 {% endblock %}
             </template>
 
-            <template #pagination>
+            <template slot="pagination">
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_logging_list_content_listing_pagination %}
                 <sw-pagination
@@ -101,7 +104,8 @@
             </template>
 
             <template
-                #actions="{ item }"
+                slot="actions"
+                slot-scope="{ item }"
             >
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_logging_list_content_listing_actions %}

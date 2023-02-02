@@ -1,13 +1,12 @@
 import template from './sw-extension-my-extensions-listing.html.twig';
 import './sw-extension-my-extensions-listing.scss';
 
-const { mapState } = Shopware.Component.getComponentHelper();
+const { Component } = Shopware;
 
 /**
- * @package merchant-services
  * @private
  */
-export default {
+Component.register('sw-extension-my-extensions-listing', {
     template,
 
     inject: ['shopwareExtensionService'],
@@ -20,10 +19,6 @@ export default {
     },
 
     computed: {
-        ...mapState('context', {
-            isAppUrlReachable: state => state.app.config.settings.appUrlReachable,
-        }),
-
         isLoading() {
             const state = Shopware.State.get('shopwareExtensions');
 
@@ -249,4 +244,4 @@ export default {
             });
         },
     },
-};
+});

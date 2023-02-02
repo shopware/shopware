@@ -7,6 +7,11 @@
         {% endif %}
     {% endblock %}
 
+    {# @deprecated tag:v6.5.0 - will be removed #}
+    {% if not feature('FEATURE_NEXT_15957') %}
+        {% set showVatIdField = false %}
+    {% endif %}
+
     {% block component_address_form_company %}
         {% if showFormCompany %}
             {% if config('core.loginRegistration.showAccountTypeSelection') %}
@@ -16,7 +21,7 @@
             {% if config('core.loginRegistration.showAccountTypeSelection') or prefix == "address" or prefix == "shippingAddress" or hasSelectedBusiness %}
                 <div class="{% if prefix == "shippingAddress" or hasSelectedBusiness %}address-contact-type-company{% elseif prefix == "address" %}js-field-toggle-contact-type-company d-block{% else %}js-field-toggle-contact-type-company d-none{% endif %}">
                     {% block component_address_form_company_fields %}
-                        <div class="row g-2">
+                        <div class="{{ formRowClass }}">
                             {% block component_address_form_company_name %}
                                 <div class="form-group col-6">
                                     {% if formViolations.getViolations("/company") is not empty %}
@@ -83,7 +88,41 @@
                             {% endblock %}
 
                             {% block component_address_form_company_vatId %}
-                                {% if prefix == 'address' and showVatIdField %}
+                                {% if not feature('FEATURE_NEXT_15957') and showVatIdField %}
+                                    <div class="form-group col-md-6">
+                                        {% if formViolations.getViolations("/vatId") is not empty %}
+                                            {% set violationPath = "/vatId" %}
+                                        {% elseif formViolations.getViolations("/#{prefix}/vatId") is not empty %}
+                                            {% set violationPath = "/#{prefix}/vatId" %}
+                                        {% endif %}
+
+                                        {# @deprecated tag:v6.5.0 - will be removed, look into `@Storefront/storefront/component/address/address-personal-vat-id.html.twig` instead #}
+                                        {% block component_address_form_company_vatId_label %}
+                                            <label class="form-label"
+                                                   for="{{ idPrefix ~ prefix }}vatId">
+                                                {{ "address.companyVatLabel"|trans|sw_sanitize }}
+                                            </label>
+                                        {% endblock %}
+
+                                        {# @deprecated tag:v6.5.0 - will be removed, look into `@Storefront/storefront/component/address/address-personal-vat-id.html.twig` instead #}
+                                        {% block component_address_form_company_vatId_input %}
+                                            <input type="text"
+                                                   class="form-control{% if violationPath %} is-invalid{% endif %}"
+                                                   id="{{ idPrefix ~ prefix }}vatId"
+                                                   placeholder="{{ "address.companyVatPlaceholder"|trans|striptags }}"
+                                                   name="{{ prefix }}[vatId]"
+                                                   value="{{ data.get('vatId') }}">
+                                        {% endblock %}
+
+                                        {# @deprecated tag:v6.5.0 - will be removed, look into `@Storefront/storefront/component/address/address-personal-vat-id.html.twig` instead #}
+                                        {% block component_address_form_company_vatId_input_error %}
+                                            {% if violationPath %}
+                                                {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' %}
+                                            {% endif %}
+                                        {% endblock %}
+                                    </div>
+
+                                {% elseif feature('FEATURE_NEXT_15957') and prefix == 'address' and showVatIdField %}
                                     <div class="form-group col-md-6">
                                         {% sw_include '@Storefront/storefront/component/address/address-personal-vat-id.html.twig' with {
                                             'vatIds': context.customer.vatIds
@@ -99,7 +138,7 @@
     {% endblock %}
 
     {% block component_address_form_address_fields %}
-        <div class="row g-2">
+        <div class="{{ formRowClass }}">
             {% block component_address_form_street %}
                 <div class="form-group col-md-6">
                     {% if formViolations.getViolations("/street") is not empty %}
@@ -139,7 +178,6 @@
 
             {% block component_address_form_zipcode_city %}
                 {% set zipcodeField %}
-                {% set zipcodeValue = formViolations.getInputData()['zipcode'] ?? data.get('zipcode') %}
                     {% if formViolations.getViolations("/zipcode") is not empty %}
                         {% set violationPath = "/zipcode" %}
                     {% elseif formViolations.getViolations("/#{prefix}/zipcode") is not empty %}
@@ -151,7 +189,7 @@
                     {% block component_address_form_zipcode_label %}
                         <label class="form-label"
                                for="{{ idPrefix ~ prefix }}AddressZipcode">
-                            {{ "address.zipcodeLabel"|trans|sw_sanitize }}<span class="d-none" id="zipcodeLabel">{{ "general.required"|trans|sw_sanitize }}</span>
+                            {{ "address.zipcodeLabel"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
                         </label>
                     {% endblock %}
 
@@ -161,9 +199,10 @@
                                id="{{ idPrefix ~ prefix }}AddressZipcode"
                                placeholder="{{ "address.zipcodePlaceholder"|trans|striptags }}"
                                name="{{ prefix }}[zipcode]"
-                               value="{{ zipcodeValue }}"
-                               data-input-name="zipcodeInput"
-                        >
+                               value="{{ data.get('zipcode') }}"
+                               data-form-validation-required
+                               {% if requiredMessage is defined %}data-form-validation-required-message="{{ requiredMessage }}"{% endif %}
+                               required="required">
                     {% endblock %}
 
                     {% block component_address_form_zipcode_error %}
@@ -298,7 +337,7 @@
             {% endblock %}
         </div>
 
-        <div class="row g-2 country-and-state-form-elements" data-country-state-select="true">
+        <div class="{{ formRowClass }} country-and-state-form-elements" data-country-state-select="true">
             {% block component_address_form_country %}
                 <div class="form-group col-md-6">
                     {% set initialCountryId = null %}
@@ -323,7 +362,7 @@
                     {% endblock %}
 
                     {% block component_address_form_country_select %}
-                        <select class="country-select form-select{% if violationPath %} is-invalid{% endif %}"
+                        <select class="country-select {{ formSelectClass }}{% if violationPath %} is-invalid{% endif %}"
                                 id="{{ idPrefix ~ prefix }}AddressCountry"
                                 name="{{ prefix }}[countryId]"
                                 required="required"
@@ -340,13 +379,12 @@
                                         selected="selected"
                                         {% endif %}
                                         value="{{ country.id }}"
-                                        data-zipcode-required="{{ country.postalCodeRequired }}"
                                         data-vat-id-required="{{ country.vatIdRequired }}"
                                         data-state-required="{{ country.forceStateInRegistration }}"
-                                        {% if not country.shippingAvailable and disableNonShippableCountries %}
+                                        {% if feature('FEATURE_NEXT_15707') and  not country.shippingAvailable and disableNonShippableCountries %}
                                             disabled="disabled"
                                         {% endif %}>
-                                    {{ country.translated.name }}{% if showNoShippingPostfix and not country.shippingAvailable %} {{ "address.countryPostfixNoShipping"|trans|sw_sanitize }}{% endif %}
+                                    {{ country.translated.name }}{% if feature('FEATURE_NEXT_15707') and showNoShippingPostfix and not country.shippingAvailable %} {{ "address.countryPostfixNoShipping"|trans|sw_sanitize }}{% endif %}
                                 </option>
                             {% endfor %}
                         </select>
@@ -368,7 +406,7 @@
                     {% endblock %}
 
                     {% block component_address_form_country_state_select %}
-                        <select class="country-state-select form-select{% if violationPath %} is-invalid{% endif %}"
+                        <select class="country-state-select {{ formSelectClass }}{% if violationPath %} is-invalid{% endif %}"
                                 id="{{ idPrefix ~ prefix }}AddressCountryState"
                                 name="{{ prefix }}[countryStateId]"
                                 data-initial-country-state-id="{{ data.get('countryStateId') }}">
@@ -389,7 +427,7 @@
             {% endblock %}
         </div>
 
-        <div class="row g-2">
+        <div class="{{ formRowClass }}">
             {% block component_address_form_phone_number %}
                 {% if config('core.loginRegistration.showPhoneNumberField') %}
                     <div class="form-group col-md-6">

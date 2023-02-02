@@ -2,48 +2,31 @@
 
 namespace Shopware\Core\Checkout\Customer\Exception;
 
-use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @deprecated tag:v6.6.0 Will be removed without replacement, not in use any more. Use `BadCredentialsException` or `CustomerOptinNotCompletedException` instead
- */
-#[Package('customer-order')]
-class InactiveCustomerException extends CustomerOptinNotCompletedException
+class InactiveCustomerException extends ShopwareHttpException
 {
     public function __construct(string $id)
     {
-        parent::__construct($id, 'The customer with the id "{{ customerId }}" is inactive.');
+        parent::__construct(
+            'The customer with the id "{{ customerId }}" is inactive.',
+            ['customerId' => $id]
+        );
     }
 
     public function getErrorCode(): string
     {
-        Feature::triggerDeprecationOrThrow(
-            'v6.6.0.0',
-            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0')
-        );
-
         return 'CHECKOUT__CUSTOMER_IS_INACTIVE';
     }
 
     public function getStatusCode(): int
     {
-        Feature::triggerDeprecationOrThrow(
-            'v6.6.0.0',
-            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0')
-        );
-
         return Response::HTTP_UNAUTHORIZED;
     }
 
     public function getSnippetKey(): string
     {
-        Feature::triggerDeprecationOrThrow(
-            'v6.6.0.0',
-            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0')
-        );
-
         return 'account.inactiveAccountAlert';
     }
 }

@@ -3,12 +3,10 @@
 namespace Shopware\Core\Framework\App\Manifest\Xml;
 
 use Shopware\Core\Framework\App\Exception\InvalidArgumentException;
-use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
  */
-#[Package('core')]
 class Admin extends XmlElement
 {
     /**
@@ -21,7 +19,7 @@ class Admin extends XmlElement
      */
     protected array $modules = [];
 
-    protected ?MainModule $mainModule = null;
+    protected ?MainModule $mainModule;
 
     protected ?string $baseAppUrl = null;
 

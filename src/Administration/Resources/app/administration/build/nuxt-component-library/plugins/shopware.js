@@ -11,6 +11,7 @@ window.Shopware = Shopware;
 
 const DeviceHelper = require('src/app/plugin/device-helper.plugin').default;
 const ValidationService = require('src/core/service/validation.service').default;
+const iconComponents = require('src/app/assets/icons/icons').default.legacy;
 const VuexModules = require('src/app/state/index').default;
 const ShortcutService = require('src/app/service/shortcut.service').default;
 
@@ -70,7 +71,16 @@ directiveRegistry.forEach((directive, name) => {
     Vue.directive(name, directive);
 });
 
+const iconNames = [];
+iconComponents.forEach((component) => {
+    Shopware.Component.register(component.name, component);
+    iconNames.push(component.name);
+});
+
 Shopware.Application
+    .addServiceProvider('iconNames', () => {
+        return iconNames;
+    })
     .addServiceProvider('feature', () => {
         return {
             isActive: () => {
@@ -92,37 +102,31 @@ Shopware.Component.override('sw-error', {
 
 // Add components
 const vueComponents = {};
-components.forEach((awaitedComponentConfig) => {
-    awaitedComponentConfig().then((config) => {
-        const componentName = config.name;
-        if (!componentName) {
-            return;
-        }
+components.forEach((config) => {
+    const componentName = config.name;
+    const Component = Shopware.Component;
+    const Mixin = Shopware.Mixin;
+    const componentConfig = Component.build(componentName);
 
-        const Component = Shopware.Component;
-        const Mixin = Shopware.Mixin;
-        return Component.build(componentName).then((componentConfig) => {
-            if (!componentConfig) {
-                return false;
+    if (!componentConfig) {
+        return false;
+    }
+
+    // If the mixin is a string, use our mixin registry
+    if (componentConfig.mixins && componentConfig.mixins.length) {
+        componentConfig.mixins = componentConfig.mixins.map((mixin) => {
+            if (typeof mixin === 'string') {
+                return Mixin.getByName(mixin);
             }
 
-            // If the mixin is a string, use our mixin registry
-            if (componentConfig.mixins && componentConfig.mixins.length) {
-                componentConfig.mixins = componentConfig.mixins.map((mixin) => {
-                    if (typeof mixin === 'string') {
-                        return Mixin.getByName(mixin);
-                    }
-
-                    return mixin;
-                });
-            }
-
-            const vueComponent = Vue.component(componentName, componentConfig);
-            vueComponents[componentName] = vueComponent;
-
-            return vueComponent;
+            return mixin;
         });
-    });
+    }
+
+    const vueComponent = Vue.component(componentName, componentConfig);
+    vueComponents[componentName] = vueComponent;
+
+    return vueComponent;
 });
 
 export default ({ app }) => {

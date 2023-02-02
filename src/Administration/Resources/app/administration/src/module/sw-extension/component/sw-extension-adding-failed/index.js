@@ -5,10 +5,9 @@ const { Component } = Shopware;
 const { mapState } = Component.getComponentHelper();
 
 /**
- * @package merchant-services
  * @private
  */
-export default {
+Component.register('sw-extension-adding-failed', {
     template,
 
     inject: [
@@ -69,4 +68,4 @@ export default {
             return this.$tc('sw-extension-store.component.sw-extension-adding-failed.installationFailed.textProblem');
         },
     },
-};
+});

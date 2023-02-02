@@ -3,20 +3,16 @@ import template from './sw-customer-detail.html.twig';
 import errorConfig from '../../error-config.json';
 import CUSTOMER from '../../constant/sw-customer.constant';
 
-/**
- * @package customer-order
- */
-
-const { Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
-const { ShopwareError } = Shopware.Classes;
 const { mapPageErrors } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-customer-detail', {
     template,
 
     inject: [
+        'systemConfigApiService',
         'repositoryFactory',
         'customerGroupRegistrationService',
         'acl',
@@ -158,11 +154,6 @@ export default {
 
     methods: {
         createdComponent() {
-            Shopware.ExtensionAPI.publishData({
-                id: 'sw-customer-detail__customer',
-                path: 'customer',
-                scope: this,
-            });
             this.isLoading = true;
 
             this.customerRepository.get(
@@ -191,25 +182,21 @@ export default {
                 boundSalesChannelId,
             }).then((emailIsValid) => {
                 if (this.errorEmailCustomer) {
-                    Shopware.State.dispatch(
-                        'error/addApiError',
+                    Shopware.State.dispatch('error/addApiError',
                         {
                             expression: `customer.${this.customer.id}.email`,
                             error: null,
-                        },
-                    );
+                        });
                 }
 
                 return emailIsValid;
             }).catch((exception) => {
                 this.emailIsValid = false;
-                Shopware.State.dispatch(
-                    'error/addApiError',
+                Shopware.State.dispatch('error/addApiError',
                     {
                         expression: `customer.${this.customer.id}.email`,
-                        error: new ShopwareError(exception.response.data.errors[0]),
-                    },
-                );
+                        error: exception.response.data.errors[0],
+                    });
             });
         },
 
@@ -220,29 +207,17 @@ export default {
                 return false;
             }
 
-            let hasError = false;
             if (this.customer.email && this.emailHasChanged) {
                 const response = await this.validateEmail();
 
                 if (!response || !response.isValid) {
-                    hasError = true;
+                    this.isLoading = false;
+                    return false;
                 }
             }
 
             if (!this.validCompanyField) {
                 this.createErrorMessageForCompanyField();
-                hasError = true;
-            }
-
-            if (!(await this.validPassword(this.customer))) {
-                hasError = true;
-            }
-
-            if (hasError) {
-                this.createNotificationError({
-                    message: this.$tc('sw-customer.detail.messageSaveError'),
-                });
-                this.isLoading = false;
                 return false;
             }
 
@@ -252,12 +227,17 @@ export default {
                 this.customer.birthday = null;
             }
 
+            if (!(await this.validPassword(this.customer))) {
+                this.isLoading = false;
+                return false;
+            }
+
             if (this.customer.passwordNew) {
                 this.customer.password = this.customer.passwordNew;
             }
 
             if (this.customer.accountType === CUSTOMER.ACCOUNT_TYPE_PRIVATE) {
-                this.customer.vatIds = [];
+                this.customer.company = null;
             }
 
             return this.customerRepository.save(this.customer).then(() => {
@@ -301,22 +281,29 @@ export default {
         },
 
         async validPassword(customer) {
+            const config = await this.systemConfigApiService.getValues('core.register');
+
             const { passwordNew, passwordConfirm } = customer;
             const passwordSet = (passwordNew || passwordConfirm);
             const passwordNotEquals = (passwordNew !== passwordConfirm);
+            const invalidLength = (passwordNew && passwordNew.length < config['core.register.minPasswordLength']);
 
-            if (passwordSet && passwordNotEquals) {
-                Shopware.State.dispatch('error/addApiError', {
-                    expression: `customer.${this.customer.id}.passwordConfirm`,
-                    error: new ShopwareError(
-                        {
-                            detail: this.$tc('sw-customer.error.passwordDoNotMatch'),
-                            code: 'password_not_match',
-                        },
-                    ),
-                });
+            if (passwordSet) {
+                if (passwordNotEquals) {
+                    this.createNotificationError({
+                        message: this.$tc('sw-customer.detail.notificationPasswordErrorMessage'),
+                    });
 
-                return false;
+                    return false;
+                }
+
+                if (invalidLength) {
+                    this.createNotificationError({
+                        message: this.$tc('sw-customer.detail.notificationPasswordLengthErrorMessage'),
+                    });
+
+                    return false;
+                }
             }
 
             return true;
@@ -354,12 +341,16 @@ export default {
             this.isLoading = false;
             Shopware.State.dispatch('error/addApiError', {
                 expression: `customer.${this.customer.id}.company`,
-                error: new ShopwareError(
+                error: new Shopware.Classes.ShopwareError(
                     {
                         code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
                     },
                 ),
             });
+
+            this.createNotificationError({
+                message: this.$tc('sw-customer.error.COMPANY_IS_REQUIRED'),
+            });
         },
     },
-};
+});

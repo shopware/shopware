@@ -5,22 +5,20 @@ namespace Shopware\Core\Content\Newsletter\DataAbstractionLayer\Indexing;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-#[Package('customer-order')]
 class CustomerNewsletterSalesChannelsUpdater
 {
+    private Connection $connection;
+
     /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection)
+    public function __construct(Connection $connection)
     {
+        $this->connection = $connection;
     }
 
-    /**
-     * @param array<string> $ids
-     */
     public function update(array $ids, bool $reverseUpdate = false): void
     {
         if (empty($ids)) {
@@ -79,7 +77,7 @@ SQL;
         );
 
         RetryableQuery::retryable($this->connection, function () use ($resetSql, $parameters): void {
-            $this->connection->executeStatement(
+            $this->connection->executeUpdate(
                 $resetSql,
                 $parameters,
                 ['ids' => Connection::PARAM_STR_ARRAY]
@@ -87,7 +85,7 @@ SQL;
         });
 
         RetryableQuery::retryable($this->connection, function () use ($sql, $parameters): void {
-            $this->connection->executeStatement(
+            $this->connection->executeUpdate(
                 $sql,
                 $parameters,
                 ['ids' => Connection::PARAM_STR_ARRAY, 'states' => Connection::PARAM_STR_ARRAY]
@@ -95,9 +93,6 @@ SQL;
         });
     }
 
-    /**
-     * @param array<string> $ids
-     */
     public function delete(array $ids): void
     {
         $sqlTemplate = <<<'SQL'
@@ -121,7 +116,9 @@ SQL;
             $sqlTemplate
         );
 
-        $customerIds = RetryableQuery::retryable($this->connection, fn (): array => $this->connection->fetchFirstColumn($sql));
+        $customerIds = RetryableQuery::retryable($this->connection, function () use ($sql): array {
+            return $this->connection->fetchFirstColumn($sql);
+        });
 
         if (empty($customerIds)) {
             return;
@@ -130,15 +127,12 @@ SQL;
         $this->update(Uuid::fromBytesToHexList($customerIds), true);
     }
 
-    /**
-     * @param array<string> $ids
-     */
-    public function updateCustomersRecipient(array $ids): void
+    public function updateCustomerEmailRecipient(array $ids): void
     {
         $ids = array_unique($ids);
 
         $customers = $this->connection->fetchAllAssociative(
-            'SELECT newsletter_sales_channel_ids, email, first_name, last_name FROM customer WHERE id IN (:ids)',
+            'SELECT newsletter_sales_channel_ids, email FROM customer WHERE id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids)],
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
@@ -152,11 +146,9 @@ SQL;
 
             $parameters[] = [
                 'newsletter_ids' => array_keys(
-                    json_decode((string) $customer['newsletter_sales_channel_ids'], true, 512, \JSON_THROW_ON_ERROR)
+                    json_decode((string) $customer['newsletter_sales_channel_ids'], true)
                 ),
                 'email' => $customer['email'],
-                'first_name' => $customer['first_name'],
-                'last_name' => $customer['last_name'],
             ];
         }
 
@@ -166,14 +158,9 @@ SQL;
 
         foreach ($parameters as $parameter) {
             RetryableQuery::retryable($this->connection, function () use ($parameter): void {
-                $this->connection->executeStatement(
-                    'UPDATE newsletter_recipient SET email = (:email), first_name = (:firstName), last_name = (:lastName) WHERE id IN (:ids)',
-                    [
-                        'ids' => Uuid::fromHexToBytesList($parameter['newsletter_ids']),
-                        'email' => $parameter['email'],
-                        'firstName' => $parameter['first_name'],
-                        'lastName' => $parameter['last_name'],
-                    ],
+                $this->connection->executeUpdate(
+                    'UPDATE newsletter_recipient SET email = (:email) WHERE id IN (:ids)',
+                    ['ids' => Uuid::fromHexToBytesList($parameter['newsletter_ids']), 'email' => $parameter['email']],
                     ['ids' => Connection::PARAM_STR_ARRAY],
                 );
             });

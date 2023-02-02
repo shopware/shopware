@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Page\Product\Review;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\Awareness\SalesChannelContextAwareTrait;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\PageLoadedHook;
@@ -14,17 +13,19 @@ use Shopware\Storefront\Page\PageLoadedHook;
  *
  * @since 6.4.8.0
  */
-#[Package('storefront')]
 class ProductReviewsWidgetLoadedHook extends PageLoadedHook
 {
     use SalesChannelContextAwareTrait;
 
-    final public const HOOK_NAME = 'product-reviews-loaded';
+    public const HOOK_NAME = 'product-reviews-loaded';
 
-    public function __construct(private readonly ReviewLoaderResult $reviews, SalesChannelContext $context)
+    private ReviewLoaderResult $reviews;
+
+    public function __construct(ReviewLoaderResult $reviews, SalesChannelContext $context)
     {
         parent::__construct($context->getContext());
         $this->salesChannelContext = $context;
+        $this->reviews = $reviews;
     }
 
     public function getName(): string

@@ -4,14 +4,9 @@ namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-/**
- * @internal
- */
-#[Package('core')]
 class Migration1570459127AddCmsSidebarLayout extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -36,14 +31,14 @@ class Migration1570459127AddCmsSidebarLayout extends MigrationStep
             return;
         }
 
-        $sectionId = $connection->fetchOne(
+        $sectionId = $connection->fetchColumn(
             '
             SELECT id
             FROM cms_section
             WHERE cms_page_id = :cms_page_id',
             ['cms_page_id' => $cmsPageId]
         );
-        $connection->executeStatement(
+        $connection->executeUpdate(
             '
             UPDATE cms_block
             SET position = position + 1
@@ -90,7 +85,7 @@ class Migration1570459127AddCmsSidebarLayout extends MigrationStep
 
     private function findDefaultLayoutId(Connection $connection): ?string
     {
-        $result = $connection->fetchOne(
+        $result = $connection->fetchColumn(
             '
             SELECT cms_page_id
             FROM cms_page_translation
@@ -289,7 +284,7 @@ class Migration1570459127AddCmsSidebarLayout extends MigrationStep
 
     private function getDeDeId(Connection $connection): ?string
     {
-        $result = $connection->fetchOne(
+        $result = $connection->fetchColumn(
             '
             SELECT lang.id
             FROM language lang

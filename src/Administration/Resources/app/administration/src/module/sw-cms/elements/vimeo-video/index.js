@@ -1,24 +1,13 @@
-/**
- * @private
- * @package content
- */
-Shopware.Component.register('sw-cms-el-preview-vimeo-video', () => import('./preview'));
-/**
- * @private
- * @package content
- */
-Shopware.Component.register('sw-cms-el-config-vimeo-video', () => import('./config'));
-/**
- * @private
- * @package content
- */
-Shopware.Component.register('sw-cms-el-vimeo-video', () => import('./component'));
+import './config';
+import './component';
+import './preview';
+
+const { Application } = Shopware;
 
 /**
- * @private
- * @package content
+ * @private since v6.5.0
  */
-Shopware.Service('cmsService').registerCmsElement({
+Application.getContainer('service').cmsService.registerCmsElement({
     name: 'vimeo-video',
     label: 'sw-cms.elements.vimeoVideo.label',
     component: 'sw-cms-el-vimeo-video',

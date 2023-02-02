@@ -30,10 +30,6 @@ typings/
 # Yarn Integrity file
 .yarn-integrity
 
-# Yalc
-.yalc/
-yalc.lock
-
 # temp
 cypress/screenshots/*
 cypress/videos/*

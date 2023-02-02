@@ -91,7 +91,7 @@ based on: https://github.com/ganlanyuan/tiny-slider
     &.is-nav-prev-outside,
     &.is-nav-next-outside {
         border: 0;
-        background-color: rgba($white, 0.8);
+        background: none;
     }
 
     &[disabled] {
@@ -102,18 +102,10 @@ based on: https://github.com/ganlanyuan/tiny-slider
 
 .base-slider-controls-prev {
     border-radius: 0 $border-radius $border-radius 0;
-
-    &.is-nav-prev-outside {
-        border-radius: $border-radius 0 0 $border-radius;
-    }
 }
 
 .base-slider-controls-next {
     border-radius: $border-radius 0 0 $border-radius;
-
-    &.is-nav-next-outside {
-        border-radius: 0 $border-radius $border-radius 0;
-    }
 }
 
 @include media-breakpoint-up(md) {
@@ -132,7 +124,8 @@ based on: https://github.com/ganlanyuan/tiny-slider
     }
 }
 
-@include media-breakpoint-down(md) {
+// @deprecated tag:v6.5.0 - Bootstrap v5 uses the breakpoint itself instead of the next breakpoint in `media-breakpoint-down()`, use `md` instead of `sm`.
+@include media-breakpoint-down(if(feature('v6.5.0.0'), md, sm)) {
     .base-slider {
         .tns-nav,
         .base-slider-dots {

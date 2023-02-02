@@ -1,0 +1,438 @@
+@startuml
+' uncomment the line below if you're using computer with a retina display
+' skinparam dpi 300
+!define Table(name,desc) class name as "desc" << (T,#FFAAAA) >>
+!define ForeignTable(name,desc) class name as "desc" << (T,#ada6a6) >>
+!define TranslationTable(name,desc) class name as "desc" << (I,#4286f4) >>
+' we use bold for primary key
+' green color for unique
+' and underscore for not_null
+!define primary_key(x) <b>x</b>
+!define unique(x) <color:green>x</color>
+!define not_null(x) <u>x</u>
+' other tags available:
+' <i></i>
+' <back:COLOR></color>, where color is a color name or html color code
+' (#FFAACC)
+' see: http://plantuml.com/classes.html#More
+hide methods
+hide stereotypes
+hide empty members
+skinparam backgroundColor #FFFFFF
+
+' entities
+
+Table(ShopwareCoreContentProductProductDefinition, "product\n(Product)") {
+   primary_key(id) id
+   primary_key(versionId) version
+   parentId parentFk
+   not_null(parentVersionId) referenceVersion
+   manufacturerId foreignKey
+   not_null(productManufacturerVersionId) referenceVersion
+   unitId foreignKey
+   not_null(taxId) foreignKey
+   coverId foreignKey
+   productMediaVersionId referenceVersion
+   deliveryTimeId foreignKey
+   featureSetId foreignKey
+   not_null(price) price
+   not_null(productNumber) numberRange
+   not_null(stock) int
+   restockTime int
+   autoIncrement int
+   active bool
+   availableStock int
+   available bool
+   isCloseout bool
+   variation list
+   displayGroup string
+   configuratorGroupConfig json
+   mainVariantId foreignKey
+   variantRestrictions json
+   manufacturerNumber string
+   ean string
+   purchaseSteps int
+   maxPurchase int
+   minPurchase int
+   purchaseUnit float
+   referenceUnit float
+   shippingFree bool
+   purchasePrices price
+   markAsTopseller bool
+   weight float
+   width float
+   height float
+   length float
+   releaseDate dateTime
+   ratingAverage float
+   categoryTree list
+   propertyIds manyToManyId
+   optionIds manyToManyId
+   tagIds manyToManyId
+   childCount childCount
+   customFieldSetSelectionActive bool
+   sales int
+   cheapestPrice cheapestPrice
+   metaDescription translated
+   name translated
+   keywords translated
+   description translated
+   metaTitle translated
+   packUnit translated
+   packUnitPlural translated
+   customFields translated
+   customSearchKeywords translated
+   canonicalProductId foreignKey
+   cmsPageId foreignKey
+   not_null(cmsPageVersionId) referenceVersion
+   slotConfig translated
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+   translated json
+}
+Table(ShopwareCoreContentProductAggregateProductStreamMappingProductStreamMappingDefinition, "product_stream_mapping\n(M:N Mapping)") {
+   primary_key(productId) foreignKey
+   not_null(productVersionId) referenceVersion
+   primary_key(productStreamId) foreignKey
+}
+Table(ShopwareCoreContentProductAggregateProductCategoryProductCategoryDefinition, "product_category\n(M:N Mapping)") {
+   primary_key(productId) foreignKey
+   primary_key(productVersionId) referenceVersion
+   primary_key(categoryId) foreignKey
+   primary_key(categoryVersionId) referenceVersion
+}
+Table(ShopwareCoreContentProductAggregateProductCustomFieldSetProductCustomFieldSetDefinition, "product_custom_field_set\n(M:N Mapping)") {
+   primary_key(productId) foreignKey
+   primary_key(customFieldSetId) foreignKey
+   primary_key(productVersionId) referenceVersion
+}
+Table(ShopwareCoreContentProductAggregateProductTagProductTagDefinition, "product_tag\n(M:N Mapping)") {
+   primary_key(productId) foreignKey
+   primary_key(productVersionId) referenceVersion
+   primary_key(tagId) foreignKey
+}
+Table(ShopwareCoreContentProductAggregateProductConfiguratorSettingProductConfiguratorSettingDefinition, "product_configurator_setting\n(The root product configurator.)") {
+   primary_key(id) id
+   primary_key(versionId) version
+   not_null(productId) foreignKey
+   not_null(productVersionId) referenceVersion
+   mediaId foreignKey
+   not_null(optionId) foreignKey
+   price json
+   position int
+   customFields customFields
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+}
+Table(ShopwareCoreContentProductAggregateProductPriceProductPriceDefinition, "product_price\n(Staggered pricing)") {
+   primary_key(id) id
+   primary_key(versionId) version
+   not_null(productId) foreignKey
+   not_null(productVersionId) referenceVersion
+   not_null(ruleId) foreignKey
+   not_null(price) price
+   not_null(quantityStart) int
+   quantityEnd int
+   customFields customFields
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+}
+Table(ShopwareCoreContentProductAggregateProductPropertyProductPropertyDefinition, "product_property\n(M:N Mapping)") {
+   primary_key(productId) foreignKey
+   not_null(productVersionId) referenceVersion
+   primary_key(optionId) foreignKey
+}
+Table(ShopwareCoreContentProductAggregateProductSearchKeywordProductSearchKeywordDefinition, "product_search_keyword\n(Search keywords)") {
+   primary_key(id) id
+   primary_key(versionId) version
+   not_null(languageId) foreignKey
+   not_null(productId) foreignKey
+   not_null(productVersionId) referenceVersion
+   not_null(keyword) string
+   not_null(ranking) float
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+}
+Table(ShopwareCoreContentProductAggregateProductKeywordDictionaryProductKeywordDictionaryDefinition, "product_keyword_dictionary\n(Search dictionary)") {
+   primary_key(id) id
+   not_null(languageId) foreignKey
+   not_null(keyword) string
+   reversed string
+}
+Table(ShopwareCoreContentProductAggregateProductReviewProductReviewDefinition, "product_review\n(Product reviews)") {
+   primary_key(id) id
+   not_null(productId) foreignKey
+   not_null(productVersionId) referenceVersion
+   customerId foreignKey
+   not_null(salesChannelId) foreignKey
+   not_null(languageId) foreignKey
+   externalUser string
+   externalEmail string
+   not_null(title) string
+   not_null(content) longText
+   points float
+   status bool
+   comment longText
+   customFields customFields
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+}
+Table(ShopwareCoreContentProductAggregateProductManufacturerProductManufacturerDefinition, "product_manufacturer\n(Manufacturer)") {
+   primary_key(id) id
+   primary_key(versionId) version
+   mediaId foreignKey
+   link string
+   name translated
+   description translated
+   customFields translated
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+   translated json
+}
+TranslationTable(ShopwareCoreContentProductAggregateProductManufacturerTranslationProductManufacturerTranslationDefinition, "product_manufacturer_translation\n((Translations))") {
+   not_null(name) string
+   description longText
+   customFields customFields
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+   primary_key(productManufacturerId) foreignKey
+   primary_key(languageId) foreignKey
+   primary_key(productManufacturerVersionId) referenceVersion
+}
+Table(ShopwareCoreContentProductAggregateProductMediaProductMediaDefinition, "product_media\n(Product media/images)") {
+   primary_key(id) id
+   primary_key(versionId) version
+   not_null(productId) foreignKey
+   not_null(productVersionId) referenceVersion
+   not_null(mediaId) foreignKey
+   position int
+   customFields customFields
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+}
+TranslationTable(ShopwareCoreContentProductAggregateProductTranslationProductTranslationDefinition, "product_translation\n((Translations))") {
+   metaDescription string
+   not_null(name) string
+   keywords longText
+   description longText
+   metaTitle string
+   packUnit string
+   packUnitPlural string
+   customSearchKeywords list
+   slotConfig json
+   customFields customFields
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+   primary_key(productId) foreignKey
+   primary_key(languageId) foreignKey
+   primary_key(productVersionId) referenceVersion
+}
+Table(ShopwareCoreContentProductAggregateProductOptionProductOptionDefinition, "product_option\n(M:N Mapping)") {
+   primary_key(productId) foreignKey
+   not_null(productVersionId) referenceVersion
+   primary_key(optionId) foreignKey
+}
+Table(ShopwareCoreContentProductAggregateProductCategoryTreeProductCategoryTreeDefinition, "product_category_tree\n(M:N Mapping)") {
+   primary_key(productId) foreignKey
+   primary_key(productVersionId) referenceVersion
+   primary_key(categoryId) foreignKey
+   primary_key(categoryVersionId) referenceVersion
+}
+Table(ShopwareCoreContentProductAggregateProductCrossSellingProductCrossSellingDefinition, "product_cross_selling\n(Cross selling products)") {
+   primary_key(id) id
+   not_null(name) translated
+   not_null(position) int
+   sortBy string
+   sortDirection string
+   not_null(type) string
+   active bool
+   limit int
+   not_null(productId) foreignKey
+   not_null(productVersionId) referenceVersion
+   productStreamId foreignKey
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+   translated json
+}
+TranslationTable(ShopwareCoreContentProductAggregateProductCrossSellingTranslationProductCrossSellingTranslationDefinition, "product_cross_selling_translation\n((Translations))") {
+   not_null(name) string
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+   primary_key(productCrossSellingId) foreignKey
+   primary_key(languageId) foreignKey
+}
+Table(ShopwareCoreContentProductAggregateProductCrossSellingAssignedProductsProductCrossSellingAssignedProductsDefinition, "product_cross_selling_assigned_products\n(Assigned Cross selling products)") {
+   primary_key(id) id
+   not_null(crossSellingId) foreignKey
+   not_null(productId) foreignKey
+   primary_key(productVersionId) referenceVersion
+   position int
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+}
+Table(ShopwareCoreContentProductAggregateProductFeatureSetProductFeatureSetDefinition, "product_feature_set\n(Product feature sets)") {
+   primary_key(id) id
+   name translated
+   description translated
+   features json
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+   translated json
+}
+TranslationTable(ShopwareCoreContentProductAggregateProductFeatureSetTranslationProductFeatureSetTranslationDefinition, "product_feature_set_translation\n((Translations))") {
+   not_null(name) string
+   description string
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+   primary_key(productFeatureSetId) foreignKey
+   primary_key(languageId) foreignKey
+}
+Table(ShopwareCoreContentProductSalesChannelSortingProductSortingDefinition, "product_sorting\n(Product sorting)") {
+   primary_key(id) id
+   locked writeLockIndicator
+   not_null(key) string
+   not_null(priority) int
+   not_null(active) bool
+   not_null(fields) json
+   label translated
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+   translated json
+}
+TranslationTable(ShopwareCoreContentProductSalesChannelSortingProductSortingTranslationDefinition, "product_sorting_translation\n((Translations))") {
+   not_null(label) string
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+   primary_key(productSortingId) foreignKey
+   primary_key(languageId) foreignKey
+}
+Table(ShopwareCoreContentProductAggregateProductSearchConfigProductSearchConfigDefinition, "product_search_config\n(__EMPTY__)") {
+   primary_key(id) id
+   not_null(languageId) foreignKey
+   not_null(andLogic) bool
+   not_null(minSearchLength) int
+   excludedTerms list
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+}
+Table(ShopwareCoreContentProductAggregateProductSearchConfigFieldProductSearchConfigFieldDefinition, "product_search_config_field\n(__EMPTY__)") {
+   primary_key(id) id
+   not_null(searchConfigId) foreignKey
+   customFieldId foreignKey
+   not_null(field) string
+   not_null(tokenize) bool
+   not_null(searchable) bool
+   not_null(ranking) int
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+}
+Table(ShopwareCoreContentProductAggregateProductVisibilityProductVisibilityDefinition, "product_visibility\n(Visibility in sales channels)") {
+   primary_key(id) id
+   not_null(productId) foreignKey
+   not_null(productVersionId) referenceVersion
+   not_null(salesChannelId) foreignKey
+   not_null(visibility) int
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+}
+ForeignTable(ShopwareCoreSystemDeliveryTimeDeliveryTimeDefinition, "delivery_time") {
+}
+ForeignTable(ShopwareCoreSystemTaxTaxDefinition, "tax") {
+}
+ForeignTable(ShopwareCoreSystemUnitUnitDefinition, "unit") {
+}
+ForeignTable(ShopwareCoreContentSeoMainCategoryMainCategoryDefinition, "main_category") {
+}
+ForeignTable(ShopwareCoreContentSeoSeoUrlSeoUrlDefinition, "seo_url") {
+}
+ForeignTable(ShopwareCoreCheckoutOrderAggregateOrderLineItemOrderLineItemDefinition, "order_line_item") {
+}
+ForeignTable(ShopwareCoreCheckoutCustomerAggregateCustomerWishlistProductCustomerWishlistProductDefinition, "customer_wishlist_product") {
+}
+ForeignTable(ShopwareCoreContentCmsCmsPageDefinition, "cms_page") {
+}
+ForeignTable(ShopwareCoreContentProductStreamProductStreamDefinition, "product_stream") {
+}
+ForeignTable(ShopwareCoreContentCategoryCategoryDefinition, "category") {
+}
+ForeignTable(ShopwareCoreSystemCustomFieldAggregateCustomFieldSetCustomFieldSetDefinition, "custom_field_set") {
+}
+ForeignTable(ShopwareCoreSystemTagTagDefinition, "tag") {
+}
+ForeignTable(ShopwareCoreContentMediaMediaDefinition, "media") {
+}
+ForeignTable(ShopwareCoreContentPropertyAggregatePropertyGroupOptionPropertyGroupOptionDefinition, "property_group_option") {
+}
+ForeignTable(ShopwareCoreContentRuleRuleDefinition, "rule") {
+}
+ForeignTable(ShopwareCoreSystemLanguageLanguageDefinition, "language") {
+}
+ForeignTable(ShopwareCoreCheckoutCustomerCustomerDefinition, "customer") {
+}
+ForeignTable(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channel") {
+}
+ForeignTable(ShopwareCoreSystemCustomFieldCustomFieldDefinition, "custom_field") {
+}
+
+' relationshipd
+
+ShopwareCoreContentProductProductDefinition --> ShopwareCoreContentProductProductDefinition
+ShopwareCoreContentProductProductDefinition --> ShopwareCoreSystemDeliveryTimeDeliveryTimeDefinition
+ShopwareCoreContentProductProductDefinition --> ShopwareCoreSystemTaxTaxDefinition
+ShopwareCoreContentProductAggregateProductManufacturerProductManufacturerDefinition --> ShopwareCoreContentProductProductDefinition
+ShopwareCoreContentProductProductDefinition --> ShopwareCoreSystemUnitUnitDefinition
+ShopwareCoreContentProductAggregateProductMediaProductMediaDefinition --> ShopwareCoreContentProductProductDefinition
+ShopwareCoreContentProductAggregateProductFeatureSetProductFeatureSetDefinition --> ShopwareCoreContentProductProductDefinition
+ShopwareCoreContentProductAggregateProductPriceProductPriceDefinition --> ShopwareCoreContentProductProductDefinition
+ShopwareCoreContentProductAggregateProductCrossSellingProductCrossSellingDefinition --> ShopwareCoreContentProductProductDefinition
+ShopwareCoreContentProductAggregateProductCrossSellingAssignedProductsProductCrossSellingAssignedProductsDefinition --> ShopwareCoreContentProductProductDefinition
+ShopwareCoreContentProductAggregateProductConfiguratorSettingProductConfiguratorSettingDefinition --> ShopwareCoreContentProductProductDefinition
+ShopwareCoreContentProductAggregateProductVisibilityProductVisibilityDefinition --> ShopwareCoreContentProductProductDefinition
+ShopwareCoreContentProductAggregateProductSearchKeywordProductSearchKeywordDefinition --> ShopwareCoreContentProductProductDefinition
+ShopwareCoreContentProductAggregateProductReviewProductReviewDefinition --> ShopwareCoreContentProductProductDefinition
+ShopwareCoreContentProductProductDefinition --> ShopwareCoreContentSeoMainCategoryMainCategoryDefinition
+ShopwareCoreContentProductProductDefinition --> ShopwareCoreContentSeoSeoUrlSeoUrlDefinition
+ShopwareCoreContentProductProductDefinition --> ShopwareCoreCheckoutOrderAggregateOrderLineItemOrderLineItemDefinition
+ShopwareCoreContentProductAggregateProductOptionProductOptionDefinition --> ShopwareCoreContentProductProductDefinition
+ShopwareCoreContentProductAggregateProductPropertyProductPropertyDefinition --> ShopwareCoreContentProductProductDefinition
+ShopwareCoreContentProductAggregateProductCategoryProductCategoryDefinition --> ShopwareCoreContentProductProductDefinition
+ShopwareCoreContentProductAggregateProductStreamMappingProductStreamMappingDefinition --> ShopwareCoreContentProductProductDefinition
+ShopwareCoreContentProductAggregateProductCategoryTreeProductCategoryTreeDefinition --> ShopwareCoreContentProductProductDefinition
+ShopwareCoreContentProductAggregateProductTagProductTagDefinition --> ShopwareCoreContentProductProductDefinition
+ShopwareCoreContentProductAggregateProductTranslationProductTranslationDefinition --> ShopwareCoreContentProductProductDefinition
+ShopwareCoreContentProductAggregateProductCustomFieldSetProductCustomFieldSetDefinition --> ShopwareCoreContentProductProductDefinition
+ShopwareCoreContentProductProductDefinition --> ShopwareCoreCheckoutCustomerAggregateCustomerWishlistProductCustomerWishlistProductDefinition
+ShopwareCoreContentProductProductDefinition --> ShopwareCoreContentCmsCmsPageDefinition
+ShopwareCoreContentProductAggregateProductStreamMappingProductStreamMappingDefinition --> ShopwareCoreContentProductStreamProductStreamDefinition
+ShopwareCoreContentProductAggregateProductCategoryProductCategoryDefinition --> ShopwareCoreContentCategoryCategoryDefinition
+ShopwareCoreContentProductAggregateProductCustomFieldSetProductCustomFieldSetDefinition --> ShopwareCoreSystemCustomFieldAggregateCustomFieldSetCustomFieldSetDefinition
+ShopwareCoreContentProductAggregateProductTagProductTagDefinition --> ShopwareCoreSystemTagTagDefinition
+ShopwareCoreContentProductAggregateProductConfiguratorSettingProductConfiguratorSettingDefinition --> ShopwareCoreContentMediaMediaDefinition
+ShopwareCoreContentProductAggregateProductConfiguratorSettingProductConfiguratorSettingDefinition --> ShopwareCoreContentPropertyAggregatePropertyGroupOptionPropertyGroupOptionDefinition
+ShopwareCoreContentProductAggregateProductPriceProductPriceDefinition --> ShopwareCoreContentRuleRuleDefinition
+ShopwareCoreContentProductAggregateProductPropertyProductPropertyDefinition --> ShopwareCoreContentPropertyAggregatePropertyGroupOptionPropertyGroupOptionDefinition
+ShopwareCoreContentProductAggregateProductSearchKeywordProductSearchKeywordDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
+ShopwareCoreContentProductAggregateProductKeywordDictionaryProductKeywordDictionaryDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
+ShopwareCoreContentProductAggregateProductReviewProductReviewDefinition --> ShopwareCoreCheckoutCustomerCustomerDefinition
+ShopwareCoreContentProductAggregateProductReviewProductReviewDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
+ShopwareCoreContentProductAggregateProductReviewProductReviewDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
+ShopwareCoreContentProductAggregateProductManufacturerProductManufacturerDefinition --> ShopwareCoreContentMediaMediaDefinition
+ShopwareCoreContentProductAggregateProductManufacturerTranslationProductManufacturerTranslationDefinition --> ShopwareCoreContentProductAggregateProductManufacturerProductManufacturerDefinition
+ShopwareCoreContentProductAggregateProductManufacturerTranslationProductManufacturerTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
+ShopwareCoreContentProductAggregateProductMediaProductMediaDefinition --> ShopwareCoreContentMediaMediaDefinition
+ShopwareCoreContentProductAggregateProductTranslationProductTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
+ShopwareCoreContentProductAggregateProductOptionProductOptionDefinition --> ShopwareCoreContentPropertyAggregatePropertyGroupOptionPropertyGroupOptionDefinition
+ShopwareCoreContentProductAggregateProductCategoryTreeProductCategoryTreeDefinition --> ShopwareCoreContentCategoryCategoryDefinition
+ShopwareCoreContentProductAggregateProductCrossSellingProductCrossSellingDefinition --> ShopwareCoreContentProductStreamProductStreamDefinition
+ShopwareCoreContentProductAggregateProductCrossSellingAssignedProductsProductCrossSellingAssignedProductsDefinition --> ShopwareCoreContentProductAggregateProductCrossSellingProductCrossSellingDefinition
+ShopwareCoreContentProductAggregateProductCrossSellingTranslationProductCrossSellingTranslationDefinition --> ShopwareCoreContentProductAggregateProductCrossSellingProductCrossSellingDefinition
+ShopwareCoreContentProductAggregateProductCrossSellingTranslationProductCrossSellingTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
+ShopwareCoreContentProductAggregateProductFeatureSetTranslationProductFeatureSetTranslationDefinition --> ShopwareCoreContentProductAggregateProductFeatureSetProductFeatureSetDefinition
+ShopwareCoreContentProductAggregateProductFeatureSetTranslationProductFeatureSetTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
+ShopwareCoreContentProductSalesChannelSortingProductSortingTranslationDefinition --> ShopwareCoreContentProductSalesChannelSortingProductSortingDefinition
+ShopwareCoreContentProductSalesChannelSortingProductSortingTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
+ShopwareCoreContentProductAggregateProductSearchConfigProductSearchConfigDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
+ShopwareCoreContentProductAggregateProductSearchConfigFieldProductSearchConfigFieldDefinition --> ShopwareCoreContentProductAggregateProductSearchConfigProductSearchConfigDefinition
+ShopwareCoreContentProductAggregateProductSearchConfigFieldProductSearchConfigFieldDefinition --> ShopwareCoreSystemCustomFieldCustomFieldDefinition
+ShopwareCoreContentProductAggregateProductVisibilityProductVisibilityDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
+@enduml

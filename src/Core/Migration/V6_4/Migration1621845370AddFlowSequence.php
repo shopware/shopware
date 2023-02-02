@@ -3,13 +3,8 @@
 namespace Shopware\Core\Migration\V6_4;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
-/**
- * @internal
- */
-#[Package('core')]
 class Migration1621845370AddFlowSequence extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -19,7 +14,7 @@ class Migration1621845370AddFlowSequence extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeStatement('
+        $connection->executeUpdate('
             CREATE TABLE IF NOT EXISTS `flow_sequence` (
                 `id`                    BINARY(16)      NOT NULL,
                 `flow_id`               BINARY(16)      NOT NULL,

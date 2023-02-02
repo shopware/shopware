@@ -1,13 +1,10 @@
-/**
- * @package system-settings
- */
 import template from './sw-import-export-activity-result-modal.html.twig';
 import './sw-import-export-activity-result-modal.scss';
 
 const { format } = Shopware.Utils;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Shopware.Component.register('sw-import-export-activity-result-modal', {
     template,
 
     inject: ['importExport'],
@@ -64,4 +61,4 @@ export default {
             return this.$te(translationKey) ? this.$tc(translationKey) : state;
         },
     },
-};
+});

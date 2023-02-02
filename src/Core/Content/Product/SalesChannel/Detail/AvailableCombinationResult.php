@@ -2,37 +2,30 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Detail;
 
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\Struct;
 
-/**
- * @phpstan-type combination array<string, bool>
- */
-#[Package('inventory')]
 class AvailableCombinationResult extends Struct
 {
     /**
-     * @var combination
+     * @var array
      */
     protected $hashes = [];
 
     /**
-     * @var combination
+     * @var array
      */
     protected $optionIds = [];
 
     /**
-     * @var array<string, array<string>>
+     * @var array
      */
     protected $combinations = [];
 
-    /**
-     * @var array<string, combination>
-     */
     protected array $combinationDetails = [];
 
     /**
-     * @param string[] $optionIds
+     * @param array<string> $optionIds
      */
     public function hasCombination(array $optionIds): bool
     {
@@ -40,10 +33,19 @@ class AvailableCombinationResult extends Struct
     }
 
     /**
-     * @param string[] $optionIds
+     * @deprecated tag:v6.5.0 - Parameter $available will be mandatory in future implementation
+     *
+     * @param array<string> $optionIds
      */
-    public function addCombination(array $optionIds, bool $available): void
+    public function addCombination(array $optionIds, bool $available = true): void
     {
+        if (\func_num_args() < 2) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.5.0.0',
+                'Second parameter $available of method `addCombination()` in `AvailableCombinationResult` will be required in v6.5.0.0.'
+            );
+        }
+
         $hash = $this->calculateHash($optionIds);
         $this->hashes[$hash] = true;
         $this->combinations[$hash] = $optionIds;
@@ -61,17 +63,11 @@ class AvailableCombinationResult extends Struct
         return isset($this->optionIds[$optionId]);
     }
 
-    /**
-     * @return array<string>
-     */
     public function getHashes(): array
     {
         return array_keys($this->hashes);
     }
 
-    /**
-     * @return array<string, array<string>>
-     */
     public function getCombinations(): array
     {
         return $this->combinations;
@@ -93,6 +89,6 @@ class AvailableCombinationResult extends Struct
         $optionIds = array_values($optionIds);
         sort($optionIds);
 
-        return md5((string) json_encode($optionIds, \JSON_THROW_ON_ERROR));
+        return md5((string) json_encode($optionIds));
     }
 }

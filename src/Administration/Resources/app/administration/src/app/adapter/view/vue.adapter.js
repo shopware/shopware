@@ -1,6 +1,4 @@
 /**
- * @package admin
- *
  * @module app/adapter/view/vue
  */
 import ViewAdapter from 'src/core/adapter/view.adapter';
@@ -14,9 +12,7 @@ import setupShopwareDevtools from 'src/app/adapter/view/sw-vue-devtools';
 
 const { Component, State, Mixin } = Shopware;
 
-/**
- * @deprecated tag:v6.6.0 - Will be private
- */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class VueAdapter extends ViewAdapter {
     /**
      * @constructor
@@ -95,59 +91,70 @@ export default class VueAdapter extends ViewAdapter {
     async initDependencies() {
         const initContainer = this.Application.getContainer('init');
 
-        // make specific components synchronous
-        [
-            'sw-admin',
-            'sw-admin-menu',
-            'sw-button',
-            'sw-button-process',
-            'sw-card',
-            'sw-card-section',
-            'sw-card-view',
-            'sw-container',
-            'sw-desktop',
-            'sw-empty-state',
-            'sw-entity-listing',
-            'sw-entity-multi-select',
-            'sw-entity-multi-id-select',
-            'sw-entity-single-select',
-            'sw-error-boundary',
-            'sw-extension-component-section',
-            'sw-field',
-            'sw-ignore-class',
-            'sw-loader',
-            'sw-modal',
-            'sw-multi-select',
-            'sw-notification-center',
-            'sw-notifications',
-            'sw-page',
-            'sw-router-link',
-            'sw-search-bar',
-            'sw-select-result',
-            'sw-single-select',
-            'sw-skeleton',
-            'sw-skeleton-bar',
-            'sw-tabs',
-            'sw-tabs-item',
-            'sw-version',
+        if (Shopware.Feature.isActive('FEATURE_NEXT_19822')) {
+            // make specific components synchronous
+            [
+                'sw-admin',
+                'sw-admin-menu',
+                'sw-button',
+                'sw-button-process',
+                'sw-card',
+                'sw-card-section',
+                'sw-card-view',
+                'sw-container',
+                'sw-desktop',
+                'sw-empty-state',
+                'sw-entity-listing',
+                'sw-entity-multi-select',
+                'sw-entity-multi-id-select',
+                'sw-entity-single-select',
+                'sw-error-boundary',
+                'sw-extension-component-section',
+                'sw-field',
+                'sw-ignore-class',
+                'sw-loader',
+                'sw-modal',
+                'sw-multi-select',
+                'sw-notification-center',
+                'sw-notifications',
+                'sw-page',
+                'sw-router-link',
+                'sw-search-bar',
+                'sw-select-result',
+                'sw-single-select',
+                'sw-skeleton',
+                'sw-skeleton-bar',
+                'sw-tabs',
+                'sw-tabs-item',
+                'sw-version',
+                /**
+                 * Quickfix for modules with refs and sync behavior.
+                 * They should be removed from the list in the future
+                 * when their async problems got fixed.
+                 */
+                'sw-sales-channel-products-assignment-single-products',
+                'sw-sales-channel-product-assignment-categories',
+                'sw-sales-channel-products-assignment-dynamic-product-groups',
+                'sw-upload-listener',
+                'sw-media-list-selection-v2',
+                'sw-media-list-selection-item-v2',
+                'sw-settings-document-detail',
+                'sw-settings-product-feature-sets-detail',
+            ].forEach(componentName => {
+                Component.markComponentAsSync(componentName);
+            });
+
             /**
-             * Quickfix for modules with refs and sync behavior.
-             * They should be removed from the list in the future
-             * when their async problems got fixed.
+             * Make all CMS components sync. This is a quickfix because the
+             * CMS has many edge cases where components get directly accessed
+             * via refs and more.
              */
-            'sw-sales-channel-products-assignment-single-products',
-            'sw-sales-channel-product-assignment-categories',
-            'sw-sales-channel-products-assignment-dynamic-product-groups',
-            'sw-upload-listener',
-            'sw-media-list-selection-v2',
-            'sw-media-list-selection-item-v2',
-            'sw-settings-document-detail',
-            'sw-settings-product-feature-sets-detail',
-            'sw-system-config',
-            'sw-settings-search-searchable-content',
-        ].forEach(componentName => {
-            Component.markComponentAsSync(componentName);
-        });
+            [...this.componentFactory.getComponentRegistry().keys()].forEach((componentName) => {
+                if (componentName.startsWith('sw-cms-')) {
+                    Component.markComponentAsSync(componentName);
+                }
+            });
+        }
 
         // initialize all components
         await this.initComponents();
@@ -209,37 +216,49 @@ export default class VueAdapter extends ViewAdapter {
      * @returns {Vue}
      */
     createComponent(componentName) {
-        return new Promise((resolve) => {
-            // load sync components directly
-            if (Component.isSyncComponent && Component.isSyncComponent(componentName)) {
-                this.componentResolver(componentName).component.then((component) => {
-                    const resolvedComponent = component;
+        if (Shopware.Feature.isActive('FEATURE_NEXT_19822')) {
+            return new Promise(async (resolve) => {
+                // load sync components directly
+                if (Component.isSyncComponent && Component.isSyncComponent(componentName)) {
+                    const resolvedComponent = await this.componentResolver(componentName).component;
                     const vueComponent = Vue.component(componentName, resolvedComponent);
 
                     this.vueComponents[componentName] = vueComponent;
                     resolve(vueComponent);
-                });
+                    return;
+                }
 
-                return;
+                // load async components
+                const vueComponent = Vue.component(componentName, () => this.componentResolver(componentName));
+                this.vueComponents[componentName] = vueComponent;
+
+                resolve(vueComponent);
+            });
+            // eslint-disable-next-line no-else-return
+        } else {
+            const componentConfig = Component.build(componentName);
+
+            if (!componentConfig) {
+                return false;
             }
 
-            // load async components
-            const vueComponent = Vue.component(componentName, () => this.componentResolver(componentName));
+            this.resolveMixins(componentConfig);
+
+            const vueComponent = Vue.component(componentName, componentConfig);
             this.vueComponents[componentName] = vueComponent;
 
-            resolve(vueComponent);
-        });
+            return vueComponent;
+        }
     }
 
     componentResolver(componentName) {
         if (!this.resolvedComponentConfigs.has(componentName)) {
-            this.resolvedComponentConfigs.set(componentName, {
-                component: new Promise((resolve) => {
-                    Component.build(componentName).then((componentConfig) => {
-                        this.resolveMixins(componentConfig);
+            this.resolvedComponentConfigs.set(componentName, ({
+                component: new Promise(async (resolve) => {
+                    const componentConfig = await Component.build(componentName);
+                    this.resolveMixins(componentConfig);
 
-                        resolve(componentConfig);
-                    });
+                    resolve(componentConfig);
                 }),
                 loading: {
                     functional: true,
@@ -250,7 +269,7 @@ export default class VueAdapter extends ViewAdapter {
                     },
                 },
                 delay: 0,
-            });
+            }));
         }
 
         return this.resolvedComponentConfigs.get(componentName);

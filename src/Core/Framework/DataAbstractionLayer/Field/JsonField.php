@@ -4,9 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\JsonFieldAccessorBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
 class JsonField extends Field implements StorageAware
 {
     /**
@@ -15,19 +13,15 @@ class JsonField extends Field implements StorageAware
     protected $storageName;
 
     /**
-     * @var list<Field>
+     * @var Field[]
      */
     protected $propertyMapping;
 
     /**
-     * @var array<mixed>|null
+     * @var array|null
      */
     protected $default;
 
-    /**
-     * @param list<Field> $propertyMapping
-     * @param array<mixed>|null $default
-     */
     public function __construct(string $storageName, string $propertyName, array $propertyMapping = [], ?array $default = null)
     {
         $this->storageName = $storageName;
@@ -42,16 +36,13 @@ class JsonField extends Field implements StorageAware
     }
 
     /**
-     * @return list<Field>
+     * @return Field[]
      */
     public function getPropertyMapping(): array
     {
         return $this->propertyMapping;
     }
 
-    /**
-     * @return array<mixed>|null
-     */
     public function getDefault(): ?array
     {
         return $this->default;

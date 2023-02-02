@@ -7,19 +7,20 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDef
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\SalesChannel\UpsertAddressRoute;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
 use Shopware\Core\Framework\Validation\DataValidator;
-use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -31,7 +32,6 @@ use Symfony\Component\HttpFoundation\Response;
  * @internal
  * @group store-api
  */
-#[Package('customer-order')]
 class UpsertAddressRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -41,7 +41,7 @@ class UpsertAddressRouteTest extends TestCase
 
     private TestDataCollection $ids;
 
-    private EntityRepository $addressRepository;
+    private EntityRepositoryInterface $addressRepository;
 
     protected function setUp(): void
     {
@@ -69,19 +69,13 @@ class UpsertAddressRouteTest extends TestCase
                 ], \JSON_THROW_ON_ERROR)
             );
 
-        $response = $this->browser->getResponse();
+        $response = \json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        // After login successfully, the context token will be set in the header
-        $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
-        static::assertNotEmpty($contextToken);
-
-        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $response['contextToken']);
     }
 
     /**
      * @dataProvider addressDataProvider
-     *
-     * @param array<string, string> $data
      */
     public function testCreateAddress(array $data): void
     {
@@ -102,7 +96,11 @@ class UpsertAddressRouteTest extends TestCase
         static::assertArrayHasKey('id', $content);
 
         foreach ($data as $key => $val) {
-            static::assertSame($val, $content[$key]);
+            if (!Feature::isActive('FEATURE_NEXT_7739') && $key === 'salutationId' && $val === null) {
+                static::assertSame(Defaults::SALUTATION, $content[$key]);
+            } else {
+                static::assertSame($val, $content[$key]);
+            }
         }
 
         // Check existence
@@ -111,7 +109,11 @@ class UpsertAddressRouteTest extends TestCase
         $serializedAddress = $address->jsonSerialize();
 
         foreach ($data as $key => $val) {
-            static::assertSame($val, $serializedAddress[$key]);
+            if (!Feature::isActive('FEATURE_NEXT_7739') && $key === 'salutationId' && $val === null) {
+                static::assertSame(Defaults::SALUTATION, $serializedAddress[$key]);
+            } else {
+                static::assertSame($val, $serializedAddress[$key]);
+            }
         }
     }
 
@@ -126,7 +128,7 @@ class UpsertAddressRouteTest extends TestCase
         $response = \json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
-        static::assertGreaterThanOrEqual(1, is_countable($response['errors']) ? \count($response['errors']) : 0);
+        static::assertCount(6, $response['errors']);
     }
 
     public function testUpdateExistingAddress(): void
@@ -313,6 +315,18 @@ class UpsertAddressRouteTest extends TestCase
         yield 'empty-salutation' => [
             [
                 'salutationId' => null,
+                'firstName' => 'Test',
+                'lastName' => 'Test',
+                'street' => 'Test',
+                'city' => 'Test',
+                'zipcode' => 'Test',
+                'countryId' => $this->getValidCountryId(),
+            ],
+        ];
+
+        yield 'default-salutation' => [
+            [
+                'salutationId' => Defaults::SALUTATION,
                 'firstName' => 'Test',
                 'lastName' => 'Test',
                 'street' => 'Test',

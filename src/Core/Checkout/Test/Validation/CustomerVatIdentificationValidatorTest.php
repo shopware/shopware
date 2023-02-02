@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Test\Validation;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentification;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
@@ -14,7 +13,6 @@ use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 /**
  * @internal
  */
-#[Package('checkout')]
 class CustomerVatIdentificationValidatorTest extends TestCase
 {
     use IntegrationTestBehaviour;

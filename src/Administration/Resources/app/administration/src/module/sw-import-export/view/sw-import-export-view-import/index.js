@@ -1,13 +1,10 @@
-/**
- * @package system-settings
- */
 import template from './sw-import-export-view-import.html.twig';
 import './sw-import-export-view-import.scss';
 
 /**
  * @private
  */
-export default {
+Shopware.Component.register('sw-import-export-view-import', {
     template,
 
     metaInfo() {
@@ -22,4 +19,4 @@ export default {
             this.$refs.activityGrid.fetchActivities();
         },
     },
-};
+});

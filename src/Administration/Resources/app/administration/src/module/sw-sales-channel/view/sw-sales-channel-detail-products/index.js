@@ -1,15 +1,11 @@
-/**
- * @package sales-channel
- */
-
 import template from './sw-sales-channel-detail-products.html.twig';
 import './sw-sales-channel-detail-products.scss';
 
-const { Mixin, Context } = Shopware;
+const { Component, Mixin, Context, Feature } = Shopware;
 const { EntityCollection, Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-sales-channel-detail-products', {
     template,
 
     inject: ['repositoryFactory', 'feature', 'acl'],
@@ -109,7 +105,7 @@ export default {
                 return Promise.reject();
             }
 
-            const context = { ...Context.api };
+            const context = Object.assign({}, Context.api);
             context.inheritance = true;
 
             this.isLoading = true;
@@ -212,8 +208,9 @@ export default {
         },
 
         onChangeSearchTerm(searchTerm) {
-            this.searchTerm = searchTerm;
-
+            if (!Feature.isActive('FEATURE_NEXT_16271')) {
+                this.searchTerm = searchTerm;
+            }
             if (searchTerm) {
                 this.page = 1;
             }
@@ -286,4 +283,4 @@ export default {
             return product.parentId !== relevantVisibility.productId;
         },
     },
-};
+});

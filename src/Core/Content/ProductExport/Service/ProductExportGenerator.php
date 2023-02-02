@@ -22,25 +22,79 @@ use Shopware\Core\Framework\Adapter\Twig\TwigVariableParser;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\SalesChannelRepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-#[Package('sales-channel')]
 class ProductExportGenerator implements ProductExportGeneratorInterface
 {
+    private ProductStreamBuilderInterface $productStreamBuilder;
+
+    private int $readBufferSize;
+
+    private SalesChannelRepositoryInterface $productRepository;
+
+    private ProductExportRendererInterface $productExportRender;
+
+    private EventDispatcherInterface $eventDispatcher;
+
+    private ProductExportValidatorInterface $productExportValidator;
+
+    private SalesChannelContextServiceInterface $salesChannelContextService;
+
+    private Translator $translator;
+
+    private SalesChannelContextPersister $contextPersister;
+
+    private Connection $connection;
+
+    private SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler;
+
+    private TwigVariableParser $twigVariableParser;
+
+    private ProductDefinition $productDefinition;
+
+    private LanguageLocaleCodeProvider $languageLocaleProvider;
+
     /**
      * @internal
      */
-    public function __construct(private readonly ProductStreamBuilderInterface $productStreamBuilder, private readonly SalesChannelRepository $productRepository, private readonly ProductExportRendererInterface $productExportRender, private readonly EventDispatcherInterface $eventDispatcher, private readonly ProductExportValidatorInterface $productExportValidator, private readonly SalesChannelContextServiceInterface $salesChannelContextService, private readonly Translator $translator, private readonly SalesChannelContextPersister $contextPersister, private readonly Connection $connection, private readonly int $readBufferSize, private readonly SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler, private readonly TwigVariableParser $twigVariableParser, private readonly ProductDefinition $productDefinition, private readonly LanguageLocaleCodeProvider $languageLocaleProvider)
-    {
+    public function __construct(
+        ProductStreamBuilderInterface $productStreamBuilder,
+        SalesChannelRepositoryInterface $productRepository,
+        ProductExportRendererInterface $productExportRender,
+        EventDispatcherInterface $eventDispatcher,
+        ProductExportValidatorInterface $productExportValidator,
+        SalesChannelContextServiceInterface $salesChannelContextService,
+        Translator $translator,
+        SalesChannelContextPersister $contextPersister,
+        Connection $connection,
+        int $readBufferSize,
+        SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler,
+        TwigVariableParser $twigVariableParser,
+        ProductDefinition $productDefinition,
+        LanguageLocaleCodeProvider $languageLocaleProvider
+    ) {
+        $this->productStreamBuilder = $productStreamBuilder;
+        $this->productRepository = $productRepository;
+        $this->productExportRender = $productExportRender;
+        $this->eventDispatcher = $eventDispatcher;
+        $this->productExportValidator = $productExportValidator;
+        $this->salesChannelContextService = $salesChannelContextService;
+        $this->translator = $translator;
+        $this->contextPersister = $contextPersister;
+        $this->connection = $connection;
+        $this->readBufferSize = $readBufferSize;
+        $this->seoUrlPlaceholderHandler = $seoUrlPlaceholderHandler;
+        $this->twigVariableParser = $twigVariableParser;
+        $this->productDefinition = $productDefinition;
+        $this->languageLocaleProvider = $languageLocaleProvider;
     }
 
     public function generate(ProductExportEntity $productExport, ExportBehavior $exportBehavior): ?ProductExportResult

@@ -3,14 +3,14 @@
 namespace Shopware\Core\Content\Test\ProductExport\Command;
 
 use Doctrine\DBAL\Connection;
-use League\Flysystem\FilesystemOperator;
+use League\Flysystem\FilesystemInterface;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\ProductExport\Command\ProductExportGenerateCommand;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\CommandTestBehaviour;
@@ -22,7 +22,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\BufferedOutput;
-use const PHP_EOL;
 
 /**
  * @internal
@@ -34,13 +33,13 @@ class ProductExportGenerateCommandTest extends TestCase
 
     private ProductExportGenerateCommand $productExportGenerateCommand;
 
-    private EntityRepository $repository;
+    private EntityRepositoryInterface $repository;
 
     private Context $context;
 
     private SalesChannelContext $salesChannelContext;
 
-    private FilesystemOperator $fileSystem;
+    private FilesystemInterface $fileSystem;
 
     protected function setUp(): void
     {
@@ -69,18 +68,17 @@ class ProductExportGenerateCommandTest extends TestCase
         $filePath = sprintf('%s/Testexport.csv', $this->getContainer()->getParameter('product_export.directory'));
         $fileContent = $this->fileSystem->read($filePath);
 
-        static::assertIsString($fileContent);
-        $csvRows = explode(PHP_EOL, $fileContent);
+        $csvRows = explode(\PHP_EOL, $fileContent);
 
-        static::assertTrue($this->fileSystem->directoryExists($this->getContainer()->getParameter('product_export.directory')));
-        static::assertTrue($this->fileSystem->fileExists($filePath));
+        static::assertTrue($this->fileSystem->has($this->getContainer()->getParameter('product_export.directory')));
+        static::assertTrue($this->fileSystem->has($filePath));
 
         static::assertCount(4, $csvRows);
     }
 
     private function getSalesChannelId(): string
     {
-        /** @var EntityRepository $repository */
+        /** @var EntityRepositoryInterface $repository */
         $repository = $this->getContainer()->get('sales_channel.repository');
 
         return $repository->search(new Criteria(), $this->context)->first()->getId();
@@ -88,7 +86,7 @@ class ProductExportGenerateCommandTest extends TestCase
 
     private function getSalesChannelDomain(): SalesChannelDomainEntity
     {
-        /** @var EntityRepository $repository */
+        /** @var EntityRepositoryInterface $repository */
         $repository = $this->getContainer()->get('sales_channel_domain.repository');
 
         $criteria = new Criteria();

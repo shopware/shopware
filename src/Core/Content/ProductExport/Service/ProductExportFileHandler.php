@@ -2,20 +2,25 @@
 
 namespace Shopware\Core\Content\ProductExport\Service;
 
-use League\Flysystem\FilesystemOperator;
-use League\Flysystem\UnableToDeleteFile;
+use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('sales-channel')]
 class ProductExportFileHandler implements ProductExportFileHandlerInterface
 {
+    private FilesystemInterface $fileSystem;
+
+    private string $exportDirectory;
+
     /**
      * @internal
      */
-    public function __construct(private readonly FilesystemOperator $fileSystem, private readonly string $exportDirectory)
-    {
+    public function __construct(
+        FilesystemInterface $fileSystem,
+        string $exportDirectory
+    ) {
+        $this->fileSystem = $fileSystem;
+        $this->exportDirectory = $exportDirectory;
     }
 
     public function getFilePath(ProductExportEntity $productExport, bool $partialGeneration = false): string
@@ -37,26 +42,24 @@ class ProductExportFileHandler implements ProductExportFileHandlerInterface
 
     public function writeProductExportContent(string $content, string $filePath, bool $append = false): bool
     {
-        if ($this->fileSystem->fileExists($filePath) && !$append) {
+        if ($this->fileSystem->has($filePath) && !$append) {
             $this->fileSystem->delete($filePath);
         }
 
         $existingContent = '';
-        if ($append && $this->fileSystem->fileExists($filePath)) {
+        if ($append && $this->fileSystem->has($filePath)) {
             $existingContent = $this->fileSystem->read($filePath);
         }
 
-        $this->fileSystem->write(
+        return $this->fileSystem->put(
             $filePath,
             $existingContent . $content
         );
-
-        return true;
     }
 
     public function isValidFile(string $filePath, ExportBehavior $behavior, ProductExportEntity $productExport): bool
     {
-        if (!$this->fileSystem->fileExists($filePath)) {
+        if (!$this->fileSystem->has($filePath)) {
             return false;
         }
 
@@ -65,24 +68,20 @@ class ProductExportFileHandler implements ProductExportFileHandlerInterface
 
     public function finalizePartialProductExport(string $partialFilePath, string $finalFilePath, string $headerContent, string $footerContent): bool
     {
-        if ($this->fileSystem->fileExists($partialFilePath) && $this->fileSystem->fileExists($finalFilePath)) {
+        if ($this->fileSystem->has($partialFilePath) && $this->fileSystem->has($finalFilePath)) {
             $this->fileSystem->delete($finalFilePath);
         }
 
-        $content = $this->fileSystem->read($partialFilePath);
+        $content = $this->fileSystem->readAndDelete($partialFilePath);
 
-        try {
-            $this->fileSystem->delete($partialFilePath);
-        } catch (UnableToDeleteFile) {
+        if ($content === false) {
             return false;
         }
 
-        $this->fileSystem->write(
+        return $this->fileSystem->put(
             $finalFilePath,
             $headerContent . $content . $footerContent
         );
-
-        return true;
     }
 
     private function isCacheExpired(ExportBehavior $behavior, ProductExportEntity $productExport): bool
@@ -98,8 +97,8 @@ class ProductExportFileHandler implements ProductExportFileHandlerInterface
 
     private function ensureDirectoryExists(): void
     {
-        if (!$this->fileSystem->fileExists($this->exportDirectory)) {
-            $this->fileSystem->createDirectory($this->exportDirectory);
+        if (!$this->fileSystem->has($this->exportDirectory)) {
+            $this->fileSystem->createDir($this->exportDirectory);
         }
     }
 }

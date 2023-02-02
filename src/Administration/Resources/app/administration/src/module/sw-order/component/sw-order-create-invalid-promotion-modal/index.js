@@ -1,14 +1,10 @@
 import template from './sw-order-create-invalid-promotion-modal.html.twig';
 import './sw-order-create-invalid-promotion-modal.scss';
 
-/**
- * @package customer-order
- */
-
-const { State } = Shopware;
+const { Component, State } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-order-create-invalid-promotion-modal', {
     template,
 
     computed: {
@@ -26,4 +22,4 @@ export default {
             this.$emit('confirm');
         },
     },
-};
+});

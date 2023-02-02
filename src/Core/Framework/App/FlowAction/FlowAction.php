@@ -3,20 +3,24 @@
 namespace Shopware\Core\Framework\App\FlowAction;
 
 use Shopware\Core\Framework\App\FlowAction\Xml\Actions;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 use Symfony\Component\Config\Util\XmlUtils;
 
 /**
  * @internal
  */
-#[Package('core')]
 class FlowAction
 {
     private const XSD_FILE = __DIR__ . '/Schema/flow-action-1.0.xsd';
 
-    private function __construct(private string $path, private readonly ?Actions $actions)
+    private string $path;
+
+    private ?Actions $actions;
+
+    private function __construct(string $path, ?Actions $actions)
     {
+        $this->path = $path;
+        $this->actions = $actions;
     }
 
     public static function createFromXmlFile(string $xmlFile): self

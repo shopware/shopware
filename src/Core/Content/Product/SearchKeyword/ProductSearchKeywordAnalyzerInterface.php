@@ -4,9 +4,7 @@ namespace Shopware\Core\Content\Product\SearchKeyword;
 
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('inventory')]
 interface ProductSearchKeywordAnalyzerInterface
 {
     /**

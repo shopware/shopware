@@ -8,15 +8,10 @@ use PHPStan\Analyser\Scope;
 use PHPStan\Reflection\ClassReflection;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
-use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Log\Package;
 
 /**
  * @implements Rule<ClassMethod>
- *
- * @internal
  */
-#[Package('core')]
 class DeprecatedMethodsThrowDeprecationRule implements Rule
 {
     /**
@@ -28,8 +23,6 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
         'reason:remove-subscriber',
         // Decorators still need to be called for BC reasons, therefore they do not trigger deprecations.
         'reason:remove-decorator',
-        // Command methods are still called from symfony, the execute method should throw a deprecation though.
-        'reason:remove-command',
         // Entities still need to be present in the DI container, therefore they do not trigger deprecations.
         'reason:remove-entity',
         // Classes that will be internal are still called from inside the core, therefore they do not trigger deprecations.
@@ -63,7 +56,7 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
 
         $class = $scope->getClassReflection();
 
-        if ($class === null || $class->isInterface() || $this->isTestClass($class)) {
+        if ($class === null || $class->isInternal() || $class->isInterface()) {
             return [];
         }
 
@@ -72,18 +65,8 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
         }
 
         $methodContent = $this->getMethodContent($node, $scope, $class);
-        $method = $class->getMethod($node->name->name, $scope);
 
-        $classDeprecation = $class->getDeprecatedDescription();
-        if ($classDeprecation && !$this->handlesDeprecationCorrectly($classDeprecation, $methodContent)) {
-            return [
-                \sprintf(
-                    'Class "%s" is marked as deprecated, but method "%s" does not call "Feature::triggerDeprecationOrThrow". All public methods of deprecated classes need to trigger a deprecation warning.',
-                    $class->getName(),
-                    $method->getName()
-                ),
-            ];
-        }
+        $method = $class->getMethod($node->name->name, $scope);
 
         $methodDeprecation = $method->getDeprecatedDescription() ?? '';
 
@@ -97,6 +80,17 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
                     'Method "%s" of class "%s" is marked as deprecated, but does not call "Feature::triggerDeprecationOrThrow". All deprecated methods need to trigger a deprecation warning.',
                     $method->getName(),
                     $class->getName()
+                ),
+            ];
+        }
+
+        $classDeprecation = $class->getDeprecatedDescription();
+        if ($classDeprecation && !$this->handlesDeprecationCorrectly($classDeprecation, $methodContent)) {
+            return [
+                \sprintf(
+                    'Class "%s" is marked as deprecated, but method "%s" does not call "Feature::triggerDeprecationOrThrow". All public methods of deprecated classes need to trigger a deprecation warning.',
+                    $class->getName(),
+                    $method->getName()
                 ),
             ];
         }
@@ -137,24 +131,5 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
         }
 
         return \str_contains($method, 'Feature::triggerDeprecationOrThrow(');
-    }
-
-    private function isTestClass(ClassReflection $class): bool
-    {
-        $namespace = $class->getName();
-
-        if (\str_contains($namespace, '\\Test\\')) {
-            return true;
-        }
-
-        if (\str_contains($namespace, '\\Tests\\')) {
-            return true;
-        }
-
-        if ($class->getParentClass() === null) {
-            return false;
-        }
-
-        return $class->getParentClass()->getName() === TestCase::class;
     }
 }

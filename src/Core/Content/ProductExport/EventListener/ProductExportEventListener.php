@@ -2,29 +2,42 @@
 
 namespace Shopware\Core\Content\ProductExport\EventListener;
 
-use League\Flysystem\FilesystemOperator;
+use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Content\ProductExport\Service\ProductExportFileHandlerInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-/**
- * @internal
- */
-#[Package('sales-channel')]
 class ProductExportEventListener implements EventSubscriberInterface
 {
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $productExportRepository;
+
+    /**
+     * @var ProductExportFileHandlerInterface
+     */
+    private $productExportFileHandler;
+
+    /**
+     * @var FilesystemInterface
+     */
+    private $fileSystem;
+
     /**
      * @internal
      */
     public function __construct(
-        private readonly EntityRepository $productExportRepository,
-        private readonly ProductExportFileHandlerInterface $productExportFileHandler,
-        private readonly FilesystemOperator $fileSystem
+        EntityRepositoryInterface $productExportRepository,
+        ProductExportFileHandlerInterface $productExportFileHandler,
+        FilesystemInterface $fileSystem
     ) {
+        $this->productExportRepository = $productExportRepository;
+        $this->productExportFileHandler = $productExportFileHandler;
+        $this->fileSystem = $fileSystem;
     }
 
     public static function getSubscribedEvents(): array
@@ -58,7 +71,7 @@ class ProductExportEventListener implements EventSubscriberInterface
                 $productExport = $productExportResult->first();
 
                 $filePath = $this->productExportFileHandler->getFilePath($productExport);
-                if ($this->fileSystem->fileExists($filePath)) {
+                if ($this->fileSystem->has($filePath)) {
                     $this->fileSystem->delete($filePath);
                 }
             }

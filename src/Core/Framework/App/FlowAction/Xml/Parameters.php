@@ -3,19 +3,20 @@
 namespace Shopware\Core\Framework\App\FlowAction\Xml;
 
 use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
-use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
-#[Package('core')]
 class Parameters extends XmlElement
 {
     /**
-     * @param Parameter[] $parameters
+     * @var Parameter[]
      */
-    public function __construct(protected array $parameters)
+    protected array $parameters;
+
+    public function __construct(array $data)
     {
+        $this->parameters = $data;
     }
 
     /**

@@ -2,16 +2,26 @@
 
 namespace Shopware\Core\Framework\Event;
 
-use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('core')]
 class ProgressStartedEvent extends Event
 {
-    final public const NAME = self::class;
+    public const NAME = self::class;
 
-    public function __construct(private readonly string $message, private readonly int $total)
+    /**
+     * @var string
+     */
+    private $message;
+
+    /**
+     * @var int
+     */
+    private $total;
+
+    public function __construct(string $message, int $total)
     {
+        $this->message = $message;
+        $this->total = $total;
     }
 
     public function getMessage(): string

@@ -3,12 +3,10 @@
 namespace Shopware\Core\Content\Product\SalesChannel\Sorting;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<ProductSortingEntity>
  */
-#[Package('inventory')]
 class ProductSortingCollection extends EntityCollection
 {
     public function sortByKeyArray(array $keys): void

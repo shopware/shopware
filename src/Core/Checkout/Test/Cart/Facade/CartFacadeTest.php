@@ -22,22 +22,21 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Script\Exception\HookInjectionException;
 use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
+use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\Script\Execution\TestHook;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\Test\TestDefaults;
-use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 
 /**
  * @internal
  */
-#[Package('checkout')]
 class CartFacadeTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -86,6 +85,8 @@ class CartFacadeTest extends TestCase
 
     public function testContainer(): void
     {
+        Feature::skipTestIfInActive('FEATURE_NEXT_19501', $this);
+
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, []);
 
@@ -148,8 +149,6 @@ class CartFacadeTest extends TestCase
 
     /**
      * @dataProvider scriptProvider
-     *
-     * @param array<string, ExpectedPrice|null> $expectations
      */
     public function testScripts(string $hook, array $expectations, ?\Closure $closure = null): void
     {
@@ -278,43 +277,45 @@ class CartFacadeTest extends TestCase
             ],
         ];
 
-        yield 'Test add container' => [
-            'add-container',
-            [
-                'p1' => new ExpectedPrice(100, 300),
-                'my-container' => [
-                    'price' => new ExpectedPrice(180),
-                    'children' => [
-                        'first' => new ExpectedPrice(100),
-                        'second' => new ExpectedPrice(100),
-                        'discount' => new ExpectedPrice(-20),
+        if (Feature::isActive('FEATURE_NEXT_19501')) {
+            yield 'Test add container' => [
+                'add-container',
+                [
+                    'p1' => new ExpectedPrice(100, 300),
+                    'my-container' => [
+                        'price' => new ExpectedPrice(180),
+                        'children' => [
+                            'first' => new ExpectedPrice(100),
+                            'second' => new ExpectedPrice(100),
+                            'discount' => new ExpectedPrice(-20),
+                        ],
                     ],
                 ],
-            ],
-        ];
+            ];
 
-        yield 'Test nested containers' => [
-            'add-nested-container',
-            [
-                'p1' => new ExpectedPrice(100),
-                'my-container' => [
-                    'price' => new ExpectedPrice(315),
-                    'children' => [
-                        'first' => new ExpectedPrice(100),
-                        'second' => new ExpectedPrice(100),
-                        'discount' => new ExpectedPrice(-35),
-                        'nested' => [
-                            'price' => new ExpectedPrice(150),
-                            'children' => [
-                                'third' => new ExpectedPrice(100),
-                                'fourth' => new ExpectedPrice(100),
-                                'absolute' => new ExpectedPrice(-50),
+            yield 'Test nested containers' => [
+                'add-nested-container',
+                [
+                    'p1' => new ExpectedPrice(100),
+                    'my-container' => [
+                        'price' => new ExpectedPrice(315),
+                        'children' => [
+                            'first' => new ExpectedPrice(100),
+                            'second' => new ExpectedPrice(100),
+                            'discount' => new ExpectedPrice(-35),
+                            'nested' => [
+                                'price' => new ExpectedPrice(150),
+                                'children' => [
+                                    'third' => new ExpectedPrice(100),
+                                    'fourth' => new ExpectedPrice(100),
+                                    'absolute' => new ExpectedPrice(-50),
+                                ],
                             ],
                         ],
                     ],
                 ],
-            ],
-        ];
+            ];
+        }
 
         yield 'Test payload' => [
             'payload-cases',
@@ -356,7 +357,7 @@ class CartFacadeTest extends TestCase
 
     private static function createCart(): Cart
     {
-        $cart = new Cart('test');
+        $cart = new Cart('test', 'test');
         $cart->setBehavior(new CartBehavior());
         $cart->addState('default-state');
 
@@ -364,9 +365,9 @@ class CartFacadeTest extends TestCase
     }
 
     /**
-     * @param array<string, ExpectedPrice|null> $expectations
+     * @param ItemsFacade|CartFacade|LineItemCollection $scope
      */
-    private function assertItems(ItemsFacade|CartFacade|LineItemCollection $scope, array $expectations): void
+    private function assertItems($scope, array $expectations): void
     {
         foreach ($expectations as $key => $expected) {
             if ($expected === null) {
@@ -400,9 +401,6 @@ class CartFacadeTest extends TestCase
         }
     }
 
-    /**
-     * @param array<string, mixed> $data
-     */
     private function createTestHook(string $case, IdsCollection $ids, array $data = []): CartTestHook
     {
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)
@@ -448,9 +446,9 @@ class ExpectedPrice extends CalculatedPrice
 {
     public function __construct(float $unitPrice, ?float $totalPrice = null, ?CalculatedTaxCollection $calculatedTaxes = null, ?TaxRuleCollection $taxRules = null, int $quantity = 1)
     {
-        $totalPrice ??= $unitPrice;
-        $calculatedTaxes ??= new CalculatedTaxCollection([]);
-        $taxRules ??= new TaxRuleCollection([]);
+        $totalPrice = $totalPrice ?? $unitPrice;
+        $calculatedTaxes = $calculatedTaxes ?? new CalculatedTaxCollection([]);
+        $taxRules = $taxRules ?? new TaxRuleCollection([]);
 
         parent::__construct($unitPrice, $totalPrice, $calculatedTaxes, $taxRules, $quantity);
     }

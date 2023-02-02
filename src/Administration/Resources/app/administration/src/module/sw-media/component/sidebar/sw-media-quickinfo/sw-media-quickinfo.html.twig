@@ -181,7 +181,6 @@
                 {% block sw_media_quickinfo_metadata_content_base %}
                 <sw-media-quickinfo-metadata-item
                     class="sw-media-quickinfo-metadata-name"
-                    :class="fileNameClasses"
                     :label-name="$tc('sw-media.sidebar.metadata.name')"
                     :truncated="false"
                 >
@@ -189,13 +188,10 @@
                     <sw-confirm-field
                         v-if="editable"
                         ref="inlineEditFieldName"
-                        class="sw-media-quickinfo-metadata-name"
                         :disabled="!acl.can('media.editor')"
                         compact
                         :value="item.fileName"
-                        :error="fileNameError"
                         @input="onChangeFileName"
-                        @remove-error="onRemoveFileNameError"
                     /><template v-else>
                         {{ item.fileName }}
                     </template>

@@ -4,9 +4,9 @@ namespace Shopware\Core\Framework\Test\Webhook;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Event\FlowEventAware;
+use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\Webhook\_fixtures\BusinessEvents\ArrayBusinessEvent;
 use Shopware\Core\Framework\Test\Webhook\_fixtures\BusinessEvents\CollectionBusinessEvent;
@@ -29,7 +29,10 @@ class BusinessEventEncoderTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private BusinessEventEncoder $businessEventEncoder;
+    /**
+     * @var BusinessEventEncoder
+     */
+    private $businessEventEncoder;
 
     public function setUp(): void
     {
@@ -39,7 +42,7 @@ class BusinessEventEncoderTest extends TestCase
     /**
      * @dataProvider getEvents
      */
-    public function testScalarEvents(FlowEventAware $event): void
+    public function testScalarEvents(BusinessEventInterface $event): void
     {
         $shopwareVersion = $this->getContainer()->getParameter('kernel.shopware_version');
         static::assertTrue(
@@ -80,7 +83,7 @@ class BusinessEventEncoderTest extends TestCase
 
     private function getTaxEntity(): TaxEntity
     {
-        /** @var EntityRepository $taxRepo */
+        /** @var EntityRepositoryInterface $taxRepo */
         $taxRepo = $this->getContainer()->get('tax.repository');
 
         return $taxRepo->search(new Criteria(), Context::createDefaultContext())->first();
@@ -88,7 +91,7 @@ class BusinessEventEncoderTest extends TestCase
 
     private function getTaxCollection(): TaxCollection
     {
-        /** @var EntityRepository $taxRepo */
+        /** @var EntityRepositoryInterface $taxRepo */
         $taxRepo = $this->getContainer()->get('tax.repository');
 
         $taxes = $taxRepo->search(new Criteria(), Context::createDefaultContext())->getEntities();

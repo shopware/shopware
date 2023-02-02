@@ -1,11 +1,12 @@
 import template from './sw-extension-uninstall-modal.html.twig';
 import './sw-extension-uninstall-modal.scss';
 
+const { Component } = Shopware;
+
 /**
- * @package merchant-services
  * @private
  */
-export default {
+Component.register('sw-extension-uninstall-modal', {
     template,
 
     props: {
@@ -51,4 +52,4 @@ export default {
             this.$emit('uninstall-extension', this.removePluginData);
         },
     },
-};
+});

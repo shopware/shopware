@@ -95,23 +95,6 @@ class MediaApiService extends ApiService {
         });
     }
 
-    keepFile(uploadTag, uploadData) {
-        const task = new UploadTask({ uploadTag, ...uploadData });
-        this.getListenerForTag(uploadTag).forEach((listener) => {
-            listener(this._createUploadEvent(
-                UploadEvents.UPLOAD_FINISHED,
-                uploadTag,
-                {
-                    targetId: task.targetId,
-                    successAmount: 0,
-                    failureAmount: 0,
-                    totalAmount: 0,
-                    customMessage: 'global.sw-media-upload.notification.assigned.message',
-                },
-            ));
-        });
-    }
-
     cancelUpload(uploadTag, uploadData) {
         const tasks = new UploadTask({ uploadTag, ...uploadData });
         this.getListenerForTag(uploadTag).forEach((listener) => {
@@ -207,10 +190,6 @@ class MediaApiService extends ApiService {
     }
 
     uploadMediaById(id, mimeType, data, extension, fileName = id) {
-        if (mimeType === 'application/json') {
-            mimeType = 'text/plain';
-        }
-
         const apiRoute = `/_action/${this.getApiBasePath(id)}/upload`;
         const headers = this.getBasicHeaders({ 'Content-Type': mimeType });
         const params = {

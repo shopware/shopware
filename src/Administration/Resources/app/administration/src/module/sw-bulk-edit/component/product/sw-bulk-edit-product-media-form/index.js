@@ -1,10 +1,8 @@
-/**
- * @package system-settings
- */
 import template from './sw-bulk-edit-product-media-form.html.twig';
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+const { Component } = Shopware;
+
+Component.extend('sw-bulk-edit-product-media-form', 'sw-product-media-form', {
     template,
 
     data() {
@@ -13,4 +11,4 @@ export default {
             showCoverLabel: false,
         };
     },
-};
+});

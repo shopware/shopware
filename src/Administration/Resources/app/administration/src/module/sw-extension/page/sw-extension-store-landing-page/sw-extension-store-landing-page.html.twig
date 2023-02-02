@@ -6,7 +6,12 @@
             v-if="isLoading"
             class="sw-extension-store-landing-page__wrapper-loading"
         >
-            <sw-loader />
+            <sw-icon
+                class="sw-extension-store-landing-page__wrapper-loading-icon"
+                name="default-web-loading-circle"
+                size="48px"
+                small
+            />
 
             <p>
                 {{ $tc('sw-extension-store.landing-page.enablingShopwareStore') }}

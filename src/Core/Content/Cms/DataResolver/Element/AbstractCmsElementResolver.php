@@ -13,10 +13,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('content')]
 abstract class AbstractCmsElementResolver implements CmsElementResolverInterface
 {
     /**
@@ -153,7 +151,7 @@ abstract class AbstractCmsElementResolver implements CmsElementResolverInterface
             function ($matches) use ($resolverContext) {
                 try {
                     return $this->resolveEntityValueToString($resolverContext->getEntity(), $matches['property'], $resolverContext);
-                } catch (\InvalidArgumentException) {
+                } catch (\InvalidArgumentException $e) {
                     return $matches[0];
                 }
             },
@@ -170,7 +168,9 @@ abstract class AbstractCmsElementResolver implements CmsElementResolverInterface
         /** @var ManyToManyAssociationField|null $manyToMany */
         $manyToMany = $field->getToManyReferenceDefinition()->getFields()
             ->filterInstance(ManyToManyAssociationField::class)
-            ->filter(static fn (ManyToManyAssociationField $field) => $field->getReferenceDefinition() === $referenceDefinition)
+            ->filter(static function (ManyToManyAssociationField $field) use ($referenceDefinition) {
+                return $field->getReferenceDefinition() === $referenceDefinition;
+            })
             ->first();
 
         if (!$manyToMany) {
@@ -187,7 +187,9 @@ abstract class AbstractCmsElementResolver implements CmsElementResolverInterface
         /** @var ManyToOneAssociationField|null $manyToOne */
         $manyToOne = $field->getReferenceDefinition()->getFields()
             ->filterInstance(ManyToOneAssociationField::class)
-            ->filter(static fn (ManyToOneAssociationField $field) => $field->getReferenceDefinition() === $referenceDefinition)
+            ->filter(static function (ManyToOneAssociationField $field) use ($referenceDefinition) {
+                return $field->getReferenceDefinition() === $referenceDefinition;
+            })
             ->first()
         ;
 

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Framework\Validation;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\Constraint\Uuid;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\Collection;
@@ -21,22 +20,28 @@ use Symfony\Component\Validator\Mapping\MetadataInterface;
 use Symfony\Component\Validator\Validator\ContextualValidatorInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-#[Package('core
-calling into the validator machinery has a considerable overhead. Doing that thousands of time is notable.
-this validator implements a subset of the functionality and calls into the real validator if needed.')]
+/**
+ * calling into the validator machinery has a considerable overhead. Doing that thousands of time is notable.
+ * this validator implements a subset of the functionality and calls into the real validator if needed.
+ */
 class HappyPathValidator implements ValidatorInterface
 {
+    private ValidatorInterface $inner;
+
     /**
      * @internal
      */
-    public function __construct(private readonly ValidatorInterface $inner)
+    public function __construct(ValidatorInterface $inner)
     {
+        $this->inner = $inner;
     }
 
     /**
      * @param Constraint|Constraint[]|null $constraints
+     *
+     * @return ConstraintViolationListInterface
      */
-    public function validate(mixed $value, $constraints = null, $groups = null): ConstraintViolationListInterface
+    public function validate($value, $constraints = null, $groups = null)
     {
         if ($constraints === null) {
             return $this->inner->validate($value, $constraints, $groups);
@@ -54,35 +59,52 @@ class HappyPathValidator implements ValidatorInterface
         return new ConstraintViolationList();
     }
 
-    public function getMetadataFor(mixed $value): MetadataInterface
+    /**
+     * @return MetadataInterface
+     */
+    public function getMetadataFor($value)
     {
         return $this->inner->getMetadataFor($value);
     }
 
-    public function hasMetadataFor(mixed $value): bool
+    /**
+     * @return bool
+     */
+    public function hasMetadataFor($value)
     {
         return $this->inner->hasMetadataFor($value);
     }
 
     /**
      * @param object $object can not use native type hint as it is incompatible with symfony <5.3.4
+     *
+     * @return ConstraintViolationListInterface
      */
-    public function validateProperty($object, $propertyName, $groups = null): ConstraintViolationListInterface
+    public function validateProperty($object, $propertyName, $groups = null)
     {
         return $this->inner->validateProperty($object, $propertyName, $groups);
     }
 
-    public function validatePropertyValue($objectOrClass, $propertyName, $value, $groups = null): ConstraintViolationListInterface
+    /**
+     * @return ConstraintViolationListInterface
+     */
+    public function validatePropertyValue($objectOrClass, $propertyName, $value, $groups = null)
     {
         return $this->inner->validatePropertyValue($objectOrClass, $propertyName, $value, $groups);
     }
 
-    public function startContext(): ContextualValidatorInterface
+    /**
+     * @return ContextualValidatorInterface
+     */
+    public function startContext()
     {
         return $this->inner->startContext();
     }
 
-    public function inContext(ExecutionContextInterface $context): ContextualValidatorInterface
+    /**
+     * @return ContextualValidatorInterface
+     */
+    public function inContext(ExecutionContextInterface $context)
     {
         return $this->inner->inContext($context);
     }
@@ -151,7 +173,7 @@ class HappyPathValidator implements ValidatorInterface
                 $types = (array) $constraint->type;
 
                 foreach ($types as $type) {
-                    $type = strtolower((string) $type);
+                    $type = strtolower($type);
                     $type = $type === 'boolean' ? 'bool' : $type;
                     $isFunction = 'is_' . $type;
                     $ctypeFunction = 'ctype_' . $type;
@@ -213,7 +235,7 @@ class HappyPathValidator implements ValidatorInterface
                     $existsInArrayAccess = $value instanceof \ArrayAccess && $value->offsetExists($field);
 
                     if ($existsInArray || $existsInArrayAccess) {
-                        if ((is_countable($fieldConstraint->constraints) ? \count($fieldConstraint->constraints) : 0) > 0) {
+                        if (\count($fieldConstraint->constraints) > 0) {
                             /** @var array|\ArrayAccess<string|int,mixed> $value */
                             if (!$this->validateConstraint($value[$field], $fieldConstraint->constraints)) {
                                 return false;

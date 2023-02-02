@@ -14,7 +14,7 @@
     }
 
     h1 {
-        font-size: $font-size-xl;
+        font-size: 24px;
     }
 
     h2 {
@@ -22,18 +22,18 @@
     }
 
     h3 {
-        font-size: $font-size-l;
+        font-size: 20px;
     }
 
     h4,
     h5,
     h6 {
-        font-size: $font-size-m;
+        font-size: 18px;
     }
 
     p {
-        font-size: $font-size-xs;
-        line-height: $line-height-sm;
+        font-size: 14px;
+        line-height: 20px;
         color: $color-darkgray-200;
     }
 }

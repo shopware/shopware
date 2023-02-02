@@ -1,10 +1,11 @@
 import template from './sw-cms-preview-image-highlight-row.html.twig';
 import './sw-cms-preview-image-highlight-row.scss';
 
+const { Component } = Shopware;
+
 /**
- * @private
- * @package content
+ * @private since v6.5.0
  */
-export default {
+Component.register('sw-cms-preview-image-highlight-row', {
     template,
-};
+});

@@ -12,10 +12,9 @@ use Shopware\Core\Checkout\Payment\Cart\Token\TokenStruct;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Checkout\Payment\Exception\PaymentProcessException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
@@ -24,14 +23,37 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 
-#[Package('checkout')]
 class PaymentTransactionChainProcessor
 {
+    private TokenFactoryInterfaceV2 $tokenFactory;
+
+    private EntityRepositoryInterface $orderRepository;
+
+    private RouterInterface $router;
+
+    private PaymentHandlerRegistry $paymentHandlerRegistry;
+
+    private SystemConfigService $systemConfigService;
+
+    private InitialStateIdLoader $initialStateIdLoader;
+
     /**
      * @internal
      */
-    public function __construct(private readonly TokenFactoryInterfaceV2 $tokenFactory, private readonly EntityRepository $orderRepository, private readonly RouterInterface $router, private readonly PaymentHandlerRegistry $paymentHandlerRegistry, private readonly SystemConfigService $systemConfigService, private readonly InitialStateIdLoader $initialStateIdLoader)
-    {
+    public function __construct(
+        TokenFactoryInterfaceV2 $tokenFactory,
+        EntityRepositoryInterface $orderRepository,
+        RouterInterface $router,
+        PaymentHandlerRegistry $paymentHandlerRegistry,
+        SystemConfigService $systemConfigService,
+        InitialStateIdLoader $initialStateIdLoader
+    ) {
+        $this->tokenFactory = $tokenFactory;
+        $this->orderRepository = $orderRepository;
+        $this->router = $router;
+        $this->paymentHandlerRegistry = $paymentHandlerRegistry;
+        $this->systemConfigService = $systemConfigService;
+        $this->initialStateIdLoader = $initialStateIdLoader;
     }
 
     /**

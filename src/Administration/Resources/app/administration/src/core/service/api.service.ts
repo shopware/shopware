@@ -1,7 +1,3 @@
-/**
- * @package admin
- */
-
 import parseJsonApi from 'src/core/service/jsonapi-parser.service';
 import type { AxiosInstance, AxiosResponse } from 'axios';
 import type { LoginService } from './login.service';
@@ -68,7 +64,7 @@ class ApiService {
             'Content-Type': 'application/json',
         };
 
-        return { ...basicHeaders, ...additionalHeaders };
+        return Object.assign({}, basicHeaders, additionalHeaders);
     }
 
     /**

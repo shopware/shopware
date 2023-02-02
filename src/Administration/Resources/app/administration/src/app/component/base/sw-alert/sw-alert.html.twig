@@ -63,11 +63,14 @@
     <button
         v-if="closable"
         class="sw-alert__close"
-        :aria-label="$tc('global.default.close')"
-        :title="$tc('global.default.close')"
+        aria-label="Schließen"
+        title="Schließen"
         @click.prevent="$emit('close', notificationIndex)"
     >
-        <sw-icon name="regular-times-s" />
+        <sw-icon
+            name="regular-times-s"
+            small
+        />
     </button>
     {% endblock %}
     {% endblock %}

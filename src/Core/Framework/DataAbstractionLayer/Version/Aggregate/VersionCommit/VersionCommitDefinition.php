@@ -18,12 +18,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommitData\VersionCommitDataDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\VersionDefinition;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
 class VersionCommitDefinition extends EntityDefinition
 {
-    final public const ENTITY_NAME = 'version_commit';
+    public const ENTITY_NAME = 'version_commit';
 
     public function getEntityName(): string
     {

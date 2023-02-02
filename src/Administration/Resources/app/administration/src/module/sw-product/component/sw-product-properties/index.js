@@ -1,7 +1,3 @@
-/*
- * @package inventory
- */
-
 import template from './sw-product-properties.html.twig';
 import './sw-product-properties.scss';
 
@@ -10,7 +6,7 @@ const { Criteria, EntityCollection } = Shopware.Data;
 const { mapState, mapGetters } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-product-properties', {
     template,
 
     inject: ['repositoryFactory', 'acl'],
@@ -206,7 +202,7 @@ export default {
 
         onChangeSearchTerm(searchTerm) {
             this.searchTerm = searchTerm;
-            return this.getProperties();
+            this.getProperties();
         },
 
         turnOnAddPropertiesModal() {
@@ -235,6 +231,20 @@ export default {
             );
         },
 
+        /**
+         * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
+         */
+        updateNewPropertiesItem({ index, selected }) {
+            this.newProperties[index].selected = selected;
+        },
+
+        /**
+         * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
+         */
+        addNewPropertiesItem({ property, selected }) {
+            this.newProperties.push({ property, selected });
+        },
+
         onCancelAddPropertiesModal() {
             this.turnOffAddPropertiesModal();
         },
@@ -255,4 +265,4 @@ export default {
             });
         },
     },
-};
+});

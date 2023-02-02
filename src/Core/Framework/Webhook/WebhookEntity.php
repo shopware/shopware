@@ -5,9 +5,7 @@ namespace Shopware\Core\Framework\Webhook;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
 class WebhookEntity extends Entity
 {
     use EntityIdTrait;

@@ -19,9 +19,10 @@
         display: inline-block;
         border-radius: $border-radius-default;
         padding: 2px 24px;
-        font-size: $font-size-xs;
+        font-size: $font-size-small;
         outline: none;
-        font-weight: $font-weight-semi-bold;
+        font-weight: 600;
+        font-family: $font-family-default;
         vertical-align: middle;
         text-decoration: none;
         user-select: none;
@@ -41,7 +42,7 @@
         }
 
         &-sm {
-            line-height: $line-height-lg;
+            line-height: 30px;
         }
     }
 
@@ -51,7 +52,7 @@
         .sw-text-editor__label {
             display: block;
             line-height: 16px;
-            font-size: $font-size-xs;
+            font-size: 14px;
             margin-bottom: 8px;
             color: #54698d;
             user-select: none;
@@ -114,7 +115,6 @@
     }
 
     .sw-text-editor__content {
-        background: $color-white;
         transition: 0.3s all ease;
         position: relative;
         display: flex;
@@ -152,7 +152,7 @@
         h4,
         h5,
         h6 {
-            font-weight: $font-weight-semi-bold;
+            font-weight: 600;
             color: #52667a;
             letter-spacing: 0;
             margin-bottom: 0;
@@ -165,49 +165,49 @@
         }
 
         h2 {
-            font-size: $font-size-3xl;
+            font-size: 28px;
             line-height: 34px;
             margin-top: 30px;
         }
 
         h3 {
-            font-size: $font-size-xl;
+            font-size: 24px;
             line-height: 33px;
             margin-top: 28px;
         }
 
         h4 {
-            font-size: $font-size-l;
-            line-height: $line-height-md;
+            font-size: 20px;
+            line-height: 24px;
             margin-top: 24px;
         }
 
         h5 {
-            font-size: $font-size-s;
+            font-size: 16px;
             line-height: 21px;
             margin-top: 22px;
         }
 
         h6 {
-            font-size: $font-size-xs;
-            line-height: $line-height-sm;
+            font-size: 14px;
+            line-height: 20px;
             margin-top: 22px;
         }
 
         p,
         div {
             font-weight: normal;
-            font-size: $font-size-s;
-            line-height: $line-height-md;
+            font-size: 16px;
+            line-height: 24px;
             color: #52667a;
             letter-spacing: 0;
             margin-top: 16px;
         }
 
         blockquote {
-            font-size: $font-size-s;
+            font-size: 16px;
             font-style: italic;
-            line-height: $line-height-md;
+            line-height: 24px;
             color: #52667a;
             margin-left: 20px;
             position: relative;
@@ -231,8 +231,8 @@
 
             li {
                 font-weight: normal;
-                font-size: $font-size-s;
-                line-height: $line-height-md;
+                font-size: 16px;
+                line-height: 24px;
                 color: #52667a;
                 margin-bottom: 8px;
             }

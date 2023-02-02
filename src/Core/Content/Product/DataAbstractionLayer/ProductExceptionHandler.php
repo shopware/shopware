@@ -4,9 +4,8 @@ namespace Shopware\Core\Content\Product\DataAbstractionLayer;
 
 use Shopware\Core\Content\Product\Exception\DuplicateProductNumberException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\ExceptionHandlerInterface;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 
-#[Package('core')]
 class ProductExceptionHandler implements ExceptionHandlerInterface
 {
     public function getPriority(): int
@@ -14,14 +13,19 @@ class ProductExceptionHandler implements ExceptionHandlerInterface
         return ExceptionHandlerInterface::PRIORITY_DEFAULT;
     }
 
-    public function matchException(\Exception $e): ?\Exception
+    /**
+     * @internal (flag:FEATURE_NEXT_16640) - second parameter WriteCommand $command will be removed
+     */
+    public function matchException(\Exception $e, ?WriteCommand $command = null): ?\Exception
     {
+        if ($e->getCode() !== 0) {
+            return null;
+        }
+
         if (preg_match('/SQLSTATE\[23000\]:.*1062 Duplicate.*uniq.product.product_number__version_id\'/', $e->getMessage())) {
             $number = [];
             preg_match('/Duplicate entry \'(.*)\' for key/', $e->getMessage(), $number);
-            /** @var int $position */
-            $position = strrpos($number[1], '-');
-            $number = substr($number[1], 0, $position);
+            $number = substr($number[1], 0, strrpos($number[1], '-'));
 
             return new DuplicateProductNumberException($number, $e);
         }

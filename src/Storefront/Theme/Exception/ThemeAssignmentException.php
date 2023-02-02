@@ -2,25 +2,27 @@
 
 namespace Shopware\Storefront\Theme\Exception;
 
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\ShopwareHttpException;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('storefront')]
 class ThemeAssignmentException extends ShopwareHttpException
 {
+    private array $stillAssignedSalesChannels;
+
     /**
-     * @param array<string, array<int, string>> $themeSalesChannel
-     * @param array<string, array<int, string>> $childThemeSalesChannel
-     * @param array<string, string> $assignedSalesChannels
+     * @deprecated tag:v6.5.0 parameter $stillAssignedSalesChannels will be required
      */
     public function __construct(
         string $themeName,
         array $themeSalesChannel,
         array $childThemeSalesChannel,
-        private readonly array $assignedSalesChannels,
+        ?array $stillAssignedSalesChannels = null,
         ?\Throwable $e = null
     ) {
+        $this->stillAssignedSalesChannels = $stillAssignedSalesChannels ?? [];
+
         $parameters = ['themeName' => $themeName];
         $message = 'Unable to deactivate or uninstall theme "{{ themeName }}".';
         $message .= ' Remove the following assignments between theme and sales channel assignments: {{ assignments }}.';
@@ -48,24 +50,31 @@ class ThemeAssignmentException extends ShopwareHttpException
     }
 
     /**
-     * @return array<string, string>|null
+     * @deprecated tag:v6.5.0 - will be removed on v6.5.0 use `getAssignedSalesChannels` instead
      */
-    public function getAssignedSalesChannels(): ?array
+    public function getStillAssignedSalesChannels(): SalesChannelCollection
     {
-        return $this->assignedSalesChannels;
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'getAssignedSalesChannels()')
+        );
+
+        return new SalesChannelCollection();
     }
 
-    /**
-     * @param  array<string, array<int, string>> $assignmentMapping
-     */
+    public function getAssignedSalesChannels(): ?array
+    {
+        return $this->stillAssignedSalesChannels;
+    }
+
     private function formatAssignments(array $assignmentMapping): string
     {
         $output = [];
         foreach ($assignmentMapping as $themeName => $salesChannelIds) {
             $salesChannelNames = [];
             foreach ($salesChannelIds as $salesChannelId) {
-                if ($this->assignedSalesChannels[$salesChannelId]) {
-                    $salesChannel = $this->assignedSalesChannels[$salesChannelId];
+                if ($this->stillAssignedSalesChannels[$salesChannelId]) {
+                    $salesChannel = $this->stillAssignedSalesChannels[$salesChannelId];
                 } else {
                     $salesChannelNames[] = $salesChannelId;
 

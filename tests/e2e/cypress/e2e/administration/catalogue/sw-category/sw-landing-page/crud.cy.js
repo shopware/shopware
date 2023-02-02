@@ -1,11 +1,12 @@
-/**
- * @package content
- */
 // / <reference types="Cypress" />
 
 describe('Category: Landing pages', () => {
     beforeEach(() => {
-        cy.createDefaultFixture('cms-page', {}, 'cms-landing-page')
+        // Clean previous state and prepare Administration
+        cy.loginViaApi()
+            .then(() => {
+                cy.createDefaultFixture('cms-page', {}, 'cms-landing-page');
+            })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/category/index`);
                 cy.get('.sw-skeleton').should('not.exist');

@@ -1,9 +1,7 @@
 import Iterator from 'src/helper/iterator.helper';
 
 /**
- * This utility serializes a form via the FormData class
- *
- * @package content
+ * this utility serializes a form via the FormData class
  */
 export default class FormSerializeUtil {
 

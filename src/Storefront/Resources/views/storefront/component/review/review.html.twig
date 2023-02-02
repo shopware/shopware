@@ -88,6 +88,10 @@
                                                                   data-form-ajax-submit="true"
                                                                   data-form-ajax-submit-options='{{ formAjaxSubmitOptions|json_encode }}'>
 
+                                                                {% block component_review_list_action_language_csrf %}
+                                                                    {{ sw_csrf('frontend.product.reviews') }}
+                                                                {% endblock %}
+
                                                                 {% if app.request.get('limit') %}
                                                                     <input type="hidden" name="limit" value="{{ app.request.get('limit') }}">
                                                                 {% endif %}
@@ -96,10 +100,10 @@
                                                                     <input type="hidden" name="sort" value="{{ app.request.get('sort') }}">
                                                                 {% endif %}
 
-                                                                <div class="form-check form-switch">
+                                                                <div class="custom-control custom-switch">
                                                                     {# TODO NEXT-16994 - set checked and disabled state #}
                                                                     <input type="checkbox"
-                                                                           class="form-check-input"
+                                                                           class="custom-control-input"
                                                                            id="showForeignReviews"
                                                                            value="filter-language"
                                                                            name="language"
@@ -133,6 +137,10 @@
                                                                       data-form-ajax-submit="true"
                                                                       data-form-ajax-submit-options='{{ formAjaxSubmitOptions|json_encode }}'>
 
+                                                                    {% block component_review_list_action_sortby_form_csrf %}
+                                                                        {{ sw_csrf('frontend.product.reviews') }}
+                                                                    {% endblock %}
+
                                                                     {% if app.request.get('limit') %}
                                                                         <input type="hidden" name="limit" value="{{ app.request.get('limit') }}">
                                                                     {% endif %}
@@ -155,7 +163,7 @@
                                                                     {% endblock %}
 
                                                                     {% block component_review_list_action_sortby_select %}
-                                                                        <select class="form-select form-select-sm"
+                                                                        <select class="{{ formSelectClass }} {{ formSelectClass }}-sm"
                                                                                 name="sort"
                                                                                 id="reviewsSortby">
                                                                             <option value="createdAt"{% if reviews.criteria.sorting.0.field == 'createdAt' %} selected{% endif %}>
@@ -217,6 +225,10 @@
                                                               method="post"
                                                               data-form-ajax-submit="true"
                                                               data-form-ajax-submit-options='{{ formAjaxSubmitOptions|json_encode }}'>
+
+                                                            {% block component_review_list_paging_csrf %}
+                                                                {{ sw_csrf('frontend.product.reviews') }}
+                                                            {% endblock %}
 
                                                             {% if app.request.get('limit') %}
                                                                 <input type="hidden" name="limit" value="{{ app.request.get('limit') }}">

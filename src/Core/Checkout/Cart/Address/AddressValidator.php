@@ -9,17 +9,17 @@ use Shopware\Core\Checkout\Cart\Address\Error\ShippingAddressSalutationMissingEr
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartValidatorInterface;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
-use Shopware\Core\Content\Product\State;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\Service\ResetInterface;
 
-#[Package('checkout')]
 class AddressValidator implements CartValidatorInterface, ResetInterface
 {
+    private EntityRepositoryInterface $repository;
+
     /**
      * @var array<string, bool>
      */
@@ -28,30 +28,29 @@ class AddressValidator implements CartValidatorInterface, ResetInterface
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $repository)
+    public function __construct(EntityRepositoryInterface $repository)
     {
+        $this->repository = $repository;
     }
 
     public function validate(Cart $cart, ErrorCollection $errors, SalesChannelContext $context): void
     {
         $country = $context->getShippingLocation()->getCountry();
         $customer = $context->getCustomer();
-        $validateShipping = $cart->getLineItems()->count() === 0
-            || $cart->getLineItems()->hasLineItemWithState(State::IS_PHYSICAL);
 
-        if (!$country->getActive() && $validateShipping) {
+        if (!$country->getActive()) {
             $errors->add(new ShippingAddressBlockedError((string) $country->getTranslation('name')));
 
             return;
         }
 
-        if (!$country->getShippingAvailable() && $validateShipping) {
+        if (!$country->getShippingAvailable()) {
             $errors->add(new ShippingAddressBlockedError((string) $country->getTranslation('name')));
 
             return;
         }
 
-        if (!$this->isSalesChannelCountry($country->getId(), $context) && $validateShipping) {
+        if (!$this->isSalesChannelCountry($country->getId(), $context)) {
             $errors->add(new ShippingAddressBlockedError((string) $country->getTranslation('name')));
 
             return;
@@ -61,7 +60,7 @@ class AddressValidator implements CartValidatorInterface, ResetInterface
             return;
         }
 
-        if (!$customer->getSalutationId()) {
+        if (!$this->isValidSalutationId($customer->getSalutationId())) {
             $errors->add(new ProfileSalutationMissingError($customer));
 
             return;
@@ -72,13 +71,13 @@ class AddressValidator implements CartValidatorInterface, ResetInterface
             return;
         }
 
-        if (!$customer->getActiveBillingAddress()->getSalutationId()) {
+        if (!$this->isValidSalutationId($customer->getActiveBillingAddress()->getSalutationId())) {
             $errors->add(new BillingAddressSalutationMissingError($customer->getActiveBillingAddress()));
 
             return;
         }
 
-        if (!$customer->getActiveShippingAddress()->getSalutationId() && $validateShipping) {
+        if (!$this->isValidSalutationId($customer->getActiveShippingAddress()->getSalutationId())) {
             $errors->add(new ShippingAddressSalutationMissingError($customer->getActiveShippingAddress()));
         }
     }
@@ -100,5 +99,10 @@ class AddressValidator implements CartValidatorInterface, ResetInterface
         $salesChannelCountryIds = $this->repository->searchIds($criteria, $context->getContext());
 
         return $this->available[$countryId] = $salesChannelCountryIds->has($countryId);
+    }
+
+    private function isValidSalutationId(?string $salutationId = null): bool
+    {
+        return $salutationId !== null && $salutationId !== Defaults::SALUTATION;
     }
 }

@@ -3,7 +3,8 @@
 namespace Shopware\Tests\Bench;
 
 use Doctrine\DBAL\Connection;
-use PhpBench\Attributes\Groups;
+use PhpBench\Attributes\AfterMethods;
+use PhpBench\Attributes\BeforeMethods;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -12,7 +13,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * @internal - only for performance benchmarks
  */
-#[Groups(['base'])]
+#[BeforeMethods(['setup'])]
+#[AfterMethods(['tearDown'])]
 abstract class BenchCase
 {
     protected IdsCollection $ids;
@@ -25,7 +27,6 @@ abstract class BenchCase
 
         $this->context = clone Fixtures::context();
 
-        $this->getContainer()->get(Connection::class)->setNestTransactionsWithSavepoints(true);
         $this->getContainer()->get(Connection::class)->beginTransaction();
     }
 

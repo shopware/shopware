@@ -1,0 +1,12 @@
+@startuml
+hide empty members
+
+class AddressPage << GenericPage >>
+class PageWithHeader << GenericPage >>
+class HeaderPagelet << GenericPage >>
+class FooterPagelet << GenericPage >>
+
+AddressPage --> PageWithHeader
+PageWithHeader --> HeaderPagelet
+PageWithHeader --> FooterPagelet
+@enduml

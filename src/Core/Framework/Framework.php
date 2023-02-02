@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Framework;
 
+use Shopware\Core\Framework\Compatibility\AnnotationReaderCompilerPass;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\ExtensionRegistry;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\ActionEventCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\AssetRegistrationCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\DefaultTransportCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\DemodataCompilerPass;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\DisableExtensionsCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\DisableTwigCacheWarmerCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\EntityCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\FeatureFlagCompilerPass;
@@ -20,7 +22,6 @@ use Shopware\Core\Framework\DependencyInjection\CompilerPass\TwigEnvironmentComp
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\TwigLoaderConfigCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\FrameworkExtension;
 use Shopware\Core\Framework\Increment\IncrementerGatewayCompilerPass;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationCompilerPass;
 use Shopware\Core\Framework\Test\DependencyInjection\CompilerPass\ContainerVisibilityCompilerPass;
 use Shopware\Core\Framework\Test\RateLimiter\DisableRateLimiterCompilerPass;
@@ -43,7 +44,6 @@ use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 /**
  * @internal
  */
-#[Package('core')]
 class Framework extends Bundle
 {
     public function getTemplatePriority(): int
@@ -98,28 +98,33 @@ class Framework extends Bundle
 
         // make sure to remove services behind a feature flag, before some other compiler passes may reference them, therefore the high priority
         $container->addCompilerPass(new FeatureFlagCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 1000);
-        $container->addCompilerPass(new EntityCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
-        $container->addCompilerPass(new MigrationCompilerPass(), PassConfig::TYPE_AFTER_REMOVING, 0);
-        $container->addCompilerPass(new ActionEventCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
-        $container->addCompilerPass(new DisableTwigCacheWarmerCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
-        $container->addCompilerPass(new DefaultTransportCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
-        $container->addCompilerPass(new TwigLoaderConfigCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
-        $container->addCompilerPass(new TwigEnvironmentCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
-        $container->addCompilerPass(new RouteScopeCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
-        $container->addCompilerPass(new AssetRegistrationCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
-        $container->addCompilerPass(new FilesystemConfigMigrationCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
-        $container->addCompilerPass(new RateLimiterCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
-        $container->addCompilerPass(new IncrementerGatewayCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
-        $container->addCompilerPass(new RedisPrefixCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
+        $container->addCompilerPass(new EntityCompilerPass());
+        $container->addCompilerPass(new MigrationCompilerPass(), PassConfig::TYPE_AFTER_REMOVING);
+        $container->addCompilerPass(new ActionEventCompilerPass());
+        $container->addCompilerPass(new DisableTwigCacheWarmerCompilerPass());
+        $container->addCompilerPass(new DefaultTransportCompilerPass());
+        $container->addCompilerPass(new TwigLoaderConfigCompilerPass());
+        $container->addCompilerPass(new TwigEnvironmentCompilerPass());
+        $container->addCompilerPass(new RouteScopeCompilerPass());
+        $container->addCompilerPass(new AssetRegistrationCompilerPass());
+        $container->addCompilerPass(new FilesystemConfigMigrationCompilerPass());
+        $container->addCompilerPass(new RateLimiterCompilerPass());
+        $container->addCompilerPass(new IncrementerGatewayCompilerPass());
+        $container->addCompilerPass(new RedisPrefixCompilerPass());
+        $container->addCompilerPass(new DisableExtensionsCompilerPass());
 
         if ($container->getParameter('kernel.environment') === 'test') {
-            $container->addCompilerPass(new DisableRateLimiterCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
-            $container->addCompilerPass(new ContainerVisibilityCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
+            $container->addCompilerPass(new DisableRateLimiterCompilerPass());
+            $container->addCompilerPass(new ContainerVisibilityCompilerPass());
         }
 
-        $container->addCompilerPass(new FrameworkMigrationReplacementCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
+        $container->addCompilerPass(new FrameworkMigrationReplacementCompilerPass());
 
-        $container->addCompilerPass(new DemodataCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
+        if (!Feature::isActive('v6.5.0.0')) {
+            $container->addCompilerPass(new AnnotationReaderCompilerPass());
+        }
+
+        $container->addCompilerPass(new DemodataCompilerPass());
 
         parent::build($container);
     }
@@ -132,12 +137,13 @@ class Framework extends Bundle
         if (!\is_array($featureFlags)) {
             throw new \RuntimeException('Container parameter "shopware.feature.flags" needs to be an array');
         }
-        Feature::registerFeatures($featureFlags);
 
         $cacheDir = $this->container->getParameter('kernel.cache_dir');
         if (!\is_string($cacheDir)) {
             throw new \RuntimeException('Container parameter "kernel.cache_dir" needs to be a string');
         }
+
+        Feature::registerFeatures($featureFlags);
 
         $this->registerEntityExtensions(
             $this->container->get(DefinitionInstanceRegistry::class),

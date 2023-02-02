@@ -10,10 +10,9 @@ use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemWithQuantityRule;
 use Shopware\Core\Checkout\Test\Cart\Rule\Helper\CartRuleHelperTrait;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
@@ -27,16 +26,15 @@ use Symfony\Component\Validator\Constraints\Type;
 /**
  * @internal
  */
-#[Package('business-ops')]
 class LineItemWithQuantityRuleTest extends TestCase
 {
     use CartRuleHelperTrait;
     use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
 
-    private EntityRepository $ruleRepository;
+    private EntityRepositoryInterface $ruleRepository;
 
-    private EntityRepository $conditionRepository;
+    private EntityRepositoryInterface $conditionRepository;
 
     private Context $context;
 
@@ -260,7 +258,7 @@ class LineItemWithQuantityRuleTest extends TestCase
      */
     public function testMatch(LineItem $lineItem, LineItemWithQuantityRule $rule, bool $shouldMatch): void
     {
-        $cart = new Cart('test');
+        $cart = new Cart('test', 'test');
         $cart->setLineItems(new LineItemCollection([$lineItem]));
 
         $context = $this->createMock(SalesChannelContext::class);

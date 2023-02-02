@@ -3,19 +3,20 @@
 namespace Shopware\Core\Framework\App\Cms\Xml;
 
 use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
-use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
-#[Package('content')]
 class Blocks extends XmlElement
 {
     /**
-     * @param Block[] $blocks
+     * @var Block[]
      */
-    private function __construct(protected array $blocks)
+    protected array $blocks = [];
+
+    private function __construct(array $blocks)
     {
+        $this->blocks = $blocks;
     }
 
     public static function fromXml(\DOMElement $element): self

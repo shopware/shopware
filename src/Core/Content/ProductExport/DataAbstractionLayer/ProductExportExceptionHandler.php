@@ -4,13 +4,20 @@ namespace Shopware\Core\Content\ProductExport\DataAbstractionLayer;
 
 use Shopware\Core\Content\ProductExport\Exception\DuplicateFileNameException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\ExceptionHandlerInterface;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
+use Shopware\Core\Framework\Feature;
 
-#[Package('sales-channel')]
 class ProductExportExceptionHandler implements ExceptionHandlerInterface
 {
-    public function matchException(\Exception $e): ?\Exception
+    /**
+     * @internal (flag:FEATURE_NEXT_16640) - second parameter WriteCommand $command will be removed
+     */
+    public function matchException(\Exception $e, ?WriteCommand $command = null): ?\Exception
     {
+        if ($e->getCode() !== 0) {
+            return null;
+        }
+
         if (preg_match('/SQLSTATE\[23000\]:.*1062 Duplicate.*file_name\'/', $e->getMessage())) {
             $file = [];
             preg_match('/Duplicate entry \'(.*)\' for key/', $e->getMessage(), $file);

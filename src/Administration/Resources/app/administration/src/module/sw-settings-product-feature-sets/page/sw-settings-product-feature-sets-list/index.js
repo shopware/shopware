@@ -2,11 +2,11 @@
 import FeatureGridTranslationService from 'src/module/sw-settings-product-feature-sets/service/feature-grid-translation.service';
 import template from './sw-settings-product-feature-sets-list.html.twig';
 
-const { Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-settings-product-feature-sets-list', {
     template,
 
     inject: ['repositoryFactory', 'acl'],
@@ -172,5 +172,5 @@ export default {
             return features.length > 4 ? `${preview}, ...` : preview;
         },
     },
-};
+});
 

@@ -24,7 +24,6 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Rule\Container\AndRule;
-use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
@@ -58,7 +57,7 @@ class CalculatorTest extends TestCase
 
     public function testCalculateSimplePrice(): void
     {
-        $cart = new Cart('test');
+        $cart = new Cart('test', 'test');
 
         $lineItem = (new LineItem('A', 'test'))
             ->setPriceDefinition(new QuantityPriceDefinition(100, new TaxRuleCollection([])));
@@ -75,7 +74,7 @@ class CalculatorTest extends TestCase
 
     public function testCalculateQuantityPrice(): void
     {
-        $cart = new Cart('test');
+        $cart = new Cart('test', 'test');
 
         $lineItem = (new LineItem('A', 'test', null, 2))
             ->setPriceDefinition(new QuantityPriceDefinition(100, new TaxRuleCollection([]), 2));
@@ -92,7 +91,7 @@ class CalculatorTest extends TestCase
 
     public function testPercentagePrice(): void
     {
-        $cart = new Cart('test');
+        $cart = new Cart('test', 'test');
 
         $lineItem = (new LineItem('A', 'test', null, 2))
             ->setPriceDefinition(new QuantityPriceDefinition(100, new TaxRuleCollection(), 2));
@@ -117,7 +116,7 @@ class CalculatorTest extends TestCase
 
     public function testPercentagePriceWithWrongPriority(): void
     {
-        $cart = new Cart('test');
+        $cart = new Cart('test', 'test');
 
         $lineItem = (new LineItem('A', 'test', null, 2))
             ->setPriceDefinition(new QuantityPriceDefinition(100, new TaxRuleCollection(), 2));
@@ -142,7 +141,7 @@ class CalculatorTest extends TestCase
 
     public function testCalculateAbsolutePrice(): void
     {
-        $cart = new Cart('test');
+        $cart = new Cart('test', 'test');
 
         $lineItem = (new LineItem('A', 'test', null, 2))
             ->setPriceDefinition(new QuantityPriceDefinition(100, new TaxRuleCollection([]), 2));
@@ -167,7 +166,7 @@ class CalculatorTest extends TestCase
 
     public function testPercentagePriceWithFilter(): void
     {
-        $cart = new Cart('test');
+        $cart = new Cart('test', 'test');
 
         $lineItem = (new LineItem('A', 'test'))
             ->setPriceDefinition(new QuantityPriceDefinition(100, new TaxRuleCollection()));
@@ -206,7 +205,7 @@ class CalculatorTest extends TestCase
 
     public function testAbsolutePriceWithFilter(): void
     {
-        $cart = new Cart('test');
+        $cart = new Cart('test', 'test');
 
         $lineItem = new LineItem('A', 'test');
         $lineItem->setPriceDefinition(
@@ -257,7 +256,7 @@ class CalculatorTest extends TestCase
 
         $lineItem->setChildren($children);
 
-        $cart = new Cart('test');
+        $cart = new Cart('test', 'test');
         $cart->add($lineItem);
 
         $calculated = $this->calculator->calculate($cart->getLineItems(), $this->context, new CartBehavior());
@@ -276,7 +275,7 @@ class CalculatorTest extends TestCase
 
     public function testDeepNesting(): void
     {
-        $cart = new Cart('test');
+        $cart = new Cart('test', 'test');
 
         $nested = (new LineItem('A', 'container'))->assign([
             'children' => new LineItemCollection([
@@ -367,9 +366,9 @@ class CalculatorTest extends TestCase
 
     public function testNoDiscountOfDiscounts(): void
     {
-        $cart = new Cart('test');
+        $cart = new Cart('test', 'test');
 
-        $noContainerRule = new LineItemOfTypeRule(Rule::OPERATOR_NEQ, 'container');
+        $noContainerRule = new LineItemOfTypeRule(LineItemOfTypeRule::OPERATOR_NEQ, 'container');
 
         $nested = (new LineItem('A', 'container'))->assign([
             'children' => new LineItemCollection([

@@ -8,11 +8,9 @@ use Shopware\Core\Content\Flow\Dispatching\Aware\SubjectAware;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Dispatching\Storer\SubjectStorer;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
-use Shopware\Core\Content\Test\Flow\TestFlowBusinessEvent;
+use Shopware\Core\Framework\Test\Event\TestBusinessEvent;
 
 /**
- * @package business-ops
- *
  * @internal
  *
  * @covers \Shopware\Core\Content\Flow\Dispatching\Storer\SubjectStorer
@@ -36,7 +34,7 @@ class SubjectStorerTest extends TestCase
 
     public function testStoreWithNotAware(): void
     {
-        $event = $this->createMock(TestFlowBusinessEvent::class);
+        $event = $this->createMock(TestBusinessEvent::class);
         $stored = [];
         $stored = $this->storer->store($event, $stored);
         static::assertArrayNotHasKey(SubjectAware::SUBJECT, $stored);
@@ -46,7 +44,7 @@ class SubjectStorerTest extends TestCase
     {
         $subject = 'subject';
 
-        /** @var MockObject&StorableFlow $storable */
+        /** @var MockObject|StorableFlow $storable */
         $storable = $this->createMock(StorableFlow::class);
 
         $storable->expects(static::exactly(1))
@@ -66,7 +64,7 @@ class SubjectStorerTest extends TestCase
 
     public function testRestoreEmptyStored(): void
     {
-        /** @var MockObject&StorableFlow $storable */
+        /** @var MockObject|StorableFlow $storable */
         $storable = $this->createMock(StorableFlow::class);
 
         $storable->expects(static::exactly(1))

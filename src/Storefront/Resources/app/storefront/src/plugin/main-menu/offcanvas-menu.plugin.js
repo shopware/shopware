@@ -6,9 +6,6 @@ import DomAccess from 'src/helper/dom-access.helper';
 import Iterator from 'src/helper/iterator.helper';
 import ViewportDetection from 'src/helper/viewport-detection.helper';
 
-/**
- * @package storefront
- */
 export default class OffcanvasMenuPlugin extends Plugin {
 
     static options = {

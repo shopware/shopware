@@ -15,9 +15,6 @@ use Shopware\Recovery\Update\FilesystemFactory;
 use Shopware\Recovery\Update\PathBuilder;
 use Shopware\Recovery\Update\Steps\UnpackStep;
 
-/**
- * @package system-settings
- */
 class BatchController
 {
     /**

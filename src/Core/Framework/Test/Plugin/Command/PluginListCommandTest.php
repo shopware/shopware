@@ -19,7 +19,10 @@ use Symfony\Component\Console\Tester\CommandTester;
  */
 class PluginListCommandTest extends TestCase
 {
-    private MockObject&EntityRepository $pluginRepoMock;
+    /**
+     * @var MockObject|EntityRepository
+     */
+    private $pluginRepoMock;
 
     private PluginListCommand $command;
 

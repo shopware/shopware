@@ -2,14 +2,18 @@
 
 namespace Shopware\Core\System\Tag\Struct;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('business-ops')]
 class FilteredTagIdsStruct extends Struct
 {
-    public function __construct(protected array $ids, protected int $total)
+    protected array $ids;
+
+    protected int $total;
+
+    public function __construct(array $ids, int $total)
     {
+        $this->ids = $ids;
+        $this->total = $total;
     }
 
     public function getIds(): array

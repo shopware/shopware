@@ -3,25 +3,23 @@
 namespace Shopware\Core\Framework\App\Cms\Xml;
 
 use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
-use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
-#[Package('content')]
 class DefaultConfig extends XmlElement
 {
-    protected ?string $marginTop = null;
+    protected ?string $marginTop;
 
-    protected ?string $marginRight = null;
+    protected ?string $marginRight;
 
-    protected ?string $marginBottom = null;
+    protected ?string $marginBottom;
 
-    protected ?string $marginLeft = null;
+    protected ?string $marginLeft;
 
-    protected ?string $sizingMode = null;
+    protected ?string $sizingMode;
 
-    protected ?string $backgroundColor = null;
+    protected ?string $backgroundColor;
 
     private function __construct(array $defaultConfig)
     {

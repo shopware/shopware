@@ -6,7 +6,6 @@ use Faker\Factory;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Validation\CustomerProfileValidationFactory;
 use Shopware\Core\Checkout\Customer\Validation\CustomerValidationFactory;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Validator\Constraints\Email;
@@ -16,7 +15,6 @@ use Symfony\Component\Validator\Constraints\Type;
 /**
  * @internal
  */
-#[Package('customer-order')]
 class CustomerValidationFactoryTest extends TestCase
 {
     /**
@@ -67,10 +65,10 @@ class CustomerValidationFactoryTest extends TestCase
         for ($i = 0; $i < 10; ++$i) {
             $profileDefinition = new DataValidationDefinition();
 
-            $notBlankName = $faker->name();
+            $notBlankName = $faker->name;
             $profileDefinition->add($notBlankName, new NotBlank());
 
-            $emailName = $faker->name();
+            $emailName = $faker->name;
             $profileDefinition->add($emailName, new Email());
 
             $expected = new DataValidationDefinition('customer.create');

@@ -1,13 +1,9 @@
-/**
- * @package system-settings
- */
 import template from './sw-users-permissions-user-create.html.twig';
 
 const { Component } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.extend('sw-users-permissions-user-create', 'sw-users-permissions-user-detail', {
     template,
 
     computed: {
@@ -41,4 +37,4 @@ export default {
             this.$super('onSave');
         },
     },
-};
+});

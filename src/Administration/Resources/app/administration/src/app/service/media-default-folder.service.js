@@ -1,8 +1,5 @@
 const { Criteria } = Shopware.Data;
 
-/**
- * @package content
- */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function createMediaDefaultFolderService() {
     const cache = {};

@@ -1,7 +1,3 @@
-/**
- * @package admin
- */
-
 import type { Module } from 'vuex';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -31,9 +27,7 @@ const MainModuleStore: Module<MainModuleState, VuexRootState> = {
     },
 };
 
-/**
- * @deprecated tag:v6.6.0 - Will be private
- */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default MainModuleStore;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

@@ -2,14 +2,14 @@
 
 .sw-import-export-new-profile-wizard-general-page {
     &__text {
-        font-size: $font-size-xs;
+        font-size: $font-size-small;
         margin: 12px 0 40px;
     }
 
     &__general-import-settings-headline,
     &__field-indicators-headline {
         margin-top: 16px;
-        font-size: $font-size-m;
+        font-size: $font-size-large;
         font-weight: $font-weight-semi-bold;
     }
 

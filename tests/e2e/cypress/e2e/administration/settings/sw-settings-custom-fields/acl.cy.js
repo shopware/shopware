@@ -4,7 +4,10 @@ import SettingsPageObject from '../../../../support/pages/module/sw-settings.pag
 
 describe('Custom fields: Test ACL privileges', () => {
     beforeEach(() => {
-        cy.createDefaultFixture('custom-field-set')
+        cy.loginViaApi()
+            .then(() => {
+                return cy.createDefaultFixture('custom-field-set');
+            })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/index`);
             });
@@ -14,8 +17,8 @@ describe('Custom fields: Test ACL privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'product',
-                role: 'viewer',
-            },
+                role: 'viewer'
+            }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/custom/field/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -32,8 +35,8 @@ describe('Custom fields: Test ACL privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'custom_field',
-                role: 'viewer',
-            },
+                role: 'viewer'
+            }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/custom/field/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -52,17 +55,17 @@ describe('Custom fields: Test ACL privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/custom-field-set`,
-            method: 'POST',
+            method: 'POST'
         }).as('saveData');
 
         cy.loginAsUserWithPermissions([
             {
                 key: 'custom_field',
-                role: 'viewer',
+                role: 'viewer'
             }, {
                 key: 'custom_field',
-                role: 'editor',
-            },
+                role: 'editor'
+            }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/custom/field/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -84,20 +87,20 @@ describe('Custom fields: Test ACL privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/custom-field-set`,
-            method: 'POST',
+            method: 'POST'
         }).as('saveData');
 
         cy.loginAsUserWithPermissions([
             {
                 key: 'custom_field',
-                role: 'viewer',
+                role: 'viewer'
             }, {
                 key: 'custom_field',
-                role: 'editor',
+                role: 'editor'
             }, {
                 key: 'custom_field',
-                role: 'creator',
-            },
+                role: 'creator'
+            }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/custom/field/create`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -130,17 +133,17 @@ describe('Custom fields: Test ACL privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/custom-field-set/*`,
-            method: 'delete',
+            method: 'delete'
         }).as('deleteData');
 
         cy.loginAsUserWithPermissions([
             {
                 key: 'custom_field',
-                role: 'viewer',
+                role: 'viewer'
             }, {
                 key: 'custom_field',
-                role: 'deleter',
-            },
+                role: 'deleter'
+            }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/custom/field/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -151,7 +154,7 @@ describe('Custom fields: Test ACL privileges', () => {
         cy.clickContextMenuItem(
             `${page.elements.contextMenu}-item--danger`,
             page.elements.contextMenuButton,
-            `${page.elements.gridRow}--0`,
+            `${page.elements.gridRow}--0`
         );
 
         cy.get('.sw-modal').should('be.visible');

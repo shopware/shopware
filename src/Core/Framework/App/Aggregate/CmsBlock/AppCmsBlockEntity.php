@@ -6,12 +6,10 @@ use Shopware\Core\Framework\App\Aggregate\CmsBlockTranslation\AppCmsBlockTransla
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
-use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
-#[Package('content')]
 class AppCmsBlockEntity extends Entity
 {
     use EntityIdTrait;
@@ -51,7 +49,7 @@ class AppCmsBlockEntity extends Entity
      */
     protected $translations;
 
-    protected ?string $label = null;
+    protected ?string $label;
 
     public function getAppId(): string
     {

@@ -4,12 +4,10 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\TranslationsAssociationFieldSerializer;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
 class TranslationsAssociationField extends OneToManyAssociationField
 {
-    final public const PRIORITY = 90;
+    public const PRIORITY = 90;
 
     public function __construct(
         string $referenceClass,

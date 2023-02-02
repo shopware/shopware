@@ -9,21 +9,25 @@ use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackage;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackageCollection;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\Applier\Applier;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\MaxUsage\MaxUsage;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
-#[Package('checkout')]
 class AdvancedPackageFilter extends PackageFilter
 {
-    final public const APPLIER_ALL = 'ALL';
-    final public const USAGE_ALL = 'ALL';
-    final public const UNLIMITED = -1;
+    public const APPLIER_ALL = 'ALL';
+    public const USAGE_ALL = 'ALL';
+    public const UNLIMITED = -1;
+
+    /**
+     * @var FilterServiceRegistry
+     */
+    private $registry;
 
     /**
      * @internal
      */
-    public function __construct(private readonly FilterServiceRegistry $registry)
+    public function __construct(FilterServiceRegistry $registry)
     {
+        $this->registry = $registry;
     }
 
     public function getDecorated(): PackageFilter

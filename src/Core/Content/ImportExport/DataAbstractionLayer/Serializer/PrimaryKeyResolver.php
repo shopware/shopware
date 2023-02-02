@@ -16,17 +16,21 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationFi
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageDefinition;
 
-#[Package('core')]
 class PrimaryKeyResolver
 {
+    private DefinitionInstanceRegistry $definitionInstanceRegistry;
+
+    private AbstractFieldSerializer $fieldSerializer;
+
     /**
      * @internal
      */
-    public function __construct(private readonly DefinitionInstanceRegistry $definitionInstanceRegistry, private readonly AbstractFieldSerializer $fieldSerializer)
+    public function __construct(DefinitionInstanceRegistry $definitionInstanceRegistry, AbstractFieldSerializer $fieldSerializer)
     {
+        $this->definitionInstanceRegistry = $definitionInstanceRegistry;
+        $this->fieldSerializer = $fieldSerializer;
     }
 
     public function resolvePrimaryKeyFromUpdatedBy(Config $config, ?EntityDefinition $definition, iterable $record): iterable
@@ -56,7 +60,9 @@ class PrimaryKeyResolver
             return $record;
         }
 
-        $idFields = $definition->getPrimaryKeys()->filter(fn (Field $field) => $field instanceof IdField);
+        $idFields = $definition->getPrimaryKeys()->filter(function (Field $field) {
+            return $field instanceof IdField;
+        });
         $idField = $idFields->first();
 
         if ($idFields->count() !== 1 || !$idField) {
@@ -185,7 +191,7 @@ class PrimaryKeyResolver
                 continue;
             }
 
-            $manyToManyValues = explode('|', (string) $record[$field->getPropertyName()]);
+            $manyToManyValues = explode('|', $record[$field->getPropertyName()]);
 
             $criteria = new Criteria();
             $updateByField = $this->handleTranslationsAssociation(

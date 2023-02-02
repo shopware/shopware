@@ -2,16 +2,12 @@ import template from './sw-customer-address-form.html.twig';
 import './sw-customer-address-form.scss';
 import CUSTOMER from '../../constant/sw-customer.constant';
 
-/**
- * @package customer-order
- */
-
-const { Defaults } = Shopware;
+const { Component, Defaults } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-customer-address-form', {
     template,
 
     inject: ['repositoryFactory'],
@@ -96,8 +92,7 @@ export default {
 
         countryCriteria() {
             const criteria = new Criteria(1, 25);
-            criteria.addSorting(Criteria.sort('position', 'ASC'))
-                .addSorting(Criteria.sort('name', 'ASC'));
+            criteria.addSorting(Criteria.sort('position', 'ASC'));
             return criteria;
         },
 
@@ -107,8 +102,7 @@ export default {
             }
 
             const criteria = new Criteria(1, 25);
-            criteria.addFilter(Criteria.equals('countryId', this.countryId))
-                .addSorting(Criteria.sort('name', 'ASC'));
+            criteria.addFilter(Criteria.equals('countryId', this.countryId));
             return criteria;
         },
 
@@ -127,6 +121,10 @@ export default {
         },
 
         isBusinessAccountType() {
+            if (!this.customer?.accountType) {
+                return true;
+            }
+
             return this.customer?.accountType === CUSTOMER.ACCOUNT_TYPE_BUSINESS;
         },
     },
@@ -171,4 +169,4 @@ export default {
             });
         },
     },
-};
+});

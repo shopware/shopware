@@ -5,23 +5,40 @@ namespace Shopware\Storefront\Theme;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Theme\Exception\ThemeAssignmentException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
-use Shopware\Storefront\Theme\Struct\ThemeDependencies;
 
-#[Package('storefront')]
 class ThemeLifecycleHandler
 {
+    private ThemeLifecycleService $themeLifecycleService;
+
+    private ThemeService $themeService;
+
+    private EntityRepositoryInterface $themeRepository;
+
+    private StorefrontPluginRegistryInterface $storefrontPluginRegistry;
+
+    private Connection $connection;
+
     /**
      * @internal
      */
-    public function __construct(private readonly ThemeLifecycleService $themeLifecycleService, private readonly ThemeService $themeService, private readonly EntityRepository $themeRepository, private readonly StorefrontPluginRegistryInterface $storefrontPluginRegistry, private readonly Connection $connection)
-    {
+    public function __construct(
+        ThemeLifecycleService $themeLifecycleService,
+        ThemeService $themeService,
+        EntityRepositoryInterface $themeRepository,
+        StorefrontPluginRegistryInterface $storefrontPluginRegistry,
+        Connection $connection
+    ) {
+        $this->themeLifecycleService = $themeLifecycleService;
+        $this->themeService = $themeService;
+        $this->themeRepository = $themeRepository;
+        $this->storefrontPluginRegistry = $storefrontPluginRegistry;
+        $this->connection = $connection;
     }
 
     public function handleThemeInstallOrUpdate(
@@ -33,7 +50,7 @@ class ThemeLifecycleHandler
         if ($config->getIsTheme()) {
             $this->themeLifecycleService->refreshTheme($config, $context);
             $themeData = $this->getThemeDataByTechnicalName($config->getTechnicalName());
-            $themeId = $themeData->getId();
+            $themeId = $themeData['id'];
             $this->changeThemeActive($themeData, true, $context);
         }
 
@@ -45,7 +62,7 @@ class ThemeLifecycleHandler
         $themeId = null;
         if ($config->getIsTheme()) {
             $themeData = $this->getThemeDataByTechnicalName($config->getTechnicalName());
-            $themeId = $themeData->getId();
+            $themeId = $themeData['id'];
 
             // throw an exception if theme is still assigned to a sales channel
             $this->validateThemeAssignment($themeId);
@@ -56,7 +73,9 @@ class ThemeLifecycleHandler
 
         $configs = $this->storefrontPluginRegistry->getConfigurations();
 
-        $configs = $configs->filter(fn (StorefrontPluginConfiguration $registeredConfig): bool => $registeredConfig->getTechnicalName() !== $config->getTechnicalName());
+        $configs = $configs->filter(function (StorefrontPluginConfiguration $registeredConfig) use ($config): bool {
+            return $registeredConfig->getTechnicalName() !== $config->getTechnicalName();
+        });
 
         $this->recompileThemesIfNecessary($config, $context, $configs, $themeId);
     }
@@ -78,17 +97,19 @@ class ThemeLifecycleHandler
         $this->throwAssignmentException($themeId);
     }
 
-    private function changeThemeActive(ThemeDependencies $themeData, bool $active, Context $context): void
+    private function changeThemeActive(array $themeData, bool $active, Context $context): void
     {
-        if ($themeData->getId() === null) {
+        if (empty($themeData)) {
             return;
         }
 
         $data = [];
-        $data[] = ['id' => $themeData->getId(), 'active' => $active];
+        $data[] = ['id' => $themeData['id'], 'active' => $active];
 
-        foreach ($themeData->getDependentThemes() as $id) {
-            $data[] = ['id' => $id, 'active' => $active];
+        if (isset($themeData['dependentThemes'])) {
+            foreach ($themeData['dependentThemes'] as $id) {
+                $data[] = ['id' => $id, 'active' => $active];
+            }
         }
 
         $this->themeRepository->upsert($data, $context);
@@ -130,7 +151,7 @@ class ThemeLifecycleHandler
         }
     }
 
-    private function getThemeDataByTechnicalName(string $technicalName): ThemeDependencies
+    private function getThemeDataByTechnicalName(string $technicalName): array
     {
         $themeData = $this->connection->fetchAllAssociative(
             'SELECT LOWER(HEX(theme.id)) as id, LOWER(HEX(childTheme.id)) as dependentId FROM theme
@@ -140,13 +161,17 @@ class ThemeLifecycleHandler
         );
 
         if (empty($themeData)) {
-            return new ThemeDependencies();
+            return [
+                'id' => null,
+            ];
         }
 
-        $themes = new ThemeDependencies(current($themeData)['id']);
+        $themes = [
+            'id' => current($themeData)['id'],
+        ];
         foreach ($themeData as $data) {
             if ($data['dependentId']) {
-                $themes->addDependentTheme($data['dependentId']);
+                $themes['dependentThemes'][] = $data['dependentId'];
             }
         }
 
@@ -179,12 +204,12 @@ class ThemeLifecycleHandler
             foreach ($themeData as $data) {
                 $themeName = $data['themeName'];
                 if (isset($data['id']) && isset($data['saleschannelId']) && $data['id'] === $themeId && $data['saleschannelId'] !== null) {
-                    $themeSalesChannel[(string) $data['themeName']][] = (string) $data['saleschannelId'];
-                    $salesChannels[(string) $data['saleschannelId']] = (string) $data['saleschannelName'];
+                    $themeSalesChannel[$data['themeName']][] = $data['saleschannelId'];
+                    $salesChannels[$data['saleschannelId']] = $data['saleschannelName'];
                 }
                 if (isset($data['dsaleschannelId']) && !empty($data['dsaleschannelId']) && isset($data['dthemeName'])) {
-                    $childThemeSalesChannel[(string) $data['dthemeName']][] = (string) $data['dsaleschannelId'];
-                    $salesChannels[(string) $data['dsaleschannelId']] = (string) $data['dsaleschannelName'];
+                    $childThemeSalesChannel[$data['dthemeName']][] = $data['dsaleschannelId'];
+                    $salesChannels[$data['dsaleschannelId']] = $data['dsaleschannelName'];
                 }
             }
         } catch (\Throwable $e) {

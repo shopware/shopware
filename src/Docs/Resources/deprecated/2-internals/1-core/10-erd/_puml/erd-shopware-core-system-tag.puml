@@ -1,0 +1,55 @@
+@startuml
+' uncomment the line below if you're using computer with a retina display
+' skinparam dpi 300
+!define Table(name,desc) class name as "desc" << (T,#FFAAAA) >>
+!define ForeignTable(name,desc) class name as "desc" << (T,#ada6a6) >>
+!define TranslationTable(name,desc) class name as "desc" << (I,#4286f4) >>
+' we use bold for primary key
+' green color for unique
+' and underscore for not_null
+!define primary_key(x) <b>x</b>
+!define unique(x) <color:green>x</color>
+!define not_null(x) <u>x</u>
+' other tags available:
+' <i></i>
+' <back:COLOR></color>, where color is a color name or html color code
+' (#FFAACC)
+' see: http://plantuml.com/classes.html#More
+hide methods
+hide stereotypes
+hide empty members
+skinparam backgroundColor #FFFFFF
+
+' entities
+
+Table(ShopwareCoreSystemTagTagDefinition, "tag\n(Taxonomy)") {
+   primary_key(id) id
+   not_null(name) string
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
+}
+ForeignTable(ShopwareCoreContentProductAggregateProductTagProductTagDefinition, "product_tag") {
+}
+ForeignTable(ShopwareCoreContentMediaAggregateMediaTagMediaTagDefinition, "media_tag") {
+}
+ForeignTable(ShopwareCoreContentCategoryAggregateCategoryTagCategoryTagDefinition, "category_tag") {
+}
+ForeignTable(ShopwareCoreCheckoutCustomerAggregateCustomerTagCustomerTagDefinition, "customer_tag") {
+}
+ForeignTable(ShopwareCoreCheckoutOrderAggregateOrderTagOrderTagDefinition, "order_tag") {
+}
+ForeignTable(ShopwareCoreCheckoutShippingAggregateShippingMethodTagShippingMethodTagDefinition, "shipping_method_tag") {
+}
+ForeignTable(ShopwareCoreContentNewsletterAggregateNewsletterRecipientTagNewsletterRecipientTagDefinition, "newsletter_recipient_tag") {
+}
+
+' relationshipd
+
+ShopwareCoreSystemTagTagDefinition --> ShopwareCoreContentProductAggregateProductTagProductTagDefinition
+ShopwareCoreSystemTagTagDefinition --> ShopwareCoreContentMediaAggregateMediaTagMediaTagDefinition
+ShopwareCoreSystemTagTagDefinition --> ShopwareCoreContentCategoryAggregateCategoryTagCategoryTagDefinition
+ShopwareCoreSystemTagTagDefinition --> ShopwareCoreCheckoutCustomerAggregateCustomerTagCustomerTagDefinition
+ShopwareCoreSystemTagTagDefinition --> ShopwareCoreCheckoutOrderAggregateOrderTagOrderTagDefinition
+ShopwareCoreSystemTagTagDefinition --> ShopwareCoreCheckoutShippingAggregateShippingMethodTagShippingMethodTagDefinition
+ShopwareCoreSystemTagTagDefinition --> ShopwareCoreContentNewsletterAggregateNewsletterRecipientTagNewsletterRecipientTagDefinition
+@enduml

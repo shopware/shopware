@@ -1,9 +1,7 @@
-import './acl';
+import './page/sw-settings-document-list';
+import './page/sw-settings-document-detail';
 
-/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
-Shopware.Component.register('sw-settings-document-list', () => import('./page/sw-settings-document-list'));
-Shopware.Component.register('sw-settings-document-detail', () => import('./page/sw-settings-document-detail'));
-/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
+import './acl';
 
 const { Module } = Shopware;
 
@@ -14,7 +12,7 @@ Module.register('sw-settings-document', {
     title: 'sw-settings-document.general.mainMenuItemGeneral',
     description: 'sw-settings-document.general.description',
     color: '#9AA8B5',
-    icon: 'regular-cog',
+    icon: 'regular-file-text',
     favicon: 'icon-module-settings.png',
     entity: 'document',
 

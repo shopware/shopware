@@ -28,10 +28,7 @@ class TranslatedVersionsTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var string[]
-     */
-    private array $languages = [
+    private $languages = [
         'en-GB', 'de-DE',
     ];
 

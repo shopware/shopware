@@ -3,12 +3,10 @@
 namespace Shopware\Core\System\StateMachine\Aggregation\StateMachineState;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<StateMachineStateTranslationEntity>
  */
-#[Package('checkout')]
 class StateMachineStateTranslationCollection extends EntityCollection
 {
     /**
@@ -16,12 +14,16 @@ class StateMachineStateTranslationCollection extends EntityCollection
      */
     public function getLanguageIds(): array
     {
-        return $this->fmap(fn (StateMachineStateTranslationEntity $stateMachineStateTranslation) => $stateMachineStateTranslation->getLanguageId());
+        return $this->fmap(function (StateMachineStateTranslationEntity $stateMachineStateTranslation) {
+            return $stateMachineStateTranslation->getLanguageId();
+        });
     }
 
     public function filterByLanguageId(string $id): self
     {
-        return $this->filter(fn (StateMachineStateTranslationEntity $stateMachineStateTranslation) => $stateMachineStateTranslation->getLanguageId() === $id);
+        return $this->filter(function (StateMachineStateTranslationEntity $stateMachineStateTranslation) use ($id) {
+            return $stateMachineStateTranslation->getLanguageId() === $id;
+        });
     }
 
     public function getApiAlias(): string

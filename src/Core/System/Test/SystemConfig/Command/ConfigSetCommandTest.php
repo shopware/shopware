@@ -4,7 +4,6 @@ namespace Shopware\Core\System\Test\SystemConfig\Command;
 
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SystemConfig\Command\ConfigSet;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -14,7 +13,6 @@ use Symfony\Component\Console\Tester\CommandTester;
 /**
  * @internal
  */
-#[Package('system-settings')]
 class ConfigSetCommandTest extends TestCase
 {
     use IntegrationTestBehaviour;

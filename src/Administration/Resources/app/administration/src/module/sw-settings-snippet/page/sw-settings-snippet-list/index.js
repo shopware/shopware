@@ -1,14 +1,11 @@
-/**
- * @package system-settings
- */
 import Sanitizer from 'src/core/helper/sanitizer.helper';
 import template from './sw-settings-snippet-list.html.twig';
 import './sw-settings-snippet-list.scss';
 
-const { Mixin, Data: { Criteria } } = Shopware;
+const { Component, Mixin, Data: { Criteria } } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-settings-snippet-list', {
     template,
 
     inject: [
@@ -17,7 +14,6 @@ export default {
         'userService',
         'repositoryFactory',
         'acl',
-        'userConfigService',
     ],
 
     mixins: [
@@ -26,7 +22,7 @@ export default {
 
     data() {
         return {
-            entityName: 'snippet',
+            entityName: 'snippets',
             sortBy: 'id',
             sortDirection: 'ASC',
             metaId: '',
@@ -44,7 +40,6 @@ export default {
             appliedAuthors: [],
             emptyIcon: this.$route.meta.$module.icon,
             skeletonItemAmount: 25,
-            filterSettings: null,
         };
     },
 
@@ -77,12 +72,11 @@ export default {
             return this.repositoryFactory.create('snippet_set');
         },
 
-        queryIds() {
-            return Array.isArray(this.$route.query.ids) ? this.$route.query.ids : [this.$route.query.ids];
-        },
-
         snippetSetCriteria() {
             const criteria = new Criteria(1, 25);
+
+            // eslint-disable-next-line vue/no-side-effects-in-computed-properties
+            this.queryIds = Array.isArray(this.$route.query.ids) ? this.$route.query.ids : [this.$route.query.ids];
 
             criteria.addFilter(Criteria.equalsAny('id', this.queryIds));
             criteria.addSorting(
@@ -133,62 +127,14 @@ export default {
                 this.$tc('global.default.edit') :
                 this.$tc('global.default.view');
         },
-
-        hasActiveFilters() {
-            if (!this.filterSettings) {
-                return false;
-            }
-
-            return Object.values(this.filterSettings).some((value) => value === true);
-        },
-
-        activeFilters() {
-            let filter = {};
-
-            if (!this.hasActiveFilters) {
-                return filter;
-            }
-
-            if (this.filterSettings.editedSnippets) {
-                filter = { ...filter, edited: true };
-            }
-            if (this.filterSettings.addedSnippets) {
-                filter = { ...filter, added: true };
-            }
-            if (this.filterSettings.emptySnippets) {
-                filter = { ...filter, empty: true };
-            }
-
-            filter = { ...filter, author: [] };
-            this.authorFilters.forEach((item) => {
-                if (this.filterSettings[item] === true) {
-                    filter.author.push(item);
-                }
-            });
-
-            filter = { ...filter, namespace: [] };
-            this.filterItems.forEach((item) => {
-                if (this.filterSettings[item] === true) {
-                    filter.namespace.push(item);
-                }
-            });
-
-            return filter;
-        },
     },
 
     created() {
         this.createdComponent();
     },
 
-    beforeDestroy() {
-        this.beforeDestroyComponent();
-    },
-
     methods: {
-        async createdComponent() {
-            this.addEventListeners();
-
+        createdComponent() {
             this.snippetSetRepository.search(this.snippetSetCriteria)
                 .then((sets) => {
                     this.snippetSets = sets;
@@ -198,74 +144,17 @@ export default {
                 this.currentAuthor = `user/${response.data.username}`;
             });
 
-            const filterItems = await this.snippetService.getFilter();
-            this.filterItems = filterItems.data;
+            this.snippetService.getFilter().then((response) => {
+                this.filterItems = response.data;
+            });
 
-            const authorFilters = await this.snippetSetService.getAuthors();
-            this.authorFilters = authorFilters.data;
-
-            await this.getFilterSettings();
-
-            if (this.hasActiveFilters) {
-                this.initializeSnippetSet(this.activeFilters);
-            }
-        },
-
-        beforeDestroyComponent() {
-            this.saveUserConfig();
-            this.removeEventListeners();
-        },
-
-        addEventListeners() {
-            window.addEventListener('beforeunload', (event) => this.beforeUnloadListener(event));
-        },
-
-        removeEventListeners() {
-            window.removeEventListener('beforeunload', (event) => this.beforeUnloadListener(event));
-        },
-
-        // eslint-disable-next-line no-unused-vars
-        beforeUnloadListener(event) {
-            this.saveUserConfig();
-        },
-
-        async getFilterSettings() {
-            const userConfig = await this.getUserConfig();
-
-            this.filterSettings = userConfig.data['grid.filter.setting-snippet-list']
-                ? userConfig.data['grid.filter.setting-snippet-list']
-                : this.createFilterSettings();
-        },
-
-        getUserConfig() {
-            return this.userConfigService.search(['grid.filter.setting-snippet-list']);
-        },
-
-        saveUserConfig() {
-            return this.userConfigService.upsert({
-                'grid.filter.setting-snippet-list': this.filterSettings,
+            this.snippetSetService.getAuthors().then((response) => {
+                this.authorFilters = response.data;
             });
         },
 
-        createFilterSettings() {
-            const authorFilters = this.authorFilters.reduce((acc, item) => ({ ...acc, [item]: false }), {});
-            const moreFilters = this.filterItems.reduce((acc, item) => ({ ...acc, [item]: false }), {});
-
-            return {
-                emptySnippets: false,
-                editedSnippets: false,
-                addedSnippets: false,
-                ...authorFilters,
-                ...moreFilters,
-            };
-        },
-
         getList() {
-            if (this.hasActiveFilters) {
-                this.initializeSnippetSet(this.activeFilters);
-            } else {
-                this.initializeSnippetSet();
-            }
+            this.initializeSnippetSet();
         },
 
         getColumns() {
@@ -292,7 +181,7 @@ export default {
             return columns;
         },
 
-        initializeSnippetSet(filter = this.filter) {
+        initializeSnippetSet() {
             if (!this.$route.query.ids) {
                 this.backRoutingError();
                 return;
@@ -305,7 +194,7 @@ export default {
                 sortDirection: this.sortDirection,
             };
 
-            this.snippetSetService.getCustomList(this.page, this.limit, filter, sort).then((response) => {
+            this.snippetSetService.getCustomList(this.page, this.limit, this.filter, sort).then((response) => {
                 this.metaId = this.queryIds[0];
                 this.total = response.total;
                 this.grid = this.prepareGrid(response.data);
@@ -576,8 +465,6 @@ export default {
         },
 
         onChange(field) {
-            this.$set(this.filterSettings, [field.name], field.value);
-
             this.page = 1;
             if (field.group === 'editedSnippets') {
                 this.showOnlyEdited = field.value;
@@ -653,19 +540,5 @@ export default {
                 message: this.$tc('sw-privileges.tooltip.warning'),
             };
         },
-
-        onResetAll() {
-            this.showOnlyEdited = false;
-            this.showOnlyAdded = false;
-            this.emptySnippets = false;
-            this.appliedFilter = [];
-            this.appliedAuthors = [];
-
-            Object.keys(this.filterSettings).forEach((key) => {
-                this.$set(this.filterSettings, key, false);
-            });
-
-            this.initializeSnippetSet({});
-        },
     },
-};
+});

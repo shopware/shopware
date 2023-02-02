@@ -1,6 +1,4 @@
 /**
- * @package admin
- *
  * @module core/factory/directive
  */
 import { warn } from 'src/core/service/utils/debug.utils';

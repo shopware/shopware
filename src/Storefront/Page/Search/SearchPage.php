@@ -3,10 +3,8 @@
 namespace Shopware\Storefront\Page\Search;
 
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Page\Page;
 
-#[Package('system-settings')]
 class SearchPage extends Page
 {
     /**

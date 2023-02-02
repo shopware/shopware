@@ -18,7 +18,13 @@
                     {% block page_account_address_form_create %}
                         <form method="post"
                               action="{{ path('frontend.account.address.create') }}"
+                              data-form-csrf-handler="true"
                               data-form-validation="true">
+
+                            {% block page_account_address_form_create_csrf %}
+                                {{ sw_csrf('frontend.account.address.create') }}
+                            {% endblock %}
+
                             {% block page_account_address_form_create_personal %}
                                 {% sw_include '@Storefront/storefront/component/address/address-personal.html.twig' with {
                                     'data': data.get('address'),

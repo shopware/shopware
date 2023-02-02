@@ -13,32 +13,44 @@ use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\Adapter\Database\ReplicaConnection;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
+use Shopware\Core\Framework\Routing\Annotation\Entity;
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Rule\Container\Container;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('customer-order')]
+/**
+ * @Route(defaults={"_routeScope"={"store-api"}})
+ */
 class OrderRoute extends AbstractOrderRoute
 {
+    private EntityRepositoryInterface $orderRepository;
+
+    private EntityRepositoryInterface $promotionRepository;
+
+    private RateLimiter $rateLimiter;
+
     /**
      * @internal
      */
     public function __construct(
-        private readonly EntityRepository $orderRepository,
-        private readonly EntityRepository $promotionRepository,
-        private readonly RateLimiter $rateLimiter
+        EntityRepositoryInterface $orderRepository,
+        EntityRepositoryInterface $promotionRepository,
+        RateLimiter $rateLimiter
     ) {
+        $this->orderRepository = $orderRepository;
+        $this->promotionRepository = $promotionRepository;
+        $this->rateLimiter = $rateLimiter;
     }
 
     public function getDecorated(): AbstractOrderRoute
@@ -46,7 +58,11 @@ class OrderRoute extends AbstractOrderRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/order', name: 'store-api.order', methods: ['GET', 'POST'], defaults: ['_entity' => 'order'])]
+    /**
+     * @Since("6.2.0.0")
+     * @Entity("order")
+     * @Route(path="/store-api/order", name="store-api.order", methods={"GET", "POST"})
+     */
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): OrderRouteResponse
     {
         ReplicaConnection::ensurePrimary();
@@ -61,8 +77,10 @@ class OrderRoute extends AbstractOrderRoute
         $criteria->addAssociation('orderCustomer.customer');
 
         /** @var EqualsFilter|null $deepLinkFilter */
-        $deepLinkFilter = \current(array_filter($criteria->getFilters(), static fn (Filter $filter) => \in_array('order.deepLinkCode', $filter->getFields(), true)
-            || \in_array('deepLinkCode', $filter->getFields(), true))) ?: null;
+        $deepLinkFilter = \current(array_filter($criteria->getFilters(), static function (Filter $filter) {
+            return \in_array('order.deepLinkCode', $filter->getFields(), true)
+                || \in_array('deepLinkCode', $filter->getFields(), true);
+        })) ?: null;
 
         if ($context->getCustomer()) {
             $criteria->addFilter(new EqualsFilter('order.orderCustomer.customerId', $context->getCustomer()->getId()));
@@ -80,7 +98,7 @@ class OrderRoute extends AbstractOrderRoute
         // Handle guest authentication if deeplink is set
         if (!$context->getCustomer() && $deepLinkFilter !== null) {
             try {
-                $cacheKey = strtolower((string) $deepLinkFilter->getValue()) . '-' . $request->getClientIp();
+                $cacheKey = strtolower($deepLinkFilter->getValue()) . '-' . $request->getClientIp();
 
                 $this->rateLimiter->ensureAccepted(RateLimiter::GUEST_LOGIN, $cacheKey);
             } catch (RateLimitExceededException $exception) {
@@ -168,14 +186,9 @@ class OrderRoute extends AbstractOrderRoute
 
     private function checkCartRule(RuleEntity $cartRule): bool
     {
-        /** @var Container $payload */
         $payload = $cartRule->getPayload();
-        if (!$payload instanceof Container) {
-            return true;
-        }
-
         foreach ($payload->getRules() as $rule) {
-            if ($rule instanceof Container && $this->checkRuleType($rule) === false) {
+            if ($this->checkRuleType($rule) === false) {
                 return false;
             }
         }
@@ -187,7 +200,9 @@ class OrderRoute extends AbstractOrderRoute
     {
         // Search with deepLinkCode needs updatedAt Filter
         $latestOrderDate = (new \DateTime())->setTimezone(new \DateTimeZone('UTC'))->modify(-abs(30) . ' Day');
-        $orders = $orders->filter(fn (OrderEntity $order) => $order->getCreatedAt() > $latestOrderDate || $order->getUpdatedAt() > $latestOrderDate);
+        $orders = $orders->filter(function (OrderEntity $order) use ($latestOrderDate) {
+            return $order->getCreatedAt() > $latestOrderDate || $order->getUpdatedAt() > $latestOrderDate;
+        });
 
         return $orders;
     }

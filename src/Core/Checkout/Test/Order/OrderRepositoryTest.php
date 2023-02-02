@@ -20,10 +20,9 @@ use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -31,26 +30,46 @@ use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
+use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
  */
-#[Package('customer-order')]
 class OrderRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use CountryAddToSalesChannelTestBehaviour;
 
-    private EntityRepository $orderRepository;
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $orderRepository;
 
-    private OrderPersister $orderPersister;
+    /**
+     * @var OrderPersister
+     */
+    private $orderPersister;
 
-    private Processor $processor;
+    /**
+     * @var Processor
+     */
+    private $processor;
 
-    private EntityRepository $customerRepository;
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $customerRepository;
 
-    private AbstractSalesChannelContextFactory $salesChannelContextFactory;
+    /**
+     * @var AbstractSalesChannelContextFactory
+     */
+    private $salesChannelContextFactory;
+
+    /**
+     * @var StateMachineRegistry
+     */
+    private $stateMachineRegistry;
 
     protected function setUp(): void
     {
@@ -59,6 +78,7 @@ class OrderRepositoryTest extends TestCase
         $this->customerRepository = $this->getContainer()->get('customer.repository');
         $this->processor = $this->getContainer()->get(Processor::class);
         $this->salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
+        $this->stateMachineRegistry = $this->getContainer()->get(StateMachineRegistry::class);
     }
 
     public function testCreateOrder(): void
@@ -88,7 +108,7 @@ class OrderRepositoryTest extends TestCase
         $orderId = Uuid::randomHex();
         $defaultContext = Context::createDefaultContext();
         $orderData = $this->getOrderData($orderId, $defaultContext);
-        $orderData = \json_decode(\json_encode($orderData, \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
+        $orderData = \json_decode(\json_encode($orderData), true);
 
         unset($orderData[0]['lineItems'][0]['price']['calculatedTaxes']);
 
@@ -96,7 +116,7 @@ class OrderRepositoryTest extends TestCase
 
         try {
             $this->orderRepository->create($orderData, $defaultContext);
-        } catch (WriteException) {
+        } catch (WriteException $e) {
             $wasThrown = true;
         }
 
@@ -105,7 +125,7 @@ class OrderRepositoryTest extends TestCase
         $criteria = new Criteria([$orderId]);
 
         $order = $this->orderRepository->search($criteria, $defaultContext);
-        static::assertCount(0, $order);
+        static::assertSame(0, $order->count());
     }
 
     /**
@@ -132,7 +152,7 @@ class OrderRepositoryTest extends TestCase
     public function testDeleteOrder(): void
     {
         $token = Uuid::randomHex();
-        $cart = new Cart($token);
+        $cart = new Cart('test', $token);
 
         $id = Uuid::randomHex();
 
@@ -179,14 +199,14 @@ class OrderRepositoryTest extends TestCase
 
         $id = $this->orderPersister->persist($cart, $context);
 
-        $count = $this->getContainer()->get(Connection::class)->fetchAllAssociative('SELECT * FROM `order` WHERE id = :id', ['id' => Uuid::fromHexToBytes($id)]);
+        $count = $this->getContainer()->get(Connection::class)->fetchAll('SELECT * FROM `order` WHERE id = :id', ['id' => Uuid::fromHexToBytes($id)]);
         static::assertCount(1, $count);
 
         $this->orderRepository->delete([
             ['id' => $id],
         ], Context::createDefaultContext());
 
-        $count = $this->getContainer()->get(Connection::class)->fetchAllAssociative('SELECT * FROM `order` WHERE id = :id', ['id' => Uuid::fromHexToBytes($id)]);
+        $count = $this->getContainer()->get(Connection::class)->fetchAll('SELECT * FROM `order` WHERE id = :id', ['id' => Uuid::fromHexToBytes($id)]);
         static::assertCount(0, $count);
     }
 
@@ -229,9 +249,6 @@ class OrderRepositoryTest extends TestCase
         return $customerId;
     }
 
-    /**
-     * @return array<array<mixed>>
-     */
     private function getOrderData(string $orderId, Context $context): array
     {
         $addressId = Uuid::randomHex();

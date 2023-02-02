@@ -2,11 +2,11 @@ import utils from 'src/core/service/util.service';
 import template from './sw-settings-tag-detail-assignments.html.twig';
 import './sw-settings-tag-detail-assignments.scss';
 
-const { Context, Mixin } = Shopware;
+const { Component, Context, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-settings-tag-detail-assignments', {
     template,
     inheritAttrs: false,
 
@@ -59,7 +59,7 @@ export default {
             entities: null,
             isLoading: false,
             showSelected: this.property && this.entity,
-            counts: { ...this.initialCounts },
+            counts: Object.assign({}, this.initialCounts),
             currentPageCountBuckets: [],
             disableRouteParams: true,
             page: 1,
@@ -167,7 +167,7 @@ export default {
         },
 
         selectedAssignments() {
-            const selection = new Proxy(({ ...this.preSelected }), {
+            const selection = new Proxy(Object.assign({}, this.preSelected), {
                 get(target, key) {
                     return target[key];
                 },
@@ -473,4 +473,4 @@ export default {
             this.getList();
         },
     },
-};
+});

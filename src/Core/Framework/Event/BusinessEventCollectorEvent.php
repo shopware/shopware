@@ -3,15 +3,25 @@
 namespace Shopware\Core\Framework\Event;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('business-ops')]
 class BusinessEventCollectorEvent extends NestedEvent
 {
-    final public const NAME = 'collect.business-events';
+    public const NAME = 'collect.business-events';
 
-    public function __construct(private readonly BusinessEventCollectorResponse $events, private readonly Context $context)
+    /**
+     * @var BusinessEventCollectorResponse
+     */
+    private $events;
+
+    /**
+     * @var Context
+     */
+    private $context;
+
+    public function __construct(BusinessEventCollectorResponse $events, Context $context)
     {
+        $this->events = $events;
+        $this->context = $context;
     }
 
     public function getCollection(): BusinessEventCollectorResponse

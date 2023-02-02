@@ -1,16 +1,10 @@
-/**
- * @package admin
- */
-
 import template from './sw-maintain-currencies-modal.html.twig';
 import './sw-maintain-currencies-modal.scss';
 
 const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
-/**
- * @deprecated tag:v6.6.0 - Will be private
- */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-maintain-currencies-modal', {
     template,
     inject: ['repositoryFactory'],

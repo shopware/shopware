@@ -1,7 +1,3 @@
-/**
- * @package admin
- */
-
 /* eslint-disable */
 import fs from 'fs';
 import path from 'path';

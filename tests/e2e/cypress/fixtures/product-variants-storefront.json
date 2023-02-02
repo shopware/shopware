@@ -20,11 +20,6 @@
       "linked": true
     }
   ],
-  "variantListingConfig": {
-    "displayParent": true,
-    "mainVariantId": null,
-    "configuratorGroupConfig": null
-  },
   "configuratorSettings": [
     {
       "option": {

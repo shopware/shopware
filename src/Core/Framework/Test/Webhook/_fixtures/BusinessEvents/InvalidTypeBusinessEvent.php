@@ -3,13 +3,13 @@
 namespace Shopware\Core\Framework\Test\Webhook\_fixtures\BusinessEvents;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
-use Shopware\Core\Framework\Event\FlowEventAware;
 
 /**
  * @internal
  */
-class InvalidTypeBusinessEvent implements FlowEventAware
+class InvalidTypeBusinessEvent implements BusinessEventInterface
 {
     public static function getAvailableData(): EventDataCollection
     {

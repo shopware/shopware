@@ -1,16 +1,12 @@
-/**
- * @package sales-channel
- */
-
 import template from './sw-sales-channel-detail-product-comparison.html.twig';
 import './sw-sales-channel-detail-product-comparison.scss';
 
-const { Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { warn } = Shopware.Utils.debug;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-sales-channel-detail-product-comparison', {
     template,
 
     inject: [
@@ -186,4 +182,4 @@ export default {
             this.isValidateSuccessful = false;
         },
     },
-};
+});

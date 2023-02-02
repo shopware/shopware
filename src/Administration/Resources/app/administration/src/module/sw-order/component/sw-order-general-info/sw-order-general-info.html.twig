@@ -1,21 +1,21 @@
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_order_detail_base_general_info %}
-<div class="sw-order-general-info">
+<div>
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_detail_base_general_info_summary %}
-    <div class="sw-order-general-info__summary">
+    <div class="sw-order-detail-base__general-info__summary">
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_base_general_info_summary_main %}
-        <div class="sw-order-general-info__summary-main">
+        <div class="sw-order-detail-base__general-info__summary-main">
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_detail_base_general_info_summary_main_header %}
-            <div class="sw-order-general-info__summary-main-header">
+            <div class="sw-order-detail-base__general-info__summary-main-header">
                 {{ summaryMainHeader }}
             </div>
             {% endblock %}
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_detail_base_general_info_summary_main_total %}
-            <div class="sw-order-general-info__summary-main-total">
+            <div class="sw-order-detail-base__general-info__summary-main-total">
                 {{ order.amountTotal | currency(
                     order.currency.translated.shortName, order.totalRounding.decimals
                 ) }}
@@ -26,10 +26,10 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_base_general_info_summary_sub %}
-        <div class="sw-order-general-info__summary-sub">
+        <div class="sw-order-detail-base__general-info__summary-sub">
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_detail_base_general_info_summary_sub_description %}
-            <div class="sw-order-general-info__summary-sub-description">
+            <div class="sw-order-detail-base__general-info__summary-sub-description">
                 {{ $tc('sw-order.generalTab.info.summary.on') }}
                 {{ order.orderDateTime | date({
                     hour: '2-digit',
@@ -39,19 +39,19 @@
                     year: 'numeric'
                 }) }}
                 {{ $tc('sw-order.generalTab.info.summary.with') }}
-                {{ order.transactions.last().paymentMethod.translated.distinguishableName }}
+                {{ order.transactions.last().paymentMethod.translated.name }}
                 {{ $tc('sw-order.generalTab.info.summary.and') }}
                 {{ order.deliveries.last().shippingMethod.translated.name }}
             </div>
             {% endblock %}
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_detail_base_general_info_summary_sub_last_changed %}
-            <div class="sw-order-general-info__summary-sub-last-changed">
+            <div class="sw-order-detail-base__general-info__summary-sub-last-changed">
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_detail_base_general_info_summary_sub_last_changed_time %}
                 <div
                     v-if="lastChangedDateTime"
-                    class="sw-order-general-info__summary-sub-last-changed-time"
+                    class="sw-order-detail-base__general-info__summary-sub-last-changed-time"
                 >
                     {{ $tc('sw-order.generalTab.info.summary.lastChanged') }}:
                     {{ lastChangedDateTime | date({
@@ -67,7 +67,7 @@
                 {% block sw_order_detail_base_general_info_summary_sub_last_changed_user %}
                 <div
                     v-if="lastChangedUser"
-                    class="sw-order-general-info__summary-sub-last-changed-user"
+                    class="sw-order-detail-base__general-info__summary-sub-last-changed-user"
                 >
                     {{ $tc('sw-order.generalTab.info.summary.by') }}
                     {{ lastChangedUser.firstName }} {{ lastChangedUser.lastName }}
@@ -94,20 +94,20 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_detail_base_general_info_order_states %}
-    <div class="sw-order-general-info__order-states">
+    <div class="sw-order-detail-base__general-info__order-states">
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_base_general_info_order_states_payment %}
-        <div class="sw-order-general-info__order-state">
+        <div class="sw-order-detail-base__general-info__order-state">
             <sw-order-state-select-v2
                 v-tooltip="{
                     message: $tc('sw-privileges.tooltip.warning'),
                     disabled: acl.can('order.editor'),
                     showOnDisabledElements: true
                 }"
-                class="sw-order-general-info__order-state-payment"
+                class="sw-order-detail-base__general-info__order-state-payment"
                 :transition-options="paymentStateOptions"
                 state-type="order_transaction"
-                rounded-style
+                :rounded-style="true"
                 :placeholder="transaction.stateMachineState.translated.name"
                 :label="$tc('sw-order.stateCard.headlineTransactionState')"
                 :background-style="backgroundStyle('order_transaction')"
@@ -118,17 +118,17 @@
         {% endblock %}
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_base_general_info_order_states_shipping %}
-        <div class="sw-order-general-info__order-state">
+        <div class="sw-order-detail-base__general-info__order-state">
             <sw-order-state-select-v2
                 v-tooltip="{
                     message: $tc('sw-privileges.tooltip.warning'),
                     disabled: acl.can('order.editor'),
                     showOnDisabledElements: true
                 }"
-                class="sw-order-general-info__order-state-delivery"
+                class="sw-order-detail-base__general-info__order-state-delivery"
                 :transition-options="deliveryStateOptions"
                 state-type="order_delivery"
-                rounded-style
+                :rounded-style="true"
                 :placeholder="delivery.stateMachineState.translated.name"
                 :label="$tc('sw-order.stateCard.headlineDeliveryState')"
                 :background-style="backgroundStyle('order_delivery')"
@@ -139,16 +139,16 @@
         {% endblock %}
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_base_general_info_order_states_order %}
-        <div class="sw-order-general-info__order-state">
+        <div class="sw-order-detail-base__general-info__order-state">
             <sw-order-state-select-v2
                 v-tooltip="{
                     message: $tc('sw-privileges.tooltip.warning'),
                     disabled: acl.can('order.editor'),
                     showOnDisabledElements: true
                 }"
-                class="sw-order-general-info__order-state-order"
+                class="sw-order-detail-base__general-info__order-state-order"
                 :transition-options="orderStateOptions"
-                rounded-style
+                :rounded-style="true"
                 state-type="order"
                 :placeholder="order.stateMachineState.translated.name"
                 :label="$tc('sw-order.stateCard.headlineOrderState')"
@@ -164,7 +164,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_detail_base_general_info_order_tags %}
     <sw-entity-tag-select
-        class="sw-order-general-info__order-tags"
+        class="sw-order-detail-base__general-info__order-tags"
         size="small"
         :entity-collection="tagCollection"
         :disabled="!acl.can('order.editor')"

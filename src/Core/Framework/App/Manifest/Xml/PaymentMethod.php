@@ -2,17 +2,14 @@
 
 namespace Shopware\Core\Framework\App\Manifest\Xml;
 
-use Shopware\Core\Framework\Log\Package;
-
 /**
  * @internal only for use by the app-system
  */
-#[Package('core')]
 class PaymentMethod extends XmlElement
 {
-    final public const TRANSLATABLE_FIELDS = ['name', 'description'];
+    public const TRANSLATABLE_FIELDS = ['name', 'description'];
 
-    final public const REQUIRED_FIELDS = [
+    public const REQUIRED_FIELDS = [
         'identifier',
         'name',
     ];

@@ -7,6 +7,7 @@
     <services>
         <service id="Shopware\Core\Checkout\Customer\CustomerDefinition">
             <tag name="shopware.entity.definition"/>
+            <tag name="shopware.composite_search.definition" priority="900"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\CustomerGroupTranslationDefinition">
@@ -71,11 +72,6 @@
             <tag name="validator.constraint_validator"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCodeValidator">
-            <argument type="service" id="country.repository"/>
-            <tag name="validator.constraint_validator"/>
-        </service>
-
         <service id="Shopware\Core\Checkout\Customer\Password\LegacyEncoder\Md5">
             <tag name="shopware.legacy_encoder"/>
         </service>
@@ -92,6 +88,12 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
 
             <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\Subscriber\CustomerNewsletterSubscriber">
+            <argument type="service" id="customer.repository"/>
+            <tag name="kernel.event_subscriber"/>
+            <tag name="shopware.feature" flag="FEATURE_NEXT_14001"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\Subscriber\CustomerRemoteAddressSubscriber">
@@ -129,8 +131,8 @@
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\LoginRoute" public="true">
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountService"/>
             <argument type="service" id="customer.repository"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\Password\LegacyPasswordVerifier"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\CartRestorer"/>
             <argument type="service" id="Symfony\Component\HttpFoundation\RequestStack"/>
             <argument type="service" id="Shopware\Core\Framework\RateLimiter\RateLimiter"/>
@@ -275,7 +277,6 @@
 
         <service id="Shopware\Core\Checkout\Customer\Api\CustomerGroupRegistrationActionController" public="true">
             <argument type="service" id="customer.repository"/>
-            <argument type="service" id="customer_group.repository" />
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer" />
         </service>
@@ -293,7 +294,6 @@
             <argument type="service" id="sales_channel.product.repository"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilterFactory"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\AddWishlistProductRoute" public="true">
@@ -340,24 +340,12 @@
             <tag name="console.command" />
         </service>
 
-        <service id="Shopware\Core\Checkout\Customer\DeleteUnusedGuestCustomerHandler">
-            <argument type="service" id="scheduled_task.repository"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\DeleteUnusedGuestCustomerService" />
-
-            <tag name="messenger.message_handler" />
-        </service>
-
         <service id="Shopware\Core\Checkout\Customer\Subscriber\CustomerBeforeDeleteSubscriber">
             <argument type="service" id="customer.repository"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService" />
             <argument type="service" id="event_dispatcher"/>
 
             <tag name="kernel.event_subscriber"/>
-        </service>
-
-        <service id="Shopware\Core\Checkout\Customer\SalesChannel\DownloadRoute" public="true">
-            <argument type="service" id="order_line_item_download.repository"/>
-            <argument type="service" id="Shopware\Core\Content\Media\File\DownloadResponseGenerator"/>
         </service>
     </services>
 </container>

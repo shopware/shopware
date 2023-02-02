@@ -4,16 +4,27 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('core')]
 class SalesChannelRepositoryIterator
 {
-    private readonly Criteria $criteria;
+    /**
+     * @var Criteria
+     */
+    private $criteria;
 
-    public function __construct(private readonly SalesChannelRepository $repository, private readonly SalesChannelContext $context, ?Criteria $criteria = null)
+    /**
+     * @var SalesChannelRepositoryInterface
+     */
+    private $repository;
+
+    /**
+     * @var SalesChannelContext
+     */
+    private $context;
+
+    public function __construct(SalesChannelRepositoryInterface $repository, SalesChannelContext $context, ?Criteria $criteria = null)
     {
         if ($criteria === null) {
             $criteria = new Criteria();
@@ -22,6 +33,8 @@ class SalesChannelRepositoryIterator
         }
 
         $this->criteria = $criteria;
+        $this->repository = $repository;
+        $this->context = $context;
     }
 
     public function getTotal(): int

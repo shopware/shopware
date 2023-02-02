@@ -2,10 +2,9 @@ import template from './sw-cms-el-config-product-listing-config-sorting-grid.htm
 import './sw-cms-el-config-product-listing-config-sorting-grid.scss';
 
 /**
- * @private
- * @package content
+ * @private since v6.5.0
  */
-export default {
+Shopware.Component.register('sw-cms-el-config-product-listing-config-sorting-grid', {
     template,
 
     props: {
@@ -85,4 +84,4 @@ export default {
             this.limit = limit;
         },
     },
-};
+});

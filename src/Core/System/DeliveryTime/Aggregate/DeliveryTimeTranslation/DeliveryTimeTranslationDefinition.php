@@ -8,13 +8,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeDefinition;
 
-#[Package('customer-order')]
 class DeliveryTimeTranslationDefinition extends EntityTranslationDefinition
 {
-    final public const ENTITY_NAME = 'delivery_time_translation';
+    public const ENTITY_NAME = 'delivery_time_translation';
 
     public function getEntityName(): string
     {

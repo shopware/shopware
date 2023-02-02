@@ -1,13 +1,10 @@
 import template from './sw-settings-shipping-list.html.twig';
 import './sw-settings-shipping-list.scss';
 
-const { Mixin, Data: { Criteria } } = Shopware;
+const { Component, Mixin, Data: { Criteria } } = Shopware;
 
-/**
- * @package checkout
- */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-settings-shipping-list', {
     template,
 
     inject: ['repositoryFactory', 'acl'],
@@ -187,4 +184,4 @@ export default {
             return tax?.label;
         },
     },
-};
+});

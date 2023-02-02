@@ -4,9 +4,11 @@ namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Content\Product\SalesChannel\Search\AbstractProductSearchRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Storefront\Framework\Cache\Annotation\HttpCache;
 use Shopware\Storefront\Page\Search\SearchPageLoadedHook;
 use Shopware\Storefront\Page\Search\SearchPageLoader;
 use Shopware\Storefront\Page\Search\SearchWidgetLoadedHook;
@@ -18,20 +20,45 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @internal
+ * @Route(defaults={"_routeScope"={"storefront"}})
+ *
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
  */
-#[Route(defaults: ['_routeScope' => ['storefront']])]
-#[Package('system-settings')]
 class SearchController extends StorefrontController
 {
     /**
+     * @var SearchPageLoader
+     */
+    private $searchPageLoader;
+
+    /**
+     * @var SuggestPageLoader
+     */
+    private $suggestPageLoader;
+
+    /**
+     * @var AbstractProductSearchRoute
+     */
+    private $productSearchRoute;
+
+    /**
      * @internal
      */
-    public function __construct(private readonly SearchPageLoader $searchPageLoader, private readonly SuggestPageLoader $suggestPageLoader, private readonly AbstractProductSearchRoute $productSearchRoute)
-    {
+    public function __construct(
+        SearchPageLoader $searchPageLoader,
+        SuggestPageLoader $suggestPageLoader,
+        AbstractProductSearchRoute $productSearchRoute
+    ) {
+        $this->searchPageLoader = $searchPageLoader;
+        $this->suggestPageLoader = $suggestPageLoader;
+        $this->productSearchRoute = $productSearchRoute;
     }
 
-    #[Route(path: '/search', name: 'frontend.search.page', defaults: ['_httpCache' => true], methods: ['GET'])]
+    /**
+     * @Since("6.0.0.0")
+     * @HttpCache()
+     * @Route("/search", name="frontend.search.page", methods={"GET"})
+     */
     public function search(SalesChannelContext $context, Request $request): Response
     {
         try {
@@ -44,7 +71,7 @@ class SearchController extends StorefrontController
                     return $this->forwardToRoute('frontend.detail.page', [], ['productId' => $productId]);
                 }
             }
-        } catch (MissingRequestParameterException) {
+        } catch (MissingRequestParameterException $missingRequestParameterException) {
             return $this->forwardToRoute('frontend.home.page');
         }
 
@@ -53,7 +80,11 @@ class SearchController extends StorefrontController
         return $this->renderStorefront('@Storefront/storefront/page/search/index.html.twig', ['page' => $page]);
     }
 
-    #[Route(path: '/suggest', name: 'frontend.search.suggest', defaults: ['XmlHttpRequest' => true, '_httpCache' => true], methods: ['GET'])]
+    /**
+     * @Since("6.0.0.0")
+     * @HttpCache()
+     * @Route("/suggest", name="frontend.search.suggest", methods={"GET"}, defaults={"XmlHttpRequest"=true})
+     */
     public function suggest(SalesChannelContext $context, Request $request): Response
     {
         $page = $this->suggestPageLoader->load($request, $context);
@@ -64,9 +95,13 @@ class SearchController extends StorefrontController
     }
 
     /**
+     * @Since("6.2.0.0")
+     * @HttpCache()
+     *
      * Route to load the listing filters
+     *
+     * @Route("/widgets/search", name="widgets.search.pagelet.v2", methods={"GET", "POST"}, defaults={"XmlHttpRequest"=true, "_routeScope"={"storefront"}})
      */
-    #[Route(path: '/widgets/search', name: 'widgets.search.pagelet.v2', defaults: ['XmlHttpRequest' => true, '_routeScope' => ['storefront'], '_httpCache' => true], methods: ['GET', 'POST'])]
     public function ajax(Request $request, SalesChannelContext $context): Response
     {
         $request->request->set('no-aggregations', true);
@@ -82,9 +117,13 @@ class SearchController extends StorefrontController
     }
 
     /**
+     * @Since("6.3.3.0")
+     * @HttpCache()
+     *
      * Route to load the available listing filters
+     *
+     * @Route("/widgets/search/filter", name="widgets.search.filter", methods={"GET", "POST"}, defaults={"XmlHttpRequest"=true, "_routeScope"={"storefront"}})
      */
-    #[Route(path: '/widgets/search/filter', name: 'widgets.search.filter', defaults: ['XmlHttpRequest' => true, '_routeScope' => ['storefront'], '_httpCache' => true], methods: ['GET', 'POST'])]
     public function filter(Request $request, SalesChannelContext $context): Response
     {
         $term = $request->get('search');

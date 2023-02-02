@@ -1,6 +1,7 @@
 ---
 title: Implement rule awareness
 issue: NEXT-18215
+flag: FEATURE_NEXT_18215
 author: Timo Altholtmann
 ---
 # Administration

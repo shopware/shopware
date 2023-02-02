@@ -2,20 +2,33 @@
 
 namespace Shopware\Core\Framework\App\Event;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 use Shopware\Core\Framework\Webhook\Hookable;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('core')]
 class AppFlowActionEvent extends Event implements Hookable
 {
+    private string $name;
+
     /**
-     * @param array<string, string> $headers
+     * @var array<int|string, string>
+     */
+    private array $headers;
+
+    /**
+     * @var array<mixed>
+     */
+    private array $payload;
+
+    /**
+     * @param array<int|string, string> $headers
      * @param array<mixed> $payload
      */
-    public function __construct(private readonly string $name, private readonly array $headers, private readonly array $payload)
+    public function __construct(string $name, array $headers, array $payload)
     {
+        $this->name = $name;
+        $this->headers = $headers;
+        $this->payload = $payload;
     }
 
     public function getName(): string
@@ -24,7 +37,7 @@ class AppFlowActionEvent extends Event implements Hookable
     }
 
     /**
-     * @return array<string, string>
+     * @return array<int|string, string>
      */
     public function getWebhookHeaders(): array
     {

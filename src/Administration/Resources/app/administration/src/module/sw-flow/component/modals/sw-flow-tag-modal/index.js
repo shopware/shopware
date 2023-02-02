@@ -4,12 +4,10 @@ const { Component, Mixin, Context } = Shopware;
 const { ShopwareError } = Shopware.Classes;
 const { EntityCollection, Criteria } = Shopware.Data;
 const { mapState } = Component.getComponentHelper();
+const { capitalizeString } = Shopware.Utils.string;
 
-/**
- * @private
- * @package business-ops
- */
-export default {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+Component.register('sw-flow-tag-modal', {
     template,
 
     inject: [
@@ -64,20 +62,6 @@ export default {
 
         tagRepository() {
             return this.repositoryFactory.create('tag');
-        },
-
-        tagTitle() {
-            if (!this.action) return '';
-
-            if (this.action.match(/add.*tag/)) {
-                return this.$tc('sw-flow.modals.tag.labelAddTag');
-            }
-
-            if (this.action.match(/remove.*tag/)) {
-                return this.$tc('sw-flow.modals.tag.labelRemoveTag');
-            }
-
-            return '';
         },
 
         ...mapState('swFlowState', ['triggerEvent', 'triggerActions']),
@@ -205,5 +189,15 @@ export default {
             this.tagError = null;
             this.$emit('modal-close');
         },
+
+        /**
+         * @major-deprecated tag:v6.5.0 - will be removed, use convertEntityName method of flowBuilderService instead
+         */
+        convertEntityName(camelCaseText) {
+            if (!camelCaseText) return '';
+
+            const normalText = camelCaseText.replace(/([A-Z])/g, ' $1');
+            return capitalizeString(normalText);
+        },
     },
-};
+});

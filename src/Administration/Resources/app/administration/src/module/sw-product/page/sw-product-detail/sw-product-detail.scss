@@ -31,7 +31,8 @@
 
     .sw-product-detail__button-context-menu {
         .sw-icon {
-            padding: 4px 3px;
+            // @deprecated tag:v6.5.0 - The !important attribute can be removed
+            padding: 4px 3px !important;
         }
     }
 }

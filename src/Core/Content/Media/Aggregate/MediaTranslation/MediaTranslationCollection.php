@@ -3,12 +3,10 @@
 namespace Shopware\Core\Content\Media\Aggregate\MediaTranslation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<MediaTranslationEntity>
  */
-#[Package('content')]
 class MediaTranslationCollection extends EntityCollection
 {
     /**
@@ -16,12 +14,16 @@ class MediaTranslationCollection extends EntityCollection
      */
     public function getMediaIds(): array
     {
-        return $this->fmap(fn (MediaTranslationEntity $mediaTranslation) => $mediaTranslation->getMediaId());
+        return $this->fmap(function (MediaTranslationEntity $mediaTranslation) {
+            return $mediaTranslation->getMediaId();
+        });
     }
 
     public function filterByMediaId(string $id): self
     {
-        return $this->filter(fn (MediaTranslationEntity $mediaTranslation) => $mediaTranslation->getMediaId() === $id);
+        return $this->filter(function (MediaTranslationEntity $mediaTranslation) use ($id) {
+            return $mediaTranslation->getMediaId() === $id;
+        });
     }
 
     /**
@@ -29,12 +31,16 @@ class MediaTranslationCollection extends EntityCollection
      */
     public function getLanguageIds(): array
     {
-        return $this->fmap(fn (MediaTranslationEntity $mediaTranslation) => $mediaTranslation->getLanguageId());
+        return $this->fmap(function (MediaTranslationEntity $mediaTranslation) {
+            return $mediaTranslation->getLanguageId();
+        });
     }
 
     public function filterByLanguageId(string $id): self
     {
-        return $this->filter(fn (MediaTranslationEntity $mediaTranslation) => $mediaTranslation->getLanguageId() === $id);
+        return $this->filter(function (MediaTranslationEntity $mediaTranslation) use ($id) {
+            return $mediaTranslation->getLanguageId() === $id;
+        });
     }
 
     public function getApiAlias(): string

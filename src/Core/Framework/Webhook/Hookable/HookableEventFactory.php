@@ -2,42 +2,69 @@
 
 namespace Shopware\Core\Framework\Webhook\Hookable;
 
-use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\Event\BusinessEvent;
+use Shopware\Core\Framework\Event\BusinessEventInterface;
+use Shopware\Core\Framework\Event\FlowEvent;
 use Shopware\Core\Framework\Event\FlowEventAware;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Webhook\BusinessEventEncoder;
 use Shopware\Core\Framework\Webhook\Hookable;
 
-#[Package('core')]
 class HookableEventFactory
 {
     /**
+     * @var BusinessEventEncoder
+     */
+    private $eventEncoder;
+
+    /**
+     * @var WriteResultMerger
+     */
+    private $writeResultMerger;
+
+    /**
      * @internal
      */
-    public function __construct(private readonly BusinessEventEncoder $eventEncoder, private readonly WriteResultMerger $writeResultMerger)
+    public function __construct(BusinessEventEncoder $eventEncoder, WriteResultMerger $writeResultMerger)
     {
+        $this->eventEncoder = $eventEncoder;
+        $this->writeResultMerger = $writeResultMerger;
     }
 
     /**
      * @return Hookable[]
      */
-    public function createHookablesFor(object $event): array
+    public function createHookablesFor($event): array
     {
         // BusinessEvent are the generic Events that get wrapped around the specific events
         // we don't want to dispatch those to the webhooks
-        if ($event instanceof StorableFlow) {
-            return [];
+        if (Feature::isActive('FEATURE_NEXT_17858')) {
+            if ($event instanceof FlowEvent) {
+                return [];
+            }
+        } else {
+            if ($event instanceof BusinessEvent) {
+                return [];
+            }
         }
 
         if ($event instanceof Hookable) {
             return [$event];
         }
 
-        if ($event instanceof FlowEventAware) {
-            return [
-                HookableBusinessEvent::fromBusinessEvent($event, $this->eventEncoder),
-            ];
+        if (Feature::isActive('FEATURE_NEXT_17858')) {
+            if ($event instanceof FlowEventAware) {
+                return [
+                    HookableBusinessEvent::fromBusinessEvent($event, $this->eventEncoder),
+                ];
+            }
+        } else {
+            if ($event instanceof BusinessEventInterface) {
+                return [
+                    HookableBusinessEvent::fromBusinessEvent($event, $this->eventEncoder),
+                ];
+            }
         }
 
         if ($event instanceof EntityWrittenContainerEvent) {

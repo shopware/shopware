@@ -3,19 +3,20 @@
 namespace Shopware\Core\Framework\App\FlowAction\Xml;
 
 use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
-use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
-#[Package('core')]
 class Config extends XmlElement
 {
     /**
-     * @param InputField[] $config
+     * @var InputField[]
      */
-    public function __construct(protected array $config)
+    protected array $config;
+
+    public function __construct(array $data)
     {
+        $this->config = $data;
     }
 
     /**

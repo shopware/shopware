@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Struct\Serializer;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Symfony\Component\Serializer\Encoder\JsonDecode;
 use Symfony\Component\Serializer\Encoder\JsonEncode;
@@ -10,22 +9,21 @@ use Symfony\Component\Serializer\Exception\InvalidArgumentException;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
-#[Package('core')]
 class StructNormalizer implements DenormalizerInterface, NormalizerInterface
 {
     /**
      * Internal cache property which contains created reflection classes
      *
-     * @var \ReflectionClass<object>[]
+     * @var \ReflectionClass[]
      */
-    private array $classes = [];
+    private $classes = [];
 
     /**
      * {@inheritdoc}
      *
      * @return array<string, mixed>
      */
-    public function normalize(mixed $object, ?string $format = null, array $context = [])
+    public function normalize($object, $format = null, array $context = [])
     {
         $encoder = new JsonEncode();
 
@@ -34,22 +32,16 @@ class StructNormalizer implements DenormalizerInterface, NormalizerInterface
 
     /**
      * {@inheritdoc}
-     *
-     * @param array<string, mixed> $context
      */
-    public function supportsNormalization(mixed $data, ?string $format = null, array $context = []): bool
+    public function supportsNormalization($data, $format = null): bool
     {
         return $data instanceof Struct;
     }
 
     /**
-     * {@inheritdoc}
-     *
-     * @param array<string, mixed> $context
-     *
      * @return mixed
      */
-    public function denormalize(mixed $data, ?string $type = null, ?string $format = null, array $context = [])
+    public function denormalize($data, $type = null, $format = null, array $context = [])
     {
         if (\is_string($data) && $date = $this->createDate($data)) {
             return $date;
@@ -60,15 +52,16 @@ class StructNormalizer implements DenormalizerInterface, NormalizerInterface
         }
 
         if (!$this->isObject($data)) {
-            return array_map($this->denormalize(...), $data);
+            return array_map([$this, 'denormalize'], $data);
         }
 
-        /** @var class-string<object> $class */
         $class = $data['_class'];
         unset($data['_class']);
 
         //iterate arguments to resolve other serialized objects
-        $arguments = array_map(fn ($argument) => $this->denormalize($argument), $data);
+        $arguments = array_map(function ($argument) {
+            return $this->denormalize($argument);
+        }, $data);
 
         //create object instance
         return $this->createInstance($class, $arguments);
@@ -76,26 +69,17 @@ class StructNormalizer implements DenormalizerInterface, NormalizerInterface
 
     /**
      * {@inheritdoc}
-     *
-     * @param array<string, mixed> $context
      */
-    public function supportsDenormalization(mixed $data, string $type, ?string $format = null, array $context = []): bool
+    public function supportsDenormalization($data, $type, $format = null): bool
     {
         return \is_array($data) && \array_key_exists('_class', $data);
     }
 
-    /**
-     * @param array<string, mixed> $argument
-     */
     private function isObject(array $argument): bool
     {
         return isset($argument['_class']);
     }
 
-    /**
-     * @param class-string<object> $class
-     * @param array<mixed> $arguments
-     */
     private function createInstance(string $class, array $arguments): Struct
     {
         try {
@@ -160,9 +144,7 @@ class StructNormalizer implements DenormalizerInterface, NormalizerInterface
     }
 
     /**
-     * @param class-string<object> $class
-     *
-     * @return \ReflectionClass<object>
+     * @throws \ReflectionException
      */
     private function getReflectionClass(string $class): \ReflectionClass
     {

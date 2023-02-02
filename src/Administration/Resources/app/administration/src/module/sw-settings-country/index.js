@@ -1,25 +1,15 @@
-/**
- * @package system-settings
- */
-import './component/sw-settings-country-address-handling';
-import './component/sw-settings-country-new-snippet-modal';
-import './component/sw-multi-snippet-drag-and-drop';
-import './component/sw-settings-country-preview-template';
+import './page/sw-settings-country-list';
+import './page/sw-settings-country-detail';
+import './page/sw-settings-country-create';
+import './component/sw-country-state-detail';
+import './component/sw-settings-country-general';
+import './component/sw-settings-country-state';
+import './component/sw-settings-country-currency-dependent-modal';
+import './component/sw-settings-country-currency-hamburger-menu';
 
 import './acl';
 
 const { Module } = Shopware;
-
-/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
-Shopware.Component.register('sw-settings-country-list', () => import('./page/sw-settings-country-list'));
-Shopware.Component.register('sw-settings-country-detail', () => import('./page/sw-settings-country-detail'));
-Shopware.Component.extend('sw-settings-country-create', 'sw-settings-country-detail', () => import('./page/sw-settings-country-create'));
-Shopware.Component.register('sw-country-state-detail', () => import('./component/sw-country-state-detail'));
-Shopware.Component.register('sw-settings-country-general', () => import('./component/sw-settings-country-general'));
-Shopware.Component.register('sw-settings-country-state', () => import('./component/sw-settings-country-state'));
-Shopware.Component.register('sw-settings-country-currency-dependent-modal', () => import('./component/sw-settings-country-currency-dependent-modal'));
-Shopware.Component.register('sw-settings-country-currency-hamburger-menu', () => import('./component/sw-settings-country-currency-hamburger-menu'));
-/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-settings-country', {
@@ -72,14 +62,6 @@ Module.register('sw-settings-country', {
                     },
                 },
 
-                'address-handling': {
-                    component: 'sw-settings-country-address-handling',
-                    path: 'address-handling',
-                    meta: {
-                        parentPath: 'sw.settings.country.index',
-                        privileges: ['country.editor', 'country.creator'],
-                    },
-                },
             },
         },
         create: {
@@ -113,14 +95,6 @@ Module.register('sw-settings-country', {
                     },
                 },
 
-                'address-handling': {
-                    component: 'sw-settings-country-address-handling',
-                    path: 'address-handling',
-                    meta: {
-                        parentPath: 'sw.settings.country.index',
-                        privileges: 'country.creator',
-                    },
-                },
             },
         },
     },

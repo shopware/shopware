@@ -6,15 +6,16 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Event\ImportExportExceptionImportRecordEvent;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
-#[Package('system-settings')]
 class ImportExportExceptionRecordTest extends TestCase
 {
-    private ImportExportExceptionImportRecordEvent $exceptionRecord;
+    /**
+     * @var ImportExportExceptionImportRecordEvent
+     */
+    private $exceptionRecord;
 
     public function setUp(): void
     {

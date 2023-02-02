@@ -4,7 +4,6 @@ import template from './sw-text-preview.html.twig';
 const { Component } = Shopware;
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @description Displays text (no html) up to a defined length and shows a "Show more" button that opens a modal.
  *              New lines are converted into line-breaks (br) and empty lines are removed in preview.

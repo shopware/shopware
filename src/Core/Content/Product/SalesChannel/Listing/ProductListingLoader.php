@@ -7,8 +7,9 @@ use Shopware\Core\Content\Product\Events\ProductListingPreviewCriteriaEvent;
 use Shopware\Core\Content\Product\Events\ProductListingResolvePreviewEvent;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
+use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilter;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -16,39 +17,58 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Package('inventory')]
 class ProductListingLoader
 {
+    private SalesChannelRepositoryInterface $repository;
+
+    private SystemConfigService $systemConfigService;
+
+    private Connection $connection;
+
+    private EventDispatcherInterface $eventDispatcher;
+
     /**
      * @internal
      */
-    public function __construct(private readonly SalesChannelRepository $repository, private readonly SystemConfigService $systemConfigService, private readonly Connection $connection, private readonly EventDispatcherInterface $eventDispatcher, private readonly AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory)
-    {
+    public function __construct(
+        SalesChannelRepositoryInterface $repository,
+        SystemConfigService $systemConfigService,
+        Connection $connection,
+        EventDispatcherInterface $eventDispatcher
+    ) {
+        $this->repository = $repository;
+        $this->systemConfigService = $systemConfigService;
+        $this->connection = $connection;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function load(Criteria $origin, SalesChannelContext $context): EntitySearchResult
     {
-        $origin->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
         $criteria = clone $origin;
 
         $this->addGrouping($criteria);
         $this->handleAvailableStock($criteria, $context);
 
+        $origin->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+
+        if (!Feature::isActive('v6.5.0.0')) {
+            $context->getContext()->addState(Context::STATE_ELASTICSEARCH_AWARE);
+        }
+
         $ids = $this->repository->searchIds($criteria, $context);
-        /** @var list<string> $keys */
-        $keys = $ids->getIds();
+
         $aggregations = $this->repository->aggregate($criteria, $context);
 
         // no products found, no need to continue
-        if (empty($keys)) {
+        if (empty($ids->getIds())) {
             return new EntitySearchResult(
                 ProductDefinition::ENTITY_NAME,
                 0,
@@ -59,11 +79,11 @@ class ProductListingLoader
             );
         }
 
-        $mapping = array_combine($keys, $keys);
+        $mapping = array_combine($ids->getIds(), $ids->getIds());
 
         $hasOptionFilter = $this->hasOptionFilter($criteria);
         if (!$hasOptionFilter) {
-            $mapping = $this->resolvePreviews($keys, $context);
+            $mapping = $this->resolvePreviews($ids->getIds(), $context);
         }
 
         $event = new ProductListingResolvePreviewEvent($context, $criteria, $mapping, $hasOptionFilter);
@@ -92,7 +112,9 @@ class ProductListingLoader
             array_push($fields, ...$filter->getFields());
         }
 
-        $fields = array_map(fn (string $field) => preg_replace('/^product./', '', $field), $fields);
+        $fields = array_map(function (string $field) {
+            return preg_replace('/^product./', '', $field);
+        }, $fields);
 
         if (\in_array('options.id', $fields, true)) {
             return true;
@@ -127,12 +149,11 @@ class ProductListingLoader
             return;
         }
 
-        $closeoutFilter = $this->productCloseoutFilterFactory->create($context);
-        $criteria->addFilter($closeoutFilter);
+        $criteria->addFilter(new ProductCloseoutFilter());
     }
 
     /**
-     * @param array<string> $ids
+     * @param array<array<string>|string> $ids
      *
      * @throws \JsonException
      *
@@ -142,7 +163,7 @@ class ProductListingLoader
     {
         $ids = array_combine($ids, $ids);
 
-        $config = $this->connection->fetchAllAssociative(
+        $config = $this->connection->fetchAll(
             '# product-listing-loader::resolve-previews
             SELECT
                 parent.variant_listing_config as variantListingConfig,
@@ -166,7 +187,7 @@ class ProductListingLoader
             if ($item['variantListingConfig'] === null) {
                 continue;
             }
-            $variantListingConfig = json_decode((string) $item['variantListingConfig'], true, 512, \JSON_THROW_ON_ERROR);
+            $variantListingConfig = json_decode($item['variantListingConfig'], true, 512, \JSON_THROW_ON_ERROR);
 
             if ($variantListingConfig['mainVariantId']) {
                 $mapping[$item['id']] = $variantListingConfig['mainVariantId'];
@@ -242,6 +263,11 @@ class ProductListingLoader
 
             /** @var Entity $entity */
             $entity = $entities->get($mapping[$id]);
+
+            // Ensure that extension of first mapping is not overwritten
+            if ($entity->hasExtension('search')) {
+                continue;
+            }
 
             // get access to the data of the search result
             $entity->addExtension('search', new ArrayEntity($ids->getDataOfId($id)));

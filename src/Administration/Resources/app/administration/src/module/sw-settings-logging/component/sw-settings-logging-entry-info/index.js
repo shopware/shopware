@@ -1,7 +1,9 @@
 import template from './sw-settings-logging-entry-info.html.twig';
 
+const { Component } = Shopware;
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-settings-logging-entry-info', {
     template,
 
     props: {
@@ -29,4 +31,4 @@ export default {
             this.$emit('close');
         },
     },
-};
+});

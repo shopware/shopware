@@ -3,12 +3,9 @@
 namespace Shopware\Storefront\Test\Page\LandingPage;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Content\LandingPage\Exception\LandingPageNotFoundException;
-use Shopware\Core\Content\LandingPage\LandingPageEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
@@ -21,13 +18,15 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('content')]
 class LandingPageLoaderTest extends TestCase
 {
     use StorefrontPageTestBehaviour;
     use IntegrationTestBehaviour;
 
-    private TestDataCollection $ids;
+    /**
+     * @var TestDataCollection
+     */
+    private $ids;
 
     public function testLoadWithoutId(): void
     {
@@ -56,11 +55,7 @@ class LandingPageLoaderTest extends TestCase
         $page = $this->getPageLoader()->load($request, $context);
 
         static::assertInstanceOf(LandingPage::class, $page);
-
-        static::assertInstanceOf(LandingPageEntity::class, $page->getLandingPage());
-        static::assertInstanceOf(CmsPageEntity::class, $page->getLandingPage()->getCmsPage());
-        static::assertSame($this->ids->get('cms-page'), $page->getLandingPage()->getCmsPage()->getId());
-
+        static::assertSame($this->ids->get('cms-page'), $page->getCmsPage()->getId());
         self::assertPageEvent(LandingPageLoadedEvent::class, $event, $context, $request, $page);
     }
 

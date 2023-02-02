@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Log\LogAware;
  */
 class LogAwareTestFlowEvent extends TestFlowBusinessEvent implements LogAware
 {
-    final public const EVENT_NAME = 'test.flow_event.log_aware';
+    public const EVENT_NAME = 'test.flow_event.log_aware';
 
     public function getName(): string
     {

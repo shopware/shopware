@@ -3,15 +3,14 @@
 namespace Shopware\Core\Installer\Configuration;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Installer\Controller\ShopConfigurationController;
 use Shopware\Core\Maintenance\User\Service\UserProvisioner;
 
 /**
  * @internal
+ *
  * @phpstan-import-type AdminUser from ShopConfigurationController
  */
-#[Package('core')]
 class AdminConfigurationService
 {
     /**

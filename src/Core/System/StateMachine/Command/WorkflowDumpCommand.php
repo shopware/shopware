@@ -3,29 +3,30 @@
 namespace Shopware\Core\System\StateMachine\Command;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\System\StateMachine\Util\StateMachineGraphvizDumper;
-use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(
-    name: 'state-machine:dump',
-    description: 'Dumps a state machine to a graphviz file',
-)]
-#[Package('checkout')]
 class WorkflowDumpCommand extends Command
 {
+    protected static $defaultName = 'state-machine:dump';
+
+    /**
+     * @var StateMachineRegistry
+     */
+    private $stateMachineRegistry;
+
     /**
      * @internal
      */
-    public function __construct(private readonly StateMachineRegistry $stateMachineRegistry)
+    public function __construct(StateMachineRegistry $stateMachineRegistry)
     {
         parent::__construct();
+        $this->stateMachineRegistry = $stateMachineRegistry;
     }
 
     protected function configure(): void
@@ -35,6 +36,7 @@ class WorkflowDumpCommand extends Command
                 new InputArgument('name', InputArgument::REQUIRED, 'A state machine name'),
                 new InputOption('label', 'l', InputOption::VALUE_REQUIRED, 'Labels a graph'),
             ])
+            ->setDescription('Dump a workflow')
             ->setHelp(
                 <<<'EOF'
 The <info>%command.name%</info> command dumps the graphical representation of a

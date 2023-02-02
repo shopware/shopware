@@ -1,15 +1,9 @@
-/**
- * @package admin
- */
-
 import template from './sw-app-app-url-changed-modal.html.twig';
 import './sw-app-app-url-changed-modal.scss';
 
 const { Component } = Shopware;
 
-/**
- * @deprecated tag:v6.6.0 - Will be private
- */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-app-app-url-changed-modal', {
     template,
 

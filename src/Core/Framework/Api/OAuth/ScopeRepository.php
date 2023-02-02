@@ -10,23 +10,27 @@ use Shopware\Core\Framework\Api\OAuth\Client\ApiClient;
 use Shopware\Core\Framework\Api\OAuth\Scope\AdminScope;
 use Shopware\Core\Framework\Api\OAuth\Scope\UserVerifiedScope;
 use Shopware\Core\Framework\Api\OAuth\Scope\WriteScope;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
 class ScopeRepository implements ScopeRepositoryInterface
 {
     /**
      * @var ScopeEntityInterface[]
      */
-    private readonly array $scopes;
+    private $scopes;
+
+    /**
+     * @var Connection
+     */
+    private $connection;
 
     /**
      * @internal
      *
      * @param ScopeEntityInterface[] $scopes
      */
-    public function __construct(iterable $scopes, private readonly Connection $connection)
+    public function __construct(iterable $scopes, Connection $connection)
     {
+        $this->connection = $connection;
         $scopeIndex = [];
         foreach ($scopes as $scope) {
             $scopeIndex[$scope->getIdentifier()] = $scope;
@@ -80,8 +84,8 @@ class ScopeRepository implements ScopeRepositoryInterface
             ->where('id = UNHEX(:accessKey)')
             ->setParameter('accessKey', $userIdentifier)
             ->setMaxResults(1)
-            ->executeQuery()
-            ->fetchOne();
+            ->execute()
+            ->fetchColumn();
 
         if ($isAdmin) {
             $scopes[] = new AdminScope();

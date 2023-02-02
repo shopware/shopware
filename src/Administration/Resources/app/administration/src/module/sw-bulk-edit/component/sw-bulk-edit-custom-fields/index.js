@@ -1,11 +1,9 @@
-/**
- * @package system-settings
- */
 import template from './sw-bulk-edit-custom-fields.html.twig';
 import './sw-bulk-edit-custom-fields.scss';
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+const { Component } = Shopware;
+
+Component.extend('sw-bulk-edit-custom-fields', 'sw-custom-field-set-renderer', {
     template,
 
     props: {
@@ -59,4 +57,4 @@ export default {
             this.$set(this.selectedCustomFields, item.name, this.entity.customFields[item.name]);
         },
     },
-};
+});

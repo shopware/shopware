@@ -3,16 +3,33 @@
 namespace Shopware\Core\Framework\Validation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteFieldException;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\ConstraintViolationList;
 
-#[Package('core')]
 class WriteConstraintViolationException extends ShopwareHttpException implements WriteFieldException, ConstraintViolationExceptionInterface
 {
-    public function __construct(private readonly ConstraintViolationList $constraintViolationList, private string $path = '', private readonly int $statusCode = Response::HTTP_BAD_REQUEST)
+    /**
+     * @var string
+     */
+    private $path;
+
+    /**
+     * @var ConstraintViolationList
+     */
+    private $constraintViolationList;
+
+    /**
+     * @var int
+     */
+    private $statusCode;
+
+    public function __construct(ConstraintViolationList $constraintViolationList, string $path = '', int $statusCode = Response::HTTP_BAD_REQUEST)
     {
+        $this->path = $path;
+        $this->constraintViolationList = $constraintViolationList;
+        $this->statusCode = $statusCode;
+
         parent::__construct(
             'Caught {{ count }} constraint violation errors.',
             ['count' => $constraintViolationList->count()]

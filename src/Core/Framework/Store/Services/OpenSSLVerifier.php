@@ -2,22 +2,23 @@
 
 namespace Shopware\Core\Framework\Store\Services;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Exception\StoreSignatureValidationException;
 
 /**
  * @internal
  */
-#[Package('merchant-services')]
 class OpenSSLVerifier
 {
-    private string $publicKeyPath;
-
-    private ?\OpenSSLAsymmetricKey $keyResource = null;
+    /**
+     * @var string
+     */
+    private $publicKeyPath;
 
     /**
-     * @param list<string> $publicKeys
+     * @var resource
      */
+    private $keyResource;
+
     public function __construct(array $publicKeys)
     {
         foreach ($publicKeys as $publicKey) {
@@ -38,13 +39,9 @@ class OpenSSLVerifier
 
     public function isValid(string $message, string $signature): bool
     {
-        $errors = [];
-        $pubkeyid = $this->getKey();
+        $pubkeyid = $this->getKeyResource();
 
         $signature = base64_decode($signature, true);
-        if ($signature === false) {
-            throw new StoreSignatureValidationException('Invalid signature');
-        }
 
         // State whether signature is okay or not
         $ok = openssl_verify($message, $signature, $pubkeyid);
@@ -61,24 +58,22 @@ class OpenSSLVerifier
         throw new StoreSignatureValidationException(sprintf("Error during private key read: \n%s", implode("\n", $errors)));
     }
 
-    private function getKey(): \OpenSSLAsymmetricKey
+    private function getKeyResource()
     {
-        $errors = [];
         if ($this->keyResource !== null) {
             return $this->keyResource;
         }
 
-        $publicKey = trim((string) file_get_contents($this->publicKeyPath));
+        $publicKey = trim(file_get_contents($this->publicKeyPath));
 
-        $key = openssl_pkey_get_public($publicKey);
-        if ($key === false) {
+        $this->keyResource = openssl_pkey_get_public($publicKey);
+
+        if ($this->keyResource === false) {
             while ($errors[] = openssl_error_string()) {
             }
 
             throw new StoreSignatureValidationException(sprintf("Error during public key read: \n%s", implode("\n", $errors)));
         }
-
-        $this->keyResource = $key;
 
         return $this->keyResource;
     }

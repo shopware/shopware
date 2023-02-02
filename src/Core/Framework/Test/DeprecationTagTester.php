@@ -2,12 +2,9 @@
 
 namespace Shopware\Core\Framework\Test;
 
-use Shopware\Core\Framework\Log\Package;
-
 /**
  * @internal
  */
-#[Package('core')]
 class DeprecationTagTester
 {
     /**
@@ -25,8 +22,14 @@ class DeprecationTagTester
      */
     private const MANIFEST_VERSION_SCHEMA = '\d+\.\d+';
 
-    public function __construct(private readonly string $shopwareVersion, private readonly string $manifestVersion)
+    private string $shopwareVersion;
+
+    private string $manifestVersion;
+
+    public function __construct(string $shopwareVersion, string $manifestVersion)
     {
+        $this->shopwareVersion = $shopwareVersion;
+        $this->manifestVersion = $manifestVersion;
     }
 
     /**

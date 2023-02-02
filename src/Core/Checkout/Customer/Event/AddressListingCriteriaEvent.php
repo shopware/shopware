@@ -6,14 +6,18 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('customer-order')]
 class AddressListingCriteriaEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
-    public function __construct(private readonly Criteria $criteria, private readonly SalesChannelContext $salesChannelContext)
+    private Criteria $criteria;
+
+    private SalesChannelContext $salesChannelContext;
+
+    public function __construct(Criteria $criteria, SalesChannelContext $salesChannelContext)
     {
+        $this->criteria = $criteria;
+        $this->salesChannelContext = $salesChannelContext;
     }
 
     public function getCriteria(): Criteria

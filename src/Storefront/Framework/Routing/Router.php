@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Framework\Routing;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Routing\Router as SymfonyRouter;
 use Symfony\Component\HttpFoundation\Request;
@@ -14,25 +13,36 @@ use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Service\ServiceSubscriberInterface;
 
-#[Package('storefront')]
 class Router implements RouterInterface, RequestMatcherInterface, WarmableInterface, ServiceSubscriberInterface
 {
     /**
      * @var int Used to indicate the router that we only need the path info without the sales channel prefix
      */
-    final public const PATH_INFO = 10;
+    public const PATH_INFO = 10;
+
+    /**
+     * @var SymfonyRouter
+     */
+    private $decorated;
+
+    /**
+     * @var RequestStack
+     */
+    private $requestStack;
 
     /**
      * @internal
      */
-    public function __construct(private readonly SymfonyRouter $decorated, private readonly RequestStack $requestStack)
+    public function __construct(SymfonyRouter $decorated, RequestStack $requestStack)
     {
+        $this->decorated = $decorated;
+        $this->requestStack = $requestStack;
     }
 
     /**
-     * @return array<string, string>
+     * @return array
      */
-    public static function getSubscribedServices(): array
+    public static function getSubscribedServices()
     {
         return SymfonyRouter::getSubscribedServices();
     }
@@ -40,12 +50,15 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
     /**
      * @return array<string>
      */
-    public function warmUp(string $cacheDir): array
+    public function warmUp(string $cacheDir)
     {
         return $this->decorated->warmUp($cacheDir);
     }
 
-    public function matchRequest(Request $request): array
+    /**
+     * @return array
+     */
+    public function matchRequest(Request $request)
     {
         if (!$request->attributes->has(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID)) {
             return $this->decorated->matchRequest($request);
@@ -61,26 +74,35 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
         return $this->decorated->matchRequest($localClone);
     }
 
-    public function setContext(RequestContext $context): void
+    public function setContext(RequestContext $context)
     {
-        $this->decorated->setContext($context);
+        return $this->decorated->setContext($context);
     }
 
-    public function getContext(): RequestContext
+    /**
+     * @return RequestContext
+     */
+    public function getContext()
     {
         return $this->decorated->getContext();
     }
 
-    public function getRouteCollection(): RouteCollection
+    /**
+     * @return RouteCollection
+     */
+    public function getRouteCollection()
     {
         return $this->decorated->getRouteCollection();
     }
 
-    public function generate(string $name, array $parameters = [], int $referenceType = self::ABSOLUTE_PATH): string
+    /**
+     * @return string
+     */
+    public function generate(string $name, array $parameters = [], int $referenceType = self::ABSOLUTE_PATH)
     {
         $basePath = $this->getBasePath();
         if ($referenceType === self::PATH_INFO) {
-            $route = $this->decorated->generate($name, $parameters);
+            $route = $this->decorated->generate($name, $parameters, self::ABSOLUTE_PATH);
 
             return $this->removePrefix($route, $basePath);
         }
@@ -142,7 +164,10 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
         return $rewrite;
     }
 
-    public function match(string $pathinfo): array
+    /**
+     * @return array
+     */
+    public function match($pathinfo)
     {
         return $this->decorated->match($pathinfo);
     }
@@ -184,8 +209,8 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
 
     private function isStorefrontRoute(string $name): bool
     {
-        return str_starts_with($name, 'frontend.')
-            || str_starts_with($name, 'widgets.')
-            || str_starts_with($name, 'payment.');
+        return strncmp($name, 'frontend.', 9) === 0
+            || strncmp($name, 'widgets.', 8) === 0
+            || strncmp($name, 'payment.', 8) === 0;
     }
 }

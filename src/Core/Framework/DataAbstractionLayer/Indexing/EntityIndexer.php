@@ -2,14 +2,10 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Indexing;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
-/**
- * @phpstan-import-type Offset from IterableQuery
- */
-#[Package('core')]
 abstract class EntityIndexer
 {
     /**
@@ -22,9 +18,11 @@ abstract class EntityIndexer
      * Called when a full entity index is required. This function should generate a list of message for all records which
      * are indexed by this indexer.
      *
-     * @param Offset|null $offset
+     * @param array|null $offset
+     *
+     * @deprecated tag:v6.5.0 The parameter $offset will be native typed
      */
-    abstract public function iterate(?array $offset): ?EntityIndexingMessage;
+    abstract public function iterate(/*?array */$offset): ?EntityIndexingMessage;
 
     /**
      * Called when entities are updated over the DAL. This function should react to the provided entity written events
@@ -38,9 +36,31 @@ abstract class EntityIndexer
      */
     abstract public function handle(EntityIndexingMessage $message): void;
 
-    abstract public function getTotal(): int;
+    /**
+     * @deprecated tag:v6.5.0 - Will be abstract with 6.5.0 and has to be implemented in all implementations
+     */
+    public function getTotal(): int
+    {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            'Method `getTotal()` of abstract class `EntityIndexer` will be abstract in v6.5.0.0 and has to be implemented in all implementations.'
+        );
 
-    abstract public function getDecorated(): EntityIndexer;
+        return 1;
+    }
+
+    /**
+     * @deprecated tag:v6.5.0 - Will be abstract with 6.5.0 and has to be implemented in all implementations
+     */
+    public function getDecorated(): EntityIndexer
+    {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            'Method `getTotal()` of abstract class `EntityIndexer` will be abstract in v6.5.0.0 and has to be implemented in all implementations.'
+        );
+
+        throw new DecorationPatternException(static::class);
+    }
 
     /**
      * Returns a list of known indexers

@@ -4,9 +4,12 @@ import SalesChannelPageObject from '../../../../support/pages/module/sw-sales-ch
 
 describe('Sales Channel: Test crud operations', () => {
     beforeEach(() => {
-        cy.openInitialPage(Cypress.env('admin'));
-        cy.get('.sw-skeleton').should('not.exist');
-        cy.get('.sw-loader').should('not.exist');
+        cy.loginViaApi()
+            .then(() => {
+                cy.openInitialPage(Cypress.env('admin'));
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
+            });
     });
 
     it('@base @general: create and read sales channel', { tags: ['pa-sales-channels'] }, () => {
@@ -15,7 +18,7 @@ describe('Sales Channel: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/**/${Cypress.env('apiPath')}/sales-channel`,
-            method: 'POST',
+            method: 'POST'
         }).as('saveData');
 
         // Open sales channel creation
@@ -45,7 +48,7 @@ describe('Sales Channel: Test crud operations', () => {
         cy.clickMainMenuItem({
             targetPath: '#/sw/customer/index',
             mainMenuId: 'sw-customer',
-            subMenuId: 'sw-customer-index',
+            subMenuId: 'sw-customer-index'
         });
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
@@ -60,7 +63,7 @@ describe('Sales Channel: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/sales-channel/*`,
-            method: 'PATCH',
+            method: 'PATCH'
         }).as('saveData');
 
         // Edit and verify change in sales channel
@@ -79,7 +82,7 @@ describe('Sales Channel: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/sales-channel/*`,
-            method: 'delete',
+            method: 'delete'
         }).as('deleteData');
 
         // Delete sales channel

@@ -20,14 +20,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\Aggregate\CountryStateTranslation\CountryStateTranslationDefinition;
 use Shopware\Core\System\Country\CountryDefinition;
 
-#[Package('system-settings')]
 class CountryStateDefinition extends EntityDefinition
 {
-    final public const ENTITY_NAME = 'country_state';
+    public const ENTITY_NAME = 'country_state';
 
     public function getEntityName(): string
     {

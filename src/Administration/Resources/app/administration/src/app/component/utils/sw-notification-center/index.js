@@ -4,9 +4,7 @@ import './sw-notification-center.scss';
 
 const { Component, Mixin } = Shopware;
 
-/**
- * @deprecated tag:v6.6.0 - Will be private
- */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-notification-center', {
     template,
 

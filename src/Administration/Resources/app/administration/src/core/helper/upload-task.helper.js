@@ -1,11 +1,8 @@
 /**
- * @package admin
- *
- * @deprecated tag:v6.6.0 - Will be private
- *
  * This class wraps an upload and stores information about it. For use in core/data/UploadStore
  * @class
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class UploadTask {
     constructor({ uploadTag, src, targetId, fileName, extension = 'dat' }) {
         this.running = false;

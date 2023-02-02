@@ -3,13 +3,8 @@
 namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
-/**
- * @internal
- */
-#[Package('core')]
 class Migration1591052278AddPropertyAndOptionIdsToProductProfile extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -22,11 +17,11 @@ class Migration1591052278AddPropertyAndOptionIdsToProductProfile extends Migrati
         $id = $connection->executeQuery(
             'SELECT `id` FROM `import_export_profile` WHERE `name` = :name AND `system_default` = 1',
             ['name' => 'Default product']
-        )->fetchOne();
+        )->fetchColumn();
 
         if ($id) {
             $mapping = $this->getProductMapping();
-            $connection->update('import_export_profile', ['mapping' => json_encode($mapping, \JSON_THROW_ON_ERROR)], ['id' => $id]);
+            $connection->update('import_export_profile', ['mapping' => json_encode($mapping)], ['id' => $id]);
         }
     }
 
@@ -35,9 +30,6 @@ class Migration1591052278AddPropertyAndOptionIdsToProductProfile extends Migrati
         // implement update destructive
     }
 
-    /**
-     * @return list<array{key: string, mappedKey: string}>
-     */
     private function getProductMapping(): array
     {
         return [

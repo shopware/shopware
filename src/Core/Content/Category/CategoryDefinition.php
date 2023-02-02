@@ -39,35 +39,32 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TreeLevelField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TreePathField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\CustomEntity\CustomEntityDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\Tag\TagDefinition;
 
-#[Package('content')]
 class CategoryDefinition extends EntityDefinition
 {
-    final public const ENTITY_NAME = 'category';
+    public const ENTITY_NAME = 'category';
 
-    final public const TYPE_PAGE = 'page';
+    public const TYPE_PAGE = 'page';
 
-    final public const TYPE_LINK = 'link';
+    public const TYPE_LINK = 'link';
 
-    final public const TYPE_FOLDER = 'folder';
+    public const TYPE_FOLDER = 'folder';
 
-    final public const LINK_TYPE_EXTERNAL = 'external';
+    public const LINK_TYPE_EXTERNAL = 'external';
 
-    final public const LINK_TYPE_CATEGORY = 'category';
+    public const LINK_TYPE_CATEGORY = 'category';
 
-    final public const LINK_TYPE_PRODUCT = 'product';
+    public const LINK_TYPE_PRODUCT = 'product';
 
-    final public const LINK_TYPE_LANDING_PAGE = 'landing_page';
+    public const LINK_TYPE_LANDING_PAGE = 'landing_page';
 
-    final public const PRODUCT_ASSIGNMENT_TYPE_PRODUCT = 'product';
+    public const PRODUCT_ASSIGNMENT_TYPE_PRODUCT = 'product';
 
-    final public const PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM = 'product_stream';
+    public const PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM = 'product_stream';
 
-    final public const CONFIG_KEY_DEFAULT_CMS_PAGE_CATEGORY = 'core.cms.default_category_cms_page';
+    public const CONFIG_KEY_DEFAULT_CMS_PAGE_CATEGORY = 'core.cms.default_category_cms_page';
 
     public function getEntityName(): string
     {
@@ -156,9 +153,6 @@ class CategoryDefinition extends EntityDefinition
             (new ManyToOneAssociationField('cmsPage', 'cms_page_id', CmsPageDefinition::class, 'id', false))->addFlags(new ApiAware()),
             new FkField('product_stream_id', 'productStreamId', ProductStreamDefinition::class),
             new ManyToOneAssociationField('productStream', 'product_stream_id', ProductStreamDefinition::class, 'id', false),
-
-            // custom entity specific fields
-            (new FkField('custom_entity_type_id', 'customEntityTypeId', CustomEntityDefinition::class, 'id'))->addFlags(new ApiAware()),
 
             // Reverse Associations not available in store-api
             (new OneToManyAssociationField('navigationSalesChannels', SalesChannelDefinition::class, 'navigation_category_id')),

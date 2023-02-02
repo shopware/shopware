@@ -3,17 +3,24 @@
 namespace Shopware\Core\Installer\Database;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Maintenance\System\Service\SetupDatabaseAdapter;
 
 /**
  * @internal
  */
-#[Package('core')]
 class DatabaseMigrator
 {
-    public function __construct(private readonly SetupDatabaseAdapter $adapter, private readonly MigrationCollectionFactory $migrationFactory, private readonly string $version)
+    private SetupDatabaseAdapter $adapter;
+
+    private MigrationCollectionFactory $migrationFactory;
+
+    private string $version;
+
+    public function __construct(SetupDatabaseAdapter $adapter, MigrationCollectionFactory $migrationFactory, string $version)
     {
+        $this->adapter = $adapter;
+        $this->migrationFactory = $migrationFactory;
+        $this->version = $version;
     }
 
     /**

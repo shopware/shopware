@@ -1,7 +1,11 @@
 describe('Payment: Visual testing', () => {
     // eslint-disable-next-line no-undef
     beforeEach(() => {
-        cy.setLocaleToEnGb()
+        // Clean previous state and prepare Administration
+        cy.loginViaApi()
+            .then(() => {
+                cy.setLocaleToEnGb();
+            })
             .then(() => {
                 cy.openInitialPage(Cypress.env('admin'));
             });
@@ -10,18 +14,18 @@ describe('Payment: Visual testing', () => {
     it('@base @settings: should sort payment methods accordingly', { tags: ['pa-checkout'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/payment-method`,
-            method: 'POST',
+            method: 'POST'
         }).as('getPaymentMethods');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/payment-method/**`,
-            method: 'PATCH',
+            method: 'PATCH'
         }).as('patchPaymentMethods');
 
         cy.get('.sw-dashboard-index__welcome-text').should('be.visible');
         cy.clickMainMenuItem({
             targetPath: '#/sw/settings/index',
-            mainMenuId: 'sw-settings',
+            mainMenuId: 'sw-settings'
         });
 
         cy.get('#sw-settings-payment').click();
@@ -69,13 +73,13 @@ describe('Payment: Visual testing', () => {
     it('@base: settings: should default to original order on cancel', { tags: ['pa-checkout'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/payment-method`,
-            method: 'POST',
+            method: 'POST'
         }).as('getPaymentMethods');
 
         cy.get('.sw-dashboard-index__welcome-text').should('be.visible');
         cy.clickMainMenuItem({
             targetPath: '#/sw/settings/index',
-            mainMenuId: 'sw-settings',
+            mainMenuId: 'sw-settings'
         });
 
         cy.get('#sw-settings-payment').click();

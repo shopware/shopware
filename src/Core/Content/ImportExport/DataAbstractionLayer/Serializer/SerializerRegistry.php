@@ -5,20 +5,18 @@ namespace Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer;
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\AbstractEntitySerializer;
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Field\AbstractFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
 class SerializerRegistry
 {
     /**
      * @var AbstractEntitySerializer[]
      */
-    private readonly array $entitySerializers;
+    private $entitySerializers;
 
     /**
      * @var AbstractFieldSerializer[]
      */
-    private readonly array $fieldSerializers;
+    private $fieldSerializers;
 
     /**
      * @internal

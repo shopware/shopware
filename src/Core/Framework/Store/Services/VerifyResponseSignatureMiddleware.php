@@ -3,19 +3,20 @@
 namespace Shopware\Core\Framework\Store\Services;
 
 use Psr\Http\Message\ResponseInterface;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Exception\StoreSignatureValidationException;
 
 /**
  * @internal
  */
-#[Package('merchant-services')]
 class VerifyResponseSignatureMiddleware implements MiddlewareInterface
 {
     private const SHOPWARE_SIGNATURE_HEADER = 'X-Shopware-Signature';
 
-    public function __construct(private readonly OpenSSLVerifier $openSslVerifier)
+    private OpenSSLVerifier $openSslVerifier;
+
+    public function __construct(OpenSSLVerifier $openSslVerifier)
     {
+        $this->openSslVerifier = $openSslVerifier;
     }
 
     public function __invoke(ResponseInterface $response): ResponseInterface

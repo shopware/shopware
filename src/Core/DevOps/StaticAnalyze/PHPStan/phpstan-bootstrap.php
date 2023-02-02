@@ -3,7 +3,12 @@
 namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan;
 
 use Shopware\Core\DevOps\StaticAnalyze\StaticAnalyzeKernel;
+use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
+use Shopware\Core\Kernel;
+use staabm\PHPStanDba\QueryReflection\PdoQueryReflector;
+use staabm\PHPStanDba\QueryReflection\QueryReflection;
+use staabm\PHPStanDba\QueryReflection\RuntimeConfiguration;
 use Symfony\Component\Dotenv\Dotenv;
 
 if (!\defined('TEST_PROJECT_DIR')) {
@@ -39,8 +44,35 @@ if (class_exists(Dotenv::class) && (file_exists(TEST_PROJECT_DIR . '/.env.local.
     (new Dotenv())->usePutenv()->bootEnv(TEST_PROJECT_DIR . '/.env');
 }
 
+try {
+    $config = new RuntimeConfiguration();
+    $config->stringifyTypes(true);
+
+    /** @var \PDO $pdo */
+    $pdo = MySQLFactory::create()->getWrappedConnection();
+    QueryReflection::setupReflector(
+        new PdoQueryReflector($pdo),
+        $config
+    );
+} catch (\Exception $e) {
+    // if DB is not set up the phpstan-dba extension won't work
+    // in that case we ignore it and skip the extension, during CI it will run at last
+    $config = new RuntimeConfiguration();
+    $config->stringifyTypes(true);
+
+    QueryReflection::setupReflector(
+        new NullReflector(),
+        $config
+    );
+}
+
+$databaseUrl = $_SERVER['DATABASE_URL'];
+
+$_SERVER['DATABASE_URL'] = Kernel::PLACEHOLDER_DATABASE_URL;
 $pluginLoader = new StaticKernelPluginLoader($classLoader);
 $kernel = new StaticAnalyzeKernel('phpstan_dev', true, $pluginLoader, 'phpstan-test-cache-id');
 $kernel->boot();
+
+$_SERVER['DATABASE_URL'] = $databaseUrl;
 
 return $classLoader;

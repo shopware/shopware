@@ -25,7 +25,6 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\TaxFreeConfig;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateEntity;
 use Shopware\Core\System\Country\CountryEntity;
@@ -41,12 +40,12 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[Package('checkout')]
 class Generator extends TestCase
 {
     public static function createSalesChannelContext(
         ?Context $baseContext = null,
         ?CustomerGroupEntity $currentCustomerGroup = null,
+        ?CustomerGroupEntity $fallbackCustomerGroup = null,
         ?SalesChannelEntity $salesChannel = null,
         ?CurrencyEntity $currency = null,
         ?TaxCollection $taxes = null,
@@ -77,6 +76,12 @@ class Generator extends TestCase
         if (!$currentCustomerGroup) {
             $currentCustomerGroup = new CustomerGroupEntity();
             $currentCustomerGroup->setId(TestDefaults::FALLBACK_CUSTOMER_GROUP);
+            $currentCustomerGroup->setDisplayGross(true);
+        }
+
+        if (!$fallbackCustomerGroup) {
+            $fallbackCustomerGroup = new CustomerGroupEntity();
+            $fallbackCustomerGroup->setId(TestDefaults::FALLBACK_CUSTOMER_GROUP);
             $currentCustomerGroup->setDisplayGross(true);
         }
 
@@ -143,6 +148,7 @@ class Generator extends TestCase
             $salesChannel,
             $currency,
             $currentCustomerGroup,
+            $fallbackCustomerGroup,
             $taxes,
             $paymentMethod,
             $shippingMethod,
@@ -185,7 +191,7 @@ class Generator extends TestCase
 
     public static function createCart(): Cart
     {
-        $cart = new Cart('test');
+        $cart = new Cart('test', 'test');
         $cart->setLineItems(
             new LineItemCollection([
                 (new LineItem('A', 'product', 'A', 27))

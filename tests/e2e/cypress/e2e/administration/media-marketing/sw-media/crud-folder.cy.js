@@ -1,17 +1,18 @@
-/**
- * @package content
- */
 // / <reference types="Cypress" />
 
 import MediaPageObject from '../../../../support/pages/module/sw-media.page-object';
 
 describe('Media: Test crud operations of folders', () => {
     beforeEach(() => {
-        cy.createDefaultFixture('media-folder').then(() => {
-            cy.openInitialPage(`${Cypress.env('admin')}#/sw/media/index`);
-            cy.get('.sw-skeleton').should('not.exist');
-            cy.get('.sw-loader').should('not.exist');
-        });
+        cy.loginViaApi()
+            .then(() => {
+                return cy.createDefaultFixture('media-folder');
+            })
+            .then(() => {
+                cy.openInitialPage(`${Cypress.env('admin')}#/sw/media/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
+            });
     });
 
     it('@base @media: create and read folder', { tags: ['pa-content-management'] }, () => {
@@ -20,7 +21,7 @@ describe('Media: Test crud operations of folders', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/media-folder`,
-            method: 'POST',
+            method: 'POST'
         }).as('saveData');
 
         // Create folder
@@ -38,7 +39,7 @@ describe('Media: Test crud operations of folders', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/media-folder/*`,
-            method: 'PATCH',
+            method: 'PATCH'
         }).as('saveData');
 
         // Edit folder's name
@@ -50,7 +51,7 @@ describe('Media: Test crud operations of folders', () => {
             page.elements.contextMenuButton,
             `${page.elements.gridItem}--0`,
             '',
-            true,
+            true
         );
 
         cy.get(`${page.elements.folderNameInput}`).clear();
@@ -67,15 +68,15 @@ describe('Media: Test crud operations of folders', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/media-folder`,
-            method: 'POST',
+            method: 'POST'
         }).as('saveData');
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/media-folder-configuration`,
-            method: 'POST',
+            method: 'POST'
         }).as('postChildConfiguration');
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/media-folder-configuration/**`,
-            method: 'delete',
+            method: 'delete'
         }).as('deleteChildConfiguration');
 
         // navigate to subfolder
@@ -92,9 +93,8 @@ describe('Media: Test crud operations of folders', () => {
 
         page.openChildConfiguration('new child');
 
-
         // Uncheck use of inherited parent configuration
-        cy.get('[name="sw-field--mediaFolder-useParentConfiguration"]').should('be.checked').click();
+        cy.get('[name="sw-field--folder-useParentConfiguration"]').should('be.checked').click();
         // Uncheck keep aspect ratio & check 800x800 thumbnails as test metric
         cy.get('[name="sw-field--configuration-keepAspectRatio"]').should('be.checked').click();
         cy.get('[name="thumbnail-size-800-800-active"]').should('not.be.checked').click();
@@ -117,7 +117,7 @@ describe('Media: Test crud operations of folders', () => {
         cy.get('[name="sw-field--configuration-keepAspectRatio"]').should('not.be.checked');
         cy.get('[name="thumbnail-size-800-800-active"]').should('be.checked').click();
         // Test that use of parent configuration is disabled and enable it again
-        cy.get('[name="sw-field--mediaFolder-useParentConfiguration"]').should('not.be.checked').click();
+        cy.get('[name="sw-field--folder-useParentConfiguration"]').should('not.be.checked').click();
         // save
         cy.get('.sw-media-modal-folder-settings__confirm').click();
 
@@ -127,7 +127,7 @@ describe('Media: Test crud operations of folders', () => {
         page.openChildConfiguration('new child');
 
         // Test that child configuration has been inherited again
-        cy.get('[name="sw-field--mediaFolder-useParentConfiguration"]').should('be.checked');
+        cy.get('[name="sw-field--folder-useParentConfiguration"]').should('be.checked');
         // Test that keep aspect ratio is checked & 800x800 thumbnails unchecked again
         cy.get('[name="sw-field--configuration-keepAspectRatio"]').should('be.checked');
         cy.get('[name="thumbnail-size-800-800-active"]').should('not.be.checked');
@@ -139,7 +139,7 @@ describe('Media: Test crud operations of folders', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/media-folder/*`,
-            method: 'delete',
+            method: 'delete'
         }).as('deleteData');
 
         // Delete folder
@@ -151,7 +151,7 @@ describe('Media: Test crud operations of folders', () => {
             page.elements.contextMenuButton,
             `${page.elements.gridItem}--0`,
             '',
-            true,
+            true
         );
         cy.contains(`${page.elements.modal}__body p`,
             'Are you sure you want to delete the folder "A thing to fold about"?');

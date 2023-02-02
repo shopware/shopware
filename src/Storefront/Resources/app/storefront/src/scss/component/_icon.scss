@@ -184,7 +184,7 @@ Credit: https://github.com/FortAwesome/Font-Awesome
 @each $color, $value in $theme-colors {
     .btn-#{$color} {
         .icon {
-            color: color-contrast($value);
+            color: color-yiq($value);
         }
     }
 }

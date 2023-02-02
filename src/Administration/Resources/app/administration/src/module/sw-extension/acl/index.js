@@ -1,6 +1,3 @@
-/**
- * @package merchant-services
- */
 Shopware.Service('privileges')
     .addPrivilegeMappingEntry({
         category: 'additional_permissions',

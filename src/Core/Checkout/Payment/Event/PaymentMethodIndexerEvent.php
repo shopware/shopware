@@ -4,13 +4,20 @@ namespace Shopware\Core\Checkout\Payment\Event;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('checkout')]
 class PaymentMethodIndexerEvent extends NestedEvent
 {
-    public function __construct(private readonly array $ids, private readonly Context $context, private readonly array $skip = [])
+    private array $ids;
+
+    private Context $context;
+
+    private array $skip;
+
+    public function __construct(array $ids, Context $context, array $skip = [])
     {
+        $this->context = $context;
+        $this->ids = $ids;
+        $this->skip = $skip;
     }
 
     public function getContext(): Context

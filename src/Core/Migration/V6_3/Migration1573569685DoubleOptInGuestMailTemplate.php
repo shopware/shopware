@@ -3,18 +3,13 @@
 namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\DBALException;
 use Shopware\Core\Checkout\Customer\Event\DoubleOptInGuestOrderEvent;
 use Shopware\Core\Content\MailTemplate\MailTemplateActions;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-/**
- * @internal
- */
-#[Package('core')]
 class Migration1573569685DoubleOptInGuestMailTemplate extends MigrationStep
 {
     private const GERMAN_LANGUAGE_NAME = 'Deutsch';
@@ -44,11 +39,11 @@ class Migration1573569685DoubleOptInGuestMailTemplate extends MigrationStep
     private function fetchLanguageIdByName(string $languageName, Connection $connection): ?string
     {
         try {
-            return (string) $connection->fetchOne(
+            return (string) $connection->fetchColumn(
                 'SELECT id FROM `language` WHERE `name` = :languageName',
                 ['languageName' => $languageName]
             );
-        } catch (Exception) {
+        } catch (DBALException $e) {
             return null;
         }
     }
@@ -183,7 +178,7 @@ class Migration1573569685DoubleOptInGuestMailTemplate extends MigrationStep
                 'action_name' => MailTemplateActions::MAIL_TEMPLATE_MAIL_SEND_ACTION,
                 'config' => json_encode([
                     'mail_template_type_id' => Uuid::fromBytesToHex($templateTypeId),
-                ], \JSON_THROW_ON_ERROR),
+                ]),
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );

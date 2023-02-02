@@ -4,14 +4,9 @@ namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-/**
- * @internal
- */
-#[Package('core')]
 class Migration1600769357AddTransition extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -21,17 +16,17 @@ class Migration1600769357AddTransition extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $stateMachine = $connection->fetchOne('SELECT id FROM state_machine WHERE technical_name = :name', ['name' => 'order_transaction.state']);
+        $stateMachine = $connection->fetchColumn('SELECT id FROM state_machine WHERE technical_name = :name', ['name' => 'order_transaction.state']);
         if (!$stateMachine) {
             return;
         }
 
-        $cancelled = $connection->fetchOne('SELECT id FROM state_machine_state WHERE technical_name = :name AND state_machine_id = :id', ['name' => 'cancelled', 'id' => $stateMachine]);
+        $cancelled = $connection->fetchColumn('SELECT id FROM state_machine_state WHERE technical_name = :name AND state_machine_id = :id', ['name' => 'cancelled', 'id' => $stateMachine]);
         if (!$cancelled) {
             return;
         }
 
-        $paid = $connection->fetchOne('SELECT id FROM state_machine_state WHERE technical_name = :name AND state_machine_id = :id', ['name' => 'paid', 'id' => $stateMachine]);
+        $paid = $connection->fetchColumn('SELECT id FROM state_machine_state WHERE technical_name = :name AND state_machine_id = :id', ['name' => 'paid', 'id' => $stateMachine]);
         if (!$paid) {
             return;
         }

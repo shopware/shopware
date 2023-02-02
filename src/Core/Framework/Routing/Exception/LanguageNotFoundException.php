@@ -2,14 +2,12 @@
 
 namespace Shopware\Core\Framework\Routing\Exception;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('core')]
 class LanguageNotFoundException extends ShopwareHttpException
 {
-    final public const LANGUAGE_NOT_FOUND_ERROR = 'FRAMEWORK__LANGUAGE_NOT_FOUND';
+    public const LANGUAGE_NOT_FOUND_ERROR = 'FRAMEWORK__LANGUAGE_NOT_FOUND';
 
     public function __construct($languageId)
     {

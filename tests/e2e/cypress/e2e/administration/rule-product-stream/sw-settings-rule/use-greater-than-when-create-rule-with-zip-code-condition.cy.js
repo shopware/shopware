@@ -4,27 +4,27 @@ import RulePageObject from '../../../../support/pages/module/sw-rule.page-object
 
 describe('Rule builder: Test use greater/lower than on zipcode condition', () => {
     beforeEach(() => {
-        cy.createDefaultFixture('rule').then(() => {
-            cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
-            cy.get('.sw-skeleton').should('not.exist');
-            cy.get('.sw-loader').should('not.exist');
-        });
+        cy.loginViaApi()
+            .then(() => {
+                return cy.createDefaultFixture('rule');
+            })
+            .then(() => {
+                cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
+            });
     });
 
     it('@base @rule @package: edit rule with shipping zipcode condition', { tags: ['pa-business-ops'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'rule',
-                role: 'viewer',
+                role: 'viewer'
             },
             {
                 key: 'rule',
-                role: 'editor',
-            },
-            {
-                key: 'flow',
-                role: 'viewer',
-            },
+                role: 'editor'
+            }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/rule/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -35,7 +35,7 @@ describe('Rule builder: Test use greater/lower than on zipcode condition', () =>
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/rule/*`,
-            method: 'PATCH',
+            method: 'PATCH'
         }).as('saveData');
 
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`)
@@ -79,16 +79,12 @@ describe('Rule builder: Test use greater/lower than on zipcode condition', () =>
         cy.loginAsUserWithPermissions([
             {
                 key: 'rule',
-                role: 'viewer',
+                role: 'viewer'
             },
             {
                 key: 'rule',
-                role: 'editor',
-            },
-            {
-                key: 'flow',
-                role: 'viewer',
-            },
+                role: 'editor'
+            }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/rule/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -99,7 +95,7 @@ describe('Rule builder: Test use greater/lower than on zipcode condition', () =>
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/rule/*`,
-            method: 'PATCH',
+            method: 'PATCH'
         }).as('saveData');
 
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`)

@@ -3,7 +3,7 @@
 namespace Shopware\Elasticsearch\Framework\Indexing;
 
 use Doctrine\DBAL\Connection;
-use OpenSearch\Client;
+use Elasticsearch\Client;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Defaults;
@@ -11,13 +11,13 @@ use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NandFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
@@ -26,49 +26,63 @@ use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\ElasticsearchRegistry;
 use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexerLanguageCriteriaEvent;
 use Symfony\Component\Finder\Finder;
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
 
-/**
- * @internal
- * @final
- */
-#[AsMessageHandler]
-#[Package('core')]
-class ElasticsearchIndexer
+class ElasticsearchIndexer extends AbstractMessageHandler
 {
+    private Connection $connection;
+
+    private ElasticsearchHelper $helper;
+
+    private ElasticsearchRegistry $registry;
+
+    private IndexCreator $indexCreator;
+
+    private IteratorFactory $iteratorFactory;
+
+    private Client $client;
+
+    private LoggerInterface $logger;
+
+    private EntityRepositoryInterface $currencyRepository;
+
+    private EntityRepositoryInterface $languageRepository;
+
+    private EventDispatcherInterface $eventDispatcher;
+
+    private int $indexingBatchSize;
+
+    private MessageBusInterface $bus;
+
     /**
      * @internal
      */
     public function __construct(
-        private readonly Connection $connection,
-        private readonly ElasticsearchHelper $helper,
-        private readonly ElasticsearchRegistry $registry,
-        private readonly IndexCreator $indexCreator,
-        private readonly IteratorFactory $iteratorFactory,
-        private readonly Client $client,
-        private readonly LoggerInterface $logger,
-        private readonly EntityRepository $currencyRepository,
-        private readonly EntityRepository $languageRepository,
-        private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly int $indexingBatchSize,
-        private readonly MessageBusInterface $bus
+        Connection $connection,
+        ElasticsearchHelper $helper,
+        ElasticsearchRegistry $registry,
+        IndexCreator $indexCreator,
+        IteratorFactory $iteratorFactory,
+        Client $client,
+        LoggerInterface $logger,
+        EntityRepositoryInterface $currencyRepository,
+        EntityRepositoryInterface $languageRepository,
+        EventDispatcherInterface $eventDispatcher,
+        int $indexingBatchSize,
+        MessageBusInterface $bus
     ) {
-    }
-
-    public function __invoke(ElasticsearchIndexingMessage|ElasticsearchLanguageIndexIteratorMessage $message): void
-    {
-        if (!$this->helper->allowIndexing()) {
-            return;
-        }
-
-        if ($message instanceof ElasticsearchLanguageIndexIteratorMessage) {
-            $this->handleLanguageIndexIteratorMessage($message);
-
-            return;
-        }
-
-        $this->handleIndexingMessage($message);
+        $this->connection = $connection;
+        $this->helper = $helper;
+        $this->registry = $registry;
+        $this->indexCreator = $indexCreator;
+        $this->iteratorFactory = $iteratorFactory;
+        $this->client = $client;
+        $this->logger = $logger;
+        $this->currencyRepository = $currencyRepository;
+        $this->languageRepository = $languageRepository;
+        $this->eventDispatcher = $eventDispatcher;
+        $this->indexingBatchSize = $indexingBatchSize;
+        $this->bus = $bus;
     }
 
     /**
@@ -134,8 +148,38 @@ class ElasticsearchIndexer
 
         /** @var ElasticsearchIndexingMessage $message */
         foreach ($messages as $message) {
-            $this->__invoke($message);
+            $this->handle($message);
         }
+    }
+
+    /**
+     * @param object|ElasticsearchIndexingMessage|ElasticsearchLanguageIndexIteratorMessage $message
+     */
+    public function handle($message): void
+    {
+        if (!$message instanceof ElasticsearchIndexingMessage && !$message instanceof ElasticsearchLanguageIndexIteratorMessage) {
+            return;
+        }
+
+        if (!$this->helper->allowIndexing()) {
+            return;
+        }
+
+        if ($message instanceof ElasticsearchLanguageIndexIteratorMessage) {
+            $this->handleLanguageIndexIteratorMessage($message);
+
+            return;
+        }
+
+        $this->handleIndexingMessage($message);
+    }
+
+    public static function getHandledMessages(): iterable
+    {
+        return [
+            ElasticsearchIndexingMessage::class,
+            ElasticsearchLanguageIndexIteratorMessage::class,
+        ];
     }
 
     /**
@@ -218,7 +262,7 @@ class ElasticsearchIndexer
         }
 
         return new IndexerOffset(
-            array_values($languages->getIds()),
+            $languages,
             $this->registry->getDefinitions(),
             $timestamp->getTimestamp()
         );
@@ -405,7 +449,6 @@ class ElasticsearchIndexer
 
     private function handleLanguageIndexIteratorMessage(ElasticsearchLanguageIndexIteratorMessage $message): void
     {
-        /** @var LanguageEntity|null $language */
         $language = $this->languageRepository->search(new Criteria([$message->getLanguageId()]), Context::createDefaultContext())->first();
 
         if ($language === null) {
@@ -415,7 +458,7 @@ class ElasticsearchIndexer
         $timestamp = new \DateTime();
         $this->createLanguageIndex($language, $timestamp);
 
-        $offset = new IndexerOffset([$language->getId()], $this->registry->getDefinitions(), $timestamp->getTimestamp());
+        $offset = new IndexerOffset(new LanguageCollection([$language]), $this->registry->getDefinitions(), $timestamp->getTimestamp());
         while ($message = $this->iterate($offset)) {
             $offset = $message->getOffset();
 

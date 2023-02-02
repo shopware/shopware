@@ -1,13 +1,12 @@
 import template from './sw-cms-el-config-vimeo-video.html.twig';
 import './sw-cms-el-config-vimeo-video.scss';
 
-const { Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 
 /**
- * @private
- * @package content
+ * @private since v6.5.0
  */
-export default {
+Component.register('sw-cms-el-config-vimeo-video', {
     template,
 
     mixins: [
@@ -112,4 +111,4 @@ export default {
             this.mediaModalIsOpen = true;
         },
     },
-};
+});

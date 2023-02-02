@@ -2,8 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\TestCaseBase;
 
-use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\MessageQueue\Subscriber\MessageQueueStatsSubscriber;
+use Enqueue\Dbal\DbalContext;
 use Shopware\Core\Framework\Test\TestCaseHelper\StopWorkerWhenIdleListener;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\ServiceLocator;
@@ -20,25 +19,37 @@ trait QueueTestBehaviour
      */
     public function clearQueue(): void
     {
-        $this->getContainer()->get(Connection::class)->executeStatement('DELETE FROM messenger_messages');
+        /** @var DbalContext $context */
+        $context = $this->getContainer()->get('enqueue.transport.default.context');
+        $context->purgeQueue($context->createQueue('messages'));
+    }
+
+    public function getBus(): MessageBusInterface
+    {
+        /** @var MessageBusInterface $bus */
+        $bus = $this->getContainer()->get('messenger.bus.test_shopware');
+
+        return $bus;
+    }
+
+    public function getReceiver(): ReceiverInterface
+    {
+        /** @var ServiceLocator $locator */
+        $locator = $this->getContainer()->get('messenger.test_receiver_locator');
+        /** @var ReceiverInterface $receiver */
+        $receiver = $locator->get('default');
+
+        return $receiver;
     }
 
     public function runWorker(): void
     {
+        $bus = $this->getBus();
+
         $eventDispatcher = new EventDispatcher();
         $eventDispatcher->addSubscriber(new StopWorkerWhenIdleListener());
-        $eventDispatcher->addSubscriber($this->getContainer()->get(MessageQueueStatsSubscriber::class));
 
-        /** @var ServiceLocator $locator */
-        $locator = $this->getContainer()->get('messenger.test_receiver_locator');
-
-        /** @var ReceiverInterface $receiver */
-        $receiver = $locator->get('async');
-
-        /** @var MessageBusInterface $bus */
-        $bus = $this->getContainer()->get('messenger.bus.test_shopware');
-
-        $worker = new Worker([$receiver], $bus, $eventDispatcher);
+        $worker = new Worker([$this->getReceiver()], $bus, $eventDispatcher);
 
         $worker->run([
             'sleep' => 1000,

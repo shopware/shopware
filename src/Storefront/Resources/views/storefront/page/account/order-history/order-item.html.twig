@@ -20,6 +20,9 @@
                 {% set orderState = order.stateMachineState.technicalName %}
                 {% set orderPaymentState = order.transactions.last.stateMachineState.technicalName %}
 
+                {# @deprecated tag:v6.5.0 - Use "orderPaymentState" instead. #}
+                {% set state = orderPaymentState %}
+
                 {% set isPaymentNeeded = orderPaymentState in states and orderState != ORDER_STATE_CANCELLED %}
 
                 <div class="row flex-wrap">
@@ -64,7 +67,7 @@
                                     <button class="btn dropdown-toggle order-table-header-context-menu"
                                             type="button"
                                             id="accountOrderDropdown"
-                                            data-bs-toggle="dropdown"
+                                            {{ dataBsToggleAttr }}="dropdown"
                                             aria-haspopup="true"
                                             aria-expanded="false">
                                         {% sw_icon 'more-horizontal' %}
@@ -104,6 +107,11 @@
                                                       method="post"
                                                       class="order-table-header-context-menu-content-form"
                                                       data-add-to-cart="true">
+
+                                                    {% block page_account_order_item_context_menu_reorder_form_csrf %}
+                                                        {{ sw_csrf('frontend.checkout.line-item.add') }}
+                                                    {% endblock %}
+
                                                     {% block page_account_order_item_context_menu_reorder_form_redirect %}
                                                         <input type="hidden" name="redirectTo" value="frontend.cart.offcanvas"/>
                                                     {% endblock %}
@@ -146,8 +154,8 @@
                                             {% if orderState != ORDER_STATE_CANCELLED and config('core.cart.enableOrderRefunds') %}
                                                 <button type="button"
                                                         class="order-table-header-context-menu-content-link"
-                                                        data-bs-toggle="modal"
-                                                        data-bs-target="#order-{{ order.id }}">
+                                                        {{ dataBsToggleAttr }}="modal"
+                                                        {{ dataBsTargetAttr }}="#order-{{ order.id }}">
                                                     {{ "account.editOrderCancelOrderButton"|trans|sw_sanitize }}
                                                 </button>
                                             {% endif %}
@@ -181,9 +189,7 @@
                             <div class="col-12 row order-table-header-order-table-header">
 
                                 {% block page_account_order_item_order_table_header_cell_shipping_status %}
-                                    {% if order.deliveries|length > 0 %}
-                                        <div class="col-12 col-sm order-table-header-order-table-header-cell">{{ "account.orderShippingStatus"|trans|sw_sanitize }}</div>
-                                    {% endif %}
+                                    <div class="col-12 col-sm order-table-header-order-table-header-cell">{{ "account.orderShippingStatus"|trans|sw_sanitize }}</div>
                                 {% endblock %}
 
                                 {% block page_account_order_item_order_table_header_cell_payment_status %}
@@ -195,9 +201,7 @@
                                 {% endblock %}
 
                                 {% block page_account_order_item_order_table_header_cell_shipping_method %}
-                                    {% if order.deliveries|length > 0 %}
-                                        <div class="col-12 col-sm order-table-header-order-table-header-cell">{{ "account.orderShippingMethod"|trans|sw_sanitize }}</div>
-                                    {% endif %}
+                                    <div class="col-12 col-sm order-table-header-order-table-header-cell">{{ "account.orderShippingMethod"|trans|sw_sanitize }}</div>
                                 {% endblock %}
 
                                 {% block page_account_order_item_order_table_header_cell_placeholder %}
@@ -212,14 +216,12 @@
                             <div class="col-12 row order-table-header-order-table-body">
 
                                 {% block page_account_order_item_order_table_body_cell_shipping_status %}
-                                    {% if order.deliveries|length > 0 %}
-                                        <div class="col-12 col-sm order-table-header-order-table-body-cell">
-                                            <strong class="order-table-header-label">
-                                                {{ "account.orderShippingStatus"|trans|sw_sanitize }}{{ "account.colonCharacter"|trans|sw_sanitize }}
-                                            </strong>
-                                            <span class="order-table-body-value">{{ order.deliveries|first.stateMachineState.translated.name }}</span>
-                                        </div>
-                                    {% endif %}
+                                    <div class="col-12 col-sm order-table-header-order-table-body-cell">
+                                        <strong class="order-table-header-label">
+                                            {{ "account.orderShippingStatus"|trans|sw_sanitize }}{{ "account.colonCharacter"|trans|sw_sanitize }}
+                                        </strong>
+                                        <span class="order-table-body-value">{{ order.deliveries|first.stateMachineState.translated.name }}</span>
+                                    </div>
                                 {% endblock %}
 
                                 {% block page_account_order_item_order_table_body_cell_payment_status %}
@@ -241,14 +243,12 @@
                                 {% endblock %}
 
                                 {% block page_account_order_item_order_table_body_cell_shipping_method %}
-                                    {% if order.deliveries|length > 0 %}
-                                        <div class="col-12 col-sm order-table-header-order-table-body-cell">
-                                            <strong class="order-table-header-label">
-                                                {{ "account.orderShippingMethod"|trans|sw_sanitize }}{{ "account.colonCharacter"|trans|sw_sanitize }}
-                                            </strong>
-                                            <span class="order-table-body-value">{{ order.deliveries|first.shippingMethod.translated.name }}</span>
-                                        </div>
-                                    {% endif %}
+                                    <div class="col-12 col-sm order-table-header-order-table-body-cell">
+                                        <strong class="order-table-header-label">
+                                            {{ "account.orderShippingMethod"|trans|sw_sanitize }}{{ "account.colonCharacter"|trans|sw_sanitize }}
+                                        </strong>
+                                        <span class="order-table-body-value">{{ order.deliveries|first.shippingMethod.translated.name }}</span>
+                                    </div>
                                 {% endblock %}
 
                                 {% block page_account_order_item_order_table_body_cell_toggle_order_details %}
@@ -257,8 +257,8 @@
                                         {% block page_account_order_item_order_table_body_cell_toggle_order_details_button %}
                                             <button class="btn btn-light btn-sm order-hide-btn collapsed"
                                                     type="submit"
-                                                    data-bs-toggle="collapse"
-                                                    data-bs-target="#order{{ order.orderNumber }}"
+                                                    {{ dataBsToggleAttr }}="collapse"
+                                                    {{ dataBsTargetAttr }}="#order{{ order.orderNumber }}"
                                                     aria-expanded="false"
                                                     aria-controls="collapseExample">
 

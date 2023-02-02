@@ -16,12 +16,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('inventory')]
 class ProductSortingDefinition extends EntityDefinition
 {
-    final public const ENTITY_NAME = 'product_sorting';
+    public const ENTITY_NAME = 'product_sorting';
 
     public function getEntityName(): string
     {

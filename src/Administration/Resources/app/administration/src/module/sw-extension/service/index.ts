@@ -6,9 +6,6 @@ import ExtensionErrorService from './extension-error.service';
 
 const { Application } = Shopware;
 
-/**
- * @package merchant-services
- */
 declare global {
     interface ServiceContainer extends SubContainer<'service'>{
         extensionStoreActionService: ExtensionStoreActionService,
@@ -45,7 +42,7 @@ Application.addServiceProvider('extensionErrorService', () => {
                 {
                     label: root.$tc('sw-extension.errors.appLicenseCouldNotBeVerified.actionSetLicenseDomain'),
                     method: () => {
-                        void root.$router.push({
+                        root.$router.push({
                             name: 'sw.settings.store.index',
                         });
                     },
@@ -53,7 +50,7 @@ Application.addServiceProvider('extensionErrorService', () => {
                 {
                     label: root.$tc('sw-extension.errors.appLicenseCouldNotBeVerified.actionLogin'),
                     method: () => {
-                        void root.$router.push({
+                        root.$router.push({
                             name: 'sw.extension.my-extensions.account',
                         });
                     },

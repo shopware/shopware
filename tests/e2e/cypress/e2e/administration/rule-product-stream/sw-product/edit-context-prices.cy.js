@@ -4,11 +4,15 @@ import ProductPageObject from '../../../../support/pages/module/sw-product.page-
 
 describe('Product: Editing context prices', () => {
     beforeEach(() => {
-        cy.createProductFixture().then(() => {
-            cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
-            cy.get('.sw-skeleton').should('not.exist');
-            cy.get('.sw-loader').should('not.exist');
-        });
+        cy.loginViaApi()
+            .then(() => {
+                return cy.createProductFixture();
+            })
+            .then(() => {
+                cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
+            });
     });
 
     it('@base @rule @product: creates context price rules', { tags: ['pa-inventory'] }, () => {
@@ -28,14 +32,14 @@ describe('Product: Editing context prices', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST',
+            method: 'POST'
         }).as('saveData');
 
         // Open the product
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`,
+            `${page.elements.dataGridRow}--0`
         );
 
         // Go to context prices
@@ -130,7 +134,7 @@ describe('Product: Editing context prices', () => {
             .scrollIntoView()
             .should('be.visible');
 
-        cy.get(`${priceGroup}-0 ${page.elements.dataGridRow}--1 ${priceCell}-USD .sw-inheritance-switch .icon--regular-link-horizontal-slash`)
+        cy.get(`${priceGroup}-0 ${page.elements.dataGridRow}--1 ${priceCell}-USD .sw-inheritance-switch .icon--custom-uninherited`)
             .scrollIntoView()
             .should('be.visible');
 
@@ -153,7 +157,7 @@ describe('Product: Editing context prices', () => {
         cy.clickContextMenuItem(
             '.product-detail-context-prices__context-delete',
             page.elements.contextMenuButton,
-            `${priceGroup}-0 ${page.elements.dataGridRow}--1`,
+            `${priceGroup}-0 ${page.elements.dataGridRow}--1`
         );
 
         // check if other values in price group were adjusted to the deletion
@@ -164,7 +168,7 @@ describe('Product: Editing context prices', () => {
         cy.clickContextMenuItem(
             '.product-detail-context-prices__context-delete',
             page.elements.contextMenuButton,
-            `${priceGroup}-1 ${page.elements.dataGridRow}--0`,
+            `${priceGroup}-1 ${page.elements.dataGridRow}--0`
         );
 
         // check if new first rule in price group were adjusted to the deletion

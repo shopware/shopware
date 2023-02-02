@@ -1,9 +1,6 @@
 import DomAccess from 'src/helper/dom-access.helper';
 import template from './dom-access.helper.template.html';
 
-/**
- * @package storefront
- */
 describe('dom-access.helper', () => {
     beforeEach(() => {
         document.body.innerHTML = template;

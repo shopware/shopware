@@ -7,17 +7,21 @@ use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPri
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-#[Package('core')]
 class CheapestPriceUpdater
 {
+    private Connection $connection;
+
+    private AbstractCheapestPriceQuantitySelector $quantitySelector;
+
     /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection, private readonly AbstractCheapestPriceQuantitySelector $quantitySelector)
+    public function __construct(Connection $connection, AbstractCheapestPriceQuantitySelector $quantitySelector)
     {
+        $this->connection = $connection;
+        $this->quantitySelector = $quantitySelector;
     }
 
     /**
@@ -188,12 +192,12 @@ class CheapestPriceUpdater
         $query->setParameter('ids', $ids, Connection::PARAM_STR_ARRAY);
         $query->setParameter('version', Uuid::fromHexToBytes($context->getVersionId()));
 
-        $data = $query->executeQuery()->fetchAllAssociative();
+        $data = $query->execute()->fetchAllAssociative();
 
         $grouped = [];
         /** @var array<string, mixed> $row */
         foreach ($data as $row) {
-            $row['price'] = json_decode((string) $row['price'], true, 512, \JSON_THROW_ON_ERROR);
+            $row['price'] = json_decode($row['price'], true);
             $grouped[$row['parent_id']][$row['variant_id']][$row['rule_id']] = $row;
         }
 
@@ -220,7 +224,7 @@ class CheapestPriceUpdater
         $query->setParameter('ids', $ids, Connection::PARAM_STR_ARRAY);
         $query->setParameter('version', Uuid::fromHexToBytes($context->getVersionId()));
 
-        $defaults = $query->executeQuery()->fetchAllAssociative();
+        $defaults = $query->execute()->fetchAllAssociative();
 
         /** @var array<string, mixed> $row */
         foreach ($defaults as $row) {
@@ -230,7 +234,7 @@ class CheapestPriceUpdater
                 continue;
             }
 
-            $row['price'] = json_decode((string) $row['price'], true, 512, \JSON_THROW_ON_ERROR);
+            $row['price'] = json_decode($row['price'], true);
             $row['price'] = $this->normalizePrices($row['price']);
             if ($row['child_count'] > 0) {
                 $grouped[$row['parent_id']]['default'] = $row;

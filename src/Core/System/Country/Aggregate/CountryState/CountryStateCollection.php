@@ -3,22 +3,24 @@
 namespace Shopware\Core\System\Country\Aggregate\CountryState;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<CountryStateEntity>
  */
-#[Package('system-settings')]
 class CountryStateCollection extends EntityCollection
 {
     public function getCountryIds(): array
     {
-        return $this->fmap(fn (CountryStateEntity $countryState) => $countryState->getCountryId());
+        return $this->fmap(function (CountryStateEntity $countryState) {
+            return $countryState->getCountryId();
+        });
     }
 
     public function filterByCountryId(string $id): self
     {
-        return $this->filter(fn (CountryStateEntity $countryState) => $countryState->getCountryId() === $id);
+        return $this->filter(function (CountryStateEntity $countryState) use ($id) {
+            return $countryState->getCountryId() === $id;
+        });
     }
 
     public function sortByPositionAndName(): void
@@ -29,7 +31,7 @@ class CountryStateCollection extends EntityCollection
             }
 
             if ($a->getTranslation('name') !== $b->getTranslation('name')) {
-                return strnatcasecmp((string) $a->getTranslation('name'), (string) $b->getTranslation('name'));
+                return strnatcasecmp($a->getTranslation('name'), $b->getTranslation('name'));
             }
 
             return 0;

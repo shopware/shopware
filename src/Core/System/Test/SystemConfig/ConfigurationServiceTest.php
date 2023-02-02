@@ -5,7 +5,6 @@ namespace Shopware\Core\System\Test\SystemConfig;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SystemConfig\Exception\BundleConfigNotFoundException;
 use Shopware\Core\System\SystemConfig\Exception\ConfigurationNotFoundException;
@@ -19,12 +18,14 @@ use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 /**
  * @internal
  */
-#[Package('system-settings')]
 class ConfigurationServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private ConfigurationService $configurationService;
+    /**
+     * @var ConfigurationService
+     */
+    private $configurationService;
 
     protected function setUp(): void
     {

@@ -1,7 +1,7 @@
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_cms_create_wizard %}
 <div class="sw-cms-create-wizard">
-    <div class="sw-cms-create-wizard__inner">
+    <div class="sw-cms-create-wizard-inner">
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_create_wizard_first_step %}
@@ -18,36 +18,66 @@
             <div class="sw-cms-create-wizard__page-type-selection">
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_create_wizard_page_type_options %}
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_cms_create_wizard_page_type_options_page %}
+                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <div
-                    v-for="pageType in visiblePageTypes"
-                    :key="pageType.name"
                     class="sw-cms-create-wizard__page-type"
-                    :class="pageType.class"
-                    @click="onPageTypeSelect(pageType.name)"
-                    @keyup.enter="onPageTypeSelect(pageType.name)"
+                    @click="onPageTypeSelect('page')"
                 >
                     <sw-icon
-                        :name="pageType.icon"
+                        name="regular-lightbulb"
                         size="24"
                     />
-                    <p>{{ $tc(pageType.title) }}</p>
+                    <p>{{ $tc('sw-cms.detail.label.pageTypeShopPage') }}</p>
                 </div>
+                {% endblock %}
 
-                {# @deprecated tag:v6.6.0 - Remove block #}
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_cms_create_wizard_page_type_options_page %}{% endblock %}
+                {% block sw_cms_create_wizard_page_type_options_landing_page %}
+                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
+                <div
+                    class="sw-cms-create-wizard__page-type"
+                    @click="onPageTypeSelect('landingpage')"
+                >
+                    <sw-icon
+                        name="regular-dashboard"
+                        size="24"
+                    />
+                    <p>{{ $tc('sw-cms.detail.label.pageTypeLandingpage') }}</p>
+                </div>
+                {% endblock %}
 
-                {# @deprecated tag:v6.6.0 - Remove block #}
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_cms_create_wizard_page_type_options_landing_page %}{% endblock %}
+                {% block sw_cms_create_wizard_page_type_options_product_list %}
+                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
+                <div
+                    class="sw-cms-create-wizard__page-type"
+                    @click="onPageTypeSelect('product_list')"
+                >
+                    <sw-icon
+                        name="regular-shopping-basket"
+                        size="24"
+                    />
+                    <p>{{ $tc('sw-cms.detail.label.pageTypeCategory') }}</p>
+                </div>
+                {% endblock %}
 
-                {# @deprecated tag:v6.6.0 - Remove block #}
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_cms_create_wizard_page_type_options_product_list %}{% endblock %}
-
-                {# @deprecated tag:v6.6.0 - Remove block #}
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_cms_create_wizard_page_type_options_product_detail %}{% endblock %}
+                {% block sw_cms_create_wizard_page_type_options_product_detail %}
+                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
+                <div
+                    class="sw-cms-create-wizard__page-type"
+                    @click="onPageTypeSelect('product_detail')"
+                >
+                    <sw-icon
+                        name="regular-tag"
+                        size="24"
+                    />
+                    <p>{{ $tc('sw-cms.detail.label.pageTypeProduct') }}</p>
+                </div>
+                {% endblock %}
                 {% endblock %}
             </div>
             {% endblock %}
@@ -99,7 +129,9 @@
                 class="sw-cms-create-wizard__back"
                 @click="goToStep('pageType')"
             >
+                {# @deprecated tag:v6.5.0 - Padding can be removed #}
                 <sw-icon
+                    style="padding: 0"
                     name="regular-long-arrow-left"
                     small
                 /> {{ $tc('sw-cms.createWizard.stepBack') }}
@@ -135,10 +167,10 @@
                     ></div>
                     <div class="sw-cms-create-wizard__preview_info">
                         <sw-icon
-                            :name="currentPageType?.icon"
+                            :name="getPageIconName()"
                             size="16"
                         />
-                        <p>{{ $tc(currentPageType?.title) }}</p>
+                        <p>{{ getPageTypeName() }}</p>
                     </div>
                 </div>
                 {% endblock %}
@@ -149,24 +181,14 @@
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_create_wizard_page_name %}
-                    <sw-text-field
+                    <sw-field
                         v-model="page.name"
-                        class="sw-cms-create-wizard__page-completion-name"
+                        type="text"
                         :label="$tc('sw-cms.detail.label.pageName')"
-                        :placeholder="$tc('sw-cms.detail.label.pageNamePlaceholder')"
+                        :placeholder="$tc('sw-cms.detail.label.pageName')"
                         @keypress.enter="onCompletePageCreation"
                     />
                     {% endblock %}
-
-                    <sw-single-select
-                        v-if="isCustomEntityType"
-                        v-model="page.entity"
-                        class="sw-cms-create-wizard__page-completion-custom-entity"
-                        :label="$tc('sw-cms.detail.label.pageEntity')"
-                        :placeholder="$tc('sw-cms.detail.label.pageEntityPlaceholder')"
-                        :options="customEntities"
-                        require
-                    />
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_create_wizard_page_completion_buttons %}
@@ -175,7 +197,7 @@
                         {% block sw_cms_create_wizard_page_completion_save_button %}
                         <sw-button
                             variant="primary"
-                            :disabled="!isCompletable"
+                            :disabled="!page.name"
                             @click="onCompletePageCreation"
                         >
                             {{ $tc('sw-cms.createWizard.createLayout') }}

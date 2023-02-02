@@ -3,18 +3,25 @@
 namespace Shopware\Core\Framework\Store\Event;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Struct\FrwState;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @internal
- */
-#[Package('merchant-services')]
 class FirstRunWizardStartedEvent extends Event
 {
-    public function __construct(private readonly FrwState $state, private readonly Context $context)
+    /**
+     * @var FrwState
+     */
+    private $state;
+
+    /**
+     * @var Context
+     */
+    private $context;
+
+    public function __construct(FrwState $state, Context $context)
     {
+        $this->state = $state;
+        $this->context = $context;
     }
 
     public function getState(): FrwState

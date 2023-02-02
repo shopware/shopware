@@ -3,16 +3,29 @@
 namespace Shopware\Core\Content\ProductExport\Struct;
 
 use Shopware\Core\Content\ProductExport\Error\Error;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('sales-channel')]
 class ProductExportResult
 {
     /**
-     * @param Error[] $errors
+     * @var string
      */
-    public function __construct(private readonly string $content, private readonly array $errors, private readonly int $total)
+    private $content;
+
+    /**
+     * @var Error[]
+     */
+    private $errors;
+
+    /**
+     * @var int
+     */
+    private $total;
+
+    public function __construct(string $content, array $errors, int $total)
     {
+        $this->content = $content;
+        $this->errors = $errors;
+        $this->total = $total;
     }
 
     public function getContent(): string

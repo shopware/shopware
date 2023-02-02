@@ -4,9 +4,6 @@ import './sw-context-button.scss';
 const { Component } = Shopware;
 
 /**
- * @package admin
- *
- * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @status ready
  * @example-type dynamic
@@ -17,6 +14,7 @@ const { Component } = Shopware;
  *     </sw-context-menu-item>
  * </sw-context-button>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-context-button', {
     template,
 
@@ -96,7 +94,7 @@ Component.register('sw-context-button', {
         zIndex: {
             type: Number,
             required: false,
-            default: 1100,
+            default: 9000,
         },
     },
 

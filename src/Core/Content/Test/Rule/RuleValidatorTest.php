@@ -7,10 +7,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionDefinition;
 use Shopware\Core\Content\Rule\RuleValidator;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -18,7 +17,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Package('business-ops')]
 class RuleValidatorTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -28,7 +26,10 @@ class RuleValidatorTest extends TestCase
      */
     private $ruleValidator;
 
-    private Context $context;
+    /**
+     * @var Context
+     */
+    private $context;
 
     /**
      * @var RuleConditionRegistry|MockObject
@@ -41,12 +42,12 @@ class RuleValidatorTest extends TestCase
     private $ruleConditionDefinition;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepositoryInterface
      */
     private $ruleConditionRepository;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepositoryInterface
      */
     private $ruleRepository;
 

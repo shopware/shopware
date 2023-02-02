@@ -1,6 +1,3 @@
-/**
- * @package system-settings
- */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     namespaced: true,
@@ -54,6 +51,12 @@ export default {
     mutations: {
         setIsFlowTriggered(state, isFlowTriggered) {
             state.isFlowTriggered = isFlowTriggered;
+        },
+        /**
+         * @deprecated tag:v6.5.0 - "setOrderDocuments" will be removed due to the new structure of the state
+         */
+        setOrderDocuments(state, { type, payload }) {
+            state.orderDocuments[type] = payload;
         },
         setOrderDocumentsIsChanged(state, { type, isChanged }) {
             state.orderDocuments[type].isChanged = isChanged;

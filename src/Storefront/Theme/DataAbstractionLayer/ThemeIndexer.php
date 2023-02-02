@@ -6,28 +6,40 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Theme\Event\ThemeIndexerEvent;
 use Shopware\Storefront\Theme\ThemeDefinition;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @phpstan-import-type Offset from IterableQuery
- */
-#[Package('core')]
 class ThemeIndexer extends EntityIndexer
 {
+    private IteratorFactory $iteratorFactory;
+
+    private EntityRepositoryInterface $repository;
+
+    private EventDispatcherInterface $eventDispatcher;
+
+    private Connection $connection;
+
     /**
      * @internal
      */
-    public function __construct(private readonly IteratorFactory $iteratorFactory, private readonly EntityRepository $repository, private readonly Connection $connection, private readonly EventDispatcherInterface $eventDispatcher)
-    {
+    public function __construct(
+        IteratorFactory $iteratorFactory,
+        EntityRepositoryInterface $repository,
+        Connection $connection,
+        EventDispatcherInterface $eventDispatcher
+    ) {
+        $this->iteratorFactory = $iteratorFactory;
+        $this->repository = $repository;
+        $this->eventDispatcher = $eventDispatcher;
+        $this->connection = $connection;
     }
 
     public function getName(): string
@@ -35,8 +47,20 @@ class ThemeIndexer extends EntityIndexer
         return 'theme.indexer';
     }
 
-    public function iterate(?array $offset): ?EntityIndexingMessage
+    /**
+     * @param array|null $offset
+     *
+     * @deprecated tag:v6.5.0 The parameter $offset will be native typed
+     */
+    public function iterate(/*?array */$offset): ?EntityIndexingMessage
     {
+        if ($offset !== null && !\is_array($offset)) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.5.0.0',
+                'Parameter `$offset` of method "iterate()" in class "ThemeIndexer" will be natively typed to `?array` in v6.5.0.0.'
+            );
+        }
+
         $iterator = $this->getIterator($offset);
 
         $ids = $iterator->fetch();
@@ -102,9 +126,6 @@ class ThemeIndexer extends EntityIndexer
         throw new DecorationPatternException(static::class);
     }
 
-    /**
-     * @param Offset|null $offset
-     */
     private function getIterator(?array $offset): IterableQuery
     {
         return $this->iteratorFactory->createIterator($this->repository->getDefinition(), $offset);

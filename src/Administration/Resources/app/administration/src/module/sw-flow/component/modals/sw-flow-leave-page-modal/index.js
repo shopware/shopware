@@ -1,10 +1,9 @@
 import template from './sw-flow-leave-page-modal.html.twig';
 
-/**
- * @private
- * @package business-ops
- */
-export default {
+const { Component } = Shopware;
+
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+Component.register('sw-flow-leave-page-modal', {
     template,
     methods: {
         onConfirm() {
@@ -14,4 +13,4 @@ export default {
             this.$emit('page-leave-cancel');
         },
     },
-};
+});

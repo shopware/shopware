@@ -7,24 +7,31 @@ use Shopware\Core\Checkout\Promotion\Exception\PatternAlreadyInUseException;
 use Shopware\Core\Checkout\Promotion\Exception\PatternNotComplexEnoughException;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-#[Package('checkout')]
 class PromotionCodeService
 {
-    final public const PROMOTION_PATTERN_REGEX = '/(?<prefix>[^%]*)(?<replacement>(%[sd])+)(?<suffix>.*)/';
-    final public const CODE_COMPLEXITY_FACTOR = 0.5;
+    public const PROMOTION_PATTERN_REGEX = '/(?<prefix>[^%]*)(?<replacement>(%[sd])+)(?<suffix>.*)/';
+    public const CODE_COMPLEXITY_FACTOR = 0.5;
+
+    private EntityRepositoryInterface $individualCodesRepository;
+
+    private EntityRepositoryInterface $promotionRepository;
+
+    private Connection $connection;
 
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $promotionRepository, private readonly EntityRepository $individualCodesRepository, private readonly Connection $connection)
+    public function __construct(EntityRepositoryInterface $promotionRepository, EntityRepositoryInterface $individualCodesRepository, Connection $connection)
     {
+        $this->promotionRepository = $promotionRepository;
+        $this->individualCodesRepository = $individualCodesRepository;
+        $this->connection = $connection;
     }
 
     public function getFixedCode(): string
@@ -163,10 +170,12 @@ class PromotionCodeService
 
     private function prepareCodeEntities(string $promotionId, array $codes): array
     {
-        return array_values(array_map(static fn ($code) => [
-            'promotionId' => $promotionId,
-            'code' => $code,
-        ], $codes));
+        return array_values(array_map(static function ($code) use ($promotionId) {
+            return [
+                'promotionId' => $promotionId,
+                'code' => $code,
+            ];
+        }, $codes));
     }
 
     private function isComplexEnough(string $pattern, int $amount, int $blacklistCount): bool
@@ -180,7 +189,6 @@ class PromotionCodeService
             'd' => 10,
             's' => 26,
         ];
-        /** @var array<int, int> $counts */
         $counts = count_chars($pattern, 1);
 
         $result = 1;

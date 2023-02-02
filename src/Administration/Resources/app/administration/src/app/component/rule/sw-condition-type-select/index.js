@@ -3,10 +3,7 @@ import './sw-condition-type-select.scss';
 
 const { Component } = Shopware;
 
-/**
- * @private
- * @package business-ops
- */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-condition-type-select', {
     template: template,
 
@@ -14,6 +11,7 @@ Component.register('sw-condition-type-select', {
         'removeNodeFromTree',
         'conditionDataProviderService',
         'restrictedConditions',
+        'feature',
     ],
 
     props: {
@@ -67,6 +65,19 @@ Component.register('sw-condition-type-select', {
             return this.typeSearchTerm.toUpperCase();
         },
 
+        /**
+         * @deprecated tag:v6.5.0 - Function is no longer needed,
+         * use translatedLabel property instead
+         */
+        translatedTypes() {
+            return this.availableTypes.map(({ type, label }) => {
+                return {
+                    type,
+                    label: this.$tc(label),
+                };
+            });
+        },
+
         typeOptions() {
             if (!(typeof this.typeSearchTerm === 'string') || this.typeSearchTerm === '') {
                 return this.availableTypes;
@@ -115,32 +126,24 @@ Component.register('sw-condition-type-select', {
     methods: {
         createdComponent() {
             if (this.condition.type === 'scriptRule' && !this.condition.scriptId) {
-                // eslint-disable-next-line vue/no-mutating-props
                 this.condition.type = null;
             }
         },
 
         changeItem(item) {
             const { type, scriptId, appScriptCondition } = item ?? {};
-            // eslint-disable-next-line vue/no-mutating-props
             this.condition.type = type;
-            // eslint-disable-next-line vue/no-mutating-props
             this.condition.scriptId = scriptId;
-            // eslint-disable-next-line vue/no-mutating-props
             this.condition.appScriptCondition = appScriptCondition;
         },
 
         changeType(type) {
-            // eslint-disable-next-line vue/no-mutating-props
             this.condition.value = null;
-
             if (this.condition[this.childAssociationField] && this.condition[this.childAssociationField].length > 0) {
                 this.condition[this.childAssociationField].forEach((child) => {
                     this.removeNodeFromTree(this.condition, child);
                 });
             }
-
-            // eslint-disable-next-line vue/no-mutating-props
             this.condition.type = type;
         },
 
@@ -149,59 +152,22 @@ Component.register('sw-condition-type-select', {
                 return { message: '', disabled: true };
             }
 
+            let assignments = '';
+            this.restrictedConditions[item.type].forEach((violation, index, allViolations) => {
+                assignments += `"${this.$tc(violation.snippet, 1)}"`;
+                if (index + 2 === allViolations.length) {
+                    assignments += ` ${this.$tc('sw-restricted-rules.and')} `;
+                } else if (index + 1 < allViolations.length) {
+                    assignments += ', ';
+                }
+            });
             return {
-                width: 260,
-                message: this.$t(
-                    'sw-restricted-rules.restrictedConditions.restrictedConditionTooltip',
-                    { assignments: this.groupAssignments(item) },
+                message: this.$tc(
+                    'sw-restricted-rules.restrictedConditions.restrictedPromotionConditionTooltip',
+                    {},
+                    { assignments: assignments },
                 ),
             };
-        },
-
-        groupAssignments(item) {
-            const groups = this.restrictedConditions[item.type].reduce((accumulator, current) => {
-                if (current.associationName.startsWith('flowTrigger')) {
-                    if (!accumulator.flowTrigger) {
-                        accumulator.flowTrigger = [];
-                    }
-
-                    accumulator.flowTrigger.push(current);
-                } else if (/promotion/i.test(current.associationName)) {
-                    if (!accumulator.promotion) {
-                        accumulator.promotion = [];
-                    }
-
-                    accumulator.promotion.push(current);
-                } else {
-                    if (!accumulator[current.associationName]) {
-                        accumulator[current.associationName] = [];
-                    }
-
-                    accumulator[current.associationName].push(current);
-                }
-
-                return accumulator;
-            }, {});
-
-            return Object.entries(groups).reduce((accumulator, [key, value], index) => {
-                let snippet = '';
-
-                value.forEach((currentValue, currentIndex) => {
-                    if (currentIndex > 0) {
-                        snippet += '<br />';
-                    }
-
-                    snippet += this.$t(`sw-restricted-rules.restrictedConditions.relation.${key}`, {
-                        assignments: `"${this.$tc(currentValue.snippet, 1)}"`,
-                    });
-                });
-
-                if (index > 0) {
-                    return `${accumulator} </br> ${snippet}`;
-                }
-
-                return `${accumulator} ${snippet}`;
-            }, '');
         },
     },
 });

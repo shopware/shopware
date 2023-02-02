@@ -4,13 +4,12 @@ namespace Shopware\Core\Content\Test\Media\Commands;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Commands\GenerateMediaTypesCommand;
-use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaType\MediaType;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
@@ -29,7 +28,7 @@ class GenerateMediaTypesCommandTest extends TestCase
     use MediaFixtures;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepositoryInterface
      */
     private $mediaRepository;
 
@@ -43,12 +42,15 @@ class GenerateMediaTypesCommandTest extends TestCase
      */
     private $urlGenerator;
 
-    private Context $context;
+    /**
+     * @var Context
+     */
+    private $context;
 
     /**
-     * @var array<string>
+     * @var array
      */
-    private array $initialMediaIds;
+    private $initialMediaIds;
 
     protected function setUp(): void
     {
@@ -59,9 +61,7 @@ class GenerateMediaTypesCommandTest extends TestCase
 
         $this->context = Context::createDefaultContext();
 
-        /** @var array<string> $ids */
-        $ids = $this->mediaRepository->searchIds(new Criteria(), $this->context)->getIds();
-        $this->initialMediaIds = $ids;
+        $this->initialMediaIds = $this->mediaRepository->searchIds(new Criteria(), $this->context)->getIds();
     }
 
     public function testExecuteHappyPath(): void
@@ -75,7 +75,7 @@ class GenerateMediaTypesCommandTest extends TestCase
 
         $mediaResult = $this->getNewMediaEntities();
         /** @var MediaEntity $updatedMedia */
-        foreach ($mediaResult as $updatedMedia) {
+        foreach ($mediaResult->getEntities() as $updatedMedia) {
             static::assertInstanceOf(MediaType::class, $updatedMedia->getMediaType());
         }
     }
@@ -109,7 +109,7 @@ class GenerateMediaTypesCommandTest extends TestCase
 
         $mediaResult = $this->getNewMediaEntities();
         /** @var MediaEntity $updatedMedia */
-        foreach ($mediaResult as $updatedMedia) {
+        foreach ($mediaResult->getEntities() as $updatedMedia) {
             static::assertNull($updatedMedia->getMediaType());
         }
     }
@@ -148,25 +148,25 @@ class GenerateMediaTypesCommandTest extends TestCase
         ], $this->context);
 
         $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaPng);
-        $this->getPublicFilesystem()->writeStream(
+        $this->getPublicFilesystem()->putStream(
             $filePath,
             fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'rb')
         );
 
         $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaJpg);
-        $this->getPublicFilesystem()->writeStream(
+        $this->getPublicFilesystem()->putStream(
             $filePath,
             fopen(__DIR__ . '/../fixtures/shopware.jpg', 'rb')
         );
 
         $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaPdf);
-        $this->getPublicFilesystem()->writeStream(
+        $this->getPublicFilesystem()->putStream(
             $filePath,
             fopen(__DIR__ . '/../fixtures/small.pdf', 'rb')
         );
     }
 
-    private function getNewMediaEntities(): MediaCollection
+    private function getNewMediaEntities()
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsAnyFilter('id', $this->initialMediaIds));
@@ -181,9 +181,6 @@ class GenerateMediaTypesCommandTest extends TestCase
             ]
         ));
 
-        $entities = $this->mediaRepository->search($criteria, $this->context)->getEntities();
-        static::assertInstanceOf(MediaCollection::class, $entities);
-
-        return $entities;
+        return $this->mediaRepository->search($criteria, $this->context);
     }
 }

@@ -6,9 +6,13 @@ const page = new ProductPageObject();
 
 describe('SDK Tests: Location', ()=> {
     beforeEach(() => {
-        cy.createProductFixture().then(() => {
-            return cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
-        })
+        cy.loginViaApi()
+            .then(() => {
+                return cy.createProductFixture();
+            })
+            .then(() => {
+                return cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
+            })
             .then(() => {
                 cy.log('Open example product');
 
@@ -25,7 +29,7 @@ describe('SDK Tests: Location', ()=> {
                 cy.clickContextMenuItem(
                     '.sw-entity-listing__context-menu-edit-action',
                     page.elements.contextMenuButton,
-                    `${page.elements.dataGridRow}--0`,
+                    `${page.elements.dataGridRow}--0`
                 );
 
                 cy.contains('.smart-bar__content', 'Product name');
@@ -35,7 +39,7 @@ describe('SDK Tests: Location', ()=> {
 
                 cy.getSDKiFrame('sw-main-hidden')
                     .should('exist');
-            });
+            })
     });
 
     it('@sdk: update the height of the location iFrame', { tags: ['ct-admin'] }, ()=> {
@@ -67,7 +71,7 @@ describe('SDK Tests: Location', ()=> {
 
         cy.get(`iframe[src*="location-id=location-index"]`)
             .should('have.attr', 'height', '456px');
-    });
+    })
 
     it('@sdk: start auto resizing of the iFrame height', { tags: ['ct-admin'] }, ()=> {
         cy.log('Go to specifications tab');
@@ -97,5 +101,5 @@ describe('SDK Tests: Location', ()=> {
          */
         cy.get(`iframe[src*="location-id=location-index"]`)
             .should('have.attr', 'height', '700px');
-    });
-});
+    })
+})

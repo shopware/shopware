@@ -7,7 +7,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Symfony\Component\DependencyInjection\Alias;
@@ -17,7 +16,6 @@ use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Symfony\Component\DependencyInjection\Reference;
 
-#[Package('core')]
 class SalesChannelEntityCompilerPass implements CompilerPassInterface
 {
     private const PREFIX = 'sales_channel_definition.';
@@ -89,8 +87,10 @@ class SalesChannelEntityCompilerPass implements CompilerPassInterface
 
             try {
                 $repository = $container->getDefinition($repositoryId);
+                //@deprecated tag:v6.5.0 (flag:FEATURE_NEXT_16155) - remove add method call
+                $repository->addMethodCall('setEntityLoadedEventFactory', [new Reference(EntityLoadedEventFactory::class)]);
                 $repository->setPublic(true);
-            } catch (ServiceNotFoundException) {
+            } catch (ServiceNotFoundException $exception) {
                 $repository = new Definition(
                     SalesChannelRepository::class,
                     [

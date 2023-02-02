@@ -1,13 +1,12 @@
 import template from './sw-extension-card-base.html.twig';
 import './sw-extension-card-base.scss';
 
-const { Utils, Filter } = Shopware;
+const { Component, Utils, Filter } = Shopware;
 
 /**
- * @package merchant-services
  * @private
  */
-export default {
+Component.register('sw-extension-card-base', {
     template,
 
     inheritAttrs: false,
@@ -33,6 +32,8 @@ export default {
             showPrivacyModal: false,
             permissionModalActionLabel: null,
             openLink: null,
+            // @deprecated tag:v6.5.0 - will be removed use openLinkExists instead
+            extensionCanBeOpened: false,
             showConsentAffirmationModal: false,
             consentAffirmationDeltas: null,
         };
@@ -51,12 +52,19 @@ export default {
             return {
                 'is--deactivated': this.isInstalled && !this.extension.active,
                 'deactivate-prevented': this.isActive && !this.allowDisable,
-                'is--not-installed': !this.isInstalled,
             };
         },
 
         licensedExtension() {
             return this.extension.storeLicense;
+        },
+
+        description() {
+            if (this.extension.shortDescription) {
+                return this.extension.shortDescription;
+            }
+
+            return this.extension.description;
         },
 
         image() {
@@ -98,6 +106,16 @@ export default {
 
         isInstalled() {
             return this.extension.installedAt !== null;
+        },
+
+        /* @deprecated tag:v6.5.0 - use data "extensionCanBeOpened" */
+        canBeOpened() {
+            return this.extensionCanBeOpened;
+        },
+
+        /* @deprecated tag:v6.5.0 - use data "openLink" */
+        openLinkInformation() {
+            return this.link;
         },
 
         privacyPolicyLink() {
@@ -383,4 +401,4 @@ export default {
             await this.updateExtension(true);
         },
     },
-};
+});

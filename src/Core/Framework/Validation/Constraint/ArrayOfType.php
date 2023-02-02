@@ -2,14 +2,12 @@
 
 namespace Shopware\Core\Framework\Validation\Constraint;
 
-use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraint;
 
-#[Package('core')]
 class ArrayOfType extends Constraint
 {
-    final public const INVALID_MESSAGE = 'This value "{{ value }}" should be of type {{ type }}.';
-    final public const INVALID_TYPE_MESSAGE = 'This value should be of type array.';
+    public const INVALID_MESSAGE = 'This value "{{ value }}" should be of type {{ type }}.';
+    public const INVALID_TYPE_MESSAGE = 'This value should be of type array.';
 
     /**
      * @var string

@@ -7,34 +7,36 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryE
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\PlatformRequest;
 use Shopware\Core\Test\TestDefaults;
-use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
  * @internal
  * @group store-api
  */
-#[Package('customer-order')]
 class ResetPasswordRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
-    private KernelBrowser $browser;
-
-    private TestDataCollection $ids;
+    /**
+     * @var \Symfony\Bundle\FrameworkBundle\KernelBrowser
+     */
+    private $browser;
 
     /**
-     * @var EntityRepository
+     * @var TestDataCollection
+     */
+    private $ids;
+
+    /**
+     * @var EntityRepositoryInterface
      */
     private $customerRepository;
 
@@ -62,7 +64,7 @@ class ResetPasswordRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('errors', $response);
         static::assertSame('CHECKOUT__CUSTOMER_RECOVERY_HASH_EXPIRED', $response['errors'][0]['code']);
@@ -87,7 +89,7 @@ class ResetPasswordRouteTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('customerId', $customerId));
 
-        /** @var EntityRepository $repo */
+        /** @var EntityRepositoryInterface $repo */
         $repo = $this->getContainer()->get('customer_recovery.repository');
 
         /** @var CustomerRecoveryEntity $recovery */
@@ -106,7 +108,7 @@ class ResetPasswordRouteTest extends TestCase
                 ]
             );
 
-        static::assertSame(200, $this->browser->getResponse()->getStatusCode(), (string) $this->browser->getResponse()->getContent());
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode(), $this->browser->getResponse()->getContent());
 
         $this->browser
             ->request(
@@ -118,11 +120,9 @@ class ResetPasswordRouteTest extends TestCase
                 ]
             );
 
-        $response = $this->browser->getResponse();
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
 
-        // After login successfully, the context token will be set in the header
-        $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
-        static::assertNotEmpty($contextToken);
+        static::assertArrayHasKey('contextToken', $response);
     }
 
     public function testSuccessResetWithLegacyPassword(): void
@@ -144,7 +144,7 @@ class ResetPasswordRouteTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('customerId', $customerId));
 
-        /** @var EntityRepository $repo */
+        /** @var EntityRepositoryInterface $repo */
         $repo = $this->getContainer()->get('customer_recovery.repository');
 
         /** @var CustomerRecoveryEntity $recovery */
@@ -163,7 +163,7 @@ class ResetPasswordRouteTest extends TestCase
                 ]
             );
 
-        static::assertSame(200, $this->browser->getResponse()->getStatusCode(), (string) $this->browser->getResponse()->getContent());
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode(), $this->browser->getResponse()->getContent());
 
         $this->browser
             ->request(
@@ -175,11 +175,9 @@ class ResetPasswordRouteTest extends TestCase
                 ]
             );
 
-        $response = $this->browser->getResponse();
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
 
-        // After login successfully, the context token will be set in the header
-        $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
-        static::assertNotEmpty($contextToken);
+        static::assertArrayHasKey('contextToken', $response);
 
         $criteria = new Criteria([$customerId]);
 

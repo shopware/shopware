@@ -7,7 +7,6 @@ use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexer;
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexingMessage;
 use Shopware\Core\Framework\Api\Controller\IndexingController;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,7 +14,6 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('system-settings')]
 class IndexingControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
@@ -28,7 +26,7 @@ class IndexingControllerTest extends TestCase
             ['offset' => 0]
         );
         $response = $this->getBrowser()->getResponse();
-        $response = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode($response->getContent(), true);
 
         static::assertTrue($response['finish']);
     }
@@ -54,7 +52,7 @@ class IndexingControllerTest extends TestCase
         $indexer = new IndexingController($registry, $this->getContainer()->get('messenger.bus.shopware'));
 
         $response = $indexer->iterate('product.indexer', new Request([], ['offset' => $offset]));
-        $response = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode($response->getContent(), true);
 
         if ($offset === 100) {
             static::assertTrue($response['finish']);

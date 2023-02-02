@@ -1,6 +1,4 @@
 /**
- * @package admin
- *
  * @fileoverview A twig and vue plugin
  * @author twig-vue
  */

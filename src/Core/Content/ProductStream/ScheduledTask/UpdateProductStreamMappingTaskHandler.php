@@ -3,29 +3,30 @@
 namespace Shopware\Core\Content\ProductStream\ScheduledTask;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-/**
- * @internal
- */
-#[AsMessageHandler(handles: UpdateProductStreamMappingTask::class)]
-#[Package('business-ops')]
-final class UpdateProductStreamMappingTaskHandler extends ScheduledTaskHandler
+class UpdateProductStreamMappingTaskHandler extends ScheduledTaskHandler
 {
+    private EntityRepositoryInterface $productStreamRepository;
+
     /**
      * @internal
      */
     public function __construct(
-        EntityRepository $repository,
-        private readonly EntityRepository $productStreamRepository
+        EntityRepositoryInterface $repository,
+        EntityRepositoryInterface $productStreamRepository
     ) {
         parent::__construct($repository);
+        $this->productStreamRepository = $productStreamRepository;
+    }
+
+    public static function getHandledMessages(): iterable
+    {
+        return [UpdateProductStreamMappingTask::class];
     }
 
     public function run(): void
@@ -39,7 +40,9 @@ final class UpdateProductStreamMappingTaskHandler extends ScheduledTaskHandler
 
         /** @var array<string> $streamIds */
         $streamIds = $this->productStreamRepository->searchIds($criteria, $context)->getIds();
-        $data = array_map(fn (string $id) => ['id' => $id], $streamIds);
+        $data = array_map(function (string $id) {
+            return ['id' => $id];
+        }, $streamIds);
 
         $this->productStreamRepository->update($data, $context);
     }

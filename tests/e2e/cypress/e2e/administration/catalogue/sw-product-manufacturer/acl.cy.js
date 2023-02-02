@@ -4,9 +4,12 @@ import ManufacturerPageObject from '../../../../support/pages/module/sw-manufact
 
 describe('Manufacturer: Test crud operations with ACL', () => {
     beforeEach(() => {
-        cy.createDefaultFixture('product-manufacturer').then(() => {
-            cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
-        });
+        cy.loginViaApi()
+            .then(() => {
+                return cy.createDefaultFixture('product-manufacturer');
+            }).then(() => {
+                cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
+            });
     });
 
     it('@general: read manufacturer with ACL, but without rights', { tags: ['pa-inventory'] }, () => {
@@ -25,8 +28,8 @@ describe('Manufacturer: Test crud operations with ACL', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'product_manufacturer',
-                role: 'viewer',
-            },
+                role: 'viewer'
+            }
         ]);
 
         cy.visit(`${Cypress.env('admin')}#/sw/manufacturer/index`);
@@ -51,16 +54,16 @@ describe('Manufacturer: Test crud operations with ACL', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'product_manufacturer',
-                role: 'viewer',
+                role: 'viewer'
             },
             {
                 key: 'product_manufacturer',
-                role: 'editor',
+                role: 'editor'
             },
             {
                 key: 'product_manufacturer',
-                role: 'creator',
-            },
+                role: 'creator'
+            }
         ]);
 
         cy.visit(`${Cypress.env('admin')}#/sw/manufacturer/index`);
@@ -70,7 +73,7 @@ describe('Manufacturer: Test crud operations with ACL', () => {
         // Request we want to wait for later
         cy.intercept({
             method: 'POST',
-            url: `**/${Cypress.env('apiPath')}/product-manufacturer`,
+            url: `**/${Cypress.env('apiPath')}/product-manufacturer`
         }).as('saveData');
 
         cy.contains(`${page.elements.smartBarHeader} > h2`, 'Manufacturer');
@@ -95,12 +98,12 @@ describe('Manufacturer: Test crud operations with ACL', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'product_manufacturer',
-                role: 'viewer',
+                role: 'viewer'
             },
             {
                 key: 'product_manufacturer',
-                role: 'editor',
-            },
+                role: 'editor'
+            }
         ]);
 
         cy.visit(`${Cypress.env('admin')}#/sw/manufacturer/index`);
@@ -110,7 +113,7 @@ describe('Manufacturer: Test crud operations with ACL', () => {
         // Request we want to wait for later
         cy.intercept({
             method: 'PATCH',
-            url: `**/${Cypress.env('apiPath')}/product-manufacturer/**`,
+            url: `**/${Cypress.env('apiPath')}/product-manufacturer/**`
         }).as('saveData');
 
         // Edit base data
@@ -133,16 +136,16 @@ describe('Manufacturer: Test crud operations with ACL', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'product_manufacturer',
-                role: 'viewer',
+                role: 'viewer'
             },
             {
                 key: 'product_manufacturer',
-                role: 'editor',
+                role: 'editor'
             },
             {
                 key: 'product_manufacturer',
-                role: 'deleter',
-            },
+                role: 'deleter'
+            }
         ]);
         cy.visit(`${Cypress.env('admin')}#/sw/manufacturer/index`);
         cy.get('.sw-skeleton').should('not.exist');
@@ -152,17 +155,17 @@ describe('Manufacturer: Test crud operations with ACL', () => {
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/product-manufacturer/**`,
-            method: 'delete',
+            method: 'delete'
         }).as('saveData');
 
         // Delete manufacturer
         cy.clickContextMenuItem(
             '.sw-context-menu-item--danger',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`,
+            `${page.elements.dataGridRow}--0`
         );
         cy.contains(`${page.elements.modal} ${page.elements.modal}__body p`,
-            'Are you sure you want to delete this item?',
+            'Are you sure you want to delete this item?'
         );
         cy.get(`${page.elements.modal}__footer ${page.elements.dangerButton}`).click();
         cy.get(page.elements.modal).should('not.exist');

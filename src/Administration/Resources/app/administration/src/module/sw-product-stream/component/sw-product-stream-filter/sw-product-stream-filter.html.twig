@@ -21,7 +21,6 @@
                     :key="index"
                     v-bind="{ field: fields[index], definition, index }"
                     :disabled="!acl.can('product_stream.editor')"
-                    :has-error="hasError"
                     @field-changed="updateFields"
                 />
                 {% endblock %}

@@ -8,7 +8,6 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition;
 use Shopware\Core\Checkout\Order\OrderEvents;
 use Shopware\Core\Checkout\Order\OrderStates;
-use Shopware\Core\Content\Product\DataAbstractionLayer\StockUpdate\StockUpdateFilterProvider;
 use Shopware\Core\Content\Product\Events\ProductNoLongerAvailableEvent;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -17,29 +16,31 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\ChangeSetAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\StateMachine\Event\StateMachineTransitionEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @internal
- */
-#[Package('core')]
 class StockUpdater implements EventSubscriberInterface
 {
+    private Connection $connection;
+
+    private EventDispatcherInterface $dispatcher;
+
     /**
      * @internal
      */
     public function __construct(
-        private readonly Connection $connection,
-        private readonly EventDispatcherInterface $dispatcher,
-        private readonly StockUpdateFilterProvider $stockUpdateFilter
+        Connection $connection,
+        EventDispatcherInterface $dispatcher
     ) {
+        $this->connection = $connection;
+        $this->dispatcher = $dispatcher;
     }
 
     /**
@@ -47,7 +48,7 @@ class StockUpdater implements EventSubscriberInterface
      *
      * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
      */
-    public static function getSubscribedEvents(): array
+    public static function getSubscribedEvents()
     {
         return [
             CheckoutOrderPlacedEvent::class => 'orderPlaced',
@@ -68,8 +69,11 @@ class StockUpdater implements EventSubscriberInterface
             if (!$command instanceof ChangeSetAware) {
                 continue;
             }
-            /** @var ChangeSetAware&WriteCommand $command */
+            /** @var ChangeSetAware|InsertCommand|UpdateCommand $command */
             if ($command->getDefinition()->getEntityName() !== OrderLineItemDefinition::ENTITY_NAME) {
+                continue;
+            }
+            if ($command instanceof InsertCommand) {
                 continue;
             }
             if ($command instanceof DeleteCommand) {
@@ -87,26 +91,17 @@ class StockUpdater implements EventSubscriberInterface
     public function orderPlaced(CheckoutOrderPlacedEvent $event): void
     {
         $ids = [];
-        foreach ($event->getOrder()->getLineItems() ?? [] as $lineItem) {
+        foreach ($event->getOrder()->getLineItems() as $lineItem) {
             if ($lineItem->getType() !== LineItem::PRODUCT_LINE_ITEM_TYPE) {
                 continue;
             }
 
-            $referencedId = $lineItem->getReferencedId();
-            if (!$referencedId) {
-                continue;
+            if (!\array_key_exists($lineItem->getReferencedId(), $ids)) {
+                $ids[$lineItem->getReferencedId()] = 0;
             }
 
-            if (!\array_key_exists($referencedId, $ids)) {
-                $ids[$referencedId] = 0;
-            }
-
-            $ids[$referencedId] += $lineItem->getQuantity();
+            $ids[$lineItem->getReferencedId()] += $lineItem->getQuantity();
         }
-
-        $filteredIds = $this->stockUpdateFilter->filterProductIdsForStockUpdates(\array_keys($ids), $event->getContext());
-
-        $ids = \array_filter($ids, static fn (string $id) => \in_array($id, $filteredIds, true), \ARRAY_FILTER_USE_KEY);
 
         // order placed event is a high load event. Because of the high load, we simply reduce the quantity here instead of executing the high costs `update` function
         $query = new RetryableQuery(
@@ -185,51 +180,67 @@ class StockUpdater implements EventSubscriberInterface
         }
 
         if ($event->getToPlace()->getTechnicalName() === OrderStates::STATE_COMPLETED) {
-            $products = $this->getProductsOfOrder($event->getEntityId(), $event->getContext());
-
-            $this->updateStockAndSales($products, -1);
+            $this->decreaseStock($event);
 
             return;
         }
 
         if ($event->getFromPlace()->getTechnicalName() === OrderStates::STATE_COMPLETED) {
-            $products = $this->getProductsOfOrder($event->getEntityId(), $event->getContext());
-
-            $this->updateStockAndSales($products, +1);
+            $this->increaseStock($event);
 
             return;
         }
 
         if ($event->getToPlace()->getTechnicalName() === OrderStates::STATE_CANCELLED || $event->getFromPlace()->getTechnicalName() === OrderStates::STATE_CANCELLED) {
-            $products = $this->getProductsOfOrder($event->getEntityId(), $event->getContext());
+            $products = $this->getProductsOfOrder($event->getEntityId());
 
             $ids = array_column($products, 'referenced_id');
 
             $this->updateAvailableStockAndSales($ids, $event->getContext());
 
             $this->updateAvailableFlag($ids, $event->getContext());
+
+            return;
         }
     }
 
-    /**
-     * @param list<string> $ids
-     */
     public function update(array $ids, Context $context): void
     {
         if ($context->getVersionId() !== Defaults::LIVE_VERSION) {
             return;
         }
 
-        $ids = $this->stockUpdateFilter->filterProductIdsForStockUpdates($ids, $context);
-
         $this->updateAvailableStockAndSales($ids, $context);
 
         $this->updateAvailableFlag($ids, $context);
     }
 
-    /**
-     * @param list<string> $ids
-     */
+    private function increaseStock(StateMachineTransitionEvent $event): void
+    {
+        $products = $this->getProductsOfOrder($event->getEntityId());
+
+        $ids = array_column($products, 'referenced_id');
+
+        $this->updateStock($products, +1);
+
+        $this->updateAvailableStockAndSales($ids, $event->getContext());
+
+        $this->updateAvailableFlag($ids, $event->getContext());
+    }
+
+    private function decreaseStock(StateMachineTransitionEvent $event): void
+    {
+        $products = $this->getProductsOfOrder($event->getEntityId());
+
+        $ids = array_column($products, 'referenced_id');
+
+        $this->updateStock($products, -1);
+
+        $this->updateAvailableStockAndSales($ids, $event->getContext());
+
+        $this->updateAvailableFlag($ids, $event->getContext());
+    }
+
     private function updateAvailableStockAndSales(array $ids, Context $context): void
     {
         $ids = array_filter(array_keys(array_flip($ids)));
@@ -307,9 +318,6 @@ GROUP BY product_id;
         }
     }
 
-    /**
-     * @param list<string> $ids
-     */
     private function updateAvailableFlag(array $ids, Context $context): void
     {
         $ids = array_filter(array_unique($ids));
@@ -336,7 +344,7 @@ GROUP BY product_id;
         ';
 
         RetryableQuery::retryable($this->connection, function () use ($sql, $context, $bytes): void {
-            $this->connection->executeStatement(
+            $this->connection->executeUpdate(
                 $sql,
                 ['ids' => $bytes, 'version' => Uuid::fromHexToBytes($context->getVersionId())],
                 ['ids' => Connection::PARAM_STR_ARRAY]
@@ -354,29 +362,23 @@ GROUP BY product_id;
         }
     }
 
-    /**
-     * @param list<array{referenced_id: string, quantity: string}> $products
-     */
-    private function updateStockAndSales(array $products, int $stockMultiplier): void
+    private function updateStock(array $products, int $multiplier): void
     {
         $query = new RetryableQuery(
             $this->connection,
-            $this->connection->prepare('UPDATE product SET stock = stock + :quantity, sales = sales - :quantity WHERE id = :id AND version_id = :version')
+            $this->connection->prepare('UPDATE product SET stock = stock + :quantity WHERE id = :id AND version_id = :version')
         );
 
         foreach ($products as $product) {
             $query->execute([
-                'quantity' => (int) $product['quantity'] * $stockMultiplier,
+                'quantity' => (int) $product['quantity'] * $multiplier,
                 'id' => Uuid::fromHexToBytes($product['referenced_id']),
                 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
             ]);
         }
     }
 
-    /**
-     * @return list<array{referenced_id: string, quantity: string}>
-     */
-    private function getProductsOfOrder(string $orderId, Context $context): array
+    private function getProductsOfOrder(string $orderId): array
     {
         $query = $this->connection->createQueryBuilder();
         $query->select(['referenced_id', 'quantity']);
@@ -388,11 +390,6 @@ GROUP BY product_id;
         $query->setParameter('version', Uuid::fromHexToBytes(Defaults::LIVE_VERSION));
         $query->setParameter('type', LineItem::PRODUCT_LINE_ITEM_TYPE);
 
-        /** @var list<array{referenced_id: string, quantity: string}> $result */
-        $result = $query->executeQuery()->fetchAllAssociative();
-
-        $filteredIds = $this->stockUpdateFilter->filterProductIdsForStockUpdates(\array_column($result, 'referenced_id'), $context);
-
-        return \array_filter($result, static fn (array $item) => \in_array($item['referenced_id'], $filteredIds, true));
+        return $query->execute()->fetchAll(\PDO::FETCH_ASSOC);
     }
 }

@@ -1,12 +1,9 @@
 import template from './sw-order-document-settings-credit-note-modal.html.twig';
 import './sw-order-document-settings-credit-note-modal.scss';
 
-/**
- * @package customer-order
- */
+const { Component } = Shopware;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.extend('sw-order-document-settings-credit-note-modal', 'sw-order-document-settings-modal', {
     template,
 
     data() {
@@ -33,7 +30,6 @@ export default {
 
             return items;
         },
-
         documentPreconditionsFulfilled() {
             return this.highlightedItems.length !== 0 && this.documentConfig.custom.invoiceNumber;
         },
@@ -82,4 +78,4 @@ export default {
             }
         },
     },
-};
+});

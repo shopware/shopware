@@ -16,9 +16,6 @@ jest.mock('src/plugin-system/plugin.manager', () => ({
     },
 }));
 
-/**
- * @package checkout
- */
 describe('AddToCartPlugin tests', () => {
 
     let pluginInstance;

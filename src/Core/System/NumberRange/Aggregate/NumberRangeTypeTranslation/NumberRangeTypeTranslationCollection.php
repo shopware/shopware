@@ -3,12 +3,10 @@
 namespace Shopware\Core\System\NumberRange\Aggregate\NumberRangeTypeTranslation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<NumberRangeTypeTranslationEntity>
  */
-#[Package('checkout')]
 class NumberRangeTypeTranslationCollection extends EntityCollection
 {
     /**
@@ -16,12 +14,16 @@ class NumberRangeTypeTranslationCollection extends EntityCollection
      */
     public function getNumberRangeTypeIds(): array
     {
-        return $this->fmap(fn (NumberRangeTypeTranslationEntity $numberRangeTypeTranslation) => $numberRangeTypeTranslation->getNumberRangeTypeId());
+        return $this->fmap(function (NumberRangeTypeTranslationEntity $numberRangeTypeTranslation) {
+            return $numberRangeTypeTranslation->getNumberRangeTypeId();
+        });
     }
 
     public function filterByNumberRangeTypeId(string $id): self
     {
-        return $this->filter(fn (NumberRangeTypeTranslationEntity $numberRangeTypeTranslation) => $numberRangeTypeTranslation->getNumberRangeTypeId() === $id);
+        return $this->filter(function (NumberRangeTypeTranslationEntity $numberRangeTypeTranslation) use ($id) {
+            return $numberRangeTypeTranslation->getNumberRangeTypeId() === $id;
+        });
     }
 
     /**
@@ -29,12 +31,16 @@ class NumberRangeTypeTranslationCollection extends EntityCollection
      */
     public function getLanguageIds(): array
     {
-        return $this->fmap(fn (NumberRangeTypeTranslationEntity $numberRangeTypeTranslation) => $numberRangeTypeTranslation->getLanguageId());
+        return $this->fmap(function (NumberRangeTypeTranslationEntity $numberRangeTypeTranslation) {
+            return $numberRangeTypeTranslation->getLanguageId();
+        });
     }
 
     public function filterByLanguageId(string $id): self
     {
-        return $this->filter(fn (NumberRangeTypeTranslationEntity $numberRangeTypeTranslation) => $numberRangeTypeTranslation->getLanguageId() === $id);
+        return $this->filter(function (NumberRangeTypeTranslationEntity $numberRangeTypeTranslation) use ($id) {
+            return $numberRangeTypeTranslation->getLanguageId() === $id;
+        });
     }
 
     public function getApiAlias(): string

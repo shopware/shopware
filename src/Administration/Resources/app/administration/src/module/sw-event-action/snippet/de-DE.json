@@ -1,0 +1,62 @@
+{
+  "sw-event-action": {
+    "general": {
+      "mainMenuItemGeneral": "Business-Events",
+      "placeholderSearchBar": "Durchsuche alle Events ...",
+      "descriptionTextModule": "Automatisiere Deinen E-Mail-Versand mit Business-Events"
+    },
+    "list": {
+      "textHeadline": "Business-Events",
+      "labelActionAdd": "Business-Event hinzufügen",
+      "columnEventName": "Event",
+      "columnSalesChannel": "Verkaufskanal",
+      "columnRules": "Regeln",
+      "columnMailTemplate": "E-Mail-Template",
+      "columnTitle": "Titel",
+      "columnActive": "Aktiv"
+    },
+    "detail": {
+      "titleNewEntity": "Neues Business-Event",
+      "fieldLabelEventName": "Event",
+      "fieldLabelSalesChannel": "Verkaufskanal",
+      "fieldLabelRules": "Regeln",
+      "fieldMailTemplate": "E-Mail-Template",
+      "fieldMailTemplateDetailLink": "E-Mail-Template öffnen",
+      "fieldLabelActive": "Aktiv",
+      "fieldLabelTitle": "Titel",
+      "placeholderTitle": "Titel eingeben...",
+      "placeholderEventName": "Wähle ein Event aus ...",
+      "placeholderRules": "Wähle Regeln aus ...",
+      "placeholderSalesChannels": "Wähle Verkaufskanäle aus...",
+      "placeholderMailTemplate": "Wähle ein E-Mail-Template aus ...",
+      "titleRecipientsCard": "E-Mail-Empfänger",
+      "textEmptyStateRecipients": "Alternative Empfänger hinzufügen - Wenn gesetzt, werden keine Kunden-E-Mails versendet!",
+      "columnRecipientName": "Name",
+      "columnRecipientMail": "E-Mail-Adresse",
+      "addRecipientButton": "Empfänger hinzufügen",
+      "placeholderRecipientEmailAddress": "E-Mail-Adresse eingeben ...",
+      "placeholderRecipientName": "Empfänger-Namen eingeben ..."
+    },
+    "deprecatedModal": {
+      "titleModal": "Flow Builder ersetzt Business-Events",
+      "titleFlowBuilder": "Was ist der Flow Builder?",
+      "linkLearnMore": "Mehr über den Flow Builder erfahren",
+      "textFlowBuilderDescription": "<p>Mit dem brandneuen Flow Builder kannst Du Deinen Shop durch ereignisbasierte Aktionen auf die nächste Stufe bringen. Du kannst nun Ereignis-Trigger zusammen mit Regeln verwenden und natürlich ist es weiterhin möglich, Aktionen und Ereignisse anzulegen, um den E-Mail-Versand zu automatisieren, URLs aufzurufen oder Bestellstatusänderungen durchzuführen.</p><p>Alle bisherigen Business-Events wurden bereits in den neuen Flow Builder migriert. Das Business-Events-Modul wird bis zum nächsten Shopware-Major-Release parallel zum Flow Builder bestehen bleiben. Mit der Shopware-Version 6.5.0.0 wird das Business-Events-Modul dann vollständig durch den Flow Builder ersetzt. Ereignisse, die durch externe Apps hinzugefügt wurden sind von der Migration ausgenommen und müssen mit zukünftigen Versionen dieser Apps integriert werden.</p><p>Du kannst die Business-Events weiterhin verwenden. Neu erstellte oder bearbeitete Business-Events werden jedoch mit dem nächsten Major-Release nicht mehr in den Flow Builder übernommen. Daher empfehlen wir Dir ausdrücklich, stattdessen unseren neuen Flow Builder zu verwenden. Verwende die Business-Events nur, wenn Du den Flow Builder nicht verwenden kannst (z.B. für Events von Drittanbieter-Erweiterungen/Apps).</p>",
+      "buttonStartBuilding": "Flow erstellen",
+      "linkFlowBuilder": "https://www.shopware.com/de/products/flow-builder/"
+    },
+    "deprecatedAlert": {
+      "textBusinessEvent": "Business-Events werden im nächsten Major-Release durch den <a href=\"#/sw/flow/index\" class=\"sw-event-action-deprecated-alert__link\">Flow Builder</a> ersetzt.",
+      "linkMoreInfo": "Mehr Informationen",
+      "textHide": "Verstecken",
+      "linkFlowBuilder": "https://www.shopware.com/de/products/flow-builder/"
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "event_action": {
+        "label": "Business-Events"
+      }
+    }
+  }
+}

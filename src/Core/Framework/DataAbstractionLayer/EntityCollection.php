@@ -2,14 +2,13 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
  * @template TElement of Entity
+ *
  * @extends Collection<TElement>
  */
-#[Package('core')]
 class EntityCollection extends Collection
 {
     public function __construct(iterable $elements = [])
@@ -46,12 +45,6 @@ class EntityCollection extends Collection
         });
     }
 
-    /**
-     * tag v6.6.0 Return type will be natively typed to `static`
-     *
-     * @return static
-     */
-    #[\ReturnTypeWillChange]
     public function filterByProperty(string $property, $value)
     {
         return $this->filter(
@@ -61,12 +54,6 @@ class EntityCollection extends Collection
         );
     }
 
-    /**
-     * tag v6.6.0 Return type will be natively typed to `static`
-     *
-     * @return static
-     */
-    #[\ReturnTypeWillChange]
     public function filterAndReduceByProperty(string $property, $value)
     {
         $filtered = [];
@@ -112,12 +99,6 @@ class EntityCollection extends Collection
         }
     }
 
-    /**
-     * tag v6.6.0 Return type will be natively typed to `static`
-     *
-     * @return static
-     */
-    #[\ReturnTypeWillChange]
     public function getList(array $ids)
     {
         return $this->createNew(array_intersect_key($this->elements, array_flip($ids)));

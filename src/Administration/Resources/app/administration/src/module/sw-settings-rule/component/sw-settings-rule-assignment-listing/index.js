@@ -1,10 +1,8 @@
 import template from './sw-settings-rule-assignment-listing.html.twig';
 
-/**
- * @private
- * @package business-ops
- */
-export default {
+const { Component } = Shopware;
+
+Component.extend('sw-settings-rule-assignment-listing', 'sw-entity-listing', {
     template,
 
     methods: {
@@ -17,4 +15,4 @@ export default {
             this.resetSelection();
         },
     },
-};
+});

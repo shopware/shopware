@@ -5,7 +5,6 @@ namespace Shopware\Core\Content\Media;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigCollection;
 use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
-use Shopware\Core\Checkout\Order\Aggregate\OrderLineItemDownload\OrderLineItemDownloadCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Content\Category\CategoryCollection;
@@ -17,7 +16,6 @@ use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollectio
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationCollection;
 use Shopware\Core\Content\Media\MediaType\MediaType;
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductDownload\ProductDownloadCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
@@ -25,12 +23,9 @@ use Shopware\Core\Framework\App\Aggregate\AppPaymentMethod\AppPaymentMethodColle
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Tag\TagCollection;
-use Shopware\Core\System\User\UserCollection;
 use Shopware\Core\System\User\UserEntity;
 
-#[Package('content')]
 class MediaEntity extends Entity
 {
     use EntityIdTrait;
@@ -67,14 +62,14 @@ class MediaEntity extends Entity
     protected $metaDataRaw;
 
     /**
-     * @internal
+     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
      *
      * @var string|null
      */
     protected $mediaTypeRaw;
 
     /**
-     * @var array<string, mixed>|null
+     * @var array|null
      */
     protected $metaData;
 
@@ -129,9 +124,9 @@ class MediaEntity extends Entity
     protected $productMedia;
 
     /**
-     * @var UserCollection|null
+     * @var UserEntity|null
      */
-    protected $avatarUsers;
+    protected $avatarUser;
 
     /**
      * @var MediaThumbnailCollection|null
@@ -174,7 +169,7 @@ class MediaEntity extends Entity
     protected $tags;
 
     /**
-     * @internal
+     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
      *
      * @var string|null
      */
@@ -229,10 +224,6 @@ class MediaEntity extends Entity
      * @var AppPaymentMethodCollection|null
      */
     protected $appPaymentMethods;
-
-    protected ?ProductDownloadCollection $productDownloads = null;
-
-    protected ?OrderLineItemDownloadCollection $orderLineItemDownloads = null;
 
     public function get(string $property)
     {
@@ -293,17 +284,11 @@ class MediaEntity extends Entity
         $this->title = $title;
     }
 
-    /**
-     * @return array<string, mixed>|null
-     */
     public function getMetaData(): ?array
     {
         return $this->metaData;
     }
 
-    /**
-     * @param array<string, mixed> $metaData
-     */
     public function setMetaData(array $metaData): void
     {
         $this->metaData = $metaData;
@@ -389,14 +374,14 @@ class MediaEntity extends Entity
         $this->productMedia = $productMedia;
     }
 
-    public function getAvatarUsers(): ?UserCollection
+    public function getAvatarUser(): ?UserEntity
     {
-        return $this->avatarUsers;
+        return $this->avatarUser;
     }
 
-    public function setAvatarUsers(UserCollection $avatarUsers): void
+    public function setAvatarUser(UserEntity $avatarUser): void
     {
-        $this->avatarUsers = $avatarUsers;
+        $this->avatarUser = $avatarUser;
     }
 
     public function getThumbnails(): ?MediaThumbnailCollection
@@ -477,7 +462,7 @@ class MediaEntity extends Entity
     }
 
     /**
-     * @internal
+     * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal from 6.5.0 onward
      */
     public function getMediaTypeRaw(): ?string
     {
@@ -487,7 +472,7 @@ class MediaEntity extends Entity
     }
 
     /**
-     * @internal
+     * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal from 6.5.0 onward
      */
     public function setMediaTypeRaw(string $mediaTypeRaw): void
     {
@@ -515,7 +500,7 @@ class MediaEntity extends Entity
     }
 
     /**
-     * @internal
+     * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal from 6.5.0 onward
      */
     public function getThumbnailsRo(): ?string
     {
@@ -525,7 +510,7 @@ class MediaEntity extends Entity
     }
 
     /**
-     * @internal
+     * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal from 6.5.0 onward
      */
     public function setThumbnailsRo(string $thumbnailsRo): void
     {
@@ -562,9 +547,6 @@ class MediaEntity extends Entity
         $this->paymentMethods = $paymentMethods;
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     public function jsonSerialize(): array
     {
         $data = parent::jsonSerialize();
@@ -651,25 +633,5 @@ class MediaEntity extends Entity
     public function setAppPaymentMethods(AppPaymentMethodCollection $appPaymentMethods): void
     {
         $this->appPaymentMethods = $appPaymentMethods;
-    }
-
-    public function getProductDownloads(): ?ProductDownloadCollection
-    {
-        return $this->productDownloads;
-    }
-
-    public function setProductDownloads(ProductDownloadCollection $productDownloads): void
-    {
-        $this->productDownloads = $productDownloads;
-    }
-
-    public function getOrderLineItemDownloads(): ?OrderLineItemDownloadCollection
-    {
-        return $this->orderLineItemDownloads;
-    }
-
-    public function setOrderLineItemDownloads(OrderLineItemDownloadCollection $orderLineItemDownloads): void
-    {
-        $this->orderLineItemDownloads = $orderLineItemDownloads;
     }
 }

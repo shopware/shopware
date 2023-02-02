@@ -1,13 +1,10 @@
-/**
- * @package system-settings
- */
 import template from './sw-settings-search-excluded-search-terms.html.twig';
 import './sw-settings-search-excluded-search-terms.scss';
 
-const { Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-settings-search-excluded-search-terms', {
     template,
 
     inject: [
@@ -279,4 +276,4 @@ export default {
                 });
         },
     },
-};
+});

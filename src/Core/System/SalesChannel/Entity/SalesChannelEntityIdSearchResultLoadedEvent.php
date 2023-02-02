@@ -6,15 +6,19 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityIdSearchResultLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('sales-channel')]
 class SalesChannelEntityIdSearchResultLoadedEvent extends EntityIdSearchResultLoadedEvent implements ShopwareSalesChannelEvent
 {
-    public function __construct(EntityDefinition $definition, IdSearchResult $result, private readonly SalesChannelContext $salesChannelContext)
+    /**
+     * @var SalesChannelContext
+     */
+    private $salesChannelContext;
+
+    public function __construct(EntityDefinition $definition, IdSearchResult $result, SalesChannelContext $salesChannelContext)
     {
         parent::__construct($definition, $result);
+        $this->salesChannelContext = $salesChannelContext;
     }
 
     public function getName(): string

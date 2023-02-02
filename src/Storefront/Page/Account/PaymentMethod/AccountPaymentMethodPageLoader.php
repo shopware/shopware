@@ -6,21 +6,33 @@ use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('storefront')]
 class AccountPaymentMethodPageLoader
 {
     /**
+     * @var GenericPageLoaderInterface
+     */
+    private $genericLoader;
+
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
+    /**
      * @internal
      */
-    public function __construct(private readonly GenericPageLoaderInterface $genericLoader, private readonly EventDispatcherInterface $eventDispatcher)
-    {
+    public function __construct(
+        GenericPageLoaderInterface $genericLoader,
+        EventDispatcherInterface $eventDispatcher
+    ) {
+        $this->genericLoader = $genericLoader;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**

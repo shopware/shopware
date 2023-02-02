@@ -3,29 +3,32 @@
 namespace Shopware\Storefront\Theme\Subscriber;
 
 use Doctrine\DBAL\Exception as DBALException;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
 use Shopware\Storefront\Theme\Event\ThemeCompilerEnrichScssVariablesEvent;
 use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-/**
- * @internal
- */
-#[Package('storefront')]
 class ThemeCompilerEnrichScssVarSubscriber implements EventSubscriberInterface
 {
+    private ConfigurationService $configurationService;
+
+    private StorefrontPluginRegistryInterface $storefrontPluginRegistry;
+
     /**
      * @internal
      */
-    public function __construct(private readonly ConfigurationService $configurationService, private readonly StorefrontPluginRegistryInterface $storefrontPluginRegistry)
-    {
+    public function __construct(
+        ConfigurationService $configurationService,
+        StorefrontPluginRegistryInterface $storefrontPluginRegistry
+    ) {
+        $this->configurationService = $configurationService;
+        $this->storefrontPluginRegistry = $storefrontPluginRegistry;
     }
 
     /**
      * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
      */
-    public static function getSubscribedEvents(): array
+    public static function getSubscribedEvents()
     {
         return [
             ThemeCompilerEnrichScssVariablesEvent::class => 'enrichExtensionVars',
@@ -79,7 +82,10 @@ class ThemeCompilerEnrichScssVarSubscriber implements EventSubscriberInterface
         }
     }
 
-    private function hasCssValue(mixed $element): bool
+    /**
+     * @param mixed $element
+     */
+    private function hasCssValue($element): bool
     {
         if (!\is_array($element)) {
             return false;

@@ -4,34 +4,33 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Write\Command;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\ImpossibleWriteOrderException;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\NoConstraint;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @internal
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
  */
-#[Package('core')]
 class WriteCommandQueue
 {
     /**
      * @var array<string, WriteCommand[]>
      */
-    private array $commands = [];
+    private $commands = [];
 
     /**
-     * @var array<string, WriteCommand[]>
+     * @var array[]
      */
-    private array $entityCommands = [];
+    private $entityCommands = [];
 
     /**
      * @var EntityDefinition[]
      */
-    private array $definitions = [];
+    private $definitions = [];
 
     public function add(EntityDefinition $senderIdentification, WriteCommand $command): void
     {
@@ -39,9 +38,11 @@ class WriteCommandQueue
 
         sort($primaryKey);
 
-        $primaryKey = array_map(static fn ($id) => Uuid::fromBytesToHex($id), $primaryKey);
+        $primaryKey = array_map(static function ($id) {
+            return Uuid::fromBytesToHex($id);
+        }, $primaryKey);
 
-        $hash = $senderIdentification->getEntityName() . ':' . md5(json_encode($primaryKey, \JSON_THROW_ON_ERROR));
+        $hash = $senderIdentification->getEntityName() . ':' . md5(json_encode($primaryKey));
 
         $this->commands[$senderIdentification->getEntityName()][] = $command;
 
@@ -52,39 +53,14 @@ class WriteCommandQueue
     /**
      * @throws ImpossibleWriteOrderException
      *
-     * @return list<WriteCommand>
+     * @return WriteCommand[]
      */
     public function getCommandsInOrder(): array
     {
-        $mapping = [];
-
-        $foreignKeys = [];
-
-        foreach ($this->commands as $entity => $grouped) {
-            $definition = $this->definitions[$entity];
-
-            // we need a foreign key mapping later on
-            foreach ($definition->getFields() as $field) {
-                if (!$field instanceof FkField) {
-                    continue;
-                }
-                $foreignKeys[$entity][$field->getStorageName()] = $field;
-            }
-
-            // now we create a primary key mapping which is used to identify if we have to insert some primaries first
-            foreach ($grouped as $command) {
-                if (!$command instanceof InsertCommand) {
-                    continue;
-                }
-
-                $key = self::createPrimaryHash($entity, $this->getDecodedPrimaryKey($command));
-
-                $mapping[$key] = true;
-            }
-        }
+        $commands = array_filter($this->commands);
 
         $order = [];
-        $commands = array_filter($this->commands);
+
         $counter = 0;
 
         while (!empty($commands)) {
@@ -95,23 +71,17 @@ class WriteCommandQueue
             }
 
             foreach ($commands as $definition => $defCommands) {
-                foreach ($defCommands as $index => $command) {
-                    $delay = $this->hasUnresolvedForeignKey($definition, $foreignKeys, $mapping, $command);
+                $dependencies = $this->hasDependencies($this->definitions[$definition], $commands);
 
-                    if ($delay) {
-                        continue;
-                    }
-
-                    $key = self::createPrimaryHash($definition, $this->getDecodedPrimaryKey($command));
-                    unset($mapping[$key]);
-
-                    $order[] = $command;
-                    unset($commands[$definition][$index]);
-
-                    if (empty($commands[$definition])) {
-                        unset($commands[$definition]);
-                    }
+                if (!empty($dependencies)) {
+                    continue;
                 }
+
+                foreach ($defCommands as $command) {
+                    $order[] = $command;
+                }
+
+                unset($commands[$definition]);
             }
         }
 
@@ -135,103 +105,85 @@ class WriteCommandQueue
 
         foreach ($commands as $command) {
             if (!$command instanceof $class) {
-                throw new WriteTypeIntendException($definition, $class, $command::class);
+                throw new WriteTypeIntendException($definition, $class, \get_class($command));
             }
         }
     }
 
-    /**
-     * @param array<string, string> $primaryKey
-     *
-     * @return WriteCommand[]
-     */
     public function getCommandsForEntity(EntityDefinition $definition, array $primaryKey): array
     {
-        $primaryKey = array_map(static fn (string $id) => Uuid::fromBytesToHex($id), $primaryKey);
+        $primaryKey = array_map(static function ($id) {
+            return Uuid::fromBytesToHex($id);
+        }, $primaryKey);
 
         sort($primaryKey);
 
-        $hash = $definition->getEntityName() . ':' . md5(json_encode($primaryKey, \JSON_THROW_ON_ERROR));
+        $hash = $definition->getEntityName() . ':' . md5(json_encode($primaryKey));
 
         return $this->entityCommands[$hash] ?? [];
     }
 
-    /**
-     * @return array<string, string>
-     */
-    private function getDecodedPrimaryKey(WriteCommand $command): array
+    private function hasDependencies(EntityDefinition $definition, array $commands): array
     {
-        $primaryKey = $command->getPrimaryKey();
+        $fields = $definition->getFields()
+            ->filter(static function (Field $field) use ($definition) {
+                if ($field instanceof ManyToOneAssociationField) {
+                    return true;
+                }
 
-        $mapped = [];
-        foreach ($command->getDefinition()->getPrimaryKeys() as $key) {
-            if ($key instanceof VersionField || $key instanceof ReferenceVersionField) {
-                continue;
-            }
-            if (!$key instanceof StorageAware) {
-                throw new \RuntimeException();
-            }
-            $mapped[$key->getStorageName()] = Uuid::fromBytesToHex($primaryKey[$key->getStorageName()]);
-        }
+                if (!$field instanceof OneToOneAssociationField) {
+                    return false;
+                }
 
-        sort($mapped);
+                $storage = $definition->getFields()->getByStorageName($field->getStorageName());
 
-        return $mapped;
-    }
+                return $storage instanceof FkField;
+            });
 
-    /**
-     * @param array<string, array<string, FkField>>  $foreignKeys
-     * @param array<string, bool> $mapping
-     */
-    private function hasUnresolvedForeignKey(string $entity, array $foreignKeys, array $mapping, WriteCommand $command): bool
-    {
-        // this definition has no foreign keys
-        if (!isset($foreignKeys[$entity])) {
-            return false;
-        }
+        $requiredToManyDefinitions = $definition->getFields()
+            ->filterInstance(OneToManyAssociationField::class)
+            ->fmap(function (OneToManyAssociationField $field) {
+                /** @var Field $storage */
+                $storage = $field->getReferenceDefinition()->getFields()->getByStorageName($field->getReferenceField());
 
-        // get access to all foreign keys of the definition
-        $fks = $foreignKeys[$entity];
+                if (!$storage->is(Required::class)) {
+                    return null;
+                }
 
-        // loop the command payload to check if there are foreign keys inside which are not persisted right now
-        foreach ($command->getPayload() as $key => $value) {
-            // no foreign key
-            if (!isset($fks[$key])) {
-                continue;
-            }
+                return $field->getReferenceDefinition()->getEntityName();
+            });
 
-            /** @var FkField $fk */
-            $fk = $fks[$key];
-            // check if the payload field is a foreign key which we have to consider
-            if (!$fk instanceof FkField || $value === null) {
+        $requiredToManyDefinitions = array_flip($requiredToManyDefinitions);
+
+        $dependencies = [];
+
+        /** @var ManyToOneAssociationField $dependency */
+        foreach ($fields as $dependency) {
+            $referenceDefinition = $dependency->getReferenceDefinition();
+
+            //skip self references, this dependencies are resolved by the ChildrenAssociationField
+            if ($referenceDefinition === $definition) {
                 continue;
             }
 
-            if ($fk->is(NoConstraint::class)) {
+            $class = $referenceDefinition->getEntityName();
+
+            //check if many to one has pending commands
+            if (!\array_key_exists($class, $commands)) {
                 continue;
             }
 
-            // create a hash for the foreign key which are used for the mapping
-            $primary = [$fk->getReferenceField() => Uuid::fromBytesToHex($value)];
+            // if the current dependency is defined also defined as OneToManyAssociationField and is required in the ReferenceDefinition, skip
+            // in this case the reference definition has a dependency on this definition
+            if (\array_key_exists($class, $requiredToManyDefinitions)) {
+                continue;
+            }
 
-            $hash = self::createPrimaryHash((string) $fk->getReferenceEntity(), $primary);
-
-            // check if the hash/primary isn't persisted yet
-            if (isset($mapping[$hash])) {
-                return true;
+            if (!empty($commands[$class])) {
+                $dependencies[] = $class;
             }
         }
 
-        return false;
-    }
-
-    /**
-     * @param array<string, string> $primary
-     */
-    private static function createPrimaryHash(string $entity, array $primary): string
-    {
-        sort($primary);
-
-        return $entity . '-' . \implode('-', $primary);
+        return $dependencies;
     }
 }

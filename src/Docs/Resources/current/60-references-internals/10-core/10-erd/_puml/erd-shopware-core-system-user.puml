@@ -1,0 +1,93 @@
+@startuml
+' uncomment the line below if you're using computer with a retina display
+' skinparam dpi 300
+!define Table(name,desc) class name as "desc" << (T,#FFAAAA) >>
+!define ForeignTable(name,desc) class name as "desc" << (T,#ada6a6) >>
+!define TranslationTable(name,desc) class name as "desc" << (I,#4286f4) >>
+' we use bold for primary key
+' green color for unique
+' and underscore for not_null
+!define primary_key(x) <b>x</b>
+!define unique(x) <color:green>x</color>
+!define not_null(x) <u>x</u>
+' other tags available:
+' <i></i>
+' <back:COLOR></color>, where color is a color name or html color code
+' (#FFAACC)
+' see: http://plantuml.com/classes.html#More
+hide methods
+hide stereotypes
+hide empty members
+skinparam backgroundColor #FFFFFF
+
+' entities
+
+Table(ShopwareCoreSystemUserUserDefinition, "user\n(Administration/ Management Account user)") {
+   primary_key(id) id
+   not_null(localeId) foreignKey
+   avatarId foreignKey
+   not_null(username) string
+   not_null(password) password
+   not_null(firstName) string
+   not_null(lastName) string
+   title string
+   not_null(email) string
+   active bool
+   admin bool
+   lastUpdatedPasswordAt dateTime
+   customFields customFields
+   storeToken string
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+}
+Table(ShopwareCoreSystemUserAggregateUserConfigUserConfigDefinition, "user_config\n(User Config)") {
+   primary_key(id) id
+   not_null(userId) foreignKey
+   not_null(key) string
+   value json
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+}
+Table(ShopwareCoreSystemUserAggregateUserAccessKeyUserAccessKeyDefinition, "user_access_key\n(oAuth access key)") {
+   primary_key(id) id
+   not_null(userId) foreignKey
+   not_null(accessKey) string
+   not_null(secretAccessKey) password
+   writeAccess bool
+   lastUsageAt dateTime
+   customFields customFields
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+}
+Table(ShopwareCoreSystemUserAggregateUserRecoveryUserRecoveryDefinition, "user_recovery\n(User / Account recovery process)") {
+   primary_key(id) id
+   not_null(hash) string
+   not_null(userId) foreignKey
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+}
+ForeignTable(ShopwareCoreSystemLocaleLocaleDefinition, "locale") {
+}
+ForeignTable(ShopwareCoreContentMediaMediaDefinition, "media") {
+}
+ForeignTable(ShopwareCoreSystemStateMachineAggregationStateMachineHistoryStateMachineHistoryDefinition, "state_machine_history") {
+}
+ForeignTable(ShopwareCoreContentImportExportAggregateImportExportLogImportExportLogDefinition, "import_export_log") {
+}
+ForeignTable(ShopwareCoreFrameworkApiAclRoleAclUserRoleDefinition, "acl_user_role") {
+}
+ForeignTable(ShopwareCoreCheckoutOrderOrderDefinition, "order") {
+}
+
+' relationshipd
+
+ShopwareCoreSystemUserUserDefinition --> ShopwareCoreSystemLocaleLocaleDefinition
+ShopwareCoreSystemUserUserDefinition --> ShopwareCoreContentMediaMediaDefinition
+ShopwareCoreSystemUserAggregateUserAccessKeyUserAccessKeyDefinition --> ShopwareCoreSystemUserUserDefinition
+ShopwareCoreSystemUserAggregateUserConfigUserConfigDefinition --> ShopwareCoreSystemUserUserDefinition
+ShopwareCoreSystemUserUserDefinition --> ShopwareCoreSystemStateMachineAggregationStateMachineHistoryStateMachineHistoryDefinition
+ShopwareCoreSystemUserUserDefinition --> ShopwareCoreContentImportExportAggregateImportExportLogImportExportLogDefinition
+ShopwareCoreSystemUserUserDefinition --> ShopwareCoreFrameworkApiAclRoleAclUserRoleDefinition
+ShopwareCoreSystemUserAggregateUserRecoveryUserRecoveryDefinition --> ShopwareCoreSystemUserUserDefinition
+ShopwareCoreSystemUserUserDefinition --> ShopwareCoreCheckoutOrderOrderDefinition
+@enduml

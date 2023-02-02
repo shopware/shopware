@@ -7,14 +7,12 @@ use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Tax\TaxCollection;
 use Shopware\Core\System\Unit\UnitCollection;
 
 /**
  * @extends EntityCollection<ProductEntity>
  */
-#[Package('inventory')]
 class ProductCollection extends EntityCollection
 {
     /**
@@ -22,15 +20,16 @@ class ProductCollection extends EntityCollection
      */
     public function getParentIds(): array
     {
-        /** @var list<string> $ids */
-        $ids = $this->fmap(fn (ProductEntity $product) => $product->getParentId());
-
-        return $ids;
+        return $this->fmap(function (ProductEntity $product) {
+            return $product->getParentId();
+        });
     }
 
     public function filterByParentId(string $id): self
     {
-        return $this->filter(fn (ProductEntity $product) => $product->getParentId() === $id);
+        return $this->filter(function (ProductEntity $product) use ($id) {
+            return $product->getParentId() === $id;
+        });
     }
 
     /**
@@ -38,15 +37,16 @@ class ProductCollection extends EntityCollection
      */
     public function getTaxIds(): array
     {
-        /** @var list<string> $ids */
-        $ids = $this->fmap(fn (ProductEntity $product) => $product->getTaxId());
-
-        return $ids;
+        return $this->fmap(function (ProductEntity $product) {
+            return $product->getTaxId();
+        });
     }
 
     public function filterByTaxId(string $id): self
     {
-        return $this->filter(fn (ProductEntity $product) => $product->getTaxId() === $id);
+        return $this->filter(function (ProductEntity $product) use ($id) {
+            return $product->getTaxId() === $id;
+        });
     }
 
     /**
@@ -54,15 +54,16 @@ class ProductCollection extends EntityCollection
      */
     public function getManufacturerIds(): array
     {
-        /** @var list<string> $ids */
-        $ids = $this->fmap(fn (ProductEntity $product) => $product->getManufacturerId());
-
-        return $ids;
+        return $this->fmap(function (ProductEntity $product) {
+            return $product->getManufacturerId();
+        });
     }
 
     public function filterByManufacturerId(string $id): self
     {
-        return $this->filter(fn (ProductEntity $product) => $product->getManufacturerId() === $id);
+        return $this->filter(function (ProductEntity $product) use ($id) {
+            return $product->getManufacturerId() === $id;
+        });
     }
 
     /**
@@ -70,35 +71,42 @@ class ProductCollection extends EntityCollection
      */
     public function getUnitIds(): array
     {
-        /** @var list<string> $ids */
-        $ids = $this->fmap(fn (ProductEntity $product) => $product->getUnitId());
-
-        return $ids;
+        return $this->fmap(function (ProductEntity $product) {
+            return $product->getUnitId();
+        });
     }
 
     public function filterByUnitId(string $id): self
     {
-        return $this->filter(fn (ProductEntity $product) => $product->getUnitId() === $id);
+        return $this->filter(function (ProductEntity $product) use ($id) {
+            return $product->getUnitId() === $id;
+        });
     }
 
     public function getTaxes(): TaxCollection
     {
         return new TaxCollection(
-            $this->fmap(fn (ProductEntity $product) => $product->getTax())
+            $this->fmap(function (ProductEntity $product) {
+                return $product->getTax();
+            })
         );
     }
 
     public function getManufacturers(): ProductManufacturerCollection
     {
         return new ProductManufacturerCollection(
-            $this->fmap(fn (ProductEntity $product) => $product->getManufacturer())
+            $this->fmap(function (ProductEntity $product) {
+                return $product->getManufacturer();
+            })
         );
     }
 
     public function getUnits(): UnitCollection
     {
         return new UnitCollection(
-            $this->fmap(fn (ProductEntity $product) => $product->getUnit())
+            $this->fmap(function (ProductEntity $product) {
+                return $product->getUnit();
+            })
         );
     }
 
@@ -150,7 +158,9 @@ class ProductCollection extends EntityCollection
 
     public function getCovers(): ProductMediaCollection
     {
-        return new ProductMediaCollection($this->fmap(fn (ProductEntity $product) => $product->getCover()));
+        return new ProductMediaCollection($this->fmap(function (ProductEntity $product) {
+            return $product->getCover();
+        }));
     }
 
     public function getApiAlias(): string

@@ -4,7 +4,7 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_snippet_set_list_search_bar %}
-    <template #search-bar>
+    <template slot="search-bar">
         <sw-search-bar
             initial-search-type="snippet"
             :placeholder="$tc('sw-settings-snippet.general.placeholderSearchBarSnippets')"
@@ -16,7 +16,7 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_snippet_list_smart_bar_header %}
-    <template #smart-bar-header>
+    <template slot="smart-bar-header">
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_snippet_list_smart_bar_header_title %}
         <h2
@@ -43,7 +43,7 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_snippet_list_smart_bar_actions %}
-    <template #smart-bar-actions>
+    <template slot="smart-bar-actions">
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_snippet_list_smart_bar_actions_add %}
         <sw-button
@@ -60,7 +60,7 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_snippet_list_content %}
-    <template #content>
+    <template slot="content">
         <div class="sw-settings-snippet-list__content">
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -89,7 +89,8 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_snippet_list_column_id %}
                 <template
-                    #column-id="{ item, isInlineEdit }"
+                    slot="column-id"
+                    slot-scope="{ item, isInlineEdit }"
                 >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_snippet_list_column_id_inline_edit %}
@@ -119,7 +120,8 @@
                 {% block sw_settings_snippet_list_column_value %}
                 <template
                     v-for="set in snippetSets"
-                    #[`column-${set.id}`]="{ item, compact, isInlineEdit }"
+                    :slot="`column-${set.id}`"
+                    slot-scope="{ item, compact, isInlineEdit }"
                 >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_snippet_list_column_value_inline_edit %}
@@ -144,7 +146,10 @@
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_snippet_list_grid_column_actions %}
-                <template #actions="{ item }">
+                <template
+                    slot="actions"
+                    slot-scope="{ item }"
+                >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_snippet_list_grid_column_actions_edit %}
                     <sw-context-menu-item
@@ -179,7 +184,8 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_snippet_list_delete_modal %}
                 <template
-                    #action-modals="{ item }"
+                    slot="action-modals"
+                    slot-scope="{ item }"
                 >
                     <sw-modal
                         v-if="showDeleteModal === item"
@@ -223,7 +229,8 @@
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_snippet_list_delete_modal_grid_template %}
                             <template
-                                #columns="{ item }"
+                                slot="columns"
+                                slot-scope="{ item }"
                             >
                                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_settings_snippet_list_delete_modal_grid_name %}
@@ -262,30 +269,31 @@
 
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_snippet_list_delete_modal_footer %}
-                        <template #modal-footer>
-                            <div class="sw-settings-snippet-list__delete-modal-footer">
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                                {% block sw_settings_snippet_list_delete_modal_cancel %}
-                                <sw-button
-                                    size="small"
-                                    @click="onCloseDeleteModal"
-                                >
-                                    {{ $tc('sw-settings-snippet.list.buttonCancel', item.isCustomSnippet) }}
-                                </sw-button>
-                                {% endblock %}
+                        <template
+                            slot="modal-footer"
+                            class="sw-settings-snippet-list__delete-modal-footer"
+                        >
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_settings_snippet_list_delete_modal_cancel %}
+                            <sw-button
+                                size="small"
+                                @click="onCloseDeleteModal"
+                            >
+                                {{ $tc('sw-settings-snippet.list.buttonCancel', item.isCustomSnippet) }}
+                            </sw-button>
+                            {% endblock %}
 
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                                {% block sw_settings_snippet_list_delete_modal_confirm %}
-                                <sw-button
-                                    :disabled="hasResetableItems && !item.isCustomSnippet && resetItems.length !== 1"
-                                    variant="danger"
-                                    size="small"
-                                    @click="onConfirmReset(item)"
-                                >
-                                    {{ $tc('sw-settings-snippet.list.contextMenuDelete', item.isCustomSnippet) }}
-                                </sw-button>
-                                {% endblock %}
-                            </div>
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_settings_snippet_list_delete_modal_confirm %}
+                            <sw-button
+                                :disabled="hasResetableItems && !item.isCustomSnippet && resetItems.length !== 1"
+                                variant="danger"
+                                size="small"
+                                @click="onConfirmReset(item)"
+                            >
+                                {{ $tc('sw-settings-snippet.list.contextMenuDelete', item.isCustomSnippet) }}
+                            </sw-button>
+                            {% endblock %}
                         </template>
                         {% endblock %}
                     </sw-modal>
@@ -296,7 +304,7 @@
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_snippet_list_grid_pagination %}
-                <template #pagination>
+                <template slot="pagination">
                     <sw-pagination
                         :page="page"
                         :limit="limit"
@@ -313,15 +321,13 @@
         </div>
     </template>
 
-    <template #sidebar>
+    <template slot="sidebar">
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_snippet_list_grid_sidebar %}
         <sw-settings-snippet-sidebar
             class="sw-settings-snippet-list__grid-sidebar"
             :filter-items="filterItems"
             :author-filters="authorFilters"
-            :filter-settings="filterSettings"
-            @sidebar-reset-all="onResetAll"
             @change="onChange"
             @sw-sidebar-collaps-refresh-grid="getList"
             @sw-sidebar-close="onSidebarClose"

@@ -1,16 +1,12 @@
-/*
- * @package inventory
- */
-
 import template from './sw-product-variants-overview.html.twig';
 import './sw-products-variants-overview.scss';
 
-const { Mixin, Context } = Shopware;
+const { Component, Mixin, Context } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapState, mapGetters } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-product-variants-overview', {
     template,
 
     inject: [
@@ -29,12 +25,6 @@ export default {
             type: Array,
             required: true,
         },
-
-        productStates: {
-            type: Array,
-            required: false,
-            default: () => ['all'],
-        },
     },
 
     data() {
@@ -50,6 +40,8 @@ export default {
             filterWindowOpen: false,
             showBulkEditModal: false,
             toBeDeletedVariantIds: [],
+            // @deprecated tag:v6.5.0 - Will be removed
+            toBeDeletedVariantId: null,
         };
     },
 
@@ -76,16 +68,8 @@ export default {
             return this.repositoryFactory.create(this.product.media.entity);
         },
 
-        mediaRepository() {
-            return this.repositoryFactory.create('media');
-        },
-
-        productDownloadRepository() {
-            return this.repositoryFactory.create('product_download');
-        },
-
         variantColumns() {
-            const columns = [
+            return [
                 {
                     property: 'name',
                     label: this.$tc('sw-product.variations.generatedListColumnVariation'),
@@ -122,18 +106,6 @@ export default {
                     align: 'center',
                 },
             ];
-
-            // adding download files to second last index
-            if (this.productStates.includes('is-download')) {
-                columns.splice(columns.length - 1, 0, {
-                    property: 'downloads',
-                    label: this.$tc('sw-product.variations.generatedListColumnDownload'),
-                    allowResize: true,
-                    inlineEdit: true,
-                    sortable: false,
-                });
-            }
-            return columns;
         },
 
         currencyColumns() {
@@ -164,73 +136,12 @@ export default {
     },
 
     watch: {
-        selectedGroups: {
-            immediate: true,
-            handler() {
-                if (!this.selectedGroups || this.selectedGroups.length === 0) {
-                    return;
-                }
-
-                this.getFilterOptions();
-            },
-        },
-
-        productStates() {
-            this.getList();
+        selectedGroups() {
+            this.getFilterOptions();
         },
     },
 
-
     methods: {
-        removeFile(fileName, item) {
-            if (item.downloads.length === 1) {
-                return;
-            }
-
-            item.downloads = item.downloads
-                .filter(download => `${download.media.fileName}.${download.media.fileExtension}` !== fileName);
-
-            this.productRepository.save(item);
-        },
-
-        mediaExists(files, targetId) {
-            return files.some(({ id }) => {
-                return id === targetId;
-            });
-        },
-
-        successfulUpload(event, item) {
-            this.mediaRepository.get(event.targetId, Context.api).then((media) => {
-                if (this.mediaExists(this.getDownloadsSource(item), event.targetId)) {
-                    return;
-                }
-
-                const newDownload = this.productDownloadRepository.create(Context.api);
-                newDownload.mediaId = event.targetId;
-                newDownload.productId = item.id;
-                newDownload.media = media;
-
-                Shopware.State.commit('swProductDetail/setVariants', this.variants.map((variant) => {
-                    if (variant.id === item.id) {
-                        variant.downloads.push(newDownload);
-                        this.productRepository.save(variant);
-                    }
-                    return variant;
-                }));
-            });
-        },
-
-        getDownloadsSource(item) {
-            if (!item.downloads) {
-                return [];
-            }
-
-            return item.downloads.map((download) => {
-                return download.media;
-            });
-        },
-
-
         getList() {
             // Promise needed for inline edit error handling
             return new Promise((resolve) => {
@@ -239,18 +150,12 @@ export default {
                 // Get criteria for search and for option sorting
                 const searchCriteria = new Criteria(1, 25);
 
-                const productStates = this.productStates.filter((state) => state !== 'all');
-                const productStatesFilter = productStates.map((productState) => {
-                    return Criteria.equals('states', productState);
-                });
-
                 // Criteria for Search
                 searchCriteria.setTotalCountMode(1);
                 searchCriteria
                     .setPage(this.page)
                     .setLimit(this.limit)
-                    .addFilter(Criteria.equals('product.parentId', this.product.id))
-                    .addFilter(Criteria.multi('AND', productStatesFilter));
+                    .addFilter(Criteria.equals('product.parentId', this.product.id));
 
                 searchCriteria
                     .getAssociation('media')
@@ -259,10 +164,6 @@ export default {
                 searchCriteria.getAssociation('options')
                     .addSorting(Criteria.sort('groupId'))
                     .addSorting(Criteria.sort('id'));
-
-                if (productStates.includes('is-download')) {
-                    searchCriteria.addAssociation('downloads.media');
-                }
 
                 // Add search term
                 this.buildSearchQuery(searchCriteria);
@@ -595,7 +496,8 @@ export default {
         },
 
         /* eslint-disable no-unused-vars */
-        onConfirmDelete() {
+        /* @deprecated tag:v6.5.0 item parameter will no longer required */
+        onConfirmDelete(item) {
             this.modalLoading = true;
             this.showDeleteModal = false;
             const variantIds = this.toBeDeletedVariantIds.map(variant => variant.id);
@@ -667,9 +569,5 @@ export default {
 
             this.showDeleteModal = true;
         },
-
-        variantIsDigital(variant) {
-            return this.productStates.includes('all') && variant.states && variant.states.includes('is-download');
-        },
     },
-};
+});

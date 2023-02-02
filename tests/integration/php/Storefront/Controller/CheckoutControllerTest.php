@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Storefront\Controller;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -23,7 +24,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
@@ -304,7 +305,9 @@ class CheckoutControllerTest extends TestCase
 
         $crawler = new Crawler();
         $crawler->addHtmlContent($contentReturn);
-        $errorContent = implode('', $crawler->filterXPath('//div[@class="alert-content"]')->each(static fn ($node) => $node->text()));
+        $errorContent = implode('', $crawler->filterXPath('//div[@class="alert-content"]')->each(static function ($node) {
+            return $node->text();
+        }));
         foreach ($errorKeys as $errorKey) {
             static::assertStringContainsString($errorKey, $errorContent);
         }
@@ -632,7 +635,7 @@ class CheckoutControllerTest extends TestCase
 
         $orderId = mb_substr($response->getTargetUrl(), -self::UUID_LENGTH);
 
-        /** @var EntityRepository $orderRepo */
+        /** @var EntityRepositoryInterface $orderRepo */
         $orderRepo = $this->getContainer()->get('order.repository');
 
         /** @var OrderEntity|null $order */
@@ -671,7 +674,7 @@ class CheckoutControllerTest extends TestCase
                 'defaultPaymentMethodId' => $paymentMethodId,
                 'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => Uuid::randomHex() . '@example.com',
-                'password' => 'not12345',
+                'password' => 'not',
                 'firstName' => 'Test',
                 'lastName' => self::CUSTOMER_NAME,
                 'salutationId' => $salutationId,
@@ -953,7 +956,7 @@ class CheckoutControllerTest extends TestCase
             return;
         }
 
-        static::fail(\sprintf('Could not provoke error of type %s. Did you forget to implement it?', $error::class));
+        static::fail(\sprintf('Could not provoke error of type %s. Did you forget to implement it?', \get_class($error)));
     }
 
     private function createAvailabilityRule(string $salesChannelId): string

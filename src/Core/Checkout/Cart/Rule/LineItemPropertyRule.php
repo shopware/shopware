@@ -3,25 +3,33 @@
 namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-#[Package('business-ops')]
 class LineItemPropertyRule extends Rule
 {
-    final public const RULE_NAME = 'cartLineItemProperty';
+    /**
+     * @var array<string>
+     */
+    protected array $identifiers;
+
+    protected string $operator;
 
     /**
-     * @param list<string> $identifiers
-     *
      * @internal
      */
-    public function __construct(protected array $identifiers = [], protected string $operator = self::OPERATOR_EQ)
+    public function __construct(array $identifiers = [], string $operator = self::OPERATOR_EQ)
     {
         parent::__construct();
+        $this->identifiers = $identifiers;
+        $this->operator = $operator;
+    }
+
+    public function getName(): string
+    {
+        return 'cartLineItemProperty';
     }
 
     public function match(RuleScope $scope): bool
@@ -34,7 +42,7 @@ class LineItemPropertyRule extends Rule
             return false;
         }
 
-        foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
+        foreach ($scope->getCart()->getLineItems()->getFlat() as $lineItem) {
             if ($this->lineItemMatch($lineItem)) {
                 return true;
             }
@@ -55,8 +63,6 @@ class LineItemPropertyRule extends Rule
     {
         $properties = $lineItem->getPayloadValue('propertyIds') ?? [];
         $options = $lineItem->getPayloadValue('optionIds') ?? [];
-
-        /** @var list<string> $ids */
         $ids = array_merge($properties, $options);
 
         return RuleComparison::uuids($ids, $this->identifiers, $this->operator);

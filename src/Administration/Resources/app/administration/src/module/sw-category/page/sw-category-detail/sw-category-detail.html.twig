@@ -104,7 +104,7 @@
             class="sw-category-detail__category-collapse"
             :expand-on-loading="landingPageId === null"
         >
-            <template #header>
+            <template slot="header">
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_category_collapse_header %}
@@ -124,7 +124,7 @@
 
             </template>
 
-            <template #actions>
+            <template slot="actions">
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_category_collapse_actions %}
@@ -142,7 +142,7 @@
 
             </template>
 
-            <template #content>
+            <template slot="content">
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_category_tree %}
@@ -168,7 +168,7 @@
             class="sw-category-detail__landing-page-collapse"
             :expand-on-loading="landingPageId !== null"
         >
-            <template #header>
+            <template slot="header">
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_landing_page_collapse_header %}
@@ -188,7 +188,7 @@
 
             </template>
 
-            <template #actions>
+            <template slot="actions">
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_landing_page_collapse_actions %}
@@ -206,7 +206,7 @@
 
             </template>
 
-            <template #content>
+            <template slot="content">
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_landing_page_tree %}
@@ -276,6 +276,10 @@
             />
             {% endblock %}
 
+            {# @deprecated tag:v6.5.0 - will be removed #}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_category_content_loader %}{% endblock %}
+
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_category_content_empty %}
             <sw-empty-state
@@ -292,6 +296,22 @@
         {% endblock %}
 
         </template>
+    </template>
+
+    {% endblock %}
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_category_sidebar %}
+    <template #sidebar>
+        <sw-sidebar>
+            <sw-sidebar-media-item ref="mediaSidebarItem">
+                <template #context-menu-items="media">
+                    <sw-context-menu-item @click="setMediaItemFromSidebar(media.mediaItem)">
+                        {{ $tc('sw-category.general.useAsLogo') }}
+                    </sw-context-menu-item>
+                </template>
+            </sw-sidebar-media-item>
+        </sw-sidebar>
     </template>
     {% endblock %}
 

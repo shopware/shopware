@@ -4,9 +4,7 @@ namespace Shopware\Core\Checkout\Cart\Address\Error;
 
 use Shopware\Core\Checkout\Cart\Error\ErrorRoute;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('checkout')]
 class ShippingAddressSalutationMissingError extends SalutationMissingError
 {
     protected const KEY = parent::KEY . '-shipping-address';

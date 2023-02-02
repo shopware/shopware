@@ -14,15 +14,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Tax\Aggregate\TaxRuleType\TaxRuleTypeDefinition;
 use Shopware\Core\System\Tax\TaxDefinition;
 
-#[Package('customer-order')]
 class TaxRuleDefinition extends EntityDefinition
 {
-    final public const ENTITY_NAME = 'tax_rule';
+    public const ENTITY_NAME = 'tax_rule';
 
     public function getEntityName(): string
     {
@@ -52,7 +50,7 @@ class TaxRuleDefinition extends EntityDefinition
             (new FkField('country_id', 'countryId', CountryDefinition::class))->addFlags(new Required()),
             (new FloatField('tax_rate', 'taxRate'))->addFlags(new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             new JsonField('data', 'data', [
-                new ListField('states', 'states'),
+                (new ListField('states', 'states'))->setStrict(true),
                 new StringField('zipCode', 'zipCode'),
                 new StringField('fromZipCode', 'fromZipCode'),
                 new StringField('toZipCode', 'toZipCode'),

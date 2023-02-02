@@ -1,11 +1,12 @@
 import template from './sw-extension-deactivation-modal.html.twig';
 import './sw-extension-deactivation-modal.scss';
 
+const { Component } = Shopware;
+
 /**
- * @package merchant-services
  * @private
  */
-export default {
+Component.register('sw-extension-deactivation-modal', {
     template,
 
     props: {
@@ -25,15 +26,12 @@ export default {
 
     computed: {
         removeHint() {
-            return this.$tc(
-                'sw-extension-store.component.sw-extension-deactivation-modal.descriptionCancel',
-                0,
+            return this.$tc('sw-extension-store.component.sw-extension-deactivation-modal.descriptionCancel', 0,
                 {
                     removeLabel: this.isLicensed ?
                         this.$tc('sw-extension-store.component.sw-extension-card-base.contextMenu.cancelAndRemoveLabel') :
                         this.$tc('sw-extension-store.component.sw-extension-card-base.contextMenu.removeLabel'),
-                },
-            );
+                });
         },
     },
 
@@ -50,4 +48,4 @@ export default {
             this.$emit('extension-deactivate');
         },
     },
-};
+});

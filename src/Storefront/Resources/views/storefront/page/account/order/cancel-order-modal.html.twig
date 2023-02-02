@@ -22,7 +22,7 @@
                                 {% block page_checkout_aside_cancel_order_modal_header_close_button %}
                                     <button class="close"
                                             type="button"
-                                            data-bs-dismiss="modal"
+                                            {{ dataBsDismissAttr }}="modal"
                                             aria-label="Close">
                                         {% sw_icon 'x' %}
                                     </button>
@@ -49,6 +49,11 @@
                                 {% block page_checkout_aside_cancel_order_modal_footer_form %}
                                     <form action="{{ path('frontend.account.order.cancel') }}"
                                           method="post">
+
+                                        {% block page_checkout_aside_cancel_order_modal_footer_form_csrf %}
+                                            {{ sw_csrf('frontend.account.order.cancel') }}
+                                        {% endblock %}
+
                                         {% block page_checkout_aside_cancel_order_modal_footer_form_deeplinkcode %}
                                             <input type="hidden"
                                                    name="deepLinkCode"
@@ -70,7 +75,7 @@
                                         {% block page_checkout_aside_cancel_order_modal_header_back_button %}
                                             <button class="btn"
                                                     type="button"
-                                                    data-bs-dismiss="modal">
+                                                    {{ dataBsDismissAttr }}="modal">
                                                 {{ "account.editOrderCancelOrderModalFooterButtonBack"|trans|sw_sanitize }}
                                             </button>
                                         {% endblock %}

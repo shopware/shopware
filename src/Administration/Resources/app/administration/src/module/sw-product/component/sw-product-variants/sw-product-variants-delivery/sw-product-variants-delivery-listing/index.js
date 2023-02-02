@@ -1,14 +1,11 @@
-/*
- * @package inventory
- */
-
 import template from './sw-product-variants-delivery-listing.html.twig';
 import './sw-product-variants-delivery-listing.scss';
 
+const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-product-variants-delivery-listing', {
     template,
 
     props: {
@@ -120,6 +117,10 @@ export default {
 
     methods: {
         createdComponent() {
+            if (!this.product.variantListingConfig) {
+                this.product.variantListingConfig = {};
+            }
+
             this.updateListingMode(this.listingMode);
         },
 
@@ -140,9 +141,7 @@ export default {
         },
 
         isActiveGroupInListing(groupId) {
-            const configuratorGroupConfig = this.product.variantListingConfig?.configuratorGroupConfig || [];
-
-            if (!configuratorGroupConfig.length) {
+            if (!this.product.variantListingConfig.configuratorGroupConfig) {
                 return false;
             }
 
@@ -154,7 +153,7 @@ export default {
         },
 
         onChangeGroupListing(value, groupId) {
-            const configuratorGroupConfig = this.product.variantListingConfig?.configuratorGroupConfig || [];
+            const configuratorGroupConfig = this.product.variantListingConfig.configuratorGroupConfig || [];
             const existingGroup = configuratorGroupConfig.find((group) => group.id === groupId);
 
             if (existingGroup) {
@@ -191,4 +190,4 @@ export default {
             this.searchTerm = '';
         },
     },
-};
+});

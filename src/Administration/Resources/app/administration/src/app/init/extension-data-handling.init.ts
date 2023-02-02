@@ -1,15 +1,8 @@
-/**
- * @package admin
- */
-
 import type { Entity } from '@shopware-ag/admin-extension-sdk/es/data/_internals/Entity';
 import type EntityCollection from '../../core/data/entity-collection.data';
 import type Repository from '../../core/data/repository.data';
 
-function getRepository(
-    entityName: keyof EntitySchema.Entities,
-    additionalInformation: { _event_: MessageEvent<string>},
-): Repository<keyof EntitySchema.Entities> | null {
+function getRepository(entityName: string, additionalInformation: { _event_: MessageEvent<string>}): Repository | null {
     const extensionName = Object.keys(Shopware.State.get('extensions'))
         .find(key => Shopware.State.get('extensions')[key].baseUrl.startsWith(additionalInformation._event_.origin));
 
@@ -35,9 +28,7 @@ function rejectRepositoryCreation(entityName: string): unknown {
     return Promise.reject(`Could not create repository for entity "${entityName}"`);
 }
 
-/**
- * @deprecated tag:v6.6.0 - Will be private
- */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function initializeExtensionDataLoader(): void {
     Shopware.ExtensionAPI.handle('repositorySearch', (
         {
@@ -47,11 +38,9 @@ export default function initializeExtensionDataLoader(): void {
         },
         additionalInformation,
     ) => {
-        const repository = getRepository(entityName as keyof EntitySchema.Entities, additionalInformation);
+        const repository = getRepository(entityName, additionalInformation);
         if (!repository) {
-            return rejectRepositoryCreation(
-                entityName as keyof EntitySchema.Entities,
-            ) as Promise<EntityCollection<keyof EntitySchema.Entities>>;
+            return rejectRepositoryCreation(entityName) as Promise<EntityCollection>;
         }
 
         const mergedContext = { ...Shopware.Context.api, ...context };
@@ -68,9 +57,9 @@ export default function initializeExtensionDataLoader(): void {
         },
         additionalInformation,
     ) => {
-        const repository = getRepository(entityName as keyof EntitySchema.Entities, additionalInformation);
+        const repository = getRepository(entityName, additionalInformation);
         if (!repository) {
-            return rejectRepositoryCreation(entityName as keyof EntitySchema.Entities) as Promise<null>;
+            return rejectRepositoryCreation(entityName) as Promise<null>;
         }
 
         const mergedContext = { ...Shopware.Context.api, ...context };
@@ -86,14 +75,14 @@ export default function initializeExtensionDataLoader(): void {
         },
         additionalInformation,
     ) => {
-        const repository = getRepository(entityName as keyof EntitySchema.Entities, additionalInformation);
+        const repository = getRepository(entityName, additionalInformation);
         if (!repository) {
-            return rejectRepositoryCreation(entityName as keyof EntitySchema.Entities) as Promise<void>;
+            return rejectRepositoryCreation(entityName) as Promise<void>;
         }
 
         const mergedContext = { ...Shopware.Context.api, ...context };
 
-        return repository.save(entity as Entity<keyof EntitySchema.Entities>, mergedContext) as Promise<void>;
+        return repository.save(entity, mergedContext) as Promise<void>;
     });
 
     Shopware.ExtensionAPI.handle('repositoryClone', (
@@ -105,9 +94,9 @@ export default function initializeExtensionDataLoader(): void {
         },
         additionalInformation,
     ) => {
-        const repository = getRepository(entityName as keyof EntitySchema.Entities, additionalInformation);
+        const repository = getRepository(entityName, additionalInformation);
         if (!repository) {
-            return rejectRepositoryCreation(entityName as keyof EntitySchema.Entities);
+            return rejectRepositoryCreation(entityName);
         }
 
         const mergedContext = { ...Shopware.Context.api, ...context };
@@ -122,12 +111,12 @@ export default function initializeExtensionDataLoader(): void {
         },
         additionalInformation,
     ) => {
-        const repository = getRepository(entityName as keyof EntitySchema.Entities, additionalInformation);
+        const repository = getRepository(entityName, additionalInformation);
         if (!repository) {
-            return rejectRepositoryCreation(entityName as keyof EntitySchema.Entities) as Promise<boolean>;
+            return rejectRepositoryCreation(entityName) as Promise<boolean>;
         }
 
-        return repository.hasChanges(entity as Entity<keyof EntitySchema.Entities>);
+        return repository.hasChanges(entity);
     });
 
     Shopware.ExtensionAPI.handle('repositorySaveAll', (
@@ -138,14 +127,14 @@ export default function initializeExtensionDataLoader(): void {
         },
         additionalInformation,
     ) => {
-        const repository = getRepository(entityName as keyof EntitySchema.Entities, additionalInformation);
+        const repository = getRepository(entityName, additionalInformation);
         if (!repository) {
-            return rejectRepositoryCreation(entityName as keyof EntitySchema.Entities)as Promise<void>;
+            return rejectRepositoryCreation(entityName)as Promise<void>;
         }
 
         const mergedContext = { ...Shopware.Context.api, ...context };
 
-        return repository.saveAll(entities as EntityCollection<keyof EntitySchema.Entities>, mergedContext) as Promise<void>;
+        return repository.saveAll(entities, mergedContext) as Promise<void>;
     });
 
     Shopware.ExtensionAPI.handle('repositoryDelete', (
@@ -156,9 +145,9 @@ export default function initializeExtensionDataLoader(): void {
         },
         additionalInformation,
     ) => {
-        const repository = getRepository(entityName as keyof EntitySchema.Entities, additionalInformation);
+        const repository = getRepository(entityName, additionalInformation);
         if (!repository) {
-            return rejectRepositoryCreation(entityName as keyof EntitySchema.Entities)as Promise<void>;
+            return rejectRepositoryCreation(entityName)as Promise<void>;
         }
 
         const mergedContext = { ...Shopware.Context.api, ...context };
@@ -174,15 +163,13 @@ export default function initializeExtensionDataLoader(): void {
         },
         additionalInformation,
     ) => {
-        const repository = getRepository(entityName as keyof EntitySchema.Entities, additionalInformation);
+        const repository = getRepository(entityName, additionalInformation);
         if (!repository) {
-            return rejectRepositoryCreation(
-                entityName as keyof EntitySchema.Entities,
-            ) as Promise<Entity<keyof EntitySchema.Entities>>;
+            return rejectRepositoryCreation(entityName) as Promise<Entity>;
         }
 
         const mergedContext = { ...Shopware.Context.api, ...context };
 
-        return repository.create(mergedContext, entityId);
+        return repository.create(mergedContext, entityId) as Entity;
     });
 }

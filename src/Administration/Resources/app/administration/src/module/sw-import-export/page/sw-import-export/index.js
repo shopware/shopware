@@ -1,13 +1,10 @@
-/**
- * @package system-settings
- */
 import template from './sw-import-export.html.twig';
 import './sw-import-export.scss';
 
 /**
  * @private
  */
-export default {
+Shopware.Component.register('sw-import-export', {
     template,
 
     inject: ['repositoryFactory'],
@@ -29,4 +26,4 @@ export default {
             }
         },
     },
-};
+});

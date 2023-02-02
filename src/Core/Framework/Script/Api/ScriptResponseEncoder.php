@@ -2,21 +2,22 @@
 
 namespace Shopware\Core\Framework\Script\Api;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\System\SalesChannel\Api\ResponseFields;
 use Shopware\Core\System\SalesChannel\Api\StructEncoder;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('core')]
 class ScriptResponseEncoder
 {
+    private StructEncoder $structEncoder;
+
     /**
      * @internal
      */
-    public function __construct(private readonly StructEncoder $structEncoder)
+    public function __construct(StructEncoder $structEncoder)
     {
+        $this->structEncoder = $structEncoder;
     }
 
     public function encodeToSymfonyResponse(ScriptResponse $scriptResponse, ResponseFields $responseFields, string $apiAlias): Response

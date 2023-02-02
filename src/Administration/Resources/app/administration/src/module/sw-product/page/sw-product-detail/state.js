@@ -1,7 +1,3 @@
-/*
- * @package inventory
- */
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     namespaced: true,
@@ -44,8 +40,6 @@ export default {
                 'essential_characteristics',
                 'custom_fields',
             ],
-            /* Product "types" provided by the split button for creating a new product through a router parameter */
-            creationStates: [],
         };
     },
 
@@ -143,18 +137,6 @@ export default {
         advanceModeEnabled(state) {
             return state.advancedModeSetting.value?.advancedMode.enabled;
         },
-
-        productStates(state) {
-            if (state.product.isNew() && state.creationStates) {
-                return state.creationStates;
-            }
-
-            if (state.product.states) {
-                return state.product.states;
-            }
-
-            return [];
-        },
     },
 
     mutations: {
@@ -242,10 +224,6 @@ export default {
 
         setModeSettings(state, newModeSettings) {
             state.modeSettings = newModeSettings;
-        },
-
-        setCreationStates(state, states) {
-            state.creationStates = states;
         },
     },
 };

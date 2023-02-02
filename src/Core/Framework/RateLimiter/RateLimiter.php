@@ -2,27 +2,23 @@
 
 namespace Shopware\Core\Framework\RateLimiter;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 
-#[Package('core')]
 class RateLimiter
 {
-    final public const LOGIN_ROUTE = 'login';
+    public const LOGIN_ROUTE = 'login';
 
-    final public const GUEST_LOGIN = 'guest_login';
+    public const GUEST_LOGIN = 'guest_login';
 
-    final public const RESET_PASSWORD = 'reset_password';
+    public const RESET_PASSWORD = 'reset_password';
 
-    final public const OAUTH = 'oauth';
+    public const OAUTH = 'oauth';
 
-    final public const USER_RECOVERY = 'user_recovery';
+    public const USER_RECOVERY = 'user_recovery';
 
-    final public const CONTACT_FORM = 'contact_form';
+    public const CONTACT_FORM = 'contact_form';
 
-    final public const NEWSLETTER_FORM = 'newsletter_form';
-
-    final public const CART_ADD_LINE_ITEM = 'cart_add_line_item';
+    public const NEWSLETTER_FORM = 'newsletter_form';
 
     /**
      * @var array<string, RateLimiterFactory>

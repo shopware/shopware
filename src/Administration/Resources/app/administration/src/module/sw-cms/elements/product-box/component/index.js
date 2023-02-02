@@ -1,13 +1,12 @@
 import template from './sw-cms-el-product-box.html.twig';
 import './sw-cms-el-product-box.scss';
 
-const { Mixin, Filter } = Shopware;
+const { Component, Mixin, Filter } = Shopware;
 
 /**
- * @private
- * @package content
+ * @private since v6.5.0
  */
-export default {
+Component.register('sw-cms-el-product-box', {
     template,
 
     mixins: [
@@ -93,4 +92,4 @@ export default {
             this.initElementData('product-box');
         },
     },
-};
+});

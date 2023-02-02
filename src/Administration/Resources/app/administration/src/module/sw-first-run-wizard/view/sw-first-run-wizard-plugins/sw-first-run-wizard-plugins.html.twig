@@ -72,7 +72,6 @@
             :plugin="plugin"
             @onPluginInstalled="reloadRecommendations"
             @onPluginRemoved="reloadRecommendations"
-            @extension-activated="$emit('extension-activated', $event)"
         />
     </div>
 
@@ -102,7 +101,6 @@
                 :key="plugin.name"
                 :plugin="plugin"
                 :show-description="false"
-                @extension-activated="$emit('extension-activated', $event)"
             />
         </sw-container>
     </div>

@@ -1,20 +1,13 @@
 import template from './sw-cms-create-wizard.html.twig';
 import './sw-cms-create-wizard.scss';
 
-const { Filter } = Shopware;
+const { Component, Filter } = Shopware;
 
-/**
- * @package content
- */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-cms-create-wizard', {
     template,
 
-    inject: [
-        'feature',
-        'cmsPageTypeService',
-        'customEntityDefinitionService',
-    ],
+    inject: ['feature'],
 
     props: {
         page: {
@@ -24,8 +17,24 @@ export default {
     },
 
     data() {
+        const pageTypeNames = {
+            page: this.$tc('sw-cms.detail.label.pageTypeShopPage'),
+            landingpage: this.$tc('sw-cms.detail.label.pageTypeLandingpage'),
+            product_list: this.$tc('sw-cms.detail.label.pageTypeCategory'),
+            product_detail: this.$tc('sw-cms.detail.label.pageTypeProduct'),
+        };
+
+        const pageTypeIcons = {
+            page: 'regular-lightbulb',
+            landingpage: 'regular-dashboard',
+            product_list: 'regular-shopping-basket',
+            product_detail: 'regular-tag',
+        };
+
         return {
             step: 1,
+            pageTypeNames,
+            pageTypeIcons,
             steps: {
                 pageType: 1,
                 sectionType: 2,
@@ -35,37 +44,6 @@ export default {
     },
 
     computed: {
-        visiblePageTypes() {
-            return this.cmsPageTypeService.getVisibleTypes();
-        },
-
-        currentPageType() {
-            return this.cmsPageTypeService.getType(this.page.type);
-        },
-
-        isCustomEntityType() {
-            return this.page.type.startsWith('custom_entity_');
-        },
-
-        isCompletable() {
-            return [
-                this.page.name,
-                !this.isCustomEntityType || this.page.entity,
-            ].every(condition => condition);
-        },
-
-        customEntities() {
-            return this.customEntityDefinitionService.getCmsAwareDefinitions().map((entity) => {
-                const snippetKey = `${entity.entity}.moduleTitle`;
-                const value = entity.entity;
-
-                return {
-                    value,
-                    label: this.$te(snippetKey) ? this.$tc(snippetKey) : value,
-                };
-            });
-        },
-
         pagePreviewMedia() {
             if (this.page.sections.length < 1) {
                 return '';
@@ -113,8 +91,16 @@ export default {
             return find[0];
         },
 
+        getPageTypeName() {
+            return this.pageTypeNames[this.page.type];
+        },
+
+
+        getPageIconName() {
+            return this.pageTypeIcons[this.page.type];
+        },
+
         onPageTypeSelect(type) {
-            Shopware.State.commit('cmsPageState/setCurrentPageType', type);
             this.page.type = type;
 
             this.goToStep('sectionType');
@@ -134,4 +120,4 @@ export default {
             this.$emit('wizard-complete');
         },
     },
-};
+});

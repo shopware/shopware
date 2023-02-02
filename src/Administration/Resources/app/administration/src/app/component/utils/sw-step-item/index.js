@@ -3,7 +3,6 @@ import './sw-step-item.scss';
 
 const { Component } = Shopware;
 /**
- * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @description Renders a step and must be used in the slot of the sw-step-display component.
  * @status ready

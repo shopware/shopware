@@ -9,8 +9,6 @@ use Shopware\Core\Content\Flow\FlowException;
 use Shopware\Core\Framework\Context;
 
 /**
- * @package business-ops
- *
  * @internal
  *
  * @covers \Shopware\Core\Content\Flow\Dispatching\StorableFlow
@@ -81,7 +79,9 @@ class StorableFlowTest extends TestCase
         static::assertEquals(['id' => '123345'], $this->storableFlow->data());
         static::assertEquals('123345', $this->storableFlow->getData('id'));
 
-        $callback = fn () => 'Data';
+        $callback = function () {
+            return 'Data';
+        };
 
         $this->storableFlow->setData('data', $callback);
         static::assertEquals('Data', $this->storableFlow->getData('data'));
@@ -89,7 +89,9 @@ class StorableFlowTest extends TestCase
 
     public function testLazy(): void
     {
-        $callback = fn () => 'Data';
+        $callback = function () {
+            return 'Data';
+        };
 
         $this->storableFlow->lazy('data', $callback, []);
         static::assertEquals('Data', $this->storableFlow->getData('data'));

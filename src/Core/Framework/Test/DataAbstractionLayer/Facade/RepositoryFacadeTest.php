@@ -19,10 +19,10 @@ use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\Framework\Script\Execution\ScriptAppInformation;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Struct\ArrayStruct;
+use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\Script\Execution\TestHook;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 
 /**
  * @internal
@@ -42,7 +42,6 @@ class RepositoryFacadeTest extends TestCase
     }
 
     /**
-     * @param array<string, array<int, mixed>> $criteria
      * @dataProvider withoutAppTestCases
      */
     public function testWithoutApp(array $criteria, string $method, IdsCollection $ids, callable $expectation): void
@@ -60,9 +59,6 @@ class RepositoryFacadeTest extends TestCase
         $expectation($result);
     }
 
-    /**
-     * @return array<string, array<int, mixed>>
-     */
     public function withoutAppTestCases(): array
     {
         $ids = new IdsCollection();
@@ -225,9 +221,6 @@ class RepositoryFacadeTest extends TestCase
         $facade->$method('product', []);
     }
 
-    /**
-     * @return array<array<string>>
-     */
     public function withoutPermissionProvider(): array
     {
         return [

@@ -4,19 +4,23 @@ import PropertyPageObject from '../../../../support/pages/module/sw-property.pag
 
 describe('Property: Test ACL privileges', () => {
     beforeEach(() => {
-        cy.createPropertyFixture({
-            options: [{ name: 'Red' }, { name: 'Yellow' }, { name: 'Green' }],
-        }).then(() => {
-            cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
-        });
+        cy.loginViaApi()
+            .then(() => {
+                return cy.createPropertyFixture({
+                    options: [{ name: 'Red' }, { name: 'Yellow' }, { name: 'Green' }]
+                });
+            })
+            .then(() => {
+                cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
+            });
     });
 
     it('@catalogue: has no access to property module', { tags: ['pa-inventory'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'product',
-                role: 'viewer',
-            },
+                role: 'viewer'
+            }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/property/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -39,8 +43,8 @@ describe('Property: Test ACL privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'property',
-                role: 'viewer',
-            },
+                role: 'viewer'
+            }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/property/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -63,7 +67,7 @@ describe('Property: Test ACL privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/property-group/*`,
-            method: 'PATCH',
+            method: 'PATCH'
         }).as('saveProperty');
 
         const page = new PropertyPageObject();
@@ -71,11 +75,11 @@ describe('Property: Test ACL privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'property',
-                role: 'viewer',
+                role: 'viewer'
             }, {
                 key: 'property',
-                role: 'editor',
-            },
+                role: 'editor'
+            }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/property/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -105,7 +109,7 @@ describe('Property: Test ACL privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             method: 'POST',
-            url: `${Cypress.env('apiPath')}/property-group`,
+            url: `${Cypress.env('apiPath')}/property-group`
         }).as('saveData');
 
         const page = new PropertyPageObject();
@@ -113,14 +117,14 @@ describe('Property: Test ACL privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'property',
-                role: 'viewer',
+                role: 'viewer'
             }, {
                 key: 'property',
-                role: 'editor',
+                role: 'editor'
             }, {
                 key: 'property',
-                role: 'creator',
-            },
+                role: 'creator'
+            }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/property/create`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -142,7 +146,7 @@ describe('Property: Test ACL privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             method: 'delete',
-            url: `${Cypress.env('apiPath')}/property-group/*`,
+            url: `${Cypress.env('apiPath')}/property-group/*`
         }).as('deleteData');
 
         const page = new PropertyPageObject();
@@ -150,11 +154,11 @@ describe('Property: Test ACL privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'property',
-                role: 'viewer',
+                role: 'viewer'
             }, {
                 key: 'property',
-                role: 'deleter',
-            },
+                role: 'deleter'
+            }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/property/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -165,7 +169,7 @@ describe('Property: Test ACL privileges', () => {
         cy.clickContextMenuItem(
             `${page.elements.contextMenu}-item--danger`,
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`,
+            `${page.elements.dataGridRow}--0`
         );
         cy.contains(`${page.elements.modal} .sw-property-list__confirm-delete-text`,
             'Are you sure you really want to delete the property "Color"?');

@@ -21,7 +21,10 @@ class FileNameProviderTest extends TestCase
      */
     private $nameProvider;
 
-    private Context $context;
+    /**
+     * @var Context
+     */
+    private $context;
 
     protected function setUp(): void
     {

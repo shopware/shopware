@@ -4,15 +4,18 @@ import SalesChannelPageObject from '../../../../support/pages/module/sw-sales-ch
 
 describe('Sales Channel: Test acl', () => {
     beforeEach(() => {
-        cy.openInitialPage(Cypress.env('admin'));
+        cy.loginViaApi()
+            .then(() => {
+                cy.openInitialPage(Cypress.env('admin'));
+            });
     });
 
     it('@base @general: read sales channel',  { tags: ['pa-sales-channels'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'sales_channel',
-                role: 'viewer',
-            },
+                role: 'viewer'
+            }
         ]);
 
         cy.get('.sw-admin-menu__sales-channel-item--1').click();
@@ -34,12 +37,12 @@ describe('Sales Channel: Test acl', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'sales_channel',
-                role: 'viewer',
+                role: 'viewer'
             },
             {
                 key: 'sales_channel',
-                role: 'editor',
-            },
+                role: 'editor'
+            }
         ]);
 
         cy.get('.sw-admin-menu__sales-channel-item--1').click();
@@ -58,22 +61,22 @@ describe('Sales Channel: Test acl', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'sales_channel',
-                role: 'viewer',
+                role: 'viewer'
             },
             {
                 key: 'sales_channel',
-                role: 'editor',
+                role: 'editor'
             },
             {
                 key: 'sales_channel',
-                role: 'creator',
-            },
+                role: 'creator'
+            }
         ]);
 
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/sales-channel`,
-            method: 'POST',
+            method: 'POST'
         }).as('saveData');
 
         // Open sales channel creation
@@ -99,16 +102,16 @@ describe('Sales Channel: Test acl', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'sales_channel',
-                role: 'viewer',
+                role: 'viewer'
             },
             {
                 key: 'sales_channel',
-                role: 'editor',
+                role: 'editor'
             },
             {
                 key: 'sales_channel',
-                role: 'deleter',
-            },
+                role: 'deleter'
+            }
         ]);
 
         cy.get('.sw-admin-menu__sales-channel-item--1').click();

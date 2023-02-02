@@ -4,16 +4,11 @@ namespace Shopware\Core\Framework;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 
-/**
- * @phpstan-type FeatureFlagConfig array{name?: string, default?: boolean, major?: boolean, description?: string}
- */
-#[Package('core')]
 class Feature
 {
-    final public const ALL_MAJOR = 'major';
+    public const ALL_MAJOR = 'major';
 
     /**
      * @var array<bool>
@@ -21,7 +16,7 @@ class Feature
     private static array $silent = [];
 
     /**
-     * @var array<string, FeatureFlagConfig>
+     * @var array<string, array{name?: string, default?: boolean, major?: boolean, description?: string}>
      */
     private static array $registeredFeatures = [];
 
@@ -52,7 +47,7 @@ class Feature
         try {
             self::$registeredFeatures = [];
             foreach ($_SERVER as $key => $value) {
-                if (str_starts_with($key, 'v6.') || str_starts_with($key, 'FEATURE_') || str_starts_with($key, 'V6_')) {
+                if (str_starts_with($key, 'v6.') || $key === 'PERFORMANCE_TWEAKS' || str_starts_with($key, 'FEATURE_')) {
                     // set to false so that $_ENV is not checked
                     $_SERVER[$key] = false;
                 }
@@ -127,6 +122,19 @@ class Feature
         }
     }
 
+    /**
+     * @param object $object
+     * @param mixed[] $arguments
+     */
+    public static function ifActiveCall(string $flagName, $object, string $methodName, ...$arguments): void
+    {
+        $closure = function () use ($object, $methodName, $arguments): void {
+            $object->{$methodName}(...$arguments);
+        };
+
+        self::ifActive($flagName, \Closure::bind($closure, $object, $object));
+    }
+
     public static function skipTestIfInActive(string $flagName, TestCase $test): void
     {
         if (self::isActive($flagName)) {
@@ -143,6 +151,34 @@ class Feature
         }
 
         $test::markTestSkipped('Skipping feature test for flag  "' . $flagName . '"');
+    }
+
+    /**
+     * Triggers a silenced deprecation notice.
+     *
+     * @param string $sinceVersion  The version of the package that introduced the deprecation
+     * @param string $removeVersion The version of the package when the deprectated code will be removed
+     * @param string $message       The message of the deprecation
+     * @param mixed  ...$args       Values to insert in the message using printf() formatting
+     *
+     * @deprecated tag:v6.5.0 - will be removed, use `triggerDeprecationOrThrow` instead
+     */
+    public static function triggerDeprecated(string $flag, string $sinceVersion, string $removeVersion, string $message, ...$args): void
+    {
+        self::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            self::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'Feature::triggerDeprecationOrThrow()')
+        );
+
+        $message = 'Deprecated tag:' . $removeVersion . '(flag:' . $flag . '). ' . $message;
+
+        if (self::isActive($flag) || !self::has($flag)) {
+            if (\PHP_SAPI !== 'cli') {
+                ScriptTraces::addDeprecationNotice(sprintf($message, ...$args));
+            }
+
+            trigger_deprecation('shopware/core', $sinceVersion, $message, $args);
+        }
     }
 
     public static function throwException(string $flag, string $message, bool $state = true): void
@@ -230,7 +266,7 @@ class Feature
     }
 
     /**
-     * @param FeatureFlagConfig $metaData
+     * @param array{name?: string, default?: boolean, major?: boolean, description?: string} $metaData
      *
      * @internal
      */
@@ -255,7 +291,7 @@ class Feature
     }
 
     /**
-     * @param array<string, FeatureFlagConfig>|string[] $registeredFeatures
+     * @param array<string, array{name?: string, default?: boolean, major?: boolean, description?: string}>|string[] $registeredFeatures
      *
      * @internal
      */
@@ -283,7 +319,7 @@ class Feature
     /**
      * @internal
      *
-     * @return array<string, FeatureFlagConfig>
+     * @return array<string, array{'name'?: string, 'default'?: boolean, 'major'?: boolean, 'description'?: string}>
      */
     public static function getRegisteredFeatures(): array
     {

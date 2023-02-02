@@ -2,9 +2,6 @@ const TIMEZONE_COOKIE = 'timezone';
 
 import CookieStorageHelper from 'src/helper/storage/cookie-storage.helper';
 
-/**
- * @package storefront
- */
 export default class TimezoneUtil {
 
     /**

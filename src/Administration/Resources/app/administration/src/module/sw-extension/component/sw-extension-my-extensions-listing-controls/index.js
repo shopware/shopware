@@ -1,11 +1,8 @@
 import template from './sw-extension-my-extensions-listing-controls.html.twig';
 import './sw-extension-my-extensions-listing-controls.scss';
 
-/**
- * @package merchant-services
- * @private
- */
-export default {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+Shopware.Component.register('sw-extension-my-extensions-listing-controls', {
     template,
 
     data() {
@@ -38,4 +35,4 @@ export default {
             this.$emit('update:sorting-option', value);
         },
     },
-};
+});

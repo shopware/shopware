@@ -23,9 +23,9 @@
                 <div class="sw-theme-list-item__title" v-if="theme" @click="onThemeClick">{{ theme.name }}</div>
                 <sw-icon v-if="theme && !theme.parentThemeId"
                          class="sw-theme-list-item__locked"
-                         name="regular-lock"
+                         name="small-lock-closed"
                          v-tooltip="lockToolTip"
-                         size="16">
+                         small>
                 </sw-icon>
             </div>
         {% endblock %}

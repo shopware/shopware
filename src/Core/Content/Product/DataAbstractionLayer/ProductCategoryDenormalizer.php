@@ -8,26 +8,26 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-#[Package('core')]
 class ProductCategoryDenormalizer
 {
     /**
-     * @internal
+     * @var Connection
      */
-    public function __construct(private readonly Connection $connection)
-    {
-    }
+    private $connection;
 
     /**
-     * @param array<int, string> $ids
+     * @internal
      */
+    public function __construct(Connection $connection)
+    {
+        $this->connection = $connection;
+    }
+
     public function update(array $ids, Context $context): void
     {
         $ids = array_unique(\array_filter($ids));
-        $allIds = [];
 
         if (empty($ids)) {
             return;
@@ -42,12 +42,12 @@ class ProductCategoryDenormalizer
         $updates = [];
         foreach ($categories as $productId => $mapping) {
             $productId = Uuid::fromHexToBytes($productId);
-            $allIds[] = $productId;
+
             $categoryIds = $this->mapCategories($mapping);
 
             $json = null;
             if (!empty($categoryIds)) {
-                $json = json_encode($categoryIds, \JSON_THROW_ON_ERROR);
+                $json = json_encode($categoryIds);
             }
 
             $updates[] = ['id' => $productId, 'tree' => $json, 'version' => $versionId];
@@ -66,10 +66,10 @@ class ProductCategoryDenormalizer
             }
         }
 
-        RetryableTransaction::retryable($this->connection, function () use ($allIds, $versionId): void {
+        RetryableTransaction::retryable($this->connection, function () use ($ids, $versionId): void {
             $this->connection->executeStatement(
                 'DELETE FROM product_category_tree WHERE `product_id` IN (:ids) AND `product_version_id` = :version',
-                ['ids' => $allIds, 'version' => $versionId],
+                ['ids' => Uuid::fromHexToBytesList($ids), 'version' => $versionId],
                 ['ids' => Connection::PARAM_STR_ARRAY]
             );
         });
@@ -85,9 +85,6 @@ class ProductCategoryDenormalizer
         $this->insertTree($inserts);
     }
 
-    /**
-     * @param array<array<string, string>> $inserts
-     */
     private function insertTree(array $inserts): void
     {
         if (empty($inserts)) {
@@ -101,18 +98,13 @@ class ProductCategoryDenormalizer
         $queue->execute();
     }
 
-    /**
-     * @param array<int, string> $ids
-     *
-     * @return array<string, array<string, string>>
-     */
     private function fetchMapping(array $ids, Context $context): array
     {
         $query = $this->connection->createQueryBuilder();
         $query->select([
             'LOWER(HEX(product.id)) as product_id',
-            'GROUP_CONCAT(category.path SEPARATOR \'\') as paths',
-            'GROUP_CONCAT(LOWER(HEX(category.id)) SEPARATOR \'|\') as ids',
+            "GROUP_CONCAT(category.path SEPARATOR '') as paths",
+            "GROUP_CONCAT(LOWER(HEX(category.id)) SEPARATOR '|') as ids",
         ]);
         $query->from('product');
         $query->leftJoin(
@@ -130,26 +122,23 @@ class ProductCategoryDenormalizer
 
         $query->addGroupBy('product.id');
 
-        $query->andWhere('product.categories IN (:ids)');
+        $query->andWhere('product.id IN (:ids)');
         $query->andWhere('product.version_id = :version');
 
         $query->setParameter('version', Uuid::fromHexToBytes($context->getVersionId()));
         $query->setParameter('live', Uuid::fromHexToBytes(Defaults::LIVE_VERSION));
 
-        $bytes = array_map(fn (string $id) => Uuid::fromHexToBytes($id), $ids);
+        $bytes = array_map(function (string $id) {
+            return Uuid::fromHexToBytes($id);
+        }, $ids);
 
         $query->setParameter('ids', $bytes, Connection::PARAM_STR_ARRAY);
 
-        $rows = $query->executeQuery()->fetchAllAssociative();
+        $rows = $query->execute()->fetchAll();
 
         return FetchModeHelper::groupUnique($rows);
     }
 
-    /**
-     * @param array<string, string|null> $mapping
-     *
-     * @return array<int, string>
-     */
     private function mapCategories(array $mapping): array
     {
         $categoryIds = array_filter(explode('|', (string) $mapping['ids']));

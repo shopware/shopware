@@ -14,9 +14,7 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('inventory')]
 class ManufacturerLogoCmsElementResolver extends AbstractProductDetailCmsElementResolver
 {
     public function getType(): string
@@ -94,7 +92,7 @@ class ManufacturerLogoCmsElementResolver extends AbstractProductDetailCmsElement
             }
 
             /** @var MediaEntity|null $media */
-            $media = $searchResult->get($config->getStringValue());
+            $media = $searchResult->get($config->getValue());
 
             return $media;
         }
@@ -103,6 +101,9 @@ class ManufacturerLogoCmsElementResolver extends AbstractProductDetailCmsElement
             return null;
         }
 
-        return $this->resolveEntityValue($resolverContext->getEntity(), $config->getStringValue());
+        /** @var MediaEntity|null $media */
+        $media = $this->resolveEntityValue($resolverContext->getEntity(), $config->getStringValue());
+
+        return $media;
     }
 }

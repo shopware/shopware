@@ -5,7 +5,7 @@ namespace Shopware\Core\Checkout\Cart\Rule;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\ListPrice;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
@@ -13,17 +13,26 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-#[Package('business-ops')]
 class LineItemListPriceRule extends Rule
 {
-    final public const RULE_NAME = 'cartLineItemListPrice';
+    protected ?float $amount;
+
+    protected string $operator;
 
     /**
      * @internal
      */
-    public function __construct(protected string $operator = self::OPERATOR_EQ, protected ?float $amount = null)
+    public function __construct(string $operator = self::OPERATOR_EQ, ?float $amount = null)
     {
         parent::__construct();
+
+        $this->operator = $operator;
+        $this->amount = $amount;
+    }
+
+    public function getName(): string
+    {
+        return 'cartLineItemListPrice';
     }
 
     public function match(RuleScope $scope): bool
@@ -36,7 +45,7 @@ class LineItemListPriceRule extends Rule
             return false;
         }
 
-        foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
+        foreach ($scope->getCart()->getLineItems()->getFlat() as $lineItem) {
             if ($this->matchesListPriceCondition($lineItem)) {
                 return true;
             }
@@ -75,6 +84,10 @@ class LineItemListPriceRule extends Rule
         $calculatedPrice = $lineItem->getPrice();
 
         if (!$calculatedPrice instanceof CalculatedPrice) {
+            if (!Feature::isActive('v6.5.0.0')) {
+                return false;
+            }
+
             return RuleComparison::isNegativeOperator($this->operator);
         }
 

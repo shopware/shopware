@@ -22,7 +22,8 @@
             action="viewOrder"
             entity="order"
             view="detail"
-            url="https://swag-test.com/your-order">
+            url="https://swag-test.com/your-order"
+            openNewTab="true">
             <label>View Order</label>
             <label lang="de-DE">Zeige Bestellung</label>
         </action-button>
@@ -33,7 +34,7 @@
             url="https://swag-test.com/do-stuff">
             <label>Do Stuff</label>
         </action-button>
-        <module name="first-module" source="https://test.com" parent="sw-catalouge">
+        <module name="first-module" source="https://test.com">
             <label>My first own module</label>
             <label lang="de-DE">Mein erstes eigenes Modul</label>
         </module>

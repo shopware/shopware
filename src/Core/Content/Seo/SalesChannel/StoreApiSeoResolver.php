@@ -16,33 +16,52 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
-/**
- * @internal
- */
-#[Package('sales-channel')]
 class StoreApiSeoResolver implements EventSubscriberInterface
 {
+    /**
+     * @var SalesChannelRepositoryInterface
+     */
+    private $salesChannelRepository;
+
+    /**
+     * @var DefinitionInstanceRegistry
+     */
+    private $definitionInstanceRegistry;
+
+    /**
+     * @var SeoUrlRouteRegistry
+     */
+    private $seoUrlRouteRegistry;
+
+    /**
+     * @var SalesChannelDefinitionInstanceRegistry
+     */
+    private $salesChannelDefinitionInstanceRegistry;
+
     /**
      * @internal
      */
     public function __construct(
-        private readonly SalesChannelRepository $salesChannelRepository,
-        private readonly DefinitionInstanceRegistry $definitionInstanceRegistry,
-        private readonly SalesChannelDefinitionInstanceRegistry $salesChannelDefinitionInstanceRegistry,
-        private readonly SeoUrlRouteRegistry $seoUrlRouteRegistry
+        SalesChannelRepositoryInterface $salesChannelRepository,
+        DefinitionInstanceRegistry $definitionInstanceRegistry,
+        SalesChannelDefinitionInstanceRegistry $salesChannelDefinitionInstanceRegistry,
+        SeoUrlRouteRegistry $seoUrlRouteRegistry
     ) {
+        $this->salesChannelRepository = $salesChannelRepository;
+        $this->definitionInstanceRegistry = $definitionInstanceRegistry;
+        $this->seoUrlRouteRegistry = $seoUrlRouteRegistry;
+        $this->salesChannelDefinitionInstanceRegistry = $salesChannelDefinitionInstanceRegistry;
     }
 
     public static function getSubscribedEvents(): array
@@ -126,7 +145,9 @@ class StoreApiSeoResolver implements EventSubscriberInterface
                 continue;
             }
 
-            $routes = array_map(static fn (SeoUrlRouteConfigRoute $seoUrlRoute) => $seoUrlRoute->getConfig()->getRouteName(), $routes);
+            $routes = array_map(static function (SeoUrlRouteConfigRoute $seoUrlRoute) {
+                return $seoUrlRoute->getConfig()->getRouteName();
+            }, $routes);
 
             $criteria = new Criteria();
             $criteria->addFilter(new EqualsFilter('isCanonical', true));

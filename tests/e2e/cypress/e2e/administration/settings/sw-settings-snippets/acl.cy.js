@@ -2,7 +2,10 @@
 
 describe('Snippets: Test acl privileges', () => {
     beforeEach(() => {
-        cy.createSnippetFixture()
+        cy.loginViaApi()
+            .then(() => {
+                return cy.createSnippetFixture();
+            })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/snippet/index`);
             });
@@ -12,8 +15,8 @@ describe('Snippets: Test acl privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'snippet',
-                role: 'viewer',
-            },
+                role: 'viewer'
+            }
         ]).then(() => {
             // visiting settings page to prove that snippets element is visible
             cy.visit(`${Cypress.env('admin')}#/sw/settings/snippet/index`);
@@ -54,8 +57,8 @@ describe('Snippets: Test acl privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'snippet',
-                role: 'editor',
-            },
+                role: 'editor'
+            }
         ]).then(() => {
             // visiting settings page to prove that snippets element is visible
             cy.visit(`${Cypress.env('admin')}#/sw/settings/snippet/index`);
@@ -65,7 +68,7 @@ describe('Snippets: Test acl privileges', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/snippet/*`,
-            method: 'PATCH',
+            method: 'PATCH'
         }).as('saveData');
 
         cy.get('.sw-grid__row--0 > .sw-settings-snippet-set__column-name > .sw-grid__cell-content > a').click();
@@ -93,8 +96,8 @@ describe('Snippets: Test acl privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'snippet',
-                role: 'creator',
-            },
+                role: 'creator'
+            }
         ]).then(() => {
             // visiting settings page to prove that snippets element is visible
             cy.visit(`${Cypress.env('admin')}#/sw/settings/snippet/index`);
@@ -104,7 +107,7 @@ describe('Snippets: Test acl privileges', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/snippet`,
-            method: 'POST',
+            method: 'POST'
         }).as('saveData');
 
         cy.get('.sw-grid__row--0 > .sw-settings-snippet-set__column-name > .sw-grid__cell-content > a').click();
@@ -138,8 +141,8 @@ describe('Snippets: Test acl privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'snippet',
-                role: 'creator',
-            },
+                role: 'creator'
+            }
         ]).then(() => {
             // visiting settings page to prove that snippets element is visible
             cy.visit(`${Cypress.env('admin')}#/sw/settings/snippet/index`);
@@ -149,7 +152,7 @@ describe('Snippets: Test acl privileges', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/snippet-set`,
-            method: 'POST',
+            method: 'POST'
         }).as('saveData');
 
         cy.get('.sw-settings-snippet-set-list__action-add')

@@ -25,7 +25,10 @@ class ProductDescriptionReviewsTypeDataResolverTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private ProductDescriptionReviewsCmsElementResolver $productDescriptionReviewResolver;
+    /**
+     * @var ProductDescriptionReviewsCmsElementResolver
+     */
+    private $productDescriptionReviewResolver;
 
     protected function setUp(): void
     {

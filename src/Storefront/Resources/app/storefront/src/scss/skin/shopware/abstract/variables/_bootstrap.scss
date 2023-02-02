@@ -3,7 +3,7 @@ Bootstrap variables
 ==================================================
 Contains all overrides of bootstrap default variables.
 
-https://getbootstrap.com/docs/5.2/customize/sass/#variable-defaults
+https://getbootstrap.com/docs/4.3/getting-started/theming/#variable-defaults
 */
 
 // Color system
@@ -36,9 +36,9 @@ $body-color: $sw-text-color !default;
 // Components
 $border-color: $sw-border-color !default;
 
-$border-radius: 0 !default;
-$border-radius-lg: 0 !default;
-$border-radius-sm: 0 !default;
+$border-radius: 3px !default;
+$border-radius-lg: 3px !default;
+$border-radius-sm: 3px !default;
 
 // Typography
 $font-family-base: $sw-font-family-base !default;
@@ -86,19 +86,11 @@ $btn-line-height-lg: 38px !default;
 $enable-validation-icons: false !default;
 $input-color: $sw-text-color !default;
 $input-border-color: $sw-border-color !default;
-$form-check-input-border: 1px solid $sw-border-color !default;
-$form-check-input-width: 1rem !default;
-$form-check-padding-start: 1.5rem !default;
 $input-focus-border-color: $sw-color-brand-primary !default;
 $custom-select-indicator-color: $input-color !default;
 $custom-control-indicator-active-bg: $sw-color-brand-primary !default;
 
 // Pagination
-$pagination-color: $sw-text-color !default;
-$pagination-hover-color: $sw-text-color !default;
-$pagination-border-width: 0 !default;
-$pagination-padding-y: 0.595rem;
-$pagination-padding-x: 0.75rem;
 $pagination-border-color: $sw-border-color !default;
 $pagination-hover-border-color: $sw-border-color !default;
 $pagination-focus-border-color: $sw-border-color !default;
@@ -126,7 +118,7 @@ $card-border-color: transparent !default;
 $card-bg: transparent !default;
 
 // Tables
-$table-striped-bg: #f9f9f9 !default;
+$table-accent-bg: #f9f9f9 !default;
 
 // Switch
 $custom-switch-indicator-border-radius: 0.5rem;

@@ -2,28 +2,29 @@
 
 namespace Shopware\Storefront\Framework\Command;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Framework\Cache\CacheWarmer\CacheWarmer;
-use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(
-    name: 'http:cache:warm:up',
-    description: 'Warm up the http cache',
-)]
-#[Package('storefront')]
 class HttpCacheWarmUpCommand extends Command
 {
+    protected static $defaultName = 'http:cache:warm:up';
+
+    /**
+     * @var CacheWarmer
+     */
+    private $warmer;
+
     /**
      * @internal
      */
-    public function __construct(private readonly CacheWarmer $warmer)
+    public function __construct(CacheWarmer $warmer)
     {
         parent::__construct();
+        $this->warmer = $warmer;
     }
 
     protected function configure(): void

@@ -1,10 +1,10 @@
 import template from './sw-settings-salutation-list.html.twig';
 
-const { Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-settings-salutation-list', {
     template,
 
     inject: ['repositoryFactory', 'acl'],
@@ -89,4 +89,4 @@ export default {
             }];
         },
     },
-};
+});

@@ -3,26 +3,35 @@
 namespace Shopware\Core\Checkout\Test\Customer\SalesChannel;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
-use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
  * @internal
  * @group store-api
  */
-#[Package('customer-order')]
 class CustomerRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use CustomerTestTrait;
 
-    private KernelBrowser $browser;
+    /**
+     * @var \Symfony\Bundle\FrameworkBundle\KernelBrowser
+     */
+    private $browser;
 
-    private TestDataCollection $ids;
+    /**
+     * @var TestDataCollection
+     */
+    private $ids;
+
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $customerRepository;
 
     protected function setUp(): void
     {
@@ -32,6 +41,7 @@ class CustomerRouteTest extends TestCase
             'id' => $this->ids->create('sales-channel'),
         ]);
         $this->assignSalesChannelContext($this->browser);
+        $this->customerRepository = $this->getContainer()->get('customer.repository');
     }
 
     public function testNotLoggedin(): void
@@ -44,7 +54,7 @@ class CustomerRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('errors', $response);
         static::assertSame('CHECKOUT__CUSTOMER_NOT_LOGGED_IN', $response['errors'][0]['code']);
@@ -66,12 +76,11 @@ class CustomerRouteTest extends TestCase
                 ]
             );
 
-        $response = $this->browser->getResponse();
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
 
-        $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
-        static::assertNotEmpty($contextToken);
+        static::assertArrayHasKey('contextToken', $response);
 
-        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $response['contextToken']);
 
         $this->browser
             ->request(
@@ -81,7 +90,7 @@ class CustomerRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertSame($id, $response['id']);
     }
@@ -100,7 +109,7 @@ class CustomerRouteTest extends TestCase
         $contextToken = $registerResponse->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
         static::assertNotEmpty($contextToken);
 
-        ['id' => $id, 'email' => $email] = json_decode((string) $registerResponse->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        list('id' => $id, 'email' => $email) = json_decode($registerResponse->getContent(), true);
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
 
@@ -112,15 +121,12 @@ class CustomerRouteTest extends TestCase
                 ]
             );
 
-        $customerResponse = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $customerResponse = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertSame($id, $customerResponse['id']);
         static::assertSame($email, $customerResponse['email']);
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     private function getGuestRegistrationData(string $storefrontUrl = 'http://localhost'): array
     {
         return [

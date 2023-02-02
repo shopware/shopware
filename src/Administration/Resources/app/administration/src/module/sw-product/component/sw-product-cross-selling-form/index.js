@@ -6,7 +6,7 @@ const { Component, Mixin } = Shopware;
 const { mapPropertyErrors, mapGetters, mapState } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-product-cross-selling-form', {
     template,
 
     inject: ['repositoryFactory', 'productStreamConditionService'],
@@ -221,4 +221,4 @@ export default {
             this.useManualAssignment = value === 'productList';
         },
     },
-};
+});

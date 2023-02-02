@@ -2,9 +2,6 @@ import { createBrowserHistory } from 'history';
 import querystring from 'query-string';
 import deepmerge from 'deepmerge';
 
-/**
- * @package storefront
- */
 class HistoryUtilSingleton {
     constructor() {
         this._history = createBrowserHistory();

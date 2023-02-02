@@ -1,8 +1,10 @@
 import template from './sw-cms-section-actions.html.twig';
 import './sw-cms-section-actions.scss';
 
+const { Component } = Shopware;
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-cms-section-actions', {
     template,
 
     props: {
@@ -42,4 +44,4 @@ export default {
             this.$parent.$emit('page-config-open', 'itemConfig');
         },
     },
-};
+});

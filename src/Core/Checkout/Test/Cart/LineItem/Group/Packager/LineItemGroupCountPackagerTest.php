@@ -2,27 +2,30 @@
 
 namespace Shopware\Core\Checkout\Test\Cart\LineItem\Group\Packager;
 
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroup;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupPackagerInterface;
 use Shopware\Core\Checkout\Cart\LineItem\Group\Packager\LineItemGroupCountPackager;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
 use Shopware\Core\Checkout\Test\Cart\LineItem\Group\Helpers\Traits\LineItemTestFixtureBehaviour;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
  */
-#[Package('checkout')]
 class LineItemGroupCountPackagerTest extends TestCase
 {
     use LineItemTestFixtureBehaviour;
 
-    private LineItemGroupPackagerInterface $packager;
+    /**
+     * @var LineItemGroupPackagerInterface
+     */
+    private $packager;
 
-    private MockObject&SalesChannelContext $context;
+    /**
+     * @var SalesChannelContext
+     */
+    private $context;
 
     protected function setUp(): void
     {

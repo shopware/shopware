@@ -1,6 +1,3 @@
-/**
- * @package storefront
- */
 export default class NativeEventEmitter {
     /**
      * Event Emitter which works with the provided DOM element. The class isn't meant to be

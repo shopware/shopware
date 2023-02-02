@@ -9,10 +9,9 @@ use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Salutation\SalutationDefinition;
@@ -20,17 +19,19 @@ use Shopware\Core\System\Salutation\SalutationDefinition;
 /**
  * @internal
  */
-#[Package('system-settings')]
 class SalutationSerializerTest extends TestCase
 {
     use KernelTestBehaviour;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepositoryInterface
      */
     private $salutationRepository;
 
-    private SalutationSerializer $serializer;
+    /**
+     * @var SalutationSerializer
+     */
+    private $serializer;
 
     public function setUp(): void
     {

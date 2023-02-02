@@ -2,18 +2,21 @@
 
 namespace Shopware\Elasticsearch\Framework;
 
-use Shopware\Core\Framework\Log\Package;
-
-#[Package('core')]
 class ElasticsearchRegistry
 {
     /**
+     * @var AbstractElasticsearchDefinition[]
+     */
+    private iterable $definitions;
+
+    /**
      * @internal
      *
-     * @param AbstractElasticsearchDefinition[] $definitions
+     * @param iterable<AbstractElasticsearchDefinition> $definitions
      */
-    public function __construct(private readonly iterable $definitions)
+    public function __construct(iterable $definitions)
     {
+        $this->definitions = $definitions;
     }
 
     /**

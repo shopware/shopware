@@ -1,6 +1,3 @@
-/**
- * @package system-settings
- */
 import template from './sw-settings-number-range-detail.html.twig';
 import './sw-settings-number-range-detail.scss';
 
@@ -8,7 +5,7 @@ const { Component, Mixin, Data: { Criteria } } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-settings-number-range-detail', {
     template,
 
     inject: [
@@ -137,6 +134,26 @@ export default {
 
         salesChannelRepository() {
             return this.repositoryFactory.create('sales_channel');
+        },
+
+        /**
+         * @deprecated tag:v6.5.0 will be removed, as the state can also be stored in redis, use `numberRangeService` instead
+         */
+        numberRangeStateRepository() {
+            return this.repositoryFactory.create('number_range_state');
+        },
+
+        /**
+         * @deprecated tag:v6.5.0 will be removed, as the state can also be stored in redis, use `numberRangeService` instead
+         */
+        numberRangeStateCriteria() {
+            const criteria = new Criteria(1, 25);
+
+            criteria.addFilter(
+                Criteria.equals('numberRangeId', this.numberRangeId),
+            );
+
+            return criteria;
         },
 
         numberRangeSalesChannelsRepository() {
@@ -317,7 +334,9 @@ export default {
                 .catch((exception) => {
                     this.isLoading = false;
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-number-range.detail.messageSaveError', 0, { name: numberRangeName }),
+                        message: this.$tc(
+                            'sw-settings-number-range.detail.messageSaveError', 0, { name: numberRangeName },
+                        ),
                     });
                     throw exception;
                 })
@@ -413,4 +432,4 @@ export default {
             );
         },
     },
-};
+});

@@ -24,7 +24,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -32,9 +31,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * Allows to hydrate database values into struct objects.
  *
- * @internal
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
  */
-#[Package('core')]
 class EntityHydrator
 {
     /**
@@ -57,11 +55,14 @@ class EntityHydrator
      */
     private static array $translatedFields = [];
 
+    private ContainerInterface $container;
+
     /**
      * @internal
      */
-    public function __construct(private readonly ContainerInterface $container)
+    public function __construct(ContainerInterface $container)
     {
+        $this->container = $container;
     }
 
     /**
@@ -389,7 +390,8 @@ class EntityHydrator
 
             $values = [];
             foreach ($chain as $accessor) {
-                $values[] = self::value($row, $accessor, $propertyName);
+                $key = $accessor . '.' . $propertyName;
+                $values[] = $row[$key] ?? null;
             }
 
             if (empty($values)) {
@@ -405,23 +407,6 @@ class EntityHydrator
             $entity->addTranslated($propertyName, $decoded);
 
             if ($inherited) {
-                /*
-                 * The translations chains array has the structure: [
-                 *      main language,
-                 *      parent with main language,
-                 *      fallback language,
-                 *      parent with fallback language,
-                 * ]
-                 *
-                 * We need to join the first two to get the inherited field value of the main translation
-                 */
-                $values = [
-                    self::value($row, $chain[0], $propertyName),
-                    self::value($row, $chain[1], $propertyName),
-                ];
-
-                $merged = $this->mergeJson(array_reverse($values, false));
-                $decoded = $customField->getSerializer()->decode($customField, $merged);
                 $entity->assign([$propertyName => $decoded]);
             }
 
@@ -498,7 +483,7 @@ class EntityHydrator
                 continue;
             }
 
-            $decoded = json_decode($string, true, 512, \JSON_THROW_ON_ERROR);
+            $decoded = json_decode($string, true);
 
             if (!$decoded) {
                 continue;
@@ -547,7 +532,7 @@ class EntityHydrator
         $entity = new $entityClass();
 
         if (!$entity instanceof Entity) {
-            throw new \RuntimeException(sprintf('Expected instance of Entity.php, got %s', $entity::class));
+            throw new \RuntimeException(sprintf('Expected instance of Entity.php, got %s', \get_class($entity)));
         }
 
         $entity->addExtension(EntityReader::FOREIGN_KEYS, new ArrayStruct());

@@ -5,9 +5,13 @@ import ProductStreamObject from '../../../../support/pages/module/sw-product-str
 
 describe('Dynamic product group: Add custom fields to condition', () => {
     beforeEach(() => {
-        cy.createProductFixture().then(() => {
-            return cy.createDefaultFixture('custom-field-set');
-        })
+        cy.loginViaApi()
+            .then(() => {
+                cy.createProductFixture();
+            })
+            .then(() => {
+                return cy.createDefaultFixture('custom-field-set');
+            })
             .then(() => {
                 return cy.createDefaultFixture('product-stream');
             });
@@ -17,11 +21,11 @@ describe('Dynamic product group: Add custom fields to condition', () => {
         const page = new ProductPageObject();
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/custom-field-set`,
-            method: 'POST',
+            method: 'POST'
         }).as('saveCustomFieldSet');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST',
+            method: 'POST'
         }).as('saveProduct');
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/custom/field/index`);
@@ -76,7 +80,7 @@ describe('Dynamic product group: Add custom fields to condition', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/product/*`,
-            method: 'PATCH',
+            method: 'PATCH'
         }).as('saveProduct');
 
         cy.get('.sw-product-detail__save-button-group').click();
@@ -90,7 +94,7 @@ describe('Dynamic product group: Add custom fields to condition', () => {
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             productStreamPage.elements.contextMenuButton,
-            `${productStreamPage.elements.dataGridRow}--0`,
+            `${productStreamPage.elements.dataGridRow}--0`
         );
         cy.contains(productStreamPage.elements.smartBarHeader, '1st Productstream');
 

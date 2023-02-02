@@ -1,8 +1,5 @@
 import Debouncer from 'src/helper/debouncer.helper';
 
-/**
- * @package storefront
- */
 describe('debouncer helper', () => {
     beforeEach(() => {
         jest.useFakeTimers();

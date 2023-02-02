@@ -5,19 +5,20 @@ namespace Shopware\Core\Migration\V6_3;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\MailTemplate\MailTemplateTypes;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-/**
- * @internal
- */
-#[Package('core')]
 class Migration1571990395UpdateDefaultStatusMailTemplates extends MigrationStep
 {
-    private ?string $defaultLangId = null;
+    /**
+     * @var string|null
+     */
+    private $defaultLangId;
 
-    private ?string $deLangId = null;
+    /**
+     * @var string|null
+     */
+    private $deLangId;
 
     public function getCreationTimestamp(): int
     {
@@ -258,7 +259,7 @@ class Migration1571990395UpdateDefaultStatusMailTemplates extends MigrationStep
 
     private function changeMailTemplateNameForType(Connection $connection, string $mailTemplateType): void
     {
-        $connection->executeStatement(
+        $connection->executeUpdate(
             'UPDATE `mail_template_type` SET `technical_name` = REPLACE(`technical_name`, \'state_enter.\', \'\')
             WHERE `technical_name` = :type',
             ['type' => $mailTemplateType]
@@ -267,7 +268,7 @@ class Migration1571990395UpdateDefaultStatusMailTemplates extends MigrationStep
 
     private function fetchLanguageId(string $code, Connection $connection): ?string
     {
-        $langId = (string) $connection->fetchOne(
+        $langId = (string) $connection->fetchColumn(
             'SELECT `language`.`id` FROM `language` INNER JOIN `locale` ON `language`.`locale_id` = `locale`.`id`
             WHERE `code` = :code LIMIT 1',
             ['code' => $code]
@@ -305,14 +306,14 @@ class Migration1571990395UpdateDefaultStatusMailTemplates extends MigrationStep
         $templateTypeId = $connection->executeQuery(
             'SELECT `id` from `mail_template_type` WHERE `technical_name` = :type',
             ['type' => 'state_enter.' . $mailTemplateType]
-        )->fetchOne();
+        )->fetchColumn();
 
         $this->changeMailTemplateNameForType($connection, 'state_enter.' . $mailTemplateType);
 
         $templateId = $connection->executeQuery(
             'SELECT `id` from `mail_template` WHERE `mail_template_type_id` = :typeId AND `updated_at` = null',
             ['typeId' => $templateTypeId]
-        )->fetchOne();
+        )->fetchColumn();
 
         $descriptionEn = 'Shopware Default Template';
         $descriptionDe = 'Shopware Basis Template';
@@ -320,7 +321,7 @@ class Migration1571990395UpdateDefaultStatusMailTemplates extends MigrationStep
         $newTemplateId = false;
 
         if ($templateId) {
-            $connection->executeStatement(
+            $connection->executeUpdate(
                 'UPDATE `mail_template` SET `system_default` = 1 WHERE `id`= :templateId',
                 ['templateId' => $templateId]
             );
@@ -376,7 +377,7 @@ class Migration1571990395UpdateDefaultStatusMailTemplates extends MigrationStep
             } else {
                 $sqlString = 'UPDATE `mail_template_translation` SET ' . $sqlString
                     . 'WHERE `mail_template_id`= :templateId AND `language_id` = :langId';
-                $connection->executeStatement($sqlString, $sqlParams);
+                $connection->executeUpdate($sqlString, $sqlParams);
             }
         }
 
@@ -409,7 +410,7 @@ class Migration1571990395UpdateDefaultStatusMailTemplates extends MigrationStep
                     'templateId' => $templateId,
                     'languageId' => $this->deLangId,
                 ]
-            )->fetchOne();
+            )->fetchColumn();
 
             if ($newTemplateId || !$templateTranslationDeId) {
                 $connection->insert(
@@ -428,7 +429,7 @@ class Migration1571990395UpdateDefaultStatusMailTemplates extends MigrationStep
             } else {
                 $sqlString = 'UPDATE `mail_template_translation` SET ' . $sqlString
                     . 'WHERE `mail_template_id`= :templateId AND `language_id` = :langId';
-                $connection->executeStatement($sqlString, $sqlParams);
+                $connection->executeUpdate($sqlString, $sqlParams);
             }
         }
     }

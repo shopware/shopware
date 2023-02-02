@@ -12,6 +12,10 @@ describe('BaseSliderPlugin tests', () => {
         `;
         const element = document.querySelector('.base-slider');
 
+        window.csrf = {
+            enabled: false,
+        };
+
         window.router = [];
 
         window.breakpoints = {

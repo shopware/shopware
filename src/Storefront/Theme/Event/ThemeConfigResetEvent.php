@@ -2,14 +2,15 @@
 
 namespace Shopware\Storefront\Theme\Event;
 
-use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('storefront')]
 class ThemeConfigResetEvent extends Event
 {
-    public function __construct(private readonly string $themeId)
+    private string $themeId;
+
+    public function __construct(string $themeId)
     {
+        $this->themeId = $themeId;
     }
 
     public function getThemeId(): string

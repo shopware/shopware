@@ -2,12 +2,9 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting;
 
-use Shopware\Core\Framework\Log\Package;
-
 /**
- * @final
+ * @final tag:v6.5.0
  */
-#[Package('core')]
 class CountSorting extends FieldSorting
 {
     protected string $type = 'count';

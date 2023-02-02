@@ -15,12 +15,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('system-settings')]
 class ImportExportProfileDefinition extends EntityDefinition
 {
-    final public const ENTITY_NAME = 'import_export_profile';
+    public const ENTITY_NAME = 'import_export_profile';
 
     public function getEntityName(): string
     {

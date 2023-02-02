@@ -3,19 +3,23 @@
 namespace Shopware\Core\Framework\Adapter\Cache\Script\Facade;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
-use Shopware\Core\Framework\Log\Package;
 
 /**
  * @implements \IteratorAggregate<int, string|array>
  */
-#[Package('core')]
 class WrittenEventIdCollection implements \IteratorAggregate
 {
     /**
+     * @var EntityWriteResult[]
+     */
+    private array $writeResults;
+
+    /**
      * @param EntityWriteResult[] $writeResults
      */
-    public function __construct(private readonly array $writeResults)
+    public function __construct(array $writeResults)
     {
+        $this->writeResults = $writeResults;
     }
 
     /**
@@ -25,7 +29,9 @@ class WrittenEventIdCollection implements \IteratorAggregate
      */
     public function only(string ...$operations): self
     {
-        $writeResults = array_filter($this->writeResults, fn (EntityWriteResult $result): bool => \in_array($result->getOperation(), $operations, true));
+        $writeResults = array_filter($this->writeResults, function (EntityWriteResult $result) use ($operations): bool {
+            return \in_array($result->getOperation(), $operations, true);
+        });
 
         return new self($writeResults);
     }
@@ -38,7 +44,9 @@ class WrittenEventIdCollection implements \IteratorAggregate
      */
     public function with(string ...$properties): self
     {
-        $writeResults = array_filter($this->writeResults, fn (EntityWriteResult $result): bool => \count(\array_intersect(array_keys($result->getPayload()), $properties)) > 0);
+        $writeResults = array_filter($this->writeResults, function (EntityWriteResult $result) use ($properties): bool {
+            return \count(\array_intersect(array_keys($result->getPayload()), $properties)) > 0;
+        });
 
         return new self($writeResults);
     }
@@ -51,11 +59,13 @@ class WrittenEventIdCollection implements \IteratorAggregate
     /**
      * @internal should not be used directly, loop over an ItemsFacade directly inside twig instead
      *
-     * @return \ArrayIterator<int, string|array<string, string>>
+     * @return \ArrayIterator<int, string|array>
      */
     public function getIterator(): \ArrayIterator
     {
-        $primaryKeys = array_values(\array_map(fn (EntityWriteResult $result) => $result->getPrimaryKey(), $this->writeResults));
+        $primaryKeys = \array_map(function (EntityWriteResult $result) {
+            return $result->getPrimaryKey();
+        }, $this->writeResults);
 
         return new \ArrayIterator($primaryKeys);
     }

@@ -35,7 +35,7 @@
                     <slot name="smart-bar-back">
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_meteor_page_navigation %}
-                        <sw-meteor-navigation :from-link="fromLink" />
+                        <sw-meteor-navigation />
                         {% endblock %}
                     </slot>
                 </div>
@@ -96,7 +96,9 @@
                     <div class="sw-meteor-page__smart-bar-context-buttons">
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_meteor_page_smart_bar_context_buttons %}
-                        <slot name="smart-bar-context-buttons"></slot>
+                        <template>
+                            <slot name="smart-bar-context-buttons"></slot>
+                        </template>
                         {% endblock %}
                     </div>
                 </div>

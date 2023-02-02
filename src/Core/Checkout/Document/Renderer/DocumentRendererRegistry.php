@@ -4,18 +4,20 @@ namespace Shopware\Core\Checkout\Document\Renderer;
 
 use Shopware\Core\Checkout\Document\Exception\InvalidDocumentGeneratorTypeException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('customer-order')]
 final class DocumentRendererRegistry
 {
     /**
-     * @internal
-     *
-     * @param AbstractDocumentRenderer[] $documentRenderers
+     * @var iterable|AbstractDocumentRenderer[]
      */
-    public function __construct(protected iterable $documentRenderers)
+    protected $documentRenderers;
+
+    /**
+     * @internal
+     */
+    public function __construct(iterable $documentRenderers)
     {
+        $this->documentRenderers = $documentRenderers;
     }
 
     public function render(string $documentType, array $operations, Context $context, DocumentRendererConfig $rendererConfig): RendererResult

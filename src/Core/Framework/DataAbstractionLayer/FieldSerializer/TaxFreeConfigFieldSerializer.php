@@ -7,12 +7,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\TaxFreeConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
-use Shopware\Core\Framework\Log\Package;
 
 /**
- * @internal
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
  */
-#[Package('core')]
 class TaxFreeConfigFieldSerializer extends JsonFieldSerializer
 {
     public function encode(
@@ -31,13 +29,13 @@ class TaxFreeConfigFieldSerializer extends JsonFieldSerializer
         yield from parent::encode($field, $existence, $data, $parameters);
     }
 
-    public function decode(Field $field, mixed $value): ?TaxFreeConfig
+    public function decode(Field $field, $value): ?TaxFreeConfig
     {
         if ($value === null) {
             return null;
         }
 
-        $raw = json_decode((string) $value, true, 512, \JSON_THROW_ON_ERROR);
+        $raw = json_decode($value, true);
 
         return new TaxFreeConfig(
             (bool) $raw['enabled'],

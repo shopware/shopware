@@ -25,30 +25,6 @@ $sw-pagination-border-radius: $border-radius-default;
         margin: 0;
     }
 
-    .sw-pagination__page-button {
-        &-prev {
-            .sw-icon {
-                width: 16px;
-                height: 16px;
-                padding-top: 3px;
-                padding-right: 5px;
-                padding-bottom: 3px;
-                padding-left: 5px;
-            }
-        }
-
-        &-next {
-            .sw-icon {
-                width: 16px;
-                height: 16px;
-                padding-top: 3px;
-                padding-right: 5px;
-                padding-bottom: 3px;
-                padding-left: 5px;
-            }
-        }
-    }
-
     .sw-pagination__list-button,
     .sw-pagination__page-button,
     .sw-pagination__list-separator {
@@ -91,7 +67,7 @@ $sw-pagination-border-radius: $border-radius-default;
 
     .sw-pagination__per-page {
         display: inline-block;
-        font-size: $font-size-xs;
+        font-size: 14px;
         line-height: 16px;
         position: absolute;
         right: 0;
@@ -99,6 +75,10 @@ $sw-pagination-border-radius: $border-radius-default;
 
         @media screen and (max-width: 900px) {
             display: none;
+        }
+
+        .sw-field.sw-field--select {
+            grid-template-columns: 120px auto;
         }
     }
 }

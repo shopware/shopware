@@ -1,16 +1,12 @@
-/**
- * @package sales-channel
- */
-
 import template from './sw-sales-channel-detail-domains.html.twig';
 import './sw-sales-channel-detail-domains.scss';
 
-const { Context } = Shopware;
+const { Component, Context } = Shopware;
 const { Criteria } = Shopware.Data;
 const { ShopwareError } = Shopware.Classes;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-sales-channel-detail-domains', {
     template,
 
     inject: [
@@ -225,34 +221,9 @@ export default {
             this.currentDomain.snippetSetId = this.currentDomainBackup.snippetSetId;
         },
 
-        setInitialCurrency(domain) {
-            const currency = this.salesChannel.currencies.first();
-            domain.currency = currency;
-            domain.currencyId = currency.id;
-            this.currentDomain = domain;
-        },
-
-        setInitialLanguage(domain) {
-            const language = this.salesChannel.languages.first();
-            domain.language = language;
-            domain.languageId = language.id;
-            this.currentDomain = domain;
-        },
-
         onClickOpenCreateDomainModal() {
-            const domain = this.domainRepository.create(Context.api);
-
-            this.setCurrentDomainBackup(domain);
-
-            if (this.salesChannel.currencies.length === 1) {
-                this.setInitialCurrency(domain);
-            }
-
-            if (this.salesChannel.languages.length === 1) {
-                this.setInitialLanguage(domain);
-            }
-
-            this.currentDomain = domain;
+            this.currentDomain = this.domainRepository.create(Context.api);
+            this.setCurrentDomainBackup(this.currentDomain);
         },
 
         async onClickAddNewDomain() {
@@ -347,4 +318,4 @@ export default {
             }];
         },
     },
-};
+});

@@ -11,14 +11,12 @@ use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemTotalPriceRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
  */
-#[Package('business-ops')]
 class LineItemTotalPriceRuleTest extends TestCase
 {
     public function testRuleWithExactAmountMatch(): void
@@ -37,7 +35,7 @@ class LineItemTotalPriceRuleTest extends TestCase
             $rule->match(new LineItemScope($lineItem, $context))
         );
 
-        $cart = new Cart('test');
+        $cart = new Cart('test', 'test');
         $cart->add($lineItem);
         static::assertTrue(
             $rule->match(new CartRuleScope($cart, $context))
@@ -59,7 +57,7 @@ class LineItemTotalPriceRuleTest extends TestCase
             $rule->match(new LineItemScope($lineItem, $context))
         );
 
-        $cart = new Cart('test');
+        $cart = new Cart('test', 'test');
         $cart->add($lineItem);
         static::assertFalse(
             $rule->match(new CartRuleScope($cart, $context))

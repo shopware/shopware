@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Framework\App\Lifecycle;
+namespace Shopware\Tests\Unit\Core\Framework\App\AppLifecycle;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppEntity;
@@ -17,7 +17,6 @@ class AppLoaderTest extends TestCase
 {
     public function testGetSnippets(): void
     {
-        $expectedSnippet = [];
         $expectedSnippet['en-GB'] = file_get_contents(__DIR__ . '/../_fixtures/Resources/app/administration/snippet/en-GB.json');
 
         $appLoader = new AppLoader(

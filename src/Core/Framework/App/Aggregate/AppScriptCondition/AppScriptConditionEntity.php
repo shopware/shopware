@@ -7,26 +7,24 @@ use Shopware\Core\Framework\App\Aggregate\AppScriptConditionTranslation\AppScrip
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
 class AppScriptConditionEntity extends Entity
 {
     use EntityIdTrait;
 
     protected string $appId;
 
-    protected ?AppEntity $app = null;
+    protected ?AppEntity $app;
 
     protected string $identifier;
 
-    protected ?string $name = null;
+    protected ?string $name;
 
     protected bool $active;
 
-    protected ?string $group = null;
+    protected ?string $group;
 
-    protected ?string $script = null;
+    protected ?string $script;
 
     /**
      * @internal

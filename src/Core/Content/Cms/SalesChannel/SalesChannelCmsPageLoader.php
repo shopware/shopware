@@ -10,22 +10,32 @@ use Shopware\Core\Content\Cms\DataResolver\CmsSlotsDataResolver;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\Events\CmsPageLoadedEvent;
 use Shopware\Core\Content\Cms\Events\CmsPageLoaderCriteriaEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('content')]
 class SalesChannelCmsPageLoader implements SalesChannelCmsPageLoaderInterface
 {
+    private EntityRepositoryInterface $cmsPageRepository;
+
+    private CmsSlotsDataResolver $slotDataResolver;
+
+    private EventDispatcherInterface $eventDispatcher;
+
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $cmsPageRepository, private readonly CmsSlotsDataResolver $slotDataResolver, private readonly EventDispatcherInterface $eventDispatcher)
-    {
+    public function __construct(
+        EntityRepositoryInterface $cmsPageRepository,
+        CmsSlotsDataResolver $slotDataResolver,
+        EventDispatcherInterface $eventDispatcher
+    ) {
+        $this->cmsPageRepository = $cmsPageRepository;
+        $this->slotDataResolver = $slotDataResolver;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function load(
@@ -36,7 +46,7 @@ class SalesChannelCmsPageLoader implements SalesChannelCmsPageLoaderInterface
         ?ResolverContext $resolverContext = null
     ): EntitySearchResult {
         $this->eventDispatcher->dispatch(new CmsPageLoaderCriteriaEvent($request, $criteria, $context));
-        $config ??= [];
+        $config = $config ?? [];
 
         // ensure sections, blocks and slots are loaded, slots and blocks can be restricted by caller
         $criteria->addAssociation('sections.backgroundMedia');
@@ -51,7 +61,9 @@ class SalesChannelCmsPageLoader implements SalesChannelCmsPageLoaderInterface
                 continue;
             }
 
-            $page->getSections()->sort(fn (CmsSectionEntity $a, CmsSectionEntity $b) => $a->getPosition() <=> $b->getPosition());
+            $page->getSections()->sort(function (CmsSectionEntity $a, CmsSectionEntity $b) {
+                return $a->getPosition() <=> $b->getPosition();
+            });
 
             if (!$resolverContext) {
                 $resolverContext = new ResolverContext($context, $request);
@@ -59,10 +71,14 @@ class SalesChannelCmsPageLoader implements SalesChannelCmsPageLoaderInterface
 
             // step 2, sort blocks into sectionPositions
             foreach ($page->getSections() as $section) {
-                $section->getBlocks()->sort(fn (CmsBlockEntity $a, CmsBlockEntity $b) => $a->getPosition() <=> $b->getPosition());
+                $section->getBlocks()->sort(function (CmsBlockEntity $a, CmsBlockEntity $b) {
+                    return $a->getPosition() <=> $b->getPosition();
+                });
 
                 foreach ($section->getBlocks() as $block) {
-                    $block->getSlots()->sort(fn (CmsSlotEntity $a, CmsSlotEntity $b) => $a->getSlot() <=> $b->getSlot());
+                    $block->getSlots()->sort(function (CmsSlotEntity $a, CmsSlotEntity $b) {
+                        return $a->getSlot() <=> $b->getSlot();
+                    });
                 }
             }
 

@@ -1,0 +1,25 @@
+@import "~scss/variables";
+
+.sw-event-action-detail-recipients {
+    .sw-card__toolbar {
+        display: flex;
+        border-top-left-radius: $border-radius-default;
+        border-top-right-radius: $border-radius-default;
+
+        .sw-tooltip--wrapper {
+            margin-left: auto;
+        }
+    }
+
+    .sw-event-action-detail-recipients__action-add {
+        margin-left: auto;
+    }
+
+    .sw-event-action-detail-recipients__grid .sw-field__error {
+        display: none;
+    }
+
+    .sw-empty-state .sw-empty-state__title {
+        font-size: $font-size-default;
+    }
+}

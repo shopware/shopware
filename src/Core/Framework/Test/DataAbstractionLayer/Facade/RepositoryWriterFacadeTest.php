@@ -8,18 +8,18 @@ use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryWriterFacadeHookFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\Framework\Script\Execution\ScriptAppInformation;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
+use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\Script\Execution\TestHook;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\Tax\TaxEntity;
-use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 
 /**
  * @internal
@@ -42,7 +42,6 @@ class RepositoryWriterFacadeTest extends TestCase
     }
 
     /**
-     * @param array<int, mixed> $payload
      * @dataProvider testCases
      */
     public function testFacade(array $payload, string $method, IdsCollection $ids, callable $expectation): void
@@ -60,9 +59,6 @@ class RepositoryWriterFacadeTest extends TestCase
         $expectation($this->context);
     }
 
-    /**
-     * @return array<string, array<int, mixed>>
-     */
     public function testCases(): array
     {
         $ids = new IdsCollection();
@@ -168,7 +164,6 @@ class RepositoryWriterFacadeTest extends TestCase
     }
 
     /**
-     * @param array<int, mixed> $arguments
      * @dataProvider withoutPermissionsCases
      */
     public function testWithoutPermission(array $arguments, string $method, IdsCollection $ids): void
@@ -187,9 +182,6 @@ class RepositoryWriterFacadeTest extends TestCase
         $facade->$method(...$arguments);
     }
 
-    /**
-     * @return array<string, array<int, mixed>>
-     */
     public function withoutPermissionsCases(): array
     {
         $ids = new IdsCollection();
@@ -374,7 +366,7 @@ class RepositoryWriterFacadeTest extends TestCase
 
     private function getExistingTaxId(): string
     {
-        /** @var EntityRepository $taxRepository */
+        /** @var EntityRepositoryInterface $taxRepository */
         $taxRepository = $this->getContainer()->get('tax.repository');
 
         $criteria = new Criteria();

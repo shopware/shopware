@@ -3,7 +3,6 @@
 namespace Shopware\Core\System\SalesChannel;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType\SalesChannelTypeCollection;
@@ -11,7 +10,6 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType\SalesChannelTyp
 /**
  * @extends EntityCollection<SalesChannelEntity>
  */
-#[Package('core')]
 class SalesChannelCollection extends EntityCollection
 {
     /**
@@ -19,12 +17,16 @@ class SalesChannelCollection extends EntityCollection
      */
     public function getLanguageIds(): array
     {
-        return $this->fmap(fn (SalesChannelEntity $salesChannel) => $salesChannel->getLanguageId());
+        return $this->fmap(function (SalesChannelEntity $salesChannel) {
+            return $salesChannel->getLanguageId();
+        });
     }
 
     public function filterByLanguageId(string $id): SalesChannelCollection
     {
-        return $this->filter(fn (SalesChannelEntity $salesChannel) => $salesChannel->getLanguageId() === $id);
+        return $this->filter(function (SalesChannelEntity $salesChannel) use ($id) {
+            return $salesChannel->getLanguageId() === $id;
+        });
     }
 
     /**
@@ -32,12 +34,16 @@ class SalesChannelCollection extends EntityCollection
      */
     public function getCurrencyIds(): array
     {
-        return $this->fmap(fn (SalesChannelEntity $salesChannel) => $salesChannel->getCurrencyId());
+        return $this->fmap(function (SalesChannelEntity $salesChannel) {
+            return $salesChannel->getCurrencyId();
+        });
     }
 
     public function filterByCurrencyId(string $id): SalesChannelCollection
     {
-        return $this->filter(fn (SalesChannelEntity $salesChannel) => $salesChannel->getCurrencyId() === $id);
+        return $this->filter(function (SalesChannelEntity $salesChannel) use ($id) {
+            return $salesChannel->getCurrencyId() === $id;
+        });
     }
 
     /**
@@ -45,12 +51,16 @@ class SalesChannelCollection extends EntityCollection
      */
     public function getPaymentMethodIds(): array
     {
-        return $this->fmap(fn (SalesChannelEntity $salesChannel) => $salesChannel->getPaymentMethodId());
+        return $this->fmap(function (SalesChannelEntity $salesChannel) {
+            return $salesChannel->getPaymentMethodId();
+        });
     }
 
     public function filterByPaymentMethodId(string $id): SalesChannelCollection
     {
-        return $this->filter(fn (SalesChannelEntity $salesChannel) => $salesChannel->getPaymentMethodId() === $id);
+        return $this->filter(function (SalesChannelEntity $salesChannel) use ($id) {
+            return $salesChannel->getPaymentMethodId() === $id;
+        });
     }
 
     /**
@@ -58,12 +68,16 @@ class SalesChannelCollection extends EntityCollection
      */
     public function getShippingMethodIds(): array
     {
-        return $this->fmap(fn (SalesChannelEntity $salesChannel) => $salesChannel->getShippingMethodId());
+        return $this->fmap(function (SalesChannelEntity $salesChannel) {
+            return $salesChannel->getShippingMethodId();
+        });
     }
 
     public function filterByShippingMethodId(string $id): SalesChannelCollection
     {
-        return $this->filter(fn (SalesChannelEntity $salesChannel) => $salesChannel->getShippingMethodId() === $id);
+        return $this->filter(function (SalesChannelEntity $salesChannel) use ($id) {
+            return $salesChannel->getShippingMethodId() === $id;
+        });
     }
 
     /**
@@ -71,12 +85,16 @@ class SalesChannelCollection extends EntityCollection
      */
     public function getCountryIds(): array
     {
-        return $this->fmap(fn (SalesChannelEntity $salesChannel) => $salesChannel->getCountryId());
+        return $this->fmap(function (SalesChannelEntity $salesChannel) {
+            return $salesChannel->getCountryId();
+        });
     }
 
     public function filterByCountryId(string $id): SalesChannelCollection
     {
-        return $this->filter(fn (SalesChannelEntity $salesChannel) => $salesChannel->getCountryId() === $id);
+        return $this->filter(function (SalesChannelEntity $salesChannel) use ($id) {
+            return $salesChannel->getCountryId() === $id;
+        });
     }
 
     /**
@@ -84,32 +102,42 @@ class SalesChannelCollection extends EntityCollection
      */
     public function getTypeIds(): array
     {
-        return $this->fmap(fn (SalesChannelEntity $salesChannel) => $salesChannel->getTypeId());
+        return $this->fmap(function (SalesChannelEntity $salesChannel) {
+            return $salesChannel->getTypeId();
+        });
     }
 
     public function filterByTypeId(string $id): SalesChannelCollection
     {
-        return $this->filter(fn (SalesChannelEntity $salesChannel) => $salesChannel->getTypeId() === $id);
+        return $this->filter(function (SalesChannelEntity $salesChannel) use ($id) {
+            return $salesChannel->getTypeId() === $id;
+        });
     }
 
     public function getLanguages(): LanguageCollection
     {
         return new LanguageCollection(
-            $this->fmap(fn (SalesChannelEntity $salesChannel) => $salesChannel->getLanguage())
+            $this->fmap(function (SalesChannelEntity $salesChannel) {
+                return $salesChannel->getLanguage();
+            })
         );
     }
 
     public function getCurrencies(): CurrencyCollection
     {
         return new CurrencyCollection(
-            $this->fmap(fn (SalesChannelEntity $salesChannel) => $salesChannel->getCurrency())
+            $this->fmap(function (SalesChannelEntity $salesChannel) {
+                return $salesChannel->getCurrency();
+            })
         );
     }
 
     public function getTypes(): SalesChannelTypeCollection
     {
         return new SalesChannelTypeCollection(
-            $this->fmap(fn (SalesChannelEntity $salesChannel) => $salesChannel->getType())
+            $this->fmap(function (SalesChannelEntity $salesChannel) {
+                return $salesChannel->getType();
+            })
         );
     }
 

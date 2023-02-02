@@ -1,15 +1,11 @@
-/*
- * @package inventory
- */
-
 import template from './sw-product-variant-modal.html.twig';
 import './sw-product-variant-modal.scss';
 
-const { Mixin, Context } = Shopware;
+const { Component, Mixin, Context } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-product-variant-modal', {
     template,
 
     inject: [
@@ -682,9 +678,5 @@ export default {
                 },
             });
         },
-
-        variantIsDigital(variant) {
-            return variant.states && variant.states.includes('is-download');
-        },
     },
-};
+});

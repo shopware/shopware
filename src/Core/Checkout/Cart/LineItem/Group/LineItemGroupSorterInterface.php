@@ -3,9 +3,7 @@
 namespace Shopware\Core\Checkout\Cart\LineItem\Group;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('checkout')]
 interface LineItemGroupSorterInterface
 {
     /**

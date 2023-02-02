@@ -1,12 +1,10 @@
-/*
- * @package inventory
- */
-
 import template from './sw-product-settings-mode.html.twig';
 import './sw-product-settings-mode.scss';
 
+const { Component } = Shopware;
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-product-settings-mode', {
     template,
 
     props: {
@@ -55,4 +53,4 @@ export default {
             this.$emit('settings-item-change');
         },
     },
-};
+});

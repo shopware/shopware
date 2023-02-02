@@ -1,15 +1,12 @@
-/**
- * @package system-settings
- */
 import template from './sw-custom-field-list.html.twig';
 import './sw-custom-field-list.scss';
 
 const { Criteria } = Shopware.Data;
-const { Mixin } = Shopware;
+const { Component, Mixin, Feature } = Shopware;
 const types = Shopware.Utils.types;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-custom-field-list', {
     template,
 
     inject: [
@@ -64,6 +61,13 @@ export default {
     },
 
     watch: {
+        /* @deprecated tag:v6.5.0 watcher not debounced anymore, use `@search-term-change` event */
+        term() {
+            if (!Feature.isActive('FEATURE_NEXT_16271')) {
+                this.loadCustomFields();
+            }
+        },
+
         isLoading(value) {
             this.$emit('loading-changed', value);
         },
@@ -75,7 +79,9 @@ export default {
 
     methods: {
         onSearchTermChange() {
-            this.loadCustomFields();
+            if (Feature.isActive('FEATURE_NEXT_16271')) {
+                this.loadCustomFields();
+            }
         },
 
         createdComponent() {
@@ -208,4 +214,4 @@ export default {
             });
         },
     },
-};
+});

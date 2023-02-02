@@ -8,12 +8,9 @@ use Shopware\Core\Framework\Plugin\Event\PluginPreActivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPreDeactivateEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-/**
- * @internal
- */
 class SwagTestSubscriber implements EventSubscriberInterface
 {
-    public static function getSubscribedEvents(): array
+    public static function getSubscribedEvents()
     {
         return [
             PluginPreActivateEvent::class => 'preActivate',
@@ -26,7 +23,7 @@ class SwagTestSubscriber implements EventSubscriberInterface
     public function preActivate(PluginPreActivateEvent $event): void
     {
         $plugin = $event->getContext()->getPlugin();
-        if (!($plugin instanceof SwagTest)) {
+        if (!\get_class($plugin) === 'SwagTest\\SwagTest') {
             return;
         }
 
@@ -36,7 +33,7 @@ class SwagTestSubscriber implements EventSubscriberInterface
     public function postActivate(PluginPostActivateEvent $event): void
     {
         $plugin = $event->getContext()->getPlugin();
-        if (!($plugin instanceof SwagTest)) {
+        if (!\get_class($plugin) === 'SwagTest\\SwagTest') {
             return;
         }
 
@@ -46,7 +43,7 @@ class SwagTestSubscriber implements EventSubscriberInterface
     public function preDeactivate(PluginPreDeactivateEvent $event): void
     {
         $plugin = $event->getContext()->getPlugin();
-        if (!($plugin instanceof SwagTest)) {
+        if (!\get_class($plugin) === 'SwagTest\\SwagTest') {
             return;
         }
 
@@ -56,7 +53,7 @@ class SwagTestSubscriber implements EventSubscriberInterface
     public function postDeactivate(PluginPostDeactivateEvent $event): void
     {
         $plugin = $event->getContext()->getPlugin();
-        if (!($plugin instanceof SwagTest)) {
+        if (!\get_class($plugin) === 'SwagTest\\SwagTest') {
             return;
         }
 

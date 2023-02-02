@@ -12,11 +12,6 @@
             display: block;
             padding: 12px 8px;
         }
-
-        &:disabled {
-            background-color: $color-white;
-            border-color: $color-white;
-        }
     }
 
     .sw-single-select__selection-text {

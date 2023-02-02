@@ -12,10 +12,8 @@ module.exports = function createLiveReloadServer() {
 
         const devServerOptions = Object.assign({}, webpackConfig.devServer, {
             open: false,
-            devMiddleware: {
-                stats: {
-                    colors: true,
-                },
+            stats: {
+                colors: true,
             },
         });
 

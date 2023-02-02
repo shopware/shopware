@@ -1,7 +1,3 @@
-/**
- * @package admin
- */
-
 const path = require('path');
 
 module.exports = {

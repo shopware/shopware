@@ -22,7 +22,10 @@ class CacheInvalidationSubscriberTest extends TestCase
 
     private IdsCollection $ids;
 
-    private MockObject $cacheInvalidatorMock;
+    /**
+     * @var MockObject|CacheInvalidator
+     */
+    private $cacheInvalidatorMock;
 
     private CacheInvalidationSubscriber $cacheInvalidationSubscriber;
 

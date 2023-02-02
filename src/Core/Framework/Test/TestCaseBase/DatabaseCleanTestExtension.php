@@ -20,7 +20,7 @@ class DatabaseCleanTestExtension implements BeforeTestHook, AfterTestHook
     /**
      * @var array<mixed>
      */
-    private array $lastDataPoint = [];
+    private $lastDataPoint = [];
 
     public function executeBeforeTest(string $test): void
     {
@@ -52,12 +52,12 @@ class DatabaseCleanTestExtension implements BeforeTestHook, AfterTestHook
     {
         $connection = Kernel::getConnection();
 
-        $rawTables = $connection->fetchAllAssociative('SHOW TABLES');
+        $rawTables = $connection->query('SHOW TABLES')->fetchAll();
         $stateResult = [];
 
         foreach ($rawTables as $nested) {
             $tableName = end($nested);
-            $count = $connection->fetchOne('SELECT COUNT(*) FROM ' . $tableName);
+            $count = $connection->query("SELECT COUNT(*) FROM `{$tableName}`")->fetchColumn();
 
             $stateResult[(string) $tableName] = (int) $count;
         }

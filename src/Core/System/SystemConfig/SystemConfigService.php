@@ -6,11 +6,11 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ConfigJsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\XmlReader;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -25,9 +25,14 @@ use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use function json_decode;
 
-#[Package('system-settings')]
 class SystemConfigService
 {
+    private Connection $connection;
+
+    private EntityRepositoryInterface $systemConfigRepository;
+
+    private ConfigReader $configReader;
+
     /**
      * @var array<string, bool>
      */
@@ -38,11 +43,25 @@ class SystemConfigService
      */
     private array $traces = [];
 
+    private AbstractSystemConfigLoader $loader;
+
+    private EventDispatcherInterface $eventDispatcher;
+
     /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection, private readonly EntityRepository $systemConfigRepository, private readonly ConfigReader $configReader, private readonly AbstractSystemConfigLoader $loader, private readonly EventDispatcherInterface $eventDispatcher)
-    {
+    public function __construct(
+        Connection $connection,
+        EntityRepository $systemConfigRepository,
+        ConfigReader $configReader,
+        AbstractSystemConfigLoader $loader,
+        EventDispatcherInterface $eventDispatcher
+    ) {
+        $this->connection = $connection;
+        $this->systemConfigRepository = $systemConfigRepository;
+        $this->configReader = $configReader;
+        $this->loader = $loader;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     public static function buildName(string $key): string
@@ -165,7 +184,7 @@ class SystemConfigService
             ->setParameter('prefix', $escapedDomain . '%')
             ->setParameter('salesChannelId', $salesChannelId);
 
-        $configs = $queryBuilder->executeQuery()->fetchAllNumeric();
+        $configs = $queryBuilder->execute()->fetchAllNumeric();
 
         if ($configs === []) {
             return [];
@@ -175,7 +194,7 @@ class SystemConfigService
 
         foreach ($configs as [$key, $value]) {
             if ($value !== null) {
-                $value = json_decode((string) $value, true, 512, \JSON_THROW_ON_ERROR);
+                $value = json_decode($value, true);
 
                 if ($value === false || !isset($value[ConfigJsonField::STORAGE_KEY])) {
                     $value = null;
@@ -244,7 +263,7 @@ class SystemConfigService
     {
         try {
             $config = $this->configReader->getConfigFromBundle($bundle);
-        } catch (BundleConfigNotFoundException) {
+        } catch (BundleConfigNotFoundException $e) {
             return;
         }
 
@@ -279,7 +298,7 @@ class SystemConfigService
     {
         try {
             $config = $this->configReader->getConfigFromBundle($bundle);
-        } catch (BundleConfigNotFoundException) {
+        } catch (BundleConfigNotFoundException $e) {
             return;
         }
 
@@ -311,7 +330,9 @@ class SystemConfigService
             return;
         }
 
-        $ids = array_map(static fn ($id) => ['id' => $id], $systemConfigIds);
+        $ids = array_map(static function ($id) {
+            return ['id' => $id];
+        }, $systemConfigIds);
 
         $this->systemConfigRepository->delete($ids, Context::createDefaultContext());
     }

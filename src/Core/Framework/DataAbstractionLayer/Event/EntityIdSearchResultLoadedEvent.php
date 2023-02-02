@@ -7,9 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Event\GenericEvent;
 use Shopware\Core\Framework\Event\NestedEvent;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
 class EntityIdSearchResultLoadedEvent extends NestedEvent implements GenericEvent
 {
     /**

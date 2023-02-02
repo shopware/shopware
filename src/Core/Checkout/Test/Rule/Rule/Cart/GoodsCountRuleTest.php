@@ -7,21 +7,19 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\GoodsCountRule;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
  */
-#[Package('business-ops')]
 class GoodsCountRuleTest extends TestCase
 {
     public function testRuleWithExactCountMatch(): void
     {
         $rule = (new GoodsCountRule())->assign(['count' => 0, 'operator' => Rule::OPERATOR_EQ]);
 
-        $cart = new Cart('test');
+        $cart = new Cart('test', 'test');
         $context = $this->createMock(SalesChannelContext::class);
 
         static::assertTrue(
@@ -33,7 +31,7 @@ class GoodsCountRuleTest extends TestCase
     {
         $rule = (new GoodsCountRule())->assign(['count' => 0, 'operator' => Rule::OPERATOR_EQ]);
 
-        $cart = new Cart('test');
+        $cart = new Cart('test', 'test');
         $context = $this->createMock(SalesChannelContext::class);
 
         static::assertTrue(
@@ -45,7 +43,7 @@ class GoodsCountRuleTest extends TestCase
     {
         $rule = (new GoodsCountRule())->assign(['count' => 1, 'operator' => Rule::OPERATOR_LTE]);
 
-        $cart = new Cart('test');
+        $cart = new Cart('test', 'test');
         $context = $this->createMock(SalesChannelContext::class);
 
         static::assertTrue(
@@ -57,7 +55,7 @@ class GoodsCountRuleTest extends TestCase
     {
         $rule = (new GoodsCountRule())->assign(['count' => 2, 'operator' => Rule::OPERATOR_LTE]);
 
-        $cart = new Cart('test');
+        $cart = new Cart('test', 'test');
         $context = $this->createMock(SalesChannelContext::class);
 
         static::assertTrue(
@@ -69,7 +67,7 @@ class GoodsCountRuleTest extends TestCase
     {
         $rule = (new GoodsCountRule())->assign(['count' => 0, 'operator' => Rule::OPERATOR_LTE]);
 
-        $cart = new Cart('test');
+        $cart = new Cart('test', 'test');
 
         $cart->add((new LineItem('A', 'test'))->setGood(true));
 
@@ -84,7 +82,7 @@ class GoodsCountRuleTest extends TestCase
     {
         $rule = (new GoodsCountRule())->assign(['count' => 1, 'operator' => Rule::OPERATOR_GTE]);
 
-        $cart = new Cart('test');
+        $cart = new Cart('test', 'test');
         $cart->add((new LineItem('a', 'a'))->setGood(true));
         $context = $this->createMock(SalesChannelContext::class);
 
@@ -97,7 +95,7 @@ class GoodsCountRuleTest extends TestCase
     {
         $rule = (new GoodsCountRule())->assign(['count' => 0, 'operator' => Rule::OPERATOR_GTE]);
 
-        $cart = new Cart('test');
+        $cart = new Cart('test', 'test');
         $context = $this->createMock(SalesChannelContext::class);
 
         static::assertTrue(
@@ -109,7 +107,7 @@ class GoodsCountRuleTest extends TestCase
     {
         $rule = (new GoodsCountRule())->assign(['count' => 2, 'operator' => Rule::OPERATOR_GTE]);
 
-        $cart = new Cart('test');
+        $cart = new Cart('test', 'test');
         $context = $this->createMock(SalesChannelContext::class);
 
         static::assertFalse(
@@ -121,7 +119,7 @@ class GoodsCountRuleTest extends TestCase
     {
         $rule = (new GoodsCountRule())->assign(['count' => 2, 'operator' => Rule::OPERATOR_NEQ]);
 
-        $cart = new Cart('test');
+        $cart = new Cart('test', 'test');
         $context = $this->createMock(SalesChannelContext::class);
 
         static::assertTrue(
@@ -133,7 +131,7 @@ class GoodsCountRuleTest extends TestCase
     {
         $rule = (new GoodsCountRule())->assign(['count' => 1, 'operator' => Rule::OPERATOR_NEQ]);
 
-        $cart = new Cart('test');
+        $cart = new Cart('test', 'test');
         $cart->add((new LineItem('a', 'a'))->setGood(true));
 
         $context = $this->createMock(SalesChannelContext::class);

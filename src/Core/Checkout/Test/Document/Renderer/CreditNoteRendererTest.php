@@ -26,8 +26,7 @@ use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
@@ -42,7 +41,6 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[Package('customer-order')]
 class CreditNoteRendererTest extends TestCase
 {
     use DocumentTrait;
@@ -51,7 +49,7 @@ class CreditNoteRendererTest extends TestCase
 
     private Context $context;
 
-    private EntityRepository $productRepository;
+    private EntityRepositoryInterface $productRepository;
 
     private CreditNoteRenderer $creditNoteRenderer;
 
@@ -109,6 +107,7 @@ class CreditNoteRendererTest extends TestCase
         $invoiceConfig->setDocumentNumber('1001');
 
         $operationInvoice = new DocumentGenerateOperation($orderId, FileTypes::PDF, $invoiceConfig->jsonSerialize());
+
         $result = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$orderId => $operationInvoice], $this->context)->getSuccess()->first();
         static::assertNotNull($result);
         $invoiceId = $result->getId();
@@ -145,8 +144,6 @@ class CreditNoteRendererTest extends TestCase
         );
 
         static::assertInstanceOf(CreditNoteOrdersEvent::class, $caughtEvent);
-        static::assertCount(1, $caughtEvent->getOperations());
-        static::assertSame($operation, $caughtEvent->getOperations()[$orderId] ?? null);
         static::assertCount(1, $caughtEvent->getOrders());
         $order = $caughtEvent->getOrders()->get($orderId);
         static::assertNotNull($order);
@@ -423,7 +420,7 @@ class CreditNoteRendererTest extends TestCase
      */
     private function generateDemoCart(array $taxes): Cart
     {
-        $cart = $this->cartService->createNew('a-b-c');
+        $cart = $this->cartService->createNew('a-b-c', 'A');
 
         $keywords = ['awesome', 'epic', 'high quality'];
 

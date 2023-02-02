@@ -5,12 +5,10 @@ namespace Shopware\Core\Checkout\Order\Aggregate\OrderCustomer;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<OrderCustomerEntity>
  */
-#[Package('customer-order')]
 class OrderCustomerCollection extends EntityCollection
 {
     /**
@@ -18,18 +16,24 @@ class OrderCustomerCollection extends EntityCollection
      */
     public function getCustomerIds(): array
     {
-        return $this->fmap(fn (OrderCustomerEntity $orderCustomer) => $orderCustomer->getCustomerId());
+        return $this->fmap(function (OrderCustomerEntity $orderCustomer) {
+            return $orderCustomer->getCustomerId();
+        });
     }
 
     public function filterByCustomerId(string $id): self
     {
-        return $this->filter(fn (OrderCustomerEntity $orderCustomer) => $orderCustomer->getCustomerId() === $id);
+        return $this->filter(function (OrderCustomerEntity $orderCustomer) use ($id) {
+            return $orderCustomer->getCustomerId() === $id;
+        });
     }
 
     public function getCustomers(): CustomerCollection
     {
         return new CustomerCollection(
-            $this->fmap(fn (OrderCustomerEntity $orderCustomer) => $orderCustomer->getCustomer())
+            $this->fmap(function (OrderCustomerEntity $orderCustomer) {
+                return $orderCustomer->getCustomer();
+            })
         );
     }
 

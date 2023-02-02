@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Bench;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -19,15 +20,13 @@ class Fixtures
 
     private static ?SalesChannelContext $context = null;
 
-    public function load(string $data): void
+    public function load(): void
     {
-        $content = $data;
-        if (is_file($data)) {
-            $content = (string) \file_get_contents($data);
-        }
-        $container = KernelLifecycleManager::getKernel()->getContainer();
-        $loader = new FixtureLoader($container);
-        $ids = $loader->load($content, self::$ids);
+        $loader = new FixtureLoader(
+            KernelLifecycleManager::getKernel()->getContainer()->get(EntityWriter::class)
+        );
+
+        $ids = $loader->load(__DIR__ . '/data.json');
 
         $sql = '
 CREATE TABLE IF NOT EXISTS `php_bench` (
@@ -37,13 +36,15 @@ CREATE TABLE IF NOT EXISTS `php_bench` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ';
 
-        $container
+        KernelLifecycleManager::getKernel()
+            ->getContainer()
             ->get(Connection::class)
             ->executeStatement($sql);
 
         $sql = 'REPLACE INTO php_bench (`key`, `ids`) VALUES (:key, :ids)';
 
-        $container
+        KernelLifecycleManager::getKernel()
+            ->getContainer()
             ->get(Connection::class)
             ->executeStatement($sql, ['key' => 'ids', 'ids' => \serialize($ids)]);
     }
@@ -62,16 +63,13 @@ CREATE TABLE IF NOT EXISTS `php_bench` (
         return self::$ids;
     }
 
-    /**
-     * @param array<string, mixed> $options
-     */
-    public static function context(array $options = []): SalesChannelContext
+    public static function context(): SalesChannelContext
     {
         if (self::$context === null) {
             self::$context = KernelLifecycleManager::getKernel()
                 ->getContainer()
                 ->get(SalesChannelContextFactory::class)
-                ->create(Uuid::randomHex(), self::getIds()->get('sales-channel'), $options);
+                ->create(Uuid::randomHex(), self::getIds()->get('sales-channel'));
         }
 
         return self::$context;

@@ -6,10 +6,8 @@ use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Aggregate\PluginTranslation\PluginTranslationCollection;
 
-#[Package('core')]
 class PluginEntity extends Entity
 {
     use EntityIdTrait;
@@ -81,7 +79,7 @@ class PluginEntity extends Entity
     protected $upgradedAt;
 
     /**
-     * @internal
+     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
      *
      * @var string|null
      */
@@ -113,7 +111,7 @@ class PluginEntity extends Entity
     protected $supportLink;
 
     /**
-     * @var array<string, list<string>>|null
+     * @var array|null
      */
     protected $changelog;
 
@@ -128,7 +126,7 @@ class PluginEntity extends Entity
     protected $paymentMethods;
 
     /**
-     * @var array<string, array<string, list<string>|string>>
+     * @var array
      */
     protected $autoload;
 
@@ -263,7 +261,7 @@ class PluginEntity extends Entity
     }
 
     /**
-     * @internal
+     * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal from 6.5.0 onward
      */
     public function getIconRaw(): ?string
     {
@@ -273,7 +271,7 @@ class PluginEntity extends Entity
     }
 
     /**
-     * @internal
+     * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal from 6.5.0 onward
      */
     public function setIconRaw(string $iconRaw): void
     {
@@ -330,17 +328,11 @@ class PluginEntity extends Entity
         $this->supportLink = $supportLink;
     }
 
-    /**
-     * @return array<string, list<string>>|null
-     */
     public function getChangelog(): ?array
     {
         return $this->changelog;
     }
 
-    /**
-     * @param array<string, list<string>> $changelog
-     */
     public function setChangelog(array $changelog): void
     {
         $this->changelog = $changelog;
@@ -366,17 +358,11 @@ class PluginEntity extends Entity
         $this->paymentMethods = $paymentMethods;
     }
 
-    /**
-     * @return array<string, array<string, list<string>|string>>
-     */
     public function getAutoload(): array
     {
         return $this->autoload;
     }
 
-    /**
-     * @param array<string, array<string, list<string>|string>> $autoload
-     */
     public function setAutoload(array $autoload): void
     {
         $this->autoload = $autoload;

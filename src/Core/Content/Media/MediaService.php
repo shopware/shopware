@@ -8,21 +8,54 @@ use Shopware\Core\Content\Media\File\FileLoader;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('content')]
 class MediaService
 {
     /**
+     * @var EntityRepositoryInterface
+     */
+    private $mediaRepository;
+
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $mediaFolderRepository;
+
+    /**
+     * @var FileLoader
+     */
+    private $fileLoader;
+
+    /**
+     * @var FileSaver
+     */
+    private $fileSaver;
+
+    /**
+     * @var FileFetcher
+     */
+    private $fileFetcher;
+
+    /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $mediaRepository, private readonly EntityRepository $mediaFolderRepository, private readonly FileLoader $fileLoader, private readonly FileSaver $fileSaver, private readonly FileFetcher $fileFetcher)
-    {
+    public function __construct(
+        EntityRepositoryInterface $mediaRepository,
+        EntityRepositoryInterface $mediaFolderRepository,
+        FileLoader $fileLoader,
+        FileSaver $fileSaver,
+        FileFetcher $fileFetcher
+    ) {
+        $this->mediaRepository = $mediaRepository;
+        $this->mediaFolderRepository = $mediaFolderRepository;
+        $this->fileLoader = $fileLoader;
+        $this->fileSaver = $fileSaver;
+        $this->fileFetcher = $fileFetcher;
     }
 
     public function createMediaInFolder(string $folder, Context $context, bool $private = true): string
@@ -105,9 +138,6 @@ class MediaService
         return $this->fileFetcher->fetchRequestData($request, $tempFile ?: '');
     }
 
-    /**
-     * @return array{content: string, fileName: non-falsy-string, mimeType: string|null}
-     */
     public function getAttachment(MediaEntity $media, Context $context): array
     {
         $fileBlob = '';

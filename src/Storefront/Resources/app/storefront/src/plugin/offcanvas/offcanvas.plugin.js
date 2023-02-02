@@ -1,16 +1,21 @@
 import DeviceDetection from 'src/helper/device-detection.helper';
 import NativeEventEmitter from 'src/helper/emitter.helper';
+import Backdrop, { BACKDROP_EVENT } from 'src/utility/backdrop/backdrop.util';
 import Iterator from 'src/helper/iterator.helper';
+import Feature from 'src/helper/feature.helper';
 
 const OFF_CANVAS_CLASS = 'offcanvas';
+const OFF_CANVAS_OPEN_CLASS = 'is-open';
 const OFF_CANVAS_FULLWIDTH_CLASS = 'is-fullwidth';
 const OFF_CANVAS_CLOSE_TRIGGER_CLASS = 'js-offcanvas-close';
 const REMOVE_OFF_CANVAS_DELAY = 350;
 
 /**
- * OffCanvas uses Bootstraps OffCanvas JavaScript implementation
- * @see https://getbootstrap.com/docs/5.2/components/offcanvas
- * @package storefront
+ * @deprecated tag:v6.5.0 - Announcement:
+ * Bootstrap v5 comes with its own OffCanvas component.
+ * This class will be adjusted to use Bootstraps OffCanvas JavaScript implementation.
+ *
+ * @see https://getbootstrap.com/docs/5.1/components/offcanvas
  */
 class OffCanvasSingleton {
 
@@ -82,10 +87,21 @@ class OffCanvasSingleton {
     close(delay) {
         const OffCanvasElements = this.getOffCanvas();
 
-        Iterator.iterate(OffCanvasElements, (offCanvas) => {
-            const offCanvasInstance = bootstrap.Offcanvas.getInstance(offCanvas);
-            offCanvasInstance.hide();
-        });
+        /** @deprecated tag:v6.5.0 - Bootstrap v5 uses own JS plugin instance to close the OffCanvas */
+        if (Feature.isActive('v6.5.0.0')) {
+            Iterator.iterate(OffCanvasElements, (offCanvas) => {
+                const offCanvasInstance = bootstrap.Offcanvas.getInstance(offCanvas);
+                offCanvasInstance.hide();
+            });
+        } else {
+            // remove open class to make any css animation effects possible
+            Iterator.iterate(OffCanvasElements, backdrop => backdrop.classList.remove(OFF_CANVAS_OPEN_CLASS));
+
+            // wait before removing backdrop to let css animation effects take place
+            setTimeout(this._removeExistingOffCanvas.bind(this), delay);
+
+            Backdrop.remove(delay);
+        }
 
         setTimeout(() => {
             this.$emitter.publish('onCloseOffcanvas', {
@@ -119,15 +135,31 @@ class OffCanvasSingleton {
      * @private
      */
     _openOffcanvas(offCanvas, callback) {
-        setTimeout(() => {
-            OffCanvasSingleton.bsOffcanvas.show();
-            window.history.pushState('offcanvas-open', '');
+        /** @deprecated tag:v6.5.0 - Bootstrap v5 uses its own OffCanvas API to open the OffCanvas */
+        if (Feature.isActive('v6.5.0.0')) {
+            setTimeout(() => {
+                OffCanvasSingleton.bsOffcanvas.show();
+                window.history.pushState('offcanvas-open', '');
 
-            // if a callback function is being injected execute it after opening the OffCanvas
-            if (typeof callback === 'function') {
-                callback();
-            }
-        }, 75);
+                // if a callback function is being injected execute it after opening the OffCanvas
+                if (typeof callback === 'function') {
+                    callback();
+                }
+            }, 75);
+        } else {
+            // the timeout allows to apply the animation effects
+            setTimeout(() => {
+                Backdrop.create(() => {
+                    offCanvas.classList.add(OFF_CANVAS_OPEN_CLASS);
+                    window.history.pushState('offcanvas-open', '');
+
+                    // if a callback function is being injected execute it after opening the OffCanvas
+                    if (typeof callback === 'function') {
+                        callback();
+                    }
+                });
+            }, 75);
+        }
     }
 
     /**
@@ -138,33 +170,47 @@ class OffCanvasSingleton {
      */
     _registerEvents(closable, delay) {
         const event = (DeviceDetection.isTouchDevice()) ? 'touchend' : 'click';
-        const offCanvasElements = this.getOffCanvas();
 
-        /**
-         * TODO: NEXT-21771 - Workaround to prevent close by click on backdrop.
-         * Remove when Bootstrap OffCanvas supports `static` backdrop mode.
-         * @see https://github.com/twbs/bootstrap/pull/35832
-         */
-        if (!closable) {
-            OffCanvasSingleton.bsOffcanvas._backdrop._config.clickCallback = () => {};
+        /** @deprecated tag:v6.5.0 - Bootstrap v5 handles OffCanvas backdrop automatically */
+        if (Feature.isActive('v6.5.0.0')) {
+            const offCanvasElements = this.getOffCanvas();
+
+            /**
+             * TODO: NEXT-21771 - Workaround to prevent close by click on backdrop.
+             * Remove when Bootstrap OffCanvas supports `static` backdrop mode.
+             * @see https://github.com/twbs/bootstrap/pull/35832
+             */
+            if (!closable) {
+                OffCanvasSingleton.bsOffcanvas._backdrop._config.clickCallback = () => {};
+            }
+
+            // Ensure OffCanvas is removed from the DOM and events are published.
+            Iterator.iterate(offCanvasElements, offCanvas => {
+                const onBsClose = () => {
+                    setTimeout(() => {
+                        this._removeExistingOffCanvas();
+
+                        this.$emitter.publish('onCloseOffcanvas', {
+                            offCanvasContent: offCanvasElements,
+                        });
+                    }, delay);
+
+                    offCanvas.removeEventListener('hide.bs.offcanvas', onBsClose)
+                };
+
+                offCanvas.addEventListener('hide.bs.offcanvas', onBsClose);
+            });
+        } else {
+            if (closable) {
+                const onBackdropClick = () => {
+                    this.close(delay);
+                    // remove the event listener immediately to avoid multiple listeners
+                    document.removeEventListener(BACKDROP_EVENT.ON_CLICK, onBackdropClick);
+                };
+
+                document.addEventListener(BACKDROP_EVENT.ON_CLICK, onBackdropClick);
+            }
         }
-
-        // Ensure OffCanvas is removed from the DOM and events are published.
-        Iterator.iterate(offCanvasElements, offCanvas => {
-            const onBsClose = () => {
-                setTimeout(() => {
-                    this._removeExistingOffCanvas();
-
-                    this.$emitter.publish('onCloseOffcanvas', {
-                        offCanvasContent: offCanvasElements,
-                    });
-                }, delay);
-
-                offCanvas.removeEventListener('hide.bs.offcanvas', onBsClose)
-            };
-
-            offCanvas.addEventListener('hide.bs.offcanvas', onBsClose);
-        });
 
         window.addEventListener('popstate', this.close.bind(this, delay), { once: true });
         const closeTriggers = document.querySelectorAll(`.${OFF_CANVAS_CLOSE_TRIGGER_CLASS}`);
@@ -187,15 +233,22 @@ class OffCanvasSingleton {
      * @private
      */
     _getPositionClass(position) {
-        if (position === 'left') {
-            return 'offcanvas-start';
-        }
+        /**
+         * @deprecated tag:v6.5.0 - Bootstrap v5 uses `offcanvas-*` classes for positions
+         * @see https://getbootstrap.com/docs/5.1/components/offcanvas/#placement
+         */
+        if (Feature.isActive('v6.5.0.0')) {
+            if (position === 'left') {
+                return 'offcanvas-start';
+            }
 
-        if (position === 'right') {
-            return 'offcanvas-end';
-        }
+            if (position === 'right') {
+                return 'offcanvas-end';
+            }
 
-        return `offcanvas-${position}`;
+            return `offcanvas-${position}`;
+        }
+        return `is-${position}`;
     }
 
     /**
@@ -232,7 +285,10 @@ class OffCanvasSingleton {
 
         document.body.appendChild(offCanvas);
 
-        OffCanvasSingleton.bsOffcanvas = new bootstrap.Offcanvas(offCanvas);
+        /** @deprecated tag:v6.5.0 - Initialize Bootstrap v5 Offcanvas plugin on created DOM element */
+        if (Feature.isActive('v6.5.0.0')) {
+            OffCanvasSingleton.bsOffcanvas = new bootstrap.Offcanvas(offCanvas);
+        }
 
         return offCanvas;
     }

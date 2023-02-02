@@ -1,4 +1,4 @@
-const { Application } = Shopware;
+const { Application, Entity } = Shopware;
 const Criteria = Shopware.Data.Criteria;
 
 Application.addServiceProvider('cmsService', () => {
@@ -12,8 +12,6 @@ Application.addServiceProvider('cmsService', () => {
         getEntityMappingTypes,
         getPropertyByMappingPath,
         getCollectFunction,
-        isBlockAllowedInPageType,
-        isElementAllowedInPageType,
     };
 });
 
@@ -154,7 +152,7 @@ function getCmsBlockRegistry() {
 }
 
 function getEntityMappingTypes(entityName = null) {
-    const schema = Shopware.EntityDefinition.has(entityName) ? Shopware.EntityDefinition.get(entityName) : undefined;
+    const schema = Entity.getDefinition(entityName);
 
     if (entityName === null || typeof schema === 'undefined') {
         return {};
@@ -169,24 +167,34 @@ function getEntityMappingTypes(entityName = null) {
 }
 
 function handlePropertyMappings(propertyDefinitions, mappings, pathPrefix, deep = true) {
-    const blocklist = ['parent', 'cmsPage', 'translations', 'createdAt', 'updatedAt'];
+    const blocklist = ['parent', 'cmsPage'];
+    const formatBlocklist = ['uuid'];
 
     Object.keys(propertyDefinitions).forEach((property) => {
         const propSchema = propertyDefinitions[property];
 
-        if (
-            blocklist.includes(property) ||
-            (Array.isArray(propSchema?.flags?.write_protected) && propSchema.type !== 'association')
-        ) {
+        if (blocklist.includes(property) || propSchema.readOnly === true) {
             return;
         }
 
-        if (propSchema.type === 'association' && ['many_to_one', 'one_to_one'].includes(propSchema.relation)) {
+        if (propSchema.format && formatBlocklist.includes(propSchema.format)) {
+            return;
+        }
+
+        if (propSchema.type === 'object') {
             if (propSchema.entity) {
-                addToMappingEntity(mappings, propSchema, pathPrefix, property);
+                if (!mappings.entity) {
+                    mappings.entity = {};
+                }
+
+                if (!mappings.entity[propSchema.entity]) {
+                    mappings.entity[propSchema.entity] = [];
+                }
+
+                mappings.entity[propSchema.entity].push(`${pathPrefix}.${property}`);
 
                 if (deep === true) {
-                    const schema = Shopware.EntityDefinition.get(propSchema.entity);
+                    const schema = Entity.getDefinition(propSchema.entity);
 
                     if (schema) {
                         handlePropertyMappings(schema.properties, mappings, `${pathPrefix}.${property}`, false);
@@ -200,48 +208,26 @@ function handlePropertyMappings(propertyDefinitions, mappings, pathPrefix, deep 
                     false,
                 );
             }
-        } else if (propSchema.type === 'association' && ['one_to_many', 'many_to_many'].includes(propSchema.relation)) {
+        } else if (propSchema.type === 'array') {
             if (propSchema.entity) {
-                addToMappingEntity(mappings, propSchema, pathPrefix, property);
+                if (!mappings.entity) {
+                    mappings.entity = {};
+                }
+
+                if (!mappings.entity[propSchema.entity]) {
+                    mappings.entity[propSchema.entity] = [];
+                }
+
+                mappings.entity[propSchema.entity].push(`${pathPrefix}.${property}`);
             }
         } else {
-            let schemaType = propSchema.type;
-
-            if (['uuid', 'text', 'date'].includes(schemaType)) {
-                schemaType = 'string';
-            } else if (['float'].includes(schemaType)) {
-                schemaType = 'number';
-            } else if (['int'].includes(schemaType)) {
-                schemaType = 'integer';
+            if (!mappings[propSchema.type]) {
+                mappings[propSchema.type] = [];
             }
 
-            if (['blob', 'json_object', 'json_list'].includes(schemaType)) {
-                return;
-            }
-
-            if (!mappings[schemaType]) {
-                mappings[schemaType] = [];
-            }
-
-            mappings[schemaType].push(`${pathPrefix}.${property}`);
+            mappings[propSchema.type].push(`${pathPrefix}.${property}`);
         }
     });
-}
-
-function addToMappingEntity(mappings, propSchema, pathPrefix, property) {
-    if (!mappings.entity) {
-        mappings.entity = {};
-    }
-
-    if (!mappings.entity[propSchema.entity]) {
-        mappings.entity[propSchema.entity] = [];
-    }
-
-    if (propSchema.flags?.extension) {
-        mappings.entity[propSchema.entity].push(`${pathPrefix}.extensions.${property}`);
-    } else {
-        mappings.entity[propSchema.entity].push(`${pathPrefix}.${property}`);
-    }
 }
 
 function getPropertyByMappingPath(entity, propertyPath) {
@@ -297,25 +283,4 @@ function getCollectFunction() {
 
         return criteriaList;
     };
-}
-
-function isBlockAllowedInPageType(blockName, pageType) {
-    const allowedPageTypes = blockRegistry[blockName]?.allowedPageTypes;
-
-    if (!Array.isArray(allowedPageTypes)) {
-        return true;
-    }
-
-    return allowedPageTypes.includes(pageType);
-}
-
-
-function isElementAllowedInPageType(elementName, pageType) {
-    const allowedPageTypes = elementRegistry[elementName]?.allowedPageTypes;
-
-    if (!Array.isArray(allowedPageTypes)) {
-        return true;
-    }
-
-    return allowedPageTypes.includes(pageType);
 }

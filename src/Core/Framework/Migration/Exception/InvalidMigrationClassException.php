@@ -2,10 +2,8 @@
 
 namespace Shopware\Core\Framework\Migration\Exception;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
-#[Package('core')]
 class InvalidMigrationClassException extends ShopwareHttpException
 {
     public function __construct(string $class, string $path)

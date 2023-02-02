@@ -1,0 +1,142 @@
+@startuml
+' uncomment the line below if you're using computer with a retina display
+' skinparam dpi 300
+!define Table(name,desc) class name as "desc" << (T,#FFAAAA) >>
+!define ForeignTable(name,desc) class name as "desc" << (T,#ada6a6) >>
+!define TranslationTable(name,desc) class name as "desc" << (I,#4286f4) >>
+' we use bold for primary key
+' green color for unique
+' and underscore for not_null
+!define primary_key(x) <b>x</b>
+!define unique(x) <color:green>x</color>
+!define not_null(x) <u>x</u>
+' other tags available:
+' <i></i>
+' <back:COLOR></color>, where color is a color name or html color code
+' (#FFAACC)
+' see: http://plantuml.com/classes.html#More
+hide methods
+hide stereotypes
+hide empty members
+skinparam backgroundColor #FFFFFF
+
+' entities
+
+Table(ShopwareCoreContentCmsCmsPageDefinition, "cms_page\n(Content Page)") {
+   primary_key(id) id
+   primary_key(versionId) version
+   name translated
+   not_null(type) string
+   entity string
+   config json
+   previewMediaId foreignKey
+   customFields translated
+   locked writeLockIndicator
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+   translated json
+}
+TranslationTable(ShopwareCoreContentCmsAggregateCmsPageTranslationCmsPageTranslationDefinition, "cms_page_translation\n((Translations))") {
+   not_null(name) string
+   customFields customFields
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+   primary_key(cmsPageId) foreignKey
+   primary_key(languageId) foreignKey
+   primary_key(cmsPageVersionId) referenceVersion
+}
+Table(ShopwareCoreContentCmsAggregateCmsSectionCmsSectionDefinition, "cms_section\n(Content Section)") {
+   primary_key(id) id
+   not_null(position) int
+   not_null(type) string
+   locked writeLockIndicator
+   name string
+   sizingMode string
+   mobileBehavior string
+   backgroundColor string
+   backgroundMediaId foreignKey
+   backgroundMediaMode string
+   cssClass string
+   not_null(pageId) foreignKey
+   customFields customFields
+   primary_key(versionId) version
+   not_null(cmsPageVersionId) referenceVersion
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+}
+Table(ShopwareCoreContentCmsAggregateCmsBlockCmsBlockDefinition, "cms_block\n(Content Block)") {
+   primary_key(id) id
+   not_null(position) int
+   not_null(type) string
+   locked writeLockIndicator
+   name string
+   sectionPosition string
+   marginTop string
+   marginBottom string
+   marginLeft string
+   marginRight string
+   backgroundColor string
+   backgroundMediaId foreignKey
+   backgroundMediaMode string
+   cssClass string
+   not_null(sectionId) foreignKey
+   customFields customFields
+   primary_key(versionId) version
+   not_null(cmsSectionVersionId) referenceVersion
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+}
+Table(ShopwareCoreContentCmsAggregateCmsSlotCmsSlotDefinition, "cms_slot\n(Content Slot)") {
+   primary_key(id) id
+   primary_key(versionId) version
+   not_null(type) string
+   not_null(slot) string
+   locked writeLockIndicator
+   config translated
+   customFields translated
+   data json
+   not_null(blockId) foreignKey
+   not_null(cmsBlockVersionId) referenceVersion
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+   translated json
+}
+TranslationTable(ShopwareCoreContentCmsAggregateCmsSlotTranslationCmsSlotTranslationDefinition, "cms_slot_translation\n((Translations))") {
+   config configurationValue
+   customFields customFields
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+   primary_key(cmsSlotId) foreignKey
+   primary_key(languageId) foreignKey
+   primary_key(cmsSlotVersionId) referenceVersion
+}
+ForeignTable(ShopwareCoreContentMediaMediaDefinition, "media") {
+}
+ForeignTable(ShopwareCoreContentCategoryCategoryDefinition, "category") {
+}
+ForeignTable(ShopwareCoreContentLandingPageLandingPageDefinition, "landing_page") {
+}
+ForeignTable(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channel") {
+}
+ForeignTable(ShopwareCoreContentProductProductDefinition, "product") {
+}
+ForeignTable(ShopwareCoreSystemLanguageLanguageDefinition, "language") {
+}
+
+' relationshipd
+
+ShopwareCoreContentCmsAggregateCmsSectionCmsSectionDefinition --> ShopwareCoreContentCmsCmsPageDefinition
+ShopwareCoreContentCmsAggregateCmsPageTranslationCmsPageTranslationDefinition --> ShopwareCoreContentCmsCmsPageDefinition
+ShopwareCoreContentCmsCmsPageDefinition --> ShopwareCoreContentMediaMediaDefinition
+ShopwareCoreContentCmsCmsPageDefinition --> ShopwareCoreContentCategoryCategoryDefinition
+ShopwareCoreContentCmsCmsPageDefinition --> ShopwareCoreContentLandingPageLandingPageDefinition
+ShopwareCoreContentCmsCmsPageDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
+ShopwareCoreContentCmsCmsPageDefinition --> ShopwareCoreContentProductProductDefinition
+ShopwareCoreContentCmsAggregateCmsPageTranslationCmsPageTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
+ShopwareCoreContentCmsAggregateCmsSectionCmsSectionDefinition --> ShopwareCoreContentMediaMediaDefinition
+ShopwareCoreContentCmsAggregateCmsBlockCmsBlockDefinition --> ShopwareCoreContentCmsAggregateCmsSectionCmsSectionDefinition
+ShopwareCoreContentCmsAggregateCmsBlockCmsBlockDefinition --> ShopwareCoreContentMediaMediaDefinition
+ShopwareCoreContentCmsAggregateCmsSlotCmsSlotDefinition --> ShopwareCoreContentCmsAggregateCmsBlockCmsBlockDefinition
+ShopwareCoreContentCmsAggregateCmsSlotTranslationCmsSlotTranslationDefinition --> ShopwareCoreContentCmsAggregateCmsSlotCmsSlotDefinition
+ShopwareCoreContentCmsAggregateCmsSlotTranslationCmsSlotTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
+@enduml

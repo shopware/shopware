@@ -5,7 +5,6 @@ const types = Shopware.Utils.types;
 /**
  * @class
  * @extends BulkEditBaseHandler
- * @package system-settings
  */
 class BulkEditCustomerHandler extends BulkEditBaseHandler {
     constructor() {
@@ -36,40 +35,44 @@ class BulkEditCustomerHandler extends BulkEditBaseHandler {
         const promises = [];
         const shouldTriggerFlows = Shopware.State.get('swBulkEdit').isFlowTriggered;
 
-        payload.forEach((change) => {
-            if (!change.value) {
-                return;
-            }
+        try {
+            payload.forEach((change) => {
+                if (!change.value) {
+                    return;
+                }
 
-            switch (change.value) {
-                case 'decline':
-                    promises.push(this.customerGroupRegistrationService.decline(
-                        entityIds,
-                        {},
-                        {
-                            'sw-skip-trigger-flow': !shouldTriggerFlows,
-                        },
-                        {
-                            silentError: true,
-                        },
-                    ));
-                    break;
-                case 'accept':
-                    promises.push(this.customerGroupRegistrationService.accept(
-                        entityIds,
-                        {},
-                        {
-                            'sw-skip-trigger-flow': !shouldTriggerFlows,
-                        },
-                        {
-                            silentError: true,
-                        },
-                    ));
-                    break;
-                default:
-                    throw new Error();
-            }
-        });
+                switch (change.value) {
+                    case 'decline':
+                        promises.push(this.customerGroupRegistrationService.decline(
+                            entityIds,
+                            {},
+                            {
+                                'sw-skip-trigger-flow': !shouldTriggerFlows,
+                            },
+                            {
+                                silentError: true,
+                            },
+                        ));
+                        break;
+                    case 'accept':
+                        promises.push(this.customerGroupRegistrationService.accept(
+                            entityIds,
+                            {},
+                            {
+                                'sw-skip-trigger-flow': !shouldTriggerFlows,
+                            },
+                            {
+                                silentError: true,
+                            },
+                        ));
+                        break;
+                    default:
+                        throw new Error();
+                }
+            });
+        } catch (e) {
+            throw e;
+        }
 
         return Promise.all(promises);
     }

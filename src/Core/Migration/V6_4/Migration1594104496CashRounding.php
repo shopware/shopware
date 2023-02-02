@@ -3,13 +3,8 @@
 namespace Shopware\Core\Migration\V6_4;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
-/**
- * @internal
- */
-#[Package('core')]
 class Migration1594104496CashRounding extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -33,14 +28,14 @@ class Migration1594104496CashRounding extends MigrationStep
 
     private function updateSchema(Connection $connection): void
     {
-        $connection->executeStatement('ALTER TABLE `currency` CHANGE `decimal_precision` `decimal_precision` int NULL AFTER `position`;');
-        $connection->executeStatement('ALTER TABLE currency ADD COLUMN `item_rounding` JSON NULL;');
-        $connection->executeStatement('ALTER TABLE currency ADD COLUMN `total_rounding` JSON NULL;');
+        $connection->executeUpdate('ALTER TABLE `currency` CHANGE `decimal_precision` `decimal_precision` int NULL AFTER `position`;');
+        $connection->executeUpdate('ALTER TABLE currency ADD COLUMN `item_rounding` JSON NULL;');
+        $connection->executeUpdate('ALTER TABLE currency ADD COLUMN `total_rounding` JSON NULL;');
 
-        $connection->executeStatement('ALTER TABLE `order` ADD COLUMN `item_rounding` JSON NULL;');
-        $connection->executeStatement('ALTER TABLE `order` ADD COLUMN `total_rounding` JSON NULL;');
+        $connection->executeUpdate('ALTER TABLE `order` ADD COLUMN `item_rounding` JSON NULL;');
+        $connection->executeUpdate('ALTER TABLE `order` ADD COLUMN `total_rounding` JSON NULL;');
 
-        $connection->executeStatement('
+        $connection->executeUpdate('
 CREATE TABLE IF NOT EXISTS `currency_country_rounding` (
   `id` binary(16) NOT NULL,
   `currency_id` binary(16) NOT NULL,
@@ -127,7 +122,7 @@ CREATE TABLE IF NOT EXISTS `currency_country_rounding` (
 
     private function migrateData(Connection $connection): void
     {
-        $currencies = $connection->fetchAllAssociative('SELECT id, decimal_precision FROM currency');
+        $currencies = $connection->fetchAll('SELECT id, decimal_precision FROM currency');
 
         foreach ($currencies as $currency) {
             $rounding = [
@@ -136,13 +131,13 @@ CREATE TABLE IF NOT EXISTS `currency_country_rounding` (
                 'interval' => 0.01,
             ];
 
-            $connection->executeStatement(
+            $connection->executeUpdate(
                 'UPDATE currency SET item_rounding = :rounding, total_rounding = :rounding WHERE id = :id',
-                ['id' => $currency['id'], 'rounding' => json_encode($rounding, \JSON_THROW_ON_ERROR)]
+                ['id' => $currency['id'], 'rounding' => json_encode($rounding)]
             );
         }
 
-        $connection->executeStatement('
+        $connection->executeUpdate('
             UPDATE `order`, `currency`
             SET `order`.item_rounding = currency.item_rounding
             WHERE `order`.currency_id = currency.id

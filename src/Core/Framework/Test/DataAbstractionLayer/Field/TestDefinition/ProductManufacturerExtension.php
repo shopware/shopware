@@ -7,12 +7,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityExtension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
-#[Package('inventory')]
 class ProductManufacturerExtension extends EntityExtension
 {
     public function extendFields(FieldCollection $collection): void

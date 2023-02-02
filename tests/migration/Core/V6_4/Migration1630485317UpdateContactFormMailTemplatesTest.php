@@ -99,10 +99,14 @@ EOF;
         $contentHtml = [self::HTML_EN, self::HTML_DE];
 
         // Assert the two plain text templates were updated
-        static::assertCount(2, array_filter($mails, static fn (array $mail): bool => \in_array(trim((string) $mail['content_plain']), $contentPlain, true)));
+        static::assertCount(2, array_filter($mails, static function (array $mail) use ($contentPlain): bool {
+            return \in_array(trim($mail['content_plain']), $contentPlain, true);
+        }));
 
         // Assert the two html templates were updated
-        static::assertCount(2, array_filter($mails, static fn (array $mail): bool => \in_array(trim((string) $mail['content_html']), $contentHtml, true)));
+        static::assertCount(2, array_filter($mails, static function (array $mail) use ($contentHtml): bool {
+            return \in_array(trim($mail['content_html']), $contentHtml, true);
+        }));
     }
 
     public function testDoesNotOverwriteModifiedTemplates(): void
@@ -112,7 +116,9 @@ EOF;
 
         $this->resetMails();
 
-        $oldMails = array_filter($this->getMails(), static fn (array $mail): bool => $mail['technical_name'] === MailTemplateTypes::MAILTYPE_CONTACT_FORM);
+        $oldMails = array_filter($this->getMails(), static function (array $mail): bool {
+            return $mail['technical_name'] === MailTemplateTypes::MAILTYPE_CONTACT_FORM;
+        });
 
         $connection->executeStatement(
             'UPDATE `mail_template_translation` SET `updated_at` = :timestamp WHERE `mail_template_id` = UNHEX(:mailTemplateId);',
@@ -124,7 +130,9 @@ EOF;
 
         $migration->update($connection);
 
-        $newMails = array_filter($this->getMails(), static fn (array $mail): bool => $mail['technical_name'] === MailTemplateTypes::MAILTYPE_CONTACT_FORM);
+        $newMails = array_filter($this->getMails(), static function (array $mail): bool {
+            return $mail['technical_name'] === MailTemplateTypes::MAILTYPE_CONTACT_FORM;
+        });
 
         // Assert no template was updated, when it's been modified before
         static::assertSame($oldMails, $newMails);

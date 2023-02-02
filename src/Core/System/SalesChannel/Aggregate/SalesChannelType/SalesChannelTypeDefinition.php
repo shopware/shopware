@@ -12,14 +12,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTypeTranslation\SalesChannelTypeTranslationDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
-#[Package('sales-channel')]
 class SalesChannelTypeDefinition extends EntityDefinition
 {
-    final public const ENTITY_NAME = 'sales_channel_type';
+    public const ENTITY_NAME = 'sales_channel_type';
 
     public function getEntityName(): string
     {
@@ -47,7 +45,7 @@ class SalesChannelTypeDefinition extends EntityDefinition
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             new StringField('cover_url', 'coverUrl'),
             new StringField('icon_name', 'iconName'),
-            new ListField('screenshot_urls', 'screenshotUrls', StringField::class),
+            (new ListField('screenshot_urls', 'screenshotUrls', StringField::class))->setStrict(true),
             new TranslatedField('name'),
             new TranslatedField('manufacturer'),
             new TranslatedField('description'),

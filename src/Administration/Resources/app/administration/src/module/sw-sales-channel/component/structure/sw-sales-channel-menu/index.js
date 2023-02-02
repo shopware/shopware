@@ -1,7 +1,3 @@
-/**
- * @package sales-channel
- */
-
 import template from './sw-sales-channel-menu.html.twig';
 import './sw-sales-channel-menu.scss';
 
@@ -9,9 +5,6 @@ const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 const FlatTree = Shopware.Helper.FlatTreeHelper;
 
-/**
- * @deprecated tag:v6.6.0 - Will be private
- */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-sales-channel-menu', {
     template,
@@ -22,7 +15,6 @@ Component.register('sw-sales-channel-menu', {
         return {
             salesChannels: [],
             showModal: false,
-            isLoading: true,
         };
     },
 
@@ -36,20 +28,13 @@ Component.register('sw-sales-channel-menu', {
         },
 
         salesChannelCriteria() {
-            const criteria = new Criteria(1, 7);
-
-            criteria.addIncludes({
-                sales_channel: ['name', 'type', 'active', 'translated', 'domains'],
-                sales_channel_type: ['iconName'],
-                sales_channel_domain: ['url', 'languageId'],
-            });
+            const criteria = new Criteria(1, 25);
 
             criteria.addSorting(Criteria.sort('sales_channel.name', 'ASC'));
             criteria.addAssociation('type');
             criteria.addAssociation('domains');
 
             if (this.salesChannelFavorites.length) {
-                criteria.setLimit(50);
                 criteria.addFilter(Criteria.equalsAny('id', this.salesChannelFavorites));
             }
 
@@ -97,20 +82,12 @@ Component.register('sw-sales-channel-menu', {
         },
 
         salesChannelFavorites() {
-            if (this.isLoading) {
-                return [];
-            }
-
             return this.salesChannelFavoritesService.getFavoriteIds();
         },
     },
 
     watch: {
         salesChannelFavorites() {
-            if (this.isLoading) {
-                return;
-            }
-
             this.loadEntityData();
         },
     },
@@ -126,11 +103,8 @@ Component.register('sw-sales-channel-menu', {
 
     methods: {
         createdComponent() {
+            this.loadEntityData();
             this.registerListener();
-
-            this.salesChannelFavoritesService.initService().finally(() => {
-                this.isLoading = false;
-            });
         },
 
         registerListener() {

@@ -1,16 +1,11 @@
 import template from './sw-order-product-select.html.twig';
-import { LineItemType, PriceType } from '../../order.types';
 import './sw-order-product-select.scss';
 
-/**
- * @package customer-order
- */
-
-const { Service } = Shopware;
+const { Component, Service } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-order-product-select', {
     template,
 
     props: {
@@ -44,11 +39,11 @@ export default {
         },
 
         lineItemTypes() {
-            return LineItemType;
+            return Service('cartStoreService').getLineItemTypes();
         },
 
         lineItemPriceTypes() {
-            return PriceType;
+            return Service('cartStoreService').getLineItemPriceTypes();
         },
 
         isShownProductSelect() {
@@ -106,4 +101,4 @@ export default {
             });
         },
     },
-};
+});

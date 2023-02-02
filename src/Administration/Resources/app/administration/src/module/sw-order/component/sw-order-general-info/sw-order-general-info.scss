@@ -1,6 +1,6 @@
 @import "~scss/variables";
 
-.sw-order-general-info__summary {
+.sw-order-detail-base__general-info__summary {
     display: flex;
     flex-direction: column;
 
@@ -15,7 +15,7 @@
 
         &-header,
         &-total {
-            font-size: $font-size-s;
+            font-size: $font-size-default;
             font-weight: $font-weight-semi-bold;
             line-height: 25px;
         }
@@ -36,7 +36,7 @@
 
         &-description,
         &-last-changed {
-            font-size: $font-size-xs;
+            font-size: $font-size-small;
             line-height: 22px;
         }
 
@@ -52,14 +52,14 @@
     }
 }
 
-.sw-order-general-info__order {
+.sw-order-detail-base__general-info__order {
     &-states {
         display: flex;
         justify-content: space-between;
         gap: 24px;
         margin-top: 24px;
 
-        .sw-order-general-info__order-state {
+        .sw-order-detail-base__general-info__order-state {
             flex-grow: 1;
             flex-basis: 30%;
         }

@@ -1,9 +1,9 @@
 {
   "sw-settings-login-registration": {
     "general": {
-      "mainMenuItemGeneral": "Log-in & sign-up",
+      "mainMenuItemGeneral": "Login / Registration",
       "description": "Change basic information here.",
-      "textHeadline": "Log-in & sign-up",
+      "textHeadline": "Login / Registration",
       "buttonSave": "Save",
       "messageSaveSuccess": "Configuration has been saved."
     }

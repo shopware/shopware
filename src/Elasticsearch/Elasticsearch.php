@@ -3,7 +3,6 @@
 namespace Shopware\Elasticsearch;
 
 use Shopware\Core\Framework\Bundle;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Kernel;
 use Shopware\Elasticsearch\DependencyInjection\ElasticsearchExtension;
 use Shopware\Elasticsearch\Profiler\ElasticsearchProfileCompilerPass;
@@ -24,7 +23,6 @@ use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 /**
  * @internal
  */
-#[Package('core')]
 class Elasticsearch extends Bundle
 {
     public function getTemplatePriority(): int
@@ -42,7 +40,10 @@ class Elasticsearch extends Bundle
         $this->buildConfig($container);
     }
 
-    public function createContainerExtension(): ?ExtensionInterface
+    /**
+     * @return ExtensionInterface
+     */
+    public function createContainerExtension()
     {
         return new ElasticsearchExtension();
     }

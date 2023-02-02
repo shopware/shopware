@@ -12,12 +12,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommit\VersionCommitDefinition;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
 class VersionDefinition extends EntityDefinition
 {
-    final public const ENTITY_NAME = 'version';
+    public const ENTITY_NAME = 'version';
 
     public function getEntityName(): string
     {

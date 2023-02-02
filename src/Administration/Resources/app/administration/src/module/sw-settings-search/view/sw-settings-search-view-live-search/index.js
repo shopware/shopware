@@ -1,10 +1,7 @@
-/**
- * @package system-settings
- */
 import template from './sw-settings-search-view-live-search.html.twig';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Shopware.Component.register('sw-settings-search-view-live-search', {
     template,
 
     inject: ['feature'],
@@ -36,4 +33,4 @@ export default {
             default: false,
         },
     },
-};
+});

@@ -6,21 +6,16 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition;
 use Shopware\Core\Framework\Api\Acl\Event\CommandAclValidationEvent;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
-use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-/**
- * @internal
- */
-#[Package('core')]
 class CreditOrderLineItemListener implements EventSubscriberInterface
 {
-    final public const ACL_ORDER_CREATE_DISCOUNT_PRIVILEGE = 'order:create:discount';
+    public const ACL_ORDER_CREATE_DISCOUNT_PRIVILEGE = 'order:create:discount';
 
     /**
      * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
      */
-    public static function getSubscribedEvents(): array
+    public static function getSubscribedEvents()
     {
         return [CommandAclValidationEvent::class => 'validate'];
     }

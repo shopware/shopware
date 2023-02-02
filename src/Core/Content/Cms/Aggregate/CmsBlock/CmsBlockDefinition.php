@@ -6,7 +6,6 @@ use Shopware\Core\Content\Cms\Aggregate\CmsSection\CmsSectionDefinition;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
@@ -15,7 +14,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LockedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
@@ -23,12 +21,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('content')]
 class CmsBlockDefinition extends EntityDefinition
 {
-    final public const ENTITY_NAME = 'cms_block';
+    public const ENTITY_NAME = 'cms_block';
 
     public function getEntityName(): string
     {
@@ -73,11 +69,6 @@ class CmsBlockDefinition extends EntityDefinition
             (new FkField('background_media_id', 'backgroundMediaId', MediaDefinition::class))->addFlags(new ApiAware()),
             (new StringField('background_media_mode', 'backgroundMediaMode'))->addFlags(new ApiAware()),
             (new StringField('css_class', 'cssClass'))->addFlags(new ApiAware()),
-            (new JsonField('visibility', 'visibility', [
-                new BoolField('mobile', 'mobile'),
-                new BoolField('desktop', 'desktop'),
-                new BoolField('tablet', 'tablet'),
-            ]))->addFlags(new ApiAware()),
 
             (new FkField('cms_section_id', 'sectionId', CmsSectionDefinition::class))->addFlags(new ApiAware(), new Required()),
             new ManyToOneAssociationField('section', 'cms_section_id', CmsSectionDefinition::class, 'id', false),

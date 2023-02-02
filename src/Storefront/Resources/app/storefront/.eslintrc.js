@@ -3,7 +3,7 @@ const isDevMode = process.env.NODE_ENV !== 'production';
 module.exports = {
     root: true,
     'extends': 'eslint:recommended',
-    'parser': '@babel/eslint-parser',
+    'parser': 'babel-eslint',
     'env': {
         'browser': true,
         'jquery': true,

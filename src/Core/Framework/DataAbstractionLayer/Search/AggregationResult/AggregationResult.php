@@ -2,17 +2,21 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
- * @internal
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
  */
-#[Package('core')]
 abstract class AggregationResult extends Struct
 {
-    public function __construct(protected string $name)
+    /**
+     * @var string
+     */
+    private $name;
+
+    public function __construct(string $name)
     {
+        $this->name = $name;
     }
 
     public function getName(): string

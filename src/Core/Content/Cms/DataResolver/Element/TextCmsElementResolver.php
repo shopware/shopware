@@ -7,17 +7,19 @@ use Shopware\Core\Content\Cms\DataResolver\CriteriaCollection;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\TextStruct;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 
-#[Package('content')]
 class TextCmsElementResolver extends AbstractCmsElementResolver
 {
+    private HtmlSanitizer $sanitizer;
+
     /**
      * @internal
      */
-    public function __construct(private readonly HtmlSanitizer $sanitizer)
+    public function __construct(HtmlSanitizer $sanitizer)
     {
+        $this->sanitizer = $sanitizer;
     }
 
     public function getType(): string
@@ -55,7 +57,11 @@ class TextCmsElementResolver extends AbstractCmsElementResolver
         }
 
         if ($content !== null) {
-            $text->setContent($this->sanitizer->sanitize($content));
+            if (Feature::isActive('FEATURE_NEXT_15172')) {
+                $text->setContent($this->sanitizer->sanitize($content));
+            } else {
+                $text->setContent($content);
+            }
         }
     }
 }

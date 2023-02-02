@@ -28,8 +28,18 @@
     {% set unit = page.header.activeCurrency.symbol %}
 {% endif %}
 
+{# @deprecated tag:v6.5.0 - `currencySymbol` will be removed use `unit` instead #}
+{% if currencySymbol is defined %}
+    {% set unit = currencySymbol %}
+{% endif %}
+
 {% if minInputValue is not defined %}
     {% set minInputValue = 0 %}
+{% endif %}
+
+{% if maxInputValue is not defined %}
+    {# @deprecated tag:v6.5.0 - use maxInputValue instead of price #}
+    {% set maxInputValue = price.max %}
 {% endif %}
 
 {% set filterRangeOptions = {
@@ -38,6 +48,7 @@
     maxKey,
     lowerBound,
     unit,
+    currencySymbol,
     snippets: {
         filterRangeActiveMinLabel,
         filterRangeActiveMaxLabel,
@@ -47,20 +58,22 @@
 } %}
 
 {% block component_filter_range %}
-    <div class="filter-range filter-panel-item{% if sidebar %} d-grid{% else %} dropdown{% endif %}"
+    {# @deprecated tag:v6.5.0 - Bootstrap v5 removes `btn-block` class, use `d-grid` wrapper instead #}
+    <div class="filter-range filter-panel-item{% if not sidebar %} dropdown{% endif %}{% if feature('v6.5.0.0') %} d-grid{% endif %}"
          data-filter-range="true"
          data-filter-range-options='{{ filterRangeOptions|json_encode }}'>
 
         {% block component_filter_range_toggle %}
-            <button class="filter-panel-item-toggle btn"
+            {# @deprecated tag:v6.5.0 - Bootstrap v5 removes `btn-block` class, use `d-grid` wrapper instead #}
+            <button class="filter-panel-item-toggle btn{% if sidebar and not feature('v6.5.0.0') %} btn-block{% endif %}"
                     aria-expanded="false"
                     {% if sidebar %}
-                    data-bs-toggle="collapse"
-                    data-bs-target="#{{ filterItemId }}"
+                    {{ dataBsToggleAttr }}="collapse"
+                    {{ dataBsTargetAttr }}="#{{ filterItemId }}"
                     {% else %}
-                    data-bs-toggle="dropdown"
+                    {{ dataBsToggleAttr }}="dropdown"
                     data-boundary="viewport"
-                    data-bs-offset="0,8"
+                    {{ dataBsOffsetAttr }}="0,8"
                     aria-haspopup="true"
                     {% endif %}>
 
@@ -97,9 +110,13 @@
                                 {% endblock %}
 
                                 {% block component_filter_range_min_unit %}
-                                   <span class="filter-range-unit">
+                                    {# @deprecated tag:v6.5.0 - The block `component_filter_range_min_currency_symbol` will be renamed, use block `component_filter_range_min_unit` instead #}
+                                    {% block component_filter_range_min_currency_symbol %}
+                                        {# @deprecated tag:v6.5.0 - `filter-range-currency-symbol` will be removed, use `filter-range-unit` instead #}
+                                        <span class="filter-range-unit filter-range-currency-symbol">
                                             {{ unit }}
-                                    </span>
+                                        </span>
+                                    {% endblock %}
                                 {% endblock %}
                             </label>
                         {% endblock %}
@@ -126,9 +143,13 @@
                                 {% endblock %}
 
                                 {% block component_filter_range_max_unit %}
-                                    <span class="filter-range-unit">
-                                        {{ unit }}
-                                    </span>
+                                    {# @deprecated tag:v6.5.0 - The block `component_filter_range_max_currency_symbol` will be renamed, use block `component_filter_range_min_unit` instead #}
+                                    {% block component_filter_range_max_currency_symbol %}
+                                        {# @deprecated tag:v6.5.0 - `filter-range-currency-symbol` will be removed, use `filter-range-unit` instead #}
+                                        <span class="filter-range-unit filter-range-currency-symbol">
+                                            {{ unit }}
+                                        </span>
+                                    {% endblock %}
                                 {% endblock %}
                             </label>
                         {% endblock %}

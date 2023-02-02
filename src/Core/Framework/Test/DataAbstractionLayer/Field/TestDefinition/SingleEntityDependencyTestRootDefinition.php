@@ -16,7 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
  */
 class SingleEntityDependencyTestRootDefinition extends EntityDefinition
 {
-    final public const ENTITY_NAME = '_test_pickup_point';
+    public const ENTITY_NAME = '_test_pickup_point';
 
     public function getEntityName(): string
     {

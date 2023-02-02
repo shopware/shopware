@@ -2,16 +2,13 @@ import pageState from './state';
 import template from './sw-category-detail.html.twig';
 import './sw-category-detail.scss';
 
-const { Context, Mixin } = Shopware;
+const { Component, Context, Mixin } = Shopware;
 const { Criteria, ChangesetGenerator, EntityCollection } = Shopware.Data;
 const { cloneDeep, merge } = Shopware.Utils.object;
 const type = Shopware.Utils.types;
 
-/**
- * @package content
- */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-category-detail', {
     template,
 
     inject: [
@@ -20,6 +17,12 @@ export default {
         'repositoryFactory',
         'seoUrlService',
     ],
+
+    provide() {
+        return {
+            openMediaSidebar: this.openMediaSidebar,
+        };
+    },
 
     mixins: [
         Mixin.getByName('notification'),
@@ -75,10 +78,6 @@ export default {
     },
 
     computed: {
-        changesetGenerator() {
-            return new ChangesetGenerator();
-        },
-
         showEmptyState() {
             return !this.category && !this.landingPage;
         },
@@ -277,57 +276,17 @@ export default {
             return;
         }
 
-        if (!this.category) {
+        if (this.category && this.categoryRepository.hasChanges(this.category)) {
+            this.isDisplayingLeavePageWarning = true;
+            this.nextRoute = to;
+            next(false);
+        } else {
             next();
-            return;
         }
-
-        /*
-         * Generate change set for category and delete `id` and `versionId` to only consider actual changes.
-         * A new version without changes should not trigger the navigation guard.
-         */
-        const { changes, deletionQueue } = this.changesetGenerator.generate(this.category);
-        if (changes === null) {
-            next();
-            return;
-        }
-
-        const keysToDelete = ['id', 'versionId'];
-        const changedKeys = Object.keys(changes).filter(key => !keysToDelete.includes(key));
-        const hasDeletions = deletionQueue.length > 0;
-
-        /*
-         * Allow exiting the route to the `cms.page.create` route
-         * when just the cmsPage assignment has been cleared.
-         */
-        if (
-            to.name === 'sw.cms.create' &&
-            changedKeys.length === 1 &&
-            changedKeys[0] === 'cmsPageId' &&
-            changes.cmsPageId === null &&
-            !hasDeletions
-        ) {
-            next();
-            return;
-        }
-
-        if (changedKeys.length === 0 && !hasDeletions) {
-            next();
-            return;
-        }
-
-        this.isDisplayingLeavePageWarning = true;
-        this.nextRoute = to;
-        next(false);
     },
 
     methods: {
         createdComponent() {
-            Shopware.ExtensionAPI.publishData({
-                id: 'sw-category-detail__category',
-                path: 'category',
-                scope: this,
-            });
             this.isLoading = true;
             this.checkViewport();
             this.registerListener();
@@ -489,7 +448,7 @@ export default {
                 }
 
 
-                Shopware.State.commit('shopwareApps/setSelectedIds', [this.landingPageId]);
+                await Shopware.State.dispatch('shopwareApps/setSelectedIds', [this.landingPageId]);
                 await Shopware.State.dispatch('swCategoryDetail/loadActiveLandingPage', {
                     repository: this.landingPageRepository,
                     apiContext: Shopware.Context.api,
@@ -523,12 +482,17 @@ export default {
                     });
             }
 
-            Shopware.State.commit('shopwareApps/setSelectedIds', [this.categoryId]);
-            return Shopware.State.dispatch('swCategoryDetail/loadActiveCategory', {
-                repository: this.categoryRepository,
-                apiContext: Shopware.Context.api,
-                id: this.categoryId,
-                criteria: this.categoryCriteria,
+
+            return Shopware.State.dispatch(
+                'shopwareApps/setSelectedIds',
+                [this.categoryId],
+            ).then(() => {
+                return Shopware.State.dispatch('swCategoryDetail/loadActiveCategory', {
+                    repository: this.categoryRepository,
+                    apiContext: Shopware.Context.api,
+                    id: this.categoryId,
+                    criteria: this.categoryCriteria,
+                });
             }).then(() => Shopware.State.dispatch('cmsPageState/resetCmsPageState'))
                 .then(this.getAssignedCmsPage)
                 .then(this.loadCustomFieldSet)
@@ -574,12 +538,6 @@ export default {
         },
 
         onLeaveModalConfirm(destination) {
-            // Discard all category related errors that may have occurred
-            Shopware.State.dispatch(
-                'error/removeApiError',
-                { expression: 'category' },
-            );
-
             this.forceDiscardChanges = true;
             this.isDisplayingLeavePageWarning = false;
 
@@ -594,6 +552,18 @@ export default {
 
         resetCategory() {
             this.$router.push({ name: 'sw.category.index' });
+        },
+
+        openMediaSidebar() {
+            this.$refs.mediaSidebarItem.openContent();
+        },
+
+        setMediaItemFromSidebar(sideBarMedia) {
+            // be consistent and fetch from repository
+            this.mediaRepository.get(sideBarMedia.id).then((media) => {
+                this.category.mediaId = media.id;
+                this.category.media = media;
+            });
         },
 
         onChangeLanguage(newLanguageId) {
@@ -659,6 +629,31 @@ export default {
                     ),
                 });
             });
+        },
+
+        /**
+         * @deprecated tag:v6.5.0 - Will be removed completely - Slot config should not override the template config at all
+         */
+        saveSlotConfig() {
+            if (
+                this.category.cmsPage === undefined ||
+                this.category.cmsPage.locked ||
+                Object.values(this.category.slotConfig).length < 1
+            ) {
+                return Promise.resolve();
+            }
+
+            this.category.cmsPage.sections.forEach((section) => {
+                section.blocks.forEach((block) => {
+                    block.slots.forEach((slot) => {
+                        if (this.category.slotConfig[slot.id]) {
+                            slot.config = this.category.slotConfig[slot.id];
+                        }
+                    });
+                });
+            });
+
+            return this.cmsPageRepository.save(this.category.cmsPage, Shopware.Context.api);
         },
 
         checkForEntryPointOverwrite() {
@@ -748,13 +743,11 @@ export default {
                 },
             );
 
-            Shopware.State.dispatch(
-                'error/addApiError',
+            Shopware.State.dispatch('error/addApiError',
                 {
                     expression: `landing_page.${this.landingPage.id}.salesChannels`,
                     error: shopwareError,
-                },
-            );
+                });
 
             this.createNotificationError({
                 message: this.$tc(
@@ -770,7 +763,8 @@ export default {
 
             this.deleteSpecifcKeys(this.cmsPage.sections);
 
-            const { changes } = this.changesetGenerator.generate(this.cmsPage);
+            const changesetGenerator = new ChangesetGenerator();
+            const { changes } = changesetGenerator.generate(this.cmsPage);
 
             const slotOverrides = {};
             if (changes === null) {
@@ -859,4 +853,4 @@ export default {
             });
         },
     },
-};
+});

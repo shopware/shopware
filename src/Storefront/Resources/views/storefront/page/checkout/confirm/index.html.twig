@@ -40,20 +40,22 @@
 
                         {% block page_checkout_confirm_revocation_notice %}
                             <p class="revocation-notice">
-                                {# @deprecated tag:v6.6.0 - Block page_checkout_confirm_revocation_notice_link is deprecated. Use outer block page_checkout_confirm_revocation_notice instead. #}
                                 {% block page_checkout_confirm_revocation_notice_link %}
-                                    {{ "checkout.confirmRevocationNotice"|trans({
-                                        '%url%': path('frontend.cms.page',{ id: config('core.basicInformation.revocationPage') })
-                                    })|raw }}
+                                    <a href="{{ path('frontend.cms.page',{ id: config('core.basicInformation.revocationPage') }) }}"
+                                       {{ dataBsToggleAttr }}="modal"
+                                       title="{{ "checkout.confirmRevocationNotice"|trans|striptags }}"
+                                       data-url="{{ path('frontend.cms.page',{ id: config('core.basicInformation.revocationPage') }) }}">
+                                        {{ "checkout.confirmRevocationNotice"|trans|sw_sanitize }}
+                                    </a>
                                 {% endblock %}
                             </p>
                         {% endblock %}
 
                         {% block page_checkout_confirm_tos_control %}
-                            <div class="form-check">
+                            <div class="{{ formCheckboxWrapperClass }}">
                                 {% block page_checkout_confirm_tos_control_checkbox %}
                                     <input type="checkbox"
-                                           class="checkout-confirm-tos-checkbox form-check-input{% if formViolations.getViolations('/tos') is not empty %} is-invalid{% endif %}"
+                                           class="checkout-confirm-tos-checkbox {{ formCheckInputClass }}{% if formViolations.getViolations('/tos') is not empty %} is-invalid{% endif %}"
                                            required="required"
                                            id="tos"
                                            form="confirmOrderForm"
@@ -63,34 +65,12 @@
                                 {% block page_checkout_confirm_tos_control_label %}
                                     <label for="tos"
                                            class="checkout-confirm-tos-label custom-control-label">
-                                        {{ "checkout.confirmTermsText"|trans({
+                                        {{ "checkout.confirmTerms"|trans({
                                             '%url%': path('frontend.cms.page',{ id: config('core.basicInformation.tosPage') })
                                         })|raw }}
                                     </label>
                                 {% endblock %}
                             </div>
-                        {% endblock %}
-
-                        {% block page_checkout_confirm_revocation_control %}
-                            {% if page.showRevocation() %}
-                                <div class="{{ formCheckboxWrapperClass }}">
-                                    {% block page_checkout_confirm_revocation_control_checkbox %}
-                                        <input type="checkbox"
-                                               class="checkout-confirm-revocation-checkbox form-check-input{% if formViolations.getViolations('/revocation') is not empty %} is-invalid{% endif %}"
-                                               required="required"
-                                               id="revocation"
-                                               form="confirmOrderForm"
-                                               name="revocation"/>
-                                    {% endblock %}
-
-                                    {% block page_checkout_confirm_revocation_control_label %}
-                                        <label for="revocation"
-                                               class="checkout-confirm-revocation-label custom-control-label">
-                                            {{ "checkout.confirmRevocationTerms"|trans() }}
-                                        </label>
-                                    {% endblock %}
-                                </div>
-                            {% endif %}
                         {% endblock %}
                     </div>
                 </div>
@@ -113,12 +93,9 @@
                     {% endblock %}
 
                     {% block page_checkout_confirm_shipping %}
-                        {% set PHYSICAL_STATE = constant('Shopware\\Core\\Content\\Product\\State::IS_PHYSICAL') %}
-                        {% if page.cart.lineItems.hasLineItemWithState(PHYSICAL_STATE) %}
-                            <div class="col-sm-6 confirm-shipping">
-                                {% sw_include '@Storefront/storefront/page/checkout/confirm/confirm-shipping.html.twig' %}
-                            </div>
-                        {% endif %}
+                        <div class="col-sm-6 confirm-shipping">
+                            {% sw_include '@Storefront/storefront/page/checkout/confirm/confirm-shipping.html.twig' %}
+                        </div>
                     {% endblock %}
                 </div>
             </div>
@@ -130,18 +107,28 @@
                     <div class="card">
                         <div class="card-body">
                             {% block page_checkout_confirm_table_header %}
-                                {% sw_include '@Storefront/storefront/component/checkout/cart-header.html.twig' with {
-                                    showTaxPrice: true
-                                } %}
+                                {# @deprecated tag:v6.5.0 - Template `confirm-product-header.html.twig` is deprecated. Use `storefront/component/checkout/cart-header.html.twig` instead. #}
+                                {% if feature('v6.5.0.0') %}
+                                    {% sw_include '@Storefront/storefront/component/checkout/cart-header.html.twig' with {
+                                        showTaxPrice: true
+                                    } %}
+                                {% else %}
+                                    {% sw_include '@Storefront/storefront/page/checkout/confirm/confirm-product-header.html.twig' %}
+                                {% endif %}
                             {% endblock %}
 
                             {% block page_checkout_confirm_table_items %}
                                 {% for lineItem in page.cart.lineItems %}
                                     {% block page_checkout_confirm_table_item %}
-                                        {% sw_include '@Storefront/storefront/component/line-item/line-item.html.twig' with {
-                                            redirectTo: 'frontend.checkout.confirm.page',
-                                            showTaxPrice: true
-                                        } %}
+                                        {# @deprecated tag:v6.5.0 - Template `confirm-item.html.twig` is deprecated. Use `storefront/component/line-item/line-item.html.twig` instead. #}
+                                        {% if feature('v6.5.0.0') %}
+                                            {% sw_include '@Storefront/storefront/component/line-item/line-item.html.twig' with {
+                                                redirectTo: 'frontend.checkout.confirm.page',
+                                                showTaxPrice: true
+                                            } %}
+                                        {% else %}
+                                            {% sw_include '@Storefront/storefront/page/checkout/confirm/confirm-item.html.twig' %}
+                                        {% endif %}
                                     {% endblock %}
                                 {% endfor %}
                             {% endblock %}
@@ -208,15 +195,34 @@
     <div class="checkout-aside-action">
         <form id="confirmOrderForm"
               action="{{ path('frontend.checkout.finish.order') }}"
+              data-form-csrf-handler="true"
               data-form-preserver="true"
               data-form-submit-loader="true"
               data-form-add-history="true"
               data-form-add-history-options='{{ formAddHistoryOptions|json_encode }}'
               method="post">
+
+            {% block page_checkout_aside_actions_csrf %}
+                {{ sw_csrf('frontend.checkout.finish.order') }}
+            {% endblock %}
+
             {% block page_checkout_confirm_form_submit %}
-                <div class="d-grid">
+                {# @deprecated tag:v6.5.0 - Bootstrap v5 removes `btn-block` class, use `d-grid` wrapper instead #}
+                {% if feature('v6.5.0.0') %}
+                    <div class="d-grid">
+                        <button id="confirmFormSubmit"
+                                class="btn btn-primary btn-lg"
+                                form="confirmOrderForm"
+                            {% if page.cart.errors.blockOrder %}
+                                disabled
+                            {% endif %}
+                                type="submit">
+                            {{ "checkout.confirmSubmit"|trans|sw_sanitize }}
+                        </button>
+                    </div>
+                {% else %}
                     <button id="confirmFormSubmit"
-                            class="btn btn-primary btn-lg"
+                            class="btn btn-primary btn-block btn-lg"
                             form="confirmOrderForm"
                         {% if page.cart.errors.blockOrder %}
                             disabled
@@ -224,7 +230,7 @@
                             type="submit">
                         {{ "checkout.confirmSubmit"|trans|sw_sanitize }}
                     </button>
-                </div>
+                {% endif %}
             {% endblock %}
         </form>
     </div>

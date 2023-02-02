@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Customer\Event;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Event\CustomerAware;
 use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
@@ -12,17 +13,27 @@ use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\SalesChannelAware;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('customer-order')]
-class CustomerLogoutEvent extends Event implements SalesChannelAware, ShopwareSalesChannelEvent, CustomerAware, MailAware
+class CustomerLogoutEvent extends Event implements BusinessEventInterface, SalesChannelAware, ShopwareSalesChannelEvent, CustomerAware, MailAware
 {
-    final public const EVENT_NAME = 'checkout.customer.logout';
+    public const EVENT_NAME = 'checkout.customer.logout';
 
-    public function __construct(private readonly SalesChannelContext $salesChannelContext, private readonly CustomerEntity $customer)
+    /**
+     * @var CustomerEntity
+     */
+    private $customer;
+
+    /**
+     * @var SalesChannelContext
+     */
+    private $salesChannelContext;
+
+    public function __construct(SalesChannelContext $salesChannelContext, CustomerEntity $customer)
     {
+        $this->customer = $customer;
+        $this->salesChannelContext = $salesChannelContext;
     }
 
     public function getName(): string

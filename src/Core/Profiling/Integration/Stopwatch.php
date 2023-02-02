@@ -2,22 +2,23 @@
 
 namespace Shopware\Core\Profiling\Integration;
 
-use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Stopwatch\Stopwatch as SymfonyStopwatch;
 
 /**
  * @internal experimental atm
  */
-#[Package('core')]
 class Stopwatch implements ProfilerInterface
 {
-    public function __construct(private readonly ?SymfonyStopwatch $stopwatch)
+    private ?SymfonyStopwatch $stopwatch;
+
+    public function __construct(?SymfonyStopwatch $stopwatch)
     {
+        $this->stopwatch = $stopwatch;
     }
 
     public function start(string $title, string $category, array $tags): void
     {
-        if (!class_exists('\\' . SymfonyStopwatch::class) || $this->stopwatch === null) {
+        if (!class_exists('\Symfony\Component\Stopwatch\Stopwatch') || $this->stopwatch === null) {
             return;
         }
 
@@ -26,7 +27,7 @@ class Stopwatch implements ProfilerInterface
 
     public function stop(string $title): void
     {
-        if (!class_exists('\\' . SymfonyStopwatch::class) || $this->stopwatch === null) {
+        if (!class_exists('\Symfony\Component\Stopwatch\Stopwatch') || $this->stopwatch === null) {
             return;
         }
 

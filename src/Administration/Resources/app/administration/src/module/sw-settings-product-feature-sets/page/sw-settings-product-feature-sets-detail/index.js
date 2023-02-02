@@ -1,10 +1,10 @@
 import template from './sw-settings-product-feature-sets-detail.html.twig';
 
-const { Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-settings-product-feature-sets-detail', {
     template,
 
     inject: ['repositoryFactory', 'acl'],
@@ -172,4 +172,4 @@ export default {
             this.loadEntityData();
         },
     },
-};
+});

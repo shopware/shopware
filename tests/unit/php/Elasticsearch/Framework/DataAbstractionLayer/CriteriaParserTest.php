@@ -2,7 +2,7 @@
 
 namespace Shopware\Tests\Unit\Elasticsearch\Framework\DataAbstractionLayer;
 
-use OpenSearchDSL\Aggregation\Bucketing\CompositeAggregation;
+use ONGR\ElasticsearchDSL\Aggregation\Bucketing\CompositeAggregation;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -12,7 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
@@ -290,7 +289,7 @@ class CriteriaParserTest extends TestCase
     public function providerFilter(): iterable
     {
         yield 'not filter: and' => [
-            new NotFilter(MultiFilter::CONNECTION_AND, [new EqualsFilter('test', 'value'), new EqualsFilter('test2', 'value')]),
+            new NotFilter(NotFilter::CONNECTION_AND, [new EqualsFilter('test', 'value'), new EqualsFilter('test2', 'value')]),
             [
                 'bool' => [
                     'must_not' => [
@@ -316,7 +315,7 @@ class CriteriaParserTest extends TestCase
         ];
 
         yield 'not filter: or' => [
-            new NotFilter(MultiFilter::CONNECTION_OR, [new EqualsFilter('test', 'value'), new EqualsFilter('test2', 'value')]),
+            new NotFilter(NotFilter::CONNECTION_OR, [new EqualsFilter('test', 'value'), new EqualsFilter('test2', 'value')]),
             [
                 'bool' => [
                     'must_not' => [
@@ -342,7 +341,7 @@ class CriteriaParserTest extends TestCase
         ];
 
         yield 'not filter: xor' => [
-            new NotFilter(MultiFilter::CONNECTION_XOR, [new EqualsFilter('test', 'value'), new EqualsFilter('test2', 'value')]),
+            new NotFilter(NotFilter::CONNECTION_XOR, [new EqualsFilter('test', 'value'), new EqualsFilter('test2', 'value')]),
             [
                 'bool' => [
                     'must_not' => [

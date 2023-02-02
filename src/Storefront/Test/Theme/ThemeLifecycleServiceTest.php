@@ -9,7 +9,7 @@ use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
@@ -34,17 +34,35 @@ class ThemeLifecycleServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private ThemeLifecycleService $themeLifecycleService;
+    /**
+     * @var ThemeLifecycleService
+     */
+    private $themeLifecycleService;
 
-    private Context $context;
+    /**
+     * @var Context
+     */
+    private $context;
 
-    private EntityRepository $themeRepository;
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $themeRepository;
 
-    private EntityRepository $mediaRepository;
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $mediaRepository;
 
-    private EntityRepository $mediaFolderRepository;
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $mediaFolderRepository;
 
-    private Connection $connection;
+    /**
+     * @var Connection
+     */
+    private $connection;
 
     public function setUp(): void
     {
@@ -86,27 +104,6 @@ class ThemeLifecycleServiceTest extends TestCase
         $parentThemeEntity = $this->getTheme($parentBundle);
         $themeEntity = $this->getTheme($bundle);
 
-        static::assertEquals($parentThemeEntity->getId(), $themeEntity->getParentThemeId());
-    }
-
-    public function testThemeRefreshWithParentTheme(): void
-    {
-        $parentBundle = $this->getThemeConfigWithLabels();
-        $this->themeLifecycleService->refreshTheme($parentBundle, $this->context);
-        $bundle = $this->getThemeConfig();
-        $bundle->setConfigInheritance(['@' . $parentBundle->getTechnicalName()]);
-
-        $this->themeLifecycleService->refreshTheme($bundle, $this->context);
-
-        $parentThemeEntity = $this->getTheme($parentBundle);
-        $themeEntity = $this->getTheme($bundle);
-
-        static::assertEquals($parentThemeEntity->getId(), $themeEntity->getParentThemeId());
-
-        $bundle->setConfigInheritance([]);
-        $this->themeLifecycleService->refreshTheme($parentBundle, $this->context);
-
-        $themeEntity = $this->getTheme($bundle);
         static::assertEquals($parentThemeEntity->getId(), $themeEntity->getParentThemeId());
     }
 
@@ -165,7 +162,7 @@ class ThemeLifecycleServiceTest extends TestCase
         $bundle = $this->getThemeConfig();
         $themeMediaDefaultFolderId = $this->getThemeMediaDefaultFolderId();
 
-        $this->connection->executeStatement('
+        $this->connection->executeUpdate('
             UPDATE `media`
             SET `media_folder_id` = null
             WHERE `media_folder_id` = :defaultThemeFolder
@@ -410,7 +407,7 @@ class ThemeLifecycleServiceTest extends TestCase
 
     private function deleteLanguageForLocale(string $locale): void
     {
-        /** @var EntityRepository $languageRepository */
+        /** @var EntityRepositoryInterface $languageRepository */
         $languageRepository = $this->getContainer()->get('language.repository');
         $context = Context::createDefaultContext();
 
@@ -426,7 +423,7 @@ class ThemeLifecycleServiceTest extends TestCase
 
     private function changeDefaultLanguageLocale(string $locale): void
     {
-        /** @var EntityRepository $languageRepository */
+        /** @var EntityRepositoryInterface $languageRepository */
         $languageRepository = $this->getContainer()->get('language.repository');
         $context = Context::createDefaultContext();
 
@@ -436,7 +433,7 @@ class ThemeLifecycleServiceTest extends TestCase
         /** @var LanguageEntity $language */
         $language = $languageRepository->search($criteria, $context)->first();
 
-        /** @var EntityRepository $localeRepository */
+        /** @var EntityRepositoryInterface $localeRepository */
         $localeRepository = $this->getContainer()->get('locale.repository');
 
         $localeRepository->upsert([

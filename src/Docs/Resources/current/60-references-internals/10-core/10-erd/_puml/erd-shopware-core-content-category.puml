@@ -1,0 +1,121 @@
+@startuml
+' uncomment the line below if you're using computer with a retina display
+' skinparam dpi 300
+!define Table(name,desc) class name as "desc" << (T,#FFAAAA) >>
+!define ForeignTable(name,desc) class name as "desc" << (T,#ada6a6) >>
+!define TranslationTable(name,desc) class name as "desc" << (I,#4286f4) >>
+' we use bold for primary key
+' green color for unique
+' and underscore for not_null
+!define primary_key(x) <b>x</b>
+!define unique(x) <color:green>x</color>
+!define not_null(x) <u>x</u>
+' other tags available:
+' <i></i>
+' <back:COLOR></color>, where color is a color name or html color code
+' (#FFAACC)
+' see: http://plantuml.com/classes.html#More
+hide methods
+hide stereotypes
+hide empty members
+skinparam backgroundColor #FFFFFF
+
+' entities
+
+Table(ShopwareCoreContentCategoryCategoryDefinition, "category\n(Category tree)") {
+   primary_key(id) id
+   primary_key(versionId) version
+   parentId parentFk
+   not_null(parentVersionId) referenceVersion
+   afterCategoryId foreignKey
+   not_null(afterCategoryVersionId) referenceVersion
+   mediaId foreignKey
+   not_null(displayNestedProducts) bool
+   autoIncrement int
+   breadcrumb translated
+   level treeLevel
+   path treePath
+   childCount childCount
+   not_null(type) string
+   not_null(productAssignmentType) string
+   visible bool
+   active bool
+   name translated
+   customFields translated
+   slotConfig translated
+   linkType translated
+   internalLink translated
+   externalLink translated
+   linkNewTab translated
+   description translated
+   metaTitle translated
+   metaDescription translated
+   keywords translated
+   cmsPageId foreignKey
+   not_null(cmsPageVersionId) referenceVersion
+   productStreamId foreignKey
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+   translated json
+}
+TranslationTable(ShopwareCoreContentCategoryAggregateCategoryTranslationCategoryTranslationDefinition, "category_translation\n((Translations))") {
+   not_null(name) string
+   breadcrumb list
+   slotConfig json
+   linkType string
+   internalLink id
+   externalLink string
+   linkNewTab bool
+   description longText
+   metaTitle longText
+   metaDescription longText
+   keywords longText
+   customFields customFields
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+   primary_key(categoryId) foreignKey
+   primary_key(languageId) foreignKey
+   primary_key(categoryVersionId) referenceVersion
+}
+Table(ShopwareCoreContentCategoryAggregateCategoryTagCategoryTagDefinition, "category_tag\n(M:N Mapping)") {
+   primary_key(categoryId) foreignKey
+   primary_key(categoryVersionId) referenceVersion
+   primary_key(tagId) foreignKey
+}
+ForeignTable(ShopwareCoreContentMediaMediaDefinition, "media") {
+}
+ForeignTable(ShopwareCoreContentProductAggregateProductCategoryProductCategoryDefinition, "product_category") {
+}
+ForeignTable(ShopwareCoreContentProductAggregateProductCategoryTreeProductCategoryTreeDefinition, "product_category_tree") {
+}
+ForeignTable(ShopwareCoreContentCmsCmsPageDefinition, "cms_page") {
+}
+ForeignTable(ShopwareCoreContentProductStreamProductStreamDefinition, "product_stream") {
+}
+ForeignTable(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channel") {
+}
+ForeignTable(ShopwareCoreContentSeoMainCategoryMainCategoryDefinition, "main_category") {
+}
+ForeignTable(ShopwareCoreContentSeoSeoUrlSeoUrlDefinition, "seo_url") {
+}
+ForeignTable(ShopwareCoreSystemLanguageLanguageDefinition, "language") {
+}
+ForeignTable(ShopwareCoreSystemTagTagDefinition, "tag") {
+}
+
+' relationshipd
+
+ShopwareCoreContentCategoryCategoryDefinition --> ShopwareCoreContentCategoryCategoryDefinition
+ShopwareCoreContentCategoryCategoryDefinition --> ShopwareCoreContentMediaMediaDefinition
+ShopwareCoreContentCategoryAggregateCategoryTranslationCategoryTranslationDefinition --> ShopwareCoreContentCategoryCategoryDefinition
+ShopwareCoreContentCategoryCategoryDefinition --> ShopwareCoreContentProductAggregateProductCategoryProductCategoryDefinition
+ShopwareCoreContentCategoryCategoryDefinition --> ShopwareCoreContentProductAggregateProductCategoryTreeProductCategoryTreeDefinition
+ShopwareCoreContentCategoryAggregateCategoryTagCategoryTagDefinition --> ShopwareCoreContentCategoryCategoryDefinition
+ShopwareCoreContentCategoryCategoryDefinition --> ShopwareCoreContentCmsCmsPageDefinition
+ShopwareCoreContentCategoryCategoryDefinition --> ShopwareCoreContentProductStreamProductStreamDefinition
+ShopwareCoreContentCategoryCategoryDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
+ShopwareCoreContentCategoryCategoryDefinition --> ShopwareCoreContentSeoMainCategoryMainCategoryDefinition
+ShopwareCoreContentCategoryCategoryDefinition --> ShopwareCoreContentSeoSeoUrlSeoUrlDefinition
+ShopwareCoreContentCategoryAggregateCategoryTranslationCategoryTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
+ShopwareCoreContentCategoryAggregateCategoryTagCategoryTagDefinition --> ShopwareCoreSystemTagTagDefinition
+@enduml

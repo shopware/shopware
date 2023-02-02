@@ -4,7 +4,8 @@ namespace Shopware\Core\System\Snippet\Api;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidLimitQueryException;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\SnippetService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -13,18 +14,36 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Route(defaults: ['_routeScope' => ['api']])]
-#[Package('system-settings')]
+/**
+ * @Route(defaults={"_routeScope"={"api"}})
+ */
 class SnippetController extends AbstractController
 {
     /**
+     * @var SnippetService
+     */
+    private $snippetService;
+
+    /**
+     * @var SnippetFileCollection
+     */
+    private $snippetFileCollection;
+
+    /**
      * @internal
      */
-    public function __construct(private readonly SnippetService $snippetService, private readonly SnippetFileCollection $snippetFileCollection)
-    {
+    public function __construct(
+        SnippetService $snippetService,
+        SnippetFileCollection $snippetFileCollection
+    ) {
+        $this->snippetService = $snippetService;
+        $this->snippetFileCollection = $snippetFileCollection;
     }
 
-    #[Route(path: '/api/_action/snippet-set', name: 'api.action.snippet-set.getList', methods: ['POST'])]
+    /**
+     * @Since("6.0.0.0")
+     * @Route("/api/_action/snippet-set", name="api.action.snippet-set.getList", methods={"POST"})
+     */
     public function getList(Request $request, Context $context): Response
     {
         $limit = $request->request->getInt('limit', 25);
@@ -44,7 +63,10 @@ class SnippetController extends AbstractController
         );
     }
 
-    #[Route(path: '/api/_action/snippet/filter', name: 'api.action.snippet.get.filter', methods: ['GET'])]
+    /**
+     * @Since("6.0.0.0")
+     * @Route("/api/_action/snippet/filter", name="api.action.snippet.get.filter", methods={"GET"})
+     */
     public function getFilterItems(Context $context): Response
     {
         $filter = $this->snippetService->getRegionFilterItems($context);
@@ -55,7 +77,10 @@ class SnippetController extends AbstractController
         ]);
     }
 
-    #[Route(path: '/api/_action/snippet-set/baseFile', name: 'api.action.snippet-set.base-file', methods: ['GET'])]
+    /**
+     * @Since("6.0.0.0")
+     * @Route("/api/_action/snippet-set/baseFile", name="api.action.snippet-set.base-file", methods={"GET"})
+     */
     public function getBaseFiles(): Response
     {
         $files = $this->snippetFileCollection->getFilesArray();
@@ -66,7 +91,10 @@ class SnippetController extends AbstractController
         ]);
     }
 
-    #[Route(path: '/api/_action/snippet-set/author', name: 'api.action.snippet-set.author', methods: ['GET'])]
+    /**
+     * @Since("6.0.0.0")
+     * @Route("/api/_action/snippet-set/author", name="api.action.snippet-set.author", methods={"GET"})
+     */
     public function getAuthors(Context $context): Response
     {
         $authors = $this->snippetService->getAuthors($context);

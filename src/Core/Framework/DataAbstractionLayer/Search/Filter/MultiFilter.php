@@ -2,9 +2,6 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Filter;
 
-use Shopware\Core\Framework\Log\Package;
-
-#[Package('core')]
 class MultiFilter extends Filter
 {
     public const CONNECTION_AND = 'AND';
@@ -17,14 +14,20 @@ class MultiFilter extends Filter
         self::CONNECTION_XOR,
     ];
 
-    protected string $operator;
+    /**
+     * @var Filter[]
+     */
+    protected $queries;
 
     /**
-     * @param  Filter[] $queries
+     * @var string
      */
-    public function __construct(string $operator, protected array $queries = [])
+    protected $operator;
+
+    public function __construct(string $operator, array $queries = [])
     {
         $this->operator = mb_strtoupper(trim($operator));
+        $this->queries = $queries;
 
         if (!\in_array($this->operator, self::VALID_OPERATORS, true)) {
             throw new \InvalidArgumentException('Operator ' . $this->operator . ' not allowed');
@@ -38,9 +41,6 @@ class MultiFilter extends Filter
         return $this;
     }
 
-    /**
-     * @return Filter[]
-     */
     public function getQueries(): array
     {
         return $this->queries;

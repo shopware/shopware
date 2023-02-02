@@ -1,17 +1,17 @@
 import { DocumentEvents } from 'src/core/service/api/document.api.service';
 import template from './sw-order-document-card.html.twig';
 import './sw-order-document-card.scss';
+import '../sw-order-document-settings-invoice-modal';
+import '../sw-order-document-settings-storno-modal';
+import '../sw-order-document-settings-delivery-note-modal';
+import '../sw-order-document-settings-credit-note-modal';
+import '../sw-order-document-settings-modal';
 
-/**
- * @package customer-order
- */
-
-const { Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
-const { mapGetters } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-order-document-card', {
     template,
 
     inject: [
@@ -66,10 +66,6 @@ export default {
     },
 
     computed: {
-        ...mapGetters('swOrderDetail', [
-            'isEditing',
-        ]),
-
         creditItems() {
             const items = [];
 
@@ -167,7 +163,11 @@ export default {
         },
 
         showCardFilter() {
-            return this.order?.documents?.length > 0;
+            if (this.feature.isActive('FEATURE_NEXT_7530')) {
+                return this.order?.documents?.length > 0;
+            }
+
+            return true;
         },
 
         showCreateDocumentButton() {
@@ -178,14 +178,6 @@ export default {
             return this.order?.documents?.length > 0
                 ? this.$tc('sw-order.documentCard.messageNoDocumentFound')
                 : this.$tc('sw-order.documentCard.messageEmptyTitle');
-        },
-
-        tooltipCreateDocumentButton() {
-            if (!this.acl.can('document.viewer')) {
-                return this.$tc('sw-privileges.tooltip.warning');
-            }
-
-            return this.$tc('sw-order.documentTab.tooltipSaveBeforeCreateDocument');
         },
     },
 
@@ -291,7 +283,11 @@ export default {
             this.currentDocumentType = null;
         },
 
-        onPrepareDocument() {
+        onPrepareDocument(documentType) {
+            if (!this.feature.isActive('FEATURE_NEXT_7530')) {
+                this.currentDocumentType = documentType;
+            }
+
             this.showModal = true;
         },
 
@@ -366,27 +362,21 @@ export default {
                     return;
                 }
 
-                const documentId = Array.isArray(response)
-                    ? response[0].documentId
-                    : response?.data?.documentId;
-
-                const documentDeepLink = Array.isArray(response)
-                    ? response[0].documentDeepLink
-                    : response?.data?.documentDeepLink;
-
                 if (params.documentMediaFileId) {
-                    const documentData = await this.documentRepository.get(documentId, Shopware.Context.api);
-                    documentData.documentMediaFileId = params.documentMediaFileId;
-                    await this.documentRepository.save(documentData);
+                    this.documentRepository.get(response.data.documentId, Shopware.Context.api)
+                        .then((documentData) => {
+                            documentData.documentMediaFileId = params.documentMediaFileId;
+                            this.documentRepository.save(documentData);
+                        });
                 }
 
                 if (additionalAction === 'download') {
-                    this.downloadDocument(documentId, documentDeepLink);
+                    this.downloadDocument(response.data.documentId, response.data.documentDeepLink);
                 } else if (additionalAction === 'send') {
                     const criteria = new Criteria(null, null);
                     criteria.addAssociation('documentType');
 
-                    this.documentRepository.get(documentId, Shopware.Context.api, criteria)
+                    this.documentRepository.get(response.data.documentId, Shopware.Context.api, criteria)
                         .then((documentData) => {
                             if (!documentData) {
                                 return;
@@ -404,7 +394,7 @@ export default {
         onPreview(params) {
             this.isLoadingPreview = true;
 
-            return this.documentService.getDocumentPreview(
+            this.documentService.getDocumentPreview(
                 this.order.id,
                 this.order.deepLinkCode,
                 this.currentDocumentType.technicalName,
@@ -419,8 +409,6 @@ export default {
                 }
 
                 this.isLoadingPreview = false;
-
-                return response;
             });
         },
 
@@ -475,4 +463,4 @@ export default {
             }
         },
     },
-};
+});

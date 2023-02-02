@@ -5,10 +5,13 @@ namespace Shopware\Storefront\Controller;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractChangePaymentMethodRoute;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Storefront\Framework\Routing\Annotation\NoStore;
 use Shopware\Storefront\Page\Account\PaymentMethod\AccountPaymentMethodPageLoadedHook;
 use Shopware\Storefront\Page\Account\PaymentMethod\AccountPaymentMethodPageLoader;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -17,21 +20,33 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @internal
+ * @Route(defaults={"_routeScope"={"storefront"}})
+ *
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
  */
-#[Route(defaults: ['_routeScope' => ['storefront']])]
-#[Package('storefront')]
 class AccountPaymentController extends StorefrontController
 {
+    private AccountPaymentMethodPageLoader $paymentMethodPageLoader;
+
+    private AbstractChangePaymentMethodRoute $changePaymentMethodRoute;
+
     /**
      * @internal
      */
-    public function __construct(private readonly AccountPaymentMethodPageLoader $paymentMethodPageLoader, private readonly AbstractChangePaymentMethodRoute $changePaymentMethodRoute)
-    {
+    public function __construct(
+        AccountPaymentMethodPageLoader $paymentMethodPageLoader,
+        AbstractChangePaymentMethodRoute $changePaymentMethodRoute
+    ) {
+        $this->paymentMethodPageLoader = $paymentMethodPageLoader;
+        $this->changePaymentMethodRoute = $changePaymentMethodRoute;
     }
 
-    #[Route(path: '/account/payment', name: 'frontend.account.payment.page', options: ['seo' => false], defaults: ['_loginRequired' => true, '_noStore' => true], methods: ['GET'])]
-    #[Route(path: '/account/payment', name: 'frontend.account.payment.page', options: ['seo' => false], defaults: ['_noStore' => true], methods: ['GET'])]
+    /**
+     * @Since("6.0.0.0")
+     * @Route("/account/payment", name="frontend.account.payment.page", options={"seo"="false"}, methods={"GET"}, defaults={"_loginRequired"=true})
+     * @Route("/account/payment", name="frontend.account.payment.page", options={"seo"="false"}, methods={"GET"})
+     * @NoStore
+     */
     public function paymentOverview(Request $request, SalesChannelContext $context): Response
     {
         $page = $this->paymentMethodPageLoader->load($request, $context);
@@ -41,7 +56,10 @@ class AccountPaymentController extends StorefrontController
         return $this->renderStorefront('@Storefront/storefront/page/account/payment/index.html.twig', ['page' => $page]);
     }
 
-    #[Route(path: '/account/payment', name: 'frontend.account.payment.save', defaults: ['_loginRequired' => true], methods: ['POST'])]
+    /**
+     * @Since("6.0.0.0")
+     * @Route("/account/payment", name="frontend.account.payment.save", methods={"POST"}, defaults={"_loginRequired"=true})
+     */
     public function savePayment(RequestDataBag $requestDataBag, SalesChannelContext $context, CustomerEntity $customer): Response
     {
         try {

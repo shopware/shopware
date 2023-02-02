@@ -9,8 +9,6 @@ import Iterator from 'src/helper/iterator.helper';
 /**
  * This plugin automatically submits a form,
  * when the element or the form itself has changed.
- *
- * @package content
  */
 export default class FormAjaxSubmitPlugin extends Plugin {
 
@@ -153,6 +151,10 @@ export default class FormAjaxSubmitPlugin extends Plugin {
      */
     _fireRequest() {
         this._createLoadingIndicators();
+        /**
+         * @deprecated tag:v6.5.0 - beforeFireRequest event will be removed, use beforeSubmit instead
+         */
+        this.$emitter.publish('beforeFireRequest');
         this.$emitter.publish('beforeSubmit');
 
         this.sendAjaxFormSubmit();

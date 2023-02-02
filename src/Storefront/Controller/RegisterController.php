@@ -9,10 +9,12 @@ use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByHashException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractRegisterConfirmRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractRegisterRoute;
 use Shopware\Core\Content\Newsletter\Exception\SalesChannelDomainNotFoundException;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\QueryDataBag;
@@ -22,6 +24,8 @@ use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Framework\AffiliateTracking\AffiliateTrackingListener;
+use Shopware\Storefront\Framework\Captcha\Annotation\Captcha;
+use Shopware\Storefront\Framework\Routing\Annotation\NoStore;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Page\Account\CustomerGroupRegistration\AbstractCustomerGroupRegistrationPageLoader;
 use Shopware\Storefront\Page\Account\CustomerGroupRegistration\CustomerGroupRegistrationPageLoadedHook;
@@ -37,20 +41,60 @@ use Symfony\Component\Validator\Constraints\EqualTo;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
- * @internal
+ * @Route(defaults={"_routeScope"={"storefront"}})
+ *
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
  */
-#[Route(defaults: ['_routeScope' => ['storefront']])]
-#[Package('customer-order')]
 class RegisterController extends StorefrontController
 {
+    private AccountLoginPageLoader $loginPageLoader;
+
+    private CartService $cartService;
+
+    private CheckoutRegisterPageLoader $registerPageLoader;
+
+    private SystemConfigService $systemConfigService;
+
+    private EntityRepositoryInterface $customerRepository;
+
+    private AbstractCustomerGroupRegistrationPageLoader $customerGroupRegistrationPageLoader;
+
+    private AbstractRegisterRoute $registerRoute;
+
+    private AbstractRegisterConfirmRoute $registerConfirmRoute;
+
+    private EntityRepositoryInterface $domainRepository;
+
     /**
      * @internal
      */
-    public function __construct(private readonly AccountLoginPageLoader $loginPageLoader, private readonly AbstractRegisterRoute $registerRoute, private readonly AbstractRegisterConfirmRoute $registerConfirmRoute, private readonly CartService $cartService, private readonly CheckoutRegisterPageLoader $registerPageLoader, private readonly SystemConfigService $systemConfigService, private readonly EntityRepository $customerRepository, private readonly AbstractCustomerGroupRegistrationPageLoader $customerGroupRegistrationPageLoader, private readonly EntityRepository $domainRepository)
-    {
+    public function __construct(
+        AccountLoginPageLoader $loginPageLoader,
+        AbstractRegisterRoute $registerRoute,
+        AbstractRegisterConfirmRoute $registerConfirmRoute,
+        CartService $cartService,
+        CheckoutRegisterPageLoader $registerPageLoader,
+        SystemConfigService $systemConfigService,
+        EntityRepositoryInterface $customerRepository,
+        AbstractCustomerGroupRegistrationPageLoader $customerGroupRegistrationPageLoader,
+        EntityRepositoryInterface $domainRepository
+    ) {
+        $this->loginPageLoader = $loginPageLoader;
+        $this->cartService = $cartService;
+        $this->registerPageLoader = $registerPageLoader;
+        $this->systemConfigService = $systemConfigService;
+        $this->customerRepository = $customerRepository;
+        $this->customerGroupRegistrationPageLoader = $customerGroupRegistrationPageLoader;
+        $this->registerRoute = $registerRoute;
+        $this->registerConfirmRoute = $registerConfirmRoute;
+        $this->domainRepository = $domainRepository;
     }
 
-    #[Route(path: '/account/register', name: 'frontend.account.register.page', defaults: ['_noStore' => true], methods: ['GET'])]
+    /**
+     * @Since("6.0.0.0")
+     * @Route("/account/register", name="frontend.account.register.page", methods={"GET"})
+     * @NoStore
+     */
     public function accountRegisterPage(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
     {
         if ($context->getCustomer() && $context->getCustomer()->getGuest()) {
@@ -75,7 +119,11 @@ class RegisterController extends StorefrontController
         ]);
     }
 
-    #[Route(path: '/customer-group-registration/{customerGroupId}', name: 'frontend.account.customer-group-registration.page', defaults: ['_noStore' => true], methods: ['GET'])]
+    /**
+     * @Since("6.3.1.0")
+     * @Route("/customer-group-registration/{customerGroupId}", name="frontend.account.customer-group-registration.page", methods={"GET"})
+     * @NoStore
+     */
     public function customerGroupRegistration(string $customerGroupId, Request $request, RequestDataBag $data, SalesChannelContext $context): Response
     {
         if ($context->getCustomer() && $context->getCustomer()->getGuest()) {
@@ -99,13 +147,17 @@ class RegisterController extends StorefrontController
         return $this->renderStorefront('@Storefront/storefront/page/account/customer-group-register/index.html.twig', [
             'redirectTo' => $redirect,
             'redirectParameters' => $request->get('redirectParameters', json_encode([])),
-            'errorParameters' => json_encode(['customerGroupId' => $customerGroupId], \JSON_THROW_ON_ERROR),
+            'errorParameters' => json_encode(['customerGroupId' => $customerGroupId]),
             'page' => $page,
             'data' => $data,
         ]);
     }
 
-    #[Route(path: '/checkout/register', name: 'frontend.checkout.register.page', options: ['seo' => false], defaults: ['_noStore' => true], methods: ['GET'])]
+    /**
+     * @Since("6.0.0.0")
+     * @Route("/checkout/register", name="frontend.checkout.register.page", options={"seo"="false"}, methods={"GET"})
+     * @NoStore
+     */
     public function checkoutRegisterPage(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
     {
         /** @var string $redirect */
@@ -129,7 +181,10 @@ class RegisterController extends StorefrontController
         );
     }
 
-    #[Route(path: '/account/register', name: 'frontend.account.register.save', defaults: ['_captcha' => true], methods: ['POST'])]
+    /**
+     * @Since("6.0.0.0")
+     * @Route("/account/register", name="frontend.account.register.save", methods={"POST"}, defaults={"_captcha"=true})
+     */
     public function register(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
     {
         if ($context->getCustomer()) {
@@ -145,10 +200,16 @@ class RegisterController extends StorefrontController
 
             $data = $this->prepareAffiliateTracking($data, $request->getSession());
 
-            if ($data->getBoolean('createCustomerAccount')) {
-                $data->set('guest', false);
+            if (Feature::isActive('FEATURE_NEXT_16236')) {
+                if ($data->getBoolean('createCustomerAccount')) {
+                    $data->set('guest', false);
+                } else {
+                    $data->set('guest', true);
+                }
             } else {
-                $data->set('guest', true);
+                if ($data->has('guest')) {
+                    $data->set('guest', $data->has('guest'));
+                }
             }
 
             $this->registerRoute->register(
@@ -175,7 +236,10 @@ class RegisterController extends StorefrontController
         return $this->createActionResponse($request);
     }
 
-    #[Route(path: '/registration/confirm', name: 'frontend.account.register.mail', methods: ['GET'])]
+    /**
+     * @Since("6.1.0.0")
+     * @Route("/registration/confirm", name="frontend.account.register.mail", methods={"GET"})
+     */
     public function confirmRegistration(SalesChannelContext $context, QueryDataBag $queryDataBag): Response
     {
         try {
@@ -183,7 +247,7 @@ class RegisterController extends StorefrontController
                 ->confirm($queryDataBag->toRequestDataBag(), $context)
                 ->getCustomer()
                 ->getId();
-        } catch (CustomerNotFoundByHashException | CustomerAlreadyConfirmedException | ConstraintViolationException) {
+        } catch (CustomerNotFoundByHashException | CustomerAlreadyConfirmedException | ConstraintViolationException $exception) {
             $this->addFlash(self::DANGER, $this->trans('account.confirmationIsAlreadyDone'));
 
             return $this->redirectToRoute('frontend.account.register.page');
@@ -211,9 +275,15 @@ class RegisterController extends StorefrontController
     {
         $creatueCustomerAccount = $data->getBoolean('createCustomerAccount');
 
-        $configKey = $creatueCustomerAccount
-            ? 'core.loginRegistration.doubleOptInRegistration'
-            : 'core.loginRegistration.doubleOptInGuestOrder';
+        if (Feature::isActive('FEATURE_NEXT_16236')) {
+            $configKey = $creatueCustomerAccount
+                ? 'core.loginRegistration.doubleOptInRegistration'
+                : 'core.loginRegistration.doubleOptInGuestOrder';
+        } else {
+            $configKey = $data->has('guest')
+                ? 'core.loginRegistration.doubleOptInGuestOrder'
+                : 'core.loginRegistration.doubleOptInRegistration';
+        }
 
         $doubleOptInRequired = $this->systemConfigService
             ->get($configKey, $context->getSalesChannel()->getId());
@@ -222,13 +292,25 @@ class RegisterController extends StorefrontController
             return false;
         }
 
-        if ($creatueCustomerAccount) {
-            $this->addFlash(self::SUCCESS, $this->trans('account.optInRegistrationAlert'));
+        if (Feature::isActive('FEATURE_NEXT_16236')) {
+            if ($creatueCustomerAccount) {
+                $this->addFlash(self::SUCCESS, $this->trans('account.optInRegistrationAlert'));
+
+                return true;
+            }
+
+            $this->addFlash(self::SUCCESS, $this->trans('account.optInGuestAlert'));
 
             return true;
         }
 
-        $this->addFlash(self::SUCCESS, $this->trans('account.optInGuestAlert'));
+        if ($data->has('guest')) {
+            $this->addFlash(self::SUCCESS, $this->trans('account.optInGuestAlert'));
+
+            return true;
+        }
+
+        $this->addFlash(self::SUCCESS, $this->trans('account.optInRegistrationAlert'));
 
         return true;
     }

@@ -3,32 +3,33 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Indexing\Subscriber;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\IndexerQueuer;
 use Shopware\Core\Framework\Store\Event\FirstRunWizardFinishedEvent;
-use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
+use Shopware\Core\Framework\Update\Event\UpdatePreFinishEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-/**
- * @internal
- */
-#[Package('core')]
 class RegisteredIndexerSubscriber implements EventSubscriberInterface
 {
+    private IndexerQueuer $indexerQueuer;
+
+    private EntityIndexerRegistry $indexerRegistry;
+
     /**
      * @internal
      */
-    public function __construct(private readonly IndexerQueuer $indexerQueuer, private readonly EntityIndexerRegistry $indexerRegistry)
+    public function __construct(IndexerQueuer $indexerQueuer, EntityIndexerRegistry $indexerRegistry)
     {
+        $this->indexerQueuer = $indexerQueuer;
+        $this->indexerRegistry = $indexerRegistry;
     }
 
     /**
      * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
      */
-    public static function getSubscribedEvents(): array
+    public static function getSubscribedEvents()
     {
         return [
-            UpdatePostFinishEvent::class => 'runRegisteredIndexers',
+            UpdatePreFinishEvent::class => 'runRegisteredIndexers',
             FirstRunWizardFinishedEvent::class => 'runRegisteredIndexers',
         ];
     }

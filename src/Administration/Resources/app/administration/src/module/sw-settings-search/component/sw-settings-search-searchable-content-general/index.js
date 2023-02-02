@@ -1,12 +1,9 @@
-/**
- * @package system-settings
- */
 import template from './sw-settings-search-searchable-content-general.html.twig';
 
-const { Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-settings-search-searchable-content-general', {
     template,
 
     inject: [
@@ -133,4 +130,4 @@ export default {
             return fieldConfigDefault ? fieldConfigDefault.defaultConfigs.ranking : 0;
         },
     },
-};
+});

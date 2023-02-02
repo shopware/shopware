@@ -4,7 +4,6 @@ namespace Shopware\Core\System\SystemConfig\Facade;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\ScriptAppInformation;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -14,18 +13,29 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
  *
  * @script-service miscellaneous
  */
-#[Package('system-settings')]
 class SystemConfigFacade
 {
     private const PRIVILEGE = 'system_config:read';
+
+    private SystemConfigService $systemConfigService;
+
+    private Connection $connection;
+
+    private ?ScriptAppInformation $scriptAppInformation;
+
+    private ?string $salesChannelId;
 
     private array $appData = [];
 
     /**
      * @internal
      */
-    public function __construct(private readonly SystemConfigService $systemConfigService, private readonly Connection $connection, private readonly ?ScriptAppInformation $scriptAppInformation, private readonly ?string $salesChannelId)
+    public function __construct(SystemConfigService $systemConfigService, Connection $connection, ?ScriptAppInformation $scriptAppInformation, ?string $salesChannelId)
     {
+        $this->systemConfigService = $systemConfigService;
+        $this->connection = $connection;
+        $this->salesChannelId = $salesChannelId;
+        $this->scriptAppInformation = $scriptAppInformation;
     }
 
     /**
@@ -99,6 +109,6 @@ class SystemConfigFacade
             throw new \RuntimeException(sprintf('Privileges for app with id "%s" not found.', $appId));
         }
 
-        return $this->appData[$appId] = json_decode((string) $privileges, true, 512, \JSON_THROW_ON_ERROR);
+        return $this->appData[$appId] = json_decode($privileges, true);
     }
 }

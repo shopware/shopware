@@ -6,23 +6,17 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntitySearchedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
-use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
-/**
- * @internal
- */
-#[Package('core')]
 class EntityProtectionValidator implements EventSubscriberInterface
 {
     /**
      * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
      */
-    public static function getSubscribedEvents(): array
+    public static function getSubscribedEvents()
     {
         return [
             PreWriteValidationEvent::class => 'validateWriteCommands',
@@ -31,7 +25,6 @@ class EntityProtectionValidator implements EventSubscriberInterface
     }
 
     /**
-     * @param list<array{entity: string, value: string|null, definition: EntityDefinition, field: Field|null}> $pathSegments
      * @param array<string> $protections FQCN of the protections that need to be validated
      */
     public function validateEntityPath(array $pathSegments, array $protections, Context $context): void
@@ -97,9 +90,6 @@ class EntityProtectionValidator implements EventSubscriberInterface
         }
     }
 
-    /**
-     * @param array<string, Criteria> $associations
-     */
     private function validateCriteriaAssociation(EntityDefinition $definition, array $associations, Context $context): void
     {
         /** @var Criteria $criteria */

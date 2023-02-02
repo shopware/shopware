@@ -3,21 +3,23 @@
 namespace Shopware\Core\Checkout\Customer\Rule;
 
 use Shopware\Core\Checkout\CheckoutRuleScope;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-#[Package('business-ops')]
 class OrderTotalAmountRule extends Rule
 {
-    final public const RULE_NAME = 'customerOrderTotalAmount';
-
     protected string $operator;
 
     protected float $amount;
+
+    public function getName(): string
+    {
+        return 'customerOrderTotalAmount';
+    }
 
     public function match(RuleScope $scope): bool
     {
@@ -26,6 +28,10 @@ class OrderTotalAmountRule extends Rule
         }
 
         if (!$customer = $scope->getSalesChannelContext()->getCustomer()) {
+            if (!Feature::isActive('v6.5.0.0')) {
+                return false;
+            }
+
             return RuleComparison::isNegativeOperator($this->operator);
         }
 

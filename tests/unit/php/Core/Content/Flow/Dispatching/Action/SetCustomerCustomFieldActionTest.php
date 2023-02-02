@@ -8,33 +8,45 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Flow\Dispatching\Action\SetCustomerCustomFieldAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\CustomerAware;
+use Shopware\Core\Framework\Event\DelayAware;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package business-ops
- *
  * @internal
- * @covers \Shopware\Core\Content\Flow\Dispatching\Action\SetCustomerCustomFieldAction
+ * @covers \Shopware\Core\Content\Flow\Dispatching\Action\SetOrderCustomFieldAction
  */
 class SetCustomerCustomFieldActionTest extends TestCase
 {
-    private Connection&MockObject $connection;
+    /**
+     * @var MockObject|Connection
+     */
+    private $connection;
 
-    private MockObject&EntityRepository $repository;
+    /**
+     * @var MockObject|EntityRepositoryInterface
+     */
+    private $repository;
 
-    private MockObject&EntitySearchResult $entitySearchResult;
+    /**
+     * @var MockObject|EntitySearchResult
+     */
+    private $entitySearchResult;
 
     private SetCustomerCustomFieldAction $action;
 
-    private MockObject&StorableFlow $flow;
+    /**
+     * @var MockObject|StorableFlow
+     */
+    private $flow;
 
     public function setUp(): void
     {
         $this->connection = $this->createMock(Connection::class);
-        $this->repository = $this->createMock(EntityRepository::class);
+        $this->repository = $this->createMock(EntityRepositoryInterface::class);
         $this->entitySearchResult = $this->createMock(EntitySearchResult::class);
 
         $this->action = new SetCustomerCustomFieldAction($this->connection, $this->repository);
@@ -45,8 +57,25 @@ class SetCustomerCustomFieldActionTest extends TestCase
     public function testRequirements(): void
     {
         static::assertSame(
-            [CustomerAware::class],
+            [CustomerAware::class, DelayAware::class],
             $this->action->requirements()
+        );
+    }
+
+    public function testSubscribedEvents(): void
+    {
+        if (Feature::isActive('v6.5.0.0')) {
+            static::assertSame(
+                [],
+                SetCustomerCustomFieldAction::getSubscribedEvents()
+            );
+
+            return;
+        }
+
+        static::assertSame(
+            ['action.set.customer.custom.field' => 'handle'],
+            SetCustomerCustomFieldAction::getSubscribedEvents()
         );
     }
 

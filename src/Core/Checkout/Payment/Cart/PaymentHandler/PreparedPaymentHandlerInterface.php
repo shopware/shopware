@@ -6,12 +6,10 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Payment\Cart\PreparedPaymentTransactionStruct;
 use Shopware\Core\Checkout\Payment\Exception\CapturePreparedPaymentException;
 use Shopware\Core\Checkout\Payment\Exception\ValidatePreparedPaymentException;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('checkout')]
 interface PreparedPaymentHandlerInterface extends PaymentHandlerInterface
 {
     /**

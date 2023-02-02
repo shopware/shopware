@@ -5,12 +5,12 @@ namespace Shopware\Core\Framework\Test\TestCaseBase;
 trait EnvTestBehaviour
 {
     /**
-     * @var array<string, string|int|bool|null>
+     * @var array<string, (string|int|bool)>
      */
     private array $originalEnvVars = [];
 
     /**
-     * @param array<string, string|int|bool|null> $envVars
+     * @param array<string, (string|int|bool)> $envVars
      */
     public function setEnvVars(array $envVars): void
     {

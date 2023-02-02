@@ -1,13 +1,13 @@
 import template from './sw-cms-product-assignment.html.twig';
 import './sw-cms-product-assignment.scss';
 
+const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
- * @private
- * @package content
+ * @private since v6.5.0
  */
-export default {
+Component.extend('sw-cms-product-assignment', 'sw-many-to-many-assignment-card', {
     template,
     data() {
         return {
@@ -108,4 +108,4 @@ export default {
             });
         },
     },
-};
+});

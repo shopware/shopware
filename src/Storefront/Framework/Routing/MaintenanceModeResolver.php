@@ -2,13 +2,11 @@
 
 namespace Shopware\Storefront\Framework\Routing;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\SalesChannelRequest;
 use Symfony\Component\HttpFoundation\IpUtils;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
-#[Package('storefront')]
 class MaintenanceModeResolver
 {
     /**
@@ -35,33 +33,21 @@ class MaintenanceModeResolver
             && !$this->isMaintenancePageRequest($request)
             && !$this->isXmlHttpRequest($request)
             && !$this->isErrorControllerRequest($request)
-            && $this->isMaintenanceRequest($request);
+            && $this->isMaintenanceModeActive($this->requestStack->getMainRequest())
+            && !$this->isClientAllowed($request);
     }
 
-    /**
-     * shouldRedirectToShop returns true, when the given request to the maintenance page should be redirected to the shop.
-     * This would be the case, for example, when the maintenance mode is not active or if it is active
-     * the client's IP address is listed in the maintenance mode whitelist.
-     */
     public function shouldRedirectToShop(Request $request): bool
     {
         return !$this->isXmlHttpRequest($request)
             && !$this->isErrorControllerRequest($request)
-            && !$this->isMaintenanceRequest($request);
+            && (!$this->isMaintenanceModeActive($this->requestStack->getMainRequest())
+                || $this->isClientAllowed($request));
     }
 
-    public function shouldBeCached(Request $request): bool
-    {
-        return !$this->isMaintenanceModeActive($request) || !$this->isClientAllowed($request);
-    }
-
-    /**
-     * isMaintenanceRequest returns true, when the maintenance mode is active and the client's IP address
-     * is not listed in the maintenance mode whitelist.
-     */
     public function isMaintenanceRequest(Request $request): bool
     {
-        return $this->isMaintenanceModeActive($request) && !$this->isClientAllowed($request);
+        return $this->isMaintenanceModeActive($request) && $this->isClientAllowed($request);
     }
 
     private function isSalesChannelRequest(?Request $master): bool
@@ -122,6 +108,6 @@ class MaintenanceModeResolver
             return [];
         }
 
-        return json_decode((string) $whitelist, true, 512, \JSON_THROW_ON_ERROR) ?? [];
+        return json_decode($whitelist, true) ?? [];
     }
 }

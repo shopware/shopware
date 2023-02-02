@@ -1,7 +1,3 @@
-/**
- * @package admin
- */
-
 import template from './sw-category-tree-field.html.twig';
 import './sw-category-tree-field.scss';
 
@@ -9,9 +5,7 @@ const { Component } = Shopware;
 const utils = Shopware.Utils;
 const { Criteria } = Shopware.Data;
 
-/**
- * @deprecated tag:v6.6.0 - Will be private
- */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-category-tree-field', {
     template,
 
@@ -636,7 +630,6 @@ Component.register('sw-category-tree-field', {
 
             this.categoriesCollection.forEach((category, index) => {
                 if (category.id !== keepId) {
-                    // eslint-disable-next-line vue/no-mutating-props
                     this.categoriesCollection.splice(index, 1);
                     index -= 1;
                 }

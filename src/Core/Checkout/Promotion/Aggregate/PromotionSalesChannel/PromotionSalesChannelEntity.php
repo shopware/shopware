@@ -6,10 +6,8 @@ namespace Shopware\Core\Checkout\Promotion\Aggregate\PromotionSalesChannel;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
-#[Package('checkout')]
 class PromotionSalesChannelEntity extends Entity
 {
     use EntityIdTrait;

@@ -3,18 +3,16 @@
 namespace Shopware\Core\Content\Cms\Aggregate\CmsSlot;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<CmsSlotEntity>
  */
-#[Package('content')]
 class CmsSlotCollection extends EntityCollection
 {
     /**
      * @var CmsSlotEntity[]|null indexed by slot name
      */
-    private ?array $slotCache = null;
+    private $slotCache;
 
     /**
      * @param string        $key

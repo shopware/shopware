@@ -19,7 +19,7 @@
                 {% sw_icon 'avatar' %}
                 <a href="#loginCollapse"
                    class="login-collapse-toggle"
-                   data-bs-toggle="collapse"
+                   {{ dataBsToggleAttr }}="collapse"
                    aria-expanded="false">
                     <strong>{{ "checkout.addressLoginToggle"|trans|sw_sanitize }}</strong> </a>
             </div>
@@ -59,10 +59,15 @@
                     {% block page_checkout_address_product_list_container %}
                         {% for lineItem in page.cart.lineItems %}
                             {% block page_checkout_address_product_summary_item %}
-                                {% sw_include '@Storefront/storefront/component/line-item/line-item.html.twig' with {
-                                    displayMode: 'offcanvas',
-                                    showQuantitySelect: false
-                                } %}
+                                {# @deprecated tag:v6.5.0 - Template `checkout-aside-item.html.twig` is deprecated. Use `storefront/component/line-item/line-item.html.twig` instead. #}
+                                {% if feature('v6.5.0.0') %}
+                                    {% sw_include '@Storefront/storefront/component/line-item/line-item.html.twig' with {
+                                        displayMode: 'offcanvas',
+                                        showQuantitySelect: false
+                                    } %}
+                                {% else %}
+                                    {% sw_include '@Storefront/storefront/page/checkout/checkout-aside-item.html.twig' %}
+                                {% endif %}
                             {% endblock %}
                         {% endfor %}
                     {% endblock %}

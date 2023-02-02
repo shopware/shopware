@@ -7,9 +7,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
 use Shopware\Core\Content\ImportExport\Command\DeleteExpiredFilesCommand;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
@@ -19,14 +18,13 @@ use Symfony\Component\Console\Tester\CommandTester;
 /**
  * @internal
  */
-#[Package('system-settings')]
 class DeleteExpiredFilesCommandTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use QueueTestBehaviour;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepositoryInterface
      */
     private $fileRepository;
 
@@ -35,9 +33,15 @@ class DeleteExpiredFilesCommandTest extends TestCase
      */
     private $deleteExpiredFilesCommand;
 
-    private Context $context;
+    /**
+     * @var Context
+     */
+    private $context;
 
-    private Filesystem $filesystem;
+    /**
+     * @var Filesystem
+     */
+    private $filesystem;
 
     protected function setUp(): void
     {
@@ -183,14 +187,14 @@ class DeleteExpiredFilesCommandTest extends TestCase
 
             $filePath = 'import/' . ImportExportFileEntity::buildPath($uuid);
 
-            $this->filesystem->write($filePath, 'foobar');
+            $this->filesystem->put($filePath, 'foobar');
             static::assertTrue($this->filesystem->has($filePath));
 
             $data[Uuid::fromHexToBytes($uuid)] = [
                 'id' => $uuid,
                 'originalName' => sprintf('file%d.xml', $i),
                 'path' => $filePath,
-                'expireDate' => date('Y-m-d H:i:s', (int) strtotime('+' . $i . ' day')),
+                'expireDate' => date('Y-m-d H:i:s', strtotime("+$i day")),
                 'size' => $i * 51,
                 'accessToken' => Random::getBase64UrlString(32),
             ];

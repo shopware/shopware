@@ -7,14 +7,16 @@ const checkoutPage = new CheckoutPageObject();
 
 describe('Add an advance pricing rule and make an order', { tags: ['pa-inventory'] }, () => {
     beforeEach(() => {
-        cy.createProductFixture({
-            name: 'Test Product',
-            productNumber: 'TS-444',
-            price: [{
-                currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
-                linked: true,
-                gross: 60,
-            }],
+        cy.loginViaApi().then(() => {
+            cy.createProductFixture({
+                name: 'Test Product',
+                productNumber: 'TS-444',
+                price: [{
+                    currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
+                    linked: true,
+                    gross: 60
+                }]
+            });
         }).then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -25,7 +27,7 @@ describe('Add an advance pricing rule and make an order', { tags: ['pa-inventory
     it('@package: should add advance pricing option to the standard product', () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST',
+            method: 'POST'
         }).as('saveData');
 
         const productPrice = 60;
@@ -38,7 +40,7 @@ describe('Add an advance pricing rule and make an order', { tags: ['pa-inventory
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`,
+            `${page.elements.dataGridRow}--0`
         );
         cy.get('.sw-product-detail__tab-advanced-prices').click();
         cy.get('.sw-product-detail-context-prices__empty-state-select-rule')
@@ -65,7 +67,7 @@ describe('Add an advance pricing rule and make an order', { tags: ['pa-inventory
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`,
+            `${page.elements.dataGridRow}--0`
         );
         cy.contains('h2', 'Test Product').should('be.visible');
         cy.get('.sw-product-detail__select-visibility').scrollIntoView()
@@ -75,34 +77,39 @@ describe('Add an advance pricing rule and make an order', { tags: ['pa-inventory
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
 
-        // Check the standard product with advance pricing from the Storefront
+        // Check the standard product with advance pricing from the store front
         cy.visit('/');
 
-        cy.contains('Home');
-        cy.get('.header-search-input')
-            .should('be.visible')
-            .type('Test Product');
-        cy.contains('.search-suggest-product-name', 'Test Product').click();
-        cy.contains(':nth-child(1) > .product-block-prices-cell-thin', 'To 5');
-        cy.contains(':nth-child(2) > .product-block-prices-cell-thin', 'From 6');
-        cy.contains('.product-detail-name', 'Test Product');
-        cy.get('tr:nth-of-type(1)  div').should('include.text', productPrice);
-        cy.get('tr:nth-of-type(2)  div').should('include.text', advancePriceStandard);
-        cy.get('.product-detail-buy .btn-buy').click();
+        cy.window().then((win) => {
+            /** @deprecated tag:v6.5.0 - Use `CheckoutPageObject.elements.lineItem` instead */
+            const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
 
-        // Off canvas, verify test product price is 60€
-        cy.get(checkoutPage.elements.offCanvasCart).should('be.visible');
-        cy.contains('.line-item-label', 'Test Product');
-        cy.get('.summary-value.summary-total').should('include.text', '60,00');
+            cy.contains('Home');
+            cy.get('.header-search-input')
+                .should('be.visible')
+                .type('Test Product');
+            cy.contains('.search-suggest-product-name', 'Test Product').click();
+            cy.contains(':nth-child(1) > .product-block-prices-cell-thin', 'To 5');
+            cy.contains(':nth-child(2) > .product-block-prices-cell-thin', 'From 6');
+            cy.contains('.product-detail-name', 'Test Product');
+            cy.get('tr:nth-of-type(1)  div').should('include.text', productPrice);
+            cy.get('tr:nth-of-type(2)  div').should('include.text', advancePriceStandard);
+            cy.get('.product-detail-buy .btn-buy').click();
 
-        // Verify test product price is 300€ with 5 products
-        cy.get('.line-item-quantity-container > .custom-select').select('5');
-        cy.get('.sw-loader').should('not.exist');
-        cy.get('.summary-value.summary-total').should('include.text', '300,00');
+            // Off canvas, verify test product price is 60€
+            cy.get(checkoutPage.elements.offCanvasCart).should('be.visible');
+            cy.contains(`${lineItemSelector}-label`, 'Test Product');
+            cy.get('.summary-value.summary-total').should('include.text', '60,00');
 
-        // Set the product number 6 to see whether the advance price option is applied (6x50)
-        cy.get('.line-item-quantity-container > .custom-select').select('6');
-        cy.get('.sw-loader').should('not.exist');
-        cy.get('.summary-value.summary-total').should('include.text', '300,00');
+            // Verify test product price is 300€ with 5 products
+            cy.get(`${lineItemSelector}-quantity-container > .custom-select`).select('5');
+            cy.get('.sw-loader').should('not.exist');
+            cy.get('.summary-value.summary-total').should('include.text', '300,00');
+
+            // Set the product number 6 to see whether the advance price option is applied (6x50)
+            cy.get(`${lineItemSelector}-quantity-container > .custom-select`).select('6');
+            cy.get('.sw-loader').should('not.exist');
+            cy.get('.summary-value.summary-total').should('include.text', '300,00');
+        });
     });
 });

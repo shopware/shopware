@@ -1,14 +1,10 @@
 import template from './sw-settings-tax-rule-type-individual-states-cell.html.twig';
 
-/**
- * @package customer-order
- */
-
-const { Context } = Shopware;
+const { Component, Context } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-settings-tax-rule-type-individual-states-cell', {
     template,
 
     inject: ['repositoryFactory'],
@@ -63,4 +59,4 @@ export default {
             });
         },
     },
-};
+});

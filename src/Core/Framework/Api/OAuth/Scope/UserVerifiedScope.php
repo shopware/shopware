@@ -3,12 +3,10 @@
 namespace Shopware\Core\Framework\Api\OAuth\Scope;
 
 use League\OAuth2\Server\Entities\ScopeEntityInterface;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
 class UserVerifiedScope implements ScopeEntityInterface
 {
-    final public const IDENTIFIER = 'user-verified';
+    public const IDENTIFIER = 'user-verified';
 
     /**
      * @return string
@@ -18,7 +16,11 @@ class UserVerifiedScope implements ScopeEntityInterface
         return self::IDENTIFIER;
     }
 
-    public function jsonSerialize(): mixed
+    /**
+     * @deprecated tag:v6.5.0 - reason:return-type-change - return type will be changed to string
+     */
+    #[\ReturnTypeWillChange]
+    public function jsonSerialize()/* :mixed */
     {
         return self::IDENTIFIER;
     }

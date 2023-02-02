@@ -8,7 +8,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Test\TaxFixtures;
@@ -23,7 +23,7 @@ class PriceActionControllerTest extends TestCase
     use TaxFixtures;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepositoryInterface
      */
     private $taxRepository;
 
@@ -43,7 +43,7 @@ class PriceActionControllerTest extends TestCase
         $this->getBrowser()->request('POST', '/api/price/actions/calculate');
 
         $response = $this->getBrowser()->getResponse()->getContent();
-        $response = json_decode($response, true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode($response, true);
 
         static::assertArrayHasKey('errors', $response);
     }
@@ -54,7 +54,7 @@ class PriceActionControllerTest extends TestCase
 
         $response = $this->getBrowser()->getResponse()->getContent();
 
-        $response = json_decode($response, true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode($response, true);
 
         static::assertArrayHasKey('errors', $response);
     }
@@ -68,7 +68,7 @@ class PriceActionControllerTest extends TestCase
 
         $response = $this->getBrowser()->getResponse()->getContent();
 
-        $response = json_decode($response, true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode($response, true);
 
         static::assertArrayHasKey('errors', $response);
     }
@@ -222,7 +222,7 @@ class PriceActionControllerTest extends TestCase
         $this->getBrowser()->request('POST', 'api/_action/calculate-prices');
 
         $response = $this->getBrowser()->getResponse()->getContent();
-        $response = json_decode($response, true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode($response, true);
 
         static::assertArrayHasKey('errors', $response);
     }
@@ -233,7 +233,7 @@ class PriceActionControllerTest extends TestCase
 
         $response = $this->getBrowser()->getResponse()->getContent();
 
-        $response = json_decode($response, true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode($response, true);
 
         static::assertArrayHasKey('errors', $response);
     }
@@ -252,7 +252,7 @@ class PriceActionControllerTest extends TestCase
 
         $response = $this->getBrowser()->getResponse()->getContent();
 
-        $response = json_decode($response, true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode($response, true);
 
         static::assertArrayHasKey('errors', $response);
     }
@@ -450,7 +450,7 @@ class PriceActionControllerTest extends TestCase
 
         $response = $this->getBrowser()->getResponse()->getContent();
 
-        $response = json_decode($response, true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode($response, true);
 
         static::assertArrayHasKey('data', $response);
 
@@ -460,9 +460,13 @@ class PriceActionControllerTest extends TestCase
             $data['unitPrice'],
             $data['totalPrice'],
             new CalculatedTaxCollection(
-                array_map(fn ($row) => new CalculatedTax($row['tax'], $row['taxRate'], $row['price']), $data['calculatedTaxes'])
+                array_map(function ($row) {
+                    return new CalculatedTax($row['tax'], $row['taxRate'], $row['price']);
+                }, $data['calculatedTaxes'])
             ),
-            new TaxRuleCollection(array_map(fn ($row) => new TaxRule($row['taxRate'], $row['percentage']), $data['taxRules'])),
+            new TaxRuleCollection(array_map(function ($row) {
+                return new TaxRule($row['taxRate'], $row['percentage']);
+            }, $data['taxRules'])),
             $data['quantity']
         );
     }
@@ -474,7 +478,7 @@ class PriceActionControllerTest extends TestCase
 
         $response = $this->getBrowser()->getResponse()->getContent();
 
-        $response = json_decode($response, true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode($response, true);
         static::assertArrayHasKey('data', $response);
 
         $data = $response['data'];
@@ -489,9 +493,13 @@ class PriceActionControllerTest extends TestCase
             $data['unitPrice'],
             $data['totalPrice'],
             new CalculatedTaxCollection(
-                array_map(fn ($row) => new CalculatedTax($row['tax'], $row['taxRate'], $row['price']), $data['calculatedTaxes'])
+                array_map(function ($row) {
+                    return new CalculatedTax($row['tax'], $row['taxRate'], $row['price']);
+                }, $data['calculatedTaxes'])
             ),
-            new TaxRuleCollection(array_map(fn ($row) => new TaxRule($row['taxRate'], $row['percentage']), $data['taxRules'])),
+            new TaxRuleCollection(array_map(function ($row) {
+                return new TaxRule($row['taxRate'], $row['percentage']);
+            }, $data['taxRules'])),
             $data['quantity']
         );
     }

@@ -135,8 +135,17 @@ class AbsolutePriceCalculatorTest extends TestCase
  */
 class AbsoluteCalculation
 {
-    public function __construct(protected float $discount, protected CalculatedPrice $expected, protected PriceCollection $prices)
+    protected float $discount;
+
+    protected CalculatedPrice $expected;
+
+    protected PriceCollection $prices;
+
+    public function __construct(float $discount, CalculatedPrice $expected, PriceCollection $prices)
     {
+        $this->discount = $discount;
+        $this->expected = $expected;
+        $this->prices = $prices;
     }
 
     public function getDiscount(): float

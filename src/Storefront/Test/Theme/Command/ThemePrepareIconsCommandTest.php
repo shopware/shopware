@@ -22,18 +22,14 @@ class ThemePrepareIconsCommandTest extends TestCase
         $this->testDir = $this->getContainer()->getParameter('storefrontRoot')
             . '/Test/Theme/fixtures/ThemePrepareIconsCommandIconsPath/';
         static::assertDirectoryExists($this->testDir, 'Testdir: ' . $this->testDir . ' not found!');
-        $testFiles = glob($this->testDir . 'processed/*');
-        static::assertIsArray($testFiles);
-        @array_map('unlink', $testFiles);
+        @array_map('unlink', glob($this->testDir . 'processed/*'));
         @rmdir($this->testDir . 'processed');
     }
 
     public function tearDown(): void
     {
         static::assertDirectoryExists($this->testDir, 'Testdir: ' . $this->testDir . ' not found!');
-        $testFiles = glob($this->testDir . 'processed/*');
-        static::assertIsArray($testFiles);
-        @array_map('unlink', $testFiles);
+        @array_map('unlink', glob($this->testDir . 'processed/*'));
         @rmdir($this->testDir . 'processed');
     }
 
@@ -77,7 +73,7 @@ class ThemePrepareIconsCommandTest extends TestCase
 
         static::assertStringContainsString('StartIconpreparation', $this->minimizedOutput($commandTester->getDisplay()));
 
-        static::assertStringContainsString('[WARNING]StringcouldnotbeparsedasXML', $this->minimizedOutput($commandTester->getDisplay()));
+        static::assertStringContainsString('simplexml_load_string():Entity:line1:parsererror', $this->minimizedOutput($commandTester->getDisplay()));
 
         static::assertStringContainsString('mandIconsPath/invalid.svg', $this->minimizedOutput($commandTester->getDisplay()));
 

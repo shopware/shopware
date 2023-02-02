@@ -10,10 +10,11 @@
         preCheck: preCheck,
         preCheckRoute : {
             path: path('frontend.captcha.basic-captcha.validate'),
+            token: sw_csrf('frontend.captcha.basic-captcha.validate', {'mode': 'token'})
         }
     } %}
 
-    <div class="row g-2 basic-captcha"
+    <div class="{{ formRowClass }} basic-captcha"
          data-basic-captcha="true"
          data-basic-captcha-options='{{ basicCaptchaOptions|json_encode }}'>
         <div class="form-group {% if additionalClass %} {{ additionalClass }}{% else %}col-md-6{% endif %} basic-captcha-content">

@@ -2,11 +2,7 @@ import 'src/app/component/base/sw-collapse';
 import template from './sw-media-collapse.html.twig';
 import './sw-media-collapse.scss';
 
-/**
- * @package content
- */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Shopware.Component.extend('sw-media-collapse', 'sw-collapse', {
     template,
 
     props: {
@@ -28,4 +24,4 @@ export default {
             };
         },
     },
-};
+});

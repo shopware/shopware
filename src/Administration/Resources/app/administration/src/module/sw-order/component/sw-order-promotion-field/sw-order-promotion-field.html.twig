@@ -18,7 +18,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_promotion_field_switch %}
     <sw-switch-field
-        v-model="disabledAutoPromotions"
+        v-model="disabledAutoPromotionVisibility"
         :disabled="isLoading || !acl.can('order_line_item.editor')"
         :label="$tc('sw-order.detailsTab.promotionsField.labelToggleAutomaticPromotions')"
     />

@@ -3,13 +3,8 @@
 namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
-/**
- * @internal
- */
-#[Package('core')]
 class Migration1558443337PromotionSalesChannel extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -20,7 +15,7 @@ class Migration1558443337PromotionSalesChannel extends MigrationStep
     public function update(Connection $connection): void
     {
         foreach ($this->getQueries() as $query) {
-            $connection->executeStatement($query);
+            $connection->executeUpdate($query);
         }
     }
 
@@ -28,9 +23,6 @@ class Migration1558443337PromotionSalesChannel extends MigrationStep
     {
     }
 
-    /**
-     * @return list<string>
-     */
     private function getQueries(): array
     {
         return [

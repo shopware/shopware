@@ -37,12 +37,19 @@ class StaticDefinitionInstanceRegistry extends DefinitionInstanceRegistry
      */
     private array $serializers;
 
+    private ValidatorInterface $validator;
+
+    private EntityWriteGatewayInterface $entityWriteGateway;
+
     /**
      * @param class-string<EntityDefinition>[] $registeredDefinitions
      */
-    public function __construct(array $registeredDefinitions, private readonly ValidatorInterface $validator, private readonly EntityWriteGatewayInterface $entityWriteGateway)
+    public function __construct(array $registeredDefinitions, ValidatorInterface $validator, EntityWriteGatewayInterface $entityWriteGateway)
     {
         parent::__construct(new ContainerBuilder(), [], []);
+
+        $this->validator = $validator;
+        $this->entityWriteGateway = $entityWriteGateway;
 
         $this->setUpSerializers();
 
@@ -74,7 +81,7 @@ class StaticDefinitionInstanceRegistry extends DefinitionInstanceRegistry
             CustomFieldsSerializer::class => new CustomFieldsSerializer(
                 $this,
                 $this->validator,
-                new CustomFieldService(new FakeConnection([['foo', 'int']])),
+                new CustomFieldService(new FakeConnection([])),
                 new WriteCommandExtractor($this->entityWriteGateway, $this)
             ),
             ManyToManyAssociationFieldSerializer::class => new ManyToManyAssociationFieldSerializer(

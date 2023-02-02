@@ -8,9 +8,7 @@ use Shopware\Core\Content\Media\MediaType\BinaryType;
 use Shopware\Core\Content\Media\MediaType\ImageType;
 use Shopware\Core\Content\Media\MediaType\MediaType;
 use Shopware\Core\Content\Media\MediaType\VideoType;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('content')]
 class DefaultTypeDetector implements TypeDetectorInterface
 {
     public function detect(MediaFile $mediaFile, ?MediaType $previouslyDetectedType): ?MediaType
@@ -26,11 +24,15 @@ class DefaultTypeDetector implements TypeDetectorInterface
             return new BinaryType();
         }
 
-        return match ($mime[0]) {
-            'image' => new ImageType(),
-            'video' => new VideoType(),
-            'audio' => new AudioType(),
-            default => new BinaryType(),
-        };
+        switch ($mime[0]) {
+            case 'image':
+                return new ImageType();
+            case 'video':
+                return new VideoType();
+            case 'audio':
+                return new AudioType();
+            default:
+                return new BinaryType();
+        }
     }
 }

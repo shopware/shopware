@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Test\Category\Service;
 
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
@@ -18,11 +17,20 @@ class CategoryUrlGeneratorTest extends TestCase
 {
     private const EXTERNAL_URL = 'https://shopware.com/';
 
-    private CategoryUrlGenerator $urlGenerator;
+    /**
+     * @var CategoryUrlGenerator
+     */
+    private $urlGenerator;
 
-    private MockObject&SeoUrlPlaceholderHandlerInterface $replacer;
+    /**
+     * @var SeoUrlPlaceholderHandlerInterface
+     */
+    private $replacer;
 
-    private SalesChannelEntity $salesChannel;
+    /**
+     * @var SalesChannelEntity
+     */
+    private $salesChannel;
 
     public function setUp(): void
     {

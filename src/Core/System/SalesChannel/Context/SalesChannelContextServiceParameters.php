@@ -3,10 +3,8 @@
 namespace Shopware\Core\System\SalesChannel\Context;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('core')]
 class SalesChannelContextServiceParameters extends Struct
 {
     /**
@@ -39,6 +37,8 @@ class SalesChannelContextServiceParameters extends Struct
      */
     protected $originalContext;
 
+    protected ?string $customerId = null;
+
     public function __construct(
         string $salesChannelId,
         string $token,
@@ -46,7 +46,7 @@ class SalesChannelContextServiceParameters extends Struct
         ?string $currencyId = null,
         ?string $domainId = null,
         ?Context $originalContext = null,
-        protected ?string $customerId = null
+        ?string $customerId = null
     ) {
         $this->salesChannelId = $salesChannelId;
         $this->token = $token;
@@ -54,6 +54,7 @@ class SalesChannelContextServiceParameters extends Struct
         $this->currencyId = $currencyId;
         $this->domainId = $domainId;
         $this->originalContext = $originalContext;
+        $this->customerId = $customerId;
     }
 
     public function getSalesChannelId(): string

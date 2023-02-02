@@ -2,36 +2,28 @@
 
 namespace Shopware\Storefront\Framework\Routing\Annotation;
 
-use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Log\Package;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ConfigurationAnnotation;
 
 /**
  * @Annotation
- *
- * @deprecated tag:v6.6.0 - Will be removed use `defaults: {"_noStore"=true}` instead
  */
-#[Package('storefront')]
-class NoStore
+class NoStore extends ConfigurationAnnotation
 {
-    final public const ALIAS = 'noStore';
+    public const ALIAS = 'noStore';
 
-    public function getAliasName(): string
+    /**
+     * @return string
+     */
+    public function getAliasName()
     {
-        Feature::triggerDeprecationOrThrow(
-            'v6.6.0.0',
-            Feature::deprecatedClassMessage(self::class, 'v6.6.0.0')
-        );
-
         return self::ALIAS;
     }
 
-    public function allowArray(): bool
+    /**
+     * @return bool
+     */
+    public function allowArray()
     {
-        Feature::triggerDeprecationOrThrow(
-            'v6.6.0.0',
-            Feature::deprecatedClassMessage(self::class, 'v6.6.0.0')
-        );
-
         return false;
     }
 }

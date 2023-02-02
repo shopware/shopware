@@ -1,11 +1,14 @@
 import Iterator from 'src/helper/iterator.helper';
+import Feature from 'src/helper/feature.helper';
 
 const SELECTOR_CLASS = 'loader';
-const VISUALLY_HIDDEN_CLASS = 'visually-hidden';
 
 /**
- * @package storefront
+ * @deprecated tag:v6.5.0 - Bootstrap v5 renames `sr-only` class to `visually-hidden`
+ * @type {string}
  */
+const VISUALLY_HIDDEN_CLASS = Feature.isActive('v6.5.0.0') ? 'visually-hidden' : 'sr-only';
+
 export default class LoadingIndicatorUtil {
 
     /**

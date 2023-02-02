@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Api\ApiDefinition;
 
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
 
@@ -12,31 +11,35 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
  * @phpstan-type Api DefinitionService::API|DefinitionService::STORE_API
  * @phpstan-type ApiType DefinitionService::TypeJsonApi|DefinitionService::TypeJson
  * @phpstan-type OpenApiSpec  array{paths: array<string,array<mixed>>, components: array{schemas: array<string, array<mixed>>}}
- * @phpstan-type ApiSchema array<string, array{name: string, translatable: list<string>, properties: array<string, mixed>}|array{entity: string, properties: array<string, mixed>, write-protected: bool, read-protected: bool}>
  */
-#[Package('core')]
 class DefinitionService
 {
-    final public const API = 'api';
-    final public const STORE_API = 'store-api';
+    public const API = 'api';
+    public const STORE_API = 'store-api';
 
-    final public const TypeJsonApi = 'jsonapi';
-    final public const TypeJson = 'json';
+    public const TypeJsonApi = 'jsonapi';
+    public const TypeJson = 'json';
 
     /**
      * @var ApiDefinitionGeneratorInterface[]
      */
-    private readonly array $generators;
+    private $generators;
+
+    private SalesChannelDefinitionInstanceRegistry $salesChannelDefinitionRegistry;
+
+    private DefinitionInstanceRegistry $definitionRegistry;
 
     /**
      * @internal
      */
     public function __construct(
-        private readonly DefinitionInstanceRegistry $definitionRegistry,
-        private readonly SalesChannelDefinitionInstanceRegistry $salesChannelDefinitionRegistry,
+        DefinitionInstanceRegistry $definitionRegistry,
+        SalesChannelDefinitionInstanceRegistry $salesChannelDefinitionRegistry,
         ApiDefinitionGeneratorInterface ...$generators
     ) {
         $this->generators = $generators;
+        $this->salesChannelDefinitionRegistry = $salesChannelDefinitionRegistry;
+        $this->definitionRegistry = $definitionRegistry;
     }
 
     /**
@@ -53,7 +56,7 @@ class DefinitionService
     /**
      * @phpstan-param Api $type
      *
-     * @return ApiSchema
+     * @return array<string, array{entity: string, properties: array<string, mixed>, write-protected: bool, read-protected: bool}|array{name: string, translatable: array<string, mixed>, properties: array<string, mixed>}>
      */
     public function getSchema(string $format = 'openapi-3', string $type = self::API): array
     {
@@ -89,7 +92,7 @@ class DefinitionService
     /**
      * @throws ApiDefinitionGeneratorNotFoundException
      *
-     * @return array<string, EntityDefinition>|list<EntityDefinition&SalesChannelDefinitionInterface>
+     * @return list<EntityDefinition>|list<EntityDefinition&SalesChannelDefinitionInterface>
      */
     private function getDefinitions(string $type): array
     {

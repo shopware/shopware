@@ -1,13 +1,12 @@
 import template from './sw-cms-el-config-form.html.twig';
 import './sw-cms-el-config-form.scss';
 
-const { Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 
 /**
- * @private
- * @package content
+ * @private since v6.5.0
  */
-export default {
+Component.register('sw-cms-el-config-form', {
     template,
 
     inject: ['systemConfigApiService'],
@@ -79,4 +78,4 @@ export default {
             return true;
         },
     },
-};
+});

@@ -3,12 +3,10 @@
 namespace Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<PaymentMethodTranslationEntity>
  */
-#[Package('checkout')]
 class PaymentMethodTranslationCollection extends EntityCollection
 {
     /**
@@ -16,12 +14,16 @@ class PaymentMethodTranslationCollection extends EntityCollection
      */
     public function getPaymentMethodIds(): array
     {
-        return $this->fmap(fn (PaymentMethodTranslationEntity $paymentMethodTranslation) => $paymentMethodTranslation->getPaymentMethodId());
+        return $this->fmap(function (PaymentMethodTranslationEntity $paymentMethodTranslation) {
+            return $paymentMethodTranslation->getPaymentMethodId();
+        });
     }
 
     public function filterByPaymentMethodId(string $id): self
     {
-        return $this->filter(fn (PaymentMethodTranslationEntity $paymentMethodTranslation) => $paymentMethodTranslation->getPaymentMethodId() === $id);
+        return $this->filter(function (PaymentMethodTranslationEntity $paymentMethodTranslation) use ($id) {
+            return $paymentMethodTranslation->getPaymentMethodId() === $id;
+        });
     }
 
     /**
@@ -29,12 +31,16 @@ class PaymentMethodTranslationCollection extends EntityCollection
      */
     public function getLanguageIds(): array
     {
-        return $this->fmap(fn (PaymentMethodTranslationEntity $paymentMethodTranslation) => $paymentMethodTranslation->getLanguageId());
+        return $this->fmap(function (PaymentMethodTranslationEntity $paymentMethodTranslation) {
+            return $paymentMethodTranslation->getLanguageId();
+        });
     }
 
     public function filterByLanguageId(string $id): self
     {
-        return $this->filter(fn (PaymentMethodTranslationEntity $paymentMethodTranslation) => $paymentMethodTranslation->getLanguageId() === $id);
+        return $this->filter(function (PaymentMethodTranslationEntity $paymentMethodTranslation) use ($id) {
+            return $paymentMethodTranslation->getLanguageId() === $id;
+        });
     }
 
     public function getApiAlias(): string

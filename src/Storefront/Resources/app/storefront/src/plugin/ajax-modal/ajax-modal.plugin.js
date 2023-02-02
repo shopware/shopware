@@ -15,9 +15,7 @@ const PSEUDO_MODAL_TEMPLATE_CONTENT_CLASS = 'js-pseudo-modal-template-content-el
  * the modal content by AJAX
  *
  * Notice: The response template needs to have the markup as defined in the Bootstrap docs
- * https://getbootstrap.com/docs/5.2/components/modal/#live-demo
- *
- * @package storefront
+ * https://getbootstrap.com/docs/4.3/components/modal/#live-demo
  */
 export default class AjaxModalPlugin extends Plugin {
 
@@ -118,7 +116,6 @@ export default class AjaxModalPlugin extends Plugin {
     _processResponse(response, loadingIndicatorUtil, pseudoModalUtil, modalBodyEl) {
         loadingIndicatorUtil.remove();
         pseudoModalUtil.updateContent(response);
-        PluginManager.initializePlugins();
         modalBodyEl.classList.remove(this.options.centerLoadingIndicatorClass);
     }
 

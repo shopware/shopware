@@ -2,9 +2,6 @@
 
 namespace Shopware\Recovery\Update;
 
-/**
- * @package system-settings
- */
 class PathBuilder
 {
     /**

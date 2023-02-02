@@ -14,6 +14,7 @@
         <!-- Entity definitions -->
         <service id="Shopware\Core\Content\Media\MediaDefinition">
             <tag name="shopware.entity.definition"/>
+            <tag name="shopware.composite_search.definition" priority="400"/>
         </service>
 
         <service id="Shopware\Core\Content\Media\Aggregate\MediaDefaultFolder\MediaDefaultFolderDefinition">
@@ -74,12 +75,25 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <!--Repository Decorators-->
+
+        <service id="Shopware\Core\Content\Media\DataAbstractionLayer\MediaRepositoryDecorator" decorates="media.repository">
+            <argument type="service" id="Shopware\Core\Content\Media\DataAbstractionLayer\MediaRepositoryDecorator.inner"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Media\DataAbstractionLayer\MediaThumbnailRepositoryDecorator" decorates="media_thumbnail.repository">
+            <argument type="service" id="Shopware\Core\Content\Media\DataAbstractionLayer\MediaThumbnailRepositoryDecorator.inner"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Media\DataAbstractionLayer\MediaFolderRepositoryDecorator" decorates="media_folder.repository">
+            <argument type="service" id="Shopware\Core\Content\Media\DataAbstractionLayer\MediaFolderRepositoryDecorator.inner"/>
+        </service>
+
         <!--File Services-->
         <service id="Shopware\Core\Content\Media\File\FileFetcher">
             <argument type="service" id="Shopware\Core\Content\Media\File\FileUrlValidatorInterface" />
             <argument>%shopware.media.enable_url_upload_feature%</argument>
             <argument>%shopware.media.enable_url_validation%</argument>
-            <argument>%shopware.media.url_upload_max_size%</argument>
         </service>
 
         <service class="Shopware\Core\Content\Media\File\FileUrlValidator" id="Shopware\Core\Content\Media\File\FileUrlValidatorInterface">
@@ -96,7 +110,6 @@
             <argument type="service" id="messenger.bus.shopware" />
             <argument type="service" id="event_dispatcher" />
             <argument>%shopware.filesystem.allowed_extensions%</argument>
-            <argument>%shopware.filesystem.private_allowed_extensions%</argument>
         </service>
 
         <service id="Shopware\Core\Content\Media\File\FileLoader">
@@ -111,13 +124,6 @@
             <argument type="service" id="media.repository"/>
         </service>
 
-        <service id="Shopware\Core\Content\Media\File\DownloadResponseGenerator">
-            <argument type="service" id="shopware.filesystem.public"/>
-            <argument type="service" id="shopware.filesystem.private"/>
-            <argument type="service" id="Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface"/>
-            <argument type="service" id="Shopware\Core\Content\Media\MediaService"/>
-            <argument>%shopware.filesystem.private_local_download_strategy%</argument>
-        </service>
 
         <!-- Commands -->
         <service id="Shopware\Core\Content\Media\Commands\GenerateThumbnailsCommand">
@@ -145,7 +151,8 @@
         <!-- Pathname -->
         <service class="Shopware\Core\Content\Media\Pathname\UrlGenerator" id="Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface">
             <argument type="service" id="Shopware\Core\Content\Media\Pathname\PathnameStrategy\PathnameStrategyInterface"/>
-            <argument type="service" id="shopware.filesystem.public"/>
+            <argument type="service" id="request_stack"/>
+            <argument>%shopware.filesystem.public.url%</argument>
 
             <tag name="kernel.reset" method="reset"/>
         </service>

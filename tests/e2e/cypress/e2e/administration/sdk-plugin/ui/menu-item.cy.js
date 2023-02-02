@@ -2,33 +2,35 @@
 
 describe('Category: SDK Test', ()=> {
     beforeEach(() => {
-        cy.intercept({
-            url: `${Cypress.env('apiPath')}/search/locale`,
-            method: 'POST',
-        }).as('searchLocale');
+        cy.loginViaApi()
+            .then(() => {
+                cy.intercept({
+                    url: `${Cypress.env('apiPath')}/search/locale`,
+                    method: 'POST'
+                }).as('searchLocale');
 
-        // reset mouse position to neutral state
-        cy.get('body').realHover({ position: 'topLeft' });
+                // reset mouse position to neutral state
+                cy.get('body').realHover({ position: 'topLeft' });
 
-        cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
+                cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
 
-        cy.get('.sw-skeleton').should('not.exist');
-        cy.get('.sw-loader').should('not.exist');
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
 
-        cy.getSDKiFrame('sw-main-hidden')
-            .should('exist');
+                cy.getSDKiFrame('sw-main-hidden')
+                    .should('exist');
 
-        cy.wait('@searchLocale')
-            .its('response.statusCode')
-            .should('equal', 200);
+                cy.wait('@searchLocale')
+                    .its('response.statusCode')
+                    .should('equal', 200);
 
-        cy.get('.navigation-list-item__type-plugin')
-            .should('exist');
+                cy.get('.navigation-list-item__type-plugin')
+                    .should('exist');
 
-        cy.get('.navigation-list-item__type-plugin')
-            .should('have.length.least', 3);
+                cy.get('.navigation-list-item__type-plugin')
+                    .should('have.length', 3);
+            });
     });
-
     it('@sdk: add menu item', { tags: ['ct-admin'] }, ()=> {
         cy.get('.sw-card-view__content')
             .scrollTo('bottom');
@@ -48,7 +50,7 @@ describe('Category: SDK Test', ()=> {
             .should('be.visible');
 
         cy.getSDKiFrame('ui-main-module-add-main-module')
-            .contains('Hello from the new Menu Page');
+            .contains('Hello from the new Menu Page')
 
         cy.get('.sw-page__search-bar')
             .should('not.exist');
@@ -78,7 +80,7 @@ describe('Category: SDK Test', ()=> {
             .should('be.visible');
 
         cy.getSDKiFrame('ui-main-module-add-main-module')
-            .contains('Hello from the new Menu Page');
+            .contains('Hello from the new Menu Page')
 
         /**  Information: The complete flyout can't be tested because when one hover gets triggered
          * the next one won't work in Cypress because the previous hover gets closed */
@@ -107,4 +109,4 @@ describe('Category: SDK Test', ()=> {
             .first()
             .contains('First item');
     });
-});
+})

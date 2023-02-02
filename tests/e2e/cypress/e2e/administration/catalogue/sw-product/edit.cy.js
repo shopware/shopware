@@ -4,9 +4,13 @@ import ProductPageObject from '../../../../support/pages/module/sw-product.page-
 
 describe('Product: Edit in various ways', () => {
     beforeEach(() => {
-        cy.createProductFixture().then(() => {
-            return cy.createDefaultFixture('custom-field-set');
-        })
+        cy.loginViaApi()
+            .then(() => {
+                return cy.createProductFixture();
+            })
+            .then(() => {
+                return cy.createDefaultFixture('custom-field-set');
+            })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
                 cy.get('.sw-skeleton').should('not.exist');
@@ -20,13 +24,13 @@ describe('Product: Edit in various ways', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST',
+            method: 'POST'
         }).as('saveData');
 
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`,
+            `${page.elements.dataGridRow}--0`
         );
 
         page.changeTranslation('Deutsch', 0);
@@ -49,7 +53,7 @@ describe('Product: Edit in various ways', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/product/*`,
-            method: 'PATCH',
+            method: 'PATCH'
         }).as('saveData');
 
         // Inline edit customer
@@ -76,7 +80,7 @@ describe('Product: Edit in various ways', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST',
+            method: 'POST'
         }).as('saveData');
 
 
@@ -102,7 +106,7 @@ describe('Product: Edit in various ways', () => {
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`,
+            `${page.elements.dataGridRow}--0`
         );
 
         cy.get('.sw-product-detail__tab-specifications').should('be.visible');

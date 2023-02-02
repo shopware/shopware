@@ -2,15 +2,17 @@
 
 describe('Admin & Storefront: test customer group registration', () => {
     beforeEach(() => {
-        cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/customer/group/index`);
-        cy.get('.sw-skeleton').should('not.exist');
-        cy.get('.sw-loader').should('not.exist');
+        cy.loginViaApi().then(() => {
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/customer/group/index`);
+            cy.get('.sw-skeleton').should('not.exist');
+            cy.get('.sw-loader').should('not.exist');
+        });
     });
 
     it('@package: should register with new customer group', { tags: ['pa-customers-orders'] }, () => {
         cy.intercept({
             url: `/account/register`,
-            method: 'POST',
+            method: 'POST'
         }).as('registerCustomer');
 
         // Create new customer group
@@ -54,7 +56,7 @@ describe('Admin & Storefront: test customer group registration', () => {
         cy.clickContextMenuItem(
             '.sw-customer-list__view-action',
             '.sw-context-button__button',
-            `.sw-data-grid__row--0`,
+            `.sw-data-grid__row--0`
         );
         cy.contains('.sw-alert__message', 'VIP Customers').should('be.visible');
         cy.get('.sw-button__content').contains('Akkoord').click();
@@ -70,21 +72,21 @@ describe('Admin & Storefront: test customer group registration', () => {
         cy.authenticate().then((result) => {
             const requestConfig = {
                 headers: {
-                    Authorization: `Bearer ${result.access}`,
+                    Authorization: `Bearer ${result.access}`
                 },
                 method: 'POST',
                 url: `api/_action/system-config/batch`,
                 body: {
                     null: {
-                        'core.loginRegistration.showAccountTypeSelection': true,
-                    },
-                },
+                        'core.loginRegistration.showAccountTypeSelection': true
+                    }
+                }
             };
             return cy.request(requestConfig);
         });
         cy.intercept({
             url: `/account/register`,
-            method: 'POST',
+            method: 'POST'
         }).as('registerCustomer');
 
         // Create new commercial customer group
@@ -129,7 +131,7 @@ describe('Admin & Storefront: test customer group registration', () => {
         cy.clickContextMenuItem(
             '.sw-customer-list__view-action',
             '.sw-context-button__button',
-            `.sw-data-grid__row--0`,
+            `.sw-data-grid__row--0`
         );
         cy.contains('.sw-alert__message', 'VIP Commercial').should('be.visible');
         cy.get('.sw-button__content').contains('Akkoord').click();

@@ -2,9 +2,6 @@
 
 namespace Shopware\Core\Framework\Struct;
 
-use Shopware\Core\Framework\Log\Package;
-
-#[Package('core')]
 trait StateAwareTrait
 {
     /**

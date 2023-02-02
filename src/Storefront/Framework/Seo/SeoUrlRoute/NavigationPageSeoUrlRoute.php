@@ -13,20 +13,30 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
-#[Package('sales-channel')]
 class NavigationPageSeoUrlRoute implements SeoUrlRouteInterface
 {
-    final public const ROUTE_NAME = 'frontend.navigation.page';
-    final public const DEFAULT_TEMPLATE = '{% for part in category.seoBreadcrumb %}{{ part }}/{% endfor %}';
+    public const ROUTE_NAME = 'frontend.navigation.page';
+    public const DEFAULT_TEMPLATE = '{% for part in category.seoBreadcrumb %}{{ part }}/{% endfor %}';
+
+    /**
+     * @var CategoryDefinition
+     */
+    private $categoryDefinition;
+
+    /**
+     * @var CategoryBreadcrumbBuilder
+     */
+    private $breadcrumbBuilder;
 
     /**
      * @internal
      */
-    public function __construct(private readonly CategoryDefinition $categoryDefinition, private readonly CategoryBreadcrumbBuilder $breadcrumbBuilder)
+    public function __construct(CategoryDefinition $categoryDefinition, CategoryBreadcrumbBuilder $breadcrumbBuilder)
     {
+        $this->categoryDefinition = $categoryDefinition;
+        $this->breadcrumbBuilder = $breadcrumbBuilder;
     }
 
     public function getConfig(): SeoUrlRouteConfig
@@ -39,13 +49,15 @@ class NavigationPageSeoUrlRoute implements SeoUrlRouteInterface
         );
     }
 
-    public function prepareCriteria(Criteria $criteria, SalesChannelEntity $salesChannel): void
+    /**
+     * @internal (flag:FEATURE_NEXT_13410) make $salesChannel parameter required
+     */
+    public function prepareCriteria(Criteria $criteria/*, SalesChannelEntity $salesChannel */): void
     {
         $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_AND, [
             new EqualsFilter('active', true),
-            new NotFilter(NotFilter::CONNECTION_OR, [
+            new NotFilter(NotFilter::CONNECTION_AND, [
                 new EqualsFilter('type', CategoryDefinition::TYPE_FOLDER),
-                new EqualsFilter('type', CategoryDefinition::TYPE_LINK),
             ]),
         ]));
     }

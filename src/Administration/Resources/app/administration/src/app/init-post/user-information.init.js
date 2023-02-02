@@ -1,7 +1,3 @@
-/**
- * @package admin
- */
-
 import { initializeUserNotifications } from 'src/app/state/notification.store';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

@@ -4,11 +4,15 @@ import ProductPageObject from '../../../../support/pages/module/sw-product.page-
 
 describe('Product: Test variants', () => {
     beforeEach(() => {
-        cy.createProductVariantFixture().then(() => {
-            cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
-            cy.get('.sw-skeleton').should('not.exist');
-            cy.get('.sw-loader').should('not.exist');
-        });
+        cy.loginViaApi()
+            .then(() => {
+                cy.createProductVariantFixture();
+            })
+            .then(() => {
+                cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
+            });
     });
 
     it('@catalogue: duplicate product with variants and inherited fields in listing', { tags: ['pa-inventory'] }, () => {
@@ -17,15 +21,15 @@ describe('Product: Test variants', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST',
+            method: 'POST'
         }).as('saveData');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/clone/product/*`,
-            method: 'POST',
+            method: 'POST'
         }).as('duplicateProduct');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/**/search/product`,
-            method: 'POST',
+            method: 'POST'
         }).as('getProduct');
 
 
@@ -33,7 +37,7 @@ describe('Product: Test variants', () => {
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`,
+            `${page.elements.dataGridRow}--0`
         );
 
         cy.get('.sw-product-detail__tab-variants').click();
@@ -62,7 +66,7 @@ describe('Product: Test variants', () => {
             .should('be.visible');
         cy.get('#sw-field--product-name').scrollIntoView().should('be.visible');
 
-        cy.get('.sw-field .icon--regular-link-horizontal').first().click();
+        cy.get('.sw-field .icon--custom-inherited').first().click();
         cy.get('#sw-field--product-name').clearTypeAndCheck('Variant in Red');
         cy.get('.sw-text-editor__content-editor').type('This is not an inherited variant text.');
         cy.contains('.sw-text-editor__content-editor', 'This is not an inherited variant text.');
@@ -80,7 +84,7 @@ describe('Product: Test variants', () => {
         cy.clickContextMenuItem(
             '.sw-product-list-grid__duplicate-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`,
+            `${page.elements.dataGridRow}--0`
         );
 
         // Verify product
@@ -97,15 +101,15 @@ describe('Product: Test variants', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST',
+            method: 'POST'
         }).as('saveData');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/clone/product/*`,
-            method: 'POST',
+            method: 'POST'
         }).as('duplicateProduct');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/**/search/product`,
-            method: 'POST',
+            method: 'POST'
         }).as('getProduct');
 
 
@@ -113,7 +117,7 @@ describe('Product: Test variants', () => {
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`,
+            `${page.elements.dataGridRow}--0`
         );
 
         cy.get('.sw-product-detail__tab-variants').click();
@@ -141,7 +145,7 @@ describe('Product: Test variants', () => {
             .scrollIntoView()
             .should('be.visible');
         cy.get('#sw-field--product-name').scrollIntoView().should('be.visible');
-        cy.get('.sw-field .icon--regular-link-horizontal').first().click();
+        cy.get('.sw-field .icon--custom-inherited').first().click();
         cy.get('#sw-field--product-name').clearTypeAndCheck('Variant in Red');
         cy.get('.sw-text-editor__content-editor').type('This is not an inherited variant text.');
         cy.contains('.sw-text-editor__content-editor', 'This is not an inherited variant text.');
@@ -158,14 +162,14 @@ describe('Product: Test variants', () => {
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`,
+            `${page.elements.dataGridRow}--0`
         );
         cy.wait('@getProduct').its('response.statusCode').should('equal', 200);
 
         // Save and duplicate
         cy.clickContextMenuItem(
             '.sw-product-detail__save-duplicate-action',
-            '.sw-product-detail__save-button-group .sw-context-button',
+            '.sw-product-detail__save-button-group .sw-context-button'
         );
 
         // Verify product
@@ -173,7 +177,7 @@ describe('Product: Test variants', () => {
         cy.get('.clone-variant__modal').should('not.exist');
         cy.get('input[name=sw-field--product-name]').should(
             'have.value',
-            'Variant product name Copy',
+            'Variant product name Copy'
         );
     });
 });

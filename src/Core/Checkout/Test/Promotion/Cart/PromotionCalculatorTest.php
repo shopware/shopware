@@ -18,8 +18,7 @@ use Shopware\Core\Checkout\Promotion\Cart\PromotionCalculator;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 use Shopware\Core\Checkout\Promotion\PromotionDefinition;
 use Shopware\Core\Checkout\Test\Cart\LineItem\Group\Helpers\Traits\LineItemTestFixtureBehaviour;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -30,7 +29,6 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[Package('checkout')]
 class PromotionCalculatorTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -40,7 +38,7 @@ class PromotionCalculatorTest extends TestCase
 
     private SalesChannelContext $salesChannelContext;
 
-    private EntityRepository $promotionRepository;
+    private EntityRepositoryInterface $promotionRepository;
 
     protected function setUp(): void
     {
@@ -61,8 +59,8 @@ class PromotionCalculatorTest extends TestCase
     {
         $discountItem = new LineItem(Uuid::randomHex(), PromotionProcessor::LINE_ITEM_TYPE);
         $discountItems = new LineItemCollection([$discountItem]);
-        $original = new Cart(Uuid::randomHex());
-        $toCalculate = new Cart(Uuid::randomHex());
+        $original = new Cart('original', Uuid::randomHex());
+        $toCalculate = new Cart('toCalculate', Uuid::randomHex());
 
         $this->promotionCalculator->calculate($discountItems, $original, $toCalculate, $this->salesChannelContext, new CartBehavior());
         static::assertEmpty($toCalculate->getLineItems());
@@ -74,8 +72,8 @@ class PromotionCalculatorTest extends TestCase
         $discountItem->setPayloadValue('discountScope', PromotionDiscountEntity::SCOPE_DELIVERY);
         $discountItem->setPayloadValue('exclusions', []);
         $discountItems = new LineItemCollection([$discountItem]);
-        $original = new Cart(Uuid::randomHex());
-        $toCalculate = new Cart(Uuid::randomHex());
+        $original = new Cart('original', Uuid::randomHex());
+        $toCalculate = new Cart('toCalculate', Uuid::randomHex());
 
         $this->promotionCalculator->calculate($discountItems, $original, $toCalculate, $this->salesChannelContext, new CartBehavior());
         static::assertEmpty($toCalculate->getLineItems());
@@ -87,13 +85,13 @@ class PromotionCalculatorTest extends TestCase
         $discountItem = $this->getDiscountItem($promotionId);
 
         $discountItems = new LineItemCollection([$discountItem]);
-        $original = new Cart(Uuid::randomHex());
+        $original = new Cart('original', Uuid::randomHex());
 
         $productLineItem = new LineItem(Uuid::randomHex(), LineItem::PRODUCT_LINE_ITEM_TYPE);
         $productLineItem->setPrice(new CalculatedPrice(100.0, 100.0, new CalculatedTaxCollection(), new TaxRuleCollection()));
         $productLineItem->setStackable(true);
 
-        $toCalculate = new Cart(Uuid::randomHex());
+        $toCalculate = new Cart('toCalculate', Uuid::randomHex());
         $toCalculate->add($productLineItem);
         $toCalculate->setPrice(new CartPrice(84.03, 100.0, 100.0, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS));
 
@@ -115,13 +113,13 @@ class PromotionCalculatorTest extends TestCase
 
         $discountItems = new LineItemCollection([$discountItemToBeExcluded, $validDiscountItem]);
 
-        $original = new Cart(Uuid::randomHex());
+        $original = new Cart('original', Uuid::randomHex());
 
         $productLineItem = new LineItem(Uuid::randomHex(), LineItem::PRODUCT_LINE_ITEM_TYPE);
         $productLineItem->setPrice(new CalculatedPrice(100.0, 100.0, new CalculatedTaxCollection(), new TaxRuleCollection()));
         $productLineItem->setStackable(true);
 
-        $toCalculate = new Cart(Uuid::randomHex());
+        $toCalculate = new Cart('toCalculate', Uuid::randomHex());
         $toCalculate->add($productLineItem);
         $toCalculate->setPrice(new CartPrice(84.03, 100.0, 100.0, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS));
 
@@ -150,13 +148,13 @@ class PromotionCalculatorTest extends TestCase
 
         $discountItems = new LineItemCollection([$validDiscountItem, $discountItemToBeExcluded]);
 
-        $original = new Cart(Uuid::randomHex());
+        $original = new Cart('original', Uuid::randomHex());
 
         $productLineItem = new LineItem(Uuid::randomHex(), LineItem::PRODUCT_LINE_ITEM_TYPE);
         $productLineItem->setPrice(new CalculatedPrice(100.0, 100.0, new CalculatedTaxCollection(), new TaxRuleCollection()));
         $productLineItem->setStackable(true);
 
-        $toCalculate = new Cart(Uuid::randomHex());
+        $toCalculate = new Cart('toCalculate', Uuid::randomHex());
         $toCalculate->add($productLineItem);
         $toCalculate->setPrice(new CartPrice(84.03, 100.0, 100.0, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS));
 

@@ -1,7 +1,3 @@
-/**
- * @package admin
- */
-
 Shopware.Directive.register('autofocus', {
     inserted: (el: HTMLElement) => {
         const inputs = el.getElementsByTagName('input');
@@ -14,7 +10,5 @@ Shopware.Directive.register('autofocus', {
     },
 });
 
-/**
- * @deprecated tag:v6.6.0 - Will be private
- */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export {};

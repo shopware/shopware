@@ -1,10 +1,9 @@
 import template from './sw-extension-my-extensions-index.html.twig';
 
 /**
- * @package merchant-services
  * @private
  */
-export default {
+Shopware.Component.register('sw-extension-my-extensions-index', {
     template,
 
     inject: ['acl'],
@@ -56,4 +55,4 @@ export default {
             }
         },
     },
-};
+});

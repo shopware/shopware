@@ -3,16 +3,20 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaPartInterface;
-use Shopware\Core\Framework\Log\Package;
 
 /**
- * @final
+ * @final tag:v6.5.0
  */
-#[Package('core')]
 class FieldGrouping implements CriteriaPartInterface
 {
-    public function __construct(private readonly string $field)
+    /**
+     * @var string
+     */
+    protected $field;
+
+    public function __construct(string $field)
     {
+        $this->field = $field;
     }
 
     public function getField(): string

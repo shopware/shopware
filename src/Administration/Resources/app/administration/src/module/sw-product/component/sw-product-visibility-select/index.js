@@ -1,14 +1,10 @@
-/*
- * @package inventory
- */
-
 import template from './sw-product-visibility-select.html.twig';
 
+const { Component } = Shopware;
 const { EntityCollection } = Shopware.Data;
 const { mapState } = Shopware.Component.getComponentHelper();
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.extend('sw-product-visibility-select', 'sw-entity-multi-select', {
     template,
 
     data() {
@@ -66,4 +62,4 @@ export default {
             this.onSelectExpanded();
         },
     },
-};
+});

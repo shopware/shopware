@@ -6,6 +6,9 @@ describe('Dashboard:  Visual tests', () => {
         const now = new Date(2018, 1, 1);
         cy.clock(now, ['Date'])
             .then(() => {
+                cy.loginViaApi();
+            })
+            .then(() => {
                 return cy.createProductFixture();
             })
             .then(() => {
@@ -13,8 +16,8 @@ describe('Dashboard:  Visual tests', () => {
                     endpoint: 'product',
                     data: {
                         field: 'name',
-                        value: 'Product name',
-                    },
+                        value: 'Product name'
+                    }
                 });
             })
             .then((result) => {
@@ -34,19 +37,32 @@ describe('Dashboard:  Visual tests', () => {
         cy.get('.sw-dashboard-index__welcome-message')
             .invoke('prop', 'innerText', 'If it wasn\'t for you… This message would never happened.');
 
-        cy.get('.sw-dashboard-statistics .sw-card__title').each((item) => {
-            cy.wrap(item).contains(/Orders|Turnover/g);
+        // Wait for Dashboard stats to be visible
+        cy.skipOnFeature('FEATURE_NEXT_18187', () => {
+            cy.get('.sw-dashboard-index__card-headline').should('be.visible');
+            cy.contains('.sw-dashboard-index__title', 'Turnover');
+
+            cy.get('#sw-field--statisticDateRanges-value').select('14Days');
+            //select command again to reload data within the card
+            cy.get('#sw-field--statisticDateRanges-value').select('14Days');
+            cy.get('.apexcharts-series-markers').should('be.visible');
         });
 
-        cy.get('.sw-dashboard-statistics__statistics-count #sw-field--selectedRange').select('14Days');
-        //select command again to reload data within the card
-        cy.get('.sw-dashboard-statistics__statistics-count #sw-field--selectedRange').select('14Days');
-        cy.get('.sw-dashboard-statistics__statistics-count .apexcharts-series-markers').should('be.visible');
+        cy.onlyOnFeature('FEATURE_NEXT_18187', () => {
+            cy.get('.sw-dashboard-statistics .sw-card__title').each((item) => {
+                cy.wrap(item).contains(/Orders|Turnover/g);
+            });
+
+            cy.get('.sw-dashboard-statistics__statistics-count #sw-field--selectedRange').select('14Days');
+            //select command again to reload data within the card
+            cy.get('.sw-dashboard-statistics__statistics-count #sw-field--selectedRange').select('14Days');
+            cy.get('.sw-dashboard-statistics__statistics-count .apexcharts-series-markers').should('be.visible');
+        });
 
         cy.get('.sw-skeleton__detail').should('not.exist');
         cy.changeElementStyling(
             '.apexcharts-xaxis-label',
-            'display: none;',
+            'display: none;'
         );
         // Take snapshot for visual testing
         cy.prepareAdminForScreenshot();

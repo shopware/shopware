@@ -2,19 +2,29 @@
 
 namespace Shopware\Storefront\Framework\Twig;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Theme\ThemeConfigValueAccessor;
 
-#[Package('storefront')]
 class TemplateConfigAccessor
 {
     /**
+     * @var SystemConfigService
+     */
+    private $systemConfigService;
+
+    /**
+     * @var ThemeConfigValueAccessor
+     */
+    private $themeConfigAccessor;
+
+    /**
      * @internal
      */
-    public function __construct(private readonly SystemConfigService $systemConfigService, private readonly ThemeConfigValueAccessor $themeConfigAccessor)
+    public function __construct(SystemConfigService $config, ThemeConfigValueAccessor $themeConfigAccessor)
     {
+        $this->systemConfigService = $config;
+        $this->themeConfigAccessor = $themeConfigAccessor;
     }
 
     /**

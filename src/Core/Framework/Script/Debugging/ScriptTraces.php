@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Script\Debugging;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\FunctionHook;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Script\Execution\Script;
@@ -13,9 +12,8 @@ use Symfony\Component\VarDumper\Cloner\Data;
 use Symfony\Contracts\Service\ResetInterface;
 
 /**
- * @internal
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal
  */
-#[Package('core')]
 class ScriptTraces extends AbstractDataCollector implements ResetInterface
 {
     /**
@@ -23,9 +21,6 @@ class ScriptTraces extends AbstractDataCollector implements ResetInterface
      */
     protected array $traces = [];
 
-    /**
-     * @var list<string>
-     */
     protected static array $deprecationNotices = [];
 
     public static function addDeprecationNotice(string $deprecationNotice): void
@@ -36,6 +31,14 @@ class ScriptTraces extends AbstractDataCollector implements ResetInterface
     public function collect(Request $request, Response $response, ?\Throwable $exception = null): void
     {
         $this->data = $this->traces;
+    }
+
+    /**
+     * @deprecated tag:v6.5.0 will be removed, use `initHook` instead
+     */
+    public function init(string $hook): void
+    {
+        // dummy implementation to not break
     }
 
     public function initHook(Hook $hook): void
@@ -63,7 +66,7 @@ class ScriptTraces extends AbstractDataCollector implements ResetInterface
 
         $took = round(microtime(true) - $time, 3);
 
-        $name = explode('/', (string) $script->getName());
+        $name = explode('/', $script->getName());
         $name = array_pop($name);
 
         $this->add($hook, $name, $took, $debug, $deprecations);
@@ -78,9 +81,6 @@ class ScriptTraces extends AbstractDataCollector implements ResetInterface
         return \count($this->data);
     }
 
-    /**
-     * @return list<string>
-     */
     public function getHooks(): array
     {
         if ($this->data instanceof Data) {
@@ -90,9 +90,6 @@ class ScriptTraces extends AbstractDataCollector implements ResetInterface
         return array_keys($this->data);
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     public function getScripts(string $hook): array
     {
         return $this->data[$hook] ?? [];
@@ -114,7 +111,7 @@ class ScriptTraces extends AbstractDataCollector implements ResetInterface
     {
         $count = 0;
         foreach ($this->data as $scripts) {
-            $count += is_countable($scripts) ? \count($scripts) : 0;
+            $count += \count($scripts);
         }
 
         return $count;
@@ -140,9 +137,9 @@ class ScriptTraces extends AbstractDataCollector implements ResetInterface
     }
 
     /**
-     * @return array<string, mixed>|Data
+     * @return array|Data
      */
-    public function getData(): array|Data
+    public function getData()
     {
         return $this->data;
     }
@@ -161,9 +158,6 @@ class ScriptTraces extends AbstractDataCollector implements ResetInterface
         $this->traces = [];
     }
 
-    /**
-     * @param list<string> $deprecations
-     */
     private function add(Hook $hook, string $name, float $took, Debug $output, array $deprecations): void
     {
         $deprecations = array_count_values($deprecations);

@@ -11,25 +11,22 @@ const additionalData = {
                 type: 'referencePrice',
                 id: null,
                 name: null,
-                position: 0,
-            },
-        ],
+                position: 0
+            }
+        ]
     },
     unit: {
         shortCode: 'l',
-        name: 'litres',
+        name: 'litres'
     },
     purchaseUnit: 2,
-    referenceUnit: 0.33,
+    referenceUnit: 0.33
 };
 
-/**
- * @package checkout
- */
 describe('Test if essential characteristics are displayed in checkout', () => {
     beforeEach(() => {
         cy.createProductFixture(additionalData).then(() => {
-            return cy.createDefaultFixture('category');
+            return cy.createDefaultFixture('category')
         }).then(() => {
             return cy.fixture('product');
         }).then((result) => {
@@ -41,32 +38,37 @@ describe('Test if essential characteristics are displayed in checkout', () => {
     it('@checkout: Should display essential characteristics', { tags: ['pa-checkout'] }, () => {
         const page = new CheckoutPageObject();
 
-        // Product detail
-        cy.get('.header-search-input').should('be.visible');
-        cy.get('.header-search-input').type(product.name);
-        cy.get('.search-suggest-product-name').contains(product.name);
-        cy.get('.search-suggest-product-price').contains(product.price[0].gross);
-        cy.get('.search-suggest-product-name').click();
-        cy.get('.product-detail-buy .btn-buy').click();
+        cy.window().then((win) => {
+            /** @deprecated tag:v6.5.0 - Use `CheckoutPageObject.elements.lineItem` instead */
+            const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
 
-        // Off canvas
-        cy.get(page.elements.offCanvasCart).should('be.visible');
-        cy.get('.line-item-label').contains(product.name);
+            // Product detail
+            cy.get('.header-search-input').should('be.visible');
+            cy.get('.header-search-input').type(product.name);
+            cy.get('.search-suggest-product-name').contains(product.name);
+            cy.get('.search-suggest-product-price').contains(product.price[0].gross);
+            cy.get('.search-suggest-product-name').click();
+            cy.get('.product-detail-buy .btn-buy').click();
 
-        // Go to cart
-        cy.get('.offcanvas-cart-actions [href="/checkout/cart"]').click();
+            // Off canvas
+            cy.get(page.elements.offCanvasCart).should('be.visible');
+            cy.get(`${lineItemSelector}-label`).contains(product.name);
 
-        // Cart page
-        cy.get('.cart-main-header').should('be.visible').contains('Shopping cart');
+            // Go to cart
+            cy.get('.offcanvas-cart-actions [href="/checkout/cart"]').click();
 
-        // Essential characteristics
-        cy.get(page.elements.cartItemFeatureContainer).should('be.visible');
+            // Cart page
+            cy.get('.cart-main-header').should('be.visible').contains('Shopping cart');
 
-        // We're expecting to see the reference price, as configured via the fixture
-        cy.get(page.elements.cartItemFeatureContainer).should('be.visible');
-        cy.get(`${page.elements.cartItemFeatureContainer}-reference-price`)
-            .should('be.visible')
-            .contains(`${additionalData.purchaseUnit} ${additionalData.unit.name}`)
-            .contains(`${additionalData.referenceUnit} ${additionalData.unit.name}`);
+            // Essential characteristics
+            cy.get(page.elements.cartItemFeatureContainer).should('be.visible');
+
+            // We're expecting to see the reference price, as configured via the fixture
+            cy.get(page.elements.cartItemFeatureContainer).should('be.visible');
+            cy.get(`${page.elements.cartItemFeatureContainer}-reference-price`)
+                .should('be.visible')
+                .contains(`${additionalData.purchaseUnit} ${additionalData.unit.name}`)
+                .contains(`${additionalData.referenceUnit} ${additionalData.unit.name}`);
+        });
     });
 });

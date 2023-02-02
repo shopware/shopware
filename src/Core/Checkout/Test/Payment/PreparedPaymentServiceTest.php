@@ -24,10 +24,9 @@ use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Checkout\Test\Payment\Handler\V630\PreparedTestPaymentHandler;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -43,7 +42,6 @@ use Shopware\Core\Test\TestDefaults;
  * @internal
  * This test handles transactions itself, because it shuts down the kernel in the setUp method.
  */
-#[Package('checkout')]
 class PreparedPaymentServiceTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -51,13 +49,13 @@ class PreparedPaymentServiceTest extends TestCase
 
     private PreparedPaymentService $paymentService;
 
-    private EntityRepository $orderRepository;
+    private EntityRepositoryInterface $orderRepository;
 
-    private EntityRepository $customerRepository;
+    private EntityRepositoryInterface $customerRepository;
 
-    private EntityRepository $orderTransactionRepository;
+    private EntityRepositoryInterface $orderTransactionRepository;
 
-    private EntityRepository $paymentMethodRepository;
+    private EntityRepositoryInterface $paymentMethodRepository;
 
     private Context $context;
 
@@ -359,10 +357,10 @@ class PreparedPaymentServiceTest extends TestCase
         return $id;
     }
 
-    private function getRepository(string $entityName): EntityRepository
+    private function getRepository(string $entityName): EntityRepositoryInterface
     {
         $repository = $this->getContainer()->get(\sprintf('%s.repository', $entityName));
-        static::assertInstanceOf(EntityRepository::class, $repository);
+        static::assertInstanceOf(EntityRepositoryInterface::class, $repository);
 
         return $repository;
     }

@@ -3,12 +3,10 @@
 namespace Shopware\Core\Content\Rule\Aggregate\RuleCondition;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<RuleConditionEntity>
  */
-#[Package('business-ops')]
 class RuleConditionCollection extends EntityCollection
 {
     public function getApiAlias(): string

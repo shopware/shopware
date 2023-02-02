@@ -1,15 +1,12 @@
-/**
- * @package sales-channel
- */
-
 import swSeoUrlState from './state';
 import template from './sw-seo-url.html.twig';
 
+const { Component } = Shopware;
 const Criteria = Shopware.Data.Criteria;
 const EntityCollection = Shopware.Data.EntityCollection;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-seo-url', {
     template,
 
     inject: ['repositoryFactory'],
@@ -49,12 +46,6 @@ export default {
             type: Boolean,
             required: false,
             default: false,
-        },
-
-        resultLimit: {
-            type: Number,
-            required: false,
-            default: 25,
         },
     },
 
@@ -104,7 +95,7 @@ export default {
             });
 
             // from Defaults.php
-            return this.currentSalesChannelId !== null && salesChannel?.typeId === 'f183ee5650cf4bdb8a774337575067a6';
+            return this.currentSalesChannelId !== null && salesChannel.typeId === 'f183ee5650cf4bdb8a774337575067a6';
         },
 
         seoUrlHelptext() {
@@ -154,7 +145,7 @@ export default {
         },
 
         initSalesChannelCollection() {
-            const salesChannelCriteria = new Criteria(1, this.resultLimit);
+            const salesChannelCriteria = new Criteria(1, 25);
             salesChannelCriteria.addAssociation('type');
 
             this.salesChannelRepository.search(salesChannelCriteria).then((salesChannelCollection) => {
@@ -168,7 +159,7 @@ export default {
                 this.seoUrlRepository.route,
                 this.seoUrlRepository.schema.entity,
                 Shopware.Context.api,
-                new Criteria(1, this.resultLimit),
+                new Criteria(1, 25),
             );
 
             const defaultSeoUrlData = this.urls.find((entityData) => {
@@ -249,4 +240,4 @@ export default {
             this.refreshCurrentSeoUrl();
         },
     },
-};
+});

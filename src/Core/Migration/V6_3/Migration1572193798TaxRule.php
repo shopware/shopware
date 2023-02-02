@@ -4,7 +4,6 @@ namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Tax\Aggregate\TaxRuleType\TaxRuleTypeDefinition;
@@ -13,10 +12,6 @@ use Shopware\Core\System\Tax\TaxRuleType\IndividualStatesRuleTypeFilter;
 use Shopware\Core\System\Tax\TaxRuleType\ZipCodeRangeRuleTypeFilter;
 use Shopware\Core\System\Tax\TaxRuleType\ZipCodeRuleTypeFilter;
 
-/**
- * @internal
- */
-#[Package('core')]
 class Migration1572193798TaxRule extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -37,7 +32,7 @@ class Migration1572193798TaxRule extends MigrationStep
 
     public function createTables(Connection $connection): void
     {
-        $connection->executeStatement('
+        $connection->executeUpdate('
             CREATE TABLE `tax_rule_type`
             (
                 `id` BINARY(16) NOT NULL,
@@ -49,7 +44,7 @@ class Migration1572193798TaxRule extends MigrationStep
                 UNIQUE KEY `uniq.technical_name` (`technical_name`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
-        $connection->executeStatement('
+        $connection->executeUpdate('
             CREATE TABLE `tax_rule_type_translation`
             (
                 `tax_rule_type_id` BINARY(16) NOT NULL,
@@ -64,7 +59,7 @@ class Migration1572193798TaxRule extends MigrationStep
                     FOREIGN KEY (`language_id`) REFERENCES `language` (`id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
-        $connection->executeStatement('
+        $connection->executeUpdate('
             CREATE TABLE `tax_rule`
             (
                 `id` BINARY(16) NOT NULL,
@@ -151,7 +146,7 @@ class Migration1572193798TaxRule extends MigrationStep
 
     private function getLocaleId(Connection $connection, string $code): ?string
     {
-        $result = $connection->fetchOne(
+        $result = $connection->fetchColumn(
             '
             SELECT lang.id
             FROM language lang
@@ -169,9 +164,6 @@ class Migration1572193798TaxRule extends MigrationStep
         return (string) $result;
     }
 
-    /**
-     * @param array<string, string> $data
-     */
     private function insertTranslation(Connection $connection, array $data, string $typeId, ?string $languageId): void
     {
         if ($languageId === null) {

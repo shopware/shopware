@@ -66,6 +66,76 @@
             />
             {% endblock %}
 
+            {# @deprecated tag:v6.5.0 - will be removed The block content will be moved to "sw-settings-country-general" component #}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_settings_country_detail_content_card %}
+            {# @deprecated tag:v6.5.0 - will be removed The block content will be moved to "sw-settings-country-general" component #}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_settings_country_detail_content_field_name %}{% endblock %}
+            {# @deprecated tag:v6.5.0 - will be removed The block content will be moved to "sw-settings-country-general" component #}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_settings_country_detail_content_field_position %}{% endblock %}
+            {# @deprecated tag:v6.5.0 - will be removed The block content will be moved to "sw-settings-country-general" component #}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_settings_country_detail_content_field_iso %}{% endblock %}
+            {# @deprecated tag:v6.5.0 - will be removed The block content will be moved to "sw-settings-country-general" component #}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_settings_country_detail_content_field_iso3 %}{% endblock %}
+            {# @deprecated tag:v6.5.0 - will be removed The block content will be moved to "sw-settings-country-general" component #}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_settings_country_detail_content_field_active %}{% endblock %}
+            {# @deprecated tag:v6.5.0 - will be removed The block content will be moved to "sw-settings-country-general" component #}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_settings_country_detail_content_field_shipping_available %}{% endblock %}
+            {# @deprecated tag:v6.5.0 - will be removed The block content will be moved to "sw-settings-country-general" component #}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_settings_country_detail_content_field_tax_free %}{% endblock %}
+            {# @deprecated tag:v6.5.0 - will be removed The block content will be moved to "sw-settings-country-general" component #}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_settings_country_detail_content_field_force_state_on_registration %}{% endblock %}
+            {# @deprecated tag:v6.5.0 - will be removed The block content will be moved to "sw-settings-country-general" component #}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_settings_country_detail_content_field_tax_free_companies %}{% endblock %}
+            {# @deprecated tag:v6.5.0 - will be removed The block content will be moved to "sw-settings-country-general" component #}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_settings_country_detail_content_field_check_vat_id_format %}{% endblock %}
+            {# @deprecated tag:v6.5.0 - will be removed The block content will be moved to "sw-settings-country-general" component #}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_settings_country_detail_content_field_tax_free_from %}{% endblock %}
+            {# @deprecated tag:v6.5.0 - will be removed The block content will be moved to "sw-settings-country-general" component #}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_settings_country_detail_content_field_vat_id_required %}{% endblock %}
+            {% endblock %}
+
+            {# @deprecated tag:v6.5.0 - will be removed The block content will be moved to "sw-settings-country-state" component #}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_settings_country_detail_state_list_card %}
+            {# @deprecated tag:v6.5.0 - will be removed The block content will be moved to "sw-settings-country-state" component #}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_attribute_list_toolbar_searchfield %}{% endblock %}
+            {# @deprecated tag:v6.5.0 - will be removed The block content will be moved to "sw-settings-country-state" component #}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_country_state_list_toolbar_delete %}{% endblock %}
+            {# @deprecated tag:v6.5.0 - will be removed The block content will be moved to "sw-settings-country-state" component #}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_country_state_list_toolbar_add %}{% endblock %}
+
+            {# @deprecated tag:v6.5.0 - will be removed The block content will be moved to "sw-settings-country-state" component  #}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_settings_country_detail_state_list_listing %}
+            {# @deprecated tag:v6.5.0 - will be removed The block content will be moved to "sw-settings-country-state" component  #}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_settings_country_detail_state_list_listing_column_name %}{% endblock %}
+            {# @deprecated tag:v6.5.0 - will be removed The block content will be moved to "sw-settings-country-state" component  #}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_settings_country_detail_state_list_listing_action_edit %}{% endblock %}
+            {% endblock %}
+
+            {% endblock %}
+            {# @deprecated tag:v6.5.0 - will be removed The block content will be moved to "sw-settings-country-state" component  #}
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_settings_country_detail_state_detail %}{% endblock %}
+
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_country_tabs_header %}
             <sw-tabs position-identifier="sw-settings-country-detail-header">
@@ -90,20 +160,6 @@
                     {{ $tc('sw-settings-country.page.stateTab') }}
                 </sw-tabs-item>
                 {% endblock %}
-
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_setting_country_tabs_address_handling %}
-                <sw-tabs-item
-                    v-bind="$props"
-                    class="sw-settings-country__address-handling-tab"
-                    :route="{ name: isNewCountry ? 'sw.settings.country.create.address-handling' : 'sw.settings.country.detail.address-handling' }"
-                >
-                    {{ $tc('sw-settings-country.page.addressHandlingTab') }}
-                </sw-tabs-item>
-                {% endblock %}
-
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_setting_country_tabs_extension %}{% endblock %}
             </sw-tabs>
             {% endblock %}
 

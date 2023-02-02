@@ -20,6 +20,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\MissingTranslationLanguageException;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
@@ -41,11 +42,11 @@ class TranslationTest extends TestCase
     use IntegrationTestBehaviour;
     use ArraySubsetAsserts;
 
-    private EntityRepository $productRepository;
+    private EntityRepositoryInterface $productRepository;
 
-    private EntityRepository $currencyRepository;
+    private EntityRepositoryInterface $currencyRepository;
 
-    private EntityRepository $languageRepository;
+    private EntityRepositoryInterface $languageRepository;
 
     private Context $context;
 
@@ -74,8 +75,8 @@ class TranslationTest extends TestCase
             'symbol' => '$',
             'decimalPrecision' => 2,
             'isoCode' => 'FOO',
-            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
-            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true),
+            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true),
             'translations' => [
                 'en-GB' => [
                     'name' => 'US Dollar',
@@ -111,8 +112,8 @@ class TranslationTest extends TestCase
             'decimalPrecision' => 2,
             'symbol' => '$',
             'isoCode' => 'FOO',
-            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
-            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true),
+            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true),
             'translations' => [
                 [
                     'languageId' => Defaults::LANGUAGE_SYSTEM,
@@ -151,8 +152,8 @@ class TranslationTest extends TestCase
             'decimalPrecision' => 2,
             'symbol' => '$',
             'isoCode' => 'FOO',
-            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
-            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true),
+            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true),
             'translations' => [
                 'en-GB' => [
                     'name' => $name,
@@ -192,8 +193,8 @@ class TranslationTest extends TestCase
             'decimalPrecision' => 2,
             'symbol' => '$',
             'isoCode' => 'FOO',
-            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
-            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true),
+            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true),
             'translations' => [
                 'en-GB' => [
                     'shortName' => $shortName,
@@ -255,8 +256,8 @@ class TranslationTest extends TestCase
             'factor' => 1,
             'decimalPrecision' => 2,
             'symbol' => '$',
-            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
-            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true),
+            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true),
             'isoCode' => 'FOO',
             'translations' => [
                 'en-GB' => [
@@ -314,8 +315,8 @@ class TranslationTest extends TestCase
             'symbol' => '$',
             'decimalPrecision' => 2,
             'isoCode' => 'FOO',
-            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
-            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true),
+            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true),
             'translations' => [
                 'en-GB' => [
                     'name' => $englishName,
@@ -362,8 +363,8 @@ class TranslationTest extends TestCase
             'symbol' => '$',
             'decimalPrecision' => 2,
             'isoCode' => 'BAR',
-            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
-            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true),
+            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true),
             'translations' => [
                 Defaults::LANGUAGE_SYSTEM => [
                     'name' => 'default',
@@ -404,8 +405,8 @@ class TranslationTest extends TestCase
             'symbol' => '$',
             'decimalPrecision' => 2,
             'isoCode' => 'TST',
-            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
-            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true),
+            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true),
             'translations' => [
                 Defaults::LANGUAGE_SYSTEM => [
                     'name' => 'US Dollar',
@@ -852,7 +853,7 @@ sors capulus se Quies, mox qui Sentus dum confirmo do iam. Iunceus postulator in
             ],
         ];
 
-        /** @var EntityRepository $repository */
+        /** @var EntityRepositoryInterface $repository */
         $repository = $this->getContainer()->get('category.repository');
 
         $repository->create([$data], $context);
@@ -891,7 +892,7 @@ sors capulus se Quies, mox qui Sentus dum confirmo do iam. Iunceus postulator in
             ],
         ];
 
-        /** @var EntityRepository $repository */
+        /** @var EntityRepositoryInterface $repository */
         $repository = $this->getContainer()->get('category.repository');
 
         $repository->create([$data], $context);
@@ -932,7 +933,7 @@ sors capulus se Quies, mox qui Sentus dum confirmo do iam. Iunceus postulator in
             ],
         ];
 
-        /** @var EntityRepository $repository */
+        /** @var EntityRepositoryInterface $repository */
         $repository = $this->getContainer()->get('category.repository');
 
         $repository->create([$data], $context);
@@ -973,7 +974,7 @@ sors capulus se Quies, mox qui Sentus dum confirmo do iam. Iunceus postulator in
             ],
         ];
 
-        /** @var EntityRepository $repository */
+        /** @var EntityRepositoryInterface $repository */
         $repository = $this->getContainer()->get('category.repository');
 
         $repository->create([$data], $context);
@@ -1026,7 +1027,7 @@ sors capulus se Quies, mox qui Sentus dum confirmo do iam. Iunceus postulator in
             ],
         ];
 
-        /** @var EntityRepository $repository */
+        /** @var EntityRepositoryInterface $repository */
         $repository = $this->getContainer()->get('category.repository');
 
         $repository->create([$data], $this->context);
@@ -1085,7 +1086,7 @@ sors capulus se Quies, mox qui Sentus dum confirmo do iam. Iunceus postulator in
             ],
         ];
 
-        /** @var EntityRepository $repository */
+        /** @var EntityRepositoryInterface $repository */
         $repository = $this->getContainer()->get('category.repository');
 
         $repository->create([$data], $this->context);

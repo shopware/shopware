@@ -4,7 +4,7 @@ namespace Shopware\Storefront\Test\Page;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\DataResolver\FieldConfig;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -24,18 +24,30 @@ class ErrorPageTest extends TestCase
     use IntegrationTestBehaviour;
     use StorefrontPageTestBehaviour;
 
-    private SystemConfigService $systemConfigService;
+    /**
+     * @var SystemConfigService
+     */
+    private $systemConfigService;
 
-    private EntityRepository $systemConfigRepository;
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $systemConfigRepository;
 
     /**
      * @var SalesChannelContext
      */
     private $salesChannelContext;
 
-    private EntityRepository $cmsPageRepository;
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $cmsPageRepository;
 
-    private string $errorLayoutId;
+    /**
+     * @var string
+     */
+    private $errorLayoutId;
 
     public function setUp(): void
     {

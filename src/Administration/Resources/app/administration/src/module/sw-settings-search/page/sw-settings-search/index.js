@@ -1,13 +1,10 @@
-/**
- * @package system-settings
- */
 import template from './sw-settings-search.html.twig';
 
-const { Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 const { EntityCollection, Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-settings-search', {
     template,
 
     inject: [
@@ -278,4 +275,4 @@ export default {
             this.isDisplayingLeavePageWarning = false;
         },
     },
-};
+});

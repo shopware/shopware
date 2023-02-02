@@ -1,13 +1,11 @@
 import template from './sw-category-link-settings.html.twig';
 import './sw-category-link-settings.scss';
 
+const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
-/**
- * @package content
- */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-category-link-settings', {
     template,
 
     inject: ['acl', 'repositoryFactory'],
@@ -157,4 +155,4 @@ export default {
             this.category.internalLink = null;
         },
     },
-};
+});

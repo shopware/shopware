@@ -34,14 +34,17 @@ class PluginAclTest extends TestCase
     /**
      * @var Plugin[]
      */
-    private array $plugins = [];
+    private $plugins;
 
     /**
      * @var string
      */
     private $testPluginBaseDir;
 
-    private PluginAclPrivilegesSubscriber $pluginAclSubscriber;
+    /**
+     * @var PluginAclPrivilegesSubscriber
+     */
+    private $pluginAclSubscriber;
 
     protected function setUp(): void
     {
@@ -55,7 +58,11 @@ class PluginAclTest extends TestCase
 
         $pluginCollection
             ->method('getActives')
-            ->willReturnCallback(fn () => array_filter($this->plugins, static fn (Plugin $plugin) => $plugin->isActive()));
+            ->willReturnCallback(function () {
+                return array_filter($this->plugins, static function (Plugin $plugin) {
+                    return $plugin->isActive();
+                });
+            });
 
         $this->pluginAclSubscriber = new PluginAclPrivilegesSubscriber($pluginCollection);
     }

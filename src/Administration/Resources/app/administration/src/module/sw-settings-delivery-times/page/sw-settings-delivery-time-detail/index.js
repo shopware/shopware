@@ -1,15 +1,11 @@
 import template from './sw-settings-delivery-time-detail.html.twig';
 
-/**
- * @package customer-order
- */
-
 const { Component, Mixin } = Shopware;
 const ShopwareError = Shopware.Classes.ShopwareError;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-settings-delivery-time-detail', {
     template,
 
     inject: ['repositoryFactory', 'acl', 'customFieldDataProviderService'],
@@ -197,4 +193,4 @@ export default {
             this.$router.push({ name: 'sw.settings.delivery.time.index' });
         },
     },
-};
+});

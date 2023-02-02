@@ -1,10 +1,11 @@
 import './sw-promotion-v2-cart-condition-form.scss';
 import template from './sw-promotion-v2-cart-condition-form.html.twig';
 
+const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-promotion-v2-cart-condition-form', {
     template,
 
     inject: [
@@ -21,6 +22,7 @@ export default {
             default: null,
         },
 
+        /* @internal (flag:FEATURE_NEXT_18215) */
         restrictedRules: {
             type: Array,
             required: false,
@@ -43,8 +45,19 @@ export default {
         ruleFilter() {
             const criteria = new Criteria(1, 25);
 
-            criteria.addAssociation('conditions')
-                .addSorting(Criteria.sort('name', 'ASC', false));
+            if (!this.feature.isActive('FEATURE_NEXT_18215')) {
+                criteria.addFilter(
+                    Criteria.not('AND', [
+                        Criteria.equalsAny('conditions.type', ['cartCartAmount']),
+                    ]),
+                );
+            }
+
+            if (this.feature.isActive('FEATURE_NEXT_18215')) {
+                criteria.addAssociation('conditions');
+            }
+
+            criteria.addSorting(Criteria.sort('name', 'ASC', false));
 
             return criteria;
         },
@@ -151,4 +164,4 @@ export default {
             });
         },
     },
-};
+});

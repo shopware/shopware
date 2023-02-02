@@ -2,15 +2,17 @@
 
 namespace Shopware\Administration\Notification\Exception;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('administration')]
 class NotificationThrottledException extends ShopwareHttpException
 {
-    public function __construct(private readonly int $waitTime, ?\Throwable $e = null)
+    private int $waitTime;
+
+    public function __construct(int $waitTime, ?\Throwable $e = null)
     {
+        $this->waitTime = $waitTime;
+
         parent::__construct(
             'Notification throttled for {{ seconds }} seconds.',
             ['seconds' => $this->waitTime],

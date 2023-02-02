@@ -11,24 +11,25 @@ use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 use Shopware\Core\Checkout\Promotion\Exception\CodeAlreadyRedeemedException;
 use Shopware\Core\Checkout\Promotion\Exception\PromotionCodeNotFoundException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-/**
- * @internal
- */
-#[Package('checkout')]
 class PromotionIndividualCodeRedeemer implements EventSubscriberInterface
 {
     /**
+     * @var EntityRepositoryInterface
+     */
+    private $codesRepository;
+
+    /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $codesRepository)
+    public function __construct(EntityRepositoryInterface $codesRepository)
     {
+        $this->codesRepository = $codesRepository;
     }
 
     public static function getSubscribedEvents(): array
@@ -44,20 +45,20 @@ class PromotionIndividualCodeRedeemer implements EventSubscriberInterface
      */
     public function onOrderPlaced(CheckoutOrderPlacedEvent $event): void
     {
-        foreach ($event->getOrder()->getLineItems() ?? [] as $item) {
+        foreach ($event->getOrder()->getLineItems() as $item) {
             // only update promotions in here
             if ($item->getType() !== PromotionProcessor::LINE_ITEM_TYPE) {
                 continue;
             }
 
             /** @var string $code */
-            $code = $item->getPayload()['code'] ?? '';
+            $code = $item->getPayload()['code'];
 
             try {
                 // first try if its an individual
                 // if not, then it might be a global promotion
                 $individualCode = $this->getIndividualCode($code, $event->getContext());
-            } catch (PromotionCodeNotFoundException) {
+            } catch (PromotionCodeNotFoundException $ex) {
                 $individualCode = null;
             }
 
@@ -75,7 +76,7 @@ class PromotionIndividualCodeRedeemer implements EventSubscriberInterface
             // for later needs
             $individualCode->setRedeemed(
                 $item->getOrderId(),
-                $customer->getCustomerId() ?? '',
+                $customer->getCustomerId(),
                 $customer->getFirstName() . ' ' . $customer->getLastName()
             );
 

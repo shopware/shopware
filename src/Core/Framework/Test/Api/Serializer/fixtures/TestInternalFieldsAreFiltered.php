@@ -6,8 +6,6 @@ use Shopware\Core\Checkout\Test\Cart\Common\FalseRule;
 use Shopware\Core\Checkout\Test\Cart\Common\TrueRule;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 
@@ -16,10 +14,7 @@ use Shopware\Core\Framework\Rule\Container\AndRule;
  */
 class TestInternalFieldsAreFiltered extends SerializationFixture
 {
-    /**
-     * @return RuleCollection|RuleEntity
-     */
-    public function getInput(): EntityCollection|Entity
+    public function getInput()
     {
         $ruleCollection = new RuleCollection();
 
@@ -34,9 +29,6 @@ class TestInternalFieldsAreFiltered extends SerializationFixture
         return $ruleCollection;
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     protected function getJsonApiFixtures(string $baseUrl): array
     {
         return [
@@ -108,9 +100,6 @@ class TestInternalFieldsAreFiltered extends SerializationFixture
         ];
     }
 
-    /**
-     * @return array<array<string,mixed>>
-     */
     protected function getJsonFixtures(): array
     {
         return [
@@ -144,11 +133,6 @@ class TestInternalFieldsAreFiltered extends SerializationFixture
         ];
     }
 
-    /**
-     * @param array<string,mixed> $fixtures
-     *
-     * @return array<string,mixed>
-     */
     protected function removeProtectedSalesChannelJsonApiData(array $fixtures): array
     {
         unset(
@@ -167,11 +151,6 @@ class TestInternalFieldsAreFiltered extends SerializationFixture
         return $fixtures;
     }
 
-    /**
-     * @param array<int, mixed> $fixtures
-     *
-     * @return array<int, mixed>
-     */
     protected function removeProtectedSalesChannelJsonData(array $fixtures): array
     {
         unset(

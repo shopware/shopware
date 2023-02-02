@@ -3,15 +3,19 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\RemoteAddressFieldSerializer;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
 class RemoteAddressField extends Field implements StorageAware
 {
+    /**
+     * @var string
+     */
+    private $storageName;
+
     public function __construct(
-        private readonly string $storageName,
+        string $storageName,
         string $propertyName
     ) {
+        $this->storageName = $storageName;
         parent::__construct($propertyName);
     }
 

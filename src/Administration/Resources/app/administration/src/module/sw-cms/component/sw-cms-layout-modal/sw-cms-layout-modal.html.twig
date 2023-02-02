@@ -99,25 +99,27 @@
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_layout_modal_content_listing_item_checkbox %}
+                    {# @deprecated tag:v6.5.0 cmsPage.id is redundant and should be removed as an argument #}
                     <sw-checkbox-field
-                        :value="cmsPage.id === selectedPageObject?.id"
+                        :value="cmsPage.id === selected"
                         type="checkbox"
                         class="sw-cms-layout-modal__content-checkbox"
-                        @change="selectItem(cmsPage)"
+                        @change="onSelection(cmsPage.id, cmsPage)"
                     />
                     {% endblock %}
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_layout_modal_content_listing_item_inner %}
+                    {# @deprecated tag:v6.5.0 cmsPage.id is redundant and should be removed as an argument #}
                     <sw-cms-list-item
                         :key="cmsPage.id"
                         :page="cmsPage"
                         :is-default="[defaultProductId, defaultCategoryId].includes(cmsPage.id)"
-                        @item-click="selectItem(cmsPage)"
+                        @item-click="selectItem(cmsPage.id, cmsPage)"
                     />
                     {% endblock %}
 
-                    {% endblock %}
+                {% endblock %}
                 </div>
             </sw-container>
 
@@ -162,7 +164,7 @@
             {% block sw_cms_list_listing_list_data_grid_column_name %}
             <template #column-name="{ item }">
                 <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
-                <div @click="selectItem(item)">
+                <div @click="selectItem(item.id, item)">
                     {{ item.translated.name }}
                 </div>
             </template>
@@ -208,7 +210,7 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_layout_modal_footer %}
-    <template #modal-footer>
+    <template slot="modal-footer">
         <sw-button @click="closeModal">
             {{ $tc('sw-cms.components.cmsLayoutModal.actionCancel') }}
         </sw-button>

@@ -3,10 +3,8 @@
 namespace Shopware\Core\Framework\Event;
 
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('business-ops')]
-interface MailAware extends FlowEventAware
+interface MailAware extends MailActionInterface
 {
     public const MAIL_STRUCT = 'mailStruct';
 

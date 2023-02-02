@@ -79,7 +79,8 @@
         @sw-grid-select-all="selectionChanged"
     >
         <template
-            #columns="{ item }"
+            slot="columns"
+            slot-scope="{ item }"
         >
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -97,14 +98,12 @@
                 >
                     {{ getInlineSnippet(item.config.label) || item.name }}
                 </span>
-
-                <template #inline-edit>
-                    <sw-field
-                        type="text"
-                        :value="getInlineSnippet(item.config.label) || item.name"
-                        disabled
-                    />
-                </template>
+                <sw-field
+                    slot="inline-edit"
+                    type="text"
+                    :value="getInlineSnippet(item.config.label) || item.name"
+                    disabled
+                />
             </sw-grid-column>
             {% endblock %}
 
@@ -117,14 +116,12 @@
                 :label="$tc('sw-settings-custom-field.customField.list.labelCustomFieldType')"
             >
                 {{ $tc(`sw-settings-custom-field.types.${item.config.customFieldType || item.type}`) }}
-
-                <template #inline-edit>
-                    <sw-field
-                        type="text"
-                        :value="$tc(`sw-settings-custom-field.types.${item.config.customFieldType || item.type}`)"
-                        disabled
-                    />
-                </template>
+                <sw-field
+                    slot="inline-edit"
+                    type="text"
+                    :value="$tc(`sw-settings-custom-field.types.${item.config.customFieldType || item.type}`)"
+                    disabled
+                />
             </sw-grid-column>
             {% endblock %}
 
@@ -140,13 +137,12 @@
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_custom_field_list_grid_column_custom_field_position_edit %}
-                <template #inline-edit>
-                    <sw-field
-                        v-model="item.config.customFieldPosition"
-                        type="number"
-                        number-type="int"
-                    />
-                </template>
+                <sw-field
+                    slot="inline-edit"
+                    v-model="item.config.customFieldPosition"
+                    type="number"
+                    number-type="int"
+                />
                 {% endblock %}
             </sw-grid-column>
             {% endblock %}
@@ -199,7 +195,7 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_custom_field_list_grid_pagination %}
-        <template #pagination>
+        <template slot="pagination">
             <sw-pagination
                 :limit="limit"
                 :page="page"

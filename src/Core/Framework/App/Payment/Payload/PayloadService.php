@@ -19,18 +19,36 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal only for use by the app-system
  */
-#[Package('core')]
 class PayloadService
 {
-    public function __construct(private readonly JsonEntityEncoder $entityEncoder, private readonly DefinitionInstanceRegistry $definitionRegistry, protected Client $client, protected ShopIdProvider $shopIdProvider, private readonly string $shopUrl)
-    {
+    protected Client $client;
+
+    protected ShopIdProvider $shopIdProvider;
+
+    private JsonEntityEncoder $entityEncoder;
+
+    private DefinitionInstanceRegistry $definitionRegistry;
+
+    private string $shopUrl;
+
+    public function __construct(
+        JsonEntityEncoder $entityEncoder,
+        DefinitionInstanceRegistry $definitionRegistry,
+        Client $client,
+        ShopIdProvider $shopIdProvider,
+        string $shopUrl
+    ) {
+        $this->entityEncoder = $entityEncoder;
+        $this->definitionRegistry = $definitionRegistry;
+        $this->client = $client;
+        $this->shopIdProvider = $shopIdProvider;
+        $this->shopUrl = $shopUrl;
     }
 
     /**
@@ -50,20 +68,17 @@ class PayloadService
                 $transactionId = $payload->getOrderTransaction()->getId();
             }
 
-            return $responseClass::create($transactionId, json_decode($content, true, 512, \JSON_THROW_ON_ERROR));
-        } catch (GuzzleException) {
+            return $responseClass::create($transactionId, json_decode($content, true));
+        } catch (GuzzleException $ex) {
             return null;
         }
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     private function getRequestOptions(SourcedPayloadInterface $payload, AppEntity $app, Context $context): array
     {
         $payload->setSource($this->buildSource($app));
         $encoded = $this->encode($payload);
-        $jsonPayload = json_encode($encoded, \JSON_THROW_ON_ERROR);
+        $jsonPayload = json_encode($encoded);
 
         if (!$jsonPayload) {
             if ($payload instanceof PaymentPayloadInterface) {
@@ -100,9 +115,6 @@ class PayloadService
         );
     }
 
-    /**
-     * @return array<mixed>
-     */
     private function encode(SourcedPayloadInterface $payload): array
     {
         $array = $payload->jsonSerialize();
@@ -132,9 +144,6 @@ class PayloadService
         return $array;
     }
 
-    /**
-     * @return array<mixed>
-     */
     private function encodeEntity(Entity $entity): array
     {
         $definition = $this->definitionRegistry->getByEntityName($entity->getApiAlias());

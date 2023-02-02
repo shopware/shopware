@@ -4,20 +4,33 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
- * @final
+ * @final tag:v6.5.0
  */
-#[Package('core')]
 class AggregatorResult extends Struct
 {
-    public function __construct(
-        private readonly AggregationResultCollection $aggregations,
-        private readonly Context $context,
-        private readonly Criteria $criteria
-    ) {
+    /**
+     * @var AggregationResultCollection
+     */
+    protected $aggregations;
+
+    /**
+     * @var Context
+     */
+    protected $context;
+
+    /**
+     * @var Criteria
+     */
+    protected $criteria;
+
+    public function __construct(AggregationResultCollection $aggregations, Context $context, Criteria $criteria)
+    {
+        $this->aggregations = $aggregations;
+        $this->context = $context;
+        $this->criteria = $criteria;
     }
 
     public function getAggregations(): AggregationResultCollection

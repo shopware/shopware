@@ -3,13 +3,8 @@
 namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
-/**
- * @internal
- */
-#[Package('core')]
 class Migration1574672450RemoteAddressIntoCustomerAndOrderCustomerTable extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -19,12 +14,12 @@ class Migration1574672450RemoteAddressIntoCustomerAndOrderCustomerTable extends 
 
     public function update(Connection $connection): void
     {
-        $connection->executeStatement('
+        $connection->executeUpdate('
             ALTER TABLE `customer`
             ADD `remote_address` VARCHAR(255) NULL;
         ');
 
-        $connection->executeStatement('
+        $connection->executeUpdate('
             ALTER TABLE `order_customer`
             ADD `remote_address` VARCHAR(255) NULL;
         ');

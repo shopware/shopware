@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Test\Update\Services;
 
 use DG\BypassFinals;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Update\Exception\UpdateFailedException;
 use Shopware\Core\Framework\Update\Services\Download;
@@ -26,23 +25,14 @@ class DownloadTest extends TestCase
 
     private static bool $restored = false;
 
-    private bool $mediaDirCreated = false;
-
     protected function setUp(): void
     {
         try {
             stream_wrapper_restore('file');
             self::$restored = true;
-        } catch (\Throwable) {
+        } catch (\Throwable $exception) {
             // nth
         }
-
-        $projectDir = $this->getContainer()->getParameter('kernel.project_dir');
-        if (!\is_dir($projectDir . '/public/media')) {
-            mkdir($projectDir . '/public/media');
-            $this->mediaDirCreated = true;
-        }
-        \copy(__DIR__ . '/../_fixtures/sw_logo_white.png', $this->getContainer()->getParameter('kernel.project_dir') . '/public/media/sw_logo_white.png');
     }
 
     protected function tearDown(): void
@@ -61,13 +51,6 @@ class DownloadTest extends TestCase
             unlink($testFile);
             @unlink($testFile . '.part');
         }
-
-        \unlink($this->getContainer()->getParameter('kernel.project_dir') . '/public/media/sw_logo_white.png');
-
-        if ($this->mediaDirCreated) {
-            rmdir($this->getContainer()->getParameter('kernel.project_dir') . '/public/media');
-            $this->mediaDirCreated = false;
-        }
     }
 
     public function testDownloadFile(): void
@@ -77,7 +60,7 @@ class DownloadTest extends TestCase
         $tempfile = $this->tmpFile();
 
         $download->downloadFile(
-            EnvironmentHelper::getVariable('APP_URL') . '/media/sw_logo_white.png',
+            'http://assets.shopware.com/sw_logo_white.png',
             $tempfile,
             10521,
             '5f98432a760cae72c85b1835017306bdd84e2f68'
@@ -95,7 +78,7 @@ class DownloadTest extends TestCase
         $download = new Download();
 
         $this->expectExceptionMessage('Wrong http code');
-        $download->downloadFile(EnvironmentHelper::getVariable('APP_URL') . '/foobar', $this->tmpFile(), 1, '1234');
+        $download->downloadFile($_SERVER['APP_URL'] . '/foobar', $this->tmpFile(), 1, '1234');
     }
 
     public function testUnicode(): void

@@ -4,10 +4,8 @@ namespace Shopware\Storefront\Page\Navigation;
 
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Cms\CmsPageEntity;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Page\Page;
 
-#[Package('storefront')]
 class NavigationPage extends Page
 {
     /**
@@ -15,7 +13,7 @@ class NavigationPage extends Page
      */
     protected $cmsPage;
 
-    protected ?string $navigationId = null;
+    protected ?string $navigationId;
 
     public function getCmsPage(): ?CmsPageEntity
     {

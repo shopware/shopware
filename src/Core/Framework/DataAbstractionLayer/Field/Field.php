@@ -10,26 +10,39 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Flag;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializerInterface;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('core')]
 abstract class Field extends Struct
 {
     /**
-     * @var array<string, Flag>
+     * @var Flag[]
      */
-    protected array $flags = [];
+    protected $flags = [];
 
-    protected string $propertyName;
+    /**
+     * @var string
+     */
+    protected $propertyName;
 
-    private ?FieldSerializerInterface $serializer = null;
+    /**
+     * @var FieldSerializerInterface
+     */
+    private $serializer;
 
-    private ?AbstractFieldResolver $resolver = null;
+    /**
+     * @var AbstractFieldResolver|null
+     */
+    private $resolver;
 
-    private ?FieldAccessorBuilderInterface $accessorBuilder = null;
+    /**
+     * @var FieldAccessorBuilderInterface|null
+     */
+    private $accessorBuilder;
 
-    private ?DefinitionInstanceRegistry $registry = null;
+    /**
+     * @var DefinitionInstanceRegistry
+     */
+    private $registry;
 
     public function __construct(string $propertyName)
     {
@@ -56,7 +69,7 @@ abstract class Field extends Struct
     {
         $this->flags = [];
         foreach ($flags as $flag) {
-            $this->flags[$flag::class] = $flag;
+            $this->flags[\get_class($flag)] = $flag;
         }
         if (!$this->is(ApiAware::class)) {
             $this->addFlags(new ApiAware(AdminApiSource::class));
@@ -68,7 +81,7 @@ abstract class Field extends Struct
     public function addFlags(Flag ...$flags): self
     {
         foreach ($flags as $flag) {
-            $this->flags[$flag::class] = $flag;
+            $this->flags[\get_class($flag)] = $flag;
         }
 
         return $this;
@@ -92,7 +105,7 @@ abstract class Field extends Struct
     }
 
     /**
-     * @return list<Flag>
+     * @return Flag[]
      */
     public function getFlags(): array
     {
@@ -102,8 +115,6 @@ abstract class Field extends Struct
     public function getSerializer(): FieldSerializerInterface
     {
         $this->initLazy();
-
-        \assert($this->serializer !== null);
 
         return $this->serializer;
     }
@@ -151,8 +162,6 @@ abstract class Field extends Struct
         if ($this->serializer !== null) {
             return;
         }
-
-        \assert($this->registry !== null);
 
         $this->serializer = $this->registry->getSerializer($this->getSerializerClass());
 

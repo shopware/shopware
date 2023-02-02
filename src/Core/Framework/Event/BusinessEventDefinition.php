@@ -2,22 +2,65 @@
 
 namespace Shopware\Core\Framework\Event;
 
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('business-ops')]
 class BusinessEventDefinition extends Struct
 {
     /**
-     * @param array<string, mixed> $data
-     * @param list<string> $aware
+     * @var string
      */
+    protected $name;
+
+    /**
+     * @var string
+     */
+    protected $class;
+
+    /**
+     * @deprecated tag:v6.5.0 - Will be removed in v6.5.0, use $aware instead.
+     *
+     * @var bool
+     */
+    protected $mailAware;
+
+    /**
+     * @deprecated tag:v6.5.0 - Will be removed in v6.5.0, use $aware instead.
+     *
+     * @var bool
+     */
+    protected $logAware;
+
+    /**
+     * @var array
+     */
+    protected $data;
+
+    /**
+     * @deprecated tag:v6.5.0 - Will be removed in v6.5.0, use $aware instead.
+     *
+     * @var bool
+     */
+    protected $salesChannelAware;
+
+    protected array $aware = [];
+
     public function __construct(
-        protected string $name,
-        protected string $class,
-        protected array $data,
-        protected array $aware = []
+        string $name,
+        string $class,
+        bool $mailAware,
+        bool $logAware,
+        bool $salesChannelAware,
+        array $data,
+        array $aware = []
     ) {
+        $this->name = $name;
+        $this->class = $class;
+        $this->mailAware = $mailAware;
+        $this->logAware = $logAware;
+        $this->data = $data;
+        $this->salesChannelAware = $salesChannelAware;
+        $this->aware = $aware;
     }
 
     public function getName(): string
@@ -40,25 +83,97 @@ class BusinessEventDefinition extends Struct
         $this->class = $class;
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - Will be removed in v6.5.0, use BusinessEventDefinition::getAware() instead.
+     */
+    public function isMailAware(): bool
+    {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'BusinessEventDefinition::getAware()')
+        );
+
+        return $this->mailAware;
+    }
+
+    /**
+     * @deprecated tag:v6.5.0 - Will be removed in v6.5.0, use BusinessEventDefinition::addAware() instead.
+     */
+    public function setMailAware(bool $mailAware): void
+    {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'BusinessEventDefinition::addAware()')
+        );
+
+        $this->mailAware = $mailAware;
+    }
+
+    /**
+     * @deprecated tag:v6.5.0 - Will be removed in v6.5.0, use BusinessEventDefinition::getAware() instead.
+     */
+    public function isLogAware(): bool
+    {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'BusinessEventDefinition::getAware()')
+        );
+
+        return $this->logAware;
+    }
+
+    /**
+     * @deprecated tag:v6.5.0 - Will be removed in v6.5.0, use BusinessEventDefinition::addAware() instead.
+     */
+    public function setLogAware(bool $logAware): void
+    {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'BusinessEventDefinition::addAware()')
+        );
+
+        $this->logAware = $logAware;
+    }
+
     public function getApiAlias(): string
     {
         return 'business_event_definition';
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     public function getData(): array
     {
         return $this->data;
     }
 
-    /**
-     * @param array<string, mixed> $data
-     */
     public function setData(array $data): void
     {
         $this->data = $data;
+    }
+
+    /**
+     * @deprecated tag:v6.5.0 - Will be removed in v6.5.0, use BusinessEventDefinition::getAware() instead.
+     */
+    public function isSalesChannelAware(): bool
+    {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'BusinessEventDefinition::getAware()')
+        );
+
+        return $this->salesChannelAware;
+    }
+
+    /**
+     * @deprecated tag:v6.5.0 - Will be removed in v6.5.0, use BusinessEventDefinition::addAware() instead.
+     */
+    public function setSalesChannelAware(bool $salesChannelAware): void
+    {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'BusinessEventDefinition::addAware()')
+        );
+
+        $this->salesChannelAware = $salesChannelAware;
     }
 
     public function addAware(string $key): void

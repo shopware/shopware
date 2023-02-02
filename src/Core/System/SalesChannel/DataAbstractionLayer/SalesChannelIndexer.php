@@ -3,27 +3,42 @@
 namespace Shopware\Core\System\SalesChannel\DataAbstractionLayer;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelIndexerEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Package('sales-channel')]
 class SalesChannelIndexer extends EntityIndexer
 {
-    final public const MANY_TO_MANY_UPDATER = 'sales_channel.many-to-many';
+    public const MANY_TO_MANY_UPDATER = 'sales_channel.many-to-many';
+
+    private IteratorFactory $iteratorFactory;
+
+    private EntityRepositoryInterface $repository;
+
+    private EventDispatcherInterface $eventDispatcher;
+
+    private ManyToManyIdFieldUpdater $manyToManyUpdater;
 
     /**
      * @internal
      */
-    public function __construct(private readonly IteratorFactory $iteratorFactory, private readonly EntityRepository $repository, private readonly EventDispatcherInterface $eventDispatcher, private readonly ManyToManyIdFieldUpdater $manyToManyUpdater)
-    {
+    public function __construct(
+        IteratorFactory $iteratorFactory,
+        EntityRepositoryInterface $repository,
+        EventDispatcherInterface $eventDispatcher,
+        ManyToManyIdFieldUpdater $manyToManyUpdater
+    ) {
+        $this->iteratorFactory = $iteratorFactory;
+        $this->repository = $repository;
+        $this->eventDispatcher = $eventDispatcher;
+        $this->manyToManyUpdater = $manyToManyUpdater;
     }
 
     public function getName(): string
@@ -31,8 +46,20 @@ class SalesChannelIndexer extends EntityIndexer
         return 'sales_channel.indexer';
     }
 
-    public function iterate(?array $offset): ?EntityIndexingMessage
+    /**
+     * @param array|null $offset
+     *
+     * @deprecated tag:v6.5.0 The parameter $offset will be native typed
+     */
+    public function iterate(/*?array */$offset): ?EntityIndexingMessage
     {
+        if ($offset !== null && !\is_array($offset)) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.5.0.0',
+                'Parameter `$offset` of method "iterate()" in class "SalesChannelIndexer" will be natively typed to `?array` in v6.5.0.0.'
+            );
+        }
+
         $iterator = $this->iteratorFactory->createIterator($this->repository->getDefinition(), $offset);
 
         $ids = $iterator->fetch();

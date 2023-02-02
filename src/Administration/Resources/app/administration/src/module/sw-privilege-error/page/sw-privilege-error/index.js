@@ -2,7 +2,7 @@ import template from './sw-privilege-error.html.twig';
 import './sw-privilege-error.scss';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Shopware.Component.register('sw-privilege-error', {
     template,
 
     metaInfo() {
@@ -16,4 +16,4 @@ export default {
             this.$router.go(-1);
         },
     },
-};
+});

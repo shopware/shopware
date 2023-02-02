@@ -3,27 +3,34 @@
 namespace Shopware\Core\Content\Newsletter\ScheduledTask;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-/**
- * @internal
- */
-#[AsMessageHandler(handles: NewsletterRecipientTask::class)]
-#[Package('customer-order')]
-final class NewsletterRecipientTaskHandler extends ScheduledTaskHandler
+class NewsletterRecipientTaskHandler extends ScheduledTaskHandler
 {
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $newsletterRecipientRepository;
+
     /**
      * @internal
      */
-    public function __construct(EntityRepository $scheduledTaskRepository, private readonly EntityRepository $newsletterRecipientRepository)
+    public function __construct(EntityRepositoryInterface $scheduledTaskRepository, EntityRepositoryInterface $newsletterRecipientRepository)
     {
         parent::__construct($scheduledTaskRepository);
+
+        $this->newsletterRecipientRepository = $newsletterRecipientRepository;
+    }
+
+    public static function getHandledMessages(): iterable
+    {
+        return [
+            NewsletterRecipientTask::class,
+        ];
     }
 
     public function run(): void
@@ -35,7 +42,9 @@ final class NewsletterRecipientTaskHandler extends ScheduledTaskHandler
             return;
         }
 
-        $emailRecipientIds = array_map(fn ($id) => ['id' => $id], $emailRecipient->getIds());
+        $emailRecipientIds = array_map(function ($id) {
+            return ['id' => $id];
+        }, $emailRecipient->getIds());
 
         $this->newsletterRecipientRepository->delete($emailRecipientIds, Context::createDefaultContext());
     }

@@ -2,18 +2,28 @@
 
 namespace Shopware\Core\Framework\Update\Checkers;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Update\Services\Filesystem;
 use Shopware\Core\Framework\Update\Struct\ValidationResult;
 
-#[Package('system-settings')]
 class WriteableCheck implements CheckerInterface
 {
     /**
+     * @var Filesystem
+     */
+    private $filesystem;
+
+    /**
+     * @var string
+     */
+    private $rootDir;
+
+    /**
      * @internal
      */
-    public function __construct(private readonly Filesystem $filesystem, private readonly string $rootDir)
+    public function __construct(Filesystem $filesystem, string $rootDir)
     {
+        $this->filesystem = $filesystem;
+        $this->rootDir = $rootDir;
     }
 
     public function supports(string $check): bool

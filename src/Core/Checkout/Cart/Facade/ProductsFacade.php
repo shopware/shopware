@@ -9,20 +9,15 @@ use Shopware\Core\Checkout\Cart\Facade\Traits\ItemsIteratorTrait;
 use Shopware\Core\Checkout\Cart\Facade\Traits\ItemsRemoveTrait;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package checkout
- */
 /**
  * The ProductsFacade is a wrapper around a collection of product line-items.
  *
  * @script-service cart_manipulation
  *
- * @implements \IteratorAggregate<array-key, LineItem>
+ * @implements \IteratorAggregate<array-key, \Shopware\Core\Checkout\Cart\LineItem\LineItem>
  */
-#[Package('checkout')]
 class ProductsFacade implements \IteratorAggregate
 {
     use ItemsGetTrait {
@@ -79,7 +74,7 @@ class ProductsFacade implements \IteratorAggregate
      *
      * @example add-product-cases/add-product-cases.twig 2 1 Add a product to the cart by id.
      */
-    public function add(string|LineItem|ItemFacade $product, int $quantity = 1): ItemFacade
+    public function add($product, int $quantity = 1): ItemFacade
     {
         if ($product instanceof ItemFacade) {
             $this->items->add($product->getItem());

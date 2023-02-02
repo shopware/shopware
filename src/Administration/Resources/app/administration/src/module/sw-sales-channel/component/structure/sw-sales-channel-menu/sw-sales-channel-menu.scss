@@ -39,8 +39,8 @@
         padding: 0 30px 12px;
 
         &-text {
-            font-size: $font-size-xs;
-            line-height: $line-height-md;
+            font-size: 14px;
+            line-height: 24px;
             color: darken($color-gray-300, 20%);
         }
 
@@ -60,11 +60,6 @@
 
         .sw-context-button__button {
             color: $color-white !important;
-
-            .sw-icon.icon--regular-ellipsis-v {
-                width: 20px;
-                height: 20px;
-            }
         }
     }
 

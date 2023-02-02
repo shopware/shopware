@@ -1,11 +1,10 @@
 import template from './sw-first-run-wizard-paypal-info.html.twig';
 import './sw-first-run-wizard-paypal-info.scss';
 
-/**
- * @package merchant-services
- */
+const { Component } = Shopware;
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-first-run-wizard-paypal-info', {
     template,
 
     inject: ['extensionStoreActionService'],
@@ -97,4 +96,4 @@ export default {
             });
         },
     },
-};
+});

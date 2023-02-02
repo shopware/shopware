@@ -3,30 +3,28 @@
 namespace Shopware\Storefront\Theme;
 
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Framework\Routing\CachedDomainLoader;
 use Shopware\Storefront\Theme\Event\ThemeAssignedEvent;
 use Shopware\Storefront\Theme\Event\ThemeConfigChangedEvent;
 use Shopware\Storefront\Theme\Event\ThemeConfigResetEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-/**
- * @internal
- */
-#[Package('storefront')]
 class CachedResolvedConfigLoaderInvalidator implements EventSubscriberInterface
 {
+    private CacheInvalidator $logger;
+
     /**
      * @internal
      */
-    public function __construct(private readonly CacheInvalidator $logger)
+    public function __construct(CacheInvalidator $logger)
     {
+        $this->logger = $logger;
     }
 
     /**
      * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
      */
-    public static function getSubscribedEvents(): array
+    public static function getSubscribedEvents()
     {
         return [
             ThemeConfigChangedEvent::class => 'invalidate',
@@ -51,10 +49,6 @@ class CachedResolvedConfigLoaderInvalidator implements EventSubscriberInterface
     {
         $this->logger->invalidate([CachedResolvedConfigLoader::buildName($event->getThemeId())]);
         $this->logger->invalidate([CachedDomainLoader::CACHE_KEY]);
-
-        $salesChannelId = $event->getSalesChannelId();
-
-        $this->logger->invalidate(['translation.catalog.' . $salesChannelId], true);
     }
 
     public function reset(ThemeConfigResetEvent $event): void

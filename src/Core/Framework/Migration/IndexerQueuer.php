@@ -4,19 +4,20 @@ namespace Shopware\Core\Framework\Migration;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-#[Package('core')]
 class IndexerQueuer
 {
-    final public const INDEXER_KEY = 'core.scheduled_indexers';
+    public const INDEXER_KEY = 'core.scheduled_indexers';
+
+    private Connection $connection;
 
     /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection)
+    public function __construct(Connection $connection)
     {
+        $this->connection = $connection;
     }
 
     /**
@@ -29,7 +30,7 @@ class IndexerQueuer
         $indexers = [];
 
         if ($current !== null) {
-            $decodedValue = json_decode((string) $current['configuration_value'], true, 512, \JSON_THROW_ON_ERROR);
+            $decodedValue = json_decode($current['configuration_value'], true);
 
             $indexers = $decodedValue['_value'] ?? [];
         }
@@ -51,7 +52,7 @@ class IndexerQueuer
         $current = self::fetchCurrent($this->connection);
         $indexerList = [];
         if ($current !== null) {
-            $decodedValue = json_decode((string) $current['configuration_value'], true, 512, \JSON_THROW_ON_ERROR);
+            $decodedValue = json_decode($current['configuration_value'], true);
             $indexerList = $decodedValue['_value'] ?? [];
         }
 
@@ -75,7 +76,7 @@ class IndexerQueuer
 
         if ($current !== null) {
             $id = $current['id'];
-            $decodedValue = json_decode((string) $current['configuration_value'], true, 512, \JSON_THROW_ON_ERROR);
+            $decodedValue = json_decode($current['configuration_value'], true);
             $indexerList = $decodedValue['_value'] ?? [];
         }
 
@@ -94,7 +95,7 @@ class IndexerQueuer
     private static function upsert(Connection $connection, ?string $id, array $indexerList): void
     {
         $date = (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
-        $newValue = json_encode(['_value' => $indexerList], \JSON_THROW_ON_ERROR);
+        $newValue = json_encode(['_value' => $indexerList]);
 
         if (empty($indexerList) && $id !== null) {
             $connection->delete('system_config', ['id' => $id]);
@@ -123,7 +124,7 @@ class IndexerQueuer
 
     private static function fetchCurrent(Connection $connection): ?array
     {
-        $currentRow = $connection->fetchAssociative(
+        $currentRow = $connection->fetchAssoc(
             '
             SELECT *
             FROM system_config

@@ -1,8 +1,7 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Adapter\Asset;
+namespace Adapter\Asset;
 
-use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Asset\AssetInstallCommand;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
@@ -19,20 +18,13 @@ class AssetInstallCommandTest extends TestCase
 
     public function testItInstallsAppAssets(): void
     {
-        /** @var FilesystemOperator $filesystem */
         $filesystem = $this->getContainer()->get('shopware.filesystem.asset');
         // make sure that the dir does not exist beforehand
-        $filesystem->deleteDirectory('bundles/test');
+        $filesystem->deleteDir('bundles/test');
 
-        $fixturePath = __DIR__ . '/../../../../../../tests/integration/php/Core/Framework/App/Manifest/_fixtures/test';
-        $fixturePath = \realpath($fixturePath);
-        static::assertNotFalse($fixturePath);
-
-        $projectDir = $this->getContainer()->getParameter('kernel.project_dir');
-        static::assertNotFalse($projectDir);
-
-        $relativeFixturePath = \ltrim(
-            \str_replace($projectDir, '', $fixturePath),
+        $fixturePath = realpath(__DIR__ . '/../../App/Manifest/_fixtures/test');
+        $relativeFixturePath = ltrim(
+            str_replace($this->getContainer()->getParameter('kernel.project_dir'), '', $fixturePath),
             '/'
         );
 
@@ -58,6 +50,6 @@ class AssetInstallCommandTest extends TestCase
         static::assertSame(0, $runner->execute([]));
         static::assertTrue($filesystem->has('bundles/test/asset.txt'));
 
-        $filesystem->deleteDirectory('bundles/test');
+        $filesystem->deleteDir('bundles/test');
     }
 }

@@ -1,19 +1,11 @@
-/**
- * @package sales-channel
- */
-
 import template from './sw-sales-channel-detail-analytics.html.twig';
 
 import './sw-sales-channel-detail-analytics.scss';
 
-const { Context } = Shopware;
+const { Component, Context } = Shopware;
 
-/**
- * @package merchant-services
- * @deprecated tag:v6.6.0 - Will be private
- */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-sales-channel-detail-analytics', {
     template,
 
     inject: [
@@ -52,4 +44,4 @@ export default {
             }
         },
     },
-};
+});

@@ -2,13 +2,9 @@
 
 namespace Shopware\Core\Profiling\Integration;
 
-use Shopware\Core\Framework\Log\Package;
-use Tideways\Profiler;
-
 /**
  * @internal experimental atm
  */
-#[Package('core')]
 class Tideways implements ProfilerInterface
 {
     private array $spans = [];
@@ -20,7 +16,7 @@ class Tideways implements ProfilerInterface
         }
 
         $tags = array_merge(['title' => $title], $tags);
-        $span = Profiler::createSpan($category);
+        $span = \Tideways\Profiler::createSpan($category);
         $span->annotate($tags);
         $this->spans[$title] = $span;
     }

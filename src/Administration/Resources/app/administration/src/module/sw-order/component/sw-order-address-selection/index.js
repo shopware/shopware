@@ -2,17 +2,13 @@ import { required } from 'src/core/service/validation.service';
 import template from './sw-order-address-selection.html.twig';
 import './sw-order-address-selection.scss';
 
-/**
- * @package customer-order
- */
-
-const { EntityDefinition, Mixin } = Shopware;
+const { Component, EntityDefinition, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapState } = Shopware.Component.getComponentHelper();
 const { cloneDeep } = Shopware.Utils.object;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-order-address-selection', {
     template,
 
     inject: ['repositoryFactory'],
@@ -45,12 +41,6 @@ export default {
             required: false,
             default: false,
         },
-
-        type: {
-            type: String,
-            required: false,
-            default: '',
-        },
     },
 
     data() {
@@ -58,7 +48,8 @@ export default {
             customer: {},
             currentAddress: null,
             customerAddressCustomFieldSets: null,
-            orderAddressId: cloneDeep(this.address?.id),
+            billingAddressId: null,
+            orderAddressId: cloneDeep(this.addressId),
         };
     },
 
@@ -125,14 +116,10 @@ export default {
 
         modalTitle() {
             return this.$tc(
-                `sw-order.addressSelection.${this.currentAddress?._isNew
+                `sw-order.addressSelection.${this.currentAddress._isNew
                     ? 'modalTitleEditAddress'
                     : 'modalTitleSelectAddress'}`,
             );
-        },
-
-        selectedAddressId() {
-            return this.address?.customerAddressId ?? this.addressId;
         },
     },
 
@@ -244,11 +231,7 @@ export default {
         },
 
         onAddressChange(customerAddressId) {
-            this.$emit('change-address', {
-                orderAddressId: this.addressId,
-                customerAddressId,
-                type: this.type,
-            });
+            this.$emit('change-address', { orderAddressId: this.addressId, customerAddressId });
         },
 
         getCustomer() {
@@ -273,4 +256,4 @@ export default {
                 });
         },
     },
-};
+});

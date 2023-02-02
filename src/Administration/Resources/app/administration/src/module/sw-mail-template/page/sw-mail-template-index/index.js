@@ -1,10 +1,10 @@
 import template from './sw-mail-template-index.html.twig';
 import './sw-mail-template-index.scss';
 
-const { Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-mail-template-index', {
     template,
 
     inject: ['acl'],
@@ -36,4 +36,4 @@ export default {
             this.term = value;
         },
     },
-};
+});

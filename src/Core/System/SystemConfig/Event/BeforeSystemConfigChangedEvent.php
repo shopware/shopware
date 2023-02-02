@@ -2,17 +2,27 @@
 
 namespace Shopware\Core\System\SystemConfig\Event;
 
-use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('system-settings')]
 class BeforeSystemConfigChangedEvent extends Event
 {
+    private string $key;
+
+    private ?string $salesChannelId;
+
+    /**
+     * @var string|float|int|bool|array|null
+     */
+    private $value;
+
     /**
      * @param array|bool|float|int|string|null $value
      */
-    public function __construct(private readonly string $key, private $value, private readonly ?string $salesChannelId)
+    public function __construct(string $key, $value, ?string $salesChannelId)
     {
+        $this->key = $key;
+        $this->salesChannelId = $salesChannelId;
+        $this->value = $value;
     }
 
     public function getKey(): string

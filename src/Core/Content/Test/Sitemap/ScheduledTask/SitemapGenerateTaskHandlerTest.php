@@ -7,16 +7,17 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Sitemap\ScheduledTask\SitemapGenerateTaskHandler;
 use Shopware\Core\Content\Sitemap\ScheduledTask\SitemapMessage;
+use Shopware\Core\Content\Sitemap\Service\SitemapExporter;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\Seo\StorefrontSalesChannelTestHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\Messenger\Envelope;
@@ -25,7 +26,6 @@ use Symfony\Component\Messenger\MessageBusInterface;
 /**
  * @internal
  */
-#[Package('sales-channel')]
 class SitemapGenerateTaskHandlerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -34,11 +34,20 @@ class SitemapGenerateTaskHandlerTest extends TestCase
 
     private SitemapGenerateTaskHandler $sitemapHandler;
 
-    private EntityRepository $salesChannelDomainRepository;
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $salesChannelDomainRepository;
 
-    private EntityRepository $salesChannelRepository;
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $salesChannelRepository;
 
-    private MockObject&MessageBusInterface $messageBusMock;
+    /**
+     * @var MockObject|MessageBusInterface
+     */
+    private $messageBusMock;
 
     public function setUp(): void
     {
@@ -47,6 +56,9 @@ class SitemapGenerateTaskHandlerTest extends TestCase
         $this->sitemapHandler = new SitemapGenerateTaskHandler(
             $this->getContainer()->get('scheduled_task.repository'),
             $this->salesChannelRepository,
+            $this->getContainer()->get(SalesChannelContextFactory::class),
+            $this->getContainer()->get(SitemapExporter::class),
+            $this->getContainer()->get('logger'),
             $this->getContainer()->get(SystemConfigService::class),
             $this->messageBusMock,
             $this->getContainer()->get('event_dispatcher')
@@ -56,7 +68,6 @@ class SitemapGenerateTaskHandlerTest extends TestCase
 
     public function testNotHandelDuplicateWithSameLanguage(): void
     {
-        /** @var list<string> $salesChannelIds */
         $salesChannelIds = $this->salesChannelRepository->searchIds(new Criteria(), Context::createDefaultContext())->getIds();
 
         $salesChannelContext = $this->createStorefrontSalesChannelContext(Uuid::randomHex(), 'test-sitemap-task-handler');
@@ -105,7 +116,6 @@ class SitemapGenerateTaskHandlerTest extends TestCase
 
     public function testItGeneratesCorrectMessagesIfLastLanguageIsFirstOfNextSalesChannel(): void
     {
-        /** @var list<string> $salesChannelIds */
         $salesChannelIds = $this->salesChannelRepository->searchIds(new Criteria(), Context::createDefaultContext())->getIds();
 
         $nonDefaults = array_values(array_filter(array_map(function (string $id): ?array {

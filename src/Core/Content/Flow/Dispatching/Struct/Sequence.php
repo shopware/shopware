@@ -2,13 +2,11 @@
 
 namespace Shopware\Core\Content\Flow\Dispatching\Struct;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * @internal not intended for decoration or replacement
  */
-#[Package('business-ops')]
 class Sequence extends Struct
 {
     public string $flowId;

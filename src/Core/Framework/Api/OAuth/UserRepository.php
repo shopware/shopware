@@ -7,17 +7,21 @@ use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Entities\UserEntityInterface;
 use League\OAuth2\Server\Repositories\UserRepositoryInterface;
 use Shopware\Core\Framework\Api\OAuth\User\User;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-#[Package('core')]
 class UserRepository implements UserRepositoryInterface
 {
     /**
+     * @var Connection
+     */
+    private $connection;
+
+    /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection)
+    public function __construct(Connection $connection)
     {
+        $this->connection = $connection;
     }
 
     /**
@@ -45,7 +49,7 @@ class UserRepository implements UserRepositoryInterface
             return null;
         }
 
-        if (!password_verify($password, (string) $user['password'])) {
+        if (!password_verify($password, $user['password'])) {
             return null;
         }
 

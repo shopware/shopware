@@ -1,7 +1,3 @@
-/*
- * @package inventory
- */
-
 import template from './sw-product-detail-layout.html.twig';
 import './sw-product-detail-layout.scss';
 
@@ -11,7 +7,7 @@ const { mapState, mapGetters } = Component.getComponentHelper();
 const { cloneDeep, merge, get } = Utils.object;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-product-detail-layout', {
     template,
 
     inject: ['repositoryFactory', 'cmsService', 'feature', 'acl'],
@@ -169,4 +165,4 @@ export default {
             this.onSelectLayout(null);
         },
     },
-};
+});

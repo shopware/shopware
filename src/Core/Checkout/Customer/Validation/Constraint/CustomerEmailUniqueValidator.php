@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Customer\Validation\Constraint;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
@@ -13,17 +12,19 @@ use function array_filter;
  * @Annotation
  * @Target({"PROPERTY", "METHOD", "ANNOTATION"})
  */
-#[Package('customer-order')]
 class CustomerEmailUniqueValidator extends ConstraintValidator
 {
+    private Connection $connection;
+
     /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection)
+    public function __construct(Connection $connection)
     {
+        $this->connection = $connection;
     }
 
-    public function validate(mixed $value, Constraint $constraint): void
+    public function validate($value, Constraint $constraint): void
     {
         if (!$constraint instanceof CustomerEmailUnique) {
             throw new UnexpectedTypeException($constraint, CustomerEmailUnique::class);

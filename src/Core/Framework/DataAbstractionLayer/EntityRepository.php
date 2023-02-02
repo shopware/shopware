@@ -19,7 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -27,16 +27,70 @@ use Shopware\Core\Profiling\Profiler;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @final
+ * @final tag:v6.5.0
  */
-#[Package('core')]
-class EntityRepository
+class EntityRepository implements EntityRepositoryInterface
 {
+    private EntityReaderInterface $reader;
+
+    private EntitySearcherInterface $searcher;
+
+    private EntityAggregatorInterface $aggregator;
+
+    private EventDispatcherInterface $eventDispatcher;
+
+    private VersionManager $versionManager;
+
+    private EntityDefinition $definition;
+
+    private ?EntityLoadedEventFactory $eventFactory = null;
+
     /**
      * @internal
+     *
+     * @deprecated tag:v6.5.0 - parameter $eventFactory will be required
      */
-    public function __construct(private readonly EntityDefinition $definition, private readonly EntityReaderInterface $reader, private readonly VersionManager $versionManager, private readonly EntitySearcherInterface $searcher, private readonly EntityAggregatorInterface $aggregator, private readonly EventDispatcherInterface $eventDispatcher, private readonly EntityLoadedEventFactory $eventFactory)
+    public function __construct(
+        EntityDefinition $definition,
+        EntityReaderInterface $reader,
+        VersionManager $versionManager,
+        EntitySearcherInterface $searcher,
+        EntityAggregatorInterface $aggregator,
+        EventDispatcherInterface $eventDispatcher,
+        ?EntityLoadedEventFactory $eventFactory = null
+    ) {
+        $this->reader = $reader;
+        $this->searcher = $searcher;
+        $this->aggregator = $aggregator;
+        $this->eventDispatcher = $eventDispatcher;
+        $this->versionManager = $versionManager;
+        $this->definition = $definition;
+
+        if ($eventFactory !== null) {
+            $this->eventFactory = $eventFactory;
+        } else {
+            Feature::triggerDeprecationOrThrow(
+                'v6.5.0.0',
+                sprintf('EntityRepository constructor for definition %s requires the event factory as required 7th parameter in v6.5.0.0', $definition->getEntityName())
+            );
+        }
+    }
+
+    /**
+     * @deprecated tag:v6.5.0 - Will be removed, inject entity loaded event factory in __construct
+     */
+    public function setEntityLoadedEventFactory(EntityLoadedEventFactory $eventFactory): void
     {
+        if (isset($this->eventFactory)) {
+            return;
+        }
+
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            sprintf('Repository for definition %s requires the event factory as __construct parameter', $this->definition->getEntityName())
+        );
+
+        $this->eventFactory = $eventFactory;
     }
 
     public function getDefinition(): EntityDefinition
@@ -50,7 +104,9 @@ class EntityRepository
             return $this->_search($criteria, $context);
         }
 
-        return Profiler::trace($criteria->getTitle(), fn () => $this->_search($criteria, $context), 'repository');
+        return Profiler::trace($criteria->getTitle(), function () use ($criteria, $context) {
+            return $this->_search($criteria, $context);
+        }, 'repository');
     }
 
     public function aggregate(Criteria $criteria, Context $context): AggregationResultCollection
@@ -169,7 +225,7 @@ class EntityRepository
     {
         ReplicaConnection::ensurePrimary();
 
-        $newId ??= Uuid::randomHex();
+        $newId = $newId ?? Uuid::randomHex();
         if (!Uuid::isValid($newId)) {
             throw new InvalidUuidException($newId);
         }
@@ -197,6 +253,10 @@ class EntityRepository
         $criteria = clone $criteria;
 
         $entities = $this->reader->read($this->definition, $criteria, $context);
+
+        if ($this->eventFactory === null) {
+            throw new \RuntimeException('Event loaded factory was not injected');
+        }
 
         if ($criteria->getFields() === []) {
             $event = $this->eventFactory->create($entities->getElements(), $context);

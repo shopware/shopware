@@ -21,26 +21,38 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\FloatComparator;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('checkout')]
 class DeliveryCalculator
 {
-    final public const CALCULATION_BY_LINE_ITEM_COUNT = 1;
+    public const CALCULATION_BY_LINE_ITEM_COUNT = 1;
 
-    final public const CALCULATION_BY_PRICE = 2;
+    public const CALCULATION_BY_PRICE = 2;
 
-    final public const CALCULATION_BY_WEIGHT = 3;
+    public const CALCULATION_BY_WEIGHT = 3;
 
-    final public const CALCULATION_BY_VOLUME = 4;
+    public const CALCULATION_BY_VOLUME = 4;
+
+    /**
+     * @var QuantityPriceCalculator
+     */
+    private $priceCalculator;
+
+    /**
+     * @var PercentageTaxRuleBuilder
+     */
+    private $percentageTaxRuleBuilder;
 
     /**
      * @internal
      */
-    public function __construct(private readonly QuantityPriceCalculator $priceCalculator, private readonly PercentageTaxRuleBuilder $percentageTaxRuleBuilder)
-    {
+    public function __construct(
+        QuantityPriceCalculator $priceCalculator,
+        PercentageTaxRuleBuilder $percentageTaxRuleBuilder
+    ) {
+        $this->priceCalculator = $priceCalculator;
+        $this->percentageTaxRuleBuilder = $percentageTaxRuleBuilder;
     }
 
     public function calculate(CartDataCollection $data, Cart $cart, DeliveryCollection $deliveries, SalesChannelContext $context): void
@@ -146,13 +158,28 @@ class DeliveryCalculator
         $start = $shippingMethodPrice->getQuantityStart();
         $end = $shippingMethodPrice->getQuantityEnd();
 
-        $value = match ($shippingMethodPrice->getCalculation()) {
-            self::CALCULATION_BY_PRICE => $delivery->getPositions()->getWithoutDeliveryFree()->getPrices()->sum()->getTotalPrice(),
-            self::CALCULATION_BY_LINE_ITEM_COUNT => $delivery->getPositions()->getWithoutDeliveryFree()->getQuantity(),
-            self::CALCULATION_BY_WEIGHT => $delivery->getPositions()->getWithoutDeliveryFree()->getWeight(),
-            self::CALCULATION_BY_VOLUME => $delivery->getPositions()->getWithoutDeliveryFree()->getVolume(),
-            default => $delivery->getPositions()->getWithoutDeliveryFree()->getLineItems()->getPrices()->sum()->getTotalPrice() / 100,
-        };
+        switch ($shippingMethodPrice->getCalculation()) {
+            case self::CALCULATION_BY_PRICE:
+                $value = $delivery->getPositions()->getWithoutDeliveryFree()->getPrices()->sum()->getTotalPrice();
+
+                break;
+            case self::CALCULATION_BY_LINE_ITEM_COUNT:
+                $value = $delivery->getPositions()->getWithoutDeliveryFree()->getQuantity();
+
+                break;
+            case self::CALCULATION_BY_WEIGHT:
+                $value = $delivery->getPositions()->getWithoutDeliveryFree()->getWeight();
+
+                break;
+            case self::CALCULATION_BY_VOLUME:
+                $value = $delivery->getPositions()->getWithoutDeliveryFree()->getVolume();
+
+                break;
+            default:
+                $value = $delivery->getPositions()->getWithoutDeliveryFree()->getLineItems()->getPrices()->sum()->getTotalPrice() / 100;
+
+                break;
+        }
 
         // $end (optional) exclusive
         return (!$start || FloatComparator::greaterThanOrEquals($value, $start)) && (!$end || FloatComparator::lessThanOrEquals($value, $end));

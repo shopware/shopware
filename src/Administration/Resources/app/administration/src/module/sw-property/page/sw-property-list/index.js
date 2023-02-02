@@ -1,15 +1,11 @@
-/*
- * @package inventory
- */
-
 import template from './sw-property-list.html.twig';
 import './sw-property-list.scss';
 
-const { Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-property-list', {
     template,
 
     inject: [
@@ -130,4 +126,4 @@ export default {
             }];
         },
     },
-};
+});

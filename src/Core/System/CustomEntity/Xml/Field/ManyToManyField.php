@@ -2,9 +2,6 @@
 
 namespace Shopware\Core\System\CustomEntity\Xml\Field;
 
-use Shopware\Core\Framework\Log\Package;
-
-#[Package('core')]
 class ManyToManyField extends AssociationField
 {
     protected string $type = 'many-to-many';

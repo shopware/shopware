@@ -7,21 +7,21 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_meteor_navigation_link %}
     <router-link
-        :to="parentRoute"
+        :to="{ name: parentRoute.name }"
         class="sw-meteor-navigation__link"
     >
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_meteor_navigation_link_icon %}
         <sw-icon
             class="sw-meteor-navigation__back-arrow"
-            name="solid-long-arrow-left"
-            size="12px"
+            name="regular-long-arrow-left"
+            size="14px"
         />
         {% endblock %}
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_meteor_navigation_link_label %}
-        {{ $tc('sw-meteor.navigation.backButton') }}
+        {{ parentRoute.label }}
         {% endblock %}
     </router-link>
     {% endblock %}

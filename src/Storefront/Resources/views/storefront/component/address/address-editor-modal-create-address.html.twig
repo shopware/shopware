@@ -16,10 +16,7 @@
                     </div>
                 {% endblock %}
 
-                {% set mode = address ? "-edit" : "-new" %}
-                {% set formAjaxSubmitOptions = {
-                    replaceSelectors: "##{typePrefix}address-create#{mode}" ,
-                } %}
+                {% set formAjaxSubmitOptions = {} %}
 
                 {% block component_address_address_editor_modal_create_address_card_body %}
                     <div class="card-body">
@@ -30,13 +27,17 @@
                                   data-form-ajax-submit="true"
                                   data-form-ajax-submit-options='{{ formAjaxSubmitOptions|json_encode }}'>
 
+                                {% block component_address_address_editor_modal_create_address_form_csrf %}
+                                    {{ sw_csrf('frontend.account.addressbook') }}
+                                {% endblock %}
+
                                 {% block component_address_address_editor_modal_create_address_form_hidden_inputs %}
                                     <input type="hidden"
                                            name="changeableAddresses[changeBilling]"
                                            value="{{ changeBilling }}">
                                     <input type="hidden"
                                            name="addressId"
-                                           value="{{ postedData ? postedData.id : address.id }}">
+                                           value="{{ address.id }}">
                                     <input type="hidden"
                                            name="changeableAddresses[changeShipping]"
                                            value="{{ changeShipping }}">
@@ -44,7 +45,7 @@
 
                                 {% block component_address_address_editor_modal_create_address_form_fields_include %}
                                     {% sw_include '@Storefront/storefront/component/address/address-personal.html.twig' with {
-                                        'data': postedData ?? address,
+                                        'data': address,
                                         'prefix': 'address',
                                         'idPrefix': typePrefix,
                                         'scope': 'parent',
@@ -52,14 +53,14 @@
                                     } %}
 
                                     {% sw_include '@Storefront/storefront/component/address/address-form.html.twig' with {
-                                        'data': postedData ?? address,
+                                        'data': address,
                                         'prefix': 'address',
                                         'idPrefix': typePrefix,
                                         'scope': 'parent',
                                         'parentSelector': 'form',
                                         'showFormCompany': true,
                                         'showNoShippingPostfix': true,
-                                        'showVatIdField': changeBilling and context.customer and context.customer.guest ? true : false
+                                        'showVatIdField': feature('FEATURE_NEXT_15957') and changeBilling and context.customer and context.customer.guest ? true : false
                                     } %}
                                 {% endblock %}
 

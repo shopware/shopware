@@ -6,19 +6,11 @@ const utils = Shopware.Utils;
 const { cloneDeep } = Shopware.Utils.object;
 const { mapGetters, mapState } = Component.getComponentHelper();
 
-/**
- * @private
- * @package business-ops
- */
-export default {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+Component.register('sw-flow-detail-flow', {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-        'flowActionService',
-        'ruleConditionDataProviderService',
-    ],
+    inject: ['repositoryFactory', 'acl', 'flowActionService'],
 
     props: {
         isLoading: {
@@ -27,11 +19,6 @@ export default {
             default: false,
         },
         isNewFlow: {
-            type: Boolean,
-            required: false,
-            default: false,
-        },
-        isTemplate: {
             type: Boolean,
             required: false,
             default: false,
@@ -55,22 +42,6 @@ export default {
 
         rootSequences() {
             return this.sequences.filter(sequence => !sequence.parentId);
-        },
-
-        showActionWarning() {
-            if (!this.triggerActions.length || !this.sequences.length) {
-                return false;
-            }
-
-            let showWarning = false;
-            this.sequences.filter(action => action.actionName).forEach(sequence => {
-                const actionInvalid = this.triggerActions.find(item => item.name === sequence.actionName);
-                if (!actionInvalid) {
-                    showWarning = true;
-                }
-            });
-
-            return showWarning;
         },
 
         ...mapState('swFlowState', ['flow', 'triggerActions']),
@@ -250,4 +221,4 @@ export default {
             return Object.values(sequence)[0].displayGroup;
         },
     },
-};
+});

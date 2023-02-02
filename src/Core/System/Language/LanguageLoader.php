@@ -4,24 +4,19 @@ namespace Shopware\Core\System\Language;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
-use Shopware\Core\Framework\Log\Package;
 
-/**
- * @phpstan-import-type LanguageData from LanguageLoaderInterface
- */
-#[Package('core')]
 class LanguageLoader implements LanguageLoaderInterface
 {
+    private Connection $connection;
+
     /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection)
+    public function __construct(Connection $connection)
     {
+        $this->connection = $connection;
     }
 
-    /**
-     * @return LanguageData
-     */
     public function loadLanguages(): array
     {
         $data = $this->connection->createQueryBuilder()
@@ -29,7 +24,7 @@ class LanguageLoader implements LanguageLoaderInterface
             ->from('language')
             ->leftJoin('language', 'locale', 'locale', 'language.translation_code_id = locale.id')
             ->execute()
-            ->fetchAllAssociative();
+            ->fetchAll();
 
         return FetchModeHelper::groupUnique($data);
     }

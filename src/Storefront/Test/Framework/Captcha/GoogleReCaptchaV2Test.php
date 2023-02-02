@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Framework\Captcha\AbstractCaptcha;
 use Shopware\Storefront\Framework\Captcha\GoogleReCaptchaV2;
+use Shopware\Storefront\Framework\Captcha\HoneypotCaptcha;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -26,9 +27,15 @@ class GoogleReCaptchaV2Test extends TestCase
     private const IS_VALID = true;
     private const IS_INVALID = false;
 
-    private GoogleReCaptchaV2 $captcha;
+    /**
+     * @var HoneypotCaptcha
+     */
+    private $captcha;
 
-    private SystemConfigService $systemConfigService;
+    /**
+     * @var SystemConfigService
+     */
+    private $systemConfigService;
 
     public function setUp(): void
     {

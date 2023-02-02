@@ -2,11 +2,9 @@
 
 namespace Shopware\Core\Content\Media\Exception;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('content')]
 class StreamNotReadableException extends ShopwareHttpException
 {
     public function __construct(string $path)

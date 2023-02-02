@@ -1,7 +1,3 @@
-/**
- * @package admin
- */
-
 /* eslint-disable max-len */
 
 const nodeContainsLeadingBlockComment = (node) => {

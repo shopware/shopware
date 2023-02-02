@@ -2,39 +2,54 @@
 
 namespace Shopware\Core\Framework\Struct;
 
-use Shopware\Core\Framework\Log\Package;
-
 /**
  * @template-covariant TKey
  * @template-covariant TValue
- * @implements \ArrayAccess<string|int, mixed>
+ *
+ * @implements \ArrayAccess<string, mixed>
  */
-#[Package('core')]
 class ArrayStruct extends Struct implements \ArrayAccess
 {
     /**
-     * @param array<string|int, mixed> $data
+     * @var array
      */
-    public function __construct(protected array $data = [], protected ?string $apiAlias = null)
+    protected $data;
+
+    /**
+     * @var string|null
+     */
+    protected $apiAlias;
+
+    public function __construct(array $data = [], ?string $apiAlias = null)
     {
+        $this->data = $data;
+        $this->apiAlias = $apiAlias;
     }
 
-    public function has(string|int $property): bool
+    public function has(string $property): bool
     {
         return \array_key_exists($property, $this->data);
     }
 
-    public function offsetExists($offset): bool
+    /**
+     * @deprecated tag:v6.5.0 - reason:return-type-change - return type will be changed to bool
+     */
+    #[\ReturnTypeWillChange]
+    public function offsetExists($offset)/* :bool */
     {
         return \array_key_exists($offset, $this->data);
     }
 
-    public function offsetGet($offset): mixed
+    /**
+     * @deprecated tag:v6.5.0 - reason:return-type-change - return type will be changed to mixed
+     */
+    #[\ReturnTypeWillChange]
+    public function offsetGet($offset)/* :mixed */
     {
         return $this->data[$offset] ?? null;
     }
 
-    public function offsetSet($offset, mixed $value): void
+    public function offsetSet($offset, $value): void
     {
         $this->data[$offset] = $value;
     }
@@ -44,19 +59,25 @@ class ArrayStruct extends Struct implements \ArrayAccess
         unset($this->data[$offset]);
     }
 
-    public function get(string|int $key): mixed
+    /**
+     * @return mixed
+     */
+    public function get(string $key)
     {
         return $this->offsetGet($key);
     }
 
-    public function set(string|int $key, mixed $value): mixed
+    /**
+     * @param string|int $key
+     * @param mixed      $value
+     *
+     * @return array
+     */
+    public function set($key, $value)
     {
         return $this->data[$key] = $value;
     }
 
-    /**
-     * @param array<string|int, mixed> $options
-     */
     public function assign(array $options)
     {
         $this->data = array_replace_recursive($this->data, $options);
@@ -65,9 +86,9 @@ class ArrayStruct extends Struct implements \ArrayAccess
     }
 
     /**
-     * @return array<string|int, mixed>
+     * @return mixed
      */
-    public function all(): array
+    public function all()
     {
         return $this->data;
     }
@@ -91,9 +112,6 @@ class ArrayStruct extends Struct implements \ArrayAccess
         return $this->apiAlias ?? 'array_struct';
     }
 
-    /**
-     * @return array<string|int, mixed>
-     */
     public function getVars(): array
     {
         return $this->data;

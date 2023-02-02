@@ -1,13 +1,9 @@
-/**
- * @package admin
- */
-
 import { warn } from 'src/core/service/utils/debug.utils';
 import { hasOwnProperty } from 'src/core/service/utils/object.utils';
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
  * The flat tree converts a collection of flat objects into a data tree hierarchy.
+ * @class
  */
 class FlatTree {
     /**
@@ -40,7 +36,7 @@ class FlatTree {
      * @param {Number} [level=1]
      * @returns {Array}
      */
-    _tree(elements, level = 1, parent = undefined) {
+    _tree(elements, level = 1, parent) {
         const children = [];
         elements.forEach((element) => {
             if (element.parent !== parent) {
@@ -107,6 +103,31 @@ class FlatTree {
     remove(nodeIdentifier) {
         this._registeredNodes.delete(nodeIdentifier);
         return this;
+    }
+
+    /**
+     * Returns the collection of the registered nodes for the data tree
+     *
+     * @deprecated tag:v6.5.0 will be removed as registered nodes should be private
+     *
+     * @returns {Map}
+     */
+    getRegisteredNodes() {
+        return this._registeredNodes;
+    }
+
+    /**
+     * @deprecated tag:v6.5.0 will be removed. treat as private
+     */
+    get defaultPosition() {
+        return this._defaultPosition;
+    }
+
+    /**
+     * @deprecated tag:v6.5.0 set in constructor. treat as private
+     */
+    set defaultPosition(value) {
+        this._defaultPosition = value;
     }
 }
 

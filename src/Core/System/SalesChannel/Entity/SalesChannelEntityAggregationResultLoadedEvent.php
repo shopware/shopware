@@ -6,13 +6,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityAggregationResultLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('sales-channel')]
 class SalesChannelEntityAggregationResultLoadedEvent extends EntityAggregationResultLoadedEvent implements ShopwareSalesChannelEvent
 {
-    private readonly SalesChannelContext $salesChannelContext;
+    /**
+     * @var SalesChannelContext
+     */
+    private $salesChannelContext;
 
     public function __construct(EntityDefinition $definition, AggregationResultCollection $result, SalesChannelContext $salesChannelContext)
     {

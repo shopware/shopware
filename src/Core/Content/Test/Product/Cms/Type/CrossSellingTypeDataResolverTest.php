@@ -27,7 +27,10 @@ class CrossSellingTypeDataResolverTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private CrossSellingCmsElementResolver $crossSellingResolver;
+    /**
+     * @var CrossSellingCmsElementResolver
+     */
+    private $crossSellingResolver;
 
     protected function setUp(): void
     {

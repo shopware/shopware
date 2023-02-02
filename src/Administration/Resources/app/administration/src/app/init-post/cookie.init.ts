@@ -1,8 +1,6 @@
 import { CookieStorage } from 'cookie-storage';
 
 /**
- * @package admin
- *
  * @deprecated tag:v6.6.0 - Will be removed without replacement.
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

@@ -4,10 +4,8 @@ namespace Shopware\Core\System\User\Aggregate\UserConfig;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\User\UserEntity;
 
-#[Package('system-settings')]
 class UserConfigEntity extends Entity
 {
     use EntityIdTrait;

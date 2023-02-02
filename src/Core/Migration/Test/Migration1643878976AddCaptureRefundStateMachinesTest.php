@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCapture\OrderTransactionCaptureStates;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTransactionCaptureRefundStates;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Migration\V6_4\Migration1643878976AddCaptureRefundStateMachines;
@@ -14,7 +13,6 @@ use Shopware\Core\Migration\V6_4\Migration1643878976AddCaptureRefundStateMachine
 /**
  * @internal
  */
-#[Package('core')]
 class Migration1643878976AddCaptureRefundStateMachinesTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -44,17 +42,14 @@ class Migration1643878976AddCaptureRefundStateMachinesTest extends TestCase
 
         $translations = $this->getTranslations($stateMachines);
 
-        static::assertIsArray($translations);
         static::assertCount(4, $translations);
 
         $states = $this->getStates($stateMachines);
 
-        static::assertIsArray($states);
         static::assertCount(8, $states);
 
         $transitions = $this->getTransitions($stateMachines);
 
-        static::assertIsArray($transitions);
         static::assertCount(14, $transitions);
     }
 
@@ -69,13 +64,9 @@ class Migration1643878976AddCaptureRefundStateMachinesTest extends TestCase
 
         $stateMachines = $this->getStateMachines();
 
-        static::assertIsArray($stateMachines);
         static::assertCount(2, $stateMachines);
     }
 
-    /**
-     * @return array<string, string>|null
-     */
     private function getStateMachines(): ?array
     {
         $stateMachines = $this->connection->fetchAllAssociative(
@@ -97,17 +88,12 @@ class Migration1643878976AddCaptureRefundStateMachinesTest extends TestCase
         $result = [];
 
         foreach ($stateMachines as $stateMachine) {
-            $result[(string) $stateMachine['technical_name']] = (string) $stateMachine['id'];
+            $result[$stateMachine['technical_name']] = $stateMachine['id'];
         }
 
         return $result;
     }
 
-    /**
-     * @param array<string, string> $stateMachines
-     *
-     * @return list<string>|null
-     */
     private function getTranslations(array $stateMachines): ?array
     {
         $translations = $this->connection->fetchFirstColumn(
@@ -125,11 +111,6 @@ class Migration1643878976AddCaptureRefundStateMachinesTest extends TestCase
         return $translations ?: null;
     }
 
-    /**
-     * @param array<string, string> $stateMachines
-     *
-     * @return list<string>|null
-     */
     private function getStates(array $stateMachines): ?array
     {
         $states = $this->connection->fetchFirstColumn(
@@ -147,11 +128,6 @@ class Migration1643878976AddCaptureRefundStateMachinesTest extends TestCase
         return $states ?: null;
     }
 
-    /**
-     * @param array<string, string> $stateMachines
-     *
-     * @return list<string>|null
-     */
     private function getTransitions(array $stateMachines): ?array
     {
         $transitions = $this->connection->fetchFirstColumn(
@@ -178,9 +154,6 @@ class Migration1643878976AddCaptureRefundStateMachinesTest extends TestCase
     {
         $stateMachines = $this->getStateMachines();
 
-        if (!$stateMachines) {
-            return;
-        }
         foreach ($stateMachines as $stateMachineId) {
             $this->connection->executeStatement(
                 '

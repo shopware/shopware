@@ -1,23 +1,15 @@
-/**
- * @package system-settings
- */
 import template from './sw-settings-language-detail.html.twig';
 import './sw-settings-language-detail.scss';
 
-const { Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
-const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
+const { mapPropertyErrors } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-settings-language-detail', {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-        'customFieldDataProviderService',
-        'feature',
-    ],
+    inject: ['repositoryFactory', 'acl', 'customFieldDataProviderService'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -260,5 +252,9 @@ export default {
         onCancel() {
             this.$router.push({ name: 'sw.settings.language.index' });
         },
+
+        onChangeLanguage() {
+            this.loadEntityData();
+        },
     },
-};
+});

@@ -1,8 +1,5 @@
 <?php declare(strict_types=1);
 
-/**
- * @package system-settings
- */
 return [
     'title' => 'Shopware 6 - Mise à jour du script',
     'meta_text' => '<strong>Mise à jour de Shopware :</strong>',
@@ -59,5 +56,4 @@ return [
     'deleted_files' => '&nbsp;supprimez les fichiers des répertoires %d',
     'cache_clear_error' => 'Une erreur est survenue. Veuillez supprimer manuellement le cache après la mise à jour.',
     'finish_update' => 'Terminer la mise à jour',
-    'version' => 'Version',
 ];

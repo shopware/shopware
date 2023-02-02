@@ -4,17 +4,21 @@ namespace Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Bundle;
-use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpKernel\KernelInterface;
 
-#[Package('core')]
 class BundleHierarchyBuilder implements TemplateNamespaceHierarchyBuilderInterface
 {
+    private KernelInterface $kernel;
+
+    private Connection $connection;
+
     /**
      * @internal
      */
-    public function __construct(private readonly KernelInterface $kernel, private readonly Connection $connection)
+    public function __construct(KernelInterface $kernel, Connection $connection)
     {
+        $this->kernel = $kernel;
+        $this->connection = $connection;
     }
 
     public function buildNamespaceHierarchy(array $namespaceHierarchy): array

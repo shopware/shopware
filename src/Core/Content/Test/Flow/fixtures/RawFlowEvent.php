@@ -5,16 +5,17 @@ namespace Shopware\Core\Content\Test\Flow\fixtures;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\FlowEventAware;
-use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
-#[Package('business-ops')]
 class RawFlowEvent implements FlowEventAware
 {
-    public function __construct(protected ?Context $context = null)
+    protected ?Context $context;
+
+    public function __construct(?Context $context = null)
     {
+        $this->context = $context;
     }
 
     public static function getAvailableData(): EventDataCollection

@@ -2,14 +2,13 @@
 
 namespace Shopware\Core\Framework\Changelog;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @internal
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - will be marked internal
+ *
  * @extends Collection<ChangelogFile>
  */
-#[Package('core')]
 class ChangelogFileCollection extends Collection
 {
     protected function getExpectedClass(): ?string

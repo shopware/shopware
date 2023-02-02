@@ -10,9 +10,9 @@ use Shopware\Core\Checkout\Cart\Rule\LineItemDimensionHeightRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\Test\Cart\Rule\Helper\CartRuleHelperTrait;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -22,7 +22,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * @internal
  * @group rules
  */
-#[Package('business-ops')]
 class LineItemDimensionHeightRuleTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -30,9 +29,9 @@ class LineItemDimensionHeightRuleTest extends TestCase
 
     private LineItemDimensionHeightRule $rule;
 
-    private EntityRepository $ruleRepository;
+    private EntityRepositoryInterface $ruleRepository;
 
-    private EntityRepository $conditionRepository;
+    private EntityRepositoryInterface $conditionRepository;
 
     private Context $context;
 
@@ -85,9 +84,6 @@ class LineItemDimensionHeightRuleTest extends TestCase
         static::assertSame($expected, $match);
     }
 
-    /**
-     * @return \Traversable<string, array<string|int|bool|null>>
-     */
     public function getMatchingRuleTestData(): \Traversable
     {
         // OPERATOR_EQ
@@ -116,6 +112,13 @@ class LineItemDimensionHeightRuleTest extends TestCase
         // OPERATOR_EMPTY
         yield 'match / operator empty / null height' => [Rule::OPERATOR_EMPTY, 100, null, true];
         yield 'no match / operator empty / height' => [Rule::OPERATOR_EMPTY, 100, 200, false];
+
+        if (!Feature::isActive('v6.5.0.0')) {
+            yield 'no match / operator not equals / without delivery info' => [Rule::OPERATOR_NEQ, 200, 100, false, true];
+            yield 'no match / operator empty / without delivery info' => [Rule::OPERATOR_EMPTY, 100, 200, false, true];
+
+            return;
+        }
 
         yield 'match / operator not equals / without delivery info' => [Rule::OPERATOR_NEQ, 200, 100, true, true];
         yield 'match / operator empty / without delivery info' => [Rule::OPERATOR_EMPTY, 100, 200, true, true];
@@ -209,9 +212,6 @@ class LineItemDimensionHeightRuleTest extends TestCase
         static::assertSame($expected, $match);
     }
 
-    /**
-     * @return \Traversable<string, array<string|int|bool|null>>
-     */
     public function getCartRuleScopeTestData(): \Traversable
     {
         // OPERATOR_EQ
@@ -244,6 +244,18 @@ class LineItemDimensionHeightRuleTest extends TestCase
         yield 'match / operator empty / null height 1' => [Rule::OPERATOR_EMPTY, 100, null, 120, true];
         yield 'match / operator empty / null height 2' => [Rule::OPERATOR_EMPTY, 100, 100, null, true];
         yield 'no match / operator empty / height' => [Rule::OPERATOR_EMPTY, 100, 200, 120, false, false, false, 200];
+
+        if (!Feature::isActive('v6.5.0.0')) {
+            yield 'no match / operator not equals / item 1 and 2 without delivery info' => [Rule::OPERATOR_NEQ, 200, 100, 300, false, true, true];
+            yield 'no match / operator not equals / item 1 without delivery info' => [Rule::OPERATOR_NEQ, 100, 100, 100, false, true];
+            yield 'no match / operator not equals / item 2 without delivery info' => [Rule::OPERATOR_NEQ, 100, 100, 100, false, false, true];
+
+            yield 'no match / operator empty / item 1 and 2 without delivery info' => [Rule::OPERATOR_EMPTY, 200, 100, 300, false, true, true];
+            yield 'no match / operator empty / item 1 without delivery info' => [Rule::OPERATOR_EMPTY, 100, 100, 100, false, true];
+            yield 'no match / operator empty / item 2 without delivery info' => [Rule::OPERATOR_EMPTY, 100, 100, 100, false, false, true];
+
+            return;
+        }
 
         yield 'match / operator not equals / item 1 and 2 without delivery info' => [Rule::OPERATOR_NEQ, 200, 100, 300, true, true, true];
         yield 'match / operator not equals / item 1 without delivery info' => [Rule::OPERATOR_NEQ, 100, 100, 100, true, true];

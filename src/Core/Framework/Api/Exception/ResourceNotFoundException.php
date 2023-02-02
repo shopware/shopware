@@ -2,11 +2,9 @@
 
 namespace Shopware\Core\Framework\Api\Exception;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('core')]
 class ResourceNotFoundException extends ShopwareHttpException
 {
     public function __construct(string $resourceType, array $primaryKey)

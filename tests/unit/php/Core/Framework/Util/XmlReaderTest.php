@@ -13,9 +13,11 @@ use Shopware\Core\Framework\Util\XmlReader;
 class XmlReaderTest extends TestCase
 {
     /**
+     * @param mixed $expected
+     *
      * @dataProvider phpizeTestCases
      */
-    public function testPhpize(mixed $expected, string $value): void
+    public function testPhpize($expected, string $value): void
     {
         static::assertSame($expected, XmlReader::phpize($value));
     }

@@ -1,9 +1,10 @@
 import template from './sw-promotion-v2-settings-trigger.html.twig';
 
+const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-promotion-v2-settings-trigger', {
     template,
 
     inject: [
@@ -51,4 +52,4 @@ export default {
             }];
         },
     },
-};
+});

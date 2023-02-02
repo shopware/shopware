@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
 use Shopware\Core\System\StateMachine\Exception\IllegalTransitionException;
 use Shopware\Core\System\StateMachine\Exception\StateMachineInvalidEntityIdException;
@@ -13,14 +12,16 @@ use Shopware\Core\System\StateMachine\Exception\StateMachineNotFoundException;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\System\StateMachine\Transition;
 
-#[Package('customer-order')]
 class OrderTransactionCaptureRefundStateHandler
 {
+    private StateMachineRegistry $stateMachineRegistry;
+
     /**
      * @internal
      */
-    public function __construct(private readonly StateMachineRegistry $stateMachineRegistry)
+    public function __construct(StateMachineRegistry $stateMachineRegistry)
     {
+        $this->stateMachineRegistry = $stateMachineRegistry;
     }
 
     /**

@@ -2,16 +2,13 @@ import template from './sw-extension-file-upload.html.twig';
 import './sw-extension-file-upload.scss';
 import pluginErrorHandler from '../../service/extension-error-handler.service';
 
-const { Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 const USER_CONFIG_KEY = 'extension.plugin_upload';
 
-/**
- * @package merchant-services
- * @private
- */
-export default {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+Component.register('sw-extension-file-upload', {
     template,
 
     inject: ['extensionStoreActionService', 'repositoryFactory'],
@@ -147,4 +144,4 @@ export default {
             });
         },
     },
-};
+});

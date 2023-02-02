@@ -2,13 +2,11 @@
 
 namespace Shopware\Core\Framework\Struct;
 
-use Shopware\Core\Framework\Log\Package;
-
 /**
  * @template TElement of Struct
+ *
  * @extends Collection<TElement>
  */
-#[Package('core')]
 class StructCollection extends Collection
 {
     public function getApiAlias(): string

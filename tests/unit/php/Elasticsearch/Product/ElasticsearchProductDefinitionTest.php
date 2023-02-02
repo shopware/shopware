@@ -3,13 +3,15 @@
 namespace Shopware\Tests\Unit\Elasticsearch\Product;
 
 use Doctrine\DBAL\Connection;
-use OpenSearchDSL\Query\Compound\BoolQuery;
-use OpenSearchDSL\Query\FullText\MatchQuery;
+use ONGR\ElasticsearchDSL\Query\Compound\BoolQuery;
+use ONGR\ElasticsearchDSL\Query\FullText\MatchQuery;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
+use Shopware\Core\Test\Annotation\ActiveFeatures;
+use Shopware\Elasticsearch\Framework\Indexing\EntityMapper;
 use Shopware\Elasticsearch\Product\AbstractProductSearchQueryBuilder;
 use Shopware\Elasticsearch\Product\ElasticsearchProductDefinition;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -39,6 +41,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
     {
         $definition = new ElasticsearchProductDefinition(
             $this->createMock(ProductDefinition::class),
+            $this->createMock(EntityMapper::class),
             $this->createMock(Connection::class),
             [],
             new EventDispatcher(),
@@ -238,10 +241,6 @@ class ElasticsearchProductDefinitionTest extends TestCase
                     ],
                 ],
                 'customSearchKeywords' => self::SEARCHABLE_MAPPING,
-                'states' => [
-                    'type' => 'keyword',
-                    'normalizer' => 'sw_lowercase_normalizer',
-                ],
             ],
             'dynamic_templates' => [
                 ['cheapest_price' => [
@@ -277,6 +276,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
     {
         $definition = new ElasticsearchProductDefinition(
             $this->createMock(ProductDefinition::class),
+            $this->createMock(EntityMapper::class),
             $this->createMock(Connection::class),
             [
                 'test1' => 'text',
@@ -312,6 +312,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
         $productDefinition = $this->createMock(ProductDefinition::class);
         $definition = new ElasticsearchProductDefinition(
             $productDefinition,
+            $this->createMock(EntityMapper::class),
             $this->createMock(Connection::class),
             [],
             new EventDispatcher(),
@@ -321,6 +322,113 @@ class ElasticsearchProductDefinitionTest extends TestCase
         static::assertSame($productDefinition, $definition->getEntityDefinition());
     }
 
+    /**
+     * @ActiveFeatures(features={})
+     *
+     * @deprecated tag:v6.5.0 - Remove this test method
+     */
+    public function testExtendDocument(): void
+    {
+        $definition = new ElasticsearchProductDefinition(
+            $this->createMock(ProductDefinition::class),
+            $this->createMock(EntityMapper::class),
+            $this->createMock(Connection::class),
+            [],
+            new EventDispatcher(),
+            $this->createMock(AbstractProductSearchQueryBuilder::class)
+        );
+
+        static::assertEquals(['foo' => 'bar'], $definition->extendDocuments(['foo' => 'bar'], Context::createDefaultContext()));
+    }
+
+    /**
+     * @ActiveFeatures(features={})
+     */
+    public function testBuildTermQuery(): void
+    {
+        $definition = new ElasticsearchProductDefinition(
+            $this->createMock(ProductDefinition::class),
+            $this->createMock(EntityMapper::class),
+            $this->createMock(Connection::class),
+            [],
+            new EventDispatcher(),
+            $this->createMock(AbstractProductSearchQueryBuilder::class)
+        );
+
+        $criteria = new Criteria();
+        $criteria->setTerm('test');
+        $query = $definition->buildTermQuery(Context::createDefaultContext(), $criteria);
+
+        $queries = $query->toArray();
+
+        $expected = [
+            'bool' => [
+                'should' => [[
+                    'match' => [
+                        'fullTextBoosted' => [
+                            'query' => 'test',
+                            'boost' => 10,
+                        ],
+                    ],
+                ],
+                    [
+                        'match' => [
+                            'fullText' => [
+                                'query' => 'test',
+                                'boost' => 5,
+                            ],
+                        ],
+                    ],
+                    [
+                        'match' => [
+                            'fullText' => [
+                                'query' => 'test',
+                                'fuzziness' => 'auto',
+                                'boost' => 3,
+                            ],
+                        ],
+                    ],
+                    [
+                        'match_phrase_prefix' => [
+                            'fullText' => [
+                                'query' => 'test',
+                                'boost' => 1,
+                                'slop' => 5,
+                            ],
+                        ],
+                    ],
+                    [
+                        'wildcard' => [
+                            'fullText' => [
+                                'value' => '*test*',
+                            ],
+                        ],
+                    ],
+                    [
+                        'match' => [
+                            'fullText.ngram' => [
+                                'query' => 'test',
+                            ],
+                        ],
+                    ],
+                    [
+                        'match' => [
+                            'description' => [
+                                'query' => 'test',
+                            ],
+                        ],
+                    ],
+                ],
+                'minimum_should_match' => 1,
+            ],
+        ];
+
+        static::assertSame($expected, $queries);
+    }
+
+    /**
+     * @ActiveFeatures(features={"FEATURE_NEXT_22900"})
+     */
     public function testBuildTermQueryUsingSearchQueryBuilder(): void
     {
         $searchQueryBuilder = $this->createMock(AbstractProductSearchQueryBuilder::class);
@@ -332,6 +440,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
 
         $definition = new ElasticsearchProductDefinition(
             $this->createMock(ProductDefinition::class),
+            $this->createMock(EntityMapper::class),
             $this->createMock(Connection::class),
             [],
             new EventDispatcher(),
@@ -359,6 +468,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
 
         $definition = new ElasticsearchProductDefinition(
             $this->createMock(ProductDefinition::class),
+            $this->createMock(EntityMapper::class),
             $connection,
             [],
             new EventDispatcher(),
@@ -373,6 +483,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
 
         static::assertSame(1, $document['id']);
         static::assertSame('Test', $document['name']);
+        static::assertSame('Test  1', $document['fullText']);
 
         $prices = [
             'cheapest_price_rule-1_b7d2554b0ce847cd82f3ac9bd1c0dfca_gross' => 5,
@@ -433,12 +544,44 @@ class ElasticsearchProductDefinitionTest extends TestCase
         );
     }
 
+    /**
+     * @ActiveFeatures(features={})
+     */
+    public function testFetchFormatsCustomFields(): void
+    {
+        $connection = $this->getConnection();
+
+        $definition = new ElasticsearchProductDefinition(
+            $this->createMock(ProductDefinition::class),
+            $this->createMock(EntityMapper::class),
+            $connection,
+            ['bool' => CustomFieldTypes::BOOL, 'int' => CustomFieldTypes::INT],
+            new EventDispatcher(),
+            $this->createMock(AbstractProductSearchQueryBuilder::class)
+        );
+
+        $documents = $definition->fetch(['1'], Context::createDefaultContext());
+
+        static::assertArrayHasKey('1', $documents);
+        static::assertArrayHasKey('customFields', $documents['1']);
+        static::assertArrayHasKey('bool', $documents['1']['customFields']);
+        static::assertIsBool($documents['1']['customFields']['bool']);
+        static::assertArrayHasKey('int', $documents['1']['customFields']);
+        static::assertIsFloat($documents['1']['customFields']['int']);
+        static::assertArrayHasKey('unknown', $documents['1']['customFields']);
+        static::assertSame('foo', $documents['1']['customFields']['unknown']);
+    }
+
+    /**
+     * @ActiveFeatures(features={"v6_5_0_0"})
+     */
     public function testFetchFormatsCustomFieldsAndRemovesNotMappedFields(): void
     {
         $connection = $this->getConnection();
 
         $definition = new ElasticsearchProductDefinition(
             $this->createMock(ProductDefinition::class),
+            $this->createMock(EntityMapper::class),
             $connection,
             ['bool' => CustomFieldTypes::BOOL, 'int' => CustomFieldTypes::INT],
             new EventDispatcher(),

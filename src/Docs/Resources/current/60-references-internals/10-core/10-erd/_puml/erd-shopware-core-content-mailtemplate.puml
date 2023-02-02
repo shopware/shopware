@@ -1,0 +1,120 @@
+@startuml
+' uncomment the line below if you're using computer with a retina display
+' skinparam dpi 300
+!define Table(name,desc) class name as "desc" << (T,#FFAAAA) >>
+!define ForeignTable(name,desc) class name as "desc" << (T,#ada6a6) >>
+!define TranslationTable(name,desc) class name as "desc" << (I,#4286f4) >>
+' we use bold for primary key
+' green color for unique
+' and underscore for not_null
+!define primary_key(x) <b>x</b>
+!define unique(x) <color:green>x</color>
+!define not_null(x) <u>x</u>
+' other tags available:
+' <i></i>
+' <back:COLOR></color>, where color is a color name or html color code
+' (#FFAACC)
+' see: http://plantuml.com/classes.html#More
+hide methods
+hide stereotypes
+hide empty members
+skinparam backgroundColor #FFFFFF
+
+' entities
+
+Table(ShopwareCoreContentMailTemplateMailTemplateDefinition, "mail_template\n(Mail Template)") {
+   primary_key(id) id
+   not_null(mailTemplateTypeId) foreignKey
+   systemDefault bool
+   senderName translated
+   description translated
+   subject translated
+   contentHtml translated
+   contentPlain translated
+   customFields translated
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+   translated json
+}
+TranslationTable(ShopwareCoreContentMailTemplateAggregateMailTemplateTranslationMailTemplateTranslationDefinition, "mail_template_translation\n((Translations))") {
+   senderName string
+   description longText
+   not_null(subject) string
+   not_null(contentHtml) longText
+   not_null(contentPlain) longText
+   customFields customFields
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+   primary_key(mailTemplateId) foreignKey
+   primary_key(languageId) foreignKey
+}
+Table(ShopwareCoreContentMailTemplateAggregateMailTemplateTypeMailTemplateTypeDefinition, "mail_template_type\n(Type)") {
+   primary_key(id) id
+   name translated
+   not_null(technicalName) string
+   availableEntities json
+   customFields translated
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+   translated json
+}
+TranslationTable(ShopwareCoreContentMailTemplateAggregateMailTemplateTypeTranslationMailTemplateTypeTranslationDefinition, "mail_template_type_translation\n((Translations))") {
+   not_null(name) string
+   customFields customFields
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+   primary_key(mailTemplateTypeId) foreignKey
+   primary_key(languageId) foreignKey
+}
+Table(ShopwareCoreContentMailTemplateAggregateMailTemplateMediaMailTemplateMediaDefinition, "mail_template_media\n(M:N Mapping)") {
+   primary_key(id) id
+   not_null(mailTemplateId) foreignKey
+   not_null(languageId) foreignKey
+   not_null(mediaId) foreignKey
+   position int
+}
+Table(ShopwareCoreContentMailTemplateAggregateMailHeaderFooterMailHeaderFooterDefinition, "mail_header_footer\n(Header/Footer content)") {
+   primary_key(id) id
+   systemDefault bool
+   name translated
+   description translated
+   headerHtml translated
+   headerPlain translated
+   footerHtml translated
+   footerPlain translated
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+   translated json
+}
+TranslationTable(ShopwareCoreContentMailTemplateAggregateMailHeaderFooterTranslationMailHeaderFooterTranslationDefinition, "mail_header_footer_translation\n((Translations))") {
+   not_null(name) string
+   description string
+   headerHtml longText
+   headerPlain longText
+   footerHtml longText
+   footerPlain longText
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+   primary_key(mailHeaderFooterId) foreignKey
+   primary_key(languageId) foreignKey
+}
+ForeignTable(ShopwareCoreSystemLanguageLanguageDefinition, "language") {
+}
+ForeignTable(ShopwareCoreContentMediaMediaDefinition, "media") {
+}
+ForeignTable(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channel") {
+}
+
+' relationshipd
+
+ShopwareCoreContentMailTemplateAggregateMailTemplateTranslationMailTemplateTranslationDefinition --> ShopwareCoreContentMailTemplateMailTemplateDefinition
+ShopwareCoreContentMailTemplateAggregateMailTemplateTypeMailTemplateTypeDefinition --> ShopwareCoreContentMailTemplateMailTemplateDefinition
+ShopwareCoreContentMailTemplateAggregateMailTemplateMediaMailTemplateMediaDefinition --> ShopwareCoreContentMailTemplateMailTemplateDefinition
+ShopwareCoreContentMailTemplateAggregateMailTemplateTranslationMailTemplateTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
+ShopwareCoreContentMailTemplateAggregateMailTemplateTypeTranslationMailTemplateTypeTranslationDefinition --> ShopwareCoreContentMailTemplateAggregateMailTemplateTypeMailTemplateTypeDefinition
+ShopwareCoreContentMailTemplateAggregateMailTemplateTypeTranslationMailTemplateTypeTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
+ShopwareCoreContentMailTemplateAggregateMailTemplateMediaMailTemplateMediaDefinition --> ShopwareCoreContentMediaMediaDefinition
+ShopwareCoreContentMailTemplateAggregateMailHeaderFooterTranslationMailHeaderFooterTranslationDefinition --> ShopwareCoreContentMailTemplateAggregateMailHeaderFooterMailHeaderFooterDefinition
+ShopwareCoreContentMailTemplateAggregateMailHeaderFooterMailHeaderFooterDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
+ShopwareCoreContentMailTemplateAggregateMailHeaderFooterTranslationMailHeaderFooterTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
+@enduml

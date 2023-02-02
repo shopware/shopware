@@ -8,9 +8,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTr
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('customer-order')]
 class OrderTransactionCaptureRefundPositionEntity extends Entity
 {
     use EntityIdTrait;
@@ -23,6 +21,8 @@ class OrderTransactionCaptureRefundPositionEntity extends Entity
     protected ?string $reason = null;
 
     protected int $quantity;
+
+    protected float $refundPrice;
 
     protected ?string $externalReference = null;
 
@@ -70,6 +70,16 @@ class OrderTransactionCaptureRefundPositionEntity extends Entity
     public function setQuantity(int $quantity): void
     {
         $this->quantity = $quantity;
+    }
+
+    public function getRefundPrice(): float
+    {
+        return $this->refundPrice;
+    }
+
+    public function setRefundPrice(float $refundPrice): void
+    {
+        $this->refundPrice = $refundPrice;
     }
 
     public function getExternalReference(): ?string

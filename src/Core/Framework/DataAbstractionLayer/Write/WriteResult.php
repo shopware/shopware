@@ -3,42 +3,45 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
-use Shopware\Core\Framework\Log\Package;
 
 /**
- * @final
+ * @final tag:v6.5.0
  */
-#[Package('core')]
-class WriteResult
+class WriteResult extends DeleteResult
 {
     /**
-     * @param array<string, list<EntityWriteResult>> $deleted
-     * @param array<string, list<EntityWriteResult>> $notFound
-     * @param array<string, list<EntityWriteResult>> $written
+     * @var EntityWriteResult[]
      */
-    public function __construct(protected array $deleted, protected array $notFound = [], protected array $written = [])
-    {
-    }
+    protected array $deleted = [];
 
     /**
-     * @return array<string, list<EntityWriteResult>>
+     * @var EntityWriteResult[]
      */
+    protected array $notFound = [];
+
+    /**
+     * @var EntityWriteResult[]
+     */
+    protected array $written = [];
+
+    public function __construct(array $deleted, array $notFound = [], array $updated = [])
+    {
+        parent::__construct($deleted, $notFound, $updated);
+        $this->deleted = $deleted;
+        $this->notFound = $notFound;
+        $this->written = $updated;
+    }
+
     public function getDeleted(): array
     {
         return $this->deleted;
     }
 
-    /**
-     * @return array<string, list<EntityWriteResult>>
-     */
     public function getNotFound(): array
     {
         return $this->notFound;
     }
 
-    /**
-     * @return array<string, list<EntityWriteResult>>
-     */
     public function getWritten(): array
     {
         return $this->written;

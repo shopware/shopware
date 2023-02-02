@@ -1,8 +1,5 @@
 import Plugin from 'src/plugin-system/plugin.class';
 
-/**
- * @package content
- */
 export default class FormAddHistoryPlugin extends Plugin {
 
     static options = {

@@ -5,9 +5,13 @@ import variantProduct from '../../../../fixtures/variant-product';
 
 describe('Rule builder: Test display variant information at condition', () => {
     beforeEach(() => {
-        cy.createDefaultFixture('rule').then(() => {
-            return cy.createProductFixture(variantProduct);
-        })
+        cy.loginViaApi()
+            .then(() => {
+                return cy.createDefaultFixture('rule');
+            })
+            .then(() => {
+                return cy.createProductFixture(variantProduct);
+            })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/rule/index`);
                 cy.get('.sw-skeleton').should('not.exist');
@@ -26,7 +30,7 @@ describe('Rule builder: Test display variant information at condition', () => {
             cy.clickContextMenuItem(
                 '.sw-entity-listing__context-menu-edit-action',
                 page.elements.contextMenuButton,
-                `${page.elements.dataGridRow}--0`,
+                `${page.elements.dataGridRow}--0`
             );
 
             cy.get('.sw-condition-tree .sw-condition-or-container .sw-condition-and-container')
@@ -37,18 +41,23 @@ describe('Rule builder: Test display variant information at condition', () => {
             cy.get('@first-and-container').within(() => {
                 cy.get('.sw-condition').as('condition-general');
 
-                page.selectTypeAndOperator('@condition-general', 'Items in cart', 'Is one of');
+                cy.onlyOnFeature('FEATURE_NEXT_17016', () => {
+                    page.selectTypeAndOperator('@condition-general', 'Item', 'Is one of');
+                });
+                cy.skipOnFeature('FEATURE_NEXT_17016', () => {
+                    page.selectTypeAndOperator('@condition-general', 'Line items in cart', 'Is one of');
+                });
 
                 cy.get('@condition-general').within(() => {
                     cy.get('.sw-select input').last().clearTypeAndCheck('Variant product');
 
-                    cy.window().then(() => {
-                        cy.wrap(Cypress.$('.sw-select-result-list-popover-wrapper')).should('be.visible');
-                        cy.wrap(Cypress.$('.sw-select-result-list-popover-wrapper')).find('.sw-select-result').should('have.length', 5);
-                        cy.wrap(Cypress.$('.sw-select-result-list-popover-wrapper')).find('.sw-product-variant-info__specification').as('variant-info');
+                    const selectResultList = cy.window().then(() => {
+                        return cy.wrap(Cypress.$('.sw-select-result-list-popover-wrapper'));
                     });
 
-
+                    selectResultList.should('be.visible');
+                    selectResultList.find('.sw-select-result').should('have.length', 5);
+                    selectResultList.find('.sw-product-variant-info__specification').as('variant-info');
                     cy.get('@variant-info').should('contain', 'red');
                     cy.get('@variant-info').should('contain', 'green');
                     cy.get('@variant-info').should('contain', 'blue');
@@ -61,7 +70,7 @@ describe('Rule builder: Test display variant information at condition', () => {
         cy.window().then(() => {
             cy.intercept({
                 url: `${Cypress.env('apiPath')}/_action/sync`,
-                method: 'POST',
+                method: 'POST'
             }).as('saveData');
 
             const page = new RulePageObject();
@@ -73,7 +82,7 @@ describe('Rule builder: Test display variant information at condition', () => {
             cy.clickContextMenuItem(
                 '.sw-entity-listing__context-menu-edit-action',
                 page.elements.contextMenuButton,
-                `${page.elements.dataGridRow}--0`,
+                `${page.elements.dataGridRow}--0`
             );
 
             cy.get('.sw-condition-tree .sw-condition-or-container .sw-condition-and-container')
@@ -84,14 +93,21 @@ describe('Rule builder: Test display variant information at condition', () => {
             cy.get('@first-and-container').within(() => {
                 cy.get('.sw-condition').as('condition-general');
 
-                page.selectTypeAndOperator('@condition-general', 'Items in cart', 'Is one of');
+                cy.onlyOnFeature('FEATURE_NEXT_17016', () => {
+                    page.selectTypeAndOperator('@condition-general', 'Item', 'Is one of');
+                });
+                cy.skipOnFeature('FEATURE_NEXT_17016', () => {
+                    page.selectTypeAndOperator('@condition-general', 'Line items in cart', 'Is one of');
+                });
 
                 cy.get('@condition-general').within(() => {
                     cy.get('.sw-select input').last().clearTypeAndCheck('Variant product');
 
-                    cy.window().then(() => {
-                        cy.wrap(Cypress.$('.sw-select-result-list-popover-wrapper')).find('.sw-product-variant-info__specification').contains('red').click();
+                    const selectResultList = cy.window().then(() => {
+                        return cy.wrap(Cypress.$('.sw-select-result-list-popover-wrapper'));
                     });
+
+                    selectResultList.find('.sw-product-variant-info__specification').contains('red').click();
                 });
             });
 

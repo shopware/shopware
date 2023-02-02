@@ -22,19 +22,17 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaPartInterface;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * This class acts only as helper/common class for all dbal operations for entity definitions.
  * It knows how an association should be joined, how a parent-child inheritance should act, how translation chains work, ...
  *
- * @internal
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
  */
-#[Package('core')]
 class EntityDefinitionQueryHelper
 {
-    final public const HAS_TO_MANY_JOIN = 'has_to_many_join';
+    public const HAS_TO_MANY_JOIN = 'has_to_many_join';
 
     public static function escape(string $string): string
     {
@@ -53,18 +51,6 @@ class EntityDefinitionQueryHelper
         );
 
         return !empty($exists);
-    }
-
-    public static function tableExists(Connection $connection, string $table): bool
-    {
-        return !empty(
-            $connection->fetchOne(
-                'SHOW TABLES LIKE :table',
-                [
-                    'table' => $table,
-                ]
-            )
-        );
     }
 
     /**
@@ -121,7 +107,7 @@ class EntityDefinitionQueryHelper
             }
         }
 
-        return \array_values(\array_filter($accessorFields));
+        return array_filter($accessorFields);
     }
 
     /**
@@ -208,7 +194,7 @@ class EntityDefinitionQueryHelper
         $original = $fieldName;
         $prefix = $root . '.';
 
-        if (str_starts_with($fieldName, $prefix)) {
+        if (mb_strpos($fieldName, $prefix) === 0) {
             $fieldName = mb_substr($fieldName, mb_strlen($prefix));
         } else {
             $original = $prefix . $original;
@@ -228,7 +214,7 @@ class EntityDefinitionQueryHelper
             $associationKey = array_shift($parts);
         }
 
-        if (!\is_string($associationKey) || !$fields->has($associationKey)) {
+        if (!$fields->has($associationKey)) {
             throw new UnmappedFieldException($original, $definition);
         }
 
@@ -297,7 +283,9 @@ class EntityDefinitionQueryHelper
         } elseif ($definition->isVersionAware()) {
             $versionIdField = array_filter(
                 $definition->getPrimaryKeys()->getElements(),
-                fn ($f) => $f instanceof VersionField || $f instanceof ReferenceVersionField
+                function ($f) {
+                    return $f instanceof VersionField || $f instanceof ReferenceVersionField;
+                }
             );
 
             if (!$versionIdField) {
@@ -406,9 +394,11 @@ class EntityDefinitionQueryHelper
 
         $fields = $translationDefinition->getFields();
         if (!empty($partial)) {
-            $fields = $translationDefinition->getFields()->filter(fn (Field $field) => $field->is(PrimaryKey::class)
-                || isset($partial[$field->getPropertyName()])
-                || $field instanceof FkField);
+            $fields = $translationDefinition->getFields()->filter(function (Field $field) use ($partial) {
+                return $field->is(PrimaryKey::class)
+                    || isset($partial[$field->getPropertyName()])
+                    || $field instanceof FkField;
+            });
         }
 
         $inherited = $context->considerInheritance() && $definition->isInheritanceAware();
@@ -505,7 +495,6 @@ class EntityDefinitionQueryHelper
      */
     public static function buildTranslationChain(string $root, Context $context, bool $includeParent): array
     {
-        $chain = [];
         $count = \count($context->getLanguageIdChain()) - 1;
 
         for ($i = $count; $i >= 1; --$i) {
@@ -591,6 +580,13 @@ class EntityDefinitionQueryHelper
             foreach ($primaryKey as $propertyName => $value) {
                 $field = $definition->getFields()->get($propertyName);
 
+                /*
+                 * @deprecated tag:v6.5.0 - with 6.5.0 the only passing the propertyName will be supported
+                 */
+                if (!$field) {
+                    $field = $definition->getFields()->getByStorageName($propertyName);
+                }
+
                 if (!$field) {
                     throw new UnmappedFieldException($propertyName, $definition);
                 }
@@ -607,9 +603,15 @@ class EntityDefinitionQueryHelper
 
                 $accessor = EntityDefinitionQueryHelper::escape($definition->getEntityName()) . '.' . EntityDefinitionQueryHelper::escape($field->getStorageName());
 
-                $where[$accessor] = $accessor . ' = :' . $key;
+                /*
+                 * @deprecated tag:v6.5.0 - check for duplication in accessors will be removed,
+                 * when we only support propertyNames to be used in search and when IdSearchResult only returns the propertyNames
+                 */
+                if (!\array_key_exists($accessor, $where)) {
+                    $where[$accessor] = $accessor . ' = :' . $key;
 
-                $query->setParameter($key, $value);
+                    $query->setParameter($key, $value);
+                }
             }
 
             $wheres[] = '(' . implode(' AND ', $where) . ')';

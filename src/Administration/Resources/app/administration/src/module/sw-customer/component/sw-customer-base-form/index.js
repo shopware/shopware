@@ -4,16 +4,12 @@ import errorConfig from '../../error-config.json';
 
 import CUSTOMER from '../../constant/sw-customer.constant';
 
-/**
- * @package customer-order
- */
-
-const { Defaults } = Shopware;
+const { Component, Defaults } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-customer-base-form', {
     template,
 
     props: {
@@ -62,4 +58,4 @@ export default {
             this.$emit('sales-channel-change', salesChannelId);
         },
     },
-};
+});

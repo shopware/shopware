@@ -8,12 +8,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('content')]
 class CmsPageTranslationDefinition extends EntityTranslationDefinition
 {
-    final public const ENTITY_NAME = 'cms_page_translation';
+    public const ENTITY_NAME = 'cms_page_translation';
 
     public function getEntityName(): string
     {

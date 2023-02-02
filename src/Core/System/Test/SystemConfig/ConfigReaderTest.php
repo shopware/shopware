@@ -3,17 +3,18 @@
 namespace Shopware\Core\System\Test\SystemConfig;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 
 /**
  * @internal
  */
-#[Package('system-settings')]
 class ConfigReaderTest extends TestCase
 {
-    private ConfigReader $configReader;
+    /**
+     * @var ConfigReader
+     */
+    private $configReader;
 
     protected function setUp(): void
     {

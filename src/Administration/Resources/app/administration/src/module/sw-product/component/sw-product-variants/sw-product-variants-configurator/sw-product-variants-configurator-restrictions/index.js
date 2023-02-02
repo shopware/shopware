@@ -1,12 +1,10 @@
-/*
- * @package inventory
- */
-
 import template from './sw-product-variants-configurator-restrictions.html.twig';
 import './sw-product-variants-configurator-restrictions.scss';
 
+const { Component } = Shopware;
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-product-variants-configurator-restrictions', {
     template,
 
     props: {
@@ -230,4 +228,4 @@ export default {
             });
         },
     },
-};
+});

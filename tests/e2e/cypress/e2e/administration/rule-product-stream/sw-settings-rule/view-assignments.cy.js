@@ -11,7 +11,10 @@ describe('Rule builder: Test viewing rule assignments in other entities', () => 
     const deliveryTimeId = uuid().replace(/-/g, '');
 
     beforeEach(() => {
-        cy.createDefaultFixture('rule', { id: defaultRuleId, name: 'Default Rule' }, 'rule-simple-condition')
+        cy.loginViaApi()
+            .then(() => {
+                return cy.createDefaultFixture('rule', { id: defaultRuleId, name: 'Default Rule' }, 'rule-simple-condition');
+            })
             .then(() => {
                 return cy.createDefaultFixture('rule', {
                     id: ruleId,
@@ -20,23 +23,23 @@ describe('Rule builder: Test viewing rule assignments in other entities', () => 
                         {
                             "type": "orContainer",
                             "parentId": null,
-                            "id": "bb63eedc25144ae095252ceb824b17ca",
+                            "id": "bb63eedc25144ae095252ceb824b17ca"
                         },
                         {
                             "type": "andContainer",
                             "parentId": "bb63eedc25144ae095252ceb824b17ca",
-                            "id": "5182ff99234e4b238033a3d16ade88eb",
+                            "id": "5182ff99234e4b238033a3d16ade88eb"
                         },
                         {
                             "type": "customerBillingStreet",
                             "parentId": "5182ff99234e4b238033a3d16ade88eb",
                             "value": {
                                 "operator":"=",
-                                "streetName":"test",
+                                "streetName":"test"
                             },
-                            "id": "acf32b2197fe40819b2e635193b81c61",
-                        },
-                    ],
+                            "id": "acf32b2197fe40819b2e635193b81c61"
+                        }
+                    ]
                 }, 'rule');
             })
             .then(() => {
@@ -49,19 +52,19 @@ describe('Rule builder: Test viewing rule assignments in other entities', () => 
                 return cy.createDefaultFixture('promotion', {
                     personaRules: [
                         {
-                            id: ruleId,
-                        },
+                            id: ruleId
+                        }
                     ],
                     cartRules: [
                         {
-                            id: ruleId,
-                        },
+                            id: ruleId
+                        }
                     ],
                     orderRules: [
                         {
-                            id: ruleId,
-                        },
-                    ],
+                            id: ruleId
+                        }
+                    ]
                 });
             })
             .then(() => {
@@ -168,7 +171,7 @@ describe('Rule builder: Test viewing rule assignments in other entities', () => 
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/shipping-method/*`,
-            method: 'PATCH',
+            method: 'PATCH'
         }).as('saveShippingMethod');
 
         // Switch to assignments tab
@@ -187,7 +190,7 @@ describe('Rule builder: Test viewing rule assignments in other entities', () => 
         cy.get('.sw-settings-shipping-detail__condition_container').scrollIntoView();
         cy.get('.sw-settings-shipping-detail__top-rule').typeSingleSelectAndCheck(
             'Ruler',
-            '.sw-settings-shipping-detail__top-rule',
+            '.sw-settings-shipping-detail__top-rule'
         );
 
         // Save rule
@@ -205,7 +208,7 @@ describe('Rule builder: Test viewing rule assignments in other entities', () => 
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`,
+            `${page.elements.dataGridRow}--0`
         );
 
         // Switch to assignments tab
@@ -223,7 +226,7 @@ describe('Rule builder: Test viewing rule assignments in other entities', () => 
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/shipping-method`,
-            method: 'POST',
+            method: 'POST'
         }).as('searchData');
 
         // Switch to assignments tab
@@ -247,5 +250,53 @@ describe('Rule builder: Test viewing rule assignments in other entities', () => 
         cy.get('.sw-data-grid__bulk-selected .link-danger').click();
         cy.get('.sw-button--danger').click();
         cy.get('.sw-settings-rule-detail-assignments__card-payment_method').find(`${page.elements.dataGridRow}`).should('have.length', 4);
+    });
+
+    // NEXT-19333 - The delete request fails sometimes
+    /**
+     * @deprecated tag:v6.5.0 - Business events will be removed, test can be deleted too
+     */
+    it('@rule: assign business events to rule via assignment tab, verify assignment and delete assignment', () => {
+        cy.skipOnFeature('V6_5_0_0');
+        const page = new RulePageObject();
+
+        // Switch to assignments tab
+        cy.get('.sw-settings-rule-detail__tabs').should('be.visible');
+        cy.get('.sw-settings-rule-detail__tab-item-assignments').click();
+
+        // Expect empty-state to be visible because the rule it not yet assigned to any entity
+        cy.get('.sw-settings-rule-detail-assignments__entity-empty-state-event_action').should('exist');
+
+        // Assign first page of events
+        cy.get('.sw-settings-rule-detail-assignments__card-event_action .sw-settings-rule-detail-assignments__add-button').click();
+        cy.get('.sw-settings-rule-add-assignment-modal .sw-data-grid__select-all input').click();
+        cy.get(`.sw-settings-rule-add-assignment-modal ${page.elements.primaryButton}`).click();
+
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/event-action/**`,
+            method: 'DELETE'
+        }).as('deleteEvents');
+
+        // pagination should be there
+        cy.get('.sw-pagination__list').should('exist');
+
+        // Remove all events
+        cy.get('.sw-settings-rule-detail-assignments__card-event_action').find(`${page.elements.dataGridRow}`).should('have.length', 6);
+        cy.get(`.sw-settings-rule-detail-assignments__card-event_action .sw-data-grid__select-all input`).click();
+        cy.get('.sw-data-grid__bulk-selected .link-danger').click();
+        cy.get('.sw-button--danger').click();
+        cy.get('.sw-settings-rule-detail-assignments__card-event_action').find(`${page.elements.dataGridRow}`).should('have.length', 6);
+
+        // wait is needed here for the delete requests to finish! otherwise, it trys to delete the same things which results in 404 responses
+        // simulate with "fast 3G" network throttling
+        cy.wait('@deleteEvents')
+            .its('response.statusCode').should('equal', 204);
+        // pagination should not be there anymore (wait for it to be the case before making the next bunch of delete requests)
+        cy.get('.sw-pagination__list').should('not.exist');
+
+        cy.get(`.sw-settings-rule-detail-assignments__card-event_action .sw-data-grid__select-all input`).click();
+        cy.get('.sw-data-grid__bulk-selected .link-danger').click();
+        cy.get('.sw-button--danger').click();
+        cy.get('.sw-settings-rule-detail-assignments__entity-empty-state-event_action').should('exist');
     });
 });

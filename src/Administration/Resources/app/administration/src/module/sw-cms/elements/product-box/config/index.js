@@ -2,13 +2,12 @@ import Criteria from 'src/core/data/criteria.data';
 import template from './sw-cms-el-config-product-box.html.twig';
 import './sw-cms-el-config-product-box.scss';
 
-const { Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 
 /**
- * @private
- * @package content
+ * @private since v6.5.0
  */
-export default {
+Component.register('sw-cms-el-config-product-box', {
     template,
 
     inject: ['repositoryFactory'],
@@ -23,7 +22,7 @@ export default {
         },
 
         productSelectContext() {
-            const context = { ...Shopware.Context.api };
+            const context = Object.assign({}, Shopware.Context.api);
             context.inheritance = true;
 
             return context;
@@ -66,4 +65,4 @@ export default {
             this.$emit('element-update', this.element);
         },
     },
-};
+});

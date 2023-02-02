@@ -17,7 +17,6 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  *
- * @package content
  * @covers \Shopware\Core\Content\Cms\Subscriber\CmsPageDefaultChangeSubscriber
  */
 class CmsPageBeforeDefaultChangeSubscriberTest extends TestCase

@@ -1,12 +1,9 @@
-/**
- * @package system-settings
- */
 import template from './sw-country-state-detail.html.twig';
 
-const { Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-country-state-detail', {
     template,
 
     inject: ['acl'],
@@ -55,4 +52,4 @@ export default {
             this.$emit('attribute-edit-save', this.countryState);
         },
     },
-};
+});

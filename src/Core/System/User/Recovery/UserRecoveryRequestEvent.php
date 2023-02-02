@@ -4,27 +4,47 @@ namespace Shopware\Core\System\User\Recovery;
 
 use Shopware\Core\Content\Flow\Dispatching\Aware\ResetUrlAware;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\UserAware;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryDefinition;
 use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryEntity;
 use Shopware\Core\System\User\UserEntity;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('system-settings')]
-class UserRecoveryRequestEvent extends Event implements UserAware, MailAware, ResetUrlAware
+class UserRecoveryRequestEvent extends Event implements BusinessEventInterface, UserAware, MailAware, ResetUrlAware
 {
-    final public const EVENT_NAME = 'user.recovery.request';
+    public const EVENT_NAME = 'user.recovery.request';
 
-    private ?MailRecipientStruct $mailRecipientStruct = null;
+    /**
+     * @var UserRecoveryEntity
+     */
+    private $userRecovery;
 
-    public function __construct(private readonly UserRecoveryEntity $userRecovery, private readonly string $resetUrl, private readonly Context $context)
+    /**
+     * @var Context
+     */
+    private $context;
+
+    /**
+     * @var string
+     */
+    private $resetUrl;
+
+    /**
+     * @var MailRecipientStruct
+     */
+    private $mailRecipientStruct;
+
+    public function __construct(UserRecoveryEntity $userRecovery, string $resetUrl, Context $context)
     {
+        $this->userRecovery = $userRecovery;
+        $this->context = $context;
+        $this->resetUrl = $resetUrl;
     }
 
     public function getName(): string

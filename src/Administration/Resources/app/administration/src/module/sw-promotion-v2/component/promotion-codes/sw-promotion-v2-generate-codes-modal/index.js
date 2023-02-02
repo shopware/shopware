@@ -1,10 +1,11 @@
 import template from './sw-promotion-v2-generate-codes-modal.html.twig';
 import './sw-promotion-v2-generate-codes-modal.scss';
 
+const { Component } = Shopware;
 const debounce = Shopware.Utils.debounce;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-promotion-v2-generate-codes-modal', {
     template,
 
     inject: [
@@ -145,4 +146,5 @@ export default {
             this.$emit('close');
         },
     },
-};
+});
+

@@ -4,7 +4,10 @@ import SettingsPageObject from '../../../../support/pages/module/sw-settings.pag
 
 describe('Unit: Test acl privileges', () => {
     beforeEach(() => {
-        cy.createDefaultFixture('unit')
+        cy.loginViaApi()
+            .then(() => {
+                return cy.createDefaultFixture('unit');
+            })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
             });

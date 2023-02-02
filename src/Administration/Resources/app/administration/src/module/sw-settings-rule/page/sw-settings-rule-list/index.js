@@ -1,14 +1,11 @@
 import './sw-settings-rule-list.scss';
 import template from './sw-settings-rule-list.html.twig';
 
-const { Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
-/**
- * @private
- * @package business-ops
- */
-export default {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+Component.register('sw-settings-rule-list', {
     template,
 
     inject: [
@@ -329,4 +326,4 @@ export default {
             return columns;
         },
     },
-};
+});

@@ -1,16 +1,13 @@
-/**
- * @package system-settings
- */
 import './sw-import-export-entity-path-select.scss';
 import template from './sw-import-export-entity-path-select.html.twig';
 
-const { Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 const { debounce, get, flow } = Shopware.Utils;
 
 /**
  * @private
  */
-export default {
+Component.register('sw-import-export-entity-path-select', {
     template,
 
     inject: ['feature'],
@@ -744,4 +741,4 @@ export default {
             return customFields;
         },
     },
-};
+});

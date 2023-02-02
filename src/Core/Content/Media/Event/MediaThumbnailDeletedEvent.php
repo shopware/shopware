@@ -4,16 +4,26 @@ namespace Shopware\Core\Content\Media\Event;
 
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('content')]
 class MediaThumbnailDeletedEvent extends Event
 {
-    final public const EVENT_NAME = 'media_thumbnail.after_delete';
+    public const EVENT_NAME = 'media_thumbnail.after_delete';
 
-    public function __construct(private readonly MediaThumbnailCollection $thumbnails, private readonly Context $context)
+    /**
+     * @var MediaThumbnailCollection
+     */
+    private $thumbnails;
+
+    /**
+     * @var Context
+     */
+    private $context;
+
+    public function __construct(MediaThumbnailCollection $thumbnails, Context $context)
     {
+        $this->thumbnails = $thumbnails;
+        $this->context = $context;
     }
 
     public function getThumbnails(): MediaThumbnailCollection

@@ -2,8 +2,6 @@
 
 namespace Shopware\Core\Framework\Script\Facade;
 
-use Shopware\Core\Framework\Log\Package;
-
 /**
  * The ArrayFacade acts as a wrapper around an array and allows easier manipulation of arrays inside scripts.
  * An array facade can also be accessed like a "normal" array inside twig.
@@ -27,13 +25,15 @@ use Shopware\Core\Framework\Log\Package;
  * @implements \ArrayAccess<array-key, string|int|float|array|object|bool|null>
  * @implements \IteratorAggregate<array-key, string|int|float|array|object|bool|null>
  */
-#[Package('core')]
 class ArrayFacade implements \IteratorAggregate, \ArrayAccess, \Countable
 {
-    private readonly ?\Closure $closure;
+    private array $items;
 
-    public function __construct(private array $items, ?\Closure $closure = null)
+    private ?\Closure $closure;
+
+    public function __construct(array $items, ?\Closure $closure = null)
     {
+        $this->items = $items;
         $this->closure = $closure;
     }
 
@@ -45,7 +45,7 @@ class ArrayFacade implements \IteratorAggregate, \ArrayAccess, \Countable
      *
      * @example payload-cases/payload-cases.twig 5 3 Add a new element with key `test` and value 1.
      */
-    public function set(string|int $key, $value): void
+    public function set($key, $value): void
     {
         $this->items[$key] = $value;
         $this->update();
@@ -67,7 +67,7 @@ class ArrayFacade implements \IteratorAggregate, \ArrayAccess, \Countable
      *
      * @param string|int $index The index that should be removed.
      */
-    public function removeBy(string|int $index): void
+    public function removeBy($index): void
     {
         unset($this->items[$index]);
         $this->update();
@@ -106,7 +106,7 @@ class ArrayFacade implements \IteratorAggregate, \ArrayAccess, \Countable
      *
      * @example payload-cases/payload-cases.twig 13 3 Merge two arrays.
      */
-    public function merge(array|\Shopware\Core\Framework\Script\Facade\ArrayFacade $array): void
+    public function merge($array): void
     {
         if ($array instanceof ArrayFacade) {
             $array = $array->items;
@@ -122,7 +122,7 @@ class ArrayFacade implements \IteratorAggregate, \ArrayAccess, \Countable
      *
      * @example payload-cases/payload-cases.twig 17 3 Replace elements in the product payload array.
      */
-    public function replace(array|\Shopware\Core\Framework\Script\Facade\ArrayFacade $array): void
+    public function replace($array): void
     {
         if ($array instanceof ArrayFacade) {
             $array = $array->items;

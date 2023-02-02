@@ -25,12 +25,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_inherit_wrapper_toggle_wrapper_label %}
             <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
-            <label
-                class="sw-inherit-wrapper__inheritance-label"
-                :class="labelClasses"
-            >
-                {{ label }}
-            </label>
+            <label class="sw-inherit-wrapper__inheritance-label">{{ label }}</label>
             {% endblock %}
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -50,7 +45,7 @@
     {% block sw_inherit_wrapper_content %}
     <slot
         name="content"
-        v-bind="{ currentValue, updateCurrentValue, isInherited, isInheritField, toggleInheritance, restoreInheritance, removeInheritance, error }"
+        v-bind="{ currentValue, updateCurrentValue, isInherited, isInheritField, toggleInheritance, restoreInheritance, removeInheritance }"
     ></slot>
     {% endblock %}
 </div>

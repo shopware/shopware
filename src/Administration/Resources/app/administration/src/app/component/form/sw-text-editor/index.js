@@ -4,9 +4,6 @@ import './sw-text-editor.scss';
 const { Component } = Shopware;
 
 /**
- * @package admin
- *
- * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @status ready
  * @example-type static
@@ -35,6 +32,7 @@ const { Component } = Shopware;
  *      :is-inline-edit="true"
  *  />
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-text-editor', {
     template,
 
@@ -376,7 +374,6 @@ Component.register('sw-text-editor', {
             this.content = this.value;
 
             if (!this.$options.buttonConfig) {
-                // eslint-disable-next-line vue/no-mutating-props
                 this.buttonConfig.push({
                     type: 'table',
                     title: this.$tc('sw-text-editor-toolbar.title.insert-table'),
@@ -387,7 +384,6 @@ Component.register('sw-text-editor', {
                 });
 
                 if (!this.isInlineEdit) {
-                    // eslint-disable-next-line vue/no-mutating-props
                     this.buttonConfig.push({
                         type: 'codeSwitch',
                         title: this.$tc('sw-text-editor-toolbar.title.code-switch'),
@@ -423,7 +419,6 @@ Component.register('sw-text-editor', {
 
                     dataMappingButton.children = buttonConfigs;
 
-                    // eslint-disable-next-line vue/no-mutating-props
                     this.buttonConfig.push(dataMappingButton);
                 }
             }
@@ -520,7 +515,6 @@ Component.register('sw-text-editor', {
             Object.keys(this.buttonConfig).forEach(
                 (key) => {
                     if (this.buttonConfig[key].type === 'foreColor') {
-                        // eslint-disable-next-line vue/no-mutating-props
                         this.buttonConfig[key].value = '';
                     }
                 },
@@ -816,11 +810,6 @@ Component.register('sw-text-editor', {
             if (!path.includes(this.$el)) {
                 this.removeFocus();
             }
-        },
-
-        onInput() {
-            this.onContentChange();
-            this.emitContent();
         },
 
         onContentChange() {

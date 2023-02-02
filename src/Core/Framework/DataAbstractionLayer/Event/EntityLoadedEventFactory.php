@@ -7,7 +7,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\System\SalesChannel\Entity\PartialSalesChannelEntityLoadedEvent;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelEntityLoadedEvent;
@@ -16,49 +15,51 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
-#[Package('core')]
 class EntityLoadedEventFactory
 {
-    public function __construct(private readonly DefinitionInstanceRegistry $registry)
+    private DefinitionInstanceRegistry $registry;
+
+    public function __construct(DefinitionInstanceRegistry $registry)
     {
+        $this->registry = $registry;
     }
 
-    /**
-     * @param list<mixed> $entities
-     */
     public function create(array $entities, Context $context): EntityLoadedContainerEvent
     {
         $mapping = $this->recursion($entities, []);
 
-        $generator = fn (EntityDefinition $definition, array $entities) => new EntityLoadedEvent($definition, $entities, $context);
+        $generator = function (EntityDefinition $definition, array $entities) use ($context) {
+            return new EntityLoadedEvent($definition, $entities, $context, false);
+        };
 
         return $this->buildEvents($mapping, $generator, $context);
     }
 
-    /**
-     * @param list<mixed> $entities
-     */
     public function createPartial(array $entities, Context $context): EntityLoadedContainerEvent
     {
         $mapping = $this->recursion($entities, []);
 
-        $generator = fn (EntityDefinition $definition, array $entities) => new PartialEntityLoadedEvent($definition, $entities, $context);
+        $generator = function (EntityDefinition $definition, array $entities) use ($context) {
+            return new PartialEntityLoadedEvent($definition, $entities, $context);
+        };
 
         return $this->buildEvents($mapping, $generator, $context);
     }
 
     /**
-     * @param list<mixed> $entities
-     *
      * @return EntityLoadedContainerEvent[]
      */
     public function createForSalesChannel(array $entities, SalesChannelContext $context): array
     {
         $mapping = $this->recursion($entities, []);
 
-        $generator = fn (EntityDefinition $definition, array $entities) => new EntityLoadedEvent($definition, $entities, $context->getContext());
+        $generator = function (EntityDefinition $definition, array $entities) use ($context) {
+            return new EntityLoadedEvent($definition, $entities, $context->getContext(), false);
+        };
 
-        $salesGenerator = fn (EntityDefinition $definition, array $entities) => new SalesChannelEntityLoadedEvent($definition, $entities, $context);
+        $salesGenerator = function (EntityDefinition $definition, array $entities) use ($context) {
+            return new SalesChannelEntityLoadedEvent($definition, $entities, $context, false);
+        };
 
         return [
             $this->buildEvents($mapping, $generator, $context->getContext()),
@@ -67,17 +68,19 @@ class EntityLoadedEventFactory
     }
 
     /**
-     * @param list<mixed> $entities
-     *
      * @return EntityLoadedContainerEvent[]
      */
     public function createPartialForSalesChannel(array $entities, SalesChannelContext $context): array
     {
         $mapping = $this->recursion($entities, []);
 
-        $generator = fn (EntityDefinition $definition, array $entities) => new PartialEntityLoadedEvent($definition, $entities, $context->getContext());
+        $generator = function (EntityDefinition $definition, array $entities) use ($context) {
+            return new PartialEntityLoadedEvent($definition, $entities, $context->getContext());
+        };
 
-        $salesGenerator = fn (EntityDefinition $definition, array $entities) => new PartialSalesChannelEntityLoadedEvent($definition, $entities, $context);
+        $salesGenerator = function (EntityDefinition $definition, array $entities) use ($context) {
+            return new PartialSalesChannelEntityLoadedEvent($definition, $entities, $context);
+        };
 
         return [
             $this->buildEvents($mapping, $generator, $context->getContext()),
@@ -85,9 +88,6 @@ class EntityLoadedEventFactory
         ];
     }
 
-    /**
-     * @param array<string, list<Entity>> $mapping
-     */
     private function buildEvents(array $mapping, \Closure $generator, Context $context): EntityLoadedContainerEvent
     {
         $events = [];
@@ -100,12 +100,6 @@ class EntityLoadedEventFactory
         return new EntityLoadedContainerEvent($context, $events);
     }
 
-    /**
-     * @param list<mixed> $entities
-     * @param array<string, list<Entity>> $mapping
-     *
-     * @return array<string, list<Entity>>
-     */
     private function recursion(array $entities, array $mapping): array
     {
         foreach ($entities as $entity) {
@@ -123,11 +117,6 @@ class EntityLoadedEventFactory
         return $mapping;
     }
 
-    /**
-     * @param array<string, list<Entity>> $mapping
-     *
-     * @return array<string, list<Entity>>
-     */
     private function map(Entity $entity, array $mapping): array
     {
         $mapping[$entity->getInternalEntityName()][] = $entity;

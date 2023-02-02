@@ -3,18 +3,14 @@
 namespace Shopware\Core\Framework\Changelog\Processor;
 
 use Shopware\Core\Framework\Changelog\ChangelogFileCollection;
-use Shopware\Core\Framework\Log\Package;
 
 /**
- * @internal
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - will be marked internal
  */
-#[Package('core')]
 class ChangelogReleaseCreator extends ChangelogProcessor
 {
     /**
      * Start to release a given version
-     *
-     * @return list<string>
      */
     public function release(string $version, bool $force = false, bool $dryRun = false): array
     {
@@ -30,10 +26,10 @@ class ChangelogReleaseCreator extends ChangelogProcessor
             return $output;
         }
 
-        $output = $this->releaseChangelogFiles($output, $version, $changelogFiles, $dryRun);
-        $output = $this->releaseChangelogGlobal($output, $version, $changelogFiles, $dryRun);
-        $output = $this->releaseUpgradeInformation($output, $version, $changelogFiles, $dryRun);
-        $output = $this->releaseMajorUpgradeInformation($output, $version, $changelogFiles, $dryRun);
+        $this->releaseChangelogFiles($output, $version, $changelogFiles, $dryRun);
+        $this->releaseChangelogGlobal($output, $version, $changelogFiles, $dryRun);
+        $this->releaseUpgradeInformation($output, $version, $changelogFiles, $dryRun);
+        $this->releaseMajorUpgradeInformation($output, $version, $changelogFiles, $dryRun);
 
         return $output;
     }
@@ -41,12 +37,8 @@ class ChangelogReleaseCreator extends ChangelogProcessor
     /**
      * Collect all markdown files, which do not have a flag meta field, inside the `/changelog/_unreleased` directory
      * and move them to a new directory for the release in `/changelog/release-6-x-x-x`.
-     *
-     * @param list<string> $output
-     *
-     * @return list<string>
      */
-    private function releaseChangelogFiles(array $output, string $version, ChangelogFileCollection $collection, bool $dryRun = false): array
+    private function releaseChangelogFiles(array &$output, string $version, ChangelogFileCollection $collection, bool $dryRun = false): void
     {
         $releaseDir = $this->getTargetReleaseDir($version);
         if (!$dryRun) {
@@ -65,18 +57,12 @@ class ChangelogReleaseCreator extends ChangelogProcessor
                 $output[] = '* ' . $changelog->getName();
             }
         }
-
-        return $output;
     }
 
     /**
      * Update the CHANGELOG.md global file
-     *
-     * @param list<string> $output
-     *
-     * @return list<string>
      */
-    private function releaseChangelogGlobal(array $output, string $version, ChangelogFileCollection $collection, bool $dryRun = false): array
+    private function releaseChangelogGlobal(array &$output, string $version, ChangelogFileCollection $collection, bool $dryRun = false): void
     {
         $append = [];
         $append[] = sprintf('## %s', $version);
@@ -94,8 +80,8 @@ class ChangelogReleaseCreator extends ChangelogProcessor
             $author = $changelog->getDefinition()->getAuthor() ?? '';
             $authorEmail = $changelog->getDefinition()->getAuthorEmail() ?? '';
             $github = $changelog->getDefinition()->getAuthorGitHub() ?? '';
-            if (!empty($author) && !empty($github) && !empty($authorEmail) && !str_contains((string) $authorEmail, '@shopware.com')) {
-                $log .= sprintf(' ([%s](https://github.com/%s))', $author, str_replace('@', '', (string) $github));
+            if (!empty($author) && !empty($github) && !empty($authorEmail) && strpos($authorEmail, '@shopware.com') === false) {
+                $log .= sprintf(' ([%s](https://github.com/%s))', $author, str_replace('@', '', $github));
             }
 
             $append[] = $log;
@@ -120,18 +106,12 @@ class ChangelogReleaseCreator extends ChangelogProcessor
             $output[] = '---';
             $output[] = implode("\n", $append);
         }
-
-        return $output;
     }
 
     /**
      * Create / Update the Upgrade Information section, based on a given release version
-     *
-     * @param list<string> $output
-     *
-     * @return list<string>
      */
-    private function releaseUpgradeInformation(array $output, string $version, ChangelogFileCollection $collection, bool $dryRun = false): array
+    private function releaseUpgradeInformation(array &$output, string $version, ChangelogFileCollection $collection, bool $dryRun = false): void
     {
         $append = [];
         foreach ($collection as $changelog) {
@@ -140,7 +120,7 @@ class ChangelogReleaseCreator extends ChangelogProcessor
             }
         }
         if (!\count($append)) {
-            return $output;
+            return;
         }
 
         array_unshift($append, sprintf('# %s', $version));
@@ -169,18 +149,12 @@ class ChangelogReleaseCreator extends ChangelogProcessor
             $output[] = '---';
             $output[] = implode("\n", $append);
         }
-
-        return $output;
     }
 
     /**
      * Create / Update the Upgrade Information for the next major version, based on a given release version
-     *
-     * @param list<string> $output
-     *
-     * @return list<string>
      */
-    private function releaseMajorUpgradeInformation(array $output, string $version, ChangelogFileCollection $collection, bool $dryRun = false): array
+    private function releaseMajorUpgradeInformation(array &$output, string $version, ChangelogFileCollection $collection, bool $dryRun = false): void
     {
         $append = [];
         foreach ($collection as $changelog) {
@@ -189,7 +163,7 @@ class ChangelogReleaseCreator extends ChangelogProcessor
             }
         }
         if (!\count($append)) {
-            return $output;
+            return;
         }
 
         $nextMajorVersionHeadline = '# ' . $this->getNextMajorVersion($version) . '.0.0' . \PHP_EOL;
@@ -221,7 +195,5 @@ class ChangelogReleaseCreator extends ChangelogProcessor
             $output[] = '---';
             $output[] = implode("\n", $append);
         }
-
-        return $output;
     }
 }

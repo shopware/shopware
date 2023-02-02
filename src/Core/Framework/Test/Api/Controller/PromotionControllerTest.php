@@ -7,12 +7,11 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseHelper\TestBrowser;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
  * @internal
@@ -21,13 +20,25 @@ class PromotionControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
 
-    private EntityRepository $promotionRepository;
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $promotionRepository;
 
-    private Context $context;
+    /**
+     * @var Context
+     */
+    private $context;
 
-    private string $resourceUri;
+    /**
+     * @var string
+     */
+    private $resourceUri;
 
-    private TestBrowser $api;
+    /**
+     * @var KernelBrowser
+     */
+    private $api;
 
     protected function setUp(): void
     {
@@ -46,7 +57,7 @@ class PromotionControllerTest extends TestCase
      * @test
      * @group promotions
      *
-     * @throws InconsistentCriteriaIdsException
+     * @throws \Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException
      */
     public function testCreatePromotion(): void
     {
@@ -96,7 +107,7 @@ class PromotionControllerTest extends TestCase
 
         static::assertSame(200, $response->getStatusCode(), $response->getContent());
 
-        $json = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $json = json_decode($response->getContent(), true);
 
         static::assertEquals($promotionId, $json['data']['id']);
         static::assertEquals('promotion', $json['data']['type']);
@@ -127,7 +138,7 @@ class PromotionControllerTest extends TestCase
         static::assertSame(200, $response->getStatusCode(), $response->getContent());
 
         /** @var array $json */
-        $json = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $json = json_decode($response->getContent(), true);
 
         // verify that we have 1 total found promotion
         static::assertEquals(1, $json['meta']['total']);
@@ -207,7 +218,7 @@ class PromotionControllerTest extends TestCase
      * @test
      * @group promotions
      *
-     * @throws InconsistentCriteriaIdsException
+     * @throws \Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException
      */
     public function testPatchDiscount(): void
     {

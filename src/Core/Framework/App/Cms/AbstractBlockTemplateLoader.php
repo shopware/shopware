@@ -2,12 +2,9 @@
 
 namespace Shopware\Core\Framework\App\Cms;
 
-use Shopware\Core\Framework\Log\Package;
-
 /**
  * @internal
  */
-#[Package('content')]
 abstract class AbstractBlockTemplateLoader
 {
     abstract public function getTemplateForBlock(CmsExtensions $cmsExtensions, string $blockName): string;

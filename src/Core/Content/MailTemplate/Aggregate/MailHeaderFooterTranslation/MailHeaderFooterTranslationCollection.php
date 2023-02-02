@@ -3,12 +3,10 @@
 namespace Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooterTranslation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<MailHeaderFooterTranslationEntity>
  */
-#[Package('sales-channel')]
 class MailHeaderFooterTranslationCollection extends EntityCollection
 {
     /**
@@ -16,12 +14,16 @@ class MailHeaderFooterTranslationCollection extends EntityCollection
      */
     public function getLanguageIds(): array
     {
-        return $this->fmap(fn (MailHeaderFooterTranslationEntity $mailTemplateTranslation) => $mailTemplateTranslation->getLanguageId());
+        return $this->fmap(function (MailHeaderFooterTranslationEntity $mailTemplateTranslation) {
+            return $mailTemplateTranslation->getLanguageId();
+        });
     }
 
     public function filterByLanguageId(string $id): self
     {
-        return $this->filter(fn (MailHeaderFooterTranslationEntity $mailTemplateTranslation) => $mailTemplateTranslation->getLanguageId() === $id);
+        return $this->filter(function (MailHeaderFooterTranslationEntity $mailTemplateTranslation) use ($id) {
+            return $mailTemplateTranslation->getLanguageId() === $id;
+        });
     }
 
     public function getApiAlias(): string

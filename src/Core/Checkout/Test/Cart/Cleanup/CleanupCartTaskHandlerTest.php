@@ -7,7 +7,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cleanup\CleanupCartTaskHandler;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -17,7 +16,6 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[Package('checkout')]
 class CleanupCartTaskHandlerTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -69,6 +67,7 @@ class CleanupCartTaskHandlerTest extends TestCase
 
         $cart = [
             'token' => $token,
+            'name' => 'test',
             $column => '',
             'price' => 1,
             'line_item_count' => 1,

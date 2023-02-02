@@ -23,7 +23,6 @@ import Iterator from 'src/helper/iterator.helper';
  *
  * <input data-form-validation-length='8' data-form-validation-equal-message='this field must be at least 8 characters long'>
  *
- * @package content
  */
 export default class FormValidation extends Plugin {
 
@@ -145,6 +144,10 @@ export default class FormValidation extends Plugin {
 
         this.el.classList.add(this.options.styleCls);
 
+        /**
+         * @deprecated tag:v6.5.0 - onFormSubmit event will be removed, use beforeSubmit instead
+         */
+        this.$emitter.publish('onFormSubmit', { validity });
         this.$emitter.publish('beforeSubmit', { validity });
     }
 

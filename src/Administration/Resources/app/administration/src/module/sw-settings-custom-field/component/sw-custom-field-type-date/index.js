@@ -1,10 +1,8 @@
-/**
- * @package system-settings
- */
 import template from './sw-custom-field-type-date.html.twig';
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+const { Component } = Shopware;
+
+Component.extend('sw-custom-field-type-date', 'sw-custom-field-type-base', {
     template,
 
     data() {
@@ -40,4 +38,4 @@ export default {
             }
         },
     },
-};
+});

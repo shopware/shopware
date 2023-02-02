@@ -2,23 +2,14 @@
 
 namespace Shopware\Core\Framework\Script\Api;
 
-use Shopware\Core\Framework\Log\Package;
-
-#[Package('core')]
 class ResponseCacheConfiguration
 {
     private bool $enabled = true;
 
     private ?int $maxAge = null;
 
-    /**
-     * @var list<string>
-     */
     private array $invalidationStates = [];
 
-    /**
-     * @var list<string>
-     */
     private array $cacheTags = [];
 
     /**
@@ -50,7 +41,7 @@ class ResponseCacheConfiguration
      */
     public function invalidationState(string ...$invalidationStates): self
     {
-        $this->invalidationStates = array_values(array_merge($this->invalidationStates, $invalidationStates));
+        $this->invalidationStates = array_merge($this->invalidationStates, $invalidationStates);
 
         return $this;
     }
@@ -62,7 +53,7 @@ class ResponseCacheConfiguration
      */
     public function tag(string ...$cacheTags): self
     {
-        $this->cacheTags = array_values(array_merge($this->cacheTags, $cacheTags));
+        $this->cacheTags = array_merge($this->cacheTags, $cacheTags);
 
         return $this;
     }
@@ -85,8 +76,6 @@ class ResponseCacheConfiguration
 
     /**
      * @internal
-     *
-     * @return list<string>
      */
     public function getInvalidationStates(): array
     {
@@ -95,8 +84,6 @@ class ResponseCacheConfiguration
 
     /**
      * @internal
-     *
-     * @return list<string>
      */
     public function getCacheTags(): array
     {

@@ -10,12 +10,10 @@ use Shopware\Core\Checkout\Payment\DataAbstractionLayer\PaymentHandlerIdentifier
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Test\Payment\Handler\V630\MultipleTestPaymentHandler;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
-use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
-#[Package('checkout')]
 class PaymentMethodHandlerRuntimeFieldTest extends TestCase
 {
     public function testSynchronousRuntimeField(): void
@@ -24,7 +22,7 @@ class PaymentMethodHandlerRuntimeFieldTest extends TestCase
         $event
             ->method('getEntities')
             ->willReturn($this->getPaymentMethodEntity(
-                $this->createMock(SynchronousPaymentHandlerInterface::class)::class
+                \get_class($this->createMock(SynchronousPaymentHandlerInterface::class))
             ));
 
         (new PaymentHandlerIdentifierSubscriber())->formatHandlerIdentifier($event);
@@ -45,7 +43,7 @@ class PaymentMethodHandlerRuntimeFieldTest extends TestCase
         $event
             ->method('getEntities')
             ->willReturn($this->getPaymentMethodEntity(
-                $this->createMock(AsynchronousPaymentHandlerInterface::class)::class
+                \get_class($this->createMock(AsynchronousPaymentHandlerInterface::class))
             ));
 
         (new PaymentHandlerIdentifierSubscriber())->formatHandlerIdentifier($event);
@@ -66,7 +64,7 @@ class PaymentMethodHandlerRuntimeFieldTest extends TestCase
         $event
             ->method('getEntities')
             ->willReturn($this->getPaymentMethodEntity(
-                $this->createMock(PreparedPaymentHandlerInterface::class)::class
+                \get_class($this->createMock(PreparedPaymentHandlerInterface::class))
             ));
 
         (new PaymentHandlerIdentifierSubscriber())->formatHandlerIdentifier($event);
@@ -87,7 +85,7 @@ class PaymentMethodHandlerRuntimeFieldTest extends TestCase
         $event
             ->method('getEntities')
             ->willReturn($this->getPaymentMethodEntity(
-                $this->createMock(MultipleTestPaymentHandler::class)::class
+                \get_class($this->createMock(MultipleTestPaymentHandler::class))
             ));
 
         (new PaymentHandlerIdentifierSubscriber())->formatHandlerIdentifier($event);

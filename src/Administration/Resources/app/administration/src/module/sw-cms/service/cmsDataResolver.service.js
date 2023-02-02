@@ -89,8 +89,7 @@ function resolve(page) {
 }
 
 /**
- * @private
- * @package content
+ * @private since v6.5.0
  */
 function initSlotConfig(slot) {
     const slotConfig = cmsElements[slot.type];
@@ -100,8 +99,7 @@ function initSlotConfig(slot) {
 }
 
 /**
- * @private
- * @package content
+ * @private since v6.5.0
  */
 function initSlotDefaultData(slot) {
     const slotConfig = cmsElements[slot.type];
@@ -111,8 +109,7 @@ function initSlotDefaultData(slot) {
 }
 
 /**
- * @private
- * @package content
+ * @private since v6.5.0
  */
 function optimizeCriteriaObjects(slotEntityCollection) {
     const directReads = {};
@@ -145,8 +142,7 @@ function optimizeCriteriaObjects(slotEntityCollection) {
 }
 
 /**
- * @private
- * @package content
+ * @private since v6.5.0
  */
 function canBeMerged(entity) {
     if (!entity.searchCriteria) {
@@ -204,8 +200,7 @@ function fetchByIdentifier(directReads) {
 }
 
 /**
- * @private
- * @package content
+ * @private since v6.5.0
  */
 function fetchByCriteria(searches) {
     const results = {};
@@ -246,8 +241,7 @@ function fetchByCriteria(searches) {
 }
 
 /**
- * @private
- * @package content
+ * @private since v6.5.0
  */
 function getRepository(entity) {
     if (repositories[entity]) {

@@ -6,15 +6,15 @@ $sw-order-state-card-danger: $color-crimson-500;
 $sw-order-state-card-success: $color-emerald-500;
 $sw-order-state-card-warning: $color-pumpkin-spice-500;
 
-.sw-order-state-history-card-entry {
+.sw-order-state-card-entry {
     .sw-order-state-card__history-entry {
         display: block;
         padding-bottom: 4px;
 
         .sw-order-state-card__date {
             float: right;
-            line-height: $line-height-md;
-            font-size: $font-size-xxs;
+            line-height: 24px;
+            font-size: 12px;
         }
 
         .sw-order-state-card__text {
@@ -64,7 +64,8 @@ $sw-order-state-card-warning: $color-pumpkin-spice-500;
         }
 
         .icon--regular-chevron-down-xxs {
-            padding: 4px;
+            // @deprecated tag:v6.5.0 - The !important attribute can be removed
+            padding: 4px !important;
         }
     }
 }

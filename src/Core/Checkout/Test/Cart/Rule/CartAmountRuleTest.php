@@ -5,10 +5,9 @@ namespace Shopware\Core\Checkout\Test\Cart\Rule;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Rule\CartAmountRule;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -19,15 +18,14 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 /**
  * @internal
  */
-#[Package('business-ops')]
 class CartAmountRuleTest extends TestCase
 {
     use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
 
-    private EntityRepository $ruleRepository;
+    private EntityRepositoryInterface $ruleRepository;
 
-    private EntityRepository $conditionRepository;
+    private EntityRepositoryInterface $conditionRepository;
 
     private Context $context;
 

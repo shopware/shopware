@@ -2,14 +2,11 @@ import EntityCollection from 'src/core/data/entity-collection.data';
 import template from './sw-settings-rule-add-assignment-modal.html.twig';
 import './sw-settings-rule-assignment-modal.scss';
 
-const { Context } = Shopware;
+const { Component, Context } = Shopware;
 const { Criteria } = Shopware.Data;
 
-/**
- * @private
- * @package business-ops
- */
-export default {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+Component.register('sw-settings-rule-add-assignment-modal', {
     template,
 
     inject: [
@@ -111,4 +108,4 @@ export default {
             this.selection = selection;
         },
     },
-};
+});

@@ -4,7 +4,10 @@ import SettingsPageObject from '../../../../support/pages/module/sw-settings.pag
 
 describe('Snippet set: Test crud operations', () => {
     beforeEach(() => {
-        cy.createDefaultFixture('snippet-set')
+        cy.loginViaApi()
+            .then(() => {
+                return cy.createDefaultFixture('snippet-set');
+            })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/snippet/index`);
                 cy.get('.sw-skeleton').should('not.exist');
@@ -29,7 +32,7 @@ describe('Snippet set: Test crud operations', () => {
         cy.contains(`${page.elements.gridRow}--0 a`, 'Snip Snap');
     });
 
-    it('@settings: update and read snippet set', { tags: ['quarantined', 'pa-system-settings'] }, () => {
+    it('@settings: update and read snippet set', { tags: ['pa-system-settings'] }, () => {
         const page = new SettingsPageObject();
 
         // Update snippet set
@@ -47,7 +50,7 @@ describe('Snippet set: Test crud operations', () => {
         cy.contains(`${page.elements.gridRow}--0 a`, 'Nordfriesisch');
     });
 
-    it('@settings: delete snippet set', { tags: ['quarantined', 'pa-system-settings'] }, () => {
+    it('@settings: delete snippet set', { tags: ['pa-system-settings'] }, () => {
         const page = new SettingsPageObject();
 
         cy.get(page.elements.loader).should('not.exist');
@@ -55,7 +58,7 @@ describe('Snippet set: Test crud operations', () => {
         cy.clickContextMenuItem(
             `${page.elements.contextMenu}-item--danger`,
             page.elements.contextMenuButton,
-            `${page.elements.gridRow}--0`,
+            `${page.elements.gridRow}--0`
         );
 
         cy.get('.sw-modal__body').should('be.visible');

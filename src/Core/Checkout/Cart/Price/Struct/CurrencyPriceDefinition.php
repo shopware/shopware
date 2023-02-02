@@ -3,25 +3,27 @@
 namespace Shopware\Core\Checkout\Cart\Price\Struct;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection as RawPriceCollection;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Struct\Struct;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
-#[Package('checkout')]
 class CurrencyPriceDefinition extends Struct implements PriceDefinitionInterface
 {
-    final public const TYPE = 'currency-price';
-    final public const SORTING_PRIORITY = 75;
+    public const TYPE = 'currency-price';
+    public const SORTING_PRIORITY = 75;
 
-    public function __construct(
-        protected RawPriceCollection $price,
-        /**
-         * Allows to define a filter rule which line items should be considered for percentage discount/surcharge
-         */
-        protected ?Rule $filter = null
-    ) {
+    protected RawPriceCollection $price;
+
+    /**
+     * Allows to define a filter rule which line items should be considered for percentage discount/surcharge
+     */
+    protected ?Rule $filter;
+
+    public function __construct(RawPriceCollection $price, ?Rule $filter = null)
+    {
+        $this->price = $price;
+        $this->filter = $filter;
     }
 
     public function getFilter(): ?Rule

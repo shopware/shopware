@@ -3,16 +3,13 @@ import template from './sw-settings-shipping-detail.html.twig';
 import './sw-settings-shipping-detail.scss';
 import swShippingDetailState from './state';
 
-const { Mixin, Context } = Shopware;
+const { Component, Mixin, Context } = Shopware;
 const { mapState } = Shopware.Component.getComponentHelper();
 const { Criteria } = Shopware.Data;
 const { warn } = Shopware.Utils.debug;
 
-/**
- * @package checkout
- */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-settings-shipping-detail', {
     template,
 
     inject: [
@@ -131,7 +128,9 @@ export default {
                 ],
             ));
 
-            criteria.addAssociation('conditions');
+            if (this.feature.isActive('FEATURE_NEXT_18215')) {
+                criteria.addAssociation('conditions');
+            }
 
             return criteria;
         },
@@ -331,4 +330,4 @@ export default {
             return currencies;
         },
     },
-};
+});

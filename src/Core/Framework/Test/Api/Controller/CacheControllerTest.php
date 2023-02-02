@@ -5,19 +5,16 @@ namespace Shopware\Core\Framework\Test\Api\Controller;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\IterateEntityIndexerMessage;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Storefront\Framework\Cache\CacheWarmer\CacheWarmer;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Messenger\TraceableMessageBus;
 
 /**
  * @internal
  * @group skip-paratest
  */
-#[Package('system-settings')]
 class CacheControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
@@ -117,9 +114,7 @@ class CacheControllerTest extends TestCase
 
     public function testCacheIndexEndpointWithSkipParameter(): void
     {
-        /** @var TraceableMessageBus $bus */
-        $bus = $this->getContainer()->get('messenger.bus.shopware');
-        $bus->reset();
+        $this->getContainer()->get('messenger.bus.shopware')->reset();
 
         $this->getBrowser()->request(
             'POST',
@@ -129,7 +124,7 @@ class CacheControllerTest extends TestCase
             [
                 'HTTP_CONTENT_TYPE' => 'application/json',
             ],
-            json_encode(['skip' => ['category.indexer']], \JSON_THROW_ON_ERROR)
+            json_encode(['skip' => ['category.indexer']])
         );
 
         /** @var JsonResponse $response */
@@ -137,7 +132,7 @@ class CacheControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), print_r($response->getContent(), true));
 
-        $messages = $bus->getDispatchedMessages();
+        $messages = $this->getContainer()->get('messenger.bus.shopware')->getDispatchedMessages();
 
         $hasSalesChannelIndexerMessage = false;
         $hasCategoryIndexerMessage = false;
@@ -161,9 +156,8 @@ class CacheControllerTest extends TestCase
             /** @var JsonResponse $response */
             $response = $this->getBrowser()->getResponse();
 
-            static::assertEquals(Response::HTTP_FORBIDDEN, $response->getStatusCode(), (string) $response->getContent());
-            $decode = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-            static::assertEquals(MissingPrivilegeException::MISSING_PRIVILEGE_ERROR, $decode['errors'][0]['code'], (string) $response->getContent());
+            static::assertEquals(Response::HTTP_FORBIDDEN, $response->getStatusCode(), $response->getContent());
+            static::assertEquals(MissingPrivilegeException::MISSING_PRIVILEGE_ERROR, json_decode($response->getContent(), true)['errors'][0]['code'], $response->getContent());
         } finally {
             $this->resetBrowser();
         }

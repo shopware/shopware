@@ -12,7 +12,7 @@ use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -28,7 +28,7 @@ class CreatedByFieldTest extends TestCase
 
     public function testCreatedByNotCreateWithWrongScope(): void
     {
-        /** @var EntityRepository $orderRepository */
+        /** @var EntityRepositoryInterface $orderRepository */
         $orderRepository = $this->getContainer()->get('order.repository');
         $userId = $this->fetchFirstIdFromTable('user');
         $context = $this->getAdminContext($userId);
@@ -46,7 +46,7 @@ class CreatedByFieldTest extends TestCase
 
     public function testCreatedByNotCreateWithWrongSource(): void
     {
-        /** @var EntityRepository $orderRepository */
+        /** @var EntityRepositoryInterface $orderRepository */
         $orderRepository = $this->getContainer()->get('order.repository');
         $context = Context::createDefaultContext();
 
@@ -66,7 +66,7 @@ class CreatedByFieldTest extends TestCase
 
     public function testCreateCreatedBy(): void
     {
-        /** @var EntityRepository $orderRepository */
+        /** @var EntityRepositoryInterface $orderRepository */
         $orderRepository = $this->getContainer()->get('order.repository');
         $userId = $this->fetchFirstIdFromTable('user');
         $context = $this->getAdminContext($userId);
@@ -142,12 +142,12 @@ class CreatedByFieldTest extends TestCase
 
     private function fetchFirstIdFromTable(string $table): string
     {
-        return Uuid::fromBytesToHex((string) $this->getContainer()->get(Connection::class)->fetchOne('SELECT id FROM ' . $table . ' LIMIT 1'));
+        return Uuid::fromBytesToHex((string) $this->getContainer()->get(Connection::class)->fetchColumn("SELECT id FROM {$table} LIMIT 1"));
     }
 
     private function fetchOrderStateId(string $orderStateTechnicalName): string
     {
-        $id = $this->getContainer()->get(Connection::class)->fetchOne(
+        $id = $this->getContainer()->get(Connection::class)->fetchColumn(
             'SELECT state_machine_state.id
             FROM state_machine_state
             JOIN state_machine ON state_machine_state.state_machine_id = state_machine.id

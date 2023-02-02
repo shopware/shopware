@@ -4,7 +4,10 @@ import variantProduct from '../../../../../fixtures/variant-product';
 
 describe('Search settings: Live Search', () => {
     beforeEach(() => {
-        cy.createProductFixture()
+        cy.loginViaApi()
+            .then(() => {
+                return cy.createProductFixture();
+            })
             .then(() => {
                 return cy.createProductFixture(variantProduct);
             })
@@ -29,12 +32,14 @@ describe('Search settings: Live Search', () => {
         // Request we want to wait for later
         cy.intercept({
             url: '/api/_proxy/store-api/*/search',
-            method: 'POST',
+            method: 'POST'
         }).as('searchKeywords');
 
         // the input should be disabled
         cy.get('.sw-simple-search-field input').should('be.disabled');
 
+        // typeSingleSelect seems to be buggy and require this delay
+        cy.wait(500);
         // select a sales channel to search
         cy.get('.sw-single-select')
             .typeSingleSelect('Storefront', '.sw-single-select');
@@ -50,11 +55,13 @@ describe('Search settings: Live Search', () => {
     it('@settings: Search for a keyword with result', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: '/api/_proxy/store-api/*/search',
-            method: 'POST',
+            method: 'POST'
         }).as('searchKeywords');
 
         cy.get('.sw-single-select').should('be.visible');
 
+        // typeSingleSelect seems to be buggy and require this delay, @see NEXT-17177
+        cy.wait(500);
         // select a sales channel to search
         cy.get('.sw-single-select')
             .typeSingleSelect('Storefront', '.sw-single-select');
@@ -73,9 +80,11 @@ describe('Search settings: Live Search', () => {
     it('@settings: Clicking on the search icon to trigger search', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: '/api/_proxy/store-api/*/search',
-            method: 'POST',
+            method: 'POST'
         }).as('searchKeywords');
 
+        // typeSingleSelect seems to be buggy and require this delay, @see NEXT-17177
+        cy.wait(500);
         cy.get('.sw-single-select').should('be.visible');
 
         // select a sales channel to search
@@ -98,9 +107,11 @@ describe('Search settings: Live Search', () => {
     it('@settings: Search for a keyword with multiple results', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: '/api/_proxy/store-api/*/search',
-            method: 'POST',
+            method: 'POST'
         }).as('searchKeywords');
 
+        // typeSingleSelect seems to be buggy and require this delay, @see NEXT-17177
+        cy.wait(500);
         // select a sales channel to search
         cy.get('.sw-single-select')
             .typeSingleSelect('Storefront', '.sw-single-select');

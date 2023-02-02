@@ -6,39 +6,48 @@ use GuzzleHttp\Exception\ClientException;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Store\Exception\StoreApiException;
 use Shopware\Core\Framework\Store\Exception\StoreInvalidCredentialsException;
 use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 
-/**
- * @internal
- */
-#[AsCommand(
-    name: 'store:login',
-    description: 'Login to the store',
-)]
-#[Package('merchant-services')]
 class StoreLoginCommand extends Command
 {
+    public static $defaultName = 'store:login';
+
+    private StoreClient $storeClient;
+
+    private SystemConfigService $configService;
+
+    private EntityRepositoryInterface $userRepository;
+
+    /**
+     * @internal
+     */
     public function __construct(
-        private readonly StoreClient $storeClient,
-        private readonly EntityRepository $userRepository,
-        private readonly SystemConfigService $configService
+        StoreClient $storeClient,
+        EntityRepositoryInterface $userRepository,
+        SystemConfigService $configService
     ) {
+        $this->storeClient = $storeClient;
+        $this->userRepository = $userRepository;
+        $this->configService = $configService;
+
         parent::__construct();
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - reason:remove-subscriber - option language will be removed
+     */
     protected function configure(): void
     {
         $this
@@ -47,10 +56,21 @@ class StoreLoginCommand extends Command
             ->addOption('user', 'u', InputOption::VALUE_REQUIRED, 'User')
             ->addOption('host', 'g', InputOption::VALUE_OPTIONAL, 'License host')
         ;
+
+        if (!Feature::isActive('v6.5.0.0')) {
+            $this->addOption('language', 'l', InputOption::VALUE_OPTIONAL, 'Language');
+        }
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        if ($input->hasParameterOption('language')) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.5.0.0',
+                'Passing parameter "--langugage" to command "store:login" is deprecated and will be removed in v6.5.0.0'
+            );
+        }
+
         $io = new ShopwareStyle($input, $output);
 
         $context = Context::createDefaultContext();
@@ -102,6 +122,6 @@ class StoreLoginCommand extends Command
 
         $io->success('Successfully logged in.');
 
-        return (int) Command::SUCCESS;
+        return Command::SUCCESS;
     }
 }

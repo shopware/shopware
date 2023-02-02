@@ -4,7 +4,10 @@ import SalesChannelPageObject from '../../../../support/pages/module/sw-sales-ch
 
 describe('Sales Channel: Tests about the theme tab in the sales channel', () => {
     beforeEach(() => {
-        cy.openInitialPage(Cypress.env('admin'));
+        cy.loginViaApi()
+            .then(() => {
+                cy.openInitialPage(Cypress.env('admin'));
+            });
     });
 
     it('@general: open theme tab', { tags: ['pa-sales-channels', 'jest'] }, () => {

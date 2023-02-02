@@ -9,21 +9,27 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\Framework\Struct\Struct;
-use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
+use Symfony\Component\Serializer\Serializer;
 
-#[Package('core')]
 class StructEncoder
 {
+    private DefinitionInstanceRegistry $definitionRegistry;
+
+    private Serializer $serializer;
+
     private array $protections = [];
 
     /**
      * @internal
      */
-    public function __construct(private readonly DefinitionInstanceRegistry $definitionRegistry, private readonly NormalizerInterface $serializer)
-    {
+    public function __construct(
+        DefinitionInstanceRegistry $definitionRegistry,
+        Serializer $serializer
+    ) {
+        $this->definitionRegistry = $definitionRegistry;
+        $this->serializer = $serializer;
     }
 
     public function encode(Struct $struct, ResponseFields $fields): array
@@ -80,7 +86,9 @@ class StructEncoder
         }
 
         if ($struct instanceof ErrorCollection) {
-            return array_map(static fn (Error $error) => $error->jsonSerialize(), $struct->getElements());
+            return array_map(static function (Error $error) {
+                return $error->jsonSerialize();
+            }, $struct->getElements());
         }
 
         if ($struct instanceof Collection) {

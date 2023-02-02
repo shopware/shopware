@@ -3,7 +3,7 @@
 namespace Shopware\Core\Content\Test\ProductExport\Service;
 
 use Doctrine\DBAL\Connection;
-use League\Flysystem\FilesystemOperator;
+use League\Flysystem\FilesystemInterface;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\ProductExport\Exception\ExportNotFoundException;
@@ -15,7 +15,7 @@ use Shopware\Core\Content\ProductExport\Service\ProductExportGenerator;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -30,7 +30,7 @@ class ProductExporterTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private EntityRepository $repository;
+    private EntityRepositoryInterface $repository;
 
     private Context $context;
 
@@ -38,7 +38,7 @@ class ProductExporterTest extends TestCase
 
     private ProductExporterInterface $service;
 
-    private FilesystemOperator $fileSystem;
+    private FilesystemInterface $fileSystem;
 
     protected function setUp(): void
     {
@@ -60,11 +60,10 @@ class ProductExporterTest extends TestCase
         $filePath = sprintf('%s/Testexport.csv', $this->getContainer()->getParameter('product_export.directory'));
         $fileContent = $this->fileSystem->read($filePath);
 
-        static::assertIsString($fileContent);
         $csvRows = explode(\PHP_EOL, $fileContent);
 
-        static::assertTrue($this->fileSystem->directoryExists($this->getContainer()->getParameter('product_export.directory')));
-        static::assertTrue($this->fileSystem->fileExists($filePath));
+        static::assertTrue($this->fileSystem->has($this->getContainer()->getParameter('product_export.directory')));
+        static::assertTrue($this->fileSystem->has($filePath));
         static::assertCount(4, $csvRows);
     }
 
@@ -83,11 +82,9 @@ class ProductExporterTest extends TestCase
 
         $filePath = sprintf('%s/Testexport.csv', $this->getContainer()->getParameter('product_export.directory'));
 
-        static::assertTrue($this->fileSystem->directoryExists($this->getContainer()->getParameter('product_export.directory')));
-        static::assertTrue($this->fileSystem->fileExists($filePath));
-        $fileContent = $this->fileSystem->read($filePath);
-        static::assertIsString($fileContent);
-        static::assertCount(4, explode(\PHP_EOL, $fileContent));
+        static::assertTrue($this->fileSystem->has($this->getContainer()->getParameter('product_export.directory')));
+        static::assertTrue($this->fileSystem->has($filePath));
+        static::assertCount(4, explode(\PHP_EOL, $this->fileSystem->read($filePath)));
     }
 
     public function testExportNotFound(): void
@@ -110,7 +107,7 @@ class ProductExporterTest extends TestCase
 
     private function getSalesChannelId(): string
     {
-        /** @var EntityRepository $repository */
+        /** @var EntityRepositoryInterface $repository */
         $repository = $this->getContainer()->get('sales_channel.repository');
 
         return $repository->search(new Criteria(), $this->context)->first()->getId();
@@ -118,7 +115,7 @@ class ProductExporterTest extends TestCase
 
     private function getSalesChannelDomain(): SalesChannelDomainEntity
     {
-        /** @var EntityRepository $repository */
+        /** @var EntityRepositoryInterface $repository */
         $repository = $this->getContainer()->get('sales_channel_domain.repository');
 
         return $repository->search(new Criteria(), $this->context)->first();
@@ -183,9 +180,6 @@ class ProductExporterTest extends TestCase
     ");
     }
 
-    /**
-     * @return list<array<string, mixed>>
-     */
     private function createProducts(): array
     {
         $productRepository = $this->getContainer()->get('product.repository');

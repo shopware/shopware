@@ -17,7 +17,6 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Environment;
@@ -31,17 +30,35 @@ class ShopConfigurationControllerTest extends TestCase
     use InstallerControllerTestTrait;
     use EnvTestBehaviour;
 
-    private MockObject&Environment $twig;
+    /**
+     * @var Environment&MockObject
+     */
+    private $twig;
 
-    private MockObject&RouterInterface $router;
+    /**
+     * @var RouterInterface&MockObject
+     */
+    private $router;
 
-    private Connection&MockObject $connection;
+    /**
+     * @var Connection&MockObject
+     */
+    private $connection;
 
-    private MockObject&EnvConfigWriter $envConfigWriter;
+    /**
+     * @var EnvConfigWriter&MockObject
+     */
+    private $envConfigWriter;
 
-    private MockObject&ShopConfigurationService $shopConfigService;
+    /**
+     * @var ShopConfigurationService&MockObject
+     */
+    private $shopConfigService;
 
-    private MockObject&AdminConfigurationService $adminConfigService;
+    /**
+     * @var AdminConfigurationService&MockObject
+     */
+    private $adminConfigService;
 
     private ShopConfigurationController $controller;
 
@@ -93,7 +110,9 @@ class ShopConfigurationControllerTest extends TestCase
                 ['iso3' => 'GBR', 'iso' => 'GB'],
             ]);
 
-        $this->translator->method('trans')->willReturnCallback(fn (string $key): string => $key);
+        $this->translator->method('trans')->willReturnCallback(function (string $key): string {
+            return $key;
+        });
 
         $this->twig->expects(static::once())->method('render')
             ->with(
@@ -123,7 +142,7 @@ class ShopConfigurationControllerTest extends TestCase
         $request->setSession($session);
 
         $this->router->expects(static::once())->method('generate')
-            ->with('installer.database-configuration', [], UrlGeneratorInterface::ABSOLUTE_PATH)
+            ->with('installer.database-configuration', [], RouterInterface::ABSOLUTE_PATH)
             ->willReturn('/installer/database-configuration');
 
         $this->twig->expects(static::never())->method('render');
@@ -189,10 +208,12 @@ class ShopConfigurationControllerTest extends TestCase
         ];
         $this->adminConfigService->expects(static::once())->method('createAdmin')->with($expectedAdmin, $this->connection);
 
-        $this->translator->method('trans')->willReturnCallback(fn (string $key): string => $key);
+        $this->translator->method('trans')->willReturnCallback(function (string $key): string {
+            return $key;
+        });
 
         $this->router->expects(static::once())->method('generate')
-            ->with('installer.finish', [], UrlGeneratorInterface::ABSOLUTE_PATH)
+            ->with('installer.finish', [], RouterInterface::ABSOLUTE_PATH)
             ->willReturn('/installer/finish');
 
         $this->twig->expects(static::never())->method('render');
@@ -230,7 +251,9 @@ class ShopConfigurationControllerTest extends TestCase
 
         $this->envConfigWriter->expects(static::once())->method('writeConfig')->willThrowException(new \Exception('Test Exception'));
 
-        $this->translator->method('trans')->willReturnCallback(fn (string $key): string => $key);
+        $this->translator->method('trans')->willReturnCallback(function (string $key): string {
+            return $key;
+        });
 
         $this->twig->expects(static::once())->method('render')
             ->with(
@@ -291,7 +314,9 @@ class ShopConfigurationControllerTest extends TestCase
 
         $this->envConfigWriter->expects(static::once())->method('writeConfig')->willThrowException(new \Exception('Test Exception'));
 
-        $this->translator->method('trans')->willReturnCallback(fn (string $key): string => $translations[$key]);
+        $this->translator->method('trans')->willReturnCallback(function (string $key) use ($translations): string {
+            return $translations[$key];
+        });
 
         $this->twig->expects(static::once())->method('render')->willReturnCallback(function (string $view, array $parameters): string {
             static::assertEquals('@Installer/installer/shop-configuration.html.twig', $view);

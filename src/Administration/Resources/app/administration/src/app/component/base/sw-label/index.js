@@ -4,9 +4,6 @@ import template from './sw-label.html.twig';
 const { Component } = Shopware;
 
 /**
- * @package admin
- *
- * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @status ready
  * @example-type dynamic
@@ -15,6 +12,7 @@ const { Component } = Shopware;
  *     Text
  * </sw-label>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-label', {
     template,
 

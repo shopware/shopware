@@ -10,20 +10,25 @@ use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
-#[Package('sales-channel')]
 class LandingPageSeoUrlRoute implements SeoUrlRouteInterface
 {
-    final public const ROUTE_NAME = 'frontend.landing.page';
-    final public const DEFAULT_TEMPLATE = '{{ landingPage.translated.url }}';
+    public const ROUTE_NAME = 'frontend.landing.page';
+    public const DEFAULT_TEMPLATE = '{{ landingPage.translated.url }}';
+
+    /**
+     * @var LandingPageDefinition
+     */
+    private $landingPageDefinition;
 
     /**
      * @internal
      */
-    public function __construct(private readonly LandingPageDefinition $landingPageDefinition)
+    public function __construct(LandingPageDefinition $landingPageDefinition)
     {
+        $this->landingPageDefinition = $landingPageDefinition;
     }
 
     public function getConfig(): SeoUrlRouteConfig
@@ -36,10 +41,19 @@ class LandingPageSeoUrlRoute implements SeoUrlRouteInterface
         );
     }
 
-    public function prepareCriteria(Criteria $criteria, SalesChannelEntity $salesChannel): void
+    /**
+     * @internal (flag:FEATURE_NEXT_13410) make $salesChannel parameter required
+     */
+    public function prepareCriteria(Criteria $criteria/*, SalesChannelEntity $salesChannel */): void
     {
+        /** @var SalesChannelEntity|null $salesChannel */
+        $salesChannel = \func_num_args() === 2 ? func_get_arg(1) : null;
+
         $criteria->addFilter(new EqualsFilter('active', true));
-        $criteria->addFilter(new EqualsFilter('salesChannels.id', $salesChannel->getId()));
+
+        if ($salesChannel && Feature::isActive('FEATURE_NEXT_13410')) {
+            $criteria->addFilter(new EqualsFilter('salesChannels.id', $salesChannel->getId()));
+        }
     }
 
     public function getMapping(Entity $landingPage, ?SalesChannelEntity $salesChannel): SeoUrlMapping

@@ -1,18 +1,8 @@
-/**
- * @private
- * @package content
- */
-Shopware.Component.register('sw-cms-preview-text-hero', () => import('./preview'));
-/**
- * @private
- * @package content
- */
-Shopware.Component.register('sw-cms-block-text-hero', () => import('./component'));
-
+import './component';
+import './preview';
 
 /**
- * @private
- * @package content
+ * @private since v6.5.0
  */
 Shopware.Service('cmsService').registerCmsBlock({
     name: 'text-hero',

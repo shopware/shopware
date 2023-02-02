@@ -1,0 +1,64 @@
+@startuml
+' uncomment the line below if you're using computer with a retina display
+' skinparam dpi 300
+!define Table(name,desc) class name as "desc" << (T,#FFAAAA) >>
+!define ForeignTable(name,desc) class name as "desc" << (T,#ada6a6) >>
+!define TranslationTable(name,desc) class name as "desc" << (I,#4286f4) >>
+' we use bold for primary key
+' green color for unique
+' and underscore for not_null
+!define primary_key(x) <b>x</b>
+!define unique(x) <color:green>x</color>
+!define not_null(x) <u>x</u>
+' other tags available:
+' <i></i>
+' <back:COLOR></color>, where color is a color name or html color code
+' (#FFAACC)
+' see: http://plantuml.com/classes.html#More
+hide methods
+hide stereotypes
+hide empty members
+skinparam backgroundColor #FFFFFF
+
+' entities
+
+Table(ShopwareCoreContentNewsletterAggregateNewsletterRecipientNewsletterRecipientDefinition, "newsletter_recipient\n(Newsletter recipient)") {
+   primary_key(id) id
+   not_null(email) string
+   title string
+   firstName string
+   lastName string
+   zipCode string
+   city string
+   street string
+   not_null(status) string
+   not_null(hash) string
+   customFields customFields
+   confirmedAt dateTime
+   salutationId foreignKey
+   not_null(languageId) foreignKey
+   not_null(salesChannelId) foreignKey
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+}
+Table(ShopwareCoreContentNewsletterAggregateNewsletterRecipientTagNewsletterRecipientTagDefinition, "newsletter_recipient_tag\n(M:N Mapping)") {
+   primary_key(newsletterRecipientId) foreignKey
+   primary_key(tagId) foreignKey
+}
+ForeignTable(ShopwareCoreSystemSalutationSalutationDefinition, "salutation") {
+}
+ForeignTable(ShopwareCoreSystemLanguageLanguageDefinition, "language") {
+}
+ForeignTable(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channel") {
+}
+ForeignTable(ShopwareCoreSystemTagTagDefinition, "tag") {
+}
+
+' relationshipd
+
+ShopwareCoreContentNewsletterAggregateNewsletterRecipientTagNewsletterRecipientTagDefinition --> ShopwareCoreContentNewsletterAggregateNewsletterRecipientNewsletterRecipientDefinition
+ShopwareCoreContentNewsletterAggregateNewsletterRecipientNewsletterRecipientDefinition --> ShopwareCoreSystemSalutationSalutationDefinition
+ShopwareCoreContentNewsletterAggregateNewsletterRecipientNewsletterRecipientDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
+ShopwareCoreContentNewsletterAggregateNewsletterRecipientNewsletterRecipientDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
+ShopwareCoreContentNewsletterAggregateNewsletterRecipientTagNewsletterRecipientTagDefinition --> ShopwareCoreSystemTagTagDefinition
+@enduml

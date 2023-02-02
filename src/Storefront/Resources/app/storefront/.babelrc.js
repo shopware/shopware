@@ -1,13 +1,14 @@
-/**
- * @package storefront
- */
 module.exports = {
     presets: [
         ['@babel/preset-env', {
-            useBuiltIns: 'entry',
-            corejs: '3.27',
-            bugfixes: true,
+            "targets": "> 1%, IE 11, not dead",
+            'useBuiltIns': 'entry',
+            'corejs': 2,
         }],
         '@babel/preset-typescript',
-    ]
+    ],
+    plugins: [
+        '@babel/plugin-proposal-class-properties',
+        '@babel/plugin-transform-object-assign',
+    ],
 };

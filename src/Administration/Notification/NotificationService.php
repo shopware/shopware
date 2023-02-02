@@ -6,21 +6,22 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
-#[Package('administration')]
 class NotificationService
 {
-    public function __construct(private readonly EntityRepository $notificationRepository)
+    private EntityRepositoryInterface $notificationRepository;
+
+    public function __construct(EntityRepositoryInterface $notificationRepository)
     {
+        $this->notificationRepository = $notificationRepository;
     }
 
     public function createNotification(array $data, Context $context): void
@@ -34,7 +35,7 @@ class NotificationService
     {
         $source = $context->getSource();
         if (!$source instanceof AdminApiSource) {
-            throw new InvalidContextSourceException(AdminApiSource::class, $context->getSource()::class);
+            throw new InvalidContextSourceException(AdminApiSource::class, \get_class($context->getSource()));
         }
 
         $criteria = new Criteria();

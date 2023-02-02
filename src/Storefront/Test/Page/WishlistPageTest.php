@@ -21,7 +21,10 @@ class WishlistPageTest extends TestCase
     use IntegrationTestBehaviour;
     use StorefrontPageTestBehaviour;
 
-    private SystemConfigService $systemConfigService;
+    /**
+     * @var SystemConfigService
+     */
+    private $systemConfigService;
 
     public function setUp(): void
     {

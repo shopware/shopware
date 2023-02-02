@@ -11,7 +11,7 @@ $sw-alert-size-close: 40px;
     text-align: left;
     position: relative;
     margin: 0 auto 20px;
-    font-size: $font-size-s;
+    font-size: $font-size-default;
 
     &__body {
         padding: 24px 60px 24px 24px;
@@ -49,12 +49,6 @@ $sw-alert-size-close: 40px;
         border: 0 none;
         outline: none;
         cursor: pointer;
-
-        .sw-icon {
-            width: 16px;
-            height: 16px;
-            padding: 3px;
-        }
     }
 
     &__title {
@@ -76,7 +70,7 @@ $sw-alert-size-close: 40px;
             flex-basis: 0;
             flex-grow: 1;
             max-width: 100%;
-            font-weight: $font-weight-medium;
+            font-weight: 500;
 
             &:not(:last-child) {
                 border-right: 1px solid $color-gray-300;

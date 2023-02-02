@@ -5,19 +5,32 @@ namespace Shopware\Core\Checkout\Test\Cart\LineItem\Group\Helpers\Fakes;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroup;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupPackagerInterface;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
  */
-#[Package('checkout')]
 class FakeLineItemGroupTakeAllPackager implements LineItemGroupPackagerInterface
 {
-    private int $sequenceCount = 1;
+    /**
+     * @var string
+     */
+    private $key;
 
-    public function __construct(private readonly string $key, private readonly FakeSequenceSupervisor $sequenceSupervisor)
+    /**
+     * @var FakeSequenceSupervisor
+     */
+    private $sequenceSupervisor;
+
+    /**
+     * @var int
+     */
+    private $sequenceCount;
+
+    public function __construct(string $key, FakeSequenceSupervisor $sequenceSupervisor)
     {
+        $this->key = $key;
+        $this->sequenceSupervisor = $sequenceSupervisor;
     }
 
     public function getSequenceCount(): int

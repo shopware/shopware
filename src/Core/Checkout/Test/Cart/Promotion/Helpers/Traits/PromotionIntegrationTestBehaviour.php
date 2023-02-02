@@ -3,14 +3,12 @@
 namespace Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits;
 
 use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 use Shopware\Core\Checkout\Promotion\Subscriber\Storefront\StorefrontCartSubscriber;
 use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -18,7 +16,6 @@ use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\SessionStorageInterface;
 
-#[Package('checkout')]
 trait PromotionIntegrationTestBehaviour
 {
     private SalesChannelContext $context;
@@ -37,7 +34,9 @@ trait PromotionIntegrationTestBehaviour
     /**
      * Adds the provided product to the cart.
      *
-     * @throws CartException
+     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
+     * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
+     * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
      */
     public function addProduct(string $productId, int $quantity, Cart $cart, CartService $cartService, SalesChannelContext $context): Cart
     {
@@ -82,8 +81,6 @@ trait PromotionIntegrationTestBehaviour
     /**
      * Gets all promotion codes that have been added
      * to the current session.
-     *
-     * @return array<mixed>
      */
     public function getSessionCodes(): array
     {

@@ -15,17 +15,17 @@ use Shopware\Core\Checkout\Customer\Event\DoubleOptInGuestOrderEvent;
 use Shopware\Core\Checkout\Customer\Event\GuestCustomerRegisterEvent;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUnique;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentification;
-use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
 use Shopware\Core\Framework\Event\DataMappingEvent;
-use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Routing\Annotation\ContextTokenRequired;
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
@@ -43,7 +43,7 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelD
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -55,15 +55,64 @@ use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Contracts\EventDispatcher\Event;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Route(defaults: ['_routeScope' => ['store-api'], '_contextTokenRequired' => true])]
-#[Package('customer-order')]
+/**
+ * @Route(defaults={"_routeScope"={"store-api"}, "_contextTokenRequired"=true})
+ */
 class RegisterRoute extends AbstractRegisterRoute
 {
+    protected Connection $connection;
+
+    private EntityRepositoryInterface $customerRepository;
+
+    private EventDispatcherInterface $eventDispatcher;
+
+    private NumberRangeValueGeneratorInterface $numberRangeValueGenerator;
+
+    private DataValidationFactoryInterface $addressValidationFactory;
+
+    private DataValidator $validator;
+
+    private DataValidationFactoryInterface $accountValidationFactory;
+
+    private SystemConfigService $systemConfigService;
+
+    private SalesChannelContextPersister $contextPersister;
+
+    private SalesChannelRepositoryInterface $countryRepository;
+
+    private SalesChannelContextServiceInterface $contextService;
+
+    private StoreApiCustomFieldMapper $customFieldMapper;
+
     /**
      * @internal
      */
-    public function __construct(private readonly EventDispatcherInterface $eventDispatcher, private readonly NumberRangeValueGeneratorInterface $numberRangeValueGenerator, private readonly DataValidator $validator, private readonly DataValidationFactoryInterface $accountValidationFactory, private readonly DataValidationFactoryInterface $addressValidationFactory, private readonly SystemConfigService $systemConfigService, private readonly EntityRepository $customerRepository, private readonly SalesChannelContextPersister $contextPersister, private readonly SalesChannelRepository $countryRepository, protected Connection $connection, private readonly SalesChannelContextServiceInterface $contextService, private readonly StoreApiCustomFieldMapper $customFieldMapper)
-    {
+    public function __construct(
+        EventDispatcherInterface $eventDispatcher,
+        NumberRangeValueGeneratorInterface $numberRangeValueGenerator,
+        DataValidator $validator,
+        DataValidationFactoryInterface $accountValidationFactory,
+        DataValidationFactoryInterface $addressValidationFactory,
+        SystemConfigService $systemConfigService,
+        EntityRepositoryInterface $customerRepository,
+        SalesChannelContextPersister $contextPersister,
+        SalesChannelRepositoryInterface $countryRepository,
+        Connection $connection,
+        SalesChannelContextServiceInterface $contextService,
+        StoreApiCustomFieldMapper $customFieldMapper
+    ) {
+        $this->eventDispatcher = $eventDispatcher;
+        $this->numberRangeValueGenerator = $numberRangeValueGenerator;
+        $this->validator = $validator;
+        $this->accountValidationFactory = $accountValidationFactory;
+        $this->addressValidationFactory = $addressValidationFactory;
+        $this->systemConfigService = $systemConfigService;
+        $this->customerRepository = $customerRepository;
+        $this->contextPersister = $contextPersister;
+        $this->countryRepository = $countryRepository;
+        $this->connection = $connection;
+        $this->contextService = $contextService;
+        $this->customFieldMapper = $customFieldMapper;
     }
 
     public function getDecorated(): AbstractRegisterRoute
@@ -71,7 +120,10 @@ class RegisterRoute extends AbstractRegisterRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/account/register', name: 'store-api.account.register', methods: ['POST'])]
+    /**
+     * @Since("6.2.0.0")
+     * @Route("/store-api/account/register", name="store-api.account.register", methods={"POST"})
+     */
     public function register(RequestDataBag $data, SalesChannelContext $context, bool $validateStorefrontUrl = true, ?DataValidationDefinition $additionalValidationDefinitions = null): CustomerResponse
     {
         $isGuest = $data->getBoolean('guest');
@@ -208,11 +260,6 @@ class RegisterRoute extends AbstractRegisterRoute
         return $event;
     }
 
-    /**
-     * @param array<string, mixed> $customer
-     *
-     * @return array<string, mixed>
-     */
     private function setDoubleOptInData(array $customer, SalesChannelContext $context): array
     {
         $configKey = $customer['guest']
@@ -226,9 +273,7 @@ class RegisterRoute extends AbstractRegisterRoute
             return $customer;
         }
 
-        if (!Feature::isActive('v6.6.0.0')) {
-            $customer['active'] = false;
-        }
+        $customer['active'] = false;
         $customer['doubleOptInRegistration'] = true;
         $customer['doubleOptInEmailSentDate'] = new \DateTimeImmutable();
         $customer['hash'] = Uuid::randomHex();
@@ -294,15 +339,14 @@ class RegisterRoute extends AbstractRegisterRoute
         throw new ConstraintViolationException($violations, $data->all());
     }
 
-    /**
-     * @return array<int, string>
-     */
     private function getDomainUrls(SalesChannelContext $context): array
     {
         /** @var SalesChannelDomainCollection $salesChannelDomainCollection */
         $salesChannelDomainCollection = $context->getSalesChannel()->getDomains();
 
-        return array_map(static fn (SalesChannelDomainEntity $domainEntity) => rtrim($domainEntity->getUrl(), '/'), $salesChannelDomainCollection->getElements());
+        return array_map(static function (SalesChannelDomainEntity $domainEntity) {
+            return rtrim($domainEntity->getUrl(), '/');
+        }, $salesChannelDomainCollection->getElements());
     }
 
     private function getBirthday(DataBag $data): ?\DateTimeInterface
@@ -323,9 +367,6 @@ class RegisterRoute extends AbstractRegisterRoute
         ));
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     private function mapBillingAddress(DataBag $billing, Context $context): array
     {
         $billingAddress = $this->mapAddressData($billing);
@@ -336,9 +377,6 @@ class RegisterRoute extends AbstractRegisterRoute
         return $event->getOutput();
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     private function mapShippingAddress(DataBag $shipping, Context $context): array
     {
         $shippingAddress = $this->mapAddressData($shipping);
@@ -349,9 +387,6 @@ class RegisterRoute extends AbstractRegisterRoute
         return $event->getOutput();
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     private function mapCustomerData(DataBag $data, bool $isGuest, SalesChannelContext $context): array
     {
         $customer = [
@@ -402,8 +437,6 @@ class RegisterRoute extends AbstractRegisterRoute
             $validation->add('company', new NotBlank());
         }
 
-        $validation->set('zipcode', new CustomerZipCode(['countryId' => $data->get('billingAddress')->get('countryId')]));
-
         $validationEvent = new BuildValidationEvent($validation, $data, $context->getContext());
         $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());
 
@@ -436,9 +469,6 @@ class RegisterRoute extends AbstractRegisterRoute
         return $validation;
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     private function mapAddressData(DataBag $addressData): array
     {
         $mappedData = $addressData->only(

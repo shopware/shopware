@@ -16,6 +16,10 @@
               data-form-ajax-submit="true"
               data-form-ajax-submit-options='{{ formAjaxSubmitOptions|json_encode }}'>
 
+            {% block page_product_detail_review_form_csrf %}
+                {{ sw_csrf('frontend.detail.review.save') }}
+            {% endblock %}
+
             {% block page_product_detail_review_form_forward %}
                 <input type="hidden"
                        name="forwardTo"
@@ -35,7 +39,7 @@
             {% endif %}
 
             {% block page_product_detail_review_form_details %}
-                <div class="row g-2">
+                <div class="{{ formRowClass }}">
                     {% block page_product_detail_review_form_rating %}
                         <div class="form-group col-md-4 product-detail-review-form-rating">
                             <label for="#review-form-rating">
@@ -89,7 +93,7 @@
                                 <input type="text"
                                        class="form-control{% if formViolations.getViolations('/title') %} is-invalid{% endif %}"
                                        id="reviewTitle"
-                                       placeholder="{{ "detail.reviewFormTitlePlaceholder"|trans|striptags }}"
+                                       placeholder="{{ "detail.reviewFormTitlePlaceholder"|trans|striptags }}{{ "general.required"|trans|striptags }}"
                                        name="title"
                                        value="{{ data.get('title') }}"
                                        required="required"
@@ -120,7 +124,6 @@
                         <textarea class="form-control{% if formViolations.getViolations('/content') %} is-invalid{% endif %}"
                                   id="reviewContent"
                                   name="content"
-                                  placeholder="{{ "detail.reviewFormContentPlaceholder"|trans|striptags }}"
                                   required="required"
                                   minlength="40"
                                   rows="8">{% if data.get('content') is not empty %}{{ data.get('content') }}{% endif %}</textarea>
@@ -148,8 +151,8 @@
                         {% block page_product_detail_review_form_cancel %}
                             <a href="#"
                                class="btn btn-outline-secondary product-detail-review-cancel"
-                               data-bs-toggle="collapse"
-                               data-bs-target=".multi-collapse"
+                               {{ dataBsToggleAttr }}="collapse"
+                               {{ dataBsTargetAttr }}=".multi-collapse"
                                aria-expanded="false"
                                aria-controls="review-form review-list">
                                 {{ "detail.reviewFormCancelText"|trans|sw_sanitize }}

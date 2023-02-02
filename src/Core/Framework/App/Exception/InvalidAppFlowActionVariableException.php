@@ -2,9 +2,6 @@
 
 namespace Shopware\Core\Framework\App\Exception;
 
-use Shopware\Core\Framework\Log\Package;
-
-#[Package('core')]
 class InvalidAppFlowActionVariableException extends \Exception
 {
     public function __construct(string $appFlowActionId, string $param, string $message = '', int $code = 0)

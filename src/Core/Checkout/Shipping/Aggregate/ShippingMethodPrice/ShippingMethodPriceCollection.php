@@ -3,12 +3,10 @@
 namespace Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<ShippingMethodPriceEntity>
  */
-#[Package('checkout')]
 class ShippingMethodPriceCollection extends EntityCollection
 {
     /**
@@ -16,12 +14,16 @@ class ShippingMethodPriceCollection extends EntityCollection
      */
     public function getShippingMethodIds(): array
     {
-        return $this->fmap(fn (ShippingMethodPriceEntity $shippingMethodPrice) => $shippingMethodPrice->getShippingMethodId());
+        return $this->fmap(function (ShippingMethodPriceEntity $shippingMethodPrice) {
+            return $shippingMethodPrice->getShippingMethodId();
+        });
     }
 
     public function filterByShippingMethodId(string $id): self
     {
-        return $this->filter(fn (ShippingMethodPriceEntity $shippingMethodPrice) => $shippingMethodPrice->getShippingMethodId() === $id);
+        return $this->filter(function (ShippingMethodPriceEntity $shippingMethodPrice) use ($id) {
+            return $shippingMethodPrice->getShippingMethodId() === $id;
+        });
     }
 
     public function getApiAlias(): string

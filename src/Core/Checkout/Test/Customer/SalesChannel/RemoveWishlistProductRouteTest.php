@@ -11,9 +11,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
  * @internal
@@ -24,13 +22,30 @@ class RemoveWishlistProductRouteTest extends TestCase
     use IntegrationTestBehaviour;
     use CustomerTestTrait;
 
-    private KernelBrowser $browser;
+    /**
+     * @var \Symfony\Bundle\FrameworkBundle\KernelBrowser
+     */
+    private $browser;
 
-    private TestDataCollection $ids;
+    /**
+     * @var TestDataCollection
+     */
+    private $ids;
 
-    private Context $context;
+    /**
+     * @var object|null
+     */
+    private $customerRepository;
 
-    private string $customerId;
+    /**
+     * @var Context
+     */
+    private $context;
+
+    /**
+     * @var string
+     */
+    private $customerId;
 
     /**
      * @var SystemConfigService
@@ -46,6 +61,7 @@ class RemoveWishlistProductRouteTest extends TestCase
             'id' => $this->ids->create('sales-channel'),
         ]);
         $this->assignSalesChannelContext($this->browser);
+        $this->customerRepository = $this->getContainer()->get('customer.repository');
 
         $this->systemConfigService = $this->getContainer()->get(SystemConfigService::class);
         $this->systemConfigService->set('core.cart.wishlistEnabled', true);
@@ -63,13 +79,9 @@ class RemoveWishlistProductRouteTest extends TestCase
                 ]
             );
 
-        $response = $this->browser->getResponse();
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
 
-        // After login successfully, the context token will be set in the header
-        $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
-        static::assertNotEmpty($contextToken);
-
-        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $response['contextToken']);
     }
 
     public function testDeleteProductShouldReturnSuccess(): void
@@ -92,7 +104,7 @@ class RemoveWishlistProductRouteTest extends TestCase
                 '/store-api/customer/wishlist/delete/' . $productId
             );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
         static::assertTrue($response['success']);
@@ -111,7 +123,7 @@ class RemoveWishlistProductRouteTest extends TestCase
                 'DELETE',
                 '/store-api/customer/wishlist/delete/' . $productData[0]
             );
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
         $errors = $response['errors'][0];
         static::assertSame(403, $this->browser->getResponse()->getStatusCode());
         static::assertEquals('CHECKOUT__WISHLIST_IS_NOT_ACTIVATED', $errors['code']);
@@ -129,7 +141,7 @@ class RemoveWishlistProductRouteTest extends TestCase
                 'DELETE',
                 '/store-api/customer/wishlist/delete/' . $productId
             );
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         $errors = $response['errors'][0];
         static::assertSame(403, $this->browser->getResponse()->getStatusCode());
@@ -147,7 +159,7 @@ class RemoveWishlistProductRouteTest extends TestCase
                 'DELETE',
                 '/store-api/customer/wishlist/delete/' . $productId
             );
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
         $errors = $response['errors'][0];
         static::assertSame(404, $this->browser->getResponse()->getStatusCode());
         static::assertEquals('CHECKOUT__WISHLIST_NOT_FOUND', $errors['code']);
@@ -166,7 +178,7 @@ class RemoveWishlistProductRouteTest extends TestCase
                 'DELETE',
                 '/store-api/customer/wishlist/delete/' . $productId
             );
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
         $errors = $response['errors'][0];
         static::assertSame(404, $this->browser->getResponse()->getStatusCode());
         static::assertEquals('CHECKOUT__WISHLIST_PRODUCT_NOT_FOUND', $errors['code']);
@@ -189,10 +201,7 @@ class RemoveWishlistProductRouteTest extends TestCase
             'taxId' => $this->getValidTaxId(),
             'active' => true,
             'visibilities' => [
-                [
-                    'salesChannelId' => $this->getSalesChannelApiSalesChannelId(),
-                    'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
-                ],
+                ['salesChannelId' => $this->getSalesChannelApiSalesChannelId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
             ],
         ];
         $this->getContainer()->get('product.repository')->create([$data], $context);

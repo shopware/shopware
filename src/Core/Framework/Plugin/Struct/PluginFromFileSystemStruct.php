@@ -3,10 +3,8 @@
 namespace Shopware\Core\Framework\Plugin\Struct;
 
 use Composer\Package\CompletePackageInterface;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('core')]
 class PluginFromFileSystemStruct extends Struct
 {
     /**

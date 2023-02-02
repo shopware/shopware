@@ -1,25 +1,47 @@
 import ApiService from '../api.service';
 
+const { Criteria } = Shopware.Data;
+
 /**
  * Gateway for the API end point 'product'
  * @class
  * @extends ApiService
  */
 class SearchApiService extends ApiService {
-    constructor(httpClient, loginService, apiEndpoint = '_admin') {
+    constructor(httpClient, loginService, apiEndpoint = '_admin/search') {
         super(httpClient, loginService, apiEndpoint);
         this.name = 'searchService';
     }
 
-    elastic(term, entities, limit, additionalHeaders = {}) {
+    /* eslint-disable no-unused-vars */
+    /** @deprecated tag:v6.5.0 - Will removed, using searchQuery instead */
+    search({ term, page = 1, limit = 5, additionalParams = {}, additionalHeaders = {} }) {
         const headers = this.getBasicHeaders(additionalHeaders);
 
-        return this.httpClient
-            .post(`${this.getApiBasePath()}/es-search`, { term, limit, entities }, { headers })
-            .then((response) => {
-                return ApiService.handleResponse(response);
-            });
+        const criteria = new Criteria(page, limit);
+        criteria.setTerm(term);
+
+        const entities = [
+            'landing_page',
+            'order',
+            'customer',
+            'product',
+            'category',
+            'media',
+            'product_manufacturer',
+            'tag',
+            'cms_page',
+        ];
+
+        const queries = {};
+
+        entities.forEach(entity => {
+            queries[entity] = criteria;
+        });
+
+        return this.searchQuery(queries, additionalHeaders);
     }
+    /* eslint-enable no-unused-vars */
 
     /**
      *
@@ -36,7 +58,7 @@ class SearchApiService extends ApiService {
         });
 
         return this.httpClient
-            .post(`${this.getApiBasePath()}/search`, queries, { headers })
+            .post(this.getApiBasePath(), queries, { headers })
             .then((response) => {
                 return ApiService.handleResponse(response);
             });

@@ -10,12 +10,14 @@
         {% endblock %}
     </template>
 
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-    {% block sw_cms_config_product_listing_delete_modal_body %}
-    <p class="sw-cms-el-config-product-listing-config-delete-modal__body">
-        {{ $tc('sw-cms.elements.productListing.config.sorting.deleteModal.body', { productSortingName: productSorting.label } ) }}
-    </p>
-    {% endblock %}
+    <template>
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_cms_config_product_listing_delete_modal_body %}
+        <p class="sw-cms-el-config-product-listing-config-delete-modal__body">
+            {{ $tc('sw-cms.elements.productListing.config.sorting.deleteModal.body', { productSortingName: productSorting.label } ) }}
+        </p>
+        {% endblock %}
+    </template>
 
     <template #modal-footer>
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -23,7 +25,6 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_config_product_listing_delete_modal_footer_button_cancel %}
         <sw-button
-            class="sw-cms-el-config-product-listing-config-delete-modal__cancel"
             size="small"
             @click="onCancel"
         >
@@ -34,7 +35,6 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_config_product_listing_delete_modal_footer_button_confirm %}
         <sw-button
-            class="sw-cms-el-config-product-listing-config-delete-modal__confirm"
             variant="danger"
             size="small"
             @click="onConfirm"

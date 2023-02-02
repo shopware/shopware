@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\Framework\Plugin;
 
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Decoratable;
 
-#[Package('core')]
+/**
+ * @Decoratable
+ */
 interface BundleConfigGeneratorInterface
 {
     /**

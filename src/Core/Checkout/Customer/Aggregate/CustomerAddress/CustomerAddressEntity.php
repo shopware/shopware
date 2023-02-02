@@ -6,54 +6,109 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateEntity;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Salutation\SalutationEntity;
 
-#[Package('customer-order')]
 class CustomerAddressEntity extends Entity
 {
     use EntityIdTrait;
     use EntityCustomFieldsTrait;
 
-    protected string $customerId;
+    /**
+     * @var string
+     */
+    protected $customerId;
 
-    protected string $countryId;
+    /**
+     * @var string
+     */
+    protected $countryId;
 
-    protected ?string $countryStateId = null;
+    /**
+     * @var string|null
+     */
+    protected $countryStateId;
 
-    protected ?string $salutationId = null;
+    /**
+     * @var string|null
+     */
+    protected $salutationId;
 
-    protected string $firstName;
+    /**
+     * @var string
+     */
+    protected $firstName;
 
-    protected string $lastName;
+    /**
+     * @var string
+     */
+    protected $lastName;
 
-    protected ?string $zipcode = null;
+    /**
+     * @var string
+     */
+    protected $zipcode;
 
-    protected string $city;
+    /**
+     * @var string
+     */
+    protected $city;
 
-    protected ?string $company = null;
+    /**
+     * @var string|null
+     */
+    protected $company;
 
-    protected ?string $department = null;
+    /**
+     * @var string|null
+     */
+    protected $department;
 
-    protected ?string $title = null;
+    /**
+     * @var string|null
+     */
+    protected $title;
 
-    protected string $street;
+    /**
+     * @var string
+     */
+    protected $street;
 
-    protected ?string $phoneNumber = null;
+    /**
+     * @var string|null
+     */
+    protected $phoneNumber;
 
-    protected ?string $additionalAddressLine1 = null;
+    /**
+     * @var string|null
+     */
+    protected $additionalAddressLine1;
 
-    protected ?string $additionalAddressLine2 = null;
+    /**
+     * @var string|null
+     */
+    protected $additionalAddressLine2;
 
-    protected ?CountryEntity $country = null;
+    /**
+     * @var CountryEntity|null
+     */
+    protected $country;
 
-    protected ?CountryStateEntity $countryState = null;
+    /**
+     * @var CountryStateEntity|null
+     */
+    protected $countryState;
 
-    protected ?SalutationEntity $salutation = null;
+    /**
+     * @var SalutationEntity|null
+     */
+    protected $salutation;
 
-    protected ?CustomerEntity $customer = null;
+    /**
+     * @var CustomerEntity|null
+     */
+    protected $customer;
 
     public function getCustomerId(): string
     {
@@ -115,14 +170,14 @@ class CustomerAddressEntity extends Entity
         $this->lastName = $lastName;
     }
 
-    public function getZipcode(): ?string
+    public function getZipcode(): string
     {
         return $this->zipcode;
     }
 
-    public function setZipcode(?string $zipcode): void
+    public function setZipcode(string $zipcode): void
     {
-        $this->zipcode = empty($zipcode) ? null : $zipcode;
+        $this->zipcode = $zipcode;
     }
 
     public function getCity(): string

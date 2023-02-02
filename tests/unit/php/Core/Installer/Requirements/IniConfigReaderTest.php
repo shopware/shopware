@@ -12,9 +12,11 @@ use Shopware\Core\Installer\Requirements\IniConfigReader;
 class IniConfigReaderTest extends TestCase
 {
     /**
+     * @param string|false $configValue
+     *
      * @dataProvider configProvider
      */
-    public function testGet(string $key, string|false $configValue, string $expectedValue): void
+    public function testGet(string $key, $configValue, string $expectedValue): void
     {
         \ini_set($key, (string) $configValue);
 

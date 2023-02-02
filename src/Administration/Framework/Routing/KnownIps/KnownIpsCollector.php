@@ -2,10 +2,12 @@
 
 namespace Shopware\Administration\Framework\Routing\KnownIps;
 
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Decoratable;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('administration')]
+/**
+ * @Decoratable()
+ */
 class KnownIpsCollector implements KnownIpsCollectorInterface
 {
     /**

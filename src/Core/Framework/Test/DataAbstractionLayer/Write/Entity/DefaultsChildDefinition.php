@@ -18,7 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
  */
 class DefaultsChildDefinition extends EntityDefinition
 {
-    final public const SCHEMA = 'CREATE TABLE IF NOT EXISTS  `defaults_child` (
+    public const SCHEMA = 'CREATE TABLE IF NOT EXISTS  `defaults_child` (
         `id` BINARY(16) NOT NULL PRIMARY KEY,
         `defaults_id` BINARY(16) NOT NULL,
         `foo` text NOT NULL,

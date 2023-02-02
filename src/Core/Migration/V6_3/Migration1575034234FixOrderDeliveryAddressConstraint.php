@@ -3,13 +3,8 @@
 namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
-/**
- * @internal
- */
-#[Package('core')]
 class Migration1575034234FixOrderDeliveryAddressConstraint extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -19,11 +14,11 @@ class Migration1575034234FixOrderDeliveryAddressConstraint extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeStatement('
+        $connection->executeUpdate('
             ALTER TABLE `order_delivery` DROP FOREIGN KEY `fk.order_delivery.shipping_order_address_id`
         ');
 
-        $connection->executeStatement('
+        $connection->executeUpdate('
             ALTER TABLE `order_delivery`
             ADD CONSTRAINT `fk.order_delivery.shipping_order_address_id`
             FOREIGN KEY (`shipping_order_address_id`, `shipping_order_address_version_id`)

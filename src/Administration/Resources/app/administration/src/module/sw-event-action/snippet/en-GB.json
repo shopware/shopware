@@ -1,0 +1,62 @@
+{
+  "sw-event-action": {
+    "general": {
+      "mainMenuItemGeneral": "Business events",
+      "placeholderSearchBar": "Search events...",
+      "descriptionTextModule": "Automate your email delivery with business events."
+    },
+    "list": {
+      "textHeadline": "Business events",
+      "labelActionAdd": "Add business event",
+      "columnEventName": "Event",
+      "columnSalesChannel": "Sales Channel",
+      "columnRules": "Rules",
+      "columnMailTemplate": "Email template",
+      "columnTitle": "Title",
+      "columnActive": "Active"
+    },
+    "detail": {
+      "titleNewEntity": "New business event",
+      "fieldLabelEventName": "Event",
+      "fieldLabelSalesChannel": "Sales Channel",
+      "fieldLabelRules": "Rules",
+      "fieldMailTemplate": "Email template",
+      "fieldMailTemplateDetailLink": "Open email template",
+      "fieldLabelActive": "Active",
+      "fieldLabelTitle": "Title",
+      "placeholderTitle": "Enter title...",
+      "placeholderEventName": "Select an event...",
+      "placeholderRules": "Select rules...",
+      "placeholderSalesChannels": "Select Sales Channels...",
+      "placeholderMailTemplate": "Select an email template...",
+      "titleRecipientsCard": "Email recipients",
+      "textEmptyStateRecipients": "Add alternative recipients - If set customer emails will be suspended!",
+      "columnRecipientName": "Name",
+      "columnRecipientMail": "Email address",
+      "addRecipientButton": "Add recipient",
+      "placeholderRecipientEmailAddress": "Enter email address...",
+      "placeholderRecipientName": "Enter recipient name..."
+    },
+    "deprecatedModal": {
+      "titleModal": "Flow Builder replaces Business events",
+      "titleFlowBuilder": "What is the Flow Builder?",
+      "linkLearnMore": "Learn more about the Flow Builder",
+      "textFlowBuilderDescription": "<p>Our latest tool - the all new Flow Builder - enables you to take event based actions to a whole new level. The Flow Builder allows to specify event triggers even further with the help of rules. Of course you will still be able to associate actions and events to automate email delivery and even make URL calls or order status changes.</p><p>All business events have already been migrated to the new Flow Builder. The business events module will still be here, parallely to the new Flow Builder, but prepare for the module to be gone after the next Shopware major release (6.5.0.0). Business events that have been added by external apps won't be migrated and will have to be integrated into the Flow Builder with new versions of these respective apps.</p><p>You can still use business events. But new created or edited business events won't be moved to the Flow Builder with the next Shopware major release. Therefore we strongly encourage you to use the new Flow Builder from now on. Only resort to business events, if you can't use the Flow Builder by no means (e.g. events of third-party extensions/apps).</p>",
+      "buttonStartBuilding": "Build flow",
+      "linkFlowBuilder": "https://www.shopware.com/en/products/flow-builder/"
+    },
+    "deprecatedAlert": {
+      "textBusinessEvent": "Business events will be replaced by the <a href=\"#/sw/flow/index\" class=\"sw-event-action-deprecated-alert__link\">Flow Builder</a> with the next major release.",
+      "linkMoreInfo": "More info",
+      "textHide": "Hide",
+      "linkFlowBuilder": "https://www.shopware.com/en/products/flow-builder/"
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "event_action": {
+        "label": "Business events"
+      }
+    }
+  }
+}

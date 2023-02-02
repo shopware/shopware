@@ -3,12 +3,10 @@
 namespace Shopware\Core\Checkout\Cart\Delivery\Struct;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateEntity;
 use Shopware\Core\System\Country\CountryEntity;
 
-#[Package('checkout')]
 class ShippingLocation extends Struct
 {
     /**

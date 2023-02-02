@@ -3,11 +3,10 @@
 namespace Shopware\Storefront\Page\Product\Review;
 
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewEntity;
-use Shopware\Core\Content\Product\SalesChannel\Review\RatingMatrix;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Content\Product\SalesChannel\Review\RatingMatrix as CoreRatingMatrix;
+use Shopware\Core\Framework\Feature;
 use Shopware\Storefront\Framework\Page\StorefrontSearchResult;
 
-#[Package('storefront')]
 class ReviewLoaderResult extends StorefrontSearchResult
 {
     /**
@@ -25,7 +24,12 @@ class ReviewLoaderResult extends StorefrontSearchResult
      */
     protected $reviews;
 
-    protected RatingMatrix $matrix;
+    /**
+     * @deprecated tag:v6.5.0 - Will only accept the `\Shopware\Core\Content\Product\SalesChannel\Review\RatingMatrix`
+     *
+     * @var RatingMatrix|CoreRatingMatrix
+     */
+    protected $matrix;
 
     /**
      * @var ProductReviewEntity|null
@@ -52,13 +56,26 @@ class ReviewLoaderResult extends StorefrontSearchResult
         return $this->reviews;
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - reason:return-type-change - will return `\Shopware\Core\Content\Product\SalesChannel\Review\RatingMatrix` in the future
+     */
     public function getMatrix(): RatingMatrix
     {
         return $this->matrix;
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - will only accept `\Shopware\Core\Content\Product\SalesChannel\Review\RatingMatrix` in the future
+     */
     public function setMatrix(RatingMatrix $matrix): void
     {
+        if (!$matrix instanceof CoreRatingMatrix) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.5.0.0',
+                'Method `setMatrix()` of class `ReviewLoaderResult` will only accept "Shopware\Core\Content\Product\SalesChannel\Review\RatingMatrix" as input param in v6.5.0.0'
+            );
+        }
+
         $this->matrix = $matrix;
     }
 

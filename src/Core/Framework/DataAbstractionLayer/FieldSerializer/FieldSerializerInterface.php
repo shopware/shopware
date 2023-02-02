@@ -7,12 +7,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
-use Shopware\Core\Framework\Log\Package;
 
 /**
- * @internal
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
  */
-#[Package('core')]
 interface FieldSerializerInterface
 {
     public function normalize(Field $field, array $data, WriteParameterBag $parameters): array;
@@ -24,6 +22,10 @@ interface FieldSerializerInterface
 
     /**
      * Decodes the storage value to the DAL value
+     *
+     * @param mixed $value
+     *
+     * @return mixed
      */
-    public function decode(Field $field, mixed $value): mixed;
+    public function decode(Field $field, $value);
 }

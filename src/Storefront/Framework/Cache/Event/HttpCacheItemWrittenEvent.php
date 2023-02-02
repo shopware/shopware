@@ -3,19 +3,38 @@
 namespace Shopware\Storefront\Framework\Cache\Event;
 
 use Psr\Cache\CacheItemInterface;
-use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('storefront')]
 class HttpCacheItemWrittenEvent extends Event
 {
     /**
-     * @param string[] $tags
+     * @var CacheItemInterface
      */
-    public function __construct(private readonly CacheItemInterface $item, private readonly array $tags, private readonly Request $request, private readonly Response $response)
+    private $item;
+
+    /**
+     * @var array<string>
+     */
+    private $tags;
+
+    /**
+     * @var Request
+     */
+    private $request;
+
+    /**
+     * @var Response
+     */
+    private $response;
+
+    public function __construct(CacheItemInterface $item, array $tags, Request $request, Response $response)
     {
+        $this->item = $item;
+        $this->tags = $tags;
+        $this->request = $request;
+        $this->response = $response;
     }
 
     public function getItem(): CacheItemInterface

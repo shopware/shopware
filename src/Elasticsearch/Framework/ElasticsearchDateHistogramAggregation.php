@@ -2,14 +2,12 @@
 
 namespace Shopware\Elasticsearch\Framework;
 
-use OpenSearchDSL\Aggregation\AbstractAggregation;
-use OpenSearchDSL\Aggregation\Type\BucketingTrait;
-use Shopware\Core\Framework\Log\Package;
+use ONGR\ElasticsearchDSL\Aggregation\AbstractAggregation;
+use ONGR\ElasticsearchDSL\Aggregation\Type\BucketingTrait;
 
 /**
  * @internal
  */
-#[Package('core')]
 class ElasticsearchDateHistogramAggregation extends AbstractAggregation
 {
     use BucketingTrait;

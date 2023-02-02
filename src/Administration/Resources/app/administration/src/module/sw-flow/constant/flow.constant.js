@@ -1,7 +1,4 @@
-/**
- * @private
- * @package business-ops
- */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const ACTION = Object.freeze({
     ADD_TAG: 'action.add.tag',
     ADD_ORDER_TAG: 'action.add.order.tag',
@@ -11,7 +8,6 @@ export const ACTION = Object.freeze({
     REMOVE_CUSTOMER_TAG: 'action.remove.customer.tag',
     SET_ORDER_STATE: 'action.set.order.state',
     GENERATE_DOCUMENT: 'action.generate.document',
-    GRANT_DOWNLOAD_ACCESS: 'action.grant.download.access',
     MAIL_SEND: 'action.mail.send',
     STOP_FLOW: 'action.stop.flow',
     SET_ORDER_CUSTOM_FIELD: 'action.set.order.custom.field',
@@ -24,10 +20,7 @@ export const ACTION = Object.freeze({
     APP_FLOW_ACTION: 'action.app.flow',
 });
 
-/**
- * @private
- * @package business-ops
- */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const ACTION_TYPE = Object.freeze({
     ADD_TAG: 'action.add.entity.tag',
     REMOVE_TAG: 'action.remove.entity.tag',
@@ -35,19 +28,13 @@ export const ACTION_TYPE = Object.freeze({
     ADD_AFFILIATE_AND_CAMPAIGN_CODE: 'action.add.entity.affiliate.and.campaign.code',
 });
 
-/**
- * @private
- * @package business-ops
- */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const GENERAL_GROUP = 'general';
 const TAG_GROUP = 'tag';
 const CUSTOMER_GROUP = 'customer';
 const ORDER_GROUP = 'order';
 
-/**
- * @private
- * @package business-ops
- */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const ACTION_GROUP = Object.freeze({
     'action.add.order.tag': TAG_GROUP,
     'action.add.customer.tag': TAG_GROUP,
@@ -60,16 +47,12 @@ export const ACTION_GROUP = Object.freeze({
     'action.add.customer.affiliate.and.campaign.code': CUSTOMER_GROUP,
     'action.add.order.affiliate.and.campaign.code': CUSTOMER_GROUP,
     'action.set.order.custom.field': ORDER_GROUP,
-    'action.grant.download.access': ORDER_GROUP,
     'action.generate.document': GENERAL_GROUP,
     'action.mail.send': GENERAL_GROUP,
     'action.stop.flow': GENERAL_GROUP,
 });
 
-/**
- * @private
- * @package business-ops
- */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const GROUPS = [
     TAG_GROUP,
     CUSTOMER_GROUP,
@@ -77,10 +60,7 @@ export const GROUPS = [
     GENERAL_GROUP,
 ];
 
-/**
- * @private
- * @package business-ops
- */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     ACTION,
     ACTION_TYPE,

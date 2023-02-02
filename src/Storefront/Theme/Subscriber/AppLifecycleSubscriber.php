@@ -3,29 +3,30 @@
 namespace Shopware\Storefront\Theme\Subscriber;
 
 use Shopware\Core\Framework\App\Event\AppDeletedEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\ThemeLifecycleService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-/**
- * @internal
- */
-#[Package('storefront')]
 class AppLifecycleSubscriber implements EventSubscriberInterface
 {
+    private ThemeLifecycleService $themeLifecycleService;
+
+    private EntityRepositoryInterface $appRepository;
+
     /**
      * @internal
      */
-    public function __construct(private readonly ThemeLifecycleService $themeLifecycleService, private readonly EntityRepository $appRepository)
+    public function __construct(ThemeLifecycleService $themeLifecycleService, EntityRepositoryInterface $appRepository)
     {
+        $this->themeLifecycleService = $themeLifecycleService;
+        $this->appRepository = $appRepository;
     }
 
     /**
      * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
      */
-    public static function getSubscribedEvents(): array
+    public static function getSubscribedEvents()
     {
         return [
             AppDeletedEvent::class => 'onAppDeleted',

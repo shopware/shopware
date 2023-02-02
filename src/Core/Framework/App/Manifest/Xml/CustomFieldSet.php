@@ -4,18 +4,16 @@ namespace Shopware\Core\Framework\App\Manifest\Xml;
 
 use Shopware\Core\Framework\App\Manifest\Xml\CustomFieldTypes\CustomFieldType;
 use Shopware\Core\Framework\App\Manifest\Xml\CustomFieldTypes\CustomFieldTypeFactory;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\XmlReader;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
  */
-#[Package('core')]
 class CustomFieldSet extends XmlElement
 {
-    final public const TRANSLATABLE_FIELDS = ['label'];
+    public const TRANSLATABLE_FIELDS = ['label'];
 
-    final public const REQUIRED_FIELDS = [
+    public const REQUIRED_FIELDS = [
         'label',
         'name',
         'relatedEntities',
@@ -54,9 +52,13 @@ class CustomFieldSet extends XmlElement
 
     public function toEntityArray(string $appId): array
     {
-        $relations = array_map(static fn (string $entity) => ['entityName' => $entity], $this->relatedEntities);
+        $relations = array_map(static function (string $entity) {
+            return ['entityName' => $entity];
+        }, $this->relatedEntities);
 
-        $customFields = array_map(static fn (CustomFieldType $field) => $field->toEntityPayload(), $this->fields);
+        $customFields = array_map(static function (CustomFieldType $field) {
+            return $field->toEntityPayload();
+        }, $this->fields);
 
         return [
             'name' => $this->name,
@@ -134,7 +136,9 @@ class CustomFieldSet extends XmlElement
         if ($child->tagName === 'fields') {
             $values[$child->tagName] = self::parseChildNodes(
                 $child,
-                static fn (\DOMElement $element): CustomFieldType => CustomFieldTypeFactory::createFromXml($element)
+                static function (\DOMElement $element): CustomFieldType {
+                    return CustomFieldTypeFactory::createFromXml($element);
+                }
             );
 
             return $values;
@@ -143,7 +147,9 @@ class CustomFieldSet extends XmlElement
         if ($child->tagName === 'related-entities') {
             $values[self::kebabCaseToCamelCase($child->tagName)] = self::parseChildNodes(
                 $child,
-                static fn (\DOMElement $element): string => $element->tagName
+                static function (\DOMElement $element): string {
+                    return $element->tagName;
+                }
             );
 
             return $values;

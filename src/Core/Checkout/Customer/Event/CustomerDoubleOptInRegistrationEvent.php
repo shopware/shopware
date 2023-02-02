@@ -13,19 +13,41 @@ use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\SalesChannelAware;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('customer-order')]
 class CustomerDoubleOptInRegistrationEvent extends Event implements SalesChannelAware, CustomerAware, MailAware, ConfirmUrlAware
 {
-    final public const EVENT_NAME = 'checkout.customer.double_opt_in_registration';
+    public const EVENT_NAME = 'checkout.customer.double_opt_in_registration';
 
-    private ?MailRecipientStruct $mailRecipientStruct = null;
+    /**
+     * @var CustomerEntity
+     */
+    private $customer;
 
-    public function __construct(private readonly CustomerEntity $customer, private readonly SalesChannelContext $salesChannelContext, private readonly string $confirmUrl)
-    {
+    /**
+     * @var SalesChannelContext
+     */
+    private $salesChannelContext;
+
+    /**
+     * @var string
+     */
+    private $confirmUrl;
+
+    /**
+     * @var MailRecipientStruct
+     */
+    private $mailRecipientStruct;
+
+    public function __construct(
+        CustomerEntity $customer,
+        SalesChannelContext $salesChannelContext,
+        string $confirmUrl
+    ) {
+        $this->customer = $customer;
+        $this->salesChannelContext = $salesChannelContext;
+        $this->confirmUrl = $confirmUrl;
     }
 
     public static function getAvailableData(): EventDataCollection

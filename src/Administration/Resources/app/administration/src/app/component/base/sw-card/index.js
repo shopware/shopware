@@ -1,12 +1,9 @@
 import template from './sw-card.html.twig';
 import './sw-card.scss';
 
-const { Component } = Shopware;
+const { Component, Feature } = Shopware;
 
 /**
- * @package admin
- *
- * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @description A card is a flexible and extensible content container.
  * @status ready
@@ -16,13 +13,15 @@ const { Component } = Shopware;
  *     Your content
  * </sw-card>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-card', {
     template,
 
     props: {
         positionIdentifier: {
             type: String,
-            required: true,
+            // eslint-disable-next-line no-unneeded-ternary
+            required: Feature.isActive('FEATURE_NEXT_18129') ? true : false,
             default: null,
         },
         title: {
@@ -80,7 +79,6 @@ Component.register('sw-card', {
                 'has--title': !!this.title || !!this.$slots.title || !!this.$scopedSlots.title,
                 'has--subtitle': !!this.subtitle || !!this.$slots.subtitle || !!this.$scopedSlots.subtitle,
                 'has--toolbar': !!this.toolbar || !!this.$slots.toolbar || !!this.$scopedSlots.toolbar,
-                'has--tabs': !!this.$slots.tabs || !!this.$scopedSlots.tabs,
             };
 
             if (!this.$refs.swIgnoreClass) {

@@ -1,12 +1,9 @@
-/*
- * @package inventory
- */
-
 import template from './sw-property-create.html.twig';
 import './sw-property-create.scss';
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+const { Component } = Shopware;
+
+Component.extend('sw-property-create', 'sw-property-detail', {
     template,
 
     data() {
@@ -41,4 +38,4 @@ export default {
             this.$super('onSave');
         },
     },
-};
+});

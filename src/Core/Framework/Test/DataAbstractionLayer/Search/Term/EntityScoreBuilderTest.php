@@ -32,17 +32,35 @@ class EntityScoreBuilderTest extends TestCase
     use KernelTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
 
-    private EntityDefinition $testDefinition;
+    /**
+     * @var EntityDefinition
+     */
+    private $testDefinition;
 
-    private EntityDefinition $testDefinitionTranslated;
+    /**
+     * @var EntityDefinition
+     */
+    private $testDefinitionTranslated;
 
-    private EntityDefinition $onlyDateFieldDefinition;
+    /**
+     * @var EntityDefinition
+     */
+    private $onlyDateFieldDefinition;
 
-    private Context $context;
+    /**
+     * @var Context
+     */
+    private $context;
 
-    private EntityDefinition $shouldTokenizeDefinition;
+    /**
+     * @var EntityDefinition
+     */
+    private $shouldTokenizeDefinition;
 
-    private EntityDefinition $shouldNotTokenizeDefinition;
+    /**
+     * @var EntityDefinition
+     */
+    private $shouldNotTokenizeDefinition;
 
     protected function setUp(): void
     {
@@ -279,7 +297,7 @@ class EntityScoreBuilderTest extends TestCase
  */
 class ScoreBuilderTestDefinition extends EntityDefinition
 {
-    final public const ENTITY_NAME = 'test';
+    public const ENTITY_NAME = 'test';
 
     public function getEntityName(): string
     {
@@ -307,7 +325,7 @@ class ScoreBuilderTestDefinition extends EntityDefinition
  */
 class NestedDefinition extends EntityDefinition
 {
-    final public const ENTITY_NAME = 'nested';
+    public const ENTITY_NAME = 'nested';
 
     public function getEntityName(): string
     {
@@ -332,7 +350,7 @@ class NestedDefinition extends EntityDefinition
  */
 class OnlyTranslatedFieldDefinition extends EntityDefinition
 {
-    final public const ENTITY_NAME = 'translated';
+    public const ENTITY_NAME = 'translated';
 
     public function getEntityName(): string
     {
@@ -357,7 +375,7 @@ class OnlyTranslatedFieldDefinition extends EntityDefinition
  */
 class OnlyDateFieldDefinition extends EntityDefinition
 {
-    final public const ENTITY_NAME = 'dates';
+    public const ENTITY_NAME = 'dates';
 
     public function getEntityName(): string
     {
@@ -382,7 +400,7 @@ class OnlyDateFieldDefinition extends EntityDefinition
  */
 class ShouldTokenizeFieldDefinition extends EntityDefinition
 {
-    final public const ENTITY_NAME = 'only_tokenize_field';
+    public const ENTITY_NAME = 'only_tokenize_field';
 
     public function getEntityName(): string
     {
@@ -407,7 +425,7 @@ class ShouldTokenizeFieldDefinition extends EntityDefinition
  */
 class ShouldNotTokenizeFieldDefinition extends EntityDefinition
 {
-    final public const ENTITY_NAME = 'only_not_tokenize_field';
+    public const ENTITY_NAME = 'only_not_tokenize_field';
 
     public function getEntityName(): string
     {

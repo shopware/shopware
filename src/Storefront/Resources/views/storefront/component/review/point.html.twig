@@ -3,28 +3,38 @@
         {% set size = 'xs' %}
     {% endif %}
 
-    <div class="product-review-point">
-    {% if type == 'half' %}
-        <div class="point-container">
-            <div class="point-rating point-partial-placeholder">
-                {% sw_icon 'star' style { 'color': 'light', 'size': size, 'pack': 'solid' } %}
+    {# @deprecated tag:v6.5.0 - span will be a div #}
+    {% if feature('v6.5.0.0') %}
+        <div class="product-review-point">
+    {% else %}
+        <span class="product-review-point">
+    {% endif %}
+        {% if type == 'half' %}
+            <div class="point-container">
+                <div class="point-rating point-partial-placeholder">
+                    {% sw_icon 'star' style { 'color': 'light', 'size': size, 'pack': 'solid' } %}
+                </div>
+                <div class="point-rating point-partial" style="clip-path: inset(0 {{ (1 - left) * 100 }}% 0 0)">
+                    {% sw_icon 'star' style { 'color': 'review', 'size': size, 'pack': 'solid' } %}
+                </div>
             </div>
-            <div class="point-rating point-partial" style="clip-path: inset(0 {{ (1 - left) * 100 }}% 0 0)">
-                {% sw_icon 'star' style { 'color': 'review', 'size': size, 'pack': 'solid' } %}
+        {% elseif type == 'blank' %}
+            <div class="point-container">
+                <div class="point-rating point-blank">
+                    {% sw_icon 'star' style { 'size': size, 'pack': 'solid' } %}
+                </div>
             </div>
-        </div>
-    {% elseif type == 'blank' %}
-        <div class="point-container">
-            <div class="point-rating point-blank">
-                {% sw_icon 'star' style { 'size': size, 'pack': 'solid' } %}
+        {% else %}
+            <div class="point-container">
+                <div class="point-rating point-full">
+                    {% sw_icon 'star' style { 'color': 'review', 'size': size, 'pack': 'solid' } %}
+                </div>
             </div>
+        {% endif %}
+    {# @deprecated tag:v6.5.0 - span will be a div #}
+    {% if feature('v6.5.0.0') %}
         </div>
     {% else %}
-        <div class="point-container">
-            <div class="point-rating point-full">
-                {% sw_icon 'star' style { 'color': 'review', 'size': size, 'pack': 'solid' } %}
-            </div>
-        </div>
-    {% endif %}
-    </div>
+        </span>
+        {% endif %}
 {% endblock %}

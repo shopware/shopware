@@ -11,7 +11,7 @@ use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowHtml;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -19,17 +19,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
-use Shopware\Core\Framework\Store\Services\FirstRunWizardService;
+use Shopware\Core\Framework\Store\Services\FirstRunWizardClient;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -37,41 +36,71 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
-use function version_compare;
 
-#[Route(defaults: ['_routeScope' => ['administration']])]
-#[Package('administration')]
+/**
+ * @Route(defaults={"_routeScope"={"administration"}})
+ */
 class AdministrationController extends AbstractController
 {
-    private readonly bool $esAdministrationEnabled;
+    private TemplateFinder $finder;
+
+    private FirstRunWizardClient $firstRunWizardClient;
+
+    private SnippetFinderInterface $snippetFinder;
+
+    private array $supportedApiVersions;
+
+    private KnownIpsCollectorInterface $knownIpsCollector;
+
+    private Connection $connection;
+
+    private EventDispatcherInterface $eventDispatcher;
+
+    private string $shopwareCoreDir;
+
+    private EntityRepositoryInterface $customerRepo;
+
+    private EntityRepositoryInterface $currencyRepository;
+
+    private HtmlSanitizer $htmlSanitizer;
+
+    private DefinitionInstanceRegistry $definitionInstanceRegistry;
 
     /**
      * @internal
-     *
-     * @param array<int, int> $supportedApiVersions
      */
     public function __construct(
-        private readonly TemplateFinder $finder,
-        private readonly FirstRunWizardService $firstRunWizardService,
-        private readonly SnippetFinderInterface $snippetFinder,
-        private readonly array $supportedApiVersions,
-        private readonly KnownIpsCollectorInterface $knownIpsCollector,
-        private readonly Connection $connection,
-        private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly string $shopwareCoreDir,
-        private readonly EntityRepository $customerRepo,
-        private readonly EntityRepository $currencyRepository,
-        private readonly HtmlSanitizer $htmlSanitizer,
-        private readonly DefinitionInstanceRegistry $definitionInstanceRegistry,
-        ParameterBagInterface $params
+        TemplateFinder $finder,
+        FirstRunWizardClient $firstRunWizardClient,
+        SnippetFinderInterface $snippetFinder,
+        array $supportedApiVersions,
+        KnownIpsCollectorInterface $knownIpsCollector,
+        Connection $connection,
+        EventDispatcherInterface $eventDispatcher,
+        string $shopwareCoreDir,
+        EntityRepositoryInterface $customerRepo,
+        EntityRepositoryInterface $currencyRepository,
+        HtmlSanitizer $htmlSanitizer,
+        DefinitionInstanceRegistry $definitionInstanceRegistry
     ) {
-        // param is only available if the elasticsearch bundle is enabled
-        $this->esAdministrationEnabled = $params->has('elasticsearch.administration.enabled')
-            ? $params->get('elasticsearch.administration.enabled')
-            : false;
+        $this->finder = $finder;
+        $this->firstRunWizardClient = $firstRunWizardClient;
+        $this->snippetFinder = $snippetFinder;
+        $this->supportedApiVersions = $supportedApiVersions;
+        $this->knownIpsCollector = $knownIpsCollector;
+        $this->connection = $connection;
+        $this->eventDispatcher = $eventDispatcher;
+        $this->shopwareCoreDir = $shopwareCoreDir;
+        $this->customerRepo = $customerRepo;
+        $this->currencyRepository = $currencyRepository;
+        $this->htmlSanitizer = $htmlSanitizer;
+        $this->definitionInstanceRegistry = $definitionInstanceRegistry;
     }
 
-    #[Route(path: '/%shopware_administration.path_name%', name: 'administration.index', defaults: ['auth_required' => false], methods: ['GET'])]
+    /**
+     * @Since("6.3.3.0")
+     * @Route("/%shopware_administration.path_name%", defaults={"auth_required"=false}, name="administration.index", methods={"GET"})
+     */
     public function index(Request $request, Context $context): Response
     {
         $template = $this->finder->find('@Administration/administration/index.html.twig');
@@ -87,17 +116,18 @@ class AdministrationController extends AbstractController
             'disableExtensions' => EnvironmentHelper::getVariable('DISABLE_EXTENSIONS', false),
             'systemCurrencyISOCode' => $defaultCurrency->getIsoCode(),
             'liveVersionId' => Defaults::LIVE_VERSION,
-            'firstRunWizard' => $this->firstRunWizardService->frwShouldRun(),
+            'firstRunWizard' => $this->firstRunWizardClient->frwShouldRun(),
             'apiVersion' => $this->getLatestApiVersion(),
             'cspNonce' => $request->attributes->get(PlatformRequest::ATTRIBUTE_CSP_NONCE),
-            'adminEsEnable' => $this->esAdministrationEnabled,
         ]);
     }
 
-    #[Route(path: '/api/_admin/snippets', name: 'api.admin.snippets', methods: ['GET'])]
+    /**
+     * @Since("6.1.0.0")
+     * @Route("/api/_admin/snippets", name="api.admin.snippets", methods={"GET"})
+     */
     public function snippets(Request $request): Response
     {
-        $snippets = [];
         $locale = $request->query->get('locale', 'en-GB');
         $snippets[$locale] = $this->snippetFinder->findSnippets((string) $locale);
 
@@ -108,7 +138,10 @@ class AdministrationController extends AbstractController
         return new JsonResponse($snippets);
     }
 
-    #[Route(path: '/api/_admin/known-ips', name: 'api.admin.known-ips', methods: ['GET'])]
+    /**
+     * @Since("6.3.1.0")
+     * @Route("/api/_admin/known-ips", name="api.admin.known-ips", methods={"GET"})
+     */
     public function knownIps(Request $request): Response
     {
         $ips = [];
@@ -123,10 +156,17 @@ class AdministrationController extends AbstractController
         return new JsonResponse(['ips' => $ips]);
     }
 
-    #[Route(path: '/api/_admin/reset-excluded-search-term', name: 'api.admin.reset-excluded-search-term', defaults: ['_acl' => ['system_config:update', 'system_config:create', 'system_config:delete']], methods: ['POST'])]
-    public function resetExcludedSearchTerm(Context $context): JsonResponse
+    /**
+     * @deprecated tag:v6.5.0 - native return type JsonResponse will be added
+     *
+     * @Since("6.4.0.1")
+     * @Route("/api/_admin/reset-excluded-search-term", name="api.admin.reset-excluded-search-term", methods={"POST"}, defaults={"_acl"={"system_config:update", "system_config:create", "system_config:delete"}})
+     *
+     * @return JsonResponse
+     */
+    public function resetExcludedSearchTerm(Context $context)
     {
-        $searchConfigId = $this->connection->fetchOne('SELECT id FROM product_search_config WHERE language_id = :language_id', ['language_id' => Uuid::fromHexToBytes($context->getLanguageId())]);
+        $searchConfigId = $this->connection->fetchColumn('SELECT id FROM product_search_config WHERE language_id = :language_id', ['language_id' => Uuid::fromHexToBytes($context->getLanguageId())]);
 
         if ($searchConfigId === false) {
             throw new LanguageNotFoundException($context->getLanguageId());
@@ -150,10 +190,10 @@ class AdministrationController extends AbstractController
                 $defaultExcludedTerm = $preResetExcludedSearchTermEvent->getExcludedTerms();
         }
 
-        $this->connection->executeStatement(
+        $this->connection->executeUpdate(
             'UPDATE `product_search_config` SET `excluded_terms` = :excludedTerms WHERE `id` = :id',
             [
-                'excludedTerms' => json_encode($defaultExcludedTerm, \JSON_THROW_ON_ERROR),
+                'excludedTerms' => json_encode($defaultExcludedTerm),
                 'id' => $searchConfigId,
             ]
         );
@@ -163,10 +203,12 @@ class AdministrationController extends AbstractController
         ]);
     }
 
-    #[Route(path: '/api/_admin/check-customer-email-valid', name: 'api.admin.check-customer-email-valid', methods: ['POST'])]
+    /**
+     * @Since("6.4.0.1")
+     * @Route("/api/_admin/check-customer-email-valid", name="api.admin.check-customer-email-valid", methods={"POST"})
+     */
     public function checkCustomerEmailValid(Request $request, Context $context): JsonResponse
     {
-        $params = [];
         if (!$request->request->has('email')) {
             throw new \InvalidArgumentException('Parameter "email" is missing.');
         }
@@ -207,7 +249,10 @@ class AdministrationController extends AbstractController
         throw new ConstraintViolationException($violations, $request->request->all());
     }
 
-    #[Route(path: '/api/_admin/sanitize-html', name: 'api.admin.sanitize-html', methods: ['POST'])]
+    /**
+     * @Since("6.4.2.0")
+     * @Route("/api/_admin/sanitize-html", name="api.admin.sanitize-html", methods={"POST"})
+     */
     public function sanitizeHtml(Request $request, Context $context): JsonResponse
     {
         if (!$request->request->has('html')) {
@@ -251,7 +296,7 @@ class AdministrationController extends AbstractController
 
     private function fetchLanguageIdByName(string $isoCode, Connection $connection): ?string
     {
-        $languageId = $connection->fetchOne(
+        $languageId = $connection->fetchColumn(
             '
             SELECT `language`.id FROM `language`
             INNER JOIN locale ON language.translation_code_id = locale.id
@@ -262,11 +307,10 @@ class AdministrationController extends AbstractController
         return $languageId === false ? null : Uuid::fromBytesToHex($languageId);
     }
 
-    private function getLatestApiVersion(): ?int
+    private function getLatestApiVersion(): int
     {
         $sortedSupportedApiVersions = array_values($this->supportedApiVersions);
-
-        usort($sortedSupportedApiVersions, fn (int $version1, int $version2) => version_compare((string) $version1, (string) $version2));
+        usort($sortedSupportedApiVersions, 'version_compare');
 
         return array_pop($sortedSupportedApiVersions);
     }

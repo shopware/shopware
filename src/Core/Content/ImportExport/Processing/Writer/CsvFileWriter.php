@@ -2,19 +2,29 @@
 
 namespace Shopware\Core\Content\ImportExport\Processing\Writer;
 
-use League\Flysystem\FilesystemOperator;
+use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Content\ImportExport\Struct\Config;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('system-settings')]
 class CsvFileWriter extends AbstractFileWriter
 {
     /**
+     * @var string
+     */
+    private $delimiter;
+
+    /**
+     * @var string
+     */
+    private $enclosure;
+
+    /**
      * @internal
      */
-    public function __construct(FilesystemOperator $filesystem, private string $delimiter = ';', private string $enclosure = '"')
+    public function __construct(FilesystemInterface $filesystem, string $delimiter = ';', string $enclosure = '"')
     {
         parent::__construct($filesystem);
+        $this->delimiter = $delimiter;
+        $this->enclosure = $enclosure;
     }
 
     public function append(Config $config, array $data, int $index): void

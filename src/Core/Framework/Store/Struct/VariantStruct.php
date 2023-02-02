@@ -2,17 +2,14 @@
 
 namespace Shopware\Core\Framework\Store\Struct;
 
-use Shopware\Core\Framework\Log\Package;
-
 /**
  * @codeCoverageIgnore
  */
-#[Package('merchant-services')]
 class VariantStruct extends StoreStruct
 {
-    final public const TYPE_RENT = 'rent';
-    final public const TYPE_BUY = 'buy';
-    final public const TYPE_FREE = 'free';
+    public const TYPE_RENT = 'rent';
+    public const TYPE_BUY = 'buy';
+    public const TYPE_FREE = 'free';
 
     /**
      * @var int

@@ -1,14 +1,11 @@
-/**
- * @package system-settings
- */
 import template from './sw-users-permissions-role-listing.html.twig';
 import './sw-users-permissions-role-listing.scss';
 
-const { Data, Mixin } = Shopware;
+const { Component, Data, Mixin, Feature } = Shopware;
 const { Criteria } = Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-users-permissions-role-listing', {
     template,
 
     inject: [
@@ -95,8 +92,9 @@ export default {
         },
 
         onSearch(searchTerm) {
-            this.term = searchTerm;
-
+            if (!Feature.isActive('FEATURE_NEXT_16271')) {
+                this.term = searchTerm;
+            }
             this.$emit('get-list');
         },
 
@@ -130,21 +128,17 @@ export default {
 
             this.roleRepository.delete(role.id, context).then(() => {
                 this.createNotificationSuccess({
-                    message: this.$tc(
-                        'sw-users-permissions.roles.role-grid.notification.deleteSuccess.message',
+                    message: this.$tc('sw-users-permissions.roles.role-grid.notification.deleteSuccess.message',
                         0,
-                        { name: role.name },
-                    ),
+                        { name: role.name }),
                 });
 
                 this.$emit('get-list');
             }).catch(() => {
                 this.createNotificationError({
-                    message: this.$tc(
-                        'sw-users-permissions.roles.role-grid.notification.deleteError.message',
+                    message: this.$tc('sw-users-permissions.roles.role-grid.notification.deleteError.message',
                         0,
-                        { name: role.name },
-                    ),
+                        { name: role.name }),
                 });
             });
         },
@@ -153,4 +147,4 @@ export default {
             this.confirmPasswordModal = false;
         },
     },
-};
+});

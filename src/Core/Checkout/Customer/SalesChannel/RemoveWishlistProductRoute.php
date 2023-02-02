@@ -8,27 +8,55 @@ use Shopware\Core\Checkout\Customer\Exception\CustomerWishlistNotActivatedExcept
 use Shopware\Core\Checkout\Customer\Exception\CustomerWishlistNotFoundException;
 use Shopware\Core\Checkout\Customer\Exception\WishlistProductNotFoundException;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SuccessResponse;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('customer-order')]
+/**
+ * @Route(defaults={"_routeScope"={"store-api"}})
+ */
 class RemoveWishlistProductRoute extends AbstractRemoveWishlistProductRoute
 {
     /**
+     * @var EntityRepositoryInterface
+     */
+    private $wishlistRepository;
+
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $productRepository;
+
+    /**
+     * @var SystemConfigService
+     */
+    private $systemConfigService;
+
+    private EventDispatcherInterface $eventDispatcher;
+
+    /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $wishlistRepository, private readonly EntityRepository $productRepository, private readonly SystemConfigService $systemConfigService, private readonly EventDispatcherInterface $eventDispatcher)
-    {
+    public function __construct(
+        EntityRepositoryInterface $wishlistRepository,
+        EntityRepositoryInterface $productRepository,
+        SystemConfigService $systemConfigService,
+        EventDispatcherInterface $eventDispatcher
+    ) {
+        $this->wishlistRepository = $wishlistRepository;
+        $this->productRepository = $productRepository;
+        $this->systemConfigService = $systemConfigService;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function getDecorated(): AbstractRemoveWishlistProductRoute
@@ -36,7 +64,10 @@ class RemoveWishlistProductRoute extends AbstractRemoveWishlistProductRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/customer/wishlist/delete/{productId}', name: 'store-api.customer.wishlist.delete', methods: ['DELETE'], defaults: ['_loginRequired' => true])]
+    /**
+    * @Since("6.3.4.0")
+    * @Route("/store-api/customer/wishlist/delete/{productId}", name="store-api.customer.wishlist.delete", methods={"DELETE"}, defaults={"_loginRequired"=true})
+    */
     public function delete(string $productId, SalesChannelContext $context, CustomerEntity $customer): SuccessResponse
     {
         if (!$this->systemConfigService->get('core.cart.wishlistEnabled', $context->getSalesChannel()->getId())) {

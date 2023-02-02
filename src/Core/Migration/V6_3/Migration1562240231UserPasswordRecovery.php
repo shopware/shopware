@@ -4,14 +4,9 @@ namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-/**
- * @internal
- */
-#[Package('core')]
 class Migration1562240231UserPasswordRecovery extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -40,7 +35,7 @@ INNER JOIN `locale` ON `locale`.`id` = `language`.`locale_id`
 WHERE `locale`.`code` = :code
 SQL;
 
-        $languageId = $connection->executeQuery($sql, ['code' => $locale])->fetchOne();
+        $languageId = $connection->executeQuery($sql, ['code' => $locale])->fetchColumn();
         if (!$languageId && $locale !== 'en-GB') {
             return null;
         }
@@ -156,7 +151,7 @@ SQL;
             'id' => Uuid::randomBytes(),
             'event_name' => 'user.recovery.request',
             'action_name' => 'action.mail.send',
-            'config' => json_encode(['mail_template_type_id' => $mailTemplateTypeId], \JSON_THROW_ON_ERROR),
+            'config' => json_encode(['mail_template_type_id' => $mailTemplateTypeId]),
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
     }

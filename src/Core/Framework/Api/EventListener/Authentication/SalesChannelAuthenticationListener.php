@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Api\EventListener\Authentication;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\SalesChannelNotFoundException;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\Framework\Routing\RouteScopeCheckTrait;
@@ -17,19 +16,29 @@ use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 
-/**
- * @internal
- */
-#[Package('core')]
 class SalesChannelAuthenticationListener implements EventSubscriberInterface
 {
     use RouteScopeCheckTrait;
 
     /**
+     * @var Connection
+     */
+    private $connection;
+
+    /**
+     * @var RouteScopeRegistry
+     */
+    private $routeScopeRegistry;
+
+    /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection, private readonly RouteScopeRegistry $routeScopeRegistry)
-    {
+    public function __construct(
+        Connection $connection,
+        RouteScopeRegistry $routeScopeRegistry
+    ) {
+        $this->connection = $connection;
+        $this->routeScopeRegistry = $routeScopeRegistry;
     }
 
     public static function getSubscribedEvents(): array
@@ -51,10 +60,11 @@ class SalesChannelAuthenticationListener implements EventSubscriberInterface
             return;
         }
 
-        $accessKey = $request->headers->get(PlatformRequest::HEADER_ACCESS_KEY);
-        if (!$accessKey) {
+        if (!$request->headers->has(PlatformRequest::HEADER_ACCESS_KEY)) {
             throw new UnauthorizedHttpException('header', sprintf('Header "%s" is required.', PlatformRequest::HEADER_ACCESS_KEY));
         }
+
+        $accessKey = $request->headers->get(PlatformRequest::HEADER_ACCESS_KEY);
 
         $origin = AccessKeyHelper::getOrigin($accessKey);
         if ($origin !== 'sales-channel') {
@@ -79,8 +89,8 @@ class SalesChannelAuthenticationListener implements EventSubscriberInterface
             ->from('sales_channel')
             ->where('sales_channel.access_key = :accessKey')
             ->setParameter('accessKey', $accessKey)
-            ->executeQuery()
-            ->fetchOne();
+            ->execute()
+            ->fetchColumn();
 
         if (!$salesChannelId) {
             throw new SalesChannelNotFoundException();

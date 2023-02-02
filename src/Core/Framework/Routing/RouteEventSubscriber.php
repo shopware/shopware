@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Routing;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Event\StorefrontRenderEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
@@ -10,17 +9,16 @@ use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @internal
- */
-#[Package('core')]
 class RouteEventSubscriber implements EventSubscriberInterface
 {
+    private EventDispatcherInterface $dispatcher;
+
     /**
      * @internal
      */
-    public function __construct(private readonly EventDispatcherInterface $dispatcher)
+    public function __construct(EventDispatcherInterface $dispatcher)
     {
+        $this->dispatcher = $dispatcher;
     }
 
     public static function getSubscribedEvents(): array

@@ -3,12 +3,10 @@
 namespace Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<ProductStreamFilterEntity>
  */
-#[Package('business-ops')]
 class ProductStreamFilterCollection extends EntityCollection
 {
     public function getApiAlias(): string

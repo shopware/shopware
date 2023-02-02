@@ -5,26 +5,62 @@ namespace Shopware\Core\Framework\Adapter\Cache;
 use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Cache\Message\CleanupOldCacheFolders;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler;
 use Symfony\Component\Cache\PruneableInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpKernel\CacheClearer\CacheClearerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
-/**
- * @final
- */
-#[Package('core')]
-class CacheClearer
+class CacheClearer extends AbstractMessageHandler
 {
     /**
-     * @internal
-     *
-     * @param CacheItemPoolInterface[] $adapters
+     * @var CacheClearerInterface
      */
-    public function __construct(private readonly array $adapters, private readonly CacheClearerInterface $cacheClearer, private readonly Filesystem $filesystem, private readonly string $cacheDir, private readonly string $environment, private readonly MessageBusInterface $messageBus)
-    {
+    protected $cacheClearer;
+
+    /**
+     * @var string
+     */
+    protected $cacheDir;
+
+    /**
+     * @var Filesystem
+     */
+    protected $filesystem;
+
+    /**
+     * @var CacheItemPoolInterface[]
+     */
+    protected $adapters;
+
+    /**
+     * @var string
+     */
+    protected $environment;
+
+    /**
+     * @var MessageBusInterface
+     */
+    private $messageBus;
+
+    /**
+     * @internal
+     */
+    public function __construct(
+        array $adapters,
+        CacheClearerInterface $cacheClearer,
+        Filesystem $filesystem,
+        string $cacheDir,
+        string $environment,
+        MessageBusInterface $messageBus
+    ) {
+        $this->adapters = $adapters;
+        $this->cacheClearer = $cacheClearer;
+        $this->cacheDir = $cacheDir;
+        $this->filesystem = $filesystem;
+        $this->environment = $environment;
+        $this->messageBus = $messageBus;
     }
 
     public function clear(): void
@@ -41,7 +77,7 @@ class CacheClearer
         $this->filesystem->remove($this->cacheDir . '/twig');
         $this->cleanupUrlGeneratorCacheFiles();
 
-        $this->cleanupOldContainerCacheDirectories();
+        $this->cleanupOldCacheDirectories();
     }
 
     public function clearContainerCache(): void
@@ -61,9 +97,6 @@ class CacheClearer
         $this->messageBus->dispatch(new CleanupOldCacheFolders());
     }
 
-    /**
-     * @param list<string> $keys
-     */
     public function deleteItems(array $keys): void
     {
         foreach ($this->adapters as $adapter) {
@@ -80,7 +113,22 @@ class CacheClearer
         }
     }
 
-    public function cleanupOldContainerCacheDirectories(): void
+    /**
+     * @param object $message
+     */
+    public function handle($message): void
+    {
+        $this->cleanupOldCacheDirectories();
+    }
+
+    public static function getHandledMessages(): iterable
+    {
+        return [
+            CleanupOldCacheFolders::class,
+        ];
+    }
+
+    private function cleanupOldCacheDirectories(): void
     {
         // Don't delete other folders while paratest is running
         if (EnvironmentHelper::getVariable('TEST_TOKEN')) {
@@ -122,7 +170,9 @@ class CacheClearer
         $files = iterator_to_array($finder->getIterator());
 
         if (\count($files) > 0) {
-            $this->filesystem->remove(array_map(static fn (\SplFileInfo $file): string => $file->getPathname(), $files));
+            $this->filesystem->remove(array_map(static function (\SplFileInfo $file): string {
+                return $file->getPathname();
+            }, $files));
         }
     }
 }

@@ -2,16 +2,19 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Term;
 
-use Shopware\Core\Framework\Log\Package;
-
-#[Package('core')]
 class SearchTermInterpreter
 {
     /**
+     * @var TokenizerInterface
+     */
+    private $tokenizer;
+
+    /**
      * @internal
      */
-    public function __construct(private readonly TokenizerInterface $tokenizer)
+    public function __construct(TokenizerInterface $tokenizer)
     {
+        $this->tokenizer = $tokenizer;
     }
 
     public function interpret(string $term): SearchPattern

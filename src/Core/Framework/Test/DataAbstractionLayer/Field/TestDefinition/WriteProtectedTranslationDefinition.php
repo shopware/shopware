@@ -12,7 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
  */
 class WriteProtectedTranslationDefinition extends EntityTranslationDefinition
 {
-    final public const ENTITY_NAME = '_test_nullable_translation';
+    public const ENTITY_NAME = '_test_nullable_translation';
 
     public function getEntityName(): string
     {

@@ -5,10 +5,9 @@ const { Component, Mixin, Filter } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
 /**
- * @private
- * @package content
+ * @private since v6.5.0
  */
-export default {
+Component.register('sw-cms-section', {
     template,
 
     inject: [
@@ -42,12 +41,6 @@ export default {
             required: false,
             default: false,
         },
-    },
-
-    data() {
-        return {
-            isCollapsed: true,
-        };
     },
 
     computed: {
@@ -96,7 +89,6 @@ export default {
             return {
                 'is--empty': this.sideBarEmpty,
                 'is--hidden': this.sectionMobileAndHidden,
-                'is--expanded': this.expandedClass,
             };
         },
 
@@ -141,31 +133,6 @@ export default {
             return Object.keys(this.cmsService.getCmsBlockRegistry());
         },
 
-        isVisible() {
-            const view = Shopware.State.get('cmsPageState').currentCmsDeviceView;
-
-            return (view === 'desktop' && !this.section.visibility.desktop) ||
-                (view === 'tablet-landscape' && !this.section.visibility.tablet) ||
-                (view === 'mobile' && !this.section.visibility.mobile);
-        },
-
-        toggleButtonText() {
-            return this.$tc('sw-cms.sidebar.contentMenu.visibilitySectionTextButton', !this.isCollapsed);
-        },
-
-        expandedClass() {
-            return {
-                'is--expanded': this.isVisible && !this.isCollapsed,
-            };
-        },
-
-        sectionContentClasses() {
-            return {
-                'is--empty': this.mainContentEmpty,
-                'is--expanded': this.isVisible && !this.isCollapsed,
-            };
-        },
-
         ...mapPropertyErrors('page', [
             'slots',
             'slotConfig',
@@ -174,14 +141,6 @@ export default {
 
     created() {
         this.createdComponent();
-
-        if (!this.section.visibility) {
-            this.section.visibility = {
-                mobile: true,
-                tablet: true,
-                desktop: true,
-            };
-        }
     },
 
     methods: {
@@ -262,9 +221,5 @@ export default {
 
             return errorElements.some(missingConfig => missingConfig.blockId === block.id);
         },
-
-        toggleVisibility() {
-            this.isCollapsed = !this.isCollapsed;
-        },
     },
-};
+});

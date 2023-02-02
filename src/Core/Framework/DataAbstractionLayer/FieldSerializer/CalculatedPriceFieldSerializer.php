@@ -13,12 +13,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
-use Shopware\Core\Framework\Log\Package;
 
 /**
- * @internal
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
  */
-#[Package('core')]
 class CalculatedPriceFieldSerializer extends JsonFieldSerializer
 {
     public function encode(
@@ -27,7 +25,7 @@ class CalculatedPriceFieldSerializer extends JsonFieldSerializer
         KeyValuePair $data,
         WriteParameterBag $parameters
     ): \Generator {
-        $value = json_decode(json_encode($data->getValue(), \JSON_PRESERVE_ZERO_FRACTION | \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
+        $value = json_decode(json_encode($data->getValue(), \JSON_PRESERVE_ZERO_FRACTION | \JSON_THROW_ON_ERROR), true);
 
         unset($value['extensions']);
         if (isset($value['listPrice'])) {
@@ -39,31 +37,40 @@ class CalculatedPriceFieldSerializer extends JsonFieldSerializer
         yield from parent::encode($field, $existence, $data, $parameters);
     }
 
-    public function decode(Field $field, mixed $value): ?CalculatedPrice
+    /**
+     * @return CalculatedPrice|null
+     *
+     * @deprecated tag:v6.5.0 - reason:return-type-change - return type will be native typed
+     */
+    public function decode(Field $field, $value)/*: ?CalculatedPrice*/
     {
         if ($value === null) {
             return null;
         }
 
         $decoded = parent::decode($field, $value);
-        if (!\is_array($decoded)) {
+        if ($decoded === null) {
             return null;
         }
 
         $taxRules = array_map(
-            fn (array $tax) => new TaxRule(
-                (float) $tax['taxRate'],
-                (float) $tax['percentage']
-            ),
+            function (array $tax) {
+                return new TaxRule(
+                    (float) $tax['taxRate'],
+                    (float) $tax['percentage']
+                );
+            },
             $decoded['taxRules']
         );
 
         $calculatedTaxes = array_map(
-            fn (array $tax) => new CalculatedTax(
-                (float) $tax['tax'],
-                (float) $tax['taxRate'],
-                (float) $tax['price']
-            ),
+            function (array $tax) {
+                return new CalculatedTax(
+                    (float) $tax['tax'],
+                    (float) $tax['taxRate'],
+                    (float) $tax['price']
+                );
+            },
             $decoded['calculatedTaxes']
         );
 

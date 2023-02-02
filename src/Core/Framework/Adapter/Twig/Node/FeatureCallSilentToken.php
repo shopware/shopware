@@ -2,16 +2,17 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig\Node;
 
-use Shopware\Core\Framework\Log\Package;
 use Twig\Compiler;
 use Twig\Node\Node;
 
-#[Package('core')]
 class FeatureCallSilentToken extends Node
 {
-    public function __construct(private readonly string $flag, Node $body, int $line, string $tag)
+    private string $flag;
+
+    public function __construct(string $flag, Node $body, int $line, string $tag)
     {
         parent::__construct(['body' => $body], [], $line, $tag);
+        $this->flag = $flag;
     }
 
     public function compile(Compiler $compiler): void

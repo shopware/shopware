@@ -8,7 +8,8 @@ use Shopware\Core\Framework\App\Exception\AppUrlChangeStrategyNotFoundException;
 use Shopware\Core\Framework\App\Exception\AppUrlChangeStrategyNotFoundHttpException;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -18,16 +19,27 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ *
+ * @Route(defaults={"_routeScope"={"api"}})
  */
-#[Route(defaults: ['_routeScope' => ['api']])]
-#[Package('core')]
 class AppUrlChangeController extends AbstractController
 {
-    public function __construct(private readonly Resolver $appUrlChangeResolver, private readonly ShopIdProvider $shopIdProvider)
-    {
+    private Resolver $appUrlChangeResolver;
+
+    private ShopIdProvider $shopIdProvider;
+
+    public function __construct(
+        Resolver $appUrlChangeResolverStrategy,
+        ShopIdProvider $shopIdProvider
+    ) {
+        $this->appUrlChangeResolver = $appUrlChangeResolverStrategy;
+        $this->shopIdProvider = $shopIdProvider;
     }
 
-    #[Route(path: 'api/app-system/app-url-change/strategies', name: 'api.app_system.app-url-change-strategies', methods: ['GET'])]
+    /**
+     * @Since("6.3.3.0")
+     * @Route("api/app-system/app-url-change/strategies", name="api.app_system.app-url-change-strategies", methods={"GET"})
+     */
     public function getAvailableStrategies(): JsonResponse
     {
         return new JsonResponse(
@@ -35,7 +47,10 @@ class AppUrlChangeController extends AbstractController
         );
     }
 
-    #[Route(path: 'api/app-system/app-url-change/resolve', name: 'api.app_system.app-url-change-resolve', methods: ['POST'])]
+    /**
+     * @Since("6.3.3.0")
+     * @Route("api/app-system/app-url-change/resolve", name="api.app_system.app-url-change-resolve", methods={"POST"})
+     */
     public function resolve(Request $request, Context $context): Response
     {
         $strategy = $request->get('strategy');
@@ -53,7 +68,10 @@ class AppUrlChangeController extends AbstractController
         return new Response(null, Response::HTTP_NO_CONTENT);
     }
 
-    #[Route(path: 'api/app-system/app-url-change/url-difference', name: 'api.app_system.app-url-difference', methods: ['GET'])]
+    /**
+     * @Since("6.3.3.0")
+     * @Route("api/app-system/app-url-change/url-difference", name="api.app_system.app-url-difference", methods={"GET"})
+     */
     public function getUrlDifference(): Response
     {
         try {

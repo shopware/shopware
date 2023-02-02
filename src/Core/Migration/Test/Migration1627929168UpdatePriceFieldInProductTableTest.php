@@ -8,21 +8,17 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_4\Migration1627929168UpdatePriceFieldInProductTable;
-use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
  */
-#[Package('core')]
 class Migration1627929168UpdatePriceFieldInProductTableTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -38,7 +34,7 @@ class Migration1627929168UpdatePriceFieldInProductTableTest extends TestCase
 
         $this->previousSqlMode = $con->fetchOne('SELECT @@sql_mode');
 
-        $current = array_filter(explode(',', (string) $this->previousSqlMode));
+        $current = array_filter(explode(',', $this->previousSqlMode));
 
         if (!\in_array('STRICT_ALL_TABLES', $current, true)) {
             $current[] = 'STRICT_ALL_TABLES';
@@ -61,11 +57,8 @@ class Migration1627929168UpdatePriceFieldInProductTableTest extends TestCase
 
     /**
      * @dataProvider dataProvider
-     *
-     * @param array<string, array<string, mixed>> $price
-     * @param array<string, array<string, mixed>|null> $percentageResult
      */
-    public function testUpdatePriceColumn(array $price, array $percentageResult): void
+    public function testUpdatePriceColumn(array $price, ?array $percentageResult): void
     {
         $productId = $this->createProduct($price);
 
@@ -74,10 +67,9 @@ class Migration1627929168UpdatePriceFieldInProductTableTest extends TestCase
 
         $criteria = new Criteria([$productId]);
 
-        /** @var ProductEntity $product */
+        /** @var ProductEntity $customer */
         $product = $this->getContainer()->get('product.repository')->search($criteria, Context::createDefaultContext())->first();
         $price = $product->getPrice();
-        static::assertInstanceOf(PriceCollection::class, $price);
 
         foreach ($price as $p) {
             $currencyId = $p->getCurrencyId();
@@ -85,9 +77,6 @@ class Migration1627929168UpdatePriceFieldInProductTableTest extends TestCase
         }
     }
 
-    /**
-     * @return array<string, array{0: array<string, array<string, mixed>>, 1: array<string, array<string, mixed>|null>}>
-     */
     public function dataProvider(): array
     {
         $currencyId = $this->getCurrencyId('USD');
@@ -217,9 +206,6 @@ class Migration1627929168UpdatePriceFieldInProductTableTest extends TestCase
         ];
     }
 
-    /**
-     * @param array<string, array<string, mixed>> $price
-     */
     private function createProduct(array $price = []): string
     {
         $id = Uuid::randomHex();
@@ -249,14 +235,13 @@ class Migration1627929168UpdatePriceFieldInProductTableTest extends TestCase
         return $id;
     }
 
-    private function getCurrencyId(string $isoCode): string
+    private function getCurrencyId(string $isoCode): ?string
     {
-        /** @var CurrencyEntity $currency */
         $currency = $this->getContainer()->get('currency.repository')->search(
             (new Criteria())->addFilter(new EqualsFilter('isoCode', $isoCode)),
             Context::createDefaultContext()
         )->first();
 
-        return $currency->getId();
+        return $currency !== null ? $currency->getId() : null;
     }
 }

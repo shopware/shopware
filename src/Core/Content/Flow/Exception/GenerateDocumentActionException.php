@@ -2,10 +2,8 @@
 
 namespace Shopware\Core\Content\Flow\Exception;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
-#[Package('business-ops')]
 class GenerateDocumentActionException extends ShopwareHttpException
 {
     public function __construct(string $message)

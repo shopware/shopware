@@ -1,14 +1,10 @@
-/*
- * @package inventory
- */
-
 import template from './sw-manufacturer-list.html.twig';
 
-const { Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-manufacturer-list', {
     template,
 
     inject: ['repositoryFactory', 'acl'],
@@ -98,4 +94,4 @@ export default {
             this.total = total;
         },
     },
-};
+});

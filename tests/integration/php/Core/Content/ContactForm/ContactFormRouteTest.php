@@ -20,8 +20,6 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
- *
- * @package content
  * @group store-api
  */
 class ContactFormRouteTest extends TestCase
@@ -75,7 +73,7 @@ class ContactFormRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('individualSuccessMessage', $response);
         static::assertEmpty($response['individualSuccessMessage']);
@@ -90,11 +88,18 @@ class ContactFormRouteTest extends TestCase
      */
     public function testContactFormSendMailWithNavigationIdAndSlotId(string $entityName): void
     {
-        [$navigationId, $slotId] = match ($entityName) {
-            LandingPageDefinition::ENTITY_NAME => $this->createLandingPageData(),
-            ProductDefinition::ENTITY_NAME => $this->createProductData(),
-            default => $this->createCategoryData(true),
-        };
+        switch ($entityName) {
+            case LandingPageDefinition::ENTITY_NAME:
+                list($navigationId, $slotId) = $this->createLandingPageData();
+
+                break;
+            case ProductDefinition::ENTITY_NAME:
+                list($navigationId, $slotId) = $this->createProductData();
+
+                break;
+            default:
+                list($navigationId, $slotId) = $this->createCategoryData(true);
+        }
 
         /** @var EventDispatcher $dispatcher */
         $dispatcher = $this->getContainer()->get('event_dispatcher');
@@ -129,7 +134,7 @@ class ContactFormRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
         static::assertArrayHasKey('individualSuccessMessage', $response);
         static::assertEmpty($response['individualSuccessMessage']);
 
@@ -148,7 +153,7 @@ class ContactFormRouteTest extends TestCase
 
     public function testContactFormSendMailWithSlotId(): void
     {
-        [$categoryId] = $this->createCategoryData();
+        list($categoryId) = $this->createCategoryData();
 
         $formSlotId = $this->ids->create('form-slot');
         $this->createCmsFormData($formSlotId);
@@ -183,7 +188,7 @@ class ContactFormRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('individualSuccessMessage', $response);
         static::assertEmpty($response['individualSuccessMessage']);
@@ -213,7 +218,7 @@ class ContactFormRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         $expectClosure($response);
     }

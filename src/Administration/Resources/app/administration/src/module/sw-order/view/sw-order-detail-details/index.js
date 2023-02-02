@@ -1,17 +1,13 @@
 import template from './sw-order-detail-details.html.twig';
 import './sw-order-detail-details.scss';
 
-/**
- * @package customer-order
- */
-
 const { Component, State } = Shopware;
 const { Criteria } = Shopware.Data;
 const { array } = Shopware.Utils;
 const { mapGetters, mapState } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-order-detail-details', {
     template,
 
     inject: [
@@ -54,7 +50,6 @@ export default {
         ...mapState('swOrderDetail', [
             'order',
             'versionContext',
-            'orderAddressIds',
         ]),
 
         delivery() {
@@ -86,10 +81,8 @@ export default {
                 return null;
             }
 
-            return this.stateStyleDataProviderService.getStyle(
-                'order_transaction.state',
-                this.transaction.stateMachineState.technicalName,
-            ).selectBackgroundStyle;
+            return this.stateStyleDataProviderService.getStyle('order_transaction.state',
+                this.transaction.stateMachineState.technicalName).selectBackgroundStyle;
         },
 
         orderOptionPlaceholder() {
@@ -106,10 +99,8 @@ export default {
                 return null;
             }
 
-            return this.stateStyleDataProviderService.getStyle(
-                'order.state',
-                this.order.stateMachineState.technicalName,
-            ).selectBackgroundStyle;
+            return this.stateStyleDataProviderService.getStyle('order.state',
+                this.order.stateMachineState.technicalName).selectBackgroundStyle;
         },
 
         deliveryOptionPlaceholder() {
@@ -126,10 +117,8 @@ export default {
                 return null;
             }
 
-            return this.stateStyleDataProviderService.getStyle(
-                'order_delivery.state',
-                this.delivery.stateMachineState.technicalName,
-            ).selectBackgroundStyle;
+            return this.stateStyleDataProviderService.getStyle('order_delivery.state',
+                this.delivery.stateMachineState.technicalName).selectBackgroundStyle;
         },
 
         customFieldSetRepository() {
@@ -194,20 +183,6 @@ export default {
             return this.order.addresses.find((address) => {
                 return address.id === this.order.billingAddressId;
             });
-        },
-
-        shippingAddress() {
-            return this.delivery.shippingOrderAddress;
-        },
-
-        selectedBillingAddressId() {
-            const currentAddress = this.orderAddressIds.find(item => item.type === 'billing');
-            return currentAddress?.customerAddressId || this.billingAddress.id;
-        },
-
-        selectedShippingAddressId() {
-            const currentAddress = this.orderAddressIds.find(item => item.type === 'shipping');
-            return currentAddress?.customerAddressId || this.shippingAddress.id;
         },
     },
 
@@ -285,18 +260,21 @@ export default {
         },
 
         validateTrackingCode(searchTerm) {
-            const trackingCode = searchTerm.trim();
-
-            if (trackingCode.length <= 0) {
+            if (searchTerm.length < 0) {
                 return false;
             }
 
-            const isExist = this.delivery?.trackingCodes?.find(code => code === trackingCode);
-            return !isExist;
+            const isExist = this.delivery?.trackingCodes?.find(code => code === searchTerm);
+
+            if (isExist) {
+                return false;
+            }
+
+            return searchTerm;
         },
 
         onChangeOrderAddress(value) {
             State.commit('swOrderDetail/setOrderAddressIds', value);
         },
     },
-};
+});

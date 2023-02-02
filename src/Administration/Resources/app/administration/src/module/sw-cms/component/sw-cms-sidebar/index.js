@@ -8,11 +8,8 @@ const { Criteria } = Shopware.Data;
 const { cloneDeep } = Shopware.Utils.object;
 const types = Shopware.Utils.types;
 
-/**
- * @package content
- */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-cms-sidebar', {
     template,
 
     inject: [
@@ -20,8 +17,6 @@ export default {
         'cmsService',
         'repositoryFactory',
         'feature',
-        'cmsBlockFavorites',
-        'cmsPageTypeService',
     ],
 
     mixins: [
@@ -65,10 +60,6 @@ export default {
     },
 
     computed: {
-        pageTypes() {
-            return this.cmsPageTypeService.getTypes();
-        },
-
         blockRepository() {
             return this.repositoryFactory.create('cms_block');
         },
@@ -78,13 +69,7 @@ export default {
         },
 
         cmsBlocks() {
-            const currentPageType = Shopware.State.get('cmsPageState').currentPageType;
-
-            const blocks = Object.entries(this.cmsService.getCmsBlockRegistry()).filter(([name, block]) => {
-                return block.hidden !== true && this.cmsService.isBlockAllowedInPageType(name, currentPageType);
-            });
-
-            return Object.fromEntries(blocks);
+            return this.cmsService.getCmsBlockRegistry();
         },
 
         mediaRepository() {
@@ -138,7 +123,7 @@ export default {
         },
 
         blockTypes() {
-            return Object.keys(this.cmsService.getCmsBlockRegistry());
+            return Object.keys(this.cmsBlocks);
         },
 
         pageConfigErrors() {
@@ -158,39 +143,19 @@ export default {
                 return true;
             }
 
-            if (this.page.type === 'product_detail' && this.feature.isActive('v6.6.0.0')) {
+            if (this.page.type === 'product_detail' && this.feature.isActive('v6.5.0.0')) {
                 return true;
             }
 
             return false;
         },
 
-        cmsBlocksBySelectedBlockCategory() {
-            const result = Object.values(this.cmsBlocks).filter(b => b.hidden !== true);
-
-            if (this.currentBlockCategory === 'favorite') {
-                return result.filter(b => this.cmsBlockFavorites.isFavorite(b.name));
-            }
-
-            return result.filter(b => b.category === this.currentBlockCategory);
-        },
-
         ...mapPropertyErrors('page', ['name']),
     },
 
-    created() {
-        this.createdComponent();
-    },
-
     methods: {
-        createdComponent() {
-            if (this.blockTypes.some(blockName => this.cmsBlockFavorites.isFavorite(blockName))) {
-                this.currentBlockCategory = 'favorite';
-            }
-        },
-
-        onPageTypeChange(pageType) {
-            this.$emit('page-type-change', pageType);
+        onPageTypeChange() {
+            this.$emit('page-type-change');
         },
 
         onDemoEntityChange(demoEntityId) {
@@ -202,18 +167,6 @@ export default {
             Shopware.State.commit('cmsPageState/removeSelectedSection');
         },
 
-        isDisabledPageType(pageType) {
-            if (this.page.type === 'product_detail') {
-                return true;
-            }
-
-            if (this.page.type.includes('custom_entity_')) {
-                return !pageType.name.includes('custom_entity_');
-            }
-
-            return pageType.name === 'product_detail' || pageType.name.includes('custom_entity_');
-        },
-
         openSectionSettings(sectionIndex) {
             this.$refs.pageConfigSidebar.openContent();
             this.$nextTick(() => {
@@ -222,8 +175,7 @@ export default {
         },
 
         blockIsRemovable(block) {
-            const cmsBlocks = this.cmsService.getCmsBlockRegistry();
-            return (cmsBlocks[block.type].removable !== false) && this.isSystemDefaultLanguage;
+            return (this.cmsBlocks[block.type].removable !== false) && this.isSystemDefaultLanguage;
         },
 
         blockIsUnique(block) {
@@ -320,6 +272,30 @@ export default {
             });
         },
 
+        /**
+         * @deprecated tag:v6.5.0 - Will be deleted. Blocks will only be saved on clicking save
+         */
+        async blockMoveSave(block, dropSectionIndex, removeIndex) {
+            block.slots.forEach((slot) => {
+                Object.values(slot.config).forEach((configField) => {
+                    if (configField.entity) {
+                        delete configField.entity;
+                    }
+                    if (configField.hasOwnProperty('required')) {
+                        delete configField.required;
+                    }
+                });
+            });
+
+            await this.blockRepository.save(block, Shopware.Context.api);
+
+            // Add and remove the blocks from the sidebar for display reasons
+            this.page.sections[dropSectionIndex].blocks.add(block);
+            this.page.sections[removeIndex].blocks.remove(block.id);
+
+            this.$emit('block-navigator-sort', true);
+        },
+
         onSidebarNavigatorClick() {
             if (!this.$refs.blockNavigator.isActive) {
                 return;
@@ -347,6 +323,42 @@ export default {
             this.showSidebarNavigatorModal = false;
             this.$nextTick(() => {
                 this.$refs.pageConfigSidebar.openContent();
+            });
+        },
+
+        /**
+         * @deprecated tag:v6.5.0 - Will be deleted. Clone will be managed via clone route
+         */
+        cloneBlock(block, sectionId) {
+            const newBlock = this.blockRepository.create();
+
+            const blockClone = cloneDeep(block);
+            blockClone.position = block.position + 1;
+            blockClone.sectionId = sectionId;
+            blockClone.sectionPosition = block.sectionPosition;
+            blockClone.slots = [];
+
+            Object.assign(newBlock, blockClone);
+
+            this.cloneSlotsInBlock(block, newBlock);
+
+            return newBlock;
+        },
+
+        /**
+         * @deprecated tag:v6.5.0 - Will be deleted. Clone will be managed via clone route
+         */
+        cloneSlotsInBlock(block, newBlock) {
+            block.slots.forEach(slot => {
+                const element = this.slotRepository.create();
+                element.id = slot.id;
+                element.blockId = newBlock.id;
+                element.slot = slot.slot;
+                element.type = slot.type;
+                element.config = cloneDeep(slot.config);
+                element.data = cloneDeep(slot.data);
+
+                newBlock.slots.push(element);
             });
         },
 
@@ -393,9 +405,8 @@ export default {
                 return;
             }
 
-            const cmsBlocks = this.cmsService.getCmsBlockRegistry();
             const section = dropData.section;
-            const blockConfig = cmsBlocks[dragData.block.name];
+            const blockConfig = this.cmsBlocks[dragData.block.name];
             const newBlock = this.blockRepository.create();
 
             newBlock.type = dragData.block.name;
@@ -427,7 +438,7 @@ export default {
 
                 const slotDefaultData = slotConfig.default?.data;
                 if ([slotDefaultData?.media?.source, slotDefaultData?.sliderItems?.source].includes('default')) {
-                    element.config = { ...element.config, ...slotDefaultData };
+                    element.config = Object.assign({}, element.config, slotDefaultData);
                 }
 
                 newBlock.slots.add(element);
@@ -496,10 +507,6 @@ export default {
             this.pageUpdate();
         },
 
-        onToggleBlockFavorite(blockName) {
-            this.cmsBlockFavorites.update(!this.cmsBlockFavorites.isFavorite(blockName), blockName);
-        },
-
         successfulUpload(media, section) {
             section.backgroundMediaId = media.targetId;
 
@@ -537,4 +544,4 @@ export default {
             return this.blockTypes.includes(type);
         },
     },
-};
+});

@@ -4,7 +4,7 @@ namespace Shopware\Tests\Migration\Core\V6_4;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
+use Shopware\Core\Checkout\Document\DocumentGenerator\InvoiceGenerator;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -31,13 +31,13 @@ class Migration1610439375AddEUStatesAsDefaultForIntraCommunityDeliveryLabelTest 
 
         $listInvoiceData = $this->getListInvoiceData();
         foreach ($listInvoiceData as $invoiceData) {
-            $invoiceConfig = json_decode($invoiceData['config'], true, 512, \JSON_THROW_ON_ERROR);
+            $invoiceConfig = json_decode($invoiceData['config'], true);
             unset($invoiceConfig['deliveryCountries']);
 
             $this->connection->executeStatement(
                 'UPDATE `document_base_config` SET `config` = :invoiceData WHERE `id` = :documentConfigId',
                 [
-                    'invoiceData' => json_encode($invoiceConfig, \JSON_THROW_ON_ERROR),
+                    'invoiceData' => json_encode($invoiceConfig),
                     'documentConfigId' => $invoiceData['id'],
                 ]
             );
@@ -49,13 +49,13 @@ class Migration1610439375AddEUStatesAsDefaultForIntraCommunityDeliveryLabelTest 
         $listInvoiceData = $this->getListInvoiceData();
 
         $euStates = $this->connection->executeQuery(
-            'SELECT `id` FROM `country` WHERE `iso`
-                IN (\'AT\', \'BE\', \'BG\', \'CY\', \'CZ\', \'DE\', \'DK\', \'EE\', \'GR\', \'ES\', \'FI\', \'FR\', \'GB\', \'HU\', \'IE\', \'IT\',
-                \'LT\', \'LU\', \'LV\', \'MT\', \'NL\', \'PL\', \'PT\', \'RO\', \'SE\', \'SI\', \'SK\', \'HR\')'
+            "SELECT `id` FROM `country` WHERE `iso`
+                IN ('AT', 'BE', 'BG', 'CY', 'CZ', 'DE', 'DK', 'EE', 'GR', 'ES', 'FI', 'FR', 'GB', 'HU', 'IE', 'IT',
+                'LT', 'LU', 'LV', 'MT', 'NL', 'PL', 'PT', 'RO', 'SE', 'SI', 'SK', 'HR')"
         )->fetchFirstColumn();
 
         foreach ($listInvoiceData as $invoiceData) {
-            $invoiceConfig = json_decode($invoiceData['config'], true, 512, \JSON_THROW_ON_ERROR);
+            $invoiceConfig = json_decode($invoiceData['config'], true);
 
             $actual = $invoiceConfig['deliveryCountries'];
             sort($actual);
@@ -72,13 +72,13 @@ class Migration1610439375AddEUStatesAsDefaultForIntraCommunityDeliveryLabelTest 
         $listInvoiceData = $this->getListInvoiceData();
 
         foreach ($listInvoiceData as $invoiceData) {
-            $invoiceConfig = json_decode($invoiceData['config'], true, 512, \JSON_THROW_ON_ERROR);
+            $invoiceConfig = json_decode($invoiceData['config'], true);
             unset($invoiceConfig['deliveryCountries']);
 
             $this->connection->executeStatement(
                 'UPDATE `document_base_config` SET `config` = :invoiceData WHERE `id` = :documentConfigId',
                 [
-                    'invoiceData' => json_encode($invoiceConfig, \JSON_THROW_ON_ERROR),
+                    'invoiceData' => json_encode($invoiceConfig),
                     'documentConfigId' => $invoiceData['id'],
                 ]
             );
@@ -95,7 +95,7 @@ class Migration1610439375AddEUStatesAsDefaultForIntraCommunityDeliveryLabelTest 
             'SELECT `document_base_config`.`id`, `document_base_config`.`config` FROM `document_base_config`
             LEFT JOIN `document_type` ON `document_base_config`.`document_type_id` = `document_type`.`id`
             WHERE `document_type`.`technical_name` = :documentName',
-            ['documentName' => InvoiceRenderer::TYPE]
+            ['documentName' => InvoiceGenerator::INVOICE]
         );
 
         return $result;
@@ -105,7 +105,7 @@ class Migration1610439375AddEUStatesAsDefaultForIntraCommunityDeliveryLabelTest 
     {
         $documentTypeId = $this->connection->fetchOne(
             'SELECT `id` FROM `document_type` WHERE `technical_name` = :documentName',
-            ['documentName' => InvoiceRenderer::TYPE]
+            ['documentName' => InvoiceGenerator::INVOICE]
         );
 
         for ($i = 0; $i < 10; ++$i) {
@@ -132,7 +132,7 @@ class Migration1610439375AddEUStatesAsDefaultForIntraCommunityDeliveryLabelTest 
                     'id' => Uuid::randomBytes(),
                     'name' => 'test invoice',
                     'document_type_id' => $documentTypeId,
-                    'config' => json_encode($config, \JSON_THROW_ON_ERROR),
+                    'config' => json_encode($config),
                     'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 ]
             );

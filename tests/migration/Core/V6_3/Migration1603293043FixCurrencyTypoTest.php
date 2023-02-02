@@ -17,9 +17,9 @@ class Migration1603293043FixCurrencyTypoTest extends TestCase
 {
     use MigrationTestTrait;
 
-    final public const wrongTranslation = 'Swedish krone';
+    public const wrongTranslation = 'Swedish krone';
 
-    final public const correctTranslation = 'Swedish krona';
+    public const correctTranslation = 'Swedish krona';
 
     private Connection $connection;
 
@@ -79,7 +79,7 @@ class Migration1603293043FixCurrencyTypoTest extends TestCase
                 ->andWhere('ct.language_id = :englishLanguageId')
                 ->andWhere('ct.updated_at IS NOT NULL')
                 ->setParameters(['englishLanguageId' => $this->languageIdEnglish, 'kronaEnglishShort' => 'SEK']);
-            $swedishCurrencyName = $swedishCurrencyNameQuery->executeQuery()->fetchOne();
+            $swedishCurrencyName = $swedishCurrencyNameQuery->execute()->fetchOne();
             static::assertSame('Swedish krona', $swedishCurrencyName);
         }
     }

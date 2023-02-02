@@ -3,7 +3,7 @@
 namespace Shopware\Core\Checkout\Customer\Rule;
 
 use Shopware\Core\Checkout\CheckoutRuleScope;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleConfig;
@@ -11,19 +11,28 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\Country\CountryDefinition;
 
-#[Package('business-ops')]
 class BillingCountryRule extends Rule
 {
-    final public const RULE_NAME = 'customerBillingCountry';
+    /**
+     * @var array<string>|null
+     */
+    protected $countryIds;
+
+    /**
+     * @var string
+     */
+    protected $operator;
 
     /**
      * @internal
      *
-     * @param list<string>|null $countryIds
+     * @param array<string>|null $countryIds
      */
-    public function __construct(protected string $operator = self::OPERATOR_EQ, protected ?array $countryIds = null)
+    public function __construct(string $operator = self::OPERATOR_EQ, ?array $countryIds = null)
     {
         parent::__construct();
+        $this->operator = $operator;
+        $this->countryIds = $countryIds;
     }
 
     public function match(RuleScope $scope): bool
@@ -32,14 +41,26 @@ class BillingCountryRule extends Rule
             return false;
         }
         if (!$customer = $scope->getSalesChannelContext()->getCustomer()) {
+            if (!Feature::isActive('v6.5.0.0')) {
+                return false;
+            }
+
             return RuleComparison::isNegativeOperator($this->operator);
         }
 
         if (!$address = $customer->getActiveBillingAddress()) {
+            if (!Feature::isActive('v6.5.0.0')) {
+                return false;
+            }
+
             return RuleComparison::isNegativeOperator($this->operator);
         }
 
         if (!$country = $address->getCountry()) {
+            if (!Feature::isActive('v6.5.0.0')) {
+                return false;
+            }
+
             return RuleComparison::isNegativeOperator($this->operator);
         }
 
@@ -52,9 +73,6 @@ class BillingCountryRule extends Rule
         return RuleComparison::uuids($parameter, $this->countryIds, $this->operator);
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     public function getConstraints(): array
     {
         $constraints = [
@@ -68,6 +86,11 @@ class BillingCountryRule extends Rule
         $constraints['countryIds'] = RuleConstraints::uuids();
 
         return $constraints;
+    }
+
+    public function getName(): string
+    {
+        return 'customerBillingCountry';
     }
 
     public function getConfig(): RuleConfig

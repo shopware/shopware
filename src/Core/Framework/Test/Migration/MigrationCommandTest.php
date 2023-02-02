@@ -128,7 +128,7 @@ class MigrationCommandTest extends TestCase
 
         try {
             $command->run(new ArrayInput(['--all' => true, 'identifier' => [self::INTEGRATION_WITH_EXCEPTION_IDENTIFIER()]]), new BufferedOutput());
-        } catch (MigrateException) {
+        } catch (MigrateException $e) {
             //nth
         }
 
@@ -177,7 +177,7 @@ class MigrationCommandTest extends TestCase
 
         try {
             $command->run(new ArrayInput(['--all' => true, 'identifier' => [self::INTEGRATION_WITH_EXCEPTION_IDENTIFIER()]]), new BufferedOutput());
-        } catch (MigrateException) {
+        } catch (MigrateException $e) {
             //nth
         }
 
@@ -185,7 +185,7 @@ class MigrationCommandTest extends TestCase
 
         try {
             $command->run(new ArrayInput(['--all' => true, 'identifier' => [self::INTEGRATION_WITH_EXCEPTION_IDENTIFIER()]]), new BufferedOutput());
-        } catch (MigrateException) {
+        } catch (MigrateException $e) {
             //nth
         }
 
@@ -276,6 +276,6 @@ class MigrationCommandTest extends TestCase
             $query->andWhere('`update` IS NOT NULL');
         }
 
-        return (int) $query->executeQuery()->fetchOne();
+        return (int) $query->execute()->fetchColumn();
     }
 }

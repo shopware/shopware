@@ -1,93 +1,93 @@
-{% block thumbnail_utility %}
-    {# activate load per default. If it is not activated only a data-src is set instead of the src tag. #}
-    {% if load is not defined %}
-        {% set load = true %}
+{# activate load per default. If it is not activated only a data-src is set instead of the src tag. #}
+{% if load is not defined %}
+    {% set load = true %}
+{% endif %}
+
+{# By default no original image will be loaded as soon as thumbnails are available. #}
+{# When set to true the orginal image will be loaded when the viewport is greater than the largest available thumbnail. #}
+{% if loadOriginalImage is not defined %}
+    {% set loadOriginalImage = false %}
+{% endif %}
+
+{# By default the srcset sizes will be calculated automatically if `columns` are present and no `sizes` are configured. #}
+{# When set to false the sizes attribute will not be generated automatically. #}
+{% if autoColumnSizes is not defined %}
+    {% set autoColumnSizes = true %}
+{% endif %}
+
+{% if attributes is not defined %}
+    {% set attributes = {} %}
+{% endif %}
+
+{% if attributes.alt is not defined and media.translated.alt is defined %}
+    {% set attributes = attributes|merge({'alt': media.translated.alt}) %}
+{% endif %}
+
+{% if attributes.title is not defined and media.translated.title is defined %}
+    {% set attributes = attributes|merge({'title': media.translated.title}) %}
+{% endif %}
+
+{# uses cms block column count and all available thumbnails to determine the correct image size for the current viewport #}
+{% if media.thumbnails|length > 0 %}
+    {% if autoColumnSizes and columns and sizes is not defined %}
+        {# set image size for every viewport #}
+        {% set sizes = {
+            'xs': (theme_config('breakpoint.sm') - 1) ~'px',
+            'sm': (theme_config('breakpoint.md') - 1) ~'px',
+            'md': ((theme_config('breakpoint.lg') - 1) / columns)|round(0, 'ceil') ~'px',
+            'lg': ((theme_config('breakpoint.xl') - 1) / columns)|round(0, 'ceil') ~'px'
+        } %}
+
+        {# set image size for largest viewport depending on the cms block sizing mode (boxed or full-width) #}
+        {% if layout == 'full-width' %}
+            {% set container = 100 %}
+            {% set sizes = sizes|merge({ 'xl': (container / columns)|round(0, 'ceil') ~'vw'}) %}
+        {% else %}
+            {% set container = 1360 %}
+            {% set sizes = sizes|merge({ 'xl': (container / columns)|round(0, 'ceil') ~'px'}) %}
+        {% endif %}
     {% endif %}
 
-    {# By default no original image will be loaded as soon as thumbnails are available. #}
-    {# When set to true the orginal image will be loaded when the viewport is greater than the largest available thumbnail. #}
-    {% if loadOriginalImage is not defined %}
-        {% set loadOriginalImage = false %}
-    {% endif %}
+    {% set thumbnails = media.thumbnails|sort|reverse %}
 
-    {# By default the srcset sizes will be calculated automatically if `columns` are present and no `sizes` are configured. #}
-    {# When set to false the sizes attribute will not be generated automatically. #}
-    {% if autoColumnSizes is not defined %}
-        {% set autoColumnSizes = true %}
-    {% endif %}
+    {# generate srcset with all available thumbnails #}
+    {% set srcsetValue %}{% apply spaceless %}
+        {% if loadOriginalImage %}{{ media|sw_encode_media_url }} {{ thumbnails|first.width + 1 }}w, {% endif %}{% for thumbnail in thumbnails %}{{ thumbnail.url | sw_encode_url }} {{ thumbnail.width }}w{% if not loop.last %}, {% endif %}{% endfor %}
+    {% endapply %}{% endset %}
 
-    {% if attributes is not defined %}
-        {% set attributes = {} %}
-    {% endif %}
+    {# generate sizes #}
+    {% set sizesValue %}{% apply spaceless %}
+        {% set sizeFallback = 100 %}
 
-    {% if attributes.alt is not defined and media.translated.alt is defined %}
-        {% set attributes = attributes|merge({'alt': media.translated.alt}) %}
-    {% endif %}
-
-    {% if attributes.title is not defined and media.translated.title is defined %}
-        {% set attributes = attributes|merge({'title': media.translated.title}) %}
-    {% endif %}
-
-    {# uses cms block column count and all available thumbnails to determine the correct image size for the current viewport #}
-    {% if media.thumbnails|length > 0 %}
-        {% if autoColumnSizes and columns and sizes is not defined %}
-            {# set image size for every viewport #}
-            {% set sizes = {
-                'xs': (theme_config('breakpoint.sm') - 1) ~'px',
-                'sm': (theme_config('breakpoint.md') - 1) ~'px',
-                'md': ((theme_config('breakpoint.lg') - 1) / columns)|round(0, 'ceil') ~'px',
-                'lg': ((theme_config('breakpoint.xl') - 1) / columns)|round(0, 'ceil') ~'px'
-            } %}
-
-            {# set image size for largest viewport depending on the cms block sizing mode (boxed or full-width) #}
-            {% if layout == 'full-width' %}
-                {% set container = 100 %}
-                {% set sizes = sizes|merge({ 'xl': (container / columns)|round(0, 'ceil') ~'vw'}) %}
-            {% else %}
-                {% set container = 1360 %}
-                {% set sizes = sizes|merge({ 'xl': (container / columns)|round(0, 'ceil') ~'px'}) %}
-            {% endif %}
+        {# set largest size depending on column count of cms block #}
+        {% if autoColumnSizes and columns %}
+            {% set sizeFallback = (sizeFallback / columns)|round(0, 'ceil') %}
         {% endif %}
 
-        {% set thumbnails = media.thumbnails|sort|reverse %}
+        {% set breakpoint = {
+            'xs': theme_config('breakpoint.xs'),
+            'sm': theme_config('breakpoint.sm'),
+            'md': theme_config('breakpoint.md'),
+            'lg': theme_config('breakpoint.lg'),
+            'xl': theme_config('breakpoint.xl')
+        } %}
 
-        {# generate srcset with all available thumbnails #}
-        {% set srcsetValue %}{% apply spaceless %}
-            {% if loadOriginalImage %}{{ media|sw_encode_media_url }} {{ thumbnails|first.width + 1 }}w, {% endif %}{% for thumbnail in thumbnails %}{{ thumbnail.url | sw_encode_url }} {{ thumbnail.width }}w{% if not loop.last %}, {% endif %}{% endfor %}
-        {% endapply %}{% endset %}
+        {% if thumbnails|first.width > breakpoint|reverse|first %}
+            {# @deprecated tag:v6.5.0 - Variable `maxWidth` and parent condition will be removed #}
+            {% set maxWidth = thumbnails|first.width %}
+        {% endif %}
 
-        {# generate sizes #}
-        {% set sizesValue %}{% apply spaceless %}
-            {% set sizeFallback = 100 %}
-
-            {# set largest size depending on column count of cms block #}
-            {% if autoColumnSizes and columns %}
-                {% set sizeFallback = (sizeFallback / columns)|round(0, 'ceil') %}
-            {% endif %}
-
-            {% set breakpoint = {
-                'xs': theme_config('breakpoint.xs'),
-                'sm': theme_config('breakpoint.sm'),
-                'md': theme_config('breakpoint.md'),
-                'lg': theme_config('breakpoint.lg'),
-                'xl': theme_config('breakpoint.xl')
-            } %}
-
-            {% for key, value in breakpoint|reverse %}(min-width: {{ value }}px) {{ sizes[key] }}{% if not loop.last %}, {% endif %}{% endfor %}, {{ sizeFallback }}vw
-        {% endapply %}{% endset %}
+        {% for key, value in breakpoint|reverse %}(min-width: {{ value }}px) {{ sizes[key] }}{% if not loop.last %}, {% endif %}{% endfor %}, {{ sizeFallback }}vw
+    {% endapply %}{% endset %}
+{% endif %}
+<img {% if load %}src="{{ media|sw_encode_media_url }}" {% else %}data-src="{{ media|sw_encode_media_url }}" {% endif %}
+    {% if media.thumbnails|length > 0 %}
+        {% if load %}srcset="{{ srcsetValue }}" {% else %}data-srcset="{{ srcsetValue }}" {% endif %}
+        {% if sizes['default'] %}
+        sizes="{{ sizes['default'] }}"
+        {% elseif sizes|length > 0 %}
+        sizes="{{ sizesValue }}"
+        {% endif %}
     {% endif %}
-
-    {% block thumbnail_utility_img %}
-        <img {% if load %}src="{{ media|sw_encode_media_url }}" {% else %}data-src="{{ media|sw_encode_media_url }}" {% endif %}
-            {% if media.thumbnails|length > 0 %}
-                {% if load %}srcset="{{ srcsetValue }}" {% else %}data-srcset="{{ srcsetValue }}" {% endif %}
-                {% if sizes['default'] %}
-                sizes="{{ sizes['default'] }}"
-                {% elseif sizes|length > 0 %}
-                sizes="{{ sizesValue }}"
-                {% endif %}
-            {% endif %}
-            {% for key, value in attributes %}{% if value != '' %} {{ key }}="{{ value }}"{% endif %}{% endfor %}
-        />
-    {% endblock %}
-{% endblock %}
+    {% for key, value in attributes %}{% if value != '' %} {{ key }}="{{ value }}"{% endif %}{% endfor %}
+/>

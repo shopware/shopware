@@ -2,7 +2,7 @@
 
 .sw-external-link {
     color: $color-shopware-brand-500;
-    font-size: $font-size-xs;
+    font-size: $font-size-small;
     text-decoration: underline;
     cursor: pointer;
 
@@ -16,7 +16,7 @@
     }
 
     &--small {
-        font-size: $font-size-xxs;
+        font-size: $font-size-extra-small;
 
         .sw-external-link__icon {
             margin-left: 2px;

@@ -32,7 +32,10 @@ class ErrorControllerTest extends TestCase
 
     private ErrorController $controller;
 
-    private string $domain = 'http://kyln.shopware';
+    /**
+     * @var string
+     */
+    private $domain = 'http://kyln.shopware';
 
     public function setUp(): void
     {
@@ -98,7 +101,7 @@ class ErrorControllerTest extends TestCase
     private function addDomain(string $url): void
     {
         $snippetSetId = $this->getContainer()->get(Connection::class)
-            ->fetchOne('SELECT LOWER(HEX(id)) FROM snippet_set LIMIT 1');
+            ->fetchColumn('SELECT LOWER(HEX(id)) FROM snippet_set LIMIT 1');
 
         $domain = [
             'salesChannelId' => TestDefaults::SALES_CHANNEL,

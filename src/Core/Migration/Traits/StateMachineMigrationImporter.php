@@ -4,7 +4,6 @@ namespace Shopware\Core\Migration\Traits;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateDefinition;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateTranslationDefinition;
@@ -12,13 +11,15 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMa
 use Shopware\Core\System\StateMachine\StateMachineDefinition;
 use Shopware\Core\System\StateMachine\StateMachineTranslationDefinition;
 
-#[Package('core')]
 class StateMachineMigrationImporter
 {
     use ImportTranslationsTrait;
 
-    public function __construct(private readonly Connection $connection)
+    private Connection $connection;
+
+    public function __construct(Connection $connection)
     {
+        $this->connection = $connection;
     }
 
     public function importStateMachine(StateMachineMigration $stateMachineMigration): StateMachineMigration

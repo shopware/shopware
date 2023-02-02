@@ -21,13 +21,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Aggregate\PluginTranslation\PluginTranslationDefinition;
 
-#[Package('core')]
 class PluginDefinition extends EntityDefinition
 {
-    final public const ENTITY_NAME = 'plugin';
+    public const ENTITY_NAME = 'plugin';
 
     public function getEntityName(): string
     {

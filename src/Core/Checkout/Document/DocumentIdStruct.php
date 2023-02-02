@@ -2,14 +2,21 @@
 
 namespace Shopware\Core\Checkout\Document;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('customer-order')]
 class DocumentIdStruct extends Struct
 {
-    public function __construct(protected string $id, protected string $deepLinkCode, protected ?string $mediaId = null)
+    protected string $id;
+
+    protected string $deepLinkCode;
+
+    protected ?string $mediaId;
+
+    public function __construct(string $id, string $deepLinkCode, ?string $mediaId = null)
     {
+        $this->id = $id;
+        $this->deepLinkCode = $deepLinkCode;
+        $this->mediaId = $mediaId;
     }
 
     public function getDeepLinkCode(): string

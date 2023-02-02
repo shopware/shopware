@@ -4,9 +4,7 @@ namespace Shopware\Core\Checkout\Cart\Facade\Traits;
 
 use Shopware\Core\Checkout\Cart\Facade\ItemFacade;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('checkout')]
 trait ItemsRemoveTrait
 {
     private LineItemCollection $items;
@@ -18,7 +16,7 @@ trait ItemsRemoveTrait
      *
      * @example remove-product-cases/remove-product-cases.twig 2 3 Add and then remove a product line-item from the cart.
      */
-    public function remove(string|ItemFacade $id): void
+    public function remove($id): void
     {
         if ($id instanceof ItemFacade) {
             $id = $id->getId();

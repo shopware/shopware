@@ -36,7 +36,7 @@
 
         .sw-notification-center__title {
             margin: 0;
-            font-size: $font-size-m;
+            font-size: $font-size-large;
         }
 
         .sw-notification-center__notification-container {
@@ -46,7 +46,7 @@
 
         .sw-notification-center__empty-text {
             padding: 24px;
-            font-size: $font-size-xs;
+            font-size: $font-size-small;
         }
     }
 }

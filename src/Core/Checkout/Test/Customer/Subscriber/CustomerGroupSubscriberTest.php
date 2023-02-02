@@ -7,10 +7,9 @@ use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -19,19 +18,18 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[Package('customer-order')]
 class CustomerGroupSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepositoryInterface
      */
     private $customerGroupRepository;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepositoryInterface
      */
     private $seoRepository;
 
@@ -54,7 +52,7 @@ class CustomerGroupSubscriberTest extends TestCase
 
         $urls = $this->getSeoUrlsById($id);
 
-        static::assertCount(0, $urls);
+        static::assertSame(0, $urls->count());
     }
 
     public function testUrlsAreWrittenToOnlyAssignedSalesChannel(): void
@@ -75,11 +73,10 @@ class CustomerGroupSubscriberTest extends TestCase
 
         $urls = $this->getSeoUrlsById($id);
 
-        static::assertCount(1, $urls);
+        static::assertSame(1, $urls->count());
 
         $url = $urls->first();
 
-        static::assertNotNull($url);
         static::assertSame($s1, $url->getSalesChannelId());
         static::assertSame($id, $url->getForeignKey());
         static::assertSame('frontend.account.customer-group-registration.page', $url->getRouteName());
@@ -104,7 +101,7 @@ class CustomerGroupSubscriberTest extends TestCase
 
         $urls = $this->getSeoUrlsById($id);
 
-        static::assertCount(0, $urls);
+        static::assertSame(0, $urls->count());
     }
 
     public function testUrlExistsForAllLanguages(): void
@@ -143,7 +140,7 @@ class CustomerGroupSubscriberTest extends TestCase
 
         $urls = $this->getSeoUrlsById($id);
 
-        static::assertCount(\count($languageIds), $urls);
+        static::assertSame(\count($languageIds), $urls->count());
 
         foreach ($languageIds as $languageId) {
             $foundUrl = false;
@@ -176,11 +173,11 @@ class CustomerGroupSubscriberTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        static::assertCount(1, $this->getSeoUrlsById($id));
+        static::assertSame(1, $this->getSeoUrlsById($id)->count());
 
         $this->customerGroupRepository->delete([['id' => $id]], Context::createDefaultContext());
 
-        static::assertCount(0, $this->getSeoUrlsById($id));
+        static::assertSame(0, $this->getSeoUrlsById($id)->count());
     }
 
     public function testSaveGroupAndEnableLaterSalesChannels(): void
@@ -207,11 +204,10 @@ class CustomerGroupSubscriberTest extends TestCase
 
         $urls = $this->getSeoUrlsById($id);
 
-        static::assertCount(1, $urls);
+        static::assertSame(1, $urls->count());
 
         $url = $urls->first();
 
-        static::assertNotNull($url);
         static::assertSame($s1, $url->getSalesChannelId());
         static::assertSame($id, $url->getForeignKey());
         static::assertSame('frontend.account.customer-group-registration.page', $url->getRouteName());
@@ -223,20 +219,12 @@ class CustomerGroupSubscriberTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('foreignKey', $id));
 
-        /** @var SeoUrlCollection $result */
-        $result = $this->seoRepository->search($criteria, Context::createDefaultContext())->getEntities();
-
-        return $result;
+        return $this->seoRepository->search($criteria, Context::createDefaultContext())->getEntities();
     }
 
-    /**
-     * @param array<string, mixed> $salesChannelOverride
-     *
-     * @return array<string, mixed>
-     */
     private function createSalesChannel(array $salesChannelOverride = []): array
     {
-        /** @var EntityRepository $salesChannelRepository */
+        /** @var EntityRepositoryInterface $salesChannelRepository */
         $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
         $paymentMethod = $this->getAvailablePaymentMethod();
         $salesChannel = array_merge([

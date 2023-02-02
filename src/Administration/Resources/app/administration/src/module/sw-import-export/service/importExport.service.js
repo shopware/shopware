@@ -1,6 +1,3 @@
-/**
- * @package system-settings
- */
 import ApiService from 'src/core/service/api.service';
 
 /**

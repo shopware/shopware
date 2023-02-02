@@ -1,13 +1,10 @@
 import template from './sw-media-quickinfo-multiple.html.twig';
 import './sw-media-quickinfo-multiple.scss';
 
-const { Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 
-/**
- * @package content
- */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-media-quickinfo-multiple', {
     template,
 
     mixins: [
@@ -80,4 +77,4 @@ export default {
             }];
         },
     },
-};
+});

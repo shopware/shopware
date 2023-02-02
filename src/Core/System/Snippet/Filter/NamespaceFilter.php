@@ -2,9 +2,6 @@
 
 namespace Shopware\Core\System\Snippet\Filter;
 
-use Shopware\Core\Framework\Log\Package;
-
-#[Package('system-settings')]
 class NamespaceFilter extends AbstractFilter implements SnippetFilterInterface
 {
     /**

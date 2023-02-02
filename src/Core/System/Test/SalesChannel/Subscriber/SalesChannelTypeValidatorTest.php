@@ -7,7 +7,6 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Exception\DefaultSalesChannelTypeCannotBeDeleted;
@@ -15,7 +14,6 @@ use Shopware\Core\System\SalesChannel\Exception\DefaultSalesChannelTypeCannotBeD
 /**
  * @internal
  */
-#[Package('sales-channel')]
 class SalesChannelTypeValidatorTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;

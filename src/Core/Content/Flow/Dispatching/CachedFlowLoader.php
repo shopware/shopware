@@ -4,7 +4,6 @@ namespace Shopware\Core\Content\Flow\Dispatching;
 
 use Shopware\Core\Content\Flow\FlowEvents;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
-use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
@@ -13,21 +12,28 @@ use Symfony\Contracts\Service\ResetInterface;
 /**
  * @internal not intended for decoration or replacement
  */
-#[Package('business-ops')]
 class CachedFlowLoader extends AbstractFlowLoader implements EventSubscriberInterface, ResetInterface
 {
-    final public const KEY = 'flow-loader';
+    public const KEY = 'flow-loader';
 
     private array $flows = [];
 
-    public function __construct(private readonly AbstractFlowLoader $decorated, private readonly CacheInterface $cache)
-    {
+    private AbstractFlowLoader $decorated;
+
+    private CacheInterface $cache;
+
+    public function __construct(
+        AbstractFlowLoader $decorated,
+        CacheInterface $cache
+    ) {
+        $this->decorated = $decorated;
+        $this->cache = $cache;
     }
 
     /**
      * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
      */
-    public static function getSubscribedEvents(): array
+    public static function getSubscribedEvents()
     {
         return [
             FlowEvents::FLOW_WRITTEN_EVENT => 'invalidate',

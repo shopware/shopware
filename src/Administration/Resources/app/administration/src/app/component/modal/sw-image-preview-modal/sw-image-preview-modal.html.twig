@@ -77,7 +77,6 @@
             :rounded="false"
             :initial-index="activeItemIndex"
             @image-change="onImageSliderChange"
-            @hook:mounted="afterComponentsMounted"
         />
         {% endblock %}
 
@@ -108,7 +107,6 @@
             :item-per-page="itemPerPage"
             :element-padding="6"
             @image-change="onThumbnailSliderChange"
-            @hook:mounted="afterComponentsMounted"
         />
         {% endblock %}
     </div>

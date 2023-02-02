@@ -23,7 +23,7 @@ class Migration1656928097AddNewsletterRecipientEmailIndexTest extends TestCase
 
         try {
             $this->connection->executeStatement('DROP INDEX `idx.newsletter_recipient.email` ON `newsletter_recipient`');
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
         }
     }
 

@@ -12,6 +12,7 @@
     {% block sw_sidebar_navigation_item_content %}
     <sw-icon
         :name="sidebarItem.icon"
+        size="20px"
     />
     <i
         v-if="!sidebarItem.hasSimpleBadge && sidebarItem.badge > 0"

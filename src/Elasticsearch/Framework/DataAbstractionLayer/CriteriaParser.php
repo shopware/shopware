@@ -2,23 +2,22 @@
 
 namespace Shopware\Elasticsearch\Framework\DataAbstractionLayer;
 
-use OpenSearchDSL\Aggregation\AbstractAggregation;
-use OpenSearchDSL\Aggregation\Bucketing;
-use OpenSearchDSL\Aggregation\Bucketing\CompositeAggregation;
-use OpenSearchDSL\Aggregation\Bucketing\NestedAggregation;
-use OpenSearchDSL\Aggregation\Bucketing\ReverseNestedAggregation;
-use OpenSearchDSL\Aggregation\Metric;
-use OpenSearchDSL\Aggregation\Metric\ValueCountAggregation;
-use OpenSearchDSL\BuilderInterface;
-use OpenSearchDSL\Query\Compound\BoolQuery;
-use OpenSearchDSL\Query\Joining\NestedQuery;
-use OpenSearchDSL\Query\TermLevel\ExistsQuery;
-use OpenSearchDSL\Query\TermLevel\PrefixQuery;
-use OpenSearchDSL\Query\TermLevel\RangeQuery;
-use OpenSearchDSL\Query\TermLevel\TermQuery;
-use OpenSearchDSL\Query\TermLevel\TermsQuery;
-use OpenSearchDSL\Query\TermLevel\WildcardQuery;
-use OpenSearchDSL\Sort\FieldSort;
+use ONGR\ElasticsearchDSL\Aggregation\AbstractAggregation;
+use ONGR\ElasticsearchDSL\Aggregation\Bucketing;
+use ONGR\ElasticsearchDSL\Aggregation\Bucketing\CompositeAggregation;
+use ONGR\ElasticsearchDSL\Aggregation\Bucketing\NestedAggregation;
+use ONGR\ElasticsearchDSL\Aggregation\Metric;
+use ONGR\ElasticsearchDSL\Aggregation\Metric\ValueCountAggregation;
+use ONGR\ElasticsearchDSL\BuilderInterface;
+use ONGR\ElasticsearchDSL\Query\Compound\BoolQuery;
+use ONGR\ElasticsearchDSL\Query\Joining\NestedQuery;
+use ONGR\ElasticsearchDSL\Query\TermLevel\ExistsQuery;
+use ONGR\ElasticsearchDSL\Query\TermLevel\PrefixQuery;
+use ONGR\ElasticsearchDSL\Query\TermLevel\RangeQuery;
+use ONGR\ElasticsearchDSL\Query\TermLevel\TermQuery;
+use ONGR\ElasticsearchDSL\Query\TermLevel\TermsQuery;
+use ONGR\ElasticsearchDSL\Query\TermLevel\WildcardQuery;
+use ONGR\ElasticsearchDSL\Sort\FieldSort;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -38,7 +37,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\Count
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\EntityAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\MaxAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\MinAggregation;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\RangeAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\StatsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\SumAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
@@ -55,20 +53,21 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SuffixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\XOrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\CountSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Elasticsearch\Framework\ElasticsearchDateHistogramAggregation;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Sort\CountSort;
 
-#[Package('core')]
 class CriteriaParser
 {
+    private EntityDefinitionQueryHelper $helper;
+
     /**
      * @internal
      */
-    public function __construct(private readonly EntityDefinitionQueryHelper $helper)
+    public function __construct(EntityDefinitionQueryHelper $helper)
     {
+        $this->helper = $helper;
     }
 
     public function buildAccessor(EntityDefinition $definition, string $fieldName, Context $context): string
@@ -117,7 +116,7 @@ class CriteriaParser
     public function parseSorting(FieldSorting $sorting, EntityDefinition $definition, Context $context): FieldSort
     {
         if ($this->isCheapestPriceField($sorting->getField())) {
-            return new FieldSort('_script', $sorting->getDirection(), null, [
+            return new FieldSort('_script', $sorting->getDirection(), [
                 'type' => 'number',
                 'script' => [
                     'id' => 'cheapest_price',
@@ -127,7 +126,7 @@ class CriteriaParser
         }
 
         if ($this->isCheapestPriceField($sorting->getField(), true)) {
-            return new FieldSort('_script', $sorting->getDirection(), null, [
+            return new FieldSort('_script', $sorting->getDirection(), [
                 'type' => 'number',
                 'script' => [
                     'id' => 'cheapest_price_percentage',
@@ -170,17 +169,34 @@ class CriteriaParser
 
     public function parseFilter(Filter $filter, EntityDefinition $definition, string $root, Context $context): BuilderInterface
     {
-        return match (true) {
-            $filter instanceof NotFilter => $this->parseNotFilter($filter, $definition, $root, $context),
-            $filter instanceof MultiFilter => $this->parseMultiFilter($filter, $definition, $root, $context),
-            $filter instanceof EqualsFilter => $this->parseEqualsFilter($filter, $definition, $context),
-            $filter instanceof EqualsAnyFilter => $this->parseEqualsAnyFilter($filter, $definition, $context),
-            $filter instanceof ContainsFilter => $this->parseContainsFilter($filter, $definition, $context),
-            $filter instanceof PrefixFilter => $this->parsePrefixFilter($filter, $definition, $context),
-            $filter instanceof SuffixFilter => $this->parseSuffixFilter($filter, $definition, $context),
-            $filter instanceof RangeFilter => $this->parseRangeFilter($filter, $definition, $context),
-            default => throw new \RuntimeException(sprintf('Unsupported filter %s', $filter::class)),
-        };
+        switch (true) {
+            case $filter instanceof NotFilter:
+                return $this->parseNotFilter($filter, $definition, $root, $context);
+
+            case $filter instanceof MultiFilter:
+                return $this->parseMultiFilter($filter, $definition, $root, $context);
+
+            case $filter instanceof EqualsFilter:
+                return $this->parseEqualsFilter($filter, $definition, $context);
+
+            case $filter instanceof EqualsAnyFilter:
+                return $this->parseEqualsAnyFilter($filter, $definition, $context);
+
+            case $filter instanceof ContainsFilter:
+                return $this->parseContainsFilter($filter, $definition, $context);
+
+            case $filter instanceof PrefixFilter:
+                return $this->parsePrefixFilter($filter, $definition, $context);
+
+            case $filter instanceof SuffixFilter:
+                return $this->parseSuffixFilter($filter, $definition, $context);
+
+            case $filter instanceof RangeFilter:
+                return $this->parseRangeFilter($filter, $definition, $context);
+
+            default:
+                throw new \RuntimeException(sprintf('Unsupported filter %s', \get_class($filter)));
+        }
     }
 
     protected function parseFilterAggregation(FilterAggregation $aggregation, EntityDefinition $definition, Context $context): AbstractAggregation
@@ -223,7 +239,7 @@ class CriteriaParser
             $filter = new Bucketing\FilterAggregation($aggregation->getName(), $query->getQuery());
 
             // afterwards we reset the nesting to allow following filters to point to another nested property
-            $reverse = new ReverseNestedAggregation($aggregation->getName());
+            $reverse = new Bucketing\ReverseNestedAggregation($aggregation->getName());
 
             $filter->addAggregation($reverse);
 
@@ -401,15 +417,6 @@ class CriteriaParser
         return $composite;
     }
 
-    protected function parseRangeAggregation(RangeAggregation $aggregation, string $fieldName): Bucketing\RangeAggregation
-    {
-        return new Bucketing\RangeAggregation(
-            $aggregation->getName(),
-            $fieldName,
-            $aggregation->getRanges()
-        );
-    }
-
     private function getCheapestPriceParameters(Context $context): array
     {
         return [
@@ -485,20 +492,39 @@ class CriteriaParser
 
     private function createAggregation(Aggregation $aggregation, string $fieldName, EntityDefinition $definition, Context $context): AbstractAggregation
     {
-        return match (true) {
-            $aggregation instanceof StatsAggregation => $this->parseStatsAggregation($aggregation, $fieldName, $context),
-            $aggregation instanceof AvgAggregation => new Metric\AvgAggregation($aggregation->getName(), $fieldName),
-            $aggregation instanceof EntityAggregation => $this->parseEntityAggregation($aggregation, $fieldName),
-            $aggregation instanceof MaxAggregation => new Metric\MaxAggregation($aggregation->getName(), $fieldName),
-            $aggregation instanceof MinAggregation => new Metric\MinAggregation($aggregation->getName(), $fieldName),
-            $aggregation instanceof SumAggregation => new Metric\SumAggregation($aggregation->getName(), $fieldName),
-            $aggregation instanceof CountAggregation => new ValueCountAggregation($aggregation->getName(), $fieldName),
-            $aggregation instanceof FilterAggregation => $this->parseFilterAggregation($aggregation, $definition, $context),
-            $aggregation instanceof TermsAggregation => $this->parseTermsAggregation($aggregation, $fieldName, $definition, $context),
-            $aggregation instanceof DateHistogramAggregation => $this->parseDateHistogramAggregation($aggregation, $fieldName, $definition, $context),
-            $aggregation instanceof RangeAggregation => $this->parseRangeAggregation($aggregation, $fieldName),
-            default => throw new \RuntimeException(sprintf('Provided aggregation of class %s not supported', $aggregation::class)),
-        };
+        switch (true) {
+            case $aggregation instanceof StatsAggregation:
+                return $this->parseStatsAggregation($aggregation, $fieldName, $context);
+
+            case $aggregation instanceof AvgAggregation:
+                return new Metric\AvgAggregation($aggregation->getName(), $fieldName);
+
+            case $aggregation instanceof EntityAggregation:
+                return $this->parseEntityAggregation($aggregation, $fieldName);
+
+            case $aggregation instanceof MaxAggregation:
+                return new Metric\MaxAggregation($aggregation->getName(), $fieldName);
+
+            case $aggregation instanceof MinAggregation:
+                return new Metric\MinAggregation($aggregation->getName(), $fieldName);
+
+            case $aggregation instanceof SumAggregation:
+                return new Metric\SumAggregation($aggregation->getName(), $fieldName);
+
+            case $aggregation instanceof CountAggregation:
+                return new ValueCountAggregation($aggregation->getName(), $fieldName);
+
+            case $aggregation instanceof FilterAggregation:
+                return $this->parseFilterAggregation($aggregation, $definition, $context);
+
+            case $aggregation instanceof TermsAggregation:
+                return $this->parseTermsAggregation($aggregation, $fieldName, $definition, $context);
+
+            case $aggregation instanceof DateHistogramAggregation:
+                return $this->parseDateHistogramAggregation($aggregation, $fieldName, $definition, $context);
+            default:
+                throw new \RuntimeException(sprintf('Provided aggregation of class %s not supported', \get_class($aggregation)));
+        }
     }
 
     private function parseEqualsFilter(EqualsFilter $filter, EntityDefinition $definition, Context $context): BuilderInterface
@@ -636,11 +662,20 @@ class CriteriaParser
             return $bool;
         }
 
-        $multiFilter = match ($filter->getOperator()) {
-            MultiFilter::CONNECTION_OR => new OrFilter(),
-            MultiFilter::CONNECTION_XOR => new XOrFilter(),
-            default => new AndFilter(),
-        };
+        switch ($filter->getOperator()) {
+            case MultiFilter::CONNECTION_OR:
+                $multiFilter = new OrFilter();
+
+                break;
+            case MultiFilter::CONNECTION_XOR:
+                $multiFilter = new XOrFilter();
+
+                break;
+            default: // AND FILTER
+                $multiFilter = new AndFilter();
+
+                break;
+        }
 
         foreach ($filter->getQueries() as $query) {
             $multiFilter->addQuery($query);
@@ -656,12 +691,16 @@ class CriteriaParser
 
     private function parseMultiFilter(MultiFilter $filter, EntityDefinition $definition, string $root, Context $context): BuilderInterface
     {
-        return match ($filter->getOperator()) {
-            MultiFilter::CONNECTION_OR => $this->parseOrMultiFilter($filter, $definition, $root, $context),
-            MultiFilter::CONNECTION_AND => $this->parseAndMultiFilter($filter, $definition, $root, $context),
-            MultiFilter::CONNECTION_XOR => $this->parseXorMultiFilter($filter, $definition, $root, $context),
-            default => throw new \InvalidArgumentException('Operator ' . $filter->getOperator() . ' not allowed'),
-        };
+        switch ($filter->getOperator()) {
+            case MultiFilter::CONNECTION_OR:
+                return $this->parseOrMultiFilter($filter, $definition, $root, $context);
+            case MultiFilter::CONNECTION_AND:
+                return $this->parseAndMultiFilter($filter, $definition, $root, $context);
+            case MultiFilter::CONNECTION_XOR:
+                return $this->parseXorMultiFilter($filter, $definition, $root, $context);
+        }
+
+        throw new \InvalidArgumentException('Operator ' . $filter->getOperator() . ' not allowed');
     }
 
     private function parseAndMultiFilter(MultiFilter $filter, EntityDefinition $definition, string $root, Context $context): BuilderInterface

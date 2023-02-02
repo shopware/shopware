@@ -1,8 +1,5 @@
 import Iterator from 'src/helper/iterator.helper';
 
-/**
- * @package content
- */
 export default class CmsSlotOptionValidatorHelper {
 
     /**

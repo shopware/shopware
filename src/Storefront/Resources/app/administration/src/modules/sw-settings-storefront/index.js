@@ -7,7 +7,7 @@ Shopware.Module.register('sw-settings-storefront', {
     title: 'sw-settings-storefront.general.mainMenuItemGeneral',
     description: 'sw-settings-storefront.general.description',
     color: '#9AA8B5',
-    icon: 'regular-cog',
+    icon: 'regular-storefront',
     favicon: 'icon-module-settings.png',
 
     routes: {

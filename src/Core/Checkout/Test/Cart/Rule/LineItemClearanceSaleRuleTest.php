@@ -9,14 +9,12 @@ use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemClearanceSaleRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\Test\Cart\Rule\Helper\CartRuleHelperTrait;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
  * @group rules
  */
-#[Package('business-ops')]
 class LineItemClearanceSaleRuleTest extends TestCase
 {
     use CartRuleHelperTrait;
@@ -55,9 +53,6 @@ class LineItemClearanceSaleRuleTest extends TestCase
         static::assertSame($expected, $match);
     }
 
-    /**
-     * @return array<string, array<bool>>
-     */
     public function getLineItemScopeTestData(): array
     {
         return [
@@ -113,9 +108,6 @@ class LineItemClearanceSaleRuleTest extends TestCase
         static::assertSame($expected, $match);
     }
 
-    /**
-     * @return array<string, array<bool>>
-     */
     public function getCartRuleScopeTestData(): array
     {
         return [

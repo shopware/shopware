@@ -1,15 +1,18 @@
 describe('Login / Registration: Test show operations on templates', () => {
     beforeEach(() => {
-        cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/login/registration/index`);
-        cy.get('.sw-skeleton').should('not.exist');
-        cy.get('.sw-loader').should('not.exist');
+        cy.loginViaApi()
+            .then(() => {
+                cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/login/registration/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
+            });
     });
 
     it('@settings: Customer scope', { tags: ['pa-customers-orders'] }, () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/system-config/batch`,
-            method: 'POST',
+            method: 'POST'
         }).as('saveSettings');
 
         cy.get('input[name="core.systemWideLoginRegistration.isCustomerBoundToSalesChannel"]')
@@ -24,7 +27,7 @@ describe('Login / Registration: Test show operations on templates', () => {
         cy.get('#salesChannelSelect')
             .typeSingleSelectAndCheck(
                 'Storefront',
-                '#salesChannelSelect',
+                '#salesChannelSelect'
             );
 
         cy.get('input[name="core.systemWideLoginRegistration.isCustomerBoundToSalesChannel"]').scrollIntoView();

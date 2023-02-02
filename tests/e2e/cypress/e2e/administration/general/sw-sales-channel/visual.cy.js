@@ -5,6 +5,9 @@ describe('Sales Channel: Visual tests', () => {
         const now = new Date(2018, 1, 1);
         cy.clock(now, ['Date'])
             .then(() => {
+                cy.loginViaApi();
+            })
+            .then(() => {
                 cy.openInitialPage(Cypress.env('admin'));
                 cy.get('.sw-skeleton').should('not.exist');
                 cy.get('.sw-loader').should('not.exist');
@@ -15,7 +18,7 @@ describe('Sales Channel: Visual tests', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/sales-channel`,
-            method: 'POST',
+            method: 'POST'
         }).as('saveData');
 
         // Open sales channel
@@ -35,7 +38,7 @@ describe('Sales Channel: Visual tests', () => {
         // Change display of the element to ensure consistent snapshots
         cy.changeElementStyling(
             '.sw-entity-multi-select .sw-select-selection-list',
-            'display: none',
+            'display: none'
         );
         cy.get('.sw-entity-multi-select .sw-select-selection-list')
             .should('have.css', 'display', 'none');
@@ -43,7 +46,7 @@ describe('Sales Channel: Visual tests', () => {
         // Change background-color of the element to ensure consistent snapshots
         cy.changeElementStyling(
             '.sw-entity-multi-select .sw-select__selection',
-            'background-color: #189EF',
+            'background-color: #189EF'
         );
 
         cy.get('.sw-entity-multi-select .sw-select__selection')

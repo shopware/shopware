@@ -17,11 +17,12 @@ use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
@@ -35,18 +36,66 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
-#[Route(defaults: ['_routeScope' => ['api']])]
-#[Package('system-settings')]
+/**
+ * @Route(defaults={"_routeScope"={"api"}})
+ */
 class ImportExportActionController extends AbstractController
 {
+    private SupportedFeaturesService $supportedFeaturesService;
+
+    private ImportExportService $importExportService;
+
+    private DownloadService $downloadService;
+
+    private EntityRepositoryInterface $profileRepository;
+
+    private DataValidator $dataValidator;
+
+    private ImportExportLogDefinition $logDefinition;
+
+    private ApiVersionConverter $apiVersionConverter;
+
+    private ImportExportFactory $importExportFactory;
+
+    private DefinitionInstanceRegistry $definitionInstanceRegistry;
+
+    private MessageBusInterface $messageBus;
+
+    private AbstractMappingService $mappingService;
+
     /**
      * @internal
      */
-    public function __construct(private readonly SupportedFeaturesService $supportedFeaturesService, private readonly ImportExportService $importExportService, private readonly DownloadService $downloadService, private readonly EntityRepository $profileRepository, private readonly DataValidator $dataValidator, private readonly ImportExportLogDefinition $logDefinition, private readonly ApiVersionConverter $apiVersionConverter, private readonly ImportExportFactory $importExportFactory, private readonly DefinitionInstanceRegistry $definitionInstanceRegistry, private readonly MessageBusInterface $messageBus, private readonly AbstractMappingService $mappingService)
-    {
+    public function __construct(
+        SupportedFeaturesService $supportedFeaturesService,
+        ImportExportService $initiationService,
+        DownloadService $downloadService,
+        EntityRepositoryInterface $profileRepository,
+        DataValidator $dataValidator,
+        ImportExportLogDefinition $logDefinition,
+        ApiVersionConverter $apiVersionConverter,
+        ImportExportFactory $importExportFactory,
+        DefinitionInstanceRegistry $definitionInstanceRegistry,
+        MessageBusInterface $messageBus,
+        AbstractMappingService $mappingService
+    ) {
+        $this->supportedFeaturesService = $supportedFeaturesService;
+        $this->importExportService = $initiationService;
+        $this->downloadService = $downloadService;
+        $this->profileRepository = $profileRepository;
+        $this->dataValidator = $dataValidator;
+        $this->logDefinition = $logDefinition;
+        $this->apiVersionConverter = $apiVersionConverter;
+        $this->importExportFactory = $importExportFactory;
+        $this->definitionInstanceRegistry = $definitionInstanceRegistry;
+        $this->messageBus = $messageBus;
+        $this->mappingService = $mappingService;
     }
 
-    #[Route(path: '/api/_action/import-export/features', name: 'api.action.import_export.features', methods: ['GET'])]
+    /**
+     * @Since("6.0.0.0")
+     * @Route("/api/_action/import-export/features", name="api.action.import_export.features", methods={"GET"})
+     */
     public function features(): JsonResponse
     {
         return new JsonResponse([
@@ -56,7 +105,10 @@ class ImportExportActionController extends AbstractController
         ]);
     }
 
-    #[Route(path: '/api/_action/import-export/prepare', name: 'api.action.import_export.initiate', methods: ['POST'])]
+    /**
+     * @Since("6.0.0.0")
+     * @Route("/api/_action/import-export/prepare", name="api.action.import_export.initiate", methods={"POST"})
+     */
     public function initiate(Request $request, Context $context): JsonResponse
     {
         $profileId = (string) $request->request->get('profileId');
@@ -93,7 +145,10 @@ class ImportExportActionController extends AbstractController
         return new JsonResponse(['log' => $this->apiVersionConverter->convertEntity($this->logDefinition, $log)]);
     }
 
-    #[Route(path: '/api/_action/import-export/process', name: 'api.action.import_export.process', methods: ['POST'])]
+    /**
+     * @Since("6.0.0.0")
+     * @Route("/api/_action/import-export/process", name="api.action.import_export.process", methods={"POST"})
+     */
     public function process(Request $request, Context $context): Response
     {
         $logId = strtolower((string) $request->request->get('logId'));
@@ -106,7 +161,10 @@ class ImportExportActionController extends AbstractController
         return new Response('', Response::HTTP_NO_CONTENT);
     }
 
-    #[Route(path: '/api/_action/import-export/file/prepare-download/{fileId}', name: 'api.action.import_export.file.prepare-download', methods: ['POST'])]
+    /**
+     * @Since("6.4.3.1")
+     * @Route("/api/_action/import-export/file/prepare-download/{fileId}", name="api.action.import_export.file.prepare-download", methods={"POST"})
+     */
     public function prepareDownload(string $fileId, Context $context): Response
     {
         $token = $this->downloadService->regenerateToken($context, $fileId);
@@ -114,7 +172,10 @@ class ImportExportActionController extends AbstractController
         return new JsonResponse(['accessToken' => $token]);
     }
 
-    #[Route(path: '/api/_action/import-export/file/download', name: 'api.action.import_export.file.download', defaults: ['auth_required' => false], methods: ['GET'])]
+    /**
+     * @Since("6.0.0.0")
+     * @Route("/api/_action/import-export/file/download", name="api.action.import_export.file.download", defaults={"auth_required"=false}, methods={"GET"})
+     */
     public function download(Request $request, Context $context): Response
     {
         /** @var array<string> $params */
@@ -127,7 +188,10 @@ class ImportExportActionController extends AbstractController
         return $this->downloadService->createFileResponse($context, $params['fileId'], $params['accessToken']);
     }
 
-    #[Route(path: '/api/_action/import-export/cancel', name: 'api.action.import_export.cancel', methods: ['POST'])]
+    /**
+     * @Since("6.0.0.0")
+     * @Route("/api/_action/import-export/cancel", name="api.action.import_export.cancel", methods={"POST"})
+     */
     public function cancel(Request $request, Context $context): Response
     {
         $logId = $request->request->get('logId');
@@ -142,7 +206,9 @@ class ImportExportActionController extends AbstractController
         return new Response('', Response::HTTP_NO_CONTENT);
     }
 
-    #[Route(path: '/api/_action/import-export/prepare-template-file-download', name: 'api.action.import_export.template_file.prepare_download', methods: ['POST'])]
+    /**
+     * @Route("/api/_action/import-export/prepare-template-file-download", name="api.action.import_export.template_file.prepare_download", methods={"POST"})
+     */
     public function prepareTemplateFileDownload(Request $request, Context $context): Response
     {
         $profileId = $request->query->get('profileId');
@@ -160,7 +226,9 @@ class ImportExportActionController extends AbstractController
         ]);
     }
 
-    #[Route(path: '/api/_action/import-export/mapping-from-template', name: 'api.action.import_export.template_file.mapping', methods: ['POST'])]
+    /**
+     * @Route("/api/_action/import-export/mapping-from-template", name="api.action.import_export.template_file.mapping", methods={"POST"})
+     */
     public function mappingFromTemplate(Request $request, Context $context): JsonResponse
     {
         /** @var UploadedFile|null $file */
@@ -214,7 +282,9 @@ class ImportExportActionController extends AbstractController
         $mappings = $profile->getMapping() ?? [];
 
         $mappedKeys = array_column($mappings, 'key');
-        $propertyPaths = array_map(fn (string $key): array => explode('.', $key), $mappedKeys);
+        $propertyPaths = array_map(function (string $key): array {
+            return explode('.', $key);
+        }, $mappedKeys);
 
         foreach ($propertyPaths as $properties) {
             $missingPrivileges = $this->getMissingPrivilges($properties, $definition, $context, $missingPrivileges);

@@ -20,10 +20,14 @@ General styling for cms elements
 
         &.is-cover {
             object-fit: contain;
+            // @deprecated tag:v6.5.0 - Bootstrap v5 will discontinue IE11 support. font-family polyfill will be removed.
+            font-family: 'object-fit: contain;'; // IE polyfill
             height: 100%;
 
             .cms-image {
                 object-fit: cover;
+                // @deprecated tag:v6.5.0 - Bootstrap v5 will discontinue IE11 support. font-family polyfill will be removed.
+                font-family: 'object-fit: cover;'; // IE polyfill
                 height: 100%;
                 position: absolute;
                 top: 0;
@@ -79,6 +83,8 @@ General styling for cms elements
 
     &__placeholder img {
         object-fit: cover;
+        // @deprecated tag:v6.5.0 - Bootstrap v5 will discontinue IE11 support. font-family polyfill will be removed.
+        font-family: 'object-fit: cover;'; // IE polyfill
         height: 100%;
         width: 100%;
         position: absolute;
@@ -126,6 +132,8 @@ General styling for cms elements
 
     &__placeholder img {
         object-fit: cover;
+        // @deprecated tag:v6.5.0 - Bootstrap v5 will discontinue IE11 support. font-family polyfill will be removed.
+        font-family: 'object-fit: cover;'; // IE polyfill
         height: 100%;
         width: 100%;
         position: absolute;
@@ -209,7 +217,8 @@ General styling for cms elements
     }
 }
 
-@include media-breakpoint-down(lg) {
+// @deprecated tag:v6.5.0 - Bootstrap v5 uses the breakpoint itself instead of the next breakpoint in `media-breakpoint-down()`, use `lg` instead of `md`.
+@include media-breakpoint-down(if(feature('v6.5.0.0'), lg, md)) {
     .cms-element-product-listing-actions {
         flex-wrap: wrap;
         justify-content: center;

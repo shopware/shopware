@@ -3,12 +3,10 @@
 namespace Shopware\Core\Checkout\Order\SalesChannel;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
-#[Package('customer-order')]
 class OrderRouteResponse extends StoreApiResponse
 {
     /**

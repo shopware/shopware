@@ -3,12 +3,10 @@
 namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<CustomerGroupTranslationEntity>
  */
-#[Package('customer-order')]
 class CustomerGroupTranslationCollection extends EntityCollection
 {
     /**
@@ -16,12 +14,16 @@ class CustomerGroupTranslationCollection extends EntityCollection
      */
     public function getCustomerGroupIds(): array
     {
-        return $this->fmap(fn (CustomerGroupTranslationEntity $customerGroupTranslation) => $customerGroupTranslation->getCustomerGroupId());
+        return $this->fmap(function (CustomerGroupTranslationEntity $customerGroupTranslation) {
+            return $customerGroupTranslation->getCustomerGroupId();
+        });
     }
 
     public function filterByCustomerGroupId(string $id): self
     {
-        return $this->filter(fn (CustomerGroupTranslationEntity $customerGroupTranslation) => $customerGroupTranslation->getCustomerGroupId() === $id);
+        return $this->filter(function (CustomerGroupTranslationEntity $customerGroupTranslation) use ($id) {
+            return $customerGroupTranslation->getCustomerGroupId() === $id;
+        });
     }
 
     /**
@@ -29,12 +31,16 @@ class CustomerGroupTranslationCollection extends EntityCollection
      */
     public function getLanguageIds(): array
     {
-        return $this->fmap(fn (CustomerGroupTranslationEntity $customerGroupTranslation) => $customerGroupTranslation->getLanguageId());
+        return $this->fmap(function (CustomerGroupTranslationEntity $customerGroupTranslation) {
+            return $customerGroupTranslation->getLanguageId();
+        });
     }
 
     public function filterByLanguageId(string $id): self
     {
-        return $this->filter(fn (CustomerGroupTranslationEntity $customerGroupTranslation) => $customerGroupTranslation->getLanguageId() === $id);
+        return $this->filter(function (CustomerGroupTranslationEntity $customerGroupTranslation) use ($id) {
+            return $customerGroupTranslation->getLanguageId() === $id;
+        });
     }
 
     public function getApiAlias(): string

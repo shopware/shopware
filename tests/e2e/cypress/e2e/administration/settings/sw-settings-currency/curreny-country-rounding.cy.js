@@ -4,7 +4,10 @@ import SettingsPageObject from '../../../../support/pages/module/sw-settings.pag
 
 describe('Currency: Test crud operations', () => {
     beforeEach(() => {
-        cy.createDefaultFixture('currency')
+        cy.loginViaApi()
+            .then(() => {
+                return cy.createDefaultFixture('currency');
+            })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/currency/index`);
                 cy.get('.sw-skeleton').should('not.exist');
@@ -19,12 +22,12 @@ describe('Currency: Test crud operations', () => {
 
             cy.intercept({
                 url: `**/${Cypress.env('apiPath')}/currency`,
-                method: 'POST',
+                method: 'POST'
             }).as('saveData');
 
             cy.intercept({
                 url: `**/${Cypress.env('apiPath')}/currency/**/country-roundings`,
-                method: 'POST',
+                method: 'POST'
             }).as('saveCurrencyCountry');
 
 

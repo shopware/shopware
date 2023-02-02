@@ -6,10 +6,10 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber;
 use Shopware\Core\Framework\Event\BeforeSendResponseEvent;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Storefront\Framework\Cache\Annotation\HttpCache;
 use Shopware\Storefront\Framework\Routing\MaintenanceModeResolver;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Cookie;
@@ -19,35 +19,59 @@ use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
-/**
- * @internal
- */
-#[Package('storefront')]
 class CacheResponseSubscriber implements EventSubscriberInterface
 {
-    final public const STATE_LOGGED_IN = CacheStateSubscriber::STATE_LOGGED_IN;
-    final public const STATE_CART_FILLED = CacheStateSubscriber::STATE_CART_FILLED;
+    public const STATE_LOGGED_IN = CacheStateSubscriber::STATE_LOGGED_IN;
+    public const STATE_CART_FILLED = CacheStateSubscriber::STATE_CART_FILLED;
 
-    final public const CURRENCY_COOKIE = 'sw-currency';
-    final public const CONTEXT_CACHE_COOKIE = 'sw-cache-hash';
-    final public const SYSTEM_STATE_COOKIE = 'sw-states';
-    final public const INVALIDATION_STATES_HEADER = 'sw-invalidation-states';
+    public const CURRENCY_COOKIE = 'sw-currency';
+    public const CONTEXT_CACHE_COOKIE = 'sw-cache-hash';
+    public const SYSTEM_STATE_COOKIE = 'sw-states';
+    public const INVALIDATION_STATES_HEADER = 'sw-invalidation-states';
 
     private const CORE_HTTP_CACHED_ROUTES = [
         'api.acl.privileges.get',
     ];
 
+    private bool $reverseProxyEnabled;
+
+    private CartService $cartService;
+
+    private int $defaultTtl;
+
+    private bool $httpCacheEnabled;
+
+    private MaintenanceModeResolver $maintenanceResolver;
+
+    private ?string $staleWhileRevalidate;
+
+    private ?string $staleIfError;
+
     /**
      * @internal
      */
-    public function __construct(private readonly CartService $cartService, private readonly int $defaultTtl, private readonly bool $httpCacheEnabled, private readonly MaintenanceModeResolver $maintenanceResolver, private readonly bool $reverseProxyEnabled, private readonly ?string $staleWhileRevalidate, private readonly ?string $staleIfError)
-    {
+    public function __construct(
+        CartService $cartService,
+        int $defaultTtl,
+        bool $httpCacheEnabled,
+        MaintenanceModeResolver $maintenanceModeResolver,
+        bool $reverseProxyEnabled,
+        ?string $staleWhileRevalidate,
+        ?string $staleIfError
+    ) {
+        $this->cartService = $cartService;
+        $this->defaultTtl = $defaultTtl;
+        $this->httpCacheEnabled = $httpCacheEnabled;
+        $this->maintenanceResolver = $maintenanceModeResolver;
+        $this->reverseProxyEnabled = $reverseProxyEnabled;
+        $this->staleWhileRevalidate = $staleWhileRevalidate;
+        $this->staleIfError = $staleIfError;
     }
 
     /**
      * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
      */
-    public static function getSubscribedEvents(): array
+    public static function getSubscribedEvents()
     {
         return [
             KernelEvents::REQUEST => 'addHttpCacheToCoreRoutes',
@@ -64,7 +88,7 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         $route = $request->attributes->get('_route');
 
         if (\in_array($route, self::CORE_HTTP_CACHED_ROUTES, true)) {
-            $request->attributes->set(PlatformRequest::ATTRIBUTE_HTTP_CACHE, true);
+            $request->attributes->set('_' . HttpCache::ALIAS, [new HttpCache([])]);
         }
     }
 
@@ -78,13 +102,13 @@ class CacheResponseSubscriber implements EventSubscriberInterface
 
         $request = $event->getRequest();
 
-        $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
-
-        if (!$context instanceof SalesChannelContext) {
+        if ($this->maintenanceResolver->isMaintenanceRequest($request)) {
             return;
         }
 
-        if (!$this->maintenanceResolver->shouldBeCached($request)) {
+        $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
+
+        if (!$context instanceof SalesChannelContext) {
             return;
         }
 
@@ -116,27 +140,25 @@ class CacheResponseSubscriber implements EventSubscriberInterface
             $response->headers->clearCookie(self::CONTEXT_CACHE_COOKIE);
         }
 
-        /** @var bool|array{maxAge?: int, states?: list<string>}|null $cache */
-        $cache = $request->attributes->get(PlatformRequest::ATTRIBUTE_HTTP_CACHE);
-        if (!$cache) {
+        $config = $request->attributes->get('_' . HttpCache::ALIAS);
+        if (empty($config)) {
             return;
         }
 
-        if ($cache === true) {
-            $cache = [];
-        }
+        /** @var HttpCache $cache */
+        $cache = array_shift($config);
 
-        if ($this->hasInvalidationState($cache['states'] ?? [], $states)) {
+        if ($this->hasInvalidationState($cache, $states)) {
             return;
         }
 
-        $maxAge = $cache['maxAge'] ?? $this->defaultTtl;
+        $maxAge = $cache->getMaxAge() ?? $this->defaultTtl;
 
         $response->setSharedMaxAge($maxAge);
         $response->headers->addCacheControlDirective('must-revalidate');
         $response->headers->set(
             self::INVALIDATION_STATES_HEADER,
-            implode(',', $cache['states'] ?? [])
+            implode(',', $cache->getStates())
         );
 
         if ($this->staleIfError !== null) {
@@ -174,13 +196,12 @@ class CacheResponseSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param list<string> $cacheStates
      * @param list<string> $states
      */
-    private function hasInvalidationState(array $cacheStates, array $states): bool
+    private function hasInvalidationState(HttpCache $cache, array $states): bool
     {
         foreach ($states as $state) {
-            if (\in_array($state, $cacheStates, true)) {
+            if (\in_array($state, $cache->getStates(), true)) {
                 return true;
             }
         }

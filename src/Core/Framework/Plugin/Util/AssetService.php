@@ -2,10 +2,9 @@
 
 namespace Shopware\Core\Framework\Plugin\Util;
 
-use League\Flysystem\FilesystemOperator;
+use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Parameter\AdditionalBundleParameters;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
@@ -15,14 +14,41 @@ use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 
-#[Package('core')]
 class AssetService
 {
+    private FilesystemInterface $filesystem;
+
+    private KernelInterface $kernel;
+
+    private CacheInvalidator $cacheInvalidator;
+
+    private AbstractAppLoader $appLoader;
+
+    private string $coreDir;
+
+    private KernelPluginLoader $pluginLoader;
+
+    private ParameterBagInterface $parameterBag;
+
     /**
      * @internal
      */
-    public function __construct(private readonly FilesystemOperator $filesystem, private readonly KernelInterface $kernel, private readonly KernelPluginLoader $pluginLoader, private readonly CacheInvalidator $cacheInvalidator, private readonly AbstractAppLoader $appLoader, private readonly string $coreDir, private readonly ParameterBagInterface $parameterBag)
-    {
+    public function __construct(
+        FilesystemInterface $filesystem,
+        KernelInterface $kernel,
+        KernelPluginLoader $pluginLoader,
+        CacheInvalidator $cacheInvalidator,
+        AbstractAppLoader $appLoader,
+        string $coreDir,
+        ParameterBagInterface $parameterBag
+    ) {
+        $this->filesystem = $filesystem;
+        $this->kernel = $kernel;
+        $this->pluginLoader = $pluginLoader;
+        $this->cacheInvalidator = $cacheInvalidator;
+        $this->coreDir = $coreDir;
+        $this->appLoader = $appLoader;
+        $this->parameterBag = $parameterBag;
     }
 
     /**
@@ -51,8 +77,6 @@ class AssetService
         $this->removeAssets($bundle->getName());
 
         $targetDirectory = $this->getTargetDirectory($bundle->getName());
-        $this->filesystem->deleteDirectory($targetDirectory);
-
         $this->copy($originDir, $targetDirectory);
 
         $this->cacheInvalidator->invalidate(['asset-metaData'], true);
@@ -69,8 +93,6 @@ class AssetService
         $this->removeAssets($appName);
 
         $targetDirectory = $this->getTargetDirectory($appName);
-        $this->filesystem->deleteDirectory($targetDirectory);
-
         $this->copy($originDir, $targetDirectory);
 
         $this->cacheInvalidator->invalidate(['asset-metaData'], true);
@@ -88,7 +110,7 @@ class AssetService
                     $this->removeAssets($bundle->getName());
                 }
             }
-        } catch (PluginNotFoundException) {
+        } catch (PluginNotFoundException $e) {
             // plugin is already unloaded, we cannot find it. Ignore it
         }
     }
@@ -109,7 +131,7 @@ class AssetService
         }
         // @codeCoverageIgnoreEnd
 
-        $this->filesystem->deleteDirectory($targetDirectory);
+        $this->filesystem->deleteDir($targetDirectory);
 
         $this->copy($originDir, $targetDirectory);
     }
@@ -118,7 +140,7 @@ class AssetService
     {
         $targetDirectory = $this->getTargetDirectory($name);
 
-        $this->filesystem->deleteDirectory($targetDirectory);
+        $this->filesystem->deleteDir($targetDirectory);
     }
 
     private function getTargetDirectory(string $name): string
@@ -130,7 +152,7 @@ class AssetService
 
     private function copy(string $originDir, string $targetDir): void
     {
-        $this->filesystem->createDirectory($targetDir);
+        $this->filesystem->createDir($targetDir);
 
         $files = Finder::create()
             ->ignoreDotFiles(false)
@@ -147,7 +169,7 @@ class AssetService
             }
             // @codeCoverageIgnoreEnd
 
-            $this->filesystem->writeStream($targetDir . '/' . $file->getRelativePathname(), $fs);
+            $this->filesystem->putStream($targetDir . '/' . $file->getRelativePathname(), $fs);
             fclose($fs);
         }
     }
@@ -159,7 +181,7 @@ class AssetService
     {
         try {
             $bundle = $this->kernel->getBundle($bundleName);
-        } catch (\InvalidArgumentException) {
+        } catch (\InvalidArgumentException $e) {
             $bundle = $this->pluginLoader->getPluginInstances()->get($bundleName);
         }
 

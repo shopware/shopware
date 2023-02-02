@@ -2,12 +2,10 @@
 
 namespace Shopware\Storefront\Framework\Media\Validator;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Framework\Media\Exception\FileTypeNotAllowedException;
 use Shopware\Storefront\Framework\Media\StorefrontMediaValidatorInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-#[Package('content')]
 class StorefrontMediaDocumentValidator implements StorefrontMediaValidatorInterface
 {
     use MimeTypeValidationTrait;

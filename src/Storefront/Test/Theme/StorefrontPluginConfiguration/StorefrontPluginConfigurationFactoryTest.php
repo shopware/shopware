@@ -16,7 +16,10 @@ class StorefrontPluginConfigurationFactoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private StorefrontPluginConfigurationFactory $configFactory;
+    /**
+     * @var StorefrontPluginConfigurationFactory
+     */
+    private $configFactory;
 
     public function setUp(): void
     {
@@ -147,7 +150,7 @@ class StorefrontPluginConfigurationFactoryTest extends TestCase
     {
         $projectDir = $this->getContainer()->getParameter('kernel.project_dir');
 
-        if (str_starts_with($path, $projectDir)) {
+        if (\strpos($path, $projectDir) === 0) {
             return substr($path, \strlen($projectDir) + 1);
         }
 

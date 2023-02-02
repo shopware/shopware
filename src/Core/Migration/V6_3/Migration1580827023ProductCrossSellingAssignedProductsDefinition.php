@@ -3,13 +3,8 @@
 namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
-/**
- * @internal
- */
-#[Package('core')]
 class Migration1580827023ProductCrossSellingAssignedProductsDefinition extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -19,7 +14,7 @@ class Migration1580827023ProductCrossSellingAssignedProductsDefinition extends M
 
     public function update(Connection $connection): void
     {
-        $connection->executeStatement('CREATE TABLE IF NOT EXISTS `product_cross_selling_assigned_products` (
+        $connection->exec('CREATE TABLE IF NOT EXISTS `product_cross_selling_assigned_products` (
   `id` binary(16) NOT NULL,
   `cross_selling_id` binary(16) NOT NULL,
   `product_id` binary(16) NOT NULL,
@@ -35,10 +30,10 @@ class Migration1580827023ProductCrossSellingAssignedProductsDefinition extends M
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ');
 
-        $connection->executeStatement('ALTER TABLE `product_cross_selling`
+        $connection->exec('ALTER TABLE `product_cross_selling`
 ADD `type` varchar(255) NOT NULL AFTER `id`;');
 
-        $connection->executeStatement('ALTER TABLE `product_cross_selling`
+        $connection->exec('ALTER TABLE `product_cross_selling`
 CHANGE `product_stream_id` `product_stream_id` binary(16) NULL AFTER `product_version_id`;');
     }
 

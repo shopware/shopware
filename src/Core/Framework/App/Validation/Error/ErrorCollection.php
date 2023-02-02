@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\App\Validation\Error;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
@@ -10,7 +9,6 @@ use Shopware\Core\Framework\Struct\Collection;
  *
  * @extends Collection<Error>
  */
-#[Package('core')]
 class ErrorCollection extends Collection
 {
     /**

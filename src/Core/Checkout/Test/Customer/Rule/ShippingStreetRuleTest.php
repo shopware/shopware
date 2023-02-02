@@ -8,10 +8,10 @@ use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\Rule\ShippingStreetRule;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
@@ -26,17 +26,25 @@ use Symfony\Component\Validator\Constraints\Type;
 /**
  * @internal
  */
-#[Package('business-ops')]
 class ShippingStreetRuleTest extends TestCase
 {
     use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
 
-    private EntityRepository $ruleRepository;
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $ruleRepository;
 
-    private EntityRepository $conditionRepository;
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $conditionRepository;
 
-    private Context $context;
+    /**
+     * @var Context
+     */
+    private $context;
 
     private ShippingStreetRule $rule;
 
@@ -187,9 +195,6 @@ class ShippingStreetRuleTest extends TestCase
         }
     }
 
-    /**
-     * @return \Traversable<string, array<string|bool>>
-     */
     public function getMatchValues(): \Traversable
     {
         yield 'operator_eq / not match / street' => [Rule::OPERATOR_EQ, false, 'kyln000'];
@@ -198,6 +203,13 @@ class ShippingStreetRuleTest extends TestCase
         yield 'operator_neq / not match / street' => [Rule::OPERATOR_NEQ, false, 'kyln123'];
         yield 'operator_empty / not match / street' => [Rule::OPERATOR_NEQ, false, 'kyln123'];
         yield 'operator_empty / match / street' => [Rule::OPERATOR_EMPTY, true, ' '];
+
+        if (!Feature::isActive('v6.5.0.0')) {
+            yield 'operator_neq / no match / no customer' => [Rule::OPERATOR_NEQ, false, 'ky', true];
+            yield 'operator_empty / no match / no customer' => [Rule::OPERATOR_EMPTY, false, 'ky', true];
+
+            return;
+        }
 
         yield 'operator_neq / match / no customer' => [Rule::OPERATOR_NEQ, true, 'ky', true];
         yield 'operator_empty / match / no customer' => [Rule::OPERATOR_EMPTY, true, 'ky', true];

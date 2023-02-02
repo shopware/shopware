@@ -1,10 +1,9 @@
-/**
- * @package system-settings
- */
 import template from './sw-custom-field-type-base.html.twig';
 
+const { Component } = Shopware;
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-custom-field-type-base', {
     template,
 
     inject: ['acl'],
@@ -42,4 +41,4 @@ export default {
             return [this.$root.$i18n.fallbackLocale];
         },
     },
-};
+});

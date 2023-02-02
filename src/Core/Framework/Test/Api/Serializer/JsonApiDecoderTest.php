@@ -12,7 +12,10 @@ use Symfony\Component\Serializer\Exception\UnexpectedValueException;
  */
 class JsonApiDecoderTest extends TestCase
 {
-    private JsonApiDecoder $decoder;
+    /**
+     * @var JsonApiDecoder
+     */
+    private $decoder;
 
     protected function setUp(): void
     {
@@ -64,7 +67,7 @@ class JsonApiDecoderTest extends TestCase
         $this->expectException(UnexpectedValueException::class);
         $this->expectExceptionMessage('Input not a valid JSON:API data object.');
 
-        $this->decoder->decode(json_encode($input, \JSON_THROW_ON_ERROR), 'jsonapi');
+        $this->decoder->decode(json_encode($input), 'jsonapi');
     }
 
     /**
@@ -75,7 +78,7 @@ class JsonApiDecoderTest extends TestCase
         $this->expectException(UnexpectedValueException::class);
         $this->expectExceptionMessage('Input not a valid JSON:API data object.');
 
-        $this->decoder->decode(json_encode($input, \JSON_THROW_ON_ERROR), 'jsonapi');
+        $this->decoder->decode(json_encode($input), 'jsonapi');
     }
 
     /**
@@ -86,7 +89,7 @@ class JsonApiDecoderTest extends TestCase
         $this->expectException(UnexpectedValueException::class);
         $this->expectExceptionMessage('A resource identifier must be an array containing "id" and "type".');
 
-        $this->decoder->decode(json_encode($input, \JSON_THROW_ON_ERROR), 'jsonapi');
+        $this->decoder->decode(json_encode($input), 'jsonapi');
     }
 
     public function testRelationshipWithoutMatchingInclude(): void

@@ -1,17 +1,14 @@
 import template from './sw-media-library.html.twig';
 import './sw-media-library.scss';
 
-const { Mixin, Context } = Shopware;
+const { Component, Mixin, Context } = Shopware;
 const { Criteria } = Shopware.Data;
 
-/**
- * @package content
- */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-media-library', {
     template,
 
-    inject: ['repositoryFactory', 'acl', 'searchRankingService'],
+    inject: ['repositoryFactory', 'acl', 'searchRankingService', 'feature'],
 
     mixins: [
         Mixin.getByName('media-grid-listener'),
@@ -289,7 +286,7 @@ export default {
                 'productManufacturers.products',
                 'mailTemplateMedia.mailTemplate',
                 'documentBaseConfigs',
-                'avatarUsers',
+                'avatarUser',
                 'paymentMethods',
                 'shippingMethods',
                 'cmsBlocks.section.page',
@@ -442,4 +439,4 @@ export default {
             this.subFolders.shift();
         },
     },
-};
+});

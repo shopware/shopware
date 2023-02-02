@@ -5,8 +5,6 @@ const { Component } = Shopware;
 const utils = Shopware.Utils;
 
 /**
- * @package admin
- *
  * @private
  */
 Component.register('sw-grid-row', {

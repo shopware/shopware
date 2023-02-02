@@ -3,15 +3,22 @@
 namespace Shopware\Core\Checkout\Order\Event;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('customer-order')]
 class OrderPaymentMethodChangedCriteriaEvent extends Event
 {
-    public function __construct(private readonly string $orderId, private readonly Criteria $criteria, private readonly SalesChannelContext $context)
+    private string $orderId;
+
+    private Criteria $criteria;
+
+    private SalesChannelContext $context;
+
+    public function __construct(string $orderId, Criteria $criteria, SalesChannelContext $context)
     {
+        $this->orderId = $orderId;
+        $this->criteria = $criteria;
+        $this->context = $context;
     }
 
     public function getOrderId(): string

@@ -4,7 +4,10 @@ import ShippingPageObject from '../../../../support/pages/module/sw-shipping.pag
 
 describe('Shipping: Test acl privileges', () => {
     beforeEach(() => {
-        cy.createShippingFixture()
+        cy.loginViaApi()
+            .then(() => {
+                return cy.createShippingFixture();
+            })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
             });
@@ -14,8 +17,8 @@ describe('Shipping: Test acl privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'shipping',
-                role: 'viewer',
-            },
+                role: 'viewer'
+            }
         ]);
 
         cy.visit(`${Cypress.env('admin')}#/sw/settings/shipping/index`);
@@ -36,12 +39,12 @@ describe('Shipping: Test acl privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'shipping',
-                role: 'viewer',
+                role: 'viewer'
             },
             {
                 key: 'shipping',
-                role: 'editor',
-            },
+                role: 'editor'
+            }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/shipping/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -51,7 +54,7 @@ describe('Shipping: Test acl privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/shipping-method/*`,
-            method: 'PATCH',
+            method: 'PATCH'
         }).as('saveData');
 
         // open shipping
@@ -61,7 +64,7 @@ describe('Shipping: Test acl privileges', () => {
         cy.get('#sw-field--shippingMethod-name').clearTypeAndCheck('Schiffspost');
         cy.get('.sw-settings-shipping-detail__top-rule').typeSingleSelect(
             'All customers',
-            '.sw-settings-shipping-detail__top-rule',
+            '.sw-settings-shipping-detail__top-rule'
         );
 
         // save shipping method
@@ -77,16 +80,16 @@ describe('Shipping: Test acl privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'shipping',
-                role: 'viewer',
+                role: 'viewer'
             },
             {
                 key: 'shipping',
-                role: 'editor',
+                role: 'editor'
             },
             {
                 key: 'shipping',
-                role: 'creator',
-            },
+                role: 'creator'
+            }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/shipping/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -96,7 +99,7 @@ describe('Shipping: Test acl privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/shipping-method`,
-            method: 'POST',
+            method: 'POST'
         }).as('saveData');
 
         // Create shipping method
@@ -118,12 +121,12 @@ describe('Shipping: Test acl privileges', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'shipping',
-                role: 'viewer',
+                role: 'viewer'
             },
             {
                 key: 'shipping',
-                role: 'deleter',
-            },
+                role: 'deleter'
+            }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/shipping/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -133,18 +136,17 @@ describe('Shipping: Test acl privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/shipping-method/*`,
-            method: 'delete',
+            method: 'delete'
         }).as('deleteData');
 
         cy.setEntitySearchable('shipping_method', 'name');
 
-        cy.get('.sw-settings-shipping-list').should('be.visible');
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Luftpost');
         cy.get('.sw-data-grid-skeleton').should('not.exist');
         cy.clickContextMenuItem(
             `${page.elements.contextMenu}-item--danger`,
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`,
+            `${page.elements.dataGridRow}--0`
         );
 
         cy.get('.sw-modal__body').should('be.visible');

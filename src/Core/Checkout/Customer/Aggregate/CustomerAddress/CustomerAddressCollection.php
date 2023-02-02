@@ -4,14 +4,12 @@ namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress;
 
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateCollection;
 use Shopware\Core\System\Country\CountryCollection;
 
 /**
  * @extends EntityCollection<CustomerAddressEntity>
  */
-#[Package('customer-order')]
 class CustomerAddressCollection extends EntityCollection
 {
     /**
@@ -19,12 +17,16 @@ class CustomerAddressCollection extends EntityCollection
      */
     public function getCustomerIds(): array
     {
-        return $this->fmap(fn (CustomerAddressEntity $customerAddress) => $customerAddress->getCustomerId());
+        return $this->fmap(function (CustomerAddressEntity $customerAddress) {
+            return $customerAddress->getCustomerId();
+        });
     }
 
     public function filterByCustomerId(string $id): self
     {
-        return $this->filter(fn (CustomerAddressEntity $customerAddress) => $customerAddress->getCustomerId() === $id);
+        return $this->filter(function (CustomerAddressEntity $customerAddress) use ($id) {
+            return $customerAddress->getCustomerId() === $id;
+        });
     }
 
     /**
@@ -32,12 +34,16 @@ class CustomerAddressCollection extends EntityCollection
      */
     public function getCountryIds(): array
     {
-        return $this->fmap(fn (CustomerAddressEntity $customerAddress) => $customerAddress->getCountryId());
+        return $this->fmap(function (CustomerAddressEntity $customerAddress) {
+            return $customerAddress->getCountryId();
+        });
     }
 
     public function filterByCountryId(string $id): self
     {
-        return $this->filter(fn (CustomerAddressEntity $customerAddress) => $customerAddress->getCountryId() === $id);
+        return $this->filter(function (CustomerAddressEntity $customerAddress) use ($id) {
+            return $customerAddress->getCountryId() === $id;
+        });
     }
 
     /**
@@ -45,25 +51,33 @@ class CustomerAddressCollection extends EntityCollection
      */
     public function getCountryStateIds(): array
     {
-        return $this->fmap(fn (CustomerAddressEntity $customerAddress) => $customerAddress->getCountryStateId());
+        return $this->fmap(function (CustomerAddressEntity $customerAddress) {
+            return $customerAddress->getCountryStateId();
+        });
     }
 
     public function filterByCountryStateId(string $id): self
     {
-        return $this->filter(fn (CustomerAddressEntity $customerAddress) => $customerAddress->getCountryStateId() === $id);
+        return $this->filter(function (CustomerAddressEntity $customerAddress) use ($id) {
+            return $customerAddress->getCountryStateId() === $id;
+        });
     }
 
     public function getCountries(): CountryCollection
     {
         return new CountryCollection(
-            $this->fmap(fn (CustomerAddressEntity $customerAddress) => $customerAddress->getCountry())
+            $this->fmap(function (CustomerAddressEntity $customerAddress) {
+                return $customerAddress->getCountry();
+            })
         );
     }
 
     public function getCountryStates(): CountryStateCollection
     {
         return new CountryStateCollection(
-            $this->fmap(fn (CustomerAddressEntity $customerAddress) => $customerAddress->getCountryState())
+            $this->fmap(function (CustomerAddressEntity $customerAddress) {
+                return $customerAddress->getCountryState();
+            })
         );
     }
 

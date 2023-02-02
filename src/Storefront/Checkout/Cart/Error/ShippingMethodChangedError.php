@@ -3,21 +3,25 @@
 namespace Shopware\Storefront\Checkout\Cart\Error;
 
 use Shopware\Core\Checkout\Cart\Error\Error;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('checkout')]
 class ShippingMethodChangedError extends Error
 {
     private const KEY = 'shipping-method-changed';
 
+    private string $oldShippingMethodName;
+
+    private string $newShippingMethodName;
+
     public function __construct(
-        private readonly string $oldShippingMethodName,
-        private readonly string $newShippingMethodName
+        string $oldPaymentMethodName,
+        string $newPaymentMethodName
     ) {
+        $this->oldShippingMethodName = $oldPaymentMethodName;
+        $this->newShippingMethodName = $newPaymentMethodName;
         $this->message = \sprintf(
             '%s shipping is not available for your current cart, the shipping was changed to %s',
-            $oldShippingMethodName,
-            $newShippingMethodName
+            $oldPaymentMethodName,
+            $newPaymentMethodName
         );
 
         parent::__construct($this->message);

@@ -1,7 +1,3 @@
-/**
- * @package admin
- */
-
 import template from './sw-property-search.html.twig';
 import './sw-property-search.scss';
 
@@ -9,9 +5,7 @@ const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 const utils = Shopware.Utils;
 
-/**
- * @deprecated tag:v6.6.0 - Will be private
- */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-property-search', {
     template,
 
@@ -91,6 +85,25 @@ Component.register('sw-property-search', {
             criteria.addSorting(Criteria.sort('name', 'ASC', true));
             criteria.setTotalCountMode(1);
             criteria.setTerm(this.searchTerm);
+            criteria.addAssociation('group');
+
+            return criteria;
+        },
+
+        /**
+         * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
+         */
+        propertyGroupOptionSearchCriteria() {
+            const criteria = new Criteria(this.optionPage, 10);
+
+            const terms = this.searchTerm.split(' ');
+            terms.forEach((term) => {
+                criteria.addQuery(Criteria.equals('property_group_option.name', term), 5000);
+                criteria.addQuery(Criteria.contains('property_group_option.name', term), 500);
+                criteria.addQuery(Criteria.equals('property_group_option.group.name', term), 100);
+            });
+
+            criteria.setTotalCountMode(1);
             criteria.addAssociation('group');
 
             return criteria;

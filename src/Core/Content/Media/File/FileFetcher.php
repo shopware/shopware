@@ -6,23 +6,35 @@ use Shopware\Core\Content\Media\Exception\DisabledUrlUploadFeatureException;
 use Shopware\Core\Content\Media\Exception\IllegalUrlException;
 use Shopware\Core\Content\Media\Exception\MissingFileExtensionException;
 use Shopware\Core\Content\Media\Exception\UploadException;
-use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('content')]
 class FileFetcher
 {
     private const ALLOWED_PROTOCOLS = ['http', 'https', 'ftp', 'sftp'];
 
     /**
+     * @var bool
+     */
+    public $enableUrlUploadFeature;
+
+    /**
+     * @var bool
+     */
+    public $enableUrlValidation;
+
+    /**
+     * @var FileUrlValidatorInterface
+     */
+    private $fileUrlValidator;
+
+    /**
      * @internal
      */
-    public function __construct(
-        private readonly FileUrlValidatorInterface $fileUrlValidator,
-        private readonly bool $enableUrlUploadFeature = true,
-        private readonly bool $enableUrlValidation = true,
-        private readonly int $maxFileSize = 0
-    ) {
+    public function __construct(FileUrlValidatorInterface $fileUrlValidator, bool $enableUrlUploadFeature = true, bool $enableUrlValidation = true)
+    {
+        $this->fileUrlValidator = $fileUrlValidator;
+        $this->enableUrlUploadFeature = $enableUrlUploadFeature;
+        $this->enableUrlValidation = $enableUrlValidation;
     }
 
     public function fetchRequestData(Request $request, string $fileName): MediaFile
@@ -34,7 +46,7 @@ class FileFetcher
         $destStream = $this->openDestinationStream($fileName);
 
         try {
-            $bytesWritten = $this->copyStreams($inputStream, $destStream, 0);
+            $bytesWritten = $this->copyStreams($inputStream, $destStream);
         } finally {
             fclose($inputStream);
             fclose($destStream);
@@ -71,7 +83,7 @@ class FileFetcher
         $destStream = $this->openDestinationStream($fileName);
 
         try {
-            $writtenBytes = $this->copyStreams($inputStream, $destStream, $this->maxFileSize);
+            $writtenBytes = $this->copyStreams($inputStream, $destStream);
         } finally {
             fclose($inputStream);
             fclose($destStream);
@@ -151,7 +163,7 @@ class FileFetcher
 
         try {
             $inputStream = @fopen($url, 'rb', false, $streamContext);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             throw new UploadException("Could not open source stream from {$url}");
         }
 
@@ -171,7 +183,7 @@ class FileFetcher
     {
         try {
             $inputStream = @fopen($filename, 'wb');
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             throw new UploadException("Could not open Stream to write upload data: {$filename}");
         }
 
@@ -186,24 +198,12 @@ class FileFetcher
      * @param resource $sourceStream
      * @param resource        $destStream
      */
-    private function copyStreams($sourceStream, $destStream, int $maxFileSize = 0): int
+    private function copyStreams($sourceStream, $destStream): int
     {
-        if ($maxFileSize === 0) {
-            $writtenBytes = stream_copy_to_stream($sourceStream, $destStream);
-            if ($writtenBytes === false) {
-                throw new UploadException('Error while copying media from source');
-            }
+        $writtenBytes = stream_copy_to_stream($sourceStream, $destStream);
 
-            return $writtenBytes;
-        }
-
-        $writtenBytes = stream_copy_to_stream($sourceStream, $destStream, $maxFileSize, 0);
         if ($writtenBytes === false) {
             throw new UploadException('Error while copying media from source');
-        }
-
-        if ($writtenBytes === $maxFileSize) {
-            throw new UploadException('Source file exceeds maximum file size limit');
         }
 
         return $writtenBytes;

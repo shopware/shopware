@@ -2,15 +2,16 @@
 
 namespace Shopware\Core\Framework\Api\Context;
 
-use Shopware\Core\Framework\Log\Package;
-
-#[Package('core')]
 class SalesChannelApiSource implements ContextSource
 {
-    public string $type = 'sales-channel';
+    /**
+     * @var string
+     */
+    private $salesChannelId;
 
-    public function __construct(private readonly string $salesChannelId)
+    public function __construct(string $salesChannelId)
     {
+        $this->salesChannelId = $salesChannelId;
     }
 
     public function getSalesChannelId(): string

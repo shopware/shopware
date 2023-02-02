@@ -3,31 +3,44 @@
 namespace Shopware\Core\Framework\Demodata\Generator;
 
 use Shopware\Core\Content\MailTemplate\MailTemplateDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-/**
- * @internal
- */
-#[Package('core')]
 class MailTemplateGenerator implements DemodataGeneratorInterface
 {
+    /**
+     * @var EntityWriterInterface
+     */
+    private $writer;
+
+    /**
+     * @var MailTemplateDefinition
+     */
+    private $mailTemplateDefinition;
+
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $mailTemplateTypeRepository;
+
     /**
      * @internal
      */
     public function __construct(
-        private readonly EntityWriterInterface $writer,
-        private readonly EntityRepository $mailTemplateTypeRepository,
-        private readonly MailTemplateDefinition $mailTemplateDefinition
+        EntityWriterInterface $writer,
+        EntityRepositoryInterface $mailTemplateTypeRepository,
+        MailTemplateDefinition $mailTemplateDefinition
     ) {
+        $this->writer = $writer;
+        $this->mailTemplateTypeRepository = $mailTemplateTypeRepository;
+        $this->mailTemplateDefinition = $mailTemplateDefinition;
     }
 
     public function getDefinition(): string
@@ -55,7 +68,7 @@ class MailTemplateGenerator implements DemodataGeneratorInterface
         $mailTypeIds = $this->mailTemplateTypeRepository->search($criteria, $context->getContext())->getIds();
 
         $payload = [];
-        foreach ($mailTypeIds as $mailTypeId) {
+        foreach ($mailTypeIds as $mailTypeId => $_id) {
             $payload[] = $this->createSimpleMailTemplate($context, $mailTypeId);
 
             if (\count($payload) >= 10) {
@@ -72,9 +85,6 @@ class MailTemplateGenerator implements DemodataGeneratorInterface
         $context->getConsole()->progressFinish();
     }
 
-    /**
-     * @param list<array<string, mixed>> $payload
-     */
     private function write(array $payload, DemodataContext $context): void
     {
         $writeContext = WriteContext::createFromContext($context->getContext());
@@ -82,14 +92,10 @@ class MailTemplateGenerator implements DemodataGeneratorInterface
         $this->writer->upsert($this->mailTemplateDefinition, $payload, $writeContext);
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     private function createSimpleMailTemplate(DemodataContext $context, string $mailTypeId): array
     {
         $faker = $context->getFaker();
-
-        return [
+        $mailTemplate = [
             'id' => Uuid::randomHex(),
             'description' => $faker->text(),
             'isSystemDefault' => false,
@@ -103,11 +109,10 @@ class MailTemplateGenerator implements DemodataGeneratorInterface
             'contentPlain' => $faker->text(),
             'mailTemplateTypeId' => $mailTypeId,
         ];
+
+        return $mailTemplate;
     }
 
-    /**
-     * @param list<string> $tags
-     */
     private function generateRandomHTML(int $count, array $tags, DemodataContext $context): string
     {
         $output = '';

@@ -3,7 +3,7 @@
 namespace Shopware\Core\Content\ImportExport\Command;
 
 use Doctrine\DBAL\Connection;
-use League\Flysystem\FilesystemOperator;
+use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
 use Shopware\Core\Content\ImportExport\ImportExport;
 use Shopware\Core\Content\ImportExport\ImportExportFactory;
@@ -13,12 +13,10 @@ use Shopware\Core\Content\ImportExport\Service\ImportExportService;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Content\ImportExport\Struct\Progress;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
-use Shopware\Core\Framework\Log\Package;
-use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -27,24 +25,36 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-#[AsCommand(
-    name: 'import:entity',
-    description: 'Import entities from a csv file',
-)]
-#[Package('system-settings')]
 class ImportEntityCommand extends Command
 {
+    protected static $defaultName = 'import:entity';
+
+    private ImportExportService $initiationService;
+
+    private EntityRepositoryInterface $profileRepository;
+
+    private ImportExportFactory $importExportFactory;
+
+    private Connection $connection;
+
+    private FilesystemInterface $filesystem;
+
     /**
      * @internal
      */
     public function __construct(
-        private readonly ImportExportService $initiationService,
-        private readonly EntityRepository $profileRepository,
-        private readonly ImportExportFactory $importExportFactory,
-        private readonly Connection $connection,
-        private readonly FilesystemOperator $filesystem
+        ImportExportService $initiationService,
+        EntityRepositoryInterface $profileRepository,
+        ImportExportFactory $importExportFactory,
+        Connection $connection,
+        FilesystemInterface $filesystem
     ) {
         parent::__construct();
+        $this->initiationService = $initiationService;
+        $this->profileRepository = $profileRepository;
+        $this->importExportFactory = $importExportFactory;
+        $this->connection = $connection;
+        $this->filesystem = $filesystem;
     }
 
     protected function configure(): void
@@ -80,13 +90,13 @@ class ImportEntityCommand extends Command
 
         try {
             $expireDate = new \DateTimeImmutable($expireDateString);
-        } catch (\Exception) {
+        } catch (\Exception $e) {
             throw new \InvalidArgumentException(
                 sprintf('"%s" is not a valid date. Please use format Y-m-d', $expireDateString)
             );
         }
 
-        $file = new UploadedFile($filePath, basename((string) $filePath), $profile->getFileType());
+        $file = new UploadedFile($filePath, basename($filePath), $profile->getFileType());
 
         $doRollback = $rollbackOnError && !$dryRun;
         if ($doRollback) {
@@ -199,6 +209,10 @@ class ImportEntityCommand extends Command
         $reader = new CsvReader();
         $invalidLogFilePath = $log->getFile()->getPath() . '_invalid';
         $resource = $this->filesystem->readStream($invalidLogFilePath);
+
+        if (!$resource) {
+            return;
+        }
 
         $invalidRows = $reader->read($config, $resource, 0);
 

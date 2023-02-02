@@ -6,7 +6,6 @@ use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantityCollection;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackage;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackageCollection;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\FilterPickerInterface;
-use Shopware\Core\Framework\Log\Package;
 
 /**
  * The horizontal picker makes sure that the filter
@@ -15,7 +14,6 @@ use Shopware\Core\Framework\Log\Package;
  * take the first 2 cheapest one, the picker
  * will make sure that it gets the 2 cheapest out of all 9 items.
  */
-#[Package('checkout')]
 class HorizontalPicker implements FilterPickerInterface
 {
     public function getKey(): string

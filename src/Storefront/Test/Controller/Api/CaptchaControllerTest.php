@@ -13,7 +13,10 @@ class CaptchaControllerTest extends TestCase
 {
     private const CAPTCHA_NAME = 'lorem-ipsum';
 
-    private CaptchaController $captchaController;
+    /**
+     * @var CaptchaController
+     */
+    private $captchaController;
 
     protected function setUp(): void
     {
@@ -28,11 +31,8 @@ class CaptchaControllerTest extends TestCase
         $expected = json_encode([
             self::CAPTCHA_NAME,
         ]);
-
-        static::assertIsString($expected);
-
         $response = $this->captchaController->list();
 
-        static::assertJsonStringEqualsJsonString($expected, $response->getContent() ?: '');
+        static::assertJsonStringEqualsJsonString($expected, $response->getContent());
     }
 }

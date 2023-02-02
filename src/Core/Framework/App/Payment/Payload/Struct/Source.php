@@ -2,21 +2,28 @@
 
 namespace Shopware\Core\Framework\App\Payment\Payload\Struct;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\CloneTrait;
 use Shopware\Core\Framework\Struct\JsonSerializableTrait;
 
 /**
  * @internal only for use by the app-system
  */
-#[Package('core')]
 class Source implements \JsonSerializable
 {
     use CloneTrait;
     use JsonSerializableTrait;
 
-    public function __construct(protected string $url, protected string $shopId, protected string $appVersion)
+    protected string $url;
+
+    protected string $shopId;
+
+    protected string $appVersion;
+
+    public function __construct(string $url, string $shopId, string $appVersion)
     {
+        $this->url = $url;
+        $this->shopId = $shopId;
+        $this->appVersion = $appVersion;
     }
 
     public function getUrl(): string

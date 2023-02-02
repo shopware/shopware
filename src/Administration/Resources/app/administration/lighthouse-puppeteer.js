@@ -1,7 +1,3 @@
-/**
- * @package admin
- */
-
 const APP_URL = process.env.APP_URL;
 
 /**

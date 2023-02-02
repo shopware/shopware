@@ -11,24 +11,41 @@ use Shopware\Core\Content\Category\Tree\Tree;
 use Shopware\Core\Content\Category\Tree\TreeItem;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Util\AfterSort;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Decoratable;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Package('content')]
+/**
+ * @Decoratable()
+ */
 class NavigationLoader implements NavigationLoaderInterface
 {
-    private readonly TreeItem $treeItem;
+    /**
+     * @var TreeItem
+     */
+    private $treeItem;
+
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
+    /**
+     * @var AbstractNavigationRoute
+     */
+    private $navigationRoute;
 
     /**
      * @internal
      */
     public function __construct(
-        private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly AbstractNavigationRoute $navigationRoute
+        EventDispatcherInterface $eventDispatcher,
+        AbstractNavigationRoute $navigationRoute
     ) {
         $this->treeItem = new TreeItem(null, []);
+        $this->eventDispatcher = $eventDispatcher;
+        $this->navigationRoute = $navigationRoute;
     }
 
     /**
@@ -77,7 +94,9 @@ class NavigationLoader implements NavigationLoaderInterface
 
             $sorted = AfterSort::sort($children);
 
-            $filtered = \array_filter($sorted, static fn (TreeItem $filter) => $filter->getCategory()->getActive() && $filter->getCategory()->getVisible());
+            $filtered = \array_filter($sorted, static function (TreeItem $filter) {
+                return $filter->getCategory()->getActive() && $filter->getCategory()->getVisible();
+            });
 
             if (!isset($items[$parentId])) {
                 continue;

@@ -8,30 +8,44 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\CustomerG
 use Shopware\Core\Content\Seo\SeoUrlPersister;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-/**
- * @internal
- */
-#[Package('customer-order')]
 class CustomerGroupSubscriber implements EventSubscriberInterface
 {
     private const ROUTE_NAME = 'frontend.account.customer-group-registration.page';
 
+    private EntityRepositoryInterface $customerGroupRepository;
+
+    private SeoUrlPersister $persister;
+
+    private SlugifyInterface $slugify;
+
+    private EntityRepositoryInterface $seoUrlRepository;
+
+    private EntityRepositoryInterface $languageRepository;
+
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $customerGroupRepository, private readonly EntityRepository $seoUrlRepository, private readonly EntityRepository $languageRepository, private readonly SeoUrlPersister $persister, private readonly SlugifyInterface $slugify)
-    {
+    public function __construct(
+        EntityRepositoryInterface $customerGroupRepository,
+        EntityRepositoryInterface $seoUrlRepository,
+        EntityRepositoryInterface $languageRepository,
+        SeoUrlPersister $persister,
+        SlugifyInterface $slugify
+    ) {
+        $this->customerGroupRepository = $customerGroupRepository;
+        $this->seoUrlRepository = $seoUrlRepository;
+        $this->persister = $persister;
+        $this->slugify = $slugify;
+        $this->languageRepository = $languageRepository;
     }
 
     public static function getSubscribedEvents(): array
@@ -48,9 +62,7 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
         $ids = [];
 
         foreach ($event->getWriteResults() as $writeResult) {
-            /** @var array<string, string> $pk */
-            $pk = $writeResult->getPrimaryKey();
-            $ids[] = $pk['customerGroupId'];
+            $ids[] = $writeResult->getPrimaryKey()['customerGroupId'];
         }
 
         if (\count($ids) === 0) {
@@ -66,9 +78,7 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
 
         foreach ($event->getWriteResults() as $writeResult) {
             if ($writeResult->hasPayload('registrationTitle')) {
-                /** @var array<string, string> $pk */
-                $pk = $writeResult->getPrimaryKey();
-                $ids[] = $pk['customerGroupId'];
+                $ids[] = $writeResult->getPrimaryKey()['customerGroupId'];
             }
         }
 
@@ -84,9 +94,7 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
         $ids = [];
 
         foreach ($event->getWriteResults() as $writeResult) {
-            /** @var array<string, string> $pk */
-            $pk = $writeResult->getPrimaryKey();
-            $ids[] = $pk['customerGroupId'];
+            $ids[] = $writeResult->getPrimaryKey()['customerGroupId'];
         }
 
         if (\count($ids) === 0) {
@@ -104,12 +112,11 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $this->seoUrlRepository->delete(array_map(fn (string $id) => ['id' => $id], $ids), $event->getContext());
+        $this->seoUrlRepository->delete(array_map(function (string $id) {
+            return ['id' => $id];
+        }, $ids), $event->getContext());
     }
 
-    /**
-     * @param list<string> $ids
-     */
     private function createUrls(array $ids, Context $context): void
     {
         $criteria = new Criteria($ids);
@@ -134,13 +141,10 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
                 /** @var array<string> $languageIds */
                 $languageIds = $registrationSalesChannel->getLanguages()->getIds();
                 $criteria = new Criteria($languageIds);
-                /** @var LanguageCollection $languageCollection */
                 $languageCollection = $this->languageRepository->search($criteria, $context)->getEntities();
 
                 foreach ($languageIds as $languageId) {
-                    /** @var LanguageEntity $language */
-                    $language = $languageCollection->get($languageId);
-                    $title = $this->getTranslatedTitle($group->getTranslations(), $language);
+                    $title = $this->getTranslatedTitle($group->getTranslations(), $languageCollection->get($languageId));
 
                     if (!isset($buildUrls[$languageId])) {
                         $buildUrls[$languageId] = [

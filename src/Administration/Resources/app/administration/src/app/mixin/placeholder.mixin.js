@@ -1,13 +1,6 @@
-/**
- * @package admin
- */
-
 const { Mixin } = Shopware;
 const types = Shopware.Utils.types;
 
-/**
- * @deprecated tag:v6.6.0 - Will be private
- */
 Mixin.register('placeholder', {
     methods: {
         placeholder(entity, field, fallbackSnippet) {

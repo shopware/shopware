@@ -1,13 +1,10 @@
 import template from './sw-media-breadcrumbs.html.twig';
 import './sw-media-breadcrumbs.scss';
 
-const { Context } = Shopware;
+const { Component, Context } = Shopware;
 
-/**
- * @package content
- */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-media-breadcrumbs', {
     template,
 
     inject: ['repositoryFactory'],
@@ -90,4 +87,4 @@ export default {
             this.$emit('media-folder-change', id);
         },
     },
-};
+});

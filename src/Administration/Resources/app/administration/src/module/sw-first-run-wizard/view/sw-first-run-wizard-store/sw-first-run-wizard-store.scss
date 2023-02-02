@@ -14,12 +14,18 @@
     }
 
     .sw-first-run-wizard-store__heading {
-        font-size: $font-size-m;
+        font-size: $font-size-large;
         font-weight: $font-weight-semi-bold;
     }
 
     p {
         padding-bottom: 24px;
+    }
+
+    .sw-first-run-wizard-store__loading-icon {
+        color: $color-shopware-brand-500;
+        animation: prepare-icon-spin 2s linear infinite;
+        margin-bottom: 16px;
     }
 
     .sw-first-run-wizard-store__label {
@@ -31,9 +37,13 @@
         margin-bottom: 24px;
     }
 
-    .sw-loader {
-        position: unset;
-        background: unset;
-        margin-bottom: 12px;
+    @keyframes prepare-icon-spin {
+        from {
+            transform: translate(0%, 0%) rotate(0deg);
+        }
+
+        to {
+            transform: translate(0%, 0%) rotate(360deg);
+        }
     }
 }

@@ -3,12 +3,10 @@
 namespace Shopware\Core\Framework\App\Manifest\Xml;
 
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
-use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal only for use by the app-system
  */
-#[Package('core')]
 class Permissions extends XmlElement
 {
     /**
@@ -18,19 +16,11 @@ class Permissions extends XmlElement
      *      ['sales_channel' => ['read', 'delete']],
      *      ['category' => ['read']],
      * ]
-     *
-     * @var array<string, string[]>
      */
     protected array $permissions;
 
-    /**
-     * @var string[]
-     */
     protected array $additionalPrivileges;
 
-    /**
-     * @param array<string, mixed> $data
-     */
     private function __construct(array $data)
     {
         foreach ($data as $property => $value) {
@@ -44,7 +34,7 @@ class Permissions extends XmlElement
     }
 
     /**
-     * @param array<string, string[]> $permissions CRUD permissions as array indexed by resource
+     * @param array $permissions CRUD permissions as array indexed by resource
      * @param array<string> $additionalPrivileges additional non-CRUD privileges as flat list
      */
     public static function fromArray(array $permissions, array $additionalPrivileges = []): self
@@ -55,17 +45,11 @@ class Permissions extends XmlElement
         ]);
     }
 
-    /**
-     * @return array<string, string[]>
-     */
     public function getPermissions(): array
     {
         return $this->permissions;
     }
 
-    /**
-     * @param array<string, string[]> $permissions
-     */
     public function add(array $permissions): void
     {
         foreach ($permissions as $resource => $privileges) {
@@ -73,9 +57,6 @@ class Permissions extends XmlElement
         }
     }
 
-    /**
-     * @return string[]
-     */
     public function getAdditionalPrivileges(): array
     {
         return $this->additionalPrivileges;
@@ -90,17 +71,12 @@ class Permissions extends XmlElement
      *     'sales_channel:delete',
      *     'category:read',
      * ]
-     *
-     * @return string[]
      */
     public function asParsedPrivileges(): array
     {
         return $this->generatePrivileges();
     }
 
-    /**
-     * @return array{permissions: array<string, string[]>, additionalPrivileges: string[]}
-     */
     private static function parsePermissions(\DOMElement $element): array
     {
         $permissions = [];
@@ -108,10 +84,6 @@ class Permissions extends XmlElement
 
         foreach ($element->childNodes as $child) {
             if (!$child instanceof \DOMElement) {
-                continue;
-            }
-
-            if ($child->nodeValue === null) {
                 continue;
             }
 
@@ -130,9 +102,6 @@ class Permissions extends XmlElement
         ];
     }
 
-    /**
-     * @return string[]
-     */
     private function generatePrivileges(): array
     {
         $grantedPrivileges = array_map(static function (array $privileges): array {
@@ -148,9 +117,11 @@ class Permissions extends XmlElement
 
         $privilegeValues = [];
         foreach ($grantedPrivileges as $resource => $privileges) {
-            $newPrivileges = array_map(static fn (string $privilege): string => $resource . ':' . $privilege, $privileges);
+            $newPrivileges = array_map(static function (string $privilege) use ($resource): string {
+                return $resource . ':' . $privilege;
+            }, $privileges);
 
-            $privilegeValues = [...$privilegeValues, ...$newPrivileges];
+            $privilegeValues = array_merge($privilegeValues, $newPrivileges);
         }
 
         return array_merge($privilegeValues, $this->additionalPrivileges);

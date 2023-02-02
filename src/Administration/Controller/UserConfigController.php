@@ -9,12 +9,13 @@ use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
 use Shopware\Core\Framework\Api\Controller\Exception\ExpectedUserHttpException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigDefinition;
 use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigEntity;
@@ -24,17 +25,25 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Package('system-settings')]
 class UserConfigController extends AbstractController
 {
+    private EntityRepositoryInterface $userConfigRepository;
+
+    private Connection $connection;
+
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $userConfigRepository, private readonly Connection $connection)
+    public function __construct(EntityRepositoryInterface $userConfigRepository, Connection $connection)
     {
+        $this->userConfigRepository = $userConfigRepository;
+        $this->connection = $connection;
     }
 
-    #[Route(path: '/api/_info/config-me', name: 'api.config_me.get', defaults: ['auth_required' => true, '_routeScope' => ['administration']], methods: ['GET'])]
+    /**
+     * @Since("6.4.5.0")
+     * @Route("/api/_info/config-me", name="api.config_me.get", defaults={"auth_required"=true, "_routeScope"={"administration"}}, methods={"GET"})
+     */
     public function getConfigMe(Context $context, Request $request): Response
     {
         $userConfigs = $this->getOwnUserConfig($context, $request->query->all('keys'));
@@ -47,7 +56,10 @@ class UserConfigController extends AbstractController
         return new JsonResponse(['data' => $data]);
     }
 
-    #[Route(path: '/api/_info/config-me', name: 'api.config_me.update', defaults: ['auth_required' => true, '_routeScope' => ['administration']], methods: ['POST'])]
+    /**
+     * @Since("6.4.5.0")
+     * @Route("/api/_info/config-me", name="api.config_me.update", defaults={"auth_required"=true, "_routeScope"={"administration"}}, methods={"POST"})
+     */
     public function updateConfigMe(Context $context, Request $request): Response
     {
         $postUpdateConfigs = $request->request->all();
@@ -77,7 +89,7 @@ class UserConfigController extends AbstractController
     private function getUserId(Context $context): string
     {
         if (!$context->getSource() instanceof AdminApiSource) {
-            throw new InvalidContextSourceException(AdminApiSource::class, $context->getSource()::class);
+            throw new InvalidContextSourceException(AdminApiSource::class, \get_class($context->getSource()));
         }
 
         $userId = $context->getSource()->getUserId();

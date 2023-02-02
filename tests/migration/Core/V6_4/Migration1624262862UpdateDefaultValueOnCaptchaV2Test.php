@@ -70,7 +70,7 @@ class Migration1624262862UpdateDefaultValueOnCaptchaV2Test extends TestCase
 
         $connection->update('system_config', [
             'configuration_key' => self::CONFIG_KEY,
-            'configuration_value' => \json_encode(['_value' => $this->captchaItems], \JSON_THROW_ON_ERROR),
+            'configuration_value' => \json_encode(['_value' => $this->captchaItems]),
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             'updated_at' => null,
         ], [
@@ -83,7 +83,7 @@ class Migration1624262862UpdateDefaultValueOnCaptchaV2Test extends TestCase
         $activeCaptchasV2 = $connection->fetchOne('SELECT `configuration_value` FROM `system_config` WHERE `configuration_key` = :key', [
             'key' => self::CONFIG_KEY,
         ]);
-        $activeCaptchasV2 = json_decode((string) $activeCaptchasV2, true, 512, \JSON_THROW_ON_ERROR);
+        $activeCaptchasV2 = json_decode($activeCaptchasV2, true);
 
         static::assertTrue($activeCaptchasV2['_value'][self::CAPTCHA_NAME]['isActive']);
     }

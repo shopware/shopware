@@ -7,7 +7,6 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
@@ -17,7 +16,6 @@ use Shopware\Storefront\Page\LandingPage\LandingPageLoadedHook;
 /**
  * @internal
  */
-#[Package('content')]
 class LandingPageControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;

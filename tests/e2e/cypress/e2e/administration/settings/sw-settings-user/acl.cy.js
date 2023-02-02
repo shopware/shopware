@@ -2,21 +2,24 @@
 
 describe('User: Test acl privileges', () => {
     beforeEach(() => {
-        cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
+        cy.loginViaApi()
+            .then(() => {
+                cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
+            });
     });
 
-    it('@settings: view user', { tags: ['quarantined', 'pa-system-settings'] }, () => {
+    it('@settings: view user', { tags: ['pa-system-settings'] }, () => {
         // Request we want to wait for later
         cy.intercept({
             method: 'POST',
-            url: `**/${Cypress.env('apiPath')}/search/user`,
+            url: `**/${Cypress.env('apiPath')}/search/user`
         }).as('loadUser');
 
         cy.loginAsUserWithPermissions([
             {
                 key: 'users_and_permissions',
-                role: 'viewer',
-            },
+                role: 'viewer'
+            }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/users/permissions/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -45,26 +48,26 @@ describe('User: Test acl privileges', () => {
             .should('have.value', 'max@muster.com');
     });
 
-    it('@settings: edit user', { tags: ['quarantined', 'pa-system-settings'] }, () => {
+    it('@settings: edit user', { tags: ['pa-system-settings'] }, () => {
         // Request we want to wait for later
         cy.intercept({
             method: 'POST',
-            url: `**/${Cypress.env('apiPath')}/search/user`,
+            url: `**/${Cypress.env('apiPath')}/search/user`
         }).as('loadUser');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/oauth/token`,
-            method: 'POST',
+            method: 'POST'
         }).as('oauthCall');
 
         cy.loginAsUserWithPermissions([
             {
                 key: 'users_and_permissions',
-                role: 'viewer',
+                role: 'viewer'
             },
             {
                 key: 'users_and_permissions',
-                role: 'editor',
-            },
+                role: 'editor'
+            }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/users/permissions/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -121,30 +124,30 @@ describe('User: Test acl privileges', () => {
             .should('have.value', 'changed@shopware.com');
     });
 
-    it('@settings: edit user role', { tags: ['quarantined', 'pa-system-settings'] }, () => {
+    it('@settings: edit user role', { tags: ['pa-system-settings'] }, () => {
         // Request we want to wait for later
         cy.intercept({
             method: 'POST',
-            url: `**/${Cypress.env('apiPath')}/search/user`,
+            url: `**/${Cypress.env('apiPath')}/search/user`
         }).as('loadUser');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/oauth/token`,
-            method: 'POST',
+            method: 'POST'
         }).as('oauthCall');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/acl-role/*`,
-            method: 'PATCH',
+            method: 'PATCH'
         }).as('saveRole');
 
         cy.loginAsUserWithPermissions([
             {
                 key: 'users_and_permissions',
-                role: 'viewer',
+                role: 'viewer'
             },
             {
                 key: 'users_and_permissions',
-                role: 'editor',
-            },
+                role: 'editor'
+            }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/users/permissions/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -199,34 +202,34 @@ describe('User: Test acl privileges', () => {
             .should('have.value', 'This is a description');
     });
 
-    it('@settings: create user', { tags: ['quarantined', 'pa-system-settings'] }, () => {
+    it('@settings: create user', { tags: ['pa-system-settings'] }, () => {
         // Requests we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/user`,
-            method: 'POST',
+            method: 'POST'
         }).as('searchCall');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/user`,
-            method: 'POST',
+            method: 'POST'
         }).as('createCall');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/oauth/token`,
-            method: 'POST',
+            method: 'POST'
         }).as('oauthCall');
 
         cy.loginAsUserWithPermissions([
             {
                 key: 'users_and_permissions',
-                role: 'viewer',
+                role: 'viewer'
             },
             {
                 key: 'users_and_permissions',
-                role: 'editor',
+                role: 'editor'
             },
             {
                 key: 'users_and_permissions',
-                role: 'creator',
-            },
+                role: 'creator'
+            }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/users/permissions/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -244,7 +247,7 @@ describe('User: Test acl privileges', () => {
             '#sw-field--user-lastName': 'Allison',
             '#sw-field--user-email': 'test@shopware.com',
             '#sw-field--user-username': 'abraham',
-            '.sw-field--password__container > input[type=password]': 'mesecurepassword',
+            '.sw-field--password__container > input[type=password]': 'mesecurepassword'
         };
 
         Object.keys(userFields).forEach((key) => {
@@ -280,24 +283,24 @@ describe('User: Test acl privileges', () => {
         cy.wait('@createCall').its('response.statusCode').should('equal', 204);
     });
 
-    it('@settings: create user and delete them', { tags: ['quarantined', 'pa-system-settings'] }, () => {
+    it('@settings: create user and delete them', { tags: ['pa-system-settings'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'users_and_permissions',
-                role: 'viewer',
+                role: 'viewer'
             },
             {
                 key: 'users_and_permissions',
-                role: 'editor',
+                role: 'editor'
             },
             {
                 key: 'users_and_permissions',
-                role: 'creator',
+                role: 'creator'
             },
             {
                 key: 'users_and_permissions',
-                role: 'deleter',
-            },
+                role: 'deleter'
+            }
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/users/permissions/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -307,22 +310,22 @@ describe('User: Test acl privileges', () => {
         // Requests we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/user`,
-            method: 'POST',
+            method: 'POST'
         }).as('searchCall');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/user`,
-            method: 'POST',
+            method: 'POST'
         }).as('createCall');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/user/**`,
-            method: 'delete',
+            method: 'delete'
         }).as('deleteCall');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/oauth/token`,
-            method: 'POST',
+            method: 'POST'
         }).as('oauthCall');
 
         // create a new user
@@ -336,7 +339,7 @@ describe('User: Test acl privileges', () => {
             '#sw-field--user-lastName': 'Allison',
             '#sw-field--user-email': 'test@shopware.com',
             '#sw-field--user-username': 'abraham',
-            '.sw-field--password__container > input[type=password]': 'mesecurepassword',
+            '.sw-field--password__container > input[type=password]': 'mesecurepassword'
         };
 
         Object.keys(userFields).forEach((key) => {
@@ -380,7 +383,7 @@ describe('User: Test acl privileges', () => {
         cy.clickContextMenuItem(
             '.sw-settings-user-list__user-delete-action',
             '.sw-context-button__button',
-            '.sw-users-permissions-user-listing .sw-data-grid__row--0',
+            '.sw-users-permissions-user-listing .sw-data-grid__row--0'
         );
 
         // expect modal to be open

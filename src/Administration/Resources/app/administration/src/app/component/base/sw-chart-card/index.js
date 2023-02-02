@@ -4,9 +4,6 @@ import './sw-chart-card.scss';
 const defaultRanges = ['30Days', '14Days', '7Days', '24Hours', 'yesterday'];
 
 /**
- * @package admin
- *
- * @deprecated tag:v6.6.0 - Will be private
  * @description
  * Layout-wrapper for sw-card and sw-chart.
  * This component provides specific props for the card configuration and range dropdown.
@@ -16,6 +13,7 @@ const defaultRanges = ['30Days', '14Days', '7Days', '24Hours', 'yesterday'];
  * All further attributes on this component are passed down to the child "sw-chart".
  * Please refer to the documentation of "sw-chart" for proper configuration.
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Component.register('sw-chart-card', {
     template,
     props: {
@@ -24,22 +22,15 @@ Shopware.Component.register('sw-chart-card', {
             default: () => {
                 return defaultRanges;
             },
-            required: false,
-        },
-        cardTitle: {
-            type: String,
-            default: '',
-            required: false,
+            validator(givenValue) {
+                const validRanges = defaultRanges;
+
+                return givenValue.length && givenValue.every((range) => validRanges.includes(range));
+            },
         },
         cardSubtitle: {
             type: String,
             default: '',
-            required: false,
-        },
-        positionIdentifier: {
-            type: String,
-            default: '',
-            required: true,
         },
     },
     data() {

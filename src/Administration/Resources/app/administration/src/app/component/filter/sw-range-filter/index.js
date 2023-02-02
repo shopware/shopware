@@ -4,9 +4,7 @@ import './sw-range-filter.scss';
 const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
-/**
- * @deprecated tag:v6.6.0 - Will be private
- */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-range-filter', {
     template,
 
@@ -29,6 +27,22 @@ Component.register('sw-range-filter', {
             // TODO: Boolean props should only be opt in and therefore default to false
             // eslint-disable-next-line vue/no-boolean-default
             default: true,
+        },
+    },
+
+    computed: {
+        /**
+         * @feature-deprecated (flag:FEATURE_NEXT_7530) will be dropped
+         */
+        columns() {
+            return this.isShowDivider ? '1fr 12px 1fr' : '1fr';
+        },
+
+        /**
+         * @feature-deprecated (flag:FEATURE_NEXT_7530) will be dropped
+         */
+        gap() {
+            return this.isShowDivider ? '4px' : '12px';
         },
     },
 

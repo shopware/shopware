@@ -2,11 +2,9 @@
 
 namespace Shopware\Core\System\Currency\SalesChannel;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
-#[Package('inventory')]
 class CurrencyRouteResponse extends StoreApiResponse
 {
     /**

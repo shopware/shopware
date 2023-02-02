@@ -1,0 +1,102 @@
+@startuml
+' uncomment the line below if you're using computer with a retina display
+' skinparam dpi 300
+!define Table(name,desc) class name as "desc" << (T,#FFAAAA) >>
+!define ForeignTable(name,desc) class name as "desc" << (T,#ada6a6) >>
+!define TranslationTable(name,desc) class name as "desc" << (I,#4286f4) >>
+' we use bold for primary key
+' green color for unique
+' and underscore for not_null
+!define primary_key(x) <b>x</b>
+!define unique(x) <color:green>x</color>
+!define not_null(x) <u>x</u>
+' other tags available:
+' <i></i>
+' <back:COLOR></color>, where color is a color name or html color code
+' (#FFAACC)
+' see: http://plantuml.com/classes.html#More
+hide methods
+hide stereotypes
+hide empty members
+skinparam backgroundColor #FFFFFF
+
+' entities
+
+Table(ShopwareCoreCheckoutDocumentDocumentDefinition, "document\n(Document)") {
+   primary_key(id) id
+   not_null(documentTypeId) foreignKey
+   not_null(fileType) string
+   referencedDocumentId foreignKey
+   not_null(orderId) foreignKey
+   documentMediaFileId foreignKey
+   not_null(orderVersionId) referenceVersion
+   not_null(config) json
+   sent bool
+   static bool
+   not_null(deepLinkCode) string
+   customFields customFields
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+}
+Table(ShopwareCoreCheckoutDocumentAggregateDocumentTypeDocumentTypeDefinition, "document_type\n(Type)") {
+   primary_key(id) id
+   name translated
+   not_null(technicalName) string
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+   customFields translated
+   translated json
+}
+TranslationTable(ShopwareCoreCheckoutDocumentAggregateDocumentTypeTranslationDocumentTypeTranslationDefinition, "document_type_translation\n((Translations))") {
+   not_null(name) string
+   customFields customFields
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+   primary_key(documentTypeId) foreignKey
+   primary_key(languageId) foreignKey
+}
+Table(ShopwareCoreCheckoutDocumentAggregateDocumentBaseConfigDocumentBaseConfigDefinition, "document_base_config\n(Configuration)") {
+   primary_key(id) id
+   not_null(documentTypeId) foreignKey
+   logoId foreignKey
+   not_null(name) string
+   filenamePrefix string
+   filenameSuffix string
+   not_null(global) bool
+   documentNumber numberRange
+   config json
+   not_null(createdAt) createdAt
+   customFields customFields
+   updatedAt updatedAt
+}
+Table(ShopwareCoreCheckoutDocumentAggregateDocumentBaseConfigSalesChannelDocumentBaseConfigSalesChannelDefinition, "document_base_config_sales_channel\n(SalesChannel Configuration)") {
+   primary_key(id) id
+   not_null(documentBaseConfigId) foreignKey
+   salesChannelId foreignKey
+   documentTypeId foreignKey
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+}
+ForeignTable(ShopwareCoreCheckoutOrderOrderDefinition, "order") {
+}
+ForeignTable(ShopwareCoreContentMediaMediaDefinition, "media") {
+}
+ForeignTable(ShopwareCoreSystemLanguageLanguageDefinition, "language") {
+}
+ForeignTable(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channel") {
+}
+
+' relationshipd
+
+ShopwareCoreCheckoutDocumentAggregateDocumentTypeDocumentTypeDefinition --> ShopwareCoreCheckoutDocumentDocumentDefinition
+ShopwareCoreCheckoutDocumentDocumentDefinition --> ShopwareCoreCheckoutOrderOrderDefinition
+ShopwareCoreCheckoutDocumentDocumentDefinition --> ShopwareCoreCheckoutDocumentDocumentDefinition
+ShopwareCoreCheckoutDocumentDocumentDefinition --> ShopwareCoreContentMediaMediaDefinition
+ShopwareCoreCheckoutDocumentAggregateDocumentTypeTranslationDocumentTypeTranslationDefinition --> ShopwareCoreCheckoutDocumentAggregateDocumentTypeDocumentTypeDefinition
+ShopwareCoreCheckoutDocumentAggregateDocumentBaseConfigDocumentBaseConfigDefinition --> ShopwareCoreCheckoutDocumentAggregateDocumentTypeDocumentTypeDefinition
+ShopwareCoreCheckoutDocumentAggregateDocumentBaseConfigSalesChannelDocumentBaseConfigSalesChannelDefinition --> ShopwareCoreCheckoutDocumentAggregateDocumentTypeDocumentTypeDefinition
+ShopwareCoreCheckoutDocumentAggregateDocumentTypeTranslationDocumentTypeTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
+ShopwareCoreCheckoutDocumentAggregateDocumentBaseConfigDocumentBaseConfigDefinition --> ShopwareCoreContentMediaMediaDefinition
+ShopwareCoreCheckoutDocumentAggregateDocumentBaseConfigSalesChannelDocumentBaseConfigSalesChannelDefinition --> ShopwareCoreCheckoutDocumentAggregateDocumentBaseConfigDocumentBaseConfigDefinition
+ShopwareCoreCheckoutDocumentAggregateDocumentBaseConfigSalesChannelDocumentBaseConfigSalesChannelDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
+@enduml

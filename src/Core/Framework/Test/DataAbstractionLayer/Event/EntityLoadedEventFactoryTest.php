@@ -7,7 +7,7 @@ use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -24,7 +24,7 @@ class EntityLoadedEventFactoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private EntityRepository $productRepository;
+    private EntityRepositoryInterface $productRepository;
 
     private IdsCollection $ids;
 
@@ -61,7 +61,9 @@ class EntityLoadedEventFactoryTest extends TestCase
         ]));
         $events = $this->entityLoadedEventFactory->create([$product], Context::createDefaultContext());
 
-        $createdEvents = $events->getEvents()->map(fn (EntityLoadedEvent $event): string => $event->getName());
+        $createdEvents = $events->getEvents()->map(function (EntityLoadedEvent $event): string {
+            return $event->getName();
+        });
         sort($createdEvents);
 
         static::assertEquals([
@@ -80,7 +82,9 @@ class EntityLoadedEventFactoryTest extends TestCase
 
         $events = $this->entityLoadedEventFactory->create([new ProductCollection(), $tax], Context::createDefaultContext());
 
-        $createdEvents = $events->getEvents()->map(fn (EntityLoadedEvent $event): string => $event->getName());
+        $createdEvents = $events->getEvents()->map(function (EntityLoadedEvent $event): string {
+            return $event->getName();
+        });
         sort($createdEvents);
 
         static::assertEquals([

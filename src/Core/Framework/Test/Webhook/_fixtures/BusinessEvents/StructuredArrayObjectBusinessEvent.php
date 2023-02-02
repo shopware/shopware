@@ -3,17 +3,20 @@
 namespace Shopware\Core\Framework\Test\Webhook\_fixtures\BusinessEvents;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\ObjectType;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
-use Shopware\Core\Framework\Event\FlowEventAware;
 
 /**
  * @internal
  */
-class StructuredArrayObjectBusinessEvent implements FlowEventAware, BusinessEventEncoderTestInterface
+class StructuredArrayObjectBusinessEvent implements BusinessEventInterface, BusinessEventEncoderTestInterface
 {
-    private array $inner = [
+    /**
+     * @var array
+     */
+    private $inner = [
         'string' => 'string',
         'bool' => true,
         'int' => 3,

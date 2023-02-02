@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemStockRule;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleConfig;
@@ -20,8 +21,6 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
- * @package business-ops
- *
  * @internal
  *
  * @covers \Shopware\Core\Checkout\Cart\Rule\LineItemStockRule
@@ -99,7 +98,7 @@ class LineItemStockRuleTest extends TestCase
      */
     public function testMatchWithCartRuleScopeWithOneItem(string $operator, int $lineItemStock, bool $matches): void
     {
-        $cart = new Cart('test-token');
+        $cart = new Cart('test-cart', 'test-token');
         $cart->setLineItems(new LineItemCollection([
             $this->createLineItem($lineItemStock),
         ]));
@@ -114,7 +113,7 @@ class LineItemStockRuleTest extends TestCase
     public function testNoMatchWithEmptyCartRuleScope(): void
     {
         $ruleScope = new CartRuleScope(
-            new Cart('test-token'),
+            new Cart('test-cart', 'test-token'),
             static::createMock(SalesChannelContext::class)
         );
 
@@ -128,13 +127,13 @@ class LineItemStockRuleTest extends TestCase
         $matchingLineItem = $this->createLineItem(5, 'matching-line-item');
         $nonMatchingLineItem = $this->createLineItem(2, 'non-matching-line-item');
 
-        $cartMatchingFirst = new Cart('test-token');
+        $cartMatchingFirst = new Cart('test-cart', 'test-token');
         $cartMatchingFirst->setLineItems(new LineItemCollection([
             $matchingLineItem,
             $nonMatchingLineItem,
         ]));
 
-        $cartMatchingLast = new Cart('test-token');
+        $cartMatchingLast = new Cart('test-cart', 'test-token');
         $cartMatchingLast->setLineItems(new LineItemCollection([
             $nonMatchingLineItem,
             $matchingLineItem,
@@ -153,7 +152,7 @@ class LineItemStockRuleTest extends TestCase
 
     public function testNoMatchIfNoLineItemMatches(): void
     {
-        $cart = new Cart('test-token');
+        $cart = new Cart('test-cart', 'test-token');
         $cart->setLineItems(new LineItemCollection([
             $this->createLineItem(2, 'non-matching-with-2'),
             $this->createLineItem(9, 'non-matching-with-9'),
@@ -166,13 +165,37 @@ class LineItemStockRuleTest extends TestCase
         );
     }
 
-    public function testMatchesIfNoDeliveryStatusIsSetAndRuleUsesNegativeOperatorIn6500(): void
+    public function testNoMatchWithLineItemsWithoutStock(): void
     {
+        Feature::skipTestIfActive('v6.5.0.0', $this);
+
         $lineItem = new LineItem('test-id', LineItem::DISCOUNT_LINE_ITEM);
 
         static::assertNull($lineItem->getDeliveryInformation());
 
-        $cart = new Cart('some-token');
+        $cart = new Cart('test-cart', 'some-token');
+        $cart->setLineItems(new LineItemCollection([$lineItem]));
+
+        $rule = new LineItemStockRule(Rule::OPERATOR_EQ, 5);
+
+        static::assertFalse(
+            $rule->match(new LineItemScope($lineItem, static::createMock(SalesChannelContext::class)))
+        );
+
+        static::assertFalse(
+            $rule->match(new CartRuleScope($cart, static::createMock(SalesChannelContext::class)))
+        );
+    }
+
+    public function testMatchesIfNoDeliveryStatusIsSetAndRuleUsesNegativeOperatorIn6500(): void
+    {
+        Feature::skipTestIfInActive('v6.5.0.0', $this);
+
+        $lineItem = new LineItem('test-id', LineItem::DISCOUNT_LINE_ITEM);
+
+        static::assertNull($lineItem->getDeliveryInformation());
+
+        $cart = new Cart('test-cart', 'some-token');
         $cart->setLineItems(new LineItemCollection([$lineItem]));
 
         $lineItemScope = new LineItemScope($lineItem, static::createMock(SalesChannelContext::class));

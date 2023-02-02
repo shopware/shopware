@@ -4,12 +4,13 @@ namespace Shopware\Core\Content\Media\Pathname\PathnameStrategy;
 
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\MediaEntity;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('content')]
 abstract class AbstractPathNameStrategy implements PathnameStrategyInterface
 {
-    private array $blacklist = [
+    /**
+     * @var array
+     */
+    private $blacklist = [
         'ad' => 'g0',
     ];
 
@@ -48,7 +49,9 @@ abstract class AbstractPathNameStrategy implements PathnameStrategyInterface
 
         $md5hashSlices = \array_slice(str_split($md5hash, 2), 0, 3);
         $md5hashSlices = array_map(
-            fn ($slice) => \array_key_exists($slice, $this->blacklist) ? $this->blacklist[$slice] : $slice,
+            function ($slice) {
+                return \array_key_exists($slice, $this->blacklist) ? $this->blacklist[$slice] : $slice;
+            },
             $md5hashSlices
         );
 

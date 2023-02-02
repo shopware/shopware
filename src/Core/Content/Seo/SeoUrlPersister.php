@@ -9,29 +9,40 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-#[Package('sales-channel')]
 class SeoUrlPersister
 {
+    private Connection $connection;
+
+    private EntityRepositoryInterface $seoUrlRepository;
+
+    private EventDispatcherInterface $eventDispatcher;
+
     /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection, private readonly EntityRepository $seoUrlRepository, private readonly EventDispatcherInterface $eventDispatcher)
-    {
+    public function __construct(
+        Connection $connection,
+        EntityRepositoryInterface $seoUrlRepository,
+        EventDispatcherInterface $eventDispatcher
+    ) {
+        $this->connection = $connection;
+        $this->seoUrlRepository = $seoUrlRepository;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
-     * @param list<string> $foreignKeys
-     * @param iterable<array<mixed>|Entity> $seoUrls
+     * @feature-deprecated (flag:FEATURE_NEXT_13410) Parameter $salesChannel will be required
      */
-    public function updateSeoUrls(Context $context, string $routeName, array $foreignKeys, iterable $seoUrls, SalesChannelEntity $salesChannel): void
+    public function updateSeoUrls(Context $context, string $routeName, array $foreignKeys, iterable $seoUrls/*, SalesChannelEntity $salesChannel*/): void
     {
+        /** @var SalesChannelEntity|null $salesChannel */
+        $salesChannel = \func_num_args() === 5 ? func_get_arg(4) : null;
+
         $languageId = $context->getLanguageId();
         $canonicals = $this->findCanonicalPaths($routeName, $languageId, $foreignKeys);
         $dateTime = (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
@@ -42,7 +53,8 @@ class SeoUrlPersister
 
         $processed = [];
 
-        $salesChannelId = $salesChannel->getId();
+        // should be provided
+        $salesChannelId = $salesChannel ? $salesChannel->getId() : null;
         $updates = [];
         foreach ($seoUrls as $seoUrl) {
             if ($seoUrl instanceof \JsonSerializable) {
@@ -51,7 +63,8 @@ class SeoUrlPersister
             $updates[] = $seoUrl;
 
             $fk = $seoUrl['foreignKey'];
-            $salesChannelId = $seoUrl['salesChannelId'] ??= null;
+            /** @var string|null $salesChannelId */
+            $salesChannelId = $seoUrl['salesChannelId'] = $seoUrl['salesChannelId'] ?? null;
 
             // skip duplicates
             if (isset($processed[$fk][$salesChannelId])) {
@@ -71,7 +84,6 @@ class SeoUrlPersister
 
             if ($existing) {
                 // entity has override or does not change
-                /** @var array{isModified: bool, seoPathInfo: string, salesChannelId: string} $seoUrl */
                 if ($this->skipUpdate($existing, $seoUrl)) {
                     continue;
                 }
@@ -88,7 +100,7 @@ class SeoUrlPersister
             $insert['foreign_key'] = Uuid::fromHexToBytes($fk);
 
             $insert['path_info'] = $seoUrl['pathInfo'];
-            $insert['seo_path_info'] = ltrim((string) $seoUrl['seoPathInfo'], '/');
+            $insert['seo_path_info'] = ltrim($seoUrl['seoPathInfo'], '/');
 
             $insert['route_name'] = $routeName;
             $insert['is_canonical'] = ($seoUrl['isCanonical'] ?? true) ? 1 : null;
@@ -100,25 +112,25 @@ class SeoUrlPersister
             $insertQuery->addInsert($this->seoUrlRepository->getDefinition()->getEntityName(), $insert);
         }
 
-        RetryableTransaction::retryable($this->connection, function () use ($obsoleted, $insertQuery, $foreignKeys, $updatedFks, $salesChannelId): void {
+        RetryableTransaction::retryable($this->connection, function () use ($obsoleted, $dateTime, $insertQuery, $foreignKeys, $updatedFks, $salesChannelId): void {
             $this->obsoleteIds($obsoleted, $salesChannelId);
             $insertQuery->execute();
 
             $deletedIds = array_diff($foreignKeys, $updatedFks);
             $notDeletedIds = array_unique(array_intersect($foreignKeys, $updatedFks));
 
-            $this->markAsDeleted(true, $deletedIds, $salesChannelId);
-            $this->markAsDeleted(false, $notDeletedIds, $salesChannelId);
+            $this->markAsDeleted(true, $deletedIds, $dateTime, $salesChannelId);
+            $this->markAsDeleted(false, $notDeletedIds, $dateTime, $salesChannelId);
         });
 
         $this->eventDispatcher->dispatch(new SeoUrlUpdateEvent($updates));
     }
 
     /**
-     * @param array{isModified: bool, seoPathInfo: string, salesChannelId: string} $existing
-     * @param array{isModified: bool, seoPathInfo: string, salesChannelId: string} $seoUrl
+     * @param array{'isModified': bool, 'seoPathInfo': string, 'salesChannelId': string} $existing
+     * @param array{'isModified': bool, 'seoPathInfo': string, 'salesChannelId': string} $seoUrl
      */
-    private function skipUpdate(array $existing, array $seoUrl): bool
+    private function skipUpdate($existing, $seoUrl): bool
     {
         if ($existing['isModified'] && !($seoUrl['isModified'] ?? false) && trim($seoUrl['seoPathInfo']) !== '') {
             return true;
@@ -128,11 +140,6 @@ class SeoUrlPersister
             && $seoUrl['salesChannelId'] === $existing['salesChannelId'];
     }
 
-    /**
-     * @param list<string> $foreignKeys
-     *
-     * @return array<string, mixed>
-     */
     private function findCanonicalPaths(string $routeName, string $languageId, array $foreignKeys): array
     {
         $fks = Uuid::fromHexToBytesList($foreignKeys);
@@ -157,25 +164,24 @@ class SeoUrlPersister
         $query->setParameter('language_id', $languageId);
         $query->setParameter('foreign_keys', $fks, Connection::PARAM_STR_ARRAY);
 
-        $rows = $query->executeQuery()->fetchAllAssociative();
+        $rows = $query->execute()->fetchAll();
 
         $canonicals = [];
         foreach ($rows as $row) {
             $row['isModified'] = (bool) $row['isModified'];
-            $foreignKey = (string) $row['foreignKey'];
-            if (!isset($canonicals[$foreignKey])) {
-                $canonicals[$foreignKey] = [$row['salesChannelId'] => $row];
+            if (!isset($canonicals[$row['foreignKey']])) {
+                $canonicals[$row['foreignKey']] = [$row['salesChannelId'] => $row];
 
                 continue;
             }
-            $canonicals[$foreignKey][$row['salesChannelId']] = $row;
+            $canonicals[$row['foreignKey']][$row['salesChannelId']] = $row;
         }
 
         return $canonicals;
     }
 
     /**
-     * @param list<string> $ids
+     * @internal (flag:FEATURE_NEXT_13410) Parameter $salesChannelId will be required
      */
     private function obsoleteIds(array $ids, ?string $salesChannelId): void
     {
@@ -197,14 +203,14 @@ class SeoUrlPersister
         }
 
         RetryableQuery::retryable($this->connection, function () use ($query): void {
-            $query->executeStatement();
+            $query->execute();
         });
     }
 
     /**
-     * @param list<string> $ids
+     * @internal (flag:FEATURE_NEXT_13410) Parameter $salesChannelId will be required
      */
-    private function markAsDeleted(bool $deleted, array $ids, ?string $salesChannelId): void
+    private function markAsDeleted(bool $deleted, array $ids, string $dateTime, ?string $salesChannelId): void
     {
         if (empty($ids)) {
             return;
@@ -222,6 +228,6 @@ class SeoUrlPersister
             $query->setParameter('salesChannelId', Uuid::fromHexToBytes($salesChannelId));
         }
 
-        $query->executeStatement();
+        $query->execute();
     }
 }

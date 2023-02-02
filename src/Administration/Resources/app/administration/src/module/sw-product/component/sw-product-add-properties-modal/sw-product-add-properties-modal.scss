@@ -30,7 +30,7 @@ $background-color: $color-gray-100;
 
     &__content .sw-grid .sw-grid__cell-content {
         min-height: 0;
-        line-height: $line-height-sm;
+        line-height: 20px;
         padding: 10px 30px;
     }
 
@@ -45,7 +45,7 @@ $background-color: $color-gray-100;
     }
 
     &__property-selected {
-        font-size: $font-size-xs;
+        font-size: $font-size-small;
     }
 
     &__property-values .sw-grid__cell .sw-grid__cell-content {
@@ -58,7 +58,7 @@ $background-color: $color-gray-100;
 
     .sw-empty-state .sw-empty-state__title {
         margin-bottom: 0;
-        font-size: $font-size-s;
+        font-size: $font-size-default;
     }
 
     .sw-property-search {

@@ -8,52 +8,121 @@ use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\ContextSource;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\StateAwareTrait;
 use Shopware\Core\Framework\Struct\Struct;
-use Shopware\Core\System\SalesChannel\Exception\ContextRulesLockedException;
 
-#[Package('core')]
 class Context extends Struct
 {
     use StateAwareTrait;
 
-    final public const SYSTEM_SCOPE = 'system';
-    final public const USER_SCOPE = 'user';
-    final public const CRUD_API_SCOPE = 'crud';
+    public const SYSTEM_SCOPE = 'system';
+    public const USER_SCOPE = 'user';
+    public const CRUD_API_SCOPE = 'crud';
 
-    final public const SKIP_TRIGGER_FLOW = 'skipTriggerFlow';
+    /**
+     * @deprecated tag:v6.5.0 - Use `\Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria::STATE_ELASTICSEARCH_AWARE` on Criteria instead
+     */
+    public const STATE_ELASTICSEARCH_AWARE = 'elasticsearchAware';
+    public const SKIP_TRIGGER_FLOW = 'skipTriggerFlow';
 
     /**
      * @var non-empty-array<string>
+     *
+     * @deprecated tag:v6.5.0 prop will be natively typed as `array` in future versions
      */
-    protected array $languageIdChain;
+    protected $languageIdChain;
 
-    protected string $scope = self::USER_SCOPE;
+    /**
+     * @var string
+     *
+     * @deprecated tag:v6.5.0 prop will be natively typed as `string` in future versions
+     */
+    protected $versionId;
 
-    protected bool $rulesLocked = false;
+    /**
+     * @var string
+     *
+     * @deprecated tag:v6.5.0 prop will be natively typed as `string` in future versions
+     */
+    protected $currencyId;
+
+    /**
+     * @var float
+     *
+     * @deprecated tag:v6.5.0 prop will be natively typed as `float` in future versions
+     */
+    protected $currencyFactor;
+
+    /**
+     * @var string
+     *
+     * @deprecated tag:v6.5.0 prop will be natively typed as `string` in future versions
+     */
+    protected $scope = self::USER_SCOPE;
+
+    /**
+     * @var array<string>
+     *
+     * @deprecated tag:v6.5.0 prop will be natively typed as `array` in future versions
+     */
+    protected $ruleIds;
+
+    /**
+     * @var ContextSource
+     *
+     * @deprecated tag:v6.5.0 prop will be natively typed as `ContextSource` in future versions
+     */
+    protected $source;
+
+    /**
+     * @var bool
+     *
+     * @deprecated tag:v6.5.0 prop will be natively typed as `bool` in future versions
+     */
+    protected $considerInheritance;
+
+    /**
+     * @see CartPrice::TAX_STATE_GROSS, CartPrice::TAX_STATE_NET, CartPrice::TAX_STATE_FREE
+     *
+     * @var string
+     *
+     * @deprecated tag:v6.5.0 prop will be natively typed as `string` in future versions
+     */
+    protected $taxState = CartPrice::TAX_STATE_GROSS;
+
+    /**
+     * @var CashRoundingConfig
+     *
+     * @deprecated tag:v6.5.0 prop will be natively typed as `CashRoundingConfig` in future versions
+     */
+    protected $rounding;
 
     /**
      * @param array<string> $languageIdChain
      * @param array<string> $ruleIds
      */
     public function __construct(
-        protected ContextSource $source,
-        protected array $ruleIds = [],
-        protected string $currencyId = Defaults::CURRENCY,
+        ContextSource $source,
+        array $ruleIds = [],
+        string $currencyId = Defaults::CURRENCY,
         array $languageIdChain = [Defaults::LANGUAGE_SYSTEM],
-        protected string $versionId = Defaults::LIVE_VERSION,
-        protected float $currencyFactor = 1.0,
-        protected bool $considerInheritance = false,
-        /**
-         * @see CartPrice::TAX_STATE_GROSS, CartPrice::TAX_STATE_NET, CartPrice::TAX_STATE_FREE
-         */
-        protected string $taxState = CartPrice::TAX_STATE_GROSS,
-        protected CashRoundingConfig $rounding = new CashRoundingConfig(2, 0.01, true)
+        string $versionId = Defaults::LIVE_VERSION,
+        float $currencyFactor = 1.0,
+        bool $considerInheritance = false,
+        string $taxState = CartPrice::TAX_STATE_GROSS,
+        ?CashRoundingConfig $rounding = null
     ) {
+        $this->source = $source;
+
         if ($source instanceof SystemSource) {
             $this->scope = self::SYSTEM_SCOPE;
         }
+
+        $this->ruleIds = $ruleIds;
+        $this->currencyId = $currencyId;
+
+        $this->versionId = $versionId;
+        $this->currencyFactor = $currencyFactor;
 
         if (empty($languageIdChain)) {
             throw new \InvalidArgumentException('Argument languageIdChain must not be empty');
@@ -62,6 +131,9 @@ class Context extends Struct
         /** @var non-empty-array<string> $chain */
         $chain = array_keys(array_flip(array_filter($languageIdChain)));
         $this->languageIdChain = $chain;
+        $this->considerInheritance = $considerInheritance;
+        $this->taxState = $taxState;
+        $this->rounding = $rounding ?? new CashRoundingConfig(2, 0.01, true);
     }
 
     /**
@@ -69,7 +141,7 @@ class Context extends Struct
      */
     public static function createDefaultContext(?ContextSource $source = null): self
     {
-        $source ??= new SystemSource();
+        $source = $source ?? new SystemSource();
 
         return new self($source);
     }
@@ -193,10 +265,6 @@ class Context extends Struct
      */
     public function setRuleIds(array $ruleIds): void
     {
-        if ($this->rulesLocked) {
-            throw new ContextRulesLockedException();
-        }
-
         $this->ruleIds = array_filter(array_values($ruleIds));
     }
 
@@ -239,10 +307,5 @@ class Context extends Struct
     public function setRounding(CashRoundingConfig $rounding): void
     {
         $this->rounding = $rounding;
-    }
-
-    public function lockRules(): void
-    {
-        $this->rulesLocked = true;
     }
 }

@@ -11,13 +11,11 @@
         v-bind="$attrs"
         :required="required"
         :disabled="disabled"
-        :error="error"
         validation="required"
         @focus="onStartEditing"
         @blur="onBlurField"
         @keyup.enter="onSubmitFromKey"
         @keyup.esc="onCancelFromKey"
-        @input="onInput"
     />
     {% endblock %}
 

@@ -1,0 +1,17 @@
+@import "~scss/variables";
+
+.sw-external-link.sw-dashboard-external-link {
+    display: block;
+    margin-bottom: 16px;
+    color: $color-darkgray-200;
+    text-decoration: none;
+    font-size: $font-size-large;
+
+    .sw-icon svg {
+        color: $color-shopware-brand-500;
+    }
+
+    &:hover {
+        color: $color-shopware-brand-500;
+    }
+}

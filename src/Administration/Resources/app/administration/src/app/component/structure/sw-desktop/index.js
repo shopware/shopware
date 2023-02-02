@@ -5,8 +5,6 @@ const { Component } = Shopware;
 const { hasOwnProperty } = Shopware.Utils.object;
 
 /**
- * @package admin
- *
  * @private
  */
 Component.register('sw-desktop', {

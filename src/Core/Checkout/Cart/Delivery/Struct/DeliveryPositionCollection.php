@@ -5,13 +5,11 @@ namespace Shopware\Core\Checkout\Cart\Delivery\Struct;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
  * @extends Collection<DeliveryPosition>
  */
-#[Package('checkout')]
 class DeliveryPositionCollection extends Collection
 {
     /**
@@ -49,7 +47,9 @@ class DeliveryPositionCollection extends Collection
     public function getPrices(): PriceCollection
     {
         return new PriceCollection(
-            array_map(static fn (DeliveryPosition $position) => $position->getPrice(), $this->elements)
+            array_map(static function (DeliveryPosition $position) {
+                return $position->getPrice();
+            }, $this->elements)
         );
     }
 
@@ -57,7 +57,9 @@ class DeliveryPositionCollection extends Collection
     {
         return new LineItemCollection(
             array_map(
-                fn (DeliveryPosition $position) => $position->getLineItem(),
+                function (DeliveryPosition $position) {
+                    return $position->getLineItem();
+                },
                 $this->elements
             )
         );
@@ -78,7 +80,9 @@ class DeliveryPositionCollection extends Collection
 
     public function getQuantity(): float
     {
-        $quantities = $this->map(fn (DeliveryPosition $position) => $position->getQuantity());
+        $quantities = $this->map(function (DeliveryPosition $position) {
+            return $position->getQuantity();
+        });
 
         return array_sum($quantities);
     }

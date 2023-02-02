@@ -8,20 +8,18 @@ use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Rule\BillingZipCodeRule;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
  */
-#[Package('business-ops')]
 class BillingZipCodeRuleTest extends TestCase
 {
     public function testEqualsWithSingleCode(): void
     {
         $rule = (new BillingZipCodeRule())->assign(['zipCodes' => ['ABC123']]);
 
-        $cart = new Cart('test');
+        $cart = new Cart('test', 'test');
 
         $context = $this->createMock(SalesChannelContext::class);
 
@@ -44,7 +42,7 @@ class BillingZipCodeRuleTest extends TestCase
     {
         $rule = (new BillingZipCodeRule())->assign(['zipCodes' => ['ABC1', 'ABC2', 'ABC3']]);
 
-        $cart = new Cart('test');
+        $cart = new Cart('test', 'test');
 
         $context = $this->createMock(SalesChannelContext::class);
 
@@ -67,7 +65,7 @@ class BillingZipCodeRuleTest extends TestCase
     {
         $rule = (new BillingZipCodeRule())->assign(['zipCodes' => ['ABC1', 'ABC2', 'ABC3']]);
 
-        $cart = new Cart('test');
+        $cart = new Cart('test', 'test');
 
         $context = $this->createMock(SalesChannelContext::class);
 
@@ -90,7 +88,7 @@ class BillingZipCodeRuleTest extends TestCase
     {
         $rule = (new BillingZipCodeRule())->assign(['zipCodes' => ['ABC1', 'ABC2', 'ABC3']]);
 
-        $cart = new Cart('test');
+        $cart = new Cart('test', 'test');
 
         $context = $this->createMock(SalesChannelContext::class);
 

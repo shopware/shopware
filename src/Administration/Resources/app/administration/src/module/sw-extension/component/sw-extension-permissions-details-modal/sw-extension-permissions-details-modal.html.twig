@@ -70,14 +70,14 @@
                         <sw-icon
                             v-if="permissions.includes(operation.operation)"
                             name="regular-checkmark-xs"
-                            size="12px"
+                            :small="true"
                             color="#37D046"
                         />
 
                         <sw-icon
                             v-else-if="category !== 'additional_privileges'"
                             name="regular-times-s"
-                            size="12px"
+                            :small="true"
                             color="#DE294C"
                         />
                     </td>

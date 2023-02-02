@@ -12,11 +12,8 @@ const { mapState, mapGetters } = Component.getComponentHelper();
 const { snakeCase } = utils.string;
 const { Criteria } = Shopware.Data;
 
-/**
- * @private
- * @package business-ops
- */
-export default {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+Component.register('sw-flow-sequence-action', {
     template,
 
     inject: ['repositoryFactory', 'flowBuilderService', 'feature'],
@@ -39,6 +36,7 @@ export default {
 
     data() {
         return {
+            showAddButton: true,
             fieldError: null,
             selectedAction: '',
             currentSequence: {},
@@ -81,7 +79,7 @@ export default {
                 const appGroup = this.actionGroups.find(group => group === action?.app?.name);
                 if (!appGroup) {
                     groups.unshift({
-                        id: `${action?.app?.name[0].toLowerCase()}${action?.app?.name.slice(1)}`,
+                        id: action?.app?.name[0].toLowerCase() + action?.app?.name.slice(1),
                         label: action?.app?.label,
                     });
                 }
@@ -118,12 +116,7 @@ export default {
         actionClasses() {
             return {
                 'is--stop-flow': !this.showAddAction,
-                'has--arrow': this.errorArrow,
             };
-        },
-
-        errorArrow() {
-            return !this.isValidAction(this.sequence) && this.sequence.actionName && this.sequence.trueBlock;
         },
 
         modalName() {
@@ -158,8 +151,7 @@ export default {
             };
         },
 
-        ...mapState(
-            'swFlowState',
+        ...mapState('swFlowState',
             [
                 'invalidSequences',
                 'stateMachineState',
@@ -169,9 +161,7 @@ export default {
                 'customFieldSets',
                 'customFields',
                 'triggerEvent',
-                'triggerActions',
-            ],
-        ),
+            ]),
         ...mapGetters('swFlowState', ['availableActions', 'actionGroups', 'sequences']),
     },
 
@@ -189,6 +179,7 @@ export default {
 
     methods: {
         createdComponent() {
+            this.showAddButton = this.sequenceData.length > 1 || !!this.sequence?.actionName;
             this.getAppFlowAction();
         },
 
@@ -290,6 +281,7 @@ export default {
             }
 
             this.removeFieldError();
+            this.toggleAddButton();
         },
 
         editAction(action) {
@@ -357,20 +349,8 @@ export default {
             State.commit('swFlowState/updateSequence', { id: action.id, position: moveActionClone.position });
         },
 
-        onEditAction(sequence, target, key) {
-            if (sequence.actionName && sequence.actionName === ACTION.STOP_FLOW) {
-                return;
-            }
-
-            if (!this.$refs.contextButton[key]) {
-                return;
-            }
-
-            if (!sequence?.actionName || !target) {
-                return;
-            }
-
-            if (this.$refs.contextButton[key].$el.contains(target)) {
+        onEditAction(sequence) {
+            if (!sequence?.actionName) {
                 return;
             }
 
@@ -400,7 +380,7 @@ export default {
                     iconRaw: appAction.icon,
                     value: appAction.name,
                     disabled: !appAction.app?.active,
-                    group: `${appAction.app?.name[0].toLowerCase()}${appAction.app?.name.slice(1)}`,
+                    group: appAction.app?.name[0].toLowerCase() + appAction.app?.name.slice(1),
                 };
             }
 
@@ -418,6 +398,10 @@ export default {
             return this.appFlowActionRepository.search(criteria, Shopware.Context.api).then((response) => {
                 this.appFlowActions = response;
             });
+        },
+
+        toggleAddButton() {
+            this.showAddButton = !this.showAddButton;
         },
 
         sortByPosition(sequences) {
@@ -715,13 +699,5 @@ export default {
 
             return actions;
         },
-
-        isValidAction(action) {
-            if (!this.triggerActions.length || !action.actionName) {
-                return true;
-            }
-
-            return this.triggerActions.find(item => item.name === action.actionName);
-        },
     },
-};
+});

@@ -4,10 +4,8 @@ declare(strict_types=1);
 namespace Shopware\Core\Framework\DataAbstractionLayer\Cache;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('core')]
 class EntityCacheKeyGenerator
 {
     public static function buildCmsTag(string $id): string
@@ -25,21 +23,16 @@ class EntityCacheKeyGenerator
         return 'product-stream-' . $id;
     }
 
-    /**
-     * @param string[] $areas
-     */
-    public function getSalesChannelContextHash(SalesChannelContext $context, array $areas = []): string
+    public function getSalesChannelContextHash(SalesChannelContext $context): string
     {
-        $ruleIds = $context->getRuleIdsByAreas($areas);
-
         return md5((string) json_encode([
             $context->getSalesChannelId(),
             $context->getDomainId(),
             $context->getLanguageIdChain(),
             $context->getVersionId(),
             $context->getCurrencyId(),
-            $ruleIds,
-        ], \JSON_THROW_ON_ERROR));
+            $context->getRuleIds(),
+        ]));
     }
 
     public function getCriteriaHash(Criteria $criteria): string
@@ -57,6 +50,6 @@ class EntityCacheKeyGenerator
             $criteria->getGroupFields(),
             $criteria->getAggregations(),
             $criteria->getAssociations(),
-        ], \JSON_THROW_ON_ERROR));
+        ]));
     }
 }

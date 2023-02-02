@@ -3,13 +3,9 @@
 namespace Shopware\Core\Migration\V6_4;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Log\Package;
+use Doctrine\DBAL\FetchMode;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
-/**
- * @internal
- */
-#[Package('core')]
 class Migration1614765170UpdateAppModulesWithNavigationInformation extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -19,8 +15,7 @@ class Migration1614765170UpdateAppModulesWithNavigationInformation extends Migra
 
     public function update(Connection $connection): void
     {
-        /** @var list<array{id: string, modules: string|null}> $apps */
-        $apps = $connection->executeQuery('SELECT `id`, `modules` FROM `app`')->fetchAllAssociative();
+        $apps = $connection->executeQuery('SELECT `id`, `modules` FROM `app`')->fetchAll(FetchMode::ASSOCIATIVE);
 
         $preparedModules = $this->prepareModules($apps);
 
@@ -32,11 +27,6 @@ class Migration1614765170UpdateAppModulesWithNavigationInformation extends Migra
         // implement update destructive
     }
 
-    /**
-     * @param list<array{id: string, modules: string|null}> $apps
-     *
-     * @return list<array{id: string, modules: string|null}>
-     */
     private function prepareModules(array $apps): array
     {
         return array_map(static function (array $app) {
@@ -44,7 +34,7 @@ class Migration1614765170UpdateAppModulesWithNavigationInformation extends Migra
                 return $app;
             }
 
-            $modules = json_decode((string) $app['modules'], true, 512, \JSON_THROW_ON_ERROR);
+            $modules = json_decode($app['modules'], true);
 
             if (!\is_array($modules)) {
                 return $app;
@@ -57,14 +47,11 @@ class Migration1614765170UpdateAppModulesWithNavigationInformation extends Migra
 
             return [
                 'id' => $app['id'],
-                'modules' => json_encode($modules, \JSON_THROW_ON_ERROR),
+                'modules' => json_encode($modules),
             ];
         }, $apps);
     }
 
-    /**
-     * @param list<array{id: string, modules: string|null}> $preparedModules
-     */
     private function updateModules(array $preparedModules, Connection $connection): void
     {
         $connection->beginTransaction();
@@ -73,7 +60,7 @@ class Migration1614765170UpdateAppModulesWithNavigationInformation extends Migra
 
         try {
             foreach ($preparedModules as $prepared) {
-                $statement->executeStatement([
+                $statement->execute([
                     'id' => $prepared['id'],
                     'modules' => $prepared['modules'],
                 ]);

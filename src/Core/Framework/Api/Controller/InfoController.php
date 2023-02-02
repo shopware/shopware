@@ -10,13 +10,13 @@ use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Increment\Exception\IncrementGatewayNotFoundException;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
 use Shopware\Core\Kernel;
-use Shopware\Core\Maintenance\System\Service\AppUrlVerifier;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Asset\PackageInterface;
@@ -27,20 +27,67 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Route(defaults: ['_routeScope' => ['api']])]
-#[Package('core')]
+/**
+ * @Route(defaults={"_routeScope"={"api"}})
+ */
 class InfoController extends AbstractController
 {
+    private DefinitionService $definitionService;
+
+    private ParameterBagInterface $params;
+
+    private Packages $packages;
+
+    private Kernel $kernel;
+
+    private bool $enableUrlFeature;
+
+    /**
+     * @var array{administration?: string}
+     */
+    private array $cspTemplates;
+
+    private BusinessEventCollector $eventCollector;
+
+    private ?FlowActionCollector $flowActionCollector;
+
+    private IncrementGatewayRegistry $incrementGatewayRegistry;
+
+    private Connection $connection;
+
     /**
      * @param array{administration?: string} $cspTemplates
      *
      * @internal
      */
-    public function __construct(private readonly DefinitionService $definitionService, private readonly ParameterBagInterface $params, private readonly Kernel $kernel, private readonly Packages $packages, private readonly BusinessEventCollector $eventCollector, private readonly IncrementGatewayRegistry $incrementGatewayRegistry, private readonly Connection $connection, private readonly AppUrlVerifier $appUrlVerifier, private readonly ?FlowActionCollector $flowActionCollector = null, private readonly bool $enableUrlFeature = true, private readonly array $cspTemplates = [])
-    {
+    public function __construct(
+        DefinitionService $definitionService,
+        ParameterBagInterface $params,
+        Kernel $kernel,
+        Packages $packages,
+        BusinessEventCollector $eventCollector,
+        IncrementGatewayRegistry $incrementGatewayRegistry,
+        Connection $connection,
+        ?FlowActionCollector $flowActionCollector = null,
+        bool $enableUrlFeature = true,
+        array $cspTemplates = []
+    ) {
+        $this->definitionService = $definitionService;
+        $this->params = $params;
+        $this->packages = $packages;
+        $this->kernel = $kernel;
+        $this->enableUrlFeature = $enableUrlFeature;
+        $this->flowActionCollector = $flowActionCollector;
+        $this->cspTemplates = $cspTemplates;
+        $this->eventCollector = $eventCollector;
+        $this->incrementGatewayRegistry = $incrementGatewayRegistry;
+        $this->connection = $connection;
     }
 
-    #[Route(path: '/api/_info/openapi3.json', defaults: ['auth_required' => '%shopware.api.api_browser.auth_required_str%'], name: 'api.info.openapi3', methods: ['GET'])]
+    /**
+     * @Since("6.0.0.0")
+     * @Route("/api/_info/openapi3.json", defaults={"auth_required"="%shopware.api.api_browser.auth_required_str%"}, name="api.info.openapi3", methods={"GET"})
+     */
     public function info(Request $request): JsonResponse
     {
         $apiType = $request->query->getAlpha('type', DefinitionService::TypeJsonApi);
@@ -55,12 +102,15 @@ class InfoController extends AbstractController
         return new JsonResponse($data);
     }
 
-    #[Route(path: '/api/_info/queue.json', name: 'api.info.queue', methods: ['GET'])]
+    /**
+     * @Since("6.4.6.0")
+     * @Route("/api/_info/queue.json", name="api.info.queue", methods={"GET"})
+     */
     public function queue(): JsonResponse
     {
         try {
             $gateway = $this->incrementGatewayRegistry->get(IncrementGatewayRegistry::MESSAGE_QUEUE_POOL);
-        } catch (IncrementGatewayNotFoundException) {
+        } catch (IncrementGatewayNotFoundException $exception) {
             // In case message_queue pool is disabled
             return new JsonResponse([]);
         }
@@ -68,13 +118,18 @@ class InfoController extends AbstractController
         // Fetch unlimited message_queue_stats
         $entries = $gateway->list('message_queue_stats', -1);
 
-        return new JsonResponse(array_map(fn (array $entry) => [
-            'name' => $entry['key'],
-            'size' => (int) $entry['count'],
-        ], array_values($entries)));
+        return new JsonResponse(array_map(function (array $entry) {
+            return [
+                'name' => $entry['key'],
+                'size' => (int) $entry['count'],
+            ];
+        }, array_values($entries)));
     }
 
-    #[Route(path: '/api/_info/open-api-schema.json', defaults: ['auth_required' => '%shopware.api.api_browser.auth_required_str%'], name: 'api.info.open-api-schema', methods: ['GET'])]
+    /**
+     * @Since("6.0.0.0")
+     * @Route("/api/_info/open-api-schema.json", defaults={"auth_required"="%shopware.api.api_browser.auth_required_str%"}, name="api.info.open-api-schema", methods={"GET"})
+     */
     public function openApiSchema(): JsonResponse
     {
         $data = $this->definitionService->getSchema(OpenApi3Generator::FORMAT, DefinitionService::API);
@@ -82,7 +137,10 @@ class InfoController extends AbstractController
         return new JsonResponse($data);
     }
 
-    #[Route(path: '/api/_info/entity-schema.json', name: 'api.info.entity-schema', methods: ['GET'])]
+    /**
+     * @Since("6.0.0.0")
+     * @Route("/api/_info/entity-schema.json", name="api.info.entity-schema", methods={"GET"})
+     */
     public function entitySchema(): JsonResponse
     {
         $data = $this->definitionService->getSchema(EntitySchemaGenerator::FORMAT, DefinitionService::API);
@@ -90,15 +148,21 @@ class InfoController extends AbstractController
         return new JsonResponse($data);
     }
 
-    #[Route(path: '/api/_info/events.json', name: 'api.info.business-events', methods: ['GET'])]
+    /**
+     * @Since("6.3.2.0")
+     * @Route("/api/_info/events.json", name="api.info.business-events", methods={"GET"})
+     */
     public function businessEvents(Context $context): JsonResponse
     {
         $events = $this->eventCollector->collect($context);
 
-        return new JsonResponse($events);
+        return $this->json($events);
     }
 
-    #[Route(path: '/api/_info/swagger.html', defaults: ['auth_required' => '%shopware.api.api_browser.auth_required_str%'], name: 'api.info.swagger', methods: ['GET'])]
+    /**
+     * @Since("6.0.0.0")
+     * @Route("/api/_info/swagger.html", defaults={"auth_required"="%shopware.api.api_browser.auth_required_str%"}, name="api.info.swagger", methods={"GET"})
+     */
     public function infoHtml(Request $request): Response
     {
         $nonce = $request->attributes->get(PlatformRequest::ATTRIBUTE_CSP_NONCE);
@@ -123,9 +187,23 @@ class InfoController extends AbstractController
         return $response;
     }
 
-    #[Route(path: '/api/_info/config', name: 'api.info.config', methods: ['GET'])]
-    public function config(Context $context, Request $request): JsonResponse
+    /**
+     * @Since("6.0.0.0")
+     * @Route("/api/_info/config", name="api.info.config", methods={"GET"})
+     *
+     * @deprecated tag:v6.5.0 $context param will be required
+     */
+    public function config(?Context $context = null): JsonResponse
     {
+        if (!$context) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.5.0.0',
+                'First parameter `$context` will be required in method `config()` in `InfoController` in v6.5.0.0'
+            );
+
+            $context = Context::createDefaultContext();
+        }
+
         return new JsonResponse([
             'version' => $this->params->get('kernel.shopware_version'),
             'versionRevision' => $this->params->get('kernel.shopware_version_revision'),
@@ -136,15 +214,15 @@ class InfoController extends AbstractController
             'bundles' => $this->getBundles($context),
             'settings' => [
                 'enableUrlFeature' => $this->enableUrlFeature,
-                'appUrlReachable' => $this->appUrlVerifier->isAppUrlReachable($request),
-                'appsRequireAppUrl' => $this->appUrlVerifier->hasAppsThatNeedAppUrl(),
-                'private_allowed_extensions' => $this->params->get('shopware.filesystem.private_allowed_extensions'),
             ],
         ]);
     }
 
-    #[Route(path: '/api/_info/version', name: 'api.info.shopware.version', methods: ['GET'])]
-    #[Route(path: '/api/v1/_info/version', name: 'api.info.shopware.version_old_version', methods: ['GET'])]
+    /**
+     * @Since("6.3.5.0")
+     * @Route("/api/_info/version", name="api.info.shopware.version", methods={"GET"})
+     * @Route("/api/v1/_info/version", name="api.info.shopware.version_old_version", methods={"GET"})
+     */
     public function infoShopwareVersion(): JsonResponse
     {
         return new JsonResponse([
@@ -152,7 +230,10 @@ class InfoController extends AbstractController
         ]);
     }
 
-    #[Route(path: '/api/_info/flow-actions.json', name: 'api.info.actions', methods: ['GET'])]
+    /**
+     * @Since("6.4.5.0")
+     * @Route("/api/_info/flow-actions.json", name="api.info.actions", methods={"GET"})
+     */
     public function flowActions(Context $context): JsonResponse
     {
         if (!$this->flowActionCollector) {
@@ -161,7 +242,7 @@ class InfoController extends AbstractController
 
         $events = $this->flowActionCollector->collect($context);
 
-        return new JsonResponse($events);
+        return $this->json($events);
     }
 
     /**
@@ -230,7 +311,7 @@ class InfoController extends AbstractController
      */
     private function getAdministrationStyles(Bundle $bundle): array
     {
-        $path = 'administration/css/' . str_replace('_', '-', (string) $bundle->getContainerPrefix()) . '.css';
+        $path = 'administration/css/' . str_replace('_', '-', $bundle->getContainerPrefix()) . '.css';
         $bundlePath = $bundle->getPath();
 
         if (!file_exists($bundlePath . '/Resources/public/' . $path)) {
@@ -245,7 +326,7 @@ class InfoController extends AbstractController
      */
     private function getAdministrationScripts(Bundle $bundle): array
     {
-        $path = 'administration/js/' . str_replace('_', '-', (string) $bundle->getContainerPrefix()) . '.js';
+        $path = 'administration/js/' . str_replace('_', '-', $bundle->getContainerPrefix()) . '.js';
         $bundlePath = $bundle->getPath();
 
         if (!file_exists($bundlePath . '/Resources/public/' . $path)) {
@@ -295,7 +376,7 @@ LEFT JOIN acl_role ar on app.acl_role_id = ar.id
 WHERE app.active = 1 AND app.base_app_url is not null');
 
         return array_map(static function (array $item) {
-            $privileges = $item['privileges'] ? json_decode((string) $item['privileges'], true, 512, \JSON_THROW_ON_ERROR) : [];
+            $privileges = $item['privileges'] ? json_decode($item['privileges'], true, 512, \JSON_THROW_ON_ERROR) : [];
 
             $item['privileges'] = [];
 

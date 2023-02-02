@@ -5,14 +5,9 @@ namespace Shopware\Core\Migration\V6_3;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-/**
- * @internal
- */
-#[Package('core')]
 class Migration1591361320ChargebackAndAuthorized extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -69,15 +64,12 @@ class Migration1591361320ChargebackAndAuthorized extends MigrationStep
         // implement update destructive
     }
 
-    /**
-     * @param array<string, mixed> $state
-     */
     private function insertState(Connection $connection, array $state, string $machineId): void
     {
         $stateId = Uuid::randomHex();
 
         try {
-            $connection->executeStatement(
+            $connection->executeUpdate(
                 'INSERT INTO state_machine_state (id, technical_name, state_machine_id, created_at)
              VALUES (:id, :technical_name, :state_machine_id, :created_at)',
                 [
@@ -87,7 +79,7 @@ class Migration1591361320ChargebackAndAuthorized extends MigrationStep
                     'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 ]
             );
-        } catch (UniqueConstraintViolationException) {
+        } catch (UniqueConstraintViolationException $e) {
             // don't add states if they already exist
             return;
         }
@@ -123,7 +115,7 @@ class Migration1591361320ChargebackAndAuthorized extends MigrationStep
 
     private function insertTransition(string $action, string $machineId, string $from, string $to, Connection $connection): void
     {
-        $connection->executeStatement(
+        $connection->executeUpdate(
             'REPLACE INTO state_machine_transition (id, action_name, state_machine_id, from_state_id, to_state_id, created_at)
             VALUES (:id, :action_name, :state_machine_id, :from_state_id, :to_state_id, :created_at)',
             [
@@ -139,7 +131,7 @@ class Migration1591361320ChargebackAndAuthorized extends MigrationStep
 
     private function insertTranslation(string $stateId, string $name, string $languageId, Connection $connection): void
     {
-        $connection->executeStatement(
+        $connection->executeUpdate(
             'REPLACE INTO state_machine_state_translation
              (`language_id`, `state_machine_state_id`, `name`, `created_at`)
              VALUES
@@ -155,7 +147,7 @@ class Migration1591361320ChargebackAndAuthorized extends MigrationStep
 
     private function getLanguageId(string $locale, Connection $connection): ?string
     {
-        $column = $connection->fetchOne('
+        $column = $connection->fetchColumn('
             SELECT LOWER(HEX(`language`.id))
             FROM `language`
             INNER JOIN locale
@@ -168,7 +160,7 @@ class Migration1591361320ChargebackAndAuthorized extends MigrationStep
 
     private function getMachineId(Connection $connection, string $name): string
     {
-        return $connection->fetchOne(
+        return $connection->fetchColumn(
             'SELECT LOWER(HEX(id)) FROM state_machine WHERE technical_name = :name',
             ['name' => $name]
         );
@@ -176,23 +168,20 @@ class Migration1591361320ChargebackAndAuthorized extends MigrationStep
 
     private function getStateId(Connection $connection, string $machineId, string $name): string
     {
-        return $connection->fetchOne(
+        return $connection->fetchColumn(
             'SELECT LOWER(HEX(id)) as id FROM state_machine_state WHERE technical_name = :name AND state_machine_id = :id',
             ['name' => $name, 'id' => Uuid::fromHexToBytes($machineId)]
         );
     }
 
-    /**
-     * @param list<string> $names
-     *
-     * @return list<string>
-     */
     private function getStateIds(Connection $connection, string $machineId, array $names): array
     {
-        return $connection->fetchFirstColumn(
+        $ids = $connection->fetchAll(
             'SELECT LOWER(HEX(id)) as id FROM state_machine_state WHERE technical_name IN (:name) AND state_machine_id = :id',
             ['name' => $names, 'id' => Uuid::fromHexToBytes($machineId)],
             ['name' => Connection::PARAM_STR_ARRAY]
         );
+
+        return array_column($ids, 'id');
     }
 }

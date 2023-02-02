@@ -1,7 +1,3 @@
-/**
- * @package admin
- */
-
 import ApiService from '../api.service';
 
 /**

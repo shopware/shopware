@@ -9,9 +9,8 @@ use Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction;
 use Shopware\Core\Content\Flow\FlowEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Migration\V6_4\Migration1639992771MoveDataFromEventActionToFlow;
@@ -20,7 +19,6 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[Package('core')]
 class Migration1639992771MoveDataFromEventActionToFlowTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -29,14 +27,12 @@ class Migration1639992771MoveDataFromEventActionToFlowTest extends TestCase
 
     private Connection $connection;
 
-    private EntityRepository $eventActionRepository;
+    private EntityRepositoryInterface $eventActionRepository;
 
-    private EntityRepository $flowRepository;
+    private EntityRepositoryInterface $flowRepository;
 
     public function setUp(): void
     {
-        static::markTestSkipped('NEXT-24549: should be enabled again after NEXT-24549 is fixed');
-
         $this->ids = new TestDataCollection();
 
         $this->connection = $this->getContainer()->get(Connection::class);
@@ -239,7 +235,7 @@ class Migration1639992771MoveDataFromEventActionToFlowTest extends TestCase
         $string = '';
 
         for ($i = 0; $i < $length; ++$i) {
-            $string .= $characters[random_int(0, \strlen($characters) - 1)];
+            $string .= $characters[mt_rand(0, \strlen($characters) - 1)];
         }
 
         return $string;

@@ -1,14 +1,11 @@
 import template from './sw-category-entry-point-card.html.twig';
 import './sw-category-entry-point-card.scss';
 
-const { Context } = Shopware;
+const { Component, Context } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
 
-/**
- * @package content
- */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-category-entry-point-card', {
     template,
 
     inject: [
@@ -173,4 +170,4 @@ export default {
             this.configureHomeModalVisible = false;
         },
     },
-};
+});

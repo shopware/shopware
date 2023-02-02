@@ -7,7 +7,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Store\Exception\ExtensionInstallException;
@@ -32,13 +32,13 @@ class ExtensionLifecycleServiceTest extends TestCase
 
     private ExtensionLifecycleService $lifecycleService;
 
-    private EntityRepository $appRepository;
+    private EntityRepositoryInterface $appRepository;
 
-    private EntityRepository $pluginRepository;
+    private EntityRepositoryInterface $pluginRepository;
 
-    private ?EntityRepository $themeRepository;
+    private ?EntityRepositoryInterface $themeRepository;
 
-    private EntityRepository $salesChannelRepository;
+    private EntityRepositoryInterface $salesChannelRepository;
 
     private Context $context;
 
@@ -167,8 +167,7 @@ class ExtensionLifecycleServiceTest extends TestCase
 
     public function testExtensionCantBeRemovedIfAThemeIsAssigned(): void
     {
-        $themeRepo = $this->themeRepository;
-        if (!$themeRepo) {
+        if (!$this->themeRepository) {
             static::markTestSkipped('ExtensionLifecycleServiceTest needs storefront to be installed.');
         }
 
@@ -178,7 +177,7 @@ class ExtensionLifecycleServiceTest extends TestCase
         /** @var AppCollection $apps */
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
 
-        $theme = $themeRepo->search(
+        $theme = $this->themeRepository->search(
             (new Criteria())->addFilter(new EqualsFilter('technicalName', 'TestAppTheme')),
             $this->context
         )->first();
@@ -204,21 +203,20 @@ class ExtensionLifecycleServiceTest extends TestCase
 
     public function testExtensionCantBeRemovedIfAChildThemeIsAssigned(): void
     {
-        $themeRepo = $this->themeRepository;
-        if (!$themeRepo) {
+        if (!$this->themeRepository) {
             static::markTestSkipped('ExtensionLifecycleServiceTest needs storefront to be installed.');
         }
 
         $this->installApp(__DIR__ . '/../_fixtures/TestAppTheme');
         $this->lifecycleService->activate('app', 'TestAppTheme', $this->context);
 
-        $theme = $themeRepo->search(
+        $theme = $this->themeRepository->search(
             (new Criteria())->addFilter(new EqualsFilter('technicalName', 'TestAppTheme')),
             $this->context
         )->first();
 
         $childThemeId = Uuid::randomHex();
-        $themeRepo->create([[
+        $this->themeRepository->create([[
             'id' => $childThemeId,
             'name' => 'SwagTest',
             'author' => 'Shopware',
@@ -247,8 +245,7 @@ class ExtensionLifecycleServiceTest extends TestCase
 
     public function testExtensionCanBeRemovedIfThemeIsNotAssigned(): void
     {
-        $themeRepo = $this->themeRepository;
-        if (!$themeRepo) {
+        if (!$this->themeRepository) {
             static::markTestSkipped('ExtensionLifecycleServiceTest needs storefront to be installed.');
         }
 
@@ -259,7 +256,7 @@ class ExtensionLifecycleServiceTest extends TestCase
         $themeCriteria->addFilter(new EqualsFilter('technicalName', 'TestAppTheme'))
             ->addAssociation('salesChannels');
 
-        $theme = $themeRepo->search($themeCriteria, $this->context)->first();
+        $theme = $this->themeRepository->search($themeCriteria, $this->context)->first();
 
         static::assertEquals(0, $theme->getSalesChannels()->count());
 

@@ -17,8 +17,6 @@ class Migration1625465756DefaultSalutationTest extends TestCase
 {
     use MigrationTestTrait;
 
-    private const DEFAULT_SALUTATION_ID = 'ed643807c9f84cc8b50132ea3ccb1c3b';
-
     public function setUp(): void
     {
         parent::setUp();
@@ -32,7 +30,7 @@ class Migration1625465756DefaultSalutationTest extends TestCase
     {
         $connection = KernelLifecycleManager::getConnection();
 
-        $salutation = $connection->fetchOne('SELECT `salutation_key` FROM `salutation` WHERE `id` = :id', ['id' => Uuid::fromHexToBytes(self::DEFAULT_SALUTATION_ID)]);
+        $salutation = $connection->fetchOne('SELECT `salutation_key` FROM `salutation` WHERE `id` = :id', ['id' => Uuid::fromHexToBytes(Defaults::SALUTATION)]);
 
         static::assertSame(MigrationTested::SALUTATION_KEY, $salutation);
     }
@@ -41,7 +39,7 @@ class Migration1625465756DefaultSalutationTest extends TestCase
     {
         $connection = KernelLifecycleManager::getConnection();
 
-        $translations = $connection->fetchAllAssociative('SELECT * FROM `salutation_translation` WHERE `salutation_id` = :id', ['id' => Uuid::fromHexToBytes(self::DEFAULT_SALUTATION_ID)]);
+        $translations = $connection->fetchAllAssociative('SELECT * FROM `salutation_translation` WHERE `salutation_id` = :id', ['id' => Uuid::fromHexToBytes(Defaults::SALUTATION)]);
 
         static::assertCount(2, $translations);
 

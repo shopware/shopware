@@ -1,6 +1,4 @@
 /**
- * @package admin
- *
  * These types of initializers are called in the beginning of the initialization process.
  * They can decorate the following initializer.
  */

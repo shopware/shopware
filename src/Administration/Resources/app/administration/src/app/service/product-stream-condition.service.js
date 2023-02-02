@@ -5,13 +5,12 @@ const utils = Shopware.Utils;
  */
 
 /**
- * @private
- * @package business-ops
  * @memberOf module:app/service/product-stream-condition
  * @constructor
  * @method conditionService
  * @returns {Object}
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function conditionService() {
     const allowedProperties = [
         'id',
@@ -29,7 +28,6 @@ export default function conditionService() {
         ],
         property_group_option: [
             'id',
-            'group',
         ],
         property_group: [
             'id',
@@ -60,7 +58,6 @@ export default function conditionService() {
             'ean',
             'sales',
             'manufacturer',
-            'manufacturerNumber',
             'categoriesRo',
             'shippingFree',
             'visibilities',
@@ -76,11 +73,6 @@ export default function conditionService() {
     };
 
     const allowedJsonAccessors = {
-        cheapestPrice: {
-            value: 'cheapestPrice',
-            type: 'float',
-            trans: 'cheapestPrice',
-        },
         'cheapestPrice.percentage': {
             value: 'cheapestPrice.percentage',
             type: 'float',

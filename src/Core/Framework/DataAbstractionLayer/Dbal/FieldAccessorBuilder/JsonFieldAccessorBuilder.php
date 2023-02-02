@@ -12,19 +12,23 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
-use Shopware\Core\Framework\Log\Package;
 
 /**
- * @internal
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
  */
-#[Package('core')]
 class JsonFieldAccessorBuilder implements FieldAccessorBuilderInterface
 {
     /**
+     * @var Connection
+     */
+    private $connection;
+
+    /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection)
+    public function __construct(Connection $connection)
     {
+        $this->connection = $connection;
     }
 
     public function buildAccessor(string $root, Field $field, Context $context, string $accessor): ?string
@@ -44,13 +48,13 @@ class JsonFieldAccessorBuilder implements FieldAccessorBuilderInterface
         }
 
         // enquote hyphenated json keys in path
-        if (str_contains($jsonPath, '-')) {
+        if (strpos($jsonPath, '-') !== false) {
             $jsonPathParts = explode('.', $jsonPath);
             foreach ($jsonPathParts as $index => $jsonPathPart) {
                 if ($index === 0) {
                     continue;
                 }
-                if (str_contains($jsonPathPart, '-')) {
+                if (strpos($jsonPathPart, '-') !== false) {
                     $jsonPathParts[$index] = sprintf('"%s"', $jsonPathPart);
                 }
             }

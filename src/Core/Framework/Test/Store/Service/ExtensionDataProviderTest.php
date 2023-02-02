@@ -95,7 +95,9 @@ class ExtensionDataProviderTest extends TestCase
         $this->getRequestHandler()->append(new Response(200, [], (string) file_get_contents(__DIR__ . '/../_fixtures/responses/my-licenses.json')));
 
         $installedExtensions = $this->extensionDataProvider->getInstalledExtensions($this->context, true);
-        $installedExtensions = $installedExtensions->filter(fn (ExtensionStruct $extension) => $extension->getName() !== 'SwagCommercial');
+        $installedExtensions = $installedExtensions->filter(function (ExtensionStruct $extension) {
+            return $extension->getName() !== 'SwagCommercial';
+        });
         static::assertCount(7, $installedExtensions);
     }
 
@@ -114,7 +116,9 @@ class ExtensionDataProviderTest extends TestCase
         $this->getRequestHandler()->append(new Response(200, [], (string) file_get_contents(__DIR__ . '/../_fixtures/responses/my-licenses.json')));
 
         $installedExtensions = $this->extensionDataProvider->getInstalledExtensions($this->context, true);
-        $installedExtensions = $installedExtensions->filter(fn (ExtensionStruct $extension) => $extension->getName() !== 'SwagCommercial');
+        $installedExtensions = $installedExtensions->filter(function (ExtensionStruct $extension) {
+            return $extension->getName() !== 'SwagCommercial';
+        });
         static::assertCount(1, $installedExtensions);
     }
 
@@ -128,7 +132,9 @@ class ExtensionDataProviderTest extends TestCase
         );
 
         $installedExtensions = $this->extensionDataProvider->getInstalledExtensions($this->context, true);
-        $installedExtensions = $installedExtensions->filter(fn (ExtensionStruct $extension) => $extension->getName() !== 'SwagCommercial');
+        $installedExtensions = $installedExtensions->filter(function (ExtensionStruct $extension) {
+            return $extension->getName() !== 'SwagCommercial';
+        });
 
         static::assertCount(1, $installedExtensions);
 

@@ -3,8 +3,6 @@
 namespace Shopware\Core\Framework\Test\Api\Serializer\fixtures;
 
 use Shopware\Core\Content\Media\MediaEntity;
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 
 /**
@@ -12,7 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
  */
 class TestBasicStruct extends SerializationFixture
 {
-    public function getInput(): EntityCollection|Entity
+    public function getInput()
     {
         $media = new MediaEntity();
         $media->setId('1d23c1b015bf43fb97e89008cf42d6fe');
@@ -27,9 +25,6 @@ class TestBasicStruct extends SerializationFixture
         return $media;
     }
 
-    /**
-     * @return array<string,mixed>
-     */
     protected function getJsonApiFixtures(string $baseUrl): array
     {
         return [
@@ -84,10 +79,10 @@ class TestBasicStruct extends SerializationFixture
                             'related' => sprintf('%s/media/1d23c1b015bf43fb97e89008cf42d6fe/product-media', $baseUrl),
                         ],
                     ],
-                    'avatarUsers' => [
-                        'data' => [],
+                    'avatarUser' => [
+                        'data' => null,
                         'links' => [
-                            'related' => sprintf('%s/media/1d23c1b015bf43fb97e89008cf42d6fe/avatar-users', $baseUrl),
+                            'related' => sprintf('%s/media/1d23c1b015bf43fb97e89008cf42d6fe/avatar-user', $baseUrl),
                         ],
                     ],
                     'translations' => [
@@ -187,9 +182,6 @@ class TestBasicStruct extends SerializationFixture
         ];
     }
 
-    /**
-     * @return array<string,mixed>
-     */
     protected function getJsonFixtures(): array
     {
         return [
@@ -217,7 +209,7 @@ class TestBasicStruct extends SerializationFixture
             'categories' => null,
             'productManufacturers' => null,
             'productMedia' => null,
-            'avatarUsers' => null,
+            'avatarUser' => null,
             'thumbnails' => null,
             'mediaFolder' => null,
             'propertyGroupOptions' => null,
@@ -239,11 +231,6 @@ class TestBasicStruct extends SerializationFixture
         ];
     }
 
-    /**
-     * @param array<string,mixed> $fixtures
-     *
-     * @return array<string,mixed>
-     */
     protected function removeProtectedSalesChannelJsonApiData(array $fixtures): array
     {
         unset(
@@ -251,7 +238,7 @@ class TestBasicStruct extends SerializationFixture
             $fixtures['data']['attributes']['mediaType'],
             $fixtures['data']['attributes']['mediaFolderId'],
             $fixtures['data']['relationships']['user'],
-            $fixtures['data']['relationships']['avatarUsers'],
+            $fixtures['data']['relationships']['avatarUser'],
             $fixtures['data']['relationships']['tags'],
             $fixtures['data']['relationships']['categories'],
             $fixtures['data']['relationships']['productManufacturers'],
@@ -274,17 +261,12 @@ class TestBasicStruct extends SerializationFixture
         return $fixtures;
     }
 
-    /**
-     * @param array<string,mixed> $fixtures
-     *
-     * @return array<string,mixed>
-     */
     protected function removeProtectedSalesChannelJsonData(array $fixtures): array
     {
         unset(
             $fixtures['userId'],
             $fixtures['user'],
-            $fixtures['avatarUsers'],
+            $fixtures['avatarUser'],
             $fixtures['mediaType'],
             $fixtures['tags'],
             $fixtures['categories'],

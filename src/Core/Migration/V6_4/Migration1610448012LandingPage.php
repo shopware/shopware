@@ -3,13 +3,8 @@
 namespace Shopware\Core\Migration\V6_4;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
-/**
- * @internal
- */
-#[Package('core')]
 class Migration1610448012LandingPage extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -19,7 +14,7 @@ class Migration1610448012LandingPage extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeStatement('
+        $connection->executeUpdate('
             CREATE TABLE IF NOT EXISTS `landing_page` (
               `id` BINARY(16) NOT NULL,
               `version_id` BINARY(16) NOT NULL,
@@ -33,7 +28,7 @@ class Migration1610448012LandingPage extends MigrationStep
             ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
 
-        $connection->executeStatement('
+        $connection->executeUpdate('
             CREATE TABLE IF NOT EXISTS `landing_page_translation` (
               `landing_page_id` BINARY(16) NOT NULL,
               `landing_page_version_id` BINARY(16) NOT NULL,
@@ -56,7 +51,7 @@ class Migration1610448012LandingPage extends MigrationStep
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
 
-        $connection->executeStatement('
+        $connection->executeUpdate('
             CREATE TABLE IF NOT EXISTS `landing_page_tag` (
               `landing_page_id` BINARY(16) NOT NULL,
               `landing_page_version_id` BINARY(16) NOT NULL,
@@ -69,7 +64,7 @@ class Migration1610448012LandingPage extends MigrationStep
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
 
-        $connection->executeStatement('
+        $connection->executeUpdate('
             CREATE TABLE IF NOT EXISTS `landing_page_sales_channel` (
               `landing_page_id` BINARY(16) NOT NULL,
               `landing_page_version_id` BINARY(16) NOT NULL,

@@ -6,24 +6,41 @@ use Monolog\Logger;
 use Shopware\Core\Content\Flow\Dispatching\Aware\DataAware;
 use Shopware\Core\Content\Flow\Dispatching\Aware\TemplateDataAware;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Event\EventData\ArrayType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Log\LogAware;
-use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('sales-channel')]
-class MailBeforeValidateEvent extends Event implements LogAware, TemplateDataAware, DataAware
+class MailBeforeValidateEvent extends Event implements BusinessEventInterface, LogAware, TemplateDataAware, DataAware
 {
-    final public const EVENT_NAME = 'mail.before.send';
+    public const EVENT_NAME = 'mail.before.send';
+
+    /**
+     * @var array<string, mixed>
+     */
+    private $data;
+
+    /**
+     * @var Context
+     */
+    private $context;
+
+    /**
+     * @var array<string, mixed>
+     */
+    private $templateData;
 
     /**
      * @param array<string, mixed> $data
      * @param array<string, mixed> $templateData
      */
-    public function __construct(private array $data, private readonly Context $context, private array $templateData = [])
+    public function __construct(array $data, Context $context, array $templateData = [])
     {
+        $this->data = $data;
+        $this->context = $context;
+        $this->templateData = $templateData;
     }
 
     public static function getAvailableData(): EventDataCollection
@@ -101,7 +118,6 @@ class MailBeforeValidateEvent extends Event implements LogAware, TemplateDataAwa
 
         return [
             'data' => $data,
-            'eventName' => $this->templateData['eventName'] ?? null,
             'templateData' => $this->templateData,
         ];
     }

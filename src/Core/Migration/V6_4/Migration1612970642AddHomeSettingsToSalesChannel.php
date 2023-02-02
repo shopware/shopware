@@ -3,13 +3,8 @@
 namespace Shopware\Core\Migration\V6_4;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
-/**
- * @internal
- */
-#[Package('core')]
 class Migration1612970642AddHomeSettingsToSalesChannel extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -30,7 +25,7 @@ ALTER TABLE `sales_channel_translation`
     ADD CONSTRAINT `json.sales_channel_translation.home_slot_config`
             CHECK (JSON_VALID(`home_slot_config`))
 SQL;
-        $connection->executeStatement($sql);
+        $connection->executeUpdate($sql);
 
         $sql = <<<'SQL'
 ALTER TABLE `sales_channel`
@@ -41,7 +36,7 @@ ALTER TABLE `sales_channel`
             ON DELETE RESTRICT
             ON UPDATE CASCADE;
 SQL;
-        $connection->executeStatement($sql);
+        $connection->executeUpdate($sql);
     }
 
     public function updateDestructive(Connection $connection): void

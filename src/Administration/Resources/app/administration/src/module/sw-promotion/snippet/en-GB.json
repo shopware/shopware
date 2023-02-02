@@ -1,0 +1,229 @@
+{
+  "global": {
+    "error-codes": {
+      "PROMOTION_VALID_UNTIL_VIOLATION": "The promotion's expiry date must be set after the start of the promotion.",
+      "PROMOTION_DISCOUNT_MAX_VALUE_VIOLATION": "The discount value must not be more than {value}.",
+      "PROMOTION_DISCOUNT_MIN_VALUE_VIOLATION": "The discount value must not be less than {value}.",
+      "PROMOTION_DUPLICATED_CODE_VIOLATION": "This code has been used before.",
+      "PROMOTION_CODE_WHITESPACE_VIOLATION": "A code must not start nor end with a whitespace.",
+      "PROMOTION_EMPTY_CODE_VIOLATION": "The code field must not be empty.",
+      "PROMOTION_DUPLICATE_PATTERN_VIOLATION": "This code pattern has already been used in another promotion."
+    }
+  },
+  "sw-promotion": {
+    "setgroup": {
+      "packager": {
+        "COUNT": "Quantity",
+        "PRICE_UNIT_GROSS": "Amount (gross)",
+        "PRICE_UNIT_NET": "Amount (net)"
+      },
+      "sorter": {
+        "PRICE_ASC": "Price, ascending",
+        "PRICE_DESC": "Price, descending"
+      }
+    },
+    "filter": {
+      "sorter": {
+        "PRICE_ASC": "Price, ascending",
+        "PRICE_DESC": "Price, descending"
+      },
+      "applier": {
+        "ALL": "All items",
+        "SELECT": "{count}. item"
+      },
+      "counter": {
+        "ALL": "Unlimited",
+        "SELECT": "{count} x"
+      },
+      "picker": {
+        "VERTICAL": "Vertical",
+        "HORIZONTAL": "Horizontal"
+      }
+    },
+    "general": {
+      "mainMenuItemGeneral": "Promotions",
+      "mainMenuItemList": "Overview",
+      "description": "Manage promotions here."
+    },
+    "swPromotionRuleSelect": {
+      "labelAddNewRule": "Create new rule"
+    },
+    "list": {
+      "textTitle": "Promotions",
+      "buttonAddPromotion": "Add promotion",
+      "buttonCancel": "Cancel",
+      "buttonDelete": "Delete",
+      "columnActive": "Active",
+      "columnName": "Name",
+      "columnValidFrom": "Valid from:",
+      "columnValidUntil": "Valid until:",
+      "contextMenuDelete": "Delete",
+      "contextMenuDuplicate": "Duplicate",
+      "contextMenuEdit": "Edit",
+      "messageEmpty": "No promotions yet",
+      "placeholderSearchBar": "Search promotions...",
+      "textDeleteConfirm": "Are you sure you want to delete the promotion \"{name}\"?",
+      "titleSidebarItemRefresh": "Refresh"
+    },
+    "detail": {
+      "header": {
+        "titleCreate": "New promotion",
+        "titleEdit": "Promotion",
+        "buttonCancel": "Cancel",
+        "buttonSave": "Save",
+        "messageSaveSuccess": "Promotion \"{name}\" has been saved."
+      },
+      "tabs": {
+        "tabGeneral": "General",
+        "tabPreconditions": "Conditions",
+        "tabDiscounts": "Discounts"
+      },
+      "main": {
+        "general": {
+          "cardTitlePromotionInfo": "Settings",
+          "cardTitleCode": "Promotion codes",
+          "labelTitle": "Name",
+          "placeholderName": "Enter name...",
+          "labelActive": "Active",
+          "labelSalesChannels": "Sales Channels",
+          "placeholderSalesChannels": "Add Sales Channel...",
+          "labelValidFrom": "Valid from:",
+          "labelValidUntil": "Valid until:",
+          "labelMaxRedemptionsGlobal": "Total redemptions",
+          "placeholderMaxRedemptionsGlobal": "Enter value...",
+          "helpTextMaxRedemptionsGlobal": "Enter '0' for infinite uses.",
+          "labelMaxRedemptionsPerCustomer": "Individual redemptions",
+          "placeholderMaxRedemptionsPerCustomer": "Enter value...",
+          "helpTextMaxRedemptionsPerCustomer": "Enter '0' for infinite uses per individual customer.",
+          "labelPromotionExclusions": "Do not combine with",
+          "placeholderPromotionExclusions": "Add promotion...",
+          "codes": {
+            "card": "Promotion codes",
+            "labelCode": "General promotion code",
+            "helpTextIndividual": "General and individual promotion codes cannot be used simultaneously.",
+            "placeholderCode": "Enter promotion code...",
+            "switchUseCodes": "Promotion code required",
+            "switchUseIndividualCodes": "Use individual promotion codes.",
+            "linkEditIndividualCodes": "Manage individual promotion codes.",
+            "individual": {
+              "title": "Individual promotion codes",
+              "labelPattern": "Pattern",
+              "helpTextPattern": "Create a custom code pattern. Use placeholders like \"%s\" for characters and \"%d\" for digits. Example: code-%s%s%d.",
+              "labelCount": "Count",
+              "buttonGenerate": "Save and generate codes",
+              "labelNoCodesExist": "No individual codes",
+              "columnCode": "Promotion code",
+              "columnRedeemed": "Redeemed",
+              "columnCustomer": "Customer",
+              "buttonDeleteCode": "Delete",
+              "buttonOpenCustomer": "Open customer",
+              "alerts": {
+                "errorNoPatternTitle": "No code pattern",
+                "errorNoPatternMessage": "Please assign a code pattern.",
+                "successGeneratedTitle": "Success.",
+                "successGeneratedMessage": "Generated {count} new codes.",
+                "successDeletedTitle": "Code deleted.",
+                "errorDeletedTitle": "Error while deleting code.",
+                "warningFormatCodes": "Invalid code pattern, please adjust your pattern and use placeholders like \"%s\" for characters and \"%d\" for digits.",
+                "warningNotAllowPattern": "The pattern you entered does not allow to generate {generateCount} codes. Please adjust your pattern in order to generate the desired amount of codes."
+              }
+            },
+            "warningEmptyPromotionName": "No promotion name, please fill in a promotion name before generating promotion codes again."
+          }
+        },
+        "preconditions": {
+          "ruleModuleLink": "Open rule builder",
+          "persona": {
+            "card": "Target group",
+            "title": "Determine which customers may benefit from this promotion.",
+            "text": "Use rules from the rule builder to narrow down the audience for this marketing action. Without a limitation, all your customers will have access to this action.",
+            "labelRules": "Customer rules",
+            "placeholderRules": "Assign customer rule...",
+            "switchAssignCustomers": "Assign individual customers",
+            "placeholderAddCustomers": "Search and add customers...",
+            "customers": {
+              "grid": {
+                "headerName": "Name",
+                "headerCustomerNumber": "Customer number",
+                "delete": "Delete"
+              }
+            }
+          },
+          "order": {
+            "card": "Qualified orders",
+            "title": "Define order properties required for this promotion to become applicable.",
+            "text": "Use the rule builder to determine qualified orders. Without a given limitation, the promotion will be applied to all orders.",
+            "rulesModuleLink": "Open rule builder",
+            "rulesCaption": "Order rules",
+            "rulesPlaceholder": "Assign order rule..."
+          },
+          "cart": {
+            "card": "Qualified shopping carts",
+            "title": "Define shopping cart properties required for this promotion to become applicable.",
+            "text": "Use the rule builder to determine qualified shopping cart states. Without a set limitation, the promotion will be applied to all shopping carts.",
+            "rulesModuleLink": "Open rule builder",
+            "rulesCaption": "Shopping cart rules",
+            "rulesPlaceholder": "Assign shopping cart rule...",
+            "setgroups": {
+              "switchGroupsEnabled": "Promote sets of products",
+              "buttonAddGroup": "Add product set",
+              "titleName": "Group",
+              "labelMode": "Mode",
+              "labelValue": "Value",
+              "labelSorting": "Sorting",
+              "labelRules": "Product rules",
+              "buttonDuplicate": "Duplicate",
+              "buttonDelete": "Delete"
+            }
+          }
+        },
+        "discounts": {
+          "card": "Discount",
+          "labelValue": "Value",
+          "labelMaxValue": "Maximum discount value",
+          "helpTextMaxValueAdvancedPrices": "Largest discount possible (absolute monetary value).",
+          "placeholderValue": "Enter either a percentage or an absolute value...",
+          "labelScope": "Apply to:",
+          "flagProductScopeLabel": "Apply to a specific range of products only.",
+          "labelRules": "Product rules",
+          "placeholder": "Assign product rules...",
+          "labelType": "Type",
+          "valueScopeCart": "Cart",
+          "valueTypeAbsolute": "Absolute",
+          "valueScopeDelivery": "Shipping costs",
+          "valueScopeSet": "Entire set",
+          "valueScopeSetGroup": "Set group",
+          "valueTypePercentage": "Percentage",
+          "valueTypeFixed": "Fixed price",
+          "valueTypeFixedUnit": "Fixed item price",
+          "buttonAddDiscount": "Add discount",
+          "buttonDeleteDiscount": "Delete discount",
+          "delete": {
+            "confirmTitle": "Delete discount",
+            "confirmText": "Do you really want to delete this discount from the promotion?",
+            "buttonCancel": "Cancel",
+            "buttonDelete": "Delete discount"
+          },
+          "labelSorting": "Sort by",
+          "labelPicking": "Item Picking Mode",
+          "labelApplyCount": "Apply to",
+          "labelMaxCount": "Maximum amount of usages",
+          "linkAdvancedPrices": "Open advanced prices view",
+          "pricesModal": {
+            "advancedPricesHeader": "Advanced prices",
+            "closeModal": "Close",
+            "labelCurrency": "Currency",
+            "labelPrice": "Value"
+          }
+        }
+      }
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "promotion": {
+        "label": "Promotions"
+      }
+    }
+  }
+}

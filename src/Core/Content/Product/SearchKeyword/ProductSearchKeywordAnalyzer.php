@@ -8,18 +8,28 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\AbstractTokenFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\TokenizerInterface;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('inventory')]
 class ProductSearchKeywordAnalyzer implements ProductSearchKeywordAnalyzerInterface
 {
     private const MAXIMUM_KEYWORD_LENGTH = 500;
 
     /**
+     * @var TokenizerInterface
+     */
+    private $tokenizer;
+
+    /**
+     * @var AbstractTokenFilter
+     */
+    private $tokenFilter;
+
+    /**
      * @internal
      */
-    public function __construct(private readonly TokenizerInterface $tokenizer, private readonly AbstractTokenFilter $tokenFilter)
+    public function __construct(TokenizerInterface $tokenizer, AbstractTokenFilter $tokenFilter)
     {
+        $this->tokenizer = $tokenizer;
+        $this->tokenFilter = $tokenFilter;
     }
 
     /**
@@ -37,27 +47,24 @@ class ProductSearchKeywordAnalyzer implements ProductSearchKeywordAnalyzerInterf
             $values = array_filter($this->resolveEntityValue($product, $path));
 
             if ($isTokenize) {
-                $nonScalarValues = array_filter($values, fn ($value) => !\is_scalar($value));
-
-                if ($nonScalarValues !== []) {
+                try {
+                    $values = $this->tokenize($values, $context);
+                } catch (\Throwable $error) {
+                    // Can occur if the resolved value is a nested array. This prevents the implode() from being executed. We ignore this error at this point to allow some error tolerance in the configuration
                     continue;
                 }
-
-                /** @var array<int, string> $onlyScalarValues */
-                $onlyScalarValues = $values;
-                $values = $this->tokenize($onlyScalarValues, $context);
             }
 
             foreach ($values as $value) {
-                if (!\is_scalar($value)) {
-                    continue;
-                }
+                try {
+                    // even the field is non tokenize, if it reached 500 chars, we should break it anyway
+                    $parts = array_filter(mb_str_split((string) $value, self::MAXIMUM_KEYWORD_LENGTH));
 
-                // even the field is non tokenize, if it reached 500 chars, we should break it anyway
-                $parts = array_filter(mb_str_split((string) $value, self::MAXIMUM_KEYWORD_LENGTH));
-
-                foreach ($parts as $part) {
-                    $keywords->add(new AnalyzedKeyword((string) $part, $ranking));
+                    foreach ($parts as $part) {
+                        $keywords->add(new AnalyzedKeyword((string) $part, $ranking));
+                    }
+                } catch (\Throwable $error) {
+                    // Can occur if the resolved value is a nested array. This prevents the string cast from being executed (Array to string conversion). We ignore this error at this point to allow some error tolerance in the configuration
                 }
             }
         }
@@ -80,7 +87,7 @@ class ProductSearchKeywordAnalyzer implements ProductSearchKeywordAnalyzerInterf
     }
 
     /**
-     * @return array<int, string|array<mixed>>
+     * @return array<int, string>
      */
     private function resolveEntityValue(Entity $entity, string $path): array
     {
@@ -105,7 +112,7 @@ class ProductSearchKeywordAnalyzer implements ProductSearchKeywordAnalyzerInterf
                         $part .= sprintf('.%s', implode('.', $parts));
                     }
                     foreach ($value as $item) {
-                        $values = [...$values, ...$this->resolveEntityValue($item, $part)];
+                        $values = array_merge($values, $this->resolveEntityValue($item, $part));
                     }
 
                     return $values;

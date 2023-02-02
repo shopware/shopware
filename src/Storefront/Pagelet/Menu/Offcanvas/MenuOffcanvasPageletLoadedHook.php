@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Pagelet\Menu\Offcanvas;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\Awareness\SalesChannelContextAwareTrait;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\PageLoadedHook;
@@ -14,17 +13,19 @@ use Shopware\Storefront\Page\PageLoadedHook;
  *
  * @since 6.4.8.0
  */
-#[Package('storefront')]
 class MenuOffcanvasPageletLoadedHook extends PageLoadedHook
 {
     use SalesChannelContextAwareTrait;
 
-    final public const HOOK_NAME = 'menu-offcanvas-pagelet-loaded';
+    public const HOOK_NAME = 'menu-offcanvas-pagelet-loaded';
 
-    public function __construct(private readonly MenuOffcanvasPagelet $page, SalesChannelContext $context)
+    private MenuOffcanvasPagelet $page;
+
+    public function __construct(MenuOffcanvasPagelet $page, SalesChannelContext $context)
     {
         parent::__construct($context->getContext());
         $this->salesChannelContext = $context;
+        $this->page = $page;
     }
 
     public function getName(): string

@@ -8,7 +8,10 @@ describe('Rule builder: Test viewing rule assignments in other entities', () => 
     const defaultRuleId = uuid().replace(/-/g, '');
 
     beforeEach(() => {
-        cy.createDefaultFixture('rule', { id: defaultRuleId, name: 'Default Rule' }, 'rule-simple-condition')
+        cy.loginViaApi()
+            .then(() => {
+                return cy.createDefaultFixture('rule', { id: defaultRuleId, name: 'Default Rule' }, 'rule-simple-condition');
+            })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/rule/detail/${defaultRuleId}`);
                 // wait for ending loading state
@@ -20,8 +23,7 @@ describe('Rule builder: Test viewing rule assignments in other entities', () => 
     it('@rule: edit rule then switch tab and discard changes', { tags: ['pa-business-ops'] }, () => {
         cy.onlyOnFeature('V6_5_0_0');
 
-        cy.get('.sw-settings-rule-detail-base').should('be.visible');
-        cy.get('input#sw-field--rule-name').should('be.visible');
+        const page = new RulePageObject();
 
         // Change the rule name
         cy.get('input#sw-field--rule-name').clearTypeAndCheck('New Name');
@@ -40,15 +42,8 @@ describe('Rule builder: Test viewing rule assignments in other entities', () => 
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
 
-        cy.get('.sw-settings-rule-detail-assignments').should('be.visible');
-
         // Switch back to general tab and verify the name did not change
         cy.get('.sw-settings-rule-detail__tab-item-general').click();
-
-        // wait for ending loading state
-        cy.get('.sw-skeleton').should('not.exist');
-        cy.get('.sw-loader').should('not.exist');
-
         cy.get('input#sw-field--rule-name').should('have.value', 'Default Rule');
     });
 
@@ -56,9 +51,6 @@ describe('Rule builder: Test viewing rule assignments in other entities', () => 
         cy.onlyOnFeature('V6_5_0_0');
 
         const page = new RulePageObject();
-
-        cy.get('.sw-settings-rule-detail-base').should('be.visible');
-        cy.get('input#sw-field--rule-name').should('be.visible');
 
         // Change the rule conditions
         cy.get('.sw-condition-tree .sw-condition-or-container .sw-condition-and-container')
@@ -72,7 +64,7 @@ describe('Rule builder: Test viewing rule assignments in other entities', () => 
                 selector: '@condition-general',
                 type: 'Item with free shipping',
                 operator: null,
-                value: 'No',
+                value: 'No'
             });
         });
 
@@ -90,15 +82,8 @@ describe('Rule builder: Test viewing rule assignments in other entities', () => 
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
 
-        cy.get('.sw-settings-rule-detail-assignments').should('be.visible');
-
         // Switch back to general tab and verify the name did not change
         cy.get('.sw-settings-rule-detail__tab-item-general').click();
-
-        // wait for ending loading state
-        cy.get('.sw-skeleton').should('not.exist');
-        cy.get('.sw-loader').should('not.exist');
-
         cy.get('input#sw-field--rule-name').should('have.value', 'Default Rule');
     });
 
@@ -122,7 +107,7 @@ describe('Rule builder: Test viewing rule assignments in other entities', () => 
                 selector: '@condition-general',
                 type: 'Item with free shipping',
                 operator: null,
-                value: 'No',
+                value: 'No'
             });
         });
 

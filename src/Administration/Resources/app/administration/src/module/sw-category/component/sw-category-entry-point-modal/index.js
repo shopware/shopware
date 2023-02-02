@@ -1,16 +1,14 @@
 import template from './sw-category-entry-point-modal.html.twig';
 import './sw-category-entry-point-modal.scss';
 
-/**
- * @package content
- */
+const { Component } = Shopware;
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-category-entry-point-modal', {
     template,
 
     inject: [
         'acl',
-        'cmsPageTypeService',
     ],
 
     props: {
@@ -35,6 +33,15 @@ export default {
     computed: {
         selectedSalesChannel() {
             return this.temporaryCollection.find((channel) => channel.id === this.selectedSalesChannelId);
+        },
+
+        cmsPageTypes() {
+            return {
+                page: this.$tc('sw-cms.detail.label.pageTypeShopPage'),
+                landingpage: this.$tc('sw-cms.detail.label.pageTypeLandingpage'),
+                product_list: this.$tc('sw-cms.detail.label.pageTypeCategory'),
+                product_detail: this.$tc('sw-cms.detail.label.pageTypeProduct'),
+            };
         },
     },
 
@@ -71,17 +78,6 @@ export default {
 
         closeModal() {
             this.$emit('modal-close');
-        },
-
-        getCmsPageTypeName(name) {
-            const fallback = this.$tc('sw-category.base.cms.defaultDesc');
-
-            if (!name) {
-                return fallback;
-            }
-
-            const nameSnippetKey = this.cmsPageTypeService.getType(name)?.title;
-            return nameSnippetKey ? this.$tc(nameSnippetKey) : fallback;
         },
 
         onLayoutSelect(layoutId, layout) {
@@ -190,4 +186,4 @@ export default {
             });
         },
     },
-};
+});

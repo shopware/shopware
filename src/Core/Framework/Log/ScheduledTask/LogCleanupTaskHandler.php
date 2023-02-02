@@ -4,28 +4,38 @@ namespace Shopware\Core\Framework\Log\ScheduledTask;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-/**
- * @internal
- */
-#[AsMessageHandler(handles: LogCleanupTask::class)]
-#[Package('core')]
-final class LogCleanupTaskHandler extends ScheduledTaskHandler
+class LogCleanupTaskHandler extends ScheduledTaskHandler
 {
+    /**
+     * @var SystemConfigService
+     */
+    protected $systemConfigService;
+
+    /**
+     * @var Connection
+     */
+    protected $connection;
+
     /**
      * @internal
      */
     public function __construct(
-        EntityRepository $scheduledTaskRepository,
-        private readonly SystemConfigService $systemConfigService,
-        private readonly Connection $connection
+        EntityRepositoryInterface $scheduledTaskRepository,
+        SystemConfigService $systemConfigService,
+        Connection $connection
     ) {
         parent::__construct($scheduledTaskRepository);
+        $this->systemConfigService = $systemConfigService;
+        $this->connection = $connection;
+    }
+
+    public static function getHandledMessages(): iterable
+    {
+        return [LogCleanupTask::class];
     }
 
     public function run(): void
@@ -36,7 +46,7 @@ final class LogCleanupTaskHandler extends ScheduledTaskHandler
         if ($entryLifetimeSeconds !== -1) {
             $deleteBefore = (new \DateTime(sprintf('- %s seconds', $entryLifetimeSeconds)))
                 ->format(Defaults::STORAGE_DATE_TIME_FORMAT);
-            $this->connection->executeStatement(
+            $this->connection->executeUpdate(
                 'DELETE FROM `log_entry` WHERE `created_at` < :before',
                 ['before' => $deleteBefore]
             );
@@ -53,7 +63,7 @@ final class LogCleanupTaskHandler extends ScheduledTaskHandler
 
             $statement = $this->connection->prepare($sql);
             $statement->bindValue('maxEntries', $maxEntries, \PDO::PARAM_INT);
-            $statement->executeStatement();
+            $statement->execute();
         }
     }
 }

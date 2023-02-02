@@ -3,13 +3,11 @@
 namespace Shopware\Core\System\CustomEntity\Xml\Field;
 
 use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
-use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Config\Util\XmlUtils;
 
 /**
  * @internal
  */
-#[Package('core')]
 class Field extends XmlElement
 {
     protected string $name;
@@ -54,7 +52,7 @@ class Field extends XmlElement
         }
 
         foreach ($element->childNodes as $child) {
-            if (!$child instanceof \DOMElement || $child->nodeValue === null) {
+            if (!$child instanceof \DOMElement) {
                 continue;
             }
 

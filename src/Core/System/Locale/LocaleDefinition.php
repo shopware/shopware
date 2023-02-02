@@ -15,15 +15,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\System\Locale\Aggregate\LocaleTranslation\LocaleTranslationDefinition;
 use Shopware\Core\System\User\UserDefinition;
 
-#[Package('system-settings')]
 class LocaleDefinition extends EntityDefinition
 {
-    final public const ENTITY_NAME = 'locale';
+    public const ENTITY_NAME = 'locale';
 
     public function getEntityName(): string
     {

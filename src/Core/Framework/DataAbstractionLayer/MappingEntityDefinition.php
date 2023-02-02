@@ -3,9 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\MappingEntityClassesException;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
 abstract class MappingEntityDefinition extends EntityDefinition
 {
     public function getCollectionClass(): string

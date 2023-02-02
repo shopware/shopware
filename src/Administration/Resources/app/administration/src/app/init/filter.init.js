@@ -1,7 +1,3 @@
-/**
- * @package admin
- */
-
 import filter from 'src/app/filter';
 
 const createdAppFilter = filter();

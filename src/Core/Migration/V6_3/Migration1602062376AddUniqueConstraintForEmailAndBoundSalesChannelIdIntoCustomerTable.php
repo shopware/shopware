@@ -3,13 +3,8 @@
 namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
-/**
- * @internal
- */
-#[Package('core')]
 class Migration1602062376AddUniqueConstraintForEmailAndBoundSalesChannelIdIntoCustomerTable extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -19,7 +14,7 @@ class Migration1602062376AddUniqueConstraintForEmailAndBoundSalesChannelIdIntoCu
 
     public function update(Connection $connection): void
     {
-        $connection->executeStatement('ALTER TABLE `customer` ADD UNIQUE `uniq.customer.email_bound_sales_channel_id`(`email`, `bound_sales_channel_id`);');
+        $connection->executeUpdate('ALTER TABLE `customer` ADD UNIQUE `uniq.customer.email_bound_sales_channel_id`(`email`, `bound_sales_channel_id`);');
     }
 
     public function updateDestructive(Connection $connection): void

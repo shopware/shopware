@@ -2,10 +2,6 @@
 
 namespace Shopware\Core\Framework\MessageQueue\ScheduledTask\MessageQueue;
 
-use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
-
-#[Package('core')]
-class RegisterScheduledTaskMessage implements AsyncMessageInterface
+class RegisterScheduledTaskMessage
 {
 }

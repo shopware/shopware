@@ -2,19 +2,17 @@
 
 namespace Shopware\Core\Framework\Rule\Api;
 
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Rule\Rule;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Route(defaults: ['_routeScope' => ['api']])]
-#[Package('business-ops')]
+/**
+ * @Route(defaults={"_routeScope"={"api"}})
+ */
 class RuleConfigController extends AbstractController
 {
-    /**
-     * @var array<string, mixed[]>
-     */
     private array $config = [];
 
     /**
@@ -27,7 +25,10 @@ class RuleConfigController extends AbstractController
         $this->hydrateConfig($taggedRules);
     }
 
-    #[Route(path: '/api/_info/rule-config', name: 'api.info.rule-config', methods: ['GET'])]
+    /**
+     * @Since("6.5.0.0")
+     * @Route("/api/_info/rule-config", name="api.info.rule-config", methods={"GET"})
+     */
     public function getConditionsConfig(): JsonResponse
     {
         return new JsonResponse($this->config);
@@ -39,17 +40,11 @@ class RuleConfigController extends AbstractController
     private function hydrateConfig(iterable $taggedRules): void
     {
         foreach ($taggedRules as $rule) {
-            try {
-                $config = $rule->getConfig();
-            } catch (\Throwable) {
+            if ($rule->getConfig() === null) {
                 continue;
             }
 
-            if ($config === null) {
-                continue;
-            }
-
-            $this->config[$rule->getName()] = $config->getData();
+            $this->config[$rule->getName()] = $rule->getConfig()->getData();
         }
     }
 }

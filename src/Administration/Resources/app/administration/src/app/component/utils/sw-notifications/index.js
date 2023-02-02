@@ -4,7 +4,6 @@ import './sw-notifications.scss';
 const { Component } = Shopware;
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
  * @private
  * @description
  * Wrapper element for all notifications of the administration.

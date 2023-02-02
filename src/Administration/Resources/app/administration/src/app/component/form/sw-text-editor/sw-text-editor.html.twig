@@ -76,7 +76,8 @@
                 tabindex="-1"
                 @focus="onFocus"
                 @paste="onPaste"
-                @input="onInput"
+                @blur="emitContent"
+                @input="onContentChange"
                 @copy="onCopy"
                 v-html="$sanitize(content, { ADD_ATTR: ['target'] })"
             ></div>

@@ -32,6 +32,8 @@ class ProductBuilder
 
     public string $id;
 
+    protected string $productNumber;
+
     protected ?string $name;
 
     protected ?array $manufacturer;
@@ -48,7 +50,9 @@ class ProductBuilder
 
     protected array $properties = [];
 
-    protected ?string $releaseDate = null;
+    protected int $stock;
+
+    protected ?string $releaseDate;
 
     protected array $customFields = [];
 
@@ -56,9 +60,9 @@ class ProductBuilder
 
     protected ?array $purchasePrices;
 
-    protected ?float $purchasePrice = null;
+    protected ?float $purchasePrice;
 
-    protected ?string $parentId = null;
+    protected ?string $parentId;
 
     protected array $children = [];
 
@@ -84,11 +88,13 @@ class ProductBuilder
 
     private array $dependencies = [];
 
-    public function __construct(IdsCollection $ids, protected string $productNumber, protected int $stock = 1, string $taxKey = 't1')
+    public function __construct(IdsCollection $ids, string $number, int $stock = 1, string $taxKey = 't1')
     {
         $this->ids = $ids;
-        $this->id = $this->ids->create($productNumber);
-        $this->name = $productNumber;
+        $this->productNumber = $number;
+        $this->id = $this->ids->create($number);
+        $this->stock = $stock;
+        $this->name = $number;
         $this->tax($taxKey);
     }
 
@@ -172,7 +178,7 @@ class ProductBuilder
 
     public function price(float $gross, ?float $net = null, string $currencyKey = 'default', ?float $listPriceGross = null, ?float $listPriceNet = null, bool $linked = false): self
     {
-        $net ??= $gross / 115 * 100;
+        $net = $net ?? $gross / 115 * 100;
 
         $price = [
             'gross' => $gross,
@@ -181,7 +187,7 @@ class ProductBuilder
         ];
 
         if ($listPriceGross !== null) {
-            $listPriceNet ??= $listPriceGross / 115 * 100;
+            $listPriceNet = $listPriceNet ?? $listPriceGross / 115 * 100;
 
             $price['listPrice'] = [
                 'gross' => $listPriceGross,
@@ -199,11 +205,11 @@ class ProductBuilder
 
     public function prices(string $ruleKey, float $gross, string $currencyKey = 'default', ?float $net = null, int $start = 1, bool $valid = false, ?float $listPriceGross = null, ?float $listPriceNet = null): self
     {
-        $net ??= $gross / 115 * 100;
+        $net = $net ?? $gross / 115 * 100;
 
         $listPrice = null;
         if ($listPriceGross !== null) {
-            $listPriceNet ??= $listPriceGross / 115 * 100;
+            $listPriceNet = $listPriceNet ?? $listPriceGross / 115 * 100;
 
             $listPrice = [
                 'gross' => $listPriceGross,
@@ -267,7 +273,7 @@ class ProductBuilder
 
     public function categories(array $keys): self
     {
-        array_map($this->category(...), $keys);
+        array_map([$this, 'category'], $keys);
 
         return $this;
     }
@@ -539,7 +545,9 @@ class ProductBuilder
         }
 
         foreach ($grouped as &$group) {
-            usort($group, fn (array $a, array $b) => $a['quantityStart'] <=> $b['quantityStart']);
+            usort($group, function (array $a, array $b) {
+                return $a['quantityStart'] <=> $b['quantityStart'];
+            });
         }
 
         $mapped = [];

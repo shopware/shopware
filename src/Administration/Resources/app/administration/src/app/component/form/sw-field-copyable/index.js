@@ -5,8 +5,6 @@ const { Component, Mixin } = Shopware;
 const domUtils = Shopware.Utils.dom;
 
 /**
- * @package admin
- *
  * @private
  */
 Component.register('sw-field-copyable', {

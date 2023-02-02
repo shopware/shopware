@@ -4,11 +4,8 @@ const { Component, Mixin, Service } = Shopware;
 const { ShopwareError } = Shopware.Classes;
 const { mapState } = Component.getComponentHelper();
 
-/**
- * @private
- * @package business-ops
- */
-export default {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+Component.register('sw-flow-affiliate-and-campaign-code-modal', {
     template,
 
     mixins: [
@@ -120,4 +117,4 @@ export default {
             this.$emit('modal-close');
         },
     },
-};
+});

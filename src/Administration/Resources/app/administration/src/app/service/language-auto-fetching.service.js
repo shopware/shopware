@@ -1,12 +1,6 @@
-/**
- * @package admin
- */
-
 let isInitialized = false;
 
-/**
- * @deprecated tag:v6.6.0 - Will be private
- */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function LanguageAutoFetchingService() {
     if (isInitialized) return;
     isInitialized = true;

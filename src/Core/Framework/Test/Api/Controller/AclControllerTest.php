@@ -5,14 +5,12 @@ namespace Shopware\Core\Framework\Test\Api\Controller;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Acl\Event\AclGetAdditionalPrivilegesEvent;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
  */
-#[Package('system-settings')]
 class AclControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
@@ -21,7 +19,7 @@ class AclControllerTest extends TestCase
     {
         $this->getBrowser()->request('GET', '/api/_action/acl/privileges');
         $response = $this->getBrowser()->getResponse();
-        $privileges = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $privileges = json_decode($response->getContent(), true);
 
         static::assertContains('unit:read', $privileges);
         static::assertContains('system:clear:cache', $privileges);
@@ -31,7 +29,7 @@ class AclControllerTest extends TestCase
     {
         $this->getBrowser()->request('GET', '/api/_action/acl/additional_privileges');
         $response = $this->getBrowser()->getResponse();
-        $privileges = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $privileges = json_decode($response->getContent(), true);
 
         static::assertNotContains('unit:read', $privileges);
         static::assertContains('system:clear:cache', $privileges);
@@ -50,7 +48,7 @@ class AclControllerTest extends TestCase
 
         $this->getBrowser()->request('GET', '/api/_action/acl/additional_privileges');
         $response = $this->getBrowser()->getResponse();
-        $privileges = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $privileges = json_decode($response->getContent(), true);
 
         static::assertNotContains('unit:read', $privileges);
         static::assertContains('system:clear:cache', $privileges);
@@ -65,7 +63,7 @@ class AclControllerTest extends TestCase
             $response = $this->getBrowser()->getResponse();
 
             static::assertEquals(Response::HTTP_FORBIDDEN, $response->getStatusCode(), $response->getContent());
-            static::assertEquals(MissingPrivilegeException::MISSING_PRIVILEGE_ERROR, json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR)['errors'][0]['code'], $response->getContent());
+            static::assertEquals(MissingPrivilegeException::MISSING_PRIVILEGE_ERROR, json_decode($response->getContent(), true)['errors'][0]['code'], $response->getContent());
         } finally {
             $this->resetBrowser();
         }

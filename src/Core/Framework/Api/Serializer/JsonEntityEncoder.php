@@ -12,19 +12,23 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\Framework\Struct\Struct;
-use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
+use Symfony\Component\Serializer\Serializer;
 
-#[Package('core')]
 class JsonEntityEncoder
 {
     /**
+     * @var Serializer
+     */
+    private $serializer;
+
+    /**
      * @internal
      */
-    public function __construct(private readonly NormalizerInterface $serializer)
+    public function __construct(Serializer $serializer)
     {
+        $this->serializer = $serializer;
     }
 
     /**

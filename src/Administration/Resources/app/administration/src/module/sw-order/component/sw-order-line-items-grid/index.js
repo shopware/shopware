@@ -1,17 +1,12 @@
 import template from './sw-order-line-items-grid.html.twig';
-import { LineItemType } from '../../order.types';
 import './sw-order-line-items-grid.scss';
 
-/**
- * @package customer-order
- */
-
-const { Utils } = Shopware;
+const { Component, Service, Utils } = Shopware;
 const { get, format } = Utils;
 
 // merge 16.11.2020
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-order-line-items-grid', {
     template,
 
     inject: ['repositoryFactory', 'orderService', 'acl', 'feature'],
@@ -39,7 +34,6 @@ export default {
             selectedItems: {},
             searchTerm: '',
             nestedLineItemsModal: null,
-            showDeleteModal: false,
         };
     },
     computed: {
@@ -48,7 +42,7 @@ export default {
         },
 
         orderLineItemRepository() {
-            return this.repositoryFactory.create('order_line_item');
+            return Service('repositoryFactory').create('order_line_item');
         },
 
         orderLineItems() {
@@ -63,18 +57,12 @@ export default {
                     return false;
                 }
 
-                const targets = [item.label.toLowerCase()];
-
-                if (this.isProductNumberColumnVisible && item.payload?.productNumber) {
-                    targets.push(item.payload.productNumber.toLowerCase());
-                }
-
-                return keyWords.every(key => targets.some(i => i.includes(key.toLowerCase())));
+                return keyWords.every(key => item.label.toLowerCase().includes(key.toLowerCase()));
             });
         },
 
         lineItemTypes() {
-            return LineItemType;
+            return Service('cartStoreService').getLineItemTypes();
         },
 
         taxStatus() {
@@ -111,13 +99,6 @@ export default {
                 inlineEdit: true,
                 multiLine: true,
             }, {
-                property: 'payload.productNumber',
-                dataIndex: 'payload.productNumber',
-                label: 'sw-order.detailBase.columnProductNumber',
-                allowResize: false,
-                align: 'left',
-                visible: false,
-            }, {
                 property: 'unitPrice',
                 dataIndex: 'unitPrice',
                 label: this.unitPriceLabel,
@@ -152,11 +133,6 @@ export default {
 
         salesChannelId() {
             return this.order?.salesChannelId ?? '';
-        },
-
-        isProductNumberColumnVisible() {
-            return this.$refs.dataGrid?.currentColumns
-                .find(item => item.property === 'payload.productNumber')?.visible;
         },
     },
     methods: {
@@ -224,9 +200,6 @@ export default {
             item.totalPrice = '...';
             item.precision = 2;
             item.label = '';
-            item.payload = {
-                productNumber: '',
-            };
 
             return item;
         },
@@ -235,20 +208,20 @@ export default {
             const item = this.createNewOrderLineItem();
             item.description = 'custom line item';
             item.type = this.lineItemTypes.CUSTOM;
-            this.order.lineItems.unshift(item);
+            this.orderLineItems.unshift(item);
         },
 
         onInsertExistingItem() {
             const item = this.createNewOrderLineItem();
             item.type = this.lineItemTypes.PRODUCT;
-            this.order.lineItems.unshift(item);
+            this.orderLineItems.unshift(item);
         },
 
         onInsertCreditItem() {
             const item = this.createNewOrderLineItem();
             item.description = 'credit line item';
             item.type = this.lineItemTypes.CREDIT;
-            this.order.lineItems.unshift(item);
+            this.orderLineItems.unshift(item);
         },
 
         onSelectionChanged(selection) {
@@ -257,49 +230,22 @@ export default {
 
         onDeleteSelectedItems() {
             const deletionPromises = [];
-
-            Object.values(this.selectedItems).forEach((item) => {
-                if (item.isNew()) {
-                    const itemIndex = this.order.lineItems.findIndex(lineItem => item.id === lineItem.id);
-                    this.$delete(this.order.lineItems, itemIndex);
-                    return;
-                }
-
-                deletionPromises.push(this.orderLineItemRepository.delete(item.id, this.context));
+            Object.keys(this.selectedItems).forEach((id) => {
+                deletionPromises.push(this.orderLineItemRepository.delete(id, this.context));
             });
 
-            if (!deletionPromises.length) {
-                this.selectedItems = {};
-                this.$refs.dataGrid.resetSelection();
-                return;
-            }
+            this.selectedItems = {};
 
             Promise.all(deletionPromises).then(() => {
                 this.$emit('item-delete');
-                this.selectedItems = {};
                 this.$refs.dataGrid.resetSelection();
             });
         },
 
-        onDeleteItem(item, itemIndex) {
-            if (item.isNew()) {
-                this.$delete(this.order.lineItems, itemIndex);
-                return;
-            }
-
-            this.showDeleteModal = item.id;
-        },
-
-        onCloseDeleteModal() {
-            this.showDeleteModal = false;
-        },
-
-        onConfirmDelete() {
-            this.orderLineItemRepository.delete(this.showDeleteModal, this.context).then(() => {
+        onDeleteItem(item) {
+            this.orderLineItemRepository.delete(item.id, this.context).then(() => {
                 this.$emit('item-delete');
             });
-
-            this.showDeleteModal = false;
         },
 
         itemCreatedFromProduct(id) {
@@ -395,4 +341,4 @@ export default {
                 !this.isCreditItem(item.id);
         },
     },
-};
+});

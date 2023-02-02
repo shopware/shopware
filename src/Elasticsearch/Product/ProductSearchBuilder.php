@@ -5,20 +5,30 @@ namespace Shopware\Elasticsearch\Product;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('core')]
 class ProductSearchBuilder implements ProductSearchBuilderInterface
 {
+    private ProductSearchBuilderInterface $decorated;
+
+    private ElasticsearchHelper $helper;
+
+    private ProductDefinition $productDefinition;
+
     /**
      * @internal
      */
-    public function __construct(private readonly ProductSearchBuilderInterface $decorated, private readonly ElasticsearchHelper $helper, private readonly ProductDefinition $productDefinition)
-    {
+    public function __construct(
+        ProductSearchBuilderInterface $decorated,
+        ElasticsearchHelper $helper,
+        ProductDefinition $productDefinition
+    ) {
+        $this->decorated = $decorated;
+        $this->helper = $helper;
+        $this->productDefinition = $productDefinition;
     }
 
     public function build(Request $request, Criteria $criteria, SalesChannelContext $context): void

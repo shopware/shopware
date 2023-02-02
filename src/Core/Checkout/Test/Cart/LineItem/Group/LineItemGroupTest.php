@@ -4,12 +4,10 @@ namespace Shopware\Core\Checkout\Test\Cart\LineItem\Group;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroup;
-use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
-#[Package('checkout')]
 class LineItemGroupTest extends TestCase
 {
     /**

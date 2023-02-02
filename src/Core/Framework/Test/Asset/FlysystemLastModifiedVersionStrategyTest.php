@@ -2,31 +2,33 @@
 
 namespace Shopware\Core\Framework\Test\Asset;
 
+use League\Flysystem\Adapter\Local;
 use League\Flysystem\Filesystem;
-use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Asset\FlysystemLastModifiedVersionStrategy;
-use Shopware\Core\Framework\Adapter\Filesystem\MemoryFilesystemAdapter;
+use Symfony\Component\Asset\Package;
 use Symfony\Component\Asset\UrlPackage;
-use Symfony\Component\Cache\Adapter\ArrayAdapter;
-use Symfony\Component\Cache\Adapter\TagAwareAdapter;
+use Symfony\Component\Cache\Adapter\FilesystemTagAwareAdapter;
 
 /**
  * @internal
  */
 class FlysystemLastModifiedVersionStrategyTest extends TestCase
 {
-    private Filesystem $fs;
+    /**
+     * @var Filesystem
+     */
+    private $fs;
 
-    private UrlPackage $asset;
-
-    private FlysystemLastModifiedVersionStrategy $strategy;
+    /**
+     * @var Package
+     */
+    private $asset;
 
     public function setUp(): void
     {
-        $this->fs = new Filesystem(new MemoryFilesystemAdapter());
-        $this->strategy = new FlysystemLastModifiedVersionStrategy('test', $this->fs, new TagAwareAdapter(new ArrayAdapter(), new ArrayAdapter()));
-        $this->asset = new UrlPackage(['http://shopware.com'], $this->strategy);
+        $this->fs = new Filesystem(new Local(sys_get_temp_dir() . '/' . uniqid(self::class, true)));
+        $this->asset = new UrlPackage(['http://shopware.com'], new FlysystemLastModifiedVersionStrategy('test', $this->fs, new FilesystemTagAwareAdapter('test', 0, sys_get_temp_dir() . '/cache-' . uniqid(self::class, true))));
     }
 
     public function testNonExistentFile(): void
@@ -38,32 +40,17 @@ class FlysystemLastModifiedVersionStrategyTest extends TestCase
     public function testExistsFile(): void
     {
         $this->fs->write('testFile', 'yea');
-        $lastModified = (string) $this->fs->lastModified('testFile');
+        $metaData = $this->fs->getMetadata('testFile');
         $url = $this->asset->getUrl('testFile');
-        static::assertSame('http://shopware.com/testFile?' . $lastModified, $url);
-    }
-
-    public function testApplyDoesSameAsGetVersion(): void
-    {
-        static::assertSame($this->strategy->getVersion('foo'), $this->strategy->getVersion('foo'));
+        static::assertSame('http://shopware.com/testFile?' . $metaData['timestamp'] . ($metaData['size'] ?? '0'), $url);
     }
 
     public function testFolder(): void
     {
         $this->fs->write('folder/file', 'test');
 
-        static::assertSame('http://shopware.com/folder', $this->asset->getUrl('folder'));
-        static::assertSame('http://shopware.com/not_existing/bla', $this->asset->getUrl('not_existing/bla'));
-        static::assertSame('http://shopware.com/folder', $this->asset->getUrl('folder'));
-    }
-
-    public function testWithEmptyString(): void
-    {
-        $fs = $this->createMock(FilesystemOperator::class);
-        $fs->expects(static::never())->method('lastModified');
-
-        $strategy = new FlysystemLastModifiedVersionStrategy('test', $fs, new TagAwareAdapter(new ArrayAdapter(), new ArrayAdapter()));
-
-        static::assertSame('', $strategy->getVersion(''));
+        $metaData = $this->fs->getMetadata('folder');
+        $url = $this->asset->getUrl('folder');
+        static::assertSame('http://shopware.com/folder?' . $metaData['timestamp'] . '0', $url);
     }
 }

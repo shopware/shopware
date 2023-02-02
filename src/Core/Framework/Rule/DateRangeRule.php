@@ -2,17 +2,13 @@
 
 namespace Shopware\Core\Framework\Rule;
 
-use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraints\DateTime as DateTimeConstraint;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Constraints\Type;
 
-#[Package('business-ops')]
 class DateRangeRule extends Rule
 {
-    final public const RULE_NAME = 'dateRange';
-
     /**
      * @var \DateTimeInterface|string|null
      */
@@ -84,5 +80,10 @@ class DateRangeRule extends Rule
             'toDate' => [new NotBlank(), new DateTimeConstraint(['format' => \DateTime::ATOM])],
             'useTime' => [new NotNull(), new Type('bool')],
         ];
+    }
+
+    public function getName(): string
+    {
+        return 'dateRange';
     }
 }

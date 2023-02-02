@@ -12,9 +12,6 @@ jest.mock('src/plugin-system/plugin.manager', () => ({
     },
 }));
 
-/**
- * @package storefront
- */
 describe('AjaxModalPlugin tests', () => {
     let ajaxModalPlugin = undefined;
 

@@ -1,7 +1,3 @@
-/**
- * @package admin
- */
-
 /* Is covered by E2E tests */
 /* istanbul ignore file */
 import type { Module } from 'vuex';
@@ -37,13 +33,10 @@ const ExtensionSdkModuleStore: Module<ExtensionSdkModuleState, VuexRootState> = 
 
             const id = Shopware.Utils.format.md5(JSON.stringify(staticElements));
 
-            // Only push the module if it does not exist yet
-            if (!state.modules.some(module => module.id === id)) {
-                state.modules.push({
-                    id,
-                    ...staticElements,
-                });
-            }
+            state.modules.push({
+                id,
+                ...staticElements,
+            });
 
             return Promise.resolve(id);
         },
@@ -56,9 +49,7 @@ const ExtensionSdkModuleStore: Module<ExtensionSdkModuleState, VuexRootState> = 
     },
 };
 
-/**
- * @deprecated tag:v6.6.0 - Will be private
- */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default ExtensionSdkModuleStore;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

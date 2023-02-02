@@ -6,9 +6,6 @@ class FooPluginClass extends Plugin {
     init() {}
 }
 
-/**
- * @package storefront
- */
 describe('Plugin manager', () => {
     beforeEach(() => {
         document.body.innerHTML = '<div data-plugin="true" class="test-class"></div><div id="test-id"></div>';

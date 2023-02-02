@@ -10,12 +10,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('sales-channel')]
 class MailHeaderFooterTranslationDefinition extends EntityTranslationDefinition
 {
-    final public const ENTITY_NAME = 'mail_header_footer_translation';
+    public const ENTITY_NAME = 'mail_header_footer_translation';
 
     public function getEntityName(): string
     {

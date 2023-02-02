@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Unit\Core\Maintenance\System\Service;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -19,7 +18,7 @@ class ShopConfiguratorTest extends TestCase
     private ShopConfigurator $shopConfigurator;
 
     /**
-     * @var Connection&MockObject
+     * @var Connection&\PHPUnit\Framework\MockObject\MockObject
      */
     private Connection $connection;
 
@@ -185,7 +184,9 @@ class ShopConfiguratorTest extends TestCase
 
         $this->connection->expects(static::atLeast(2))->method('fetchOne')->willReturn($viLocaleId);
 
-        $methodReturns = array_values(array_filter([$expectedMissingTranslations, $expectedStateTranslations], fn (array $item) => !empty($item)));
+        $methodReturns = array_values(array_filter([$expectedMissingTranslations, $expectedStateTranslations], function (array $item) {
+            return !empty($item);
+        }));
 
         $methodCalls = \count($methodReturns);
 

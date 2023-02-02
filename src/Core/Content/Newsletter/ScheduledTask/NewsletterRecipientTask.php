@@ -2,10 +2,8 @@
 
 namespace Shopware\Core\Content\Newsletter\ScheduledTask;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 
-#[Package('customer-order')]
 class NewsletterRecipientTask extends ScheduledTask
 {
     public static function getTaskName(): string

@@ -3,12 +3,10 @@
 namespace Shopware\Core\Checkout\Document;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<DocumentEntity>
  */
-#[Package('customer-order')]
 class DocumentCollection extends EntityCollection
 {
     public function getApiAlias(): string

@@ -16,7 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
  */
 class DateTimeDefinition extends EntityDefinition
 {
-    final public const ENTITY_NAME = 'date_time_test';
+    public const ENTITY_NAME = 'date_time_test';
 
     public function getEntityName(): string
     {

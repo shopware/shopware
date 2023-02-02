@@ -1,37 +1,39 @@
 // / <reference types="Cypress" />
 
-/**
- * @package sales-channel
- */
+import elements from "../../../../support/pages/sw-general.page-object";
 
 const uuid = require('uuid/v4');
 
 describe('Theme: Test Inheritance', () => {
     beforeEach(() => {
-        cy.createDefaultSalesChannel().then(() => {
-            cy.viewport(1920, 1080);
-            cy.openInitialPage(`${Cypress.env('admin')}#`);
-            cy.get('.sw-skeleton').should('not.exist');
-            cy.get('.sw-loader').should('not.exist');
-        });
+        cy.loginViaApi()
+            .then(() => {
+                return cy.createDefaultSalesChannel();
+            })
+            .then(() => {
+                cy.viewport(1920, 1080);
+                cy.openInitialPage(`${Cypress.env('admin')}#`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
+            });
     });
 
     it('@content: check inherited theme', { tags: ['pa-sales-channels'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/theme/*`,
-            method: 'delete',
+            method: 'delete'
         }).as('deleteTheme');
 
         const themeId = uuid().replace(/-/g, '');
         const childThemeId = uuid().replace(/-/g, '');
-        cy.createDefaultFixture('theme', {id: themeId, parentThemeId: null}).then(() => {
+        cy.createDefaultFixture('theme', {id: themeId, parentThemeId: null}).then((response) => {
             cy.createDefaultFixture('theme', {id: childThemeId, parentThemeId: themeId}, 'theme-inheritance').then(() => {
                 cy.createDefaultFixture('theme-child', {parentId: themeId, childId: childThemeId}).then(() => {
                     cy.visit(`${Cypress.env('admin')}#/sw/theme/manager/index`);
                     cy.get('.sw-skeleton').should('not.exist');
                     cy.get('.sw-loader').should('not.exist');
-                });
-            });
+                })
+            })
         });
 
         // show list of themes
@@ -41,7 +43,7 @@ describe('Theme: Test Inheritance', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/theme/*`,
-            method: 'PATCH',
+            method: 'PATCH'
         }).as('saveData');
 
         // search for Media card
@@ -65,7 +67,7 @@ describe('Theme: Test Inheritance', () => {
 
         cy.get('.sw-inherit-wrapper.sw-field-id-sw-color-brand-primary .sw-colorpicker__input').should('have.value', '#008490');
 
-        cy.get('.sw-inherit-wrapper.sw-field-id-sw-color-brand-secondary .sw-colorpicker__input').should('have.value', '#3d444d');
+        cy.get('.sw-inherit-wrapper.sw-field-id-sw-color-brand-secondary .sw-colorpicker__input').should('have.value', '#526e7f');
 
         cy.get('.smart-bar__back-btn').click();
 

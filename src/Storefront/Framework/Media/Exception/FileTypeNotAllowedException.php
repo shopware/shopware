@@ -2,10 +2,8 @@
 
 namespace Shopware\Storefront\Framework\Media\Exception;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
-#[Package('content')]
 class FileTypeNotAllowedException extends ShopwareHttpException
 {
     public function __construct(string $mimeType, string $uploadType)

@@ -1,5 +1,3 @@
-@import "~scss/variables";
-
 .sw-category-link-settings {
     .sw-category-detail-base__link-section {
         margin-bottom: 16px;
@@ -8,6 +6,6 @@
 
     .sw-category-detail-base__link-element {
         margin-left: 2px;
-        font-weight: $font-weight-semi-bold;
+        font-weight: 600;
     }
 }

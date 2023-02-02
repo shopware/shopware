@@ -10,6 +10,9 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpKernel\KernelInterface;
+use Symfony\Component\Security\Csrf\CsrfTokenManager;
+use Symfony\Component\Security\Csrf\TokenGenerator\UriSafeTokenGenerator;
+use Symfony\Component\Security\Csrf\TokenStorage\SessionTokenStorage;
 
 trait StorefrontControllerTestBehaviour
 {
@@ -37,6 +40,13 @@ trait StorefrontControllerTestBehaviour
         $session = $this->getSession();
         $request->setSession($session);
         $requestStack->push($request);
+
+        $tokenStorage = new CsrfTokenManager(
+            new UriSafeTokenGenerator(),
+            new SessionTokenStorage($requestStack)
+        );
+
+        $data['_csrf_token'] = $tokenStorage->getToken($route);
 
         return $data;
     }

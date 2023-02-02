@@ -7,7 +7,6 @@ use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
 use Shopware\Core\Framework\App\Lifecycle\Persister\ScriptPersister;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
-use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Twig\Cache\FilesystemCache;
@@ -15,16 +14,27 @@ use Twig\Cache\FilesystemCache;
 /**
  * @internal only for use by the app-system
  */
-#[Package('core')]
 class ScriptLoader implements EventSubscriberInterface
 {
-    final public const CACHE_KEY = 'shopware-app-scripts';
+    public const CACHE_KEY = 'shopware-app-scripts';
 
-    private readonly string $cacheDir;
+    private Connection $connection;
 
-    public function __construct(private readonly Connection $connection, private readonly ScriptPersister $scriptPersister, private readonly TagAwareAdapterInterface $cache, string $cacheDir, private readonly bool $debug)
+    private string $cacheDir;
+
+    private ScriptPersister $scriptPersister;
+
+    private bool $debug;
+
+    private TagAwareAdapterInterface $cache;
+
+    public function __construct(Connection $connection, ScriptPersister $scriptPersister, TagAwareAdapterInterface $cache, string $cacheDir, bool $debug)
     {
+        $this->connection = $connection;
         $this->cacheDir = $cacheDir . '/twig/scripts';
+        $this->scriptPersister = $scriptPersister;
+        $this->debug = $debug;
+        $this->cache = $cache;
     }
 
     public static function getSubscribedEvents(): array
@@ -61,7 +71,7 @@ class ScriptLoader implements EventSubscriberInterface
             $this->scriptPersister->refresh();
         }
 
-        $scripts = $this->connection->fetchAllAssociative('
+        $scripts = $this->connection->fetchAllAssociative("
             SELECT LOWER(HEX(`script`.`app_id`)) as `app_id`,
                    `script`.`name` AS scriptName,
                    `script`.`script` AS script,
@@ -73,11 +83,11 @@ class ScriptLoader implements EventSubscriberInterface
                    `script`.`active` AS active
             FROM `script`
             LEFT JOIN `app` ON `script`.`app_id` = `app`.`id`
-            WHERE `script`.`hook` != \'include\'
+            WHERE `script`.`hook` != 'include'
             ORDER BY `app`.`created_at`, `app`.`id`, `script`.`name`
-        ');
+        ");
 
-        $includes = $this->connection->fetchAllAssociative('
+        $includes = $this->connection->fetchAllAssociative("
             SELECT LOWER(HEX(`script`.`app_id`)) as `app_id`,
                    `script`.`name` AS name,
                    `script`.`script` AS script,
@@ -86,9 +96,9 @@ class ScriptLoader implements EventSubscriberInterface
                    IFNULL(`script`.`updated_at`, `script`.`created_at`) AS lastModified
             FROM `script`
             LEFT JOIN `app` ON `script`.`app_id` = `app`.`id`
-            WHERE `script`.`hook` = \'include\'
+            WHERE `script`.`hook` = 'include'
             ORDER BY `app`.`created_at`, `app`.`id`, `script`.`name`
-        ');
+        ");
 
         $allIncludes = FetchModeHelper::group($includes);
 
@@ -99,7 +109,7 @@ class ScriptLoader implements EventSubscriberInterface
 
             $includes = $allIncludes[$appId] ?? [];
 
-            $dates = [...[$script['lastModified']], ...array_column($includes, 'lastModified')];
+            $dates = array_merge([$script['lastModified']], array_column($includes, 'lastModified'));
 
             /** @var \DateTimeInterface $lastModified */
             $lastModified = new \DateTimeImmutable(max($dates));

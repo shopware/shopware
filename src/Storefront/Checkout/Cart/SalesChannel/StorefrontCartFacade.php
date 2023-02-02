@@ -2,14 +2,13 @@
 
 namespace Shopware\Storefront\Checkout\Cart\SalesChannel;
 
-use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartCalculator;
+use Shopware\Core\Checkout\Cart\CartPersisterInterface;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Payment\Cart\Error\PaymentMethodBlockedError;
 use Shopware\Core\Checkout\Shipping\Cart\Error\ShippingMethodBlockedError;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannel\AbstractContextSwitchRoute;
@@ -19,23 +18,44 @@ use Shopware\Storefront\Checkout\Cart\Error\ShippingMethodChangedError;
 use Shopware\Storefront\Checkout\Payment\BlockedPaymentMethodSwitcher;
 use Shopware\Storefront\Checkout\Shipping\BlockedShippingMethodSwitcher;
 
-#[Package('checkout')]
 class StorefrontCartFacade
 {
+    private CartService $cartService;
+
+    private BlockedShippingMethodSwitcher $blockedShippingMethodSwitcher;
+
+    private BlockedPaymentMethodSwitcher $blockedPaymentMethodSwitcher;
+
+    private AbstractContextSwitchRoute $contextSwitchRoute;
+
+    private CartCalculator $calculator;
+
+    private CartPersisterInterface $cartPersister;
+
     /**
      * @internal
      */
-    public function __construct(private readonly CartService $cartService, private readonly BlockedShippingMethodSwitcher $blockedShippingMethodSwitcher, private readonly BlockedPaymentMethodSwitcher $blockedPaymentMethodSwitcher, private readonly AbstractContextSwitchRoute $contextSwitchRoute, private readonly CartCalculator $calculator, private readonly AbstractCartPersister $cartPersister)
-    {
+    public function __construct(
+        CartService $cartService,
+        BlockedShippingMethodSwitcher $blockedShippingMethodSwitcher,
+        BlockedPaymentMethodSwitcher $blockedPaymentMethodSwitcher,
+        AbstractContextSwitchRoute $contextSwitchRoute,
+        CartCalculator $calculator,
+        CartPersisterInterface $cartPersister
+    ) {
+        $this->cartService = $cartService;
+        $this->blockedShippingMethodSwitcher = $blockedShippingMethodSwitcher;
+        $this->blockedPaymentMethodSwitcher = $blockedPaymentMethodSwitcher;
+        $this->contextSwitchRoute = $contextSwitchRoute;
+        $this->calculator = $calculator;
+        $this->cartPersister = $cartPersister;
     }
 
     public function get(
         string $token,
-        SalesChannelContext $originalContext,
-        bool $caching = true,
-        bool $taxed = false
+        SalesChannelContext $originalContext
     ): Cart {
-        $originalCart = $this->cartService->getCart($token, $originalContext, $caching, $taxed);
+        $originalCart = $this->cartService->getCart($token, $originalContext);
         $cartErrors = $originalCart->getErrors();
         if (!$this->cartContainsBlockedMethods($cartErrors)) {
             return $originalCart;

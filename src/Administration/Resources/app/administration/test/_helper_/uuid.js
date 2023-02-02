@@ -1,7 +1,3 @@
-/**
- * @package admin
- */
-
 const crypto = require('crypto');
 
 export default {

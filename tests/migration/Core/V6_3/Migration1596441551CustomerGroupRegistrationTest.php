@@ -38,8 +38,6 @@ class Migration1596441551CustomerGroupRegistrationTest extends TestCase
 
     public function testDutchWithRemovedDeAndEnLanguage(): void
     {
-        static::markTestSkipped('NEXT-24549: should be enabled again after NEXT-24549 is fixed');
-
         $connection = KernelLifecycleManager::getConnection();
         $this->changeDefaultLanguageToDutch($connection);
 

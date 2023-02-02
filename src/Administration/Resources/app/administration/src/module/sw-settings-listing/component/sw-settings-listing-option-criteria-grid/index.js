@@ -5,7 +5,7 @@ const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Shopware.Component.register('sw-settings-listing-option-criteria-grid', {
     template,
 
     inject: ['repositoryFactory'],
@@ -81,6 +81,19 @@ export default {
                 }
 
                 return a.priority < b.priority ? 1 : -1;
+            });
+        },
+
+        /**
+         * @deprecated tag:v6.5.0 - Can be removed completely. The computed prop was used
+         * to provide the options prop of an sw-single-select which has been replaced with sw-entity-single-select.
+         */
+        unusedCustomFields() {
+            return this.customFields.filter(customField => {
+                return !this.productSortingEntity.fields.some(field => {
+                    return field.field === customField.name ||
+                        field.field === `customFields.${customField.name}`;
+                });
             });
         },
 
@@ -410,4 +423,4 @@ export default {
             }).map(item => item.name) || {};
         },
     },
-};
+});

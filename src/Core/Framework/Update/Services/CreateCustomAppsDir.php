@@ -2,21 +2,19 @@
 
 namespace Shopware\Core\Framework\Update\Services;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-/**
- * @internal
- */
-#[Package('system-settings')]
 class CreateCustomAppsDir implements EventSubscriberInterface
 {
+    private string $appDir;
+
     /**
      * @internal
      */
-    public function __construct(private readonly string $appDir)
+    public function __construct(string $appDir)
     {
+        $this->appDir = $appDir;
     }
 
     public static function getSubscribedEvents(): array

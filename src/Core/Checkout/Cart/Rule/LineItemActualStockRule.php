@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
@@ -12,17 +11,26 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-#[Package('business-ops')]
 class LineItemActualStockRule extends Rule
 {
-    final public const RULE_NAME = 'cartLineItemActualStock';
+    protected ?int $stock;
+
+    protected string $operator;
 
     /**
      * @internal
      */
-    public function __construct(protected string $operator = self::OPERATOR_EQ, protected ?int $stock = null)
+    public function __construct(string $operator = self::OPERATOR_EQ, ?int $stock = null)
     {
         parent::__construct();
+
+        $this->operator = $operator;
+        $this->stock = $stock;
+    }
+
+    public function getName(): string
+    {
+        return 'cartLineItemActualStock';
     }
 
     public function match(RuleScope $scope): bool
@@ -35,7 +43,7 @@ class LineItemActualStockRule extends Rule
             return false;
         }
 
-        foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
+        foreach ($scope->getCart()->getLineItems()->getFlat() as $lineItem) {
             if ($this->matchStock($lineItem)) {
                 return true;
             }

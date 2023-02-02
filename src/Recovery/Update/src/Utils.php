@@ -4,9 +4,6 @@ namespace Shopware\Recovery\Update;
 
 use Symfony\Component\Dotenv\Dotenv;
 
-/**
- * @package system-settings
- */
 class Utils
 {
     /**
@@ -185,21 +182,21 @@ class Utils
 
         $dsn = 'mysql:' . implode(';', $dsn);
 
-        $parameters = [\PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES \'UTF8MB4\''];
+        $parameters = [\PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'UTF8MB4'"];
 
-        if (!empty($_ENV['DATABASE_SSL_CA'])) {
+        if (isset($_ENV['DATABASE_SSL_CA'])) {
             $parameters[\PDO::MYSQL_ATTR_SSL_CA] = $_ENV['DATABASE_SSL_CA'];
         }
 
-        if (!empty($_ENV['DATABASE_SSL_CERT'])) {
+        if (isset($_ENV['DATABASE_SSL_CERT'])) {
             $parameters[\PDO::MYSQL_ATTR_SSL_CERT] = $_ENV['DATABASE_SSL_CERT'];
         }
 
-        if (!empty($_ENV['DATABASE_SSL_KEY'])) {
+        if (isset($_ENV['DATABASE_SSL_KEY'])) {
             $parameters[\PDO::MYSQL_ATTR_SSL_KEY] = $_ENV['DATABASE_SSL_KEY'];
         }
 
-        if (!empty($_ENV['DATABASE_SSL_DONT_VERIFY_SERVER_CERT'])) {
+        if (isset($_ENV['DATABASE_SSL_DONT_VERIFY_SERVER_CERT'])) {
             $parameters[\PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = false;
         }
 
@@ -269,7 +266,7 @@ class Utils
 
     protected static function setNonStrictSQLMode(\PDO $conn): void
     {
-        $conn->exec('SET @@session.sql_mode = \'\'');
+        $conn->exec("SET @@session.sql_mode = ''");
     }
 
     /**

@@ -7,23 +7,21 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigCollection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-/**
- * @internal
- */
-#[Package('system-settings')]
 class SalesChannelUserConfigSubscriber implements EventSubscriberInterface
 {
-    final public const CONFIG_KEY = 'sales-channel-favorites';
+    public const CONFIG_KEY = 'sales-channel-favorites';
+
+    private EntityRepository $userConfigRepository;
 
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $userConfigRepository)
+    public function __construct(EntityRepository $userConfigRepository)
     {
+        $this->userConfigRepository = $userConfigRepository;
     }
 
     public static function getSubscribedEvents(): array

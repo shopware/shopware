@@ -4,11 +4,9 @@ namespace Shopware\Core\Checkout\Cart\Price\Struct;
 
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Util\FloatComparator;
 
-#[Package('checkout')]
 class CalculatedPrice extends Struct
 {
     /**
@@ -37,7 +35,7 @@ class CalculatedPrice extends Struct
     protected $taxRules;
 
     /**
-     * @var ReferencePrice|null
+     * @var ReferencePrice
      */
     protected $referencePrice;
 
@@ -79,11 +77,6 @@ class CalculatedPrice extends Struct
     public function getCalculatedTaxes(): CalculatedTaxCollection
     {
         return $this->calculatedTaxes;
-    }
-
-    public function setCalculatedTaxes(CalculatedTaxCollection $calculatedTaxes): void
-    {
-        $this->calculatedTaxes = $calculatedTaxes;
     }
 
     public function getTaxRules(): TaxRuleCollection

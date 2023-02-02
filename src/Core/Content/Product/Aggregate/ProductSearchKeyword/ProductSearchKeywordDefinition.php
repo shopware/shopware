@@ -14,13 +14,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageDefinition;
 
-#[Package('inventory')]
 class ProductSearchKeywordDefinition extends EntityDefinition
 {
-    final public const ENTITY_NAME = 'product_search_keyword';
+    public const ENTITY_NAME = 'product_search_keyword';
 
     public function getEntityName(): string
     {

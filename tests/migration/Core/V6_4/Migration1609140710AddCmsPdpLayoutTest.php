@@ -220,7 +220,7 @@ class Migration1609140710AddCmsPdpLayoutTest extends TestCase
         ];
 
         foreach ($slotTranslations as $slotTranslation) {
-            static::assertContainsEquals(json_decode($slotTranslation, true, 512, \JSON_THROW_ON_ERROR), $expectedSlotTranslations);
+            static::assertContainsEquals(json_decode($slotTranslation, true), $expectedSlotTranslations);
         }
     }
 

@@ -7,7 +7,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_4\Migration1623391399ChangeConstraintAclRoleAndIntegrationInApp;
@@ -15,7 +14,6 @@ use Shopware\Core\Migration\V6_4\Migration1623391399ChangeConstraintAclRoleAndIn
 /**
  * @internal
  */
-#[Package('core')]
 class Migration1623391399ChangeConstraintAclRoleAndIntegrationInAppTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -26,13 +24,13 @@ class Migration1623391399ChangeConstraintAclRoleAndIntegrationInAppTest extends 
     {
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->connection->rollBack();
-        $this->connection->executeStatement('
+        $this->connection->executeUpdate('
             ALTER TABLE `app`
             DROP FOREIGN KEY `fk.app.integration_id`,
             DROP FOREIGN KEY `fk.app.acl_role_id`;
         ');
 
-        $this->connection->executeStatement('
+        $this->connection->executeUpdate('
             ALTER TABLE `app`
             ADD CONSTRAINT `fk.app.integration_id` FOREIGN KEY (`integration_id`) REFERENCES `integration` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
             ADD CONSTRAINT `fk.app.acl_role_id` FOREIGN KEY (`acl_role_id`) REFERENCES `acl_role` (`id`) ON DELETE CASCADE ON UPDATE CASCADE

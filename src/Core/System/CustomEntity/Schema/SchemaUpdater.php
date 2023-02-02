@@ -5,19 +5,17 @@ namespace Shopware\Core\System\CustomEntity\Schema;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
-use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
 /**
  * @internal
  * @phpstan-type CustomEntityField array{name: string, type: string, required?: bool, translatable?: bool, reference: string, inherited?: bool, onDelete: string, storeApiAware?: bool}
  */
-#[Package('core')]
 class SchemaUpdater
 {
-    final public const TABLE_PREFIX = 'custom_entity_';
+    public const TABLE_PREFIX = 'custom_entity_';
 
-    final public const SHORTHAND_TABLE_PREFIX = 'ce_';
+    public const SHORTHAND_TABLE_PREFIX = 'ce_';
 
     private const COMMENT = 'custom-entity-element';
 
@@ -79,15 +77,21 @@ class SchemaUpdater
         $table->setComment(self::COMMENT);
 
         // we have to add only fields, which are not marked as translated
-        $filtered = array_filter($fields, fn (array $field) => ($field['translatable'] ?? false) === false);
+        $filtered = array_filter($fields, function (array $field) {
+            return ($field['translatable'] ?? false) === false;
+        });
 
-        $filtered = array_filter($filtered, fn (array $field) => !$this->isAssociation($field));
+        $filtered = array_filter($filtered, function (array $field) {
+            return !$this->isAssociation($field);
+        });
 
         $this->addColumns($schema, $table, $filtered);
 
         $binary = ['length' => 16, 'fixed' => true];
 
-        $translated = array_filter($fields, fn (array $field) => $field['translatable'] ?? false);
+        $translated = array_filter($fields, function (array $field) {
+            return $field['translatable'] ?? false;
+        });
 
         if (empty($translated)) {
             return;
@@ -115,7 +119,9 @@ class SchemaUpdater
     private function addAssociationFields(Schema $schema, string $name, array $fields): void
     {
         $table = $this->createTable($schema, $name);
-        $filtered = array_filter($fields, fn (array $field) => $this->isAssociation($field));
+        $filtered = array_filter($fields, function (array $field) {
+            return $this->isAssociation($field);
+        });
         $this->addColumns($schema, $table, $filtered);
     }
 
@@ -148,7 +154,7 @@ class SchemaUpdater
 
             switch ($field['type']) {
                 case 'int':
-                    $table->addColumn($field['name'], Types::INTEGER, $nullable + ['unsigned' => true]);
+                    $table->addColumn($field['name'], Types::INTEGER, $nullable + ['unsinged' => true]);
 
                     break;
                 case 'bool':

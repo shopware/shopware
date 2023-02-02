@@ -26,16 +26,15 @@ class RoutesHaveSinceAnnotationTest extends TestCase
 
         foreach ($routes as $routeName => $route) {
             try {
-                /** @var class-string<object> $controllerClass */
                 $controllerClass = strtok($route->getDefault('_controller'), ':');
                 $refClass = new \ReflectionClass($controllerClass);
-            } catch (\Throwable) {
+            } catch (\Throwable $e) {
                 // Symfony uses for their own controllers alias. We cannot find them easily
                 continue;
             }
 
             // File is not in Platform Directory
-            if (!str_starts_with((string) $refClass->getFileName(), (string) $platformDir)) {
+            if (strpos($refClass->getFileName(), $platformDir) !== 0) {
                 continue;
             }
 

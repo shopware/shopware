@@ -11,25 +11,26 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-/**
- * @internal
- */
-#[Package('core')]
 class PromotionGenerator implements DemodataGeneratorInterface
 {
+    private Connection $connection;
+
     private SymfonyStyle $io;
 
     private Generator $faker;
 
+    private DefinitionInstanceRegistry $registry;
+
     /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection, private readonly DefinitionInstanceRegistry $registry)
+    public function __construct(Connection $connection, DefinitionInstanceRegistry $registry)
     {
+        $this->connection = $connection;
+        $this->registry = $registry;
     }
 
     public function getDefinition(): string
@@ -71,9 +72,6 @@ class PromotionGenerator implements DemodataGeneratorInterface
         $this->io->progressFinish();
     }
 
-    /**
-     * @param list<array<string, mixed>> $payload
-     */
     private function write(array $payload, Context $context): void
     {
         $context->addState(EntityIndexerRegistry::DISABLE_INDEXING);
@@ -83,11 +81,6 @@ class PromotionGenerator implements DemodataGeneratorInterface
         $context->removeState(EntityIndexerRegistry::DISABLE_INDEXING);
     }
 
-    /**
-     * @param list<array<string, string|int>> $salesChannels
-     *
-     * @return array<string, mixed>
-     */
     private function createPromotion(array $salesChannels): array
     {
         return [
@@ -102,9 +95,6 @@ class PromotionGenerator implements DemodataGeneratorInterface
         ];
     }
 
-    /**
-     * @return list<array<string, mixed>>
-     */
     private function createDiscounts(): array
     {
         $discounts = [];
@@ -129,13 +119,12 @@ class PromotionGenerator implements DemodataGeneratorInterface
         return $discounts;
     }
 
-    /**
-     * @return list<array<string, string|int>>
-     */
     private function getSalesChannels(): array
     {
-        $ids = $this->connection->fetchAllAssociative('SELECT LOWER(HEX(id)) as id FROM `sales_channel` LIMIT 100');
+        $ids = $this->connection->fetchAll('SELECT LOWER(HEX(id)) as id FROM `sales_channel` LIMIT 100');
 
-        return array_map(fn ($id) => ['salesChannelId' => $id['id'], 'priority' => 1], $ids);
+        return array_map(function ($id) {
+            return ['salesChannelId' => $id['id'], 'priority' => 1];
+        }, $ids);
     }
 }

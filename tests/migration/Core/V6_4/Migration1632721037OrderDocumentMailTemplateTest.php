@@ -198,7 +198,7 @@ class Migration1632721037OrderDocumentMailTemplateTest extends TestCase
                 ->setParameter($parameter, $typeId, ParameterType::BINARY);
         }
 
-        return $query->executeQuery()->fetchFirstColumn();
+        return $query->execute()->fetchFirstColumn();
     }
 
     private function changeDefaultLanguageToDutch(): void
@@ -220,7 +220,8 @@ class Migration1632721037OrderDocumentMailTemplateTest extends TestCase
             FROM `locale`
             WHERE LOWER(locale.code) = LOWER(?)'
         );
-        $localeId = $stmt->executeQuery([$iso])->fetchOne();
+        $stmt->execute([$iso]);
+        $localeId = $stmt->fetchOne();
 
         $stmt = $this->connection->prepare(
             '
@@ -228,7 +229,8 @@ class Migration1632721037OrderDocumentMailTemplateTest extends TestCase
             FROM `language`
             WHERE LOWER(language.name) = LOWER(?)'
         );
-        $englishId = $stmt->executeQuery(['english'])->fetchOne();
+        $stmt->execute(['english']);
+        $englishId = $stmt->fetchOne();
 
         $stmt = $this->connection->prepare(
             '
@@ -238,7 +240,8 @@ class Migration1632721037OrderDocumentMailTemplateTest extends TestCase
             AND LOWER(language_id) = ?'
         );
         //Always use the English name since we dont have the name in the language itself
-        $name = $stmt->executeQuery([$localeId, $englishId])->fetchOne();
+        $stmt->execute([$localeId, $englishId]);
+        $name = $stmt->fetchOne();
 
         $stmt = $this->connection->prepare(
             '
@@ -248,7 +251,7 @@ class Migration1632721037OrderDocumentMailTemplateTest extends TestCase
             (?,?,UNHEX(?),UNHEX(?), ?)'
         );
 
-        $stmt->executeStatement([$id, $name, $localeId, $localeId, (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
+        $stmt->execute([$id, $name, $localeId, $localeId, (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
 
         return $id;
     }
@@ -262,13 +265,13 @@ class Migration1632721037OrderDocumentMailTemplateTest extends TestCase
         );
 
         // assign new uuid to old DEFAULT
-        $stmt->executeStatement([
+        $stmt->execute([
             'newId' => Uuid::randomBytes(),
             'oldId' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
         ]);
 
         // change id to DEFAULT
-        $stmt->executeStatement([
+        $stmt->execute([
             'newId' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
             'oldId' => $newLanguageId,
         ]);

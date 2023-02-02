@@ -1,0 +1,93 @@
+@startuml
+' uncomment the line below if you're using computer with a retina display
+' skinparam dpi 300
+!define Table(name,desc) class name as "desc" << (T,#FFAAAA) >>
+!define ForeignTable(name,desc) class name as "desc" << (T,#ada6a6) >>
+!define TranslationTable(name,desc) class name as "desc" << (I,#4286f4) >>
+' we use bold for primary key
+' green color for unique
+' and underscore for not_null
+!define primary_key(x) <b>x</b>
+!define unique(x) <color:green>x</color>
+!define not_null(x) <u>x</u>
+' other tags available:
+' <i></i>
+' <back:COLOR></color>, where color is a color name or html color code
+' (#FFAACC)
+' see: http://plantuml.com/classes.html#More
+hide methods
+hide stereotypes
+hide empty members
+skinparam backgroundColor #FFFFFF
+
+' entities
+
+Table(ShopwareCoreSystemCountryCountryDefinition, "country\n(Country)") {
+   primary_key(id) id
+   name translated
+   iso string
+   position int
+   taxFree bool
+   active bool
+   shippingAvailable bool
+   iso3 string
+   displayStateInRegistration bool
+   forceStateInRegistration bool
+   customFields translated
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
+   translated json
+}
+Table(ShopwareCoreSystemCountryAggregateCountryStateCountryStateDefinition, "country_state\n(A countries state)") {
+   primary_key(id) id
+   not_null(countryId) foreignKey
+   not_null(shortCode) string
+   name translated
+   position int
+   active bool
+   customFields translated
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
+   translated json
+}
+TranslationTable(ShopwareCoreSystemCountryAggregateCountryStateTranslationCountryStateTranslationDefinition, "country_state_translation\n((Translations))") {
+   not_null(name) string
+   customFields customFields
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
+   primary_key(countryStateId) foreignKey
+   primary_key(languageId) foreignKey
+}
+TranslationTable(ShopwareCoreSystemCountryAggregateCountryTranslationCountryTranslationDefinition, "country_translation\n((Translations))") {
+   not_null(name) string
+   customFields customFields
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
+   primary_key(countryId) foreignKey
+   primary_key(languageId) foreignKey
+}
+ForeignTable(ShopwareCoreCheckoutCustomerAggregateCustomerAddressCustomerAddressDefinition, "customer_address") {
+}
+ForeignTable(ShopwareCoreCheckoutOrderAggregateOrderAddressOrderAddressDefinition, "order_address") {
+}
+ForeignTable(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channel") {
+}
+ForeignTable(ShopwareCoreSystemSalesChannelAggregateSalesChannelCountrySalesChannelCountryDefinition, "sales_channel_country") {
+}
+ForeignTable(ShopwareCoreFrameworkLanguageLanguageDefinition, "language") {
+}
+
+' relationshipd
+
+ShopwareCoreSystemCountryAggregateCountryStateCountryStateDefinition --> ShopwareCoreSystemCountryCountryDefinition
+ShopwareCoreSystemCountryAggregateCountryTranslationCountryTranslationDefinition --> ShopwareCoreSystemCountryCountryDefinition
+ShopwareCoreSystemCountryCountryDefinition --> ShopwareCoreCheckoutCustomerAggregateCustomerAddressCustomerAddressDefinition
+ShopwareCoreSystemCountryCountryDefinition --> ShopwareCoreCheckoutOrderAggregateOrderAddressOrderAddressDefinition
+ShopwareCoreSystemCountryCountryDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
+ShopwareCoreSystemCountryCountryDefinition --> ShopwareCoreSystemSalesChannelAggregateSalesChannelCountrySalesChannelCountryDefinition
+ShopwareCoreSystemCountryAggregateCountryStateTranslationCountryStateTranslationDefinition --> ShopwareCoreSystemCountryAggregateCountryStateCountryStateDefinition
+ShopwareCoreSystemCountryAggregateCountryStateCountryStateDefinition --> ShopwareCoreCheckoutCustomerAggregateCustomerAddressCustomerAddressDefinition
+ShopwareCoreSystemCountryAggregateCountryStateCountryStateDefinition --> ShopwareCoreCheckoutOrderAggregateOrderAddressOrderAddressDefinition
+ShopwareCoreSystemCountryAggregateCountryStateTranslationCountryStateTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
+ShopwareCoreSystemCountryAggregateCountryTranslationCountryTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
+@enduml

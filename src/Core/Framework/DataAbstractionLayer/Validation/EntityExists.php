@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Validation;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Exception\InvalidOptionsException;
 use Symfony\Component\Validator\Exception\MissingOptionsException;
@@ -13,14 +12,9 @@ use Symfony\Component\Validator\Exception\MissingOptionsException;
  * @Annotation
  * @Target({"PROPERTY", "METHOD", "ANNOTATION"})
  */
-#[Package('core')]
 class EntityExists extends Constraint
 {
-    final public const ENTITY_DOES_NOT_EXISTS = 'f1e5c873-5baf-4d5b-8ab7-e422bfce91f1';
-
-    protected const ERROR_NAMES = [
-        self::ENTITY_DOES_NOT_EXISTS => 'ENTITY_DOES_NOT_EXISTS',
-    ];
+    public const ENTITY_DOES_NOT_EXISTS = 'f1e5c873-5baf-4d5b-8ab7-e422bfce91f1';
 
     /**
      * @var string
@@ -48,9 +42,14 @@ class EntityExists extends Constraint
     public $primaryProperty = 'id';
 
     /**
+     * @var array<string, string>
+     */
+    protected static $errorNames = [
+        self::ENTITY_DOES_NOT_EXISTS => 'ENTITY_DOES_NOT_EXISTS',
+    ];
+
+    /**
      * @internal
-     *
-     * @param array<string, mixed> $options
      */
     public function __construct(array $options)
     {

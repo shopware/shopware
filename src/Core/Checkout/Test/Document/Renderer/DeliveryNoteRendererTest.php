@@ -14,7 +14,6 @@ use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Test\Document\DocumentTrait;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -25,7 +24,6 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[Package('customer-order')]
 class DeliveryNoteRendererTest extends TestCase
 {
     use DocumentTrait;
@@ -87,8 +85,6 @@ class DeliveryNoteRendererTest extends TestCase
         );
 
         static::assertInstanceOf(DeliveryNoteOrdersEvent::class, $caughtEvent);
-        static::assertCount(1, $caughtEvent->getOperations());
-        static::assertSame($operation, $caughtEvent->getOperations()[$orderId] ?? null);
         static::assertCount(1, $caughtEvent->getOrders());
         static::assertInstanceOf(RendererResult::class, $processedTemplate);
         static::assertArrayHasKey($orderId, $processedTemplate->getSuccess());

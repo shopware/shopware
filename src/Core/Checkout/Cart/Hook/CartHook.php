@@ -4,14 +4,10 @@ namespace Shopware\Core\Checkout\Cart\Hook;
 
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Facade\CartFacadeHookFactory;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\Facade\SystemConfigFacadeHookFactory;
 
-/**
- * @package checkout
- */
 /**
  * Triggered during the cart calculation process.
  *
@@ -19,19 +15,21 @@ use Shopware\Core\System\SystemConfig\Facade\SystemConfigFacadeHookFactory;
  *
  * @since 6.4.8.0
  */
-#[Package('checkout')]
 class CartHook extends Hook implements CartAware
 {
-    final public const HOOK_NAME = 'cart';
+    public const HOOK_NAME = 'cart';
 
-    private readonly SalesChannelContext $salesChannelContext;
+    private Cart $cart;
+
+    private SalesChannelContext $salesChannelContext;
 
     /**
      * @internal
      */
-    public function __construct(private readonly Cart $cart, SalesChannelContext $context)
+    public function __construct(Cart $cart, SalesChannelContext $context)
     {
         parent::__construct($context->getContext());
+        $this->cart = $cart;
         $this->salesChannelContext = $context;
     }
 

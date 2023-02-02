@@ -1,10 +1,7 @@
-/**
- * @package system-settings
- */
 import template from './sw-settings-search-view-general.html.twig';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Shopware.Component.register('sw-settings-search-view-general', {
     template,
 
     props: {
@@ -38,4 +35,4 @@ export default {
             this.$emit('excluded-search-terms-load');
         },
     },
-};
+});

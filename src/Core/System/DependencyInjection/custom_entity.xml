@@ -11,7 +11,6 @@
 
         <service id="Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="cache.object"/>
         </service>
 
         <service id="Shopware\Core\System\CustomEntity\CustomEntityDefinition">
@@ -31,6 +30,7 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="serializer"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\CompositeEntitySearcher"/>
             <argument type="service" id="Shopware\Core\Framework\Api\Converter\ApiVersionConverter"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\EntityProtectionValidator"/>
             <argument type="service" id="Shopware\Core\Framework\Api\Acl\AclCriteriaValidator"/>
@@ -40,6 +40,5 @@
         </service>
 
         <service id="Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchemaValidator"/>
-        <service id="Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\AdminUiXmlSchemaValidator"/>
     </services>
 </container>

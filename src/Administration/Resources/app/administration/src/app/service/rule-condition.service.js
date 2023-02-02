@@ -5,13 +5,12 @@ const { Criteria } = Shopware.Data;
  */
 
 /**
- * @private
- * @package business-ops
  * @memberOf module:app/service/rule-condition
  * @constructor
  * @method createConditionService
  * @returns {Object}
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function createConditionService() {
     const $store = {};
 
@@ -156,10 +155,6 @@ export default function createConditionService() {
             id: 'promotion',
             name: 'sw-settings-rule.detail.groups.promotions',
         },
-        flow: {
-            id: 'flow',
-            name: 'sw-settings-rule.detail.groups.flow',
-        },
         misc: {
             id: 'misc',
             name: 'sw-settings-rule.detail.groups.misc',
@@ -187,16 +182,24 @@ export default function createConditionService() {
         getPlaceholderData,
         getComponentByCondition,
         addEmptyOperatorToOperatorSet,
+        /* @internal (flag:FEATURE_NEXT_18215) */
         addAwarenessConfiguration,
+        /* @internal (flag:FEATURE_NEXT_18215) */
         getAwarenessConfigurationByAssignmentName,
+        /* @internal (flag:FEATURE_NEXT_18215) */
         getRestrictedRules,
+        /* @internal (flag:FEATURE_NEXT_18215) */
         getRestrictedConditions,
+        /* @internal (flag:FEATURE_NEXT_18215) */
         getRestrictedAssociations,
+        /* @internal (flag:FEATURE_NEXT_18215) */
         getRestrictionsByAssociation,
+        /* @internal (flag:FEATURE_NEXT_18215) */
         getTranslatedConditionViolationList,
+        /* @internal (flag:FEATURE_NEXT_18215) */
         getRestrictedRuleTooltipConfig,
+        /* @internal (flag:FEATURE_NEXT_18215) */
         isRuleRestricted,
-        getRestrictionsByGroup,
     };
 
     function getByType(type) {
@@ -388,10 +391,12 @@ export default function createConditionService() {
         return conditionType.component;
     }
 
+    /* @internal (flag:FEATURE_NEXT_18215) */
     function addAwarenessConfiguration(assignmentName, configuration) {
         awarenessConfiguration[assignmentName] = configuration;
     }
 
+    /* @internal (flag:FEATURE_NEXT_18215) */
     function getAwarenessConfigurationByAssignmentName(assignmentName) {
         const config = awarenessConfiguration[assignmentName];
 
@@ -399,6 +404,7 @@ export default function createConditionService() {
     }
 
     /**
+     * @internal (flag:FEATURE_NEXT_18215)
      * @param {Entity} rule
      * @returns {Object}
      * {
@@ -433,32 +439,10 @@ export default function createConditionService() {
             }
         });
 
-        if (!rule.flowSequences?.length > 0) {
-            return conditions;
-        }
-
-        rule.flowSequences.forEach(sequence => {
-            const eventName = `flowTrigger.${sequence.flow.eventName}`;
-            const currentEntry = awarenessConfiguration[eventName];
-
-            if (!currentEntry?.notEquals) {
-                return;
-            }
-
-            currentEntry.notEquals.forEach(condition => {
-                if (!conditions[condition]) {
-                    conditions[condition] = [];
-                }
-                conditions[condition].push({
-                    associationName: eventName,
-                    snippet: currentEntry.snippet,
-                });
-            });
-        });
-
         return conditions;
     }
 
+    /* @internal (flag:FEATURE_NEXT_18215) */
     function getRestrictedRules(entityName) {
         const configuration = getAwarenessConfigurationByAssignmentName(entityName);
 
@@ -494,6 +478,7 @@ export default function createConditionService() {
     /**
      * Checks the conditions with the current awareness configuration for the assignment name
      * and returns the result.
+     * @internal (flag:FEATURE_NEXT_18215)
      * @param {EntityCollection} conditions
      * @param {String} assignmentName
      * @returns {object}
@@ -552,6 +537,7 @@ export default function createConditionService() {
     /**
      * Checks the conditions with the current awareness configuration and returns the result for
      * every assignment name.
+     * @internal (flag:FEATURE_NEXT_18215)
      * @param {EntityCollection} conditions
      * @returns {object}
      * Example return: {
@@ -587,6 +573,7 @@ export default function createConditionService() {
 
     /**
      * Translates a list of violations and return the translated text
+     * @internal (flag:FEATURE_NEXT_18215)
      * @param {array} violations
      * @param {string} connectionSnippetPath
      * @returns {string}
@@ -607,6 +594,7 @@ export default function createConditionService() {
 
     /**
      *
+     * @internal (flag:FEATURE_NEXT_18215)
      * @param {EntityCollection} ruleConditions
      * @param {string|null} ruleAwareGroupKey
      * @returns {object}
@@ -665,6 +653,7 @@ export default function createConditionService() {
 
     /**
      *
+     * @internal (flag:FEATURE_NEXT_18215)
      * @param {EntityCollection} ruleConditions
      * @param {string|null} ruleAwareGroupKey
      * @returns {boolean}
@@ -680,15 +669,5 @@ export default function createConditionService() {
         );
 
         return restrictionConfig.isRestricted;
-    }
-
-    function getRestrictionsByGroup(...wantedGroups) {
-        const entries = Object.entries($store);
-
-        return entries.reduce((accumulator, [restrictionName, condition]) => {
-            const inGroup = wantedGroups.includes(condition.group);
-
-            return inGroup ? [...accumulator, restrictionName] : accumulator;
-        }, []);
     }
 }

@@ -4,12 +4,10 @@ namespace Shopware\Core\Maintenance\System\Command;
 
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Maintenance\System\Service\DatabaseConnectionFactory;
 use Shopware\Core\Maintenance\System\Service\SetupDatabaseAdapter;
 use Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation;
 use Symfony\Component\Console\Application;
-use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
@@ -19,19 +17,19 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * @internal should be used over the CLI only
  */
-#[AsCommand(
-    name: 'system:install',
-    description: 'Installs the Shopware 6 system',
-)]
-#[Package('core')]
 class SystemInstallCommand extends Command
 {
-    public function __construct(
-        private readonly string $projectDir,
-        private readonly SetupDatabaseAdapter $setupDatabaseAdapter,
-        private readonly DatabaseConnectionFactory $databaseConnectionFactory
-    ) {
+    public static $defaultName = 'system:install';
+
+    private string $projectDir;
+
+    private SetupDatabaseAdapter $setupDatabaseAdapter;
+
+    public function __construct(string $projectDir, SetupDatabaseAdapter $setupDatabaseAdapter)
+    {
         parent::__construct();
+        $this->projectDir = $projectDir;
+        $this->setupDatabaseAdapter = $setupDatabaseAdapter;
     }
 
     protected function configure(): void
@@ -46,7 +44,6 @@ class SystemInstallCommand extends Command
             ->addOption('shop-locale', null, InputOption::VALUE_REQUIRED, 'Default language locale of the shop')
             ->addOption('shop-currency', null, InputOption::VALUE_REQUIRED, 'Iso code for the default currency of the shop')
             ->addOption('skip-jwt-keys-generation', null, InputOption::VALUE_NONE, 'Skips generation of jwt private and public key')
-            ->addOption('skip-assets-install', null, InputOption::VALUE_NONE, 'Skips installing of assets')
         ;
     }
 
@@ -136,7 +133,6 @@ class SystemInstallCommand extends Command
                     'command' => 'sales-channel:create:storefront',
                     '--name' => $input->getOption('shop-name') ?? 'Storefront',
                     '--url' => (string) EnvironmentHelper::getVariable('APP_URL', 'http://localhost'),
-                    '--isoCode' => $input->getOption('shop-locale') ?? 'en-GB',
                 ];
             }
 
@@ -150,12 +146,9 @@ class SystemInstallCommand extends Command
             }
         }
 
-        if (!$input->getOption('skip-assets-install')) {
-            $commands[] = [
-                'command' => 'assets:install',
-            ];
-        }
-
+        $commands[] = [
+            'command' => 'assets:install',
+        ];
         $commands[] = [
             'command' => 'cache:clear',
         ];
@@ -212,7 +205,7 @@ class SystemInstallCommand extends Command
     {
         $databaseConnectionInformation = DatabaseConnectionInformation::fromEnv();
 
-        $connection = $this->databaseConnectionFactory->getConnection($databaseConnectionInformation, true);
+        $connection = DatabaseConnectionFactory::createConnection($databaseConnectionInformation, true);
 
         $output->writeln('Prepare installation');
         $output->writeln('');

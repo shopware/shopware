@@ -20,13 +20,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\RemoteAddressField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Salutation\SalutationDefinition;
 
-#[Package('customer-order')]
 class OrderCustomerDefinition extends EntityDefinition
 {
-    final public const ENTITY_NAME = 'order_customer';
+    public const ENTITY_NAME = 'order_customer';
 
     public function getEntityName(): string
     {
@@ -69,7 +67,7 @@ class OrderCustomerDefinition extends EntityDefinition
             (new StringField('last_name', 'lastName'))->addFlags(new ApiAware(), new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new StringField('company', 'company'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
             (new StringField('title', 'title'))->addFlags(new ApiAware()),
-            (new ListField('vat_ids', 'vatIds', StringField::class))->addFlags(new ApiAware()),
+            (new ListField('vat_ids', 'vatIds', StringField::class))->setStrict(true)->addFlags(new ApiAware()),
             (new StringField('customer_number', 'customerNumber'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new CustomFields())->addFlags(new ApiAware()),
             new OneToOneAssociationField('order', 'order_id', 'id', OrderDefinition::class, false),

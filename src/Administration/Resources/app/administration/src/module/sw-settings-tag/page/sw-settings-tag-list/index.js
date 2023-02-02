@@ -1,11 +1,11 @@
 import template from './sw-settings-tag-list.html.twig';
 import './sw-settings-tag-list.scss';
 
-const { Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-settings-tag-list', {
     template,
 
     inject: ['repositoryFactory', 'acl', 'tagApiService'],
@@ -417,4 +417,4 @@ export default {
             this.onFilter();
         },
     },
-};
+});

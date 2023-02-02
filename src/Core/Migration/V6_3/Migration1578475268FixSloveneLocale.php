@@ -3,13 +3,8 @@
 namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
-/**
- * @internal
- */
-#[Package('core')]
 class Migration1578475268FixSloveneLocale extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -24,12 +19,12 @@ class Migration1578475268FixSloveneLocale extends MigrationStep
             return;
         }
 
-        $localeId = $connection->fetchOne('SELECT id FROM locale WHERE code = "sl-SI"');
+        $localeId = $connection->query('SELECT id FROM locale WHERE code = "sl-SI"')->fetchColumn();
         if (!$localeId) {
             return;
         }
 
-        $connection->executeStatement(
+        $connection->executeUpdate(
             'UPDATE locale_translation
              SET name = :correctName
              WHERE locale_id = :locale_id AND language_id = :language_id
@@ -50,7 +45,7 @@ class Migration1578475268FixSloveneLocale extends MigrationStep
 
     private function fetchLanguageId(string $code, Connection $connection): ?string
     {
-        $langId = $connection->fetchOne(
+        $langId = $connection->fetchColumn(
             'SELECT `language`.`id` FROM `language` INNER JOIN `locale` ON `language`.`translation_code_id` = `locale`.`id` WHERE `code` = :code LIMIT 1',
             ['code' => $code]
         );

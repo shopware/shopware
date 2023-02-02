@@ -1,0 +1,17 @@
+{
+  "sw-my-apps": {
+    "timeout": "Die App konnte nicht geladen werden",
+    "general": {
+      "mainMenuItemGeneral": "Meine Apps",
+      "moduleDescription": "Modul zum Anzeigen appspezifischer Inhalte"
+    },
+    "sw-my-apps-page": {
+      "error": {
+        "heading": "Hoppla! Du bist zu schnell und hast und die Orientierung verloren.",
+        "phrase": "Die Seite, die Du gesucht hast, liegt außerhalb unserer Reichweite. Vielleicht ist die Seite umgezogen, existiert nicht mehr oder Du magst einfach unsere 404-Seite. Wir werden es wahrscheinlich nie erfahren.",
+        "info": "Machen Sie sich keine Sorgen! Wir haben eine Weltraumrettungskatze entsandt, die Dich wieder in Sicherheit bringen wird.",
+        "lblBackButton": "Zurück"
+      }
+    }
+  }
+}

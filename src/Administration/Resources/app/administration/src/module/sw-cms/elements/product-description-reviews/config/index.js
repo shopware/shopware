@@ -2,13 +2,12 @@ import Criteria from 'src/core/data/criteria.data';
 import template from './sw-cms-el-config-product-description-reviews.html.twig';
 import './sw-cms-el-config-product-description-reviews.scss';
 
-const { Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 
 /**
- * @private
- * @package content
+ * @private since v6.5.0
  */
-export default {
+Component.register('sw-cms-el-config-product-description-reviews', {
     template,
 
     inject: ['repositoryFactory'],
@@ -77,4 +76,4 @@ export default {
             this.$emit('element-update', this.element);
         },
     },
-};
+});

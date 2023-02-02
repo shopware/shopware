@@ -2,9 +2,8 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 
-#[Package('core')]
 interface ExceptionHandlerInterface
 {
     public const PRIORITY_DEFAULT = 0;
@@ -15,5 +14,8 @@ interface ExceptionHandlerInterface
 
     public function getPriority(): int;
 
-    public function matchException(\Exception $e): ?\Exception;
+    /**
+     * @internal (flag:FEATURE_NEXT_16640) - second parameter WriteCommand $command will be removed
+     */
+    public function matchException(\Exception $e, WriteCommand $command): ?\Exception;
 }

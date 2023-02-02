@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Test\Language;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -18,10 +18,13 @@ class LanguageValidatorTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private Context $defaultContext;
+    /**
+     * @var Context
+     */
+    private $defaultContext;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepositoryInterface
      */
     private $languageRepository;
 
@@ -860,7 +863,9 @@ class LanguageValidatorTest extends TestCase
 
     protected function addDefaultLocales(array $languages): array
     {
-        return array_map(fn ($lang) => $this->addDefaultLocale($lang), $languages);
+        return array_map(function ($lang) {
+            return $this->addDefaultLocale($lang);
+        }, $languages);
     }
 
     protected function addDefaultLocale(array $lang): array
@@ -877,7 +882,9 @@ class LanguageValidatorTest extends TestCase
 
     protected function addDefaultTranslationCodes(array $languages)
     {
-        return array_map(fn ($lang) => $this->addDefaultTranslationCode($lang), $languages);
+        return array_map(function ($lang) {
+            return $this->addDefaultTranslationCode($lang);
+        }, $languages);
     }
 
     protected function addDefaultTranslationCode(array $lang)

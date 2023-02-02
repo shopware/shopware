@@ -14,22 +14,19 @@ use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Content\Flow\Dispatching\Action\RemoveOrderTagAction;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
-use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
  */
-#[Package('business-ops')]
 class RemoveOrderTagActionTest extends TestCase
 {
     use OrderActionTrait;
 
-    private EntityRepository $flowRepository;
+    private EntityRepositoryInterface $flowRepository;
 
     private Connection $connection;
 
@@ -48,6 +45,9 @@ class RemoveOrderTagActionTest extends TestCase
         ]);
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $this->ids->create('token'));
+
+        // all business event should be inactive.
+        $this->connection->executeStatement('DELETE FROM event_action;');
     }
 
     public function testRemoveCustomerTagAction(): void
@@ -173,7 +173,7 @@ class RemoveOrderTagActionTest extends TestCase
             'paymentMethodId' => $this->getValidPaymentMethodId(),
             'currencyId' => Defaults::CURRENCY,
             'currencyFactor' => 1.0,
-            'salesChannelId' => TestDefaults::SALES_CHANNEL,
+            'salesChannelId' => Defaults::SALES_CHANNEL,
             'billingAddressId' => $billingAddressId,
             'addresses' => [
                 [

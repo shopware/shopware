@@ -2,20 +2,19 @@
 
 namespace Shopware\Elasticsearch\Framework\Indexing;
 
-use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
-
 /**
  * @internal
  */
-#[Package('core')]
-class ElasticsearchLanguageIndexIteratorMessage implements AsyncMessageInterface
+class ElasticsearchLanguageIndexIteratorMessage
 {
+    private string $languageId;
+
     /**
      * @internal
      */
-    public function __construct(private readonly string $languageId)
+    public function __construct(string $languageId)
     {
+        $this->languageId = $languageId;
     }
 
     public function getLanguageId(): string

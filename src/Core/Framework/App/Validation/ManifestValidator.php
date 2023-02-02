@@ -6,19 +6,20 @@ use Shopware\Core\Framework\App\Exception\AppValidationException;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Validation\Error\ErrorCollection;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
  */
-#[Package('core')]
 class ManifestValidator
 {
     /**
-     * @param AbstractManifestValidator[] $validators
+     * @var iterable<AbstractManifestValidator>
      */
-    public function __construct(private readonly iterable $validators)
+    private $validators;
+
+    public function __construct(iterable $validators)
     {
+        $this->validators = $validators;
     }
 
     public function validate(Manifest $manifest, Context $context): void

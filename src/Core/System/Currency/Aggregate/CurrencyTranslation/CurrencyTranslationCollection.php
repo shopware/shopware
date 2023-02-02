@@ -3,32 +3,38 @@
 namespace Shopware\Core\System\Currency\Aggregate\CurrencyTranslation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<CurrencyTranslationEntity>
  */
-#[Package('inventory')]
 class CurrencyTranslationCollection extends EntityCollection
 {
     public function getCurrencyIds(): array
     {
-        return $this->fmap(fn (CurrencyTranslationEntity $currencyTranslation) => $currencyTranslation->getCurrencyId());
+        return $this->fmap(function (CurrencyTranslationEntity $currencyTranslation) {
+            return $currencyTranslation->getCurrencyId();
+        });
     }
 
     public function filterByCurrencyId(string $id): self
     {
-        return $this->filter(fn (CurrencyTranslationEntity $currencyTranslation) => $currencyTranslation->getCurrencyId() === $id);
+        return $this->filter(function (CurrencyTranslationEntity $currencyTranslation) use ($id) {
+            return $currencyTranslation->getCurrencyId() === $id;
+        });
     }
 
     public function getLanguageIds(): array
     {
-        return $this->fmap(fn (CurrencyTranslationEntity $currencyTranslation) => $currencyTranslation->getLanguageId());
+        return $this->fmap(function (CurrencyTranslationEntity $currencyTranslation) {
+            return $currencyTranslation->getLanguageId();
+        });
     }
 
     public function filterByLanguageId(string $id): self
     {
-        return $this->filter(fn (CurrencyTranslationEntity $currencyTranslation) => $currencyTranslation->getLanguageId() === $id);
+        return $this->filter(function (CurrencyTranslationEntity $currencyTranslation) use ($id) {
+            return $currencyTranslation->getLanguageId() === $id;
+        });
     }
 
     public function getApiAlias(): string

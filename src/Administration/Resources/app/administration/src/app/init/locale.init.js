@@ -1,6 +1,5 @@
-/**
- * @package admin
- */
+import deDEMessages from 'src/app/snippet/de-DE.json';
+import enGBMessages from 'src/app/snippet/en-GB.json';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default async function initializeLocaleService() {
@@ -8,8 +7,8 @@ export default async function initializeLocaleService() {
     const localeFactory = factoryContainer.locale;
 
     // Register default snippets
-    localeFactory.register('de-DE', {});
-    localeFactory.register('en-GB', {});
+    localeFactory.register('de-DE', deDEMessages);
+    localeFactory.register('en-GB', enGBMessages);
 
     const snippetService = Shopware.Service('snippetService');
 

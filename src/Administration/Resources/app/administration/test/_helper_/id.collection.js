@@ -1,7 +1,3 @@
-/**
- * @package admin
- */
-
 import utils from 'src/core/service/util.service';
 
 export default class IdCollection {

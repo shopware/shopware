@@ -2,13 +2,11 @@
 
 namespace Shopware\Storefront\Theme;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
  * @extends Collection<ThemeSalesChannel>
  */
-#[Package('storefront')]
 class ThemeSalesChannelCollection extends Collection
 {
     /**

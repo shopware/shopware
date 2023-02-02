@@ -3,12 +3,10 @@
 namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 
 use Shopware\Core\Framework\Demodata\Command\DemodataCommand;
-use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
-#[Package('core')]
 class DemodataCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void
@@ -23,7 +21,7 @@ class DemodataCompilerPass implements CompilerPassInterface
                 }
 
                 $default = $tag['option-default'] ?? 0;
-                $description = $tag['option-description'] ?? \ucfirst((string) $name) . ' count';
+                $description = $tag['option-description'] ?? \ucfirst($name) . ' count';
 
                 $demodataCommand->addMethodCall('addDefault', [
                     $name,

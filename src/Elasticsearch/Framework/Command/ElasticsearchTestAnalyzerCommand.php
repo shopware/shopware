@@ -2,30 +2,28 @@
 
 namespace Shopware\Elasticsearch\Framework\Command;
 
-use OpenSearch\Client;
+use Elasticsearch\Client;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
-use Shopware\Core\Framework\Log\Package;
-use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(
-    name: 'es:test:analyzer',
-    description: 'Test the elasticsearch analyzer',
-)]
-#[Package('core')]
 class ElasticsearchTestAnalyzerCommand extends Command
 {
-    private ?ShopwareStyle $io = null;
+    protected static $defaultName = 'es:test:analyzer';
+
+    private Client $client;
+
+    private ?ShopwareStyle $io;
 
     /**
      * @internal
      */
-    public function __construct(private readonly Client $client)
+    public function __construct(Client $client)
     {
         parent::__construct();
+        $this->client = $client;
     }
 
     /**
@@ -34,7 +32,8 @@ class ElasticsearchTestAnalyzerCommand extends Command
     protected function configure(): void
     {
         $this
-            ->addArgument('term', InputArgument::REQUIRED);
+            ->addArgument('term', InputArgument::REQUIRED)
+            ->setDescription('Allows to test an elasticsearch analyzer');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -50,7 +49,7 @@ class ElasticsearchTestAnalyzerCommand extends Command
             $rows[] = [$headline];
             $rows[] = ['###############'];
             foreach ($analyzers as $analyzer) {
-                /** @var array{'tokens': array{token: string}[]} $analyzed */
+                /** @var array{'tokens': array} $analyzed */
                 $analyzed = $this->client->indices()->analyze([
                     'body' => [
                         'analyzer' => $analyzer,
@@ -73,9 +72,6 @@ class ElasticsearchTestAnalyzerCommand extends Command
         return self::SUCCESS;
     }
 
-    /**
-     * @return array<string, array<string>>
-     */
     protected function getAnalyzers(): array
     {
         return [

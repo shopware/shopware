@@ -6,9 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommitData\VersionCommitDataCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\VersionEntity;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
 class VersionCommitEntity extends Entity
 {
     use EntityIdTrait;

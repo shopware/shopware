@@ -5,18 +5,28 @@ namespace Shopware\Core\Framework\Adapter\Cache;
 use Doctrine\DBAL\Connection;
 use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
 
-#[Package('core')]
 class CacheIdLoader
 {
     /**
+     * @var Connection
+     */
+    private $connection;
+
+    /**
+     * @var CacheItemPoolInterface|null
+     */
+    private $restartSignalCachePool;
+
+    /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection, private readonly ?CacheItemPoolInterface $restartSignalCachePool = null)
+    public function __construct(Connection $connection, ?CacheItemPoolInterface $restartSignalCachePool = null)
     {
+        $this->connection = $connection;
+        $this->restartSignalCachePool = $restartSignalCachePool;
     }
 
     public function load(): string
@@ -27,12 +37,12 @@ class CacheIdLoader
         }
 
         try {
-            $cacheId = $this->connection->fetchOne(
+            $cacheId = $this->connection->fetchColumn(
                 '# cache-id-loader
                 SELECT `value` FROM app_config WHERE `key` = :key',
                 ['key' => 'cache-id']
             );
-        } catch (\Exception) {
+        } catch (\Exception $e) {
             $cacheId = null;
         }
 
@@ -46,14 +56,14 @@ class CacheIdLoader
             $this->write($cacheId);
 
             return $cacheId;
-        } catch (\Exception) {
+        } catch (\Exception $e) {
             return 'live';
         }
     }
 
     public function write(string $cacheId): void
     {
-        $this->connection->executeStatement(
+        $this->connection->executeUpdate(
             'REPLACE INTO app_config (`key`, `value`) VALUES (:key, :cacheId)',
             ['cacheId' => $cacheId, 'key' => 'cache-id']
         );

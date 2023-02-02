@@ -1,13 +1,10 @@
-/**
- * @package system-settings
- */
 import template from './sw-import-export-new-profile-wizard-csv-page.html.twig';
 import './sw-import-export-new-profile-wizard-csv-page.scss';
 
 const { Mixin } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Shopware.Component.register('sw-import-export-new-profile-wizard-csv-page', {
     template,
 
     inject: [
@@ -94,4 +91,4 @@ export default {
             });
         },
     },
-};
+});

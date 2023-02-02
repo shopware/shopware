@@ -4,7 +4,10 @@ import CategoryPageObject from '../../../../support/pages/module/sw-category.pag
 
 describe('Search: Test crud operations', () => {
     beforeEach(() => {
-        cy.createLanguageFixture()
+        cy.loginViaApi()
+            .then(() => {
+                return cy.createLanguageFixture();
+            })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/search/index`);
                 cy.get('.sw-skeleton').should('not.exist');
@@ -16,7 +19,7 @@ describe('Search: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: '/api/search/product-search-config',
-            method: 'POST',
+            method: 'POST'
         }).as('saveData');
 
         // Make sure that everything need to load first.
@@ -30,7 +33,7 @@ describe('Search: Test crud operations', () => {
 
         cy.get('.sw-language-switch__select').typeSingleSelectAndCheck(
             'Philippine',
-            '.sw-language-switch__select',
+            '.sw-language-switch__select'
         );
 
         // Verify save search config method
@@ -42,7 +45,7 @@ describe('Search: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: '/api/search/product-search-config',
-            method: 'POST',
+            method: 'POST'
         }).as('saveData');
 
         // Make sure that everything need to load first.

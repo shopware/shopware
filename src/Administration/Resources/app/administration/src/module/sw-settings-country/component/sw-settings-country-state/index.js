@@ -1,13 +1,10 @@
-/**
- * @package system-settings
- */
 import template from './sw-settings-country-state.html.twig';
 import './sw-settings-country-state.scss';
 
-const { Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-settings-country-state', {
     template,
 
     inject: [
@@ -42,7 +39,6 @@ export default {
             term: null,
             currentCountryState: null,
             countryStateLoading: false,
-            showEmptyState: false,
         };
     },
 
@@ -50,30 +46,12 @@ export default {
         stateColumns() {
             return this.getStateColumns();
         },
-
-        countryStates() {
-            return this.country.states;
-        },
-    },
-
-    watch: {
-        countryStates() {
-            this.checkEmptyState();
-        },
-    },
-
-    mounted() {
-        this.mountedComponent();
     },
 
     methods: {
-        mountedComponent() {
-            this.checkEmptyState();
-        },
-
         getStateColumns() {
             return [{
-                property: 'name',
+                property: 'translated.name',
                 label: this.$tc('sw-settings-country.detail.columnStateNameLabel'),
                 inlineEdit: 'string',
                 primary: true,
@@ -95,29 +73,17 @@ export default {
 
         onDeleteCountryStates() {
             const selection = this.$refs.countryStateGrid.selection;
+
             const countryStateIds = Object.keys(selection);
-
             if (!countryStateIds.length) {
-                return Promise.resolve();
-            }
-
-            if (this.country.isNew()) {
-                countryStateIds.forEach(countryStateId => {
-                    this.country.states.remove(countryStateId);
-                });
-
-                this.$refs.countryStateGrid.resetSelection();
                 return Promise.resolve();
             }
 
             this.countryStateLoading = true;
 
             return this.countryStateRepository.syncDeleted(countryStateIds, Shopware.Context.api)
-                .then(() => {
-                    this.$refs.countryStateGrid.resetSelection();
+                .finally(() => {
                     this.refreshCountryStateList();
-                }).finally(() => {
-                    this.countryStateLoading = false;
                 });
         },
 
@@ -125,18 +91,17 @@ export default {
             this.currentCountryState = this.countryStateRepository.create(Shopware.Context.api);
         },
 
-        onSaveCountryState(countryState) {
-            // do not send requests if we are on local mode(creating a new country)
+        onSaveCountryState() {
+            // dont send requests if we are on local mode(creating a new country)
             if (this.country.isNew()) {
-                this.country.states.add(countryState);
-
-                return Promise.resolve().then(() => {
-                    this.currentCountryState = null;
-                });
+                this.country.states.add(this.currentCountryState);
+                this.currentCountryState = null;
+                return Promise.resolve();
             }
 
             return this.countryStateRepository.save(this.currentCountryState).then(() => {
                 this.refreshCountryStateList();
+                this.currentCountryState = null;
             }).catch(errors => {
                 if (errors.response.data.errors[0].code === 'MISSING-SYSTEM-TRANSLATION') {
                     this.createNotificationError({
@@ -163,21 +128,7 @@ export default {
 
             this.$refs.countryStateGrid.load().then(() => {
                 this.countryStateLoading = false;
-                this.currentCountryState = null;
             });
         },
-
-        getCountryStateName(item) {
-            return item?.translated?.name || item?.name;
-        },
-
-        checkEmptyState() {
-            if (this.country.isNew()) {
-                this.showEmptyState = this.country.states.length === 0;
-                return;
-            }
-
-            this.showEmptyState = this.$refs.countryStateGrid.total === 0;
-        },
     },
-};
+});

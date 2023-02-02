@@ -2,16 +2,22 @@
 
 namespace Shopware\Storefront\Framework\Twig;
 
-use Shopware\Core\Framework\Log\Package;
-
-#[Package('storefront')]
 class ControllerInfo
 {
-    private ?string $action = null;
+    /**
+     * @var string|null
+     */
+    private $action;
 
-    private ?string $namespace = null;
+    /**
+     * @var string|null
+     */
+    private $namespace;
 
-    private ?string $name = null;
+    /**
+     * @var string|null
+     */
+    private $name;
 
     public function getAction(): ?string
     {

@@ -1,9 +1,6 @@
 import LoadingIndicatorUtil from 'src/utility/loading-indicator/loading-indicator.util';
 import BackdropUtil from 'src/utility/backdrop/backdrop.util';
 
-/**
- * @package storefront
- */
 class PageLoadingIndicatorUtilSingleton extends LoadingIndicatorUtil {
 
     /**

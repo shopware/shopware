@@ -2,9 +2,6 @@ import CheckoutPageObject from '../../../support/pages/checkout.page-object';
 
 let product = {};
 
-/**
- * @package checkout
- */
 describe('Test payment and shipping methods selection', () => {
     beforeEach(() => {
         cy.createProductFixture()
@@ -26,34 +23,39 @@ describe('Test payment and shipping methods selection', () => {
     });
 
     it('@base @checkout: should show methods', { tags: ['pa-checkout'] }, () => {
-        const page = new CheckoutPageObject();
+        cy.window().then((win) => {
+            const page = new CheckoutPageObject();
 
-        // add product to cart
-        cy.get('.header-search-input')
-            .should('be.visible')
-            .type(product.name);
-        cy.contains('.search-suggest-product-name', product.name).click();
-        cy.get('.product-detail-buy .btn-buy').click();
+            /** @deprecated tag:v6.5.0 - Use `CheckoutPageObject.elements.lineItem` instead */
+            const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
 
-        // Off canvas
-        cy.get(page.elements.offCanvasCart).should('be.visible');
-        cy.get('.line-item-label').contains(product.name);
+            // add product to cart
+            cy.get('.header-search-input')
+                .should('be.visible')
+                .type(product.name);
+            cy.contains('.search-suggest-product-name', product.name).click();
+            cy.get('.product-detail-buy .btn-buy').click();
 
-        // Go to cart
-        cy.get('.offcanvas-cart-actions [href="/checkout/confirm"]').click();
+            // Off canvas
+            cy.get(page.elements.offCanvasCart).should('be.visible');
+            cy.get(`${lineItemSelector}-label`).contains(product.name);
 
-        cy.get(`${page.elements.paymentFormConfirm}`).should('be.visible');
-        cy.get(`${page.elements.shippingFormConfirm}`).should('be.visible');
+            // Go to cart
+            cy.get('.offcanvas-cart-actions [href="/checkout/confirm"]').click();
 
-        cy.get(`${page.elements.paymentMethodsContainer}`)
-            .should('be.visible')
-            .children()
-            .should('have.length', 3);
+            cy.get(`${page.elements.paymentFormConfirm}`).should('be.visible');
+            cy.get(`${page.elements.shippingFormConfirm}`).should('be.visible');
 
-        cy.get(`${page.elements.shippingMethodsContainer}`)
-            .should('be.visible')
-            .children()
-            .should('have.length', 2);
+            cy.get(`${page.elements.paymentMethodsContainer}`)
+                .should('be.visible')
+                .children()
+                .should('have.length', 3);
+
+            cy.get(`${page.elements.shippingMethodsContainer}`)
+                .should('be.visible')
+                .children()
+                .should('have.length', 2);
+        });
     });
 
     it('@base @confirm: should have working collapse on multiple methods', { tags: ['pa-checkout'] }, () => {
@@ -67,16 +69,21 @@ describe('Test payment and shipping methods selection', () => {
             .then(() => {
                 const page = new CheckoutPageObject();
 
-                // add product to cart
-                cy.get('.header-search-input')
-                    .should('be.visible')
-                    .type(product.name);
-                cy.contains('.search-suggest-product-name', product.name).click();
-                cy.get('.product-detail-buy .btn-buy').click();
+                cy.window().then((win) => {
+                    /** @deprecated tag:v6.5.0 - Use `CheckoutPageObject.elements.lineItem` instead */
+                    const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
 
-                // Off canvas
-                cy.get(page.elements.offCanvasCart).should('be.visible');
-                cy.get('.line-item-label').contains(product.name);
+                    // add product to cart
+                    cy.get('.header-search-input')
+                        .should('be.visible')
+                        .type(product.name);
+                    cy.contains('.search-suggest-product-name', product.name).click();
+                    cy.get('.product-detail-buy .btn-buy').click();
+
+                    // Off canvas
+                    cy.get(page.elements.offCanvasCart).should('be.visible');
+                    cy.get(`${lineItemSelector}-label`).contains(product.name);
+                });
 
                 // Go to cart
                 cy.get('.offcanvas-cart-actions [href="/checkout/confirm"]').click();
@@ -108,16 +115,21 @@ describe('Test payment and shipping methods selection', () => {
     it('@base @confirm @package: should change payment and shipping methods', { tags: ['pa-checkout'] }, () => {
         const page = new CheckoutPageObject();
 
-        // add product to cart
-        cy.get('.header-search-input')
-            .should('be.visible')
-            .type(product.name);
-        cy.contains('.search-suggest-product-name', product.name).click();
-        cy.get('.product-detail-buy .btn-buy').click();
+        cy.window().then((win) => {
+            /** @deprecated tag:v6.5.0 - Use `CheckoutPageObject.elements.lineItem` instead */
+            const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
 
-        // Off canvas
-        cy.get(page.elements.offCanvasCart).should('be.visible');
-        cy.get('.line-item-label').contains(product.name);
+            // add product to cart
+            cy.get('.header-search-input')
+                .should('be.visible')
+                .type(product.name);
+            cy.contains('.search-suggest-product-name', product.name).click();
+            cy.get('.product-detail-buy .btn-buy').click();
+
+            // Off canvas
+            cy.get(page.elements.offCanvasCart).should('be.visible');
+            cy.get(`${lineItemSelector}-label`).contains(product.name);
+        });
 
         // Go to cart
         cy.get('.offcanvas-cart-actions [href="/checkout/confirm"]').click();
@@ -131,7 +143,7 @@ describe('Test payment and shipping methods selection', () => {
         cy.get(`${page.elements.paymentMethodsContainer} > :nth-child(3) .payment-method-label`).click(1, 1);
 
         cy.get(`${page.elements.shippingMethodsContainer} .shipping-method-label`)
-            .contains('Express').click(1, 1);
+            .contains('Express').click(1, 1)
 
         cy.get('#confirmFormSubmit').scrollIntoView();
         cy.get('#confirmFormSubmit').click();
@@ -150,70 +162,76 @@ describe('Test payment and shipping methods selection', () => {
     });
 
     it('@base @confirm @package: should repeat the order with different payment method', { tags: ['pa-checkout'] }, () => {
-        const page = new CheckoutPageObject();
 
-        // add product to cart
-        cy.get('.header-search-input')
-            .should('be.visible')
-            .type(product.name);
-        cy.contains('.search-suggest-product-name', product.name).click();
-        cy.get('.product-detail-buy .btn-buy').click();
+        cy.window().then((win) => {
+            const page = new CheckoutPageObject();
 
-        // Off canvas
-        cy.get(page.elements.offCanvasCart).should('be.visible');
-        cy.get('.line-item-label').contains(product.name);
+            /** @deprecated tag:v6.5.0 - Use `CheckoutPageObject.elements.lineItem` instead */
+            const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
 
-        // Go to cart
-        cy.get('.offcanvas-cart-actions [href="/checkout/confirm"]').click();
-        cy.get('.checkout-confirm-tos-label').scrollIntoView();
-        cy.get('.checkout-confirm-tos-label').click(1, 1);
+            // add product to cart
+            cy.get('.header-search-input')
+                .should('be.visible')
+                .type(product.name);
+            cy.contains('.search-suggest-product-name', product.name).click();
+            cy.get('.product-detail-buy .btn-buy').click();
 
-        cy.get(`${page.elements.paymentMethodsContainer} > :nth-child(1) .payment-method-label`)
-            .should('exist')
-            .contains('Invoice');
-        cy.get(`${page.elements.paymentMethodsContainer} > :nth-child(1) .payment-method-label`).click(1, 1);
-        cy.get(`${page.elements.shippingMethodsContainer} .shipping-method-label`)
-            .contains('Standard').click(1, 1);
-        cy.get('#confirmFormSubmit').scrollIntoView();
-        cy.get('#confirmFormSubmit').click();
-        cy.get('.finish-header').contains('Thank you for your order with Demostore!');
-        cy.get('.finish-order-details .checkout-card .card-body p:nth-of-type(1)')
-            .should('contain', 'Invoice');
-        cy.get('.finish-order-details .checkout-card .card-body p:nth-of-type(2)')
-            .should('contain', 'Standard');
+            // Off canvas
+            cy.get(page.elements.offCanvasCart).should('be.visible');
+            cy.get(`${lineItemSelector}-label`).contains(product.name);
 
-        // repeat the order with changing payment method
-        cy.visit('/account/order');
-        cy.url().should('include', 'account/order');
-        cy.get('#accountOrderDropdown').click();
-        cy.contains('Repeat order').click();
+            // Go to cart
+            cy.get('.offcanvas-cart-actions [href="/checkout/confirm"]').click();
+            cy.get('.checkout-confirm-tos-label').scrollIntoView();
+            cy.get('.checkout-confirm-tos-label').click(1, 1);
 
-        // Off canvas
-        cy.get(page.elements.offCanvasCart).should('be.visible');
-        cy.get('.line-item-label').contains(product.name);
+            cy.get(`${page.elements.paymentMethodsContainer} > :nth-child(1) .payment-method-label`)
+                .should('exist')
+                .contains('Invoice');
+            cy.get(`${page.elements.paymentMethodsContainer} > :nth-child(1) .payment-method-label`).click(1, 1);
+            cy.get(`${page.elements.shippingMethodsContainer} .shipping-method-label`)
+                .contains('Standard').click(1, 1);
+            cy.get('#confirmFormSubmit').scrollIntoView();
+            cy.get('#confirmFormSubmit').click();
+            cy.get('.finish-header').contains('Thank you for your order with Demostore!');
+            cy.get('.finish-order-details .checkout-card .card-body p:nth-of-type(1)')
+                .should('contain', 'Invoice');
+            cy.get('.finish-order-details .checkout-card .card-body p:nth-of-type(2)')
+                .should('contain', 'Standard');
 
-        // Go to cart
-        cy.get('.offcanvas-cart-actions [href="/checkout/confirm"]').click();
-        cy.get('.checkout-confirm-tos-label').scrollIntoView();
-        cy.get('.checkout-confirm-tos-label').click(1, 1);
-        cy.get(`${page.elements.paymentMethodsContainer} > :nth-child(3) .payment-method-label`)
-            .should('exist')
-            .contains('Paid in advance');
-        cy.get(`${page.elements.paymentMethodsContainer} > :nth-child(3) .payment-method-label`).click(1, 1);
-        cy.get(`${page.elements.shippingMethodsContainer} .shipping-method-label`)
-            .contains('Express').click(1, 1);
+            // repeat the order with changing payment method
+            cy.visit('/account/order');
+            cy.url().should('include', 'account/order');
+            cy.get('#accountOrderDropdown').click();
+            cy.contains('Repeat order').click();
 
-        cy.get('#confirmFormSubmit').scrollIntoView();
-        cy.get('#confirmFormSubmit').click();
-        cy.get('.finish-header').contains('Thank you for your order with Demostore!');
-        cy.get('.finish-order-details .checkout-card .card-body p:nth-of-type(1)')
-            .should('contain', 'Paid in advance');
-        cy.get('.finish-order-details .checkout-card .card-body p:nth-of-type(2)')
-            .should('contain', 'Express');
+            // Off canvas
+            cy.get(page.elements.offCanvasCart).should('be.visible');
+            cy.get(`${lineItemSelector}-label`).contains(product.name);
+
+            // Go to cart
+            cy.get('.offcanvas-cart-actions [href="/checkout/confirm"]').click();
+            cy.get('.checkout-confirm-tos-label').scrollIntoView();
+            cy.get('.checkout-confirm-tos-label').click(1, 1);
+            cy.get(`${page.elements.paymentMethodsContainer} > :nth-child(3) .payment-method-label`)
+                .should('exist')
+                .contains('Paid in advance');
+            cy.get(`${page.elements.paymentMethodsContainer} > :nth-child(3) .payment-method-label`).click(1, 1);
+            cy.get(`${page.elements.shippingMethodsContainer} .shipping-method-label`)
+                .contains('Express').click(1, 1);
+
+            cy.get('#confirmFormSubmit').scrollIntoView();
+            cy.get('#confirmFormSubmit').click();
+            cy.get('.finish-header').contains('Thank you for your order with Demostore!');
+            cy.get('.finish-order-details .checkout-card .card-body p:nth-of-type(1)')
+                .should('contain', 'Paid in advance');
+            cy.get('.finish-order-details .checkout-card .card-body p:nth-of-type(2)')
+                .should('contain', 'Express');
+        });
     });
 
     it('@base @confirm @package: should cancel the order', { tags: ['pa-checkout'] }, () => {
-        cy.getBearerAuth().then((result) => {
+        cy.authenticate().then((result) => {
             const requestConfig = {
                 headers: {
                     Authorization: `Bearer ${result.access}`,
@@ -229,61 +247,66 @@ describe('Test payment and shipping methods selection', () => {
             return cy.request(requestConfig);
         });
 
-        const page = new CheckoutPageObject();
+        cy.window().then((win) => {
+            const page = new CheckoutPageObject();
 
-        // add product to cart
-        cy.get('.header-search-input')
-            .should('be.visible')
-            .type(product.name);
-        cy.contains('.search-suggest-product-name', product.name).click();
-        cy.get('.product-detail-buy .btn-buy').click();
+            /** @deprecated tag:v6.5.0 - Use `CheckoutPageObject.elements.lineItem` instead */
+            const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
 
-        // Off canvas
-        cy.get(page.elements.offCanvasCart).should('be.visible');
-        cy.get('.line-item-label').contains(product.name);
+            // add product to cart
+            cy.get('.header-search-input')
+                .should('be.visible')
+                .type(product.name);
+            cy.contains('.search-suggest-product-name', product.name).click();
+            cy.get('.product-detail-buy .btn-buy').click();
 
-        // Go to cart
-        cy.get('.offcanvas-cart-actions [href="/checkout/confirm"]').click();
-        cy.get('.checkout-confirm-tos-label').scrollIntoView();
-        cy.get('.checkout-confirm-tos-label').click(1, 1);
-        cy.get(`${page.elements.paymentMethodsContainer} > :nth-child(1) .payment-method-label`)
-            .should('exist')
-            .contains('Invoice');
-        cy.get(`${page.elements.paymentMethodsContainer} > :nth-child(1) .payment-method-label`).click(1, 1);
-        cy.get(`${page.elements.shippingMethodsContainer} .shipping-method-label`)
-            .contains('Standard').click(1, 1);
+            // Off canvas
+            cy.get(page.elements.offCanvasCart).should('be.visible');
+            cy.get(`${lineItemSelector}-label`).contains(product.name);
 
-        cy.get('#confirmFormSubmit').scrollIntoView();
-        cy.get('#confirmFormSubmit').click();
-        cy.get('.finish-header').contains('Thank you for your order with Demostore!');
-        cy.get('.finish-order-details .checkout-card .card-body p:nth-of-type(1)')
-            .should('contain', 'Invoice');
-        cy.get('.finish-order-details .checkout-card .card-body p:nth-of-type(2)')
-            .should('contain', 'Standard');
+            // Go to cart
+            cy.get('.offcanvas-cart-actions [href="/checkout/confirm"]').click();
+            cy.get('.checkout-confirm-tos-label').scrollIntoView();
+            cy.get('.checkout-confirm-tos-label').click(1, 1);
+            cy.get(`${page.elements.paymentMethodsContainer} > :nth-child(1) .payment-method-label`)
+                .should('exist')
+                .contains('Invoice');
+            cy.get(`${page.elements.paymentMethodsContainer} > :nth-child(1) .payment-method-label`).click(1, 1);
+            cy.get(`${page.elements.shippingMethodsContainer} .shipping-method-label`)
+                .contains('Standard').click(1, 1)
 
-        // cancel the order
-        cy.visit('/account/order');
-        cy.url().should('include', 'account/order');
-        cy.get('#accountOrderDropdown').click();
-        cy.contains('Cancel order').click();
-        cy.get('[data-backdrop] .modal-title').should('be.visible');
-        cy.get('[data-backdrop] .modal-body').should('include.text', 'Are you sure you want to cancel your order after all?');
-        cy.get('[action] .btn-primary').click();
-        cy.get('.order-item-status-badge-cancelled').should('be.visible').contains('Cancelled');
+            cy.get('#confirmFormSubmit').scrollIntoView();
+            cy.get('#confirmFormSubmit').click();
+            cy.get('.finish-header').contains('Thank you for your order with Demostore!');
+            cy.get('.finish-order-details .checkout-card .card-body p:nth-of-type(1)')
+                .should('contain', 'Invoice');
+            cy.get('.finish-order-details .checkout-card .card-body p:nth-of-type(2)')
+                .should('contain', 'Standard');
+
+            // cancel the order
+            cy.visit('/account/order');
+            cy.url().should('include', 'account/order');
+            cy.get('#accountOrderDropdown').click();
+            cy.contains('Cancel order').click();
+            cy.get('[data-backdrop] .modal-title').should('be.visible');
+            cy.get('[data-backdrop] .modal-body').should('include.text', 'Are you sure you want to cancel your order after all?');
+            cy.get('[action] .btn-primary').click();
+            cy.get('.order-item-status-badge-cancelled').should('be.visible').contains('Cancelled');
+        });
     });
 
     it('@base @confirm: should have a working wishlist', { tags: ['pa-checkout'] }, () => {
         cy.intercept({
             url: `**/wishlist/add/**`,
-            method: 'POST',
+            method: 'POST'
         }).as('wishlistAdd');
 
         cy.intercept({
             url: `**/wishlist/remove/**`,
-            method: 'POST',
+            method: 'POST'
         }).as('wishlistRemove');
 
-        cy.getBearerAuth().then((result) => {
+        cy.authenticate().then((result) => {
             const requestConfig = {
                 headers: {
                     Authorization: `Bearer ${result.access}`,
@@ -300,58 +323,63 @@ describe('Test payment and shipping methods selection', () => {
             return cy.request(requestConfig);
         });
 
-        const page = new CheckoutPageObject();
+        cy.window().then((win) => {
+            const page = new CheckoutPageObject();
 
-        // add product to cart
-        cy.get('.header-search-input')
-            .should('be.visible')
-            .type(product.name);
-        cy.contains('.search-suggest-product-name', product.name).click();
-        cy.get('.product-detail-buy .btn-buy').click();
+            /** @deprecated tag:v6.5.0 - Use `CheckoutPageObject.elements.lineItem` instead */
+            const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
 
-        // Off canvas
-        cy.get(page.elements.offCanvasCart).should('be.visible');
-        cy.get('.line-item-label').contains(product.name);
+            // add product to cart
+            cy.get('.header-search-input')
+                .should('be.visible')
+                .type(product.name);
+            cy.contains('.search-suggest-product-name', product.name).click();
+            cy.get('.product-detail-buy .btn-buy').click();
 
-        // Go to cart
-        cy.get('.offcanvas-cart-actions [href="/checkout/confirm"]').click();
+            // Off canvas
+            cy.get(page.elements.offCanvasCart).should('be.visible');
+            cy.get(`${lineItemSelector}-label`).contains(product.name);
 
-        cy.get('.line-item .product-wishlist-action').scrollIntoView();
-        cy.get('.line-item .product-wishlist-action .text-wishlist-not-added')
-            .should('be.visible')
-            .contains('Add to wishlist');
+            // Go to cart
+            cy.get('.offcanvas-cart-actions [href="/checkout/confirm"]').click();
 
-        cy.get('.line-item .product-wishlist-action')
-            .should('be.visible')
-            .click();
+            cy.get(`${lineItemSelector} .product-wishlist-action`).scrollIntoView();
+            cy.get(`${lineItemSelector} .product-wishlist-action .text-wishlist-not-added`)
+                .should('be.visible')
+                .contains('Add to wishlist');
 
-        cy.wait('@wishlistAdd').its('response.statusCode').should('equal', 200);
+            cy.get(`${lineItemSelector} .product-wishlist-action`)
+                .should('be.visible')
+                .click();
 
-        cy.get('.line-item .product-wishlist-action .text-wishlist-remove')
-            .should('be.visible')
-            .contains('Remove from wishlist');
+            cy.wait('@wishlistAdd').its('response.statusCode').should('equal', 200);
 
-        cy.get('.line-item .product-wishlist-action').click();
+            cy.get(`${lineItemSelector} .product-wishlist-action .text-wishlist-remove`)
+                .should('be.visible')
+                .contains('Remove from wishlist');
 
-        cy.wait('@wishlistRemove').its('response.statusCode').should('equal', 200);
+            cy.get(`${lineItemSelector} .product-wishlist-action`).click();
 
-        cy.get('.line-item .product-wishlist-action .text-wishlist-not-added')
-            .should('be.visible')
-            .contains('Add to wishlist');
+            cy.wait('@wishlistRemove').its('response.statusCode').should('equal', 200);
 
-        cy.get('.line-item .product-wishlist-action').click();
+            cy.get(`${lineItemSelector} .product-wishlist-action .text-wishlist-not-added`)
+                .should('be.visible')
+                .contains('Add to wishlist');
 
-        cy.wait('@wishlistAdd').its('response.statusCode').should('equal', 200);
+            cy.get(`${lineItemSelector} .product-wishlist-action`).click();
 
-        cy.visit('/wishlist');
+            cy.wait('@wishlistAdd').its('response.statusCode').should('equal', 200);
 
-        cy.get('.product-name').contains(product.name);
+            cy.visit('/wishlist');
+
+            cy.get('.product-name').contains(product.name);
+        });
     });
 
     it('@base @confirm: should have correct order of shipping methods', { tags: ['pa-checkout'] }, () => {
         cy.window().then((win) => {
             const salesChannels = [
-                { id: win.salesChannelId },
+                { id: win.salesChannelId }
             ];
 
             const SHIPPING_METHOD_STANDARD = 'Standard';
@@ -370,7 +398,7 @@ describe('Test payment and shipping methods selection', () => {
                 data: {
                     field: 'name',
                     value: 'Storefront',
-                },
+                }
             }).then((salesChannel) => {
                 defaultShippingMethodId = salesChannel.attributes.shippingMethodId;
 
@@ -379,7 +407,7 @@ describe('Test payment and shipping methods selection', () => {
                     data: {
                         field: 'name',
                         value: SHIPPING_METHOD_STANDARD,
-                    },
+                    }
                 });
             }).then((standardShippingMethod) => {
                 const {id} = standardShippingMethod;
@@ -391,8 +419,8 @@ describe('Test payment and shipping methods selection', () => {
                     data: {
                         field: 'name',
                         value: SHIPPING_METHOD_EXPRESS,
-                    },
-                });
+                    }
+                })
             }).then((expressShippingMethod) => {
                 const {id} = expressShippingMethod;
 
@@ -421,7 +449,13 @@ describe('Test payment and shipping methods selection', () => {
 
                         // Off canvas
                         cy.get(page.elements.offCanvasCart).should('be.visible');
-                        cy.get('.line-item-label').contains(product.name);
+
+                        cy.window().then((win) => {
+                            /** @deprecated tag:v6.5.0 - Use `CheckoutPageObject.elements.lineItem` instead */
+                            const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
+
+                            cy.get(`${lineItemSelector}-label`).contains(product.name);
+                        });
 
                         // Go to cart
                         cy.get('.offcanvas-cart-actions [href="/checkout/confirm"]').click();
@@ -460,15 +494,15 @@ describe('Test payment and shipping methods selection', () => {
                             3: remainingShippingMethod,     // position:  1
                             4: 'Test Method #2',            // position:  3
                             5: 'Test Method #4',            // position:  4
-                        };
+                        }
 
                         cy.get(`${page.elements.shippingMethodsContainer} .shipping-method-description`)
                             .each(($div, index) => {
                                 expect($div.text().trim()).to.equal(expectedOrder[index]);
                             });
                     });
+                });
             });
-        });
 
 
     });

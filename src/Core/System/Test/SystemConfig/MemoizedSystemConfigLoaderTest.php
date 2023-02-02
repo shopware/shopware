@@ -3,7 +3,6 @@
 namespace Shopware\Core\System\Test\SystemConfig;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\AbstractSystemConfigLoader;
@@ -19,7 +18,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-#[Package('system-settings')]
 class MemoizedSystemConfigLoaderTest extends TestCase
 {
     use KernelTestBehaviour;

@@ -4,33 +4,38 @@ namespace Shopware\Core\System\SalesChannel\Entity;
 
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Exception\SalesChannelRepositoryNotFoundException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-#[Package('sales-channel')]
 class SalesChannelDefinitionInstanceRegistry extends DefinitionInstanceRegistry
 {
+    /**
+     * @var string
+     */
+    private $prefix;
+
     /**
      * @internal
      */
     public function __construct(
-        private readonly string $prefix,
+        string $prefix,
         ContainerInterface $container,
         array $definitionMap,
         array $repositoryMap
     ) {
         parent::__construct($container, $definitionMap, $repositoryMap);
+
+        $this->prefix = $prefix;
     }
 
     /**
      * @throws SalesChannelRepositoryNotFoundException
      */
-    public function getSalesChannelRepository(string $entityName): SalesChannelRepository
+    public function getSalesChannelRepository(string $entityName): SalesChannelRepositoryInterface
     {
         $salesChannelRepositoryClass = $this->getSalesChannelRepositoryClassByEntityName($entityName);
 
-        /** @var SalesChannelRepository $salesChannelRepository */
+        /** @var SalesChannelRepositoryInterface $salesChannelRepository */
         $salesChannelRepository = $this->container->get($salesChannelRepositoryClass);
 
         return $salesChannelRepository;
@@ -50,13 +55,15 @@ class SalesChannelDefinitionInstanceRegistry extends DefinitionInstanceRegistry
      */
     public function getSalesChannelDefinitions(): array
     {
-        return array_filter($this->getDefinitions(), static fn ($definition): bool => $definition instanceof SalesChannelDefinitionInterface);
+        return array_filter($this->getDefinitions(), static function ($definition): bool {
+            return $definition instanceof SalesChannelDefinitionInterface;
+        });
     }
 
     public function register(EntityDefinition $definition, ?string $serviceId = null): void
     {
         if (!$serviceId) {
-            $serviceId = $this->prefix . $definition::class;
+            $serviceId = $this->prefix . \get_class($definition);
         }
 
         parent::register($definition, $serviceId);

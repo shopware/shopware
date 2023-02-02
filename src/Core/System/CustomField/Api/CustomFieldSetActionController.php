@@ -5,23 +5,34 @@ namespace Shopware\Core\System\CustomField\Api;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Route(defaults: ['_routeScope' => ['api']])]
-#[Package('system-settings')]
+/**
+ * @Route(defaults={"_routeScope"={"api"}})
+ */
 class CustomFieldSetActionController extends AbstractController
 {
     /**
+     * @var DefinitionInstanceRegistry
+     */
+    private $definitionRegistry;
+
+    /**
      * @internal
      */
-    public function __construct(private readonly DefinitionInstanceRegistry $definitionRegistry)
+    public function __construct(DefinitionInstanceRegistry $definitionRegistry)
     {
+        $this->definitionRegistry = $definitionRegistry;
     }
 
-    #[Route(path: '/api/_action/attribute-set/relations', name: 'api.action.attribute-set.get-relations', methods: ['GET'])]
+    /**
+     * @Since("6.0.0.0")
+     * @Route("/api/_action/attribute-set/relations", name="api.action.attribute-set.get-relations", methods={"GET"})
+     */
     public function getAvailableRelations(): JsonResponse
     {
         $definitions = $this->definitionRegistry->getDefinitions();

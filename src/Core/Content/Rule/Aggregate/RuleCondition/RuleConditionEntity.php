@@ -7,9 +7,7 @@ use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionE
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('business-ops')]
 class RuleConditionEntity extends Entity
 {
     use EntityIdTrait;

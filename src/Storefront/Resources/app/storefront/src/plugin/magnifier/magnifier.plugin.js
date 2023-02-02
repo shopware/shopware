@@ -130,7 +130,6 @@ export default class MagnifierPlugin extends Plugin {
         const allowedViewports = [
             ViewportDetection.isLG(),
             ViewportDetection.isXL(),
-            ViewportDetection.isXXL(),
         ];
 
         return allowedViewports.indexOf(true) !== -1;

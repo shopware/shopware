@@ -1,12 +1,10 @@
 import template from './sw-first-run-wizard-defaults.html.twig';
 import './sw-first-run-wizard-defaults.scss';
 
-/**
- * @package merchant-services
- * @deprecated tag:v6.6.0 - Will be private
- */
+const { Component } = Shopware;
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-first-run-wizard-defaults', {
     template,
 
     inject: ['repositoryFactory'],
@@ -14,7 +12,6 @@ export default {
     data() {
         return {
             isLoading: false,
-            defaultSalesChannelCardLoaded: false,
             salesChannel: null,
             configData: {
                 null: {
@@ -46,7 +43,7 @@ export default {
                     position: 'right',
                     variant: 'primary',
                     action: this.nextAction.bind(this),
-                    disabled: !this.defaultSalesChannelCardLoaded,
+                    disabled: false,
                 },
             ];
         },
@@ -77,7 +74,6 @@ export default {
 
         async nextAction() {
             this.isLoading = true;
-
             await this.$refs.defaultSalesChannelCard.saveSalesChannelVisibilityConfig();
 
             this.isLoading = false;
@@ -92,4 +88,4 @@ export default {
             this.salesChannel = salesChannel;
         },
     },
-};
+});

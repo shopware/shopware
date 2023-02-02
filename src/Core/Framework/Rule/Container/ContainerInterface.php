@@ -2,10 +2,8 @@
 
 namespace Shopware\Core\Framework\Rule\Container;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 
-#[Package('business-ops')]
 interface ContainerInterface
 {
     /**

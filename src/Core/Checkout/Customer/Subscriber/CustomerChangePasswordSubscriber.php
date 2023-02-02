@@ -5,27 +5,28 @@ namespace Shopware\Core\Checkout\Customer\Subscriber;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Customer\CustomerEvents;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-/**
- * @internal
- */
-#[Package('customer-order')]
 class CustomerChangePasswordSubscriber implements EventSubscriberInterface
 {
     /**
+     * @var Connection
+     */
+    private $connection;
+
+    /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection)
+    public function __construct(Connection $connection)
     {
+        $this->connection = $connection;
     }
 
     /**
      * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
      */
-    public static function getSubscribedEvents(): array
+    public static function getSubscribedEvents()
     {
         return [
             CustomerEvents::CUSTOMER_WRITTEN_EVENT => 'onCustomerWritten',
@@ -44,7 +45,7 @@ class CustomerChangePasswordSubscriber implements EventSubscriberInterface
 
     private function clearLegacyPassword(string $customerId): void
     {
-        $this->connection->executeStatement(
+        $this->connection->executeUpdate(
             'UPDATE `customer` SET `legacy_password` = null, `legacy_encoder` = null WHERE id = :id',
             [
                 'id' => Uuid::fromHexToBytes($customerId),

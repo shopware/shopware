@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\Test\Media\Cms;
 
-use League\Flysystem\FilesystemOperator;
+use League\Flysystem\FilesystemInterface;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Cms\DefaultMediaResolver;
 use Shopware\Core\Content\Media\MediaEntity;
@@ -17,7 +17,7 @@ class DefaultMediaResolverTest extends TestCase
 
     private DefaultMediaResolver $mediaResolver;
 
-    private FilesystemOperator $publicFilesystem;
+    private FilesystemInterface $publicFilesystem;
 
     public function setUp(): void
     {
@@ -34,7 +34,7 @@ class DefaultMediaResolverTest extends TestCase
 
     public function testGetDefaultMediaEntityWithValidFileName(): void
     {
-        $this->publicFilesystem->write('/bundles/core/assets/default/cms/shopware.jpg', '');
+        $this->publicFilesystem->put('/bundles/core/assets/default/cms/shopware.jpg', '');
         $media = $this->mediaResolver->getDefaultCmsMediaEntity('core/assets/default/cms/shopware.jpg');
 
         static::assertInstanceOf(MediaEntity::class, $media);

@@ -32,7 +32,6 @@
             v-bind="$attrs"
             @change="onPriceGrossChange"
             @keyup="keymonitor"
-            @input-change="onPriceGrossInputChange"
         >
             <template
                 v-if="!disableSuffix"
@@ -89,7 +88,6 @@
             v-bind="$attrs"
             @change="onPriceNetChange"
             @keyup="keymonitor"
-            @input-change="onPriceNetInputChange"
         >
             <template
                 v-if="!disableSuffix"

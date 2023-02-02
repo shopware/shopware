@@ -9,15 +9,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\NumberRange\Aggregate\NumberRangeType\NumberRangeTypeDefinition;
 use Shopware\Core\System\NumberRange\NumberRangeDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
-#[Package('checkout')]
 class NumberRangeSalesChannelDefinition extends EntityDefinition
 {
-    final public const ENTITY_NAME = 'number_range_sales_channel';
+    public const ENTITY_NAME = 'number_range_sales_channel';
 
     public function getEntityName(): string
     {

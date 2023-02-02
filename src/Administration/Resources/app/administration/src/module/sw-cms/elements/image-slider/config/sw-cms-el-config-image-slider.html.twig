@@ -8,7 +8,7 @@
         class="sw-cms-el-config-image-slider__tabs"
         default-item="content"
     >
-        <template #default="{ active }">
+        <template slot-scope="{ active }">
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_element_image_slider_config_tab_content %}
             <sw-tabs-item
@@ -32,7 +32,8 @@
         </template>
 
         <template
-            #content="{ active }"
+            slot="content"
+            slot-scope="{ active }"
         >
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_element_image_slider_config_content %}
@@ -107,7 +108,6 @@
                             v-model="element.config.minHeight.value"
                             :label="$tc('sw-cms.elements.image.config.label.minHeight')"
                             :placeholder="$tc('sw-cms.elements.image.config.label.minHeight')"
-                            :help-text="$tc('sw-cms.elements.image.config.label.minHeightHelpText')"
                             :disabled="element.config.displayMode.value !== 'cover'"
                             @input="onChangeMinHeight"
                         />

@@ -47,7 +47,10 @@ class ThemeDumpCommandTest extends TestCase
         static::assertSame('expectedConfig', $themeFileResolverMock->themeConfig->getThemeConfig()[0]);
     }
 
-    private function getPluginRegistryMock(): MockObject&StorefrontPluginRegistry
+    /**
+     * @return MockObject|StorefrontPluginRegistry
+     */
+    private function getPluginRegistryMock()
     {
         $storePluginConfiguration1 = new StorefrontPluginConfiguration('parentTheme');
         $storePluginConfiguration1->setThemeConfig([

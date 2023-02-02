@@ -14,7 +14,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Event\RouteRequest\OrderRouteRequestEvent;
@@ -23,14 +22,29 @@ use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('customer-order')]
 class AccountOrderPageLoader
 {
+    private GenericPageLoaderInterface $genericLoader;
+
+    private EventDispatcherInterface $eventDispatcher;
+
+    private AbstractOrderRoute $orderRoute;
+
+    private AccountService $accountService;
+
     /**
      * @internal
      */
-    public function __construct(private readonly GenericPageLoaderInterface $genericLoader, private readonly EventDispatcherInterface $eventDispatcher, private readonly AbstractOrderRoute $orderRoute, private readonly AccountService $accountService)
-    {
+    public function __construct(
+        GenericPageLoaderInterface $genericLoader,
+        EventDispatcherInterface $eventDispatcher,
+        AbstractOrderRoute $orderRoute,
+        AccountService $accountService
+    ) {
+        $this->genericLoader = $genericLoader;
+        $this->eventDispatcher = $eventDispatcher;
+        $this->orderRoute = $orderRoute;
+        $this->accountService = $accountService;
     }
 
     /**
@@ -112,7 +126,6 @@ class AccountOrderPageLoader
             ->addAssociation('orderCustomer.customer')
             ->addAssociation('lineItems')
             ->addAssociation('lineItems.cover')
-            ->addAssociation('lineItems.downloads.media')
             ->addAssociation('addresses')
             ->addAssociation('currency')
             ->addAssociation('documents.documentType')

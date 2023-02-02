@@ -12,15 +12,9 @@
         <div class="sw-flow-sequence-action__header">
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_flow_sequence_action_title %}
-            <div class="sw-flow-sequence-action__title-description">
-                <h3 class="sw-flow-sequence-action__title">
-                    {{ $tc('sw-flow.detail.sequence.actionTitle') }}
-                </h3>
-
-                <p class="sw-flow-sequence-action__description">
-                    {{ $tc('sw-flow.detail.sequence.actionDescription') }}
-                </p>
-            </div>
+            <h3 class="sw-flow-sequence-action__title">
+                {{ $tc('sw-flow.detail.sequence.actionTitle') }}
+            </h3>
             {% endblock %}
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -81,9 +75,8 @@
                     >
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_flow_sequence_action_actions_item %}
-                        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                         <li
-                            v-for="(item, key) in sequenceData"
+                            v-for="item in sequenceData"
                             :key="item.id"
                             v-tooltip="{
                                 message: $tc('sw-flow.actions.tooltipActionDisabled'),
@@ -91,113 +84,84 @@
                             }"
                             class="sw-flow-sequence-action__action-item"
                             :class="{'sw-flow-sequence-action__disabled': item.disabled}"
-                            @click="(event) => onEditAction(item, event.target, key)"
                         >
-                            <sw-flow-sequence-action-error
-                                v-if="!isValidAction(item)"
-                                :sequence="item"
-                            >
-                                <template #content>
-                                    <div class="sw-flow-sequence-action__error-action">
-                                        <div class="sw-flow-sequence-action__error-action-title">
-                                            <sw-icon
-                                                name="regular-question-circle-s"
-                                                size="14px"
-                                                class="sw-icon-action"
-                                            />
 
-                                            {{ $tc('sw-flow.actions.unknownLabel') }}
-                                        </div>
-
-                                        <p>
-                                            {{ $tc('sw-flow.actions.warningText') }}
-                                        </p>
-                                    </div>
-                                </template>
-                            </sw-flow-sequence-action-error>
-
-                            <div v-else>
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_flow_sequence_action_actions_item_header %}
+                            <div class="sw-flow-sequence-action__action-header">
                                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                                {% block sw_flow_sequence_action_actions_item_header %}
-                                <div class="sw-flow-sequence-action__action-header">
-                                    <div class="sw-flow-sequence-action__action-icon">
-                                        <sw-icon
-                                            v-if="!item.iconRaw"
-                                            :name="`${item.icon}`"
-                                            size="12px"
-                                            class="sw-icon-action"
-                                        />
-
-                                        <img
-                                            v-else
-                                            class="sw-flow-sequence-action__icon-raw sw-icon"
-                                            :src="`data:image/png;base64, ${item.iconRaw}`"
-                                            alt=""
-                                        >
-                                    </div>
-
-                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                                    {% block sw_flow_sequence_action_actions_item_name %}
-                                    <div class="sw-flow-sequence-action__action-name">
-                                        <h3>{{ item.label }}</h3>
-                                    </div>
-                                    {% endblock %}
-
-                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                                    {% block sw_flow_sequence_action_actions_item_context_button %}
-                                    <sw-context-button
-                                        ref="contextButton"
-                                        class="sw-flow-sequence-action__context-button"
-                                        :disabled="disabled || item.disabled"
+                                {% block sw_flow_sequence_action_actions_item_name %}
+                                <div class="sw-flow-sequence-action__action-name">
+                                    <sw-icon
+                                        v-if="!item.iconRaw"
+                                        :name="`${item.icon}`"
+                                        size="12px"
+                                        class="sw-icon-action"
+                                    />
+                                    <img
+                                        v-else
+                                        class="sw-flow-sequence-action__icon-raw"
+                                        :src="`data:image/png;base64, ${item.iconRaw}`"
+                                        alt=""
                                     >
-                                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                                        {% block sw_flow_sequence_action_actions_item_button_edit %}
-                                        <sw-context-menu-item
-                                            v-if="isNotStopFlow(item)"
-                                            class="sw-flow-sequence-action__edit-action"
-                                            @click="(event) => onEditAction(item, event.target, key)"
-                                        >
-                                            {{ $tc('sw-flow.actions.contextButton.editAction') }}
-                                        </sw-context-menu-item>
-                                        {% endblock %}
 
-                                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                                        {% block sw_flow_sequence_action_actions_item_button_delete %}
-                                        <sw-context-menu-item
-                                            variant="danger"
-                                            class="sw-flow-sequence-action__delete-action"
-                                            @click="removeAction(item.id)"
-                                        >
-                                            {{ $tc('sw-flow.actions.contextButton.deleteAction') }}
-                                        </sw-context-menu-item>
-                                        {% endblock %}
-
-                                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                                        {% block sw_flow_sequence_action_actions_item_button_move_up %}
-                                        <sw-context-menu-item
-                                            v-if="showMoveOption(item, 'up')"
-                                            class="sw-flow-sequence-action__move-up"
-                                            @click="moveAction(item, 'up')"
-                                        >
-                                            {{ $tc('sw-flow.actions.contextButton.moveUpAction') }}
-                                        </sw-context-menu-item>
-                                        {% endblock %}
-
-                                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                                        {% block sw_flow_sequence_action_actions_item_button_move_down %}
-                                        <sw-context-menu-item
-                                            v-if="showMoveOption(item, 'down')"
-                                            class="sw-flow-sequence-action__move-down"
-                                            @click="moveAction(item, 'down')"
-                                        >
-                                            {{ $tc('sw-flow.actions.contextButton.moveDownAction') }}
-                                        </sw-context-menu-item>
-                                        {% endblock %}
-                                    </sw-context-button>
-                                    {% endblock %}
+                                    <h3>{{ item.label }}</h3>
                                 </div>
                                 {% endblock %}
+
+                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                {% block sw_flow_sequence_action_actions_item_context_button %}
+                                <sw-context-button
+                                    class="sw-flow-sequence-action__context-button"
+                                    :disabled="disabled || item.disabled"
+                                >
+                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                    {% block sw_flow_sequence_action_actions_item_button_edit %}
+                                    <sw-context-menu-item
+                                        v-if="isNotStopFlow(item)"
+                                        class="sw-flow-sequence-action__edit-action"
+                                        @click="onEditAction(item)"
+                                    >
+                                        {{ $tc('sw-flow.actions.contextButton.editAction') }}
+                                    </sw-context-menu-item>
+                                    {% endblock %}
+
+                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                    {% block sw_flow_sequence_action_actions_item_button_delete %}
+                                    <sw-context-menu-item
+                                        variant="danger"
+                                        class="sw-flow-sequence-action__delete-action"
+                                        @click="removeAction(item.id)"
+                                    >
+                                        {{ $tc('sw-flow.actions.contextButton.deleteAction') }}
+                                    </sw-context-menu-item>
+                                    {% endblock %}
+
+                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                    {% block sw_flow_sequence_action_actions_item_button_move_up %}
+                                    <sw-context-menu-item
+                                        v-if="showMoveOption(item, 'up')"
+                                        class="sw-flow-sequence-action__move-up"
+                                        @click="moveAction(item, 'up')"
+                                    >
+                                        {{ $tc('sw-flow.actions.contextButton.moveUpAction') }}
+                                    </sw-context-menu-item>
+                                    {% endblock %}
+
+                                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                    {% block sw_flow_sequence_action_actions_item_button_move_down %}
+                                    <sw-context-menu-item
+                                        v-if="showMoveOption(item, 'down')"
+                                        class="sw-flow-sequence-action__move-down"
+                                        @click="moveAction(item, 'down')"
+                                    >
+                                        {{ $tc('sw-flow.actions.contextButton.moveDownAction') }}
+                                    </sw-context-menu-item>
+                                    {% endblock %}
+                                </sw-context-button>
+                                {% endblock %}
                             </div>
+                            {% endblock %}
 
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_flow_sequence_action_actions_item_description %}
@@ -222,64 +186,103 @@
             {% endblock %}
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_flow_sequence_action_add_select %}
+            {% block sw_flow_sequence_action_add_action %}
             <div
                 v-if="showAddAction && !disabled"
-                class="sw-flow-sequence-action__select"
+                class="sw-flow-sequence-action__add-action"
             >
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_flow_sequence_action_list %}
-                <sw-grouped-single-select
-                    class="sw-flow-sequence-action__selection-action"
-                    size="small"
-                    value=""
-                    :placeholder="$tc('sw-flow.actions.placeholderSelectAction')"
-                    :options="actionOptions"
-                    :groups="groups"
-                    :popover-classes="['sw-flow-sequence-action__popover']"
-                    :error="fieldError"
-                    @change="openDynamicModal"
+                {% block sw_flow_sequence_action_add_button %}
+                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
+                <a
+                    v-if="showAddButton"
+                    class="sw-flow-sequence-action__add-button"
+                    @click="toggleAddButton"
                 >
-                    <template #result-item="{ item, index, labelProperty, highlightSearchTerm, isSelected, setValue, getKey }">
-                        <li
-                            is="sw-select-result"
-                            v-tooltip="{
-                                message: $tc('sw-flow.actions.tooltipActionDisabled'),
-                                disabled: !item.disabled
-                            }"
-                            :selected="isSelected(item)"
-                            v-bind="{ item, index }"
-                            :class="[stopFlowStyle(item.value), {'sw-flow-sequence-action__disabled': item.disabled}]"
-                            @item-select="setValue"
-                        >
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                            {% block sw_flow_sequence_action_select_results_list_result_label %}
-                            <sw-icon
-                                v-if="!item.iconRaw"
-                                :name="`${item.icon}`"
-                                size="12px"
-                                class="sw-icon-action"
-                            />
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_flow_sequence_action_add_icon %}
+                    <div class="sw-flow-sequence-action__add-icon">
+                        {# @deprecated tag:v6.5.0 - Padding can be removed #}
+                        <sw-icon
+                            size="8px"
+                            style="padding: 2px"
+                            color="#fff"
+                            name="regular-plus-xxs"
+                        />
+                    </div>
+                    {% endblock %}
 
-                            <img
-                                v-else
-                                class="sw-flow-sequence-action__icon-raw"
-                                :src="`data:image/png;base64, ${item.iconRaw}`"
-                                alt=""
+                    <p>{{ $tc('sw-flow.actions.addAction') }}</p>
+                </a>
+                {% endblock %}
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_flow_sequence_action_add_select %}
+                <div
+                    v-else
+                    class="sw-flow-sequence-action__select"
+                >
+                    <sw-icon
+                        size="12px"
+                        color="#758ca3"
+                        name="regular-times-circle-s"
+                        @click="toggleAddButton"
+                    />
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_flow_sequence_action_list %}
+                    <sw-grouped-single-select
+                        class="sw-flow-sequence-action__selection-action"
+                        size="small"
+                        value=""
+                        :placeholder="$tc('sw-flow.actions.placeholderSelectAction')"
+                        :options="actionOptions"
+                        :groups="groups"
+                        :popover-classes="['sw-flow-sequence-action__popover']"
+                        :error="fieldError"
+                        @change="openDynamicModal"
+                    >
+
+                        <template #result-item="{ item, index, labelProperty, highlightSearchTerm, isSelected, setValue, getKey }">
+                            <li
+                                is="sw-select-result"
+                                v-tooltip="{
+                                    message: $tc('sw-flow.actions.tooltipActionDisabled'),
+                                    disabled: !item.disabled
+                                }"
+                                :selected="isSelected(item)"
+                                v-bind="{ item, index }"
+                                :class="[stopFlowStyle(item.value), {'sw-flow-sequence-action__disabled': item.disabled}]"
+                                @item-select="setValue"
                             >
+                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                                {% block sw_flow_sequence_action_select_results_list_result_label %}
+                                <sw-icon
+                                    v-if="!item.iconRaw"
+                                    :name="`${item.icon}`"
+                                    size="12px"
+                                    class="sw-icon-action"
+                                />
+                                <img
+                                    v-else
+                                    class="sw-flow-sequence-action__icon-raw"
+                                    :src="`data:image/png;base64, ${item.iconRaw}`"
+                                    alt=""
+                                >
 
-                            <sw-highlight-text
-                                v-if="highlightSearchTerm"
-                                :text="getKey(item, labelProperty)"
-                            />
+                                <sw-highlight-text
+                                    v-if="highlightSearchTerm"
+                                    :text="getKey(item, labelProperty)"
+                                />
 
-                            <template v-else>
-                                {{ getKey(item, labelProperty) }}
-                            </template>
-                            {% endblock %}
-                        </li>
-                    </template>
-                </sw-grouped-single-select>
+                                <template v-else>
+                                    {{ getKey(item, labelProperty) }}
+                                </template>
+                                {% endblock %}
+                            </li>
+                        </template>
+                    </sw-grouped-single-select>
+                    {% endblock %}
+                </div>
                 {% endblock %}
             </div>
             {% endblock %}
@@ -287,19 +290,6 @@
         {% endblock %}
     </div>
     {% endblock %}
-
-    <div
-        v-if="errorArrow"
-        class="sw-flow-sequence-action__true-arrow"
-    >
-        <div class="sw-flow-sequence-action__true-line"></div>
-        <div class="sw-flow-sequence-action__oval"></div>
-        <sw-icon
-            name="regular-chevron-right-s"
-            small
-        />
-
-    </div>
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_sequence_action_modal %}

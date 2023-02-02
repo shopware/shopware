@@ -2,10 +2,8 @@
 
 namespace Shopware\Administration\Controller\Exception;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
-#[Package('administration')]
 class MissingAppSecretException extends ShopwareHttpException
 {
     public function __construct()

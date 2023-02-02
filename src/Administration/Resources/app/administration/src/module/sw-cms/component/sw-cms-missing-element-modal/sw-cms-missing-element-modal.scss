@@ -1,7 +1,7 @@
 @import "~scss/variables";
 
 .sw-cms-missing-element-modal {
-    font-size: $font-size-xs;
+    font-size: $font-size-small;
 
     &__title {
         span {
@@ -16,9 +16,5 @@
 
     &__paragraph {
         font-weight: $font-weight-semi-bold;
-    }
-
-    &__dont-remind {
-        margin-top: 24px;
     }
 }

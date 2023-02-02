@@ -3,12 +3,10 @@
 namespace Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTranslation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<SalesChannelTranslationEntity>
  */
-#[Package('sales-channel')]
 class SalesChannelTranslationCollection extends EntityCollection
 {
     /**
@@ -16,12 +14,16 @@ class SalesChannelTranslationCollection extends EntityCollection
      */
     public function getSalesChannelIds(): array
     {
-        return $this->fmap(fn (SalesChannelTranslationEntity $salesChannelTranslation) => $salesChannelTranslation->getSalesChannelId());
+        return $this->fmap(function (SalesChannelTranslationEntity $salesChannelTranslation) {
+            return $salesChannelTranslation->getSalesChannelId();
+        });
     }
 
     public function filterBySalesChannelId(string $id): self
     {
-        return $this->filter(fn (SalesChannelTranslationEntity $salesChannelTranslation) => $salesChannelTranslation->getSalesChannelId() === $id);
+        return $this->filter(function (SalesChannelTranslationEntity $salesChannelTranslation) use ($id) {
+            return $salesChannelTranslation->getSalesChannelId() === $id;
+        });
     }
 
     /**
@@ -29,12 +31,16 @@ class SalesChannelTranslationCollection extends EntityCollection
      */
     public function getLanguageIds(): array
     {
-        return $this->fmap(fn (SalesChannelTranslationEntity $salesChannelTranslation) => $salesChannelTranslation->getLanguageId());
+        return $this->fmap(function (SalesChannelTranslationEntity $salesChannelTranslation) {
+            return $salesChannelTranslation->getLanguageId();
+        });
     }
 
     public function filterByLanguageId(string $id): self
     {
-        return $this->filter(fn (SalesChannelTranslationEntity $salesChannelTranslation) => $salesChannelTranslation->getLanguageId() === $id);
+        return $this->filter(function (SalesChannelTranslationEntity $salesChannelTranslation) use ($id) {
+            return $salesChannelTranslation->getLanguageId() === $id;
+        });
     }
 
     public function getApiAlias(): string

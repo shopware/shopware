@@ -3,32 +3,32 @@
 namespace Shopware\Core\System\NumberRange\Command;
 
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\IncrementStorageRegistry;
-use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(
-    name: 'number-range:migrate',
-    description: 'Migrate the increment storage of a number range',
-)]
-#[Package('checkout')]
 class MigrateIncrementStorageCommand extends Command
 {
+    protected static $defaultName = 'number-range:migrate';
+
+    private IncrementStorageRegistry $registry;
+
     /**
      * @internal
      */
-    public function __construct(private readonly IncrementStorageRegistry $registry)
+    public function __construct(IncrementStorageRegistry $registry)
     {
+        $this->registry = $registry;
+
         parent::__construct();
     }
 
     protected function configure(): void
     {
-        $this->addArgument('from', InputArgument::REQUIRED, 'The storage name from which you want to migrate.')
+        $this->setDescription('Migrates the current states of the number ranges from the given storage to the given storage. Note that if this command runs during load on the system it may be possible that the same number is generated twice.')
+            ->addArgument('from', InputArgument::REQUIRED, 'The storage name from which you want to migrate.')
             ->addArgument('to', InputArgument::REQUIRED, 'The storage name to which you want to migrate to.');
     }
 

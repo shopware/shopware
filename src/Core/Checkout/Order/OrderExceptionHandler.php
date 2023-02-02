@@ -4,9 +4,9 @@ namespace Shopware\Core\Checkout\Order;
 
 use Shopware\Core\Checkout\Order\Exception\LanguageOfOrderDeleteException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\ExceptionHandlerInterface;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
+use Shopware\Core\Framework\Feature;
 
-#[Package('customer-order')]
 class OrderExceptionHandler implements ExceptionHandlerInterface
 {
     public function getPriority(): int
@@ -14,10 +14,16 @@ class OrderExceptionHandler implements ExceptionHandlerInterface
         return ExceptionHandlerInterface::PRIORITY_DEFAULT;
     }
 
-    public function matchException(\Exception $e): ?\Exception
+    /**
+     * @internal (flag:FEATURE_NEXT_16640) - second parameter WriteCommand $command will be removed
+     */
+    public function matchException(\Exception $e, ?WriteCommand $command = null): ?\Exception
     {
+        if ($e->getCode() !== 0) {
+            return null;
+        }
         if (preg_match('/SQLSTATE\[23000\]:.*1451.*a foreign key constraint.*order.*CONSTRAINT `fk.language_id`/', $e->getMessage())) {
-            return new LanguageOfOrderDeleteException($e);
+            return new LanguageOfOrderDeleteException('', $e);
         }
 
         return null;

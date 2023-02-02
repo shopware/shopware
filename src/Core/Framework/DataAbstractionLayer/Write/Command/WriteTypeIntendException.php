@@ -3,10 +3,8 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write\Command;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
-#[Package('core')]
 class WriteTypeIntendException extends ShopwareHttpException
 {
     public function __construct(EntityDefinition $definition, string $expectedClass, string $actualClass)

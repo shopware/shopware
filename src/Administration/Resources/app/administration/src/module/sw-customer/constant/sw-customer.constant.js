@@ -1,7 +1,3 @@
-/**
- * @package customer-order
- */
-
 const ACCOUNT_TYPE_PRIVATE = 'private';
 const ACCOUNT_TYPE_BUSINESS = 'business';
 

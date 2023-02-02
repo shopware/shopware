@@ -1,6 +1,4 @@
 /**
- * @package admin
- *
  * @module core/helper/jsonapi-parser
  */
 import types from 'src/core/service/utils/types.utils';

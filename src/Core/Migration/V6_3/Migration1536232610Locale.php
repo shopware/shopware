@@ -3,13 +3,8 @@
 namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
-/**
- * @internal
- */
-#[Package('core')]
 class Migration1536232610Locale extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -19,7 +14,7 @@ class Migration1536232610Locale extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeStatement(
+        $connection->executeUpdate(
             'CREATE TABLE `locale` (
                `id`          BINARY(16)                              NOT NULL,
                `code`        VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -30,17 +25,17 @@ class Migration1536232610Locale extends MigrationStep
              ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;'
         );
 
-        $connection->executeStatement(
+        $connection->executeUpdate(
             'ALTER TABLE `language` ADD CONSTRAINT `fk.language.locale_id` FOREIGN KEY (`locale_id`)
                REFERENCES `locale` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;'
         );
 
-        $connection->executeStatement(
+        $connection->executeUpdate(
             'ALTER TABLE `language` ADD CONSTRAINT `fk.language.translation_code_id` FOREIGN KEY (`translation_code_id`)
                REFERENCES `locale` (`id`) ON DELETE CASCADE ON UPDATE CASCADE'
         );
 
-        $connection->executeStatement(
+        $connection->executeUpdate(
             'CREATE TABLE `locale_translation` (
                `locale_id`       BINARY(16)                              NOT NULL,
                `language_id`     BINARY(16)                              NOT NULL,

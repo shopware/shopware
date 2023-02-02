@@ -8,12 +8,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionDataPayloadField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
-use Shopware\Core\Framework\Log\Package;
 
 /**
- * @internal
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
  */
-#[Package('core')]
 class VersionDataPayloadFieldSerializer implements FieldSerializerInterface
 {
     public function normalize(Field $field, array $data, WriteParameterBag $parameters): array
@@ -30,12 +28,12 @@ class VersionDataPayloadFieldSerializer implements FieldSerializerInterface
         yield $field->getStorageName() => $data->getValue();
     }
 
-    public function decode(Field $field, mixed $value): mixed
+    public function decode(Field $field, $value)
     {
         if ($value === null) {
             return null;
         }
 
-        return json_decode((string) $value, true, 512, \JSON_THROW_ON_ERROR);
+        return json_decode($value, true);
     }
 }

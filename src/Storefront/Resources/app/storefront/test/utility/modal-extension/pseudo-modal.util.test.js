@@ -1,15 +1,13 @@
+import jQuery from 'jquery'
 import PseudoModalUtil from 'src/utility/modal-extension/pseudo-modal.util';
 
 import PseudoModalTemplate from './pseudo-modal.template.html'
 import ModalContentTemplate from './modal-content.template.html'
 
 const selector = {
-    templateTitle: '.js-pseudo-modal-template-title-element',
+    templateTitle: '.js-pseudo-modal-template-title-element'
 }
 
-/**
- * @package storefront
- */
 describe('pseudo-modal.util tests', () => {
     let pseudoModal = null;
     const spyInsertAdjacentElement = jest.fn();
@@ -19,6 +17,7 @@ describe('pseudo-modal.util tests', () => {
     }
 
     beforeAll(() => {
+        window.$ = jQuery;
         document.body.innerHTML = PseudoModalTemplate;
         document.body.insertAdjacentElement = spyInsertAdjacentElement;
     })

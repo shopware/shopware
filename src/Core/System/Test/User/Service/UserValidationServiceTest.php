@@ -4,9 +4,7 @@ namespace Shopware\Core\System\Test\User\Service;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\User\Service\UserValidationService;
@@ -14,16 +12,15 @@ use Shopware\Core\System\User\Service\UserValidationService;
 /**
  * @internal
  */
-#[Package('system-settings')]
 class UserValidationServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private EntityRepository $userRepository;
+    private $userRepository;
 
-    private EntityRepository $localeRepository;
+    private $localeRepository;
 
-    private UserValidationService $userValidationService;
+    private $userValidationService;
 
     public function setUp(): void
     {
@@ -48,7 +45,7 @@ class UserValidationServiceTest extends TestCase
                 'lastName' => 'last',
                 'localeId' => $firstLocale,
                 'email' => 'user@shopware.com',
-                'password' => 'shopware',
+                'password' => '1234',
             ],
         ], $context);
 
@@ -74,7 +71,7 @@ class UserValidationServiceTest extends TestCase
                 'lastName' => 'last',
                 'localeId' => $firstLocale,
                 'email' => 'user@shopware.com',
-                'password' => 'shopware',
+                'password' => '1234',
             ],
         ], $context);
 
@@ -98,7 +95,7 @@ class UserValidationServiceTest extends TestCase
                 'lastName' => 'last',
                 'localeId' => $firstLocale,
                 'email' => 'user@shopware.com',
-                'password' => 'shopware',
+                'password' => '1234',
             ],
         ], $context);
 
@@ -123,7 +120,7 @@ class UserValidationServiceTest extends TestCase
                 'lastName' => 'last',
                 'localeId' => $firstLocale,
                 'email' => 'user@shopware.com',
-                'password' => 'shopware',
+                'password' => '1234',
             ],
         ], $context);
 

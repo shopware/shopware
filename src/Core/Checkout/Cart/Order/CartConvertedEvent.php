@@ -6,27 +6,46 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('checkout')]
 class CartConvertedEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
     /**
-     * @var array<mixed>
+     * @var SalesChannelContext
      */
-    private array $convertedCart;
+    private $salesChannelContext;
 
     /**
-     * @param array<mixed> $originalConvertedCart
+     * @var OrderConversionContext
      */
+    private $conversionContext;
+
+    /**
+     * @var Cart
+     */
+    private $cart;
+
+    /**
+     * @var array
+     */
+    private $originalConvertedCart;
+
+    /**
+     * @var array
+     */
+    private $convertedCart;
+
     public function __construct(
-        private readonly Cart $cart,
-        private readonly array $originalConvertedCart,
-        private readonly SalesChannelContext $salesChannelContext,
-        private readonly OrderConversionContext $conversionContext
+        Cart $cart,
+        array $convertedCart,
+        SalesChannelContext $salesChannelContext,
+        OrderConversionContext $conversionContext
     ) {
-        $this->convertedCart = $originalConvertedCart;
+        $this->salesChannelContext = $salesChannelContext;
+        $this->conversionContext = $conversionContext;
+        $this->cart = $cart;
+        $this->originalConvertedCart = $convertedCart;
+        $this->convertedCart = $convertedCart;
     }
 
     public function getContext(): Context
@@ -39,25 +58,16 @@ class CartConvertedEvent extends NestedEvent implements ShopwareSalesChannelEven
         return $this->cart;
     }
 
-    /**
-     * @return mixed[]
-     */
     public function getOriginalConvertedCart(): array
     {
         return $this->originalConvertedCart;
     }
 
-    /**
-     * @return mixed[]
-     */
     public function getConvertedCart(): array
     {
         return $this->convertedCart;
     }
 
-    /**
-     * @param mixed[] $convertedCart
-     */
     public function setConvertedCart(array $convertedCart): void
     {
         $this->convertedCart = $convertedCart;

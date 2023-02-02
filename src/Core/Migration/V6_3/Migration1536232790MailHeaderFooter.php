@@ -3,14 +3,8 @@
 namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Exception;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
-/**
- * @internal
- */
-#[Package('core')]
 class Migration1536232790MailHeaderFooter extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -19,11 +13,11 @@ class Migration1536232790MailHeaderFooter extends MigrationStep
     }
 
     /**
-     * @throws Exception
+     * @throws \Doctrine\DBAL\DBALException
      */
     public function update(Connection $connection): void
     {
-        $connection->executeStatement('
+        $connection->executeUpdate('
             CREATE TABLE `mail_header_footer` (
               `id`              BINARY(16)          NOT NULL,
               `system_default`  TINYINT(1) unsigned NOT NULL DEFAULT \'0\',
@@ -33,7 +27,7 @@ class Migration1536232790MailHeaderFooter extends MigrationStep
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
 
-        $connection->executeStatement('
+        $connection->executeUpdate('
             CREATE TABLE `mail_header_footer_translation` (
               `mail_header_footer_id`   BINARY(16)      NOT NULL,
               `language_id`             BINARY(16)      NOT NULL,

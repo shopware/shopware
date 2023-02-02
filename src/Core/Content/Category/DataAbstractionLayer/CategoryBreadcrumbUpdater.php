@@ -9,20 +9,36 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageEntity;
 
-#[Package('content')]
 class CategoryBreadcrumbUpdater
 {
     /**
+     * @var Connection
+     */
+    private $connection;
+
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $categoryRepository;
+
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $languageRepository;
+
+    /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection, private readonly EntityRepository $categoryRepository, private readonly EntityRepository $languageRepository)
+    public function __construct(Connection $connection, EntityRepositoryInterface $categoryRepository, EntityRepositoryInterface $languageRepository)
     {
+        $this->connection = $connection;
+        $this->categoryRepository = $categoryRepository;
+        $this->languageRepository = $languageRepository;
     }
 
     public function update(array $ids, Context $context): void
@@ -41,7 +57,7 @@ class CategoryBreadcrumbUpdater
         $query->setParameter('version', $versionId);
         $query->setParameter('ids', Uuid::fromHexToBytesList($ids), Connection::PARAM_STR_ARRAY);
 
-        $paths = $query->executeQuery()->fetchFirstColumn();
+        $paths = $query->execute()->fetchAll(\PDO::FETCH_COLUMN);
 
         $all = $ids;
         foreach ($paths as $path) {
@@ -89,7 +105,7 @@ class CategoryBreadcrumbUpdater
         foreach ($ids as $id) {
             try {
                 $path = $this->buildBreadcrumb($id, $categories);
-            } catch (CategoryNotFoundException) {
+            } catch (CategoryNotFoundException $e) {
                 continue;
             }
 
@@ -97,7 +113,7 @@ class CategoryBreadcrumbUpdater
                 'categoryId' => Uuid::fromHexToBytes($id),
                 'versionId' => $versionId,
                 'languageId' => $languageId,
-                'breadcrumb' => json_encode($path, \JSON_THROW_ON_ERROR),
+                'breadcrumb' => json_encode($path),
             ]);
         }
     }

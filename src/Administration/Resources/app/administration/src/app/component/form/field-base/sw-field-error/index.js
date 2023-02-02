@@ -1,7 +1,3 @@
-/**
- * @package admin
- */
-
 import template from './sw-field-error.html.twig';
 import './sw-field-error.scss';
 

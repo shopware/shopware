@@ -1,7 +1,3 @@
-/**
- * @package admin
- */
-
 import './page/index';
 import './view/sw-login-login';
 import './view/sw-login-recovery';

@@ -1,14 +1,11 @@
-/**
- * @package system-settings
- */
 import template from './sw-settings-search-searchable-content.html.twig';
 import './sw-settings-search-searchable-content.scss';
 
-const { Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-settings-search-searchable-content', {
     template,
 
     inject: [
@@ -379,4 +376,4 @@ export default {
                 });
         },
     },
-};
+});

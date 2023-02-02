@@ -2,14 +2,18 @@
 
 describe('Product: Test filter variants', () => {
     beforeEach(() => {
-        cy.createPropertyFixture({
-            name: 'Size',
-            options: [{ name: 'S' }, { name: 'M' }, { name: 'L' }],
-        }).then(() => {
-            return cy.createProductFixture({
-                name: 'Parent Product',
-            });
-        })
+        cy.loginViaApi()
+            .then(() => {
+                return cy.createPropertyFixture({
+                    name: 'Size',
+                    options: [{ name: 'S' }, { name: 'M' }, { name: 'L' }]
+                });
+            })
+            .then(() => {
+                return cy.createProductFixture({
+                    name: 'Parent Product'
+                });
+            })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
                 cy.get('.sw-skeleton').should('not.exist');
@@ -29,9 +33,9 @@ describe('Product: Test filter variants', () => {
                 cy.get('.sw-property-search__tree-selection__option_grid .sw-grid__row--0 > :nth-child(2)').click();
                 cy.get('.sw-property-search__tree-selection__option_grid .sw-grid__row--1 > :nth-child(2)').click();
 
-                cy.get('.sw-product-variant-generation__next-action').click();
+                cy.get('.sw-product-variant-generation__generate-action').click();
 
-                cy.get('.sw-product-modal-variant-generation__upload_files .sw-button--primary').click();
+                cy.get('.sw-product-modal-variant-generation__notification-modal .sw-button--primary').click();
 
                 cy.get('.sw-modal').should('not.exist');
             });
@@ -40,7 +44,7 @@ describe('Product: Test filter variants', () => {
     it('@catalogue: should filter options by properties', { tags: ['pa-inventory'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product`,
-            method: 'POST',
+            method: 'POST'
         }).as('searchVariants');
 
         cy.get('.sw-product-variants-overview__filter-list-button > .sw-button')

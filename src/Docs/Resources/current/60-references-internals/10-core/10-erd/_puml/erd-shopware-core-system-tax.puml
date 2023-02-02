@@ -1,0 +1,78 @@
+@startuml
+' uncomment the line below if you're using computer with a retina display
+' skinparam dpi 300
+!define Table(name,desc) class name as "desc" << (T,#FFAAAA) >>
+!define ForeignTable(name,desc) class name as "desc" << (T,#ada6a6) >>
+!define TranslationTable(name,desc) class name as "desc" << (I,#4286f4) >>
+' we use bold for primary key
+' green color for unique
+' and underscore for not_null
+!define primary_key(x) <b>x</b>
+!define unique(x) <color:green>x</color>
+!define not_null(x) <u>x</u>
+' other tags available:
+' <i></i>
+' <back:COLOR></color>, where color is a color name or html color code
+' (#FFAACC)
+' see: http://plantuml.com/classes.html#More
+hide methods
+hide stereotypes
+hide empty members
+skinparam backgroundColor #FFFFFF
+
+' entities
+
+Table(ShopwareCoreSystemTaxTaxDefinition, "tax\n(Available tax settings)") {
+   primary_key(id) id
+   not_null(taxRate) float
+   not_null(name) string
+   not_null(position) int
+   customFields customFields
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+}
+Table(ShopwareCoreSystemTaxAggregateTaxRuleTaxRuleDefinition, "tax_rule\n(Tax rules)") {
+   primary_key(id) id
+   not_null(taxRuleTypeId) foreignKey
+   not_null(countryId) foreignKey
+   not_null(taxRate) float
+   data json
+   not_null(taxId) foreignKey
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+}
+Table(ShopwareCoreSystemTaxAggregateTaxRuleTypeTaxRuleTypeDefinition, "tax_rule_type\n(Tax rule types)") {
+   primary_key(id) id
+   not_null(technicalName) string
+   not_null(position) int
+   typeName translated
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+   translated json
+}
+TranslationTable(ShopwareCoreSystemTaxAggregateTaxRuleTypeTranslationTaxRuleTypeTranslationDefinition, "tax_rule_type_translation\n((Translations))") {
+   not_null(typeName) string
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+   primary_key(taxRuleTypeId) foreignKey
+   primary_key(languageId) foreignKey
+}
+ForeignTable(ShopwareCoreContentProductProductDefinition, "product") {
+}
+ForeignTable(ShopwareCoreCheckoutShippingShippingMethodDefinition, "shipping_method") {
+}
+ForeignTable(ShopwareCoreSystemCountryCountryDefinition, "country") {
+}
+ForeignTable(ShopwareCoreSystemLanguageLanguageDefinition, "language") {
+}
+
+' relationshipd
+
+ShopwareCoreSystemTaxTaxDefinition --> ShopwareCoreContentProductProductDefinition
+ShopwareCoreSystemTaxAggregateTaxRuleTaxRuleDefinition --> ShopwareCoreSystemTaxTaxDefinition
+ShopwareCoreSystemTaxTaxDefinition --> ShopwareCoreCheckoutShippingShippingMethodDefinition
+ShopwareCoreSystemTaxAggregateTaxRuleTypeTaxRuleTypeDefinition --> ShopwareCoreSystemTaxAggregateTaxRuleTaxRuleDefinition
+ShopwareCoreSystemTaxAggregateTaxRuleTaxRuleDefinition --> ShopwareCoreSystemCountryCountryDefinition
+ShopwareCoreSystemTaxAggregateTaxRuleTypeTranslationTaxRuleTypeTranslationDefinition --> ShopwareCoreSystemTaxAggregateTaxRuleTypeTaxRuleTypeDefinition
+ShopwareCoreSystemTaxAggregateTaxRuleTypeTranslationTaxRuleTypeTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
+@enduml

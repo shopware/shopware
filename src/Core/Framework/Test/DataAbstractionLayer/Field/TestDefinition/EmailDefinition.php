@@ -13,7 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
  */
 class EmailDefinition extends EntityDefinition
 {
-    final public const ENTITY_NAME = 'email';
+    public const ENTITY_NAME = 'email';
 
     public function getEntityName(): string
     {

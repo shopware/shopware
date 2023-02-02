@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Test\Controller;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractChangeLanguageRoute;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
@@ -32,7 +33,8 @@ class ContextControllerUnitTest extends TestCase
         $controller = new ContextController(
             $this->createMock(ContextSwitchRoute::class),
             $this->createMock(RequestStack::class),
-            $this->createMock(RouterInterface::class)
+            $this->createMock(RouterInterface::class),
+            $this->createMock(AbstractChangeLanguageRoute::class)
         );
 
         $this->expectException(MissingRequestParameterException::class);
@@ -50,7 +52,8 @@ class ContextControllerUnitTest extends TestCase
         $controller = new ContextController(
             $contextSwitchRoute,
             $this->createMock(RequestStack::class),
-            $this->createMock(RouterInterface::class)
+            $this->createMock(RouterInterface::class),
+            $this->createMock(AbstractChangeLanguageRoute::class)
         );
 
         $notExistingLang = Uuid::randomHex();
@@ -74,6 +77,7 @@ class ContextControllerUnitTest extends TestCase
         $language->setSalesChannelDomains(new SalesChannelDomainCollection([$scDomain]));
 
         $changeLangMock = $this->createMock(AbstractChangeLanguageRoute::class);
+        $changeLangMock->expects(static::once())->method('change')->with();
 
         $routerMock = $this->createMock(RouterInterface::class);
         $routerMock->expects(static::once())->method('getContext')->willReturn(new RequestContext());
@@ -89,10 +93,16 @@ class ContextControllerUnitTest extends TestCase
         $controller = new ContextController(
             $contextSwitchRoute,
             $requestStackMock,
-            $routerMock
+            $routerMock,
+            $changeLangMock
         );
 
+        $customerMock = new CustomerEntity();
+        $customerMock->setUniqueIdentifier(Uuid::randomHex());
+        $customerMock->setId($customerMock->getUniqueIdentifier());
+
         $contextMock = $this->createMock(SalesChannelContext::class);
+        $contextMock->expects(static::exactly(3))->method('getCustomer')->willReturn($customerMock);
 
         $controller->switchLanguage(
             new Request([], ['languageId' => Defaults::LANGUAGE_SYSTEM, 'redirectTo' => null]),

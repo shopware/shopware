@@ -2,20 +2,24 @@
 
 namespace Shopware\Core\Framework\Plugin\Changelog;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\PluginChangelogInvalidException;
 use Symfony\Component\Finder\Finder;
 
-#[Package('core')]
 class ChangelogService
 {
     private const FALLBACK_LOCALE = 'en-GB';
 
     /**
+     * @var ChangelogParser
+     */
+    private $changelogParser;
+
+    /**
      * @internal
      */
-    public function __construct(private readonly ChangelogParser $changelogParser)
+    public function __construct(ChangelogParser $changelogParser)
     {
+        $this->changelogParser = $changelogParser;
     }
 
     public function getChangelogFiles(string $pluginPath): array
@@ -35,7 +39,7 @@ class ChangelogService
 
     public function getLocaleFromChangelogFile($file): string
     {
-        $fileName = basename((string) $file, '.md');
+        $fileName = basename($file, '.md');
 
         if ($fileName === 'CHANGELOG') {
             return self::FALLBACK_LOCALE;

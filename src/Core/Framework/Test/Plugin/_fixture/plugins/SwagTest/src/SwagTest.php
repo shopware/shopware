@@ -2,7 +2,7 @@
 
 namespace SwagTest;
 
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Parameter\AdditionalBundleParameters;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
@@ -11,20 +11,19 @@ use Shopware\Core\Framework\Plugin\Context\UpdateContext;
 use Shopware\Core\Framework\Test\Plugin\_fixture\bundles\FooBarBundle;
 use Shopware\Core\Framework\Test\Plugin\_fixture\bundles\GizmoBundle;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Symfony\Contracts\Service\Attribute\Required;
 
 class SwagTest extends Plugin
 {
-    final public const PLUGIN_LABEL = 'English plugin name';
+    public const PLUGIN_LABEL = 'English plugin name';
 
-    final public const PLUGIN_VERSION = '1.0.1';
+    public const PLUGIN_VERSION = '1.0.1';
 
-    final public const PLUGIN_OLD_VERSION = '1.0.0';
+    public const PLUGIN_OLD_VERSION = '1.0.0';
 
-    final public const PLUGIN_GERMAN_LABEL = 'Deutscher Pluginname';
+    public const PLUGIN_GERMAN_LABEL = 'Deutscher Pluginname';
 
-    final public const THROW_ERROR_ON_UPDATE = 'throw-error-on-update';
-    final public const THROW_ERROR_ON_DEACTIVATE = 'throw-error-on-deactivate';
+    public const THROW_ERROR_ON_UPDATE = 'throw-error-on-update';
+    public const THROW_ERROR_ON_DEACTIVATE = 'throw-error-on-deactivate';
 
     /**
      * @var SystemConfigService
@@ -32,7 +31,7 @@ class SwagTest extends Plugin
     public $systemConfig;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepositoryInterface
      */
     public $categoryRepository;
 
@@ -56,13 +55,15 @@ class SwagTest extends Plugin
      */
     public $postDeactivateContext;
 
-    #[Required]
+    /**
+     * @required
+     */
     public function requiredSetterOfPrivateService(SystemConfigService $systemConfig): void
     {
         $this->systemConfig = $systemConfig;
     }
 
-    public function manualSetter(EntityRepository $categoryRepository): void
+    public function manualSetter(EntityRepositoryInterface $categoryRepository): void
     {
         $this->categoryRepository = $categoryRepository;
     }

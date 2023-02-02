@@ -13,7 +13,7 @@ use Shopware\Core\Framework\App\Payment\Payload\Struct\AsyncFinalizePayload;
 use Shopware\Core\Framework\App\Payment\Payload\Struct\AsyncPayPayload;
 use Shopware\Core\Framework\App\Payment\Response\AsyncFinalizeResponse;
 use Shopware\Core\Framework\App\Payment\Response\AsyncPayResponse;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
@@ -24,12 +24,15 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal only for use by the app-system
  */
-#[Package('core')]
 class AppAsyncPaymentHandler extends AppPaymentHandler implements AsynchronousPaymentHandlerInterface
 {
     public function pay(AsyncPaymentTransactionStruct $transaction, RequestDataBag $dataBag, SalesChannelContext $salesChannelContext): RedirectResponse
     {
-        $this->transactionStateHandler->processUnconfirmed($transaction->getOrderTransaction()->getId(), $salesChannelContext->getContext());
+        if (Feature::isActive('FEATURE_NEXT_13601')) {
+            $this->transactionStateHandler->processUnconfirmed($transaction->getOrderTransaction()->getId(), $salesChannelContext->getContext());
+        } else {
+            $this->transactionStateHandler->process($transaction->getOrderTransaction()->getId(), $salesChannelContext->getContext());
+        }
 
         $requestData = $dataBag->all();
         unset($requestData['_csrf_token']);
@@ -59,7 +62,8 @@ class AppAsyncPaymentHandler extends AppPaymentHandler implements AsynchronousPa
             throw new AsyncPaymentProcessException($transaction->getOrderTransaction()->getId(), 'Error during payment initialization: ' . $response->getMessage());
         }
 
-        if ($response->getStatus() !== StateMachineTransitionActions::ACTION_PROCESS_UNCONFIRMED) {
+        if ((!Feature::isActive('FEATURE_NEXT_13601') && $response->getStatus() !== StateMachineTransitionActions::ACTION_DO_PAY)
+            || (Feature::isActive('FEATURE_NEXT_13601') && $response->getStatus() !== StateMachineTransitionActions::ACTION_PROCESS_UNCONFIRMED)) {
             $this->stateMachineRegistry->transition(
                 new Transition(
                     OrderTransactionDefinition::ENTITY_NAME,
@@ -119,9 +123,6 @@ class AppAsyncPaymentHandler extends AppPaymentHandler implements AsynchronousPa
         );
     }
 
-    /**
-     * @param array<string|int, mixed> $requestData
-     */
     private function buildPayPayload(AsyncPaymentTransactionStruct $transaction, array $requestData): AsyncPayPayload
     {
         return new AsyncPayPayload(
@@ -132,9 +133,6 @@ class AppAsyncPaymentHandler extends AppPaymentHandler implements AsynchronousPa
         );
     }
 
-    /**
-     * @param array<string|int, mixed> $queryParameters
-     */
     private function buildFinalizePayload(AsyncPaymentTransactionStruct $transaction, array $queryParameters): AsyncFinalizePayload
     {
         return new AsyncFinalizePayload(

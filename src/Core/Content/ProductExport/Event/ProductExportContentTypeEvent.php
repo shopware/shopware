@@ -2,14 +2,18 @@
 
 namespace Shopware\Core\Content\ProductExport\Event;
 
-use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('sales-channel')]
 class ProductExportContentTypeEvent extends Event
 {
-    public function __construct(private readonly string $fileFormat, private string $contentType)
+    private string $fileFormat;
+
+    private string $contentType;
+
+    public function __construct(string $fileFormat, string $contentType)
     {
+        $this->fileFormat = $fileFormat;
+        $this->contentType = $contentType;
     }
 
     public function getFileFormat(): string

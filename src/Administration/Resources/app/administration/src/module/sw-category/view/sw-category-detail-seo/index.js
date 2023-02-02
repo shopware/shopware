@@ -1,11 +1,10 @@
 import template from './sw-category-detail-seo.html.twig';
 import './sw-category-detail-seo.scss';
 
-/**
- * @package content
- */
+const { Component } = Shopware;
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-category-detail-seo', {
     template,
 
     inject: ['acl'],
@@ -22,4 +21,4 @@ export default {
             return Shopware.State.get('swCategoryDetail').category;
         },
     },
-};
+});

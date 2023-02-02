@@ -1,20 +1,16 @@
-/**
- * @package admin
- */
-
 import template from './sw-rating-stars.html.twig';
 import './sw-rating-stars.scss';
 
 const { Component } = Shopware;
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
  * @description Renders rating stars
  * @status ready
  * @example-type static
  * @component-example
  * <sw-rating-stars v-model='actualStars' :maxStars='5' :iconSize='16' :displayFractions='4'></sw-rating-stars>
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-rating-stars', {
     template,
 
@@ -62,7 +58,7 @@ Component.register('sw-rating-stars', {
 
         partialStarCutStyle() {
             const negatedPartialValue = 1 - (this.value % 1);
-            const percentage = (Math.round(negatedPartialValue * this.displayFractions) * 100) / this.displayFractions;
+            const percentage = Math.round(negatedPartialValue * this.displayFractions) * 100 / this.displayFractions;
 
             // Adjusting styles to make the changes more visible
             let stylePercentage = percentage;

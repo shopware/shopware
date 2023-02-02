@@ -3,15 +3,20 @@
 namespace Shopware\Core\Checkout\Payment\Cart\Error;
 
 use Shopware\Core\Checkout\Cart\Error\Error;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('checkout')]
 class PaymentMethodBlockedError extends Error
 {
     private const KEY = 'payment-method-blocked';
 
-    public function __construct(private readonly string $name, ?string $reason = null)
+    /**
+     * @var string
+     */
+    private $name;
+
+    public function __construct(string $name, ?string $reason = null)
     {
+        $this->name = $name;
+
         $this->message = sprintf(
             'Payment method %s not available. Reason: %s',
             $name,

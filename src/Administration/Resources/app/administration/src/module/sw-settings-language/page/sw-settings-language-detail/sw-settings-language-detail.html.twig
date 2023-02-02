@@ -51,6 +51,16 @@
     {% endblock %}
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_settings_language_detail_language_switch %}
+    <template #language-switch>
+        <sw-language-switch
+            :disabled="!languageId"
+            @on-change="onChangeLanguage"
+        />
+    </template>
+    {% endblock %}
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_language_detail_content %}
     <template #content>
         <sw-card-view>
@@ -128,9 +138,8 @@
                             :inherited-value="parentTranslationCodeId"
                             :label="$tc('sw-settings-language.detail.labelIsoCode')"
                             :required="isIsoCodeRequired"
-                            :error="translationCodeError"
                         >
-                            <template #content="{ currentValue, updateCurrentValue, isInherited, isInheritField, toggleInheritance, restoreInheritance, removeInheritance, error }">
+                            <template #content="{ currentValue, updateCurrentValue, isInherited, isInheritField, toggleInheritance, restoreInheritance, removeInheritance }">
                                 <sw-entity-single-select
                                     id="iso-codes"
                                     :value="currentValue"
@@ -139,7 +148,7 @@
                                     label-property="code"
                                     show-clearable-button
                                     :placeholder="$tc('sw-settings-language.detail.placeholderPleaseSelect')"
-                                    :error="error"
+                                    :error="translationCodeError"
                                     entity="locale"
                                     @change="updateCurrentValue"
                                 >

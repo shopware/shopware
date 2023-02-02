@@ -2,10 +2,9 @@
 
 namespace Shopware\Core\Checkout\Cart\Rule;
 
-use Shopware\Core\Checkout\Cart\CartException;
+use Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
@@ -13,24 +12,36 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-#[Package('business-ops')]
 class LineItemOfManufacturerRule extends Rule
 {
-    final public const RULE_NAME = 'cartLineItemOfManufacturer';
+    /**
+     * @var array<string>
+     */
+    protected array $manufacturerIds;
+
+    protected string $operator;
 
     /**
      * @internal
      *
-     * @param list<string> $manufacturerIds
+     * @param array<string> $manufacturerIds
      */
-    public function __construct(protected string $operator = self::OPERATOR_EQ, protected array $manufacturerIds = [])
+    public function __construct(string $operator = self::OPERATOR_EQ, array $manufacturerIds = [])
     {
         parent::__construct();
+
+        $this->manufacturerIds = $manufacturerIds;
+        $this->operator = $operator;
+    }
+
+    public function getName(): string
+    {
+        return 'cartLineItemOfManufacturer';
     }
 
     /**
      * @throws UnsupportedOperatorException
-     * @throws CartException
+     * @throws PayloadKeyNotFoundException
      */
     public function match(RuleScope $scope): bool
     {
@@ -42,7 +53,7 @@ class LineItemOfManufacturerRule extends Rule
             return false;
         }
 
-        foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
+        foreach ($scope->getCart()->getLineItems()->getFlat() as $lineItem) {
             if ($this->matchesOneOfManufacturers($lineItem)) {
                 return true;
             }
@@ -75,7 +86,7 @@ class LineItemOfManufacturerRule extends Rule
 
     /**
      * @throws UnsupportedOperatorException
-     * @throws CartException
+     * @throws PayloadKeyNotFoundException
      */
     private function matchesOneOfManufacturers(LineItem $lineItem): bool
     {

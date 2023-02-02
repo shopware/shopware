@@ -3,9 +3,7 @@
 namespace Shopware\Core\Content\ImportExport\Processing\Writer;
 
 use Shopware\Core\Content\ImportExport\Struct\Config;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('system-settings')]
 class XmlFileWriter extends AbstractFileWriter
 {
     public function append(Config $config, array $data, int $index): void
@@ -16,7 +14,6 @@ class XmlFileWriter extends AbstractFileWriter
 
         $item = new \SimpleXMLElement('<item/>');
         $this->addDataToNode($item, $data);
-        /** @var string $xml */
         $xml = mb_strstr($item->asXML(), '<item>');
         fwrite($this->buffer, $xml);
     }
@@ -43,7 +40,10 @@ class XmlFileWriter extends AbstractFileWriter
         }
     }
 
-    private function toString(bool|float|int|string $scalar): string
+    /**
+     * @param bool|float|int|string $scalar
+     */
+    private function toString($scalar): string
     {
         if (\is_bool($scalar)) {
             return $scalar ? '1' : '0';

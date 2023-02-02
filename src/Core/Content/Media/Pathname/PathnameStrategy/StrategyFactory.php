@@ -3,18 +3,20 @@
 namespace Shopware\Core\Content\Media\Pathname\PathnameStrategy;
 
 use Shopware\Core\Content\Media\Exception\StrategyNotFoundException;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('content')]
 class StrategyFactory
 {
     /**
-     * @internal
-     *
-     * @param PathnameStrategyInterface[] $strategies
+     * @var PathnameStrategyInterface[]
      */
-    public function __construct(private readonly iterable $strategies)
+    private $strategies;
+
+    /**
+     * @internal
+     */
+    public function __construct(iterable $strategies)
     {
+        $this->strategies = $strategies;
     }
 
     public function factory(string $strategyName): PathnameStrategyInterface

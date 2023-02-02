@@ -10,15 +10,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\Constraint\Uuid as UuidConstraint;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
- * @internal
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
  */
-#[Package('core')]
 class FkFieldSerializer extends AbstractFieldSerializer
 {
     public function normalize(Field $field, array $data, WriteParameterBag $parameters): array
@@ -53,7 +51,7 @@ class FkFieldSerializer extends AbstractFieldSerializer
         if ($this->shouldUseContext($field, $data->isRaw(), $value)) {
             try {
                 $value = $parameters->getContext()->get($field->getReferenceDefinition()->getEntityName(), $field->getReferenceField());
-            } catch (\InvalidArgumentException) {
+            } catch (\InvalidArgumentException $exception) {
                 if ($this->requiresValidation($field, $existence, $value, $parameters)) {
                     $this->validate($this->getConstraints($field), $data, $parameters->getPath());
                 }
@@ -76,7 +74,7 @@ class FkFieldSerializer extends AbstractFieldSerializer
         yield $field->getStorageName() => $value;
     }
 
-    public function decode(Field $field, mixed $value): ?string
+    public function decode(Field $field, $value): ?string
     {
         if ($value === null) {
             return null;

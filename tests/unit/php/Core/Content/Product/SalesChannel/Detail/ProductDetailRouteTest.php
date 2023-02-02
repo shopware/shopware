@@ -10,12 +10,11 @@ use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoader;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\ProductCollection;
-use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductConfiguratorLoader;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRouteResponse;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
-use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilterFactory;
+use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilter;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -24,7 +23,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Test\IdsCollection;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\Request;
@@ -36,46 +35,62 @@ use Symfony\Component\HttpFoundation\Request;
 class ProductDetailRouteTest extends TestCase
 {
     /**
-     * @var MockObject&SalesChannelRepository
+     * @var MockObject|SalesChannelRepositoryInterface
      */
-    private SalesChannelRepository $productRepository;
+    protected $productRepository;
 
     /**
-     * @var MockObject&SystemConfigService
+     * @var MockObject|SystemConfigService
      */
-    private SystemConfigService $systemConfig;
-
-    private ProductDetailRoute $route;
+    protected $systemConfig;
 
     /**
-     * @var MockObject&SalesChannelContext
+     * @var MockObject|ProductConfiguratorLoader
      */
-    private SalesChannelContext $context;
+    protected $configuratorLoader;
 
-    private IdsCollection $idsCollection;
+    /**
+     * @var MockObject|CategoryBreadcrumbBuilder
+     */
+    protected $breadcrumbBuilder;
 
-    private AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory;
+    /**
+     * @var MockObject|SalesChannelCmsPageLoader
+     */
+    protected $cmsPageLoader;
+
+    /**
+     * @var ProductDetailRoute
+     */
+    protected $route;
+
+    /**
+     * @var MockObject|SalesChannelContext
+     */
+    protected $context;
+
+    /**
+     * @var IdsCollection
+     */
+    protected $idsCollection;
 
     public function setUp(): void
     {
         parent::setUp();
         $this->context = $this->createMock(SalesChannelContext::class);
         $this->idsCollection = new IdsCollection();
-        $this->productRepository = $this->createMock(SalesChannelRepository::class);
+        $this->productRepository = $this->createMock(SalesChannelRepositoryInterface::class);
         $this->systemConfig = $this->createMock(SystemConfigService::class);
-        $configuratorLoader = $this->createMock(ProductConfiguratorLoader::class);
-        $breadcrumbBuilder = $this->createMock(CategoryBreadcrumbBuilder::class);
-        $cmsPageLoader = $this->createMock(SalesChannelCmsPageLoader::class);
-        $this->productCloseoutFilterFactory = new ProductCloseoutFilterFactory();
-
+        $this->configuratorLoader = $this->createMock(ProductConfiguratorLoader::class);
+        $this->breadcrumbBuilder = $this->createMock(CategoryBreadcrumbBuilder::class);
+        $this->cmsPageLoader = $this->createMock(SalesChannelCmsPageLoader::class);
         $this->route = new ProductDetailRoute(
             $this->productRepository,
             $this->systemConfig,
-            $configuratorLoader,
-            $breadcrumbBuilder,
-            $cmsPageLoader,
-            new SalesChannelProductDefinition(),
-            $this->productCloseoutFilterFactory
+            $this->configuratorLoader,
+            $this->breadcrumbBuilder,
+            $this->cmsPageLoader,
+            new SalesChannelProductDefinition()
         );
     }
 
@@ -154,7 +169,7 @@ class ProductDetailRouteTest extends TestCase
             new ProductAvailableFilter('', ProductVisibilityDefinition::VISIBILITY_LINK)
         );
 
-        $filter = $this->productCloseoutFilterFactory->create($this->context);
+        $filter = new ProductCloseoutFilter();
         $filter->addQuery(new EqualsFilter('product.parentId', null));
         $criteria2->addFilter($filter);
 

@@ -8,17 +8,18 @@ use Shopware\Core\Content\ImportExport\Exception\DeleteDefaultProfileException;
 use Shopware\Core\Content\ImportExport\ImportExportProfileDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
-use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * @internal
  */
-#[Package('system-settings')]
 class SystemDefaultValidator implements EventSubscriberInterface
 {
-    public function __construct(private readonly Connection $connection)
+    private Connection $connection;
+
+    public function __construct(Connection $connection)
     {
+        $this->connection = $connection;
     }
 
     public static function getSubscribedEvents(): array

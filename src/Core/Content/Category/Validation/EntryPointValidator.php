@@ -1,14 +1,19 @@
 <?php declare(strict_types=1);
+/*
+ * (c) shopware AG <info@shopware.com>
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace Shopware\Core\Content\Category\Validation;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver\ResultStatement;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PostWriteValidationEvent;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -16,10 +21,6 @@ use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 
-/**
- * @internal
- */
-#[Package('content')]
 class EntryPointValidator implements EventSubscriberInterface
 {
     private const ERROR_CODE = 'CONTENT__INVALID_CATEGORY_TYPE_AS_ENTRY_POINT';
@@ -30,10 +31,16 @@ class EntryPointValidator implements EventSubscriberInterface
     ];
 
     /**
+     * @var Connection
+     */
+    private $connection;
+
+    /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection)
+    public function __construct(Connection $connection)
     {
+        $this->connection = $connection;
     }
 
     public static function getSubscribedEvents(): array
@@ -115,7 +122,7 @@ class EntryPointValidator implements EventSubscriberInterface
             }
         }
 
-        $result = $this->connection->createQueryBuilder()
+        $query = $this->connection->createQueryBuilder()
             ->select('id')
             ->from(SalesChannelDefinition::ENTITY_NAME)
             ->where('navigation_category_id = :navigation_id')
@@ -125,8 +132,12 @@ class EntryPointValidator implements EventSubscriberInterface
             ->setParameter('footer_id', $categoryId)
             ->setParameter('service_id', $categoryId)
             ->setMaxResults(1)
-            ->executeQuery();
+            ->execute();
 
-        return !$result->fetchOne();
+        if (!($query instanceof ResultStatement)) {
+            return true;
+        }
+
+        return !(bool) $query->fetchColumn();
     }
 }

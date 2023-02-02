@@ -4,8 +4,6 @@ import './sw-tree-item.scss';
 const { Component } = Shopware;
 
 /**
- * @package admin
- *
  * @private
  */
 Component.register('sw-tree-item', {
@@ -210,7 +208,6 @@ Component.register('sw-tree-item', {
                 return this.item.checked;
             },
             set(isChecked) {
-                // eslint-disable-next-line vue/no-mutating-props
                 this.item.checked = isChecked;
             },
         },
@@ -223,7 +220,7 @@ Component.register('sw-tree-item', {
             if (this.item.initialOpened) {
                 this.openTreeItem(true);
                 this.getTreeItemChildren(this.item);
-                // eslint-disable-next-line vue/no-side-effects-in-computed-properties,vue/no-mutating-props
+                // eslint-disable-next-line vue/no-side-effects-in-computed-properties
                 this.item.initialOpened = false;
             }
             return this.opened;
@@ -427,11 +424,9 @@ Component.register('sw-tree-item', {
         toggleItemCheck(event, item) {
             if (this.checkedGhost && !item.checked) {
                 this.checked = true;
-                // eslint-disable-next-line vue/no-mutating-props
                 this.item.checked = true;
             } else {
                 this.checked = event;
-                // eslint-disable-next-line vue/no-mutating-props
                 this.item.checked = event;
             }
 

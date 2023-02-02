@@ -3,6 +3,10 @@
 import MediaPageObject from '../../../../support/pages/module/sw-media.page-object';
 
 describe('Search bar: Check search module with short keyword', () => {
+    beforeEach(() => {
+        cy.loginViaApi();
+    });
+
     it('@base @searchBar @search: Search for a product using the keyword pro', { tags: ['pa-system-settings'] }, () => {
         cy.createProductFixture()
             .then(() => {
@@ -36,7 +40,7 @@ describe('Search bar: Check search module with short keyword', () => {
         cy.createCategoryFixture({ name: 'Sub Category'})
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
-            });
+            })
 
         cy.get('.sw-dashboard')
             .should('exist');
@@ -102,23 +106,23 @@ describe('Search bar: Check search module with short keyword', () => {
                             "currencyId": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
                             "net": 24,
                             "linked": false,
-                            "gross": 128,
-                        },
-                    ],
+                            "gross": 128
+                        }
+                    ]
                 });
             }).then(() => {
-                return cy.searchViaAdminApi({
-                    endpoint: 'product',
-                    data: {
-                        field: 'name',
-                        value: 'Product name',
-                    },
-                });
-            }).then((result) => {
-                return cy.createGuestOrder(result.id);
-            }).then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
+            return cy.searchViaAdminApi({
+                endpoint: 'product',
+                data: {
+                    field: 'name',
+                    value: 'Product name'
+                }
             });
+        }).then((result) => {
+            return cy.createGuestOrder(result.id);
+        }).then(() => {
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
+        });
 
         cy.get('.sw-dashboard')
             .should('exist');
@@ -140,7 +144,14 @@ describe('Search bar: Check search module with short keyword', () => {
 
         cy.contains('.sw-search-bar-item', 'Add new order').click();
 
-        cy.get('.sw-order-create-initial-modal').should('be.visible');
+        cy.skipOnFeature('FEATURE_NEXT_7530',  () => {
+            cy.contains('.smart-bar__header h2', 'New order')
+                .should('be.visible');
+        });
+
+        cy.onlyOnFeature('FEATURE_NEXT_7530',  () => {
+            cy.get('.sw-order-create-initial-modal').should('be.visible');
+        });
     });
 
     it('@searchBar @search: Search for a media using the keyword med', { tags: ['pa-system-settings'] }, () => {
@@ -161,10 +172,8 @@ describe('Search bar: Check search module with short keyword', () => {
             page.elements.contextMenuButton,
             `${page.elements.gridItem}--0`,
             '',
-            true,
+            true
         );
-        cy.get('.sw-skeleton').should('not.exist');
-        cy.get('.sw-loader').should('not.exist');
 
         // Upload image in folder
         cy.contains(page.elements.smartBarHeader, 'A thing to fold about');
@@ -179,11 +188,9 @@ describe('Search bar: Check search module with short keyword', () => {
 
         cy.get('.sw-loader')
             .should('not.exist');
+
         cy.get('.sw-skeleton')
             .should('not.exist');
-
-        cy.get('.sw-dashboard-index__content')
-            .should('be.visible');
 
         cy.get('input.sw-search-bar__input').click();
         cy.get('input.sw-search-bar__input').type('Med');

@@ -15,21 +15,25 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\ExpectedArrayException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @internal
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
  */
-#[Package('core')]
 class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
 {
+    /**
+     * @var WriteCommandExtractor
+     */
+    protected $writeExtractor;
+
     /**
      * @internal
      */
     public function __construct(
-        private readonly WriteCommandExtractor $writeExtractor
+        WriteCommandExtractor $writeExtractor
     ) {
+        $this->writeExtractor = $writeExtractor;
     }
 
     public function normalize(Field $field, array $data, WriteParameterBag $parameters): array
@@ -65,7 +69,7 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
                 sprintf(
                     'Could not find language field "%s" in definition "%s"',
                     $field->getLanguageField(),
-                    $referenceDefinition::class
+                    \get_class($referenceDefinition)
                 )
             );
         }
@@ -108,7 +112,7 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
 
             // See above for Supported formats
             $languageId = $keyValue;
-            if (is_numeric($languageId) && $languageId >= 0 && $languageId < (is_countable($value) ? \count($value) : 0)) {
+            if (is_numeric($languageId) && $languageId >= 0 && $languageId < \count($value)) {
                 // languageId is a property of $subResources. Also see formats above
                 if (isset($subResources[$languagePropName])) {
                     $languageId = $subResources[$languagePropName];
@@ -172,7 +176,12 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
         return $this->map($field, $data, $parameters, $existence);
     }
 
-    public function decode(Field $field, mixed $value): never
+    /**
+     * @throws DecodeByHydratorException
+     *
+     * @never
+     */
+    public function decode(Field $field, $value): void
     {
         throw new DecodeByHydratorException($field);
     }
@@ -182,7 +191,7 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
      * @throws MissingSystemTranslationException
      * @throws MissingTranslationLanguageException
      */
-    private function map(
+    protected function map(
         TranslationsAssociationField $field,
         KeyValuePair $data,
         WriteParameterBag $parameters,

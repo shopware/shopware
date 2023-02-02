@@ -2,20 +2,15 @@
 
 namespace Shopware\Core\Framework\Migration\Command;
 
-use Shopware\Core\Framework\Log\Package;
-use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(
-    name: 'database:refresh-migration',
-    description: 'Refreshes the migration state',
-)]
-#[Package('core')]
 class RefreshMigrationCommand extends Command
 {
+    protected static $defaultName = 'database:refresh-migration';
+
     protected function configure(): void
     {
         $this
@@ -25,7 +20,7 @@ class RefreshMigrationCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $path = $input->getArgument('path');
-        $filename = basename((string) $path);
+        $filename = basename($path);
         $className = pathinfo($filename, \PATHINFO_FILENAME);
 
         $output->writeln('Updating timestamp of migration: ' . $filename);
@@ -37,7 +32,7 @@ class RefreshMigrationCommand extends Command
         $timestamp = $this->getCurrentTimestamp($filename);
         $newTimestamp = (string) time();
 
-        $newPath = str_replace($timestamp, $newTimestamp, (string) $path);
+        $newPath = str_replace($timestamp, $newTimestamp, $path);
 
         $search = [
             pathinfo($filename, \PATHINFO_FILENAME),

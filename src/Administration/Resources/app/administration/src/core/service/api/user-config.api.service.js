@@ -4,7 +4,6 @@ import ApiService from '../api.service';
  * Gateway for the API end point 'user-config'
  * @class
  * @extends ApiService
- * @package system-settings
  */
 class UserConfigService extends ApiService {
     constructor(httpClient, loginService, apiEndpoint = '_info/config-me') {
@@ -29,7 +28,7 @@ class UserConfigService extends ApiService {
      */
     search(keys = null) {
         const headers = this.getBasicHeaders();
-        const params = { keys };
+        const params = Object.assign({}, { keys });
 
         return this.httpClient
             .get(this.getApiBasePath(), {

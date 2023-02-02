@@ -6,34 +6,38 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteTypeIntendException;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\MessageQueue\Exception\MessageFailedException;
+use Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-/**
- * @internal
- */
-#[AsMessageHandler]
-#[Package('core')]
-final class WebhookEventMessageHandler
+class WebhookEventMessageHandler extends AbstractMessageHandler
 {
     private const TIMEOUT = 20;
     private const CONNECT_TIMEOUT = 10;
 
+    private Client $client;
+
+    private EntityRepositoryInterface $webhookRepository;
+
+    private EntityRepositoryInterface $webhookEventLogRepository;
+
     /**
      * @internal
      */
-    public function __construct(
-        private readonly Client $client,
-        private readonly EntityRepository $webhookRepository,
-        private readonly EntityRepository $webhookEventLogRepository
-    ) {
+    public function __construct(Client $client, EntityRepositoryInterface $webhookRepository, EntityRepositoryInterface $webhookEventLogRepository)
+    {
+        $this->client = $client;
+        $this->webhookRepository = $webhookRepository;
+        $this->webhookEventLogRepository = $webhookEventLogRepository;
     }
 
-    public function __invoke(WebhookEventMessage $message): void
+    /**
+     * @param WebhookEventMessage $message
+     */
+    public function handle($message): void
     {
         $shopwareVersion = $message->getShopwareVersion();
 
@@ -44,7 +48,7 @@ final class WebhookEventMessageHandler
         $payload['timestamp'] = $timestamp;
 
         /** @var string $jsonPayload */
-        $jsonPayload = json_encode($payload, \JSON_THROW_ON_ERROR);
+        $jsonPayload = json_encode($payload);
 
         $headers = ['Content-Type' => 'application/json',
             'sw-version' => $shopwareVersion, ];
@@ -62,9 +66,10 @@ final class WebhookEventMessageHandler
         ];
 
         if ($message->getSecret()) {
-            $requestContent[AuthMiddleware::APP_REQUEST_TYPE] = [
-                AuthMiddleware::APP_SECRET => $message->getSecret(),
-            ];
+            $requestContent[AuthMiddleware::APP_REQUEST_TYPE]
+                        = [
+                            AuthMiddleware::APP_SECRET => $message->getSecret(),
+                        ];
         }
 
         $context = Context::createDefaultContext();
@@ -118,7 +123,7 @@ final class WebhookEventMessageHandler
                 $payload = array_merge($payload, [
                     'responseContent' => [
                         'headers' => $response->getHeaders(),
-                        'body' => \json_decode($response->getBody()->getContents(), true, 512, \JSON_THROW_ON_ERROR),
+                        'body' => \json_decode($response->getBody()->getContents(), true),
                     ],
                     'responseStatusCode' => $response->getStatusCode(),
                     'responseReasonPhrase' => $response->getReasonPhrase(),
@@ -127,7 +132,12 @@ final class WebhookEventMessageHandler
 
             $this->webhookEventLogRepository->update([$payload], $context);
 
-            throw new \RuntimeException(\sprintf('Message %s failed with error: %s', static::class, $e->getMessage()), $e->getCode(), $e);
+            throw new MessageFailedException($message, static::class, $e);
         }
+    }
+
+    public static function getHandledMessages(): iterable
+    {
+        return [WebhookEventMessage::class];
     }
 }

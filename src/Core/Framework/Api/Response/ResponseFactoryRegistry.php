@@ -4,12 +4,10 @@ namespace Shopware\Core\Framework\Api\Response;
 
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\UnsupportedMediaTypeHttpException;
 
-#[Package('core')]
 class ResponseFactoryRegistry
 {
     private const DEFAULT_RESPONSE_TYPE = 'application/vnd.api+json';
@@ -18,7 +16,7 @@ class ResponseFactoryRegistry
     /**
      * @var ResponseFactoryInterface[]
      */
-    private readonly array $responseFactories;
+    private $responseFactories;
 
     /**
      * @internal

@@ -2,9 +2,12 @@
 
 describe('Product Search: Test crud operations', () => {
     beforeEach(() => {
-        cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/search/index`);
-        cy.get('.sw-skeleton').should('not.exist');
-        cy.get('.sw-loader').should('not.exist');
+        cy.loginViaApi()
+            .then(() => {
+                cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/search/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
+            });
     });
 
     it('@settings: create search configuration for search behaviour', { tags: ['pa-system-settings'] }, () => {
@@ -12,7 +15,7 @@ describe('Product Search: Test crud operations', () => {
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/product-search-config/*`,
-            method: 'PATCH',
+            method: 'PATCH'
         }).as('saveData');
 
         // Change value of Minimal search term length
@@ -35,12 +38,12 @@ describe('Product Search: Test crud operations', () => {
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/product-search-config/*`,
-            method: 'PATCH',
+            method: 'PATCH'
         }).as('saveData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/product-search-config/*`,
-            method: 'PATCH',
+            method: 'PATCH'
         }).as('saveData');
 
         // Switch language to Deutsch

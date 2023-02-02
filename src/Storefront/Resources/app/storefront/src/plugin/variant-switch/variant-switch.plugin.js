@@ -1,7 +1,3 @@
-/*
- * @package inventory
- */
-
 import Plugin from 'src/plugin-system/plugin.class';
 import PageLoadingIndicatorUtil from 'src/utility/loading-indicator/page-loading-indicator.util';
 import DomAccess from 'src/helper/dom-access.helper';

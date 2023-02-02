@@ -341,9 +341,9 @@ class QueryStringParserTest extends TestCase
         if ($primaryOperator === 'neq') {
             static::assertInstanceOf(NotFilter::class, $primaryQuery);
             $primaryQuery = $primaryQuery->getQueries()[0];
+        } else {
+            static::assertInstanceOf(RangeFilter::class, $primaryQuery);
         }
-
-        static::assertInstanceOf(RangeFilter::class, $primaryQuery);
 
         static::assertInstanceOf(RangeFilter::class, $result->getQueries()[1]);
 
@@ -372,7 +372,7 @@ class QueryStringParserTest extends TestCase
 
         $thresholdDate = \DateTimeImmutable::createFromFormat(
             Defaults::STORAGE_DATE_FORMAT,
-            (string) array_values($primaryQuery->getParameters())[0]
+            array_values($primaryQuery->getParameters())[0]
         );
 
         $primaryOperator = $filter['type'] === 'since' ? $this->negateOperator($primaryOperator) : $primaryOperator;
@@ -404,12 +404,17 @@ class QueryStringParserTest extends TestCase
 
     private function negateOperator(string $operator): string
     {
-        return match ($operator) {
-            RangeFilter::LT => RangeFilter::GT,
-            RangeFilter::GT => RangeFilter::LT,
-            RangeFilter::LTE => RangeFilter::GTE,
-            RangeFilter::GTE => RangeFilter::LTE,
-            default => $operator,
-        };
+        switch ($operator) {
+            case RangeFilter::LT:
+                return RangeFilter::GT;
+            case RangeFilter::GT:
+                return RangeFilter::LT;
+            case RangeFilter::LTE:
+                return RangeFilter::GTE;
+            case RangeFilter::GTE:
+                return RangeFilter::LTE;
+            default:
+                return $operator;
+        }
     }
 }

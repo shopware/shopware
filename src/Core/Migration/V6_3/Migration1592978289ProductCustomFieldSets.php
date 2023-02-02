@@ -3,15 +3,9 @@
 namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Exception;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\InheritanceUpdaterTrait;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
-/**
- * @internal
- */
-#[Package('core')]
 class Migration1592978289ProductCustomFieldSets extends MigrationStep
 {
     use InheritanceUpdaterTrait;
@@ -33,7 +27,7 @@ class Migration1592978289ProductCustomFieldSets extends MigrationStep
     }
 
     /**
-     * @throws Exception
+     * @throws \Doctrine\DBAL\DBALException
      */
     private function createAssociation(Connection $connection): void
     {
@@ -49,13 +43,13 @@ CREATE TABLE IF NOT EXISTS `product_custom_field_set` (
         REFERENCES `product` (`id`, `version_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 SQL;
-        $connection->executeStatement($sql);
+        $connection->executeUpdate($sql);
 
         $this->updateInheritance($connection, 'product', 'customFieldSets');
     }
 
     /**
-     * @throws Exception
+     * @throws \Doctrine\DBAL\DBALException
      */
     private function addGlobalFlag(Connection $connection): void
     {
@@ -63,6 +57,6 @@ SQL;
 ALTER TABLE `custom_field_set`
 ADD `global` tinyint(1) NOT NULL DEFAULT 0 AFTER `active`;
 SQL;
-        $connection->executeStatement($sql);
+        $connection->executeUpdate($sql);
     }
 }

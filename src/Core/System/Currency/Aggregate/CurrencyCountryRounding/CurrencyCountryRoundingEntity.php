@@ -5,11 +5,9 @@ namespace Shopware\Core\System\Currency\Aggregate\CurrencyCountryRounding;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Currency\CurrencyEntity;
 
-#[Package('inventory')]
 class CurrencyCountryRoundingEntity extends Entity
 {
     use EntityIdTrait;

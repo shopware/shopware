@@ -6,10 +6,9 @@ const { cloneDeep } = Shopware.Utils.object;
 const { EntityCollection, Criteria } = Shopware.Data;
 
 /**
- * @private
- * @package content
+ * @private since v6.5.0
  */
-export default {
+Shopware.Component.register('sw-cms-layout-assignment-modal', {
     template,
 
     inject: [
@@ -345,6 +344,8 @@ export default {
                 .all([this.validateCategories(), this.saveShopPages(), this.validateProducts(), this.validateLandingPages()])
                 .then(() => {
                     this.onModalClose(true);
+                    /** @deprecated tag:v6.5.0 event can be removed completely */
+                    this.$emit('confirm');
                 }).catch(() => {
                     this.isLoading = false;
                 });
@@ -441,4 +442,4 @@ export default {
             this.loadSystemConfig();
         },
     },
-};
+});

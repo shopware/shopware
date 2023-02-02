@@ -4,8 +4,6 @@ import './sw-sidebar-navigation-item.scss';
 const { Component } = Shopware;
 
 /**
- * @package admin
- *
  * @private
  */
 Component.register('sw-sidebar-navigation-item', {

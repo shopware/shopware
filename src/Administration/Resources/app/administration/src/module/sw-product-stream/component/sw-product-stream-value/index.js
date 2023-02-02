@@ -1,17 +1,11 @@
-/*
- * @package inventory
- */
-
 import template from './sw-product-stream-value.html.twig';
 import './sw-product-stream-value.scss';
 
+const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
-/**
- * @private
- * @package business-ops
- */
-export default {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+Component.register('sw-product-stream-value', {
     template,
 
     inject: [
@@ -470,4 +464,4 @@ export default {
             return Object.values(category.breadcrumb).join(' / ');
         },
     },
-};
+});

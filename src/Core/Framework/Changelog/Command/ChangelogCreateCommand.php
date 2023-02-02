@@ -4,8 +4,6 @@ namespace Shopware\Core\Framework\Changelog\Command;
 
 use Shopware\Core\Framework\Changelog\ChangelogDefinition;
 use Shopware\Core\Framework\Changelog\Processor\ChangelogGenerator;
-use Shopware\Core\Framework\Log\Package;
-use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -15,26 +13,31 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Process\Process;
 
 /**
- * @internal
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - will be marked internal
  */
-#[AsCommand(
-    name: 'changelog:create',
-    description: 'Creates a changelog file',
-)]
-#[Package('core')]
 class ChangelogCreateCommand extends Command
 {
+    protected static $defaultName = 'changelog:create';
+
+    /**
+     * @var ChangelogGenerator
+     */
+    private $generator;
+
     /**
      * @internal
      */
-    public function __construct(private readonly ChangelogGenerator $generator)
+    public function __construct(ChangelogGenerator $generator)
     {
         parent::__construct();
+        $this->generator = $generator;
     }
 
     protected function configure(): void
     {
-        $this->addArgument('title', InputArgument::OPTIONAL, 'A short meaningful title of the change.')
+        $this
+            ->setDescription('Create a changelog markdown file in `/changelog/_unreleased`')
+            ->addArgument('title', InputArgument::OPTIONAL, 'A short meaningful title of the change.')
             ->addArgument('issue', InputArgument::OPTIONAL, 'The corresponding Jira ticket key. Can be the key of a single ticket or the key of an epic.')
             ->addOption('date', null, InputOption::VALUE_OPTIONAL, 'The date in `YYYY-MM-DD` format which indicates the creation date of the change. Default is current date.')
             ->addOption('flag', null, InputOption::VALUE_OPTIONAL, 'Feature Flag ID')
@@ -44,7 +47,10 @@ class ChangelogCreateCommand extends Command
             ->addOption('dry-run', null, InputOption::VALUE_NONE, 'Use the --dry-run argument to preview the changelog content and prevent actually writing to file.');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output): int
+    /**
+     * @return int
+     */
+    protected function execute(InputInterface $input, OutputInterface $output)
     {
         $IOHelper = new SymfonyStyle($input, $output);
         $IOHelper->title('Create a changelog markdown file');
@@ -97,9 +103,6 @@ class ChangelogCreateCommand extends Command
         return self::SUCCESS;
     }
 
-    /**
-     * @return array{date: string, author: string, authorEmail: string, authorGithub: string}
-     */
     private function getDefaultData(): array
     {
         $process = new Process(['git', 'config', 'user.name']);

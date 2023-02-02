@@ -1,7 +1,3 @@
-/**
- * @package admin
- */
-
 import notification from './notification.store';
 import session from './session.store';
 import system from './system.store';

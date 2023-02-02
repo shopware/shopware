@@ -11,33 +11,46 @@ use Shopware\Core\Framework\DataAbstractionLayer\Command\ConsoleProgressTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\LastIdQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Cache\Traits\RedisClusterProxy;
 use Symfony\Component\Cache\Traits\RedisProxy;
-use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(
-    name: 'cart:migrate',
-    description: 'Migrate carts from redis to database',
-)]
-#[Package('checkout')]
 class CartMigrateCommand extends Command
 {
     use ConsoleProgressTrait;
+
+    protected static $defaultName = 'cart:migrate';
+
+    /**
+     * @var \Redis|\RedisArray|\RedisCluster|RedisClusterProxy|RedisProxy|null
+     */
+    protected $redis;
+
+    protected Connection $connection;
+
+    private bool $compress;
+
+    private int $expireDays;
+
+    private RedisConnectionFactory $factory;
 
     /**
      * @internal
      *
      * @param \Redis|\RedisArray|\RedisCluster|RedisClusterProxy|RedisProxy|null $redis
      */
-    public function __construct(protected $redis, protected Connection $connection, private readonly bool $compress, private readonly int $expireDays, private readonly RedisConnectionFactory $factory)
+    public function __construct($redis, Connection $connection, bool $compress, int $expireDays, RedisConnectionFactory $factory)
     {
         parent::__construct();
+        $this->redis = $redis;
+        $this->connection = $connection;
+        $this->compress = $compress;
+        $this->expireDays = $expireDays;
+        $this->factory = $factory;
     }
 
     /**
@@ -45,7 +58,9 @@ class CartMigrateCommand extends Command
      */
     protected function configure(): void
     {
-        $this->addArgument('from', InputArgument::REQUIRED, 'Defines the source storage (redis or sql)')
+        $this
+            ->setDescription('Synchronize carts between redis and sql storage')
+            ->addArgument('from', InputArgument::REQUIRED, 'Defines the source storage (redis or sql)')
             ->addArgument('url', InputArgument::OPTIONAL, 'Allows to define a redis connection url')
         ;
     }
@@ -89,10 +104,6 @@ class CartMigrateCommand extends Command
 
     private function redisToSql(InputInterface $input, OutputInterface $output): int
     {
-        if ($this->redis === null) {
-            throw new \RuntimeException('%shopware.cart.redis_url% is not configured and no url provided.');
-        }
-
         $this->io = new ShopwareStyle($input, $output);
 
         $keys = $this->redis->keys(RedisCartPersister::PREFIX . '*');
@@ -112,7 +123,7 @@ class CartMigrateCommand extends Command
         $payloadExists = EntityDefinitionQueryHelper::columnExists($this->connection, 'cart', 'payload');
 
         foreach ($keys as $index => $key) {
-            $key = \substr((string) $key, \strlen($this->redis->_prefix('')));
+            $key = \substr($key, \strlen($this->redis->_prefix('')));
 
             $value = $this->redis->get($key);
             if (!\is_string($value)) {
@@ -169,10 +180,6 @@ class CartMigrateCommand extends Command
 
     private function sqlToRedis(InputInterface $input, OutputInterface $output): int
     {
-        if ($this->redis === null) {
-            throw new \RuntimeException('%shopware.cart.redis_url% is not configured and no url provided.');
-        }
-
         $this->io = new ShopwareStyle($input, $output);
 
         $count = $this->connection->fetchOne('SELECT COUNT(token) FROM cart');
@@ -206,7 +213,7 @@ class CartMigrateCommand extends Command
                     $cart = \unserialize($row['cart']);
                 }
 
-                $content = ['cart' => $cart, 'rule_ids' => \json_decode((string) $row['rule_ids'], true, 512, \JSON_THROW_ON_ERROR)];
+                $content = ['cart' => $cart, 'rule_ids' => \json_decode($row['rule_ids'], true, 512, \JSON_THROW_ON_ERROR)];
 
                 $content = $this->compress ? CacheValueCompressor::compress($content) : \serialize($content);
 
@@ -217,7 +224,8 @@ class CartMigrateCommand extends Command
                     // used for migration
                     'token' => $row['token'],
                     'customer_id' => $row['customer_id'] ? Uuid::fromBytesToHex($row['customer_id']) : null,
-                    'rule_ids' => \json_decode((string) $row['rule_ids'], true, 512, \JSON_THROW_ON_ERROR),
+                    'name' => $row['name'],
+                    'rule_ids' => \json_decode($row['rule_ids'], true, 512, \JSON_THROW_ON_ERROR),
                     'currency_id' => Uuid::fromBytesToHex($row['currency_id']),
                     'shipping_method_id' => Uuid::fromBytesToHex($row['shipping_method_id']),
                     'payment_method_id' => Uuid::fromBytesToHex($row['payment_method_id']),
@@ -236,7 +244,7 @@ class CartMigrateCommand extends Command
 
         $this->progress->finish();
 
-        $this->io->success('Migration from SQL to Redis was successful');
+        $this->io->success('Migration from Redis to SQL was successful');
 
         $this->io->newLine(2);
 

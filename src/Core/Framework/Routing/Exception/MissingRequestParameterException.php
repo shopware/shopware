@@ -2,15 +2,26 @@
 
 namespace Shopware\Core\Framework\Routing\Exception;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('core')]
 class MissingRequestParameterException extends ShopwareHttpException
 {
-    public function __construct(private readonly string $name, private readonly string $path = '')
+    /**
+     * @var string
+     */
+    private $name;
+
+    /**
+     * @var string
+     */
+    private $path;
+
+    public function __construct(string $name, string $path = '')
     {
+        $this->name = $name;
+        $this->path = $path;
+
         parent::__construct('Parameter "{{ parameterName }}" is missing.', ['parameterName' => $name]);
     }
 

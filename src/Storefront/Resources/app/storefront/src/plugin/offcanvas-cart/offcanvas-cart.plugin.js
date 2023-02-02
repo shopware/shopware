@@ -11,16 +11,13 @@ import ElementLoadingIndicatorUtil from 'src/utility/loading-indicator/element-l
 import ViewportDetection from 'src/helper/viewport-detection.helper';
 import Debouncer from 'src/helper/debouncer.helper';
 
-/**
- * @package checkout
- */
 export default class OffCanvasCartPlugin extends Plugin {
 
     static options = {
         removeProductTriggerSelector: '.js-offcanvas-cart-remove-product',
         changeProductQuantityTriggerSelector: '.js-offcanvas-cart-change-quantity',
         changeProductQuantityTriggerNumberSelector: '.js-offcanvas-cart-change-quantity-number',
-        changeQuantityInputDelay: 800,
+        changeQuantityInputDelay: 350,
         addPromotionTriggerSelector: '.js-offcanvas-cart-add-promotion',
         cartItemSelector: '.js-cart-item',
         cartPromotionSelector: '.js-offcanvas-cart-promotion',
@@ -133,10 +130,6 @@ export default class OffCanvasCartPlugin extends Plugin {
     _registerToggleShippingSelection() {
         const { shippingToggleSelector, shippingContainerSelector } = this.options;
         const toggle = document.querySelector(shippingToggleSelector);
-
-        if (!toggle) {
-            return;
-        }
 
         toggle.addEventListener('click', () => {
             const target = document.querySelector(shippingContainerSelector);

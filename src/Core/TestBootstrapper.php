@@ -6,12 +6,11 @@ use Composer\Autoload\ClassLoader;
 use DG\BypassFinals;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\DevOps\StaticAnalyze\StaticAnalyzeKernel;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\DbalKernelPluginLoader;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Input\ArrayInput;
-use Symfony\Component\Console\Output\ConsoleOutput;
+use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Dotenv\Dotenv;
@@ -19,7 +18,6 @@ use Symfony\Component\HttpKernel\KernelInterface;
 use function is_dir;
 use function is_file;
 
-#[Package('core')]
 class TestBootstrapper
 {
     private ?ClassLoader $classLoader = null;
@@ -89,9 +87,6 @@ class TestBootstrapper
         return $this;
     }
 
-    /**
-     * @deprecated tag:v6.6.0 - Will be removed without replacement - reason:remove-command
-     */
     public function setBypassFinals(bool $bypassFinals): TestBootstrapper
     {
         $this->bypassFinals = $bypassFinals;
@@ -156,7 +151,7 @@ class TestBootstrapper
         $dbUrlParts = parse_url($_SERVER['DATABASE_URL'] ?? '') ?: [];
 
         $testToken = getenv('TEST_TOKEN');
-        $dbUrlParts['path'] ??= 'root';
+        $dbUrlParts['path'] = $dbUrlParts['path'] ?? 'root';
 
         // allows using the same database during development, by setting TEST_TOKEN=none
         if ($testToken !== 'none' && !str_ends_with($dbUrlParts['path'], 'test')) {
@@ -232,13 +227,13 @@ class TestBootstrapper
             throw new \RuntimeException('Could not auto detect plugin name via composer.json. Path: ' . $pathToComposerJson);
         }
 
-        $composer = json_decode((string) file_get_contents($pathToComposerJson), true, 512, \JSON_THROW_ON_ERROR);
+        $composer = json_decode((string) file_get_contents($pathToComposerJson), true);
         $baseClass = $composer['extra']['shopware-plugin-class'] ?? '';
         if ($baseClass === '') {
             throw new \RuntimeException('composer.json does not contain `extra.shopware-plugin-class`. Path: ' . $pathToComposerJson);
         }
 
-        $parts = explode('\\', (string) $baseClass);
+        $parts = explode('\\', $baseClass);
         $pluginName = end($parts);
 
         $this->addActivePlugins($pluginName);
@@ -280,7 +275,7 @@ class TestBootstrapper
             return $this->output;
         }
 
-        return $this->output = new ConsoleOutput();
+        return $this->output = new NullOutput();
     }
 
     public function setOutput(?OutputInterface $output): TestBootstrapper
@@ -320,10 +315,10 @@ class TestBootstrapper
     {
         try {
             $connection = $this->getContainer()->get(Connection::class);
-            $connection->executeQuery('SELECT 1 FROM `plugin`')->fetchAllAssociative();
+            $connection->executeQuery('SELECT 1 FROM `plugin`')->fetchAll();
 
             return true;
-        } catch (\Throwable) {
+        } catch (\Throwable $exists) {
             return false;
         }
     }
@@ -375,7 +370,6 @@ class TestBootstrapper
 
         $application = new Application($kernel);
         $installCommand = $application->find('plugin:install');
-        $definition = $installCommand->getDefinition();
 
         foreach ($this->activePlugins as $activePlugin) {
             $args = [
@@ -385,7 +379,7 @@ class TestBootstrapper
             ];
 
             $returnCode = $installCommand->run(
-                new ArrayInput($args, $definition),
+                new ArrayInput($args, $installCommand->getDefinition()),
                 $this->getOutput()
             );
 

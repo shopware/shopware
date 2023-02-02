@@ -1,8 +1,9 @@
+const { Component } = Shopware;
+
 /**
- * @private
- * @package content
+ * @private since v6.5.0
  */
-export default {
+Component.extend('sw-cms-el-config-manufacturer-logo', 'sw-cms-el-config-image', {
     computed: {
         isProductPage() {
             return this.cmsPageState?.currentPage?.type ?? '' === 'product_detail';
@@ -21,4 +22,4 @@ export default {
             }
         },
     },
-};
+});

@@ -23,11 +23,20 @@ class LockValidatorTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private Connection $connection;
+    /**
+     * @var Connection|object
+     */
+    private $connection;
 
-    private EntityWriterInterface $entityWriter;
+    /**
+     * @var EntityWriterInterface
+     */
+    private $entityWriter;
 
-    private EntityDefinition $testDefinition;
+    /**
+     * @var EntityDefinition
+     */
+    private $testDefinition;
 
     protected function setUp(): void
     {
@@ -57,15 +66,15 @@ CREATE TABLE `_test_lock_translation` (
 );
 EOF;
         $this->connection->rollBack();
-        $this->connection->executeStatement($table);
+        $this->connection->executeUpdate($table);
         $this->connection->beginTransaction();
     }
 
     public function tearDown(): void
     {
         $this->connection->rollBack();
-        $this->connection->executeStatement('DROP TABLE IF EXISTS `_test_lock`');
-        $this->connection->executeStatement('DROP TABLE IF EXISTS `_test_lock_translation`');
+        $this->connection->executeUpdate('DROP TABLE IF EXISTS `_test_lock`');
+        $this->connection->executeUpdate('DROP TABLE IF EXISTS `_test_lock_translation`');
         $this->connection->beginTransaction();
 
         parent::tearDown();
@@ -95,7 +104,7 @@ EOF;
 
         static::assertCount(1, $r);
 
-        $isLocked = (bool) $this->connection->fetchOne('SELECT `locked` FROM `_test_lock` WHERE `id` = :id', ['id' => Uuid::fromHexToBytes($data['id'])]);
+        $isLocked = (bool) $this->connection->executeQuery('SELECT `locked` FROM `_test_lock` WHERE `id` = :id', ['id' => Uuid::fromHexToBytes($data['id'])])->fetchColumn();
 
         static::assertFalse($isLocked);
     }
@@ -110,7 +119,7 @@ EOF;
         $r = $this->entityWriter->update($this->testDefinition, [$data], $this->getWriteContext());
         static::assertCount(1, $r);
 
-        $description = $this->connection->fetchOne('SELECT `description` FROM `_test_lock` WHERE `id` = :id', ['id' => Uuid::fromHexToBytes($data['id'])]);
+        $description = $this->connection->executeQuery('SELECT `description` FROM `_test_lock` WHERE `id` = :id', ['id' => Uuid::fromHexToBytes($data['id'])])->fetchColumn();
 
         static::assertEquals('bar', $description);
     }
@@ -125,8 +134,8 @@ EOF;
         $r = $this->entityWriter->update($this->testDefinition, [$data], $this->getWriteContext());
         static::assertCount(2, $r);
 
-        $description = $this->connection->fetchOne('SELECT `description` FROM `_test_lock` WHERE `id` = :id', ['id' => Uuid::fromHexToBytes($data['id'])]);
-        $name = $this->connection->fetchOne('SELECT `name` FROM `_test_lock_translation` WHERE `_test_lock_id` = :id', ['id' => Uuid::fromHexToBytes($data['id'])]);
+        $description = $this->connection->executeQuery('SELECT `description` FROM `_test_lock` WHERE `id` = :id', ['id' => Uuid::fromHexToBytes($data['id'])])->fetchColumn();
+        $name = $this->connection->executeQuery('SELECT `name` FROM `_test_lock_translation` WHERE `_test_lock_id` = :id', ['id' => Uuid::fromHexToBytes($data['id'])])->fetchColumn();
 
         static::assertEquals('bar', $description);
         static::assertEquals('ware', $name);
@@ -138,7 +147,7 @@ EOF;
         $r = $this->entityWriter->insert($this->testDefinition, [$data], $this->getWriteContext());
         static::assertCount(1, $r);
 
-        $this->connection->executeStatement('UPDATE `_test_lock` SET `locked` = 1 WHERE `id` = :id', ['id' => Uuid::fromHexToBytes($data['id'])]);
+        $this->connection->executeUpdate('UPDATE `_test_lock` SET `locked` = 1 WHERE `id` = :id', ['id' => Uuid::fromHexToBytes($data['id'])]);
 
         $exception = null;
 
@@ -157,7 +166,7 @@ EOF;
         $r = $this->entityWriter->insert($this->testDefinition, [$data], $this->getWriteContext());
         static::assertCount(1, $r);
 
-        $this->connection->executeStatement('UPDATE `_test_lock` SET `locked` = 1 WHERE `id` = :id', ['id' => Uuid::fromHexToBytes($data['id'])]);
+        $this->connection->executeUpdate('UPDATE `_test_lock` SET `locked` = 1 WHERE `id` = :id', ['id' => Uuid::fromHexToBytes($data['id'])]);
 
         $exception = null;
 
@@ -176,7 +185,7 @@ EOF;
         $r = $this->entityWriter->insert($this->testDefinition, [$data], $this->getWriteContext());
         static::assertCount(2, $r);
 
-        $this->connection->executeStatement('UPDATE `_test_lock` SET `locked` = 1 WHERE `id` = :id', ['id' => Uuid::fromHexToBytes($data['id'])]);
+        $this->connection->executeUpdate('UPDATE `_test_lock` SET `locked` = 1 WHERE `id` = :id', ['id' => Uuid::fromHexToBytes($data['id'])]);
 
         $exception = null;
 

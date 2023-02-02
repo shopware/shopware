@@ -1,12 +1,10 @@
-/*
- * @package inventory
- */
-
 import template from './sw-product-variants-delivery-media.html.twig';
 import './sw-product-variants-delivery-media.scss';
 
+const { Component } = Shopware;
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-product-variants-delivery-media', {
     template,
 
     inject: ['repositoryFactory', 'mediaService'],
@@ -37,16 +35,15 @@ export default {
             const selectedGroupsCopy = [...this.selectedGroups];
 
             // check if sorting exists on server
-            if (this.product.variantListingConfig.configuratorGroupConfig
-                && this.product.variantListingConfig.configuratorGroupConfig.length > 0) {
+            if (this.product.configuratorGroupConfig && this.product.configuratorGroupConfig.length > 0) {
                 // add server sorting to the sortedGroups
-                sortedGroups = this.product.variantListingConfig.configuratorGroupConfig.reduce((acc, configGroup) => {
+                sortedGroups = this.product.configuratorGroupConfig.reduce((acc, configGroup) => {
                     const relatedGroup = selectedGroupsCopy.find(group => group.id === configGroup.id);
 
                     if (relatedGroup) {
                         acc.push(relatedGroup);
 
-                        // remove from original array
+                        // remove from orignal array
                         selectedGroupsCopy.splice(selectedGroupsCopy.indexOf(relatedGroup), 1);
                     }
 
@@ -94,7 +91,7 @@ export default {
 
         activeGroup: {
             handler() {
-                this.product.variantListingConfig.configuratorGroupConfig.find((group) => {
+                this.product.configuratorGroupConfig.find((group) => {
                     return group.id === this.activeGroup.id;
                 });
             },
@@ -135,25 +132,24 @@ export default {
         },
 
         onChangeGroupListing(value) {
-            const existingIndex = this.product.variantListingConfig.configuratorGroupConfig
+            const existingIndex = this.product.configuratorGroupConfig
                 .findIndex((group) => group.id === this.activeGroup.id);
 
             if (existingIndex >= 0) {
-                const existingConfig = this.product.variantListingConfig.configuratorGroupConfig[existingIndex];
+                const existingConfig = this.product.configuratorGroupConfig[existingIndex];
 
-                this.product.variantListingConfig.configuratorGroupConfig[existingIndex] = {
+                this.product.configuratorGroupConfig[existingIndex] = {
                     id: existingConfig.id,
                     expressionForListings: value,
                     representation: existingConfig.representation,
                 };
             } else {
-                this.product.variantListingConfig.configuratorGroupConfig = [
-                    ...this.product.variantListingConfig.configuratorGroupConfig, {
-                        id: this.activeGroup.id,
-                        expressionForListings: value,
-                        representation: 'box',
-                    }];
+                this.product.configuratorGroupConfig = [...this.product.configuratorGroupConfig, {
+                    id: this.activeGroup.id,
+                    expressionForListings: value,
+                    representation: 'box',
+                }];
             }
         },
     },
-};
+});

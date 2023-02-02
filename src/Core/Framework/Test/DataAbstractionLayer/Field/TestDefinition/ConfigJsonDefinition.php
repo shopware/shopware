@@ -15,7 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
  */
 class ConfigJsonDefinition extends EntityDefinition
 {
-    final public const ENTITY_NAME = '_test_nullable';
+    public const ENTITY_NAME = '_test_nullable';
 
     public function getEntityName(): string
     {

@@ -8,12 +8,7 @@ use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Exception\KernelPluginLoaderException;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Framework\Plugin\PluginEntity;
-use Shopware\Core\Framework\Test\Plugin\_fixture\bundles\FooBarBundle;
-use Shopware\Core\Framework\Test\Plugin\_fixture\bundles\GizmoBundle;
 use Shopware\Core\Framework\Test\Plugin\PluginIntegrationTestBehaviour;
-use SwagTest\SwagTest;
-use SwagTest\SwagTestFake;
-use SwagTestWithBundle\SwagTestWithBundle;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 
@@ -194,9 +189,9 @@ class StaticKernelPluginLoaderTest extends TestCase
         $bundles = iterator_to_array($loader->getBundles());
 
         static::assertCount(4, $bundles);
-        static::assertInstanceOf(GizmoBundle::class, $bundles[0]);
-        static::assertInstanceOf(SwagTest::class, $bundles[1]);
-        static::assertInstanceOf(FooBarBundle::class, $bundles[2]);
+        static::assertInstanceOf('Shopware\Core\Framework\Test\Plugin\_fixture\bundles\GizmoBundle', $bundles[0]);
+        static::assertInstanceOf('SwagTest\SwagTest', $bundles[1]);
+        static::assertInstanceOf('Shopware\Core\Framework\Test\Plugin\_fixture\bundles\FooBarBundle', $bundles[2]);
         static::assertSame($loader, $bundles[3]);
     }
 
@@ -212,10 +207,10 @@ class StaticKernelPluginLoaderTest extends TestCase
         $bundles = iterator_to_array($loader->getBundles([], ['FrameworkBundle']));
 
         static::assertCount(5, $bundles);
-        static::assertInstanceOf(GizmoBundle::class, $bundles[0]);
-        static::assertInstanceOf(SwagTest::class, $bundles[1]);
-        static::assertInstanceOf(FooBarBundle::class, $bundles[2]);
-        static::assertInstanceOf(SwagTestWithBundle::class, $bundles[3]);
+        static::assertInstanceOf('Shopware\Core\Framework\Test\Plugin\_fixture\bundles\GizmoBundle', $bundles[0]);
+        static::assertInstanceOf('SwagTest\SwagTest', $bundles[1]);
+        static::assertInstanceOf('Shopware\Core\Framework\Test\Plugin\_fixture\bundles\FooBarBundle', $bundles[2]);
+        static::assertInstanceOf('SwagTestWithBundle\SwagTestWithBundle', $bundles[3]);
         static::assertSame($loader, $bundles[4]);
     }
 
@@ -226,7 +221,6 @@ class StaticKernelPluginLoaderTest extends TestCase
         $loader->initializePlugins(TEST_PROJECT_DIR);
 
         $bundles = iterator_to_array($loader->getBundles());
-
         static::assertCount(1, $bundles);
         static::assertSame($loader, $bundles[0]);
     }
@@ -278,7 +272,7 @@ class StaticKernelPluginLoaderTest extends TestCase
         $container = new ContainerBuilder();
         $loader->build($container);
 
-        $definition = $container->getDefinition(SwagTest::class);
+        $definition = $container->getDefinition('SwagTest\\SwagTest');
         static::assertNotNull($definition);
         static::assertTrue($definition->isAutowired());
         static::assertTrue($definition->isPublic());
@@ -295,11 +289,11 @@ class StaticKernelPluginLoaderTest extends TestCase
         $definition = new Definition();
         $definition->setAutowired(false);
         $definition->setPublic(false);
-        $container->setDefinition(SwagTest::class, $definition);
+        $container->setDefinition('SwagTest\\SwagTest', $definition);
 
         $loader->build($container);
 
-        $actualDefinition = $container->getDefinition(SwagTest::class);
+        $actualDefinition = $container->getDefinition('SwagTest\\SwagTest');
         static::assertSame($definition, $actualDefinition);
         static::assertTrue($actualDefinition->isAutowired());
         static::assertTrue($actualDefinition->isPublic());
@@ -388,7 +382,7 @@ class StaticKernelPluginLoaderTest extends TestCase
     private function getFakePlugin(): PluginEntity
     {
         $plugin = $this->getActivePlugin();
-        $plugin->setBaseClass(SwagTestFake::class);
+        $plugin->setBaseClass('SwagTest\\SwagTestFake');
 
         return $plugin;
     }

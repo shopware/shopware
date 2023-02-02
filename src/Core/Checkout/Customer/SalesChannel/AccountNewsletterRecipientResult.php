@@ -2,13 +2,11 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('customer-order')]
 class AccountNewsletterRecipientResult extends Struct
 {
-    final public const UNDEFINED = 'undefined';
+    public const UNDEFINED = 'undefined';
 
     protected string $status;
 

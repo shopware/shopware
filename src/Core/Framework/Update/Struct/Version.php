@@ -2,10 +2,8 @@
 
 namespace Shopware\Core\Framework\Update\Struct;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('system-settings')]
 class Version extends Struct
 {
     /**
@@ -24,7 +22,7 @@ class Version extends Struct
     public $changelog;
 
     /**
-     * @var non-empty-string
+     * @var string
      */
     public $uri;
 

@@ -2,29 +2,34 @@
 
 namespace Shopware\Core\Checkout\Cart\Rule;
 
-use Shopware\Core\Checkout\Cart\CartException;
+use Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-#[Package('business-ops')]
 class LineItemIsNewRule extends Rule
 {
-    final public const RULE_NAME = 'cartLineItemIsNew';
+    protected bool $isNew;
 
     /**
      * @internal
      */
-    public function __construct(protected bool $isNew = false)
+    public function __construct(bool $isNew = false)
     {
         parent::__construct();
+
+        $this->isNew = $isNew;
+    }
+
+    public function getName(): string
+    {
+        return 'cartLineItemIsNew';
     }
 
     /**
-     * @throws CartException
+     * @throws PayloadKeyNotFoundException
      */
     public function match(RuleScope $scope): bool
     {
@@ -36,7 +41,7 @@ class LineItemIsNewRule extends Rule
             return false;
         }
 
-        foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
+        foreach ($scope->getCart()->getLineItems()->getFlat() as $lineItem) {
             if ($this->matchLineItemIsNew($lineItem)) {
                 return true;
             }
@@ -59,7 +64,7 @@ class LineItemIsNewRule extends Rule
     }
 
     /**
-     * @throws CartException
+     * @throws PayloadKeyNotFoundException
      */
     private function matchLineItemIsNew(LineItem $lineItem): bool
     {

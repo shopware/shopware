@@ -1,15 +1,12 @@
-/**
- * @package system-settings
- */
 import template from './sw-bulk-edit-product-media.html.twig';
 
-const { Context, Utils, Mixin } = Shopware;
+const { Component, Context, Utils, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapState } = Shopware.Component.getComponentHelper();
 const { isEmpty } = Utils.types;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-bulk-edit-product-media', {
     template,
 
     inject: ['repositoryFactory'],
@@ -76,9 +73,6 @@ export default {
             return this.mediaDefaultFolderRepository.search(this.mediaDefaultFolderCriteria, Context.api)
                 .then((mediaDefaultFolder) => {
                     const defaultFolder = mediaDefaultFolder.first();
-                    if (defaultFolder === null) {
-                        return null;
-                    }
 
                     if (defaultFolder.folder?.id) {
                         return defaultFolder.folder.id;
@@ -125,4 +119,4 @@ export default {
             });
         },
     },
-};
+});

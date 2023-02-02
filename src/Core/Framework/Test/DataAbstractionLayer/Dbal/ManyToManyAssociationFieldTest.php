@@ -12,7 +12,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslatio
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -26,14 +26,17 @@ class ManyToManyAssociationFieldTest extends TestCase
     use IntegrationTestBehaviour;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepositoryInterface
      */
     private $productRepository;
 
-    private Context $context;
+    /**
+     * @var Context
+     */
+    private $context;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepositoryInterface
      */
     private $categoryRepository;
 

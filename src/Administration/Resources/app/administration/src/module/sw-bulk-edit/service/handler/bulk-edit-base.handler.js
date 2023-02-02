@@ -11,8 +11,6 @@ const { getObjectDiff } = Shopware.Utils.object;
 
 /**
  * @class
- *
- * @package system-settings
  */
 class BulkEditBaseHandler {
     constructor() {
@@ -251,7 +249,7 @@ class BulkEditBaseHandler {
             changeItem = object.pick(changeItem, editableProperties);
 
             this.entityIds.forEach(entityId => {
-                const record = { ...changeItem };
+                const record = Object.assign({}, changeItem);
                 record[referenceKey] = entityId;
 
                 const identifyKey = mappingReferenceField ?? localKey;
@@ -267,7 +265,7 @@ class BulkEditBaseHandler {
 
                 // Only update existing association if there's only one association record
                 if (associations.length === 1) {
-                    association = { ...associations[0] };
+                    association = Object.assign({}, associations[0]);
                     existAssociations[key].shift();
                     // Remove existing OneToMany association record from delete payload
                     delete this.groupedPayload.delete[referenceEntity][key];
@@ -430,7 +428,7 @@ class BulkEditBaseHandler {
             }
         });
 
-        if (existAssociations.total > Object.keys(mappedExistAssociations).length) {
+        if (existAssociations.total > existAssociations.length) {
             return this._fetchOneToManyAssociated(fieldDefinition, change, page + 1, mappedExistAssociations);
         }
 
@@ -479,7 +477,7 @@ class BulkEditBaseHandler {
             mappedExistAssociations[key] = [association];
         });
 
-        if (mappingIds.total > Object.keys(mappedExistAssociations).length) {
+        if (mappingIds.total > existAssociations.length) {
             return this._fetchManyToManyAssociated(fieldDefinition, change, page + 1, mappedExistAssociations);
         }
 

@@ -1,0 +1,196 @@
+@startuml
+' uncomment the line below if you're using computer with a retina display
+' skinparam dpi 300
+!define Table(name,desc) class name as "desc" << (T,#FFAAAA) >>
+!define ForeignTable(name,desc) class name as "desc" << (T,#ada6a6) >>
+!define TranslationTable(name,desc) class name as "desc" << (I,#4286f4) >>
+' we use bold for primary key
+' green color for unique
+' and underscore for not_null
+!define primary_key(x) <b>x</b>
+!define unique(x) <color:green>x</color>
+!define not_null(x) <u>x</u>
+' other tags available:
+' <i></i>
+' <back:COLOR></color>, where color is a color name or html color code
+' (#FFAACC)
+' see: http://plantuml.com/classes.html#More
+hide methods
+hide stereotypes
+hide empty members
+skinparam backgroundColor #FFFFFF
+
+' entities
+
+Table(ShopwareCoreCheckoutCustomerCustomerDefinition, "customer\n(The sales channel customer)") {
+   primary_key(id) id
+   not_null(groupId) foreignKey
+   not_null(defaultPaymentMethodId) foreignKey
+   not_null(salesChannelId) foreignKey
+   not_null(languageId) foreignKey
+   lastPaymentMethodId foreignKey
+   not_null(defaultBillingAddressId) foreignKey
+   not_null(defaultShippingAddressId) foreignKey
+   autoIncrement int
+   not_null(customerNumber) numberRange
+   salutationId foreignKey
+   not_null(firstName) string
+   not_null(lastName) string
+   company string
+   password password
+   not_null(email) email
+   title string
+   vatIds list
+   affiliateCode string
+   campaignCode string
+   active bool
+   doubleOptInRegistration bool
+   doubleOptInEmailSentDate dateTime
+   doubleOptInConfirmDate dateTime
+   hash string
+   guest bool
+   firstLogin dateTime
+   lastLogin dateTime
+   newsletter bool
+   birthday date
+   lastOrderDate dateTime
+   orderCount int
+   customFields customFields
+   legacyPassword string
+   legacyEncoder string
+   remoteAddress remoteAddress
+   tagIds manyToManyId
+   requestedGroupId foreignKey
+   boundSalesChannelId foreignKey
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+}
+TranslationTable(ShopwareCoreCheckoutCustomerAggregateCustomerGroupTranslationCustomerGroupTranslationDefinition, "customer_group_translation\n((Translations))") {
+   not_null(name) string
+   registrationTitle string
+   registrationIntroduction longText
+   registrationOnlyCompanyRegistration bool
+   registrationSeoMetaDescription longText
+   customFields customFields
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+   primary_key(customerGroupId) foreignKey
+   primary_key(languageId) foreignKey
+}
+Table(ShopwareCoreCheckoutCustomerAggregateCustomerAddressCustomerAddressDefinition, "customer_address\n(The customer addresses.)") {
+   primary_key(id) id
+   not_null(customerId) foreignKey
+   not_null(countryId) foreignKey
+   countryStateId foreignKey
+   salutationId foreignKey
+   not_null(firstName) string
+   not_null(lastName) string
+   not_null(zipcode) string
+   not_null(city) string
+   company string
+   not_null(street) string
+   department string
+   title string
+   phoneNumber string
+   additionalAddressLine1 string
+   additionalAddressLine2 string
+   customFields customFields
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+}
+Table(ShopwareCoreCheckoutCustomerAggregateCustomerRecoveryCustomerRecoveryDefinition, "customer_recovery\n(Customer recovery process)") {
+   primary_key(id) id
+   not_null(hash) string
+   not_null(customerId) foreignKey
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+}
+Table(ShopwareCoreCheckoutCustomerAggregateCustomerGroupCustomerGroupDefinition, "customer_group\n(Customer groups)") {
+   primary_key(id) id
+   name translated
+   displayGross bool
+   customFields translated
+   registrationActive bool
+   registrationTitle translated
+   registrationIntroduction translated
+   registrationOnlyCompanyRegistration translated
+   registrationSeoMetaDescription translated
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+   translated json
+}
+Table(ShopwareCoreCheckoutCustomerAggregateCustomerGroupRegistrationSalesChannelCustomerGroupRegistrationSalesChannelDefinition, "customer_group_registration_sales_channels\n(M:N Mapping)") {
+   primary_key(customerGroupId) foreignKey
+   primary_key(salesChannelId) foreignKey
+   not_null(createdAt) createdAt
+}
+Table(ShopwareCoreCheckoutCustomerAggregateCustomerTagCustomerTagDefinition, "customer_tag\n(M:N Mapping)") {
+   primary_key(customerId) foreignKey
+   primary_key(tagId) foreignKey
+}
+Table(ShopwareCoreCheckoutCustomerAggregateCustomerWishlistCustomerWishlistDefinition, "customer_wishlist\n(__EMPTY__)") {
+   primary_key(id) id
+   not_null(customerId) foreignKey
+   not_null(salesChannelId) foreignKey
+   customFields customFields
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+}
+Table(ShopwareCoreCheckoutCustomerAggregateCustomerWishlistProductCustomerWishlistProductDefinition, "customer_wishlist_product\n(__EMPTY__)") {
+   primary_key(id) id
+   not_null(productId) foreignKey
+   not_null(productVersionId) referenceVersion
+   not_null(wishlistId) foreignKey
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+}
+ForeignTable(ShopwareCoreCheckoutPaymentPaymentMethodDefinition, "payment_method") {
+}
+ForeignTable(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channel") {
+}
+ForeignTable(ShopwareCoreSystemLanguageLanguageDefinition, "language") {
+}
+ForeignTable(ShopwareCoreSystemSalutationSalutationDefinition, "salutation") {
+}
+ForeignTable(ShopwareCoreCheckoutOrderAggregateOrderCustomerOrderCustomerDefinition, "order_customer") {
+}
+ForeignTable(ShopwareCoreCheckoutPromotionAggregatePromotionPersonaCustomerPromotionPersonaCustomerDefinition, "promotion_persona_customer") {
+}
+ForeignTable(ShopwareCoreContentProductAggregateProductReviewProductReviewDefinition, "product_review") {
+}
+ForeignTable(ShopwareCoreSystemCountryCountryDefinition, "country") {
+}
+ForeignTable(ShopwareCoreSystemCountryAggregateCountryStateCountryStateDefinition, "country_state") {
+}
+ForeignTable(ShopwareCoreSystemTagTagDefinition, "tag") {
+}
+ForeignTable(ShopwareCoreContentProductProductDefinition, "product") {
+}
+
+' relationshipd
+
+ShopwareCoreCheckoutCustomerAggregateCustomerGroupCustomerGroupDefinition --> ShopwareCoreCheckoutCustomerCustomerDefinition
+ShopwareCoreCheckoutCustomerCustomerDefinition --> ShopwareCoreCheckoutPaymentPaymentMethodDefinition
+ShopwareCoreCheckoutCustomerCustomerDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
+ShopwareCoreCheckoutCustomerCustomerDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
+ShopwareCoreCheckoutCustomerAggregateCustomerAddressCustomerAddressDefinition --> ShopwareCoreCheckoutCustomerCustomerDefinition
+ShopwareCoreCheckoutCustomerCustomerDefinition --> ShopwareCoreSystemSalutationSalutationDefinition
+ShopwareCoreCheckoutCustomerCustomerDefinition --> ShopwareCoreCheckoutOrderAggregateOrderCustomerOrderCustomerDefinition
+ShopwareCoreCheckoutCustomerAggregateCustomerTagCustomerTagDefinition --> ShopwareCoreCheckoutCustomerCustomerDefinition
+ShopwareCoreCheckoutCustomerCustomerDefinition --> ShopwareCoreCheckoutPromotionAggregatePromotionPersonaCustomerPromotionPersonaCustomerDefinition
+ShopwareCoreCheckoutCustomerCustomerDefinition --> ShopwareCoreContentProductAggregateProductReviewProductReviewDefinition
+ShopwareCoreCheckoutCustomerAggregateCustomerRecoveryCustomerRecoveryDefinition --> ShopwareCoreCheckoutCustomerCustomerDefinition
+ShopwareCoreCheckoutCustomerAggregateCustomerWishlistCustomerWishlistDefinition --> ShopwareCoreCheckoutCustomerCustomerDefinition
+ShopwareCoreCheckoutCustomerAggregateCustomerGroupCustomerGroupDefinition --> ShopwareCoreCheckoutCustomerAggregateCustomerGroupTranslationCustomerGroupTranslationDefinition
+ShopwareCoreCheckoutCustomerAggregateCustomerGroupTranslationCustomerGroupTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
+ShopwareCoreCheckoutCustomerAggregateCustomerAddressCustomerAddressDefinition --> ShopwareCoreSystemCountryCountryDefinition
+ShopwareCoreCheckoutCustomerAggregateCustomerAddressCustomerAddressDefinition --> ShopwareCoreSystemCountryAggregateCountryStateCountryStateDefinition
+ShopwareCoreCheckoutCustomerAggregateCustomerAddressCustomerAddressDefinition --> ShopwareCoreSystemSalutationSalutationDefinition
+ShopwareCoreCheckoutCustomerAggregateCustomerGroupCustomerGroupDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
+ShopwareCoreCheckoutCustomerAggregateCustomerGroupRegistrationSalesChannelCustomerGroupRegistrationSalesChannelDefinition --> ShopwareCoreCheckoutCustomerAggregateCustomerGroupCustomerGroupDefinition
+ShopwareCoreCheckoutCustomerAggregateCustomerGroupRegistrationSalesChannelCustomerGroupRegistrationSalesChannelDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
+ShopwareCoreCheckoutCustomerAggregateCustomerTagCustomerTagDefinition --> ShopwareCoreSystemTagTagDefinition
+ShopwareCoreCheckoutCustomerAggregateCustomerWishlistProductCustomerWishlistProductDefinition --> ShopwareCoreCheckoutCustomerAggregateCustomerWishlistCustomerWishlistDefinition
+ShopwareCoreCheckoutCustomerAggregateCustomerWishlistCustomerWishlistDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
+ShopwareCoreCheckoutCustomerAggregateCustomerWishlistProductCustomerWishlistProductDefinition --> ShopwareCoreContentProductProductDefinition
+@enduml

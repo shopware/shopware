@@ -2,13 +2,11 @@
 
 namespace Shopware\Core\Checkout\Document;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
  * @extends Collection<DocumentIdStruct>
  */
-#[Package('customer-order')]
 class DocumentIdCollection extends Collection
 {
     public function getApiAlias(): string

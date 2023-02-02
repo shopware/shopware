@@ -6,12 +6,12 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -25,9 +25,7 @@ class ClientRepositoryTest extends TestCase
 
     public function testLoginFailsForInactiveApp(): void
     {
-        $fixturesPath = __DIR__ . '/../../../../../../tests/integration/php/Core/Framework/App/Manifest/_fixtures/test';
-
-        $this->loadAppsFromDir($fixturesPath, false);
+        $this->loadAppsFromDir(__DIR__ . '/../../App/Manifest/_fixtures/test', false);
 
         $browser = $this->createClient();
         $app = $this->fetchApp('test');
@@ -70,7 +68,7 @@ class ClientRepositoryTest extends TestCase
 
     private function fetchApp(string $appName): ?AppEntity
     {
-        /** @var EntityRepository $appRepository */
+        /** @var EntityRepositoryInterface $appRepository */
         $appRepository = $this->getContainer()->get('app.repository');
 
         $criteria = new Criteria();
@@ -81,7 +79,7 @@ class ClientRepositoryTest extends TestCase
 
     private function setAccessTokenForIntegration(string $integrationId, string $accessKey, string $secret): void
     {
-        /** @var EntityRepository $integrationRepository */
+        /** @var EntityRepositoryInterface $integrationRepository */
         $integrationRepository = $this->getContainer()->get('integration.repository');
 
         $integrationRepository->update([

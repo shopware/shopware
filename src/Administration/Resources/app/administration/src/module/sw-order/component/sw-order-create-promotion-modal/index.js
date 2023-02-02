@@ -1,16 +1,12 @@
-import { DiscountTypes, DiscountScopes } from 'src/module/sw-promotion-v2/helper/promotion.helper';
+import { DiscountTypes, DiscountScopes } from 'src/module/sw-promotion/helper/promotion.helper';
 import template from './sw-order-create-promotion-modal.html.twig';
 import './sw-order-create-promotion-modal.scss';
 
-/**
- * @package customer-order
- */
-
-const { State, Utils, Service } = Shopware;
+const { Component, State, Utils, Service } = Shopware;
 const { format } = Utils;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-order-create-promotion-modal', {
     template,
 
     props: {
@@ -87,4 +83,4 @@ export default {
             return this.$tc(`${snippet}.${discountType}`, 0, { value: discountValue, groupId });
         },
     },
-};
+});

@@ -1,15 +1,10 @@
-/*
- * @package inventory
- */
-
 import template from './sw-product-stream-field-select.html.twig';
 import './sw-product-stream-field-select.scss';
 
-/**
- * @private
- * @package business-ops
- */
-export default {
+const { Component } = Shopware;
+
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+Component.register('sw-product-stream-field-select', {
     template,
 
     inject: [
@@ -35,12 +30,6 @@ export default {
         },
 
         disabled: {
-            type: Boolean,
-            required: false,
-            default: false,
-        },
-
-        hasError: {
             type: Boolean,
             required: false,
             default: false,
@@ -82,14 +71,6 @@ export default {
 
             return entityFields;
         },
-
-        arrowPrimaryColor() {
-            if (this.hasError) {
-                return '#de294c';
-            }
-
-            return '#758ca3';
-        },
     },
 
     watch: {
@@ -125,4 +106,4 @@ export default {
             return translated === translationKey ? property : translated;
         },
     },
-};
+});

@@ -30,10 +30,6 @@
         &:hover {
             color: $color-shopware-brand-500;
         }
-
-        .sw-icon {
-            padding: 3px;
-        }
     }
 
     .sw-cms-detail__page-name {
@@ -50,7 +46,7 @@
 
     .sw-cms-detail__page-defaults {
         font-weight: $font-weight-semi-bold;
-        font-size: $font-size-xxs;
+        font-size: $font-size-extra-small;
         line-height: 16px;
         color: $color-white;
         padding: 4px 8px;
@@ -104,7 +100,7 @@
                 padding: 8px 16px;
                 line-height: 22px;
                 height: 40px;
-                font-size: $font-size-xs;
+                font-size: 14px;
             }
         }
     }
@@ -164,7 +160,7 @@
 
             h2.sw-cms-detail__empty-stage-headline {
                 font-size: 32px;
-                font-weight: $font-weight-regular;
+                font-weight: 400;
                 margin-bottom: 5px;
             }
         }

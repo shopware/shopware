@@ -6,7 +6,6 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Container\FilterRule;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\RuleComparison;
@@ -14,19 +13,20 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-#[Package('business-ops')]
 class PromotionValueRule extends FilterRule
 {
-    final public const RULE_NAME = 'promotionValue';
-
     protected float $amount;
+
+    protected string $operator;
 
     /**
      * @internal
      */
-    public function __construct(protected string $operator = self::OPERATOR_EQ, ?float $amount = null)
+    public function __construct(string $operator = self::OPERATOR_EQ, ?float $amount = null)
     {
         parent::__construct();
+
+        $this->operator = $operator;
         $this->amount = (float) $amount;
     }
 
@@ -62,6 +62,11 @@ class PromotionValueRule extends FilterRule
             'amount' => RuleConstraints::float(),
             'operator' => RuleConstraints::numericOperators(false),
         ];
+    }
+
+    public function getName(): string
+    {
+        return 'promotionValue';
     }
 
     public function getConfig(): RuleConfig

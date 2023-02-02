@@ -3,14 +3,10 @@
 namespace Shopware\Storefront\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Log\Package;
+use Doctrine\DBAL\FetchMode;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-/**
- * @internal
- */
-#[Package('core')]
 class Migration1565640170ThemeMigrateMedia extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -22,7 +18,7 @@ class Migration1565640170ThemeMigrateMedia extends MigrationStep
     {
         $defaultThemeId = $connection->executeQuery(
             'SELECT `id` FROM `theme` WHERE `technical_name` = \'Storefront\';'
-        )->fetchOne();
+        )->fetchColumn();
 
         if (!$defaultThemeId) {
             return;
@@ -30,7 +26,7 @@ class Migration1565640170ThemeMigrateMedia extends MigrationStep
 
         $themeConfigs = $connection->executeQuery(
             'SELECT `id`, `base_config` FROM `theme`;'
-        )->fetchAllAssociative();
+        )->fetchAll(FetchMode::ASSOCIATIVE);
 
         $themeMediaMapping = [];
 
@@ -39,7 +35,7 @@ class Migration1565640170ThemeMigrateMedia extends MigrationStep
                 continue;
             }
 
-            $baseConfig = json_decode((string) $themeConfig['base_config'], true, 512, \JSON_THROW_ON_ERROR);
+            $baseConfig = json_decode($themeConfig['base_config'], true);
 
             if (!\array_key_exists('fields', $baseConfig) || !\is_array($baseConfig['fields'])) {
                 continue;
@@ -62,12 +58,12 @@ class Migration1565640170ThemeMigrateMedia extends MigrationStep
             }
         }
 
-        $mediaIds = $connection->fetchFirstColumn(
+        $mediaIds = $connection->executeQuery(
             'SELECT `media`.`id` FROM `media`
                LEFT JOIN `media_folder` ON `media`.`media_folder_id` = `media_folder`.`id`
                LEFT JOIN `media_default_folder` ON `media_folder`.`default_folder_id` = `media_default_folder`.`id`
                WHERE `media_default_folder`.`entity` = \'theme\';'
-        );
+        )->fetchAll(FetchMode::COLUMN);
 
         if (empty($mediaIds)) {
             return;

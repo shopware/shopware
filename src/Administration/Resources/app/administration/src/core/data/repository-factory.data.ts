@@ -1,7 +1,3 @@
-/**
- * @package admin
- */
-
 import type { AxiosInstance } from 'axios';
 import Repository from './repository.data';
 import type EntityHydrator from './entity-hydrator.data';
@@ -39,18 +35,14 @@ export default class RepositoryFactory {
      * Creates a repository for the provided entity.
      * The route parameter allows to configure a custom route for the entity - used for association loading.
      */
-    create<EntityName extends keyof EntitySchema.Entities>(
-        entityName: EntityName,
-        route = '',
-        options = {},
-    ): Repository<EntityName> {
+    create(entityName: string, route = '', options = {}): Repository {
         if (!route) {
             route = `/${entityName.replace(/_/g, '-')}`;
         }
 
         const definition = Shopware.EntityDefinition.get(entityName);
 
-        return new Repository<EntityName>(
+        return new Repository(
             route,
             // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             definition.entity,

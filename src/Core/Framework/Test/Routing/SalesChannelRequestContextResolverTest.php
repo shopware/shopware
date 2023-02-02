@@ -7,9 +7,11 @@ use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Test\Customer\SalesChannel\CustomerTestTrait;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
 use Shopware\Core\Framework\Routing\Event\SalesChannelContextResolvedEvent;
 use Shopware\Core\Framework\Routing\SalesChannelRequestContextResolver;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -25,6 +27,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParamete
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
+use function array_unshift;
 use function print_r;
 
 /**
@@ -37,7 +40,7 @@ class SalesChannelRequestContextResolverTest extends TestCase
 
     private TestDataCollection $ids;
 
-    private EntityRepository $currencyRepository;
+    private EntityRepositoryInterface $currencyRepository;
 
     private SalesChannelContextServiceInterface $contextService;
 
@@ -95,9 +98,6 @@ class SalesChannelRequestContextResolverTest extends TestCase
         static::assertSame($expectedCurrencyId, $context->getContext()->getCurrencyId());
     }
 
-    /**
-     * @return list<array{0: string, 1: string, 2: string}>
-     */
     public function domainData(): array
     {
         return [
@@ -116,8 +116,6 @@ class SalesChannelRequestContextResolverTest extends TestCase
 
     /**
      * @dataProvider loginRequiredAnnotationData
-     *
-     * @param array<string, bool> $attributes
      */
     public function testLoginRequiredAnnotation(bool $doLogin, bool $isGuest, array $attributes, bool $pass): void
     {
@@ -153,15 +151,14 @@ class SalesChannelRequestContextResolverTest extends TestCase
         }
     }
 
-    /**
-     * @return list<array{0: bool, 1: bool, 2: array<string, bool>, 3: bool}>
-     */
-    public function loginRequiredAnnotationData(): array
+    public function loginRequiredAnnotationData(): iterable
     {
+        $loginRequiredNotAllowGuestOld = [PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => new LoginRequired([])];
+        $loginRequiredAllowGuestOld = [PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => new LoginRequired(['allowGuest' => true])];
         $loginRequiredNotAllowGuest = [PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true];
         $loginRequiredAllowGuest = [PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true, PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST => true];
 
-        return [
+        $list = [
             [
                 true, // login
                 true, // guest
@@ -236,6 +233,62 @@ class SalesChannelRequestContextResolverTest extends TestCase
                 true,
             ],
         ];
+
+        if (!Feature::isActive('v6.5.0.0')) {
+            array_unshift(
+                $list,
+                [
+                    true, // login
+                    true, // guest
+                    $loginRequiredNotAllowGuestOld, // annotation
+                    false, // pass
+                ],
+                [
+                    true,
+                    false,
+                    $loginRequiredNotAllowGuestOld,
+                    true,
+                ],
+                [
+                    false,
+                    false,
+                    $loginRequiredNotAllowGuestOld,
+                    false,
+                ],
+                [
+                    false,
+                    true,
+                    $loginRequiredNotAllowGuestOld,
+                    false,
+                ],
+                [
+                    true,
+                    true,
+                    $loginRequiredAllowGuestOld,
+                    true,
+                ],
+                [
+                    true,
+                    false,
+                    $loginRequiredAllowGuestOld,
+                    true,
+                ],
+                [
+                    false,
+                    false,
+                    $loginRequiredAllowGuestOld,
+                    false,
+                ],
+                [
+                    false,
+                    true,
+                    $loginRequiredAllowGuestOld,
+                    false,
+                ]
+            );
+        }
+
+        return $list;
     }
 
     private function loginCustomer(bool $isGuest): string

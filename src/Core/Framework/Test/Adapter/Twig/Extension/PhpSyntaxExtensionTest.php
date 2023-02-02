@@ -21,15 +21,6 @@ class PhpSyntaxExtensionTest extends TestCase
 
         $renderer = $this->getContainer()->get(StringTemplateRenderer::class);
 
-        $jsonEncodeData = [
-            -4,
-            'foo' => 'bar',
-            'Shopware/Code',
-            'list' => [
-                ['foo', 'bar'],
-            ],
-        ];
-
         $data = [
             'test' => 'test',
             'list' => [-4, 'foo', 'bar'],
@@ -43,15 +34,6 @@ class PhpSyntaxExtensionTest extends TestCase
             'callableValue' => function (): void {
             },
             'arrayValue' => [],
-            'jsonEncode' => [
-                'data' => $jsonEncodeData,
-                'expected' => [
-                    json_encode($jsonEncodeData),
-                    json_encode($jsonEncodeData, \JSON_UNESCAPED_SLASHES),
-                    json_encode($jsonEncodeData, \JSON_PRETTY_PRINT),
-                    json_encode($jsonEncodeData, \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES),
-                ],
-            ],
         ];
 
         $result = $renderer->render($template, $data, Context::createDefaultContext());
@@ -59,9 +41,6 @@ class PhpSyntaxExtensionTest extends TestCase
         $expected = '';
         for ($i = 1; $i <= 22; ++$i) {
             $expected .= '-' . $i;
-        }
-        foreach ($data['jsonEncode']['expected'] as $index => $any) {
-            $expected .= '-jsonEncode' . $index;
         }
 
         static::assertEquals($expected, $result, 'Failure in php syntax support in twig rendering');

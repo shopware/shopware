@@ -1,0 +1,68 @@
+@startuml
+' uncomment the line below if you're using computer with a retina display
+' skinparam dpi 300
+!define Table(name,desc) class name as "desc" << (T,#FFAAAA) >>
+!define ForeignTable(name,desc) class name as "desc" << (T,#ada6a6) >>
+!define TranslationTable(name,desc) class name as "desc" << (I,#4286f4) >>
+' we use bold for primary key
+' green color for unique
+' and underscore for not_null
+!define primary_key(x) <b>x</b>
+!define unique(x) <color:green>x</color>
+!define not_null(x) <u>x</u>
+' other tags available:
+' <i></i>
+' <back:COLOR></color>, where color is a color name or html color code
+' (#FFAACC)
+' see: http://plantuml.com/classes.html#More
+hide methods
+hide stereotypes
+hide empty members
+skinparam backgroundColor #FFFFFF
+
+' entities
+
+Table(ShopwareCoreContentProductStreamProductStreamDefinition, "product_stream\n(Product streams)") {
+   primary_key(id) id
+   apiFilter json
+   invalid bool
+   name translated
+   description translated
+   customFields translated
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
+   translated json
+}
+TranslationTable(ShopwareCoreContentProductStreamAggregateProductStreamTranslationProductStreamTranslationDefinition, "product_stream_translation\n((Translations))") {
+   not_null(name) string
+   description longText
+   customFields customFields
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
+   primary_key(productStreamId) foreignKey
+   primary_key(languageId) foreignKey
+}
+Table(ShopwareCoreContentProductStreamAggregateProductStreamFilterProductStreamFilterDefinition, "product_stream_filter\n(A Product stream filter term)") {
+   primary_key(id) id
+   not_null(productStreamId) foreignKey
+   parentId parentFk
+   not_null(type) string
+   field string
+   operator string
+   value longText
+   parameters json
+   position int
+   customFields customFields
+   not_null(createdAt) createdAt
+   not_null(updatedAt) updatedAt
+}
+ForeignTable(ShopwareCoreFrameworkLanguageLanguageDefinition, "language") {
+}
+
+' relationshipd
+
+ShopwareCoreContentProductStreamAggregateProductStreamTranslationProductStreamTranslationDefinition --> ShopwareCoreContentProductStreamProductStreamDefinition
+ShopwareCoreContentProductStreamAggregateProductStreamFilterProductStreamFilterDefinition --> ShopwareCoreContentProductStreamProductStreamDefinition
+ShopwareCoreContentProductStreamAggregateProductStreamTranslationProductStreamTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
+ShopwareCoreContentProductStreamAggregateProductStreamFilterProductStreamFilterDefinition --> ShopwareCoreContentProductStreamAggregateProductStreamFilterProductStreamFilterDefinition
+@enduml

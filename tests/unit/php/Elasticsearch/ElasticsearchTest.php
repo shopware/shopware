@@ -6,7 +6,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Elasticsearch\Elasticsearch;
 use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Extension\ExtensionInterface;
 
 /**
  * @internal
@@ -28,9 +27,7 @@ class ElasticsearchTest extends TestCase
         $container->setParameter('kernel.environment', 'prod');
 
         $bundle = new Elasticsearch();
-        $extension = $bundle->createContainerExtension();
-        static::assertInstanceOf(ExtensionInterface::class, $extension);
-        $container->registerExtension($extension);
+        $container->registerExtension($bundle->createContainerExtension());
         $bundle->build($container);
 
         static::assertTrue($container->hasDefinition(ElasticsearchIndexer::class));
@@ -42,9 +39,7 @@ class ElasticsearchTest extends TestCase
         $container->setParameter('kernel.environment', 1);
 
         $bundle = new Elasticsearch();
-        $extension = $bundle->createContainerExtension();
-        static::assertInstanceOf(ExtensionInterface::class, $extension);
-        $container->registerExtension($extension);
+        $container->registerExtension($bundle->createContainerExtension());
 
         static::expectException(\RuntimeException::class);
         static::expectExceptionMessage('Container parameter "kernel.environment" needs to be a string');

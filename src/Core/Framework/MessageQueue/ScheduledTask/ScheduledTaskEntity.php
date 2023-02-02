@@ -4,9 +4,8 @@ namespace Shopware\Core\Framework\MessageQueue\ScheduledTask;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\MessageQueue\DeadMessage\DeadMessageCollection;
 
-#[Package('core')]
 class ScheduledTaskEntity extends Entity
 {
     use EntityIdTrait;
@@ -30,6 +29,11 @@ class ScheduledTaskEntity extends Entity
      * @var string
      */
     protected $status;
+
+    /**
+     * @var DeadMessageCollection|null
+     */
+    protected $deadMessages;
 
     /**
      * @var \DateTimeInterface|null
@@ -78,15 +82,24 @@ class ScheduledTaskEntity extends Entity
 
     public function isExecutionAllowed(): bool
     {
-        // If the status is failed, skipped or queued, the execution is still allowed, so retries are possible
+        // If the status is failed execution is still allowed so retries are possible
         return $this->status === ScheduledTaskDefinition::STATUS_QUEUED
-            || $this->status === ScheduledTaskDefinition::STATUS_FAILED
-            || $this->status === ScheduledTaskDefinition::STATUS_SKIPPED;
+            || $this->status === ScheduledTaskDefinition::STATUS_FAILED;
     }
 
     public function setStatus(string $status): void
     {
         $this->status = $status;
+    }
+
+    public function getDeadMessages(): ?DeadMessageCollection
+    {
+        return $this->deadMessages;
+    }
+
+    public function setDeadMessages(DeadMessageCollection $deadMessages): void
+    {
+        $this->deadMessages = $deadMessages;
     }
 
     public function getLastExecutionTime(): ?\DateTimeInterface

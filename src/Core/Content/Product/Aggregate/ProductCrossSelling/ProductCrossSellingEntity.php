@@ -9,9 +9,7 @@ use Shopware\Core\Content\ProductStream\ProductStreamEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('inventory')]
 class ProductCrossSellingEntity extends Entity
 {
     use EntityIdTrait;

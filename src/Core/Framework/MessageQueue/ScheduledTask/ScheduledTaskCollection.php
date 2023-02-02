@@ -3,12 +3,10 @@
 namespace Shopware\Core\Framework\MessageQueue\ScheduledTask;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<ScheduledTaskEntity>
  */
-#[Package('core')]
 class ScheduledTaskCollection extends EntityCollection
 {
     public function getApiAlias(): string

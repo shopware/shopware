@@ -17,12 +17,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
-use Shopware\Core\Framework\Log\Package;
 
 /**
- * @internal
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
  */
-#[Package('core')]
 class EntityScoreQueryBuilder
 {
     /**
@@ -119,7 +117,7 @@ class EntityScoreQueryBuilder
                 return false;
             }
 
-            return $flag->isSourceAllowed($context->getSource()::class);
+            return $flag->isSourceAllowed(\get_class($context->getSource()));
         });
 
         if ($fields->count() > 0) {

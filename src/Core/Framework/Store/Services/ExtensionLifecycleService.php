@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Store\Services;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
@@ -12,11 +11,26 @@ use Shopware\Core\Framework\Plugin\PluginService;
 /**
  * @internal
  */
-#[Package('merchant-services')]
 class ExtensionLifecycleService extends AbstractExtensionLifecycle
 {
-    public function __construct(private readonly AbstractStoreAppLifecycleService $storeAppLifecycleService, private readonly PluginService $pluginService, private readonly PluginLifecycleService $pluginLifecycleService, private readonly PluginManagementService $pluginManagementService)
-    {
+    private AbstractStoreAppLifecycleService $storeAppLifecycleService;
+
+    private PluginLifecycleService $pluginLifecycleService;
+
+    private PluginService $pluginService;
+
+    private PluginManagementService $pluginManagementService;
+
+    public function __construct(
+        AbstractStoreAppLifecycleService $storeAppLifecycleService,
+        PluginService $pluginService,
+        PluginLifecycleService $pluginLifecycleService,
+        PluginManagementService $pluginManagementService
+    ) {
+        $this->storeAppLifecycleService = $storeAppLifecycleService;
+        $this->pluginService = $pluginService;
+        $this->pluginLifecycleService = $pluginLifecycleService;
+        $this->pluginManagementService = $pluginManagementService;
     }
 
     public function install(string $type, string $technicalName, Context $context): void

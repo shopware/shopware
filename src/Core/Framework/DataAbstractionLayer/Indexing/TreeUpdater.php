@@ -3,8 +3,8 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Indexing;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Query\QueryBuilder;
-use Doctrine\DBAL\Statement;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
@@ -13,21 +13,31 @@ use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TreeLevelField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TreePathField;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidLengthException;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-#[Package('core')]
 class TreeUpdater
 {
+    /**
+     * @var DefinitionInstanceRegistry
+     */
+    private $registry;
+
+    /**
+     * @var Connection
+     */
+    private $connection;
+
     private ?Statement $updateEntityStatement = null;
 
     /**
      * @internal
      */
-    public function __construct(private readonly DefinitionInstanceRegistry $registry, private readonly Connection $connection)
+    public function __construct(DefinitionInstanceRegistry $registry, Connection $connection)
     {
+        $this->registry = $registry;
+        $this->connection = $connection;
     }
 
     /**
@@ -81,7 +91,6 @@ class TreeUpdater
 
     private function updateRecursive(array $entity, EntityDefinition $definition, Context $context): array
     {
-        $ids = [];
         $ids[] = $this->updateTree($entity, $definition, $context);
         foreach ($this->getChildren($entity, $definition, $context) as $child) {
             $child['parent'] = $entity;
@@ -103,7 +112,7 @@ class TreeUpdater
         $query->setParameter('id', $parent['id']);
         $this->makeQueryVersionAware($definition, Uuid::fromHexToBytes($context->getVersionId()), $query);
 
-        return $query->executeQuery()->fetchAllAssociative();
+        return $query->execute()->fetchAll();
     }
 
     private function updateTree(array $entity, EntityDefinition $definition, Context $context): string
@@ -139,7 +148,7 @@ class TreeUpdater
         $this->makeQueryVersionAware($definition, Uuid::fromHexToBytes($context->getVersionId()), $query);
 
         RetryableQuery::retryable($this->connection, function () use ($query): void {
-            $query->executeStatement();
+            $query->execute();
         });
 
         return Uuid::fromBytesToHex($entity['id']);
@@ -155,7 +164,7 @@ class TreeUpdater
 
         try {
             $path[] = Uuid::fromBytesToHex($parent[$field->getPathField()]);
-        } catch (InvalidUuidException | InvalidUuidLengthException) {
+        } catch (InvalidUuidException | InvalidUuidLengthException $e) {
             $path[] = $parent[$field->getPathField()];
         }
 
@@ -167,7 +176,7 @@ class TreeUpdater
         $query = $this->getEntityByIdQuery($parentId, $definition);
         $this->makeQueryVersionAware($definition, $versionId, $query);
 
-        $result = $query->executeQuery()->fetchAssociative();
+        $result = $query->execute()->fetch();
 
         if ($result === false) {
             return [];
@@ -272,7 +281,7 @@ class TreeUpdater
         $this->makeQueryVersionAware($definition, Uuid::fromHexToBytes($context->getVersionId()), $query);
 
         $fetchedIds = [];
-        foreach ($query->executeQuery()->fetchAllAssociative() as $entity) {
+        foreach ($query->execute()->fetchAll() as $entity) {
             $bag->addEntity($entity['id'], $entity);
             $fetchedIds[$entity['id']] = $entity['id'];
         }
@@ -391,7 +400,7 @@ class TreeUpdater
         $entity['path'] = '';
         if ($parent !== null) {
             $path = $parent['path'] ?? '';
-            $path = array_filter(explode('|', (string) $path));
+            $path = array_filter(explode('|', $path));
             $path[] = Uuid::fromBytesToHex($parent['id']);
             $entity['path'] = '|' . implode('|', $path) . '|';
         }

@@ -10,13 +10,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
 
-#[Package('system-settings')]
 class CustomFieldSetRelationDefinition extends EntityDefinition
 {
-    final public const ENTITY_NAME = 'custom_field_set_relation';
+    public const ENTITY_NAME = 'custom_field_set_relation';
 
     public function getEntityName(): string
     {

@@ -2,12 +2,9 @@
 
 namespace Shopware\Core\Framework\App\Event;
 
-use Shopware\Core\Framework\Log\Package;
-
-#[Package('core')]
 class AppUpdatedEvent extends ManifestChangedEvent
 {
-    final public const NAME = 'app.updated';
+    public const NAME = 'app.updated';
 
     public function getName(): string
     {

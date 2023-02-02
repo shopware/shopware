@@ -1,14 +1,23 @@
-/**
- * @package admin
- */
-
 /* eslint-disable max-len */
+let refactorAlias = false;
+if (global.featureFlags && global.featureFlags.hasOwnProperty('FEATURE_NEXT_11634')) {
+    refactorAlias = global.featureFlags.FEATURE_NEXT_11634;
+}
+
 module.exports = {
     create(context) {
         return {
             ImportDeclaration(node) {
                 const invalidNodeSources = [];
-                invalidNodeSources.push(node.source.value.startsWith('@administration/'));
+
+                if (refactorAlias) {
+                    invalidNodeSources.push(node.source.value.startsWith('@administration/'));
+                } else {
+                    invalidNodeSources.push([
+                        node.source.value.startsWith('src/'),
+                        node.source.value.startsWith('assets/'),
+                    ]);
+                }
 
                 if (invalidNodeSources.includes(true)) {
                     context.report({

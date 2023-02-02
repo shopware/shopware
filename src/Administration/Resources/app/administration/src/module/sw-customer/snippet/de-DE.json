@@ -1,8 +1,7 @@
 {
   "sw-customer": {
     "error": {
-      "COMPANY_IS_REQUIRED": "Bei gewerblichen Kunden ist die Firma ein Pflichtfeld",
-      "passwordDoNotMatch": "Die Eingaben für Passwort und Passwortbestätigung stimmen nicht überein."
+      "COMPANY_IS_REQUIRED": "Bei gewerblichen Kunden ist Firma ein Pflichtfeld"
     },
     "notification": {
       "requiredFields": "Bitte fülle alle Pflichtfelder aus."
@@ -57,7 +56,6 @@
       "columnGroup": "Kundengruppe",
       "columnGroupRequested": "Angefragt:",
       "columnNameGuestLabel": "Gastbesteller",
-      "labelCreatedByAdmin": "Erstellt von Admin",
       "columnFirstName": "Vorname",
       "columnLastName": "Nachname",
       "columnStreet": "Straße",
@@ -228,7 +226,7 @@
       "messageSaveError": "Der Kunde konnte nicht gespeichert werden.",
       "messageSaveSuccess": "Der Kunde \"{name}\" wurde erfolgreich gespeichert.",
       "notificationPasswordErrorMessage": "Die eingegebenen Passwörter stimmen nicht überein.",
-      "labelCreatedByAdmin": "Erstellt von Admin"
+      "notificationPasswordLengthErrorMessage": "Das Passwort erfüllt nicht die Mindestlänge von acht Zeichen."
     },
     "filter": {
       "salutation": {

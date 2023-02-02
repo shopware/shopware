@@ -1,9 +1,6 @@
 import Plugin from 'src/plugin-system/plugin.class';
 import HttpClient from 'src/service/http-client.service';
 
-/**
- * @package content
- */
 export default class FormCmsHandler extends Plugin {
 
     static options = {

@@ -3,10 +3,7 @@ import type { Module } from 'vuex';
 import type { extension } from '@shopware-ag/admin-extension-sdk/es/privileges/privilege-resolver';
 import type { extensions } from '@shopware-ag/admin-extension-sdk/es/channel';
 
-/**
- * @package admin
- * @private
- */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export interface Extension {
     name: string,
     baseUrl: string,
@@ -17,10 +14,7 @@ export interface Extension {
     active?: boolean,
 }
 
-/**
- * @package admin
- * @private
- */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export interface ExtensionsState {
     [key: string]: Extension;
 }
@@ -47,6 +41,15 @@ const ExtensionsStore: Module<extensions, VuexRootState> = {
     },
 
     getters: {
+        /**
+         * @deprecated tag:v6.5.0 - Will be removed use privilegedExtensionBaseUrls instead.
+         */
+        allBaseUrls: state => {
+            return Object.values(state).map(extension => {
+                return extension.baseUrl;
+            });
+        },
+
         privilegedExtensionBaseUrls: state => {
             const acl = Shopware.Service('acl');
             const privilegedForAllApps = acl.can('app.all');
@@ -93,8 +96,5 @@ const ExtensionsStore: Module<extensions, VuexRootState> = {
     },
 };
 
-/**
- * @package admin
- * @private
- */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default ExtensionsStore;

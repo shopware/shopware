@@ -102,14 +102,14 @@
         v-if="showDataGrid"
         :data-source="priceGroup.prices"
         :columns="ruleColumns"
-        :show-selection="false"
         :show-settings="true"
         :compact-mode="true"
     >
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_shipping_price_matrix_price_grid_column_calculcation_rule %}
         <template
-            #column-calculationRule="{ item, itemIndex, compact }"
+            slot="column-calculationRule"
+            slot-scope="{ item, itemIndex, compact }"
         >
             <sw-select-rule-create
                 class="sw-settings-shipping-price-matrix__column-calculation-rule-select"
@@ -137,7 +137,8 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_shipping_price_matrix_price_grid_column_quantity_start %}
         <template
-            #column-quantityStart="{ item, itemIndex, compact }"
+            slot="column-quantityStart"
+            slot-scope="{ item, itemIndex, compact }"
         >
             <sw-number-field
                 v-model="item.quantityStart"
@@ -154,7 +155,8 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_shipping_price_matrix_price_grid_column_quantity_end %}
         <template
-            #column-quantityEnd="{ item, itemIndex, compact }"
+            slot="column-quantityEnd"
+            slot-scope="{ item, itemIndex, compact }"
         >
             <sw-number-field
                 v-model="item.quantityEnd"
@@ -174,7 +176,8 @@
         {% block sw_settings_shipping_price_matrix_price_grid_currencies_list %}
         <template
             v-for="currency in currencies"
-            #[`column-price-${currency.isoCode}`]="{ item, column, compact }"
+            :slot="`column-price-${currency.isoCode}`"
+            slot-scope="{ item, column, compact }"
         >
             <sw-inherit-wrapper
                 :key="currency.isoCode"
@@ -310,7 +313,7 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_shipping_price_matrix_delete_modal_footer %}
-        <template #modal-footer>
+        <template slot="modal-footer">
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_shipping_price_matrix_delete_modal_cancel %}
             <sw-button

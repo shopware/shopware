@@ -2,16 +2,22 @@
 
 namespace Shopware\Core\Framework\Script\Execution;
 
-use Shopware\Core\Framework\Log\Package;
-
 /**
  * @internal
  */
-#[Package('core')]
 class ScriptAppInformation
 {
-    public function __construct(private readonly string $id, private readonly string $name, private readonly string $integrationId)
+    private string $id;
+
+    private string $name;
+
+    private string $integrationId;
+
+    public function __construct(string $id, string $name, string $integrationId)
     {
+        $this->id = $id;
+        $this->name = $name;
+        $this->integrationId = $integrationId;
     }
 
     public function getAppId(): string

@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -49,7 +49,7 @@ class AntiJoinSearchTest extends TestCase
 
         $ids = array_column($products, 'id');
 
-        /** @var EntityRepository $productRepository */
+        /** @var EntityRepositoryInterface $productRepository */
         $productRepository = $this->getContainer()->get('product.repository');
         $productRepository->create($products, Context::createDefaultContext());
 
@@ -108,7 +108,7 @@ class AntiJoinSearchTest extends TestCase
 
         $ids = array_column($products, 'id');
 
-        /** @var EntityRepository $productRepository */
+        /** @var EntityRepositoryInterface $productRepository */
         $productRepository = $this->getContainer()->get('product.repository');
         $productRepository->create($products, Context::createDefaultContext());
 
@@ -140,7 +140,7 @@ class AntiJoinSearchTest extends TestCase
             $this->getTaggedProduct($greenBlueId, 'green blue', ['blue', 'green']),
         ];
 
-        /** @var EntityRepository $productRepository */
+        /** @var EntityRepositoryInterface $productRepository */
         $productRepository = $this->getContainer()->get('product.repository');
         $productRepository->create($products, Context::createDefaultContext());
 
@@ -194,7 +194,7 @@ class AntiJoinSearchTest extends TestCase
             ],
         ];
 
-        /** @var EntityRepository $categoryRepository */
+        /** @var EntityRepositoryInterface $categoryRepository */
         $categoryRepository = $this->getContainer()->get('category.repository');
         $categoryRepository->create($categories, Context::createDefaultContext());
 
@@ -268,7 +268,7 @@ class AntiJoinSearchTest extends TestCase
             ],
         ];
 
-        /** @var EntityRepository $manufacturerRepository */
+        /** @var EntityRepositoryInterface $manufacturerRepository */
         $manufacturerRepository = $this->getContainer()->get('product_manufacturer.repository');
         $manufacturerRepository->create($manufacturers, Context::createDefaultContext());
 
@@ -321,7 +321,7 @@ class AntiJoinSearchTest extends TestCase
             ],
         ];
 
-        /** @var EntityRepository $productRepository */
+        /** @var EntityRepositoryInterface $productRepository */
         $productRepository = $this->getContainer()->get('product.repository');
         $productRepository->create($products, Context::createDefaultContext());
 
@@ -330,14 +330,12 @@ class AntiJoinSearchTest extends TestCase
         $enGbContext = Context::createDefaultContext();
         $criteria = (new Criteria($ids))->addFilter($notGreenFilter);
 
-        /** @var string[] $ids */
         $ids = $productRepository->searchIds($criteria, $enGbContext)->getIds();
         static::assertEmpty($ids);
 
         $rawDeContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [$this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM]);
         $criteria = (new Criteria())->addFilter($notGreenFilter);
 
-        /** @var string[] $ids */
         $ids = $productRepository->searchIds($criteria, $rawDeContext)->getIds();
         static::assertContains($greenGruenId, $ids);
         static::assertCount(1, $ids);
@@ -345,7 +343,6 @@ class AntiJoinSearchTest extends TestCase
         $deContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [$this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM], Defaults::LIVE_VERSION, 1.0, true);
         $criteria = (new Criteria($ids))->addFilter($notGreenFilter);
 
-        /** @var string[] $ids */
         $ids = $productRepository->searchIds($criteria, $deContext)->getIds();
         static::assertContains($greenGruenId, $ids);
         static::assertCount(1, $ids);
@@ -355,7 +352,6 @@ class AntiJoinSearchTest extends TestCase
         $enGbContext = Context::createDefaultContext();
         $criteria = (new Criteria($ids))->addFilter($notGruenFilter);
 
-        /** @var string[] $ids */
         $ids = $productRepository->searchIds($criteria, $enGbContext)->getIds();
         static::assertContains($greenGruenId, $ids);
         static::assertCount(1, $ids);
@@ -363,14 +359,12 @@ class AntiJoinSearchTest extends TestCase
         $rawDeContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [$this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM]);
         $criteria = (new Criteria($ids))->addFilter($notGruenFilter);
 
-        /** @var string[] $ids */
         $ids = $productRepository->searchIds($criteria, $rawDeContext)->getIds();
         static::assertEmpty($ids);
 
         $deContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [$this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM], Defaults::LIVE_VERSION, 1.0, true);
         $criteria = (new Criteria())->addFilter($notGruenFilter);
 
-        /** @var string[] $ids */
         $ids = $productRepository->searchIds($criteria, $deContext)->getIds();
         static::assertContains($onlyGreenId, $ids);
         static::assertCount(1, $ids);
@@ -386,7 +380,7 @@ class AntiJoinSearchTest extends TestCase
             $this->getTaggedProduct($withTagId, 'green', ['green']),
         ];
 
-        /** @var EntityRepository $productRepository */
+        /** @var EntityRepositoryInterface $productRepository */
         $productRepository = $this->getContainer()->get('product.repository');
         $productRepository->create($products, Context::createDefaultContext());
 
@@ -416,20 +410,6 @@ class AntiJoinSearchTest extends TestCase
         static::assertCount(1, $result);
     }
 
-    /**
-     * @param string[] $tags
-     *
-     * @return array{
-     *     id: string,
-     *     productNumber: string,
-     *     name: string,
-     *     stock: int,
-     *     price: array{currencyId: string, gross: int, net: int, linked: bool}[],
-     *     manufacturer: array{name: string},
-     *     tax: array{name: string, taxRate: int},
-     *     tags: array{name: string}[]
-     * }
-     */
     private function getTaggedProduct(string $id, string $name, array $tags = []): array
     {
         return [
@@ -440,7 +420,9 @@ class AntiJoinSearchTest extends TestCase
             'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
-            'tags' => array_map(static fn (string $tag) => ['name' => $tag], $tags),
+            'tags' => array_map(static function (string $tag) {
+                return ['name' => $tag];
+            }, $tags),
         ];
     }
 }

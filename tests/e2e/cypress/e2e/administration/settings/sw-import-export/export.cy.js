@@ -4,7 +4,9 @@ describe('Import/Export - Export:', () => {
     let page = null;
 
     beforeEach(() => {
-        cy.createDefaultFixture('import-export-profile').then(() => {
+        cy.loginViaApi().then(() => {
+            return cy.createDefaultFixture('import-export-profile');
+        }).then(() => {
             return cy.createProductFixture();
         })
             .then(() => {
@@ -23,17 +25,17 @@ describe('Import/Export - Export:', () => {
     it('@base @settings: Create export with product profile', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/import-export/prepare`,
-            method: 'POST',
+            method: 'POST'
         }).as('prepare');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/import-export/process`,
-            method: 'POST',
+            method: 'POST'
         }).as('process');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/import-export-log`,
-            method: 'POST',
+            method: 'POST'
         }).as('importExportLog');
 
         cy.get('.sw-import-export-view-export').should('be.visible');

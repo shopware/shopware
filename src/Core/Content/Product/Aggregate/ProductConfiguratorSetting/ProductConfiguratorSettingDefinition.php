@@ -18,12 +18,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('inventory')]
 class ProductConfiguratorSettingDefinition extends EntityDefinition
 {
-    final public const ENTITY_NAME = 'product_configurator_setting';
+    public const ENTITY_NAME = 'product_configurator_setting';
 
     public function getEntityName(): string
     {

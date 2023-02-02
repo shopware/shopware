@@ -1,19 +1,15 @@
 import template from './sw-settings-payment-sorting-modal.html.twig';
 import './sw-settings-payment-sorting-modal.scss';
 
-const { Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 
-/**
- * @package checkout
- */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-settings-payment-sorting-modal', {
     template,
 
     inject: [
         'acl',
         'repositoryFactory',
-        'feature',
     ],
 
     mixins: [Mixin.getByName('notification')],
@@ -30,11 +26,6 @@ export default {
             isSaving: false,
             originalPaymentMethods: [...this.paymentMethods],
             sortedPaymentMethods: [...this.paymentMethods],
-            scrollOnDragConf: {
-                speed: 50,
-                margin: 130,
-                accelerationMargin: -10,
-            },
         };
     },
 
@@ -89,4 +80,4 @@ export default {
             return defaultPaymentMethods.includes(paymentMethod.handlerIdentifier);
         },
     },
-};
+});

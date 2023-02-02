@@ -2,9 +2,6 @@
 
 namespace Shopware\Core\Framework\Struct;
 
-use Shopware\Core\Framework\Log\Package;
-
-#[Package('core')]
 abstract class Struct implements \JsonSerializable, ExtendableInterface
 {
     //allows to clone full struct with all references
@@ -32,6 +29,6 @@ abstract class Struct implements \JsonSerializable, ExtendableInterface
         $class = explode('\\', $class);
         $class = implode('', $class);
 
-        return ltrim(mb_strtolower((string) preg_replace('/[A-Z]/', '_$0', $class)), '_');
+        return ltrim(mb_strtolower(preg_replace('/[A-Z]/', '_$0', $class)), '_');
     }
 }

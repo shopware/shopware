@@ -1,7 +1,3 @@
-/**
- * @package customer-order
- */
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     namespaced: true,
@@ -13,7 +9,7 @@ export default {
                 order: false,
                 states: false,
             },
-            editing: false,
+            editing: true,
             savedSuccessful: false,
             versionContext: null,
             orderAddressIds: [],
@@ -46,10 +42,6 @@ export default {
             if (state.loading[name] !== undefined) {
                 state.loading[name] = data;
             }
-        },
-
-        setEditing(state, value) {
-            state.editing = value;
         },
 
         setSavedSuccessful(state, value) {

@@ -4,14 +4,9 @@ namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-/**
- * @internal
- */
-#[Package('core')]
 class Migration1573729158AddSitemapConfig extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -27,14 +22,14 @@ class Migration1573729158AddSitemapConfig extends MigrationStep
                     configuration_key = :configKey,
                     created_at = :createdAt;';
 
-        $connection->executeStatement($query, [
+        $connection->executeUpdate($query, [
             'id' => Uuid::randomBytes(),
             'configKey' => 'core.sitemap.sitemapRefreshTime',
             'configValue' => '{"_value": 3600}',
             'createdAt' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
-        $connection->executeStatement($query, [
+        $connection->executeUpdate($query, [
             'id' => Uuid::randomBytes(),
             'configKey' => 'core.sitemap.sitemapRefreshStrategy',
             'configValue' => '{"_value": "2"}',

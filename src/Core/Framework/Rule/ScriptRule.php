@@ -3,44 +3,27 @@
 namespace Shopware\Core\Framework\Rule;
 
 use Shopware\Core\Framework\Adapter\Twig\Extension\ComparisonExtension;
-use Shopware\Core\Framework\Adapter\Twig\Extension\PcreExtension;
 use Shopware\Core\Framework\Adapter\Twig\Extension\PhpSyntaxExtension;
-use Shopware\Core\Framework\Adapter\Twig\Filter\ReplaceRecursiveFilter;
-use Shopware\Core\Framework\Adapter\Twig\SecurityExtension;
 use Shopware\Core\Framework\Adapter\Twig\TwigEnvironment;
 use Shopware\Core\Framework\App\Event\Hooks\AppScriptConditionHook;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Debugging\Debug;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Script\Exception\ScriptExecutionFailedException;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\Framework\Script\Execution\ScriptTwigLoader;
-use Symfony\Component\Validator\Constraint;
 use Twig\Cache\FilesystemCache;
-use Twig\Error\LoaderError;
-use Twig\Error\RuntimeError;
-use Twig\Error\SyntaxError;
 use Twig\Extension\DebugExtension;
 
 /**
  * @internal
  */
-#[Package('business-ops')]
 class ScriptRule extends Rule
 {
-    final public const RULE_NAME = 'scriptRule';
-
     protected string $script = '';
 
-    /**
-     * @var array<string, Constraint[]>
-     */
     protected array $constraints = [];
 
-    /**
-     * @var array<string, mixed>
-     */
     protected array $values = [];
 
     protected ?\DateTimeInterface $lastModified = null;
@@ -55,7 +38,7 @@ class ScriptRule extends Rule
 
     public function match(RuleScope $scope): bool
     {
-        $context = [...['scope' => $scope], ...$this->values];
+        $context = array_merge(['scope' => $scope], $this->values);
         $lastModified = $this->lastModified ?? $scope->getCurrentTime();
         $name = $this->identifier ?? $this->getName();
 
@@ -90,14 +73,9 @@ class ScriptRule extends Rule
 
         $twig->addExtension(new PhpSyntaxExtension());
         $twig->addExtension(new ComparisonExtension());
-        $twig->addExtension(new PcreExtension());
-        $twig->addExtension(new ReplaceRecursiveFilter());
-
         if ($this->debug) {
             $twig->addExtension(new DebugExtension());
         }
-
-        $twig->addExtension(new SecurityExtension([]));
 
         $hook = new AppScriptConditionHook($scope->getContext());
 
@@ -108,33 +86,25 @@ class ScriptRule extends Rule
         }
     }
 
-    /**
-     * @return array<string, Constraint[]>
-     */
     public function getConstraints(): array
     {
         return $this->constraints;
     }
 
-    /**
-     * @param array<string, Constraint[]> $constraints
-     */
     public function setConstraints(array $constraints): void
     {
         $this->constraints = $constraints;
     }
 
-    /**
-     * @param array<string, mixed> $context
-     *
-     * @throws SyntaxError
-     * @throws RuntimeError
-     * @throws LoaderError
-     */
+    public function getName(): string
+    {
+        return 'scriptRule';
+    }
+
     private function render(TwigEnvironment $twig, Script $script, Hook $hook, string $name, array $context): bool
     {
         if (!$this->traces) {
-            return filter_var(trim((string) $twig->render($name, $context)), \FILTER_VALIDATE_BOOLEAN);
+            return filter_var(trim($twig->render($name, $context)), \FILTER_VALIDATE_BOOLEAN);
         }
 
         $match = false;

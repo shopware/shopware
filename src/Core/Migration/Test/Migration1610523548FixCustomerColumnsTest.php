@@ -3,36 +3,50 @@
 namespace Shopware\Core\Migration\Test;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\FetchMode;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Migration\V6_4\Migration1610523548FixCustomerColumns;
+use Shopware\Core\Migration\Migration1610523548FixCustomerColumns;
 use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
+ *
+ * @deprecated tag:v6.5.0
+ * this test is no longer necessary, when the old columns are dropped
  */
-#[Package('core')]
 class Migration1610523548FixCustomerColumnsTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private Connection $connection;
+    /**
+     * @var Connection
+     */
+    private $connection;
 
-    private EntityRepository $repository;
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $repository;
 
-    private EntityWriter $writer;
+    /**
+     * @var EntityWriter
+     */
+    private $writer;
 
-    private CustomerDefinition $customerDefinition;
+    /**
+     * @var CustomerDefinition
+     */
+    private $customerDefinition;
 
     protected function setUp(): void
     {
@@ -52,21 +66,26 @@ class Migration1610523548FixCustomerColumnsTest extends TestCase
     protected function tearDown(): void
     {
         $this->connection->rollBack();
-        $this->connection->executeStatement('
+        $this->connection->executeUpdate('
             ALTER TABLE `customer`
             DROP COLUMN doubleOptInRegistration,
             DROP COLUMN doubleOptInEmailSentDate,
             DROP COLUMN doubleOptInConfirmDate;
         ');
-        $this->connection->executeStatement('DROP TRIGGER IF EXISTS customer_double_opt_in_insert;');
-        $this->connection->executeStatement('DROP TRIGGER IF EXISTS customer_double_opt_in_update;');
+        $this->connection->executeUpdate('DROP TRIGGER IF EXISTS customer_double_opt_in_insert;');
+        $this->connection->executeUpdate('DROP TRIGGER IF EXISTS customer_double_opt_in_update;');
         $this->connection->beginTransaction();
         parent::tearDown();
     }
 
+    public function getMigrationClass(): string
+    {
+        return \Shopware\Core\Migration\V6_4\Migration1610523548FixCustomerColumns::class;
+    }
+
     public function testColumns(): void
     {
-        $schemaManager = $this->connection->createSchemaManager();
+        $schemaManager = $this->connection->getSchemaManager();
         $columns = $schemaManager->listTableColumns(CustomerDefinition::ENTITY_NAME);
 
         static::assertArrayHasKey('double_opt_in_registration', $columns);
@@ -89,9 +108,8 @@ class Migration1610523548FixCustomerColumnsTest extends TestCase
             FROM `customer`;
         ';
 
-        $doubleOptIn = $this->connection->fetchAssociative($sql);
+        $doubleOptIn = $this->connection->fetchAssoc($sql);
 
-        static::assertIsArray($doubleOptIn);
         static::assertEquals($doubleOptIn['double_opt_in_registration'], $doubleOptIn['doubleOptInRegistration']);
         static::assertEquals($doubleOptIn['double_opt_in_email_sent_date'], $doubleOptIn['doubleOptInEmailSentDate']);
         static::assertEquals($doubleOptIn['double_opt_in_confirm_date'], $doubleOptIn['doubleOptInConfirmDate']);
@@ -128,9 +146,8 @@ class Migration1610523548FixCustomerColumnsTest extends TestCase
             FROM `customer`;
         ';
 
-        $doubleOptIn = $this->connection->fetchAssociative($sql);
+        $doubleOptIn = $this->connection->fetchAssoc($sql);
 
-        static::assertIsArray($doubleOptIn);
         static::assertEquals($doubleOptIn['double_opt_in_registration'], $doubleOptIn['doubleOptInRegistration']);
         static::assertEquals($doubleOptIn['double_opt_in_email_sent_date'], $doubleOptIn['doubleOptInEmailSentDate']);
         static::assertEquals($doubleOptIn['double_opt_in_confirm_date'], $doubleOptIn['doubleOptInConfirmDate']);
@@ -180,9 +197,9 @@ class Migration1610523548FixCustomerColumnsTest extends TestCase
         $this->writer->insert($this->customerDefinition, [$customer], WriteContext::createFromContext(Context::createDefaultContext()));
     }
 
-    private function getSalutationId(): string
+    private function getSalutationId(): ?string
     {
-        $salutationIds = $this->connection->fetchFirstColumn('SELECT id FROM salutation');
+        $salutationIds = $this->connection->executeQuery('SELECT id FROM salutation')->fetchAll(FetchMode::COLUMN);
 
         return Uuid::fromBytesToHex($salutationIds[array_rand($salutationIds)]);
     }
@@ -191,7 +208,7 @@ class Migration1610523548FixCustomerColumnsTest extends TestCase
     {
         $id = $this->connection->executeQuery(
             'SELECT `id` FROM `payment_method` WHERE `active` = 1 ORDER BY `position` ASC'
-        )->fetchOne();
+        )->fetchColumn();
 
         if (!$id) {
             return null;
@@ -207,19 +224,19 @@ class Migration1610523548FixCustomerColumnsTest extends TestCase
 
     private function rollback(): void
     {
-        $this->connection->executeStatement('DELETE FROM `customer`;');
+        $this->connection->executeUpdate('DELETE FROM `customer`;');
 
-        $this->connection->executeStatement('
+        $this->connection->executeUpdate('
             ALTER TABLE `customer`
             DROP COLUMN double_opt_in_registration,
             DROP COLUMN double_opt_in_email_sent_date,
             DROP COLUMN double_opt_in_confirm_date;
         ');
 
-        $this->connection->executeStatement('DROP TRIGGER IF EXISTS customer_double_opt_in_insert;');
-        $this->connection->executeStatement('DROP TRIGGER IF EXISTS customer_double_opt_in_update;');
+        $this->connection->executeUpdate('DROP TRIGGER IF EXISTS customer_double_opt_in_insert;');
+        $this->connection->executeUpdate('DROP TRIGGER IF EXISTS customer_double_opt_in_update;');
 
-        $this->connection->executeStatement('
+        $this->connection->executeUpdate('
             ALTER TABLE `customer`
             ADD COLUMN `doubleOptInRegistration` TINYINT(1) NOT NULL DEFAULT 0 AFTER `active`,
             ADD COLUMN `doubleOptInEmailSentDate` DATETIME(3) NULL AFTER `doubleOptInRegistration`,

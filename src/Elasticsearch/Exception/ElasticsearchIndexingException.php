@@ -2,13 +2,11 @@
 
 namespace Shopware\Elasticsearch\Exception;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
-#[Package('core')]
 class ElasticsearchIndexingException extends ShopwareHttpException
 {
-    final public const CODE = 'ELASTICSEARCH_INDEXING';
+    public const CODE = 'ELASTICSEARCH_INDEXING';
 
     /**
      * @param array{reason: string}|array{reason: string}[] $items

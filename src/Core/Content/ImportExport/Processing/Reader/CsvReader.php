@@ -3,22 +3,50 @@
 namespace Shopware\Core\Content\ImportExport\Processing\Reader;
 
 use Shopware\Core\Content\ImportExport\Struct\Config;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('system-settings')]
 class CsvReader extends AbstractReader
 {
     private const BOM_UTF8 = "\xEF\xBB\xBF";
 
-    private int $offset = 0;
+    /**
+     * @var string
+     */
+    private $delimiter;
 
-    private array $header = [];
+    /**
+     * @var string
+     */
+    private $enclosure;
+
+    /**
+     * @var string
+     */
+    private $escape;
+
+    /**
+     * @var bool
+     */
+    private $withHeader;
+
+    /**
+     * @var int
+     */
+    private $offset = 0;
+
+    /**
+     * @var array
+     */
+    private $header = [];
 
     /**
      * @internal
      */
-    public function __construct(private string $delimiter = ';', private string $enclosure = '"', private string $escape = '\\', private bool $withHeader = true)
+    public function __construct(string $delimiter = ';', string $enclosure = '"', string $escape = '\\', bool $withHeader = true)
     {
+        $this->delimiter = $delimiter;
+        $this->enclosure = $enclosure;
+        $this->escape = $escape;
+        $this->withHeader = $withHeader;
     }
 
     public function read(Config $config, $resource, int $offset): iterable
@@ -88,6 +116,10 @@ class CsvReader extends AbstractReader
         while (!feof($resource)) {
             $this->handleBom($resource);
             $record = fgetcsv($resource, 0, $this->delimiter, $this->enclosure, $this->escape);
+            if ($record === null) {
+                throw new \RuntimeException('resource invalid');
+            }
+
             // skip if it's an empty line
             if ($record === false || (\count($record) === 1 && $record[0] === null)) {
                 continue;

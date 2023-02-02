@@ -2,13 +2,28 @@
 
 namespace Shopware\Core\Checkout\Promotion\Cart\Discount\Composition;
 
-use Shopware\Core\Framework\Log\Package;
-
-#[Package('checkout')]
 class DiscountCompositionItem
 {
-    public function __construct(private readonly string $id, private readonly int $quantity, private readonly float $discountValue)
+    /**
+     * @var string
+     */
+    private $id;
+
+    /**
+     * @var int
+     */
+    private $quantity;
+
+    /**
+     * @var float
+     */
+    private $discountValue;
+
+    public function __construct(string $id, int $quantity, float $discountValue)
     {
+        $this->id = $id;
+        $this->quantity = $quantity;
+        $this->discountValue = $discountValue;
     }
 
     public function getId(): string

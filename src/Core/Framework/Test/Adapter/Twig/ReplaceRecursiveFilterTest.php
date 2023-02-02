@@ -14,7 +14,10 @@ class ReplaceRecursiveFilterTest extends TestCase
 {
     use KernelTestBehaviour;
 
-    private ReplaceRecursiveFilter $replaceRecursiveFilter;
+    /**
+     * @var ReplaceRecursiveFilter
+     */
+    private $replaceRecursiveFilter;
 
     protected function setUp(): void
     {
@@ -29,7 +32,9 @@ class ReplaceRecursiveFilterTest extends TestCase
 
     public function testIfFilterContainsReplaceRecursive(): void
     {
-        $replaceRecursiveFilter = array_filter($this->replaceRecursiveFilter->getFilters(), static fn ($filter) => $filter->getName() === 'replace_recursive');
+        $replaceRecursiveFilter = array_filter($this->replaceRecursiveFilter->getFilters(), static function ($filter) {
+            return $filter->getName() === 'replace_recursive';
+        });
 
         static::assertCount(1, $replaceRecursiveFilter);
     }

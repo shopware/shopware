@@ -4,28 +4,11 @@ $sw-promotion-list-color-error: $color-crimson-500;
 $sw-promotion-list-color-success: $color-emerald-500;
 
 .sw-promotion-v2-list {
-    .sw-data-grid__cell:not(.sw-data-grid__cell--actions) {
-        .is--inactive {
-            color: $sw-promotion-list-color-error;
+    .is--inactive {
+        color: $sw-promotion-list-color-error;
+    }
 
-            &.sw-icon {
-                width: 16px;
-                height: 16px;
-                padding: 3px;
-            }
-        }
-
-        .is--active {
-            color: $sw-promotion-list-color-success;
-
-            &.sw-icon {
-                width: 16px;
-                height: 16px;
-                padding-top: 4px;
-                padding-right: 2px;
-                padding-bottom: 3px;
-                padding-left: 2px;
-            }
-        }
+    .is--active {
+        color: $sw-promotion-list-color-success;
     }
 }

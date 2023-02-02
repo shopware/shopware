@@ -1,25 +1,17 @@
-/**
- * @package admin
- */
-
-import { config, enableAutoDestroy } from '@vue/test-utils';
+import { config } from '@vue/test-utils';
 import Vue from 'vue';
 
 // eslint-disable-next-line import/no-extraneous-dependencies
 import '@testing-library/jest-dom';
 
 // eslint-disable-next-line import/no-extraneous-dependencies
+import failOnConsole from 'jest-fail-on-console';
 import aclService from './_mocks_/acl.service.mock';
 import feature from './_mocks_/feature.service.mock';
 import repositoryFactory from './_mocks_/repositoryFactory.service.mock';
-import { sendTimeoutExpired } from '../_helper_/allowedErrors';
-import flushPromises from '../_helper_/flushPromises';
 
 // Setup Vue Test Utils configuration
 config.showDeprecationWarnings = true;
-
-// enable autoDestroy for wrapper after each test
-enableAutoDestroy(afterEach);
 
 // Make common utils available globally as well
 global.Vue = Vue;
@@ -94,13 +86,7 @@ config.mocks = {
         replace: jest.fn(),
         push: jest.fn(),
         go: jest.fn(),
-        resolve: jest.fn(() => {
-            return {
-                resolved: {
-                    matched: [],
-                },
-            };
-        }),
+        resolve: jest.fn(),
     },
     $route: {
         params: {},
@@ -108,73 +94,23 @@ config.mocks = {
     $store: Shopware.State._store,
 };
 
-global.allowedErrors = [
-    sendTimeoutExpired
-];
+global.allowedErrors = [];
 
-global.flushPromises = flushPromises;
-
-let consoleHasErrorOrWarning = false;
-const { error, warn } = console;
-
-global.console.error = (...args) => {
-    let silenceError = false;
-    // eslint-disable-next-line array-callback-return
-    global.allowedErrors.some(allowedError => {
-        if (allowedError.method !== 'error') {
-            return;
-        }
-
-        if (typeof allowedError.msg === 'string') {
-            if (typeof args[0] === 'string') {
-                silenceError = args[0].includes(allowedError.msg);
-            }
-
-            return;
-        }
-
-        silenceError = allowedError.msg.test(args[0]);
-    });
-
-    if (!silenceError) {
-        consoleHasErrorOrWarning = true;
-    }
-
-    error(...args);
-};
-
-global.console.warn = (...args) => {
-    let silenceWarn = false;
-    // eslint-disable-next-line array-callback-return
-    global.allowedErrors.some(allowedError => {
-        if (allowedError.method !== 'warn') {
-            return;
-        }
-
-        if (typeof allowedError.msg === 'string') {
-            silenceWarn = args[0].includes(allowedError.msg);
-
-            return;
-        }
-
-        silenceWarn = allowedError.msg.test(args[0]);
-    });
-
-    if (!silenceWarn) {
-        consoleHasErrorOrWarning = true;
-    }
-
-    warn(...args);
-};
-
-beforeEach(() => {
-    if (consoleHasErrorOrWarning) {
-        consoleHasErrorOrWarning = false;
-    }
+process.on('unhandledRejection', (err) => {
+    // eslint-disable-next-line no-undef
+    console.error(err);
 });
 
-afterEach(() => {
-    if (consoleHasErrorOrWarning) {
-        throw new Error('console.error and console.warn are not allowed');
-    }
+failOnConsole({
+    silenceMessage: (errorMessage, method) => global.allowedErrors.some(allowedError => {
+        if (allowedError.method !== method) {
+            return false;
+        }
+
+        if (typeof allowedError.msg === 'string') {
+            return errorMessage.includes(allowedError.msg);
+        }
+
+        return allowedError.msg.test(errorMessage);
+    }),
 });

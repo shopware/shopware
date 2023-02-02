@@ -2,16 +2,16 @@
 
 namespace Shopware\Elasticsearch\Framework\Indexing;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 
-/**
- * @phpstan-import-type Offset from IterableQuery
- */
-#[Package('core')]
 class IndexerOffset
 {
+    /**
+     * @var array<string>
+     */
+    protected array $languages;
+
     /**
      * @var array<string>
      */
@@ -22,21 +22,22 @@ class IndexerOffset
      */
     protected array $allDefinitions;
 
-    protected ?string $languageId = null;
+    protected ?int $timestamp;
 
-    protected ?string $definition = null;
+    protected ?array $lastId;
 
-    /**
-     * @param list<string> $languages
-     * @param iterable<AbstractElasticsearchDefinition> $definitions
-     * @param Offset|null $lastId
-     */
+    protected ?string $languageId;
+
+    protected ?string $definition;
+
     public function __construct(
-        protected array $languages,
+        LanguageCollection $languages,
         iterable $definitions,
-        protected ?int $timestamp,
-        protected ?array $lastId = null
+        ?int $timestamp,
+        ?array $lastId = null
     ) {
+        $this->languages = array_values($languages->getIds());
+
         $mapping = [];
         /** @var AbstractElasticsearchDefinition $definition */
         foreach ($definitions as $definition) {
@@ -45,6 +46,9 @@ class IndexerOffset
 
         $this->allDefinitions = $mapping;
         $this->definitions = $mapping;
+
+        $this->timestamp = $timestamp;
+        $this->lastId = $lastId;
 
         $this->setNextLanguage();
         $this->setNextDefinition();
@@ -81,17 +85,11 @@ class IndexerOffset
         return $this->languageId;
     }
 
-    /**
-     * @return list<string>
-     */
     public function getLanguages(): array
     {
         return $this->languages;
     }
 
-    /**
-     * @return list<string>
-     */
     public function getDefinitions(): array
     {
         return $this->definitions;
@@ -102,9 +100,6 @@ class IndexerOffset
         return $this->timestamp;
     }
 
-    /**
-     * @return Offset|null
-     */
     public function getLastId(): ?array
     {
         return $this->lastId;
@@ -115,9 +110,6 @@ class IndexerOffset
         return $this->definition;
     }
 
-    /**
-     * @param Offset|null $lastId
-     */
     public function setLastId(?array $lastId): void
     {
         $this->lastId = $lastId;

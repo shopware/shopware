@@ -1,11 +1,12 @@
 import template from './sw-extension-ratings-summary.html.twig';
 import './sw-extension-ratings-summary.scss';
 
+const { Component } = Shopware;
+
 /**
- * @package merchant-services
  * @private
  */
-export default {
+Component.register('sw-extension-ratings-summary', {
     template,
 
     props: {
@@ -26,4 +27,4 @@ export default {
             return this.summary.numberOfRatings === 0 ? 1 : this.summary.numberOfRatings;
         },
     },
-};
+});

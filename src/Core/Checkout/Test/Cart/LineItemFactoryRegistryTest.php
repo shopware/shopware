@@ -5,11 +5,13 @@ namespace Shopware\Core\Checkout\Test\Cart;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartException;
+use Shopware\Core\Checkout\Cart\Exception\InsufficientPermissionException;
+use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -19,14 +21,19 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[Package('checkout')]
 class LineItemFactoryRegistryTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private LineItemFactoryRegistry $service;
+    /**
+     * @var LineItemFactoryRegistry
+     */
+    private $service;
 
-    private SalesChannelContext $context;
+    /**
+     * @var SalesChannelContext
+     */
+    private $context;
 
     public function setUp(): void
     {
@@ -44,7 +51,11 @@ class LineItemFactoryRegistryTest extends TestCase
 
     public function testCreateProductWithPriceDefinition(): void
     {
-        static::expectException(CartException::class);
+        if (Feature::isActive('v6.5.0.0')) {
+            static::expectException(CartException::class);
+        } else {
+            static::expectException(InsufficientPermissionException::class);
+        }
 
         $this->service->create([
             'type' => 'product',
@@ -96,10 +107,14 @@ class LineItemFactoryRegistryTest extends TestCase
         $lineItem = new LineItem($id, LineItem::PRODUCT_LINE_ITEM_TYPE, Uuid::randomHex(), 1);
         $lineItem->setStackable(false);
 
-        $cart = new Cart('test');
+        $cart = new Cart('test', 'test');
         $cart->add($lineItem);
 
-        $this->expectException(CartException::class);
+        if (Feature::isActive('v6.5.0.0')) {
+            $this->expectException(CartException::class);
+        } else {
+            $this->expectException(LineItemNotStackableException::class);
+        }
 
         $this->service->update($cart, ['id' => $id, 'quantity' => 2], $this->context);
     }
@@ -110,7 +125,7 @@ class LineItemFactoryRegistryTest extends TestCase
         $lineItem = new LineItem($id, LineItem::PRODUCT_LINE_ITEM_TYPE, Uuid::randomHex(), 1);
         $lineItem->setStackable(true);
 
-        $cart = new Cart('test');
+        $cart = new Cart('test', 'test');
         $cart->add($lineItem);
 
         $this->service->update($cart, ['id' => $id, 'quantity' => 2], $this->context);
@@ -128,8 +143,11 @@ class LineItemFactoryRegistryTest extends TestCase
 
     public function testCreateCustomWithoutPermission(): void
     {
-        $this->expectException(CartException::class);
-
+        if (Feature::isActive('v6.5.0.0')) {
+            static::expectException(CartException::class);
+        } else {
+            static::expectException(InsufficientPermissionException::class);
+        }
         $this->service->create(['type' => 'custom', 'referencedId' => 'test'], $this->context);
     }
 

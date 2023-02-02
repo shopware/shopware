@@ -2,11 +2,9 @@
 
 namespace Shopware\Core\System\Tax\Exception;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('customer-order')]
 class TaxNotFoundException extends ShopwareHttpException
 {
     public function __construct(string $taxId)

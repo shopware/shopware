@@ -3,14 +3,24 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\StringFieldSerializer;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
 class StringField extends Field implements StorageAware
 {
-    public function __construct(private readonly string $storageName, string $propertyName, private readonly int $maxLength = 255)
+    /**
+     * @var string
+     */
+    private $storageName;
+
+    /**
+     * @var int
+     */
+    private $maxLength;
+
+    public function __construct(string $storageName, string $propertyName, int $maxLength = 255)
     {
+        $this->storageName = $storageName;
         parent::__construct($propertyName);
+        $this->maxLength = $maxLength;
     }
 
     public function getStorageName(): string

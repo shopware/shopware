@@ -1,15 +1,11 @@
 import template from './sw-newsletter-recipient-detail.html.twig';
 import './sw-newsletter-recipient-detail.scss';
 
-/**
- * @package customer-order
- */
-
-const { Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-newsletter-recipient-detail', {
     template,
 
     inject: ['repositoryFactory', 'acl'],
@@ -51,11 +47,6 @@ export default {
 
     methods: {
         createdComponent() {
-            Shopware.ExtensionAPI.publishData({
-                id: 'sw-newsletter-recipient-detail__newsletterRecipient',
-                path: 'newsletterRecipient',
-                scope: this,
-            });
             this.isLoading = true;
             const recipientCriteria = new Criteria(1, 1);
 
@@ -81,4 +72,4 @@ export default {
             });
         },
     },
-};
+});

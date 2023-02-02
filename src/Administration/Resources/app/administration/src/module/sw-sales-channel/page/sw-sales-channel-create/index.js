@@ -1,9 +1,6 @@
-/**
- * @package sales-channel
- */
-
 import template from './sw-sales-channel-create.html.twig';
 
+const { Component } = Shopware;
 const utils = Shopware.Utils;
 
 const insertIdIntoRoute = (to, from, next) => {
@@ -14,8 +11,7 @@ const insertIdIntoRoute = (to, from, next) => {
     next();
 };
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.extend('sw-sales-channel-create', 'sw-sales-channel-detail', {
     template,
 
     beforeRouteEnter: insertIdIntoRoute,
@@ -54,4 +50,4 @@ export default {
             this.$super('onSave');
         },
     },
-};
+});

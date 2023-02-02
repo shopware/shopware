@@ -1,0 +1,12 @@
+@startuml
+hide empty members
+
+class AddressPageLoader << PageLoaderInterface >>
+class PageWithHeaderLoader << PageLoaderInterface >>
+class HeaderPageletLoader << PageLoaderInterface >>
+class FooterPageletLoader << PageLoaderInterface >>
+
+AddressPageLoader --> PageWithHeaderLoader
+PageWithHeaderLoader --> HeaderPageletLoader
+PageWithHeaderLoader --> FooterPageletLoader
+@enduml

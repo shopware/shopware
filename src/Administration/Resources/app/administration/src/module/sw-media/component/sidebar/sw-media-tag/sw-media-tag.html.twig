@@ -7,7 +7,7 @@
     >
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_tag_input %}
-        <template #content>
+        <template slot="content">
             <sw-entity-tag-select
                 v-model="media.tags"
                 :disabled="disabled"

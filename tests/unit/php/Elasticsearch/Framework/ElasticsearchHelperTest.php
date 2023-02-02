@@ -2,13 +2,14 @@
 
 namespace Shopware\Tests\Unit\Elasticsearch\Framework;
 
-use OpenSearch\Client;
+use Elasticsearch\Client;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Test\Annotation\ActiveFeatures;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\ElasticsearchRegistry;
@@ -113,5 +114,33 @@ class ElasticsearchHelperTest extends TestCase
         static::assertFalse(
             $helper->allowSearch(new ProductDefinition(), Context::createDefaultContext(), $criteria)
         );
+    }
+
+    /**
+     * @deprecated tag:v6.5.0 - Delete this method only covers the old behavior
+     *
+     * @ActiveFeatures(features={})
+     */
+    public function testAllowSearchDeprecated(): void
+    {
+        $registry = $this->createMock(ElasticsearchRegistry::class);
+        $registry->method('has')->willReturn(true);
+
+        $helper = new ElasticsearchHelper(
+            'prod',
+            true,
+            true,
+            'prefix',
+            true,
+            $this->createMock(Client::class),
+            $registry,
+            $this->createMock(CriteriaParser::class),
+            $this->createMock(LoggerInterface::class)
+        );
+
+        static::assertFalse($helper->allowSearch(new ProductDefinition(), Context::createDefaultContext()));
+        $context = Context::createDefaultContext();
+        $context->addState(Context::STATE_ELASTICSEARCH_AWARE);
+        static::assertTrue($helper->allowSearch(new ProductDefinition(), $context));
     }
 }

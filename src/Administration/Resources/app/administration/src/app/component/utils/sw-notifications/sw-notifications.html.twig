@@ -30,7 +30,10 @@
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_notifications_item_content %}
-                <div v-html="$sanitize(notification.message, { ALLOWED_TAGS: ['a', 'b', 'i', 'u', 'br'], ALLOWED_ATTR: ['href', 'target'] })"></div>
+                <div
+                    slot="default"
+                    v-html="$sanitize(notification.message, { ALLOWED_TAGS: ['a', 'b', 'i', 'u', 'br'], ALLOWED_ATTR: ['href', 'target'] })"
+                ></div>
                 {% endblock %}
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

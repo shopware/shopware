@@ -18,22 +18,20 @@ use Shopware\Core\Checkout\Test\Order\Aggregate\OrderTransactionCaptureRefund\Or
 use Shopware\Core\Checkout\Test\Order\OrderBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
  * @internal
  */
-#[Package('checkout')]
 class PaymentRefundProcessorTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
     private IdsCollection $ids;
 
-    private EntityRepository $orderRepository;
+    private EntityRepositoryInterface $orderRepository;
 
     private PaymentRefundProcessor $paymentRefundProcessor;
 

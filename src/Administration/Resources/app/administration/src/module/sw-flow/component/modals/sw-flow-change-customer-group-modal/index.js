@@ -5,11 +5,8 @@ const { Criteria } = Shopware.Data;
 const { mapState } = Component.getComponentHelper();
 const { ShopwareError } = Shopware.Classes;
 
-/**
- * @private
- * @package business-ops
- */
-export default {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+Component.register('sw-flow-change-customer-group-modal', {
     template,
 
     inject: ['repositoryFactory'],
@@ -89,4 +86,4 @@ export default {
             this.$emit('process-finish', sequence);
         },
     },
-};
+});

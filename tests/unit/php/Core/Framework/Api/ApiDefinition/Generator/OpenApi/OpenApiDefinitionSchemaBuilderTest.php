@@ -8,7 +8,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterfa
 use Shopware\Tests\Unit\Common\Stubs\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\SimpleDefinition;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\OpenApi\_fixtures\ComplexDefinition;
-use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\OpenApi\_fixtures\SimpleExtendedDefinition;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -29,7 +28,6 @@ class OpenApiDefinitionSchemaBuilderTest extends TestCase
             [
                 SimpleDefinition::class,
                 ComplexDefinition::class,
-                SimpleExtendedDefinition::class,
             ],
             $this->createMock(ValidatorInterface::class),
             $this->createMock(EntityWriteGatewayInterface::class)
@@ -65,7 +63,7 @@ class OpenApiDefinitionSchemaBuilderTest extends TestCase
             '/simple',
             false
         );
-        $properties = json_decode($schema['Simple']->toJson(), true, \JSON_THROW_ON_ERROR, \JSON_THROW_ON_ERROR)['properties'];
+        $properties = json_decode($schema['Simple']->toJson(), true, \JSON_THROW_ON_ERROR)['properties'];
         static::assertArrayHasKey('id', $properties);
         static::assertArrayHasKey('type', $properties['id']);
         static::assertEquals('string', $properties['id']['type']);
@@ -101,7 +99,7 @@ class OpenApiDefinitionSchemaBuilderTest extends TestCase
             '/simple',
             false
         );
-        $properties = json_decode($schema['Simple']->toJson(), true, \JSON_THROW_ON_ERROR, \JSON_THROW_ON_ERROR)['properties'];
+        $properties = json_decode($schema['Simple']->toJson(), true, \JSON_THROW_ON_ERROR)['properties'];
 
         static::assertArrayHasKey('requiredField', $properties);
         static::assertArrayHasKey('readOnlyField', $properties);
@@ -109,19 +107,5 @@ class OpenApiDefinitionSchemaBuilderTest extends TestCase
         static::assertTrue($properties['readOnlyField']['readOnly']);
         static::assertArrayHasKey('runtimeField', $properties);
         static::assertEquals('Runtime field, cannot be used as part of the criteria.', $properties['runtimeField']['description']);
-    }
-
-    public function testExtensionConversion(): void
-    {
-        $schema = $this->schemaBuilder->getSchemaByDefinition(
-            $this->definitionRegistry->get(SimpleExtendedDefinition::class),
-            '/simple-extended',
-            false
-        );
-        $properties = json_decode($schema['SimpleExtended']->toJson(), true, \JSON_THROW_ON_ERROR, \JSON_THROW_ON_ERROR)['properties'];
-
-        static::assertArrayHasKey('extensions', $properties);
-        static::assertArrayHasKey('properties', $properties['extensions']);
-        static::assertArrayHasKey('extendedJsonField', $properties['extensions']['properties']);
     }
 }

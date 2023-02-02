@@ -1,11 +1,9 @@
-/**
- * @package system-settings
- */
 import template from './sw-custom-field-type-select.html.twig';
 import './sw-custom-field-type-select.scss';
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+const { Component } = Shopware;
+
+Component.extend('sw-custom-field-type-select', 'sw-custom-field-type-base', {
     template,
 
     data() {
@@ -69,4 +67,4 @@ export default {
             this.currentCustomField.config.componentName = 'sw-single-select';
         },
     },
-};
+});

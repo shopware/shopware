@@ -3,10 +3,8 @@
 namespace Shopware\Core\Checkout\Cart\SalesChannel;
 
 use Shopware\Core\Checkout\Order\OrderEntity;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
-#[Package('checkout')]
 class CartOrderRouteResponse extends StoreApiResponse
 {
     /**

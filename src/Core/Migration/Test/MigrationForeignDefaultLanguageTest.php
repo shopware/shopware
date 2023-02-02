@@ -5,19 +5,17 @@ namespace Shopware\Core\Migration\Test;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Migration\V6_3\Migration1536233560BasicData;
+use Shopware\Core\Migration\Traits\MigrationUntouchedDbTestTrait;
 
 /**
  * @internal
  * @group slow
  */
-#[Package('core')]
 class MigrationForeignDefaultLanguageTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -51,8 +49,6 @@ class MigrationForeignDefaultLanguageTest extends TestCase
                         'code' => 'de-LI',
                     ]
                 );
-                static::assertIsArray($deLiLocale);
-
                 $connection->update(
                     'language',
                     [
@@ -80,7 +76,6 @@ class MigrationForeignDefaultLanguageTest extends TestCase
                 'languageId' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
             ]
         );
-        static::assertIsArray($templateDefault);
         static::assertEquals('Password recovery', $templateDefault['subject']);
 
         $deDeLanguage = $connection->fetchAssociative(
@@ -89,7 +84,6 @@ class MigrationForeignDefaultLanguageTest extends TestCase
                 'name' => 'Deutsch',
             ]
         );
-        static::assertIsArray($deDeLanguage);
 
         $templateDeDe = $connection->fetchAssociative(
             'SELECT subject FROM mail_template_translation
@@ -100,7 +94,6 @@ class MigrationForeignDefaultLanguageTest extends TestCase
             ]
         );
 
-        static::assertIsArray($templateDeDe);
         static::assertEquals('Password-Wiederherstellung', $templateDeDe['subject']);
 
         $orgConnection->beginTransaction();
@@ -130,13 +123,12 @@ class MigrationForeignDefaultLanguageTest extends TestCase
             }
 
             if ($this->isBasicDataMigration($_className)) {
-                $deLiLocale = $connection->fetchAssociative(
+                $deLiLocale = $connection->fetchAssoc(
                     'SELECT * FROM `locale` WHERE `code` = :code',
                     [
                         'code' => 'de-LI',
                     ]
                 );
-                static::assertIsArray($deLiLocale);
                 $connection->update(
                     'language',
                     [
@@ -146,21 +138,19 @@ class MigrationForeignDefaultLanguageTest extends TestCase
                     ],
                     ['id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)]
                 );
-                $deLuLocale = $connection->fetchAssociative(
+                $deLuLocale = $connection->fetchAssoc(
                     'SELECT * FROM `locale` WHERE `code` = :code',
                     [
                         'code' => 'de-LU',
                     ]
                 );
-                static::assertIsArray($deLuLocale);
 
-                $deLuLanguage = $connection->fetchAssociative(
+                $deLuLanguage = $connection->fetchAssoc(
                     'SELECT * FROM `language` WHERE `name` = :name',
                     [
                         'name' => 'Deutsch',
                     ]
                 );
-                static::assertIsArray($deLuLanguage);
 
                 $connection->update(
                     'language',
@@ -182,7 +172,7 @@ class MigrationForeignDefaultLanguageTest extends TestCase
             }
         }
 
-        $templateDefault = $connection->fetchAssociative(
+        $templateDefault = $connection->fetchAssoc(
             'SELECT subject FROM mail_template_translation
                 WHERE subject = :subject AND language_id = :languageId',
             [
@@ -190,10 +180,9 @@ class MigrationForeignDefaultLanguageTest extends TestCase
                 'languageId' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
             ]
         );
-        static::assertIsArray($templateDefault);
         static::assertEquals('Password recovery', $templateDefault['subject']);
 
-        $templateDeLu = $connection->fetchAssociative(
+        $templateDeLu = $connection->fetchAssoc(
             'SELECT subject FROM mail_template_translation
                 WHERE subject = :subject AND language_id = :languageId',
             [
@@ -201,7 +190,7 @@ class MigrationForeignDefaultLanguageTest extends TestCase
                 'languageId' => $deLuLanguage['id'],
             ]
         );
-        static::assertFalse($templateDeLu);
+        static::assertEmpty($templateDeLu);
 
         $orgConnection->beginTransaction();
     }
@@ -228,13 +217,12 @@ class MigrationForeignDefaultLanguageTest extends TestCase
             }
 
             if ($this->isBasicDataMigration($_className)) {
-                $deLiLocale = $connection->fetchAssociative(
+                $deLiLocale = $connection->fetchAssoc(
                     'SELECT * FROM `locale` WHERE `code` = :code',
                     [
                         'code' => 'de-LI',
                     ]
                 );
-                static::assertIsArray($deLiLocale);
                 $connection->update(
                     'language',
                     [
@@ -244,13 +232,12 @@ class MigrationForeignDefaultLanguageTest extends TestCase
                     ],
                     ['id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)]
                 );
-                $enGbLocale = $connection->fetchAssociative(
+                $enGbLocale = $connection->fetchAssoc(
                     'SELECT * FROM `locale` WHERE `code` = :code',
                     [
                         'code' => 'en-GB',
                     ]
                 );
-                static::assertIsArray($enGbLocale);
 
                 $connection->insert(
                     'language',
@@ -273,7 +260,7 @@ class MigrationForeignDefaultLanguageTest extends TestCase
             }
         }
 
-        $templateDefault = $connection->fetchAssociative(
+        $templateDefault = $connection->fetchAssoc(
             'SELECT subject FROM mail_template_translation
                 WHERE subject = :subject AND language_id = :languageId',
             [
@@ -281,10 +268,9 @@ class MigrationForeignDefaultLanguageTest extends TestCase
                 'languageId' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
             ]
         );
-        static::assertIsArray($templateDefault);
         static::assertEquals('Password recovery', $templateDefault['subject']);
 
-        $templateEnGb = $connection->fetchAssociative(
+        $templateEnGb = $connection->fetchAssoc(
             'SELECT subject FROM mail_template_translation
                 WHERE subject = :subject AND language_id = :languageId',
             [
@@ -292,7 +278,6 @@ class MigrationForeignDefaultLanguageTest extends TestCase
                 'languageId' => $enGbId,
             ]
         );
-        static::assertIsArray($templateEnGb);
         static::assertEquals('Password recovery', $templateEnGb['subject']);
 
         $orgConnection->beginTransaction();
@@ -300,7 +285,8 @@ class MigrationForeignDefaultLanguageTest extends TestCase
 
     private function isBasicDataMigration(string $className): bool
     {
-        return $className === Migration1536233560BasicData::class;
+        return $className === \Shopware\Core\Migration\Migration1536233560BasicData::class
+            || $className === \Shopware\Core\Migration\V6_3\Migration1536233560BasicData::class;
     }
 
     private function collectMigrations(): MigrationCollection
@@ -318,9 +304,9 @@ class MigrationForeignDefaultLanguageTest extends TestCase
         //Be sure that we are on the no migrations db
         static::assertStringContainsString('_no_migrations', $this->databaseName, 'Wrong DB ' . $this->databaseName);
 
-        $orgConnection->executeStatement('DROP DATABASE IF EXISTS `' . $this->databaseName . '`');
+        $orgConnection->exec('DROP DATABASE IF EXISTS `' . $this->databaseName . '`');
 
-        $orgConnection->executeStatement('CREATE DATABASE `' . $this->databaseName . '` DEFAULT CHARACTER SET utf8mb4 DEFAULT COLLATE utf8mb4_unicode_ci');
+        $orgConnection->exec('CREATE DATABASE `' . $this->databaseName . '` DEFAULT CHARACTER SET utf8mb4 DEFAULT COLLATE utf8mb4_unicode_ci');
 
         $connection = new Connection(
             array_merge(
@@ -335,10 +321,13 @@ class MigrationForeignDefaultLanguageTest extends TestCase
             $orgConnection->getEventManager()
         );
 
-        /** @var string $dumpFile */
-        $dumpFile = file_get_contents(__DIR__ . '/../../schema.sql');
+        if (file_exists(__DIR__ . '/../../schema.sql')) {
+            $dumpFile = file_get_contents(__DIR__ . '/../../schema.sql');
+        } else {
+            static::fail('schema.sql not found in ' . __DIR__ . '/../../schema.sql');
+        }
 
-        $connection->executeStatement($dumpFile);
+        $connection->exec($dumpFile);
 
         return $connection;
     }

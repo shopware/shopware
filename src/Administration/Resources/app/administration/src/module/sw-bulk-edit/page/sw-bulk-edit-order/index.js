@@ -2,16 +2,13 @@ import template from './sw-bulk-edit-order.html.twig';
 import './sw-bulk-edit-order.scss';
 import swBulkEditState from '../../state/sw-bulk-edit.state';
 
-const { Mixin } = Shopware;
+const { Component, Mixin, Feature } = Shopware;
 const { Criteria } = Shopware.Data;
 const { types } = Shopware.Utils;
 const { intersectionBy, chunk, uniqBy } = Shopware.Utils.array;
 
-/**
- * @package system-settings
- */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-bulk-edit-order', {
     template,
 
     inject: [
@@ -39,6 +36,10 @@ export default {
             itemsPerRequest: 100,
             processStatus: '',
             order: {},
+            /**
+             * @deprecated tag:v6.5.0 - Will be removed
+             */
+            showBulkEditDocumentWarning: false,
         };
     },
 
@@ -245,6 +246,10 @@ export default {
         async createdComponent() {
             this.setRouteMetaModule();
 
+            if (!Feature.isActive('v6.5.0.0')) {
+                await this.shouldShowBulkEditDocumentWarning();
+            }
+
             this.isLoading = true;
 
             this.order = this.orderRepository.create(Shopware.Context.api);
@@ -260,6 +265,17 @@ export default {
             this.isLoadedData = true;
 
             this.loadBulkEditData();
+        },
+
+        /**
+         * @deprecated tag:v6.5.0 - Will be removed
+         */
+        async shouldShowBulkEditDocumentWarning() {
+            const response = await this.orderDocumentApiService.extendingDeprecatedService();
+
+            this.showBulkEditDocumentWarning = response?.data && response.data.hasOwnProperty('showWarning')
+                ? response.data.showWarning
+                : false;
         },
 
         setRouteMetaModule() {
@@ -531,4 +547,4 @@ export default {
             });
         },
     },
-};
+});

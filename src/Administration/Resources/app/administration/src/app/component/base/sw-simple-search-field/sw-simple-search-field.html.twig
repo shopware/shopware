@@ -9,9 +9,9 @@
         :class="fieldClasses"
         :placeholder="placeholder"
         v-bind="$attrs"
-        :value="value"
+        :value="searchTerm"
         v-on="$listeners"
-        @input="onInput"
+        @input="onSearchTermChanged"
     />
     {% endblock %}
 

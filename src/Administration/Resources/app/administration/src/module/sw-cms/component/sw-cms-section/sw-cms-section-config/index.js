@@ -1,14 +1,10 @@
 import template from './sw-cms-section-config.html.twig';
 import './sw-cms-section-config.scss';
 
-/**
- * @package content
- */
-
-const { Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-cms-section-config', {
     template,
 
     inject: [
@@ -86,4 +82,4 @@ export default {
             this.$emit('section-duplicate', section);
         },
     },
-};
+});

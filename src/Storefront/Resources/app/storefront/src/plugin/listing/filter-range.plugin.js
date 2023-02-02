@@ -1,7 +1,3 @@
-/*
- * @package inventory
- */
-
 import FilterBasePlugin from 'src/plugin/listing/filter-base.plugin';
 import DomAccess from 'src/helper/dom-access.helper';
 import deepmerge from 'deepmerge';
@@ -17,6 +13,7 @@ export default class FilterRangePlugin extends FilterBasePlugin {
         maxKey: 'max-price',
         lowerBound: 0,
         unit: '€',
+        currencySymbol: null, /** @deprecated tag:v6.5.0 - use `unit` instead */
         errorContainerClass: 'filter-range-error',
         containerSelector: '.filter-range-container',
         snippets: {
@@ -166,14 +163,16 @@ export default class FilterRangePlugin extends FilterBasePlugin {
         if (this._inputMin.value.length || this._inputMax.value.length) {
             if (this._inputMin.value.length) {
                 labels.push({
-                    label: `${this.options.snippets.filterRangeActiveMinLabel} ${this._inputMin.value} ${this.options.unit}`,
+                    /** @deprecated tag:v6.5.0 - `currencySymbol` will be removed - use `unit` instead */
+                    label: `${this.options.snippets.filterRangeActiveMinLabel} ${this._inputMin.value} ${this.options.currencySymbol ? this.options.currencySymbol : this.options.unit}`,
                     id: this.options.minKey,
                 });
             }
 
             if (this._inputMax.value.length) {
                 labels.push({
-                    label: `${this.options.snippets.filterRangeActiveMaxLabel} ${this._inputMax.value} ${this.options.unit}`,
+                    /** @deprecated tag:v6.5.0 - `currencySymbol` will be removed - use `unit` instead */
+                    label: `${this.options.snippets.filterRangeActiveMaxLabel} ${this._inputMax.value} ${this.options.currencySymbol ? this.options.currencySymbol : this.options.unit}`,
                     id: this.options.maxKey,
                 });
             }

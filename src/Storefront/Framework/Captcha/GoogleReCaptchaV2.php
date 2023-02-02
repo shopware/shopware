@@ -4,28 +4,37 @@ namespace Shopware\Storefront\Framework\Captcha;
 
 use GuzzleHttp\ClientInterface;
 use Psr\Http\Client\ClientExceptionInterface;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Feature;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('storefront')]
 class GoogleReCaptchaV2 extends AbstractCaptcha
 {
-    final public const CAPTCHA_NAME = 'googleReCaptchaV2';
-    final public const CAPTCHA_REQUEST_PARAMETER = '_grecaptcha_v2';
+    public const CAPTCHA_NAME = 'googleReCaptchaV2';
+    public const CAPTCHA_REQUEST_PARAMETER = '_grecaptcha_v2';
     private const GOOGLE_CAPTCHA_VERIFY_ENDPOINT = 'https://www.google.com/recaptcha/api/siteverify';
+
+    private ClientInterface $client;
 
     /**
      * @internal
      */
-    public function __construct(private readonly ClientInterface $client)
+    public function __construct(ClientInterface $client)
     {
+        $this->client = $client;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function isValid(Request $request, array $captchaConfig): bool
+    public function isValid(Request $request /* , array $captchaConfig */): bool
     {
+        if (\func_num_args() < 2 || !\is_array(func_get_arg(1))) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.5.0.0',
+                'Method `isValid()` in `GoogleReCaptchaV2` expects passing the `$captchaConfig` as array as the second parameter in v6.5.0.0.'
+            );
+        }
+
         if (!$request->get(self::CAPTCHA_REQUEST_PARAMETER)) {
             return false;
         }
@@ -51,7 +60,7 @@ class GoogleReCaptchaV2 extends AbstractCaptcha
             $response = json_decode($responseRaw, true);
 
             return $response && (bool) $response['success'];
-        } catch (ClientExceptionInterface) {
+        } catch (ClientExceptionInterface $exception) {
             return false;
         }
     }

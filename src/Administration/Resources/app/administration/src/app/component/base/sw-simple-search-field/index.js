@@ -1,12 +1,11 @@
+/* eslint-disable vue/one-component-per-file */
 import template from './sw-simple-search-field.html.twig';
+import templateFeatureNext16271 from './sw-simple-search-field.feature_next-16271.html.twig';
 import './sw-simple-search-field.scss';
 
-const { Component, Utils } = Shopware;
+const { Component, Feature, Utils } = Shopware;
 
 /**
- * @package admin
- *
- * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @description a search field with delayed update
  * @status ready
@@ -19,68 +18,139 @@ const { Component, Utils } = Shopware;
  *   @search-term-change="debouncedInputEvent"
  *  />
  */
-Component.register('sw-simple-search-field', {
-    template,
-    inheritAttrs: false,
+if (Feature.isActive('FEATURE_NEXT_16271')) {
+    // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+    Component.register('sw-simple-search-field', {
+        template: templateFeatureNext16271,
+        inheritAttrs: false,
 
-    props: {
-        variant: {
-            type: String,
-            required: false,
-            default: 'default',
-            validValues: ['default', 'inverted', 'form'],
-            validator(value) {
-                if (!value.length) {
-                    return true;
-                }
-                return ['default', 'inverted', 'form'].includes(value);
+        props: {
+            variant: {
+                type: String,
+                required: false,
+                default: 'default',
+                validValues: ['default', 'inverted', 'form'],
+                validator(value) {
+                    if (!value.length) {
+                        return true;
+                    }
+                    return ['default', 'inverted', 'form'].includes(value);
+                },
+            },
+
+            value: {
+                type: String,
+                default: null,
+                required: false,
+
+            },
+
+            delay: {
+                type: Number,
+                required: false,
+                default: 400,
+            },
+
+            icon: {
+                type: String,
+                required: false,
+                default: 'regular-search-s',
             },
         },
 
-        value: {
-            type: String,
-            default: null,
-            required: false,
-
+        data() {
+            return {
+                onSearchTermChanged: Utils.debounce(function debounceInput(input) {
+                    this.$emit('search-term-change', input);
+                }, this.delay),
+            };
         },
 
-        delay: {
-            type: Number,
-            required: false,
-            default: 400,
+        computed: {
+            fieldClasses() {
+                return [
+                    `sw-simple-search-field--${this.variant}`,
+                ];
+            },
+
+            placeholder() {
+                return this.$attrs.placeholder || this.$tc('global.sw-simple-search-field.defaultPlaceholder');
+            },
         },
 
-        icon: {
-            type: String,
-            required: false,
-            default: 'regular-search-s',
+        methods: {
+            onInput(input) {
+                this.$emit('input', input);
+                this.onSearchTermChanged(input);
+            },
         },
-    },
+    });
+} else {
+    // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+    Component.register('sw-simple-search-field', {
+        template,
+        inheritAttrs: false,
 
-    data() {
-        return {
-            onSearchTermChanged: Utils.debounce(function debounceInput(input) {
-                this.$emit('search-term-change', input);
-            }, this.delay),
-        };
-    },
-
-    computed: {
-        fieldClasses() {
-            return [
-                `sw-simple-search-field--${this.variant}`,
-            ];
+        /* @deprecated tag:v6.5.0 component will use @input and value
+           instead of custom searchTerm and `search-term-change` */
+        model: {
+            prop: 'searchTerm',
+            event: 'search-term-change',
         },
 
-        placeholder() {
-            return this.$attrs.placeholder || this.$tc('global.sw-simple-search-field.defaultPlaceholder');
-        },
-    },
+        props: {
+            variant: {
+                type: String,
+                required: false,
+                default: 'default',
+                validValues: ['default', 'inverted', 'form'],
+                validator(value) {
+                    if (!value.length) {
+                        return true;
+                    }
+                    return ['default', 'inverted', 'form'].includes(value);
+                },
+            },
 
-    methods: {
-        onInput(input) {
-            this.$emit('input', input);
-            this.onSearchTermChanged(input);
+            /* @deprecated tag:v6.5.0 use value and @input */
+            searchTerm: {
+                type: String,
+                required: false,
+                default: null,
+            },
+
+            delay: {
+                type: Number,
+                required: false,
+                default: 400,
+            },
+
+            icon: {
+                type: String,
+                required: false,
+                default: 'regular-search-s',
+            },
         },
-    },
-});
+
+        computed: {
+            fieldClasses() {
+                return [
+                    `sw-simple-search-field--${this.variant}`,
+                ];
+            },
+
+            placeholder() {
+                return this.$attrs.placeholder || this.$tc('global.sw-simple-search-field.defaultPlaceholder');
+            },
+
+            /* @deprecated tag:v6.5.0
+              `onSearchTermChanged` is relocated as `data()` value function instead computed property */
+            onSearchTermChanged() {
+                return Utils.debounce((input) => {
+                    const validInput = input || '';
+                    this.$emit('search-term-change', validInput.trim());
+                }, this.delay);
+            },
+        },
+    });
+}

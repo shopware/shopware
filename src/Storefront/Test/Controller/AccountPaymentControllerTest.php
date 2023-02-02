@@ -47,11 +47,11 @@ class AccountPaymentControllerTest extends TestCase
             $_SERVER['APP_URL'] . '/account/login',
             $this->tokenize('frontend.account.login', [
                 'username' => $email,
-                'password' => 'test12345',
+                'password' => 'test',
             ])
         );
         $response = $browser->getResponse();
-        static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
+        static::assertSame(200, $response->getStatusCode(), $response->getContent());
 
         return $browser;
     }
@@ -79,7 +79,7 @@ class AccountPaymentControllerTest extends TestCase
                 'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
                 'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => 'test@example.com',
-                'password' => 'test12345',
+                'password' => 'test',
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
                 'salutationId' => $this->getValidSalutationId(),

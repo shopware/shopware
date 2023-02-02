@@ -3,22 +3,23 @@
 namespace Shopware\Core\Framework\Increment;
 
 use Shopware\Core\Framework\Increment\Exception\IncrementGatewayNotFoundException;
-use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal - Used internally for Increment pattern
  */
-#[Package('core')]
 class IncrementGatewayRegistry
 {
-    final public const MESSAGE_QUEUE_POOL = 'message_queue';
-    final public const USER_ACTIVITY_POOL = 'user_activity';
+    public const MESSAGE_QUEUE_POOL = 'message_queue';
+    public const USER_ACTIVITY_POOL = 'user_activity';
 
     /**
-     * @param AbstractIncrementer[] $gateways
+     * @var AbstractIncrementer[]
      */
-    public function __construct(private readonly iterable $gateways)
+    private iterable $gateways;
+
+    public function __construct(iterable $gateways)
     {
+        $this->gateways = $gateways;
     }
 
     public function get(string $pool): AbstractIncrementer

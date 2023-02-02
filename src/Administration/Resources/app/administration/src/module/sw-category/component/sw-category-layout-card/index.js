@@ -1,17 +1,13 @@
 import template from './sw-category-layout-card.html.twig';
 import './sw-category-layout-card.scss';
 
-/**
- * @package content
- */
+const { Component } = Shopware;
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-category-layout-card', {
     template,
 
-    inject: [
-        'acl',
-        'cmsPageTypeService',
-    ],
+    inject: ['acl', 'feature'],
 
     props: {
         category: {
@@ -53,14 +49,13 @@ export default {
     },
 
     computed: {
-        pageTypeTitle() {
-            const fallback = this.$tc('sw-category.base.cms.defaultDesc');
-            if (!this.cmsPage) {
-                return fallback;
-            }
-
-            const pageType = this.cmsPageTypeService.getType(this.cmsPage.type);
-            return pageType ? this.$tc(this.cmsPageTypeService.getType(this.cmsPage.type).title) : fallback;
+        cmsPageTypes() {
+            return {
+                page: this.$tc('sw-cms.detail.label.pageTypeShopPage'),
+                landingpage: this.$tc('sw-cms.detail.label.pageTypeLandingpage'),
+                product_list: this.$tc('sw-cms.detail.label.pageTypeCategory'),
+                product_detail: this.$tc('sw-cms.detail.label.pageTypeProduct'),
+            };
         },
     },
 
@@ -93,4 +88,4 @@ export default {
             this.showLayoutSelectionModal = false;
         },
     },
-};
+});

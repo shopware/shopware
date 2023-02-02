@@ -22,7 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
  */
 class SetNullOnDeleteParentDefinition extends EntityDefinition
 {
-    final public const ENTITY_NAME = 'set_null_on_delete_parent';
+    public const ENTITY_NAME = 'set_null_on_delete_parent';
 
     public function getEntityName(): string
     {
@@ -52,7 +52,7 @@ class SetNullOnDeleteParentDefinition extends EntityDefinition
  */
 class SetNullOnDeleteChildDefinition extends EntityDefinition
 {
-    final public const ENTITY_NAME = 'set_null_on_delete_child';
+    public const ENTITY_NAME = 'set_null_on_delete_child';
 
     public function getEntityName(): string
     {
@@ -82,7 +82,7 @@ class SetNullOnDeleteChildDefinition extends EntityDefinition
  */
 class SetNullOnDeleteManyToOneDefinition extends EntityDefinition
 {
-    final public const ENTITY_NAME = 'set_null_on_delete_many_to_one';
+    public const ENTITY_NAME = 'set_null_on_delete_many_to_one';
 
     public function getEntityName(): string
     {

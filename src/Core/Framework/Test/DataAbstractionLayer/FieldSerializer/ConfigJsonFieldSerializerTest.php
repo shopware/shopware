@@ -32,11 +32,20 @@ class ConfigJsonFieldSerializerTest extends TestCase
      */
     private $serializer;
 
-    private ConfigJsonField $field;
+    /**
+     * @var ConfigJsonField
+     */
+    private $field;
 
-    private EntityExistence $existence;
+    /**
+     * @var EntityExistence
+     */
+    private $existence;
 
-    private WriteParameterBag $parameters;
+    /**
+     * @var WriteParameterBag
+     */
+    private $parameters;
 
     protected function setUp(): void
     {

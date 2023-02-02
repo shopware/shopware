@@ -3,23 +3,31 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\Exception\CustomerGroupRegistrationConfigurationNotFound;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('customer-order')]
+/**
+ * @Route(defaults={"_routeScope"={"store-api"}})
+ */
 class CustomerGroupRegistrationSettingsRoute extends AbstractCustomerGroupRegistrationSettingsRoute
 {
     /**
+     * @var EntityRepositoryInterface
+     */
+    private $customerGroupRepository;
+
+    /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $customerGroupRepository)
+    public function __construct(EntityRepositoryInterface $customerGroupRepository)
     {
+        $this->customerGroupRepository = $customerGroupRepository;
     }
 
     public function getDecorated(): AbstractCustomerGroupRegistrationSettingsRoute
@@ -27,7 +35,10 @@ class CustomerGroupRegistrationSettingsRoute extends AbstractCustomerGroupRegist
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/customer-group-registration/config/{customerGroupId}', name: 'store-api.customer-group-registration.config', methods: ['GET'])]
+    /**
+     * @Since("6.3.1.0")
+     * @Route(path="/store-api/customer-group-registration/config/{customerGroupId}", name="store-api.customer-group-registration.config", methods={"GET"})
+     */
     public function load(string $customerGroupId, SalesChannelContext $context): CustomerGroupRegistrationSettingsRouteResponse
     {
         $criteria = new Criteria([$customerGroupId]);

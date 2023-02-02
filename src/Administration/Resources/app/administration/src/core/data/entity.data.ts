@@ -1,9 +1,5 @@
-/**
- * @package admin
- */
-
-import type Vue from 'vue';
 import Entity, { assignSetterMethod } from '@shopware-ag/admin-extension-sdk/es/data/_internals/Entity';
+import type Vue from 'vue';
 
 assignSetterMethod((draft, property, value) => {
     // @ts-expect-error

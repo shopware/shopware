@@ -1,7 +1,3 @@
-/**
- * @package admin
- */
-
 import type { Module } from 'vuex';
 import type { uiModalOpen } from '@shopware-ag/admin-extension-sdk/es/ui/modal';
 
@@ -48,9 +44,7 @@ const ModalsStore: Module<ModalsState, VuexRootState> = {
     },
 };
 
-/**
- * @deprecated tag:v6.6.0 - Will be private
- */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default ModalsStore;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type { ModalsState };

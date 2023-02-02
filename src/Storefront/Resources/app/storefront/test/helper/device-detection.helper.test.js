@@ -1,8 +1,5 @@
 import DeviceDetection from 'src/helper/device-detection.helper';
 
-/**
- * @package storefront
- */
 describe('device-detection.helper', () => {
     function hasDetected(detectionList, ...truthy) {
         let correctlyDetected = true;

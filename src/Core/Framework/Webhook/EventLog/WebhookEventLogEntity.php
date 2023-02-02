@@ -5,15 +5,13 @@ namespace Shopware\Core\Framework\Webhook\EventLog;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
 class WebhookEventLogEntity extends Entity
 {
     use EntityIdTrait;
     use EntityCustomFieldsTrait;
 
-    protected ?string $appName = null;
+    protected ?string $appName;
 
     protected string $webhookName;
 
@@ -21,32 +19,28 @@ class WebhookEventLogEntity extends Entity
 
     protected string $deliveryStatus;
 
-    protected ?int $timestamp = null;
+    protected ?int $timestamp;
 
-    protected ?int $processingTime = null;
+    protected ?int $processingTime;
 
-    protected ?string $appVersion = null;
+    protected ?string $appVersion;
 
-    /**
-     * @var array<string, mixed>|null
-     */
     protected ?array $requestContent;
 
-    /**
-     * @var array<string, mixed>|null
-     */
     protected ?array $responseContent;
 
-    protected ?int $responseStatusCode = null;
+    protected ?int $responseStatusCode;
 
-    protected ?string $responseReasonPhrase = null;
+    protected ?string $responseReasonPhrase;
 
     protected string $url;
 
     /**
-     * @internal
+     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     *
+     * @var string|object
      */
-    protected string|object $serializedWebhookMessage;
+    protected $serializedWebhookMessage;
 
     public function getAppName(): ?string
     {
@@ -118,33 +112,21 @@ class WebhookEventLogEntity extends Entity
         $this->appVersion = $appVersion;
     }
 
-    /**
-     * @return array<string, mixed>|null
-     */
     public function getRequestContent(): ?array
     {
         return $this->requestContent;
     }
 
-    /**
-     * @param array<string, mixed>|null $requestContent
-     */
     public function setRequestContent(?array $requestContent): void
     {
         $this->requestContent = $requestContent;
     }
 
-    /**
-     * @return array<string, mixed>|null
-     */
     public function getResponseContent(): ?array
     {
         return $this->responseContent;
     }
 
-    /**
-     * @param array<string, mixed>|null $responseContent
-     */
     public function setResponseContent(?array $responseContent): void
     {
         $this->responseContent = $responseContent;
@@ -181,9 +163,11 @@ class WebhookEventLogEntity extends Entity
     }
 
     /**
-     * @internal
+     * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal from 6.5.0 onward
+     *
+     * @return object|string
      */
-    public function getSerializedWebhookMessage(): object|string
+    public function getSerializedWebhookMessage()
     {
         $this->checkIfPropertyAccessIsAllowed('serializedWebhookMessage');
 
@@ -191,9 +175,11 @@ class WebhookEventLogEntity extends Entity
     }
 
     /**
-     * @internal
+     * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal from 6.5.0 onward
+     *
+     * @param string|object $serializedWebhookMessage
      */
-    public function setSerializedWebhookMessage(object|string $serializedWebhookMessage): void
+    public function setSerializedWebhookMessage($serializedWebhookMessage): void
     {
         $this->serializedWebhookMessage = $serializedWebhookMessage;
     }

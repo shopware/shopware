@@ -10,7 +10,6 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -20,7 +19,6 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[Package('core')]
 class Migration1618900427FixTotalRoundingTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
@@ -38,8 +36,8 @@ class Migration1618900427FixTotalRoundingTest extends TestCase
             'stateId' => $this->getStateId(),
             'currencyFactor' => 1,
             'orderDateTime' => new \DateTime(),
-            'price' => json_decode(json_encode(new CartPrice(1, 1, 1, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_FREE), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
-            'shippingCosts' => json_decode(json_encode(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+            'price' => json_decode(json_encode(new CartPrice(1, 1, 1, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_FREE), \JSON_THROW_ON_ERROR), true),
+            'shippingCosts' => json_decode(json_encode(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()), \JSON_THROW_ON_ERROR), true),
         ];
 
         $this->getContainer()->get('order.repository')

@@ -12,14 +12,13 @@ use Shopware\Core\Content\Sitemap\Provider\ProductUrlProvider;
 use Shopware\Core\Content\Sitemap\Service\ConfigHandler;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\Seo\StorefrontSalesChannelTestHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\Exception\InvalidDomainException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -29,7 +28,6 @@ use Symfony\Component\Routing\RouterInterface;
 /**
  * @internal
  */
-#[Package('sales-channel')]
 class ProductUrlProviderTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -38,13 +36,13 @@ class ProductUrlProviderTest extends TestCase
 
     private const CONFIG_HIDE_AFTER_CLOSEOUT = 'core.listing.hideCloseoutProductsWhenOutOfStock';
 
-    private SalesChannelRepository $productSalesChannelRepository;
+    private SalesChannelRepositoryInterface $productSalesChannelRepository;
 
     private SalesChannelContext $salesChannelContext;
 
-    private SalesChannelRepository $seoUrlSalesChannelRepository;
+    private SalesChannelRepositoryInterface $seoUrlSalesChannelRepository;
 
-    private EntityRepository $productRepository;
+    private EntityRepositoryInterface $productRepository;
 
     private SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler;
 
@@ -142,7 +140,9 @@ class ProductUrlProviderTest extends TestCase
 
         $urlResult = $this->getProductUrlProvider()->getUrls($this->salesChannelContext, 3);
         $host = $this->getHost($this->salesChannelContext);
-        $locations = array_map(fn ($url) => $host . '/' . $url->getLoc(), $urlResult->getUrls());
+        $locations = array_map(function ($url) use ($host) {
+            return $host . '/' . $url->getLoc();
+        }, $urlResult->getUrls());
 
         foreach ($products as $product) {
             $urlGenerate = $this->getComparisonUrl($product['id']);

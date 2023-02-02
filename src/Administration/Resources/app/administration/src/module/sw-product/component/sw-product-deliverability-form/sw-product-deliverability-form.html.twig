@@ -12,6 +12,7 @@
             type="number"
             name="sw-field--product-stock"
             number-type="int"
+            :min="0"
             :disabled="!allowEdit"
             :label="$tc('sw-product.settingsForm.labelStock')"
             :placeholder="$tc('sw-product.settingsForm.placeholderStock')"

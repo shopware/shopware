@@ -10,10 +10,9 @@ const { Criteria, EntityCollection } = Shopware.Data;
 type LinkCategories = 'link' | 'detail' | 'navigation' | 'email' | 'phone';
 
 /**
- * @package admin
- *
  * @private
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-dynamic-url-field', {
     template,
 
@@ -35,7 +34,7 @@ Component.register('sw-dynamic-url-field', {
         isHTTPs: boolean,
         displayAsButton: boolean,
         linkCategory: LinkCategories,
-        categoryCollection?: EntityCollectionType<'category'>,
+        categoryCollection?: EntityCollectionType,
         } {
         return {
             lastEmittedLink: '',
@@ -70,7 +69,7 @@ Component.register('sw-dynamic-url-field', {
             return criteria;
         },
 
-        categoryRepository(): RepositoryType<'category'> {
+        categoryRepository(): RepositoryType {
             return this.repositoryFactory.create('category');
         },
     },
@@ -112,7 +111,7 @@ Component.register('sw-dynamic-url-field', {
             this.categoryCollection = this.getEmptyCategoryCollection();
         },
 
-        getEmptyCategoryCollection(): EntityCollectionType<'category'> {
+        getEmptyCategoryCollection(): EntityCollectionType {
             return new EntityCollection(
                 this.categoryRepository.route,
                 this.categoryRepository.entityName,
@@ -120,7 +119,7 @@ Component.register('sw-dynamic-url-field', {
             );
         },
 
-        getCategoryCollection(categoryId: string): Promise<EntityCollectionType<'category'>> {
+        getCategoryCollection(categoryId: string): Promise<EntityCollectionType> {
             const categoryCriteria = (new Criteria(1, 25)).addFilter(Criteria.equals('id', categoryId));
             return this.categoryRepository.search(categoryCriteria);
         },

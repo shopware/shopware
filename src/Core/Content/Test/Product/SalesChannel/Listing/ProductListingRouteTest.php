@@ -6,11 +6,12 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
@@ -25,6 +26,8 @@ class ProductListingRouteTest extends TestCase
     private KernelBrowser $browser;
 
     private TestDataCollection $ids;
+
+    private SalesChannelContext $salesChannelContext;
 
     private string $productId;
 
@@ -43,20 +46,20 @@ class ProductListingRouteTest extends TestCase
      */
     private array $variantIds;
 
-    private EntityRepository $categoryRepository;
+    private EntityRepositoryInterface $categoryRepository;
 
-    private EntityRepository $productRepository;
+    private EntityRepositoryInterface $productRepository;
 
     protected function setUp(): void
     {
         $this->ids = new TestDataCollection();
-        $this->createSalesChannelContext(['id' => $this->ids->create('sales-channel')]);
+        $this->salesChannelContext = $this->createSalesChannelContext(['id' => $this->ids->create('sales-channel')]);
 
-        /** @var EntityRepository $categoryRepository */
+        /** @var EntityRepositoryInterface $categoryRepository */
         $categoryRepository = $this->getContainer()->get('category.repository');
         $this->categoryRepository = $categoryRepository;
 
-        /** @var EntityRepository $productRepository */
+        /** @var EntityRepositoryInterface $productRepository */
         $productRepository = $this->getContainer()->get('product.repository');
         $this->productRepository = $productRepository;
     }
@@ -70,7 +73,7 @@ class ProductListingRouteTest extends TestCase
             '/store-api/product-listing/' . $this->ids->get('category')
         );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertSame('product_listing', $response['apiAlias']);
         static::assertCount(6, $response['elements']);
@@ -86,7 +89,7 @@ class ProductListingRouteTest extends TestCase
             '/store-api/product-listing/' . $this->ids->get('category')
         );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
         static::assertSame('product_listing', $response['apiAlias']);
@@ -103,7 +106,7 @@ class ProductListingRouteTest extends TestCase
             '/store-api/product-listing/' . $this->ids->get('category')
         );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
         static::assertSame('product_listing', $response['apiAlias']);
@@ -121,7 +124,7 @@ class ProductListingRouteTest extends TestCase
             '/store-api/product-listing/' . $this->ids->get('category')
         );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
         static::assertSame('product_listing', $response['apiAlias']);
@@ -144,7 +147,7 @@ class ProductListingRouteTest extends TestCase
             ]
         );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertSame('product_listing', $response['apiAlias']);
         static::assertArrayNotHasKey('elements', $response);
@@ -331,15 +334,7 @@ class ProductListingRouteTest extends TestCase
         ]], Context::createDefaultContext());
 
         if ($mainVariant) {
-            $upsertData = [
-                [
-                    'id' => $this->productId,
-                    'variantListingConfig' => [
-                        'mainVariantId' => $this->variantIds['greenL'],
-                    ],
-                ],
-            ];
-            $this->productRepository->upsert($upsertData, Context::createDefaultContext());
+            $this->productRepository->upsert([['id' => $this->productId, 'mainVariantId' => $this->variantIds['greenL']]], Context::createDefaultContext());
         }
 
         $this->browser = $this->createCustomSalesChannelBrowser([
@@ -350,10 +345,7 @@ class ProductListingRouteTest extends TestCase
         $this->setVisibilities($products);
     }
 
-    /**
-     * @param array<int, array<string, array<int|string, array<string, array<int|string, array<string, string>|string>|bool|int|string>|int|string>|bool|int|string>> $createdProducts
-     */
-    private function setVisibilities(array $createdProducts): void
+    private function setVisibilities($createdProducts): void
     {
         $products = [];
         foreach ($createdProducts as $created) {

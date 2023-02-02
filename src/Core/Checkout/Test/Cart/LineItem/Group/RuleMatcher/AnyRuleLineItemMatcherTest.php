@@ -58,9 +58,6 @@ class AnyRuleLineItemMatcherTest extends TestCase
         static::assertEquals($expected, $this->matcher->isMatching($group, $lineItem, $this->context));
     }
 
-    /**
-     * @return iterable<string, array<bool>>
-     */
     public function lineItemProvider(): iterable
     {
         yield 'Matching line item not in group with rules' => [true, true, false];

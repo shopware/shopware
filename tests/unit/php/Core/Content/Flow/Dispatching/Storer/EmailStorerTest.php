@@ -8,11 +8,9 @@ use Shopware\Core\Checkout\Customer\Event\CustomerBeforeLoginEvent;
 use Shopware\Core\Content\Flow\Dispatching\Aware\EmailAware;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Dispatching\Storer\EmailStorer;
-use Shopware\Core\Content\Test\Flow\TestFlowBusinessEvent;
+use Shopware\Core\Framework\Test\Event\TestBusinessEvent;
 
 /**
- * @package business-ops
- *
  * @internal
  *
  * @covers \Shopware\Core\Content\Flow\Dispatching\Storer\EmailStorer
@@ -41,7 +39,7 @@ class EmailStorerTest extends TestCase
     {
         $email = 'shopware-test@gmail.com';
 
-        /** @var MockObject&StorableFlow $storable */
+        /** @var MockObject|StorableFlow $storable */
         $storable = $this->createMock(StorableFlow::class);
 
         if ($hasStore) {
@@ -90,7 +88,7 @@ class EmailStorerTest extends TestCase
             true,
         ];
 
-        $event = $this->createMock(TestFlowBusinessEvent::class);
+        $event = $this->createMock(TestBusinessEvent::class);
         yield 'Store with not Aware' => [
             $event,
             false,

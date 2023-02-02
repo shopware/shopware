@@ -1,13 +1,9 @@
 /**
- * @package admin
- *
  * @module core/factory/api-service
  */
 import { warn } from 'src/core/service/utils/debug.utils';
 
-/**
- * @deprecated tag:v6.6.0 - Will be private
- */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     getRegistry,
     register,

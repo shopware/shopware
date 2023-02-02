@@ -2,29 +2,34 @@
 
 namespace Shopware\Core\Checkout\Cart\Rule;
 
-use Shopware\Core\Checkout\Cart\CartException;
+use Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-#[Package('business-ops')]
 class LineItemClearanceSaleRule extends Rule
 {
-    final public const RULE_NAME = 'cartLineItemClearanceSale';
+    protected bool $clearanceSale;
 
     /**
      * @internal
      */
-    public function __construct(protected bool $clearanceSale = false)
+    public function __construct(bool $clearanceSale = false)
     {
         parent::__construct();
+
+        $this->clearanceSale = $clearanceSale;
+    }
+
+    public function getName(): string
+    {
+        return 'cartLineItemClearanceSale';
     }
 
     /**
-     * @throws CartException
+     * @throws PayloadKeyNotFoundException
      */
     public function match(RuleScope $scope): bool
     {
@@ -36,7 +41,7 @@ class LineItemClearanceSaleRule extends Rule
             return false;
         }
 
-        foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
+        foreach ($scope->getCart()->getLineItems()->getFlat() as $lineItem) {
             if ($this->matchesClearanceSaleCondition($lineItem)) {
                 return true;
             }
@@ -59,7 +64,7 @@ class LineItemClearanceSaleRule extends Rule
     }
 
     /**
-     * @throws CartException
+     * @throws PayloadKeyNotFoundException
      */
     private function matchesClearanceSaleCondition(LineItem $lineItem): bool
     {

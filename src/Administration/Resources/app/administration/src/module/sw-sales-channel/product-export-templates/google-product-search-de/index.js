@@ -1,7 +1,3 @@
-/**
- * @package sales-channel
- */
-
 import header from './header.xml.twig';
 import body from './body.xml.twig';
 import footer from './footer.xml.twig';

@@ -9,9 +9,6 @@ use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
-use SwagTest\SwagTest;
-use SwagTestSkipRebuild\SwagTestSkipRebuild;
-use SwagTestWithBundle\SwagTestWithBundle;
 
 trait PluginIntegrationTestBehaviour
 {
@@ -53,8 +50,6 @@ trait PluginIntegrationTestBehaviour
     protected function insertPlugin(PluginEntity $plugin): void
     {
         $installedAt = $plugin->getInstalledAt();
-        /** @var \DateTimeInterface $createdAt */
-        $createdAt = $plugin->getCreatedAt();
 
         $data = [
             'id' => Uuid::fromHexToBytes($plugin->getId()),
@@ -64,8 +59,8 @@ trait PluginIntegrationTestBehaviour
             'managed_by_composer' => $plugin->getManagedByComposer() ? '1' : '0',
             'base_class' => $plugin->getBaseClass(),
             'path' => $plugin->getPath(),
-            'autoload' => json_encode($plugin->getAutoload(), \JSON_THROW_ON_ERROR),
-            'created_at' => $createdAt->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'autoload' => json_encode($plugin->getAutoload()),
+            'created_at' => $plugin->getCreatedAt()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             'installed_at' => $installedAt ? $installedAt->format(Defaults::STORAGE_DATE_TIME_FORMAT) : null,
         ];
 
@@ -78,7 +73,7 @@ trait PluginIntegrationTestBehaviour
         $plugin->assign([
             'id' => Uuid::randomHex(),
             'name' => 'SwagTest',
-            'baseClass' => SwagTest::class,
+            'baseClass' => 'SwagTest\\SwagTest',
             'version' => '1.0.1',
             'active' => false,
             'path' => __DIR__ . '/_fixture/plugins/SwagTest',
@@ -104,7 +99,7 @@ trait PluginIntegrationTestBehaviour
         $plugin->assign([
             'id' => Uuid::randomHex(),
             'name' => 'SwagTestSkipRebuild',
-            'baseClass' => SwagTestSkipRebuild::class,
+            'baseClass' => 'SwagTestSkipRebuild\\SwagTestSkipRebuild',
             'version' => '1.0.1',
             'active' => false,
             'path' => __DIR__ . '/_fixture/plugins/SwagTestSkipRebuild',
@@ -131,7 +126,7 @@ trait PluginIntegrationTestBehaviour
         $plugin->assign([
             'id' => Uuid::randomHex(),
             'name' => 'SwagTestWithBundle',
-            'baseClass' => SwagTestWithBundle::class,
+            'baseClass' => 'SwagTestWithBundle\\SwagTestWithBundle',
             'version' => '1.0.0',
             'active' => false,
             'path' => __DIR__ . '/_fixture/plugins/SwagTestWithBundle',

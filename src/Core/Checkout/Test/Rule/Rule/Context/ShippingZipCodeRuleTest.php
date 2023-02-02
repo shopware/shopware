@@ -8,14 +8,12 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\Rule\ShippingZipCodeRule;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
  */
-#[Package('business-ops')]
 class ShippingZipCodeRuleTest extends TestCase
 {
     public function testEqualsWithSingleCode(): void
@@ -23,7 +21,7 @@ class ShippingZipCodeRuleTest extends TestCase
         $rule = (new ShippingZipCodeRule())->assign(['zipCodes' => ['ABC123']]);
         $address = $this->createAddress('ABC123');
 
-        $cart = new Cart('test');
+        $cart = new Cart('test', 'test');
 
         $context = $this->createMock(SalesChannelContext::class);
 
@@ -43,7 +41,7 @@ class ShippingZipCodeRuleTest extends TestCase
         $rule = (new ShippingZipCodeRule())->assign(['zipCodes' => ['ABC1', 'ABC2', 'ABC3']]);
         $address = $this->createAddress('ABC2');
 
-        $cart = new Cart('test');
+        $cart = new Cart('test', 'test');
 
         $context = $this->createMock(SalesChannelContext::class);
 
@@ -63,7 +61,7 @@ class ShippingZipCodeRuleTest extends TestCase
         $rule = (new ShippingZipCodeRule())->assign(['zipCodes' => ['ABC1', 'ABC2', 'ABC3']]);
         $address = $this->createAddress('ABC4');
 
-        $cart = new Cart('test');
+        $cart = new Cart('test', 'test');
 
         $context = $this->createMock(SalesChannelContext::class);
 
@@ -82,7 +80,7 @@ class ShippingZipCodeRuleTest extends TestCase
     {
         $rule = (new ShippingZipCodeRule())->assign(['zipCodes' => ['ABC1', 'ABC2', 'ABC3']]);
 
-        $cart = new Cart('test');
+        $cart = new Cart('test', 'test');
 
         $context = $this->createMock(SalesChannelContext::class);
 

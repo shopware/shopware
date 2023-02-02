@@ -4,17 +4,16 @@ namespace Shopware\Core\Framework\Test\Webhook\Handler;
 
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
-use Psr\Http\Message\RequestInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Test\App\GuzzleTestClientBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Handler\WebhookEventMessageHandler;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
-use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
 
 /**
  * @internal
@@ -29,6 +28,15 @@ class WebhookEventMessageHandlerTest extends TestCase
     public function setUp(): void
     {
         $this->webhookEventMessageHandler = $this->getContainer()->get(WebhookEventMessageHandler::class);
+    }
+
+    public function testGetHandledMessages(): void
+    {
+        /** @var array $subscribedMessages */
+        $subscribedMessages = $this->webhookEventMessageHandler::getHandledMessages();
+
+        static::assertCount(1, $subscribedMessages);
+        static::assertEquals(WebhookEventMessage::class, $subscribedMessages[0]);
     }
 
     public function testSendSuccessful(): void
@@ -85,9 +93,8 @@ class WebhookEventMessageHandlerTest extends TestCase
 
         $timestamp = time();
         $request = $this->getLastRequest();
-        static::assertInstanceOf(RequestInterface::class, $request);
         $payload = $request->getBody()->getContents();
-        $body = json_decode($payload, null, 512, \JSON_THROW_ON_ERROR);
+        $body = json_decode($payload);
 
         static::assertEquals('POST', $request->getMethod());
         static::assertEquals($body->body, 'payload');
@@ -167,9 +174,8 @@ class WebhookEventMessageHandlerTest extends TestCase
 
         $timestamp = time();
         $request = $this->getLastRequest();
-        static::assertInstanceOf(RequestInterface::class, $request);
         $payload = $request->getBody()->getContents();
-        $body = json_decode($payload, null, 512, \JSON_THROW_ON_ERROR);
+        $body = json_decode($payload);
 
         static::assertEquals('POST', $request->getMethod());
         static::assertEquals($body->body, 'payload');

@@ -15,12 +15,12 @@ class FilesystemBehaviourTest extends TestCase
     public function testWrittenFilesGetDeleted(): void
     {
         $this->getPublicFilesystem()
-            ->write('testFile', 'testContent');
+            ->put('testFile', 'testContent');
 
         $this->getPublicFilesystem()
-            ->write('public/testFile', 'testContent');
+            ->put('public/testFile', 'testContent');
 
-        static::assertNotEmpty($this->getPublicFilesystem()->listContents('', true)->toArray());
+        static::assertNotEmpty($this->getPublicFilesystem()->listContents());
     }
 
     /**
@@ -28,6 +28,6 @@ class FilesystemBehaviourTest extends TestCase
      */
     public function testFileSystemIsEmptyOnNextTest(): void
     {
-        static::assertEmpty($this->getPublicFilesystem()->listContents('', true)->toArray());
+        static::assertEmpty($this->getPublicFilesystem()->listContents());
     }
 }

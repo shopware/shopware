@@ -32,9 +32,6 @@ class SeoUrlUpdaterTest extends TestCase
 
     private TestDataCollection $ids;
 
-    /**
-     * @var array<string, mixed>
-     */
     private array $salesChannel;
 
     protected function setUp(): void
@@ -86,8 +83,6 @@ class SeoUrlUpdaterTest extends TestCase
      * Checks whether the seo url updater is using the correct language for translations.
      *
      * @dataProvider seoLanguageDataProvider
-     *
-     * @param list<string> $translations
      */
     public function testSeoLanguageInheritance(array $translations, string $pathInfo): void
     {
@@ -134,9 +129,6 @@ class SeoUrlUpdaterTest extends TestCase
         static::assertStringStartsWith($pathInfo, $seoUrl->getSeoPathInfo());
     }
 
-    /**
-     * @return list<array{translations: list<string>, pathInfo: string}>
-     */
     public function seoLanguageDataProvider(): array
     {
         return [

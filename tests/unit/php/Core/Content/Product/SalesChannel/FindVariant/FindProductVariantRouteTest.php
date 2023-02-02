@@ -24,7 +24,10 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class FindProductVariantRouteTest extends TestCase
 {
-    private MockObject&SalesChannelRepository $productRepositoryMock;
+    /**
+     * @var MockObject|SalesChannelRepository
+     */
+    private $productRepositoryMock;
 
     private FindProductVariantRoute $route;
 

@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Test\Page;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockCollection;
 use Shopware\Core\Content\Cms\CmsPageEntity;
@@ -11,16 +10,17 @@ use Shopware\Core\Content\Cms\DataResolver\FieldConfigCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewEntity;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\ProductEntity;
-use Shopware\Core\Content\Product\SalesChannel\Review\RatingMatrix;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Util\FloatComparator;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Page\Product\ProductPage;
 use Shopware\Storefront\Page\Product\ProductPageLoadedEvent;
 use Shopware\Storefront\Page\Product\ProductPageLoader;
+use Shopware\Storefront\Page\Product\Review\RatingMatrix;
 use Shopware\Storefront\Page\Product\Review\ReviewLoaderResult;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -138,7 +138,7 @@ class ProductPageTest extends TestCase
 
     public function testItLoadsReviews(): void
     {
-        Feature::skipTestIfActive('v6.6.0.0', $this);
+        Feature::skipTestIfActive('v6.5.0.0', $this);
 
         $context = $this->createSalesChannelContextWithNavigation();
         $product = $this->getRandomProduct($context);
@@ -154,14 +154,13 @@ class ProductPageTest extends TestCase
         static::assertInstanceOf(RatingMatrix::class, $page->getReviews()->getMatrix());
 
         $matrix = $page->getReviews()->getMatrix();
-
-        static::assertEquals(3.333, \round($matrix->getAverageRating(), 3));
+        static::assertTrue(FloatComparator::equals(3.3333333333333, $matrix->getAverageRating()));
         static::assertEquals(6, $matrix->getTotalReviewCount());
     }
 
     public function testItLoadsReviewsWithCustomer(): void
     {
-        Feature::skipTestIfActive('v6.6.0.0', $this);
+        Feature::skipTestIfActive('v6.5.0.0', $this);
 
         $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
         $product = $this->getRandomProduct($context);
@@ -180,7 +179,7 @@ class ProductPageTest extends TestCase
         static::assertEquals($context->getCustomer()->getId(), $page->getReviews()->getCustomerReview()->getCustomerId());
 
         $matrix = $page->getReviews()->getMatrix();
-        static::assertEquals(3.429, \round($matrix->getAverageRating(), 3));
+        static::assertTrue(FloatComparator::equals(3.4285714285714, $matrix->getAverageRating()));
         static::assertEquals(7, $matrix->getTotalReviewCount());
     }
 
@@ -206,8 +205,6 @@ class ProductPageTest extends TestCase
                 ['id' => $seoCategoryId],
             ],
         ]);
-
-        $this->updateProductStream($product->getId(), Uuid::randomHex());
 
         $request = new Request([], [], ['productId' => $product->getId()]);
 
@@ -255,7 +252,9 @@ class ProductPageTest extends TestCase
             ],
         ];
 
-        $product = $context->getContext()->scope(Context::SYSTEM_SCOPE, fn (): ProductEntity => $this->getRandomProduct($context, 10, false, $productCmsPageData));
+        $product = $context->getContext()->scope(Context::SYSTEM_SCOPE, function () use ($context, $productCmsPageData): ProductEntity {
+            return $this->getRandomProduct($context, 10, false, $productCmsPageData);
+        });
 
         static::assertEquals($cmsPageId, $product->getCmsPageId());
         $request = new Request([], [], ['productId' => $product->getId()]);
@@ -419,17 +418,5 @@ class ProductPageTest extends TestCase
 
         $this->getContainer()->get('product_review.repository')
             ->create($reviews, Context::createDefaultContext());
-    }
-
-    private function updateProductStream(string $productId, string $streamId): void
-    {
-        $connection = $this->getContainer()->get(Connection::class);
-        $connection->executeStatement(
-            'UPDATE `product` SET `stream_ids` = :streamIds WHERE `id` = :id',
-            [
-                'streamIds' => json_encode([$streamId], \JSON_THROW_ON_ERROR),
-                'id' => Uuid::fromHexToBytes($productId),
-            ]
-        );
     }
 }

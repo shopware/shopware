@@ -1,15 +1,11 @@
 import template from './sw-order-document-settings-modal.html.twig';
 import './sw-order-document-settings-modal.scss';
 
-/**
- * @package customer-order
- */
-
-const { Mixin, Utils } = Shopware;
+const { Component, Mixin, Utils } = Shopware;
 const { isEmpty } = Utils.types;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-order-document-settings-modal', {
     template,
 
     inject: ['numberRangeService', 'feature', 'repositoryFactory'],
@@ -51,6 +47,8 @@ export default {
             documentNumberPreview: false,
             features: {
                 uploadFileSizeLimit: 52428800,
+                // @feature-deprecated (flag:FEATURE_NEXT_7530) tag:v6.5.0 - Will be removed, use fileAcceptTypes
+                fileTypes: ['application/pdf'],
                 fileAcceptTypes: 'application/pdf',
             },
             showMediaModal: false,
@@ -64,7 +62,7 @@ export default {
         },
 
         modalTitle() {
-            if (this.currentDocumentType) {
+            if (this.feature.isActive('FEATURE_NEXT_7530') && this.currentDocumentType) {
                 const documentTypeName = this.currentDocumentType?.translated?.name || this.currentDocumentType?.name;
                 return `${this.$tc('sw-order.documentModal.modalTitle')} - ${documentTypeName}`;
             }
@@ -182,4 +180,4 @@ export default {
             this.selectedDocumentFile = data[0];
         },
     },
-};
+});

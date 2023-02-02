@@ -1,11 +1,8 @@
 import template from './sw-media-display-options.html.twig';
 import './sw-media-display-options.scss';
 
-/**
- * @package content
- */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Shopware.Component.register('sw-media-display-options', {
     template,
 
     props: {
@@ -76,4 +73,4 @@ export default {
             this.$emit('media-presentation-change', value);
         },
     },
-};
+});

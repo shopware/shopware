@@ -1,10 +1,9 @@
 import template from './sw-category-seo-form.html.twig';
 
-/**
- * @package content
- */
+const { Component } = Shopware;
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-category-seo-form', {
     template,
 
     inject: ['acl'],
@@ -15,4 +14,4 @@ export default {
             required: true,
         },
     },
-};
+});

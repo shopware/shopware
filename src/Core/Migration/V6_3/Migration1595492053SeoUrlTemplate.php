@@ -3,13 +3,8 @@
 namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
-/**
- * @internal
- */
-#[Package('core')]
 class Migration1595492053SeoUrlTemplate extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -19,7 +14,7 @@ class Migration1595492053SeoUrlTemplate extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeStatement('
+        $connection->exec('
             CREATE TABLE IF NOT EXISTS `seo_url_template` (
                 `id` BINARY(16) NOT NULL PRIMARY KEY,
                 `sales_channel_id` BINARY(16) NULL,

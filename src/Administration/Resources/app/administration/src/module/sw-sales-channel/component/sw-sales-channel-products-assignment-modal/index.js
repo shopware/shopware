@@ -1,10 +1,7 @@
-/**
- * @package sales-channel
- */
-
 import template from './sw-sales-channel-products-assignment-modal.html.twig';
 import './sw-sales-channel-products-assignment-modal.scss';
 
+const { Component } = Shopware;
 const { uniqBy } = Shopware.Utils.array;
 
 const updateElementVisibility = (element, binding) => {
@@ -18,7 +15,7 @@ const updateElementVisibility = (element, binding) => {
 };
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-sales-channel-products-assignment-modal', {
     template,
 
     directives: {
@@ -127,4 +124,4 @@ export default {
             this.isProductLoading = isProductLoading;
         },
     },
-};
+});

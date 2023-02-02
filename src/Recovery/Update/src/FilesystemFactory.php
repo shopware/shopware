@@ -6,9 +6,6 @@ use Gaufrette\Adapter\Ftp as FtpAdapter;
 use Gaufrette\Adapter\Local as LocalAdapter;
 use Gaufrette\Filesystem;
 
-/**
- * @package system-settings
- */
 class FilesystemFactory
 {
     /**

@@ -43,7 +43,7 @@
 
 .line-item-quantity-label {
     @include make-col-ready();
-    @include make-col(6);
+    @include make-col(8);
     @include media-breakpoint-up(sm) {
         @include make-col(12);
     }
@@ -51,12 +51,11 @@
 
 .line-item-quantity-select-wrapper {
     @include make-col-ready();
-    @include make-col(6);
+    @include make-col(4);
     @include media-breakpoint-up(sm) {
         @include make-col(12);
     }
 }
-
 
 .line-item-unit-price {
     // Equals: .col-12 .col-sm-4 .col-md-2;
@@ -115,15 +114,16 @@
     }
 
     .line-item-quantity-label {
-        @include make-col(7);
+        @include make-col(8);
     }
 
     .line-item-quantity-select-wrapper {
-        @include make-col(5);
+        @include make-col(4);
     }
 
+    // Omit unit price in OffCanvas
     .line-item-unit-price {
-        @include make-col(12);
+        display: none;
     }
 
     .line-item-tax-price {
@@ -227,11 +227,11 @@
 
 .line-item-unit-price,
 .line-item-tax-price {
-    order: 5;
+    order: 4;
 }
 
 .line-item-total-price {
-    order: 4;
+    order: 5;
 }
 
 .line-item-remove {
@@ -252,6 +252,8 @@
     width: 100%;
     height: 70px;
     object-fit: contain;
+    // @deprecated tag:v6.5.0 - Bootstrap v5 will discontinue IE11 support. font-family polyfill will be removed.
+    font-family: 'object-fit: contain;'; // IE polyfill
 }
 
 .line-item-info {
@@ -262,55 +264,11 @@
     font-weight: $font-weight-bold;
 }
 
+.line-item-unit-price,
 .line-item-total-price,
 .line-item-tax-price {
     justify-content: space-between;
     display: flex;
-}
-
-.line-item-total-price {
-    justify-content: flex-end;
-}
-
-.line-item-tax-price {
-    justify-content: flex-end;
-}
-
-@include media-breakpoint-only(xs) {
-    .line-item-tax-price,
-    .line-item-unit-price {
-        font-size: $font-size-sm;
-        font-style: italic;
-    }
-}
-
-.line-item-unit-price {
-    display: none;
-}
-
-@include media-breakpoint-up(sm) {
-    .line-item-unit-price {
-        display: flex;
-        justify-content: flex-end;
-    }
-}
-
-.line-item-unit-price.is-shown {
-    display: flex;
-    justify-content: flex-end;
-}
-
-.is-offcanvas .line-item-unit-price {
-    display: none;
-    font-size: $font-size-sm;
-    font-style: italic;
-}
-
-.is-offcanvas .line-item-unit-price {
-    &.is-shown {
-        display: flex;
-        justify-content: flex-end;
-    }
 }
 
 .line-item-quantity-label,
@@ -360,6 +318,7 @@
 .is-order {
     @include media-breakpoint-up(sm) {
         .line-item-quantity-container {
+            width: 70px;
             margin-left: auto;
         }
 
@@ -384,15 +343,7 @@
         .line-item-total-price,
         .line-item-tax-price {
             justify-content: normal;
-            flex-direction: column;
-        }
-
-        .line-item-tax-price {
-            order: 4;
-        }
-
-        .line-item-total-price {
-            order: 5;
+            display: block;
         }
     }
 
@@ -626,60 +577,6 @@ a.line-item-label {
 .line-item-total-price-label,
 .line-item-tax-price-label {
     color: $gray-800;
-}
-
-.line-item-total-price-value {
-    text-align: right;
-}
-
-.line-item-unit-price-label {
-    display: none;
-}
-
-.line-item-tax-price-label {
-    display: inline;
-    font-weight: normal;
-    margin-right: 5px;
-}
-
-.line-item-total-price-label {
-    display: none;
-}
-
-@include media-breakpoint-only(sm) {
-    .line-item-unit-price-label {
-        display: block;
-    }
-}
-
-@include media-breakpoint-up(sm) {
-    .line-item-unit-price-value-descriptor {
-        display: none;
-    }
-
-    .line-item-total-price-label {
-        display: block;
-    }
-
-    .line-item-tax-price-label {
-        display: block;
-        font-weight: bold;
-        margin-right: 0;
-    }
-}
-
-.is-offcanvas {
-    .line-item-unit-price-label {
-        display: none;
-    }
-
-    .line-item-total-price-label {
-        display: none;
-    }
-
-    .line-item-unit-price-value-descriptor {
-        display: inline;
-    }
 }
 
 @include media-breakpoint-up(md) {

@@ -9,27 +9,50 @@ use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidFilterQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Serializer\Serializer;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Package('business-ops')]
 class ProductStreamIndexer extends EntityIndexer
 {
+    private IteratorFactory $iteratorFactory;
+
+    private Connection $connection;
+
+    private EntityRepositoryInterface $repository;
+
+    private Serializer $serializer;
+
+    private ProductDefinition $productDefinition;
+
+    private EventDispatcherInterface $eventDispatcher;
+
     /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection, private readonly IteratorFactory $iteratorFactory, private readonly EntityRepository $repository, private readonly SerializerInterface $serializer, private readonly ProductDefinition $productDefinition, private readonly EventDispatcherInterface $eventDispatcher)
-    {
+    public function __construct(
+        Connection $connection,
+        IteratorFactory $iteratorFactory,
+        EntityRepositoryInterface $repository,
+        Serializer $serializer,
+        ProductDefinition $productDefinition,
+        EventDispatcherInterface $eventDispatcher
+    ) {
+        $this->iteratorFactory = $iteratorFactory;
+        $this->repository = $repository;
+        $this->connection = $connection;
+        $this->serializer = $serializer;
+        $this->productDefinition = $productDefinition;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function getName(): string
@@ -37,8 +60,20 @@ class ProductStreamIndexer extends EntityIndexer
         return 'product_stream.indexer';
     }
 
-    public function iterate(?array $offset): ?EntityIndexingMessage
+    /**
+     * @param array|null $offset
+     *
+     * @deprecated tag:v6.5.0 The parameter $offset will be native typed
+     */
+    public function iterate(/*?array */$offset): ?EntityIndexingMessage
     {
+        if ($offset !== null && !\is_array($offset)) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.5.0.0',
+                'Parameter `$offset` of method "iterate()" in class "ProductStreamIndexer" will be natively typed to `?array` in v6.5.0.0.'
+            );
+        }
+
         $iterator = $this->iteratorFactory->createIterator($this->repository->getDefinition(), $offset);
 
         $ids = $iterator->fetch();
@@ -70,7 +105,7 @@ class ProductStreamIndexer extends EntityIndexer
             return;
         }
 
-        $filters = $this->connection->fetchAllAssociative(
+        $filters = $this->connection->fetchAll(
             'SELECT
                 LOWER(HEX(product_stream_id)) as array_key,
                 product_stream_filter.*
@@ -95,7 +130,7 @@ class ProductStreamIndexer extends EntityIndexer
 
             try {
                 $serialized = $this->buildPayload($filter);
-            } catch (InvalidFilterQueryException | SearchRequestException) {
+            } catch (InvalidFilterQueryException | SearchRequestException $exception) {
                 $invalid = true;
             } finally {
                 $update->execute([
@@ -121,7 +156,9 @@ class ProductStreamIndexer extends EntityIndexer
 
     private function buildPayload(array $filter): string
     {
-        usort($filter, static fn (array $a, array $b) => $a['position'] <=> $b['position']);
+        usort($filter, static function (array $a, array $b) {
+            return $a['position'] <=> $b['position'];
+        });
 
         $nested = $this->buildNested($filter, null);
 
@@ -150,7 +187,7 @@ class ProductStreamIndexer extends EntityIndexer
 
             $parameters = $entity['parameters'];
             if ($parameters && \is_string($parameters)) {
-                $decodedParameters = json_decode((string) $entity['parameters'], true);
+                $decodedParameters = json_decode($entity['parameters'], true);
                 if (json_last_error() === \JSON_ERROR_NONE) {
                     $entity['parameters'] = $decodedParameters;
                 }

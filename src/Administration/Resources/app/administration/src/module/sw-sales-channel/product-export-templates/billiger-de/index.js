@@ -1,7 +1,3 @@
-/**
- * @package sales-channel
- */
-
 import header from './header.csv.twig';
 import body from './body.csv.twig';
 

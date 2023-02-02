@@ -52,7 +52,7 @@ class ProductFeatureSetCrudTest extends TestCase
 
         $exists = $this->getContainer()
             ->get(Connection::class)
-            ->fetchOne(
+            ->fetchColumn(
                 'SELECT id FROM product_feature_set WHERE id = :id',
                 ['id' => Uuid::fromHexToBytes($ids->get('feature-set'))]
             );
@@ -66,7 +66,7 @@ class ProductFeatureSetCrudTest extends TestCase
 
         $exists = $this->getContainer()
             ->get(Connection::class)
-            ->fetchOne(
+            ->fetchColumn(
                 'SELECT id FROM product_feature_set WHERE id = :id',
                 ['id' => Uuid::fromHexToBytes($ids->get('feature-set'))]
             );
@@ -75,7 +75,7 @@ class ProductFeatureSetCrudTest extends TestCase
 
         $foreignKey = $this->getContainer()
             ->get(Connection::class)
-            ->fetchOne(
+            ->fetchColumn(
                 'SELECT product_feature_set_id FROM product WHERE id = :id',
                 ['id' => Uuid::fromHexToBytes($ids->get('product'))]
             );

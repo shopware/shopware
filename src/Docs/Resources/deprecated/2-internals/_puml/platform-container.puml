@@ -1,0 +1,20 @@
+@startuml LAYOUT_TOP_DOWN
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Container.puml
+
+title Shopware 6 Building Blocks
+
+System_Boundary(c1, "Shopware 6") {
+
+    Container(core, "Core", "PHP", "Handles the data management and manipulation, provides a REST-API and a rich set of PHP Extension points")
+
+    Container(storefront, "Storefront", "PHP,JS,SCSS,HTML", "Provides a classical Web application with template rendering and composite data loading")
+
+    Container(admin, "Administration", "PHP,JS,SCSS,HTML", "Represents a small PHP-Bridge to the administration SPA")
+}
+
+SystemDb(db, "Storage-Engine", "A combination of MySQL, Redis and ElasticSearch for data storage, retrieval and searching")
+
+Rel_D(admin, core, "uses", "REST-API")
+Rel_D(storefront, core, "uses", "in process")
+Rel_U(db, core, "writes/reads")
+@enduml

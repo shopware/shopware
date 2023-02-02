@@ -23,6 +23,7 @@
           "personaPromotions": "Promotion customer rules",
           "promotionSetGroups": "Promotion set group rules",
           "promotionDiscounts": "Promotion discount product rules",
+          "eventActions": "Business events",
           "flowSequences": "Flows",
           "paymentMethods": "Payment methods",
           "productPrices": "Product price rules",
@@ -51,6 +52,7 @@
       "columnPersonaPromotions": "Promotion customer rule assignments",
       "columnPromotionSetGroups": "Promotion set group rule assignments",
       "columnPromotionDiscounts": "Promotion discount product rule assignments",
+      "columnEventActions": "Business event assignments",
       "columnFlowSequences": "Flow assignments",
       "columnPaymentMethods": "Payment method assignments",
       "columnProductPrices": "Product price assignments",
@@ -68,6 +70,7 @@
         "personaPromotions": "promotion customer rule | promotion customer rules",
         "promotionSetGroups": "promotion set group rule | promotion set group rules",
         "promotionDiscounts": "promotion discount product rule | promotion discount product rules",
+        "eventActions": "business event | business events",
         "flowSequences": "flow | flows",
         "paymentMethods": "payment method | payment methods",
         "productPrices": "product price | product prices",
@@ -91,7 +94,7 @@
       "placeholderTags": "Enter a tag...",
       "messageSaveSuccess": "The rule \"{name}\" has been saved.",
       "ruleCard": "Condition",
-      "messageSaveError": "An error occurred while saving rule",
+      "messageSaveError": "An error occurred while saving rule \"{name}\".",
       "tabGeneral": "General",
       "tabAssignments": "Assignments",
       "buttonAddAssignment":  "Add assignment",
@@ -107,8 +110,8 @@
         "promotionDiscountRules": "Promotion discount product rules",
         "promotionGroupRules": "Promotion set group rules",
         "shippingMethodAvailabilityRule": "Shipping method availability rules",
-        "flows": "Flow Builders",
-        "taxProviders": "Tax Providers"
+        "eventActions": "Business events",
+        "flows": "Flow Builders"
       },
       "typeHasNoAssociations": "No rules assigned",
       "hasNoAssociations": "This rule is not in use",
@@ -128,7 +131,6 @@
         "items": "Items in shopping cart",
         "customers": "Customers",
         "promotions": "Marketing & promotions",
-        "flow": "Flow Builder",
         "misc": "Miscellaneous"
       },
       "textUnsavedConditions": "There are unsaved changes in this rule. Save changes in order to add assignments."

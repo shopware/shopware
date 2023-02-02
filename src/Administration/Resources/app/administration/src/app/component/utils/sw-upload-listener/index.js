@@ -154,7 +154,7 @@ Component.register('sw-upload-listener', {
             const notification = {
                 title: this.$root.$tc('global.default.success'),
                 message: this.$root.$tc(
-                    payload.customMessage ?? 'global.sw-media-upload.notification.success.message',
+                    'global.sw-media-upload.notification.success.message',
                     payload.successAmount,
                     {
                         count: payload.successAmount,

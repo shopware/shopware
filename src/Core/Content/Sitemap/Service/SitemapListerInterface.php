@@ -3,10 +3,8 @@
 namespace Shopware\Core\Content\Sitemap\Service;
 
 use Shopware\Core\Content\Sitemap\Struct\Sitemap;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('sales-channel')]
 interface SitemapListerInterface
 {
     /**

@@ -5,17 +5,15 @@ namespace Shopware\Core\Framework\App\Delta;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Manifest\Manifest;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Struct\PermissionCollection;
 use Shopware\Core\Framework\Store\Struct\PermissionStruct;
 
 /**
  * @internal only for use by the app-system
  */
-#[Package('core')]
 class PermissionsDeltaProvider extends AbstractAppDeltaProvider
 {
-    final public const DELTA_NAME = 'permissions';
+    public const DELTA_NAME = 'permissions';
 
     public function getDeltaName(): string
     {
@@ -61,7 +59,7 @@ class PermissionsDeltaProvider extends AbstractAppDeltaProvider
 
         foreach ($appPrivileges as $privilege) {
             if ($this->isCrudPrivilege($privilege)) {
-                $entityAndOperation = explode(':', (string) $privilege);
+                $entityAndOperation = explode(':', $privilege);
                 if (\array_key_exists($entityAndOperation[1], AclRoleDefinition::PRIVILEGE_DEPENDENCE)) {
                     $permissions[] = array_combine(['entity', 'operation'], $entityAndOperation);
 

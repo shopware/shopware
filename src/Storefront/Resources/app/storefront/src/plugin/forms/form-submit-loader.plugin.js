@@ -5,8 +5,6 @@ import Plugin from 'src/plugin-system/plugin.class';
 /**
  * this plugin shows a loading indicator on the
  * form submit button when the form is submitted
- *
- * @package content
  */
 export default class FormSubmitLoaderPlugin extends Plugin {
     static options = {
@@ -93,6 +91,10 @@ export default class FormSubmitLoaderPlugin extends Plugin {
             loader.create();
         });
 
+        /**
+         * @deprecated tag:v6.5.0 - onFormSubmit event will be removed, use beforeSubmit instead
+         */
+        this.$emitter.publish('onFormSubmit');
         this.$emitter.publish('beforeSubmit');
     }
 }

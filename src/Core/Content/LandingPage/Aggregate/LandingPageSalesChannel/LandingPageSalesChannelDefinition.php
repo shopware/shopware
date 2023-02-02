@@ -10,13 +10,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
-#[Package('content')]
 class LandingPageSalesChannelDefinition extends MappingEntityDefinition
 {
-    final public const ENTITY_NAME = 'landing_page_sales_channel';
+    public const ENTITY_NAME = 'landing_page_sales_channel';
 
     public function getEntityName(): string
     {

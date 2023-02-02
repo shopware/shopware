@@ -2,16 +2,15 @@
     {% if not sliderConfig %}
         {% set sliderConfig = element.fieldConfig.elements %}
     {% endif %}
-
-    {% if element.data.crossSellings.elements is defined and element.data.crossSellings.elements|filter(item => item.total > 0)|length > 0 %}
-        <div class="product-detail-cross-selling">
-            <div class="card card-tabs" data-cross-selling="true">
-                {% block cms_element_cross_selling_tabs_navigation %}
-                    <div class="card-header product-detail-tab-navigation product-cross-selling-tab-navigation">
-                        {% block cms_element_cross_selling_tabs_navigation_container %}
-                            <ul class="nav nav-tabs product-detail-tab-navigation-list"
-                                id="product-detail-cross-selling-tabs"
-                                role="tablist">
+    <div class="product-detail-cross-selling">
+        <div class="card card-tabs" data-cross-selling="true">
+            {% block cms_element_cross_selling_tabs_navigation %}
+                <div class="card-header product-detail-tab-navigation product-cross-selling-tab-navigation">
+                    {% block cms_element_cross_selling_tabs_navigation_container %}
+                        <ul class="nav nav-tabs product-detail-tab-navigation-list"
+                            id="product-detail-cross-selling-tabs"
+                            role="tablist">
+                            {% if element.data.crossSellings.elements is defined %}
                                 {% for item in element.data.crossSellings.elements|filter(item => item.total > 0 and item.crossSelling.active == true) %}
                                     {% set crossSelling = item.crossSelling %}
                                     {% set products = item.products %}
@@ -19,7 +18,7 @@
                                         <li class="nav-item">
                                             <a class="nav-link product-detail-tab-navigation-link{% if loop.first %} active{% endif %}"
                                                id="cross-selling-tab-{{ id }}"
-                                               data-bs-toggle="tab"
+                                               {{ dataBsToggleAttr }}="tab"
                                                href="#cross-selling-tab-{{ id }}-pane"
                                                role="tab"
                                                aria-controls="cross-selling-tab-{{ id }}-pane"
@@ -31,15 +30,17 @@
                                             </a>
                                         </li>
                                 {% endfor %}
-                            </ul>
-                        {% endblock %}
-                    </div>
-                {% endblock %}
+                            {% endif %}
+                        </ul>
+                    {% endblock %}
+                </div>
+            {% endblock %}
 
-                {% block cms_element_cross_selling_tabs_content %}
-                    <div class="product-detail-tabs-content card-body">
-                        {% block cms_element_cross_selling_tabs_content_container %}
-                            <div class="tab-content">
+            {% block cms_element_cross_selling_tabs_content %}
+                <div class="product-detail-tabs-content card-body">
+                    {% block cms_element_cross_selling_tabs_content_container %}
+                        <div class="tab-content">
+                            {% if element.data.crossSellings.elements is defined %}
                                 {% for item in element.data.crossSellings.elements|filter(item => item.total > 0 and item.crossSelling.active == true) %}
                                     {% set crossSelling = item.crossSelling %}
                                     {% set products = item.products %}
@@ -92,11 +93,11 @@
 
                                         </div>
                                 {% endfor %}
-                            </div>
-                        {% endblock %}
-                    </div>
-                {% endblock %}
-            </div>
+                            {% endif %}
+                        </div>
+                    {% endblock %}
+                </div>
+            {% endblock %}
         </div>
-    {% endif %}
+    </div>
 {% endblock %}

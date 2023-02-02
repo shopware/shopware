@@ -1,7 +1,3 @@
-/**
- * @package admin
- */
-
 const FilterFactory = Shopware.Classes._private.FilterFactory;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

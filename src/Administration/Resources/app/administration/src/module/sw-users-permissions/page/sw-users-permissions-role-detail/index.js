@@ -1,12 +1,9 @@
-/**
- * @package system-settings
- */
 import template from './sw-users-permissions-role-detail.html.twig';
 
-const { Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-users-permissions-role-detail', {
     template,
 
     inject: [
@@ -86,16 +83,6 @@ export default {
 
     methods: {
         createdComponent() {
-            Shopware.ExtensionAPI.publishData({
-                id: 'sw-users-permissions-role-detail__detailedPrivileges',
-                path: 'detailedPrivileges',
-                scope: this,
-            });
-            Shopware.ExtensionAPI.publishData({
-                id: 'sw-users-permissions-role-detail__role',
-                path: 'role',
-                scope: this,
-            });
             if (!this.roleId) {
                 this.createNewRole();
                 return;
@@ -201,4 +188,4 @@ export default {
             this.$router.push({ name: 'sw.users.permissions.index' });
         },
     },
-};
+});

@@ -3,17 +3,26 @@
 namespace Shopware\Core\Content\ImportExport\Message;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
 
-#[Package('system-settings')]
-class ImportExportMessage implements AsyncMessageInterface
+class ImportExportMessage
 {
+    private Context $context;
+
+    private string $logId;
+
+    private string $activity;
+
+    private int $offset = 0;
+
     /**
      * @internal
      */
-    public function __construct(private readonly Context $context, private readonly string $logId, private readonly string $activity, private readonly int $offset = 0)
+    public function __construct(Context $context, string $logId, string $activity, int $offset = 0)
     {
+        $this->context = $context;
+        $this->logId = $logId;
+        $this->activity = $activity;
+        $this->offset = $offset;
     }
 
     public function getContext(): Context

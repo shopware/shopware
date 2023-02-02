@@ -14,18 +14,34 @@ use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Adapter\Twig\Exception\StringTemplateRenderingException;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Package('sales-channel')]
 class ProductExportRenderer implements ProductExportRendererInterface
 {
     /**
+     * @var StringTemplateRenderer
+     */
+    private $templateRenderer;
+
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
+    /**
+     * @var SeoUrlPlaceholderHandlerInterface
+     */
+    private $seoUrlPlaceholderHandler;
+
+    /**
      * @internal
      */
-    public function __construct(private readonly StringTemplateRenderer $templateRenderer, private readonly EventDispatcherInterface $eventDispatcher, private readonly SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler)
+    public function __construct(StringTemplateRenderer $templateRenderer, EventDispatcherInterface $eventDispatcher, SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler)
     {
+        $this->templateRenderer = $templateRenderer;
+        $this->eventDispatcher = $eventDispatcher;
+        $this->seoUrlPlaceholderHandler = $seoUrlPlaceholderHandler;
     }
 
     public function renderHeader(

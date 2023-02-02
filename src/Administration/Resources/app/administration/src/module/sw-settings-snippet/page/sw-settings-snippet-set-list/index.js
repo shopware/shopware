@@ -1,13 +1,10 @@
-/**
- * @package system-settings
- */
 import template from './sw-settings-snippet-set-list.html.twig';
 import './sw-settings-snippet-set-list.scss';
 
-const { Mixin, Data: { Criteria } } = Shopware;
+const { Component, Mixin, Data: { Criteria } } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-settings-snippet-set-list', {
     template,
 
     inject: [
@@ -282,4 +279,4 @@ export default {
             };
         },
     },
-};
+});

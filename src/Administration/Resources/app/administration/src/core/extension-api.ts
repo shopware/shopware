@@ -1,6 +1,4 @@
 /**
- * @package admin
- *
  * @module core/extension-api
  */
 

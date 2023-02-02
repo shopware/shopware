@@ -6,35 +6,45 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Controller\ValueResolverInterface;
+use Symfony\Component\HttpKernel\Controller\ArgumentValueResolverInterface;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 
-#[Package('core')]
-class CriteriaValueResolver implements ValueResolverInterface
+class CriteriaValueResolver implements ArgumentValueResolverInterface
 {
+    /**
+     * @var DefinitionInstanceRegistry
+     */
+    private $registry;
+
+    /**
+     * @var RequestCriteriaBuilder
+     */
+    private $criteriaBuilder;
+
     /**
      * @internal
      */
-    public function __construct(private readonly DefinitionInstanceRegistry $registry, private readonly RequestCriteriaBuilder $criteriaBuilder)
+    public function __construct(DefinitionInstanceRegistry $registry, RequestCriteriaBuilder $criteriaBuilder)
     {
+        $this->registry = $registry;
+        $this->criteriaBuilder = $criteriaBuilder;
+    }
+
+    public function supports(Request $request, ArgumentMetadata $argument): bool
+    {
+        return $argument->getType() === Criteria::class;
     }
 
     public function resolve(Request $request, ArgumentMetadata $argument): \Generator
     {
-        if ($argument->getType() !== Criteria::class) {
-            return;
-        }
+        $annotation = $request->attributes->get('_entity');
 
-        /** @var string|null $entity */
-        $entity = $request->attributes->get(PlatformRequest::ATTRIBUTE_ENTITY);
-
-        if (!$entity) {
+        if (!$annotation instanceof Entity) {
             $route = $request->attributes->get('_route');
 
-            throw new \RuntimeException('Missing _entity route default for route: ' . $route);
+            throw new \RuntimeException('Missing @Entity annotation for route: ' . $route);
         }
 
         $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
@@ -44,11 +54,13 @@ class CriteriaValueResolver implements ValueResolverInterface
             throw new \RuntimeException('Missing context for route ' . $route);
         }
 
-        yield $this->criteriaBuilder->handleRequest(
+        $criteria = $this->criteriaBuilder->handleRequest(
             $request,
             new Criteria(),
-            $this->registry->getByEntityName($entity),
+            $this->registry->getByEntityName($annotation->getValue()),
             $context
         );
+
+        yield $criteria;
     }
 }

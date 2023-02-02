@@ -4,12 +4,10 @@ namespace Shopware\Core\Content\Cms\Aggregate\CmsBlock;
 
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<CmsBlockEntity>
  */
-#[Package('content')]
 class CmsBlockCollection extends EntityCollection
 {
     public function getSlots(): CmsSlotCollection
@@ -29,7 +27,9 @@ class CmsBlockCollection extends EntityCollection
 
     public function filterBySectionPosition(string $position): CmsBlockCollection
     {
-        return $this->filter(fn (CmsBlockEntity $entity) => $entity->getSectionPosition() === $position);
+        return $this->filter(function (CmsBlockEntity $entity) use ($position) {
+            return $entity->getSectionPosition() === $position;
+        });
     }
 
     public function setSlots(CmsSlotCollection $slots): void

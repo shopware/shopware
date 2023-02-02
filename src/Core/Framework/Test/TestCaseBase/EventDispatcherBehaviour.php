@@ -11,19 +11,15 @@ trait EventDispatcherBehaviour
      */
     private array $registered = [];
 
-    public function addEventListener(
-        EventDispatcherInterface $dispatcher,
-        string $eventName,
-        callable $callback,
-        int $priority = 0
-    ): void {
+    public function addEventListener(EventDispatcherInterface $dispatcher, string $eventName, callable $callback): void
+    {
         $this->registered[] = [
             'dispatcher' => $dispatcher,
             'name' => $eventName,
             'callback' => $callback,
         ];
 
-        $dispatcher->addListener($eventName, $callback, $priority);
+        $dispatcher->addListener($eventName, $callback);
     }
 
     /**

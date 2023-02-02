@@ -16,24 +16,24 @@ $sw-modal-transition-timing-function: cubic-bezier(0.68, -0.55, 0.26, 1.55);
     background: #fff;
     z-index: $z-index-modal;
 
-    .sw-image-preview-modal__action,
-    .sw-image-preview-modal__button-close {
+    &__action,
+    &__button-close {
         position: absolute;
         top: 0;
         margin: 15px;
         z-index: $sw-modal-action-z-index;
     }
 
-    .sw-image-preview-modal__action {
+    &__action {
         left: 0;
         display: inline-flex;
     }
 
-    .sw-image-preview-modal__button-close {
+    &__button-close {
         right: 0;
     }
 
-    .sw-image-preview-modal__button-action {
+    &__button-action {
         padding: 8px 12px;
         background: $color-gray-50;
         border: 1px solid transparent;
@@ -54,7 +54,7 @@ $sw-modal-transition-timing-function: cubic-bezier(0.68, -0.55, 0.26, 1.55);
         }
     }
 
-    .sw-image-preview-modal__image-slider {
+    &__image-slider {
         position: absolute;
         top: 0;
         bottom: 140px;
@@ -67,7 +67,7 @@ $sw-modal-transition-timing-function: cubic-bezier(0.68, -0.55, 0.26, 1.55);
         }
     }
 
-    .sw-image-preview-modal__thumbnail-slider {
+    &__thumbnail-slider {
         position: absolute;
         bottom: 0;
         width: 100%;
@@ -75,7 +75,7 @@ $sw-modal-transition-timing-function: cubic-bezier(0.68, -0.55, 0.26, 1.55);
         background: $color-white;
     }
 
-    .sw-image-preview-modal__divider {
+    &__divider {
         border: 1px solid $color-gray-300;
         position: absolute;
         bottom: 139px;

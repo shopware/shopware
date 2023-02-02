@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use Psr\Http\Message\ResponseInterface;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Exception\StoreSessionExpiredException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
@@ -16,16 +15,21 @@ use Symfony\Component\HttpFoundation\RequestStack;
 /**
  * @internal
  */
-#[Package('merchant-services')]
 class StoreSessionExpiredMiddleware implements MiddlewareInterface
 {
     private const STORE_TOKEN_EXPIRED = 'ShopwarePlatformException-1';
 
+    private RequestStack $requestStack;
+
+    private Connection $connection;
+
     /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection, private readonly RequestStack $requestStack)
+    public function __construct(Connection $connection, RequestStack $requestStack)
     {
+        $this->connection = $connection;
+        $this->requestStack = $requestStack;
     }
 
     public function __invoke(ResponseInterface $response): ResponseInterface

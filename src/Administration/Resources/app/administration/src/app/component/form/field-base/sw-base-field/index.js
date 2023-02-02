@@ -1,16 +1,10 @@
-/**
- * @package admin
- */
-
 import template from './sw-base-field.html.twig';
 import './sw-base-field.scss';
 
 const { Component } = Shopware;
 const utils = Shopware.Utils;
 
-/**
- * @deprecated tag:v6.6.0 - Will be private
- */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-base-field', {
     template,
     inheritAttrs: false,

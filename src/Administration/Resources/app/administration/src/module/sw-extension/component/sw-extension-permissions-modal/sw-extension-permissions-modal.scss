@@ -7,9 +7,8 @@
 
     .sw-extension-permissions-modal__intro {
         text-align: center;
-        font-size: $font-size-xs;
+        font-size: $font-size-small;
         margin-bottom: 24px;
-        padding: 0 24px;
 
         img {
             margin-bottom: 28px;
@@ -49,10 +48,6 @@
             &:hover {
                 color: $color-shopware-brand-800;
                 background: none;
-
-                .sw-icon {
-                    color: $color-shopware-brand-800;
-                }
             }
 
             .sw-icon {

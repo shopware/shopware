@@ -61,7 +61,8 @@
     height: 26px;
     vertical-align: bottom;
 
-    @include media-breakpoint-down(lg) {
+    // @deprecated tag:v6.5.0 - Bootstrap v5 uses the breakpoint itself instead of the next breakpoint in `media-breakpoint-down()`, use `lg` instead of `md`.
+    @include media-breakpoint-down(if(feature('v6.5.0.0'), lg, md)) {
         height: 22px;
     }
 

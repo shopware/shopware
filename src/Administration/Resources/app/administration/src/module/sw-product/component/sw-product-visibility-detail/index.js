@@ -1,14 +1,11 @@
-/*
- * @package inventory
- */
-
 import template from './sw-product-visibility-detail.html.twig';
 import './sw-product-visibility-detail.scss';
 
+const { Component } = Shopware;
 const { mapState } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-product-visibility-detail', {
     template,
 
     props: {
@@ -57,4 +54,4 @@ export default {
             item.visibility = Number(event);
         },
     },
-};
+});

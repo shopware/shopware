@@ -24,13 +24,14 @@ use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\ParentAssociationCanNotBeFetched;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\NonIdPrimaryKeyTestDefinition;
 use Shopware\Core\Framework\Test\IdsCollection;
@@ -50,11 +51,11 @@ class EntityReaderTest extends TestCase
 
     private Connection $connection;
 
-    private EntityRepository $productRepository;
+    private EntityRepositoryInterface $productRepository;
 
-    private EntityRepository $categoryRepository;
+    private EntityRepositoryInterface $categoryRepository;
 
-    private EntityRepository $languageRepository;
+    private EntityRepositoryInterface $languageRepository;
 
     private string $deLanguageId;
 
@@ -96,6 +97,8 @@ class EntityReaderTest extends TestCase
 
     public function testPartialLoadingAddsImplicitAssociationToRequestedFields(): void
     {
+        Feature::skipTestIfInActive('v6.5.0.0', $this);
+
         $ids = new IdsCollection();
 
         $product = (new ProductBuilder($ids, 'p1'))
@@ -132,6 +135,8 @@ class EntityReaderTest extends TestCase
 
     public function testPartialLoadingManyToOne(): void
     {
+        Feature::skipTestIfInActive('v6.5.0.0', $this);
+
         $ids = new IdsCollection();
 
         $product = (new ProductBuilder($ids, 'p1'))
@@ -164,6 +169,8 @@ class EntityReaderTest extends TestCase
 
     public function testPartialLoadingOneToMany(): void
     {
+        Feature::skipTestIfInActive('v6.5.0.0', $this);
+
         $ids = new IdsCollection();
 
         $this->categoryRepository->upsert([
@@ -221,6 +228,8 @@ class EntityReaderTest extends TestCase
 
     public function testPartialLoadingManyToMany(): void
     {
+        Feature::skipTestIfInActive('v6.5.0.0', $this);
+
         $ids = new IdsCollection();
 
         $products = [
@@ -999,7 +1008,7 @@ class EntityReaderTest extends TestCase
                 'lastName' => 'Test',
                 'customerNumber' => 'A',
                 'salutationId' => $this->getValidSalutationId(),
-                'password' => 'shopware',
+                'password' => 'A',
                 'email' => 'test@test.com' . $id,
                 'defaultShippingAddressId' => $defaultAddressId,
                 'defaultBillingAddressId' => $defaultAddressId,
@@ -1048,7 +1057,7 @@ class EntityReaderTest extends TestCase
                 'lastName' => 'Test',
                 'customerNumber' => 'A',
                 'salutationId' => $this->getValidSalutationId(),
-                'password' => 'shopware',
+                'password' => 'A',
                 'email' => 'test@test.com' . $id,
                 'defaultShippingAddressId' => $defaultAddressId,
                 'defaultBillingAddressId' => $defaultAddressId,
@@ -1065,7 +1074,7 @@ class EntityReaderTest extends TestCase
             ],
         ], $context);
 
-        $addresses = $this->connection->fetchOne('SELECT COUNT(id) FROM customer_address WHERE customer_id = :id', ['id' => Uuid::fromHexToBytes($id)]);
+        $addresses = $this->connection->fetchColumn('SELECT COUNT(id) FROM customer_address WHERE customer_id = :id', ['id' => Uuid::fromHexToBytes($id)]);
         static::assertEquals(5, $addresses);
 
         $criteria = new Criteria([$id]);
@@ -1101,7 +1110,7 @@ class EntityReaderTest extends TestCase
             'lastName' => 'Test',
             'customerNumber' => 'A',
             'salutationId' => $this->getValidSalutationId(),
-            'password' => 'shopware',
+            'password' => 'A',
             'email' => 'test@example.com',
             'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
@@ -1143,10 +1152,10 @@ class EntityReaderTest extends TestCase
 
         $bytes = [Uuid::fromHexToBytes($id1), Uuid::fromHexToBytes($id2)];
 
-        $mapping = $this->connection->fetchAllAssociative('SELECT * FROM customer WHERE id IN (:ids)', ['ids' => $bytes], ['ids' => Connection::PARAM_STR_ARRAY]);
+        $mapping = $this->connection->fetchAll('SELECT * FROM customer WHERE id IN (:ids)', ['ids' => $bytes], ['ids' => Connection::PARAM_STR_ARRAY]);
         static::assertCount(2, $mapping);
 
-        $mapping = $this->connection->fetchAllAssociative('SELECT * FROM customer_address WHERE customer_id IN (:ids)', ['ids' => $bytes], ['ids' => Connection::PARAM_STR_ARRAY]);
+        $mapping = $this->connection->fetchAll('SELECT * FROM customer_address WHERE customer_id IN (:ids)', ['ids' => $bytes], ['ids' => Connection::PARAM_STR_ARRAY]);
         static::assertCount(8, $mapping);
 
         $criteria = new Criteria([$id1, $id2]);
@@ -1200,7 +1209,7 @@ class EntityReaderTest extends TestCase
             'firstName' => 'Test',
             'lastName' => 'Test',
             'customerNumber' => 'A',
-            'password' => 'shopware',
+            'password' => 'A',
             'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
             'group' => ['name' => 'test'],
@@ -1239,10 +1248,10 @@ class EntityReaderTest extends TestCase
 
         $bytes = [Uuid::fromHexToBytes($id1), Uuid::fromHexToBytes($id2)];
 
-        $mapping = $this->connection->fetchAllAssociative('SELECT * FROM customer WHERE id IN (:ids)', ['ids' => $bytes], ['ids' => Connection::PARAM_STR_ARRAY]);
+        $mapping = $this->connection->fetchAll('SELECT * FROM customer WHERE id IN (:ids)', ['ids' => $bytes], ['ids' => Connection::PARAM_STR_ARRAY]);
         static::assertCount(2, $mapping);
 
-        $mapping = $this->connection->fetchAllAssociative('SELECT * FROM customer_address WHERE customer_id IN (:ids)', ['ids' => $bytes], ['ids' => Connection::PARAM_STR_ARRAY]);
+        $mapping = $this->connection->fetchAll('SELECT * FROM customer_address WHERE customer_id IN (:ids)', ['ids' => $bytes], ['ids' => Connection::PARAM_STR_ARRAY]);
         static::assertCount(6, $mapping);
 
         $criteria = new Criteria([$id1, $id2]);
@@ -1325,7 +1334,7 @@ class EntityReaderTest extends TestCase
                 'lastName' => 'Test',
                 'customerNumber' => 'A',
                 'salutationId' => $this->getValidSalutationId(),
-                'password' => 'shopware',
+                'password' => 'A',
                 'email' => 'test@test.com' . Uuid::randomHex(),
                 'defaultShippingAddressId' => $defaultAddressId,
                 'defaultBillingAddressId' => $defaultAddressId,
@@ -1351,7 +1360,9 @@ class EntityReaderTest extends TestCase
         static::assertNotNull($customer->getAddresses());
         static::assertCount(3, $customer->getAddresses());
 
-        $streets = $customer->getAddresses()->map(fn (CustomerAddressEntity $e) => $e->getStreet());
+        $streets = $customer->getAddresses()->map(function (CustomerAddressEntity $e) {
+            return $e->getStreet();
+        });
         static::assertEquals(['A', 'B', 'D'], array_values($streets));
 
         $criteria = new Criteria([$id]);
@@ -1363,7 +1374,9 @@ class EntityReaderTest extends TestCase
         static::assertNotNull($customer->getAddresses());
         static::assertCount(3, $customer->getAddresses());
 
-        $streets = $customer->getAddresses()->map(fn (CustomerAddressEntity $e) => $e->getStreet());
+        $streets = $customer->getAddresses()->map(function (CustomerAddressEntity $e) {
+            return $e->getStreet();
+        });
         static::assertEquals(['X', 'E', 'D'], array_values($streets));
     }
 
@@ -1393,7 +1406,7 @@ class EntityReaderTest extends TestCase
                 'lastName' => 'Test',
                 'customerNumber' => 'A',
                 'salutationId' => $this->getValidSalutationId(),
-                'password' => 'shopware',
+                'password' => 'A',
                 'email' => 'test@test.com' . Uuid::randomHex(),
                 'defaultShippingAddressId' => $defaultAddressId,
                 'defaultBillingAddressId' => $defaultAddressId,
@@ -1421,7 +1434,6 @@ class EntityReaderTest extends TestCase
         $criteria = new Criteria([$id]);
         $criteria->getAssociation('addresses')->setLimit(3);
         $customer = $repository->search($criteria, $context)->get($id);
-        static::assertInstanceOf(CustomerEntity::class, $customer);
         static::assertNotNull($customer->getAddresses());
         static::assertCount(3, $customer->getAddresses());
     }
@@ -1477,7 +1489,7 @@ class EntityReaderTest extends TestCase
         );
 
         $bytes = [Uuid::fromHexToBytes($id1), Uuid::fromHexToBytes($id2)];
-        $mapping = $this->connection->fetchAllAssociative('SELECT * FROM product_category WHERE category_id IN (:ids)', ['ids' => $bytes], ['ids' => Connection::PARAM_STR_ARRAY]);
+        $mapping = $this->connection->fetchAll('SELECT * FROM product_category WHERE category_id IN (:ids)', ['ids' => $bytes], ['ids' => Connection::PARAM_STR_ARRAY]);
         static::assertCount(4, $mapping);
 
         //test many to many not loaded automatically
@@ -1598,7 +1610,7 @@ class EntityReaderTest extends TestCase
         );
 
         $bytes = [Uuid::fromHexToBytes($id1), Uuid::fromHexToBytes($id2)];
-        $mapping = $this->connection->fetchAllAssociative('SELECT * FROM product_category WHERE category_id IN (:ids)', ['ids' => $bytes], ['ids' => Connection::PARAM_STR_ARRAY]);
+        $mapping = $this->connection->fetchAll('SELECT * FROM product_category WHERE category_id IN (:ids)', ['ids' => $bytes], ['ids' => Connection::PARAM_STR_ARRAY]);
         static::assertCount(4, $mapping);
 
         //test that we can add the association and all products are fetched
@@ -1678,7 +1690,7 @@ class EntityReaderTest extends TestCase
         );
 
         $bytes = [Uuid::fromHexToBytes($id1), Uuid::fromHexToBytes($id2)];
-        $mapping = $this->connection->fetchAllAssociative('SELECT * FROM product_category WHERE category_id IN (:ids)', ['ids' => $bytes], ['ids' => Connection::PARAM_STR_ARRAY]);
+        $mapping = $this->connection->fetchAll('SELECT * FROM product_category WHERE category_id IN (:ids)', ['ids' => $bytes], ['ids' => Connection::PARAM_STR_ARRAY]);
         static::assertCount(4, $mapping);
 
         $criteria = new Criteria([$id1, $id2]);
@@ -1753,7 +1765,7 @@ class EntityReaderTest extends TestCase
         );
 
         $bytes = [Uuid::fromHexToBytes($id1), Uuid::fromHexToBytes($id2)];
-        $mapping = $this->connection->fetchAllAssociative('SELECT * FROM product_category WHERE category_id IN (:ids)', ['ids' => $bytes], ['ids' => Connection::PARAM_STR_ARRAY]);
+        $mapping = $this->connection->fetchAll('SELECT * FROM product_category WHERE category_id IN (:ids)', ['ids' => $bytes], ['ids' => Connection::PARAM_STR_ARRAY]);
         static::assertCount(4, $mapping);
 
         $criteria = new Criteria([$id1, $id2]);
@@ -2145,7 +2157,7 @@ class EntityReaderTest extends TestCase
             ],
         ];
 
-        /** @var EntityRepository $repository */
+        /** @var EntityRepositoryInterface $repository */
         $repository = $this->getContainer()->get('non_id_primary_key_test.repository');
 
         $repository->create($data, Context::createDefaultContext());
@@ -2172,12 +2184,42 @@ class EntityReaderTest extends TestCase
             ],
         ];
 
-        /** @var EntityRepository $repository */
+        /** @var EntityRepositoryInterface $repository */
         $repository = $this->getContainer()->get('non_id_primary_key_test.repository');
 
         $repository->create($data, Context::createDefaultContext());
 
         $result = $repository->search(new Criteria([['testField' => $id1]]), Context::createDefaultContext());
+
+        static::assertEquals(1, $result->getTotal());
+        static::assertEquals(1, $result->count());
+    }
+
+    /**
+     * @deprecated tag: v6.5.0 - Can be safely removed when we remove support for reading of storage
+     */
+    public function testReadWithNonIdPKOverStorageName(): void
+    {
+        $id1 = Uuid::randomHex();
+        $id2 = Uuid::randomHex();
+
+        $data = [
+            [
+                'testField' => $id1,
+                'name' => 'test1',
+            ],
+            [
+                'testField' => $id2,
+                'name' => 'test2',
+            ],
+        ];
+
+        /** @var EntityRepositoryInterface $repository */
+        $repository = $this->getContainer()->get('non_id_primary_key_test.repository');
+
+        $repository->create($data, Context::createDefaultContext());
+
+        $result = $repository->search(new Criteria([['test_field' => $id1]]), Context::createDefaultContext());
 
         static::assertEquals(1, $result->getTotal());
         static::assertEquals(1, $result->count());
@@ -2220,9 +2262,6 @@ class EntityReaderTest extends TestCase
 
     /**
      * @dataProvider casesToManyPaginated
-     *
-     * @param list<array<string, mixed>> $data
-     * @param list<string> $expected
      */
     public function testLoadToManyPaginated(array $data, callable $modifier, array $expected): void
     {
@@ -2243,7 +2282,9 @@ class EntityReaderTest extends TestCase
 
         $seoUrlCollection = $result->getSeoUrls();
         static::assertNotNull($seoUrlCollection);
-        $urls = $seoUrlCollection->map(fn (SeoUrlEntity $e) => $e->getSeoPathInfo());
+        $urls = $seoUrlCollection->map(function (SeoUrlEntity $e) {
+            return $e->getSeoPathInfo();
+        });
 
         static::assertSame($expected, array_values($urls));
     }
@@ -2278,9 +2319,6 @@ class EntityReaderTest extends TestCase
         static::assertCount(0, $productMediaCollection);
     }
 
-    /**
-     * @return iterable<string, array{0: list<array<string, mixed>>, 1: callable(Criteria): void, 2: list<string>}>
-     */
     public function casesToManyPaginated(): iterable
     {
         yield 'Multi sort' => [
@@ -2393,9 +2431,6 @@ class EntityReaderTest extends TestCase
 
     /**
      * @dataProvider casesToManyReadPaginatedInherited
-     *
-     * @param array<string, mixed> $criteriaConfig
-     * @param list<string> $expectedMedia
      */
     public function testOneToManyReadingInherited(array $criteriaConfig, array $expectedMedia, string $type): void
     {
@@ -2450,9 +2485,6 @@ class EntityReaderTest extends TestCase
         })));
     }
 
-    /**
-     * @return iterable<string, array{0: array<string, mixed>, 1: list<string>, 2: string}>
-     */
     public function casesToManyReadPaginatedInherited(): iterable
     {
         yield 'parent-data: with limit at 2 with 3 elements' => [

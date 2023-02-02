@@ -1,45 +1,6 @@
 UPGRADE FROM 6.3.x.x to 6.4
 =======================
 
-# 6.4.17.0
-* Themes' snippets are now only applied to Storefront sales channels when they or their child themes are assigned to that sales channel
-## Disabling caching of store-api-routes
-The Cache for Store-API-Routes can now be disabled by implementing the `Shopware\Core\Framework\Adapter\Cache\StoreApiRouteCacheKeyEvent` and calling `disableCache()` method on the event.
-## Limit remote URL file upload max file size
-By default, there is no limit on how large a file is allowed to be when using the URL upload feature. The new parameter
-`shopware.media.url_upload_max_size` can be used to limit the maximum file size. The values can be written in bytes or 
-in a human-readable format like: 1mb, 512kb, 2gb. The default is 0 (unlimited).
-
-# 6.4.16.0
-## Added possibility to extend snippets in the Administration via App. 
-* Snippets can be imported via AdminExtensionSDK
-* Snippets will be validated to not override existing snippets
-* Snippets will be sanitized to avoid script injection
-
-# 6.4.15.2
-## Changed icon.html.twig
-
-We changed the base pathes to the icons in the template `Storefront/Resources/views/storefront/utilities/icon.html.twig`
-If you have overwritten the block `utilities_icon` please change it as follows:
-
-Before:
-```twig
-...
-{% set icon =  source('@' ~ themeIconConfig[pack].namespace ~ '/../' ~ themeIconConfig[pack].path ~'/'~ name ~ '.svg', ignore_missing = true) %}
-...
-{% set icon = source('@' ~ namespace ~ '/../app/storefront/dist/assets/icon/'~ pack ~'/'~ name ~'.svg', ignore_missing = true) %}
-...
-```
-
-After:
-```twig
-...
-{% set icon =  source('@' ~ themeIconConfig[pack].namespace ~ '/' ~ themeIconConfig[pack].path ~'/'~ name ~ '.svg', ignore_missing = true) %}
-...
-{% set icon = source('@' ~ namespace ~ '/assets/icon/'~ pack ~'/'~ name ~'.svg', ignore_missing = true) %}
-...
-```
-
 # 6.4.15.0
 ## Demodata generator registration in DI
 

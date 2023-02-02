@@ -16,12 +16,13 @@ use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Hmac\RequestSigner;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Event\FlowEventAware;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
@@ -32,24 +33,65 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
-#[Package('core')]
 class WebhookDispatcher implements EventDispatcherInterface
 {
+    private EventDispatcherInterface $dispatcher;
+
+    private Connection $connection;
+
     private ?WebhookCollection $webhooks = null;
 
-    /**
-     * @var array<string, mixed>
-     */
+    private Client $guzzle;
+
+    private string $shopUrl;
+
+    private ContainerInterface $container;
+
     private array $privileges = [];
+
+    private HookableEventFactory $eventFactory;
+
+    private string $shopwareVersion;
+
+    private MessageBusInterface $bus;
+
+    private bool $isAdminWorkerEnabled;
 
     /**
      * @internal
      */
-    public function __construct(private readonly EventDispatcherInterface $dispatcher, private readonly Connection $connection, private readonly Client $guzzle, private readonly string $shopUrl, private readonly ContainerInterface $container, private readonly HookableEventFactory $eventFactory, private readonly string $shopwareVersion, private readonly MessageBusInterface $bus, private readonly bool $isAdminWorkerEnabled)
-    {
+    public function __construct(
+        EventDispatcherInterface $dispatcher,
+        Connection $connection,
+        Client $guzzle,
+        string $shopUrl,
+        ContainerInterface $container,
+        HookableEventFactory $eventFactory,
+        string $shopwareVersion,
+        MessageBusInterface $bus,
+        bool $isAdminWorkerEnabled
+    ) {
+        $this->dispatcher = $dispatcher;
+        $this->connection = $connection;
+        $this->guzzle = $guzzle;
+        $this->shopUrl = $shopUrl;
+        // inject container, so we can later get the ShopIdProvider and the webhook repository
+        // ShopIdProvider, AppLocaleProvider and webhook repository can not be injected directly as it would lead to a circular reference
+        $this->container = $container;
+        $this->eventFactory = $eventFactory;
+        $this->shopwareVersion = $shopwareVersion;
+        $this->bus = $bus;
+        $this->isAdminWorkerEnabled = $isAdminWorkerEnabled;
     }
 
-    public function dispatch(object $event, ?string $eventName = null): object
+    /**
+     * @template TEvent of object
+     *
+     * @param TEvent $event
+     *
+     * @return TEvent
+     */
+    public function dispatch($event, ?string $eventName = null): object
     {
         $event = $this->dispatcher->dispatch($event, $eventName);
 
@@ -59,8 +101,14 @@ class WebhookDispatcher implements EventDispatcherInterface
 
         foreach ($this->eventFactory->createHookablesFor($event) as $hookable) {
             $context = Context::createDefaultContext();
-            if ($event instanceof FlowEventAware || $event instanceof AppChangedEvent || $event instanceof EntityWrittenContainerEvent) {
-                $context = $event->getContext();
+            if (Feature::isActive('FEATURE_NEXT_17858')) {
+                if ($event instanceof FlowEventAware || $event instanceof AppChangedEvent || $event instanceof EntityWrittenContainerEvent) {
+                    $context = $event->getContext();
+                }
+            } else {
+                if ($event instanceof BusinessEventInterface || $event instanceof AppChangedEvent || $event instanceof EntityWrittenContainerEvent) {
+                    $context = $event->getContext();
+                }
             }
 
             $this->callWebhooks($hookable, $context);
@@ -72,9 +120,11 @@ class WebhookDispatcher implements EventDispatcherInterface
     }
 
     /**
+     * @param string   $eventName
      * @param callable $listener
+     * @param int      $priority
      */
-    public function addListener(string $eventName, $listener, int $priority = 0): void
+    public function addListener($eventName, $listener, $priority = 0): void
     {
         $this->dispatcher->addListener($eventName, $listener, $priority);
     }
@@ -85,9 +135,10 @@ class WebhookDispatcher implements EventDispatcherInterface
     }
 
     /**
+     * @param string   $eventName
      * @param callable $listener
      */
-    public function removeListener(string $eventName, $listener): void
+    public function removeListener($eventName, $listener): void
     {
         $this->dispatcher->removeListener($eventName, $listener);
     }
@@ -98,22 +149,28 @@ class WebhookDispatcher implements EventDispatcherInterface
     }
 
     /**
+     * @param string|null $eventName
+     *
      * @return array<array-key, array<array-key, callable>|callable>
      */
-    public function getListeners(?string $eventName = null): array
+    public function getListeners($eventName = null): array
     {
         return $this->dispatcher->getListeners($eventName);
     }
 
     /**
+     * @param string   $eventName
      * @param callable $listener
      */
-    public function getListenerPriority(string $eventName, $listener): ?int
+    public function getListenerPriority($eventName, $listener): ?int
     {
         return $this->dispatcher->getListenerPriority($eventName, $listener);
     }
 
-    public function hasListeners(?string $eventName = null): bool
+    /**
+     * @param string|null $eventName
+     */
+    public function hasListeners($eventName = null): bool
     {
         return $this->dispatcher->hasListeners($eventName);
     }
@@ -173,9 +230,6 @@ class WebhookDispatcher implements EventDispatcherInterface
         return $this->webhooks = $webhooks;
     }
 
-    /**
-     * @param array<string> $affectedRoles
-     */
     private function isEventDispatchingAllowed(WebhookEntity $webhook, Hookable $event, array $affectedRoles): bool
     {
         $app = $webhook->getApp();
@@ -222,7 +276,7 @@ class WebhookDispatcher implements EventDispatcherInterface
 
             try {
                 $webhookData = $this->getPayloadForWebhook($webhook, $event);
-            } catch (AppUrlChangeDetectedException) {
+            } catch (AppUrlChangeDetectedException $e) {
                 // don't dispatch webhooks for apps if url changed
                 continue;
             }
@@ -231,7 +285,7 @@ class WebhookDispatcher implements EventDispatcherInterface
             $webhookData['timestamp'] = $timestamp;
 
             /** @var string $jsonPayload */
-            $jsonPayload = json_encode($webhookData, \JSON_THROW_ON_ERROR);
+            $jsonPayload = json_encode($webhookData);
 
             $headers = [
                 'Content-Type' => 'application/json',
@@ -284,7 +338,7 @@ class WebhookDispatcher implements EventDispatcherInterface
 
             try {
                 $webhookData = $this->getPayloadForWebhook($webhook, $event);
-            } catch (AppUrlChangeDetectedException) {
+            } catch (AppUrlChangeDetectedException $e) {
                 // don't dispatch webhooks for apps if url changed
                 continue;
             }
@@ -312,9 +366,6 @@ class WebhookDispatcher implements EventDispatcherInterface
         }
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     private function getPayloadForWebhook(WebhookEntity $webhook, Hookable $event): array
     {
         if ($event instanceof AppFlowActionEvent) {
@@ -346,7 +397,7 @@ class WebhookDispatcher implements EventDispatcherInterface
 
     private function logWebhookWithEvent(WebhookEntity $webhook, WebhookEventMessage $webhookEventMessage): void
     {
-        /** @var EntityRepository $webhookEventLogRepository */
+        /** @var EntityRepositoryInterface $webhookEventLogRepository */
         $webhookEventLogRepository = $this->container->get('webhook_event_log.repository');
 
         $webhookEventLogRepository->create([
@@ -368,7 +419,7 @@ class WebhookDispatcher implements EventDispatcherInterface
      */
     private function loadPrivileges(string $eventName, array $affectedRoleIds): void
     {
-        $roles = $this->connection->fetchAllAssociative('
+        $roles = $this->connection->fetchAll('
             SELECT `id`, `privileges`
             FROM `acl_role`
             WHERE `id` IN (:aclRoleIds)
@@ -380,7 +431,7 @@ class WebhookDispatcher implements EventDispatcherInterface
 
         foreach ($roles as $privilege) {
             $this->privileges[$eventName][Uuid::fromBytesToHex($privilege['id'])]
-                = new AclPrivilegeCollection(json_decode((string) $privilege['privileges'], true, 512, \JSON_THROW_ON_ERROR));
+                = new AclPrivilegeCollection(json_decode($privilege['privileges'], true));
         }
     }
 

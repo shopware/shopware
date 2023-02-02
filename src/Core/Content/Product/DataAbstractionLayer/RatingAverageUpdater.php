@@ -5,17 +5,21 @@ namespace Shopware\Core\Content\Product\DataAbstractionLayer;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-#[Package('core')]
 class RatingAverageUpdater
 {
     /**
+     * @var Connection
+     */
+    private $connection;
+
+    /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection)
+    public function __construct(Connection $connection)
     {
+        $this->connection = $connection;
     }
 
     public function update(array $ids, Context $context): void
@@ -27,7 +31,7 @@ class RatingAverageUpdater
         $versionId = Uuid::fromHexToBytes($context->getVersionId());
 
         RetryableQuery::retryable($this->connection, function () use ($ids, $versionId): void {
-            $this->connection->executeStatement(
+            $this->connection->executeUpdate(
                 'UPDATE product SET rating_average = NULL WHERE (parent_id IN (:ids) OR id IN (:ids)) AND version_id = :version',
                 ['ids' => Uuid::fromHexToBytesList($ids), 'version' => $versionId],
                 ['ids' => Connection::PARAM_STR_ARRAY]
@@ -48,7 +52,7 @@ class RatingAverageUpdater
         $query->setParameter('ids', Uuid::fromHexToBytesList($ids), Connection::PARAM_STR_ARRAY);
         $query->addGroupBy('IFNULL(product.parent_id, product.id)');
 
-        $averages = $query->executeQuery()->fetchAllAssociative();
+        $averages = $query->execute()->fetchAll();
 
         $query = new RetryableQuery(
             $this->connection,

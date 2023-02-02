@@ -8,14 +8,12 @@ use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
-use Shopware\Core\Framework\Store\Authentication\LocaleProvider;
 use Shopware\Core\Framework\Store\Struct\BinaryCollection;
 use Shopware\Core\Framework\Store\Struct\ExtensionCollection;
 use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
@@ -34,27 +32,43 @@ use Symfony\Component\Intl\Locales;
 /**
  * @internal
  */
-#[Package('merchant-services')]
 class ExtensionLoader
 {
     private const DEFAULT_LOCALE = 'en_GB';
+
+    private ?EntityRepositoryInterface $themeRepository;
 
     /**
      * @var array<string>|null
      */
     private ?array $installedThemeNames = null;
 
-    public function __construct(private readonly ?EntityRepository $themeRepository, private readonly AbstractAppLoader $appLoader, private readonly ConfigurationService $configurationService, private readonly LocaleProvider $localeProvider, private readonly LanguageLocaleCodeProvider $languageLocaleProvider)
-    {
+    private AbstractAppLoader $appLoader;
+
+    private ConfigurationService $configurationService;
+
+    private StoreService $storeService;
+
+    private LanguageLocaleCodeProvider $languageLocaleProvider;
+
+    public function __construct(
+        ?EntityRepositoryInterface $themeRepository,
+        AbstractAppLoader $appLoader,
+        ConfigurationService $configurationService,
+        StoreService $storeService,
+        LanguageLocaleCodeProvider $languageLocaleProvider
+    ) {
+        $this->themeRepository = $themeRepository;
+        $this->appLoader = $appLoader;
+        $this->configurationService = $configurationService;
+        $this->storeService = $storeService;
+        $this->languageLocaleProvider = $languageLocaleProvider;
     }
 
-    /**
-     * @param array<string, mixed> $data
-     */
     public function loadFromArray(Context $context, array $data, ?string $locale = null): ExtensionStruct
     {
         if ($locale === null) {
-            $locale = $this->localeProvider->getLocaleFromContext($context);
+            $locale = $this->storeService->getLanguageByContext($context);
         }
 
         $localeWithUnderscore = str_replace('-', '_', $locale);
@@ -63,12 +77,9 @@ class ExtensionLoader
         return ExtensionStruct::fromArray($data);
     }
 
-    /**
-     * @param array<array<string, mixed>> $data
-     */
     public function loadFromListingArray(Context $context, array $data): ExtensionCollection
     {
-        $locale = $this->localeProvider->getLocaleFromContext($context);
+        $locale = $this->storeService->getLanguageByContext($context);
         $localeWithUnderscore = str_replace('-', '_', $locale);
         $extensions = new ExtensionCollection();
 
@@ -142,15 +153,15 @@ class ExtensionLoader
 
     /**
      * @param array<string> $languageIds
-     *
-     * @return array<string>
      */
     public function getLocalesCodesFromLanguageIds(array $languageIds): array
     {
         $codes = array_values($this->languageLocaleProvider->getLocalesForLanguageIds($languageIds));
         sort($codes);
 
-        return array_map(static fn (string $locale): string => str_replace('-', '_', $locale), $codes);
+        return array_map(static function (string $locale): string {
+            return str_replace('-', '_', $locale);
+        }, $codes);
     }
 
     private function loadFromPlugin(Context $context, PluginEntity $plugin): ExtensionStruct
@@ -192,7 +203,7 @@ class ExtensionLoader
      */
     private function getInstalledThemeNames(Context $context): array
     {
-        if ($this->installedThemeNames === null && $this->themeRepository instanceof EntityRepository) {
+        if ($this->installedThemeNames === null && $this->themeRepository instanceof EntityRepositoryInterface) {
             $themeNameAggregationName = 'theme_names';
             $criteria = new Criteria();
             $criteria->addAggregation(new TermsAggregation($themeNameAggregationName, 'technicalName'));
@@ -210,7 +221,7 @@ class ExtensionLoader
     {
         $apps = $this->appLoader->load();
         $collection = new ExtensionCollection();
-        $language = $this->localeProvider->getLocaleFromContext($context);
+        $language = $this->storeService->getLanguageByContext($context);
 
         foreach ($apps as $name => $app) {
             $icon = $this->appLoader->getIcon($app);
@@ -240,19 +251,11 @@ class ExtensionLoader
         return $collection;
     }
 
-    /**
-     * @param array<string, mixed> $data
-     *
-     * @return array<string, StoreCollection|mixed|null>
-     */
     private function prepareArrayData(array $data, ?string $locale): array
     {
         return $this->translateExtensionLanguages($this->replaceCollections($data), $locale);
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     private function prepareAppData(Context $context, AppEntity $app): array
     {
         $installedThemeNames = $this->getInstalledThemeNames($context);
@@ -292,7 +295,7 @@ class ExtensionLoader
     /**
      * @param array<string, mixed> $data
      *
-     * @return array<string, StoreCollection|mixed|null>
+     * @return array<string, StoreCollection|array<string>|null>
      */
     private function replaceCollections(array $data): array
     {
@@ -312,11 +315,6 @@ class ExtensionLoader
         return $data;
     }
 
-    /**
-     * @param array<string> $appPrivileges
-     *
-     * @return array<array<string, string>>
-     */
     private function makePermissionArray(array $appPrivileges): array
     {
         $permissions = [];
@@ -325,9 +323,7 @@ class ExtensionLoader
             if (substr_count($privilege, ':') === 1) {
                 $entityAndOperation = explode(':', $privilege);
                 if (\array_key_exists($entityAndOperation[1], AclRoleDefinition::PRIVILEGE_DEPENDENCE)) {
-                    /** @var array<string, string> $permission */
-                    $permission = array_combine(['entity', 'operation'], $entityAndOperation);
-                    $permissions[] = $permission;
+                    $permissions[] = array_combine(['entity', 'operation'], $entityAndOperation);
 
                     continue;
                 }
@@ -339,11 +335,6 @@ class ExtensionLoader
         return $permissions;
     }
 
-    /**
-     * @param array<string, StoreCollection|mixed|null> $data
-     *
-     * @return array<string, StoreCollection|mixed|null>
-     */
     private function translateExtensionLanguages(array $data, ?string $locale = self::DEFAULT_LOCALE): array
     {
         if (!isset($data['languages'])) {
@@ -359,32 +350,27 @@ class ExtensionLoader
         return $data;
     }
 
-    /**
-     * @return array<array{name: string}>
-     */
     private function makeLanguagesArray(AppTranslationCollection $translations): array
     {
         $languageIds = array_map(
-            static fn ($translation) => $translation->getLanguageId(),
+            static function ($translation) {
+                return $translation->getLanguageId();
+            },
             $translations->getElements()
         );
 
         $translationLocales = $this->getLocalesCodesFromLanguageIds($languageIds);
 
         return array_map(
-            static fn ($translationLocale) => ['name' => $translationLocale],
+            static function ($translationLocale) {
+                return ['name' => $translationLocale];
+            },
             $translationLocales
         );
     }
 
-    /**
-     * @param array<string, string> $translations
-     */
-    private function getTranslationFromArray(
-        array $translations,
-        string $currentLanguage,
-        string $fallbackLanguage = self::DEFAULT_LOCALE
-    ): ?string {
+    private function getTranslationFromArray(array $translations, string $currentLanguage, string $fallbackLanguage = self::DEFAULT_LOCALE): ?string
+    {
         if (isset($translations[$currentLanguage])) {
             return $translations[$currentLanguage];
         }

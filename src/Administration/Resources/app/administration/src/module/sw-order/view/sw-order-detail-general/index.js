@@ -1,17 +1,12 @@
 import template from './sw-order-detail-general.html.twig';
 
-/**
- * @package customer-order
- */
-
-const { Utils, Mixin } = Shopware;
+const { Component, Utils, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { format, array } = Utils;
 const { mapGetters, mapState } = Shopware.Component.getComponentHelper();
-const { cloneDeep } = Shopware.Utils.object;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-order-detail-general', {
     template,
 
     inject: [
@@ -54,6 +49,7 @@ export default {
     computed: {
         ...mapGetters('swOrderDetail', [
             'isLoading',
+            'isEditing',
         ]),
 
         ...mapState('swOrderDetail', [
@@ -87,7 +83,7 @@ export default {
         },
 
         shippingCostsDetail() {
-            const calcTaxes = this.sortByTaxRate(cloneDeep(this.order.shippingCosts.calculatedTaxes));
+            const calcTaxes = this.sortByTaxRate(this.order.shippingCosts.calculatedTaxes);
             const formattedTaxes = `${calcTaxes.map(
                 calcTax => `${this.$tc('sw-order.detailBase.shippingCostsTax', 0, {
                     taxRate: calcTax.taxRate,
@@ -99,8 +95,7 @@ export default {
         },
 
         sortedCalculatedTaxes() {
-            return this.sortByTaxRate(cloneDeep(this.order.price.calculatedTaxes))
-                .filter(price => price.tax !== 0);
+            return this.sortByTaxRate(this.order.price.calculatedTaxes).filter(price => price.tax !== 0);
         },
 
         transactionOptionPlaceholder() {
@@ -115,10 +110,8 @@ export default {
                 return null;
             }
 
-            return this.stateStyleDataProviderService.getStyle(
-                'order_transaction.state',
-                this.transaction.stateMachineState.technicalName,
-            ).selectBackgroundStyle;
+            return this.stateStyleDataProviderService.getStyle('order_transaction.state',
+                this.transaction.stateMachineState.technicalName).selectBackgroundStyle;
         },
 
         orderOptionPlaceholder() {
@@ -135,10 +128,8 @@ export default {
                 return null;
             }
 
-            return this.stateStyleDataProviderService.getStyle(
-                'order.state',
-                this.order.stateMachineState.technicalName,
-            ).selectBackgroundStyle;
+            return this.stateStyleDataProviderService.getStyle('order.state',
+                this.order.stateMachineState.technicalName).selectBackgroundStyle;
         },
 
         deliveryOptionPlaceholder() {
@@ -155,10 +146,8 @@ export default {
                 return null;
             }
 
-            return this.stateStyleDataProviderService.getStyle(
-                'order_delivery.state',
-                this.delivery.stateMachineState.technicalName,
-            ).selectBackgroundStyle;
+            return this.stateStyleDataProviderService.getStyle('order_delivery.state',
+                this.delivery.stateMachineState.technicalName).selectBackgroundStyle;
         },
 
         customFieldSetRepository() {
@@ -246,4 +235,4 @@ export default {
             this.$emit('recalculate-and-reload');
         },
     },
-};
+});

@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write;
 
 use Shopware\Core\Framework\Api\Exception\IncompletePrimaryKeyException;
-use Shopware\Core\Framework\Api\Exception\InvalidSyncOperationException;
 use Shopware\Core\Framework\Api\Sync\SyncOperation;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityForeignKeyResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityHydrator;
@@ -25,38 +24,49 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolation;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageLoaderInterface;
 
 /**
- * @internal
- *
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
  * Handles all write operations in the system.
  * Builds first a command queue over the WriteCommandExtractor and let execute this queue
  * over the EntityWriteGateway (sql implementation in default).
  */
-#[Package('core')]
 class EntityWriter implements EntityWriterInterface
 {
+    private EntityForeignKeyResolver $foreignKeyResolver;
+
+    private WriteCommandExtractor $commandExtractor;
+
+    private EntityWriteGatewayInterface $gateway;
+
+    private LanguageLoaderInterface $languageLoader;
+
+    private DefinitionInstanceRegistry $registry;
+
+    private EntityWriteResultFactory $factory;
+
     /**
      * @internal
      */
     public function __construct(
-        private readonly WriteCommandExtractor $commandExtractor,
-        private readonly EntityForeignKeyResolver $foreignKeyResolver,
-        private readonly EntityWriteGatewayInterface $gateway,
-        private readonly LanguageLoaderInterface $languageLoader,
-        private readonly DefinitionInstanceRegistry $registry,
-        private readonly EntityWriteResultFactory $factory
+        WriteCommandExtractor $writeResource,
+        EntityForeignKeyResolver $foreignKeyResolver,
+        EntityWriteGatewayInterface $gateway,
+        LanguageLoaderInterface $languageLoader,
+        DefinitionInstanceRegistry $registry,
+        EntityWriteResultFactory $factory
     ) {
+        $this->foreignKeyResolver = $foreignKeyResolver;
+        $this->commandExtractor = $writeResource;
+        $this->gateway = $gateway;
+        $this->languageLoader = $languageLoader;
+        $this->registry = $registry;
+        $this->factory = $factory;
     }
 
     // TODO: prefetch
-    /**
-     * @param SyncOperation[] $operations
-     * @throw InvalidSyncOperationException
-     */
     public function sync(array $operations, WriteContext $context): WriteResult
     {
         $commandQueue = new WriteCommandQueue();
@@ -73,8 +83,6 @@ class EntityWriter implements EntityWriterInterface
             if (!$operation instanceof SyncOperation) {
                 continue;
             }
-
-            $this->validateSyncOperationInput($operation);
 
             $definition = $this->registry->getByEntityName($operation->getEntity());
 
@@ -125,39 +133,22 @@ class EntityWriter implements EntityWriterInterface
         return $result;
     }
 
-    /**
-     * @param array<mixed> $rawData
-     *
-     * @return array<mixed>
-     */
     public function upsert(EntityDefinition $definition, array $rawData, WriteContext $writeContext): array
     {
         return $this->write($definition, $rawData, $writeContext);
     }
 
-    /**
-     * @param array<mixed> $rawData
-     *
-     * @return array<mixed>
-     */
     public function insert(EntityDefinition $definition, array $rawData, WriteContext $writeContext): array
     {
         return $this->write($definition, $rawData, $writeContext, InsertCommand::class);
     }
 
-    /**
-     * @param array<mixed> $rawData
-     *
-     * @return array<mixed>
-     */
     public function update(EntityDefinition $definition, array $rawData, WriteContext $writeContext): array
     {
         return $this->write($definition, $rawData, $writeContext, UpdateCommand::class);
     }
 
     /**
-     * @param array<mixed> $ids
-     *
      * @throws IncompletePrimaryKeyException
      * @throws RestrictDeleteViolationException
      */
@@ -183,11 +174,6 @@ class EntityWriter implements EntityWriterInterface
         return $this->factory->addDeleteResults($result, $notFound, $parents);
     }
 
-    /**
-     * @param array<mixed> $rawData
-     *
-     * @return array<mixed>
-     */
     private function write(EntityDefinition $definition, array $rawData, WriteContext $writeContext, ?string $ensure = null): array
     {
         $this->validateWriteInput($rawData);
@@ -218,9 +204,7 @@ class EntityWriter implements EntityWriterInterface
 
         $writeContext->getExceptions()->tryToThrow();
 
-        $ordered = $commandQueue->getCommandsInOrder();
-
-        $this->gateway->execute($ordered, $writeContext);
+        $this->gateway->execute($commandQueue->getCommandsInOrder(), $writeContext);
 
         $result = $this->factory->build($commandQueue);
 
@@ -233,8 +217,6 @@ class EntityWriter implements EntityWriterInterface
     }
 
     /**
-     * @param array<mixed> $data
-     *
      * @throws \InvalidArgumentException
      */
     private function validateWriteInput(array $data): void
@@ -246,20 +228,6 @@ class EntityWriter implements EntityWriterInterface
         }
     }
 
-    /**
-     * @throws InvalidSyncOperationException
-     */
-    private function validateSyncOperationInput(SyncOperation $operation): void
-    {
-        $errors = $operation->validate();
-        if (\count($errors)) {
-            throw new InvalidSyncOperationException(sprintf('Invalid sync operation. %s', implode(' ', $errors)));
-        }
-    }
-
-    /**
-     * @param array<mixed> $resolved
-     */
     private function addReverseInheritedCommands(WriteCommandQueue $queue, EntityDefinition $definition, WriteContext $writeContext, array $resolved): void
     {
         if ($definition instanceof MappingEntityDefinition) {
@@ -284,9 +252,6 @@ class EntityWriter implements EntityWriterInterface
         }
     }
 
-    /**
-     * @param array<mixed> $resolved
-     */
     private function addDeleteCascadeCommands(WriteCommandQueue $queue, EntityDefinition $definition, WriteContext $writeContext, array $resolved): void
     {
         if ($definition instanceof MappingEntityDefinition) {
@@ -311,9 +276,6 @@ class EntityWriter implements EntityWriterInterface
         }
     }
 
-    /**
-     * @param array<mixed> $resolved
-     */
     private function addSetNullOnDeletesCommands(WriteCommandQueue $queue, EntityDefinition $definition, WriteContext $writeContext, array $resolved): void
     {
         if ($definition instanceof MappingEntityDefinition) {
@@ -354,11 +316,6 @@ class EntityWriter implements EntityWriterInterface
         }
     }
 
-    /**
-     * @param array<mixed> $ids
-     *
-     * @return array<mixed>
-     */
     private function resolvePrimaryKeys(array $ids, EntityDefinition $definition, WriteContext $writeContext): array
     {
         $fields = $definition->getPrimaryKeys();
@@ -374,29 +331,33 @@ class EntityWriter implements EntityWriterInterface
                 }
 
                 if (\array_key_exists($property, $raw)) {
-                    $mapped[$property] = $raw[$property];
+                    $mapped[$field->getStorageName()] = $raw[$property];
 
                     continue;
                 }
 
                 if ($field instanceof ReferenceVersionField) {
-                    $mapped[$property] = $writeContext->getContext()->getVersionId();
+                    $mapped[$field->getStorageName()] = $writeContext->getContext()->getVersionId();
 
                     continue;
                 }
 
                 if ($field instanceof VersionField) {
-                    $mapped[$property] = $writeContext->getContext()->getVersionId();
+                    $mapped[$field->getStorageName()] = $writeContext->getContext()->getVersionId();
 
                     continue;
                 }
 
                 $fieldKeys = $fields
                     ->filter(
-                        fn (Field $field) => !$field instanceof VersionField && !$field instanceof ReferenceVersionField
+                        function (Field $field) {
+                            return !$field instanceof VersionField && !$field instanceof ReferenceVersionField;
+                        }
                     )
                     ->map(
-                        fn (Field $field) => $field->getPropertyName()
+                        function (Field $field) {
+                            return $field->getPropertyName();
+                        }
                     );
 
                 throw new IncompletePrimaryKeyException($fieldKeys);
@@ -408,11 +369,6 @@ class EntityWriter implements EntityWriterInterface
         return $resolved;
     }
 
-    /**
-     * @param array<mixed> $ids
-     *
-     * @return array<mixed>
-     */
     private function extractDeleteCommands(EntityDefinition $definition, array $ids, WriteContext $writeContext, WriteCommandQueue $commandQueue): array
     {
         $parameters = new WriteParameterBag($definition, $writeContext, '', $commandQueue);
@@ -431,17 +387,9 @@ class EntityWriter implements EntityWriterInterface
 
         $skipped = [];
         foreach ($resolved as $primaryKey) {
-            $mappedBytes = [];
-            /**
-             * @var string $key
-             * @var string $value
-             */
-            foreach ($primaryKey as $key => $value) {
-                /** @var StorageAware $field */
-                $field = $definition->getFields()->get($key);
-
-                $mappedBytes[$field->getStorageName()] = Uuid::fromHexToBytes($value);
-            }
+            $mappedBytes = array_map(function ($id) {
+                return Uuid::fromHexToBytes($id);
+            }, $primaryKey);
 
             $existence = $this->gateway->getExistence($definition, $mappedBytes, [], $commandQueue);
 
@@ -452,12 +400,8 @@ class EntityWriter implements EntityWriterInterface
             }
 
             $stripped = [];
-            /**
-             * @var string $key
-             * @var string $value
-             */
             foreach ($primaryKey as $key => $value) {
-                $field = $definition->getFields()->get($key);
+                $field = $definition->getFields()->getByStorageName($key);
 
                 if ($field instanceof VersionField || $field instanceof ReferenceVersionField) {
                     continue;

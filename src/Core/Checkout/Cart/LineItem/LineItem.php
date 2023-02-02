@@ -4,57 +4,118 @@ namespace Shopware\Core\Checkout\Cart\LineItem;
 
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
+use Shopware\Core\Checkout\Cart\Exception\InvalidChildQuantityException;
+use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
+use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
+use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
+use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
+use Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Content\Media\MediaEntity;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Struct\Struct;
-use Shopware\Core\Framework\Uuid\Uuid;
 
-#[Package('checkout')]
 class LineItem extends Struct
 {
-    final public const CREDIT_LINE_ITEM_TYPE = 'credit';
-    final public const PRODUCT_LINE_ITEM_TYPE = 'product';
-    final public const CUSTOM_LINE_ITEM_TYPE = 'custom';
-    final public const PROMOTION_LINE_ITEM_TYPE = 'promotion';
-    final public const DISCOUNT_LINE_ITEM = 'discount';
-    final public const CONTAINER_LINE_ITEM = 'container';
+    public const CREDIT_LINE_ITEM_TYPE = 'credit';
+    public const PRODUCT_LINE_ITEM_TYPE = 'product';
+    public const CUSTOM_LINE_ITEM_TYPE = 'custom';
+    public const PROMOTION_LINE_ITEM_TYPE = 'promotion';
+    public const DISCOUNT_LINE_ITEM = 'discount';
+    public const CONTAINER_LINE_ITEM = 'container';
 
     /**
-     * @var array<mixed>
+     * @var array<string, mixed>
      */
-    protected array $payload = [];
+    protected $payload = [];
 
-    protected ?string $label = null;
+    /**
+     * @var string
+     */
+    protected $id;
 
-    protected int $quantity;
+    /**
+     * @var string|null
+     */
+    protected $referencedId;
 
-    protected ?PriceDefinitionInterface $priceDefinition = null;
+    /**
+     * @var string|null
+     */
+    protected $label;
 
-    protected ?CalculatedPrice $price = null;
+    /**
+     * @var int
+     */
+    protected $quantity;
 
-    protected bool $good = true;
+    /**
+     * @var string
+     */
+    protected $type;
 
-    protected ?string $description = null;
+    /**
+     * @var PriceDefinitionInterface|null
+     */
+    protected $priceDefinition;
 
-    protected ?MediaEntity $cover = null;
+    /**
+     * @var CalculatedPrice|null
+     */
+    protected $price;
 
-    protected ?DeliveryInformation $deliveryInformation = null;
+    /**
+     * @var bool
+     */
+    protected $good = true;
 
-    protected LineItemCollection $children;
+    /**
+     * @var string|null
+     */
+    protected $description;
 
-    protected ?Rule $requirement = null;
+    /**
+     * @var MediaEntity|null
+     */
+    protected $cover;
 
-    protected bool $removable = false;
+    /**
+     * @var DeliveryInformation|null
+     */
+    protected $deliveryInformation;
 
-    protected bool $stackable = false;
+    /**
+     * @var LineItemCollection
+     */
+    protected $children;
 
-    protected ?QuantityInformation $quantityInformation = null;
+    /**
+     * @var Rule|null
+     */
+    protected $requirement;
 
-    protected bool $modified = false;
+    /**
+     * @var bool
+     */
+    protected $removable = false;
+
+    /**
+     * @var bool
+     */
+    protected $stackable = false;
+
+    /**
+     * @var QuantityInformation|null
+     */
+    protected $quantityInformation;
+
+    /**
+     * @var bool
+     */
+    protected $modified = false;
 
     /**
      * The data timestamp can be used to record when the line item was last updated with data from the database.
@@ -69,31 +130,27 @@ class LineItem extends Struct
     protected ?string $dataContextHash = null;
 
     /**
-     * Used as a unique id to identify a line item over multiple nested levels
+     * @throws InvalidQuantityException
      */
-    protected string $uniqueIdentifier;
-
-    /**
-     * @var array<int, string>
-     */
-    protected array $states = [];
-
-    /**
-     * @throws CartException
-     */
-    public function __construct(protected string $id, protected string $type, protected ?string $referencedId = null, int $quantity = 1)
+    public function __construct(string $id, string $type, ?string $referencedId = null, int $quantity = 1)
     {
-        $this->uniqueIdentifier = Uuid::randomHex();
+        $this->id = $id;
+        $this->type = $type;
         $this->children = new LineItemCollection();
 
         if ($quantity < 1) {
-            throw CartException::invalidQuantity($quantity);
+            if (Feature::isActive('v6.5.0.0')) {
+                throw CartException::invalidQuantity($quantity);
+            }
+
+            throw new InvalidQuantityException($quantity);
         }
+        $this->referencedId = $referencedId;
         $this->quantity = $quantity;
     }
 
     /**
-     * @throws CartException
+     * @throws InvalidQuantityException
      */
     public static function createFromLineItem(LineItem $lineItem): self
     {
@@ -148,16 +205,25 @@ class LineItem extends Struct
     }
 
     /**
-     * @throws CartException
+     * @throws InvalidQuantityException
+     * @throws LineItemNotStackableException
      */
     public function setQuantity(int $quantity): self
     {
         if ($quantity < 1) {
-            throw CartException::invalidQuantity($quantity);
+            if (Feature::isActive('v6.5.0.0')) {
+                throw CartException::invalidQuantity($quantity);
+            }
+
+            throw new InvalidQuantityException($quantity);
         }
 
         if (!$this->isStackable()) {
-            throw CartException::lineItemNotStackable($this->id);
+            if (Feature::isActive('v6.5.0.0')) {
+                throw CartException::lineItemNotStackable($this->id);
+            }
+
+            throw new LineItemNotStackableException($this->id);
         }
 
         if ($this->hasChildren()) {
@@ -211,12 +277,16 @@ class LineItem extends Struct
     }
 
     /**
-     * @throws CartException
+     * @throws PayloadKeyNotFoundException
      */
     public function removePayloadValue(string $key): void
     {
         if (!$this->hasPayloadValue($key)) {
-            throw CartException::payloadKeyNotFound($key, $this->getId());
+            if (Feature::isActive('v6.5.0.0')) {
+                throw CartException::payloadKeyNotFound($key, $this->getId());
+            }
+
+            throw new PayloadKeyNotFoundException($key, $this->getId());
         }
         unset($this->payload[$key]);
     }
@@ -224,12 +294,16 @@ class LineItem extends Struct
     /**
      * @param mixed|null $value
      *
-     * @throws CartException
+     * @throws InvalidPayloadException
      */
     public function setPayloadValue(string $key, $value): self
     {
         if ($value !== null && !\is_scalar($value) && !\is_array($value)) {
-            throw CartException::invalidPayload($key, $this->getId());
+            if (Feature::isActive('v6.5.0.0')) {
+                throw CartException::invalidPayload($key, $this->getId());
+            }
+
+            throw new InvalidPayloadException($key, $this->getId());
         }
 
         $this->payload[$key] = $value;
@@ -240,7 +314,7 @@ class LineItem extends Struct
     /**
      * @param array<string, mixed> $payload
      *
-     * @throws CartException
+     * @throws InvalidPayloadException
      */
     public function setPayload(array $payload): self
     {
@@ -251,7 +325,11 @@ class LineItem extends Struct
                 continue;
             }
 
-            throw CartException::invalidPayload((string) $key, $this->getId());
+            if (Feature::isActive('v6.5.0.0')) {
+                throw CartException::invalidPayload((string) $key, $this->getId());
+            }
+
+            throw new InvalidPayloadException((string) $key, $this->getId());
         }
 
         return $this;
@@ -344,6 +422,9 @@ class LineItem extends Struct
         return $this->children;
     }
 
+    /**
+     * @throws InvalidChildQuantityException
+     */
     public function setChildren(LineItemCollection $children): self
     {
         foreach ($children as $child) {
@@ -360,7 +441,10 @@ class LineItem extends Struct
     }
 
     /**
-     * @throws CartException
+     * @throws InvalidChildQuantityException
+     * @throws InvalidQuantityException
+     * @throws LineItemNotStackableException
+     * @throws MixedLineItemTypeException
      */
     public function addChild(LineItem $child): self
     {
@@ -470,36 +554,8 @@ class LineItem extends Struct
         $this->dataContextHash = $dataContextHash;
     }
 
-    public function getUniqueIdentifier(): string
-    {
-        return $this->uniqueIdentifier;
-    }
-
     /**
-     * @return array<int, string>
-     */
-    public function getStates(): array
-    {
-        return $this->states;
-    }
-
-    /**
-     * @param array<int, string> $states
-     */
-    public function setStates(array $states): LineItem
-    {
-        $this->states = $states;
-
-        return $this;
-    }
-
-    public function hasState(string $state): bool
-    {
-        return \in_array($state, $this->states, true);
-    }
-
-    /**
-     * @throws CartException
+     * @throws InvalidQuantityException
      */
     private function refreshChildQuantity(
         LineItemCollection $lineItems,
@@ -522,7 +578,7 @@ class LineItem extends Struct
     }
 
     /**
-     * @throws CartException
+     * @throws InvalidChildQuantityException
      */
     private function validateChildQuantity(LineItem $child): void
     {
@@ -533,12 +589,20 @@ class LineItem extends Struct
         }
 
         if ($childQuantity !== 1) {
-            throw CartException::invalidChildQuantity($childQuantity, $parentQuantity);
+            if (Feature::isActive('v6.5.0.0')) {
+                throw CartException::invalidChildQuantity($childQuantity, $parentQuantity);
+            }
+
+            throw new InvalidChildQuantityException($childQuantity, $parentQuantity);
         }
 
         // A quantity of 1 for a child line item is allowed, if the parent line item is not stackable
         if ($this->isStackable()) {
-            throw CartException::invalidChildQuantity($childQuantity, $parentQuantity);
+            if (Feature::isActive('v6.5.0.0')) {
+                throw CartException::invalidChildQuantity($childQuantity, $parentQuantity);
+            }
+
+            throw new InvalidChildQuantityException($childQuantity, $parentQuantity);
         }
     }
 }

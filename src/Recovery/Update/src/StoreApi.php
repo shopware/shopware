@@ -4,9 +4,6 @@ namespace Shopware\Recovery\Update;
 
 use Shopware\Recovery\Common\HttpClient\Client;
 
-/**
- * @package system-settings
- */
 class StoreApi
 {
     /**

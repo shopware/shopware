@@ -10,12 +10,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
-use Shopware\Core\Framework\Log\Package;
 
 /**
- * @internal
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
  */
-#[Package('core')]
 class TranslatedFieldSerializer implements FieldSerializerInterface
 {
     public function normalize(Field $field, array $data, WriteParameterBag $parameters): array
@@ -60,7 +58,7 @@ class TranslatedFieldSerializer implements FieldSerializerInterface
         yield from [];
     }
 
-    public function decode(Field $field, mixed $value): ?string
+    public function decode(Field $field, $value): ?string
     {
         if ($value === null) {
             return $value;

@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Installer\Controller;
 
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Installer\Finish\Notifier;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -10,14 +10,19 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @internal
  */
-#[Package('core')]
 class SelectLanguagesController extends InstallerController
 {
-    public function __construct(private readonly Notifier $notifier)
+    private Notifier $notifier;
+
+    public function __construct(Notifier $notifier)
     {
+        $this->notifier = $notifier;
     }
 
-    #[Route(path: '/installer', name: 'installer.language-selection', methods: ['GET'])]
+    /**
+     * @Since("6.4.15.0")
+     * @Route("/installer", name="installer.language-selection", methods={"GET"})
+     */
     public function languageSelection(): Response
     {
         $this->notifier->doTrackEvent(Notifier::EVENT_INSTALL_STARTED);

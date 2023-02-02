@@ -2,12 +2,9 @@
 
 namespace Shopware\Core\Framework\Changelog;
 
-use Shopware\Core\Framework\Log\Package;
-
 /**
- * @internal
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - will be marked internal
  */
-#[Package('core')]
 class ChangelogParser
 {
     public function parse(string $content): ChangelogDefinition

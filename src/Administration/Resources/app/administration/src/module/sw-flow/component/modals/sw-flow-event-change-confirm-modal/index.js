@@ -5,11 +5,8 @@ const { Component, State } = Shopware;
 const { EntityCollection } = Shopware.Data;
 const { mapGetters } = Component.getComponentHelper();
 
-/**
- * @private
- * @package business-ops
- */
-export default {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+Component.register('sw-flow-event-change-confirm-modal', {
     template,
 
     computed: {
@@ -36,4 +33,4 @@ export default {
             this.$emit('modal-close');
         },
     },
-};
+});

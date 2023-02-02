@@ -10,31 +10,39 @@ use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('content')]
 class CmsSlotsDataResolver
 {
     /**
      * @var CmsElementResolverInterface[]
      */
-    private ?array $resolvers = null;
+    private $resolvers;
 
-    private ?array $repositories = null;
+    /**
+     * @var array
+     */
+    private $repositories;
+
+    /**
+     * @var DefinitionInstanceRegistry
+     */
+    private $definitionRegistry;
 
     /**
      * @internal
      *
      * @param CmsElementResolverInterface[] $resolvers
      */
-    public function __construct(iterable $resolvers, array $repositories, private readonly DefinitionInstanceRegistry $definitionRegistry)
+    public function __construct(iterable $resolvers, array $repositories, DefinitionInstanceRegistry $definitionRegistry)
     {
+        $this->definitionRegistry = $definitionRegistry;
+
         foreach ($repositories as $entityName => $repository) {
             $this->repositories[$entityName] = $repository;
         }
@@ -218,14 +226,14 @@ class CmsSlotsDataResolver
             return false;
         }
 
-        if (empty($criteria->getIds())) {
+        if (empty($filters) && empty($criteria->getIds())) {
             return false;
         }
 
         return true;
     }
 
-    private function getApiRepository(EntityDefinition $definition): EntityRepository
+    private function getApiRepository(EntityDefinition $definition): EntityRepositoryInterface
     {
         return $this->definitionRegistry->getRepository($definition->getEntityName());
     }
@@ -302,7 +310,9 @@ class CmsSlotsDataResolver
                 }
 
                 $ids = $criteria->getIds();
-                $filtered = $entities[$definition]->filter(fn (Entity $entity) => \in_array($entity->getUniqueIdentifier(), $ids, true));
+                $filtered = $entities[$definition]->filter(function (Entity $entity) use ($ids) {
+                    return \in_array($entity->getUniqueIdentifier(), $ids, true);
+                });
 
                 $result->add($key, $filtered);
             }

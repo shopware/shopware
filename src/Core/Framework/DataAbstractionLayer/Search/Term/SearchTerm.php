@@ -2,19 +2,28 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Term;
 
-use Shopware\Core\Framework\Log\Package;
-
 /**
- * @final
+ * @final tag:v6.5.0
  */
-#[Package('core')]
 class SearchTerm
 {
     /**
+     * @var string
+     */
+    protected $term;
+
+    /**
+     * @var float
+     */
+    protected $score;
+
+    /**
      * @internal
      */
-    public function __construct(private readonly string $term, private readonly float $score = 1.0)
+    public function __construct(string $term, float $score = 1.0)
     {
+        $this->term = $term;
+        $this->score = $score;
     }
 
     public function getTerm(): string

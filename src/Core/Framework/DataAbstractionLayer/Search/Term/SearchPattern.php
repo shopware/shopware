@@ -2,31 +2,37 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Term;
 
-use Shopware\Core\Framework\Log\Package;
-
 /**
- * @final
+ * @final tag:v6.5.0
  */
-#[Package('core')]
 class SearchPattern
 {
-    final public const BOOLEAN_CLAUSE_AND = 'boolean_clause_and';
-    final public const BOOLEAN_CLAUSE_OR = 'boolean_clause_or';
+    public const BOOLEAN_CLAUSE_AND = 'boolean_clause_and';
+    public const BOOLEAN_CLAUSE_OR = 'boolean_clause_or';
+
+    /**
+     * @var SearchTerm
+     */
+    protected $original;
 
     /**
      * @var SearchTerm[]
      */
-    private array $terms = [];
+    protected $terms = [];
 
     /**
-     * @var array<int, list<string>>
+     * @var array
      */
-    private array $tokenTerms = [];
+    protected $tokenTerms = [];
 
-    private ?string $booleanClause = null;
+    /**
+     * @var string|null
+     */
+    protected $booleanClause;
 
-    public function __construct(private readonly SearchTerm $original)
+    public function __construct(SearchTerm $original)
     {
+        $this->original = $original;
     }
 
     public function getOriginal(): SearchTerm
@@ -57,25 +63,16 @@ class SearchPattern
         return $this->booleanClause ?? self::BOOLEAN_CLAUSE_OR;
     }
 
-    /**
-     * @param array<int, list<string>> $tokenTerms
-     */
     public function setTokenTerms(array $tokenTerms): void
     {
         $this->tokenTerms = $tokenTerms;
     }
 
-    /**
-     * @return array<int, list<string>>
-     */
     public function getTokenTerms(): array
     {
         return $this->tokenTerms;
     }
 
-    /**
-     * @return list<string>
-     */
     public function getAllTerms(): array
     {
         $terms = [$this->original->getTerm()];

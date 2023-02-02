@@ -8,13 +8,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @internal
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
  */
-#[Package('core')]
 class VersionFieldSerializer implements FieldSerializerInterface
 {
     public function normalize(Field $field, array $data, WriteParameterBag $parameters): array
@@ -50,12 +48,13 @@ class VersionFieldSerializer implements FieldSerializerInterface
         yield $field->getStorageName() => Uuid::fromHexToBytes($data->getValue());
     }
 
-    public function decode(Field $field, mixed $value): ?string
+    /**
+     * @param string $value
+     *
+     * @deprecated tag:v6.5.0 - reason:return-type-change - The return type will change to ?string
+     */
+    public function decode(Field $field, $value): string
     {
-        try {
-            return Uuid::fromBytesToHex($value);
-        } catch (\Exception) {
-            return null;
-        }
+        return Uuid::fromBytesToHex($value);
     }
 }

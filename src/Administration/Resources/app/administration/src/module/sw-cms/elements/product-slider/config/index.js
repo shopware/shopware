@@ -1,14 +1,13 @@
 import template from './sw-cms-el-config-product-slider.html.twig';
 import './sw-cms-el-config-product-slider.scss';
 
-const { Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
 
 /**
- * @private
- * @package content
+ * @private since v6.5.0
  */
-export default {
+Component.register('sw-cms-el-config-product-slider', {
     template,
 
     inject: ['repositoryFactory', 'feature'],
@@ -55,7 +54,7 @@ export default {
         },
 
         productMultiSelectContext() {
-            const context = { ...Shopware.Context.api };
+            const context = Object.assign({}, Shopware.Context.api);
             context.inheritance = true;
 
             return context;
@@ -153,7 +152,7 @@ export default {
                 criteria.setIds(this.element.config.products.value);
 
                 this.productRepository
-                    .search(criteria, { ...Shopware.Context.api, inheritance: true })
+                    .search(criteria, Object.assign({}, Shopware.Context.api, { inheritance: true }))
                     .then((result) => {
                         this.productCollection = result;
                     });
@@ -213,4 +212,4 @@ export default {
             return this.productCollection.has(itemId);
         },
     },
-};
+});

@@ -1,7 +1,3 @@
-/**
- * @package admin
- */
-
 import utils from 'src/core/service/util.service';
 import { warn } from 'src/core/service/utils/debug.utils';
 import Entity from './entity.data';

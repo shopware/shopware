@@ -3,12 +3,10 @@
 namespace Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateTranslation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<MailTemplateTranslationEntity>
  */
-#[Package('sales-channel')]
 class MailTemplateTranslationCollection extends EntityCollection
 {
     /**
@@ -16,12 +14,16 @@ class MailTemplateTranslationCollection extends EntityCollection
      */
     public function getMailTemplateIds(): array
     {
-        return $this->fmap(fn (MailTemplateTranslationEntity $mailTemplateTranslation) => $mailTemplateTranslation->getMailTemplateId());
+        return $this->fmap(function (MailTemplateTranslationEntity $mailTemplateTranslation) {
+            return $mailTemplateTranslation->getMailTemplateId();
+        });
     }
 
     public function filterByMailTemplateId(string $id): self
     {
-        return $this->filter(fn (MailTemplateTranslationEntity $mailTemplateTranslation) => $mailTemplateTranslation->getMailTemplateId() === $id);
+        return $this->filter(function (MailTemplateTranslationEntity $mailTemplateTranslation) use ($id) {
+            return $mailTemplateTranslation->getMailTemplateId() === $id;
+        });
     }
 
     /**
@@ -29,12 +31,16 @@ class MailTemplateTranslationCollection extends EntityCollection
      */
     public function getLanguageIds(): array
     {
-        return $this->fmap(fn (MailTemplateTranslationEntity $mailTemplateTranslation) => $mailTemplateTranslation->getLanguageId());
+        return $this->fmap(function (MailTemplateTranslationEntity $mailTemplateTranslation) {
+            return $mailTemplateTranslation->getLanguageId();
+        });
     }
 
     public function filterByLanguageId(string $id): self
     {
-        return $this->filter(fn (MailTemplateTranslationEntity $mailTemplateTranslation) => $mailTemplateTranslation->getLanguageId() === $id);
+        return $this->filter(function (MailTemplateTranslationEntity $mailTemplateTranslation) use ($id) {
+            return $mailTemplateTranslation->getLanguageId() === $id;
+        });
     }
 
     public function getApiAlias(): string

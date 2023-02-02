@@ -2,17 +2,21 @@
 
 namespace Shopware\Core\System\Snippet;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Struct\MissingSnippetCollection;
 
-#[Package('system-settings')]
 class SnippetFixer
 {
     /**
+     * @var SnippetFileHandler
+     */
+    private $snippetFileHandler;
+
+    /**
      * @internal
      */
-    public function __construct(private readonly SnippetFileHandler $snippetFileHandler)
+    public function __construct(SnippetFileHandler $snippetFileHandler)
     {
+        $this->snippetFileHandler = $snippetFileHandler;
     }
 
     public function fix(MissingSnippetCollection $missingSnippetCollection): void

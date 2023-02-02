@@ -115,18 +115,22 @@ class Migration1592978289ProductCustomFieldSetsTest extends TestCase
             ->listTableDetails($name)
             ->getColumns();
 
-        return array_map(static fn (Column $column): array => self::getColumn(
-            $column->getName(),
-            $column->getType(),
-            $column->getNotnull()
-        ), $columns);
+        return array_map(static function (Column $column): array {
+            return self::getColumn(
+                $column->getName(),
+                $column->getType(),
+                $column->getNotnull()
+            );
+        }, $columns);
     }
 
     private function hasCustomFieldSetColumn(Connection $connection, string $table): bool
     {
         return \count(array_filter(
             $connection->getSchemaManager()->listTableColumns($table),
-            static fn (Column $column): bool => $column->getName() === 'customFieldSets'
+            static function (Column $column): bool {
+                return $column->getName() === 'customFieldSets';
+            }
         )) > 0;
     }
 
@@ -134,7 +138,9 @@ class Migration1592978289ProductCustomFieldSetsTest extends TestCase
     {
         return \count(array_filter(
             $connection->getSchemaManager()->listTableColumns($table),
-            static fn (Column $column): bool => $column->getName() === 'global'
+            static function (Column $column): bool {
+                return $column->getName() === 'global';
+            }
         )) > 0;
     }
 }

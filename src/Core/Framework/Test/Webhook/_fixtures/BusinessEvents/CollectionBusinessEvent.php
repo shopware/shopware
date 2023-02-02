@@ -3,19 +3,25 @@
 namespace Shopware\Core\Framework\Test\Webhook\_fixtures\BusinessEvents;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Event\EventData\EntityCollectionType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
-use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\System\Tax\TaxCollection;
 use Shopware\Core\System\Tax\TaxDefinition;
 
 /**
  * @internal
  */
-class CollectionBusinessEvent implements FlowEventAware, BusinessEventEncoderTestInterface
+class CollectionBusinessEvent implements BusinessEventInterface, BusinessEventEncoderTestInterface
 {
-    public function __construct(private readonly TaxCollection $taxes)
+    /**
+     * @var TaxCollection
+     */
+    private $taxes;
+
+    public function __construct(TaxCollection $taxes)
     {
+        $this->taxes = $taxes;
     }
 
     public static function getAvailableData(): EventDataCollection

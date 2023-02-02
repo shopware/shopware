@@ -2,12 +2,10 @@
 
 namespace Shopware\Storefront\Page\Address\Listing;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\PageLoadedEvent;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('storefront')]
 class AddressListingPageLoadedEvent extends PageLoadedEvent
 {
     /**

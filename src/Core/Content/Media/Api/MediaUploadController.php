@@ -10,25 +10,58 @@ use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Route(defaults: ['_routeScope' => ['api']])]
-#[Package('content')]
+/**
+ * @Route(defaults={"_routeScope"={"api"}})
+ */
 class MediaUploadController extends AbstractController
 {
     /**
+     * @var MediaService
+     */
+    private $mediaService;
+
+    /**
+     * @var FileSaver
+     */
+    private $fileSaver;
+
+    /**
+     * @var FileNameProvider
+     */
+    private $fileNameProvider;
+
+    /**
+     * @var MediaDefinition
+     */
+    private $mediaDefinition;
+
+    /**
      * @internal
      */
-    public function __construct(private readonly MediaService $mediaService, private readonly FileSaver $fileSaver, private readonly FileNameProvider $fileNameProvider, private readonly MediaDefinition $mediaDefinition)
-    {
+    public function __construct(
+        MediaService $mediaService,
+        FileSaver $fileSaver,
+        FileNameProvider $fileNameProvider,
+        MediaDefinition $mediaDefinition
+    ) {
+        $this->mediaService = $mediaService;
+        $this->fileSaver = $fileSaver;
+        $this->fileNameProvider = $fileNameProvider;
+        $this->mediaDefinition = $mediaDefinition;
     }
 
-    #[Route(path: '/api/_action/media/{mediaId}/upload', name: 'api.action.media.upload', methods: ['POST'])]
+    /**
+     * @Since("6.0.0.0")
+     * @Route("/api/_action/media/{mediaId}/upload", name="api.action.media.upload", methods={"POST"})
+     */
     public function upload(Request $request, string $mediaId, Context $context, ResponseFactoryInterface $responseFactory): Response
     {
         $tempFile = tempnam(sys_get_temp_dir(), '');
@@ -50,7 +83,10 @@ class MediaUploadController extends AbstractController
         return $responseFactory->createRedirectResponse($this->mediaDefinition, $mediaId, $request, $context);
     }
 
-    #[Route(path: '/api/_action/media/{mediaId}/rename', name: 'api.action.media.rename', methods: ['POST'])]
+    /**
+     * @Since("6.0.0.0")
+     * @Route("/api/_action/media/{mediaId}/rename", name="api.action.media.rename", methods={"POST"})
+     */
     public function renameMediaFile(Request $request, string $mediaId, Context $context, ResponseFactoryInterface $responseFactory): Response
     {
         $destination = (string) $request->request->get('fileName');
@@ -63,7 +99,10 @@ class MediaUploadController extends AbstractController
         return $responseFactory->createRedirectResponse($this->mediaDefinition, $mediaId, $request, $context);
     }
 
-    #[Route(path: '/api/_action/media/provide-name', name: 'api.action.media.provide-name', methods: ['GET'])]
+    /**
+     * @Since("6.0.0.0")
+     * @Route("/api/_action/media/provide-name", name="api.action.media.provide-name", methods={"GET"})
+     */
     public function provideName(Request $request, Context $context): JsonResponse
     {
         $fileName = (string) $request->query->get('fileName');

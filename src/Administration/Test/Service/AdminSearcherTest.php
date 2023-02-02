@@ -11,7 +11,7 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -27,13 +27,25 @@ class AdminSearcherTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private EntityRepository $productRepository;
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $productRepository;
 
-    private AdminSearcher $searcher;
+    /**
+     * @var AdminSearcher
+     */
+    private $searcher;
 
-    private Context $context;
+    /**
+     * @var Context
+     */
+    private $context;
 
-    private string $userId;
+    /**
+     * @var string
+     */
+    private $userId;
 
     protected function setUp(): void
     {
@@ -42,7 +54,7 @@ class AdminSearcherTest extends TestCase
         $this->searcher = $this->getContainer()->get(AdminSearcher::class);
 
         $connection = $this->getContainer()->get(Connection::class);
-        $userId = (string) $connection->fetchOne('SELECT id FROM `user` WHERE username = "admin"');
+        $userId = (string) $connection->executeQuery("SELECT id FROM `user` WHERE username = 'admin'")->fetchColumn();
         $this->userId = Uuid::fromBytesToHex($userId);
         $this->context = Context::createDefaultContext();
     }

@@ -1,0 +1,78 @@
+@startuml
+' uncomment the line below if you're using computer with a retina display
+' skinparam dpi 300
+!define Table(name,desc) class name as "desc" << (T,#FFAAAA) >>
+!define ForeignTable(name,desc) class name as "desc" << (T,#ada6a6) >>
+!define TranslationTable(name,desc) class name as "desc" << (I,#4286f4) >>
+' we use bold for primary key
+' green color for unique
+' and underscore for not_null
+!define primary_key(x) <b>x</b>
+!define unique(x) <color:green>x</color>
+!define not_null(x) <u>x</u>
+' other tags available:
+' <i></i>
+' <back:COLOR></color>, where color is a color name or html color code
+' (#FFAACC)
+' see: http://plantuml.com/classes.html#More
+hide methods
+hide stereotypes
+hide empty members
+skinparam backgroundColor #FFFFFF
+
+' entities
+
+Table(ShopwareStorefrontThemeThemeDefinition, "theme\n(Storefront themes)") {
+   primary_key(id) id
+   technicalName string
+   not_null(name) string
+   not_null(author) string
+   description translated
+   labels translated
+   helpTexts translated
+   customFields translated
+   previewMediaId foreignKey
+   parentThemeId foreignKey
+   baseConfig json
+   configValues json
+   not_null(active) bool
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+   translated json
+}
+TranslationTable(ShopwareStorefrontThemeAggregateThemeTranslationDefinition, "theme_translation\n((Translations))") {
+   description string
+   labels json
+   helpTexts json
+   customFields customFields
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+   primary_key(themeId) foreignKey
+   primary_key(languageId) foreignKey
+}
+Table(ShopwareStorefrontThemeAggregateThemeSalesChannelDefinition, "theme_sales_channel\n(M:N Mapping)") {
+   primary_key(salesChannelId) foreignKey
+   not_null(themeId) foreignKey
+}
+Table(ShopwareStorefrontThemeAggregateThemeMediaDefinition, "theme_media\n(M:N Mapping)") {
+   primary_key(themeId) foreignKey
+   primary_key(mediaId) foreignKey
+}
+ForeignTable(ShopwareCoreContentMediaMediaDefinition, "media") {
+}
+ForeignTable(ShopwareCoreSystemLanguageLanguageDefinition, "language") {
+}
+ForeignTable(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channel") {
+}
+
+' relationshipd
+
+ShopwareStorefrontThemeAggregateThemeTranslationDefinition --> ShopwareStorefrontThemeThemeDefinition
+ShopwareStorefrontThemeAggregateThemeSalesChannelDefinition --> ShopwareStorefrontThemeThemeDefinition
+ShopwareStorefrontThemeAggregateThemeMediaDefinition --> ShopwareStorefrontThemeThemeDefinition
+ShopwareStorefrontThemeThemeDefinition --> ShopwareCoreContentMediaMediaDefinition
+ShopwareStorefrontThemeThemeDefinition --> ShopwareStorefrontThemeThemeDefinition
+ShopwareStorefrontThemeAggregateThemeTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
+ShopwareStorefrontThemeAggregateThemeSalesChannelDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
+ShopwareStorefrontThemeAggregateThemeMediaDefinition --> ShopwareCoreContentMediaMediaDefinition
+@enduml

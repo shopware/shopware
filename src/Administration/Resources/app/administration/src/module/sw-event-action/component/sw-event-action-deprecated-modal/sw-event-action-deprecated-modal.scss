@@ -1,0 +1,35 @@
+@import "~scss/variables";
+
+.sw-event-action-deprecated-modal {
+    &.sw-modal.sw-modal--large .sw-modal__dialog {
+        max-width: 1024px;
+    }
+
+    &__content-title {
+        font-weight: bold;
+    }
+
+    &__content-description > p {
+        margin-top: 10px;
+        margin-bottom: 18px;
+        text-align: justify;
+    }
+
+    &__content-link {
+        color: $color-shopware-brand-500;
+        font-size: $font-size-small;
+    }
+
+    &.sw-modal .sw-modal__body {
+        padding: 20px 0 20px 30px;
+    }
+
+    .sw-event-action-deprecated-modal__image {
+        overflow: hidden;
+
+        img {
+            width: 100%;
+            height: auto;
+        }
+    }
+}

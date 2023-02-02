@@ -2,18 +2,21 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Filter;
 
-use Shopware\Core\Framework\Log\Package;
-
 /**
- * @final
+ * @final tag:v6.5.0
  */
-#[Package('core')]
 class SuffixFilter extends SingleFieldFilter
 {
-    private readonly string $value;
+    protected string $field;
 
-    public function __construct(private readonly string $field, string|bool|float|int|null $value)
+    protected string $value;
+
+    /**
+     * @param string|float|int|null $value
+     */
+    public function __construct(string $field, $value)
     {
+        $this->field = $field;
         $this->value = (string) $value;
     }
 

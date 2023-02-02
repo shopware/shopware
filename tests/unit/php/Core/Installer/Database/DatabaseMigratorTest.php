@@ -18,11 +18,20 @@ use Shopware\Core\Maintenance\System\Service\SetupDatabaseAdapter;
  */
 class DatabaseMigratorTest extends TestCase
 {
-    private MockObject&SetupDatabaseAdapter $setupAdapter;
+    /**
+     * @var SetupDatabaseAdapter&MockObject
+     */
+    private $setupAdapter;
 
-    private Connection&MockObject $connection;
+    /**
+     * @var Connection&MockObject
+     */
+    private $connection;
 
-    private MockObject&MigrationCollection $migrationCollection;
+    /**
+     * @var MigrationCollection&MockObject
+     */
+    private $migrationCollection;
 
     private DatabaseMigrator $databaseMigrator;
 

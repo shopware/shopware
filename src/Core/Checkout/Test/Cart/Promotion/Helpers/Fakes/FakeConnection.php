@@ -2,31 +2,33 @@
 
 namespace Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Fakes;
 
-use Doctrine\DBAL\Cache\ArrayResult;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Driver\PDO\MySQL\Driver;
-use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Driver\PDOMySql\Driver;
+use Doctrine\DBAL\ForwardCompatibility\Result;
 use Doctrine\DBAL\Query\QueryBuilder;
-use Doctrine\DBAL\Result;
-use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
-#[Package('checkout')]
 class FakeConnection extends Connection
 {
     /**
+     * @var array<mixed>
+     */
+    private array $dbRows;
+
+    /**
      * @param array<mixed> $dbRows
      *
-     * @throws Exception
+     * @throws DBALException
      *
      * @phpstan-ignore-next-line DBAL Connection uses psalm-consistent-constructor annotation,
      * therefore deriving classes should not change the constructor args, as we are in tests we ignore the error
      */
-    public function __construct(private readonly array $dbRows)
+    public function __construct(array $dbRows)
     {
         parent::__construct(
             [
@@ -35,17 +37,24 @@ class FakeConnection extends Connection
             new Driver(),
             new Configuration()
         );
+
+        $this->dbRows = $dbRows;
     }
 
-    public function executeQuery($sql, array $params = [], $types = [], ?QueryCacheProfile $qcp = null): Result
+    /**
+     * @return Result<mixed>
+     */
+    public function executeQuery($sql, array $params = [], $types = [], ?QueryCacheProfile $qcp = null)
     {
         return new Result(
-            new ArrayResult($this->dbRows),
-            $this
+            new FakeResultStatement($this->dbRows)
         );
     }
 
-    public function createQueryBuilder(): QueryBuilder|FakeQueryBuilder
+    /**
+     * @return QueryBuilder|FakeQueryBuilder
+     */
+    public function createQueryBuilder()
     {
         return new FakeQueryBuilder($this, $this->dbRows);
     }

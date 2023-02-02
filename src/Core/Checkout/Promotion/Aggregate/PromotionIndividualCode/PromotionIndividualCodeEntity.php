@@ -6,9 +6,7 @@ use Shopware\Core\Checkout\Promotion\Exception\CodeAlreadyRedeemedException;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('checkout')]
 class PromotionIndividualCodeEntity extends Entity
 {
     use EntityIdTrait;

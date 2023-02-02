@@ -1,0 +1,114 @@
+@startuml
+' uncomment the line below if you're using computer with a retina display
+' skinparam dpi 300
+!define Table(name,desc) class name as "desc" << (T,#FFAAAA) >>
+!define ForeignTable(name,desc) class name as "desc" << (T,#ada6a6) >>
+!define TranslationTable(name,desc) class name as "desc" << (I,#4286f4) >>
+' we use bold for primary key
+' green color for unique
+' and underscore for not_null
+!define primary_key(x) <b>x</b>
+!define unique(x) <color:green>x</color>
+!define not_null(x) <u>x</u>
+' other tags available:
+' <i></i>
+' <back:COLOR></color>, where color is a color name or html color code
+' (#FFAACC)
+' see: http://plantuml.com/classes.html#More
+hide methods
+hide stereotypes
+hide empty members
+skinparam backgroundColor #FFFFFF
+
+' entities
+
+Table(ShopwareCoreFrameworkAppAppDefinition, "app\n(__EMPTY__)") {
+   primary_key(id) id
+   not_null(name) string
+   not_null(path) string
+   author string
+   copyright string
+   license string
+   not_null(active) bool
+   not_null(configurable) bool
+   privacy string
+   not_null(version) string
+   iconRaw blob
+   icon string
+   appSecret string
+   modules list
+   mainModule json
+   cookies list
+   label translated
+   description translated
+   privacyPolicyExtensions translated
+   customFields translated
+   not_null(integrationId) foreignKey
+   not_null(aclRoleId) foreignKey
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+   translated json
+}
+TranslationTable(ShopwareCoreFrameworkAppAggregateAppTranslationAppTranslationDefinition, "app_translation\n((Translations))") {
+   not_null(label) string
+   description longText
+   privacyPolicyExtensions longText
+   customFields customFields
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+   primary_key(appId) foreignKey
+   primary_key(languageId) foreignKey
+}
+Table(ShopwareCoreFrameworkAppAggregateActionButtonActionButtonDefinition, "app_action_button\n(__EMPTY__)") {
+   primary_key(id) id
+   not_null(entity) string
+   not_null(view) string
+   not_null(url) string
+   not_null(action) string
+   not_null(openNewTab) bool
+   label translated
+   not_null(appId) foreignKey
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+   translated json
+}
+TranslationTable(ShopwareCoreFrameworkAppAggregateActionButtonTranslationActionButtonTranslationDefinition, "app_action_button_translation\n((Translations))") {
+   not_null(label) string
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+   primary_key(appActionButtonId) foreignKey
+   primary_key(languageId) foreignKey
+}
+Table(ShopwareCoreFrameworkAppTemplateTemplateDefinition, "app_template\n(__EMPTY__)") {
+   primary_key(id) id
+   not_null(template) longText
+   not_null(path) string
+   not_null(active) bool
+   not_null(appId) foreignKey
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+}
+ForeignTable(ShopwareCoreSystemIntegrationIntegrationDefinition, "integration") {
+}
+ForeignTable(ShopwareCoreFrameworkApiAclRoleAclRoleDefinition, "acl_role") {
+}
+ForeignTable(ShopwareCoreSystemCustomFieldAggregateCustomFieldSetCustomFieldSetDefinition, "custom_field_set") {
+}
+ForeignTable(ShopwareCoreFrameworkWebhookWebhookDefinition, "webhook") {
+}
+ForeignTable(ShopwareCoreSystemLanguageLanguageDefinition, "language") {
+}
+
+' relationshipd
+
+ShopwareCoreFrameworkAppAggregateAppTranslationAppTranslationDefinition --> ShopwareCoreFrameworkAppAppDefinition
+ShopwareCoreFrameworkAppAppDefinition --> ShopwareCoreSystemIntegrationIntegrationDefinition
+ShopwareCoreFrameworkAppAppDefinition --> ShopwareCoreFrameworkApiAclRoleAclRoleDefinition
+ShopwareCoreFrameworkAppAppDefinition --> ShopwareCoreSystemCustomFieldAggregateCustomFieldSetCustomFieldSetDefinition
+ShopwareCoreFrameworkAppAggregateActionButtonActionButtonDefinition --> ShopwareCoreFrameworkAppAppDefinition
+ShopwareCoreFrameworkAppTemplateTemplateDefinition --> ShopwareCoreFrameworkAppAppDefinition
+ShopwareCoreFrameworkAppAppDefinition --> ShopwareCoreFrameworkWebhookWebhookDefinition
+ShopwareCoreFrameworkAppAggregateAppTranslationAppTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
+ShopwareCoreFrameworkAppAggregateActionButtonTranslationActionButtonTranslationDefinition --> ShopwareCoreFrameworkAppAggregateActionButtonActionButtonDefinition
+ShopwareCoreFrameworkAppAggregateActionButtonTranslationActionButtonTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
+@enduml

@@ -26,7 +26,10 @@ class PluginExtractorTest extends TestCase
      */
     private $filesystem;
 
-    private PluginExtractor $extractor;
+    /**
+     * @var PluginExtractor
+     */
+    private $extractor;
 
     protected function setUp(): void
     {

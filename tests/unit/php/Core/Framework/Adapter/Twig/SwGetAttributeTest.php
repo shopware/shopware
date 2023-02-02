@@ -19,13 +19,31 @@ use function Shopware\Core\Framework\Adapter\Twig\sw_get_attribute;
  */
 class SwGetAttributeTest extends TestCase
 {
-    private MockObject&Environment $environmentMock;
+    /**
+     * @var Environment&MockObject
+     */
+    private $environmentMock;
 
     protected function setUp(): void
     {
         $this->environmentMock = $this->createMock(Environment::class);
         /** This is a fix for a autoload issue in the testsuite. Do not delete. */
         class_exists(CoreExtension::class);
+    }
+
+    public function testSwGetAttributeBothNull(): void
+    {
+        $result = sw_get_attribute($this->environmentMock, new Source('', 'empty'), null, null);
+
+        static::assertEquals('', $result);
+    }
+
+    public function testSwGetAttributePropertyNull(): void
+    {
+        $object = new ArrayStruct();
+        $result = sw_get_attribute($this->environmentMock, new Source('', 'empty'), $object, null);
+
+        static::assertEquals('', $result);
     }
 
     public function testSwGetAttributeValueNull(): void

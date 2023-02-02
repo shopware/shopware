@@ -2,18 +2,16 @@
 
 namespace Shopware\Core\Framework\Store\Struct;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * @codeCoverageIgnore
  */
-#[Package('merchant-services')]
 class StoreLicenseViolationTypeStruct extends Struct
 {
-    final public const LEVEL_VIOLATION = 'violation';
-    final public const LEVEL_WARNING = 'warning';
-    final public const LEVEL_INFO = 'info';
+    public const LEVEL_VIOLATION = 'violation';
+    public const LEVEL_WARNING = 'warning';
+    public const LEVEL_INFO = 'info';
 
     /**
      * @var string

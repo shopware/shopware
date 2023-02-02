@@ -1,8 +1,5 @@
 <?php declare(strict_types=1);
 
-/**
- * @package system-settings
- */
 return [
     'title' => 'Shopware 6 – aktualizační skript',
     'meta_text' => '<strong>Aktualizace Shopware:</strong>',
@@ -59,5 +56,4 @@ return [
     'deleted_files' => '&nbsp;odstraněných souborů z %d složek',
     'cache_clear_error' => 'Došlo k chybě. Po aktualizaci smažte mezipaměť ručně.',
     'finish_update' => 'Dokončit aktualizaci',
-    'version' => 'Version',
 ];

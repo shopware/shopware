@@ -4,7 +4,6 @@ import './sw-popover.scss';
 const { Component } = Shopware;
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
  * @public
  * @description Renders a popover
  * @status ready

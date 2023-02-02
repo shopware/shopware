@@ -7,7 +7,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
@@ -17,7 +16,6 @@ use Shopware\Core\Migration\V6_4\Migration1623828962ChangeColumnAppNameAndAppVer
 /**
  * @internal
  */
-#[Package('core')]
 class Migration1623828962ChangeColumnAppNameAndAppVersionInWebhookEventLogTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -28,7 +26,7 @@ class Migration1623828962ChangeColumnAppNameAndAppVersionInWebhookEventLogTest e
     {
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->connection->rollBack();
-        $this->connection->executeStatement('
+        $this->connection->executeUpdate('
             ALTER TABLE `webhook_event_log`
                 MODIFY COLUMN `app_name` VARCHAR(255) NOT NULL,
                 MODIFY COLUMN `app_version` VARCHAR(255) NOT NULL;
@@ -42,7 +40,7 @@ class Migration1623828962ChangeColumnAppNameAndAppVersionInWebhookEventLogTest e
 
     public function testItChangeColumnAppNameAndAppVersionSuccessfully(): void
     {
-        $this->connection->executeStatement('DELETE FROM webhook_event_log');
+        $this->connection->exec('DELETE FROM webhook_event_log');
 
         $context = Context::createDefaultContext();
 

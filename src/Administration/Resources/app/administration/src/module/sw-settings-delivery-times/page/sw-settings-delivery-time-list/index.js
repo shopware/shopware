@@ -1,15 +1,11 @@
 import template from './sw-settings-delivery-time-list.html.twig';
 import './sw-settings-delivery-time-list.scss';
 
-/**
- * @package customer-order
- */
-
-const { Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-settings-delivery-time-list', {
     template,
 
     inject: ['repositoryFactory', 'acl'],
@@ -88,4 +84,4 @@ export default {
             }];
         },
     },
-};
+});

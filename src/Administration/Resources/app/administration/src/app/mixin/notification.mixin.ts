@@ -1,7 +1,3 @@
-/**
- * @package admin
- */
-
 const { Mixin } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -11,14 +7,10 @@ interface notification {
     variant?: NotificationType,
     title?: string,
     message?: string,
-    system?: boolean,
-
-    [key: string]: string | boolean | undefined,
+    system?: string,
+    [key: string]: string | undefined,
 }
 
-/**
- * @deprecated tag:v6.6.0 - Will be private
- */
 Mixin.register('notification', {
     methods: {
         createNotification(notification: notification) {
@@ -26,87 +18,89 @@ Mixin.register('notification', {
         },
 
         createNotificationSuccess(config: notification): void {
-            const notification = {
-                variant: 'success' as NotificationType,
+            const notification = Object.assign({
+                variant: 'success',
+                // @ts-expect-error
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-call
                 title: this.$tc('global.default.success'),
-                ...config,
-            };
+            }, config);
 
             void this.createNotification(notification);
         },
 
         createNotificationInfo(config: notification): void {
-            const notification = {
-                variant: 'info' as NotificationType,
+            const notification = Object.assign({
+                variant: 'info',
+                // @ts-expect-error
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-call
                 title: this.$tc('global.default.info'),
-                ...config,
-            };
+            }, config);
 
             void this.createNotification(notification);
         },
 
         createNotificationWarning(config: notification): void {
-            const notification = {
-                variant: 'warning' as NotificationType,
+            const notification = Object.assign({
+                variant: 'warning',
+                // @ts-expect-error
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-call
                 title: this.$tc('global.default.warning'),
-                ...config,
-            };
+            }, config);
 
             void this.createNotification(notification);
         },
 
         createNotificationError(config: notification): void {
-            const notification = {
-                variant: 'error' as NotificationType,
+            const notification = Object.assign({
+                variant: 'error',
+                // @ts-expect-error
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-call
                 title: this.$tc('global.default.error'),
-                ...config,
-            };
+            }, config);
 
             void this.createNotification(notification);
         },
 
         createSystemNotificationSuccess(config: notification): void {
-            const notification = {
-                variant: 'success' as NotificationType,
+            const notification = Object.assign({
+                variant: 'success',
                 system: true,
-                ...config,
-            };
+            }, config);
 
             void this.createNotification(notification);
         },
 
         createSystemNotificationInfo(config: notification): void {
-            const notification = {
-                variant: 'info' as NotificationType,
+            const notification = Object.assign({
+                variant: 'info',
                 system: true,
-                ...config,
-            };
+            }, config);
 
             void this.createNotification(notification);
         },
 
         createSystemNotificationWarning(config: notification): void {
-            const notification = {
-                variant: 'warning' as NotificationType,
+            const notification = Object.assign({
+                variant: 'warning',
                 system: true,
-                ...config,
-            };
+            }, config);
 
             void this.createNotification(notification);
         },
 
         createSystemNotificationError(config: notification): void {
-            const notification = {
-                variant: 'error' as NotificationType,
+            const notification = Object.assign({
+                variant: 'error',
                 system: true,
-                ...config,
-            };
+            }, config);
 
             void this.createNotification(notification);
         },
 
         createSystemNotification(config: notification): void {
-            const notification = { system: true, ...config };
+            const notification = Object.assign({
+                system: true,
+            }, config);
 
             void this.createNotification(notification);
         },

@@ -4,14 +4,12 @@ namespace Shopware\Core\Migration\Test;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Flow\Aggregate\FlowSequence\FlowSequenceCollection;
 use Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction;
 use Shopware\Core\Content\Flow\FlowEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Migration\V6_4\Migration1632215760MoveDataFromEventActionToFlow;
@@ -19,23 +17,20 @@ use Shopware\Core\Migration\V6_4\Migration1632215760MoveDataFromEventActionToFlo
 /**
  * @internal
  */
-#[Package('core')]
 class Migration1632215760MoveDataFromEventActionToFlowTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
     private TestDataCollection $ids;
 
-    private Connection $connection;
+    private ?Connection $connection;
 
-    private EntityRepository $eventActionRepository;
+    private ?EntityRepositoryInterface $eventActionRepository;
 
-    private EntityRepository $flowRepository;
+    private ?EntityRepositoryInterface $flowRepository;
 
     public function setUp(): void
     {
-        static::markTestSkipped('NEXT-24549: should be enabled again after NEXT-24549 is fixed');
-
         $this->ids = new TestDataCollection();
 
         $this->connection = $this->getContainer()->get(Connection::class);
@@ -115,8 +110,7 @@ class Migration1632215760MoveDataFromEventActionToFlowTest extends TestCase
         $flowSequences = $flow->getSequences();
 
         static::assertSame('checkout.order.placed', $flow->getEventName());
-        static::assertInstanceOf(FlowSequenceCollection::class, $flowSequences);
-        static::assertCount(3, $flowSequences);
+        static::assertSame(3, $flowSequences->count());
 
         foreach ($flowSequences->getElements() as $flowSequence) {
             if ($flowSequence->getActionName() === null) {

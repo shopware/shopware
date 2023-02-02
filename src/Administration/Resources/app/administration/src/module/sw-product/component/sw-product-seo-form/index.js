@@ -1,15 +1,11 @@
-/*
- * @package inventory
- */
-
 import template from './sw-product-seo-form.html.twig';
 
-const { Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapPropertyErrors, mapState, mapGetters } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-product-seo-form', {
     template,
 
     inject: [
@@ -202,4 +198,4 @@ export default {
             });
         },
     },
-};
+});

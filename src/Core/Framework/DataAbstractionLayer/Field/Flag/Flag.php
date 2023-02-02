@@ -2,9 +2,6 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field\Flag;
 
-use Shopware\Core\Framework\Log\Package;
-
-#[Package('core')]
 abstract class Flag
 {
     /**

@@ -1,16 +1,13 @@
 import template from './sw-flow-create-mail-template-modal.html.twig';
 import './sw-flow-create-mail-template-modal.scss';
 
-const { Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 const utils = Shopware.Utils;
 
-/**
- * @private
- * @package business-ops
- */
-export default {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+Component.register('sw-flow-create-mail-template-modal', {
     template,
 
     inject: ['mailService', 'entityMappingService', 'repositoryFactory'],
@@ -52,7 +49,9 @@ export default {
                 function completerFunction(prefix) {
                     const properties = [];
                     Object.keys(
-                        entityMappingService.getEntityMapping(prefix, innerMailTemplateType.availableEntities),
+                        entityMappingService.getEntityMapping(
+                            prefix, innerMailTemplateType.availableEntities,
+                        ),
                     ).forEach((val) => {
                         properties.push({
                             value: val,
@@ -158,4 +157,4 @@ export default {
                 });
         },
     },
-};
+});

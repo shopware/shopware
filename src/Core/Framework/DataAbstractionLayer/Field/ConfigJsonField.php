@@ -4,12 +4,10 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\ConfigJsonFieldAccessorBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ConfigJsonFieldSerializer;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
 class ConfigJsonField extends JsonField
 {
-    final public const STORAGE_KEY = '_value';
+    public const STORAGE_KEY = '_value';
 
     public function __construct(string $storageName, string $propertyName, array $propertyMapping = [])
     {

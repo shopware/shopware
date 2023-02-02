@@ -25,7 +25,7 @@ class Migration1647260673AddIndexForEmailTest extends TestCase
         // Kill index if exists
         try {
             $this->connection->executeStatement('DROP INDEX `idx.email` ON customer');
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
         }
     }
 

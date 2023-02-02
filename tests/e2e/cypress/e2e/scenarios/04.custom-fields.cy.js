@@ -3,13 +3,15 @@ import RuleBuilderPageObject from '../../support/pages/module/sw-rule.page-objec
 
 describe('Creating custom fields and assigning to various models', () => {
     beforeEach(() => {
-        cy.setLocaleToEnGb()
+        cy.loginViaApi()
+            .then(() => {
+                cy.setLocaleToEnGb();
+            })
             .then(() => {
                 cy.createProductFixture();
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/custom/field/create`);
-                cy.contains('.sw-empty-state__title', 'Nog geen vrije tekstvelden.');
                 cy.get('.sw-skeleton').should('not.exist');
                 cy.get('.sw-loader').should('not.exist');
             });
@@ -18,12 +20,12 @@ describe('Creating custom fields and assigning to various models', () => {
     it('@package: create custom text field and verify from categories, product', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/category`,
-            method: 'POST',
+            method: 'POST'
         }).as('category');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/custom-field-set`,
-            method: 'POST',
+            method: 'POST'
         }).as('saveData');
 
         const typeOfTheCustom = 'Tekstveld';
@@ -83,24 +85,23 @@ describe('Creating custom fields and assigning to various models', () => {
     it('@package: create custom number field and verify with rule builder', () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/category`,
-            method: 'POST',
+            method: 'POST'
         }).as('category');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/category/**`,
-            method: 'PATCH',
+            method: 'PATCH'
         }).as('updateCategory');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/custom-field-set`,
-            method: 'POST',
+            method: 'POST'
         }).as('saveData');
 
         const page = new RuleBuilderPageObject();
         const typeOfTheCustom = 'Nummer veld';
 
         cy.visit(`${Cypress.env('admin')}#/sw/settings/custom/field/create`);
-        cy.contains('.sw-card__title', 'Algemene informatie');
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'custom/field/create');
@@ -123,8 +124,6 @@ describe('Creating custom fields and assigning to various models', () => {
         // saving custom field
         cy.get('.sw-settings-set-detail__save-action').click();
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
-        cy.get('.sw-skeleton').should('not.exist');
-        cy.get('.sw-loader').should('not.exist');
 
         cy.contains('Nieuwe vrij tekstveld').click();
         cy.get('#sw-field--currentCustomField-config-customFieldType').select(typeOfTheCustom);
@@ -135,22 +134,12 @@ describe('Creating custom fields and assigning to various models', () => {
 
         // check custom fields from the categories
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
-        cy.contains('.sw-tree-item__label', 'Home');
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'category/index');
-
         cy.get('.sw-tree-item__label').click();
-        cy.contains('.sw-category-detail-base .sw-card__title', 'Algemeen');
-        cy.contains('.sw-text-editor__label', 'Beschrijving');
-        cy.contains('.sw-media-upload-v2__label', 'Schermafbeelding');
-        cy.get('.sw-skeleton').should('not.exist');
-        cy.get('.sw-loader').should('not.exist');
         cy.contains('Vrije tekstvelden').scrollIntoView();
 
-        cy.get('[for="cf set_nummer veld_"]').should('exist');
-        cy.get('[for="cf set_nummer veld_"]').scrollIntoView();
-        cy.get('[for="cf set_nummer veld_"]').should('be.visible');
         cy.get('.sw-tab--name-cf.set_Nummer').click();
         cy.get('[for="cf set_nummer veld_"]').should('be.visible');
 
@@ -161,7 +150,6 @@ describe('Creating custom fields and assigning to various models', () => {
 
         // create rule builder and define custom field
         cy.visit(`${Cypress.env('admin')}#/sw/settings/rule/create/base`);
-        cy.contains('.sw-card__title', 'Algemeen');
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'rule/create/base');

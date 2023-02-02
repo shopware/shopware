@@ -1,13 +1,12 @@
 import template from './sw-cms-el-config-image.html.twig';
 import './sw-cms-el-config-image.scss';
 
-const { Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 
 /**
- * @private
- * @package content
+ * @private since v6.5.0
  */
-export default {
+Component.register('sw-cms-el-config-image', {
     template,
 
     inject: ['repositoryFactory'],
@@ -33,7 +32,7 @@ export default {
         },
 
         previewSource() {
-            if (this.element?.data?.media?.id) {
+            if (this.element.data && this.element.data.media && this.element.data.media.id) {
                 return this.element.data.media;
             }
 
@@ -111,4 +110,4 @@ export default {
             this.$emit('element-update', this.element);
         },
     },
-};
+});

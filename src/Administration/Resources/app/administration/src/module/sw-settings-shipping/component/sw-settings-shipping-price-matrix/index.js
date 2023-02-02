@@ -1,15 +1,12 @@
 import template from './sw-settings-shipping-price-matrix.html.twig';
 import './sw-settings-shipping-price-matrix.scss';
 
-const { Mixin, Context, Data: { Criteria } } = Shopware;
+const { Component, Mixin, Context, Data: { Criteria } } = Shopware;
 const { cloneDeep } = Shopware.Utils.object;
 const { mapState, mapGetters } = Shopware.Component.getComponentHelper();
 
-/**
- * @package checkout
- */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-settings-shipping-price-matrix', {
     template,
 
     inject: ['repositoryFactory', 'feature'],
@@ -104,11 +101,9 @@ export default {
 
         confirmDeleteText() {
             const name = this.priceGroup.rule ? this.priceGroup.rule.name : '';
-            return this.$tc(
-                'sw-settings-shipping.priceMatrix.textDeleteConfirm',
+            return this.$tc('sw-settings-shipping.priceMatrix.textDeleteConfirm',
                 Number(!!this.priceGroup.rule),
-                { name: name },
-            );
+                { name: name });
         },
 
         ruleColumns() {
@@ -181,8 +176,11 @@ export default {
                 ],
             ));
 
-            criteria.addAssociation('conditions')
-                .addSorting(Criteria.sort('name', 'ASC', false));
+            if (this.feature.isActive('FEATURE_NEXT_18215')) {
+                criteria.addAssociation('conditions');
+            }
+
+            criteria.addSorting(Criteria.sort('name', 'ASC', false));
 
             return criteria;
         },
@@ -197,7 +195,9 @@ export default {
                 ],
             ));
 
-            criteria.addAssociation('conditions');
+            if (this.feature.isActive('FEATURE_NEXT_18215')) {
+                criteria.addAssociation('conditions');
+            }
 
             return criteria;
         },
@@ -271,6 +271,26 @@ export default {
             newShippingPrice.quantityEnd = null;
 
             this.shippingMethod.prices.push(newShippingPrice);
+        },
+
+        /**
+         * @deprecated tag:v6.5.0 - will be removed without replacement
+         */
+        countDecimalPlaces(value) {
+            const split = value.toString().split('.');
+
+            return split[1] ? split[1].length : 0;
+        },
+
+        /**
+         * @deprecated tag:v6.5.0 - will be removed without replacement
+         */
+        increaseWithDecimalPlaces(value) {
+            let decimalPlaces = this.countDecimalPlaces(value);
+            decimalPlaces = decimalPlaces === 0 ? 1 : decimalPlaces;
+
+            const increase = Number(`0.${'0'.repeat(decimalPlaces - 1)}1`);
+            return Number((value + increase).toFixed(decimalPlaces));
         },
 
         onSaveMainRule(ruleId) {
@@ -443,4 +463,4 @@ export default {
             this.onAddNewShippingPrice();
         },
     },
-};
+});

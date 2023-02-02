@@ -7,7 +7,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -21,14 +20,25 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  *
  * @script-service data_loading
  */
-#[Package('core')]
 class SalesChannelRepositoryFacade
 {
+    private SalesChannelDefinitionInstanceRegistry $registry;
+
+    private RequestCriteriaBuilder $criteriaBuilder;
+
+    private SalesChannelContext $context;
+
     /**
      * @internal
      */
-    public function __construct(private readonly SalesChannelDefinitionInstanceRegistry $registry, private readonly RequestCriteriaBuilder $criteriaBuilder, private readonly SalesChannelContext $context)
-    {
+    public function __construct(
+        SalesChannelDefinitionInstanceRegistry $registry,
+        RequestCriteriaBuilder $criteriaBuilder,
+        SalesChannelContext $context
+    ) {
+        $this->registry = $registry;
+        $this->criteriaBuilder = $criteriaBuilder;
+        $this->context = $context;
     }
 
     /**

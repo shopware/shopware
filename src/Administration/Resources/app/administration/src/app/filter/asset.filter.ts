@@ -1,7 +1,3 @@
-/**
- * @package admin
- */
-
 Shopware.Filter.register('asset', (value: string) => {
     if (!value) {
         return '';
@@ -17,7 +13,5 @@ Shopware.Filter.register('asset', (value: string) => {
     return `${assetsPath}${value}`;
 });
 
-/**
- * @deprecated tag:v6.6.0 - Will be private
- */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export {};

@@ -1,13 +1,10 @@
 import template from './sw-media-index.html.twig';
 import './sw-media-index.scss';
 
-const { Context } = Shopware;
+const { Component, Context } = Shopware;
 
-/**
- * @package content
- */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-media-index', {
     template,
 
     inject: ['repositoryFactory', 'mediaService', 'acl'],
@@ -175,4 +172,4 @@ export default {
             });
         },
     },
-};
+});

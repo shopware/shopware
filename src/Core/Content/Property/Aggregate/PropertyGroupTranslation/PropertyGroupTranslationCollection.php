@@ -3,12 +3,10 @@
 namespace Shopware\Core\Content\Property\Aggregate\PropertyGroupTranslation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<PropertyGroupTranslationEntity>
  */
-#[Package('inventory')]
 class PropertyGroupTranslationCollection extends EntityCollection
 {
     /**
@@ -16,15 +14,16 @@ class PropertyGroupTranslationCollection extends EntityCollection
      */
     public function getPropertyGroupIds(): array
     {
-        /** @var list<string> $ids */
-        $ids = $this->fmap(fn (PropertyGroupTranslationEntity $propertyGroupTranslation) => $propertyGroupTranslation->getPropertyGroupId());
-
-        return $ids;
+        return $this->fmap(function (PropertyGroupTranslationEntity $propertyGroupTranslation) {
+            return $propertyGroupTranslation->getPropertyGroupId();
+        });
     }
 
     public function filterByPropertyGroupId(string $id): self
     {
-        return $this->filter(fn (PropertyGroupTranslationEntity $propertyGroupTranslation) => $propertyGroupTranslation->getPropertyGroupId() === $id);
+        return $this->filter(function (PropertyGroupTranslationEntity $propertyGroupTranslation) use ($id) {
+            return $propertyGroupTranslation->getPropertyGroupId() === $id;
+        });
     }
 
     /**
@@ -32,15 +31,16 @@ class PropertyGroupTranslationCollection extends EntityCollection
      */
     public function getLanguageIds(): array
     {
-        /** @var list<string> $ids */
-        $ids = $this->fmap(fn (PropertyGroupTranslationEntity $propertyGroupTranslation) => $propertyGroupTranslation->getLanguageId());
-
-        return $ids;
+        return $this->fmap(function (PropertyGroupTranslationEntity $propertyGroupTranslation) {
+            return $propertyGroupTranslation->getLanguageId();
+        });
     }
 
     public function filterByLanguageId(string $id): self
     {
-        return $this->filter(fn (PropertyGroupTranslationEntity $propertyGroupTranslation) => $propertyGroupTranslation->getLanguageId() === $id);
+        return $this->filter(function (PropertyGroupTranslationEntity $propertyGroupTranslation) use ($id) {
+            return $propertyGroupTranslation->getLanguageId() === $id;
+        });
     }
 
     public function getApiAlias(): string

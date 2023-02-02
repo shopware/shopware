@@ -22,10 +22,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\CountSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Feature;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('core')]
 class RequestCriteriaBuilder
 {
     private const TOTAL_COUNT_MODE_MAPPING = [
@@ -34,15 +33,27 @@ class RequestCriteriaBuilder
         'next-pages' => Criteria::TOTAL_COUNT_MODE_NEXT_PAGES,
     ];
 
+    private ?int $maxLimit;
+
+    private AggregationParser $aggregationParser;
+
+    private ApiCriteriaValidator $validator;
+
+    private CriteriaArrayConverter $converter;
+
     /**
      * @internal
      */
     public function __construct(
-        private readonly AggregationParser $aggregationParser,
-        private readonly ApiCriteriaValidator $validator,
-        private readonly CriteriaArrayConverter $converter,
-        private readonly ?int $maxLimit = null
+        AggregationParser $aggregationParser,
+        ApiCriteriaValidator $validator,
+        CriteriaArrayConverter $converter,
+        ?int $maxLimit = null
     ) {
+        $this->maxLimit = $maxLimit;
+        $this->aggregationParser = $aggregationParser;
+        $this->validator = $validator;
+        $this->converter = $converter;
     }
 
     public function handleRequest(Request $request, Criteria $criteria, EntityDefinition $definition, Context $context): Criteria
@@ -54,6 +65,19 @@ class RequestCriteriaBuilder
         }
 
         return $criteria;
+    }
+
+    /**
+     * @deprecated tag:v6.5.0 - Unused in core, please use the `%shopware.api.max_limit%` instead
+     */
+    public function getMaxLimit(): int
+    {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', '%shopware.api.max_limit%')
+        );
+
+        return $this->maxLimit ?? 0;
     }
 
     public function toArray(Criteria $criteria): array
@@ -175,7 +199,7 @@ class RequestCriteriaBuilder
             }
         }
 
-        if (isset($payload['fields'])) {
+        if (isset($payload['fields']) && Feature::isActive('v6.5.0.0')) {
             $criteria->addFields($payload['fields']);
         }
 
@@ -194,13 +218,13 @@ class RequestCriteriaBuilder
             $naturalSorting = $sort['naturalSorting'] ?? false;
             $type = $sort['type'] ?? '';
 
-            if (strcasecmp((string) $order, 'desc') === 0) {
+            if (strcasecmp($order, 'desc') === 0) {
                 $order = FieldSorting::DESCENDING;
             } else {
                 $order = FieldSorting::ASCENDING;
             }
 
-            $class = strcasecmp((string) $type, 'count') === 0 ? CountSorting::class : FieldSorting::class;
+            $class = strcasecmp($type, 'count') === 0 ? CountSorting::class : FieldSorting::class;
 
             $sortings[] = new $class(
                 $this->buildFieldName($definition, $sort['field']),

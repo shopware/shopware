@@ -8,7 +8,7 @@ use Shopware\Core\Content\Product\DataAbstractionLayer\SearchKeywordUpdater;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -24,9 +24,9 @@ class SearchKeywordUpdaterTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private EntityRepository $productRepository;
+    private EntityRepositoryInterface $productRepository;
 
-    private EntityRepository $searchKeywordRepository;
+    private EntityRepositoryInterface $searchKeywordRepository;
 
     private Connection $connection;
 

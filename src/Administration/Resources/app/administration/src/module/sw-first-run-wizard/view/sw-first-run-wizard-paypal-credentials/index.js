@@ -1,10 +1,9 @@
 import template from './sw-first-run-wizard-paypal-credentials.html.twig';
 
-/**
- * @package merchant-services
- */
+const { Component } = Shopware;
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-first-run-wizard-paypal-credentials', {
     template,
 
     computed: {
@@ -56,4 +55,4 @@ export default {
             this.$emit('buttons-update', this.buttonConfig);
         },
     },
-};
+});

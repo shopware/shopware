@@ -4,17 +4,19 @@ declare(strict_types=1);
 namespace Shopware\Core\Content\Product\Cart;
 
 use Shopware\Core\Checkout\Cart\Error\Error;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('inventory')]
 class MinOrderQuantityError extends Error
 {
+    protected string $id;
+
     protected string $name;
 
     protected int $quantity;
 
-    public function __construct(protected string $id, string $name, int $quantity)
+    public function __construct(string $id, string $name, int $quantity)
     {
+        $this->id = $id;
+
         $this->message = sprintf(
             'The quantity of product %s did not meet the minimum order quantity threshold. The quantity has automatically been increased to %s',
             $name,

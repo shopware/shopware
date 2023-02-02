@@ -1,14 +1,12 @@
 import template from './sw-landing-page-tree.html.twig';
 import './sw-landing-page-tree.scss';
 
+const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapState } = Shopware.Component.getComponentHelper();
 
-/**
- * @package content
- */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-landing-page-tree', {
     template,
 
     inject: ['repositoryFactory', 'syncService', 'acl'],
@@ -295,4 +293,4 @@ export default {
             };
         },
     },
-};
+});

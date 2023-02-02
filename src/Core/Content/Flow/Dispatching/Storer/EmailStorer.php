@@ -5,9 +5,7 @@ namespace Shopware\Core\Content\Flow\Dispatching\Storer;
 use Shopware\Core\Content\Flow\Dispatching\Aware\EmailAware;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Framework\Event\FlowEventAware;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('business-ops')]
 class EmailStorer extends FlowStorer
 {
     /**

@@ -28,7 +28,10 @@ class ContextControllerContextTest extends TestCase
 
     private string $languageId;
 
-    private Router $router;
+    /**
+     * @var Router
+     */
+    private $router;
 
     protected function setUp(): void
     {
@@ -74,6 +77,12 @@ class ContextControllerContextTest extends TestCase
             'domains' => $domains,
             'languages' => [['id' => Defaults::LANGUAGE_SYSTEM], ['id' => $this->languageId]],
         ]);
+
+        // HACK to deactivate csrf protection. The check is only done once per request
+        $this->browser->request(
+            'POST',
+            $this->defaultBaseUrl . '/checkout/language'
+        );
     }
 
     protected function tearDown(): void
@@ -89,7 +98,8 @@ class ContextControllerContextTest extends TestCase
         $this->browser->request(
             'POST',
             $this->defaultBaseUrl . '/checkout/language',
-            ['languageId' => $this->languageId]
+            ['languageId' => $this->languageId],
+            []
         );
 
         $response = $this->browser->getResponse();
@@ -105,7 +115,8 @@ class ContextControllerContextTest extends TestCase
         $this->browser->request(
             'POST',
             $this->testBaseUrl . '/checkout/language',
-            ['languageId' => Defaults::LANGUAGE_SYSTEM]
+            ['languageId' => Defaults::LANGUAGE_SYSTEM],
+            []
         );
 
         $response = $this->browser->getResponse();
@@ -125,7 +136,8 @@ class ContextControllerContextTest extends TestCase
         $this->browser->request(
             'POST',
             $this->testBaseUrl . '/checkout/configure',
-            ['languageId' => $this->languageId]
+            ['languageId' => $this->languageId],
+            []
         );
 
         $response = $this->browser->getResponse();

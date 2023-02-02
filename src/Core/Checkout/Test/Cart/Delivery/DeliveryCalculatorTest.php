@@ -34,7 +34,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
@@ -46,7 +45,6 @@ use Shopware\Core\System\Tax\TaxEntity;
 /**
  * @internal
  */
-#[Package('checkout')]
 class DeliveryCalculatorTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -82,7 +80,7 @@ class DeliveryCalculatorTest extends TestCase
     {
         $context = $this->createMock(SalesChannelContext::class);
         $context->expects(static::never())->method(static::anything());
-        $this->deliveryCalculator->calculate(new CartDataCollection(), new Cart('test'), new DeliveryCollection(), $context);
+        $this->deliveryCalculator->calculate(new CartDataCollection(), new Cart('test', 'test'), new DeliveryCollection(), $context);
     }
 
     public function testCalculateWithAlreadyCalculatedCosts(): void
@@ -112,7 +110,7 @@ class DeliveryCalculatorTest extends TestCase
             new CalculatedPrice(5, 5, new CalculatedTaxCollection(), new TaxRuleCollection())
         );
 
-        $this->deliveryCalculator->calculate(new CartDataCollection(), new Cart('test'), new DeliveryCollection([$delivery]), $context);
+        $this->deliveryCalculator->calculate(new CartDataCollection(), new Cart('test', 'test'), new DeliveryCollection([$delivery]), $context);
 
         $newCosts = $delivery->getShippingCosts();
         static::assertNotNull($newCosts);
@@ -172,7 +170,7 @@ class DeliveryCalculatorTest extends TestCase
         $data = new CartDataCollection();
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
 
-        $cart = new Cart('test');
+        $cart = new Cart('test', 'test');
         $this->deliveryCalculator->calculate($data, $cart, new DeliveryCollection([$delivery]), $context);
         static::assertSame($costs, $delivery->getShippingCosts());
 
@@ -226,7 +224,7 @@ class DeliveryCalculatorTest extends TestCase
 
         $data = new CartDataCollection();
 
-        $this->deliveryCalculator->calculate($data, new Cart('test'), new DeliveryCollection([$delivery]), $context);
+        $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), new DeliveryCollection([$delivery]), $context);
         static::assertNotSame($costs, $newCosts);
     }
 
@@ -276,7 +274,7 @@ class DeliveryCalculatorTest extends TestCase
         $data = new CartDataCollection();
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
 
-        $this->deliveryCalculator->calculate($data, new Cart('test'), $deliveries, $context);
+        $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
 
         $delivery = $deliveries->first();
         static::assertNotNull($delivery);
@@ -323,7 +321,7 @@ class DeliveryCalculatorTest extends TestCase
 
         $data = new CartDataCollection();
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
-        $cart = new Cart('test');
+        $cart = new Cart('test', 'test');
         $this->deliveryCalculator->calculate($data, $cart, $deliveries, $context);
 
         static::assertCount(1, $cart->getErrors());
@@ -385,7 +383,7 @@ class DeliveryCalculatorTest extends TestCase
 
         $data = new CartDataCollection();
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
-        $this->deliveryCalculator->calculate($data, new Cart('test'), $deliveries, $context);
+        $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
 
         $delivery = $deliveries->first();
         static::assertNotNull($delivery);
@@ -461,7 +459,7 @@ class DeliveryCalculatorTest extends TestCase
 
         $data = new CartDataCollection();
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
-        $this->deliveryCalculator->calculate($data, new Cart('test'), $deliveries, $context);
+        $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
 
         $delivery = $deliveries->first();
         static::assertNotNull($delivery);
@@ -532,7 +530,7 @@ class DeliveryCalculatorTest extends TestCase
 
         $data = new CartDataCollection();
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
-        $this->deliveryCalculator->calculate($data, new Cart('test'), $deliveries, $context);
+        $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
 
         $delivery = $deliveries->first();
         static::assertNotNull($delivery);
@@ -590,7 +588,7 @@ class DeliveryCalculatorTest extends TestCase
 
         $data = new CartDataCollection();
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
-        $this->deliveryCalculator->calculate($data, new Cart('test'), $deliveries, $context);
+        $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
 
         $delivery = $deliveries->first();
         static::assertNotNull($delivery);
@@ -645,7 +643,7 @@ class DeliveryCalculatorTest extends TestCase
 
         $data = new CartDataCollection();
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
-        $this->deliveryCalculator->calculate($data, new Cart('test'), $deliveries, $context);
+        $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
 
         $delivery = $deliveries->first();
         static::assertNotNull($delivery);
@@ -702,7 +700,7 @@ class DeliveryCalculatorTest extends TestCase
         $deliveries = $this->buildDeliveries(new LineItemCollection([$lineItem]), $context);
         $data = new CartDataCollection();
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
-        $this->deliveryCalculator->calculate($data, new Cart('test'), $deliveries, $context);
+        $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
 
         $delivery = $deliveries->first();
         static::assertNotNull($delivery);
@@ -756,7 +754,7 @@ class DeliveryCalculatorTest extends TestCase
         $deliveries = $this->buildDeliveries(new LineItemCollection([$lineItem]), $context);
         $data = new CartDataCollection();
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
-        $this->deliveryCalculator->calculate($data, new Cart('test'), $deliveries, $context);
+        $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
 
         $delivery = $deliveries->first();
         static::assertNotNull($delivery);
@@ -814,7 +812,7 @@ class DeliveryCalculatorTest extends TestCase
 
         $data = new CartDataCollection();
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
-        $this->deliveryCalculator->calculate($data, new Cart('test'), $deliveries, $context);
+        $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
 
         $delivery = $deliveries->first();
         static::assertNotNull($delivery);
@@ -873,7 +871,7 @@ class DeliveryCalculatorTest extends TestCase
 
         $data = new CartDataCollection();
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
-        $this->deliveryCalculator->calculate($data, new Cart('test'), $deliveries, $context);
+        $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
 
         $delivery = $deliveries->first();
         static::assertNotNull($delivery);
@@ -933,7 +931,7 @@ class DeliveryCalculatorTest extends TestCase
 
         $data = new CartDataCollection();
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
-        $this->deliveryCalculator->calculate($data, new Cart('test'), $deliveries, $context);
+        $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
 
         $delivery = $deliveries->first();
         static::assertNotNull($delivery);
@@ -988,7 +986,7 @@ class DeliveryCalculatorTest extends TestCase
 
         $data = new CartDataCollection();
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
-        $this->deliveryCalculator->calculate($data, new Cart('test'), $deliveries, $context);
+        $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
 
         $delivery = $deliveries->first();
         static::assertNotNull($delivery);
@@ -1060,7 +1058,7 @@ class DeliveryCalculatorTest extends TestCase
 
         $data = new CartDataCollection();
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
-        $this->deliveryCalculator->calculate($data, new Cart('test'), $deliveries, $context);
+        $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
 
         $delivery = $deliveries->first();
         static::assertNotNull($delivery);
@@ -1110,7 +1108,7 @@ class DeliveryCalculatorTest extends TestCase
 
         $data = new CartDataCollection();
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
-        $cart = new Cart('test');
+        $cart = new Cart('test', 'test');
         $this->deliveryCalculator->calculate($data, $cart, $deliveries, $context);
 
         $delivery = $deliveries->first();
@@ -1181,7 +1179,7 @@ class DeliveryCalculatorTest extends TestCase
 
         $data = new CartDataCollection();
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
-        $this->deliveryCalculator->calculate($data, new Cart('test'), $deliveries, $context);
+        $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
 
         $delivery = $deliveries->first();
         static::assertNotNull($delivery);
@@ -1240,7 +1238,7 @@ class DeliveryCalculatorTest extends TestCase
         $data = new CartDataCollection();
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
 
-        $this->deliveryCalculator->calculate($data, new Cart('test'), $deliveries, $context);
+        $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
 
         $delivery = $deliveries->first();
         static::assertNotNull($delivery);
@@ -1302,7 +1300,7 @@ class DeliveryCalculatorTest extends TestCase
         $data = new CartDataCollection();
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
 
-        $this->deliveryCalculator->calculate($data, new Cart('test'), $deliveries, $context);
+        $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
 
         $delivery = $deliveries->first();
         static::assertNotNull($delivery);
@@ -1360,7 +1358,7 @@ class DeliveryCalculatorTest extends TestCase
         $data = new CartDataCollection();
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
 
-        $this->deliveryCalculator->calculate($data, new Cart('test'), $deliveries, $context);
+        $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
 
         $delivery = $deliveries->first();
         static::assertNotNull($delivery);
@@ -1418,7 +1416,7 @@ class DeliveryCalculatorTest extends TestCase
         $data = new CartDataCollection();
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
 
-        $this->deliveryCalculator->calculate($data, new Cart('test'), $deliveries, $context);
+        $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
 
         $delivery = $deliveries->first();
         static::assertNotNull($delivery);
@@ -1488,7 +1486,7 @@ class DeliveryCalculatorTest extends TestCase
         $data = new CartDataCollection();
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
 
-        $this->deliveryCalculator->calculate($data, new Cart('test'), $deliveries, $context);
+        $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
 
         $delivery = $deliveries->first();
         static::assertNotNull($delivery);
@@ -1558,7 +1556,7 @@ class DeliveryCalculatorTest extends TestCase
         $data = new CartDataCollection();
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
 
-        $this->deliveryCalculator->calculate($data, new Cart('test'), $deliveries, $context);
+        $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
 
         $delivery = $deliveries->first();
         static::assertNotNull($delivery);
@@ -1630,7 +1628,7 @@ class DeliveryCalculatorTest extends TestCase
         $data = new CartDataCollection();
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
 
-        $cart = new Cart('test');
+        $cart = new Cart('test', 'test');
 
         $this->deliveryCalculator->calculate($data, $cart, $deliveries, $context);
 
@@ -1698,7 +1696,7 @@ class DeliveryCalculatorTest extends TestCase
         $data = new CartDataCollection();
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
 
-        $cart = new Cart('test');
+        $cart = new Cart('test', 'test');
 
         $this->deliveryCalculator->calculate($data, $cart, $deliveries, $context);
 
@@ -1808,7 +1806,7 @@ class DeliveryCalculatorTest extends TestCase
         $data = new CartDataCollection();
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
 
-        $this->deliveryCalculator->calculate($data, new Cart('test'), $deliveries, $context);
+        $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
 
         $calculatedPrice = $deliveries->getShippingCosts()->first();
         static::assertNotNull($calculatedPrice);
@@ -1862,7 +1860,7 @@ class DeliveryCalculatorTest extends TestCase
         $data = new CartDataCollection();
         $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
 
-        $this->deliveryCalculator->calculate($data, new Cart('test'), $deliveries, $context);
+        $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
 
         $delivery = $deliveries->first();
         static::assertNotNull($delivery);
@@ -1887,7 +1885,7 @@ class DeliveryCalculatorTest extends TestCase
         $data = new CartDataCollection();
         $data->set(DeliveryProcessor::buildKey($context->getShippingMethod()->getId()), $context->getShippingMethod());
 
-        $cart = new Cart('test');
+        $cart = new Cart('test', 'test');
         $cart->setLineItems($lineItems);
 
         return $this->getContainer()->get(DeliveryBuilder::class)

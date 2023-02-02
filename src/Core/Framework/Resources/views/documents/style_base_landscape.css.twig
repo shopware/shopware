@@ -8,12 +8,12 @@
         }
 
         .letter-header {
-            position: relative;
-            height: 80px;
+            position: absolute;
+            top: -100px;
         }
 
         .letter-body {
-            clear: right;
+            margin-top: 150px;
         }
 
         div.page_break {
@@ -53,12 +53,8 @@
         }
 
         .logo {
-            position: absolute;
-            top: 0;
-            left: 0;
+            width: 30%;
             max-height: 150px;
-            width: auto;
-            clear: right;
         }
 
         /* Document title */
@@ -68,16 +64,14 @@
 
         /* Sender info section (top right) */
         .sender-address-container {
-            position: absolute;
+            top: 0;
             right: 0;
-            bottom: 0;
+            position: absolute;
         }
 
         /* Receipt address section */
         .recipient-address-container {
-            position: absolute;
-            left: 0;
-            bottom: 0;
+            margin-top: 100px;
         }
 
         /* Line item section */
@@ -87,7 +81,7 @@
             border-collapse: collapse;
         }
 
-        .line-item-table tbody tr:first-child > td {
+        tbody tr:first-child > td {
             padding-top: 20px;
         }
 
@@ -95,7 +89,7 @@
             padding-bottom: 5px;
         }
 
-        .line-item-table tbody tr:first-child > .line-item-breakable .label-wrapper {
+        tbody tr:first-child > .line-item-breakable .label-wrapper {
             top: 20px;
         }
 
@@ -213,10 +207,6 @@
             page-break-inside: avoid;
         }
 
-        .shipping-address-container .bold {
-            margin: 0;
-        }
-
         .page-count {
             width: 100%;
             float: left;
@@ -240,11 +230,10 @@
         /* Footer */
         footer {
             position: fixed;
-            bottom: 30px;
+            bottom: 50px;
             font-size: 8px;
             padding-top: 30px;
             line-height: 9px;
-            width: 100%;
         }
 
         footer:after {

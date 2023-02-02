@@ -1,12 +1,10 @@
-/*
- * @package inventory
- */
-
 import template from './sw-product-modal-delivery.html.twig';
 import './sw-product-modal-delivery.scss';
 
+const { Component } = Shopware;
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-product-modal-delivery', {
     template,
 
     inject: ['repositoryFactory', 'acl'],
@@ -36,21 +34,7 @@ export default {
         },
     },
 
-    created() {
-        this.createdComponent();
-    },
-
     methods: {
-        createdComponent() {
-            if (!this.product.variantListingConfig) {
-                this.$set(
-                    this.product,
-                    'variantListingConfig',
-                    { displayParent: null, configuratorGroupConfig: [], mainVariantId: null },
-                );
-            }
-        },
-
         saveDeliveryConfiguration() {
             this.isLoading = true;
 
@@ -68,13 +52,10 @@ export default {
         },
 
         handleExpandedListing(product) {
-            if (product && product.listingMode === 'expanded') {
-                const configuratorGroupConfig = product.variantListingConfig.configuratorGroupConfig ?? [];
-
-                // remove main_variant_id and display_parent from configuratorGroupConfig
+            if (product && product.listingMode !== 'single') {
+                // remove main_variant_id from configuratorGroupConfig
                 product.variantListingConfig.mainVariantId = null;
                 product.variantListingConfig.displayParent = null;
-                product.variantListingConfig.configuratorGroupConfig = configuratorGroupConfig;
             }
 
             delete product.listingMode;
@@ -82,4 +63,4 @@ export default {
             return product;
         },
     },
-};
+});

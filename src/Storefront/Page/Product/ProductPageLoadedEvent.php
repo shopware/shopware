@@ -2,12 +2,10 @@
 
 namespace Shopware\Storefront\Page\Product;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\PageLoadedEvent;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('storefront')]
 class ProductPageLoadedEvent extends PageLoadedEvent
 {
     /**

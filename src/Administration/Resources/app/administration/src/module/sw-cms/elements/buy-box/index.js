@@ -1,26 +1,13 @@
-/**
- * @private
- * @package content
- */
-Shopware.Component.register('sw-cms-el-preview-buy-box', () => import('./preview'));
-/**
- * @private
- * @package content
- */
-Shopware.Component.register('sw-cms-el-config-buy-box', () => import('./config'));
-/**
- * @private
- * @package content
- */
-Shopware.Component.register('sw-cms-el-buy-box', () => import('./component'));
+import './component';
+import './config';
+import './preview';
 
 const Criteria = Shopware.Data.Criteria;
 const criteria = new Criteria(1, 25);
 criteria.addAssociation('deliveryTime');
 
 /**
- * @private
- * @package content
+ * @private since v6.5.0
  */
 Shopware.Service('cmsService').registerCmsElement({
     name: 'buy-box',

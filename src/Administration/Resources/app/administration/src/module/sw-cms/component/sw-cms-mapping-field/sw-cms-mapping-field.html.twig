@@ -25,17 +25,18 @@
             >
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_mapping_field_mapping_selection_action %}
-                <template #button>
-                    <div class="sw-cms-mapping-field__action">
-                        <sw-icon
-                            name="regular-external-link"
-                            size="16"
-                        />
-                        <span class="sw-cms-mapping-field__action-label">
-                            {{ $tc('sw-cms.detail.label.buttonMappingAction') }}
-                        </span>
-                    </div>
-                </template>
+                <div
+                    slot="button"
+                    class="sw-cms-mapping-field__action"
+                >
+                    <sw-icon
+                        name="regular-external-link"
+                        size="16"
+                    />
+                    <span class="sw-cms-mapping-field__action-label">
+                        {{ $tc('sw-cms.detail.label.buttonMappingAction') }}
+                    </span>
+                </div>
                 {% endblock %}
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -61,7 +62,10 @@
                 class="sw-cms-mapping-field__action-remove"
                 @click="onMappingRemove"
             >
-                <sw-icon name="regular-times" />
+                <sw-icon
+                    name="regular-times"
+                    size="14"
+                />
                 <span class="sw-cms-mapping-field__action-label">
                     {{ $tc('sw-cms.detail.label.buttonMappingRemoveAction') }}
                 </span>

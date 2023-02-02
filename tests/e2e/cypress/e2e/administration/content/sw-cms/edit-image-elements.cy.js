@@ -1,18 +1,19 @@
-/**
- * @package content
- */
 // / <reference types="Cypress" />
 
 import MediaPageObject from '../../../../support/pages/module/sw-media.page-object';
 
 describe('CMS: Check usage and editing of image elements', () => {
     beforeEach(() => {
-        cy.createCmsFixture().then(() => {
-            cy.viewport(1920, 1080);
-            cy.openInitialPage(`${Cypress.env('admin')}#/sw/cms/index`);
-            cy.get('.sw-skeleton').should('not.exist');
-            cy.get('.sw-loader').should('not.exist');
-        });
+        cy.loginViaApi()
+            .then(() => {
+                return cy.createCmsFixture();
+            })
+            .then(() => {
+                cy.viewport(1920, 1080);
+                cy.openInitialPage(`${Cypress.env('admin')}#/sw/cms/index`);
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
+            });
     });
 
     it('@base @content: use simple image block', { tags: ['pa-content-management'] }, () => {
@@ -20,18 +21,18 @@ describe('CMS: Check usage and editing of image elements', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
-            method: 'PATCH',
+            method: 'PATCH'
         }).as('saveData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/category/*`,
-            method: 'PATCH',
+            method: 'PATCH'
         }).as('saveCategory');
 
         cy.get('.sw-cms-list-item--0').click();
         cy.get('.sw-cms-section__empty-stage').should('be.visible');
 
-        cy.log('Add simple image block');
+        // Add simple image block
         cy.get('.sw-cms-section__empty-stage').click();
         cy.get('#sw-field--currentBlockCategory').select('Images');
         cy.get('.sw-cms-preview-image').should('be.visible');
@@ -47,7 +48,7 @@ describe('CMS: Check usage and editing of image elements', () => {
         cy.get('.sw-cms-slot .sw-cms-slot__settings-action').click();
         cy.get('.sw-cms-slot__config-modal').should('be.visible');
 
-        cy.log('Upload image');
+        // Upload image
         cy.get(`.sw-cms-slot__config-modal ${page.elements.uploadInput}`)
             .attachFile('img/sw-login-background.png');
 
@@ -55,13 +56,13 @@ describe('CMS: Check usage and editing of image elements', () => {
         cy.get('#sw-field--element-config-displayMode-value').select('Cover');
         cy.get('.sw-cms-slot__config-modal .sw-button--primary').click();
 
-        cy.log('Save new page layout');
+        // Save new page layout
         cy.get('.sw-cms-detail__save-action').click();
         cy.wait('@saveData')
             .its('response.statusCode').should('equal', 204);
         cy.get('.sw-cms-detail__back-btn').click();
 
-        cy.log('Assign layout to root category');
+        // Assign layout to root category
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
@@ -70,7 +71,6 @@ describe('CMS: Check usage and editing of image elements', () => {
         cy.get('.sw-card.sw-category-layout-card').scrollIntoView();
         cy.get('.sw-category-detail-layout__change-layout-action').click();
         cy.get('.sw-modal__dialog').should('be.visible');
-        cy.get('.sw-cms-layout-modal__content-item--0 .sw-cms-list-item__info').contains('Vierte Wand');
         cy.get('.sw-cms-layout-modal__content-item--0 .sw-field--checkbox').click();
         cy.get('.sw-modal .sw-button--primary').click();
         cy.contains('.sw-card.sw-category-layout-card .sw-category-layout-card__desc-headline', 'Vierte Wand');
@@ -79,7 +79,7 @@ describe('CMS: Check usage and editing of image elements', () => {
         cy.wait('@saveCategory')
             .its('response.statusCode').should('equal', 204);
 
-        cy.log('Verify layout in Storefront');
+        // Verify layout in Storefront
         cy.visit('/');
         cy.get('.cms-image').should('be.visible');
         cy.get('.cms-image')
@@ -92,28 +92,21 @@ describe('CMS: Check usage and editing of image elements', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
-            method: 'PATCH',
+            method: 'PATCH'
         }).as('saveData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/category/*`,
-            method: 'PATCH',
+            method: 'PATCH'
         }).as('saveCategory');
 
         cy.get('.sw-cms-list-item--0').click();
         cy.get('.sw-cms-section__empty-stage').should('be.visible');
 
-        cy.log('Add simple image block');
+        // Add simple image block
         cy.get('.sw-cms-section__empty-stage').click();
-
         cy.get('#sw-field--currentBlockCategory').select('Images');
-
-        cy.get('.sw-cms-sidebar__block-selection').should('be.visible');
-        cy.get('.sw-cms-sidebar__block-selection > div:nth-of-type(10)').should('exist');
         cy.get('.sw-cms-sidebar__block-selection > div:nth-of-type(10)').scrollIntoView();
-        cy.get('.sw-cms-sidebar__block-selection > div:nth-of-type(10)')
-            .invoke('outerHeight')
-            .should('be.greaterThan', 200);
         cy.get('.sw-cms-sidebar__block-selection > div:nth-of-type(10)')
             .dragTo('.sw-cms-section__empty-stage');
         cy.get('.sw-cms-block').should('be.visible');
@@ -125,7 +118,7 @@ describe('CMS: Check usage and editing of image elements', () => {
         cy.get('.sw-cms-slot .sw-cms-slot__settings-action').click();
         cy.get('.sw-cms-slot__config-modal').should('be.visible');
 
-        cy.log('Add three slider images');
+        // Add three slider images
         cy.get(`.sw-cms-slot__config-modal ${page.elements.uploadInput}`)
             .attachFile('img/sw-login-background.png');
         cy.get('.sw-media-preview-v2__item[alt="sw-login-background"]').should('be.visible');
@@ -141,14 +134,15 @@ describe('CMS: Check usage and editing of image elements', () => {
         cy.awaitAndCheckNotification('File has been saved.');
         cy.get('.sw-modal__footer .sw-button--primary').click();
 
-        cy.log('Save layout');
+
+        // Save layout
         cy.get('.sw-cms-detail__save-action').click();
         cy.wait('@saveData')
             .its('response.statusCode').should('equal', 204);
         cy.get('.sw-cms-detail__back-btn').click();
         cy.contains('.sw-cms-list-item--0 .sw-cms-list-item__title', 'Vierte Wand');
 
-        cy.log('Assign layout to root category');
+        // Assign layout to root category
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
@@ -157,7 +151,6 @@ describe('CMS: Check usage and editing of image elements', () => {
         cy.get('.sw-card.sw-category-layout-card').scrollIntoView();
         cy.get('.sw-category-detail-layout__change-layout-action').click();
         cy.get('.sw-modal__dialog').should('be.visible');
-        cy.get('.sw-cms-layout-modal__content-item--0 .sw-cms-list-item__info').contains('Vierte Wand');
         cy.get('.sw-cms-layout-modal__content-item--0 .sw-field--checkbox').click();
         cy.get('.sw-modal .sw-button--primary').click();
         cy.contains('.sw-card.sw-category-layout-card .sw-category-layout-card__desc-headline', 'Vierte Wand');
@@ -166,7 +159,7 @@ describe('CMS: Check usage and editing of image elements', () => {
         cy.wait('@saveCategory')
             .its('response.statusCode').should('equal', 204);
 
-        cy.log('Verify layout in Storefront');
+        // Verify layout in Storefront
         cy.visit('/');
         cy.get('#tns1-item0 .image-slider-image')
             .should('be.visible')

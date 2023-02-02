@@ -47,9 +47,15 @@ class GroupByTest extends TestCase
      */
     private $writer;
 
-    private GroupByDefinition $definition;
+    /**
+     * @var GroupByDefinition
+     */
+    private $definition;
 
-    private \Shopware\Core\Framework\Test\DataAbstractionLayer\Search\TestData $testData;
+    /**
+     * @var TestData
+     */
+    private $testData;
 
     protected function setUp(): void
     {
@@ -205,7 +211,7 @@ class TestData
  */
 class TestDefinition extends EntityDefinition
 {
-    final public const ENTITY_NAME = 'test';
+    public const ENTITY_NAME = 'test';
 
     public function getEntityName(): string
     {

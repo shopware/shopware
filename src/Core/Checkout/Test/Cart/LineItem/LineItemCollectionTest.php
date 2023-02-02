@@ -5,18 +5,18 @@ namespace Shopware\Core\Checkout\Test\Cart\LineItem;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartException;
+use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Feature;
 
 /**
  * @internal
  */
-#[Package('checkout')]
 class LineItemCollectionTest extends TestCase
 {
     public function testCollectionIsCountable(): void
@@ -38,14 +38,14 @@ class LineItemCollectionTest extends TestCase
     public function testCollectionStacksSameIdentifier(): void
     {
         $collection = new LineItemCollection([
-            (new LineItem('A', 'a'))->setStackable(true)->assign(['uniqueIdentifier' => 'A']),
+            (new LineItem('A', 'a'))->setStackable(true),
             (new LineItem('A', 'a', null, 2))->setStackable(true),
             (new LineItem('A', 'a', null, 3))->setStackable(true),
         ]);
 
         static::assertEquals(
             new LineItemCollection([
-                (new LineItem('A', 'a', null, 6))->setStackable(true)->assign(['uniqueIdentifier' => 'A']),
+                (new LineItem('A', 'a', null, 6))->setStackable(true),
             ]),
             $collection
         );
@@ -54,34 +54,34 @@ class LineItemCollectionTest extends TestCase
     public function testFilterReturnsNewCollectionWithCorrectItems(): void
     {
         $collection = new LineItemCollection([
-            (new LineItem('A1', 'A'))->assign(['uniqueIdentifier' => 'A1']),
-            (new LineItem('A2', 'A'))->assign(['uniqueIdentifier' => 'A2']),
-            (new LineItem('B', 'B'))->assign(['uniqueIdentifier' => 'B']),
-            (new LineItem('B2', 'B'))->assign(['uniqueIdentifier' => 'B2']),
-            (new LineItem('B3', 'B'))->assign(['uniqueIdentifier' => 'B3']),
-            (new LineItem('B4', 'B'))->assign(['uniqueIdentifier' => 'B4']),
-            (new LineItem('C', 'C'))->assign(['uniqueIdentifier' => 'C']),
+            new LineItem('A1', 'A'),
+            new LineItem('A2', 'A'),
+            new LineItem('B', 'B'),
+            new LineItem('B2', 'B'),
+            new LineItem('B3', 'B'),
+            new LineItem('B4', 'B'),
+            new LineItem('C', 'C'),
         ]);
 
         static::assertEquals(
             new LineItemCollection([
-                (new LineItem('A1', 'A'))->assign(['uniqueIdentifier' => 'A1']),
-                (new LineItem('A2', 'A'))->assign(['uniqueIdentifier' => 'A2']),
+                new LineItem('A1', 'A'),
+                new LineItem('A2', 'A'),
             ]),
             $collection->filterType('A')
         );
         static::assertEquals(
             new LineItemCollection([
-                (new LineItem('B', 'B'))->assign(['uniqueIdentifier' => 'B']),
-                (new LineItem('B2', 'B'))->assign(['uniqueIdentifier' => 'B2']),
-                (new LineItem('B3', 'B'))->assign(['uniqueIdentifier' => 'B3']),
-                (new LineItem('B4', 'B'))->assign(['uniqueIdentifier' => 'B4']),
+                new LineItem('B', 'B'),
+                new LineItem('B2', 'B'),
+                new LineItem('B3', 'B'),
+                new LineItem('B4', 'B'),
             ]),
             $collection->filterType('B')
         );
         static::assertEquals(
             new LineItemCollection([
-                (new LineItem('C', 'C'))->assign(['uniqueIdentifier' => 'C']),
+                new LineItem('C', 'C'),
             ]),
             $collection->filterType('C')
         );
@@ -128,15 +128,15 @@ class LineItemCollectionTest extends TestCase
     public function testLineItemsCanBeRemovedByIdentifier(): void
     {
         $collection = new LineItemCollection([
-            (new LineItem('A', 'a'))->assign(['uniqueIdentifier' => 'A']),
-            (new LineItem('B', 'a'))->assign(['uniqueIdentifier' => 'B']),
-            (new LineItem('C', 'a'))->assign(['uniqueIdentifier' => 'C']),
+            new LineItem('A', 'a'),
+            new LineItem('B', 'a'),
+            new LineItem('C', 'a'),
         ]);
         $collection->remove('A');
 
         static::assertEquals(new LineItemCollection([
-            (new LineItem('B', 'a'))->assign(['uniqueIdentifier' => 'B']),
-            (new LineItem('C', 'a'))->assign(['uniqueIdentifier' => 'C']),
+            new LineItem('B', 'a'),
+            new LineItem('C', 'a'),
         ]), $collection);
     }
 
@@ -161,17 +161,17 @@ class LineItemCollectionTest extends TestCase
 
     public function testRemoveElement(): void
     {
-        $first = (new LineItem('A', 'temp'))->assign(['uniqueIdentifier' => 'A']);
+        $first = new LineItem('A', 'temp');
 
         $collection = new LineItemCollection([
             $first,
-            (new LineItem('B', 'temp'))->assign(['uniqueIdentifier' => 'B']),
+            new LineItem('B', 'temp'),
         ]);
 
         $collection->removeElement($first);
 
         static::assertEquals(
-            new LineItemCollection([(new LineItem('B', 'temp'))->assign(['uniqueIdentifier' => 'B'])]),
+            new LineItemCollection([new LineItem('B', 'temp')]),
             $collection
         );
     }
@@ -209,14 +209,14 @@ class LineItemCollectionTest extends TestCase
     public function testCollectionSumsQuantityOfSameKey(): void
     {
         $collection = new LineItemCollection([
-            (new LineItem('A', 'test'))->setStackable(true)->assign(['uniqueIdentifier' => 'A']),
-            (new LineItem('A', 'test', null, 2))->setStackable(true)->assign(['uniqueIdentifier' => 'A']),
-            (new LineItem('A', 'test', null, 3))->setStackable(true)->assign(['uniqueIdentifier' => 'A']),
+            (new LineItem('A', 'test'))->setStackable(true),
+            (new LineItem('A', 'test', null, 2))->setStackable(true),
+            (new LineItem('A', 'test', null, 3))->setStackable(true),
         ]);
 
         static::assertEquals(
             new LineItemCollection([
-                (new LineItem('A', 'test', null, 6))->setStackable(true)->assign(['uniqueIdentifier' => 'A']),
+                (new LineItem('A', 'test', null, 6))->setStackable(true),
             ]),
             $collection
         );
@@ -224,26 +224,29 @@ class LineItemCollectionTest extends TestCase
 
     public function testCartThrowsExceptionOnLineItemCollision(): void
     {
-        $cart = new Cart('test');
+        $cart = new Cart('test', 'test');
 
         $cart->add(new LineItem('a', 'first-type'));
 
-        $this->expectException(CartException::class);
-
+        if (Feature::isActive('v6.5.0.0')) {
+            $this->expectException(CartException::class);
+        } else {
+            $this->expectException(MixedLineItemTypeException::class);
+        }
         $cart->add(new LineItem('a', 'other-type'));
     }
 
     public function testGetLineItemByIdentifier(): void
     {
         $collection = new LineItemCollection([
-            (new LineItem('A', 'test', null, 3))->assign(['uniqueIdentifier' => 'A']),
-            (new LineItem('B', 'test', null, 3))->assign(['uniqueIdentifier' => 'B']),
-            (new LineItem('C', 'test', null, 3))->assign(['uniqueIdentifier' => 'C']),
-            (new LineItem('D', 'test', null, 3))->assign(['uniqueIdentifier' => 'D']),
+            new LineItem('A', 'test', null, 3),
+            new LineItem('B', 'test', null, 3),
+            new LineItem('C', 'test', null, 3),
+            new LineItem('D', 'test', null, 3),
         ]);
 
         static::assertEquals(
-            (new LineItem('C', 'test', null, 3))->assign(['uniqueIdentifier' => 'C']),
+            new LineItem('C', 'test', null, 3),
             $collection->get('C')
         );
     }
@@ -251,16 +254,16 @@ class LineItemCollectionTest extends TestCase
     public function testFilterGoodsReturnsOnlyGoods(): void
     {
         $collection = new LineItemCollection([
-            (new LineItem('A', 'test', null, 3))->setGood(true)->assign(['uniqueIdentifier' => 'A']),
-            (new LineItem('B', 'test', null, 3))->setGood(false)->assign(['uniqueIdentifier' => 'B']),
-            (new LineItem('C', 'test', null, 3))->setGood(false)->assign(['uniqueIdentifier' => 'C']),
-            (new LineItem('D', 'test', null, 3))->setGood(true)->assign(['uniqueIdentifier' => 'D']),
+            (new LineItem('A', 'test', null, 3))->setGood(true),
+            (new LineItem('B', 'test', null, 3))->setGood(false),
+            (new LineItem('C', 'test', null, 3))->setGood(false),
+            (new LineItem('D', 'test', null, 3))->setGood(true),
         ]);
 
         static::assertEquals(
             new LineItemCollection([
-                (new LineItem('A', 'test', null, 3))->setGood(true)->assign(['uniqueIdentifier' => 'A']),
-                (new LineItem('D', 'test', null, 3))->setGood(true)->assign(['uniqueIdentifier' => 'D']),
+                (new LineItem('A', 'test', null, 3))->setGood(true),
+                (new LineItem('D', 'test', null, 3))->setGood(true),
             ]),
             $collection->filterGoods()
         );
@@ -303,20 +306,20 @@ class LineItemCollectionTest extends TestCase
     public function testRemoveWithNoneExistingIdentifier(): void
     {
         $collection = new LineItemCollection([
-            (new LineItem('A', 'test', null, 3))->assign(['uniqueIdentifier' => 'A']),
-            (new LineItem('B', 'test', null, 3))->assign(['uniqueIdentifier' => 'B']),
-            (new LineItem('C', 'test', null, 3))->assign(['uniqueIdentifier' => 'C']),
-            (new LineItem('D', 'test', null, 3))->assign(['uniqueIdentifier' => 'D']),
+            new LineItem('A', 'test', null, 3),
+            new LineItem('B', 'test', null, 3),
+            new LineItem('C', 'test', null, 3),
+            new LineItem('D', 'test', null, 3),
         ]);
 
         $collection->remove('X');
 
         static::assertEquals(
             new LineItemCollection([
-                (new LineItem('A', 'test', null, 3))->assign(['uniqueIdentifier' => 'A']),
-                (new LineItem('B', 'test', null, 3))->assign(['uniqueIdentifier' => 'B']),
-                (new LineItem('C', 'test', null, 3))->assign(['uniqueIdentifier' => 'C']),
-                (new LineItem('D', 'test', null, 3))->assign(['uniqueIdentifier' => 'D']),
+                new LineItem('A', 'test', null, 3),
+                new LineItem('B', 'test', null, 3),
+                new LineItem('C', 'test', null, 3),
+                new LineItem('D', 'test', null, 3),
             ]),
             $collection
         );
@@ -324,21 +327,21 @@ class LineItemCollectionTest extends TestCase
 
     public function testRemoveWithNotExisting(): void
     {
-        $c = (new LineItem('C', 'test', null, 3))->assign(['uniqueIdentifier' => 'C']);
+        $c = new LineItem('C', 'test', null, 3);
 
         $collection = new LineItemCollection([
-            (new LineItem('A', 'test', null, 3))->assign(['uniqueIdentifier' => 'A']),
-            (new LineItem('B', 'test', null, 3))->assign(['uniqueIdentifier' => 'B']),
-            (new LineItem('D', 'test', null, 3))->assign(['uniqueIdentifier' => 'D']),
+            new LineItem('A', 'test', null, 3),
+            new LineItem('B', 'test', null, 3),
+            new LineItem('D', 'test', null, 3),
         ]);
 
         $collection->removeElement($c);
 
         static::assertEquals(
             new LineItemCollection([
-                (new LineItem('A', 'test', null, 3))->assign(['uniqueIdentifier' => 'A']),
-                (new LineItem('B', 'test', null, 3))->assign(['uniqueIdentifier' => 'B']),
-                (new LineItem('D', 'test', null, 3))->assign(['uniqueIdentifier' => 'D']),
+                new LineItem('A', 'test', null, 3),
+                new LineItem('B', 'test', null, 3),
+                new LineItem('D', 'test', null, 3),
             ]),
             $collection
         );

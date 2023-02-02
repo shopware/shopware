@@ -8,7 +8,6 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -18,7 +17,6 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[Package('customer-order')]
 class OrderBuilder
 {
     use BasicTestDataBehaviour;
@@ -28,6 +26,8 @@ class OrderBuilder
     protected string $id;
 
     protected string $orderNumber;
+
+    protected string $salesChannelId;
 
     protected string $currencyId;
 
@@ -52,7 +52,7 @@ class OrderBuilder
     public function __construct(
         IdsCollection $ids,
         string $orderNumber,
-        protected string $salesChannelId = TestDefaults::SALES_CHANNEL
+        string $salesChannelId = TestDefaults::SALES_CHANNEL
     ) {
         $this->ids = $ids;
         $this->id = $ids->get($orderNumber);
@@ -60,6 +60,7 @@ class OrderBuilder
         $this->currencyId = Defaults::CURRENCY;
         $this->stateId = $this->getStateMachineState();
         $this->orderNumber = $orderNumber;
+        $this->salesChannelId = $salesChannelId;
         $this->orderDateTime = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
         $this->currencyFactor = 1.0;
 

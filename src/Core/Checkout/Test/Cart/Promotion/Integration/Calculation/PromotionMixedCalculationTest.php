@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Test\Cart\Promotion\Integration\Calculation;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
@@ -11,8 +10,7 @@ use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscou
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionIntegrationTestBehaviour;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionSetGroupTestFixtureBehaviour;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionTestFixtureBehaviour;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -22,7 +20,6 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[Package('checkout')]
 class PromotionMixedCalculationTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -30,11 +27,11 @@ class PromotionMixedCalculationTest extends TestCase
     use PromotionIntegrationTestBehaviour;
     use PromotionSetGroupTestFixtureBehaviour;
 
-    protected EntityRepository $productRepository;
+    protected EntityRepositoryInterface $productRepository;
 
     protected CartService $cartService;
 
-    protected EntityRepository $promotionRepository;
+    protected EntityRepositoryInterface $promotionRepository;
 
     protected function setUp(): void
     {
@@ -53,7 +50,10 @@ class PromotionMixedCalculationTest extends TestCase
      * @test
      * @group promotions
      *
-     * @throws CartException
+     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException
+     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
+     * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
+     * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
      */
     public function testMixedAbsoluteAndPercentageDiscount(): void
     {
@@ -90,7 +90,10 @@ class PromotionMixedCalculationTest extends TestCase
      * @test
      * @group promotions
      *
-     * @throws CartException
+     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException
+     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
+     * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
+     * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
      */
     public function testRemoveDiscountByCode(): void
     {
@@ -134,7 +137,9 @@ class PromotionMixedCalculationTest extends TestCase
      *
      * @group promotions
      *
-     * @throws CartException
+     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
+     * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
+     * @throws \Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException
      */
     public function testProportionalTaxDistribution(): void
     {
@@ -308,7 +313,7 @@ class PromotionMixedCalculationTest extends TestCase
     }
 
     /**
-     * @return array<string, array<mixed>>
+     * @return array
      *
      * expectedDiscount,
      * applyTo,
@@ -687,9 +692,6 @@ class PromotionMixedCalculationTest extends TestCase
         static::assertEquals($expectedDiscount, $groupDiscountPrice->getTotalPrice());
     }
 
-    /**
-     * @return array<string, array<mixed>>
-     */
     public function getBuyThreeTshirtsGetFirstOneFreeTestData(): array
     {
         return [
@@ -772,9 +774,6 @@ class PromotionMixedCalculationTest extends TestCase
         static::assertEquals($expectedDiscount, $groupDiscountPrice->getTotalPrice());
     }
 
-    /**
-     * @return array<string, array<mixed>>
-     */
     public function getBuyThreeTshirtsGetSecondOneFreeTestData(): array
     {
         return [

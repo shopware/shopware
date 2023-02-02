@@ -1,8 +1,13 @@
 // / <reference types="Cypress" />
 
 describe('Currency: Visual testing', () => {
+    // eslint-disable-next-line no-undef
     beforeEach(() => {
-        cy.setLocaleToEnGb()
+        // Clean previous state and prepare Administration
+        cy.loginViaApi()
+            .then(() => {
+                cy.setLocaleToEnGb();
+            })
             .then(() => {
                 cy.openInitialPage(Cypress.env('admin'));
                 cy.get('.sw-skeleton').should('not.exist');
@@ -13,13 +18,13 @@ describe('Currency: Visual testing', () => {
     it('@visual: check appearance of  currency module', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/currency`,
-            method: 'POST',
+            method: 'POST'
         }).as('getData');
 
         cy.get('.sw-dashboard-index__welcome-text').should('be.visible');
         cy.clickMainMenuItem({
             targetPath: '#/sw/settings/index',
-            mainMenuId: 'sw-settings',
+            mainMenuId: 'sw-settings'
         });
         cy.get('#sw-settings-currency').click();
         cy.wait('@getData')

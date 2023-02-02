@@ -3,10 +3,8 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Exception;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
-#[Package('core')]
 class ImpossibleWriteOrderException extends ShopwareHttpException
 {
     public function __construct(array $remaining)

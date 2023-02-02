@@ -2,7 +2,7 @@ const customer = {
     firstName: 'Y',
     lastName: 'Tran',
     email: "y.tran@shopware.com",
-    password: "shopware",
+    password: "shopware"
 };
 
 const product = {
@@ -16,33 +16,30 @@ const product = {
             "currencyId": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
             "net": 8.40,
             "linked": false,
-            "gross": 10,
-        },
+            "gross": 10
+        }
     ],
     "url": "/product-name.html",
     "manufacturer": {
         "id": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
-        "name": "Test variant manufacturer",
+        "name": "Test variant manufacturer"
     },
 };
 
-/**
- * @package checkout
- */
 describe('Wishlist: for wishlist', () => {
     beforeEach(() => {
         cy.authenticate().then((result) => {
             const requestConfig = {
                 headers: {
-                    Authorization: `Bearer ${result.access}`,
+                    Authorization: `Bearer ${result.access}`
                 },
                 method: 'POST',
                 url: `api/_action/system-config/batch`,
                 body: {
                     null: {
-                        'core.cart.wishlistEnabled': true, // enable wishlist
-                    },
-                },
+                        'core.cart.wishlistEnabled': true // enable wishlist
+                    }
+                }
             };
 
             return cy.request(requestConfig);
@@ -52,7 +49,7 @@ describe('Wishlist: for wishlist', () => {
             return cy.createProductFixture(product).then(() => {
                 cy.setCookie('wishlist-enabled', '1');
             });
-        });
+        })
     });
 
     it('@wishlist: Wishlist can be merge from anonymous user to registered users', { tags: ['pa-checkout'] }, () => {
@@ -63,12 +60,15 @@ describe('Wishlist: for wishlist', () => {
             url: '/wishlist/merge',
         }).as('wishlistMerge');
 
-        cy.get(`.product-wishlist-${product.id}`).first().should('be.visible');
-        cy.get(`.product-wishlist-${product.id}`).first().should('have.class', 'product-wishlist-not-added');
-        cy.get(`.product-wishlist-${product.id}`).first().get('.icon-wishlist-not-added').should('be.visible');
-        cy.get(`.product-wishlist-${product.id}`).first().should('not.have.class', 'product-wishlist-added');
 
-        cy.get(`.product-wishlist-${product.id}`).first().click();
+        let heartIcon = cy.get(`.product-wishlist-${product.id}`).first();
+
+        heartIcon.should('be.visible');
+        heartIcon.should('have.class', 'product-wishlist-not-added');
+        heartIcon.get('.icon-wishlist-not-added').should('be.visible');
+        heartIcon.should('not.have.class', 'product-wishlist-added');
+
+        heartIcon.click();
 
         cy.window().then((win) => {
             cy.expect(win.wishlistEnabled).to.equal(1);
@@ -89,9 +89,11 @@ describe('Wishlist: for wishlist', () => {
 
         cy.visit('/');
 
-        cy.get(`.product-wishlist-${product.id}`).first().should('have.class', 'product-wishlist-added');
-        cy.get(`.product-wishlist-${product.id}`).first().should('not.have.class', 'product-wishlist-not-added');
-        cy.get(`.product-wishlist-${product.id}`).first().get('.icon-wishlist-added').should('be.visible');
+        heartIcon = cy.get(`.product-wishlist-${product.id}`).first()
+
+        heartIcon.should('have.class', 'product-wishlist-added');
+        heartIcon.should('not.have.class', 'product-wishlist-not-added');
+        heartIcon.get('.icon-wishlist-added').should('be.visible');
     });
 
     it('@wishlist: Wishlist can be merge from anonymous user to registered users with same product', { tags: ['pa-checkout'] }, () => {
@@ -115,12 +117,14 @@ describe('Wishlist: for wishlist', () => {
 
         cy.visit('/');
 
-        cy.get(`.product-wishlist-${product.id}`).first().should('be.visible');
-        cy.get(`.product-wishlist-${product.id}`).first().should('have.class', 'product-wishlist-not-added');
-        cy.get(`.product-wishlist-${product.id}`).first().get('.icon-wishlist-not-added').should('be.visible');
-        cy.get(`.product-wishlist-${product.id}`).first().should('not.have.class', 'product-wishlist-added');
+        let heartIcon = cy.get(`.product-wishlist-${product.id}`).first();
 
-        cy.get(`.product-wishlist-${product.id}`).first().click();
+        heartIcon.should('be.visible');
+        heartIcon.should('have.class', 'product-wishlist-not-added');
+        heartIcon.get('.icon-wishlist-not-added').should('be.visible');
+        heartIcon.should('not.have.class', 'product-wishlist-added');
+
+        heartIcon.click();
 
         cy.wait('@wishlistAdd').then( () => {
             cy.get('#wishlist-basket').contains('1');
@@ -130,7 +134,9 @@ describe('Wishlist: for wishlist', () => {
             cy.reload(true);
         });
 
-        cy.get(`.product-wishlist-${product.id}`).first().click();
+        heartIcon = cy.get(`.product-wishlist-${product.id}`).first();
+
+        heartIcon.click();
 
         // Login
         cy.visit('/account/login');
@@ -157,13 +163,13 @@ describe('Wishlist: for wishlist', () => {
                     "currencyId": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
                     "net": 8.40,
                     "linked": false,
-                    "gross": 10,
-                },
+                    "gross": 10
+                }
             ],
             "url": "/product-name.html",
             "manufacturer": {
                 "id": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
-                "name": "Test variant manufacturer",
+                "name": "Test variant manufacturer"
             },
         });
 
@@ -186,10 +192,12 @@ describe('Wishlist: for wishlist', () => {
 
         cy.visit('/');
 
-        cy.get(`.product-wishlist-${product.id}`).first().should('be.visible');
-        cy.get(`.product-wishlist-${product.id}`).first().should('have.class', 'product-wishlist-not-added');
+        let heartIcon = cy.get(`.product-wishlist-${product.id}`).first();
 
-        cy.get(`.product-wishlist-${product.id}`).first().click();
+        heartIcon.should('be.visible');
+        heartIcon.should('have.class', 'product-wishlist-not-added');
+
+        heartIcon.click();
 
         cy.wait('@wishlistAdd').then( () => {
             cy.get('#wishlist-basket').contains('1');
@@ -198,10 +206,11 @@ describe('Wishlist: for wishlist', () => {
             cy.visit('/');
         });
 
-        cy.get(`.product-wishlist-6dfd9dc216ab4ac99598b837ac600369`).first().should('be.visible');
-        cy.get(`.product-wishlist-6dfd9dc216ab4ac99598b837ac600369`).first().should('have.class', 'product-wishlist-not-added');
+        heartIcon = cy.get(`.product-wishlist-6dfd9dc216ab4ac99598b837ac600369`).first();
+        heartIcon.should('be.visible');
+        heartIcon.should('have.class', 'product-wishlist-not-added');
 
-        cy.get(`.product-wishlist-6dfd9dc216ab4ac99598b837ac600369`).first().click();
+        heartIcon.click();
 
         // Login
         cy.visit('/account/login');
@@ -228,13 +237,13 @@ describe('Wishlist: for wishlist', () => {
                     "currencyId": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
                     "net": 8.40,
                     "linked": false,
-                    "gross": 10,
-                },
+                    "gross": 10
+                }
             ],
             "url": "/product-name.html",
             "manufacturer": {
                 "id": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
-                "name": "Test variant manufacturer",
+                "name": "Test variant manufacturer"
             },
         });
 
@@ -242,12 +251,12 @@ describe('Wishlist: for wishlist', () => {
 
         cy.intercept({
             method: 'POST',
-            url: '/wishlist/add/**',
+            url: '/wishlist/add/**'
         }).as('wishlistAdd');
 
         cy.intercept({
             method: 'POST',
-            url: '/wishlist/merge',
+            url: '/wishlist/merge'
         }).as('wishlistMerge');
 
         cy.visit('/account/login');
@@ -259,10 +268,11 @@ describe('Wishlist: for wishlist', () => {
         cy.visit('/');
 
         // add to wishlist with registered users
-        cy.get(`.product-wishlist-${product.id}`).first().should('be.visible');
-        cy.get(`.product-wishlist-${product.id}`).first().should('have.class', 'product-wishlist-not-added');
+        let heartIcon = cy.get(`.product-wishlist-${product.id}`).first();
+        heartIcon.should('be.visible');
+        heartIcon.should('have.class', 'product-wishlist-not-added');
 
-        cy.get(`.product-wishlist-${product.id}`).first().click();
+        heartIcon.click();
 
         cy.wait('@wishlistAdd').then(() => {
             cy.get('#wishlist-basket').contains('1');
@@ -272,10 +282,11 @@ describe('Wishlist: for wishlist', () => {
         });
 
         // add to wishlist with anonymous user
-        cy.get(`.product-wishlist-6dfd9dc216ab4ac99598b837ac600369`).first().should('be.visible');
-        cy.get(`.product-wishlist-6dfd9dc216ab4ac99598b837ac600369`).first().should('have.class', 'product-wishlist-not-added');
+        heartIcon = cy.get(`.product-wishlist-6dfd9dc216ab4ac99598b837ac600369`).first();
+        heartIcon.should('be.visible');
+        heartIcon.should('have.class', 'product-wishlist-not-added');
 
-        cy.get(`.product-wishlist-6dfd9dc216ab4ac99598b837ac600369`).first().click();
+        heartIcon.click();
 
         cy.get('#wishlist-basket').contains('1');
 

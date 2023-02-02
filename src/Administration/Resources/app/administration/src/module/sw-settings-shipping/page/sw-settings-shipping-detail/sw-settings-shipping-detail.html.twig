@@ -5,14 +5,14 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_shipping_detail_header %}
-    <template #smart-bar-header>
+    <template slot="smart-bar-header">
         <h2>{{ placeholder(shippingMethod, 'name', $tc('sw-settings-shipping.detail.textHeadline')) }}</h2>
     </template>
     {% endblock %}
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_shipping_detail_actions %}
-    <template #smart-bar-actions>
+    <template slot="smart-bar-actions">
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_shipping_detail_actions_abort %}
         <sw-button
@@ -257,7 +257,7 @@
     </template>
     {% endblock %}
 
-    <template #sidebar>
+    <template slot="sidebar">
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_shipping_detail_sidebar %}
         <sw-sidebar :propagate-width="true">
@@ -265,7 +265,8 @@
             {% block sw_setting_shipping_detail_sidebar_media_item %}
             <sw-sidebar-media-item ref="mediaSidebarItem">
                 <template
-                    #context-menu-items="media"
+                    slot="context-menu-items"
+                    slot-scope="media"
                 >
                     <sw-context-menu-item @click="setMediaFromSidebar(media.mediaItem)">
                         {{ $tc('sw-settings-shipping.sidebar.labelUseAsLogo') }}

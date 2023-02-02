@@ -12,14 +12,6 @@
     {% block sw_tabs_item_slot %}
     <slot></slot>
     {% endblock %}
-
-    <sw-icon
-        v-if="hasError"
-        v-tooltip="{ message: $tc('global.sw-tabs-item.tooltipTabHasErrors') }"
-        class="sw-tabs-item__error-badge"
-        name="solid-exclamation-circle"
-        size="12px"
-    />
 </a>
 
 <router-link

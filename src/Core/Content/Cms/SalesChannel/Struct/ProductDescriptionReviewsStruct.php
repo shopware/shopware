@@ -4,10 +4,8 @@ namespace Shopware\Core\Content\Cms\SalesChannel\Struct;
 
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewResult;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('content')]
 class ProductDescriptionReviewsStruct extends Struct
 {
     /**

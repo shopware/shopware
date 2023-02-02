@@ -1,12 +1,9 @@
-/**
- * @package system-settings
- */
 import template from './sw-users-permissions-role-view-general.html.twig';
 
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Shopware.Component.register('sw-users-permissions-role-view-general', {
     template,
 
     inject: [
@@ -26,4 +23,4 @@ export default {
             'description',
         ]),
     },
-};
+});

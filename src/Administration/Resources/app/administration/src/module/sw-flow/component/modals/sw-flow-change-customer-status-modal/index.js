@@ -3,11 +3,8 @@ import template from './sw-flow-change-customer-status-modal.html.twig';
 const { Component } = Shopware;
 const { mapState } = Component.getComponentHelper();
 
-/**
- * @private
- * @package business-ops
- */
-export default {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+Component.register('sw-flow-change-customer-status-modal', {
     template,
 
     inject: ['repositoryFactory'],
@@ -60,4 +57,4 @@ export default {
             this.$emit('process-finish', this.sequence);
         },
     },
-};
+});

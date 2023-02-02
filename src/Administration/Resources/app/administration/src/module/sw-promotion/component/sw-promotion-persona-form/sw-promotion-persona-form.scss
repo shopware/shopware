@@ -1,0 +1,36 @@
+.sw-promotion-persona-form {
+    .sw-card .sw-card__content {
+        .sw-promotion-persona-form-rules {
+            p {
+                margin-bottom: 10px;
+            }
+
+            .sw-promotion-persona-form-rules__rules {
+                margin-top: 20px;
+            }
+
+            .sw-promotion-persona-form-rules__customers-switch {
+                margin-bottom: 0;
+            }
+        }
+
+        .sw-promotion-persona-form-customers {
+            .sw-data-grid {
+                position: relative;
+                z-index: 0;
+            }
+
+            .sw-promotion-persona-form-customers__customer-search {
+                margin-top: 20px;
+                margin-bottom: 40px;
+            }
+
+            .sw-promotion-persona-form-customers__remove-selected-customers {
+                z-index: 6;
+                position: absolute;
+                right: 55px;
+                top: 145px;
+            }
+        }
+    }
+}

@@ -3,9 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\EntityProtectionCollection;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
 abstract class EntityExtension
 {
     /**

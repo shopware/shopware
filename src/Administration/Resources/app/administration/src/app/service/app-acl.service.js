@@ -1,8 +1,6 @@
 const { Criteria } = Shopware.Data;
 
 /**
- * @package admin
- *
  * @module app/app-acl-service
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

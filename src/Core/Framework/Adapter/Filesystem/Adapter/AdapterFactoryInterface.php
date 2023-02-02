@@ -2,13 +2,11 @@
 
 namespace Shopware\Core\Framework\Adapter\Filesystem\Adapter;
 
-use League\Flysystem\FilesystemAdapter;
-use Shopware\Core\Framework\Log\Package;
+use League\Flysystem\AdapterInterface;
 
-#[Package('core')]
 interface AdapterFactoryInterface
 {
-    public function create(array $config): FilesystemAdapter;
+    public function create(array $config): AdapterInterface;
 
     public function getType(): string;
 }

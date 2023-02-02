@@ -27,7 +27,7 @@
     .sw-data-grid__cell {
         padding: 0;
         margin: 0;
-        font-size: $font-size-xs;
+        font-size: 14px;
         color: $color-darkgray-200;
         border-right: 1px solid $color-gray-300;
         overflow: hidden;
@@ -54,7 +54,7 @@
         padding: 20px;
         line-height: 22px;
         height: 64px;
-        font-size: $font-size-xs;
+        font-size: 14px;
         display: flex;
         align-items: center;
 
@@ -97,25 +97,6 @@
         .sw-icon,
         .sw-color-badge {
             flex-shrink: 0;
-        }
-
-        .sw-data-grid__inline-edit-cancel {
-            .sw-icon {
-                width: 16px;
-                height: 16px;
-                padding: 4px;
-            }
-        }
-
-        .sw-data-grid__inline-edit-save {
-            .sw-icon {
-                width: 16px;
-                height: 16px;
-                padding-top: 5px;
-                padding-right: 4px;
-                padding-bottom: 5px;
-                padding-left: 4px;
-            }
         }
     }
 
@@ -226,7 +207,8 @@
             margin-left: auto;
 
             .sw-icon {
-                padding: 4px;
+                // @deprecated tag:v6.5.0 - The !important attribute can be removed
+                padding: 4px !important;
             }
         }
 
@@ -276,7 +258,7 @@
         overflow: hidden;
         color: $color-darkgray-200;
         background: $color-white;
-        font-size: $font-size-xs;
+        font-size: 14px;
         left: 0;
         right: 0;
         height: 64px;
@@ -375,7 +357,7 @@
         display: inline-block;
         position: relative;
         margin: 0;
-        line-height: $line-height-xs;
+        line-height: 18px;
         padding: 4px 12px;
         text-decoration: none;
         color: $color-darkgray-200;
@@ -415,8 +397,8 @@
             max-height: calc(100% - 5px);
 
             &.sw-icon {
-                width: 100%;
-                height: 100%;
+                width: 80%;
+                height: 80%;
             }
         }
     }

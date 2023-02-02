@@ -3,15 +3,19 @@
 namespace Shopware\Core\Checkout\Shipping\Cart\Error;
 
 use Shopware\Core\Checkout\Cart\Error\Error;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('checkout')]
 class ShippingMethodBlockedError extends Error
 {
     private const KEY = 'shipping-method-blocked';
 
-    public function __construct(private readonly string $name)
+    /**
+     * @var string
+     */
+    private $name;
+
+    public function __construct(string $name)
     {
+        $this->name = $name;
         $this->message = sprintf(
             'Shipping method %s not available',
             $name

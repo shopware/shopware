@@ -1,0 +1,85 @@
+@startuml
+' uncomment the line below if you're using computer with a retina display
+' skinparam dpi 300
+!define Table(name,desc) class name as "desc" << (T,#FFAAAA) >>
+!define ForeignTable(name,desc) class name as "desc" << (T,#ada6a6) >>
+!define TranslationTable(name,desc) class name as "desc" << (I,#4286f4) >>
+' we use bold for primary key
+' green color for unique
+' and underscore for not_null
+!define primary_key(x) <b>x</b>
+!define unique(x) <color:green>x</color>
+!define not_null(x) <u>x</u>
+' other tags available:
+' <i></i>
+' <back:COLOR></color>, where color is a color name or html color code
+' (#FFAACC)
+' see: http://plantuml.com/classes.html#More
+hide methods
+hide stereotypes
+hide empty members
+skinparam backgroundColor #FFFFFF
+
+' entities
+
+Table(ShopwareCoreContentImportExportImportExportProfileDefinition, "import_export_profile\n(File profile definition)") {
+   primary_key(id) id
+   name string
+   not_null(label) translated
+   systemDefault bool
+   not_null(sourceEntity) string
+   not_null(fileType) string
+   not_null(delimiter) string
+   not_null(enclosure) string
+   mapping json
+   config json
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+   translated json
+}
+Table(ShopwareCoreContentImportExportAggregateImportExportLogImportExportLogDefinition, "import_export_log\n(Change log)") {
+   primary_key(id) id
+   not_null(activity) string
+   not_null(state) string
+   not_null(records) int
+   userId foreignKey
+   profileId foreignKey
+   fileId foreignKey
+   invalidRecordsLogId foreignKey
+   username string
+   profileName string
+   not_null(config) json
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+}
+Table(ShopwareCoreContentImportExportAggregateImportExportFileImportExportFileDefinition, "import_export_file\n(Import/Export file)") {
+   primary_key(id) id
+   not_null(originalName) string
+   not_null(path) string
+   not_null(expireDate) dateTime
+   size int
+   not_null(accessToken) string
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+}
+TranslationTable(ShopwareCoreContentImportExportImportExportProfileTranslationDefinition, "import_export_profile_translation\n((Translations))") {
+   label string
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+   primary_key(importExportProfileId) foreignKey
+   primary_key(languageId) foreignKey
+}
+ForeignTable(ShopwareCoreSystemUserUserDefinition, "user") {
+}
+ForeignTable(ShopwareCoreSystemLanguageLanguageDefinition, "language") {
+}
+
+' relationshipd
+
+ShopwareCoreContentImportExportAggregateImportExportLogImportExportLogDefinition --> ShopwareCoreContentImportExportImportExportProfileDefinition
+ShopwareCoreContentImportExportImportExportProfileTranslationDefinition --> ShopwareCoreContentImportExportImportExportProfileDefinition
+ShopwareCoreContentImportExportAggregateImportExportLogImportExportLogDefinition --> ShopwareCoreSystemUserUserDefinition
+ShopwareCoreContentImportExportAggregateImportExportFileImportExportFileDefinition --> ShopwareCoreContentImportExportAggregateImportExportLogImportExportLogDefinition
+ShopwareCoreContentImportExportAggregateImportExportLogImportExportLogDefinition --> ShopwareCoreContentImportExportAggregateImportExportLogImportExportLogDefinition
+ShopwareCoreContentImportExportImportExportProfileTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
+@enduml

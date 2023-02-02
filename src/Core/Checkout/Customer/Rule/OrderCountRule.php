@@ -3,21 +3,29 @@
 namespace Shopware\Core\Checkout\Customer\Rule;
 
 use Shopware\Core\Checkout\CheckoutRuleScope;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-#[Package('business-ops')]
 class OrderCountRule extends Rule
 {
-    final public const RULE_NAME = 'customerOrderCount';
+    /**
+     * @var string
+     */
+    protected $operator;
 
-    protected string $operator;
+    /**
+     * @var int
+     */
+    protected $count;
 
-    protected int $count;
+    public function getName(): string
+    {
+        return 'customerOrderCount';
+    }
 
     public function match(RuleScope $scope): bool
     {
@@ -26,6 +34,10 @@ class OrderCountRule extends Rule
         }
 
         if (!$customer = $scope->getSalesChannelContext()->getCustomer()) {
+            if (!Feature::isActive('v6.5.0.0')) {
+                return false;
+            }
+
             return RuleComparison::isNegativeOperator($this->operator);
         }
 

@@ -5,7 +5,6 @@ import NativeEventEmitter from 'src/helper/emitter.helper';
 
 /**
  * Plugin Base class
- * @package storefront
  */
 export default class Plugin {
     /**

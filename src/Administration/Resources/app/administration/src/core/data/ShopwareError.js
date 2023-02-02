@@ -1,6 +1,4 @@
 /**
- * @package admin
- *
  * @module core/data/ShopwareError
  */
 import utils from 'src/core/service/util.service';

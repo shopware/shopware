@@ -1,13 +1,12 @@
 import template from './sw-category-detail-menu.html.twig';
 
-/**
- * @package content
- */
+const { Component } = Shopware;
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-category-detail-menu', {
     template,
 
-    inject: ['acl', 'repositoryFactory'],
+    inject: ['acl', 'openMediaSidebar', 'repositoryFactory'],
 
     props: {
         category: {
@@ -20,12 +19,6 @@ export default {
             required: false,
             default: false,
         },
-    },
-
-    data() {
-        return {
-            showMediaModal: false,
-        };
     },
 
     computed: {
@@ -48,18 +41,6 @@ export default {
     },
 
     methods: {
-        onMediaSelectionChange(mediaItems) {
-            const media = mediaItems[0];
-            if (!media) {
-                return;
-            }
-
-            this.mediaRepository.get(media.id).then((updatedMedia) => {
-                this.category.mediaId = updatedMedia.id;
-                this.category.media = updatedMedia;
-            });
-        },
-
         onSetMediaItem({ targetId }) {
             this.mediaRepository.get(targetId).then((updatedMedia) => {
                 this.category.mediaId = targetId;
@@ -78,4 +59,4 @@ export default {
         },
     },
 
-};
+});

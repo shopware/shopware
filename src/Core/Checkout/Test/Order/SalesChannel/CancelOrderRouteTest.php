@@ -14,12 +14,10 @@ use Shopware\Core\Checkout\Test\Customer\SalesChannel\CustomerTestTrait;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\PlatformRequest;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
@@ -27,7 +25,6 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Package('customer-order')]
 class CancelOrderRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -53,7 +50,7 @@ class CancelOrderRouteTest extends TestCase
         $customerId = $this->createCustomer('shopware', $email);
 
         $this->ids->set('order-1', $this->createOrder($this->ids, $customerId));
-        $this->ids->set('order-2', $this->createOrder($this->ids, $this->createCustomer('test12345', 'test-other@test.de')));
+        $this->ids->set('order-2', $this->createOrder($this->ids, $this->createCustomer('test', 'test-other@test.de')));
 
         $this->browser
             ->request(
@@ -65,13 +62,9 @@ class CancelOrderRouteTest extends TestCase
                 ]
             );
 
-        $response = $this->browser->getResponse();
+        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true);
 
-        // After login successfully, the context token will be set in the header
-        $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
-        static::assertNotEmpty($contextToken);
-
-        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $response['contextToken']);
     }
 
     public function testCancelMyOwnOrder(): void
@@ -85,7 +78,7 @@ class CancelOrderRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true);
 
         static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode());
         static::assertSame('cancelled', $response['technicalName']);
@@ -111,7 +104,7 @@ class CancelOrderRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true);
 
         static::assertSame(Response::HTTP_NOT_FOUND, $this->browser->getResponse()->getStatusCode());
         static::assertSame('FRAMEWORK__ENTITY_NOT_FOUND', $response['errors'][0]['code']);
@@ -128,7 +121,7 @@ class CancelOrderRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true);
 
         static::assertSame(Response::HTTP_NOT_FOUND, $this->browser->getResponse()->getStatusCode());
         static::assertSame('FRAMEWORK__ENTITY_NOT_FOUND', $response['errors'][0]['code']);
@@ -149,7 +142,7 @@ class CancelOrderRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true);
 
         static::assertSame(Response::HTTP_FORBIDDEN, $this->browser->getResponse()->getStatusCode());
         static::assertSame('CHECKOUT__CUSTOMER_NOT_LOGGED_IN', $response['errors'][0]['code']);

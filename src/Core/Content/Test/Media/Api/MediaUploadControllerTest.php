@@ -7,33 +7,41 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaType\ImageType;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
-use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- * @group needsWebserver
  */
 class MediaUploadControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
     use MediaFixtures;
 
-    final public const TEST_IMAGE = __DIR__ . '/../fixtures/shopware-logo.png';
+    public const TEST_IMAGE = __DIR__ . '/../fixtures/shopware-logo.png';
 
-    private EntityRepository $mediaRepository;
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $mediaRepository;
 
-    private UrlGeneratorInterface $urlGenerator;
+    /**
+     * @var UrlGeneratorInterface
+     */
+    private $urlGenerator;
 
-    private string $mediaId;
+    /**
+     * @var string
+     */
+    private $mediaId;
 
-    private Context $context;
-
-    private bool $mediaDirCreated = false;
+    /**
+     * @var Context
+     */
+    private $context;
 
     protected function setUp(): void
     {
@@ -42,23 +50,6 @@ class MediaUploadControllerTest extends TestCase
 
         $this->context = Context::createDefaultContext();
         $this->mediaId = $this->getEmptyMedia()->getId();
-
-        $projectDir = $this->getContainer()->getParameter('kernel.project_dir');
-        if (!\is_dir($projectDir . '/public/media')) {
-            mkdir($projectDir . '/public/media');
-            $this->mediaDirCreated = true;
-        }
-        \copy(self::TEST_IMAGE, $this->getContainer()->getParameter('kernel.project_dir') . '/public/media/shopware-logo.png');
-    }
-
-    protected function tearDown(): void
-    {
-        \unlink($this->getContainer()->getParameter('kernel.project_dir') . '/public/media/shopware-logo.png');
-
-        if ($this->mediaDirCreated) {
-            rmdir($this->getContainer()->getParameter('kernel.project_dir') . '/public/media');
-            $this->mediaDirCreated = false;
-        }
     }
 
     public function testUploadFromBinaryUsesMediaId(): void
@@ -77,7 +68,7 @@ class MediaUploadControllerTest extends TestCase
                 'HTTP_CONTENT-TYPE' => 'image/png',
                 'HTTP_CONTENT-LENGTH' => filesize(self::TEST_IMAGE),
             ],
-            (string) file_get_contents(self::TEST_IMAGE)
+            file_get_contents(self::TEST_IMAGE)
         );
         $media = $this->getMediaEntity();
 
@@ -104,13 +95,12 @@ class MediaUploadControllerTest extends TestCase
                 'HTTP_CONTENT-TYPE' => 'image/png',
                 'HTTP_CONTENT-LENGTH' => filesize(self::TEST_IMAGE),
             ],
-            (string) file_get_contents(self::TEST_IMAGE)
+            file_get_contents(self::TEST_IMAGE)
         );
         $media = $this->getMediaEntity();
 
         $mediaPath = $this->urlGenerator->getRelativeMediaUrl($media);
         static::assertTrue($this->getPublicFilesystem()->has($mediaPath));
-        static::assertIsString($media->getFileName());
         static::assertStringEndsWith('new file name', $media->getFileName());
 
         $this->assertMediaApiResponse();
@@ -118,7 +108,7 @@ class MediaUploadControllerTest extends TestCase
 
     public function testUploadFromURL(): void
     {
-        $baseUrl = EnvironmentHelper::getVariable('APP_URL') . '/media/shopware-logo.png';
+        $baseUrl = 'http://assets.shopware.com/sw_logo_white.png';
 
         $url = sprintf(
             '/api/_action/media/%s/upload',
@@ -133,23 +123,21 @@ class MediaUploadControllerTest extends TestCase
             [
                 'HTTP_CONTENT-TYPE' => 'application/json',
             ],
-            json_encode(['url' => $baseUrl], \JSON_THROW_ON_ERROR)
+            json_encode(['url' => $baseUrl])
         );
         $response = $this->getBrowser()->getResponse();
 
         $media = $this->mediaRepository->search(new Criteria([$this->mediaId]), $this->context)->get($this->mediaId);
 
-        static::assertInstanceOf(MediaEntity::class, $media);
-        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), (string) $response->getContent());
-        $location = $response->headers->get('location');
-        static::assertIsString($location);
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
+        static::assertNotEmpty($response->headers->get('Location'));
         static::assertStringEndsWith(
             '/api/media/' . $this->mediaId,
-            $location
+            $response->headers->get('Location')
         );
         static::assertTrue($this->getPublicFilesystem()->has($this->urlGenerator->getRelativeMediaUrl($media)));
 
-        $this->assertMediaApiResponse();
+        $this->assertMediaApiResponse(800);
     }
 
     public function testRenameMediaFileThrowsExceptionIfFileNameIsNotPresent(): void
@@ -171,11 +159,11 @@ class MediaUploadControllerTest extends TestCase
             [
                 'HTTP_CONTENT_TYPE' => 'application/json',
             ],
-            json_encode([], \JSON_THROW_ON_ERROR)
+            json_encode([])
         );
 
         $response = $this->getBrowser()->getResponse();
-        $responseData = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $responseData = json_decode($response->getContent(), true);
 
         static::assertEquals(400, $response->getStatusCode());
         static::assertEquals('CONTENT__MEDIA_EMPTY_FILE', $responseData['errors'][0]['code']);
@@ -187,7 +175,7 @@ class MediaUploadControllerTest extends TestCase
         $this->setFixtureContext($context);
         $media = $this->getPng();
 
-        $this->getPublicFilesystem()->write($this->urlGenerator->getRelativeMediaUrl($media), 'some content');
+        $this->getPublicFilesystem()->put($this->urlGenerator->getRelativeMediaUrl($media), 'some content');
 
         $url = sprintf(
             '/api/_action/media/%s/rename',
@@ -202,14 +190,13 @@ class MediaUploadControllerTest extends TestCase
             [
                 'HTTP_CONTENT_TYPE' => 'application/json',
             ],
-            json_encode(['fileName' => 'new file name'], \JSON_THROW_ON_ERROR)
+            json_encode(['fileName' => 'new file name'])
         );
 
         $response = $this->getBrowser()->getResponse();
         static::assertEquals(204, $response->getStatusCode());
 
         $updatedMedia = $this->mediaRepository->search(new Criteria([$media->getId()]), $context)->get($media->getId());
-        static::assertInstanceOf(MediaEntity::class, $updatedMedia);
         static::assertNotEquals($media->getFileName(), $updatedMedia->getFileName());
         static::assertTrue($this->getPublicFilesystem()->has($this->urlGenerator->getRelativeMediaUrl($updatedMedia)));
     }
@@ -233,7 +220,7 @@ class MediaUploadControllerTest extends TestCase
         $response = $this->getBrowser()->getResponse();
         static::assertEquals(200, $response->getStatusCode());
 
-        $result = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $result = json_decode($response->getContent(), true);
         static::assertEquals($media->getFileName() . '_(1)', $result['fileName']);
     }
 
@@ -257,35 +244,35 @@ class MediaUploadControllerTest extends TestCase
         $response = $this->getBrowser()->getResponse();
         static::assertEquals(200, $response->getStatusCode());
 
-        $result = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $result = json_decode($response->getContent(), true);
         static::assertEquals($media->getFileName(), $result['fileName']);
     }
 
     private function getMediaEntity(): MediaEntity
     {
+        /** @var MediaEntity $media */
         $media = $this->mediaRepository->search(new Criteria([$this->mediaId]), $this->context)->get($this->mediaId);
-        static::assertInstanceOf(MediaEntity::class, $media);
         $response = $this->getBrowser()->getResponse();
 
-        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), (string) $response->getContent());
-        $location = $response->headers->get('Location');
-        static::assertIsString($location);
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
+
+        static::assertNotEmpty($response->headers->get('Location'));
         static::assertStringEndsWith(
             '/api/media/' . $this->mediaId,
-            $location
+            $response->headers->get('Location')
         );
 
         return $media;
     }
 
-    private function assertMediaApiResponse(): void
+    private function assertMediaApiResponse(int $width = 499): void
     {
         $this->getBrowser()->request(
             'GET',
             '/api/media/' . $this->mediaId
         );
 
-        $responseData = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $responseData = json_decode($this->getBrowser()->getResponse()->getContent(), true);
 
         static::assertCount(
             4,
@@ -293,7 +280,7 @@ class MediaUploadControllerTest extends TestCase
             print_r($responseData['data']['attributes'], true)
         );
         static::assertSame(
-            499,
+            $width,
             $responseData['data']['attributes']['metaData']['width'],
             print_r($responseData['data']['attributes'], true)
         );

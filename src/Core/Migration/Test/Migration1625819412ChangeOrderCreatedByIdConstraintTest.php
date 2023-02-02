@@ -12,9 +12,7 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_4\Migration1625819412ChangeOrderCreatedByIdConstraint;
@@ -23,7 +21,6 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[Package('core')]
 class Migration1625819412ChangeOrderCreatedByIdConstraintTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -34,13 +31,13 @@ class Migration1625819412ChangeOrderCreatedByIdConstraintTest extends TestCase
     {
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->connection->rollBack();
-        $this->connection->executeStatement('
+        $this->connection->executeUpdate('
             ALTER TABLE `order`
             DROP FOREIGN KEY `fk.order.created_by_id`,
             DROP FOREIGN KEY `fk.order.updated_by_id`;
         ');
 
-        $this->connection->executeStatement('
+        $this->connection->executeUpdate('
             ALTER TABLE `order`
             ADD CONSTRAINT `fk.order.created_by_id` FOREIGN KEY (`created_by_id`) REFERENCES `user` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
             ADD CONSTRAINT `fk.order.updated_by_id` FOREIGN KEY (`updated_by_id`) REFERENCES `user` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -90,7 +87,7 @@ class Migration1625819412ChangeOrderCreatedByIdConstraintTest extends TestCase
         static::assertNull($order->getUpdatedById());
     }
 
-    private function createUserWithId(string $userId): EntityRepository
+    private function createUserWithId(string $userId)
     {
         $userRepository = $this->getContainer()->get('user.repository');
         $userRepository->create([
@@ -109,9 +106,6 @@ class Migration1625819412ChangeOrderCreatedByIdConstraintTest extends TestCase
         return $userRepository;
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     private function createOrderPayload(): array
     {
         $addressId = Uuid::randomHex();

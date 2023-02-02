@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Page\Wishlist;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\Awareness\SalesChannelContextAwareTrait;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\PageLoadedHook;
@@ -14,17 +13,19 @@ use Shopware\Storefront\Page\PageLoadedHook;
  *
  * @since 6.4.8.0
  */
-#[Package('storefront')]
 class GuestWishlistPageLoadedHook extends PageLoadedHook
 {
     use SalesChannelContextAwareTrait;
 
-    final public const HOOK_NAME = 'guest-wishlist-page-loaded';
+    public const HOOK_NAME = 'guest-wishlist-page-loaded';
 
-    public function __construct(private readonly GuestWishlistPage $page, SalesChannelContext $context)
+    private GuestWishlistPage $page;
+
+    public function __construct(GuestWishlistPage $page, SalesChannelContext $context)
     {
         parent::__construct($context->getContext());
         $this->salesChannelContext = $context;
+        $this->page = $page;
     }
 
     public function getName(): string

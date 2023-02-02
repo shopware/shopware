@@ -9,28 +9,32 @@ use Psr\Http\Message\ResponseInterface;
 use Shopware\Core\Framework\App\AppLocaleProvider;
 use Shopware\Core\Framework\App\Hmac\RequestSigner;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
 class AuthMiddleware
 {
-    final public const APP_REQUEST_TYPE = 'request_type';
+    public const APP_REQUEST_TYPE = 'request_type';
 
-    final public const APP_SECRET = 'app_secret';
+    public const APP_SECRET = 'app_secret';
 
-    final public const VALIDATED_RESPONSE = 'validated_response';
+    public const VALIDATED_RESPONSE = 'validated_response';
 
-    final public const APP_REQUEST_CONTEXT = 'app_request_context';
+    public const APP_REQUEST_CONTEXT = 'app_request_context';
 
-    final public const SHOPWARE_CONTEXT_LANGUAGE = 'sw-context-language';
+    public const SHOPWARE_CONTEXT_LANGUAGE = 'sw-context-language';
 
-    final public const SHOPWARE_USER_LANGUAGE = 'sw-user-language';
+    public const SHOPWARE_USER_LANGUAGE = 'sw-user-language';
+
+    private string $shopwareVersion;
+
+    private AppLocaleProvider $localeProvider;
 
     /**
      * @internal
      */
-    public function __construct(private readonly string $shopwareVersion, private readonly AppLocaleProvider $localeProvider)
+    public function __construct(string $shopwareVersion, AppLocaleProvider $localeProvider)
     {
+        $this->shopwareVersion = $shopwareVersion;
+        $this->localeProvider = $localeProvider;
     }
 
     public function __invoke(callable $handler): \Closure

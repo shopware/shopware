@@ -3,16 +3,14 @@
 namespace Shopware\Core\Content\Cms\DataResolver;
 
 use Shopware\Core\Content\Cms\Exception\UnexpectedFieldConfigValueType;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('content')]
 class FieldConfig extends Struct
 {
-    final public const SOURCE_STATIC = 'static';
-    final public const SOURCE_MAPPED = 'mapped';
-    final public const SOURCE_DEFAULT = 'default';
-    final public const SOURCE_PRODUCT_STREAM = 'product_stream';
+    public const SOURCE_STATIC = 'static';
+    public const SOURCE_MAPPED = 'mapped';
+    public const SOURCE_DEFAULT = 'default';
+    public const SOURCE_PRODUCT_STREAM = 'product_stream';
 
     /**
      * @var string
@@ -25,12 +23,18 @@ class FieldConfig extends Struct
     protected $source;
 
     /**
+     * @var array|bool|float|int|string|null
+     */
+    protected $value;
+
+    /**
      * @param array|bool|float|int|string|null $value
      */
-    public function __construct(string $name, string $source, protected $value)
+    public function __construct(string $name, string $source, $value)
     {
         $this->name = $name;
         $this->source = $source;
+        $this->value = $value;
     }
 
     public function getName(): string

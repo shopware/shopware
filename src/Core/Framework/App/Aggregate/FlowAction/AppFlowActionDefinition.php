@@ -7,7 +7,6 @@ use Shopware\Core\Framework\App\Aggregate\FlowActionTranslation\AppFlowActionTra
 use Shopware\Core\Framework\App\AppDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BlobField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -23,12 +22,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('core')]
 class AppFlowActionDefinition extends EntityDefinition
 {
-    final public const ENTITY_NAME = 'app_flow_action';
+    public const ENTITY_NAME = 'app_flow_action';
 
     public function getEntityName(): string
     {
@@ -70,7 +67,6 @@ class AppFlowActionDefinition extends EntityDefinition
             (new StringField('icon', 'icon'))->addFlags(new WriteProtected(), new Runtime()),
             (new StringField('sw_icon', 'swIcon')),
             (new StringField('url', 'url'))->addFlags(new Required()),
-            new BoolField('delayable', 'delayable'),
             new TranslatedField('label'),
             new TranslatedField('description'),
             new TranslatedField('headline'),

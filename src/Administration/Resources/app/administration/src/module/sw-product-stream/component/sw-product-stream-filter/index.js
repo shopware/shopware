@@ -1,17 +1,9 @@
-/*
- * @package inventory
- */
-
 import template from './sw-product-stream-filter.html.twig';
 import './sw-product-stream-filter.scss';
 
-const { EntityDefinition } = Shopware;
+const { Component, EntityDefinition } = Shopware;
 
-/**
- * @private
- * @package business-ops
- */
-export default {
+Component.extend('sw-product-stream-filter', 'sw-condition-base', {
     template,
 
     inject: [
@@ -223,4 +215,4 @@ export default {
             return Object.keys(this.productCustomFields).includes(strippedFieldName);
         },
     },
-};
+});

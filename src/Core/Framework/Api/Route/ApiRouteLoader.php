@@ -5,25 +5,26 @@ namespace Shopware\Core\Framework\Api\Route;
 use Shopware\Core\Framework\Api\Controller\ApiController;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\Config\Loader\Loader;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
 
-#[Package('core')]
 class ApiRouteLoader extends Loader
 {
+    private DefinitionInstanceRegistry $definitionRegistry;
+
     private bool $isLoaded = false;
 
     /**
      * @internal
      */
-    public function __construct(private readonly DefinitionInstanceRegistry $definitionRegistry)
+    public function __construct(DefinitionInstanceRegistry $definitionRegistry)
     {
+        $this->definitionRegistry = $definitionRegistry;
     }
 
-    public function load(mixed $resource, ?string $type = null): RouteCollection
+    public function load($resource, ?string $type = null): RouteCollection
     {
         if ($this->isLoaded) {
             throw new \RuntimeException('Do not add the "api" loader twice');
@@ -54,7 +55,9 @@ class ApiRouteLoader extends Loader
         $listSuffix = '(\/[0-9a-f]{32}\/(extensions\/)?[a-zA-Z-]+)*\/?$';
 
         $elements = $this->definitionRegistry->getDefinitions();
-        usort($elements, fn (EntityDefinition $a, EntityDefinition $b) => $a->getEntityName() <=> $b->getEntityName());
+        usort($elements, function (EntityDefinition $a, EntityDefinition $b) {
+            return $a->getEntityName() <=> $b->getEntityName();
+        });
 
         foreach ($elements as $definition) {
             $entityName = $definition->getEntityName();

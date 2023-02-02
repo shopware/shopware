@@ -4,13 +4,17 @@ namespace Shopware\Core\Content\Flow\Events;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('business-ops')]
 class FlowIndexerEvent extends NestedEvent
 {
-    public function __construct(private readonly array $ids, private readonly Context $context)
+    private Context $context;
+
+    private array $ids;
+
+    public function __construct(array $ids, Context $context)
     {
+        $this->context = $context;
+        $this->ids = $ids;
     }
 
     public function getContext(): Context

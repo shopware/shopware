@@ -16,17 +16,27 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-#[Package('core')]
 class InheritanceUpdater
 {
     /**
+     * @var Connection
+     */
+    private $connection;
+
+    /**
+     * @var DefinitionInstanceRegistry
+     */
+    private $registry;
+
+    /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection, private readonly DefinitionInstanceRegistry $registry)
+    public function __construct(Connection $connection, DefinitionInstanceRegistry $registry)
     {
+        $this->connection = $connection;
+        $this->registry = $registry;
     }
 
     /**
@@ -41,15 +51,21 @@ class InheritanceUpdater
 
         $definition = $this->registry->getByEntityName($entity);
 
-        $inherited = $definition->getFields()->filter(fn (Field $field) => $field->is(Inherited::class) && $field instanceof AssociationField);
+        $inherited = $definition->getFields()->filter(function (Field $field) {
+            return $field->is(Inherited::class) && $field instanceof AssociationField;
+        });
 
-        $associations = $inherited->filter(fn (Field $field) => $field instanceof OneToManyAssociationField || $field instanceof ManyToManyAssociationField || $field instanceof OneToOneAssociationField);
+        $associations = $inherited->filter(function (Field $field) {
+            return $field instanceof OneToManyAssociationField || $field instanceof ManyToManyAssociationField || $field instanceof OneToOneAssociationField;
+        });
 
         if ($associations->count() > 0) {
             $this->updateToManyAssociations($definition, $ids, $associations, $context);
         }
 
-        $associations = $inherited->filter(fn (Field $field) => $field instanceof ManyToOneAssociationField);
+        $associations = $inherited->filter(function (Field $field) {
+            return $field instanceof ManyToOneAssociationField;
+        });
 
         if ($associations->count() > 0) {
             $this->updateToOneAssociations($definition, $ids, $associations, $context);
@@ -61,7 +77,9 @@ class InheritanceUpdater
      */
     private function updateToManyAssociations(EntityDefinition $definition, array $ids, FieldCollection $associations, Context $context): void
     {
-        $bytes = array_map(fn ($id) => Uuid::fromHexToBytes($id), $ids);
+        $bytes = array_map(function ($id) {
+            return Uuid::fromHexToBytes($id);
+        }, $ids);
 
         /** @var AssociationField $association */
         foreach ($associations as $association) {
@@ -130,7 +148,9 @@ class InheritanceUpdater
      */
     private function updateToOneAssociations(EntityDefinition $definition, array $ids, FieldCollection $associations, Context $context): void
     {
-        $bytes = array_map(fn ($id) => Uuid::fromHexToBytes($id), $ids);
+        $bytes = array_map(function ($id) {
+            return Uuid::fromHexToBytes($id);
+        }, $ids);
 
         /** @var ManyToOneAssociationField $association */
         foreach ($associations as $association) {

@@ -1,11 +1,9 @@
 import template from './sw-order-create-details-body.html.twig';
 
-/**
- * @package customer-order
- */
+const { Component } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-order-create-details-body', {
     template,
 
     props: {
@@ -73,7 +71,7 @@ export default {
         },
 
         isAddressIdentical() {
-            return this.shippingAddress?.id === this.billingAddress?.id;
+            return this.shippingAddress.id === this.billingAddress.id;
         },
     },
 
@@ -86,4 +84,4 @@ export default {
             this.$emit('on-edit-shipping-address');
         },
     },
-};
+});

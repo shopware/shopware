@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\System\User;
 
-use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
@@ -31,17 +30,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\PasswordField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TimeZoneField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Locale\LocaleDefinition;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory\StateMachineHistoryDefinition;
 use Shopware\Core\System\User\Aggregate\UserAccessKey\UserAccessKeyDefinition;
 use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigDefinition;
 use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryDefinition;
 
-#[Package('system-settings')]
 class UserDefinition extends EntityDefinition
 {
-    final public const ENTITY_NAME = 'user';
+    public const ENTITY_NAME = 'user';
 
     public function getEntityName(): string
     {
@@ -80,8 +77,9 @@ class UserDefinition extends EntityDefinition
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             (new FkField('locale_id', 'localeId', LocaleDefinition::class))->addFlags(new Required()),
+            new FkField('avatar_id', 'avatarId', MediaDefinition::class),
             (new StringField('username', 'username'))->addFlags(new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
-            (new PasswordField('password', 'password', \PASSWORD_DEFAULT, [], PasswordField::FOR_ADMIN))->removeFlag(ApiAware::class)->addFlags(new Required()),
+            (new PasswordField('password', 'password'))->removeFlag(ApiAware::class)->addFlags(new Required()),
             (new StringField('first_name', 'firstName'))->addFlags(new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new StringField('last_name', 'lastName'))->addFlags(new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new StringField('title', 'title'))->addFlags(new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
@@ -92,9 +90,8 @@ class UserDefinition extends EntityDefinition
             (new TimeZoneField('time_zone', 'timeZone'))->addFlags(new Required()),
             new CustomFields(),
             new ManyToOneAssociationField('locale', 'locale_id', LocaleDefinition::class, 'id', false),
-            new FkField('avatar_id', 'avatarId', MediaDefinition::class),
-            new ManyToOneAssociationField('avatarMedia', 'avatar_id', MediaDefinition::class),
-            (new OneToManyAssociationField('media', MediaDefinition::class, 'user_id'))->addFlags(new SetNullOnDelete()),
+            new OneToOneAssociationField('avatarMedia', 'avatar_id', 'id', MediaDefinition::class),
+            (new OneToManyAssociationField('media', MediaDefinition::class, 'user_id', 'id'))->addFlags(new SetNullOnDelete()),
             (new OneToManyAssociationField('accessKeys', UserAccessKeyDefinition::class, 'user_id', 'id'))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('configs', UserConfigDefinition::class, 'user_id', 'id'))->addFlags(new CascadeDelete()),
             new OneToManyAssociationField('stateMachineHistoryEntries', StateMachineHistoryDefinition::class, 'user_id', 'id'),
@@ -104,8 +101,6 @@ class UserDefinition extends EntityDefinition
             (new StringField('store_token', 'storeToken'))->removeFlag(ApiAware::class),
             new OneToManyAssociationField('createdOrders', OrderDefinition::class, 'created_by_id', 'id'),
             new OneToManyAssociationField('updatedOrders', OrderDefinition::class, 'updated_by_id', 'id'),
-            new OneToManyAssociationField('createdCustomers', CustomerDefinition::class, 'created_by_id', 'id'),
-            new OneToManyAssociationField('updatedCustomers', CustomerDefinition::class, 'updated_by_id', 'id'),
         ]);
     }
 }

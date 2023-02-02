@@ -1,11 +1,8 @@
 import template from './sw-order-document-settings-storno-modal.html.twig';
 
-/**
- * @package customer-order
- */
+const { Component } = Shopware;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.extend('sw-order-document-settings-storno-modal', 'sw-order-document-settings-modal', {
     template,
 
     inject: ['feature'],
@@ -97,5 +94,10 @@ export default {
             this.documentConfig.custom.stornoNumber = this.documentConfig.documentNumber;
             this.$super('onPreview');
         },
+
+        onSelectInvoice(selected) {
+            this.documentConfig.custom.invoiceNumber = selected;
+        },
+
     },
-};
+});

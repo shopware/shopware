@@ -2,8 +2,8 @@
 
 namespace Shopware\Tests\Unit\Elasticsearch\Framework\Indexing;
 
-use OpenSearch\Client;
-use OpenSearch\Namespaces\IndicesNamespace;
+use Elasticsearch\Client;
+use Elasticsearch\Namespaces\IndicesNamespace;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexConfigEvent;

@@ -14,10 +14,9 @@ use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
@@ -28,7 +27,6 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[Package('customer-order')]
 trait DocumentTrait
 {
     use IntegrationTestBehaviour;
@@ -88,7 +86,7 @@ trait DocumentTrait
     {
         $cartService = $this->getContainer()->get(CartService::class);
 
-        $cart = $cartService->createNew('a-b-c');
+        $cart = $cartService->createNew('a-b-c', 'A');
 
         $keywords = ['awesome', 'epic', 'high quality'];
 
@@ -129,14 +127,14 @@ trait DocumentTrait
 
     private function getBaseConfig(string $documentType, ?string $salesChannelId = null): ?DocumentBaseConfigEntity
     {
-        /** @var EntityRepository $documentTypeRepository */
+        /** @var EntityRepositoryInterface $documentTypeRepository */
         $documentTypeRepository = $this->getContainer()->get('document_type.repository');
         $documentTypeId = $documentTypeRepository->searchIds(
             (new Criteria())->addFilter(new EqualsFilter('technicalName', $documentType)),
             Context::createDefaultContext()
         )->firstId();
 
-        /** @var EntityRepository $documentBaseConfigRepository */
+        /** @var EntityRepositoryInterface $documentBaseConfigRepository */
         $documentBaseConfigRepository = $this->getContainer()->get('document_base_config.repository');
 
         $criteria = new Criteria();
@@ -170,7 +168,7 @@ trait DocumentTrait
     {
         $baseConfig = $this->getBaseConfig($documentType, $salesChannelId);
 
-        /** @var EntityRepository $documentTypeRepository */
+        /** @var EntityRepositoryInterface $documentTypeRepository */
         $documentTypeRepository = $this->getContainer()->get('document_type.repository');
         $documentTypeId = $documentTypeRepository->searchIds(
             (new Criteria())->addFilter(new EqualsFilter('technicalName', $documentType)),
@@ -202,7 +200,7 @@ trait DocumentTrait
             ];
         }
 
-        /** @var EntityRepository $documentBaseConfigRepository */
+        /** @var EntityRepositoryInterface $documentBaseConfigRepository */
         $documentBaseConfigRepository = $this->getContainer()->get('document_base_config.repository');
         $documentBaseConfigRepository->upsert([$data], Context::createDefaultContext());
     }

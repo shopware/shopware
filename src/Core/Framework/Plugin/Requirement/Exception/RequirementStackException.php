@@ -2,17 +2,15 @@
 
 namespace Shopware\Core\Framework\Plugin\Requirement\Exception;
 
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('core')]
 class RequirementStackException extends ShopwareHttpException
 {
     /**
      * @var RequirementException[]
      */
-    private readonly array $requirements;
+    private $requirements;
 
     public function __construct(string $method, RequirementException ...$requirements)
     {

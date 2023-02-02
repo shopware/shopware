@@ -2,23 +2,21 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
+use Shopware\Core\Framework\Feature;
 
 /**
- * @internal
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
  */
-#[Package('core')]
 class ExceptionHandlerRegistry
 {
     /**
-     * @var array<int, list<ExceptionHandlerInterface>>
+     * @var array
      */
     protected $exceptionHandlers = [];
 
     /**
      * @internal
-     *
-     * @param iterable<ExceptionHandlerInterface> $exceptionHandlers
      */
     public function __construct(iterable $exceptionHandlers)
     {
@@ -32,12 +30,18 @@ class ExceptionHandlerRegistry
         $this->exceptionHandlers[$exceptionHandler->getPriority()][] = $exceptionHandler;
     }
 
-    public function matchException(\Exception $e): ?\Exception
+    /**
+     * @internal (flag:FEATURE_NEXT_16640) - second parameter WriteCommand $command will be removed
+     */
+    public function matchException(\Exception $e, ?WriteCommand $command = null): ?\Exception
     {
         foreach ($this->getExceptionHandlers() as $priorityExceptionHandlers) {
             foreach ($priorityExceptionHandlers as $exceptionHandler) {
-                $innerException = $exceptionHandler->matchException($e);
-
+                if (!Feature::isActive('FEATURE_NEXT_16640')) {
+                    $innerException = $exceptionHandler->matchException($e, $command);
+                } else {
+                    $innerException = $exceptionHandler->matchException($e);
+                }
                 if ($innerException instanceof \Exception) {
                     return $innerException;
                 }
@@ -47,9 +51,6 @@ class ExceptionHandlerRegistry
         return null;
     }
 
-    /**
-     * @return array<int, list<ExceptionHandlerInterface>>
-     */
     public function getExceptionHandlers(): array
     {
         return $this->exceptionHandlers;

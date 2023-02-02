@@ -1,14 +1,10 @@
-/**
- * @package system-settings
- */
 import template from './sw-profile-index-search-preferences.html.twig';
 import './sw-profile-index-search-preferences.scss';
 
-const { Module, State, Mixin, Utils } = Shopware;
-const { deepMergeObject } = Utils.object;
+const { Component, Module, State, Mixin } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default {
+Component.register('sw-profile-index-search-preferences', {
     template,
 
     inject: ['searchPreferencesService'],
@@ -54,14 +50,10 @@ export default {
                     return Object.keys(item)[0] === Object.keys(currentValue)[0];
                 });
 
-                accumulator.push(deepMergeObject(currentValue, value) || currentValue);
+                accumulator.push(value || currentValue);
 
                 return accumulator;
             }, []);
-        },
-
-        adminEsEnable() {
-            return Shopware.Context.app.adminEsEnable ?? false;
         },
     },
 
@@ -74,9 +66,8 @@ export default {
     },
 
     methods: {
-        async createdComponent() {
-            await this.getDataSource();
-            this.updateDataSource();
+        createdComponent() {
+            this.getDataSource();
             this.addEventListeners();
         },
 
@@ -109,18 +100,6 @@ export default {
             this.$root.$off('sw-search-preferences-modal-close', this.getDataSource);
         },
 
-        updateDataSource() {
-            if (!this.adminEsEnable) {
-                return;
-            }
-
-            this.searchPreferences.forEach((searchPreference) => {
-                searchPreference.fields.forEach((field) => {
-                    field._searchable = true;
-                });
-            });
-        },
-
         getModuleTitle(entityName) {
             const module = Module.getModuleByEntityName(entityName);
 
@@ -138,12 +117,9 @@ export default {
         onSelect(event) {
             this.searchPreferences.forEach((searchPreference) => {
                 searchPreference._searchable = event;
-
-                if (!this.adminEsEnable) {
-                    searchPreference.fields.forEach((field) => {
-                        field._searchable = event;
-                    });
-                }
+                searchPreference.fields.forEach((field) => {
+                    field._searchable = event;
+                });
             });
         },
 
@@ -162,12 +138,9 @@ export default {
 
         resetSearchPreference(toReset, searchPreference) {
             searchPreference._searchable = toReset._searchable;
-
-            if (!this.adminEsEnable) {
-                searchPreference.fields = searchPreference.fields.map((field) => {
-                    return toReset.fields.find((item) => item.fieldName === field.fieldName) || field;
-                });
-            }
+            searchPreference.fields = searchPreference.fields.map((field) => {
+                return toReset.fields.find((item) => item.fieldName === field.fieldName) || field;
+            });
         },
     },
-};
+});

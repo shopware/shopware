@@ -4,43 +4,41 @@ import RulePageObject from '../../../../support/pages/module/sw-rule.page-object
 
 const uuid = require('uuid/v4');
 
-function createTestRoleViaApi({ roleID, roleName }) {
-    return cy.getCookie('bearerAuth').then((cookie) => {
-        let headers = {
+function createTestRoleViaApi({ roleID, roleName, accessToken }) {
+    let headers = {
+        Accept: 'application/vnd.api+json',
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
+    };
+
+    return cy.request({
+        url: `/${Cypress.env('apiPath')}/oauth/token`,
+        method: 'POST',
+        headers: headers,
+        body: {
+            grant_type: 'password',
+            client_id: 'administration',
+            scope: 'user-verified',
+            username: 'admin',
+            password: 'shopware'
+        }
+    }).then(response => {
+        // overwrite headers with new scope
+        headers = {
             Accept: 'application/vnd.api+json',
-            Authorization: `Bearer ${JSON.parse(cookie.value).access_token}`,
-            'Content-Type': 'application/json',
+            Authorization: `Bearer ${response.body.access_token}`,
+            'Content-Type': 'application/json'
         };
 
         return cy.request({
-            url: `/${Cypress.env('apiPath')}/oauth/token`,
+            url: `/${Cypress.env('apiPath')}/acl-role`,
             method: 'POST',
             headers: headers,
             body: {
-                grant_type: 'password',
-                client_id: 'administration',
-                scope: 'user-verified',
-                username: 'admin',
-                password: 'shopware',
-            },
-        }).then(response => {
-            // overwrite headers with new scope
-            headers = {
-                Accept: 'application/vnd.api+json',
-                Authorization: `Bearer ${response.body.access_token}`,
-                'Content-Type': 'application/json',
-            };
-
-            return cy.request({
-                url: `/${Cypress.env('apiPath')}/acl-role`,
-                method: 'POST',
-                headers: headers,
-                body: {
-                    id: roleID,
-                    name: roleName,
-                    privileges: [],
-                },
-            });
+                id: roleID,
+                name: roleName,
+                privileges: []
+            }
         });
     });
 }
@@ -49,14 +47,24 @@ describe('Rule builder: Test app script conditions', () => {
     beforeEach(() => {
         const roleID = uuid().replace(/-/g, '');
 
-        createTestRoleViaApi({
-            roleID: roleID,
-            roleName: 'e2e-test-role',
-        }).then(() => {
-            return cy.createDefaultFixture('app', {
-                aclRoleId: roleID,
-            });
-        })
+        cy.loginViaApi()
+            .then(() => {
+                return cy.loginViaApi();
+            })
+            .then((bearerAuth) => {
+                const accessToken = JSON.parse(bearerAuth.value).access_token;
+
+                return createTestRoleViaApi({
+                    roleID: roleID,
+                    roleName: 'e2e-test-role',
+                    accessToken
+                });
+            })
+            .then(() => {
+                return cy.createDefaultFixture('app', {
+                    aclRoleId: roleID
+                });
+            })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/rule/index`);
                 cy.get('.sw-skeleton').should('not.exist');
@@ -65,6 +73,8 @@ describe('Rule builder: Test app script conditions', () => {
     });
 
     it('@base @rule: test script conditions are selectable and rendered', { tags: ['pa-business-ops'] }, () => {
+        const page = new RulePageObject();
+
         cy.get('a[href="#/sw/settings/rule/create"]').click();
 
         cy.get('.sw-skeleton').should('not.exist');
@@ -84,14 +94,14 @@ describe('Rule builder: Test app script conditions', () => {
             'Custom media': 'sw-media-field',
             'Custom price': 'sw-field--number',
             'Custom textarea': 'sw-field--text',
-            'Custom without fields': null,
+            'Custom without fields': null
         };
 
         Object.entries(conditions).forEach(([conditionName, fieldClass]) => {
             cy.get('.sw-condition-type-select__select')
                 .typeSingleSelectAndCheck(
                     conditionName,
-                    '.sw-condition-type-select__select',
+                    '.sw-condition-type-select__select'
                 );
 
             if (fieldClass === null) {
@@ -107,14 +117,14 @@ describe('Rule builder: Test app script conditions', () => {
         cy.get('.sw-condition-type-select__select')
             .typeSingleSelectAndCheck(
                 'Customer group',
-                '.sw-condition-type-select__select',
+                '.sw-condition-type-select__select'
             );
         cy.get('.sw-condition .sw-condition-operator-select__select').should('exist');
 
         cy.get('.sw-condition-type-select__select')
             .typeSingleSelectAndCheck(
                 'Custom text',
-                '.sw-condition-type-select__select',
+                '.sw-condition-type-select__select'
             );
         cy.get('.sw-condition .sw-condition-operator-select__select').should('not.exist');
         cy.get('.sw-condition-script .sw-field--text').should('exist');
@@ -125,12 +135,12 @@ describe('Rule builder: Test app script conditions', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/rule`,
-            method: 'POST',
+            method: 'POST'
         }).as('loadData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/rule`,
-            method: 'POST',
+            method: 'POST'
         }).as('saveData');
 
         cy.get('a[href="#/sw/settings/rule/create"]').click();
@@ -178,7 +188,7 @@ describe('Rule builder: Test app script conditions', () => {
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`,
+            `${page.elements.dataGridRow}--0`
         );
 
         // verify that selected conditions persisted

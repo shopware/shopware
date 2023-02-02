@@ -2,25 +2,37 @@
 
 namespace Shopware\Core\Content\Media\Pathname;
 
-use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\Exception\EmptyMediaFilenameException;
 use Shopware\Core\Content\Media\Exception\EmptyMediaIdException;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\Pathname\PathnameStrategy\PathnameStrategyInterface;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Contracts\Service\ResetInterface;
 
-#[Package('content')]
 class UrlGenerator implements UrlGeneratorInterface, ResetInterface
 {
+    private RequestStack $requestStack;
+
+    private ?string $baseUrl;
+
+    private PathnameStrategyInterface $pathnameStrategy;
+
+    private ?string $fallbackBaseUrl = null;
+
     /**
      * @internal
      */
     public function __construct(
-        private readonly PathnameStrategyInterface $pathnameStrategy,
-        private readonly FilesystemOperator $filesystem
+        PathnameStrategyInterface $pathnameStrategy,
+        RequestStack $requestStack,
+        ?string $baseUrl = null
     ) {
+        $this->pathnameStrategy = $pathnameStrategy;
+        $this->requestStack = $requestStack;
+
+        $this->baseUrl = $this->normalizeBaseUrl($baseUrl);
     }
 
     /**
@@ -45,7 +57,7 @@ class UrlGenerator implements UrlGeneratorInterface, ResetInterface
      */
     public function getAbsoluteMediaUrl(MediaEntity $media): string
     {
-        return $this->filesystem->publicUrl($this->getRelativeMediaUrl($media));
+        return $this->getBaseUrl() . '/' . $this->getRelativeMediaUrl($media);
     }
 
     /**
@@ -70,11 +82,46 @@ class UrlGenerator implements UrlGeneratorInterface, ResetInterface
      */
     public function getAbsoluteThumbnailUrl(MediaEntity $media, MediaThumbnailEntity $thumbnail): string
     {
-        return $this->filesystem->publicUrl($this->getRelativeThumbnailUrl($media, $thumbnail));
+        return $this->getBaseUrl() . '/' . $this->getRelativeThumbnailUrl($media, $thumbnail);
     }
 
     public function reset(): void
     {
+        $this->fallbackBaseUrl = null;
+    }
+
+    private function createFallbackUrl(): string
+    {
+        $request = $this->requestStack->getMainRequest();
+        if ($request && $request->getHttpHost() !== '' && $request->getHttpHost() !== ':') {
+            $basePath = $request->getSchemeAndHttpHost() . $request->getBasePath();
+
+            if (parse_url($basePath) === false) {
+                return (string) EnvironmentHelper::getVariable('APP_URL');
+            }
+
+            return rtrim($basePath, '/');
+        }
+
+        return (string) EnvironmentHelper::getVariable('APP_URL');
+    }
+
+    private function normalizeBaseUrl(?string $baseUrl): ?string
+    {
+        if ($baseUrl === null) {
+            return null;
+        }
+
+        return rtrim($baseUrl, '/');
+    }
+
+    private function getBaseUrl(): string
+    {
+        if (!$this->baseUrl) {
+            return $this->fallbackBaseUrl ?? $this->fallbackBaseUrl = $this->createFallbackUrl();
+        }
+
+        return $this->baseUrl;
     }
 
     private function toPathString(array $parts): string

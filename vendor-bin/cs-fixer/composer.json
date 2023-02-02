@@ -4,5 +4,10 @@
         "symplify/easy-coding-standard": "~10.2.3",
         "friendsofphp/php-cs-fixer": "~v3.8.0"
     },
+    "config": {
+        "platform": {
+            "php": "7.4.3"
+        }
+    },
     "sort-packages": true
 }

@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Field;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\DBALException;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
@@ -34,7 +34,10 @@ class JsonFieldTest extends TestCase
     use CacheTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
 
-    private Connection $connection;
+    /**
+     * @var Connection
+     */
+    private $connection;
 
     protected function setUp(): void
     {
@@ -52,14 +55,14 @@ CREATE TABLE `_test_nullable` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 EOF;
-        $this->connection->executeStatement($nullableTable);
+        $this->connection->executeUpdate($nullableTable);
         $this->connection->beginTransaction();
     }
 
     public function tearDown(): void
     {
         $this->connection->rollBack();
-        $this->connection->executeStatement('DROP TABLE `_test_nullable`');
+        $this->connection->executeUpdate('DROP TABLE `_test_nullable`');
     }
 
     public function testSearchForNullFields(): void
@@ -102,7 +105,7 @@ EOF;
 
         $this->getWriter()->insert($this->registerDefinition(JsonDefinition::class), [$data], $context);
 
-        $data = $this->connection->fetchAllAssociative('SELECT * FROM `_test_nullable`');
+        $data = $this->connection->fetchAll('SELECT * FROM `_test_nullable`');
 
         static::assertCount(1, $data);
         static::assertEquals(Uuid::fromHexToBytes($id), $data[0]['id']);
@@ -139,7 +142,7 @@ EOF;
 
         $fieldException = $ex->getExceptions()[0];
 
-        static::assertEquals(WriteConstraintViolationException::class, $fieldException::class);
+        static::assertEquals(WriteConstraintViolationException::class, \get_class($fieldException));
         static::assertEquals('/0/price', $fieldException->getPath());
         static::assertEquals('/0/net', $fieldException->getViolations()->get(0)->getPropertyPath());
     }
@@ -218,7 +221,7 @@ EOF;
         static::assertCount(1, $ex->getExceptions());
 
         $fieldException = $ex->getExceptions()[0];
-        static::assertEquals(WriteConstraintViolationException::class, $fieldException::class);
+        static::assertEquals(WriteConstraintViolationException::class, \get_class($fieldException));
         static::assertEquals('/0/price', $fieldException->getPath());
     }
 
@@ -240,10 +243,10 @@ EOF;
 
         $this->getWriter()->insert($this->registerDefinition(VersionCommitDataDefinition::class), [$data], $context);
 
-        $entityId = $this->connection->fetchOne('SELECT entity_id FROM version_commit_data WHERE id = :id', ['id' => Uuid::fromHexToBytes($id)]);
+        $entityId = $this->connection->fetchColumn('SELECT entity_id FROM version_commit_data WHERE id = :id', ['id' => Uuid::fromHexToBytes($id)]);
         static::assertNotEmpty($entityId);
 
-        $entityId = json_decode((string) $entityId, true, 512, \JSON_THROW_ON_ERROR);
+        $entityId = json_decode($entityId, true);
 
         static::assertEquals(
             $data['entityId'],
@@ -280,17 +283,17 @@ EOF;
         static::assertCount(3, $ex->getExceptions());
 
         $fieldException = $ex->getExceptions()[0];
-        static::assertEquals(WriteConstraintViolationException::class, $fieldException::class);
+        static::assertEquals(WriteConstraintViolationException::class, \get_class($fieldException));
         static::assertEquals('/0/data', $fieldException->getPath());
         static::assertEquals('/gross', $fieldException->getViolations()->get(0)->getPropertyPath());
 
         $fieldException = $ex->getExceptions()[1];
-        static::assertEquals(WriteConstraintViolationException::class, $fieldException::class);
+        static::assertEquals(WriteConstraintViolationException::class, \get_class($fieldException));
         static::assertEquals('/0/data/foo', $fieldException->getPath());
         static::assertEquals('/bar', $fieldException->getViolations()->get(0)->getPropertyPath());
 
         $fieldException = $ex->getExceptions()[2];
-        static::assertEquals(WriteConstraintViolationException::class, $fieldException::class);
+        static::assertEquals(WriteConstraintViolationException::class, \get_class($fieldException));
         static::assertEquals('/0/data/foo/baz', $fieldException->getPath());
         static::assertEquals('/deep', $fieldException->getViolations()->get(0)->getPropertyPath());
     }
@@ -353,7 +356,7 @@ EOF;
         try {
             $result = $repo->search($this->registerDefinition(JsonDefinition::class), $criteria, $context);
             static::assertEmpty($result->getIds());
-        } catch (Exception|\Doctrine\DBAL\ArrayParameters\Exception) {
+        } catch (DBALException $exception) {
             // mysql throws an exception on invalid path
             static::assertTrue(true);
         }

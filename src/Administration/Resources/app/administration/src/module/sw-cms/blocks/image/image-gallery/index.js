@@ -1,19 +1,10 @@
 import CMS from '../../../constant/sw-cms.constant';
 
-/**
- * @private
- * @package content
- */
-Shopware.Component.register('sw-cms-preview-image-gallery', () => import('./preview'));
-/**
- * @private
- * @package content
- */
-Shopware.Component.register('sw-cms-block-image-gallery', () => import('./component'));
+import './component';
+import './preview';
 
 /**
- * @private
- * @package content
+ * @private since v6.5.0
  */
 Shopware.Service('cmsService').registerCmsBlock({
     name: 'image-gallery',

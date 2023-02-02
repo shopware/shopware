@@ -19,15 +19,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('inventory')]
 class SalesChannelProductDefinition extends ProductDefinition implements SalesChannelDefinitionInterface
 {
-    private const PRICE_BASELINE = ['taxId', 'unitId', 'referenceUnit', 'purchaseUnit'];
-
     public function getEntityClass(): string
     {
         return SalesChannelProductEntity::class;
@@ -71,26 +68,31 @@ class SalesChannelProductDefinition extends ProductDefinition implements SalesCh
         $fields = parent::defineFields();
 
         $fields->add(
-            (new JsonField('calculated_price', 'calculatedPrice'))->addFlags(new ApiAware(), new Runtime(\array_merge(self::PRICE_BASELINE, ['price', 'prices'])))
+            (new JsonField('calculated_price', 'calculatedPrice'))->addFlags(new ApiAware(), new Runtime())
+        );
+
+        $fields->add(
+            (new ListField('calculated_prices', 'calculatedPrices'))->setStrict(true)->addFlags(new ApiAware(), new Runtime())
         );
         $fields->add(
-            (new ListField('calculated_prices', 'calculatedPrices'))->addFlags(new ApiAware(), new Runtime(\array_merge(self::PRICE_BASELINE, ['prices'])))
+            (new IntField('calculated_max_purchase', 'calculatedMaxPurchase'))->addFlags(new ApiAware(), new Runtime())
         );
+
         $fields->add(
-            (new IntField('calculated_max_purchase', 'calculatedMaxPurchase'))->addFlags(new ApiAware(), new Runtime(['maxPurchase']))
+            (new JsonField('calculated_cheapest_price', 'calculatedCheapestPrice'))->addFlags(new ApiAware(), new Runtime())
         );
+
         $fields->add(
-            (new JsonField('calculated_cheapest_price', 'calculatedCheapestPrice'))->addFlags(new ApiAware(), new Runtime(\array_merge(self::PRICE_BASELINE, ['cheapestPrice'])))
-        );
-        $fields->add(
-            (new BoolField('is_new', 'isNew'))->addFlags(new ApiAware(), new Runtime(['releaseDate']))
+            (new BoolField('is_new', 'isNew'))->addFlags(new ApiAware(), new Runtime())
         );
         $fields->add(
             (new OneToOneAssociationField('seoCategory', 'seoCategory', 'id', CategoryDefinition::class))->addFlags(new ApiAware(), new Runtime())
         );
-        $fields->add(
-            (new CheapestPriceField('cheapest_price', 'cheapestPrice'))->addFlags(new WriteProtected(), new Inherited())
-        );
+
+        // CheapestPrice will only be added to SalesChannelProductEntities in the Future
+        if (Feature::isActive('FEATURE_NEXT_16151')) {
+            $fields->add((new CheapestPriceField('cheapest_price', 'cheapestPrice'))->addFlags(new WriteProtected(), new Inherited()));
+        }
 
         return $fields;
     }

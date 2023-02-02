@@ -3,10 +3,8 @@
 namespace Shopware\Core\Content\Category\Tree;
 
 use Shopware\Core\Content\Category\CategoryEntity;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('content')]
 class TreeItem extends Struct
 {
     /**

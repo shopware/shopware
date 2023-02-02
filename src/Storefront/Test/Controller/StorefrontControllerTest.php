@@ -3,8 +3,6 @@
 namespace Shopware\Storefront\Test\Controller;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\MockObject\MockObject;
-use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Address\Error\BillingAddressSalutationMissingError;
 use Shopware\Core\Checkout\Cart\Address\Error\ProfileSalutationMissingError;
@@ -106,7 +104,7 @@ class StorefrontControllerTest extends TestCase
 
     public function cartProvider(): \Generator
     {
-        $cart = new Cart('test');
+        $cart = new Cart('test', 'test');
         $cart->setErrors(new ErrorCollection($this->getErrors()));
 
         yield 'cart with salutation errors' => [
@@ -114,13 +112,6 @@ class StorefrontControllerTest extends TestCase
         ];
     }
 
-    /**
-     * @return array{
-     *     0: 'request_stack',
-     *     1: ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE,
-     *     2: Stub
-     * }
-     */
     private function getRequestStack(): array
     {
         return [
@@ -130,13 +121,6 @@ class StorefrontControllerTest extends TestCase
         ];
     }
 
-    /**
-     * @return array{
-     *     0: 'router',
-     *     1: ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE,
-     *     2: Stub
-     * }
-     */
     private function getRouter(): array
     {
         return [
@@ -149,19 +133,16 @@ class StorefrontControllerTest extends TestCase
         ];
     }
 
-    /**
-     * @return array{
-     *     0: 'translator',
-     *     1: ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE,
-     *     2: MockObject
-     * }
-     */
     private function getTranslator(ErrorCollection $errors): array
     {
-        $argumentValidation = array_map(static fn (Error $error): array => [
-            static::equalTo('checkout.' . $error->getMessageKey()),
-            static::callback(static fn (array $parameters): bool => \array_key_exists('%url%', $parameters) && $parameters['%url%'] === self::URL),
-        ], $errors->getElements());
+        $argumentValidation = array_map(static function (Error $error): array {
+            return [
+                static::equalTo('checkout.' . $error->getMessageKey()),
+                static::callback(static function (array $parameters): bool {
+                    return \array_key_exists('%url%', $parameters) && $parameters['%url%'] === self::URL;
+                }),
+            ];
+        }, $errors->getElements());
 
         $translator = static::createMock(TranslatorInterface::class);
         $translator->expects(static::exactly(\count($errors)))
@@ -176,13 +157,6 @@ class StorefrontControllerTest extends TestCase
         ];
     }
 
-    /**
-     * @return array{
-     *     0: ProfileSalutationMissingError,
-     *     1: BillingAddressSalutationMissingError,
-     *     2: ShippingAddressSalutationMissingError
-     * }
-     */
     private function getErrors(): array
     {
         return [
@@ -192,9 +166,6 @@ class StorefrontControllerTest extends TestCase
         ];
     }
 
-    /**
-     * @param array<BundleFixture> $bundles
-     */
     private function createFinder(array $bundles): Environment
     {
         $loader = new FilesystemLoader(__DIR__ . '/fixtures/Storefront/Resources/views');
@@ -244,14 +215,11 @@ class TestController extends StorefrontController
         parent::addCartErrors($cart, $filter);
     }
 
-    public function addFlash(string $type, mixed $message): void
+    public function addFlash(string $type, $message): void
     {
         // NOOP
     }
 
-    /**
-     * @param array<string, mixed> $parameters
-     */
     public function testRenderViewInheritance(string $view, array $parameters = []): string
     {
         return parent::renderView($view, $parameters);

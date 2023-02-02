@@ -6,9 +6,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductFeatureSetTranslation\Product
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('inventory')]
 class ProductFeatureSetEntity extends Entity
 {
     use EntityIdTrait;

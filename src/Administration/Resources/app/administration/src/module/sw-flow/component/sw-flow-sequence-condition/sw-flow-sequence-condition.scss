@@ -73,11 +73,11 @@
         left: 50px;
 
         &.sw-label {
-            background: $color-emerald-700;
+            background: $color-emerald-600;
             color: $color-white;
             border: none;
+            text-transform: uppercase;
             font-weight: $font-weight-semi-bold;
-            line-height: 16px;
         }
     }
 
@@ -120,8 +120,8 @@
             background: $color-crimson-600;
             color: $color-white;
             border: none;
+            text-transform: uppercase;
             font-weight: $font-weight-semi-bold;
-            line-height: 16px;
         }
     }
 
@@ -144,9 +144,6 @@
 
         .sw-icon {
             display: inline-block;
-            padding: 0;
-
-            @include size(12px);
         }
     }
 
@@ -192,27 +189,15 @@
 
     &__header {
         display: flex;
-        padding: 16px 16px 12px 24px;
+        background: $color-gray-100;
+        padding: 16px 23px;
         justify-content: space-between;
-        align-items: baseline;
         max-height: 55px;
-        border-bottom: 1px solid $color-gray-300;
-    }
-
-    &__title-description {
-        display: flex;
-        gap: 4px;
     }
 
     &__title {
-        font-size: $font-size-s;
+        font-size: $font-size-default;
         font-weight: $font-weight-semi-bold;
-    }
-
-    &__description {
-        font-size: $font-size-s;
-        font-weight: $font-weight-semi-bold;
-        color: $color-darkgray-200;
     }
 
     &__rule {
@@ -231,16 +216,16 @@
 
     &__no-rule {
         color: $color-gray-400;
-        font-size: $font-size-xs;
-        font-weight: $font-weight-semi-bold;
+        font-size: 15px;
+        font-weight: 600;
         margin-left: 8px;
     }
 
     &__rule-info {
-        padding: 12px 16px 16px 24px;
+        padding: 12px 24px;
 
         p {
-            font-size: $font-size-xs;
+            font-size: $font-size-small;
             color: $color-darkgray-200;
             margin-left: 20px;
         }
@@ -249,16 +234,14 @@
     &__rule-header {
         display: flex;
         justify-content: space-between;
+        margin-bottom: 9px;
     }
 
     &__rule-name {
-        overflow: hidden;
-        word-wrap: break-word;
-        flex-basis: 100%;
-        padding-top: 2px;
+        @include flex-centering-vertical;
 
         h3 {
-            font-size: $font-size-xs;
+            font-size: 15px;
             font-weight: $font-weight-semi-bold;
             color: $color-darkgray-200;
             margin-bottom: 0;
@@ -267,8 +250,7 @@
     }
 
     &__rule-description {
-        font-size: $font-size-xs;
-        line-height: $line-height-sm;
+        font-size: $font-size-small;
         margin-left: 20px;
     }
 
@@ -278,33 +260,63 @@
         display: flex;
     }
 
+    &__add-button {
+        @include flex-centering-vertical;
+
+        padding-left: 24px;
+        cursor: pointer;
+
+        p {
+            color: $color-shopware-brand-500;
+            text-decoration: underline;
+            font-size: $font-size-small;
+        }
+    }
+
+    &__add-icon {
+        @include circle(12px);
+        @include flex-centering;
+
+        background: $color-shopware-brand-500;
+        color: $color-white;
+        margin-right: 9px;
+    }
+
     &__select {
         @include flex-centering-vertical;
 
-        padding: 16px 24px;
-        border-top: 1px solid $color-gray-300;
+        justify-content: start;
+        padding: 0 24px;
+        margin-bottom: 0;
         width: 100%;
+
+        .icon--regular-times-circle-s {
+            cursor: pointer;
+        }
+    }
+
+    &__selection-rule {
+        margin-left: 9px;
     }
 
     &__explains {
         position: absolute;
         width: 340px;
         left: 360px;
-        padding: 24px;
+        padding: 32px;
         border: 2px dashed $color-gray-300;
         border-radius: 8px;
         color: $color-darkgray-200;
         top: 0;
 
-        h4 {
-            font-weight: $font-weight-semi-bold;
+        h3 {
+            font-size: $font-size-large;
+            font-weight: normal;
             color: $color-darkgray-200;
-            margin-bottom: 12px;
         }
 
         p {
-            font-size: $font-size-xs;
-            line-height: $line-height-sm;
+            font-size: $font-size-small;
             color: $color-darkgray-200;
         }
     }

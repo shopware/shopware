@@ -7,9 +7,7 @@ use Shopware\Core\Content\Flow\Dispatching\Struct\Flow;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('business-ops')]
 class FlowEntity extends Entity
 {
     use EntityIdTrait;
@@ -26,7 +24,7 @@ class FlowEntity extends Entity
     protected int $priority;
 
     /**
-     * @internal
+     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
      *
      * @var string|Flow|null
      */
@@ -87,7 +85,7 @@ class FlowEntity extends Entity
     }
 
     /**
-     * @internal
+     * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal from 6.5.0 onward
      *
      * @return string|Flow|null
      */
@@ -99,7 +97,7 @@ class FlowEntity extends Entity
     }
 
     /**
-     * @internal
+     * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal from 6.5.0 onward
      *
      * @param string|Flow|null $payload
      */

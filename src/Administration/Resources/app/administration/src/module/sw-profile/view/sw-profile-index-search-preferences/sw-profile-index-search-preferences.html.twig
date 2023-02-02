@@ -1,20 +1,6 @@
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_profile_index_search_preferences %}
 <div class="sw-profile-index-search-preferences">
-    <sw-card
-        v-if="adminEsEnable"
-        class="sw-card-elasticsearch-enabled"
-        position-identifier="sw-card-elasticsearch-enabled"
-    >
-        <sw-alert
-            class="sw-card-elasticsearch-enabled__alert"
-            variant="info"
-            :title="$tc('sw-profile.tabSearchPreferences.alert_elasticsearch.title')"
-        >
-            {{ $tc('sw-profile.tabSearchPreferences.alert_elasticsearch.text') }}
-        </sw-alert>
-    </sw-card>
-
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_profile_index_search_preferences_searchable_elements %}
     <sw-card
@@ -93,7 +79,7 @@
                                 <sw-checkbox-field
                                     v-model="field._searchable"
                                     :label="$tc(`sw-profile.tabSearchPreferences.modules.${searchPreference.entityName}.${field.fieldName}`)"
-                                    :disabled="adminEsEnable || !searchPreference._searchable"
+                                    :disabled="!searchPreference._searchable"
                                 />
                             </li>
                         </ul>

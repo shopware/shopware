@@ -2,8 +2,6 @@
 
 namespace Shopware\Core\System\Annotation\Concept\ExtensionPattern;
 
-use Shopware\Core\Framework\Log\Package;
-
 /**
  * @Annotation
  * @Target("CLASS")
@@ -24,7 +22,6 @@ use Shopware\Core\Framework\Log\Package;
  *
  * For an introduction on how to use decoration in your plugin refer to the (symfony docs)[https://symfony.com/doc/current/service_container/service_decoration.html]
  */
-#[Package('core')]
 class Decoratable
 {
 }

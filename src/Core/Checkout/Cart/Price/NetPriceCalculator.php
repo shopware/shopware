@@ -10,16 +10,22 @@ use Shopware\Core\Checkout\Cart\Price\Struct\ReferencePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\RegulationPrice;
 use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
-use Shopware\Core\Framework\Log\Package;
 
-#[Package('checkout')]
 class NetPriceCalculator
 {
+    private TaxCalculator $taxCalculator;
+
+    private CashRounding $priceRounding;
+
     /**
      * @internal
      */
-    public function __construct(private readonly TaxCalculator $taxCalculator, private readonly CashRounding $priceRounding)
-    {
+    public function __construct(
+        TaxCalculator $taxCalculator,
+        CashRounding $priceRounding
+    ) {
+        $this->taxCalculator = $taxCalculator;
+        $this->priceRounding = $priceRounding;
     }
 
     public function calculate(QuantityPriceDefinition $definition, CashRoundingConfig $config): CalculatedPrice

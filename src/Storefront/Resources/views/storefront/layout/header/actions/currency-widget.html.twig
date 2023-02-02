@@ -11,13 +11,17 @@
                       class="currency-form"
                       data-form-auto-submit="true">
 
+                    {% block layout_header_actions_currency_widget_form_csrf %}
+                        {{ sw_csrf('frontend.checkout.configure') }}
+                    {% endblock %}
+
                     {% block layout_header_actions_currency_widget_content %}
                         <div class="currencies-menu dropdown">
                             {% block layout_header_actions_currency_widget_dropdown_toggle %}
                                 <button class="btn dropdown-toggle top-bar-nav-btn"
                                         type="button"
                                         id="currenciesDropdown-{{ position }}"
-                                        data-bs-toggle="dropdown"
+                                        {{ dataBsToggleAttr }}="dropdown"
                                         aria-haspopup="true"
                                         aria-expanded="false">
                                     {% block layout_header_actions_currency_widget_dropdown_toggle_name %}

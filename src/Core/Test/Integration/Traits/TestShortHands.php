@@ -37,7 +37,7 @@ trait TestShortHands
      */
     protected function getContext(?string $token = null, array $options = []): SalesChannelContext
     {
-        $token ??= Uuid::randomHex();
+        $token = $token ?? Uuid::randomHex();
 
         return $this->getContainer()->get(SalesChannelContextFactory::class)
             ->create($token, TestDefaults::SALES_CHANNEL, $options);

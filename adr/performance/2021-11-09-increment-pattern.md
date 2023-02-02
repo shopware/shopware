@@ -25,7 +25,7 @@ So we implement a new gateway with the following methods:
 
 This then enables the following functional flow:
 
-![](./assets/message_queue_stats.png "Message queue stats gateway")
+![](../assets/message_queue_stats.png "Message queue stats gateway")
 
 Furthermore, it should also be possible to completely disable the message queue stats or any pool via config file.
 

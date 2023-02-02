@@ -18,6 +18,6 @@
                     {% set lineSnippets = lineSnippets|slice(0, -1) %}
                 {% endif %}
             {% endfor %}
-            {% if lineSnippets|length > 0 %}{{ lineSnippets|join(' ')|trim }}{% if not loop.last %}<br/>{% endif %}{% endif %}
+            {% if lineSnippets|length > 0 %}{{ lineSnippets|join(' ')|trim|raw }}{% if not loop.last %}<br/>{% endif %}{% endif %}
         {% endapply %}{% endfor %}
 {% endapply %}

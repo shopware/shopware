@@ -156,6 +156,10 @@ export default {
             return criteria;
         },
 
+        ruleRepository() {
+            return this.repositoryFactory.create('rule');
+        },
+
         isTemplate() {
             return this.$route.query?.type === 'template';
         },
@@ -280,6 +284,7 @@ export default {
                     State.commit('swFlowState/setFlow', data);
                     State.commit('swFlowState/setOriginFlow', cloneDeep(data));
                     this.getDataForActionDescription();
+                    this.getRuleDataForFlowTemplate();
                 })
                 .catch(() => {
                     this.createNotificationError({
@@ -503,6 +508,7 @@ export default {
                     State.commit('swFlowState/setFlow', flow);
                     State.commit('swFlowState/setOriginFlow', cloneDeep(flow));
                     this.getDataForActionDescription();
+                    this.getRuleDataForFlowTemplate();
                 })
                 .catch(() => {
                     this.createNotificationError({
@@ -563,6 +569,30 @@ export default {
                 null,
                 sequences,
             );
+        },
+
+        getRuleDataForFlowTemplate() {
+            const ruleIds = this.sequences.filter(sequence => sequence.ruleId !== null).map(sequence => sequence.ruleId);
+
+            if (!ruleIds.length) {
+                return;
+            }
+
+            const criteria = new Criteria(1, 25);
+            criteria.addFilter(Criteria.equalsAny('id', ruleIds));
+
+            this.ruleRepository.search(criteria).then((rules) => {
+                const sequencesWithRules = this.sequences.map(sequence => {
+                    if (sequence.ruleId) {
+                        sequence.rule = rules.find(item => item.id === sequence.ruleId);
+                    }
+
+                    return sequence;
+                });
+
+                State.commit('swFlowState/setSequences', sequencesWithRules);
+                State.commit('swFlowState/setOriginFlow', cloneDeep(this.flow));
+            });
         },
     },
 };

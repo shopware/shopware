@@ -395,7 +395,7 @@ class RegisterRouteTest extends TestCase
 
         $responseData = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('errors', $responseData);
-        if (Feature::isActive('v6.5.0.0')) {
+        if (Feature::isActive('v6.6.0.0')) {
             static::assertSame('CHECKOUT__CUSTOMER_OPTIN_NOT_COMPLETED', $responseData['errors'][0]['code']);
         } else {
             static::assertSame('CHECKOUT__CUSTOMER_IS_INACTIVE', $responseData['errors'][0]['code']);

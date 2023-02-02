@@ -6,6 +6,7 @@ use Composer\InstalledVersions;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Kernel;
+use Shopware\Core\Profiling\Compiler\RemoveDevServices;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Loader\DelegatingLoader;
 use Symfony\Component\Config\Loader\LoaderResolver;
@@ -44,6 +45,8 @@ class Profiling extends Bundle
         if ($environment === 'dev') {
             $loader->load('services_dev.xml');
         }
+
+        $container->addCompilerPass(new RemoveDevServices());
     }
 
     public function boot(): void

@@ -51,7 +51,8 @@ class TaxAdjustmentTest extends TestCase
                 new CashRounding(),
                 new PercentageTaxRuleBuilder(),
                 new TaxAdjustmentCalculator()
-            )
+            ),
+            new CashRounding()
         );
     }
 
@@ -205,7 +206,7 @@ class TaxAdjustmentTest extends TestCase
         static::assertSame(7.0, $deliveryPosition->getPrice()->getCalculatedTaxes()->getAmount());
     }
 
-    public function testProvidedCartPriceOverridesCalculation(): void
+    public function testProvidedCartPriceOverridesCalculationNet(): void
     {
         $result = new TaxProviderResult(
             [
@@ -260,8 +261,72 @@ class TaxAdjustmentTest extends TestCase
         static::assertNotNull($deliveryPosition);
 
         // should not be overridden through tax provider
-        static::assertSame(214.0, $cart->getPrice()->getTotalPrice());
+        static::assertSame(220.0, $cart->getPrice()->getTotalPrice());
         static::assertSame(200.0, $cart->getPrice()->getNetPrice());
+        // should explicitly be overridden through tax provider - even if tax sums are wrong as in this case
+        static::assertSame(20.0, $cart->getPrice()->getCalculatedTaxes()->getAmount());
+        static::assertSame(7.0, $lineItemPrice->getCalculatedTaxes()->getAmount());
+        static::assertSame(7.0, $delivery->getShippingCosts()->getCalculatedTaxes()->getAmount());
+        static::assertSame(7.0, $deliveryPosition->getPrice()->getCalculatedTaxes()->getAmount());
+    }
+
+    public function testProvidedCartPriceOverridesCalculationGross(): void
+    {
+        $result = new TaxProviderResult(
+            [
+                $this->ids->get('line-item-1') => new CalculatedTaxCollection([
+                    new CalculatedTax(
+                        7,
+                        7,
+                        100
+                    ),
+                ]),
+            ],
+            [
+                $this->ids->get('delivery-position-1') => new CalculatedTaxCollection([
+                    new CalculatedTax(
+                        7,
+                        7,
+                        100
+                    ),
+                ]),
+            ],
+            new CalculatedTaxCollection([
+                new CalculatedTax(
+                    20,
+                    10,
+                    200
+                ),
+            ])
+        );
+
+        $cart = $this->createCart();
+
+        $context = $this->createMock(SalesChannelContext::class);
+        $context
+            ->method('getTaxState')
+            ->willReturn(CartPrice::TAX_STATE_GROSS);
+        $context
+            ->method('getTotalRounding')
+            ->willReturn(new CashRoundingConfig(2, 0.01, true));
+
+        $this->adjustment->adjust($cart, $result, $context);
+
+        $lineItem = $cart->get($this->ids->get('line-item-1'));
+        $delivery = $cart->getDeliveries()->first();
+
+        static::assertNotNull($lineItem);
+        static::assertNotNull($delivery);
+
+        $lineItemPrice = $lineItem->getPrice();
+        $deliveryPosition = $delivery->getPositions()->first();
+
+        static::assertNotNull($lineItemPrice);
+        static::assertNotNull($deliveryPosition);
+
+        // should not be overridden through tax provider
+        static::assertSame(200.0, $cart->getPrice()->getTotalPrice());
+        static::assertSame(180.0, $cart->getPrice()->getNetPrice());
         // should explicitly be overridden through tax provider - even if tax sums are wrong as in this case
         static::assertSame(20.0, $cart->getPrice()->getCalculatedTaxes()->getAmount());
         static::assertSame(7.0, $lineItemPrice->getCalculatedTaxes()->getAmount());

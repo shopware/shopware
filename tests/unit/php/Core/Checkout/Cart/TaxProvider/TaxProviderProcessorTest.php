@@ -66,7 +66,8 @@ class TaxProviderProcessorTest extends TestCase
                 new CashRounding(),
                 new PercentageTaxRuleBuilder(),
                 new TaxAdjustmentCalculator()
-            )
+            ),
+            new CashRounding()
         );
     }
 

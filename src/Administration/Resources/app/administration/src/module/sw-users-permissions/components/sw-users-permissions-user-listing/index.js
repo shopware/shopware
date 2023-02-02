@@ -33,6 +33,9 @@ export default {
             confirmPasswordModal: false,
             disableRouteParams: true,
             sortBy: 'username',
+
+            // @deprecated tag:v6.6.0 - will be removed
+            confirmPassword: '',
         };
     },
 

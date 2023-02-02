@@ -144,7 +144,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_upload_v2_regular_preview_file %}
                 <sw-media-preview-v2
-                    v-if="(source || preview)"
+                    v-if="showPreview && (source || preview)"
                     class="sw-media-upload-v2__preview"
                     :source="source || preview"
                 />
@@ -163,7 +163,7 @@
                 {% endblock %}
             </template>
 
-            <template v-if="variant === 'regular'">
+            <template v-if="!showPreview && variant === 'regular'">
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_upload_v2_regular_caption %}
                 <div class="sw-media-upload-v2__upload-caption">

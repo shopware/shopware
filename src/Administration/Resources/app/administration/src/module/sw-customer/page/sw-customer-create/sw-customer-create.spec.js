@@ -93,9 +93,9 @@ describe('module/sw-customer/page/sw-customer-create', () => {
         await saveButton.trigger('click');
         await wrapper.vm.$nextTick();
 
-        expect(notificationMock).toBeCalledTimes(1);
+        expect(notificationMock).toBeCalledTimes(2);
         expect(notificationMock).toHaveBeenCalledWith({
-            message: 'sw-customer.error.COMPANY_IS_REQUIRED'
+            message: 'sw-customer.detail.messageSaveError'
         });
 
         wrapper.vm.createNotificationError.mockRestore();

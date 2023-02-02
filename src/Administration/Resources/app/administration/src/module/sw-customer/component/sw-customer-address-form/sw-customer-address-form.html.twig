@@ -10,9 +10,8 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_address_form_company_field %}
         <sw-text-field
-            v-if="isBusinessAccountType"
             v-model="address.company"
-            required
+            :required="isBusinessAccountType"
             :label="$tc('sw-customer.addressForm.labelCompany')"
             :error="addressCompanyError"
             :disabled="disabled"
@@ -23,7 +22,6 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_address_form_department_field %}
         <sw-text-field
-            v-if="isBusinessAccountType"
             v-model="address.department"
             :label="$tc('sw-customer.addressForm.labelDepartment')"
             :error="addressDepartmentError"

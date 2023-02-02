@@ -9,6 +9,7 @@ import CUSTOMER from '../../constant/sw-customer.constant';
 
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
+const { ShopwareError } = Shopware.Classes;
 const { mapPageErrors } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -206,7 +207,7 @@ export default {
                     'error/addApiError',
                     {
                         expression: `customer.${this.customer.id}.email`,
-                        error: exception.response.data.errors[0],
+                        error: new ShopwareError(exception.response.data.errors[0]),
                     },
                 );
             });
@@ -219,17 +220,29 @@ export default {
                 return false;
             }
 
+            let hasError = false;
             if (this.customer.email && this.emailHasChanged) {
                 const response = await this.validateEmail();
 
                 if (!response || !response.isValid) {
-                    this.isLoading = false;
-                    return false;
+                    hasError = true;
                 }
             }
 
             if (!this.validCompanyField) {
                 this.createErrorMessageForCompanyField();
+                hasError = true;
+            }
+
+            if (!(await this.validPassword(this.customer))) {
+                hasError = true;
+            }
+
+            if (hasError) {
+                this.createNotificationError({
+                    message: this.$tc('sw-customer.detail.messageSaveError'),
+                });
+                this.isLoading = false;
                 return false;
             }
 
@@ -239,17 +252,12 @@ export default {
                 this.customer.birthday = null;
             }
 
-            if (!(await this.validPassword(this.customer))) {
-                this.isLoading = false;
-                return false;
-            }
-
             if (this.customer.passwordNew) {
                 this.customer.password = this.customer.passwordNew;
             }
 
             if (this.customer.accountType === CUSTOMER.ACCOUNT_TYPE_PRIVATE) {
-                this.customer.company = null;
+                this.customer.vatIds = [];
             }
 
             return this.customerRepository.save(this.customer).then(() => {
@@ -297,14 +305,18 @@ export default {
             const passwordSet = (passwordNew || passwordConfirm);
             const passwordNotEquals = (passwordNew !== passwordConfirm);
 
-            if (passwordSet) {
-                if (passwordNotEquals) {
-                    this.createNotificationError({
-                        message: this.$tc('sw-customer.detail.notificationPasswordErrorMessage'),
-                    });
+            if (passwordSet && passwordNotEquals) {
+                Shopware.State.dispatch('error/addApiError', {
+                    expression: `customer.${this.customer.id}.passwordConfirm`,
+                    error: new ShopwareError(
+                        {
+                            detail: this.$tc('sw-customer.error.passwordDoNotMatch'),
+                            code: 'password_not_match',
+                        },
+                    ),
+                });
 
-                    return false;
-                }
+                return false;
             }
 
             return true;
@@ -342,15 +354,11 @@ export default {
             this.isLoading = false;
             Shopware.State.dispatch('error/addApiError', {
                 expression: `customer.${this.customer.id}.company`,
-                error: new Shopware.Classes.ShopwareError(
+                error: new ShopwareError(
                     {
                         code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
                     },
                 ),
-            });
-
-            this.createNotificationError({
-                message: this.$tc('sw-customer.error.COMPANY_IS_REQUIRED'),
             });
         },
     },

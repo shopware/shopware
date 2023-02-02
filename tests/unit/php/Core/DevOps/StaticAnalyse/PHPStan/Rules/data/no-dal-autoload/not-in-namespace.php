@@ -10,6 +10,6 @@ class Definition
     public function __construct()
     {
         new OneToOneAssociationField('prop', 'storageName', 'referenceField', 'referenceClass', true);
-        new ManyToOneAssociationField('prop', 'storageName', 'referenceClass', 'referenceField', true);
+        new ManyToOneAssociationField('prop2', 'storageName', 'referenceClass', 'referenceField', true);
     }
 }

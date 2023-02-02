@@ -27,8 +27,6 @@ class NoDALAutoload implements Rule
         ManyToOneAssociationField::class,
     ];
 
-    private const CORE_NAMESPACE = 'Shopware\\Core';
-
     private ReflectionProvider $reflectionProvider;
 
     public function __construct(ReflectionProvider $reflectionProvider)
@@ -49,11 +47,6 @@ class NoDALAutoload implements Rule
     public function processNode(Node $node, Scope $scope): array
     {
         if (!$scope->isInClass()) {
-            return [];
-        }
-
-        if (!str_starts_with($scope->getClassReflection()->getName(), self::CORE_NAMESPACE)) {
-            //not a core class, not a problem
             return [];
         }
 

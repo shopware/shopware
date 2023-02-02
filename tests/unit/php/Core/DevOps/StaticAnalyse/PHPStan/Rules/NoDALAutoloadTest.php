@@ -8,7 +8,10 @@ use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoDALAutoload;
 
 /**
  * @internal
+ *
  * @extends  RuleTestCase<NoDALAutoload>
+ *
+ * @covers \Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoDALAutoload
  */
 class NoDALAutoloadTest extends RuleTestCase
 {
@@ -17,10 +20,19 @@ class NoDALAutoloadTest extends RuleTestCase
         //not in a class, ignore
         $this->analyse([__DIR__ . '/data/no-dal-autoload/not-in-class.php'], []);
 
-        //not in namespace, therefore not in core
-        $this->analyse([__DIR__ . '/data/no-dal-autoload/not-in-namespace.php'], []);
+        //not in namespace, autoload is passed as true, error
+        $this->analyse([__DIR__ . '/data/no-dal-autoload/not-in-namespace.php'], [
+            [
+                'my-entity.prop association has a configured autoload===true, this is forbidden for platform integrations',
+                12,
+            ],
+            [
+                'my-entity.prop2 association has a configured autoload===true, this is forbidden for platform integrations',
+                13,
+            ],
+        ]);
 
-        //autoload is passed as true, error
+        //in namespace, autoload is passed as true, error
         $this->analyse([__DIR__ . '/data/no-dal-autoload/in-core-namespace.php'], [
             [
                 'my-entity.prop association has a configured autoload===true, this is forbidden for platform integrations',

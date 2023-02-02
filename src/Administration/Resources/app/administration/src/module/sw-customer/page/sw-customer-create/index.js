@@ -9,6 +9,7 @@ const { Component, Mixin } = Shopware;
 
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 const { ShopwareError } = Shopware.Classes;
+const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-customer-create', {
@@ -31,6 +32,9 @@ Component.register('sw-customer-create', {
             address: null,
             customerNumberPreview: '',
             isSaveSuccessful: false,
+            /**
+             * @deprecated tag:v6.6.0 - salesChannels Will be removed due to unused
+             * */
             salesChannels: null,
             isLoading: false,
             /**
@@ -63,6 +67,28 @@ Component.register('sw-customer-create', {
          * */
         validPasswordField() {
             return this.customer.password?.trim().length >= this.defaultMinPasswordLength;
+        },
+
+        languageRepository() {
+            return this.repositoryFactory.create('language');
+        },
+
+        languageCriteria() {
+            // eslint-disable-next-line sw-core-rules/require-criteria-constructor-arguments
+            const criteria = new Criteria();
+            criteria.setLimit(1);
+
+            if (this.customer?.salesChannelId) {
+                criteria.addFilter(
+                    Criteria.equals('salesChannelDefaultAssignments.id', this.customer.salesChannelId),
+                );
+            }
+
+            return criteria;
+        },
+
+        languageId() {
+            return this.loadLanguage(this.customer?.salesChannelId);
         },
     },
 
@@ -174,10 +200,16 @@ Component.register('sw-customer-create', {
                 return false;
             }
 
+            const languageId = await this.languageId;
+
             return numberRangePromise.then(() => {
-                return this.customerRepository.save(this.customer).then(() => {
+                const context = { ...Shopware.Context.api, ...{ languageId } };
+
+                return this.customerRepository.save(this.customer, context).then((response) => {
                     this.isLoading = false;
                     this.isSaveSuccessful = true;
+
+                    return response;
                 }).catch(() => {
                     this.createNotificationError({
                         message: this.$tc('sw-customer.detail.messageSaveError'),
@@ -213,6 +245,22 @@ Component.register('sw-customer-create', {
             this.systemConfigApiService.getValues('core.register').then((response) => {
                 this.defaultMinPasswordLength = response['core.register.minPasswordLength'];
             });
+        },
+
+        async loadLanguage(salesChannelId) {
+            const languageId = Shopware.Context.api.languageId;
+
+            if (!salesChannelId) {
+                return languageId;
+            }
+
+            const res = await this.languageRepository.searchIds(this.languageCriteria);
+
+            if (!res?.data) {
+                return languageId;
+            }
+
+            return res.data[0];
         },
     },
 });

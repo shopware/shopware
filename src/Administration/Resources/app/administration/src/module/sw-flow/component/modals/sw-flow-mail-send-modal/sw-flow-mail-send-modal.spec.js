@@ -554,7 +554,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
         await flushPromises();
 
         expect(wrapper.vm.showReplyToField).toBeFalsy();
-        expect(wrapper.vm.replyTo).toBeNull();
+        expect(wrapper.vm.replyTo).toBe('contactFormMail');
         expect(wrapper.vm.replyToError).toBeNull();
 
         wrapper.vm.onAddAction();

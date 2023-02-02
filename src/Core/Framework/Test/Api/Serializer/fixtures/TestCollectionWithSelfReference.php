@@ -13,6 +13,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
  */
 class TestCollectionWithSelfReference extends SerializationFixture
 {
+    /**
+     * @return MediaFolderCollection|MediaFolderEntity
+     */
     public function getInput(): EntityCollection|Entity
     {
         $parent = new MediaFolderEntity();
@@ -36,6 +39,9 @@ class TestCollectionWithSelfReference extends SerializationFixture
         return new MediaFolderCollection([$parent]);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     protected function getJsonApiFixtures(string $baseUrl): array
     {
         return [
@@ -153,6 +159,9 @@ class TestCollectionWithSelfReference extends SerializationFixture
         ];
     }
 
+    /**
+     * @return array<array<string, mixed>>
+     */
     protected function getJsonFixtures(): array
     {
         return [

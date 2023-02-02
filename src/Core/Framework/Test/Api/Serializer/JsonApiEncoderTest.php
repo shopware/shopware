@@ -103,6 +103,9 @@ class JsonApiEncoderTest extends TestCase
         parent::tearDown();
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function emptyInputProvider(): array
     {
         return [
@@ -116,6 +119,7 @@ class JsonApiEncoderTest extends TestCase
     }
 
     /**
+     * @param mixed $input
      * @dataProvider emptyInputProvider
      */
     public function testEncodeWithEmptyInput($input): void
@@ -126,6 +130,9 @@ class JsonApiEncoderTest extends TestCase
         $encoder->encode(new Criteria(), $this->getContainer()->get(ProductDefinition::class), $input, SerializationFixture::API_BASE_URL);
     }
 
+    /**
+     * @return array<array{string, SerializationFixture}>
+     */
     public function complexStructsProvider(): array
     {
         return [
@@ -303,6 +310,8 @@ class JsonApiEncoderTest extends TestCase
     }
 
     /**
+     * @param array<mixed> $input
+     * @param array<mixed>|\stdClass|null $output
      * @dataProvider customFieldsProvider
      */
     public function testCustomFields(array $input, $output): void
@@ -320,7 +329,7 @@ class JsonApiEncoderTest extends TestCase
         static::assertEquals($output, $actual->data->attributes->customFields);
     }
 
-    public function customFieldsProvider(): iterable
+    public function customFieldsProvider(): \Generator
     {
         yield 'Custom field null' => [
             [
@@ -344,7 +353,12 @@ class JsonApiEncoderTest extends TestCase
         ];
     }
 
-    private function arrayRemove($haystack, string $keyToRemove): array
+    /**
+     * @param array<mixed> $haystack
+     *
+     * @return array<mixed>
+     */
+    private function arrayRemove(array $haystack, string $keyToRemove): array
     {
         foreach ($haystack as $key => $value) {
             if (\is_array($value)) {
@@ -359,6 +373,11 @@ class JsonApiEncoderTest extends TestCase
         return $haystack;
     }
 
+    /**
+     * @param array<array<mixed>> $array
+     *
+     * @return array<array<mixed>>
+     */
     private function removeIncludedExtensions($array): array
     {
         $filtered = [];
@@ -371,6 +390,10 @@ class JsonApiEncoderTest extends TestCase
         return $filtered;
     }
 
+    /**
+     * @param array<mixed> $expected
+     * @param array<mixed> $actual
+     */
     private function assertValues(array $expected, array $actual): void
     {
         foreach ($expected as $key => $value) {
@@ -379,7 +402,7 @@ class JsonApiEncoderTest extends TestCase
             if (\is_array($value)) {
                 $this->assertValues($value, $actual[$key]);
             } else {
-                static::assertEquals($value, $actual[$key]);
+                static::assertEquals($value, $actual[$key], 'Key: ' . $key);
             }
         }
     }

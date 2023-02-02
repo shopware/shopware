@@ -15,6 +15,7 @@ use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Util\Random;
 
 final class DocumentMerger
@@ -53,6 +54,7 @@ final class DocumentMerger
 
         $criteria = new Criteria($documentIds);
         $criteria->addAssociation('documentType');
+        $criteria->addSorting(new FieldSorting('order.orderNumber'));
 
         /** @var DocumentCollection $documents */
         $documents = $this->documentRepository->search($criteria, $context);

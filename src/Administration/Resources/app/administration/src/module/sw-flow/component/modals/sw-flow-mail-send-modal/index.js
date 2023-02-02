@@ -486,7 +486,7 @@ export default {
                     return;
                 case 'contactFormMail':
                     this.replyToError = null;
-                    this.replyTo = null;
+                    this.replyTo = 'contactFormMail';
 
                     return;
                 default:

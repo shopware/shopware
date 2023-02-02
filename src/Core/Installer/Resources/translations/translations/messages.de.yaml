@@ -17,7 +17,8 @@ shopware.installer:
     start: Starten
     start_installation: 'Installation starten'
     select_language_de: Deutsch
-    select_language_en: Englisch
+    select_language_en: Englisch (Vereinigtes Königreich)
+    select_language_us: Englisch (USA)
     select_language_nl: Niederländisch
     select_language_it: Italienisch
     select_language_fr: Französisch
@@ -39,7 +40,7 @@ shopware.installer:
     select_country_fin: Finnland
     select_country_isr: Israel
     select_country_bel: Belgien
-    select_country_usa: 'Vereinigte Staaten'
+    select_country_usa: 'USA'
     select_country_lie: Liechtenstein
     select_country_pol: Polen
     select_country_nam: Namibia

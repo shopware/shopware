@@ -17,7 +17,8 @@ shopware.installer:
     start: Start
     start_installation: 'Start installationen'
     select_language_de: Tysk
-    select_language_en: Engelsk
+    select_language_en: Engelsk (Det Forenede Kongerige)
+    select_language_us: Engelsk (Amerikas Forenede Stater)
     select_language_nl: Hollands
     select_language_it: Italiensk
     select_language_fr: Fransk

@@ -1,10 +1,14 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-extension-sdk/page/sw-extension-sdk-module';
+import swExtensionSdkModule from 'src/module/sw-extension-sdk/page/sw-extension-sdk-module';
+import 'src/app/component/base/sw-button';
+
+Shopware.Component.register('sw-extension-sdk-module', swExtensionSdkModule);
 
 const module = {
     heading: 'jest',
     locationId: 'jest',
     displaySearchBar: true,
+    displayLanguageSwitch: true,
     baseUrl: 'http://example.com',
 };
 
@@ -21,6 +25,8 @@ async function createWrapper() {
             'sw-loader': true,
             'sw-my-apps-error-page': true,
             'sw-iframe-renderer': true,
+            'sw-language-switch': true,
+            'sw-button': await Shopware.Component.build('sw-button'),
         },
     });
 }
@@ -59,5 +65,38 @@ describe('src/module/sw-extension-sdk/page/sw-extension-sdk-module', () => {
             setTimeout(r, 7100);
         });
         expect(wrapper.vm.timedOut).toBe(false);
+    });
+
+    it('should show language switch', async () => {
+        await Shopware.State.dispatch('extensionSdkModules/addModule', module);
+
+        expect(wrapper.findComponent('sw-language-switch-stub').exists()).toBe(true);
+    });
+
+    it('should show smart bar button', async () => {
+        const spy = jest.fn();
+
+        await Shopware.State.dispatch('extensionSdkModules/addModule', module);
+        Shopware.State.commit('extensionSdkModules/addSmartBarButton', {
+            locationId: 'jest',
+            buttonId: 'test-button-1',
+            label: 'Test button 1',
+            variant: 'primary',
+            onClickCallback: () => spy()
+        });
+
+        await wrapper.vm.$nextTick();
+
+        const smartBarButton = wrapper.find('button');
+
+        expect(smartBarButton.exists()).toBe(true);
+
+        expect(smartBarButton.text()).toBe('Test button 1');
+        expect(smartBarButton.attributes().id).toBe('test-button-1');
+        expect(smartBarButton.classes('sw-button--primary')).toBe(true);
+
+        // Test if callback function is called
+        await smartBarButton.trigger('click');
+        expect(spy).toBeCalledTimes(1);
     });
 });

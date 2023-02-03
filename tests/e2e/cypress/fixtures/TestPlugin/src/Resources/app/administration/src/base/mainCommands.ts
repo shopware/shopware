@@ -13,6 +13,28 @@ ui.componentSection.add({
 
 ui.componentSection.add({
     component: 'card',
+    positionId: 'sw-product-properties__after',
+    props: {
+        title: 'Card tabs tests',
+        subtitle: 'Testing if the the card tabs work correctly',
+        locationId: 'card-tabs',
+        tabs: [
+            {
+                name: 'card-tab-1',
+                label: 'Tab 1',
+                locationId: 'card-tab-1',
+            },
+            {
+                name: 'card-tab-2',
+                label: 'Tab 2',
+                locationId: 'card-tab-2',
+            },
+        ],
+    }
+})
+
+ui.componentSection.add({
+    component: 'card',
     positionId: 'ui-tabs-product-example-tab',
     props: {
         title: 'Hello in the new tab',

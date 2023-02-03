@@ -50,4 +50,26 @@ describe('SDK Tests: Component section', ()=> {
         cy.getSDKiFrame('location-index')
             .should('be.visible');
     });
+
+    it('@sdk: add a component section with tabs', { tags: ['ct-admin'] }, ()=> {
+        cy.log('Go to specifications tab');
+
+        cy.contains('.sw-tabs-item', 'Specifications')
+            .click();
+
+        cy.contains('.sw-card__title', 'Card tabs tests');
+        cy.contains('.sw-card__subtitle', 'Testing if the the card tabs work correctly');
+
+        cy.getSDKiFrame('card-tabs')
+            .should('be.visible');
+
+        cy.contains('.sw-tabs-item', 'Tab 1');
+        cy.getSDKiFrame('card-tab-1')
+            .should('be.visible');
+
+        // Switch the tab and check tab content
+        cy.contains('.sw-tabs-item', 'Tab 2').click();
+        cy.getSDKiFrame('card-tab-2')
+            .should('be.visible');
+    });
 });

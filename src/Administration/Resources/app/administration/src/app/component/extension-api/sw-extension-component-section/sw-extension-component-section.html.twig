@@ -8,7 +8,35 @@
             :title="componentSection.props.title"
             :subtitle="componentSection.props.subtitle"
         >
+
+            <template
+                v-if="componentSection.props?.tabs"
+                #tabs
+            >
+                <sw-tabs
+                    position-identifier=""
+                    @new-item-active="setActiveTab($event.name)"
+                >
+                    <sw-tabs-item
+                        v-for="tab in componentSection.props.tabs"
+                        :key="tab.name"
+                        :active-tab="getActiveTab(componentSection).name"
+                        :name="tab.name"
+                    >
+                        {{ tab.label }}
+                    </sw-tabs-item>
+                </sw-tabs>
+            </template>
+
             <sw-iframe-renderer
+                v-if="componentSection.props?.tabs && getActiveTab(componentSection)"
+                :key="getActiveTab(componentSection).name"
+                :src="componentSection.src"
+                :location-id="getActiveTab(componentSection)?.locationId"
+            />
+
+            <sw-iframe-renderer
+                v-if="componentSection.props?.locationId && !componentSection.props?.tabs"
                 :src="componentSection.src"
                 :location-id="componentSection.props.locationId"
             />

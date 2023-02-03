@@ -32,6 +32,15 @@ Shopware.Component.register('sw-extension-sdk-module', {
         showSearchBar() {
             return this.module?.displaySearchBar ?? true;
         },
+
+        showLanguageSwitch() {
+            return !!this.module?.displayLanguageSwitch;
+        },
+
+        smartBarButtons() {
+            return Shopware.State.get('extensionSdkModules').smartBarButtons
+                .filter(button => button.locationId === this.module?.locationId);
+        },
     },
 
     watch: {
@@ -64,5 +73,11 @@ Shopware.Component.register('sw-extension-sdk-module', {
         if (this.loadingTimeOut) {
             window.clearTimeout(this.loadingTimeOut);
         }
+    },
+
+    methods: {
+        onChangeLanguage(languageId) {
+            Shopware.State.commit('context/setApiLanguageId', languageId);
+        },
     },
 });

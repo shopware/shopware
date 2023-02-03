@@ -12,8 +12,6 @@
         - ln -s "${VERSION_DIRS[-1]}/bin/npm" /usr/bin/npm
         - ln -s "${VERSION_DIRS[-1]}/bin/npx" /usr/bin/npx
         - bash -c '\. "$NVM_DIR/nvm.sh" && nvm use $NODE_VERSION'
-        - npm config set --global user 0
-        - npm config set --global unsafe-perm true
         - node --version
   handle-failed-merge-train:
       after_script:

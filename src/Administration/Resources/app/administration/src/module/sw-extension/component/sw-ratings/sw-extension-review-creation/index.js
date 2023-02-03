@@ -110,18 +110,6 @@ export default {
             }
         },
 
-        clearData() {
-            this.tocAccepted = false;
-            this.headline = null;
-            this.rating = null;
-            this.text = null;
-
-            this.$nextTick(() => {
-                this.errors.headlineError = null;
-                this.errors.ratingError = null;
-            });
-        },
-
         validateInputs() {
             this.validateHeadline();
             this.validateRating();

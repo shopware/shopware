@@ -25,7 +25,9 @@
         },
         "allow-plugins": {
             "ocramius/package-versions": true,
-            "cweagans/composer-patches": true
+            "cweagans/composer-patches": true,
+            "bamarni/composer-bin-plugin": true,
+            "phpstan/extension-installer": true
         }
     },
     "require": {

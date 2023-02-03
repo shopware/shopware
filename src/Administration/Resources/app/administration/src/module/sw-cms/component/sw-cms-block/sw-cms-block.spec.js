@@ -70,8 +70,6 @@ describe('module/sw-cms/component/sw-cms-block', () => {
             }
         });
 
-        console.log(wrapper.html());
-
         expect(wrapper.find('.sw-cms-visibility-toggle-wrapper').exists()).toBeTruthy();
     });
 

@@ -30,7 +30,7 @@ describe('core/service/login.service.js', () => {
         Object.defineProperty(document, 'cookie', {
             // eslint-disable-next-line func-names
             set: function (value) {
-                cookieStorageMock = value;
+                cookieStorageMock = `${cookieStorageMock}${value};`;
             },
             // eslint-disable-next-line func-names
             get: function () {
@@ -45,9 +45,8 @@ describe('core/service/login.service.js', () => {
     });
 
     beforeEach(() => {
-        Shopware.Context.app.lastActivity = Math.round(+new Date() / 1000);
         window.localStorage.removeItem('redirectFromLogin');
-        document.cookie = '';
+        cookieStorageMock = '';
     });
 
     it('should contain all public functions', async () => {
@@ -398,7 +397,7 @@ describe('core/service/login.service.js', () => {
 
     it('should logout inactive user', async () => {
         // Current time in Seconds - 1501 to be one 1-second over the threshold
-        Shopware.Context.app.lastActivity = Math.round(+new Date() / 1000) - 1501;
+        cookieStorageMock = Math.round(+new Date() / 1000) - 1501;
 
         const { loginService, clientMock } = loginServiceFactory();
         const logoutListener = jest.fn();

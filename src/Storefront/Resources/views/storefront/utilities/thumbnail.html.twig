@@ -28,6 +28,11 @@
         {% set attributes = attributes|merge({'title': media.translated.title}) %}
     {% endif %}
 
+    {# If no loading attribute is defined, use the default behaivour for images. #}
+    {% if attributes.loading is not defined %}
+        {% set attributes = attributes|merge({ 'loading': 'eager' }) %}
+    {% endif %}
+
     {# uses cms block column count and all available thumbnails to determine the correct image size for the current viewport #}
     {% if media.thumbnails|length > 0 %}
         {% if autoColumnSizes and columns and sizes is not defined %}

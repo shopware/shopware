@@ -10,7 +10,8 @@
                     attributes: {
                         'class': 'img-fluid line-item-img',
                         'alt': (lineItem.cover.translated.alt ?: ''),
-                        'title': (lineItem.cover.translated.title ?: '')
+                        'title': (lineItem.cover.translated.title ?: ''),
+                        'loading': 'lazy'
                     }
                 } %}
             {% endblock %}

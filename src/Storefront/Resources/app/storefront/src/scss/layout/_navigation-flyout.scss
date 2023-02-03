@@ -17,12 +17,12 @@ Custom styling for navigation flyout which opens on hover over the main navigati
     background-color: $white;
     pointer-events: none;
     position: absolute;
-    opacity: 0;
+    display: none;
     height: 0;
 
     &.is-open {
         pointer-events: all;
-        opacity: 1;
+        display: block;
         height: auto;
     }
 }

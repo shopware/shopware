@@ -19,8 +19,14 @@ class Processor
      * @param iterable<CartProcessorInterface> $processors
      * @param iterable<CartDataCollectorInterface> $collectors
      */
-    public function __construct(private readonly Validator $validator, private readonly AmountCalculator $amountCalculator, private readonly TransactionProcessor $transactionProcessor, private readonly iterable $processors, private readonly iterable $collectors, private readonly ScriptExecutor $executor)
-    {
+    public function __construct(
+        private readonly Validator $validator,
+        private readonly AmountCalculator $amountCalculator,
+        private readonly TransactionProcessor $transactionProcessor,
+        private readonly iterable $processors,
+        private readonly iterable $collectors,
+        private readonly ScriptExecutor $executor
+    ) {
     }
 
     public function process(Cart $original, SalesChannelContext $context, CartBehavior $behavior): Cart

@@ -40,8 +40,17 @@ class RecalculationService
     /**
      * @internal
      */
-    public function __construct(protected EntityRepository $orderRepository, protected OrderConverter $orderConverter, protected CartService $cartService, protected EntityRepository $productRepository, protected EntityRepository $orderAddressRepository, protected EntityRepository $customerAddressRepository, protected Processor $processor, private readonly CartRuleLoader $cartRuleLoader, private readonly PromotionItemBuilder $promotionItemBuilder)
-    {
+    public function __construct(
+        protected EntityRepository $orderRepository,
+        protected OrderConverter $orderConverter,
+        protected CartService $cartService,
+        protected EntityRepository $productRepository,
+        protected EntityRepository $orderAddressRepository,
+        protected EntityRepository $customerAddressRepository,
+        protected Processor $processor,
+        private readonly CartRuleLoader $cartRuleLoader,
+        private readonly PromotionItemBuilder $promotionItemBuilder
+    ) {
     }
 
     /**

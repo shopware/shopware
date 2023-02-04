@@ -29,8 +29,12 @@ class DiscountLineItem
     /**
      * @param array<mixed> $payload
      */
-    public function __construct(private readonly string $label, private readonly PriceDefinitionInterface $priceDefinition, array $payload, private readonly ?string $code)
-    {
+    public function __construct(
+        private readonly string $label,
+        private readonly PriceDefinitionInterface $priceDefinition,
+        array $payload,
+        private readonly ?string $code
+    ) {
         $this->scope = $payload['discountScope'];
         $this->type = $payload['discountType'];
         $this->payload = $payload;

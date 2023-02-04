@@ -15,6 +15,7 @@ use Symfony\Component\Validator\Constraints\Type;
 
 /**
  * @internal
+ *
  * @group rules
  */
 #[Package('business-ops')]
@@ -139,6 +140,6 @@ class LineItemIsNewRuleTest extends TestCase
 
     private function createLineItemWithIsNewMarker(bool $isNew): LineItem
     {
-        return ($this->createLineItem())->setPayloadValue('isNew', $isNew);
+        return $this->createLineItem()->setPayloadValue('isNew', $isNew);
     }
 }

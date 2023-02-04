@@ -17,8 +17,10 @@ class InitialStateIdLoader implements ResetInterface
     /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection, private readonly CacheInterface $cache)
-    {
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly CacheInterface $cache
+    ) {
     }
 
     public function reset(): void

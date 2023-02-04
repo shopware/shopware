@@ -14,8 +14,11 @@ class SalesChannelEntityAggregationResultLoadedEvent extends EntityAggregationRe
 {
     private readonly SalesChannelContext $salesChannelContext;
 
-    public function __construct(EntityDefinition $definition, AggregationResultCollection $result, SalesChannelContext $salesChannelContext)
-    {
+    public function __construct(
+        EntityDefinition $definition,
+        AggregationResultCollection $result,
+        SalesChannelContext $salesChannelContext
+    ) {
         parent::__construct($definition, $result, $salesChannelContext->getContext());
         $this->salesChannelContext = $salesChannelContext;
     }

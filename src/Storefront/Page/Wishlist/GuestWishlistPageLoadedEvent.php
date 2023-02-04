@@ -15,8 +15,11 @@ class GuestWishlistPageLoadedEvent extends PageLoadedEvent
      */
     protected $page;
 
-    public function __construct(GuestWishlistPage $page, SalesChannelContext $salesChannelContext, Request $request)
-    {
+    public function __construct(
+        GuestWishlistPage $page,
+        SalesChannelContext $salesChannelContext,
+        Request $request
+    ) {
         $this->page = $page;
         parent::__construct($salesChannelContext, $request);
     }

@@ -44,8 +44,15 @@ class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRout
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $customerRepository, private readonly EntityRepository $customerRecoveryRepository, private readonly EventDispatcherInterface $eventDispatcher, private readonly DataValidator $validator, private readonly SystemConfigService $systemConfigService, private readonly RequestStack $requestStack, private readonly RateLimiter $rateLimiter)
-    {
+    public function __construct(
+        private readonly EntityRepository $customerRepository,
+        private readonly EntityRepository $customerRecoveryRepository,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly DataValidator $validator,
+        private readonly SystemConfigService $systemConfigService,
+        private readonly RequestStack $requestStack,
+        private readonly RateLimiter $rateLimiter
+    ) {
     }
 
     public function getDecorated(): AbstractSendPasswordRecoveryMailRoute

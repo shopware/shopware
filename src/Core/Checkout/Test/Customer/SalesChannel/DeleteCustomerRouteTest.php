@@ -18,6 +18,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * @internal
+ *
  * @group store-api
  */
 #[Package('customer-order')]

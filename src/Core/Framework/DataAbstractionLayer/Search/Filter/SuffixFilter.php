@@ -12,8 +12,10 @@ class SuffixFilter extends SingleFieldFilter
 {
     private readonly string $value;
 
-    public function __construct(private readonly string $field, string|bool|float|int|null $value)
-    {
+    public function __construct(
+        private readonly string $field,
+        string|bool|float|int|null $value
+    ) {
         $this->value = (string) $value;
     }
 

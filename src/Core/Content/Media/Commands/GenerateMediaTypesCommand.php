@@ -30,8 +30,10 @@ class GenerateMediaTypesCommand extends Command
     /**
      * @internal
      */
-    public function __construct(private readonly TypeDetector $typeDetector, private readonly EntityRepository $mediaRepository)
-    {
+    public function __construct(
+        private readonly TypeDetector $typeDetector,
+        private readonly EntityRepository $mediaRepository
+    ) {
         parent::__construct();
     }
 

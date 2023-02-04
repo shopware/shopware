@@ -11,8 +11,11 @@ class ProductExportPartialGeneration implements AsyncMessageInterface
     /**
      * @internal
      */
-    public function __construct(private readonly string $productExportId, private readonly string $salesChannelId, private readonly int $offset = 0)
-    {
+    public function __construct(
+        private readonly string $productExportId,
+        private readonly string $salesChannelId,
+        private readonly int $offset = 0
+    ) {
     }
 
     public function getOffset(): int

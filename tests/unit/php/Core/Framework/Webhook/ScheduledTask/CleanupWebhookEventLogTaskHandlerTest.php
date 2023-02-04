@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Webhook\Service\WebhookCleanup;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Framework\Webhook\ScheduledTask\CleanupWebhookEventLogTaskHandler
  */
 class CleanupWebhookEventLogTaskHandlerTest extends TestCase

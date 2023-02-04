@@ -32,8 +32,10 @@ class ArrayFacade implements \IteratorAggregate, \ArrayAccess, \Countable
 {
     private readonly ?\Closure $closure;
 
-    public function __construct(private array $items, ?\Closure $closure = null)
-    {
+    public function __construct(
+        private array $items,
+        ?\Closure $closure = null
+    ) {
         $this->closure = $closure;
     }
 

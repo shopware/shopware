@@ -12,8 +12,10 @@ class CustomerOptinNotCompletedException extends ShopwareHttpException
     /**
      * @deprecated tag:v6.6.0 the $message parameter will be removed without replacement
      */
-    public function __construct(string $id, ?string $message = null)
-    {
+    public function __construct(
+        string $id,
+        ?string $message = null
+    ) {
         parent::__construct(
             $message ?? 'The customer with the id "{{ customerId }}" has not completed the opt-in.',
             ['customerId' => $id]

@@ -27,8 +27,11 @@ class BeforeLineItemRemovedEvent implements ShopwareSalesChannelEvent
      */
     protected $salesChannelContext;
 
-    public function __construct(LineItem $lineItem, Cart $cart, SalesChannelContext $salesChannelContext)
-    {
+    public function __construct(
+        LineItem $lineItem,
+        Cart $cart,
+        SalesChannelContext $salesChannelContext
+    ) {
         $this->lineItem = $lineItem;
         $this->cart = $cart;
         $this->salesChannelContext = $salesChannelContext;

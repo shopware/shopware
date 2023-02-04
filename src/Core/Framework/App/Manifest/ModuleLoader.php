@@ -21,8 +21,11 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 class ModuleLoader
 {
-    public function __construct(private readonly EntityRepository $appRepository, private readonly ShopIdProvider $shopIdProvider, private readonly QuerySigner $querySigner)
-    {
+    public function __construct(
+        private readonly EntityRepository $appRepository,
+        private readonly ShopIdProvider $shopIdProvider,
+        private readonly QuerySigner $querySigner
+    ) {
     }
 
     public function loadModules(Context $context): array

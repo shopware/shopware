@@ -34,6 +34,7 @@ use Symfony\Contracts\Cache\CacheInterface;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\System\Language\SalesChannel\CachedLanguageRoute
  */
 class CachedLanguageRouteTest extends TestCase

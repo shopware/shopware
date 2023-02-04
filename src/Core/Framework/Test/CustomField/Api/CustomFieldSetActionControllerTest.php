@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 
 /**
  * @internal
+ *
  * @group slow
  */
 class CustomFieldSetActionControllerTest extends TestCase

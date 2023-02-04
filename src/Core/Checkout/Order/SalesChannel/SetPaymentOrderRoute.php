@@ -42,8 +42,15 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
     /**
      * @internal
      */
-    public function __construct(private readonly OrderService $orderService, private readonly EntityRepository $orderRepository, private readonly AbstractPaymentMethodRoute $paymentRoute, private readonly OrderConverter $orderConverter, private readonly CartRuleLoader $cartRuleLoader, private readonly EventDispatcherInterface $eventDispatcher, private readonly InitialStateIdLoader $initialStateIdLoader)
-    {
+    public function __construct(
+        private readonly OrderService $orderService,
+        private readonly EntityRepository $orderRepository,
+        private readonly AbstractPaymentMethodRoute $paymentRoute,
+        private readonly OrderConverter $orderConverter,
+        private readonly CartRuleLoader $cartRuleLoader,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly InitialStateIdLoader $initialStateIdLoader
+    ) {
     }
 
     public function getDecorated(): AbstractSetPaymentOrderRoute

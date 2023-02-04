@@ -9,8 +9,10 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('checkout')]
 class InvalidTransactionException extends ShopwareHttpException
 {
-    public function __construct(string $transactionId, ?\Throwable $e = null)
-    {
+    public function __construct(
+        string $transactionId,
+        ?\Throwable $e = null
+    ) {
         parent::__construct(
             'The transaction with id {{ transactionId }} is invalid or could not be found.',
             ['transactionId' => $transactionId],

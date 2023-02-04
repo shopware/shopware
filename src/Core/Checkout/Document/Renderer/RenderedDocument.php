@@ -11,8 +11,14 @@ final class RenderedDocument extends Struct
 {
     private string $content;
 
-    public function __construct(private readonly string $html = '', private readonly string $number = '', private string $name = '', private readonly string $fileExtension = FileTypes::PDF, private readonly array $config = [], private ?string $contentType = 'application/pdf')
-    {
+    public function __construct(
+        private readonly string $html = '',
+        private readonly string $number = '',
+        private string $name = '',
+        private readonly string $fileExtension = FileTypes::PDF,
+        private readonly array $config = [],
+        private ?string $contentType = 'application/pdf'
+    ) {
     }
 
     public function getNumber(): string

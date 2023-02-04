@@ -22,8 +22,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[Package('core')]
 class SystemConfigureShopCommand extends Command
 {
-    public function __construct(private readonly ShopConfigurator $shopConfigurator, private readonly CacheClearer $cacheClearer)
-    {
+    public function __construct(
+        private readonly ShopConfigurator $shopConfigurator,
+        private readonly CacheClearer $cacheClearer
+    ) {
         parent::__construct();
     }
 

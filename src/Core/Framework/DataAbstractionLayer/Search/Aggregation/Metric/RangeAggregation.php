@@ -23,8 +23,11 @@ final class RangeAggregation extends Aggregation
     /**
      * @param array<int, array<string, float|string|null>> $ranges
      */
-    public function __construct(string $name, string $field, array $ranges)
-    {
+    public function __construct(
+        string $name,
+        string $field,
+        array $ranges
+    ) {
         parent::__construct($name, $field);
         foreach ($ranges as $range) {
             $this->addRange(

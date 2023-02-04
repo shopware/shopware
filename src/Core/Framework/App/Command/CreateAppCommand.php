@@ -20,6 +20,7 @@ use function Symfony\Component\String\u;
 
 /**
  * @interal
+ *
  * @phpstan-type PropertyDefinitions array<string, array{name: string, description: string, prompt: string, default: string, validator?: callable}>
  */
 #[AsCommand(name: 'app:create', description: 'Creates an app skeleton')]
@@ -29,8 +30,10 @@ class CreateAppCommand extends Command
     /**
      * @internal
      */
-    public function __construct(private readonly AbstractAppLifecycle $appLifecycle, private readonly string $appDir)
-    {
+    public function __construct(
+        private readonly AbstractAppLifecycle $appLifecycle,
+        private readonly string $appDir
+    ) {
         parent::__construct();
     }
 

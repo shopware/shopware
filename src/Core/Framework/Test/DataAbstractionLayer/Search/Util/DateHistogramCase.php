@@ -7,8 +7,12 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Search\Util;
  */
 class DateHistogramCase
 {
-    public function __construct(private readonly string $interval, private readonly array $buckets, private readonly ?string $format = null, private readonly ?string $timeZone = null)
-    {
+    public function __construct(
+        private readonly string $interval,
+        private readonly array $buckets,
+        private readonly ?string $format = null,
+        private readonly ?string $timeZone = null
+    ) {
     }
 
     public function getInterval(): string

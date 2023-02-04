@@ -28,8 +28,11 @@ class LineItemRemovedEvent extends Event implements ShopwareSalesChannelEvent
      */
     protected $context;
 
-    public function __construct(LineItem $lineItem, Cart $cart, SalesChannelContext $context)
-    {
+    public function __construct(
+        LineItem $lineItem,
+        Cart $cart,
+        SalesChannelContext $context
+    ) {
         $this->lineItem = $lineItem;
         $this->cart = $cart;
         $this->context = $context;

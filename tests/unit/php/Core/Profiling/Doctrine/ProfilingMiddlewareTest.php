@@ -11,6 +11,7 @@ use Shopware\Core\Profiling\Doctrine\ProfilingMiddleware;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Profiling\Doctrine\ProfilingMiddleware
  */
 class ProfilingMiddlewareTest extends TestCase

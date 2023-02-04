@@ -10,6 +10,7 @@ use Shopware\Tests\Unit\Core\System\Snippet\Mock\MockSnippetFile;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\System\Snippet\Files\SnippetFileCollectionFactory
  */
 class SnippetFileCollectionFactoryTest extends TestCase

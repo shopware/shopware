@@ -8,8 +8,10 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 class DateTimeField extends Field implements StorageAware
 {
-    public function __construct(private readonly string $storageName, string $propertyName)
-    {
+    public function __construct(
+        private readonly string $storageName,
+        string $propertyName
+    ) {
         parent::__construct($propertyName);
     }
 

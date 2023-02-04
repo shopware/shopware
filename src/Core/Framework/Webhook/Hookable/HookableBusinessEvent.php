@@ -17,8 +17,10 @@ use Shopware\Core\Framework\Webhook\Hookable;
 #[Package('core')]
 class HookableBusinessEvent implements Hookable
 {
-    private function __construct(private readonly FlowEventAware $flowEventAware, private readonly BusinessEventEncoder $businessEventEncoder)
-    {
+    private function __construct(
+        private readonly FlowEventAware $flowEventAware,
+        private readonly BusinessEventEncoder $businessEventEncoder
+    ) {
     }
 
     public static function fromBusinessEvent(

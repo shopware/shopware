@@ -10,8 +10,10 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 #[Package('core')]
 class SalesChannelContextRestoredEvent extends NestedEvent
 {
-    public function __construct(private readonly SalesChannelContext $restoredContext, private readonly SalesChannelContext $currentContext)
-    {
+    public function __construct(
+        private readonly SalesChannelContext $restoredContext,
+        private readonly SalesChannelContext $currentContext
+    ) {
     }
 
     public function getRestoredSalesChannelContext(): SalesChannelContext

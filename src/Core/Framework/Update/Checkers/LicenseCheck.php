@@ -13,8 +13,10 @@ class LicenseCheck implements CheckerInterface
     /**
      * @internal
      */
-    public function __construct(private readonly SystemConfigService $systemConfigService, private readonly StoreClient $storeClient)
-    {
+    public function __construct(
+        private readonly SystemConfigService $systemConfigService,
+        private readonly StoreClient $storeClient
+    ) {
     }
 
     public function supports(string $check): bool

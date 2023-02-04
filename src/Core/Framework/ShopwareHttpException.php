@@ -17,8 +17,11 @@ abstract class ShopwareHttpException extends HttpException implements ShopwareEx
     /**
      * @param array<string, mixed> $parameters
      */
-    public function __construct(string $message, array $parameters = [], ?\Throwable $e = null)
-    {
+    public function __construct(
+        string $message,
+        array $parameters = [],
+        ?\Throwable $e = null
+    ) {
         $this->parameters = $parameters;
         $message = $this->parse($message, $parameters);
 

@@ -20,8 +20,11 @@ class FlowActionCollector
      *
      * @param iterable<FlowAction> $actions
      */
-    public function __construct(protected iterable $actions, private readonly EventDispatcherInterface $eventDispatcher, private readonly EntityRepository $appFlowActionRepo)
-    {
+    public function __construct(
+        protected iterable $actions,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly EntityRepository $appFlowActionRepo
+    ) {
     }
 
     public function collect(Context $context): FlowActionCollectorResponse

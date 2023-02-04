@@ -25,8 +25,15 @@ class ThemeService
     /**
      * @internal
      */
-    public function __construct(private readonly StorefrontPluginRegistryInterface $extensionRegistry, private readonly EntityRepository $themeRepository, private readonly EntityRepository $themeSalesChannelRepository, private readonly ThemeCompilerInterface $themeCompiler, private readonly EventDispatcherInterface $dispatcher, private readonly AbstractConfigLoader $configLoader, private readonly Connection $connection)
-    {
+    public function __construct(
+        private readonly StorefrontPluginRegistryInterface $extensionRegistry,
+        private readonly EntityRepository $themeRepository,
+        private readonly EntityRepository $themeSalesChannelRepository,
+        private readonly ThemeCompilerInterface $themeCompiler,
+        private readonly EventDispatcherInterface $dispatcher,
+        private readonly AbstractConfigLoader $configLoader,
+        private readonly Connection $connection
+    ) {
     }
 
     /**

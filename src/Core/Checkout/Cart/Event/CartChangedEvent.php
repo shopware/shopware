@@ -20,8 +20,10 @@ class CartChangedEvent extends Event
      */
     protected $context;
 
-    public function __construct(Cart $cart, SalesChannelContext $context)
-    {
+    public function __construct(
+        Cart $cart,
+        SalesChannelContext $context
+    ) {
         $this->cart = $cart;
         $this->context = $context;
     }

@@ -11,8 +11,10 @@ class RateLimitExceededException extends ShopwareHttpException
 {
     private readonly int $now;
 
-    public function __construct(private readonly int $retryAfter, ?\Throwable $e = null)
-    {
+    public function __construct(
+        private readonly int $retryAfter,
+        ?\Throwable $e = null
+    ) {
         $this->now = time();
 
         parent::__construct(

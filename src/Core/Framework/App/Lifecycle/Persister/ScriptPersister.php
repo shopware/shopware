@@ -18,8 +18,11 @@ use Shopware\Core\Framework\Script\ScriptEntity;
 #[Package('core')]
 class ScriptPersister
 {
-    public function __construct(private readonly ScriptFileReaderInterface $scriptReader, private readonly EntityRepository $scriptRepository, private readonly EntityRepository $appRepository)
-    {
+    public function __construct(
+        private readonly ScriptFileReaderInterface $scriptReader,
+        private readonly EntityRepository $scriptRepository,
+        private readonly EntityRepository $appRepository
+    ) {
     }
 
     public function updateScripts(string $appId, Context $context): void

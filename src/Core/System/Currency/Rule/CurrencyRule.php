@@ -20,8 +20,10 @@ class CurrencyRule extends Rule
      *
      * @param list<string>|null $currencyIds
      */
-    public function __construct(protected string $operator = self::OPERATOR_EQ, protected ?array $currencyIds = null)
-    {
+    public function __construct(
+        protected string $operator = self::OPERATOR_EQ,
+        protected ?array $currencyIds = null
+    ) {
         parent::__construct();
     }
 

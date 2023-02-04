@@ -14,8 +14,11 @@ class IconTemplateLoader extends AbstractTemplateLoader
     /**
      * @internal
      */
-    public function __construct(private readonly AbstractTemplateLoader $inner, private readonly AbstractStorefrontPluginConfigurationFactory $storefrontPluginConfigurationFactory, private readonly string $projectDir)
-    {
+    public function __construct(
+        private readonly AbstractTemplateLoader $inner,
+        private readonly AbstractStorefrontPluginConfigurationFactory $storefrontPluginConfigurationFactory,
+        private readonly string $projectDir
+    ) {
     }
 
     public function getTemplatePathsForApp(Manifest $app): array

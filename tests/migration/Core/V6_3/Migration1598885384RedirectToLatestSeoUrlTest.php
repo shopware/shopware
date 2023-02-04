@@ -12,6 +12,7 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_3\Migration1598885384RedirectToLatestSeoUrl
  */
 class Migration1598885384RedirectToLatestSeoUrlTest extends TestCase

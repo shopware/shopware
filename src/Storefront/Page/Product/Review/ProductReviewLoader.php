@@ -31,8 +31,10 @@ class ProductReviewLoader
     /**
      * @internal
      */
-    public function __construct(private readonly AbstractProductReviewRoute $route, private readonly EventDispatcherInterface $eventDispatcher)
-    {
+    public function __construct(
+        private readonly AbstractProductReviewRoute $route,
+        private readonly EventDispatcherInterface $eventDispatcher
+    ) {
     }
 
     /**

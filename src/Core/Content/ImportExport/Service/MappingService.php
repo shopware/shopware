@@ -32,8 +32,11 @@ class MappingService extends AbstractMappingService
     /**
      * @internal
      */
-    public function __construct(private readonly AbstractFileService $fileService, private readonly EntityRepository $profileRepository, private readonly DefinitionInstanceRegistry $definitionInstanceRegistry)
-    {
+    public function __construct(
+        private readonly AbstractFileService $fileService,
+        private readonly EntityRepository $profileRepository,
+        private readonly DefinitionInstanceRegistry $definitionInstanceRegistry
+    ) {
     }
 
     public function getDecorated(): AbstractMappingService

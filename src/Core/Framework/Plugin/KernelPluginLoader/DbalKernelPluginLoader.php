@@ -9,8 +9,11 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 class DbalKernelPluginLoader extends KernelPluginLoader
 {
-    public function __construct(ClassLoader $classLoader, ?string $pluginDir, private readonly Connection $connection)
-    {
+    public function __construct(
+        ClassLoader $classLoader,
+        ?string $pluginDir,
+        private readonly Connection $connection
+    ) {
         parent::__construct($classLoader, $pluginDir);
     }
 

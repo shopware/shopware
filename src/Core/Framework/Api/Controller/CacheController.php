@@ -23,8 +23,12 @@ class CacheController extends AbstractController
     /**
      * @internal
      */
-    public function __construct(private readonly CacheClearer $cacheClearer, private readonly AdapterInterface $adapter, private readonly ?CacheWarmer $cacheWarmer, private readonly EntityIndexerRegistry $indexerRegistry)
-    {
+    public function __construct(
+        private readonly CacheClearer $cacheClearer,
+        private readonly AdapterInterface $adapter,
+        private readonly ?CacheWarmer $cacheWarmer,
+        private readonly EntityIndexerRegistry $indexerRegistry
+    ) {
     }
 
     #[Route(path: '/api/_action/cache_info', name: 'api.action.cache.info', methods: ['GET'], defaults: ['_acl' => ['system:cache:info']])]

@@ -9,6 +9,7 @@ use Twig\Environment;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Installer\Controller\SelectLanguagesController
  * @covers \Shopware\Core\Installer\Controller\InstallerController
  */

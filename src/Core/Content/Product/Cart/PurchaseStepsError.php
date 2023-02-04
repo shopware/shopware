@@ -24,8 +24,11 @@ class PurchaseStepsError extends Error
      */
     protected $quantity;
 
-    public function __construct(string $id, string $name, int $quantity)
-    {
+    public function __construct(
+        string $id,
+        string $name,
+        int $quantity
+    ) {
         $this->id = $id;
 
         $this->message = sprintf(

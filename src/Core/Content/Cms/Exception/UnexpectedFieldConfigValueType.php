@@ -8,8 +8,11 @@ use Shopware\Core\Framework\ShopwareHttpException;
 #[Package('content')]
 class UnexpectedFieldConfigValueType extends ShopwareHttpException
 {
-    public function __construct(string $fieldConfigName, string $expectedType, string $givenType)
-    {
+    public function __construct(
+        string $fieldConfigName,
+        string $expectedType,
+        string $givenType
+    ) {
         parent::__construct(
             'Expected to load value of "{{ fieldConfigName }}" with type "{{ expectedType }}", but value with type "{{ givenType }}" given.',
             [

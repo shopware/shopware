@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Validation\DataBag\DataBag;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Content\Product\SalesChannel\Review\Event\ReviewFormEvent
  */
 class ReviewFormEventTest extends TestCase

@@ -8,8 +8,10 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('checkout')]
 class PromotionCodeTuple
 {
-    public function __construct(private readonly string $code, private readonly PromotionEntity $promotion)
-    {
+    public function __construct(
+        private readonly string $code,
+        private readonly PromotionEntity $promotion
+    ) {
     }
 
     /**

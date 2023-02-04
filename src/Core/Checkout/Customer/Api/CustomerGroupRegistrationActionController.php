@@ -23,8 +23,12 @@ class CustomerGroupRegistrationActionController
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $customerRepository, private readonly EntityRepository $customerGroupRepository, private readonly EventDispatcherInterface $eventDispatcher, private readonly SalesChannelContextRestorer $restorer)
-    {
+    public function __construct(
+        private readonly EntityRepository $customerRepository,
+        private readonly EntityRepository $customerGroupRepository,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly SalesChannelContextRestorer $restorer
+    ) {
     }
 
     /**

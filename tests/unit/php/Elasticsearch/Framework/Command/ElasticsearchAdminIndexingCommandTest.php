@@ -12,6 +12,7 @@ use Symfony\Component\Console\Tester\CommandTester;
  * @package system-settings
  *
  * @internal
+ *
  * @covers \Shopware\Elasticsearch\Framework\Command\ElasticsearchAdminIndexingCommand
  */
 class ElasticsearchAdminIndexingCommandTest extends TestCase

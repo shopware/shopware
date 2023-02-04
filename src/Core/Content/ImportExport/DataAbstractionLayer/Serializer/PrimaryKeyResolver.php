@@ -25,8 +25,10 @@ class PrimaryKeyResolver
     /**
      * @internal
      */
-    public function __construct(private readonly DefinitionInstanceRegistry $definitionInstanceRegistry, private readonly AbstractFieldSerializer $fieldSerializer)
-    {
+    public function __construct(
+        private readonly DefinitionInstanceRegistry $definitionInstanceRegistry,
+        private readonly AbstractFieldSerializer $fieldSerializer
+    ) {
     }
 
     public function resolvePrimaryKeyFromUpdatedBy(Config $config, ?EntityDefinition $definition, iterable $record): iterable

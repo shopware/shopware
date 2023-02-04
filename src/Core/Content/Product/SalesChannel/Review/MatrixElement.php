@@ -7,8 +7,11 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('inventory')]
 class MatrixElement
 {
-    public function __construct(protected int $points, protected int $count, protected float $percent = 0.0)
-    {
+    public function __construct(
+        protected int $points,
+        protected int $count,
+        protected float $percent = 0.0
+    ) {
     }
 
     public function getPoints(): int

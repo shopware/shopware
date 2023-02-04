@@ -105,6 +105,7 @@ class SetOrderStateActionTest extends TestCase
     /**
      * @param array<string, mixed> $config
      * @param array<string, mixed> $expects
+     *
      * @dataProvider setStatusProvider
      */
     public function testSetOrderStatus(array $config, array $expects): void

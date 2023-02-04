@@ -20,8 +20,12 @@ use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
 #[Package('core')]
 class AppUpdater extends AbstractAppUpdater
 {
-    public function __construct(private readonly AbstractExtensionDataProvider $extensionDataProvider, private readonly EntityRepository $appRepo, private readonly ExtensionDownloader $downloader, private readonly AbstractStoreAppLifecycleService $appLifecycle)
-    {
+    public function __construct(
+        private readonly AbstractExtensionDataProvider $extensionDataProvider,
+        private readonly EntityRepository $appRepo,
+        private readonly ExtensionDownloader $downloader,
+        private readonly AbstractStoreAppLifecycleService $appLifecycle
+    ) {
     }
 
     public function updateApps(Context $context): void

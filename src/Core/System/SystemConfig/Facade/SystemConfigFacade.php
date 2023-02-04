@@ -24,8 +24,12 @@ class SystemConfigFacade
     /**
      * @internal
      */
-    public function __construct(private readonly SystemConfigService $systemConfigService, private readonly Connection $connection, private readonly ?ScriptAppInformation $scriptAppInformation, private readonly ?string $salesChannelId)
-    {
+    public function __construct(
+        private readonly SystemConfigService $systemConfigService,
+        private readonly Connection $connection,
+        private readonly ?ScriptAppInformation $scriptAppInformation,
+        private readonly ?string $salesChannelId
+    ) {
     }
 
     /**

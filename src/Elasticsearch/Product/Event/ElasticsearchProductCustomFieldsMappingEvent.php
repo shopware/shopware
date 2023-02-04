@@ -13,8 +13,10 @@ class ElasticsearchProductCustomFieldsMappingEvent implements ShopwareEvent
     /**
      * @param array<string, string> $mapping
      */
-    public function __construct(protected array $mapping, protected Context $context)
-    {
+    public function __construct(
+        protected array $mapping,
+        protected Context $context
+    ) {
     }
 
     public function getContext(): Context

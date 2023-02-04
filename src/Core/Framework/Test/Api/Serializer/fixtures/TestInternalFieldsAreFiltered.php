@@ -109,7 +109,7 @@ class TestInternalFieldsAreFiltered extends SerializationFixture
     }
 
     /**
-     * @return array<array<string,mixed>>
+     * @return array<array<string, mixed>>
      */
     protected function getJsonFixtures(): array
     {
@@ -145,9 +145,9 @@ class TestInternalFieldsAreFiltered extends SerializationFixture
     }
 
     /**
-     * @param array<string,mixed> $fixtures
+     * @param array<string, mixed> $fixtures
      *
-     * @return array<string,mixed>
+     * @return array<string, mixed>
      */
     protected function removeProtectedSalesChannelJsonApiData(array $fixtures): array
     {

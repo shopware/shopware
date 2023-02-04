@@ -13,6 +13,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
+ *
  * @group cache
  *
  * @covers \Shopware\Core\Framework\Adapter\Cache\CacheInvalidator

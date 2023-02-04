@@ -11,6 +11,7 @@ use Shopware\Core\Migration\V6_4\Migration1647443222AllowLongLogEntryMessages;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1647443222AllowLongLogEntryMessages
  */
 class Migration1647443222AllowLongLogEntryMessagesTest extends TestCase

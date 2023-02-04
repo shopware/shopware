@@ -30,8 +30,11 @@ class CustomerRecoveryIsExpiredRoute extends AbstractCustomerRecoveryIsExpiredRo
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $customerRecoveryRepository, private readonly EventDispatcherInterface $eventDispatcher, private readonly DataValidator $validator)
-    {
+    public function __construct(
+        private readonly EntityRepository $customerRecoveryRepository,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly DataValidator $validator
+    ) {
     }
 
     public function getDecorated(): AbstractResetPasswordRoute

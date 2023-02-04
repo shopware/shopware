@@ -36,6 +36,7 @@ class NotificationControllerTest extends TestCase
 
     /**
      * @param array<string> $requirePrivileges
+     *
      * @dataProvider saveNotificationProvider
      */
     public function testSaveNotification(
@@ -113,6 +114,7 @@ class NotificationControllerTest extends TestCase
     /**
      * @param array<string> $requiredPrivileges
      * @param array<string>|null $userPrivileges
+     *
      * @dataProvider getNotificationProvider
      */
     public function testGetNotifications(

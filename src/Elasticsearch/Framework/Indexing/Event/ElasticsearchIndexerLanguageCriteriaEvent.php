@@ -11,8 +11,10 @@ use Symfony\Contracts\EventDispatcher\Event;
 #[Package('core')]
 class ElasticsearchIndexerLanguageCriteriaEvent extends Event implements ShopwareEvent
 {
-    public function __construct(private readonly Criteria $criteria, private readonly Context $context)
-    {
+    public function __construct(
+        private readonly Criteria $criteria,
+        private readonly Context $context
+    ) {
     }
 
     public function getContext(): Context

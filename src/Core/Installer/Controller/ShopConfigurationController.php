@@ -17,6 +17,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * @internal
+ *
  * @phpstan-type Shop array{name: string, locale: string, currency: string, additionalCurrencies: null|list<string>, country: string, email: string, host: string, basePath: string, schema: string, blueGreenDeployment: bool}
  * @phpstan-type AdminUser array{email: string, username: string, firstName: string, lastName: string, password: string}
  */
@@ -27,8 +28,15 @@ class ShopConfigurationController extends InstallerController
      * @param array<string, string> $supportedLanguages
      * @param list<string> $supportedCurrencies
      */
-    public function __construct(private readonly DatabaseConnectionFactory $connectionFactory, private readonly EnvConfigWriter $envConfigWriter, private readonly ShopConfigurationService $shopConfigurationService, private readonly AdminConfigurationService $adminConfigurationService, private readonly TranslatorInterface $translator, private readonly array $supportedLanguages, private readonly array $supportedCurrencies)
-    {
+    public function __construct(
+        private readonly DatabaseConnectionFactory $connectionFactory,
+        private readonly EnvConfigWriter $envConfigWriter,
+        private readonly ShopConfigurationService $shopConfigurationService,
+        private readonly AdminConfigurationService $adminConfigurationService,
+        private readonly TranslatorInterface $translator,
+        private readonly array $supportedLanguages,
+        private readonly array $supportedCurrencies
+    ) {
     }
 
     #[Route(path: '/installer/configuration', name: 'installer.configuration', methods: ['GET', 'POST'])]

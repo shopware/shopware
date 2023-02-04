@@ -14,8 +14,10 @@ class MigrationRuntime
     /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection, private readonly LoggerInterface $logger)
-    {
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly LoggerInterface $logger
+    ) {
     }
 
     public function migrate(MigrationSource $source, ?int $until = null, ?int $limit = null): \Generator

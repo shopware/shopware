@@ -9,8 +9,10 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 class CartPriceField extends JsonField
 {
-    public function __construct(string $storageName, string $propertyName)
-    {
+    public function __construct(
+        string $storageName,
+        string $propertyName
+    ) {
         $propertyMapping = [
             (new FloatField('netPrice', 'netPrice'))->addFlags(new Required()),
             (new FloatField('totalPrice', 'totalPrice'))->addFlags(new Required()),

@@ -21,8 +21,10 @@ class BillingCityRule extends Rule
     /**
      * @internal
      */
-    public function __construct(protected string $operator = self::OPERATOR_EQ, protected ?string $cityName = null)
-    {
+    public function __construct(
+        protected string $operator = self::OPERATOR_EQ,
+        protected ?string $cityName = null
+    ) {
         parent::__construct();
     }
 

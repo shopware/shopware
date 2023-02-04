@@ -35,8 +35,15 @@ class EntityRepository
     /**
      * @internal
      */
-    public function __construct(private readonly EntityDefinition $definition, private readonly EntityReaderInterface $reader, private readonly VersionManager $versionManager, private readonly EntitySearcherInterface $searcher, private readonly EntityAggregatorInterface $aggregator, private readonly EventDispatcherInterface $eventDispatcher, private readonly EntityLoadedEventFactory $eventFactory)
-    {
+    public function __construct(
+        private readonly EntityDefinition $definition,
+        private readonly EntityReaderInterface $reader,
+        private readonly VersionManager $versionManager,
+        private readonly EntitySearcherInterface $searcher,
+        private readonly EntityAggregatorInterface $aggregator,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly EntityLoadedEventFactory $eventFactory
+    ) {
     }
 
     public function getDefinition(): EntityDefinition

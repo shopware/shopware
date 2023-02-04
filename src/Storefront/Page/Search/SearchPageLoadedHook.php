@@ -21,8 +21,10 @@ class SearchPageLoadedHook extends PageLoadedHook
 
     final public const HOOK_NAME = 'search-page-loaded';
 
-    public function __construct(private readonly SearchPage $page, SalesChannelContext $context)
-    {
+    public function __construct(
+        private readonly SearchPage $page,
+        SalesChannelContext $context
+    ) {
         parent::__construct($context->getContext());
         $this->salesChannelContext = $context;
     }

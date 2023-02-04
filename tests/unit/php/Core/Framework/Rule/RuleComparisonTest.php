@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Rule\RuleComparison;
  * @package business-ops
  *
  * @internal
+ *
  * @covers \Shopware\Core\Framework\Rule\RuleComparison
  */
 class RuleComparisonTest extends TestCase

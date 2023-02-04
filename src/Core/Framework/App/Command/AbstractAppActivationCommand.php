@@ -21,8 +21,10 @@ abstract class AbstractAppActivationCommand extends Command
 {
     protected EntityRepository $appRepo;
 
-    public function __construct(EntityRepository $appRepo, private readonly string $action)
-    {
+    public function __construct(
+        EntityRepository $appRepo,
+        private readonly string $action
+    ) {
         $this->appRepo = $appRepo;
 
         parent::__construct();

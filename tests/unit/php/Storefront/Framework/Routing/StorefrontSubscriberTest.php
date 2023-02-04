@@ -15,6 +15,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Storefront\Framework\Routing\StorefrontSubscriber
  */
 class StorefrontSubscriberTest extends TestCase

@@ -28,8 +28,10 @@ class SalesChannelAuthenticationListener implements EventSubscriberInterface
     /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection, private readonly RouteScopeRegistry $routeScopeRegistry)
-    {
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly RouteScopeRegistry $routeScopeRegistry
+    ) {
     }
 
     public static function getSubscribedEvents(): array

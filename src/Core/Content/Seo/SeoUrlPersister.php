@@ -22,8 +22,11 @@ class SeoUrlPersister
     /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection, private readonly EntityRepository $seoUrlRepository, private readonly EventDispatcherInterface $eventDispatcher)
-    {
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly EntityRepository $seoUrlRepository,
+        private readonly EventDispatcherInterface $eventDispatcher
+    ) {
     }
 
     /**

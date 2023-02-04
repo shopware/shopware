@@ -12,6 +12,7 @@ use Shopware\Core\Maintenance\System\Service\ShopConfigurator;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Maintenance\System\Service\ShopConfigurator
  */
 class ShopConfiguratorTest extends TestCase
@@ -156,6 +157,7 @@ class ShopConfiguratorTest extends TestCase
     /**
      * @param array<string, string> $expectedStateTranslations
      * @param array<string, string> $expectedMissingTranslations
+     *
      * @dataProvider countryStateTranslationsProvider
      */
     public function testSetDefaultLanguageShouldAddMissingCountryStatesTranslations(

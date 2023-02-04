@@ -35,8 +35,11 @@ class SetOrderStateAction extends FlowAction implements DelayableAction
     /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection, private readonly LoggerInterface $logger, private readonly OrderService $orderService)
-    {
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly LoggerInterface $logger,
+        private readonly OrderService $orderService
+    ) {
     }
 
     public static function getName(): string

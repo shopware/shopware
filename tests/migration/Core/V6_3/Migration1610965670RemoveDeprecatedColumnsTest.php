@@ -9,6 +9,7 @@ use Shopware\Core\Migration\V6_3\Migration1610965670RemoveDeprecatedColumns;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_3\Migration1610965670RemoveDeprecatedColumns
  */
 class Migration1610965670RemoveDeprecatedColumnsTest extends TestCase

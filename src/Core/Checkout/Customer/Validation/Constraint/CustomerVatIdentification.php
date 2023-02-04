@@ -9,6 +9,7 @@ use Symfony\Component\Validator\Exception\MissingOptionsException;
 
 /**
  * @Annotation
+ *
  * @Target({"PROPERTY", "METHOD", "ANNOTATION"})
  */
 #[Package('customer-order')]

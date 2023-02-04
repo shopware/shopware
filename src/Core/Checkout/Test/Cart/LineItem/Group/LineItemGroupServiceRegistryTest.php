@@ -20,7 +20,6 @@ class LineItemGroupServiceRegistryTest extends TestCase
      * This test verifies that our packagers are
      * correctly registered in our registry.
      *
-     * @test
      * @group lineitemgroup
      */
     public function testPackagersAreRegistered(): void
@@ -40,7 +39,6 @@ class LineItemGroupServiceRegistryTest extends TestCase
      * This test verifies that our sorters are
      * correctly registered in our registry.
      *
-     * @test
      * @group lineitemgroup
      */
     public function testSortersAreRegistered(): void
@@ -59,7 +57,6 @@ class LineItemGroupServiceRegistryTest extends TestCase
      * This test verifies that we can retrieve
      * our packager by its key.
      *
-     * @test
      * @group lineitemgroup
      */
     public function testGetPackagerByKey(): void
@@ -81,7 +78,6 @@ class LineItemGroupServiceRegistryTest extends TestCase
      * This test verifies that we can retrieve
      * our sorter by its key.
      *
-     * @test
      * @group lineitemgroup
      */
     public function testGetSorterByKey(): void

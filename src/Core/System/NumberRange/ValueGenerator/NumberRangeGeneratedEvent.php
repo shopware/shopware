@@ -11,8 +11,13 @@ class NumberRangeGeneratedEvent extends Event
 {
     final public const NAME = 'number_range.generated';
 
-    public function __construct(private string $generatedValue, private readonly string $type, private readonly Context $context, private readonly ?string $salesChannelId, private readonly bool $preview = false)
-    {
+    public function __construct(
+        private string $generatedValue,
+        private readonly string $type,
+        private readonly Context $context,
+        private readonly ?string $salesChannelId,
+        private readonly bool $preview = false
+    ) {
     }
 
     public function getGeneratedValue(): string

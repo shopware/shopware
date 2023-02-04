@@ -17,8 +17,11 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 class AppActionLoader
 {
-    public function __construct(private readonly string $url, private readonly EntityRepository $actionButtonRepo, private readonly ShopIdProvider $shopIdProvider)
-    {
+    public function __construct(
+        private readonly string $url,
+        private readonly EntityRepository $actionButtonRepo,
+        private readonly ShopIdProvider $shopIdProvider
+    ) {
     }
 
     /**

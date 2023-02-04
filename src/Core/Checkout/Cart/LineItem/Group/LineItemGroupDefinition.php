@@ -8,8 +8,13 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('checkout')]
 class LineItemGroupDefinition
 {
-    public function __construct(private readonly string $id, private readonly string $packagerKey, private readonly float $value, private readonly string $sorterKey, private readonly RuleCollection $rules)
-    {
+    public function __construct(
+        private readonly string $id,
+        private readonly string $packagerKey,
+        private readonly float $value,
+        private readonly string $sorterKey,
+        private readonly RuleCollection $rules
+    ) {
     }
 
     public function getId(): string

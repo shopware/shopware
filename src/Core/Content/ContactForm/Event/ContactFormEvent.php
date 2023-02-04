@@ -23,8 +23,12 @@ final class ContactFormEvent extends Event implements SalesChannelAware, MailAwa
      */
     private readonly array $contactFormData;
 
-    public function __construct(private readonly Context $context, private readonly string $salesChannelId, private readonly MailRecipientStruct $recipients, DataBag $contactFormData)
-    {
+    public function __construct(
+        private readonly Context $context,
+        private readonly string $salesChannelId,
+        private readonly MailRecipientStruct $recipients,
+        DataBag $contactFormData
+    ) {
         $this->contactFormData = $contactFormData->all();
     }
 

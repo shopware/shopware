@@ -18,7 +18,6 @@ class LineItemQuantityCollectionTest extends TestCase
      * test if our collection has an entry
      * for the provided item id.
      *
-     * @test
      * @group lineitemgroup
      */
     public function testHasItem(): void
@@ -36,7 +35,6 @@ class LineItemQuantityCollectionTest extends TestCase
      * compress our list of entries and combine them
      * into single entries with aggregated quantities.
      *
-     * @test
      * @group lineitemgroup
      */
     public function testCompress(): void

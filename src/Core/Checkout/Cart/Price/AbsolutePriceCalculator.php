@@ -15,8 +15,10 @@ class AbsolutePriceCalculator
     /**
      * @internal
      */
-    public function __construct(private readonly QuantityPriceCalculator $priceCalculator, private readonly PercentageTaxRuleBuilder $percentageTaxRuleBuilder)
-    {
+    public function __construct(
+        private readonly QuantityPriceCalculator $priceCalculator,
+        private readonly PercentageTaxRuleBuilder $percentageTaxRuleBuilder
+    ) {
     }
 
     public function calculate(float $price, PriceCollection $prices, SalesChannelContext $context, int $quantity = 1): CalculatedPrice

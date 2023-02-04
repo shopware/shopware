@@ -26,6 +26,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Checkout\Cart\Delivery\DeliveryBuilder
  */
 class DeliveryBuilderTest extends TestCase

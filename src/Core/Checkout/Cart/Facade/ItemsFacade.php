@@ -36,8 +36,11 @@ class ItemsFacade implements \IteratorAggregate
     /**
      * @internal
      */
-    public function __construct(LineItemCollection $items, CartFacadeHelper $helper, SalesChannelContext $context)
-    {
+    public function __construct(
+        LineItemCollection $items,
+        CartFacadeHelper $helper,
+        SalesChannelContext $context
+    ) {
         $this->items = $items;
         $this->helper = $helper;
         $this->context = $context;

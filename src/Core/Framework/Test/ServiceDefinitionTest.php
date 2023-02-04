@@ -12,6 +12,7 @@ use Symfony\Component\Finder\Finder;
 
 /**
  * @internal
+ *
  * @group slow
  */
 #[Package('core')]

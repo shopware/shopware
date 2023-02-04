@@ -40,8 +40,17 @@ class SeoActionController extends AbstractController
     /**
      * @internal
      */
-    public function __construct(private readonly SeoUrlGenerator $seoUrlGenerator, private readonly SeoUrlPersister $seoUrlPersister, private readonly DefinitionInstanceRegistry $definitionRegistry, private readonly SeoUrlRouteRegistry $seoUrlRouteRegistry, private readonly SeoUrlDataValidationFactoryInterface $seoUrlValidator, private readonly DataValidator $validator, private readonly EntityRepository $salesChannelRepository, private readonly RequestCriteriaBuilder $requestCriteriaBuilder, private readonly DefinitionInstanceRegistry $definitionInstanceRegistry)
-    {
+    public function __construct(
+        private readonly SeoUrlGenerator $seoUrlGenerator,
+        private readonly SeoUrlPersister $seoUrlPersister,
+        private readonly DefinitionInstanceRegistry $definitionRegistry,
+        private readonly SeoUrlRouteRegistry $seoUrlRouteRegistry,
+        private readonly SeoUrlDataValidationFactoryInterface $seoUrlValidator,
+        private readonly DataValidator $validator,
+        private readonly EntityRepository $salesChannelRepository,
+        private readonly RequestCriteriaBuilder $requestCriteriaBuilder,
+        private readonly DefinitionInstanceRegistry $definitionInstanceRegistry
+    ) {
     }
 
     #[Route(path: '/api/_action/seo-url-template/validate', name: 'api.seo-url-template.validate', methods: ['POST'])]

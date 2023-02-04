@@ -7,8 +7,10 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('checkout')]
 class LineItemQuantity
 {
-    public function __construct(private readonly string $lineItemId, private int $quantity)
-    {
+    public function __construct(
+        private readonly string $lineItemId,
+        private int $quantity
+    ) {
     }
 
     /**

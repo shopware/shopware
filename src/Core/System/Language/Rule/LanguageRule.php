@@ -22,8 +22,10 @@ class LanguageRule extends Rule
      *
      * @param list<string>|null $languageIds
      */
-    public function __construct(protected string $operator = self::OPERATOR_EQ, protected ?array $languageIds = null)
-    {
+    public function __construct(
+        protected string $operator = self::OPERATOR_EQ,
+        protected ?array $languageIds = null
+    ) {
         parent::__construct();
     }
 

@@ -19,8 +19,11 @@ class SeoUrlPlaceholderHandler implements SeoUrlPlaceholderHandlerInterface
     /**
      * @internal
      */
-    public function __construct(private readonly RequestStack $requestStack, private readonly RouterInterface $router, private readonly Connection $connection)
-    {
+    public function __construct(
+        private readonly RequestStack $requestStack,
+        private readonly RouterInterface $router,
+        private readonly Connection $connection
+    ) {
     }
 
     /**

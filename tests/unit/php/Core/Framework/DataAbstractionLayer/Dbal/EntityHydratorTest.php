@@ -37,6 +37,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityHydrator
  */
 class EntityHydratorTest extends TestCase

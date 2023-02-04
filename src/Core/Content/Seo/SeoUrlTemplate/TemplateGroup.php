@@ -10,8 +10,12 @@ class TemplateGroup
     /**
      * @param array<string> $salesChannelIds
      */
-    public function __construct(private readonly string $languageId, private readonly string $template, private readonly array $salesChannelIds, private array $salesChannels = [])
-    {
+    public function __construct(
+        private readonly string $languageId,
+        private readonly string $template,
+        private readonly array $salesChannelIds,
+        private array $salesChannels = []
+    ) {
     }
 
     public function getLanguageId(): string

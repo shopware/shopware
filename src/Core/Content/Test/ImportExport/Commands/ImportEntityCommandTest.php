@@ -16,6 +16,7 @@ use Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException;
 
 /**
  * @internal
+ *
  * @group slow
  */
 #[Package('system-settings')]

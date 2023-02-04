@@ -11,8 +11,10 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 class SumResult extends AggregationResult
 {
-    public function __construct(string $name, protected float $sum)
-    {
+    public function __construct(
+        string $name,
+        protected float $sum
+    ) {
         parent::__construct($name);
     }
 

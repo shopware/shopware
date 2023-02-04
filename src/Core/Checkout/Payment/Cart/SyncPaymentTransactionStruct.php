@@ -27,8 +27,10 @@ class SyncPaymentTransactionStruct implements \JsonSerializable, ExtendableInter
      */
     protected $order;
 
-    public function __construct(OrderTransactionEntity $orderTransaction, OrderEntity $order)
-    {
+    public function __construct(
+        OrderTransactionEntity $orderTransaction,
+        OrderEntity $order
+    ) {
         $this->orderTransaction = $orderTransaction;
         $this->order = $order;
     }

@@ -13,8 +13,10 @@ class LoggerFactory
     /**
      * @internal
      */
-    public function __construct(private readonly string $rotatingFilePathPattern, private readonly int $defaultFileRotationCount = 14)
-    {
+    public function __construct(
+        private readonly string $rotatingFilePathPattern,
+        private readonly int $defaultFileRotationCount = 14
+    ) {
     }
 
     /**

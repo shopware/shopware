@@ -21,8 +21,10 @@ class CheckoutCartPageLoadedHook extends PageLoadedHook
 
     final public const HOOK_NAME = 'checkout-cart-page-loaded';
 
-    public function __construct(private readonly CheckoutCartPage $page, SalesChannelContext $context)
-    {
+    public function __construct(
+        private readonly CheckoutCartPage $page,
+        SalesChannelContext $context
+    ) {
         parent::__construct($context->getContext());
         $this->salesChannelContext = $context;
     }

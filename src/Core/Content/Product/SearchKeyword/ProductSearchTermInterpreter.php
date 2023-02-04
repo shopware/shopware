@@ -23,8 +23,12 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
     /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection, private readonly TokenizerInterface $tokenizer, private readonly LoggerInterface $logger, private readonly AbstractTokenFilter $tokenFilter)
-    {
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly TokenizerInterface $tokenizer,
+        private readonly LoggerInterface $logger,
+        private readonly AbstractTokenFilter $tokenFilter
+    ) {
     }
 
     public function interpret(string $word, Context $context): SearchPattern

@@ -25,8 +25,10 @@ class DownloadRoute extends AbstractDownloadRoute
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $downloadRepository, private readonly DownloadResponseGenerator $downloadResponseGenerator)
-    {
+    public function __construct(
+        private readonly EntityRepository $downloadRepository,
+        private readonly DownloadResponseGenerator $downloadResponseGenerator
+    ) {
     }
 
     public function getDecorated(): AbstractDownloadRoute

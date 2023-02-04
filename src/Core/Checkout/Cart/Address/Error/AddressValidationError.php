@@ -16,8 +16,10 @@ class AddressValidationError extends Error
 {
     private const KEY = 'address-invalid';
 
-    public function __construct(private readonly bool $isBillingAddress, private readonly ConstraintViolationList $violations)
-    {
+    public function __construct(
+        private readonly bool $isBillingAddress,
+        private readonly ConstraintViolationList $violations
+    ) {
         $this->message = sprintf(
             'Please check your %s address for missing or invalid values.',
             $isBillingAddress ? 'billing' : 'shipping'

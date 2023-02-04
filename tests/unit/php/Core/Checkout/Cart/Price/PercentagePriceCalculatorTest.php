@@ -181,8 +181,11 @@ class PercentagePriceCalculatorTest extends TestCase
  */
 class PercentageCalculation
 {
-    public function __construct(protected float $percentageDiscount, protected CalculatedPrice $expected, protected PriceCollection $prices)
-    {
+    public function __construct(
+        protected float $percentageDiscount,
+        protected CalculatedPrice $expected,
+        protected PriceCollection $prices
+    ) {
     }
 
     public function getPercentageDiscount(): float

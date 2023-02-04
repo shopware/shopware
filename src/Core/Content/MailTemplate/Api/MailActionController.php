@@ -20,8 +20,11 @@ class MailActionController extends AbstractController
     /**
      * @internal
      */
-    public function __construct(private readonly AbstractMailService $mailService, private readonly StringTemplateRenderer $templateRenderer, private readonly AttachmentLoader $attachmentLoader)
-    {
+    public function __construct(
+        private readonly AbstractMailService $mailService,
+        private readonly StringTemplateRenderer $templateRenderer,
+        private readonly AttachmentLoader $attachmentLoader
+    ) {
     }
 
     #[Route(path: '/api/_action/mail-template/send', name: 'api.action.mail_template.send', methods: ['POST'])]

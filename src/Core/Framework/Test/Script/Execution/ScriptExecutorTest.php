@@ -34,6 +34,7 @@ class ScriptExecutorTest extends TestCase
     /**
      * @param array<string> $hooks
      * @param array<string, string> $expected
+     *
      * @dataProvider executeProvider
      */
     public function testExecute(array $hooks, array $expected): void

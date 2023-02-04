@@ -16,8 +16,10 @@ class LicenseFetcher
     /**
      * @param string[] $tosUrls
      */
-    public function __construct(private readonly Client $guzzle, private readonly array $tosUrls)
-    {
+    public function __construct(
+        private readonly Client $guzzle,
+        private readonly array $tosUrls
+    ) {
     }
 
     public function fetch(Request $request): string

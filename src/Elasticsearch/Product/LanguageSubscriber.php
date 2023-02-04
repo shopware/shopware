@@ -19,8 +19,12 @@ use Symfony\Component\Messenger\MessageBusInterface;
 #[Package('core')]
 class LanguageSubscriber implements EventSubscriberInterface
 {
-    public function __construct(private readonly ElasticsearchHelper $elasticsearchHelper, private readonly ProductDefinition $productDefinition, private readonly Client $client, private readonly MessageBusInterface $bus)
-    {
+    public function __construct(
+        private readonly ElasticsearchHelper $elasticsearchHelper,
+        private readonly ProductDefinition $productDefinition,
+        private readonly Client $client,
+        private readonly MessageBusInterface $bus
+    ) {
     }
 
     public static function getSubscribedEvents(): array

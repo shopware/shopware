@@ -10,8 +10,11 @@ use Symfony\Contracts\EventDispatcher\Event;
 #[Package('business-ops')]
 class DataMappingEvent extends Event implements ShopwareEvent
 {
-    public function __construct(private readonly DataBag $input, private array $output, private readonly Context $context)
-    {
+    public function __construct(
+        private readonly DataBag $input,
+        private array $output,
+        private readonly Context $context
+    ) {
     }
 
     public function getContext(): Context

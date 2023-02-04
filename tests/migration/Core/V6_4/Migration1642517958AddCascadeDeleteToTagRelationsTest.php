@@ -12,6 +12,7 @@ use Shopware\Core\Migration\V6_4\Migration1642517958AddCascadeDeleteToTagRelatio
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1642517958AddCascadeDeleteToTagRelations
  */
 class Migration1642517958AddCascadeDeleteToTagRelationsTest extends TestCase

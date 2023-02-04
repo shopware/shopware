@@ -48,8 +48,12 @@ class MigrationCollectionLoader
      *
      * @param iterable<MigrationSource> $migrationSources
      */
-    public function __construct(private readonly Connection $connection, private readonly MigrationRuntime $migrationRuntime, iterable $migrationSources = [], private readonly ?LoggerInterface $logger = null)
-    {
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly MigrationRuntime $migrationRuntime,
+        iterable $migrationSources = [],
+        private readonly ?LoggerInterface $logger = null
+    ) {
         foreach ($migrationSources as $migrationSource) {
             $this->addSource($migrationSource);
         }

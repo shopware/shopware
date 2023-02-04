@@ -21,6 +21,7 @@ use Shopware\Core\System\StateMachine\Transition;
 /**
  * @internal
  * NEXT-21735
+ *
  * @group not-deterministic
  */
 #[Package('core')]

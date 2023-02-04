@@ -23,8 +23,11 @@ class MaintenanceController extends StorefrontController
     /**
      * @internal
      */
-    public function __construct(private readonly SystemConfigService $systemConfigService, private readonly MaintenancePageLoader $maintenancePageLoader, private readonly MaintenanceModeResolver $maintenanceModeResolver)
-    {
+    public function __construct(
+        private readonly SystemConfigService $systemConfigService,
+        private readonly MaintenancePageLoader $maintenancePageLoader,
+        private readonly MaintenanceModeResolver $maintenanceModeResolver
+    ) {
     }
 
     #[Route(path: '/maintenance', name: 'frontend.maintenance.page', defaults: ['allow_maintenance' => true, '_httpCache' => true], methods: ['GET'])]

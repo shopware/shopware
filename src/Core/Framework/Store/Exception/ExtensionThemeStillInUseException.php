@@ -9,8 +9,11 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('merchant-services')]
 class ExtensionThemeStillInUseException extends ShopwareHttpException
 {
-    public function __construct(string $id, array $parameters = [], ?\Throwable $e = null)
-    {
+    public function __construct(
+        string $id,
+        array $parameters = [],
+        ?\Throwable $e = null
+    ) {
         $parameters['id'] = $id;
 
         parent::__construct(

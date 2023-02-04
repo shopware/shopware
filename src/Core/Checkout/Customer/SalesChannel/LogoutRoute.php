@@ -23,8 +23,12 @@ class LogoutRoute extends AbstractLogoutRoute
     /**
      * @internal
      */
-    public function __construct(private readonly SalesChannelContextPersister $contextPersister, private readonly EventDispatcherInterface $eventDispatcher, private readonly SystemConfigService $systemConfig, private readonly CartService $cartService)
-    {
+    public function __construct(
+        private readonly SalesChannelContextPersister $contextPersister,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly SystemConfigService $systemConfig,
+        private readonly CartService $cartService
+    ) {
     }
 
     public function getDecorated(): AbstractLogoutRoute

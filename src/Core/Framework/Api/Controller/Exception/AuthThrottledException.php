@@ -9,8 +9,10 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('core')]
 class AuthThrottledException extends ShopwareHttpException
 {
-    public function __construct(private readonly int $waitTime, ?\Throwable $e = null)
-    {
+    public function __construct(
+        private readonly int $waitTime,
+        ?\Throwable $e = null
+    ) {
         parent::__construct(
             'Auth throttled for {{ seconds }} seconds.',
             ['seconds' => $this->getWaitTime()],

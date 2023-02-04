@@ -7,8 +7,11 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('checkout')]
 class CustomerCanceledAsyncPaymentException extends PaymentProcessException
 {
-    public function __construct(string $orderTransactionId, string $additionalInformation = '', ?\Throwable $e = null)
-    {
+    public function __construct(
+        string $orderTransactionId,
+        string $additionalInformation = '',
+        ?\Throwable $e = null
+    ) {
         parent::__construct(
             $orderTransactionId,
             'The customer canceled the external payment process. {{ additionalInformation }}',

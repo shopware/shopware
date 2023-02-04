@@ -23,8 +23,10 @@ class LineItemOfManufacturerRule extends Rule
      *
      * @param list<string> $manufacturerIds
      */
-    public function __construct(protected string $operator = self::OPERATOR_EQ, protected array $manufacturerIds = [])
-    {
+    public function __construct(
+        protected string $operator = self::OPERATOR_EQ,
+        protected array $manufacturerIds = []
+    ) {
         parent::__construct();
     }
 

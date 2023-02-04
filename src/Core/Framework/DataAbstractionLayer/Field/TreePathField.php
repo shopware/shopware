@@ -9,8 +9,11 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 class TreePathField extends LongTextField
 {
-    public function __construct(string $storageName, string $propertyName, private readonly string $pathField = 'id')
-    {
+    public function __construct(
+        string $storageName,
+        string $propertyName,
+        private readonly string $pathField = 'id'
+    ) {
         parent::__construct($storageName, $propertyName);
 
         $this->addFlags(new WriteProtected(Context::SYSTEM_SCOPE));

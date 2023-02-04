@@ -19,8 +19,10 @@ class KeyMappingPipe extends AbstractPipe
     /**
      * @param iterable<string|MappingArray|Mapping|MappingCollection> $mapping
      */
-    public function __construct(iterable $mapping = [], private bool $flatten = true)
-    {
+    public function __construct(
+        iterable $mapping = [],
+        private bool $flatten = true
+    ) {
         $this->mapping = MappingCollection::fromIterable($mapping);
     }
 

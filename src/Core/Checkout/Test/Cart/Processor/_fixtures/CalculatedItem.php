@@ -18,8 +18,13 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 #[Package('checkout')]
 class CalculatedItem extends QuantityItem
 {
-    public function __construct(float $price, TaxRuleCollection $taxes, SalesChannelContext $context, bool $good = true, int $quantity = 1)
-    {
+    public function __construct(
+        float $price,
+        TaxRuleCollection $taxes,
+        SalesChannelContext $context,
+        bool $good = true,
+        int $quantity = 1
+    ) {
         parent::__construct($price, $taxes, $good, $quantity);
 
         $calculator = new QuantityPriceCalculator(

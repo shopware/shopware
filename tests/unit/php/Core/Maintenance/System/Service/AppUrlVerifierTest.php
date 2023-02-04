@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Maintenance\System\Service\AppUrlVerifier
  */
 class AppUrlVerifierTest extends TestCase

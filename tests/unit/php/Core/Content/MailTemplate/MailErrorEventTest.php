@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Context;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Content\MailTemplate\Service\Event\MailErrorEvent
  *
  * @package system-settings

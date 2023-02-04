@@ -32,6 +32,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Checkout\Cart\Order\RecalculationService
  */
 class RecalculationServiceTest extends TestCase

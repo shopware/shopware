@@ -17,8 +17,12 @@ class CsvReader extends AbstractReader
     /**
      * @internal
      */
-    public function __construct(private string $delimiter = ';', private string $enclosure = '"', private string $escape = '\\', private bool $withHeader = true)
-    {
+    public function __construct(
+        private string $delimiter = ';',
+        private string $enclosure = '"',
+        private string $escape = '\\',
+        private bool $withHeader = true
+    ) {
     }
 
     public function read(Config $config, $resource, int $offset): iterable

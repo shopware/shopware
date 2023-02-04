@@ -25,8 +25,11 @@ class CustomerWishlistProductListingResultEvent extends NestedEvent implements S
      */
     protected $result;
 
-    public function __construct(Request $request, EntitySearchResult $wishlistProductListingResult, private SalesChannelContext $context)
-    {
+    public function __construct(
+        Request $request,
+        EntitySearchResult $wishlistProductListingResult,
+        private SalesChannelContext $context
+    ) {
         $this->request = $request;
         $this->result = $wishlistProductListingResult;
     }

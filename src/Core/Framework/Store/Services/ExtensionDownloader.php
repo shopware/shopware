@@ -20,8 +20,11 @@ use Shopware\Core\Framework\Store\Struct\PluginDownloadDataStruct;
 #[Package('merchant-services')]
 class ExtensionDownloader
 {
-    public function __construct(private readonly EntityRepository $pluginRepository, private readonly StoreClient $storeClient, private readonly PluginManagementService $pluginManagementService)
-    {
+    public function __construct(
+        private readonly EntityRepository $pluginRepository,
+        private readonly StoreClient $storeClient,
+        private readonly PluginManagementService $pluginManagementService
+    ) {
     }
 
     public function download(string $technicalName, Context $context): PluginDownloadDataStruct

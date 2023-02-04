@@ -31,8 +31,13 @@ class ProductStreamUpdater extends EntityIndexer
     /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection, private readonly ProductDefinition $productDefinition, private readonly EntityRepository $repository, private readonly MessageBusInterface $messageBus, private readonly ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater)
-    {
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly ProductDefinition $productDefinition,
+        private readonly EntityRepository $repository,
+        private readonly MessageBusInterface $messageBus,
+        private readonly ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater
+    ) {
     }
 
     public function getName(): string

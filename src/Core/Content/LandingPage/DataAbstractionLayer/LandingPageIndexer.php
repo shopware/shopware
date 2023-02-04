@@ -22,8 +22,12 @@ class LandingPageIndexer extends EntityIndexer
     /**
      * @internal
      */
-    public function __construct(private readonly IteratorFactory $iteratorFactory, private readonly EntityRepository $repository, private readonly ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater, private readonly EventDispatcherInterface $eventDispatcher)
-    {
+    public function __construct(
+        private readonly IteratorFactory $iteratorFactory,
+        private readonly EntityRepository $repository,
+        private readonly ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater,
+        private readonly EventDispatcherInterface $eventDispatcher
+    ) {
     }
 
     public function getName(): string

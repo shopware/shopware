@@ -22,8 +22,10 @@ class CartPriceFacade
     /**
      * @internal
      */
-    public function __construct(private readonly CartPrice $price, CartFacadeHelper $helper)
-    {
+    public function __construct(
+        private readonly CartPrice $price,
+        CartFacadeHelper $helper
+    ) {
         $this->helper = $helper;
     }
 

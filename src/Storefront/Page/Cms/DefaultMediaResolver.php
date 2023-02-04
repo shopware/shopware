@@ -16,8 +16,11 @@ class DefaultMediaResolver extends AbstractDefaultMediaResolver
     /**
      * @internal
      */
-    public function __construct(private readonly AbstractDefaultMediaResolver $decorated, private readonly Translator $translator, private readonly Packages $packages)
-    {
+    public function __construct(
+        private readonly AbstractDefaultMediaResolver $decorated,
+        private readonly Translator $translator,
+        private readonly Packages $packages
+    ) {
     }
 
     public function getDecorated(): AbstractDefaultMediaResolver

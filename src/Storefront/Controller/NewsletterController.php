@@ -24,8 +24,11 @@ class NewsletterController extends StorefrontController
     /**
      * @internal
      */
-    public function __construct(private readonly NewsletterSubscribePageLoader $newsletterConfirmRegisterPageLoader, private readonly AbstractNewsletterConfirmRoute $newsletterConfirmRoute, private readonly NewsletterAccountPageletLoader $newsletterAccountPageletLoader)
-    {
+    public function __construct(
+        private readonly NewsletterSubscribePageLoader $newsletterConfirmRegisterPageLoader,
+        private readonly AbstractNewsletterConfirmRoute $newsletterConfirmRoute,
+        private readonly NewsletterAccountPageletLoader $newsletterAccountPageletLoader
+    ) {
     }
 
     #[Route(path: '/newsletter-subscribe', name: 'frontend.newsletter.subscribe', methods: ['GET'])]

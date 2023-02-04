@@ -8,6 +8,7 @@ use Symfony\Bridge\Doctrine\Middleware\Debug\Query;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Profiling\Doctrine\BacktraceDebugDataHolder
  */
 class BacktraceDebugDataHolderTest extends TestCase

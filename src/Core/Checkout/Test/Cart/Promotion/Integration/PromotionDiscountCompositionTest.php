@@ -62,7 +62,6 @@ class PromotionDiscountCompositionTest extends TestCase
      * We have a product with price 50 EUR and quantity 3 and another product with price 100 and quantity 1.
      * If we have a absolute discount of 30 EUR, then product one should be referenced with 18 EUR and product 2 with 12 EUR (150 EUR vs. 100 EUR).
      *
-     * @test
      * @group promotions
      **/
     public function testCompositionInAbsoluteDiscount(): void
@@ -110,7 +109,6 @@ class PromotionDiscountCompositionTest extends TestCase
      * We apply a discount of 25% on all items. So every item should appear with its original
      * quantity and the 25% of its original price as discount.
      *
-     * @test
      * @group promotions
      **/
     public function testCompositionInPercentageDiscount(): void
@@ -246,7 +244,6 @@ class PromotionDiscountCompositionTest extends TestCase
      * We have a product with quantity 3 and total of 150 EUR and another product with 100 EUR.
      * Both our composition entries should have a discount of 120 (-3x10) and 90 EUR (-1x10).
      *
-     * @test
      * @group promotions
      **/
     public function testCompositionInFixedUnitDiscount(): void
@@ -297,7 +294,6 @@ class PromotionDiscountCompositionTest extends TestCase
      * make the rest of it a total of 70 EUR.
      * The calculation is based on their proportionate distribution.
      *
-     * @test
      * @group promotions
      **/
     public function testCompositionInFixedDiscount(): void

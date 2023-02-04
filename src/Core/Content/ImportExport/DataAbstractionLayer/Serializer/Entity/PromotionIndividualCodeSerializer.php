@@ -30,8 +30,10 @@ class PromotionIndividualCodeSerializer extends EntitySerializer implements Rese
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $promoCodeRepository, private readonly EntityRepository $promoRepository)
-    {
+    public function __construct(
+        private readonly EntityRepository $promoCodeRepository,
+        private readonly EntityRepository $promoRepository
+    ) {
     }
 
     public function supports(string $entity): bool

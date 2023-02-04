@@ -8,6 +8,7 @@ use Shopware\Core\Migration\V6_3\Migration1595321666v3;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_3\Migration1595321666v3
  */
 class Migration1595321666v3Test extends TestCase

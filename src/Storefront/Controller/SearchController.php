@@ -27,8 +27,11 @@ class SearchController extends StorefrontController
     /**
      * @internal
      */
-    public function __construct(private readonly SearchPageLoader $searchPageLoader, private readonly SuggestPageLoader $suggestPageLoader, private readonly AbstractProductSearchRoute $productSearchRoute)
-    {
+    public function __construct(
+        private readonly SearchPageLoader $searchPageLoader,
+        private readonly SuggestPageLoader $suggestPageLoader,
+        private readonly AbstractProductSearchRoute $productSearchRoute
+    ) {
     }
 
     #[Route(path: '/search', name: 'frontend.search.page', defaults: ['_httpCache' => true], methods: ['GET'])]

@@ -24,8 +24,12 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[Package('system-settings')]
 class MailAttachmentsBuilder
 {
-    public function __construct(private readonly MediaService $mediaService, private readonly EntityRepository $mediaRepository, private readonly DocumentGenerator $documentGenerator, private readonly Connection $connection)
-    {
+    public function __construct(
+        private readonly MediaService $mediaService,
+        private readonly EntityRepository $mediaRepository,
+        private readonly DocumentGenerator $documentGenerator,
+        private readonly Connection $connection
+    ) {
     }
 
     /**

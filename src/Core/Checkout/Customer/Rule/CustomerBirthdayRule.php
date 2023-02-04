@@ -19,8 +19,10 @@ class CustomerBirthdayRule extends Rule
     /**
      * @internal
      */
-    public function __construct(protected string $operator = self::OPERATOR_EQ, protected ?string $birthday = null)
-    {
+    public function __construct(
+        protected string $operator = self::OPERATOR_EQ,
+        protected ?string $birthday = null
+    ) {
         parent::__construct();
     }
 

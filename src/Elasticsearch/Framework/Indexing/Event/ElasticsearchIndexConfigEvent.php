@@ -13,8 +13,12 @@ class ElasticsearchIndexConfigEvent implements ShopwareEvent
     /**
      * @param array<mixed> $config
      */
-    public function __construct(private readonly string $indexName, private array $config, private readonly AbstractElasticsearchDefinition $definition, private readonly Context $context)
-    {
+    public function __construct(
+        private readonly string $indexName,
+        private array $config,
+        private readonly AbstractElasticsearchDefinition $definition,
+        private readonly Context $context
+    ) {
     }
 
     public function getIndexName(): string

@@ -11,8 +11,12 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('content')]
 class EntityResolverContext extends ResolverContext
 {
-    public function __construct(SalesChannelContext $context, Request $request, private readonly EntityDefinition $definition, private readonly Entity $entity)
-    {
+    public function __construct(
+        SalesChannelContext $context,
+        Request $request,
+        private readonly EntityDefinition $definition,
+        private readonly Entity $entity
+    ) {
         parent::__construct($context, $request);
     }
 

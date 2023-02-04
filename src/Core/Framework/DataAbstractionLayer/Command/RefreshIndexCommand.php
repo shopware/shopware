@@ -30,8 +30,10 @@ class RefreshIndexCommand extends Command implements EventSubscriberInterface
     /**
      * @internal
      */
-    public function __construct(private readonly EntityIndexerRegistry $registry, private readonly EventDispatcherInterface $eventDispatcher)
-    {
+    public function __construct(
+        private readonly EntityIndexerRegistry $registry,
+        private readonly EventDispatcherInterface $eventDispatcher
+    ) {
         parent::__construct();
     }
 

@@ -23,8 +23,11 @@ class ChangeSet extends Struct
      */
     protected $isDelete;
 
-    public function __construct(array $state, array $payload, bool $isDelete)
-    {
+    public function __construct(
+        array $state,
+        array $payload,
+        bool $isDelete
+    ) {
         $this->state = $state;
 
         // calculate changes

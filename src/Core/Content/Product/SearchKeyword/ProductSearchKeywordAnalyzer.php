@@ -18,8 +18,10 @@ class ProductSearchKeywordAnalyzer implements ProductSearchKeywordAnalyzerInterf
     /**
      * @internal
      */
-    public function __construct(private readonly TokenizerInterface $tokenizer, private readonly AbstractTokenFilter $tokenFilter)
-    {
+    public function __construct(
+        private readonly TokenizerInterface $tokenizer,
+        private readonly AbstractTokenFilter $tokenFilter
+    ) {
     }
 
     /**

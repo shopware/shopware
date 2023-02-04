@@ -22,6 +22,7 @@ use Twig\Environment;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Installer\Controller\DatabaseImportController
  */
 class DatabaseImportControllerTest extends TestCase

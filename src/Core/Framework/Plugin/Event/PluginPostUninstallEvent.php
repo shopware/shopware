@@ -9,8 +9,10 @@ use Shopware\Core\Framework\Plugin\PluginEntity;
 #[Package('core')]
 class PluginPostUninstallEvent extends PluginLifecycleEvent
 {
-    public function __construct(PluginEntity $plugin, private readonly UninstallContext $context)
-    {
+    public function __construct(
+        PluginEntity $plugin,
+        private readonly UninstallContext $context
+    ) {
         parent::__construct($plugin);
     }
 

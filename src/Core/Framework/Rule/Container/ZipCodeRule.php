@@ -18,8 +18,10 @@ abstract class ZipCodeRule extends Rule
     /**
      * @param array<string>|null $zipCodes
      */
-    public function __construct(protected string $operator = self::OPERATOR_EQ, protected ?array $zipCodes = null)
-    {
+    public function __construct(
+        protected string $operator = self::OPERATOR_EQ,
+        protected ?array $zipCodes = null
+    ) {
         parent::__construct();
     }
 

@@ -11,8 +11,13 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('content')]
 class LandingPageRouteCacheKeyEvent extends StoreApiRouteCacheKeyEvent
 {
-    public function __construct(protected string $landingPageId, array $parts, Request $request, SalesChannelContext $context, ?Criteria $criteria)
-    {
+    public function __construct(
+        protected string $landingPageId,
+        array $parts,
+        Request $request,
+        SalesChannelContext $context,
+        ?Criteria $criteria
+    ) {
         parent::__construct($parts, $request, $context, $criteria);
     }
 

@@ -14,8 +14,11 @@ use Symfony\Contracts\EventDispatcher\Event;
 #[Package('core')]
 class DemodataRequestCreatedEvent extends Event
 {
-    public function __construct(private readonly DemodataRequest $request, private readonly Context $context, private readonly InputInterface $input)
-    {
+    public function __construct(
+        private readonly DemodataRequest $request,
+        private readonly Context $context,
+        private readonly InputInterface $input
+    ) {
     }
 
     public function getRequest(): DemodataRequest

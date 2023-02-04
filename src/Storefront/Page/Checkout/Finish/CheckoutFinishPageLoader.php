@@ -27,8 +27,11 @@ class CheckoutFinishPageLoader
     /**
      * @internal
      */
-    public function __construct(private readonly EventDispatcherInterface $eventDispatcher, private readonly GenericPageLoaderInterface $genericLoader, private readonly AbstractOrderRoute $orderRoute)
-    {
+    public function __construct(
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly GenericPageLoaderInterface $genericLoader,
+        private readonly AbstractOrderRoute $orderRoute
+    ) {
     }
 
     /**

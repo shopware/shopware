@@ -8,8 +8,10 @@ use Symfony\Contracts\EventDispatcher\Event;
 #[Package('storefront')]
 class ThemeCompilerConcatenatedStylesEvent extends Event
 {
-    public function __construct(private string $concatenatedStyles, private readonly string $salesChannelId)
-    {
+    public function __construct(
+        private string $concatenatedStyles,
+        private readonly string $salesChannelId
+    ) {
     }
 
     public function getConcatenatedStyles(): string

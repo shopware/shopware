@@ -18,8 +18,10 @@ class BundleDumpCommand extends Command
     /**
      * @internal
      */
-    public function __construct(private readonly BundleConfigGeneratorInterface $bundleDumper, private readonly string $projectDir)
-    {
+    public function __construct(
+        private readonly BundleConfigGeneratorInterface $bundleDumper,
+        private readonly string $projectDir
+    ) {
         parent::__construct();
     }
 

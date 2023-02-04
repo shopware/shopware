@@ -20,8 +20,13 @@ class CartRestorer
     /**
      * @internal
      */
-    public function __construct(private readonly AbstractSalesChannelContextFactory $factory, private readonly SalesChannelContextPersister $contextPersister, private readonly CartService $cartService, private readonly CartRuleLoader $cartRuleLoader, private readonly EventDispatcherInterface $eventDispatcher)
-    {
+    public function __construct(
+        private readonly AbstractSalesChannelContextFactory $factory,
+        private readonly SalesChannelContextPersister $contextPersister,
+        private readonly CartService $cartService,
+        private readonly CartRuleLoader $cartRuleLoader,
+        private readonly EventDispatcherInterface $eventDispatcher
+    ) {
     }
 
     public function restore(string $customerId, SalesChannelContext $currentContext): SalesChannelContext

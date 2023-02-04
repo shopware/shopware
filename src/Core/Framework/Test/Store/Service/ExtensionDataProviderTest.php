@@ -20,6 +20,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
  * @internal
+ *
  * @group skip-paratest
  */
 class ExtensionDataProviderTest extends TestCase

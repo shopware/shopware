@@ -25,8 +25,10 @@ class FilesystemFactory
      * @param string $baseDir
      * @param array  $remoteConfig
      */
-    public function __construct($baseDir, $remoteConfig)
-    {
+    public function __construct(
+        $baseDir,
+        $remoteConfig
+    ) {
         $this->baseDir = $baseDir;
         $this->remoteConfig = $remoteConfig;
     }

@@ -24,8 +24,12 @@ class DatabaseConfigLoader extends AbstractConfigLoader
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $themeRepository, private readonly StorefrontPluginRegistryInterface $extensionRegistry, private readonly EntityRepository $mediaRepository, private readonly string $baseTheme = StorefrontPluginRegistry::BASE_THEME_NAME)
-    {
+    public function __construct(
+        private readonly EntityRepository $themeRepository,
+        private readonly StorefrontPluginRegistryInterface $extensionRegistry,
+        private readonly EntityRepository $mediaRepository,
+        private readonly string $baseTheme = StorefrontPluginRegistry::BASE_THEME_NAME
+    ) {
     }
 
     public function getDecorated(): AbstractConfigLoader
@@ -53,7 +57,7 @@ class DatabaseConfigLoader extends AbstractConfigLoader
     }
 
     /**
-     * @return array<int|string,mixed>
+     * @return array<int|string, mixed>
      */
     private function loadCompileConfig(string $themeId, Context $context): array
     {
@@ -72,7 +76,7 @@ class DatabaseConfigLoader extends AbstractConfigLoader
     }
 
     /**
-     * @return array<int|string,mixed>
+     * @return array<int|string, mixed>
      */
     private function loadRecursiveConfig(string $themeId, Context $context, bool $withBase = true): array
     {
@@ -208,7 +212,7 @@ class DatabaseConfigLoader extends AbstractConfigLoader
     }
 
     /**
-     * @return array<int|string,mixed>
+     * @return array<int|string, mixed>
      */
     private function mergeStaticConfig(ThemeEntity $theme): array
     {
@@ -301,7 +305,7 @@ class DatabaseConfigLoader extends AbstractConfigLoader
     }
 
     /**
-     * @return array<int,string>
+     * @return array<int, string>
      */
     private function getConfigInheritance(ThemeEntity $mainTheme): array
     {

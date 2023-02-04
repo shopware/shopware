@@ -17,8 +17,10 @@ class Translations
      */
     protected $english;
 
-    public function __construct(array $german, array $english)
-    {
+    public function __construct(
+        array $german,
+        array $english
+    ) {
         $this->german = $german;
         $this->english = $english;
     }

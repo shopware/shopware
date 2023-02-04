@@ -12,6 +12,7 @@ use Symfony\Component\Mime\Email;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent
  *
  * @package system-settings

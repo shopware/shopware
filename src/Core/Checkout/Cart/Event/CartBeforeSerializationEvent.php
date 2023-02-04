@@ -12,8 +12,10 @@ class CartBeforeSerializationEvent extends Event
     /**
      * @param array<mixed> $customFieldAllowList
      */
-    public function __construct(protected Cart $cart, private array $customFieldAllowList)
-    {
+    public function __construct(
+        protected Cart $cart,
+        private array $customFieldAllowList
+    ) {
     }
 
     public function getCart(): Cart

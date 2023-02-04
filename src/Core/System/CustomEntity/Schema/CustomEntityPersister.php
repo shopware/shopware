@@ -18,8 +18,10 @@ use Symfony\Component\Cache\Adapter\AdapterInterface;
 #[Package('core')]
 class CustomEntityPersister
 {
-    public function __construct(private readonly Connection $connection, private readonly AdapterInterface $cache)
-    {
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly AdapterInterface $cache
+    ) {
     }
 
     /**

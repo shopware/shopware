@@ -11,8 +11,11 @@ class ConfigJsonField extends JsonField
 {
     final public const STORAGE_KEY = '_value';
 
-    public function __construct(string $storageName, string $propertyName, array $propertyMapping = [])
-    {
+    public function __construct(
+        string $storageName,
+        string $propertyName,
+        array $propertyMapping = []
+    ) {
         $wrappedPropertyMapping = [
             new JsonField(self::STORAGE_KEY, self::STORAGE_KEY, $propertyMapping),
         ];

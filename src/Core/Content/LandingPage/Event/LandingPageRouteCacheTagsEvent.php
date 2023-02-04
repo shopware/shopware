@@ -12,8 +12,14 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('content')]
 class LandingPageRouteCacheTagsEvent extends StoreApiRouteCacheTagsEvent
 {
-    public function __construct(protected string $landingPageId, array $tags, Request $request, StoreApiResponse $response, SalesChannelContext $context, ?Criteria $criteria)
-    {
+    public function __construct(
+        protected string $landingPageId,
+        array $tags,
+        Request $request,
+        StoreApiResponse $response,
+        SalesChannelContext $context,
+        ?Criteria $criteria
+    ) {
         parent::__construct($tags, $request, $response, $context, $criteria);
     }
 

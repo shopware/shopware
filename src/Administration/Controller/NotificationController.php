@@ -28,8 +28,10 @@ class NotificationController extends AbstractController
     /**
      * @internal
      */
-    public function __construct(private readonly RateLimiter $rateLimiter, private readonly NotificationService $notificationService)
-    {
+    public function __construct(
+        private readonly RateLimiter $rateLimiter,
+        private readonly NotificationService $notificationService
+    ) {
     }
 
     #[Route(path: '/api/notification', name: 'api.notification', defaults: ['_acl' => ['notification:create']], methods: ['POST'])]

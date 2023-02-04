@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Framework\Migration\MigrationStep
  */
 class InstallEnvironmentTest extends TestCase

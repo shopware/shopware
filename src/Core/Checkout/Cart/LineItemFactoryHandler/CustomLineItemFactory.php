@@ -17,8 +17,10 @@ class CustomLineItemFactory implements LineItemFactoryInterface
     /**
      * @internal
      */
-    public function __construct(private readonly PriceDefinitionFactory $priceDefinitionFactory, private readonly EntityRepository $mediaRepository)
-    {
+    public function __construct(
+        private readonly PriceDefinitionFactory $priceDefinitionFactory,
+        private readonly EntityRepository $mediaRepository
+    ) {
     }
 
     public function supports(string $type): bool

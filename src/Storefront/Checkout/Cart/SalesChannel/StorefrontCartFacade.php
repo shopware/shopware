@@ -25,8 +25,14 @@ class StorefrontCartFacade
     /**
      * @internal
      */
-    public function __construct(private readonly CartService $cartService, private readonly BlockedShippingMethodSwitcher $blockedShippingMethodSwitcher, private readonly BlockedPaymentMethodSwitcher $blockedPaymentMethodSwitcher, private readonly AbstractContextSwitchRoute $contextSwitchRoute, private readonly CartCalculator $calculator, private readonly AbstractCartPersister $cartPersister)
-    {
+    public function __construct(
+        private readonly CartService $cartService,
+        private readonly BlockedShippingMethodSwitcher $blockedShippingMethodSwitcher,
+        private readonly BlockedPaymentMethodSwitcher $blockedPaymentMethodSwitcher,
+        private readonly AbstractContextSwitchRoute $contextSwitchRoute,
+        private readonly CartCalculator $calculator,
+        private readonly AbstractCartPersister $cartPersister
+    ) {
     }
 
     public function get(

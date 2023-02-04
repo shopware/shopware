@@ -12,6 +12,7 @@ use Shopware\Core\Installer\Requirements\Struct\SystemCheck;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Installer\Requirements\ConfigurationRequirementsValidator
  */
 class ConfigurationRequirementsValidatorTest extends TestCase

@@ -11,6 +11,7 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1634735841AddedNewsletterSalesChannelIds
  */
 class Migration1634735841AddedNewsletterSalesChannelIdsTest extends TestCase

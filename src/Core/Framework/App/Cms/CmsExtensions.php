@@ -15,8 +15,10 @@ class CmsExtensions
 {
     private const XSD_FILE = __DIR__ . '/Schema/cms-1.0.xsd';
 
-    private function __construct(private string $path, private readonly ?Blocks $blocks)
-    {
+    private function __construct(
+        private string $path,
+        private readonly ?Blocks $blocks
+    ) {
     }
 
     public static function createFromXmlFile(string $xmlFile): self

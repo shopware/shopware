@@ -8,6 +8,7 @@ use Shopware\Core\Migration\V6_4\Migration1627540693MakeAccessTokenNullable;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1627540693MakeAccessTokenNullable
  */
 class Migration1627540693MakeAccessTokenNullableTest extends TestCase

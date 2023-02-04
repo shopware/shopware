@@ -31,8 +31,13 @@ class LoadWishlistRoute extends AbstractLoadWishlistRoute
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $wishlistRepository, private readonly SalesChannelRepository $productRepository, private readonly EventDispatcherInterface $eventDispatcher, private readonly SystemConfigService $systemConfigService, private readonly AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory)
-    {
+    public function __construct(
+        private readonly EntityRepository $wishlistRepository,
+        private readonly SalesChannelRepository $productRepository,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly SystemConfigService $systemConfigService,
+        private readonly AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory
+    ) {
     }
 
     public function getDecorated(): AbstractLoadWishlistRoute

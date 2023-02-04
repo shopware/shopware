@@ -16,8 +16,12 @@ class BeforeCartMergeEvent extends Event implements ShopwareSalesChannelEvent
     /**
      * @internal
      */
-    public function __construct(protected Cart $customerCart, protected Cart $guestCart, protected LineItemCollection $mergeableLineItems, protected SalesChannelContext $context)
-    {
+    public function __construct(
+        protected Cart $customerCart,
+        protected Cart $guestCart,
+        protected LineItemCollection $mergeableLineItems,
+        protected SalesChannelContext $context
+    ) {
     }
 
     public function getCustomerCart(): Cart

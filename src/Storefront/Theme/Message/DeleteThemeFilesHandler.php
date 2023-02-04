@@ -14,8 +14,10 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 #[Package('storefront')]
 final class DeleteThemeFilesHandler
 {
-    public function __construct(private readonly FilesystemOperator $filesystem, private readonly AbstractThemePathBuilder $pathBuilder)
-    {
+    public function __construct(
+        private readonly FilesystemOperator $filesystem,
+        private readonly AbstractThemePathBuilder $pathBuilder
+    ) {
     }
 
     public function __invoke(DeleteThemeFilesMessage $message): void

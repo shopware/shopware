@@ -9,8 +9,10 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('administration')]
 class NotificationThrottledException extends ShopwareHttpException
 {
-    public function __construct(private readonly int $waitTime, ?\Throwable $e = null)
-    {
+    public function __construct(
+        private readonly int $waitTime,
+        ?\Throwable $e = null
+    ) {
         parent::__construct(
             'Notification throttled for {{ seconds }} seconds.',
             ['seconds' => $this->waitTime],

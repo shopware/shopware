@@ -33,6 +33,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Content\Mail\Service\MailService
  */
 class MailServiceTest extends TestCase

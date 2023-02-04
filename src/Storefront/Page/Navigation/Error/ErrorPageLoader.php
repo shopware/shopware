@@ -21,8 +21,11 @@ class ErrorPageLoader implements ErrorPageLoaderInterface
     /**
      * @internal
      */
-    public function __construct(private readonly SalesChannelCmsPageLoaderInterface $cmsPageLoader, private readonly GenericPageLoaderInterface $genericLoader, private readonly EventDispatcherInterface $eventDispatcher)
-    {
+    public function __construct(
+        private readonly SalesChannelCmsPageLoaderInterface $cmsPageLoader,
+        private readonly GenericPageLoaderInterface $genericLoader,
+        private readonly EventDispatcherInterface $eventDispatcher
+    ) {
     }
 
     /**

@@ -33,6 +33,7 @@ use Symfony\Contracts\Cache\CacheInterface;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\System\Currency\SalesChannel\CachedCurrencyRoute
  */
 class CachedCurrencyRouteTest extends TestCase

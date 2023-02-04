@@ -10,8 +10,10 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 class RetryableQuery
 {
-    public function __construct(private readonly ?Connection $connection, private readonly Statement $query)
-    {
+    public function __construct(
+        private readonly ?Connection $connection,
+        private readonly Statement $query
+    ) {
     }
 
     public function execute(array $params = []): int

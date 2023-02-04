@@ -12,8 +12,10 @@ class WriteableCheck implements CheckerInterface
     /**
      * @internal
      */
-    public function __construct(private readonly Filesystem $filesystem, private readonly string $rootDir)
-    {
+    public function __construct(
+        private readonly Filesystem $filesystem,
+        private readonly string $rootDir
+    ) {
     }
 
     public function supports(string $check): bool

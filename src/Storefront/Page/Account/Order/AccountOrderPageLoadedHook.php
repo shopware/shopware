@@ -21,8 +21,10 @@ class AccountOrderPageLoadedHook extends PageLoadedHook
 
     final public const HOOK_NAME = 'account-order-page-loaded';
 
-    public function __construct(private readonly AccountOrderPage $page, SalesChannelContext $context)
-    {
+    public function __construct(
+        private readonly AccountOrderPage $page,
+        SalesChannelContext $context
+    ) {
         parent::__construct($context->getContext());
         $this->salesChannelContext = $context;
     }

@@ -42,8 +42,17 @@ class SendMailAction extends FlowAction implements DelayableAction
     /**
      * @internal
      */
-    public function __construct(private readonly AbstractMailService $emailService, private readonly EntityRepository $mailTemplateRepository, private readonly LoggerInterface $logger, private readonly EventDispatcherInterface $eventDispatcher, private readonly EntityRepository $mailTemplateTypeRepository, private readonly Translator $translator, private readonly Connection $connection, private readonly LanguageLocaleCodeProvider $languageLocaleProvider, private readonly bool $updateMailTemplate)
-    {
+    public function __construct(
+        private readonly AbstractMailService $emailService,
+        private readonly EntityRepository $mailTemplateRepository,
+        private readonly LoggerInterface $logger,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly EntityRepository $mailTemplateTypeRepository,
+        private readonly Translator $translator,
+        private readonly Connection $connection,
+        private readonly LanguageLocaleCodeProvider $languageLocaleProvider,
+        private readonly bool $updateMailTemplate
+    ) {
     }
 
     public static function getName(): string

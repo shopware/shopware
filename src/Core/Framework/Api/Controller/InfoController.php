@@ -36,8 +36,19 @@ class InfoController extends AbstractController
      *
      * @internal
      */
-    public function __construct(private readonly DefinitionService $definitionService, private readonly ParameterBagInterface $params, private readonly Kernel $kernel, private readonly Packages $packages, private readonly BusinessEventCollector $eventCollector, private readonly IncrementGatewayRegistry $incrementGatewayRegistry, private readonly Connection $connection, private readonly AppUrlVerifier $appUrlVerifier, private readonly ?FlowActionCollector $flowActionCollector = null, private readonly bool $enableUrlFeature = true, private readonly array $cspTemplates = [])
-    {
+    public function __construct(
+        private readonly DefinitionService $definitionService,
+        private readonly ParameterBagInterface $params,
+        private readonly Kernel $kernel,
+        private readonly Packages $packages,
+        private readonly BusinessEventCollector $eventCollector,
+        private readonly IncrementGatewayRegistry $incrementGatewayRegistry,
+        private readonly Connection $connection,
+        private readonly AppUrlVerifier $appUrlVerifier,
+        private readonly ?FlowActionCollector $flowActionCollector = null,
+        private readonly bool $enableUrlFeature = true,
+        private readonly array $cspTemplates = []
+    ) {
     }
 
     #[Route(path: '/api/_info/openapi3.json', defaults: ['auth_required' => '%shopware.api.api_browser.auth_required_str%'], name: 'api.info.openapi3', methods: ['GET'])]
@@ -165,7 +176,7 @@ class InfoController extends AbstractController
     }
 
     /**
-     * @return array<string, array{type: 'plugin', css: string[], js: string[], baseUrl: ?string }|array{type: 'app', name: string, active: bool, integrationId: string, baseUrl: string, version: string, permissions: array<string,string[]>}>
+     * @return array<string, array{type: 'plugin', css: string[], js: string[], baseUrl: ?string }|array{type: 'app', name: string, active: bool, integrationId: string, baseUrl: string, version: string, permissions: array<string, string[]>}>
      */
     private function getBundles(Context $context): array
     {
@@ -278,7 +289,7 @@ class InfoController extends AbstractController
     }
 
     /**
-     * @return list<array{name: string, active: int, integrationId: string, baseUrl: string, version: string, privileges: array<string,list<string>>}>
+     * @return list<array{name: string, active: int, integrationId: string, baseUrl: string, version: string, privileges: array<string, list<string>>}>
      */
     private function getActiveApps(): array
     {

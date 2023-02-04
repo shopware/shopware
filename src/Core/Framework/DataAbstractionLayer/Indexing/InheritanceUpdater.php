@@ -25,8 +25,10 @@ class InheritanceUpdater
     /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection, private readonly DefinitionInstanceRegistry $registry)
-    {
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly DefinitionInstanceRegistry $registry
+    ) {
     }
 
     /**

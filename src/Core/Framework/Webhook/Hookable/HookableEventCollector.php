@@ -46,8 +46,10 @@ class HookableEventCollector
      */
     private array $hookableEventNamesWithPrivileges = [];
 
-    public function __construct(private readonly BusinessEventCollector $businessEventCollector, private readonly DefinitionInstanceRegistry $definitionRegistry)
-    {
+    public function __construct(
+        private readonly BusinessEventCollector $businessEventCollector,
+        private readonly DefinitionInstanceRegistry $definitionRegistry
+    ) {
     }
 
     public function getHookableEventNamesWithPrivileges(Context $context): array

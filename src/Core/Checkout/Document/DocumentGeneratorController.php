@@ -27,8 +27,11 @@ class DocumentGeneratorController extends AbstractController
     /**
      * @internal
      */
-    public function __construct(private readonly DocumentGenerator $documentGenerator, private readonly DecoderInterface $serializer, private readonly DataValidator $dataValidator)
-    {
+    public function __construct(
+        private readonly DocumentGenerator $documentGenerator,
+        private readonly DecoderInterface $serializer,
+        private readonly DataValidator $dataValidator
+    ) {
     }
 
     #[Route(path: '/api/_action/order/document/{documentTypeName}/create', name: 'api.action.document.bulk.create', methods: ['POST'], defaults: ['_acl' => ['document.viewer']])]

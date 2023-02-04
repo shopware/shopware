@@ -31,8 +31,14 @@ class CachedShippingMethodRoute extends AbstractShippingMethodRoute
      * @param AbstractCacheTracer<ShippingMethodRouteResponse> $tracer
      * @param array<string> $states
      */
-    public function __construct(private readonly AbstractShippingMethodRoute $decorated, private readonly CacheInterface $cache, private readonly EntityCacheKeyGenerator $generator, private readonly AbstractCacheTracer $tracer, private readonly EventDispatcherInterface $dispatcher, private readonly array $states)
-    {
+    public function __construct(
+        private readonly AbstractShippingMethodRoute $decorated,
+        private readonly CacheInterface $cache,
+        private readonly EntityCacheKeyGenerator $generator,
+        private readonly AbstractCacheTracer $tracer,
+        private readonly EventDispatcherInterface $dispatcher,
+        private readonly array $states
+    ) {
     }
 
     public function getDecorated(): AbstractShippingMethodRoute

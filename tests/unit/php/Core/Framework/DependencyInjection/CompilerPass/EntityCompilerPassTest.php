@@ -14,6 +14,7 @@ use Symfony\Component\DependencyInjection\Reference;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Framework\DependencyInjection\CompilerPass\EntityCompilerPass
  */
 class EntityCompilerPassTest extends TestCase

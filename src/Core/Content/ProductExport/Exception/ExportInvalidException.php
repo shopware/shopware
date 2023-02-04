@@ -19,8 +19,10 @@ class ExportInvalidException extends ShopwareHttpException
     /**
      * @param Error[] $errors
      */
-    public function __construct(ProductExportEntity $productExportEntity, array $errors)
-    {
+    public function __construct(
+        ProductExportEntity $productExportEntity,
+        array $errors
+    ) {
         $errorMessages = array_merge(
             ...array_map(
                 fn (Error $error) => $error->getErrorMessages(),

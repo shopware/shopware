@@ -13,6 +13,7 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_3\Migration1600778848AddOrderMails
  *
  * @phpstan-type Mail array{id-key: string, type: string, language: string, content: string, system_default: int, updated_at: ?\DateTimeInterface, translations: array<string, array<string, mixed>>}

@@ -12,6 +12,7 @@ use Symfony\Contracts\Cache\CacheInterface;
 
 /**
  * @package core
+ *
  * @covers \Shopware\Core\Framework\Api\ApiDefinition\Generator\CachedEntitySchemaGenerator
  *
  * @internal

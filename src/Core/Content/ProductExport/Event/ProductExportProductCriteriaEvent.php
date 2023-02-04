@@ -14,8 +14,12 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 #[Package('sales-channel')]
 class ProductExportProductCriteriaEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
-    public function __construct(protected Criteria $criteria, protected ProductExportEntity $productExport, protected ExportBehavior $exportBehaviour, protected SalesChannelContext $salesChannelContext)
-    {
+    public function __construct(
+        protected Criteria $criteria,
+        protected ProductExportEntity $productExport,
+        protected ExportBehavior $exportBehaviour,
+        protected SalesChannelContext $salesChannelContext
+    ) {
     }
 
     public function getCriteria(): Criteria

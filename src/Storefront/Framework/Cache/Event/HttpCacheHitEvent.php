@@ -11,8 +11,11 @@ use Symfony\Contracts\EventDispatcher\Event;
 #[Package('storefront')]
 class HttpCacheHitEvent extends Event
 {
-    public function __construct(private readonly CacheItemInterface $item, private readonly Request $request, private readonly Response $response)
-    {
+    public function __construct(
+        private readonly CacheItemInterface $item,
+        private readonly Request $request,
+        private readonly Response $response
+    ) {
     }
 
     public function getItem(): CacheItemInterface

@@ -13,8 +13,10 @@ class SitemapLister implements SitemapListerInterface
     /**
      * @internal
      */
-    public function __construct(private readonly FilesystemOperator $filesystem, private readonly Package $package)
-    {
+    public function __construct(
+        private readonly FilesystemOperator $filesystem,
+        private readonly Package $package
+    ) {
     }
 
     /**

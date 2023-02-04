@@ -28,8 +28,11 @@ class ChangeLanguageRoute extends AbstractChangeLanguageRoute
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $customerRepository, private readonly EventDispatcherInterface $eventDispatcher, private readonly DataValidator $validator)
-    {
+    public function __construct(
+        private readonly EntityRepository $customerRepository,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly DataValidator $validator
+    ) {
     }
 
     public function getDecorated(): AbstractChangeLanguageRoute

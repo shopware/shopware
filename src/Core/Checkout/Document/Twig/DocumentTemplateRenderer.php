@@ -23,8 +23,13 @@ class DocumentTemplateRenderer
     /**
      * @internal
      */
-    public function __construct(private readonly TemplateFinder $templateFinder, private readonly Environment $twig, private readonly Translator $translator, private readonly AbstractSalesChannelContextFactory $contextFactory, private readonly EventDispatcherInterface $eventDispatcher)
-    {
+    public function __construct(
+        private readonly TemplateFinder $templateFinder,
+        private readonly Environment $twig,
+        private readonly Translator $translator,
+        private readonly AbstractSalesChannelContextFactory $contextFactory,
+        private readonly EventDispatcherInterface $eventDispatcher
+    ) {
     }
 
     /**

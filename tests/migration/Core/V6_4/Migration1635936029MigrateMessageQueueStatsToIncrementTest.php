@@ -14,6 +14,7 @@ use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexingMessage;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1635936029MigrateMessageQueueStatsToIncrement
  */
 class Migration1635936029MigrateMessageQueueStatsToIncrementTest extends TestCase

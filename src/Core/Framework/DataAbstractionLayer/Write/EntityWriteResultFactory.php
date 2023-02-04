@@ -34,8 +34,10 @@ class EntityWriteResultFactory
     /**
      * @internal
      */
-    public function __construct(private readonly DefinitionInstanceRegistry $registry, private readonly Connection $connection)
-    {
+    public function __construct(
+        private readonly DefinitionInstanceRegistry $registry,
+        private readonly Connection $connection
+    ) {
     }
 
     public function build(WriteCommandQueue $queue): array

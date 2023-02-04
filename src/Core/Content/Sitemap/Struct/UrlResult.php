@@ -11,8 +11,10 @@ class UrlResult extends Struct
     /**
      * @param Url[] $urls
      */
-    public function __construct(private readonly array $urls, private readonly ?int $nextOffset)
-    {
+    public function __construct(
+        private readonly array $urls,
+        private readonly ?int $nextOffset
+    ) {
     }
 
     /**

@@ -60,8 +60,16 @@ class Translator extends AbstractTranslator
     /**
      * @internal
      */
-    public function __construct(private readonly TranslatorInterface $translator, private readonly RequestStack $requestStack, private readonly CacheInterface $cache, private readonly MessageFormatterInterface $formatter, private readonly SnippetService $snippetService, private readonly string $environment, private readonly EntityRepository $snippetSetRepository, private readonly LanguageLocaleCodeProvider $languageLocaleProvider)
-    {
+    public function __construct(
+        private readonly TranslatorInterface $translator,
+        private readonly RequestStack $requestStack,
+        private readonly CacheInterface $cache,
+        private readonly MessageFormatterInterface $formatter,
+        private readonly SnippetService $snippetService,
+        private readonly string $environment,
+        private readonly EntityRepository $snippetSetRepository,
+        private readonly LanguageLocaleCodeProvider $languageLocaleProvider
+    ) {
     }
 
     public static function buildName(string $id): string

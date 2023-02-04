@@ -18,8 +18,11 @@ class BearerTokenValidator implements AuthorizationValidatorInterface
     /**
      * @internal
      */
-    public function __construct(private readonly AuthorizationValidatorInterface $decorated, private readonly Connection $connection, private readonly Configuration $configuration)
-    {
+    public function __construct(
+        private readonly AuthorizationValidatorInterface $decorated,
+        private readonly Connection $connection,
+        private readonly Configuration $configuration
+    ) {
     }
 
     /**

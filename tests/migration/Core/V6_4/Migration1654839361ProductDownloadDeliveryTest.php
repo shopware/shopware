@@ -11,6 +11,7 @@ use Shopware\Core\Migration\V6_4\Migration1654839361ProductDownloadDelivery;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1654839361ProductDownloadDelivery
  */
 class Migration1654839361ProductDownloadDeliveryTest extends TestCase

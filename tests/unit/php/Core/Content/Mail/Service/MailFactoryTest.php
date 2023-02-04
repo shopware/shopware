@@ -11,6 +11,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Content\Mail\Service\MailFactory
  */
 class MailFactoryTest extends TestCase

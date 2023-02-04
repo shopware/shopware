@@ -10,6 +10,7 @@ use Shopware\Core\Migration\V6_4\Migration1649315608AllowDisable;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1649315608AllowDisable
  */
 class Migration1649315608AllowDisableTest extends TestCase

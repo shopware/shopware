@@ -14,6 +14,7 @@ use Symfony\Component\Lock\LockFactory;
 
 /**
  * @internal
+ *
  * @phpstan-import-type CustomEntityField from SchemaUpdater
  */
 #[Package('core')]
@@ -21,8 +22,11 @@ class CustomEntitySchemaUpdater
 {
     private const COMMENT = 'custom-entity-element';
 
-    public function __construct(private readonly Connection $connection, private readonly LockFactory $lockFactory, private readonly SchemaUpdater $schemaUpdater)
-    {
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly LockFactory $lockFactory,
+        private readonly SchemaUpdater $schemaUpdater
+    ) {
     }
 
     public function update(): void

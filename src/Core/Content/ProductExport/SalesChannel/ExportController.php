@@ -30,8 +30,14 @@ class ExportController
     /**
      * @internal
      */
-    public function __construct(private readonly ProductExporterInterface $productExportService, private readonly ProductExportFileHandlerInterface $productExportFileHandler, private readonly FilesystemOperator $fileSystem, private readonly EventDispatcherInterface $eventDispatcher, private readonly EntityRepository $productExportRepository, private readonly AbstractSalesChannelContextFactory $contextFactory)
-    {
+    public function __construct(
+        private readonly ProductExporterInterface $productExportService,
+        private readonly ProductExportFileHandlerInterface $productExportFileHandler,
+        private readonly FilesystemOperator $fileSystem,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly EntityRepository $productExportRepository,
+        private readonly AbstractSalesChannelContextFactory $contextFactory
+    ) {
     }
 
     #[Route(path: '/store-api/product-export/{accessKey}/{fileName}', name: 'store-api.product.export', methods: ['GET'], defaults: ['auth_required' => false])]

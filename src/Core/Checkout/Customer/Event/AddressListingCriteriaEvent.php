@@ -12,8 +12,10 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 #[Package('customer-order')]
 class AddressListingCriteriaEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
-    public function __construct(private readonly Criteria $criteria, private readonly SalesChannelContext $salesChannelContext)
-    {
+    public function __construct(
+        private readonly Criteria $criteria,
+        private readonly SalesChannelContext $salesChannelContext
+    ) {
     }
 
     public function getCriteria(): Criteria

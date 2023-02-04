@@ -10,8 +10,10 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 #[Package('business-ops')]
 class CartRuleScope extends CheckoutRuleScope
 {
-    public function __construct(protected Cart $cart, SalesChannelContext $context)
-    {
+    public function __construct(
+        protected Cart $cart,
+        SalesChannelContext $context
+    ) {
         parent::__construct($context);
     }
 

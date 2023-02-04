@@ -16,8 +16,11 @@ class WriteResult
      * @param array<string, list<EntityWriteResult>> $notFound
      * @param array<string, list<EntityWriteResult>> $written
      */
-    public function __construct(protected array $deleted, protected array $notFound = [], protected array $written = [])
-    {
+    public function __construct(
+        protected array $deleted,
+        protected array $notFound = [],
+        protected array $written = []
+    ) {
     }
 
     /**

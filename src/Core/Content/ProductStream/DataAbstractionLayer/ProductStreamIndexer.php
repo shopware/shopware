@@ -28,8 +28,14 @@ class ProductStreamIndexer extends EntityIndexer
     /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection, private readonly IteratorFactory $iteratorFactory, private readonly EntityRepository $repository, private readonly SerializerInterface $serializer, private readonly ProductDefinition $productDefinition, private readonly EventDispatcherInterface $eventDispatcher)
-    {
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly IteratorFactory $iteratorFactory,
+        private readonly EntityRepository $repository,
+        private readonly SerializerInterface $serializer,
+        private readonly ProductDefinition $productDefinition,
+        private readonly EventDispatcherInterface $eventDispatcher
+    ) {
     }
 
     public function getName(): string

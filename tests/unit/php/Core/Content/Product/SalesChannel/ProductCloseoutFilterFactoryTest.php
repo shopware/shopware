@@ -11,6 +11,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilterFactory
  */
 class ProductCloseoutFilterFactoryTest extends TestCase

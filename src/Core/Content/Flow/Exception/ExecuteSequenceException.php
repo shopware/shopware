@@ -7,8 +7,13 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('business-ops')]
 class ExecuteSequenceException extends \Exception
 {
-    public function __construct(private readonly string $flowId, private readonly string $sequenceId, string $message = '', int $code = 0, ?\Throwable $previous = null)
-    {
+    public function __construct(
+        private readonly string $flowId,
+        private readonly string $sequenceId,
+        string $message = '',
+        int $code = 0,
+        ?\Throwable $previous = null
+    ) {
         parent::__construct($message, $code, $previous);
     }
 

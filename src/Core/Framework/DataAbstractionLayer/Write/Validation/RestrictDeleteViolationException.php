@@ -18,8 +18,10 @@ class RestrictDeleteViolationException extends ShopwareHttpException
     /**
      * @param RestrictDeleteViolation[] $restrictions
      */
-    public function __construct(EntityDefinition $definition, array $restrictions)
-    {
+    public function __construct(
+        EntityDefinition $definition,
+        array $restrictions
+    ) {
         $restriction = $restrictions[0];
         $usages = [];
         $usagesStrings = [];

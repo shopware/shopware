@@ -26,7 +26,9 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * @internal
+ *
  * @group store-api
+ *
  * @covers \Shopware\Core\Checkout\Cart\SalesChannel\CartOrderRoute
  */
 class CartOrderRouteTest extends TestCase

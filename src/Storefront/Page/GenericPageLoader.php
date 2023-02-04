@@ -23,8 +23,14 @@ class GenericPageLoader implements GenericPageLoaderInterface
     /**
      * @internal
      */
-    public function __construct(private readonly HeaderPageletLoaderInterface $headerLoader, private readonly FooterPageletLoaderInterface $footerLoader, private readonly SystemConfigService $systemConfigService, private readonly AbstractPaymentMethodRoute $paymentMethodRoute, private readonly AbstractShippingMethodRoute $shippingMethodRoute, private readonly EventDispatcherInterface $eventDispatcher)
-    {
+    public function __construct(
+        private readonly HeaderPageletLoaderInterface $headerLoader,
+        private readonly FooterPageletLoaderInterface $footerLoader,
+        private readonly SystemConfigService $systemConfigService,
+        private readonly AbstractPaymentMethodRoute $paymentMethodRoute,
+        private readonly AbstractShippingMethodRoute $shippingMethodRoute,
+        private readonly EventDispatcherInterface $eventDispatcher
+    ) {
     }
 
     public function load(Request $request, SalesChannelContext $context): Page

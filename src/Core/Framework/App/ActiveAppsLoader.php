@@ -11,6 +11,7 @@ use Symfony\Contracts\Service\ResetInterface;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ *
  * @phpstan-type App array{name: string, path: string, author: string|null}
  */
 #[Package('core')]
@@ -21,8 +22,10 @@ class ActiveAppsLoader implements ResetInterface
      */
     private ?array $activeApps = null;
 
-    public function __construct(private readonly Connection $connection, private readonly AbstractAppLoader $appLoader)
-    {
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly AbstractAppLoader $appLoader
+    ) {
     }
 
     /**

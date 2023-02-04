@@ -9,8 +9,10 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('merchant-services')]
 class InvalidExtensionIdException extends ShopwareHttpException
 {
-    public function __construct(array $parameters = [], ?\Throwable $e = null)
-    {
+    public function __construct(
+        array $parameters = [],
+        ?\Throwable $e = null
+    ) {
         parent::__construct('The extension id must be an non empty numeric value.', $parameters, $e);
     }
 

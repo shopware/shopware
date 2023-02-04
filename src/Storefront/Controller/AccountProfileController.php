@@ -30,8 +30,15 @@ class AccountProfileController extends StorefrontController
     /**
      * @internal
      */
-    public function __construct(private readonly AccountOverviewPageLoader $overviewPageLoader, private readonly AccountProfilePageLoader $profilePageLoader, private readonly AbstractChangeCustomerProfileRoute $changeCustomerProfileRoute, private readonly AbstractChangePasswordRoute $changePasswordRoute, private readonly AbstractChangeEmailRoute $changeEmailRoute, private readonly AbstractDeleteCustomerRoute $deleteCustomerRoute, private readonly LoggerInterface $logger)
-    {
+    public function __construct(
+        private readonly AccountOverviewPageLoader $overviewPageLoader,
+        private readonly AccountProfilePageLoader $profilePageLoader,
+        private readonly AbstractChangeCustomerProfileRoute $changeCustomerProfileRoute,
+        private readonly AbstractChangePasswordRoute $changePasswordRoute,
+        private readonly AbstractChangeEmailRoute $changeEmailRoute,
+        private readonly AbstractDeleteCustomerRoute $deleteCustomerRoute,
+        private readonly LoggerInterface $logger
+    ) {
     }
 
     #[Route(path: '/account', name: 'frontend.account.home.page', defaults: ['_loginRequired' => true, '_noStore' => true], methods: ['GET'])]

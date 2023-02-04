@@ -23,8 +23,12 @@ class ProductExporter implements ProductExporterInterface
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $productExportRepository, private readonly ProductExportGeneratorInterface $productExportGenerator, private readonly EventDispatcherInterface $eventDispatcher, private readonly ProductExportFileHandlerInterface $productExportFileHandler)
-    {
+    public function __construct(
+        private readonly EntityRepository $productExportRepository,
+        private readonly ProductExportGeneratorInterface $productExportGenerator,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly ProductExportFileHandlerInterface $productExportFileHandler
+    ) {
     }
 
     public function export(

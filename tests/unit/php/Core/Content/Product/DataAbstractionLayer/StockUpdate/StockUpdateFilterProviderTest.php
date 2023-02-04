@@ -9,6 +9,7 @@ use Shopware\Tests\Unit\Common\Stubs\DataAbstractionLayer\StockUpdate\TestStockU
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Content\Product\DataAbstractionLayer\StockUpdate\StockUpdateFilterProvider
  */
 class StockUpdateFilterProviderTest extends TestCase

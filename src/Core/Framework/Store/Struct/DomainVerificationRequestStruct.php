@@ -21,8 +21,10 @@ class DomainVerificationRequestStruct extends Struct
      */
     protected $fileName;
 
-    public function __construct(string $content, string $filename)
-    {
+    public function __construct(
+        string $content,
+        string $filename
+    ) {
         $this->content = $content;
         $this->fileName = $filename;
     }

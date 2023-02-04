@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\Response;
  * @package content
  *
  * @internal
+ *
  * @covers \Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\AdminUiXmlSchemaValidator
  * @covers \Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityConfigurationException
  */

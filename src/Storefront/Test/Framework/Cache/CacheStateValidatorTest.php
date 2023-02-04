@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
+ *
  * @group cache
  */
 class CacheStateValidatorTest extends TestCase

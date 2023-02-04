@@ -9,8 +9,10 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('business-ops')]
 class FlowIndexerEvent extends NestedEvent
 {
-    public function __construct(private readonly array $ids, private readonly Context $context)
-    {
+    public function __construct(
+        private readonly array $ids,
+        private readonly Context $context
+    ) {
     }
 
     public function getContext(): Context

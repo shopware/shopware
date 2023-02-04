@@ -19,8 +19,10 @@ class AffiliateCodeRule extends Rule
     /**
      * @internal
      */
-    public function __construct(protected string $operator = self::OPERATOR_EQ, protected ?string $affiliateCode = null)
-    {
+    public function __construct(
+        protected string $operator = self::OPERATOR_EQ,
+        protected ?string $affiliateCode = null
+    ) {
         parent::__construct();
     }
 

@@ -28,8 +28,14 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
     /**
      * @internal
      */
-    public function __construct(private readonly Client $client, private readonly EntitySearcherInterface $decorated, private readonly ElasticsearchHelper $helper, private readonly CriteriaParser $criteriaParser, private readonly AbstractElasticsearchSearchHydrator $hydrator, private readonly EventDispatcherInterface $eventDispatcher)
-    {
+    public function __construct(
+        private readonly Client $client,
+        private readonly EntitySearcherInterface $decorated,
+        private readonly ElasticsearchHelper $helper,
+        private readonly CriteriaParser $criteriaParser,
+        private readonly AbstractElasticsearchSearchHydrator $hydrator,
+        private readonly EventDispatcherInterface $eventDispatcher
+    ) {
     }
 
     public function search(EntityDefinition $definition, Criteria $criteria, Context $context): IdSearchResult

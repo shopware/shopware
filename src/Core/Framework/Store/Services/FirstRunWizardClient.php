@@ -21,6 +21,7 @@ use Symfony\Component\HttpFoundation\Request;
  * }
  *
  * @internal
+ *
  * @final
  */
 #[Package('merchant-services')]

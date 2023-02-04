@@ -10,6 +10,7 @@ use Shopware\Core\Migration\V6_5\Migration1669125399DropEnqueueTable;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1629700169AddEnqueueIndex
  */
 class Migration1629700169AddEnqueueIndexTest extends TestCase

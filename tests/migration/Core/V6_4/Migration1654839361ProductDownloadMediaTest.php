@@ -11,6 +11,7 @@ use Shopware\Core\Migration\V6_4\Migration1654839361ProductDownloadMedia;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1654839361ProductDownloadMedia
  */
 class Migration1654839361ProductDownloadMediaTest extends TestCase

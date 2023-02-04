@@ -68,8 +68,20 @@ class SalesChannelProxyController extends AbstractController
     /**
      * @internal
      */
-    public function __construct(private readonly KernelInterface $kernel, private readonly EntityRepository $salesChannelRepository, protected DataValidator $validator, protected SalesChannelContextPersister $contextPersister, private readonly SalesChannelRequestContextResolver $requestContextResolver, private readonly SalesChannelContextServiceInterface $contextService, private readonly EventDispatcherInterface $eventDispatcher, private readonly ApiOrderCartService $adminOrderCartService, private readonly AbstractCartOrderRoute $orderRoute, private readonly CartService $cartService, private readonly Connection $connection, private readonly RequestStack $requestStack)
-    {
+    public function __construct(
+        private readonly KernelInterface $kernel,
+        private readonly EntityRepository $salesChannelRepository,
+        protected DataValidator $validator,
+        protected SalesChannelContextPersister $contextPersister,
+        private readonly SalesChannelRequestContextResolver $requestContextResolver,
+        private readonly SalesChannelContextServiceInterface $contextService,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly ApiOrderCartService $adminOrderCartService,
+        private readonly AbstractCartOrderRoute $orderRoute,
+        private readonly CartService $cartService,
+        private readonly Connection $connection,
+        private readonly RequestStack $requestStack
+    ) {
     }
 
     #[Route(path: '/api/_proxy/store-api/{salesChannelId}/{_path}', name: 'api.proxy.store-api', requirements: ['_path' => '.*'])]

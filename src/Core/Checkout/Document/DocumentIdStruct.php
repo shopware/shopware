@@ -8,8 +8,11 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('customer-order')]
 class DocumentIdStruct extends Struct
 {
-    public function __construct(protected string $id, protected string $deepLinkCode, protected ?string $mediaId = null)
-    {
+    public function __construct(
+        protected string $id,
+        protected string $deepLinkCode,
+        protected ?string $mediaId = null
+    ) {
     }
 
     public function getDeepLinkCode(): string

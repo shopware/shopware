@@ -24,8 +24,12 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Package('merchant-services')]
 class ExtensionStoreActionsController extends AbstractController
 {
-    public function __construct(private readonly AbstractExtensionLifecycle $extensionLifecycleService, private readonly ExtensionDownloader $extensionDownloader, private readonly PluginService $pluginService, private readonly PluginManagementService $pluginManagementService)
-    {
+    public function __construct(
+        private readonly AbstractExtensionLifecycle $extensionLifecycleService,
+        private readonly ExtensionDownloader $extensionDownloader,
+        private readonly PluginService $pluginService,
+        private readonly PluginManagementService $pluginManagementService
+    ) {
     }
 
     #[Route(path: '/api/_action/extension/refresh', name: 'api.extension.refresh', methods: ['POST'])]

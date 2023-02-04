@@ -14,8 +14,10 @@ class FakeLineItemGroupSorter implements LineItemGroupSorterInterface
 {
     private int $sequenceCount = 0;
 
-    public function __construct(private readonly string $key, private readonly FakeSequenceSupervisor $sequenceSupervisor)
-    {
+    public function __construct(
+        private readonly string $key,
+        private readonly FakeSequenceSupervisor $sequenceSupervisor
+    ) {
     }
 
     public function getSequenceCount(): int

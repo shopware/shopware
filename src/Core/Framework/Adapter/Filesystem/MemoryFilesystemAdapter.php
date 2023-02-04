@@ -34,8 +34,10 @@ class MemoryFilesystemAdapter implements FilesystemAdapter
 
     private readonly FinfoMimeTypeDetector|MimeTypeDetector $mimeTypeDetector;
 
-    public function __construct(private readonly string $defaultVisibility = Visibility::PUBLIC, ?MimeTypeDetector $mimeTypeDetector = null)
-    {
+    public function __construct(
+        private readonly string $defaultVisibility = Visibility::PUBLIC,
+        ?MimeTypeDetector $mimeTypeDetector = null
+    ) {
         $this->mimeTypeDetector = $mimeTypeDetector ?: new FinfoMimeTypeDetector();
     }
 

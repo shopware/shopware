@@ -48,8 +48,20 @@ class AccountOrderController extends StorefrontController
     /**
      * @internal
      */
-    public function __construct(private readonly AccountOrderPageLoader $orderPageLoader, private readonly AccountEditOrderPageLoader $accountEditOrderPageLoader, private readonly AbstractContextSwitchRoute $contextSwitchRoute, private readonly AbstractCancelOrderRoute $cancelOrderRoute, private readonly AbstractSetPaymentOrderRoute $setPaymentOrderRoute, private readonly AbstractHandlePaymentMethodRoute $handlePaymentMethodRoute, private readonly EventDispatcherInterface $eventDispatcher, private readonly AccountOrderDetailPageLoader $orderDetailPageLoader, private readonly AbstractOrderRoute $orderRoute, private readonly SalesChannelContextServiceInterface $contextService, private readonly SystemConfigService $systemConfigService, private readonly OrderService $orderService)
-    {
+    public function __construct(
+        private readonly AccountOrderPageLoader $orderPageLoader,
+        private readonly AccountEditOrderPageLoader $accountEditOrderPageLoader,
+        private readonly AbstractContextSwitchRoute $contextSwitchRoute,
+        private readonly AbstractCancelOrderRoute $cancelOrderRoute,
+        private readonly AbstractSetPaymentOrderRoute $setPaymentOrderRoute,
+        private readonly AbstractHandlePaymentMethodRoute $handlePaymentMethodRoute,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly AccountOrderDetailPageLoader $orderDetailPageLoader,
+        private readonly AbstractOrderRoute $orderRoute,
+        private readonly SalesChannelContextServiceInterface $contextService,
+        private readonly SystemConfigService $systemConfigService,
+        private readonly OrderService $orderService
+    ) {
     }
 
     #[Route(path: '/account/order', name: 'frontend.account.order.page', options: ['seo' => false], defaults: ['XmlHttpRequest' => true, '_loginRequired' => true, '_loginRequiredAllowGuest' => true, '_noStore' => true], methods: ['GET', 'POST'])]

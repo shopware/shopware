@@ -20,8 +20,10 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 #[Package('system-settings')]
 class DownloadService
 {
-    public function __construct(private readonly FilesystemOperator $filesystem, private readonly EntityRepository $fileRepository)
-    {
+    public function __construct(
+        private readonly FilesystemOperator $filesystem,
+        private readonly EntityRepository $fileRepository
+    ) {
     }
 
     public function regenerateToken(Context $context, string $fileId): string

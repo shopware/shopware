@@ -12,6 +12,7 @@ use Twig\Loader\FilesystemLoader;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Framework\DependencyInjection\CompilerPass\TwigLoaderConfigCompilerPass
  */
 class TwigLoaderConfigCompilerPassTest extends TestCase

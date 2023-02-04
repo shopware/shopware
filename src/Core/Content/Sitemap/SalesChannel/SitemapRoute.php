@@ -20,8 +20,11 @@ class SitemapRoute extends AbstractSitemapRoute
     /**
      * @internal
      */
-    public function __construct(private readonly SitemapListerInterface $sitemapLister, private readonly SystemConfigService $systemConfigService, private readonly SitemapExporterInterface $sitemapExporter)
-    {
+    public function __construct(
+        private readonly SitemapListerInterface $sitemapLister,
+        private readonly SystemConfigService $systemConfigService,
+        private readonly SitemapExporterInterface $sitemapExporter
+    ) {
     }
 
     #[Route(path: '/store-api/sitemap', name: 'store-api.sitemap', methods: ['GET', 'POST'])]

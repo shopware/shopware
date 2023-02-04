@@ -22,8 +22,12 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[Package('system-settings')]
 final class ProductStreamAdminSearchIndexer extends AbstractAdminIndexer
 {
-    public function __construct(private readonly Connection $connection, private readonly IteratorFactory $factory, private readonly EntityRepository $repository, private readonly int $indexingBatchSize)
-    {
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly IteratorFactory $factory,
+        private readonly EntityRepository $repository,
+        private readonly int $indexingBatchSize
+    ) {
     }
 
     public function getDecorated(): AbstractAdminIndexer

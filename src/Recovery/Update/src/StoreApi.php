@@ -22,8 +22,10 @@ class StoreApi
     /**
      * @param string $baseUrl
      */
-    public function __construct(Client $client, $baseUrl)
-    {
+    public function __construct(
+        Client $client,
+        $baseUrl
+    ) {
         $this->client = $client;
         $this->baseUrl = $baseUrl;
     }

@@ -11,8 +11,13 @@ class MockSnippetFile extends AbstractSnippetFile
 {
     private readonly string $iso;
 
-    public function __construct(private readonly string $name, ?string $iso = null, private readonly string $content = '{}', private readonly bool $isBase = true, private readonly string $technicalName = 'mock')
-    {
+    public function __construct(
+        private readonly string $name,
+        ?string $iso = null,
+        private readonly string $content = '{}',
+        private readonly bool $isBase = true,
+        private readonly string $technicalName = 'mock'
+    ) {
         $this->iso = $iso ?? $name;
     }
 

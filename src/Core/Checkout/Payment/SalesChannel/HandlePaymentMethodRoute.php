@@ -21,8 +21,10 @@ class HandlePaymentMethodRoute extends AbstractHandlePaymentMethodRoute
     /**
      * @internal
      */
-    public function __construct(private readonly PaymentService $paymentService, private readonly DataValidator $dataValidator)
-    {
+    public function __construct(
+        private readonly PaymentService $paymentService,
+        private readonly DataValidator $dataValidator
+    ) {
     }
 
     public function getDecorated(): AbstractHandlePaymentMethodRoute

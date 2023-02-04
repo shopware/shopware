@@ -14,8 +14,12 @@ class SyncOperation extends Struct
     /**
      * @param array<int, mixed> $payload
      */
-    public function __construct(protected string $key, protected string $entity, protected string $action, protected array $payload)
-    {
+    public function __construct(
+        protected string $key,
+        protected string $entity,
+        protected string $action,
+        protected array $payload
+    ) {
     }
 
     public function getEntity(): string

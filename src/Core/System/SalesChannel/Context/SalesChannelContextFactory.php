@@ -37,8 +37,17 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
      *
      * @param iterable<TaxRuleTypeFilterInterface> $taxRuleTypeFilter
      */
-    public function __construct(private readonly EntityRepository $customerRepository, private readonly EntityRepository $customerGroupRepository, private readonly EntityRepository $addressRepository, private readonly EntityRepository $paymentMethodRepository, private readonly TaxDetector $taxDetector, private readonly iterable $taxRuleTypeFilter, private readonly EventDispatcherInterface $eventDispatcher, private readonly EntityRepository $currencyCountryRepository, private readonly AbstractBaseContextFactory $baseContextFactory)
-    {
+    public function __construct(
+        private readonly EntityRepository $customerRepository,
+        private readonly EntityRepository $customerGroupRepository,
+        private readonly EntityRepository $addressRepository,
+        private readonly EntityRepository $paymentMethodRepository,
+        private readonly TaxDetector $taxDetector,
+        private readonly iterable $taxRuleTypeFilter,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly EntityRepository $currencyCountryRepository,
+        private readonly AbstractBaseContextFactory $baseContextFactory
+    ) {
     }
 
     public function getDecorated(): AbstractSalesChannelContextFactory
@@ -158,6 +167,7 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
     /**
      * @group not-deterministic
      * NEXT-21735 - This is covered randomly
+     *
      * @codeCoverageIgnore
      *
      * @param array<string, mixed> $options
@@ -253,6 +263,7 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
      *
      * @group not-deterministic
      * NEXT-21735 - This is covered randomly
+     *
      * @codeCoverageIgnore
      */
     private function getCashRounding(BaseContext $context, ShippingLocation $shippingLocation): array

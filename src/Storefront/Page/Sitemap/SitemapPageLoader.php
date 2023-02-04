@@ -15,8 +15,10 @@ class SitemapPageLoader
     /**
      * @internal
      */
-    public function __construct(private readonly EventDispatcherInterface $eventDispatcher, private readonly AbstractSitemapRoute $sitemapRoute)
-    {
+    public function __construct(
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly AbstractSitemapRoute $sitemapRoute
+    ) {
     }
 
     /**

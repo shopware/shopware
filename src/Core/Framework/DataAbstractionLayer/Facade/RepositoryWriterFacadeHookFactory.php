@@ -15,8 +15,11 @@ use Shopware\Core\Framework\Script\Execution\Script;
 #[Package('core')]
 class RepositoryWriterFacadeHookFactory extends HookServiceFactory
 {
-    public function __construct(private readonly DefinitionInstanceRegistry $registry, private readonly AppContextCreator $appContextCreator, private readonly SyncService $syncService)
-    {
+    public function __construct(
+        private readonly DefinitionInstanceRegistry $registry,
+        private readonly AppContextCreator $appContextCreator,
+        private readonly SyncService $syncService
+    ) {
     }
 
     public function factory(Hook $hook, Script $script): RepositoryWriterFacade

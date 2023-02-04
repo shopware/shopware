@@ -18,8 +18,12 @@ class ElasticsearchDateHistogramAggregation extends AbstractAggregation
 
     protected ?string $format = null;
 
-    public function __construct(string $name, string $field, string $interval, ?string $format = null)
-    {
+    public function __construct(
+        string $name,
+        string $field,
+        string $interval,
+        ?string $format = null
+    ) {
         parent::__construct($name);
 
         $this->setField($field);

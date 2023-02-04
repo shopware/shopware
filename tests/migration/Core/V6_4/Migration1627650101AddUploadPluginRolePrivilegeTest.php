@@ -11,6 +11,7 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1627650101AddUploadPluginRolePrivilege
  */
 class Migration1627650101AddUploadPluginRolePrivilegeTest extends TestCase

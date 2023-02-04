@@ -20,8 +20,10 @@ class AddOrderAffiliateAndCampaignCodeAction extends FlowAction implements Delay
     /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection, private readonly EntityRepository $orderRepository)
-    {
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly EntityRepository $orderRepository
+    ) {
     }
 
     public static function getName(): string

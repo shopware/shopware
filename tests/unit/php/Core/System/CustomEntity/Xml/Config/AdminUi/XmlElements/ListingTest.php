@@ -10,6 +10,7 @@ use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Listing;
  * @package content
  *
  * @internal
+ *
  * @covers \Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Listing
  */
 class ListingTest extends TestCase

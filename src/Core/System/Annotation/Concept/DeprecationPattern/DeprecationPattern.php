@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @Annotation
+ *
  * @Target("CLASS")
  *
  * We will document our patterns used to do normally breaking changes in a backward compatible way.

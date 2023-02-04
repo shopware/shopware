@@ -29,8 +29,17 @@ class CartService implements ResetInterface
     /**
      * @internal
      */
-    public function __construct(private readonly AbstractCartPersister $persister, private readonly EventDispatcherInterface $eventDispatcher, private readonly CartCalculator $calculator, private readonly AbstractCartLoadRoute $loadRoute, private readonly AbstractCartDeleteRoute $deleteRoute, private readonly AbstractCartItemAddRoute $itemAddRoute, private readonly AbstractCartItemUpdateRoute $itemUpdateRoute, private readonly AbstractCartItemRemoveRoute $itemRemoveRoute, private readonly AbstractCartOrderRoute $orderRoute)
-    {
+    public function __construct(
+        private readonly AbstractCartPersister $persister,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly CartCalculator $calculator,
+        private readonly AbstractCartLoadRoute $loadRoute,
+        private readonly AbstractCartDeleteRoute $deleteRoute,
+        private readonly AbstractCartItemAddRoute $itemAddRoute,
+        private readonly AbstractCartItemUpdateRoute $itemUpdateRoute,
+        private readonly AbstractCartItemRemoveRoute $itemRemoveRoute,
+        private readonly AbstractCartOrderRoute $orderRoute
+    ) {
     }
 
     public function setCart(Cart $cart): void

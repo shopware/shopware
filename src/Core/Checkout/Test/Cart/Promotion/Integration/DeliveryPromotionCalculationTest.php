@@ -23,6 +23,7 @@ use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
+ *
  * @group slow
  */
 #[Package('checkout')]
@@ -63,7 +64,6 @@ class DeliveryPromotionCalculationTest extends TestCase
      * We add a product and also an absolute promotion.
      * Our final delivery price should then be as expected.
      *
-     * @test
      * @group promotions
      *
      * @throws CartException
@@ -103,7 +103,6 @@ class DeliveryPromotionCalculationTest extends TestCase
      * We add a product and also an percentage promotion.
      * Our final delivery price should then be as expected.
      *
-     * @test
      * @group promotions
      *
      * @throws CartException
@@ -143,7 +142,6 @@ class DeliveryPromotionCalculationTest extends TestCase
      * We only add a product and got a auto promotion.
      * Our final delivery price should then be as expected.
      *
-     * @test
      * @group promotions
      *
      * @throws CartException
@@ -216,7 +214,6 @@ class DeliveryPromotionCalculationTest extends TestCase
     /**
      * function tests that an absolute discount may not reduce shipping costs beneath 0
      *
-     * @test
      * @group promotions
      *
      * @throws Exception
@@ -253,7 +250,6 @@ class DeliveryPromotionCalculationTest extends TestCase
     /**
      * function tests that an fixed price discount may not increase shipping costs
      *
-     * @test
      * @group promotions
      *
      * @throws Exception
@@ -290,7 +286,6 @@ class DeliveryPromotionCalculationTest extends TestCase
     /**
      * function tests that an fixed price discount sets shipping costs to the defined price
      *
-     * @test
      * @group promotions
      *
      * @throws Exception
@@ -328,7 +323,6 @@ class DeliveryPromotionCalculationTest extends TestCase
      * function tests that an fixed price discount that has currency advanced
      * prices, sets shipping costs to the defined advanced currency price
      *
-     * @test
      * @group promotions
      *
      * @throws Exception
@@ -371,7 +365,6 @@ class DeliveryPromotionCalculationTest extends TestCase
      * function tests that an fixed price discount sets shipping costs to the defined price
      * all other discounts are ignored when fixed price discount is present
      *
-     * @test
      * @group promotions
      *
      * @throws Exception
@@ -417,7 +410,6 @@ class DeliveryPromotionCalculationTest extends TestCase
      * function tests that an fixed price discount sets shipping costs to the defined price
      * all other discount are ignored when fixed price discount is present
      *
-     * @test
      * @group promotions
      *
      * NEXT-21735 - Sometimes has a $reduceValue of 0
@@ -464,7 +456,6 @@ class DeliveryPromotionCalculationTest extends TestCase
      * function tests that if several fixed price discount are collected
      * only one and the best customer discount will be selected
      *
-     * @test
      * @group promotions
      *
      * @throws Exception
@@ -516,7 +507,6 @@ class DeliveryPromotionCalculationTest extends TestCase
      * Our test needs to verify that we use 40 EUR, and end with a shipping cost
      * sum of 60 EUR in the end.
      *
-     * @test
      * @group promotions
      */
     public function test50PercentageDeliveryDiscountWithMaximumValue(): void
@@ -563,7 +553,6 @@ class DeliveryPromotionCalculationTest extends TestCase
      * But for your currency, we use 30 EUR instead.
      * Our test needs to verify that we use 30 EUR, and end with a product sum of 70 EUR in the end.
      *
-     * @test
      * @group promotions
      */
     public function test50PercentageDeliveryDiscountWithMaximumValueAndCurrencies(): void
@@ -606,7 +595,6 @@ class DeliveryPromotionCalculationTest extends TestCase
      * This test verifies that we use the same tax calculation for our discounts
      * as the delivery costs have (they take them from products)
      *
-     * @test
      * @group promotions
      */
     public function testMultipleDiscountsWithMultipleTaxProducts(): void

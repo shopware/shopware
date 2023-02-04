@@ -22,8 +22,10 @@ class CustomerFlowEventsSubscriber implements EventSubscriberInterface
     /**
      * @internal
      */
-    public function __construct(private readonly EventDispatcherInterface $dispatcher, private readonly SalesChannelContextRestorer $restorer)
-    {
+    public function __construct(
+        private readonly EventDispatcherInterface $dispatcher,
+        private readonly SalesChannelContextRestorer $restorer
+    ) {
     }
 
     /**

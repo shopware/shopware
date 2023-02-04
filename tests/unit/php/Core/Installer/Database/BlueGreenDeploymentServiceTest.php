@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Installer\Database\BlueGreenDeploymentService
  */
 class BlueGreenDeploymentServiceTest extends TestCase

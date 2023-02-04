@@ -18,6 +18,7 @@ use Symfony\Component\HttpFoundation\Request;
  * @package merchant-services
  *
  * @internal
+ *
  * @covers \Shopware\Core\Framework\Store\Services\FirstRunWizardClient
  */
 class FirstRunWizardClientTest extends TestCase

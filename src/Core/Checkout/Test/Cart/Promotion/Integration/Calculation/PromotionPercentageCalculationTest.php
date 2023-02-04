@@ -230,6 +230,7 @@ class PromotionPercentageCalculationTest extends TestCase
      * We must not get a division by zero!
      *
      * @group promotions
+     *
      * @ticket NEXT-4146
      */
     public function testPercentagePromotionDivisionByZero(): void

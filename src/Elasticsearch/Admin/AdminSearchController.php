@@ -20,8 +20,12 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Package('system-settings')]
 final class AdminSearchController
 {
-    public function __construct(private readonly AdminSearcher $searcher, private readonly DefinitionInstanceRegistry $definitionRegistry, private readonly JsonEntityEncoder $entityEncoder, private readonly AdminElasticsearchHelper $adminEsHelper)
-    {
+    public function __construct(
+        private readonly AdminSearcher $searcher,
+        private readonly DefinitionInstanceRegistry $definitionRegistry,
+        private readonly JsonEntityEncoder $entityEncoder,
+        private readonly AdminElasticsearchHelper $adminEsHelper
+    ) {
     }
 
     #[Route(path: '/api/_admin/es-search', name: 'api.admin.es-search', methods: ['POST'], defaults: ['_routeScope' => ['administration']])]

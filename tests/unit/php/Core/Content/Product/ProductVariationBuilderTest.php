@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Content\Product\ProductVariationBuilder
  */
 class ProductVariationBuilderTest extends TestCase
@@ -21,7 +22,7 @@ class ProductVariationBuilderTest extends TestCase
     /**
      * @dataProvider buildingProvider
      *
-     * @param array<array<string,string>> $expected
+     * @param array<array<string, string>> $expected
      */
     public function testBuilding(Entity $product, array $expected): void
     {

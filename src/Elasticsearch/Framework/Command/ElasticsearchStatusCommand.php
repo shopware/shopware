@@ -28,8 +28,10 @@ class ElasticsearchStatusCommand extends Command
     /**
      * @internal
      */
-    public function __construct(private readonly Client $client, private readonly Connection $connection)
-    {
+    public function __construct(
+        private readonly Client $client,
+        private readonly Connection $connection
+    ) {
         parent::__construct();
     }
 

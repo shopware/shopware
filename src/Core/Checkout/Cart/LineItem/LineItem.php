@@ -81,8 +81,12 @@ class LineItem extends Struct
     /**
      * @throws CartException
      */
-    public function __construct(protected string $id, protected string $type, protected ?string $referencedId = null, int $quantity = 1)
-    {
+    public function __construct(
+        protected string $id,
+        protected string $type,
+        protected ?string $referencedId = null,
+        int $quantity = 1
+    ) {
         $this->uniqueIdentifier = Uuid::randomHex();
         $this->children = new LineItemCollection();
 

@@ -168,6 +168,7 @@ class EnvironmentHelperTest extends TestCase
 
     /**
      * @before
+     *
      * @after
      */
     public function removeAllTransformers(): void

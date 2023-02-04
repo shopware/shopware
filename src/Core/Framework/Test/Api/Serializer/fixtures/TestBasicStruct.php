@@ -28,7 +28,7 @@ class TestBasicStruct extends SerializationFixture
     }
 
     /**
-     * @return array<string,mixed>
+     * @return array<string, mixed>
      */
     protected function getJsonApiFixtures(string $baseUrl): array
     {
@@ -188,7 +188,7 @@ class TestBasicStruct extends SerializationFixture
     }
 
     /**
-     * @return array<string,mixed>
+     * @return array<string, mixed>
      */
     protected function getJsonFixtures(): array
     {
@@ -240,9 +240,9 @@ class TestBasicStruct extends SerializationFixture
     }
 
     /**
-     * @param array<string,mixed> $fixtures
+     * @param array<string, mixed> $fixtures
      *
-     * @return array<string,mixed>
+     * @return array<string, mixed>
      */
     protected function removeProtectedSalesChannelJsonApiData(array $fixtures): array
     {
@@ -275,9 +275,9 @@ class TestBasicStruct extends SerializationFixture
     }
 
     /**
-     * @param array<string,mixed> $fixtures
+     * @param array<string, mixed> $fixtures
      *
-     * @return array<string,mixed>
+     * @return array<string, mixed>
      */
     protected function removeProtectedSalesChannelJsonData(array $fixtures): array
     {

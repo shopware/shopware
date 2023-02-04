@@ -9,8 +9,11 @@ use Symfony\Contracts\EventDispatcher\Event;
 #[Package('system-settings')]
 class ImportExportBeforeExportRecordEvent extends Event
 {
-    public function __construct(private readonly Config $config, private array $record, private readonly array $originalRecord)
-    {
+    public function __construct(
+        private readonly Config $config,
+        private array $record,
+        private readonly array $originalRecord
+    ) {
     }
 
     public function getRecord(): array

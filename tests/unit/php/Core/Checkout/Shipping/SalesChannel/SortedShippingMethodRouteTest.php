@@ -30,6 +30,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Checkout\Shipping\SalesChannel\SortedShippingMethodRoute
  */
 class SortedShippingMethodRouteTest extends TestCase

@@ -9,8 +9,10 @@ use Symfony\Contracts\EventDispatcher\Event;
 #[Package('storefront')]
 class HttpCacheGenerateKeyEvent extends Event
 {
-    public function __construct(private readonly Request $request, private string $hash)
-    {
+    public function __construct(
+        private readonly Request $request,
+        private string $hash
+    ) {
     }
 
     public function getRequest(): Request

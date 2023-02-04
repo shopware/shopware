@@ -37,7 +37,6 @@ class PromotionHandlingTest extends TestCase
      * This test verifies that our promotions are not added
      * if our cart is empty and has no products yet.
      *
-     * @test
      * @group promotions
      */
     public function testPromotionNotAddedWithoutProduct(): void
@@ -60,7 +59,6 @@ class PromotionHandlingTest extends TestCase
      * This test verifies that our promotions are correctly
      * removed when also removing the last product
      *
-     * @test
      * @group promotions
      */
     public function testPromotionsRemovedWithProduct(): void

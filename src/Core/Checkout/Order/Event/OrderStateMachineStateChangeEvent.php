@@ -22,8 +22,11 @@ class OrderStateMachineStateChangeEvent extends Event implements SalesChannelAwa
 {
     private ?MailRecipientStruct $mailRecipientStruct = null;
 
-    public function __construct(private readonly string $name, private readonly OrderEntity $order, private readonly Context $context)
-    {
+    public function __construct(
+        private readonly string $name,
+        private readonly OrderEntity $order,
+        private readonly Context $context
+    ) {
     }
 
     public function getOrder(): OrderEntity

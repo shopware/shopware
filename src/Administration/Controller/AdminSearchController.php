@@ -27,8 +27,15 @@ class AdminSearchController extends AbstractController
     /**
      * @internal
      */
-    public function __construct(private readonly RequestCriteriaBuilder $requestCriteriaBuilder, private readonly DefinitionInstanceRegistry $definitionInstanceRegistry, private readonly AdminSearcher $searcher, private readonly DecoderInterface $serializer, private readonly AclCriteriaValidator $criteriaValidator, private readonly DefinitionInstanceRegistry $definitionRegistry, private readonly JsonEntityEncoder $entityEncoder)
-    {
+    public function __construct(
+        private readonly RequestCriteriaBuilder $requestCriteriaBuilder,
+        private readonly DefinitionInstanceRegistry $definitionInstanceRegistry,
+        private readonly AdminSearcher $searcher,
+        private readonly DecoderInterface $serializer,
+        private readonly AclCriteriaValidator $criteriaValidator,
+        private readonly DefinitionInstanceRegistry $definitionRegistry,
+        private readonly JsonEntityEncoder $entityEncoder
+    ) {
     }
 
     #[Route(path: '/api/_admin/search', name: 'api.admin.search', defaults: ['_routeScope' => ['administration']], methods: ['POST'])]

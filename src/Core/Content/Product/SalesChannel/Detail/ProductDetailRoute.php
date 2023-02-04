@@ -32,8 +32,15 @@ class ProductDetailRoute extends AbstractProductDetailRoute
     /**
      * @internal
      */
-    public function __construct(private readonly SalesChannelRepository $productRepository, private readonly SystemConfigService $config, private readonly ProductConfiguratorLoader $configuratorLoader, private readonly CategoryBreadcrumbBuilder $breadcrumbBuilder, private readonly SalesChannelCmsPageLoaderInterface $cmsPageLoader, private readonly SalesChannelProductDefinition $productDefinition, private readonly AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory)
-    {
+    public function __construct(
+        private readonly SalesChannelRepository $productRepository,
+        private readonly SystemConfigService $config,
+        private readonly ProductConfiguratorLoader $configuratorLoader,
+        private readonly CategoryBreadcrumbBuilder $breadcrumbBuilder,
+        private readonly SalesChannelCmsPageLoaderInterface $cmsPageLoader,
+        private readonly SalesChannelProductDefinition $productDefinition,
+        private readonly AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory
+    ) {
     }
 
     public function getDecorated(): AbstractProductDetailRoute

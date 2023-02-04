@@ -11,6 +11,7 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1625465756DefaultSalutation
  */
 class Migration1625465756DefaultSalutationTest extends TestCase

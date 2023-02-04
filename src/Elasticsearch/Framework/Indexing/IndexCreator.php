@@ -24,8 +24,12 @@ class IndexCreator
      * @param array<mixed> $config
      * @param array<mixed> $mapping
      */
-    public function __construct(private readonly Client $client, array $config, private readonly array $mapping, private readonly EventDispatcherInterface $eventDispatcher)
-    {
+    public function __construct(
+        private readonly Client $client,
+        array $config,
+        private readonly array $mapping,
+        private readonly EventDispatcherInterface $eventDispatcher
+    ) {
         if (isset($config['settings']['index'])) {
             if (\array_key_exists('number_of_shards', $config['settings']['index']) && $config['settings']['index']['number_of_shards'] === null) {
                 unset($config['settings']['index']['number_of_shards']);

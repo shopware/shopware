@@ -25,8 +25,13 @@ class ConfigurationService
      *
      * @param BundleInterface[] $bundles
      */
-    public function __construct(private readonly iterable $bundles, private readonly ConfigReader $configReader, private readonly AbstractAppLoader $appLoader, private readonly EntityRepository $appRepository, private readonly SystemConfigService $systemConfigService)
-    {
+    public function __construct(
+        private readonly iterable $bundles,
+        private readonly ConfigReader $configReader,
+        private readonly AbstractAppLoader $appLoader,
+        private readonly EntityRepository $appRepository,
+        private readonly SystemConfigService $systemConfigService
+    ) {
     }
 
     /**

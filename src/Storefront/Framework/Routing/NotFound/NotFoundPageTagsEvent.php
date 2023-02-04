@@ -14,8 +14,11 @@ class NotFoundPageTagsEvent implements ShopwareEvent
     /**
      * @param array<string> $tags
      */
-    public function __construct(private array $tags, private readonly Request $request, private readonly SalesChannelContext $context)
-    {
+    public function __construct(
+        private array $tags,
+        private readonly Request $request,
+        private readonly SalesChannelContext $context
+    ) {
     }
 
     public function getContext(): Context

@@ -19,8 +19,12 @@ class MigrationCollection
     /**
      * @internal
      */
-    public function __construct(private readonly MigrationSource $migrationSource, private readonly MigrationRuntime $migrationRuntime, private readonly Connection $connection, private readonly ?LoggerInterface $logger = null)
-    {
+    public function __construct(
+        private readonly MigrationSource $migrationSource,
+        private readonly MigrationRuntime $migrationRuntime,
+        private readonly Connection $connection,
+        private readonly ?LoggerInterface $logger = null
+    ) {
     }
 
     public function getName(): string

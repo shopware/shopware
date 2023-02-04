@@ -11,8 +11,11 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('storefront')]
 class NotFoundPageCacheKeyEvent implements ShopwareEvent
 {
-    public function __construct(private string $key, private readonly Request $request, private readonly SalesChannelContext $context)
-    {
+    public function __construct(
+        private string $key,
+        private readonly Request $request,
+        private readonly SalesChannelContext $context
+    ) {
     }
 
     public function getContext(): Context

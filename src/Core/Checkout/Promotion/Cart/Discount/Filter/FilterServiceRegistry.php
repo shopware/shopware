@@ -12,8 +12,10 @@ class FilterServiceRegistry
     /**
      * @internal
      */
-    public function __construct(private readonly iterable $sorters, private readonly iterable $pickers)
-    {
+    public function __construct(
+        private readonly iterable $sorters,
+        private readonly iterable $pickers
+    ) {
     }
 
     /**

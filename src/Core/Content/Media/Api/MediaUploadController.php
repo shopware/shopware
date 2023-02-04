@@ -24,8 +24,12 @@ class MediaUploadController extends AbstractController
     /**
      * @internal
      */
-    public function __construct(private readonly MediaService $mediaService, private readonly FileSaver $fileSaver, private readonly FileNameProvider $fileNameProvider, private readonly MediaDefinition $mediaDefinition)
-    {
+    public function __construct(
+        private readonly MediaService $mediaService,
+        private readonly FileSaver $fileSaver,
+        private readonly FileNameProvider $fileNameProvider,
+        private readonly MediaDefinition $mediaDefinition
+    ) {
     }
 
     #[Route(path: '/api/_action/media/{mediaId}/upload', name: 'api.action.media.upload', methods: ['POST'])]

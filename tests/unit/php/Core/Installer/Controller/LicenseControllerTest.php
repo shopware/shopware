@@ -14,6 +14,7 @@ use Twig\Environment;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Installer\Controller\LicenseController
  */
 class LicenseControllerTest extends TestCase

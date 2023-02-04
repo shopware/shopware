@@ -31,6 +31,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute
  */
 class ProductDetailRouteTest extends TestCase

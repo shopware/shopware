@@ -12,6 +12,7 @@ use Shopware\Core\Migration\V6_4\Migration1647511158AddRefundUrlToAppPaymentMeth
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1616076922AppPaymentMethod
  */
 class Migration1616076922AppPaymentMethodTest extends TestCase

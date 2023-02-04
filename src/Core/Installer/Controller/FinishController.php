@@ -18,8 +18,12 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Package('core')]
 class FinishController extends InstallerController
 {
-    public function __construct(private readonly SystemLocker $systemLocker, private readonly Notifier $notifier, private readonly Client $client, private readonly string $appUrl)
-    {
+    public function __construct(
+        private readonly SystemLocker $systemLocker,
+        private readonly Notifier $notifier,
+        private readonly Client $client,
+        private readonly string $appUrl
+    ) {
     }
 
     #[Route(path: '/installer/finish', name: 'installer.finish', methods: ['GET'])]

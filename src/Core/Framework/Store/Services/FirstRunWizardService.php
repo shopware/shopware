@@ -34,6 +34,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
+ *
  * @final
  */
 #[Package('merchant-services')]

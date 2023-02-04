@@ -31,8 +31,10 @@ class PercentagePriceDefinition extends Struct implements PriceDefinitionInterfa
      */
     protected $filter;
 
-    public function __construct(float $percentage, ?Rule $filter = null)
-    {
+    public function __construct(
+        float $percentage,
+        ?Rule $filter = null
+    ) {
         $this->percentage = FloatComparator::cast($percentage);
         $this->filter = $filter;
     }

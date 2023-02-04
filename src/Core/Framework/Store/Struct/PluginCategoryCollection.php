@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Struct\Collection;
 /**
  * @codeCoverageIgnore
  * Pseudo immutable collection
+ *
  * @extends Collection<PluginCategoryStruct>
  */
 #[Package('merchant-services')]

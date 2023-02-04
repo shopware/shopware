@@ -11,8 +11,11 @@ use Symfony\Component\Validator\ConstraintViolationList;
 #[Package('core')]
 class WriteConstraintViolationException extends ShopwareHttpException implements WriteFieldException, ConstraintViolationExceptionInterface
 {
-    public function __construct(private readonly ConstraintViolationList $constraintViolationList, private string $path = '', private readonly int $statusCode = Response::HTTP_BAD_REQUEST)
-    {
+    public function __construct(
+        private readonly ConstraintViolationList $constraintViolationList,
+        private string $path = '',
+        private readonly int $statusCode = Response::HTTP_BAD_REQUEST
+    ) {
         parent::__construct(
             'Caught {{ count }} constraint violation errors.',
             ['count' => $constraintViolationList->count()]

@@ -28,8 +28,13 @@ class ThumbnailService
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $thumbnailRepository, private readonly FilesystemOperator $filesystemPublic, private readonly FilesystemOperator $filesystemPrivate, private readonly UrlGeneratorInterface $urlGenerator, private readonly EntityRepository $mediaFolderRepository)
-    {
+    public function __construct(
+        private readonly EntityRepository $thumbnailRepository,
+        private readonly FilesystemOperator $filesystemPublic,
+        private readonly FilesystemOperator $filesystemPrivate,
+        private readonly UrlGeneratorInterface $urlGenerator,
+        private readonly EntityRepository $mediaFolderRepository
+    ) {
     }
 
     public function generate(MediaCollection $collection, Context $context): int

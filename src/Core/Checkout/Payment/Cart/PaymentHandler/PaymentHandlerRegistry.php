@@ -150,7 +150,7 @@ class PaymentHandlerRegistry
     }
 
     /**
-     * @param array<string,mixed> $appPaymentMethod
+     * @param array<string, mixed> $appPaymentMethod
      */
     private function resolveAppPaymentMethodHandler(
         array $appPaymentMethod,

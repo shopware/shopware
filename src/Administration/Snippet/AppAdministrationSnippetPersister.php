@@ -18,8 +18,10 @@ use Shopware\Core\System\Locale\LocaleException;
 #[Package('administration')]
 class AppAdministrationSnippetPersister
 {
-    public function __construct(private readonly EntityRepository $appAdministrationSnippetRepository, private readonly EntityRepository $localeRepository)
-    {
+    public function __construct(
+        private readonly EntityRepository $appAdministrationSnippetRepository,
+        private readonly EntityRepository $localeRepository
+    ) {
     }
 
     /**

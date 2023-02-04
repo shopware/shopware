@@ -23,6 +23,7 @@ use Symfony\Component\Validator\Validation;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\PriceDefinitionFieldSerializer
  */
 class PriceDefinitionFieldSerializerTest extends TestCase

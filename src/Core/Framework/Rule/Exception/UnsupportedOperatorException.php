@@ -19,8 +19,10 @@ class UnsupportedOperatorException extends ShopwareHttpException
      */
     protected $class;
 
-    public function __construct(string $operator, string $class)
-    {
+    public function __construct(
+        string $operator,
+        string $class
+    ) {
         $this->operator = $operator;
         $this->class = $class;
 

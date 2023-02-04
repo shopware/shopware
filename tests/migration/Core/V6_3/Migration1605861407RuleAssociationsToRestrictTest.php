@@ -8,6 +8,7 @@ use Shopware\Core\Migration\V6_3\Migration1605861407RuleAssociationsToRestrict;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_3\Migration1605861407RuleAssociationsToRestrict
  */
 class Migration1605861407RuleAssociationsToRestrictTest extends TestCase

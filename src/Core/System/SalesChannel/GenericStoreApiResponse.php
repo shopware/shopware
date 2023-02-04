@@ -11,8 +11,10 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('core')]
 class GenericStoreApiResponse extends StoreApiResponse
 {
-    public function __construct(int $code, Struct $object)
-    {
+    public function __construct(
+        int $code,
+        Struct $object
+    ) {
         $this->setStatusCode($code);
 
         parent::__construct($object);

@@ -25,8 +25,11 @@ class UninstallAppsStrategy extends AbstractAppUrlChangeStrategy
 {
     final public const STRATEGY_NAME = 'uninstall-apps';
 
-    public function __construct(private readonly EntityRepository $appRepository, private readonly SystemConfigService $systemConfigService, private readonly ?ThemeAppLifecycleHandler $themeLifecycleHandler)
-    {
+    public function __construct(
+        private readonly EntityRepository $appRepository,
+        private readonly SystemConfigService $systemConfigService,
+        private readonly ?ThemeAppLifecycleHandler $themeLifecycleHandler
+    ) {
     }
 
     public function getDecorated(): AbstractAppUrlChangeStrategy

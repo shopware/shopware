@@ -39,8 +39,16 @@ class CartRuleLoader implements ResetInterface
     /**
      * @internal
      */
-    public function __construct(private readonly AbstractCartPersister $cartPersister, private readonly Processor $processor, private readonly LoggerInterface $logger, private readonly CacheInterface $cache, private readonly AbstractRuleLoader $ruleLoader, private readonly TaxDetector $taxDetector, private readonly Connection $connection, private readonly EventDispatcherInterface $dispatcher)
-    {
+    public function __construct(
+        private readonly AbstractCartPersister $cartPersister,
+        private readonly Processor $processor,
+        private readonly LoggerInterface $logger,
+        private readonly CacheInterface $cache,
+        private readonly AbstractRuleLoader $ruleLoader,
+        private readonly TaxDetector $taxDetector,
+        private readonly Connection $connection,
+        private readonly EventDispatcherInterface $dispatcher
+    ) {
     }
 
     public function loadByToken(SalesChannelContext $context, string $cartToken): RuleLoaderResult

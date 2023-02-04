@@ -9,8 +9,11 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('checkout')]
 class IllegalTransitionException extends ShopwareHttpException
 {
-    public function __construct(string $currentState, string $transition, array $possibleTransitions)
-    {
+    public function __construct(
+        string $currentState,
+        string $transition,
+        array $possibleTransitions
+    ) {
         parent::__construct(
             'Illegal transition "{{ transition }}" from state "{{ currentState }}". Possible transitions are: {{ possibleTransitionsString }}',
             [

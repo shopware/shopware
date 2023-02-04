@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @template TElement
+ *
  * @implements \IteratorAggregate<array-key, TElement>
  */
 #[Package('core')]

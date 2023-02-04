@@ -40,8 +40,13 @@ class DocumentGenerator
     /**
      * @internal
      */
-    public function __construct(private readonly DocumentRendererRegistry $rendererRegistry, private readonly PdfRenderer $pdfRenderer, private readonly MediaService $mediaService, private readonly EntityRepository $documentRepository, private readonly Connection $connection)
-    {
+    public function __construct(
+        private readonly DocumentRendererRegistry $rendererRegistry,
+        private readonly PdfRenderer $pdfRenderer,
+        private readonly MediaService $mediaService,
+        private readonly EntityRepository $documentRepository,
+        private readonly Connection $connection
+    ) {
     }
 
     public function readDocument(string $documentId, Context $context, string $deepLinkCode = ''): ?RenderedDocument

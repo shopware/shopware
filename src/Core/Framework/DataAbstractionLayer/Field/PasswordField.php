@@ -17,8 +17,13 @@ class PasswordField extends Field implements StorageAware
     /**
      * @param array<int, string> $hashOptions
      */
-    public function __construct(private readonly string $storageName, string $propertyName, ?string $algorithm = \PASSWORD_DEFAULT, private readonly array $hashOptions = [], private readonly ?string $for = null)
-    {
+    public function __construct(
+        private readonly string $storageName,
+        string $propertyName,
+        ?string $algorithm = \PASSWORD_DEFAULT,
+        private readonly array $hashOptions = [],
+        private readonly ?string $for = null
+    ) {
         parent::__construct($propertyName);
         $this->algorithm = $algorithm ?? \PASSWORD_DEFAULT;
     }

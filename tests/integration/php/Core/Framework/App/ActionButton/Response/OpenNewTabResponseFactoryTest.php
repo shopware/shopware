@@ -60,6 +60,7 @@ class OpenNewTabResponseFactoryTest extends TestCase
 
     /**
      * @param array<string, mixed> $payload
+     *
      * @dataProvider provideInvalidPayloads
      */
     public function testThrowsExceptionWhenValidationFails(array $payload, string $message): void

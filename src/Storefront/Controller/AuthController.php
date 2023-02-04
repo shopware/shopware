@@ -43,8 +43,16 @@ class AuthController extends StorefrontController
     /**
      * @internal
      */
-    public function __construct(private readonly AccountLoginPageLoader $loginPageLoader, private readonly AbstractSendPasswordRecoveryMailRoute $sendPasswordRecoveryMailRoute, private readonly AbstractResetPasswordRoute $resetPasswordRoute, private readonly AbstractLoginRoute $loginRoute, private readonly AbstractLogoutRoute $logoutRoute, private readonly StorefrontCartFacade $cartFacade, private readonly AccountRecoverPasswordPageLoader $recoverPasswordPageLoader, private readonly SalesChannelContextServiceInterface $salesChannelContext)
-    {
+    public function __construct(
+        private readonly AccountLoginPageLoader $loginPageLoader,
+        private readonly AbstractSendPasswordRecoveryMailRoute $sendPasswordRecoveryMailRoute,
+        private readonly AbstractResetPasswordRoute $resetPasswordRoute,
+        private readonly AbstractLoginRoute $loginRoute,
+        private readonly AbstractLogoutRoute $logoutRoute,
+        private readonly StorefrontCartFacade $cartFacade,
+        private readonly AccountRecoverPasswordPageLoader $recoverPasswordPageLoader,
+        private readonly SalesChannelContextServiceInterface $salesChannelContext
+    ) {
     }
 
     #[Route(path: '/account/login', name: 'frontend.account.login.page', defaults: ['_noStore' => true], methods: ['GET'])]

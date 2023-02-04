@@ -36,8 +36,18 @@ use function array_unique;
 #[Package('core')]
 class BaseContextFactory extends AbstractBaseContextFactory
 {
-    public function __construct(private readonly EntityRepository $salesChannelRepository, private readonly EntityRepository $currencyRepository, private readonly EntityRepository $customerGroupRepository, private readonly EntityRepository $countryRepository, private readonly EntityRepository $taxRepository, private readonly EntityRepository $paymentMethodRepository, private readonly EntityRepository $shippingMethodRepository, private readonly Connection $connection, private readonly EntityRepository $countryStateRepository, private readonly EntityRepository $currencyCountryRepository)
-    {
+    public function __construct(
+        private readonly EntityRepository $salesChannelRepository,
+        private readonly EntityRepository $currencyRepository,
+        private readonly EntityRepository $customerGroupRepository,
+        private readonly EntityRepository $countryRepository,
+        private readonly EntityRepository $taxRepository,
+        private readonly EntityRepository $paymentMethodRepository,
+        private readonly EntityRepository $shippingMethodRepository,
+        private readonly Connection $connection,
+        private readonly EntityRepository $countryStateRepository,
+        private readonly EntityRepository $currencyCountryRepository
+    ) {
     }
 
     public function getDecorated(): AbstractBaseContextFactory

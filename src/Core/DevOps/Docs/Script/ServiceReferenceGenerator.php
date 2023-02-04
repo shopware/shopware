@@ -49,8 +49,10 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
      */
     private array $injectedServices = [];
 
-    public function __construct(private readonly Environment $twig, private readonly string $projectDir)
-    {
+    public function __construct(
+        private readonly Environment $twig,
+        private readonly string $projectDir
+    ) {
         $this->docFactory = DocBlockFactory::createInstance([
             'script-service' => Generic::class,
             'example' => Example::class,

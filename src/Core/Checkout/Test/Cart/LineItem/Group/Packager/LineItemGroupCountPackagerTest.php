@@ -39,7 +39,6 @@ class LineItemGroupCountPackagerTest extends TestCase
      * be old keys in the SetGroup entities in the database of shops, that
      * try to execute a packager that does not exist anymore with this key.
      *
-     * @test
      * @group lineitemgroup
      */
     public function testKey(): void
@@ -51,7 +50,6 @@ class LineItemGroupCountPackagerTest extends TestCase
      * This test verifies that our packaging does correctly
      * return 2 items if we request that, and if more than 2 items exist.
      *
-     * @test
      * @group lineitemgroup
      */
     public function testPackageDoneWhenCountReached(): void
@@ -79,7 +77,6 @@ class LineItemGroupCountPackagerTest extends TestCase
      * This test verifies, that we do not get any results, if not
      * enough items exist, to build a package.
      *
-     * @test
      * @group lineitemgroup
      */
     public function testNoResultsIfNotEnoughtItems(): void
@@ -98,7 +95,6 @@ class LineItemGroupCountPackagerTest extends TestCase
      * This test verifies, that our packager does also work
      * with an empty list of items. We should also get an empty result list.
      *
-     * @test
      * @group lineitemgroup
      */
     public function testNoItemsReturnsEmptyList(): void
@@ -114,7 +110,6 @@ class LineItemGroupCountPackagerTest extends TestCase
      * This test verifies, that our packager does also work
      * with an invalid negative count. In that case we want an empty result list.
      *
-     * @test
      * @group lineitemgroup
      */
     public function testNegativeCountReturnsEmptyList(): void
@@ -130,7 +125,6 @@ class LineItemGroupCountPackagerTest extends TestCase
      * This test verifies, that our packager does also work
      * with an invalid zero count. In that case we want an empty result list.
      *
-     * @test
      * @group lineitemgroup
      */
     public function testZeroCountReturnsEmptyList(): void
@@ -148,7 +142,6 @@ class LineItemGroupCountPackagerTest extends TestCase
      * This means we have just 1 single item, but 3 quantities.
      * Our package needs only 2, so we should get 1 package.
      *
-     * @test
      * @group lineitemgroup
      */
     public function testQuantityHigherAsPackage(): void

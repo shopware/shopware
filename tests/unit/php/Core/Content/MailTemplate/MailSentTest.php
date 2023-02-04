@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Context;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent
  *
  * @package system-settings

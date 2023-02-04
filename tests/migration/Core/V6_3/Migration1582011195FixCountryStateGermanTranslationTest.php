@@ -11,6 +11,7 @@ use Shopware\Core\Migration\V6_3\Migration1582011195FixCountryStateGermanTransla
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_3\Migration1582011195FixCountryStateGermanTranslation
  */
 class Migration1582011195FixCountryStateGermanTranslationTest extends TestCase

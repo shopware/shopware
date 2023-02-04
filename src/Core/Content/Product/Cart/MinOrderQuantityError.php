@@ -13,8 +13,11 @@ class MinOrderQuantityError extends Error
 
     protected int $quantity;
 
-    public function __construct(protected string $id, string $name, int $quantity)
-    {
+    public function __construct(
+        protected string $id,
+        string $name,
+        int $quantity
+    ) {
         $this->message = sprintf(
             'The quantity of product %s did not meet the minimum order quantity threshold. The quantity has automatically been increased to %s',
             $name,

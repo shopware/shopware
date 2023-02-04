@@ -39,7 +39,6 @@ class LineItemGroupUnitPriceNetPackagerTest extends TestCase
      * be old keys in the SetGroup entities in the database of shops, that
      * try to execute a packager that does not exist anymore with this key.
      *
-     * @test
      * @group lineitemgroup
      */
     public function testKey(): void
@@ -52,7 +51,6 @@ class LineItemGroupUnitPriceNetPackagerTest extends TestCase
      * package, as soon as we have reached a gross item price of 100.0.
      * This is archived with 4 items.
      *
-     * @test
      * @group lineitemgroup
      */
     public function testPackageDoneWhenSumReached(): void
@@ -75,7 +73,6 @@ class LineItemGroupUnitPriceNetPackagerTest extends TestCase
      * This test verifies that our packager returns an empty result
      * if we dont have enough items to fill a group.
      *
-     * @test
      * @group lineitemgroup
      */
     public function testResultEmptyIfNotEnoughItems(): void
@@ -96,7 +93,6 @@ class LineItemGroupUnitPriceNetPackagerTest extends TestCase
      * This test verifies, that our packager does also work
      * with an empty list of items. We should also get an empty result list.
      *
-     * @test
      * @group lineitemgroup
      */
     public function testNoItemsReturnsEmptyList(): void
@@ -112,7 +108,6 @@ class LineItemGroupUnitPriceNetPackagerTest extends TestCase
      * This test verifies, that our packager does also work
      * with an invalid negative count. In that case we want an empty result list.
      *
-     * @test
      * @group lineitemgroup
      */
     public function testNegativeCountReturnsEmptyList(): void
@@ -128,7 +123,6 @@ class LineItemGroupUnitPriceNetPackagerTest extends TestCase
      * This test verifies, that our packager does also work
      * with an invalid zero count. In that case we want an empty result list.
      *
-     * @test
      * @group lineitemgroup
      */
     public function testZeroCountReturnsEmptyList(): void
@@ -144,7 +138,6 @@ class LineItemGroupUnitPriceNetPackagerTest extends TestCase
      * This test verifies, that our packager does ignore products
      * that have no calculated price.
      *
-     * @test
      * @group lineitemgroup
      */
     public function testPriceNullIsIgnored(): void

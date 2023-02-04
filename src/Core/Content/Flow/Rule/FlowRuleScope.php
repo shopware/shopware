@@ -11,8 +11,11 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 #[Package('business-ops')]
 class FlowRuleScope extends CartRuleScope
 {
-    public function __construct(private readonly OrderEntity $order, Cart $cart, SalesChannelContext $context)
-    {
+    public function __construct(
+        private readonly OrderEntity $order,
+        Cart $cart,
+        SalesChannelContext $context
+    ) {
         parent::__construct($cart, $context);
     }
 

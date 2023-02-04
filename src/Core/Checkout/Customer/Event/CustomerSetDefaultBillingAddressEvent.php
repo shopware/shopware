@@ -19,8 +19,11 @@ class CustomerSetDefaultBillingAddressEvent extends Event implements SalesChanne
 {
     final public const EVENT_NAME = 'checkout.customer.default.billing.address.event';
 
-    public function __construct(private readonly SalesChannelContext $salesChannelContext, private readonly CustomerEntity $customer, private string $addressId)
-    {
+    public function __construct(
+        private readonly SalesChannelContext $salesChannelContext,
+        private readonly CustomerEntity $customer,
+        private string $addressId
+    ) {
     }
 
     public function getName(): string

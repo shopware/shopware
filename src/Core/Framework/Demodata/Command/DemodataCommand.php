@@ -46,7 +46,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class DemodataCommand extends Command
 {
     /**
-     * @var array<string,int>
+     * @var array<string, int>
      */
     private array $defaults = [];
 

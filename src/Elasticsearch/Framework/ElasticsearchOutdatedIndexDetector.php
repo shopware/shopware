@@ -15,8 +15,12 @@ class ElasticsearchOutdatedIndexDetector
     /**
      * @internal
      */
-    public function __construct(private readonly Client $client, private readonly ElasticsearchRegistry $registry, private readonly EntityRepository $languageRepository, private readonly ElasticsearchHelper $helper)
-    {
+    public function __construct(
+        private readonly Client $client,
+        private readonly ElasticsearchRegistry $registry,
+        private readonly EntityRepository $languageRepository,
+        private readonly ElasticsearchHelper $helper
+    ) {
     }
 
     /**

@@ -21,8 +21,10 @@ class AccountRecoverPasswordPageLoadedHook extends PageLoadedHook
 
     final public const HOOK_NAME = 'account-recover-password-page-loaded';
 
-    public function __construct(private readonly AccountRecoverPasswordPage $page, SalesChannelContext $context)
-    {
+    public function __construct(
+        private readonly AccountRecoverPasswordPage $page,
+        SalesChannelContext $context
+    ) {
         parent::__construct($context->getContext());
         $this->salesChannelContext = $context;
     }

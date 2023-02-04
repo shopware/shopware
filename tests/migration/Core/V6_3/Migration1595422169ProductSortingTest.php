@@ -15,6 +15,7 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_3\Migration1595422169AddProductSorting
  *
  * @phpstan-type Sorting array{url_key: string, fields:string, priority: string, label: string}

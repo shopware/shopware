@@ -20,8 +20,10 @@ class AddCustomerAffiliateAndCampaignCodeAction extends FlowAction implements De
     /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection, private readonly EntityRepository $customerRepository)
-    {
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly EntityRepository $customerRepository
+    ) {
     }
 
     public static function getName(): string

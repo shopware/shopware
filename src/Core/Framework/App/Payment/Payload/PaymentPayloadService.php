@@ -23,8 +23,11 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('core')]
 class PaymentPayloadService
 {
-    public function __construct(private readonly AppPayloadServiceHelper $helper, private readonly Client $client, private readonly string $shopUrl)
-    {
+    public function __construct(
+        private readonly AppPayloadServiceHelper $helper,
+        private readonly Client $client,
+        private readonly string $shopUrl
+    ) {
     }
 
     /**

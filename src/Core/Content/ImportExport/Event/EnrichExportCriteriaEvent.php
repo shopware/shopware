@@ -10,8 +10,10 @@ use Symfony\Contracts\EventDispatcher\Event;
 #[Package('system-settings')]
 class EnrichExportCriteriaEvent extends Event
 {
-    public function __construct(private Criteria $criteria, private ImportExportLogEntity $logEntity)
-    {
+    public function __construct(
+        private Criteria $criteria,
+        private ImportExportLogEntity $logEntity
+    ) {
     }
 
     public function getCriteria(): Criteria

@@ -8,8 +8,10 @@ use Symfony\Contracts\EventDispatcher\Event;
 #[Package('storefront')]
 class ThemeAssignedEvent extends Event
 {
-    public function __construct(private readonly string $themeId, private readonly string $salesChannelId)
-    {
+    public function __construct(
+        private readonly string $themeId,
+        private readonly string $salesChannelId
+    ) {
     }
 
     public function getThemeId(): string

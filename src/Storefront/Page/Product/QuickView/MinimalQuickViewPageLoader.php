@@ -17,8 +17,10 @@ class MinimalQuickViewPageLoader
     /**
      * @internal
      */
-    public function __construct(private readonly EventDispatcherInterface $eventDispatcher, private readonly AbstractProductDetailRoute $productRoute)
-    {
+    public function __construct(
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly AbstractProductDetailRoute $productRoute
+    ) {
     }
 
     /**

@@ -12,8 +12,13 @@ use Symfony\Component\Cache\Marshaller\MarshallerInterface;
 #[Package('core')]
 class ShopwareRedisTagAwareAdapter extends RedisTagAwareAdapter
 {
-    public function __construct($redis, string $namespace = '', int $defaultLifetime = 0, ?MarshallerInterface $marshaller = null, ?string $prefix = null)
-    {
+    public function __construct(
+        $redis,
+        string $namespace = '',
+        int $defaultLifetime = 0,
+        ?MarshallerInterface $marshaller = null,
+        ?string $prefix = null
+    ) {
         parent::__construct($redis, $prefix . $namespace, $defaultLifetime, $marshaller);
     }
 }

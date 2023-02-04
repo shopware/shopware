@@ -9,8 +9,11 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('core')]
 class TaxFreeConfig extends Struct
 {
-    public function __construct(protected bool $enabled = false, protected string $currencyId = Defaults::CURRENCY, protected float $amount = 0)
-    {
+    public function __construct(
+        protected bool $enabled = false,
+        protected string $currencyId = Defaults::CURRENCY,
+        protected float $amount = 0
+    ) {
     }
 
     public function getEnabled(): bool

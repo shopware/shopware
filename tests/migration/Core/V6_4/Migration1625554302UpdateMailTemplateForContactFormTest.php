@@ -10,6 +10,7 @@ use Shopware\Core\Migration\V6_4\Migration1625554302UpdateMailTemplateForContact
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1625554302UpdateMailTemplateForContactForm
  */
 class Migration1625554302UpdateMailTemplateForContactFormTest extends TestCase

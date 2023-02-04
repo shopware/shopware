@@ -70,8 +70,16 @@ class OrderConverter
     /**
      * @internal
      */
-    public function __construct(protected EntityRepository $customerRepository, protected AbstractSalesChannelContextFactory $salesChannelContextFactory, protected EventDispatcherInterface $eventDispatcher, private readonly NumberRangeValueGeneratorInterface $numberRangeValueGenerator, private readonly OrderDefinition $orderDefinition, private readonly EntityRepository $orderAddressRepository, private readonly InitialStateIdLoader $initialStateIdLoader, private readonly LineItemDownloadLoader $downloadLoader)
-    {
+    public function __construct(
+        protected EntityRepository $customerRepository,
+        protected AbstractSalesChannelContextFactory $salesChannelContextFactory,
+        protected EventDispatcherInterface $eventDispatcher,
+        private readonly NumberRangeValueGeneratorInterface $numberRangeValueGenerator,
+        private readonly OrderDefinition $orderDefinition,
+        private readonly EntityRepository $orderAddressRepository,
+        private readonly InitialStateIdLoader $initialStateIdLoader,
+        private readonly LineItemDownloadLoader $downloadLoader
+    ) {
     }
 
     /**

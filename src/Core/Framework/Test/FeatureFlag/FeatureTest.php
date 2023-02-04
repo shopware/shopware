@@ -12,6 +12,7 @@ use Twig\Loader\FilesystemLoader;
 
 /**
  * @internal
+ *
  * @group skip-paratest
  */
 class FeatureTest extends TestCase

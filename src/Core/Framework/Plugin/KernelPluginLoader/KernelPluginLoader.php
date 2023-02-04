@@ -31,8 +31,10 @@ abstract class KernelPluginLoader extends Bundle
     /**
      * @internal
      */
-    public function __construct(private readonly ClassLoader $classLoader, ?string $pluginDir = null)
-    {
+    public function __construct(
+        private readonly ClassLoader $classLoader,
+        ?string $pluginDir = null
+    ) {
         $this->pluginDir = $pluginDir ?? 'custom/plugins';
         $this->pluginInstances = new KernelPluginCollection();
     }

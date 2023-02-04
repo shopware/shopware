@@ -22,8 +22,10 @@ class NavigationController extends StorefrontController
     /**
      * @internal
      */
-    public function __construct(private readonly NavigationPageLoaderInterface $navigationPageLoader, private readonly MenuOffcanvasPageletLoaderInterface $offcanvasLoader)
-    {
+    public function __construct(
+        private readonly NavigationPageLoaderInterface $navigationPageLoader,
+        private readonly MenuOffcanvasPageletLoaderInterface $offcanvasLoader
+    ) {
     }
 
     #[Route(path: '/', name: 'frontend.home.page', options: ['seo' => true], defaults: ['_httpCache' => true], methods: ['GET'])]

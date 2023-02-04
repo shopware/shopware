@@ -22,8 +22,13 @@ class ElasticsearchEntityAggregator implements EntityAggregatorInterface
     /**
      * @internal
      */
-    public function __construct(private readonly ElasticsearchHelper $helper, private readonly Client $client, private readonly EntityAggregatorInterface $decorated, private readonly AbstractElasticsearchAggregationHydrator $hydrator, private readonly EventDispatcherInterface $eventDispatcher)
-    {
+    public function __construct(
+        private readonly ElasticsearchHelper $helper,
+        private readonly Client $client,
+        private readonly EntityAggregatorInterface $decorated,
+        private readonly AbstractElasticsearchAggregationHydrator $hydrator,
+        private readonly EventDispatcherInterface $eventDispatcher
+    ) {
     }
 
     public function aggregate(EntityDefinition $definition, Criteria $criteria, Context $context): AggregationResultCollection

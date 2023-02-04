@@ -26,8 +26,11 @@ class ProductSuggestRoute extends AbstractProductSuggestRoute
     /**
      * @internal
      */
-    public function __construct(private readonly ProductSearchBuilderInterface $searchBuilder, private readonly EventDispatcherInterface $eventDispatcher, private readonly ProductListingLoader $productListingLoader)
-    {
+    public function __construct(
+        private readonly ProductSearchBuilderInterface $searchBuilder,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly ProductListingLoader $productListingLoader
+    ) {
     }
 
     public function getDecorated(): AbstractProductSuggestRoute

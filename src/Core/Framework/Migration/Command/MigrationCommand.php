@@ -42,8 +42,11 @@ class MigrationCommand extends Command
     /**
      * @internal
      */
-    public function __construct(MigrationCollectionLoader $loader, private readonly TagAwareAdapterInterface $cache, string $shopwareVersion)
-    {
+    public function __construct(
+        MigrationCollectionLoader $loader,
+        private readonly TagAwareAdapterInterface $cache,
+        string $shopwareVersion
+    ) {
         parent::__construct();
 
         $this->loader = $loader;

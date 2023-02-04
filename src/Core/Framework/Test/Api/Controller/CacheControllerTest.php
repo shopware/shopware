@@ -15,6 +15,7 @@ use Symfony\Component\Messenger\TraceableMessageBus;
 
 /**
  * @internal
+ *
  * @group skip-paratest
  */
 #[Package('system-settings')]

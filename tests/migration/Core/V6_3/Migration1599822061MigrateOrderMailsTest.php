@@ -12,6 +12,7 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_3\Migration1599822061MigrateOrderMails
  */
 class Migration1599822061MigrateOrderMailsTest extends TestCase

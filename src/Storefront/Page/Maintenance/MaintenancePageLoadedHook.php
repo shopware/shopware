@@ -21,8 +21,10 @@ class MaintenancePageLoadedHook extends PageLoadedHook
 
     final public const HOOK_NAME = 'maintenance-page-loaded';
 
-    public function __construct(private readonly MaintenancePage $page, SalesChannelContext $context)
-    {
+    public function __construct(
+        private readonly MaintenancePage $page,
+        SalesChannelContext $context
+    ) {
         parent::__construct($context->getContext());
         $this->salesChannelContext = $context;
     }

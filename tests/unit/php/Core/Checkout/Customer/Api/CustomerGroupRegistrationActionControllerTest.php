@@ -56,6 +56,7 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
 
     /**
      * @param CustomerEntity[] $customers
+     *
      * @dataProvider getRegistrationValues
      *
      * @throws Exception
@@ -81,6 +82,7 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
 
     /**
      * @param CustomerEntity[] $customers
+     *
      * @dataProvider getRegistrationValues
      *
      * @throws Exception

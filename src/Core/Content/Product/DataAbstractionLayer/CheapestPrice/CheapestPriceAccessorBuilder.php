@@ -16,8 +16,10 @@ class CheapestPriceAccessorBuilder implements FieldAccessorBuilderInterface
     /**
      * @internal
      */
-    public function __construct(private readonly int $maxRulePrices, private readonly LoggerInterface $logger)
-    {
+    public function __construct(
+        private readonly int $maxRulePrices,
+        private readonly LoggerInterface $logger
+    ) {
     }
 
     public function buildAccessor(string $root, Field $field, Context $context, string $accessor): ?string

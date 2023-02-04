@@ -12,8 +12,12 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 class AsyncPayPayload extends SyncPayPayload
 {
-    public function __construct(OrderTransactionEntity $orderTransaction, OrderEntity $order, protected string $returnUrl, protected array $requestData)
-    {
+    public function __construct(
+        OrderTransactionEntity $orderTransaction,
+        OrderEntity $order,
+        protected string $returnUrl,
+        protected array $requestData
+    ) {
         parent::__construct($orderTransaction, $order);
     }
 

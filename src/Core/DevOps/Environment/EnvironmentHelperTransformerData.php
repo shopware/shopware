@@ -11,8 +11,11 @@ class EnvironmentHelperTransformerData
      * @param bool|float|int|string|null $value
      * @param bool|float|int|string|null $default
      */
-    public function __construct(private readonly string $key, private $value, private $default)
-    {
+    public function __construct(
+        private readonly string $key,
+        private $value,
+        private $default
+    ) {
     }
 
     public function getKey(): string

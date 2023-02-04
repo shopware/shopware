@@ -32,8 +32,16 @@ class FastlyReverseProxyGateway extends AbstractReverseProxyGateway
     /**
      * @internal
      */
-    public function __construct(protected Client $client, protected string $serviceId, protected string $apiKey, protected string $softPurge, protected int $concurrency, protected string $tagPrefix, private readonly string $instanceTag, string $appUrl)
-    {
+    public function __construct(
+        protected Client $client,
+        protected string $serviceId,
+        protected string $apiKey,
+        protected string $softPurge,
+        protected int $concurrency,
+        protected string $tagPrefix,
+        private readonly string $instanceTag,
+        string $appUrl
+    ) {
         $this->appUrl = (string) preg_replace('/^https?:\/\//', '', $appUrl);
     }
 

@@ -19,8 +19,10 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Package('core')]
 class DatabaseImportController extends InstallerController
 {
-    public function __construct(private readonly DatabaseConnectionFactory $connectionFactory, private readonly DatabaseMigrator $migrator)
-    {
+    public function __construct(
+        private readonly DatabaseConnectionFactory $connectionFactory,
+        private readonly DatabaseMigrator $migrator
+    ) {
     }
 
     #[Route(path: '/installer/database-import', name: 'installer.database-import', methods: ['GET'])]

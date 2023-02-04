@@ -29,8 +29,12 @@ class AccountOrderPageLoader
     /**
      * @internal
      */
-    public function __construct(private readonly GenericPageLoaderInterface $genericLoader, private readonly EventDispatcherInterface $eventDispatcher, private readonly AbstractOrderRoute $orderRoute, private readonly AccountService $accountService)
-    {
+    public function __construct(
+        private readonly GenericPageLoaderInterface $genericLoader,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly AbstractOrderRoute $orderRoute,
+        private readonly AccountService $accountService
+    ) {
     }
 
     /**

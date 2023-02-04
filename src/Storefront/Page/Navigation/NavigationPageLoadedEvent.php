@@ -15,8 +15,11 @@ class NavigationPageLoadedEvent extends PageLoadedEvent
      */
     protected $page;
 
-    public function __construct(NavigationPage $page, SalesChannelContext $salesChannelContext, Request $request)
-    {
+    public function __construct(
+        NavigationPage $page,
+        SalesChannelContext $salesChannelContext,
+        Request $request
+    ) {
         $this->page = $page;
         parent::__construct($salesChannelContext, $request);
     }

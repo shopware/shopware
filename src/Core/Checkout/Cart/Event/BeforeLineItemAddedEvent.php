@@ -32,8 +32,12 @@ class BeforeLineItemAddedEvent implements ShopwareSalesChannelEvent
      */
     protected $merged;
 
-    public function __construct(LineItem $lineItem, Cart $cart, SalesChannelContext $salesChannelContext, bool $merged = false)
-    {
+    public function __construct(
+        LineItem $lineItem,
+        Cart $cart,
+        SalesChannelContext $salesChannelContext,
+        bool $merged = false
+    ) {
         $this->lineItem = $lineItem;
         $this->cart = $cart;
         $this->salesChannelContext = $salesChannelContext;

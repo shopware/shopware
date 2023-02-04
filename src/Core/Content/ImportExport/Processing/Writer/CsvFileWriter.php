@@ -12,8 +12,11 @@ class CsvFileWriter extends AbstractFileWriter
     /**
      * @internal
      */
-    public function __construct(FilesystemOperator $filesystem, private string $delimiter = ';', private string $enclosure = '"')
-    {
+    public function __construct(
+        FilesystemOperator $filesystem,
+        private string $delimiter = ';',
+        private string $enclosure = '"'
+    ) {
         parent::__construct($filesystem);
     }
 

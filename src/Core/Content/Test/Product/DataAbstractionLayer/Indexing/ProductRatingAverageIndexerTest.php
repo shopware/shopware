@@ -21,6 +21,7 @@ use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
+ *
  * @group slow
  */
 class ProductRatingAverageIndexerTest extends TestCase
@@ -70,7 +71,6 @@ class ProductRatingAverageIndexerTest extends TestCase
     /**
      * tests that a update of promotion exclusions is written in excluded promotions too
      *
-     * @test
      * @group reviews
      */
     public function testUpsertReviewIndexerLogic(): void
@@ -104,7 +104,6 @@ class ProductRatingAverageIndexerTest extends TestCase
      * rating would be 3, but because the reviewA is deactivated only reviewB points will
      * be taken for calculation
      *
-     * @test
      * @group reviews
      */
     public function testThatDeactivatedReviewsAreNotCalculated(): void
@@ -130,7 +129,6 @@ class ProductRatingAverageIndexerTest extends TestCase
     /**
      * tests that a deactivating/activating reviews are considered correctly
      *
-     * @test
      * @group reviews
      */
     public function testThatUpdatingReviewsTriggerCalculationProcessCorrectly(): void
@@ -165,7 +163,6 @@ class ProductRatingAverageIndexerTest extends TestCase
     /**
      * tests that a multi save reviews are considered correctly
      *
-     * @test
      * @group reviews
      */
     public function testMultiReviewsSaveProcess(): void
@@ -207,7 +204,6 @@ class ProductRatingAverageIndexerTest extends TestCase
     /**
      * tests that deactivating product reviews result in correct review score, even if no review is active (=>0)
      *
-     * @test
      * @group reviews
      */
     public function testCalculateWhenSwitchingReviewStatus(): void
@@ -243,7 +239,6 @@ class ProductRatingAverageIndexerTest extends TestCase
     /**
      * tests that deactivating product reviews result in correct review score, even if no review is active (=>0)
      *
-     * @test
      * @group reviews
      */
     public function testCalculateWhenDeletingReviews(): void
@@ -275,7 +270,6 @@ class ProductRatingAverageIndexerTest extends TestCase
     /**
      * tests that the full index works
      *
-     * @test
      * @group reviews
      */
     public function testFullIndex(): void

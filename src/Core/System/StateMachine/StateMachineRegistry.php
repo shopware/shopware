@@ -39,8 +39,13 @@ class StateMachineRegistry
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $stateMachineRepository, private readonly EntityRepository $stateMachineStateRepository, private readonly EntityRepository $stateMachineHistoryRepository, private readonly EventDispatcherInterface $eventDispatcher, private readonly DefinitionInstanceRegistry $definitionRegistry)
-    {
+    public function __construct(
+        private readonly EntityRepository $stateMachineRepository,
+        private readonly EntityRepository $stateMachineStateRepository,
+        private readonly EntityRepository $stateMachineHistoryRepository,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly DefinitionInstanceRegistry $definitionRegistry
+    ) {
     }
 
     /**

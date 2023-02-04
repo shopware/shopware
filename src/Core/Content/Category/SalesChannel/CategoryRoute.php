@@ -26,8 +26,11 @@ class CategoryRoute extends AbstractCategoryRoute
     /**
      * @internal
      */
-    public function __construct(private readonly SalesChannelRepository $categoryRepository, private readonly SalesChannelCmsPageLoaderInterface $cmsPageLoader, private readonly CategoryDefinition $categoryDefinition)
-    {
+    public function __construct(
+        private readonly SalesChannelRepository $categoryRepository,
+        private readonly SalesChannelCmsPageLoaderInterface $cmsPageLoader,
+        private readonly CategoryDefinition $categoryDefinition
+    ) {
     }
 
     public function getDecorated(): AbstractCategoryRoute

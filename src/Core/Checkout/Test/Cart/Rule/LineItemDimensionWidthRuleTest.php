@@ -19,6 +19,7 @@ use Symfony\Component\Validator\Constraints\Type;
 
 /**
  * @internal
+ *
  * @group rules
  */
 #[Package('business-ops')]

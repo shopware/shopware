@@ -11,8 +11,13 @@ class SitemapMessage implements AsyncMessageInterface
     /**
      * @internal
      */
-    public function __construct(private readonly ?string $lastSalesChannelId, private readonly ?string $lastLanguageId, private readonly ?string $lastProvider, private readonly ?int $nextOffset, private readonly bool $finished)
-    {
+    public function __construct(
+        private readonly ?string $lastSalesChannelId,
+        private readonly ?string $lastLanguageId,
+        private readonly ?string $lastProvider,
+        private readonly ?int $nextOffset,
+        private readonly bool $finished
+    ) {
     }
 
     public function getLastSalesChannelId(): ?string

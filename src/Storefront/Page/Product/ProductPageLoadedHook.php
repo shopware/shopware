@@ -21,8 +21,10 @@ class ProductPageLoadedHook extends PageLoadedHook
 
     final public const HOOK_NAME = 'product-page-loaded';
 
-    public function __construct(private readonly ProductPage $page, SalesChannelContext $context)
-    {
+    public function __construct(
+        private readonly ProductPage $page,
+        SalesChannelContext $context
+    ) {
         parent::__construct($context->getContext());
         $this->salesChannelContext = $context;
     }

@@ -9,6 +9,7 @@ use Shopware\Core\System\SalesChannel\ContextTokenResponse;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\System\SalesChannel\ContextTokenResponse
  */
 class ContextTokenResponseTest extends TestCase

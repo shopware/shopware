@@ -31,8 +31,13 @@ class AccountService
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $customerRepository, private readonly EventDispatcherInterface $eventDispatcher, private readonly LegacyPasswordVerifier $legacyPasswordVerifier, private readonly AbstractSwitchDefaultAddressRoute $switchDefaultAddressRoute, private readonly CartRestorer $restorer)
-    {
+    public function __construct(
+        private readonly EntityRepository $customerRepository,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly LegacyPasswordVerifier $legacyPasswordVerifier,
+        private readonly AbstractSwitchDefaultAddressRoute $switchDefaultAddressRoute,
+        private readonly CartRestorer $restorer
+    ) {
     }
 
     /**

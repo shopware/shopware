@@ -22,8 +22,11 @@ class MailSubjectUpdate
      */
     protected $deSubject;
 
-    public function __construct(string $type, ?string $enSubject = null, ?string $deSubject = null)
-    {
+    public function __construct(
+        string $type,
+        ?string $enSubject = null,
+        ?string $deSubject = null
+    ) {
         $this->type = $type;
         $this->enSubject = $enSubject;
         $this->deSubject = $deSubject;

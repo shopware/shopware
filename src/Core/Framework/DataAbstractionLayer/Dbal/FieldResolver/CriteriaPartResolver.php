@@ -29,8 +29,10 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 class CriteriaPartResolver
 {
-    public function __construct(private readonly Connection $connection, private readonly SqlQueryParser $parser)
-    {
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly SqlQueryParser $parser
+    ) {
     }
 
     public function resolve(array $parts, EntityDefinition $definition, QueryBuilder $query, Context $context): void

@@ -21,8 +21,11 @@ class AppPayloadServiceHelper
     /**
      * @internal
      */
-    public function __construct(private readonly DefinitionInstanceRegistry $definitionRegistry, private readonly JsonEntityEncoder $entityEncoder, private readonly ShopIdProvider $shopIdProvider)
-    {
+    public function __construct(
+        private readonly DefinitionInstanceRegistry $definitionRegistry,
+        private readonly JsonEntityEncoder $entityEncoder,
+        private readonly ShopIdProvider $shopIdProvider
+    ) {
     }
 
     public function buildSource(AppEntity $app, string $shopUrl): Source

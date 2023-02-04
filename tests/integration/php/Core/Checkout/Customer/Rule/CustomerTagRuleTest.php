@@ -16,9 +16,11 @@ use Symfony\Component\Validator\Constraints\Type;
 
 /**
  * @internal
+ *
  * @group rules
  *
  * @package business-ops
+ *
  * @covers \Shopware\Core\Checkout\Customer\Rule\CustomerAgeRule
  */
 class CustomerTagRuleTest extends TestCase

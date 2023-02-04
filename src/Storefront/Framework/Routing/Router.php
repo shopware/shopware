@@ -25,8 +25,10 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
     /**
      * @internal
      */
-    public function __construct(private readonly SymfonyRouter $decorated, private readonly RequestStack $requestStack)
-    {
+    public function __construct(
+        private readonly SymfonyRouter $decorated,
+        private readonly RequestStack $requestStack
+    ) {
     }
 
     /**
@@ -122,7 +124,7 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
                 );
 
                 // url contains the base path and the base url
-                    // base url /shopware/public/de
+                // base url /shopware/public/de
                 $rewrite = ltrim($salesChannelBaseUrl, '/') . $generated;
 
                 break;

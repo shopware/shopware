@@ -10,6 +10,7 @@ use Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper
  */
 #[Package('sales-channel')]

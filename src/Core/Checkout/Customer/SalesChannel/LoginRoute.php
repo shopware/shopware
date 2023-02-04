@@ -31,8 +31,14 @@ class LoginRoute extends AbstractLoginRoute
     /**
      * @internal
      */
-    public function __construct(private readonly EventDispatcherInterface $eventDispatcher, private readonly AccountService $accountService, private readonly EntityRepository $customerRepository, private readonly CartRestorer $restorer, private readonly RequestStack $requestStack, private readonly RateLimiter $rateLimiter)
-    {
+    public function __construct(
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly AccountService $accountService,
+        private readonly EntityRepository $customerRepository,
+        private readonly CartRestorer $restorer,
+        private readonly RequestStack $requestStack,
+        private readonly RateLimiter $rateLimiter
+    ) {
     }
 
     public function getDecorated(): AbstractLoginRoute

@@ -29,6 +29,7 @@ use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 
 /**
  * @internal
+ *
  * @group slow
  */
 class SeoUrlIndexerTest extends TestCase

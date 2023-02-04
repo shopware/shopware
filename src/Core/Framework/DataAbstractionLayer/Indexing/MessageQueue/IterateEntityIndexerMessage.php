@@ -16,8 +16,11 @@ class IterateEntityIndexerMessage implements AsyncMessageInterface
     /**
      * @internal
      */
-    public function __construct(string $indexer, protected $offset, protected array $skip = [])
-    {
+    public function __construct(
+        string $indexer,
+        protected $offset,
+        protected array $skip = []
+    ) {
         $this->indexer = $indexer;
     }
 

@@ -8,8 +8,10 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('business-ops')]
 class FilteredTagIdsStruct extends Struct
 {
-    public function __construct(protected array $ids, protected int $total)
-    {
+    public function __construct(
+        protected array $ids,
+        protected int $total
+    ) {
     }
 
     public function getIds(): array

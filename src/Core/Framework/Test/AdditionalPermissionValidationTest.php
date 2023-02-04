@@ -13,6 +13,7 @@ use Symfony\Component\Yaml\Yaml;
 
 /**
  * @internal
+ *
  * @group slow
  */
 #[Package('core')]

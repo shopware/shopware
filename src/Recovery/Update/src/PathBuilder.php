@@ -32,8 +32,11 @@ class PathBuilder
      * @param string $sourcePath
      * @param string $backupPath
      */
-    public function __construct($basePath, $sourcePath, $backupPath)
-    {
+    public function __construct(
+        $basePath,
+        $sourcePath,
+        $backupPath
+    ) {
         $baseDir = rtrim($basePath, '/\\') . \DIRECTORY_SEPARATOR;
         $sourceDir = rtrim($sourcePath, '/\\') . \DIRECTORY_SEPARATOR;
         $backupDir = rtrim($backupPath, '/\\') . \DIRECTORY_SEPARATOR;

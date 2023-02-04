@@ -11,6 +11,7 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1631790054AddedStreamIds
  */
 class Migration1631790054AddedStreamIdsTest extends TestCase

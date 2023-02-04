@@ -9,8 +9,10 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('system-settings')]
 class XmlParsingException extends ShopwareHttpException
 {
-    public function __construct(string $xmlFile, string $message)
-    {
+    public function __construct(
+        string $xmlFile,
+        string $message
+    ) {
         parent::__construct(
             'Unable to parse file "{{ file }}". Message: {{ message }}',
             ['file' => $xmlFile, 'message' => $message]

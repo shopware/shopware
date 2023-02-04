@@ -24,8 +24,11 @@ class ReferencePriceDefinition extends Struct
      */
     protected $unitName;
 
-    public function __construct(float $purchaseUnit, float $referenceUnit, string $unitName)
-    {
+    public function __construct(
+        float $purchaseUnit,
+        float $referenceUnit,
+        string $unitName
+    ) {
         $this->purchaseUnit = FloatComparator::cast($purchaseUnit);
         $this->referenceUnit = FloatComparator::cast($referenceUnit);
         $this->unitName = $unitName;

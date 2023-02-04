@@ -19,6 +19,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
  * @internal
+ *
  * @group rules
  */
 #[Package('business-ops')]
@@ -206,6 +207,6 @@ class LineItemInProductStreamRuleTest extends TestCase
      */
     private function createLineItemWithProductStreams(array $streamIds): LineItem
     {
-        return ($this->createLineItem())->setPayloadValue('streamIds', $streamIds);
+        return $this->createLineItem()->setPayloadValue('streamIds', $streamIds);
     }
 }

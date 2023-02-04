@@ -14,8 +14,13 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('system-settings')]
 class EntityPipe extends AbstractPipe
 {
-    public function __construct(private readonly DefinitionInstanceRegistry $definitionInstanceRegistry, private readonly SerializerRegistry $serializerRegistry, private ?EntityDefinition $definition = null, private ?AbstractEntitySerializer $entitySerializer = null, private readonly ?PrimaryKeyResolver $primaryKeyResolver = null)
-    {
+    public function __construct(
+        private readonly DefinitionInstanceRegistry $definitionInstanceRegistry,
+        private readonly SerializerRegistry $serializerRegistry,
+        private ?EntityDefinition $definition = null,
+        private ?AbstractEntitySerializer $entitySerializer = null,
+        private readonly ?PrimaryKeyResolver $primaryKeyResolver = null
+    ) {
     }
 
     /**

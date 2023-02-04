@@ -21,8 +21,10 @@ class AddressBookWidgetLoadedHook extends PageLoadedHook
 
     final public const HOOK_NAME = 'address-book-widget-loaded';
 
-    public function __construct(private readonly AddressListingPage $page, SalesChannelContext $context)
-    {
+    public function __construct(
+        private readonly AddressListingPage $page,
+        SalesChannelContext $context
+    ) {
         parent::__construct($context->getContext());
         $this->salesChannelContext = $context;
     }

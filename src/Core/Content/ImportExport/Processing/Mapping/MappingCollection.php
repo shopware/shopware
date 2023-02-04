@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @extends Collection<Mapping>
+ *
  * @phpstan-import-type MappingArray from Mapping
  */
 #[Package('system-settings')]

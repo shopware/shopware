@@ -12,6 +12,7 @@ use Shopware\Core\Migration\V6_4\Migration1675218708UpdateDeliverOrderedProductD
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1675218708UpdateDeliverOrderedProductDownloadsFlowTemplate
  */
 class Migration1675218708UpdateDeliverOrderedProductDownloadsFlowTemplateTest extends TestCase

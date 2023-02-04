@@ -7,8 +7,11 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 class VersionMismatchException extends RequirementException
 {
-    public function __construct(string $requirement, string $requiredVersion, string $actualVersion)
-    {
+    public function __construct(
+        string $requirement,
+        string $requiredVersion,
+        string $actualVersion
+    ) {
         parent::__construct(
             'Required plugin/package "{{ requirement }} {{ requiredVersion }}" does not match installed version {{ version }}.',
             [

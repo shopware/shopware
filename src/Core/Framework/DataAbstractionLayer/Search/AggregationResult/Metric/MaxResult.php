@@ -11,8 +11,10 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 class MaxResult extends AggregationResult
 {
-    public function __construct(string $name, protected string|float|int|null $max)
-    {
+    public function __construct(
+        string $name,
+        protected string|float|int|null $max
+    ) {
         parent::__construct($name);
     }
 

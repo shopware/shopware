@@ -10,8 +10,11 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 class CustomFieldTypeNotFoundException extends \InvalidArgumentException
 {
-    public function __construct(string $type, int $code = 0, ?\Throwable $previous = null)
-    {
+    public function __construct(
+        string $type,
+        int $code = 0,
+        ?\Throwable $previous = null
+    ) {
         parent::__construct(\sprintf('CustomFieldType for XML-Element "%s" not found.', $type), $code, $previous);
     }
 }

@@ -29,8 +29,12 @@ class PaymentController extends AbstractController
     /**
      * @internal
      */
-    public function __construct(private readonly PaymentService $paymentService, private readonly OrderConverter $orderConverter, private readonly TokenFactoryInterfaceV2 $tokenFactoryInterfaceV2, private readonly EntityRepository $orderRepository)
-    {
+    public function __construct(
+        private readonly PaymentService $paymentService,
+        private readonly OrderConverter $orderConverter,
+        private readonly TokenFactoryInterfaceV2 $tokenFactoryInterfaceV2,
+        private readonly EntityRepository $orderRepository
+    ) {
     }
 
     #[Route(path: '/payment/finalize-transaction', name: 'payment.finalize.transaction', methods: ['GET', 'POST'])]

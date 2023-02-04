@@ -11,8 +11,11 @@ class FlowActionDefinition extends Struct
     /**
      * @param array<string> $requirements
      */
-    public function __construct(protected string $name, protected array $requirements, protected bool $delayable = false)
-    {
+    public function __construct(
+        protected string $name,
+        protected array $requirements,
+        protected bool $delayable = false
+    ) {
     }
 
     public function getName(): string

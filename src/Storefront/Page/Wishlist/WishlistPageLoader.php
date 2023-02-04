@@ -31,8 +31,11 @@ class WishlistPageLoader
     /**
      * @internal
      */
-    public function __construct(private readonly GenericPageLoaderInterface $genericLoader, private readonly AbstractLoadWishlistRoute $wishlistLoadRoute, private readonly EventDispatcherInterface $eventDispatcher)
-    {
+    public function __construct(
+        private readonly GenericPageLoaderInterface $genericLoader,
+        private readonly AbstractLoadWishlistRoute $wishlistLoadRoute,
+        private readonly EventDispatcherInterface $eventDispatcher
+    ) {
     }
 
     /**

@@ -35,8 +35,12 @@ class UnpackStep
     /**
      * @param bool $isDebug
      */
-    public function __construct(Filesystem $localFilesyste, Filesystem $remoteFilesyste, PathBuilder $pathBuilder, $isDebug = false)
-    {
+    public function __construct(
+        Filesystem $localFilesyste,
+        Filesystem $remoteFilesyste,
+        PathBuilder $pathBuilder,
+        $isDebug = false
+    ) {
         $this->localFilesyste = $localFilesyste;
         $this->remoteFilesyste = $remoteFilesyste;
         $this->pathBuilder = $pathBuilder;

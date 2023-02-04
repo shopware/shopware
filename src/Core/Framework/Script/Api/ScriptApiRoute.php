@@ -22,8 +22,11 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Package('core')]
 class ScriptApiRoute
 {
-    public function __construct(private readonly ScriptExecutor $executor, private readonly ScriptLoader $loader, private readonly ScriptResponseEncoder $scriptResponseEncoder)
-    {
+    public function __construct(
+        private readonly ScriptExecutor $executor,
+        private readonly ScriptLoader $loader,
+        private readonly ScriptResponseEncoder $scriptResponseEncoder
+    ) {
     }
 
     #[Route(path: '/api/script/{hook}', name: 'api.script_endpoint', methods: ['POST'], requirements: ['hook' => '.+'])]

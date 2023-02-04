@@ -12,8 +12,10 @@ use Symfony\Contracts\EventDispatcher\Event;
 #[Package('inventory')]
 class ProductCrossSellingsLoadedEvent extends Event implements ShopwareSalesChannelEvent
 {
-    public function __construct(private readonly CrossSellingElementCollection $result, private readonly SalesChannelContext $salesChannelContext)
-    {
+    public function __construct(
+        private readonly CrossSellingElementCollection $result,
+        private readonly SalesChannelContext $salesChannelContext
+    ) {
     }
 
     public function getContext(): Context

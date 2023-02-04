@@ -8,8 +8,10 @@ use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 #[Package('core')]
 class ElasticsearchIndexCreatedEvent
 {
-    public function __construct(private readonly string $indexName, private readonly AbstractElasticsearchDefinition $definition)
-    {
+    public function __construct(
+        private readonly string $indexName,
+        private readonly AbstractElasticsearchDefinition $definition
+    ) {
     }
 
     public function getIndexName(): string

@@ -12,8 +12,11 @@ use Symfony\Contracts\EventDispatcher\Event;
 #[Package('core')]
 class EntitySearchedEvent extends Event implements ShopwareEvent
 {
-    public function __construct(private readonly Criteria $criteria, private readonly EntityDefinition $definition, private readonly Context $context)
-    {
+    public function __construct(
+        private readonly Criteria $criteria,
+        private readonly EntityDefinition $definition,
+        private readonly Context $context
+    ) {
     }
 
     public function getCriteria(): Criteria

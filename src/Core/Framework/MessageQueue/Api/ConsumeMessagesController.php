@@ -27,8 +27,17 @@ class ConsumeMessagesController extends AbstractController
     /**
      * @internal
      */
-    public function __construct(private readonly ServiceLocator $receiverLocator, private readonly MessageBusInterface $bus, private readonly StopWorkerOnRestartSignalListener $stopWorkerOnRestartSignalListener, private readonly StopWorkerOnSigtermSignalListener $stopWorkerOnSigtermSignalListener, private readonly DispatchPcntlSignalListener $dispatchPcntlSignalListener, private readonly EarlyReturnMessagesListener $earlyReturnListener, private readonly MessageQueueStatsSubscriber $statsSubscriber, private readonly string $defaultTransportName, private readonly string $memoryLimit)
-    {
+    public function __construct(
+        private readonly ServiceLocator $receiverLocator,
+        private readonly MessageBusInterface $bus,
+        private readonly StopWorkerOnRestartSignalListener $stopWorkerOnRestartSignalListener,
+        private readonly StopWorkerOnSigtermSignalListener $stopWorkerOnSigtermSignalListener,
+        private readonly DispatchPcntlSignalListener $dispatchPcntlSignalListener,
+        private readonly EarlyReturnMessagesListener $earlyReturnListener,
+        private readonly MessageQueueStatsSubscriber $statsSubscriber,
+        private readonly string $defaultTransportName,
+        private readonly string $memoryLimit
+    ) {
     }
 
     #[Route(path: '/api/_action/message-queue/consume', name: 'api.action.message-queue.consume', methods: ['POST'])]

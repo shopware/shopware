@@ -34,8 +34,13 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $customerRepository, private readonly EventDispatcherInterface $eventDispatcher, private readonly DataValidator $validator, private readonly DataValidationFactoryInterface $customerProfileValidationFactory, private readonly StoreApiCustomFieldMapper $storeApiCustomFieldMapper)
-    {
+    public function __construct(
+        private readonly EntityRepository $customerRepository,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly DataValidator $validator,
+        private readonly DataValidationFactoryInterface $customerProfileValidationFactory,
+        private readonly StoreApiCustomFieldMapper $storeApiCustomFieldMapper
+    ) {
     }
 
     public function getDecorated(): AbstractChangeCustomerProfileRoute

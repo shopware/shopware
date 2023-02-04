@@ -19,6 +19,7 @@ use Symfony\Component\Validator\Constraints\Type;
 
 /**
  * @internal
+ *
  * @group rules
  */
 #[Package('business-ops')]
@@ -233,6 +234,6 @@ class LineItemReleaseDateRuleTest extends TestCase
             $this->createLineItem();
         }
 
-        return ($this->createLineItem())->setPayloadValue(self::PAYLOAD_KEY, $releaseDate);
+        return $this->createLineItem()->setPayloadValue(self::PAYLOAD_KEY, $releaseDate);
     }
 }

@@ -14,8 +14,10 @@ class ScriptIdQuery implements BuilderInterface
     /**
      * @param array<mixed> $parameters
      */
-    public function __construct(private readonly string $id, array $parameters = [])
-    {
+    public function __construct(
+        private readonly string $id,
+        array $parameters = []
+    ) {
         $this->setParameters($parameters);
     }
 

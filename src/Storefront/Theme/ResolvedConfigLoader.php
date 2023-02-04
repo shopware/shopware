@@ -16,8 +16,10 @@ class ResolvedConfigLoader extends AbstractResolvedConfigLoader
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $repository, private readonly ThemeService $service)
-    {
+    public function __construct(
+        private readonly EntityRepository $repository,
+        private readonly ThemeService $service
+    ) {
     }
 
     public function getDecorated(): AbstractResolvedConfigLoader

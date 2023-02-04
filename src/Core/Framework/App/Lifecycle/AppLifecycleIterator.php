@@ -15,8 +15,10 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 class AppLifecycleIterator
 {
-    public function __construct(private readonly EntityRepository $appRepository, private readonly AbstractAppLoader $appLoader)
-    {
+    public function __construct(
+        private readonly EntityRepository $appRepository,
+        private readonly AbstractAppLoader $appLoader
+    ) {
     }
 
     /**

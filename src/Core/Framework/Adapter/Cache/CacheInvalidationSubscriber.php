@@ -82,8 +82,10 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 #[Package('core')]
 class CacheInvalidationSubscriber implements EventSubscriberInterface
 {
-    public function __construct(private readonly CacheInvalidator $cacheInvalidator, private readonly Connection $connection)
-    {
+    public function __construct(
+        private readonly CacheInvalidator $cacheInvalidator,
+        private readonly Connection $connection
+    ) {
     }
 
     /**

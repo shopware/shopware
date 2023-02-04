@@ -24,8 +24,16 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[Package('core')]
 class AppStateService
 {
-    public function __construct(private readonly EntityRepository $appRepo, private readonly EventDispatcherInterface $eventDispatcher, private readonly ActiveAppsLoader $activeAppsLoader, private readonly TemplateStateService $templateStateService, private readonly ScriptPersister $scriptPersister, private readonly PaymentMethodStateService $paymentMethodStateService, private readonly ScriptExecutor $scriptExecutor, private readonly RuleConditionPersister $ruleConditionPersister)
-    {
+    public function __construct(
+        private readonly EntityRepository $appRepo,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly ActiveAppsLoader $activeAppsLoader,
+        private readonly TemplateStateService $templateStateService,
+        private readonly ScriptPersister $scriptPersister,
+        private readonly PaymentMethodStateService $paymentMethodStateService,
+        private readonly ScriptExecutor $scriptExecutor,
+        private readonly RuleConditionPersister $ruleConditionPersister
+    ) {
     }
 
     public function activateApp(string $appId, Context $context): void

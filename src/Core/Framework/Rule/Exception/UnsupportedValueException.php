@@ -9,8 +9,10 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('business-ops')]
 class UnsupportedValueException extends ShopwareHttpException
 {
-    public function __construct(protected string $type, protected string $class)
-    {
+    public function __construct(
+        protected string $type,
+        protected string $class
+    ) {
         parent::__construct(
             'Unsupported value of type {{ type }} in {{ class }}',
             ['type' => $type, 'class' => $class]

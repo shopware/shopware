@@ -14,6 +14,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
+ *
  * @group rules
  */
 #[Package('business-ops')]
@@ -128,6 +129,6 @@ class LineItemClearanceSaleRuleTest extends TestCase
 
     private function createLineItemWithClearance(bool $clearanceSaleEnabled): LineItem
     {
-        return ($this->createLineItem())->setPayloadValue('isCloseout', $clearanceSaleEnabled);
+        return $this->createLineItem()->setPayloadValue('isCloseout', $clearanceSaleEnabled);
     }
 }

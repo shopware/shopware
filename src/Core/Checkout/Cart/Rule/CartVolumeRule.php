@@ -20,8 +20,10 @@ class CartVolumeRule extends Rule
     /**
      * @internal
      */
-    public function __construct(protected string $operator = self::OPERATOR_EQ, protected ?float $volume = null)
-    {
+    public function __construct(
+        protected string $operator = self::OPERATOR_EQ,
+        protected ?float $volume = null
+    ) {
         parent::__construct();
     }
 

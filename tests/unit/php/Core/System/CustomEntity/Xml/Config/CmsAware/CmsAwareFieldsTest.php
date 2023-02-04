@@ -9,6 +9,7 @@ use Shopware\Core\System\CustomEntity\Xml\Config\CmsAware\CmsAwareFields;
  * @package content
  *
  * @internal
+ *
  * @covers \Shopware\Core\System\CustomEntity\Xml\Config\CmsAware\CmsAwareFields
  */
 class CmsAwareFieldsTest extends TestCase

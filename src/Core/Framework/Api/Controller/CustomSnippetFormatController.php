@@ -20,8 +20,10 @@ class CustomSnippetFormatController
     /**
      * @internal
      */
-    public function __construct(private readonly KernelPluginCollection $plugins, private readonly Environment $twig)
-    {
+    public function __construct(
+        private readonly KernelPluginCollection $plugins,
+        private readonly Environment $twig
+    ) {
     }
 
     #[Route(path: '/api/_action/custom-snippet', name: 'api.action.custom-snippet', methods: ['GET'])]

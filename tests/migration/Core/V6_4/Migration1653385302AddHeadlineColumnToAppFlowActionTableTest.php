@@ -10,6 +10,7 @@ use Shopware\Core\Migration\V6_4\Migration1653385302AddHeadlineColumnToAppFlowAc
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1653385302AddHeadlineColumnToAppFlowActionTable
  */
 class Migration1653385302AddHeadlineColumnToAppFlowActionTableTest extends TestCase

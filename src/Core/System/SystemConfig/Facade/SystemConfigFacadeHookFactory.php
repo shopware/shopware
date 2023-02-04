@@ -19,8 +19,10 @@ class SystemConfigFacadeHookFactory extends HookServiceFactory
     /**
      * @internal
      */
-    public function __construct(private readonly SystemConfigService $systemConfigService, private readonly Connection $connection)
-    {
+    public function __construct(
+        private readonly SystemConfigService $systemConfigService,
+        private readonly Connection $connection
+    ) {
     }
 
     public function getName(): string

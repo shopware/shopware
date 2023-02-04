@@ -84,8 +84,12 @@ class ProductBuilder
 
     private array $dependencies = [];
 
-    public function __construct(IdsCollection $ids, protected string $productNumber, protected int $stock = 1, string $taxKey = 't1')
-    {
+    public function __construct(
+        IdsCollection $ids,
+        protected string $productNumber,
+        protected int $stock = 1,
+        string $taxKey = 't1'
+    ) {
         $this->ids = $ids;
         $this->id = $this->ids->create($productNumber);
         $this->name = $productNumber;

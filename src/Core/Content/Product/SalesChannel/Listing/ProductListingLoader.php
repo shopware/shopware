@@ -30,8 +30,13 @@ class ProductListingLoader
     /**
      * @internal
      */
-    public function __construct(private readonly SalesChannelRepository $repository, private readonly SystemConfigService $systemConfigService, private readonly Connection $connection, private readonly EventDispatcherInterface $eventDispatcher, private readonly AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory)
-    {
+    public function __construct(
+        private readonly SalesChannelRepository $repository,
+        private readonly SystemConfigService $systemConfigService,
+        private readonly Connection $connection,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory
+    ) {
     }
 
     public function load(Criteria $origin, SalesChannelContext $context): EntitySearchResult

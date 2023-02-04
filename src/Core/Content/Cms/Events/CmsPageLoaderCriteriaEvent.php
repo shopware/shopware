@@ -28,8 +28,11 @@ class CmsPageLoaderCriteriaEvent extends NestedEvent implements ShopwareSalesCha
      */
     protected $salesChannelContext;
 
-    public function __construct(Request $request, Criteria $criteria, SalesChannelContext $salesChannelContext)
-    {
+    public function __construct(
+        Request $request,
+        Criteria $criteria,
+        SalesChannelContext $salesChannelContext
+    ) {
         $this->request = $request;
         $this->criteria = $criteria;
         $this->salesChannelContext = $salesChannelContext;

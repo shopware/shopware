@@ -31,8 +31,10 @@ abstract class AbstractFieldSerializer implements FieldSerializerInterface
      */
     private array $cachedConstraints = [];
 
-    public function __construct(protected ValidatorInterface $validator, protected DefinitionInstanceRegistry $definitionRegistry)
-    {
+    public function __construct(
+        protected ValidatorInterface $validator,
+        protected DefinitionInstanceRegistry $definitionRegistry
+    ) {
     }
 
     public function normalize(Field $field, array $data, WriteParameterBag $parameters): array

@@ -8,8 +8,10 @@ use Symfony\Contracts\EventDispatcher\Event;
 #[Package('sales-channel')]
 class ProductExportContentTypeEvent extends Event
 {
-    public function __construct(private readonly string $fileFormat, private string $contentType)
-    {
+    public function __construct(
+        private readonly string $fileFormat,
+        private string $contentType
+    ) {
     }
 
     public function getFileFormat(): string

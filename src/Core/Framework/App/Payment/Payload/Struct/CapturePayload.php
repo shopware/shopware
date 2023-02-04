@@ -23,8 +23,11 @@ class CapturePayload implements PaymentPayloadInterface
 
     protected OrderTransactionEntity $orderTransaction;
 
-    public function __construct(OrderTransactionEntity $orderTransaction, protected OrderEntity $order, protected Struct $preOrderPayment)
-    {
+    public function __construct(
+        OrderTransactionEntity $orderTransaction,
+        protected OrderEntity $order,
+        protected Struct $preOrderPayment
+    ) {
         $this->orderTransaction = $this->removeApp($orderTransaction);
     }
 

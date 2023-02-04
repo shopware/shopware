@@ -40,6 +40,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  * @package business-ops
  *
  * @internal
+ *
  * @covers \Shopware\Core\Content\Rule\DataAbstractionLayer\RuleAreaUpdater
  */
 class RuleAreaUpdaterTest extends TestCase

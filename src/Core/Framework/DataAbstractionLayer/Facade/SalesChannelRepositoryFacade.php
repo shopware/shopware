@@ -27,8 +27,11 @@ class SalesChannelRepositoryFacade
     /**
      * @internal
      */
-    public function __construct(private readonly SalesChannelDefinitionInstanceRegistry $registry, private readonly RequestCriteriaBuilder $criteriaBuilder, private readonly SalesChannelContext $context)
-    {
+    public function __construct(
+        private readonly SalesChannelDefinitionInstanceRegistry $registry,
+        private readonly RequestCriteriaBuilder $criteriaBuilder,
+        private readonly SalesChannelContext $context
+    ) {
     }
 
     /**

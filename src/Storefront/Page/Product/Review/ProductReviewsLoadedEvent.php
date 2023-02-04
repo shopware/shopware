@@ -28,8 +28,11 @@ class ProductReviewsLoadedEvent extends NestedEvent implements ShopwareSalesChan
      */
     protected $request;
 
-    public function __construct(StorefrontSearchResult $searchResult, SalesChannelContext $salesChannelContext, Request $request)
-    {
+    public function __construct(
+        StorefrontSearchResult $searchResult,
+        SalesChannelContext $salesChannelContext,
+        Request $request
+    ) {
         $this->searchResult = $searchResult;
         $this->salesChannelContext = $salesChannelContext;
         $this->request = $request;

@@ -34,6 +34,7 @@ use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
+ *
  * @group slow
  * @group skip-paratest
  */

@@ -31,8 +31,12 @@ class ProductExportController extends AbstractController
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $salesChannelDomainRepository, private readonly EntityRepository $salesChannelRepository, private readonly ProductExportGeneratorInterface $productExportGenerator, private readonly EventDispatcherInterface $eventDispatcher)
-    {
+    public function __construct(
+        private readonly EntityRepository $salesChannelDomainRepository,
+        private readonly EntityRepository $salesChannelRepository,
+        private readonly ProductExportGeneratorInterface $productExportGenerator,
+        private readonly EventDispatcherInterface $eventDispatcher
+    ) {
     }
 
     #[Route(path: '/api/_action/product-export/validate', name: 'api.action.product_export.validate', methods: ['POST'])]

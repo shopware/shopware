@@ -365,7 +365,9 @@ class Listing
      * @param string[] $ids
      * @param string[] $optionIds
      */
-    public function __construct(public array $ids, public array $optionIds)
-    {
+    public function __construct(
+        public array $ids,
+        public array $optionIds
+    ) {
     }
 }

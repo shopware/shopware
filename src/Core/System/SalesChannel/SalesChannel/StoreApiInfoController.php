@@ -22,8 +22,11 @@ class StoreApiInfoController
      *
      * @param array{administration?: string} $cspTemplates
      */
-    public function __construct(protected DefinitionService $definitionService, private readonly Environment $twig, private readonly array $cspTemplates)
-    {
+    public function __construct(
+        protected DefinitionService $definitionService,
+        private readonly Environment $twig,
+        private readonly array $cspTemplates
+    ) {
     }
 
     #[Route(path: '/store-api/_info/openapi3.json', defaults: ['auth_required' => '%shopware.api.api_browser.auth_required_str%'], name: 'store-api.info.openapi3', methods: ['GET'])]

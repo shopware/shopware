@@ -12,8 +12,10 @@ use Symfony\Component\Filesystem\Filesystem;
 #[Package('core')]
 class PluginExtractor
 {
-    public function __construct(private readonly array $extensionDirectories, private readonly Filesystem $filesystem)
-    {
+    public function __construct(
+        private readonly array $extensionDirectories,
+        private readonly Filesystem $filesystem
+    ) {
     }
 
     /**

@@ -14,6 +14,7 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_3\Migration1592978289ProductCustomFieldSets
  *
  * @phpstan-type DbColumn array{name: string, type: Type, notnull: bool}

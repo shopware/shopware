@@ -15,8 +15,10 @@ class AdminSalesChannelApiSource extends SalesChannelApiSource
      */
     protected $originalContext;
 
-    public function __construct(string $salesChannelId, Context $originalContext)
-    {
+    public function __construct(
+        string $salesChannelId,
+        Context $originalContext
+    ) {
         parent::__construct($salesChannelId);
 
         $this->originalContext = $originalContext;

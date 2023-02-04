@@ -9,6 +9,7 @@ use Shopware\Core\Migration\V6_4\Migration1631625055AddPositionToImportExportMap
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1631625055AddPositionToImportExportMappings
  */
 class Migration1631625055AddPositionToImportExportMappingsTest extends TestCase

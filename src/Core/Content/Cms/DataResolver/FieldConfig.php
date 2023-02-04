@@ -27,8 +27,11 @@ class FieldConfig extends Struct
     /**
      * @param array|bool|float|int|string|null $value
      */
-    public function __construct(string $name, string $source, protected $value)
-    {
+    public function __construct(
+        string $name,
+        string $source,
+        protected $value
+    ) {
         $this->name = $name;
         $this->source = $source;
     }

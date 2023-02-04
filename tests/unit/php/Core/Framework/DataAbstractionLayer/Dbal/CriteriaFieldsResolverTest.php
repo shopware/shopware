@@ -20,6 +20,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Framework\DataAbstractionLayer\Dbal\CriteriaFieldsResolver
  */
 class CriteriaFieldsResolverTest extends TestCase

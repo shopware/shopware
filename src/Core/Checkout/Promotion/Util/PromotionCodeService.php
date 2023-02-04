@@ -23,8 +23,11 @@ class PromotionCodeService
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $promotionRepository, private readonly EntityRepository $individualCodesRepository, private readonly Connection $connection)
-    {
+    public function __construct(
+        private readonly EntityRepository $promotionRepository,
+        private readonly EntityRepository $individualCodesRepository,
+        private readonly Connection $connection
+    ) {
     }
 
     public function getFixedCode(): string

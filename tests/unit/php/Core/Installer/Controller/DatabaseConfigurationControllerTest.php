@@ -24,6 +24,7 @@ use Twig\Environment;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Installer\Controller\DatabaseConfigurationController
  * @covers \Shopware\Core\Installer\Controller\InstallerController
  */

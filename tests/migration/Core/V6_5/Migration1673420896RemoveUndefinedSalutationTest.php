@@ -14,6 +14,7 @@ use Shopware\Core\Migration\V6_5\Migration1673420896RemoveUndefinedSalutation;
  * @package core
  *
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_5\Migration1673420896RemoveUndefinedSalutation
  */
 class Migration1673420896RemoveUndefinedSalutationTest extends TestCase

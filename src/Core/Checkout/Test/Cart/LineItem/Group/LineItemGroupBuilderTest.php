@@ -127,7 +127,6 @@ class LineItemGroupBuilderTest extends TestCase
      * with the sorting, then proceeds with rule matching and packagers.
      * This helps us to avoid any dependencies to rules inside sorters or packagers
      *
-     * @test
      * @group lineitemgroup
      */
     public function testRulesMatchingFirst(): void
@@ -158,7 +157,6 @@ class LineItemGroupBuilderTest extends TestCase
      * Also due to performance its better if we sort once and then
      * package our groups.
      *
-     * @test
      * @group lineitemgroup
      */
     public function testSortingIsCalled(): void
@@ -185,7 +183,6 @@ class LineItemGroupBuilderTest extends TestCase
      * This test verifies that our extractor uses the packager
      * after the rules matcher and after the sorter.
      *
-     * @test
      * @group lineitemgroup
      */
     public function testPackagerIsCalled(): void
@@ -214,7 +211,6 @@ class LineItemGroupBuilderTest extends TestCase
      * Our cart has only 3 items, thus it's only possible to build 1 group in the end,
      * which consists of 2 different items.
      *
-     * @test
      * @group lineitemgroup
      */
     public function testCanOnlyFind1Group(): void
@@ -236,7 +232,6 @@ class LineItemGroupBuilderTest extends TestCase
      * We make groups for every 2 items. Our cart has 7 items, so we
      * have a total of 6 (3 x 2) resulting items.
      *
-     * @test
      * @group lineitemgroup
      */
     public function testShouldFind3Groups(): void
@@ -351,7 +346,6 @@ class LineItemGroupBuilderTest extends TestCase
      * This test verifies that we get a correct exception
      * if our provided packager has not been found.
      *
-     * @test
      * @group lineitemgroup
      */
     public function testPackagerNotFound(): void
@@ -369,7 +363,6 @@ class LineItemGroupBuilderTest extends TestCase
      * This test verifies that we get a correct exception
      * if our sorter has not been found.
      *
-     * @test
      * @group lineitemgroup
      */
     public function testSorterNotFound(): void

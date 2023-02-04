@@ -32,8 +32,16 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $orderRepository, private readonly DocumentConfigLoader $documentConfigLoader, private readonly EventDispatcherInterface $eventDispatcher, private readonly DocumentTemplateRenderer $documentTemplateRenderer, private readonly NumberRangeValueGeneratorInterface $numberRangeValueGenerator, private readonly ReferenceInvoiceLoader $referenceInvoiceLoader, private readonly string $rootDir, private readonly Connection $connection)
-    {
+    public function __construct(
+        private readonly EntityRepository $orderRepository,
+        private readonly DocumentConfigLoader $documentConfigLoader,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly DocumentTemplateRenderer $documentTemplateRenderer,
+        private readonly NumberRangeValueGeneratorInterface $numberRangeValueGenerator,
+        private readonly ReferenceInvoiceLoader $referenceInvoiceLoader,
+        private readonly string $rootDir,
+        private readonly Connection $connection
+    ) {
     }
 
     public function supports(): string

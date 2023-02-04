@@ -25,6 +25,7 @@ use SwagTestNoDefaultLang\SwagTestNoDefaultLang;
 
 /**
  * @internal
+ *
  * @group slow
  * @group skip-paratest
  */

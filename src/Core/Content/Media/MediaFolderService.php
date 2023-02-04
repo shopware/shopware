@@ -18,8 +18,11 @@ class MediaFolderService
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $mediaRepo, private readonly EntityRepository $mediaFolderRepo, private readonly EntityRepository $mediaFolderConfigRepo)
-    {
+    public function __construct(
+        private readonly EntityRepository $mediaRepo,
+        private readonly EntityRepository $mediaFolderRepo,
+        private readonly EntityRepository $mediaFolderConfigRepo
+    ) {
     }
 
     public function dissolve(string $folderId, Context $context): void

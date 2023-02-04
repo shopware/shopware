@@ -31,8 +31,10 @@ class CompiledFieldCollection extends FieldCollection
      */
     private array $extensionFields = [];
 
-    public function __construct(private readonly DefinitionInstanceRegistry $registry, iterable $elements = [])
-    {
+    public function __construct(
+        private readonly DefinitionInstanceRegistry $registry,
+        iterable $elements = []
+    ) {
         foreach ($elements as $element) {
             $this->addField($element);
         }

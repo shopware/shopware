@@ -32,7 +32,9 @@ use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Content\Product\DataAbstractionLayer\StockUpdater
+ *
  * @group slow
  */
 class StockUpdaterTest extends TestCase

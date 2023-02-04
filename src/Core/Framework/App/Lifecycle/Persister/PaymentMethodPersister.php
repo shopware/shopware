@@ -23,8 +23,10 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 class PaymentMethodPersister
 {
-    public function __construct(private readonly EntityRepository $paymentMethodRepository, private readonly MediaService $mediaService)
-    {
+    public function __construct(
+        private readonly EntityRepository $paymentMethodRepository,
+        private readonly MediaService $mediaService
+    ) {
     }
 
     public function updatePaymentMethods(Manifest $manifest, string $appId, string $defaultLocale, Context $context): void

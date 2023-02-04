@@ -10,6 +10,7 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_5\Migration1671723392AddWebhookLifetimeConfig
  */
 class Migration1671723392AddWebhookLifetimeConfigTest extends TestCase

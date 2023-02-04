@@ -21,7 +21,9 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  * @package customer-order
  *
  * @internal
+ *
  * @group store-api
+ *
  * @covers \Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute
  */
 class NewsletterSubscribeRouteTest extends TestCase

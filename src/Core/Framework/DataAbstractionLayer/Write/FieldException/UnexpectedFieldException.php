@@ -11,8 +11,10 @@ class UnexpectedFieldException extends ShopwareHttpException implements WriteFie
 {
     private readonly string $fieldName;
 
-    public function __construct(private readonly string $path, string $fieldName)
-    {
+    public function __construct(
+        private readonly string $path,
+        string $fieldName
+    ) {
         parent::__construct(
             'Unexpected field: {{ field }}',
             ['field' => $fieldName]

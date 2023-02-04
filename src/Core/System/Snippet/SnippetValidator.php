@@ -12,8 +12,11 @@ class SnippetValidator implements SnippetValidatorInterface
     /**
      * @internal
      */
-    public function __construct(private readonly SnippetFileCollection $deprecatedSnippetFiles, private readonly SnippetFileHandler $snippetFileHandler, private readonly string $projectDir)
-    {
+    public function __construct(
+        private readonly SnippetFileCollection $deprecatedSnippetFiles,
+        private readonly SnippetFileHandler $snippetFileHandler,
+        private readonly string $projectDir
+    ) {
     }
 
     /**

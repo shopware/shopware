@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Store\Services\TrackingEventClient;
  * @package merchant-services
  *
  * @internal
+ *
  * @covers \Shopware\Core\Framework\Store\Services\TrackingEventClient
  */
 class TrackingEventClientTest extends TestCase

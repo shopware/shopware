@@ -9,8 +9,10 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('inventory')]
 class DuplicateProductSearchConfigFieldException extends ShopwareHttpException
 {
-    public function __construct(string $fieldName, \Throwable $e)
-    {
+    public function __construct(
+        string $fieldName,
+        \Throwable $e
+    ) {
         parent::__construct(
             'Product search config with field {{ fieldName }} already exists.',
             ['fieldName' => $fieldName],

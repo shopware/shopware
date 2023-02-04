@@ -27,8 +27,13 @@ class DownloadResponseGenerator
     /**
      * @internal
      */
-    public function __construct(private readonly FilesystemOperator $filesystemPublic, private readonly FilesystemOperator $filesystemPrivate, private readonly UrlGeneratorInterface $urlGenerator, private readonly MediaService $mediaService, private readonly string $localPrivateDownloadStrategy)
-    {
+    public function __construct(
+        private readonly FilesystemOperator $filesystemPublic,
+        private readonly FilesystemOperator $filesystemPrivate,
+        private readonly UrlGeneratorInterface $urlGenerator,
+        private readonly MediaService $mediaService,
+        private readonly string $localPrivateDownloadStrategy
+    ) {
     }
 
     public function getResponse(

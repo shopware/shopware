@@ -11,6 +11,7 @@ use Shopware\Core\Migration\V6_4\Migration1612184092AddUrlLandingPage;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1612184092AddUrlLandingPage
  */
 class Migration1612184092AddUrlLandingPageTest extends TestCase

@@ -7,8 +7,14 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('checkout')]
 class GenericCartError extends Error
 {
-    public function __construct(protected string $id, protected string $messageKey, protected array $parameters, protected int $level, protected bool $blockOrder, protected bool $persistent)
-    {
+    public function __construct(
+        protected string $id,
+        protected string $messageKey,
+        protected array $parameters,
+        protected int $level,
+        protected bool $blockOrder,
+        protected bool $persistent
+    ) {
         parent::__construct();
     }
 

@@ -16,8 +16,10 @@ class QuantityPriceCalculator
     /**
      * @internal
      */
-    public function __construct(private readonly GrossPriceCalculator $grossPriceCalculator, private readonly NetPriceCalculator $netPriceCalculator)
-    {
+    public function __construct(
+        private readonly GrossPriceCalculator $grossPriceCalculator,
+        private readonly NetPriceCalculator $netPriceCalculator
+    ) {
     }
 
     public function calculate(QuantityPriceDefinition $definition, SalesChannelContext $context): CalculatedPrice

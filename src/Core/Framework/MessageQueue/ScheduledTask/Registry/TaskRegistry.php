@@ -22,8 +22,11 @@ class TaskRegistry
      *
      * @param iterable<int, ScheduledTask> $tasks
      */
-    public function __construct(private readonly iterable $tasks, private readonly EntityRepository $scheduledTaskRepository, private readonly ParameterBagInterface $parameterBag)
-    {
+    public function __construct(
+        private readonly iterable $tasks,
+        private readonly EntityRepository $scheduledTaskRepository,
+        private readonly ParameterBagInterface $parameterBag
+    ) {
     }
 
     public function registerTasks(): void

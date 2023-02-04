@@ -21,8 +21,10 @@ class ProductQuickViewWidgetLoadedHook extends PageLoadedHook
 
     final public const HOOK_NAME = 'product-quick-view-widget-loaded';
 
-    public function __construct(private readonly MinimalQuickViewPage $page, SalesChannelContext $context)
-    {
+    public function __construct(
+        private readonly MinimalQuickViewPage $page,
+        SalesChannelContext $context
+    ) {
         parent::__construct($context->getContext());
         $this->salesChannelContext = $context;
     }

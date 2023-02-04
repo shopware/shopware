@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @template TElement of Struct
+ *
  * @extends Collection<TElement>
  */
 #[Package('core')]

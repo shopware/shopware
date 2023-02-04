@@ -13,8 +13,10 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('business-ops')]
 class CustomerAwareEvent implements CustomerAware
 {
-    public function __construct(protected string $customerId, protected ?Context $context = null)
-    {
+    public function __construct(
+        protected string $customerId,
+        protected ?Context $context = null
+    ) {
     }
 
     public static function getAvailableData(): EventDataCollection

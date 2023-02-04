@@ -14,8 +14,11 @@ class FlysystemLastModifiedVersionStrategy implements VersionStrategyInterface
     /**
      * @internal
      */
-    public function __construct(private readonly string $cacheTag, private readonly FilesystemOperator $filesystem, private readonly TagAwareAdapterInterface $cacheAdapter)
-    {
+    public function __construct(
+        private readonly string $cacheTag,
+        private readonly FilesystemOperator $filesystem,
+        private readonly TagAwareAdapterInterface $cacheAdapter
+    ) {
     }
 
     public function getVersion(string $path): string

@@ -12,8 +12,10 @@ class DiscountCalculatorResult
     /**
      * @param DiscountCompositionItem[] $compositionItems
      */
-    public function __construct(private readonly CalculatedPrice $price, private readonly array $compositionItems)
-    {
+    public function __construct(
+        private readonly CalculatedPrice $price,
+        private readonly array $compositionItems
+    ) {
     }
 
     public function getPrice(): CalculatedPrice

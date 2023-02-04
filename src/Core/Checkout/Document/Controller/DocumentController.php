@@ -23,8 +23,10 @@ class DocumentController extends AbstractController
     /**
      * @internal
      */
-    public function __construct(private readonly DocumentGenerator $documentGenerator, private readonly DocumentMerger $documentMerger)
-    {
+    public function __construct(
+        private readonly DocumentGenerator $documentGenerator,
+        private readonly DocumentMerger $documentMerger
+    ) {
     }
 
     #[Route(path: '/api/_action/document/{documentId}/{deepLinkCode}', name: 'api.action.download.document', methods: ['GET'], defaults: ['_acl' => ['document.viewer']])]

@@ -58,8 +58,19 @@ class VersionManager
 {
     final public const DISABLE_AUDIT_LOG = 'disable-audit-log';
 
-    public function __construct(private readonly EntityWriterInterface $entityWriter, private readonly EntityReaderInterface $entityReader, private readonly EntitySearcherInterface $entitySearcher, private readonly EntityWriteGatewayInterface $entityWriteGateway, private readonly EventDispatcherInterface $eventDispatcher, private readonly SerializerInterface $serializer, private readonly DefinitionInstanceRegistry $registry, private readonly VersionCommitDefinition $versionCommitDefinition, private readonly VersionCommitDataDefinition $versionCommitDataDefinition, private readonly VersionDefinition $versionDefinition, private readonly LockFactory $lockFactory)
-    {
+    public function __construct(
+        private readonly EntityWriterInterface $entityWriter,
+        private readonly EntityReaderInterface $entityReader,
+        private readonly EntitySearcherInterface $entitySearcher,
+        private readonly EntityWriteGatewayInterface $entityWriteGateway,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly SerializerInterface $serializer,
+        private readonly DefinitionInstanceRegistry $registry,
+        private readonly VersionCommitDefinition $versionCommitDefinition,
+        private readonly VersionCommitDataDefinition $versionCommitDataDefinition,
+        private readonly VersionDefinition $versionDefinition,
+        private readonly LockFactory $lockFactory
+    ) {
     }
 
     /**

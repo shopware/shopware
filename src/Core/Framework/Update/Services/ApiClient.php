@@ -20,8 +20,13 @@ final class ApiClient
     /**
      * @internal
      */
-    public function __construct(private readonly string $shopwareVersion, private readonly SystemConfigService $systemConfigService, private readonly OpenSSLVerifier $openSSLVerifier, private readonly Client $client, private readonly bool $shopwareUpdateEnabled)
-    {
+    public function __construct(
+        private readonly string $shopwareVersion,
+        private readonly SystemConfigService $systemConfigService,
+        private readonly OpenSSLVerifier $openSSLVerifier,
+        private readonly Client $client,
+        private readonly bool $shopwareUpdateEnabled
+    ) {
     }
 
     public function checkForUpdates(bool $testMode = false): Version

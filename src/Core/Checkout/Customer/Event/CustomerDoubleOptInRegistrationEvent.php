@@ -24,8 +24,11 @@ class CustomerDoubleOptInRegistrationEvent extends Event implements SalesChannel
 
     private ?MailRecipientStruct $mailRecipientStruct = null;
 
-    public function __construct(private readonly CustomerEntity $customer, private readonly SalesChannelContext $salesChannelContext, private readonly string $confirmUrl)
-    {
+    public function __construct(
+        private readonly CustomerEntity $customer,
+        private readonly SalesChannelContext $salesChannelContext,
+        private readonly string $confirmUrl
+    ) {
     }
 
     public static function getAvailableData(): EventDataCollection

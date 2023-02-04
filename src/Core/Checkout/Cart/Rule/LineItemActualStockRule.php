@@ -20,8 +20,10 @@ class LineItemActualStockRule extends Rule
     /**
      * @internal
      */
-    public function __construct(protected string $operator = self::OPERATOR_EQ, protected ?int $stock = null)
-    {
+    public function __construct(
+        protected string $operator = self::OPERATOR_EQ,
+        protected ?int $stock = null
+    ) {
         parent::__construct();
     }
 

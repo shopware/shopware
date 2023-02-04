@@ -22,8 +22,14 @@ class SeoUrlUpdater
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $languageRepository, private readonly SeoUrlRouteRegistry $seoUrlRouteRegistry, private readonly SeoUrlGenerator $seoUrlGenerator, private readonly SeoUrlPersister $seoUrlPersister, private readonly Connection $connection, private readonly EntityRepository $salesChannelRepository)
-    {
+    public function __construct(
+        private readonly EntityRepository $languageRepository,
+        private readonly SeoUrlRouteRegistry $seoUrlRouteRegistry,
+        private readonly SeoUrlGenerator $seoUrlGenerator,
+        private readonly SeoUrlPersister $seoUrlPersister,
+        private readonly Connection $connection,
+        private readonly EntityRepository $salesChannelRepository
+    ) {
     }
 
     /**

@@ -24,6 +24,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
+ *
  * @implements Rule<MethodCall>
  */
 #[Package('core')]

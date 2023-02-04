@@ -24,7 +24,9 @@ class StoreApiTestOtherRoute extends AbstractStoreApiTestRoute
      *      summary="An other internal Route",
      *      operationId="readOtherInternalTest",
      *      tags={"Store API", "Test"},
+     *
      *      @OA\Parameter(name="Api-Basic-Parameters"),
+     *
      *      @OA\Response(
      *          response="200",
      *          description="Success"
@@ -45,7 +47,9 @@ class StoreApiTestOtherRoute extends AbstractStoreApiTestRoute
      *      summary="An other not internal Route",
      *      operationId="readOtherNotInternalTest",
      *      tags={"Store API", "Test"},
+     *
      *      @OA\Parameter(name="Api-Basic-Parameters"),
+     *
      *      @OA\Response(
      *          response="200",
      *          description="Success"
@@ -64,7 +68,9 @@ class StoreApiTestOtherRoute extends AbstractStoreApiTestRoute
      *      summary="An other internal no flag Route",
      *      operationId="readOtherInternalNoFlagTest",
      *      tags={"Store API", "Test"},
+     *
      *      @OA\Parameter(name="Api-Basic-Parameters"),
+     *
      *      @OA\Response(
      *          response="200",
      *          description="Success"

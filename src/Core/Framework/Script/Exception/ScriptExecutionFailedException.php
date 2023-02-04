@@ -11,8 +11,11 @@ class ScriptExecutionFailedException extends ShopwareHttpException
 {
     private readonly ?\Throwable $rootException;
 
-    public function __construct(string $hook, string $scriptName, \Throwable $previous)
-    {
+    public function __construct(
+        string $hook,
+        string $scriptName,
+        \Throwable $previous
+    ) {
         $this->rootException = $previous->getPrevious();
         parent::__construct(sprintf(
             'Execution of script "%s" for Hook "%s" failed with message: %s',

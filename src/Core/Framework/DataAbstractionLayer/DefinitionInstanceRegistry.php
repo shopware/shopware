@@ -40,8 +40,11 @@ class DefinitionInstanceRegistry
      *                             eg. 'product' => '\Shopware\Core\Content\Product\ProductDefinition'
      * @param array<string, string> $repositoryMap array of $entityName => $repositoryServiceId, eg. 'product' => 'product.repository'
      */
-    public function __construct(ContainerInterface $container, array $definitionMap, array $repositoryMap)
-    {
+    public function __construct(
+        ContainerInterface $container,
+        array $definitionMap,
+        array $repositoryMap
+    ) {
         $this->container = $container;
         $this->definitions = $definitionMap;
         $this->repositoryMap = $repositoryMap;

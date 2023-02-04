@@ -28,8 +28,15 @@ class PluginService
 {
     final public const COMPOSER_AUTHOR_ROLE_MANUFACTURER = 'Manufacturer';
 
-    public function __construct(private readonly string $pluginDir, private readonly string $projectDir, private readonly EntityRepository $pluginRepo, private readonly EntityRepository $languageRepo, private readonly ChangelogService $changelogService, private readonly PluginFinder $pluginFinder, private readonly VersionSanitizer $versionSanitizer)
-    {
+    public function __construct(
+        private readonly string $pluginDir,
+        private readonly string $projectDir,
+        private readonly EntityRepository $pluginRepo,
+        private readonly EntityRepository $languageRepo,
+        private readonly ChangelogService $changelogService,
+        private readonly PluginFinder $pluginFinder,
+        private readonly VersionSanitizer $versionSanitizer
+    ) {
     }
 
     public function refreshPlugins(Context $shopwareContext, IOInterface $composerIO): ExceptionCollection

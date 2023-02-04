@@ -11,6 +11,7 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_3\Migration1606310257AddCanonicalUrlProp
  */
 class Migration1606310257AddCanonicalUrlPropTest extends TestCase

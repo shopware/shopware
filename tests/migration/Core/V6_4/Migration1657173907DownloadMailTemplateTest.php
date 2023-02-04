@@ -14,6 +14,7 @@ use Shopware\Core\Migration\V6_4\Migration1657173907DownloadMailTemplate;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1657173907DownloadMailTemplate
  */
 class Migration1657173907DownloadMailTemplateTest extends TestCase

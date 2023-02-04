@@ -9,8 +9,10 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('system-settings')]
 class ProfileWrongTypeException extends ShopwareHttpException
 {
-    public function __construct(string $profileId, string $profileType)
-    {
+    public function __construct(
+        string $profileId,
+        string $profileType
+    ) {
         parent::__construct(
             'The import/export profile with id {{ profileId }} can only be used for {{ profileType }}',
             ['profileId' => $profileId, 'profileType' => $profileType]

@@ -27,6 +27,7 @@ use Shopware\Core\System\Tax\TaxCollection;
  * @internal
  *
  * @package content
+ *
  * @covers \Shopware\Core\Content\Category\Subscriber\CategorySubscriber
  */
 class CategorySubscriberTest extends TestCase

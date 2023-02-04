@@ -8,8 +8,10 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('storefront')]
 class BasicCaptchaImage extends Struct
 {
-    public function __construct(private readonly string $code, private readonly string $imageBase64)
-    {
+    public function __construct(
+        private readonly string $code,
+        private readonly string $imageBase64
+    ) {
     }
 
     public function getCode(): string

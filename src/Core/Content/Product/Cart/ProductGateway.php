@@ -16,8 +16,10 @@ class ProductGateway implements ProductGatewayInterface
     /**
      * @internal
      */
-    public function __construct(private readonly SalesChannelRepository $repository, private readonly EventDispatcherInterface $eventDispatcher)
-    {
+    public function __construct(
+        private readonly SalesChannelRepository $repository,
+        private readonly EventDispatcherInterface $eventDispatcher
+    ) {
     }
 
     public function get(array $ids, SalesChannelContext $context): ProductCollection

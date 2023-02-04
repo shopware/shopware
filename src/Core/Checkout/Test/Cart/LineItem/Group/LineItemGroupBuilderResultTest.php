@@ -19,7 +19,6 @@ class LineItemGroupBuilderResultTest extends TestCase
      * This test verifies that our functions does
      * correctly return false if we dont have any existing entries.
      *
-     * @test
      * @group lineitemgroup
      */
     public function testHasItemsOnEmptyList(): void
@@ -35,7 +34,6 @@ class LineItemGroupBuilderResultTest extends TestCase
      * If we have found groups, but no items in there, it should
      * also return FALSE.
      *
-     * @test
      * @group lineitemgroup
      */
     public function testHasItemsOnGroupWithNoResults(): void
@@ -54,7 +52,6 @@ class LineItemGroupBuilderResultTest extends TestCase
      * This test verifies that we get TRUE
      * if we have existing entries.
      *
-     * @test
      * @group lineitemgroup
      */
     public function testHasItemsIfExisting(): void
@@ -75,7 +72,6 @@ class LineItemGroupBuilderResultTest extends TestCase
      * This test verifies that our result of a
      * group definition uses the item IDs as keys in the array
      *
-     * @test
      * @group lineitemgroup
      */
     public function testGroupTotalResultUsesKeys(): void
@@ -96,7 +92,6 @@ class LineItemGroupBuilderResultTest extends TestCase
      * a single line item for a definition and retrieve
      * all the aggregated data with our total result function
      *
-     * @test
      * @group lineitemgroup
      */
     public function testGroupTotalContainsItem(): void
@@ -123,7 +118,6 @@ class LineItemGroupBuilderResultTest extends TestCase
      * a group of multiple line items for a definition and retrieve
      * all the aggregated data with our total result function
      *
-     * @test
      * @group lineitemgroup
      */
     public function testGroupTotalContainsAllGroupItems(): void
@@ -153,7 +147,6 @@ class LineItemGroupBuilderResultTest extends TestCase
      * increased if we already have the line items in
      * the result of our provided group definition.
      *
-     * @test
      * @group lineitemgroup
      */
     public function testQuantityIncreasedOnExistingItems(): void
@@ -179,7 +172,6 @@ class LineItemGroupBuilderResultTest extends TestCase
      * and no exception if we try to retrieve the result
      * of a group definition that has not even been found.
      *
-     * @test
      * @group lineitemgroup
      */
     public function testUnknownGroupDefinitionReturnsEmptyArray(): void
@@ -197,7 +189,6 @@ class LineItemGroupBuilderResultTest extends TestCase
      * In the end, we should not only have aggregated values, but also
      * know how many times a group has been found.
      *
-     * @test
      * @group lineitemgroup
      */
     public function testGroupCountsAreAdded(): void
@@ -229,7 +220,6 @@ class LineItemGroupBuilderResultTest extends TestCase
      * found groups if we search for a group definition on
      * an empty result object.
      *
-     * @test
      * @group lineitemgroup
      */
     public function testGroupCountsOnEmptyData(): void
@@ -246,7 +236,6 @@ class LineItemGroupBuilderResultTest extends TestCase
      * for a group definition returns an empty list,
      * if no result itesm exist.
      *
-     * @test
      * @group lineitemgroup
      */
     public function testGroupResultOnEmptyData(): void
@@ -266,7 +255,6 @@ class LineItemGroupBuilderResultTest extends TestCase
      * allows us to e.g. only use the first valid group for discounts
      * instead of all found groups for a definition.
      *
-     * @test
      * @group lineitemgroup
      */
     public function testGroupResultHasAllFoundGroupsOfDefinition(): void

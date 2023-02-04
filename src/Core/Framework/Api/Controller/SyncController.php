@@ -28,8 +28,10 @@ class SyncController extends AbstractController
     /**
      * @internal
      */
-    public function __construct(private readonly SyncServiceInterface $syncService, private readonly DecoderInterface $serializer)
-    {
+    public function __construct(
+        private readonly SyncServiceInterface $syncService,
+        private readonly DecoderInterface $serializer
+    ) {
     }
 
     /**

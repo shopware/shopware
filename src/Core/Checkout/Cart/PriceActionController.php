@@ -26,8 +26,11 @@ class PriceActionController extends AbstractController
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $taxRepository, private readonly NetPriceCalculator $netCalculator, private readonly GrossPriceCalculator $grossCalculator)
-    {
+    public function __construct(
+        private readonly EntityRepository $taxRepository,
+        private readonly NetPriceCalculator $netCalculator,
+        private readonly GrossPriceCalculator $grossCalculator
+    ) {
     }
 
     #[Route(path: 'api/_action/calculate-price', name: 'api.action.calculate-price', methods: ['POST'])]

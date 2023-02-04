@@ -11,8 +11,11 @@ class VariantListingConfig extends Struct
     /**
      * @param array<string, string>|null $configuratorGroupConfig
      */
-    public function __construct(protected ?bool $displayParent, protected ?string $mainVariantId, protected ?array $configuratorGroupConfig)
-    {
+    public function __construct(
+        protected ?bool $displayParent,
+        protected ?string $mainVariantId,
+        protected ?array $configuratorGroupConfig
+    ) {
     }
 
     public function getDisplayParent(): ?bool

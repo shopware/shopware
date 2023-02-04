@@ -10,6 +10,7 @@ use Shopware\Core\Maintenance\User\Service\UserProvisioner;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Maintenance\User\Service\UserProvisioner
  */
 class UserProvisionerTest extends TestCase

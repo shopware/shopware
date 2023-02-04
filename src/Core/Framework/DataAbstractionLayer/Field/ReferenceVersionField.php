@@ -25,8 +25,10 @@ class ReferenceVersionField extends FkField
      */
     protected $storageName;
 
-    public function __construct(string $definition, ?string $storageName = null)
-    {
+    public function __construct(
+        string $definition,
+        ?string $storageName = null
+    ) {
         $entity = $definition;
         if (\is_subclass_of($definition, EntityDefinition::class)) {
             $entity = (new $definition())->getEntityName();

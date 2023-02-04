@@ -17,8 +17,10 @@ class PrefixFilesystem implements FilesystemOperator
     /**
      * @internal
      */
-    public function __construct(protected FilesystemOperator $filesystem, string $prefix)
-    {
+    public function __construct(
+        protected FilesystemOperator $filesystem,
+        string $prefix
+    ) {
         if (empty($prefix)) {
             throw new \InvalidArgumentException('The prefix must not be empty.');
         }
@@ -73,7 +75,7 @@ class PrefixFilesystem implements FilesystemOperator
                 }
                 // @codeCoverageIgnoreStart
                 return $info;
-            // @codeCoverageIgnoreEnd
+                // @codeCoverageIgnoreEnd
             },
             $this->filesystem->listContents($location, $deep)->toArray()
         ));

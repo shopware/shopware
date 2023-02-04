@@ -11,6 +11,7 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1611732852UpdateCmsPdpLayout
  */
 class Migration1611732852UpdateCmsPdpLayoutTest extends TestCase

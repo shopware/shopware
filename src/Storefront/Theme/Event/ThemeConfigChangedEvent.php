@@ -8,8 +8,10 @@ use Symfony\Contracts\EventDispatcher\Event;
 #[Package('storefront')]
 class ThemeConfigChangedEvent extends Event
 {
-    public function __construct(private readonly string $themeId, protected array $config)
-    {
+    public function __construct(
+        private readonly string $themeId,
+        protected array $config
+    ) {
     }
 
     public function getConfig(): array

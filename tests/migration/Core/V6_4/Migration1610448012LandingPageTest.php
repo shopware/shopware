@@ -8,6 +8,7 @@ use Shopware\Core\Migration\V6_4\Migration1610448012LandingPage;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1610448012LandingPage
  */
 class Migration1610448012LandingPageTest extends TestCase

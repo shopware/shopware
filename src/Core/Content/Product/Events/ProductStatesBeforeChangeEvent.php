@@ -14,8 +14,10 @@ class ProductStatesBeforeChangeEvent extends Event implements ShopwareEvent
     /**
      * @param UpdatedStates[] $updatedStates
      */
-    public function __construct(protected array $updatedStates, protected Context $context)
-    {
+    public function __construct(
+        protected array $updatedStates,
+        protected Context $context
+    ) {
     }
 
     /**

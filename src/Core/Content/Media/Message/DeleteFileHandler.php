@@ -18,8 +18,10 @@ final class DeleteFileHandler
     /**
      * @internal
      */
-    public function __construct(private readonly FilesystemOperator $filesystemPublic, private readonly FilesystemOperator $filesystemPrivate)
-    {
+    public function __construct(
+        private readonly FilesystemOperator $filesystemPublic,
+        private readonly FilesystemOperator $filesystemPrivate
+    ) {
     }
 
     public function __invoke(DeleteFileMessage $message): void

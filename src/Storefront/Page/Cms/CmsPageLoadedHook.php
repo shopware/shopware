@@ -22,8 +22,10 @@ class CmsPageLoadedHook extends PageLoadedHook
 
     final public const HOOK_NAME = 'cms-page-loaded';
 
-    public function __construct(private readonly CmsPageEntity $page, SalesChannelContext $context)
-    {
+    public function __construct(
+        private readonly CmsPageEntity $page,
+        SalesChannelContext $context
+    ) {
         parent::__construct($context->getContext());
         $this->salesChannelContext = $context;
     }

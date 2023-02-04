@@ -9,6 +9,7 @@ use Shopware\Storefront\Migration\V6_4\Migration1641476963ThemeDependentIds;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Storefront\Migration\V6_4\Migration1641476963ThemeDependentIds
  */
 class Migration1641476963ThemeDependentIdsTest extends TestCase

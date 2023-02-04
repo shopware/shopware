@@ -33,8 +33,12 @@ class RateLimiterFactory
      *
      * @param RateLimiterConfig $config
      */
-    public function __construct(private array $config, private readonly StorageInterface $storage, private readonly SystemConfigService $systemConfigService, private readonly ?LockFactory $lockFactory = null)
-    {
+    public function __construct(
+        private array $config,
+        private readonly StorageInterface $storage,
+        private readonly SystemConfigService $systemConfigService,
+        private readonly ?LockFactory $lockFactory = null
+    ) {
     }
 
     public function create(?string $key = null): LimiterInterface

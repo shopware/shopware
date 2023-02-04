@@ -16,8 +16,11 @@ class CacheTracer extends AbstractCacheTracer
     /**
      * @internal
      */
-    public function __construct(private readonly SystemConfigService $config, private readonly AbstractTranslator $translator, private readonly CacheTagCollection $collection)
-    {
+    public function __construct(
+        private readonly SystemConfigService $config,
+        private readonly AbstractTranslator $translator,
+        private readonly CacheTagCollection $collection
+    ) {
     }
 
     public function getDecorated(): AbstractCacheTracer

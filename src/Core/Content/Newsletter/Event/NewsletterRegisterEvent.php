@@ -23,8 +23,12 @@ class NewsletterRegisterEvent extends Event implements SalesChannelAware, MailAw
 
     private ?MailRecipientStruct $mailRecipientStruct = null;
 
-    public function __construct(private readonly Context $context, private readonly NewsletterRecipientEntity $newsletterRecipient, private readonly string $url, private readonly string $salesChannelId)
-    {
+    public function __construct(
+        private readonly Context $context,
+        private readonly NewsletterRecipientEntity $newsletterRecipient,
+        private readonly string $url,
+        private readonly string $salesChannelId
+    ) {
     }
 
     public static function getAvailableData(): EventDataCollection

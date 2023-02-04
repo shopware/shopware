@@ -10,6 +10,7 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1624884801MakeMailLinksConfigurable
  */
 class Migration1624884801MakeMailLinksConfigurableTest extends TestCase

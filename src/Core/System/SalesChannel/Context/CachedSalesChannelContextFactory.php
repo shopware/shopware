@@ -19,8 +19,11 @@ class CachedSalesChannelContextFactory extends AbstractSalesChannelContextFactor
      *
      * @param AbstractCacheTracer<SalesChannelContext> $tracer
      */
-    public function __construct(private readonly AbstractSalesChannelContextFactory $decorated, private readonly CacheInterface $cache, private readonly AbstractCacheTracer $tracer)
-    {
+    public function __construct(
+        private readonly AbstractSalesChannelContextFactory $decorated,
+        private readonly CacheInterface $cache,
+        private readonly AbstractCacheTracer $tracer
+    ) {
     }
 
     public function getDecorated(): AbstractSalesChannelContextFactory

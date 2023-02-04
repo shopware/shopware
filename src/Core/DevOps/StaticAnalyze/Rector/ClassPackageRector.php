@@ -68,7 +68,7 @@ PHP;
             'Adds a #[Package] attribute to all php classes corresponding to the area mapping.',
             [
                 new CodeSample(
-                // code before
+                    // code before
                     '
 class Foo{}',
 

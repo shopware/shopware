@@ -11,6 +11,7 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1672743034AddDefaultAdminUserPasswordMinLength
  */
 class Migration1672743034AddDefaultAdminUserPasswordMinLengthTest extends TestCase

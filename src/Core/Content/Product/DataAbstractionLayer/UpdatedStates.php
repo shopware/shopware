@@ -12,8 +12,11 @@ final class UpdatedStates extends Struct
      * @param string[] $oldStates
      * @param string[] $newStates
      */
-    public function __construct(private readonly string $id, private readonly array $oldStates, private array $newStates)
-    {
+    public function __construct(
+        private readonly string $id,
+        private readonly array $oldStates,
+        private array $newStates
+    ) {
     }
 
     public function getId(): string

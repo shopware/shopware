@@ -23,6 +23,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Storefront\Checkout\Shipping\BlockedShippingMethodSwitcher
  */
 class BlockedShippingMethodSwitcherTest extends TestCase

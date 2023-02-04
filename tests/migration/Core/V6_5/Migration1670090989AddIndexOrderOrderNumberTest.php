@@ -11,6 +11,7 @@ use Shopware\Core\Migration\V6_5\Migration1670090989AddIndexOrderOrderNumber;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_5\Migration1670090989AddIndexOrderOrderNumber
  */
 class Migration1670090989AddIndexOrderOrderNumberTest extends TestCase

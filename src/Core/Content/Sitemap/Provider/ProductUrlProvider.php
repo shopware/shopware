@@ -29,8 +29,14 @@ class ProductUrlProvider extends AbstractUrlProvider
     /**
      * @internal
      */
-    public function __construct(private readonly ConfigHandler $configHandler, private readonly Connection $connection, private readonly ProductDefinition $definition, private readonly IteratorFactory $iteratorFactory, private readonly RouterInterface $router, private readonly SystemConfigService $systemConfigService)
-    {
+    public function __construct(
+        private readonly ConfigHandler $configHandler,
+        private readonly Connection $connection,
+        private readonly ProductDefinition $definition,
+        private readonly IteratorFactory $iteratorFactory,
+        private readonly RouterInterface $router,
+        private readonly SystemConfigService $systemConfigService
+    ) {
     }
 
     public function getDecorated(): AbstractUrlProvider

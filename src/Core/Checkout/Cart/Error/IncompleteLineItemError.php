@@ -8,8 +8,10 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('checkout')]
 class IncompleteLineItemError extends Error
 {
-    public function __construct(private string $key, private readonly string $property)
-    {
+    public function __construct(
+        private string $key,
+        private readonly string $property
+    ) {
         $this->message = sprintf('Line item "%s" incomplete. Property "%s" missing.', $key, $property);
 
         parent::__construct($this->message);

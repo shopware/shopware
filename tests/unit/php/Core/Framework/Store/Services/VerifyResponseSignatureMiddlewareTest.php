@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Store\Services\VerifyResponseSignatureMiddleware;
  * @package merchant-services
  *
  * @internal
+ *
  * @covers \Shopware\Core\Framework\Store\Services\VerifyResponseSignatureMiddleware
  */
 class VerifyResponseSignatureMiddlewareTest extends TestCase

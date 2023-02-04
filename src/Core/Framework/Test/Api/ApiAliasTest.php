@@ -13,6 +13,7 @@ use Shopware\Core\Kernel;
 
 /**
  * @internal
+ *
  * @group skip-paratest
  */
 class ApiAliasTest extends TestCase

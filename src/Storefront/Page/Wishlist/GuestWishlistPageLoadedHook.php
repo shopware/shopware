@@ -21,8 +21,10 @@ class GuestWishlistPageLoadedHook extends PageLoadedHook
 
     final public const HOOK_NAME = 'guest-wishlist-page-loaded';
 
-    public function __construct(private readonly GuestWishlistPage $page, SalesChannelContext $context)
-    {
+    public function __construct(
+        private readonly GuestWishlistPage $page,
+        SalesChannelContext $context
+    ) {
         parent::__construct($context->getContext());
         $this->salesChannelContext = $context;
     }

@@ -10,8 +10,10 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 #[Package('business-ops')]
 class LineItemScope extends CheckoutRuleScope
 {
-    public function __construct(protected LineItem $lineItem, SalesChannelContext $context)
-    {
+    public function __construct(
+        protected LineItem $lineItem,
+        SalesChannelContext $context
+    ) {
         parent::__construct($context);
     }
 

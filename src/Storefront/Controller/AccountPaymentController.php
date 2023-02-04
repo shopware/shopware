@@ -26,8 +26,10 @@ class AccountPaymentController extends StorefrontController
     /**
      * @internal
      */
-    public function __construct(private readonly AccountPaymentMethodPageLoader $paymentMethodPageLoader, private readonly AbstractChangePaymentMethodRoute $changePaymentMethodRoute)
-    {
+    public function __construct(
+        private readonly AccountPaymentMethodPageLoader $paymentMethodPageLoader,
+        private readonly AbstractChangePaymentMethodRoute $changePaymentMethodRoute
+    ) {
     }
 
     #[Route(path: '/account/payment', name: 'frontend.account.payment.page', options: ['seo' => false], defaults: ['_loginRequired' => true, '_noStore' => true], methods: ['GET'])]

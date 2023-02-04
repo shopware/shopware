@@ -14,8 +14,11 @@ class AppFlowActionEvent extends Event implements Hookable
      * @param array<string, string> $headers
      * @param array<mixed> $payload
      */
-    public function __construct(private readonly string $name, private readonly array $headers, private readonly array $payload)
-    {
+    public function __construct(
+        private readonly string $name,
+        private readonly array $headers,
+        private readonly array $payload
+    ) {
     }
 
     public function getName(): string

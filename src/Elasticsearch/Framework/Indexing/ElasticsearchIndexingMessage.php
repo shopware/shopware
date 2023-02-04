@@ -12,8 +12,11 @@ class ElasticsearchIndexingMessage implements AsyncMessageInterface
     /**
      * @internal
      */
-    public function __construct(private readonly IndexingDto $data, private readonly ?IndexerOffset $offset, private readonly Context $context)
-    {
+    public function __construct(
+        private readonly IndexingDto $data,
+        private readonly ?IndexerOffset $offset,
+        private readonly Context $context
+    ) {
     }
 
     public function getData(): IndexingDto

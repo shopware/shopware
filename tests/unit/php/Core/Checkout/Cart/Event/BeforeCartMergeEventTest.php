@@ -11,6 +11,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Checkout\Cart\Event\BeforeCartMergeEvent
  */
 class BeforeCartMergeEventTest extends TestCase

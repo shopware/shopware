@@ -18,8 +18,11 @@ class AmountCalculator
     /**
      * @internal
      */
-    public function __construct(private readonly CashRounding $rounding, private readonly PercentageTaxRuleBuilder $taxRuleBuilder, private readonly TaxCalculator $taxCalculator)
-    {
+    public function __construct(
+        private readonly CashRounding $rounding,
+        private readonly PercentageTaxRuleBuilder $taxRuleBuilder,
+        private readonly TaxCalculator $taxCalculator
+    ) {
     }
 
     public function calculate(PriceCollection $prices, PriceCollection $shippingCosts, SalesChannelContext $context): CartPrice

@@ -20,6 +20,7 @@ use Twig\Environment;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Profiling\Controller\ProfilerController
  */
 class ProfilerControllerTest extends TestCase

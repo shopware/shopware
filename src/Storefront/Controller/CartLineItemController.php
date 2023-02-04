@@ -34,8 +34,13 @@ class CartLineItemController extends StorefrontController
     /**
      * @internal
      */
-    public function __construct(private readonly CartService $cartService, private readonly PromotionItemBuilder $promotionItemBuilder, private readonly ProductLineItemFactory $productLineItemFactory, private readonly HtmlSanitizer $htmlSanitizer, private readonly AbstractProductListRoute $productListRoute)
-    {
+    public function __construct(
+        private readonly CartService $cartService,
+        private readonly PromotionItemBuilder $promotionItemBuilder,
+        private readonly ProductLineItemFactory $productLineItemFactory,
+        private readonly HtmlSanitizer $htmlSanitizer,
+        private readonly AbstractProductListRoute $productListRoute
+    ) {
     }
 
     #[Route(path: '/checkout/line-item/delete/{id}', name: 'frontend.checkout.line-item.delete', defaults: ['XmlHttpRequest' => true], methods: ['POST', 'DELETE'])]

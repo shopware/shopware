@@ -24,8 +24,10 @@ class JsonType extends JsonFactoryBase
     /**
      * @internal
      */
-    public function __construct(private readonly JsonEntityEncoder $encoder, private readonly StructEncoder $structEncoder)
-    {
+    public function __construct(
+        private readonly JsonEntityEncoder $encoder,
+        private readonly StructEncoder $structEncoder
+    ) {
     }
 
     public function supports(string $contentType, ContextSource $origin): bool

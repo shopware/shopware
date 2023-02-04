@@ -19,8 +19,10 @@ class ProductOutOfStockError extends Error
      */
     protected $name;
 
-    public function __construct(string $id, string $name)
-    {
+    public function __construct(
+        string $id,
+        string $name
+    ) {
         $this->id = $id;
 
         $this->message = sprintf('The product %s is no longer available', $name);

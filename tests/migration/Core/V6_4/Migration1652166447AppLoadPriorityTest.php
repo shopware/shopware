@@ -8,6 +8,7 @@ use Shopware\Core\Migration\V6_4\Migration1652166447AppLoadPriority;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1652166447AppLoadPriority
  */
 class Migration1652166447AppLoadPriorityTest extends TestCase

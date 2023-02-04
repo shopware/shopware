@@ -48,8 +48,13 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
      *
      * @param array<string, string> $customMapping
      */
-    public function __construct(protected ProductDefinition $definition, private readonly Connection $connection, private array $customMapping, protected EventDispatcherInterface $eventDispatcher, private readonly AbstractProductSearchQueryBuilder $searchQueryBuilder)
-    {
+    public function __construct(
+        protected ProductDefinition $definition,
+        private readonly Connection $connection,
+        private array $customMapping,
+        protected EventDispatcherInterface $eventDispatcher,
+        private readonly AbstractProductSearchQueryBuilder $searchQueryBuilder
+    ) {
     }
 
     public function getEntityDefinition(): EntityDefinition

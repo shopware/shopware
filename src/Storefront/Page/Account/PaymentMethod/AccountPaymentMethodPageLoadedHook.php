@@ -21,8 +21,10 @@ class AccountPaymentMethodPageLoadedHook extends PageLoadedHook
 
     final public const HOOK_NAME = 'account-payment-method-page-loaded';
 
-    public function __construct(private readonly AccountPaymentMethodPage $page, SalesChannelContext $context)
-    {
+    public function __construct(
+        private readonly AccountPaymentMethodPage $page,
+        SalesChannelContext $context
+    ) {
         parent::__construct($context->getContext());
         $this->salesChannelContext = $context;
     }

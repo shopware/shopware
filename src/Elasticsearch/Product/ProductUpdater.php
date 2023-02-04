@@ -17,8 +17,10 @@ class ProductUpdater implements EventSubscriberInterface
     /**
      * @internal
      */
-    public function __construct(private readonly ElasticsearchIndexer $indexer, private readonly EntityDefinition $definition)
-    {
+    public function __construct(
+        private readonly ElasticsearchIndexer $indexer,
+        private readonly EntityDefinition $definition
+    ) {
     }
 
     /**

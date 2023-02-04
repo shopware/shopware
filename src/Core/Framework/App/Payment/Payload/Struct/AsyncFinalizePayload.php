@@ -21,8 +21,10 @@ class AsyncFinalizePayload implements PaymentPayloadInterface
 
     protected OrderTransactionEntity $orderTransaction;
 
-    public function __construct(OrderTransactionEntity $orderTransaction, protected array $queryParameters)
-    {
+    public function __construct(
+        OrderTransactionEntity $orderTransaction,
+        protected array $queryParameters
+    ) {
         $this->orderTransaction = $this->removeApp($orderTransaction);
     }
 

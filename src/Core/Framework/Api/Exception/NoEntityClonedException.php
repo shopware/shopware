@@ -8,8 +8,10 @@ use Shopware\Core\Framework\ShopwareHttpException;
 #[Package('core')]
 class NoEntityClonedException extends ShopwareHttpException
 {
-    public function __construct(string $entity, string $id)
-    {
+    public function __construct(
+        string $entity,
+        string $id
+    ) {
         parent::__construct(
             'Could not clone entity {{ entity }} with id {{ id }}.',
             ['entity' => $entity, 'id' => $id]

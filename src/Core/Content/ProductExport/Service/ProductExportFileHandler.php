@@ -14,8 +14,10 @@ class ProductExportFileHandler implements ProductExportFileHandlerInterface
     /**
      * @internal
      */
-    public function __construct(private readonly FilesystemOperator $fileSystem, private readonly string $exportDirectory)
-    {
+    public function __construct(
+        private readonly FilesystemOperator $fileSystem,
+        private readonly string $exportDirectory
+    ) {
     }
 
     public function getFilePath(ProductExportEntity $productExport, bool $partialGeneration = false): string

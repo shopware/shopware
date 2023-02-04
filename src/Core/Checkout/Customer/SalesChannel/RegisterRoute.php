@@ -62,8 +62,20 @@ class RegisterRoute extends AbstractRegisterRoute
     /**
      * @internal
      */
-    public function __construct(private readonly EventDispatcherInterface $eventDispatcher, private readonly NumberRangeValueGeneratorInterface $numberRangeValueGenerator, private readonly DataValidator $validator, private readonly DataValidationFactoryInterface $accountValidationFactory, private readonly DataValidationFactoryInterface $addressValidationFactory, private readonly SystemConfigService $systemConfigService, private readonly EntityRepository $customerRepository, private readonly SalesChannelContextPersister $contextPersister, private readonly SalesChannelRepository $countryRepository, protected Connection $connection, private readonly SalesChannelContextServiceInterface $contextService, private readonly StoreApiCustomFieldMapper $customFieldMapper)
-    {
+    public function __construct(
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly NumberRangeValueGeneratorInterface $numberRangeValueGenerator,
+        private readonly DataValidator $validator,
+        private readonly DataValidationFactoryInterface $accountValidationFactory,
+        private readonly DataValidationFactoryInterface $addressValidationFactory,
+        private readonly SystemConfigService $systemConfigService,
+        private readonly EntityRepository $customerRepository,
+        private readonly SalesChannelContextPersister $contextPersister,
+        private readonly SalesChannelRepository $countryRepository,
+        protected Connection $connection,
+        private readonly SalesChannelContextServiceInterface $contextService,
+        private readonly StoreApiCustomFieldMapper $customFieldMapper
+    ) {
     }
 
     public function getDecorated(): AbstractRegisterRoute

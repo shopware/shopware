@@ -21,8 +21,13 @@ class CacheInvalidator
      *
      * @param CacheItemPoolInterface[] $adapters
      */
-    public function __construct(private readonly int $delay, private readonly int $count, private readonly array $adapters, private readonly TagAwareAdapterInterface $cache, private readonly EventDispatcherInterface $dispatcher)
-    {
+    public function __construct(
+        private readonly int $delay,
+        private readonly int $count,
+        private readonly array $adapters,
+        private readonly TagAwareAdapterInterface $cache,
+        private readonly EventDispatcherInterface $dispatcher
+    ) {
     }
 
     /**

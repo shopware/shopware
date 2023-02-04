@@ -13,8 +13,11 @@ class ThemeCompilerEnrichScssVariablesEvent extends Event implements ShopwareEve
     /**
      * @param array<string, string|int> $variables
      */
-    public function __construct(private array $variables, private readonly string $salesChannelId, private readonly Context $context)
-    {
+    public function __construct(
+        private array $variables,
+        private readonly string $salesChannelId,
+        private readonly Context $context
+    ) {
     }
 
     public function addVariable(string $name, string $value, bool $sanitize = false): void

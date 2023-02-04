@@ -8,6 +8,7 @@ use Symfony\Contracts\Cache\CacheInterface;
 
 /**
  * @internal
+ *
  * @phpstan-import-type LanguageData from LanguageLoaderInterface
  */
 #[Package('core')]
@@ -18,8 +19,10 @@ class CachedLanguageLoader implements LanguageLoaderInterface, EventSubscriberIn
     /**
      * @internal
      */
-    public function __construct(private readonly LanguageLoaderInterface $loader, private readonly CacheInterface $cache)
-    {
+    public function __construct(
+        private readonly LanguageLoaderInterface $loader,
+        private readonly CacheInterface $cache
+    ) {
     }
 
     /**

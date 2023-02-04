@@ -31,8 +31,11 @@ class MailSendSubscriberConfig extends Struct
      * @param array<string> $documentIds
      * @param array<string> $mediaIds
      */
-    public function __construct(bool $skip, array $documentIds = [], array $mediaIds = [])
-    {
+    public function __construct(
+        bool $skip,
+        array $documentIds = [],
+        array $mediaIds = []
+    ) {
         $this->skip = $skip;
         $this->documentIds = $documentIds;
         $this->mediaIds = $mediaIds;

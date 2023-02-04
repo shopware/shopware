@@ -25,8 +25,12 @@ class ProductListingRoute extends AbstractProductListingRoute
     /**
      * @internal
      */
-    public function __construct(private readonly ProductListingLoader $listingLoader, private readonly EventDispatcherInterface $eventDispatcher, private readonly EntityRepository $categoryRepository, private readonly ProductStreamBuilderInterface $productStreamBuilder)
-    {
+    public function __construct(
+        private readonly ProductListingLoader $listingLoader,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly EntityRepository $categoryRepository,
+        private readonly ProductStreamBuilderInterface $productStreamBuilder
+    ) {
     }
 
     public function getDecorated(): AbstractProductListingRoute

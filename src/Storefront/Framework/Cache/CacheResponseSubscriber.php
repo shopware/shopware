@@ -40,8 +40,15 @@ class CacheResponseSubscriber implements EventSubscriberInterface
     /**
      * @internal
      */
-    public function __construct(private readonly CartService $cartService, private readonly int $defaultTtl, private readonly bool $httpCacheEnabled, private readonly MaintenanceModeResolver $maintenanceResolver, private readonly bool $reverseProxyEnabled, private readonly ?string $staleWhileRevalidate, private readonly ?string $staleIfError)
-    {
+    public function __construct(
+        private readonly CartService $cartService,
+        private readonly int $defaultTtl,
+        private readonly bool $httpCacheEnabled,
+        private readonly MaintenanceModeResolver $maintenanceResolver,
+        private readonly bool $reverseProxyEnabled,
+        private readonly ?string $staleWhileRevalidate,
+        private readonly ?string $staleIfError
+    ) {
     }
 
     /**

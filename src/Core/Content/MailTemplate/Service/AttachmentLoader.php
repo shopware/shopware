@@ -17,8 +17,11 @@ class AttachmentLoader
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $documentRepository, private readonly DocumentGenerator $documentGenerator, private readonly EventDispatcherInterface $eventDispatcher)
-    {
+    public function __construct(
+        private readonly EntityRepository $documentRepository,
+        private readonly DocumentGenerator $documentGenerator,
+        private readonly EventDispatcherInterface $eventDispatcher
+    ) {
     }
 
     /**

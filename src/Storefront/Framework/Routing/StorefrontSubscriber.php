@@ -41,8 +41,16 @@ class StorefrontSubscriber implements EventSubscriberInterface
     /**
      * @internal
      */
-    public function __construct(private readonly RequestStack $requestStack, private readonly RouterInterface $router, private readonly HreflangLoaderInterface $hreflangLoader, private readonly MaintenanceModeResolver $maintenanceModeResolver, private readonly ShopIdProvider $shopIdProvider, private readonly ActiveAppsLoader $activeAppsLoader, private readonly SystemConfigService $systemConfigService, private readonly StorefrontPluginRegistryInterface $themeRegistry)
-    {
+    public function __construct(
+        private readonly RequestStack $requestStack,
+        private readonly RouterInterface $router,
+        private readonly HreflangLoaderInterface $hreflangLoader,
+        private readonly MaintenanceModeResolver $maintenanceModeResolver,
+        private readonly ShopIdProvider $shopIdProvider,
+        private readonly ActiveAppsLoader $activeAppsLoader,
+        private readonly SystemConfigService $systemConfigService,
+        private readonly StorefrontPluginRegistryInterface $themeRegistry
+    ) {
     }
 
     public static function getSubscribedEvents(): array

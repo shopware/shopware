@@ -19,8 +19,14 @@ class SalesChannelCreator
     /**
      * @internal
      */
-    public function __construct(private readonly DefinitionInstanceRegistry $definitionRegistry, private readonly EntityRepository $salesChannelRepository, private readonly EntityRepository $paymentMethodRepository, private readonly EntityRepository $shippingMethodRepository, private readonly EntityRepository $countryRepository, private readonly EntityRepository $categoryRepository)
-    {
+    public function __construct(
+        private readonly DefinitionInstanceRegistry $definitionRegistry,
+        private readonly EntityRepository $salesChannelRepository,
+        private readonly EntityRepository $paymentMethodRepository,
+        private readonly EntityRepository $shippingMethodRepository,
+        private readonly EntityRepository $countryRepository,
+        private readonly EntityRepository $categoryRepository
+    ) {
     }
 
     public function createSalesChannel(

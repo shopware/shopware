@@ -10,8 +10,10 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 class TaxFreeConfigField extends JsonField
 {
-    public function __construct(string $storageName, string $propertyName)
-    {
+    public function __construct(
+        string $storageName,
+        string $propertyName
+    ) {
         parent::__construct($storageName, $propertyName, [
             (new BoolField('enabled', 'enabled'))->addFlags(new Required()),
             (new StringField('currencyId', 'currencyId'))->addFlags(new Required()),

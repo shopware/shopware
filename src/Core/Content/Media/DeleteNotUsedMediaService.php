@@ -23,8 +23,10 @@ class DeleteNotUsedMediaService
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $mediaRepo, private readonly EntityRepository $defaultFolderRepo)
-    {
+    public function __construct(
+        private readonly EntityRepository $mediaRepo,
+        private readonly EntityRepository $defaultFolderRepo
+    ) {
     }
 
     public function countNotUsedMedia(Context $context): int

@@ -45,8 +45,24 @@ class ProductIndexer extends EntityIndexer
     /**
      * @internal
      */
-    public function __construct(private readonly IteratorFactory $iteratorFactory, private readonly EntityRepository $repository, private readonly Connection $connection, private readonly VariantListingUpdater $variantListingUpdater, private readonly ProductCategoryDenormalizer $categoryDenormalizer, private readonly InheritanceUpdater $inheritanceUpdater, private readonly RatingAverageUpdater $ratingAverageUpdater, private readonly SearchKeywordUpdater $searchKeywordUpdater, private readonly ChildCountUpdater $childCountUpdater, private readonly ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater, private readonly StockUpdater $stockUpdater, private readonly EventDispatcherInterface $eventDispatcher, private readonly CheapestPriceUpdater $cheapestPriceUpdater, private readonly ProductStreamUpdater $streamUpdater, private readonly StatesUpdater $statesUpdater, private readonly MessageBusInterface $messageBus)
-    {
+    public function __construct(
+        private readonly IteratorFactory $iteratorFactory,
+        private readonly EntityRepository $repository,
+        private readonly Connection $connection,
+        private readonly VariantListingUpdater $variantListingUpdater,
+        private readonly ProductCategoryDenormalizer $categoryDenormalizer,
+        private readonly InheritanceUpdater $inheritanceUpdater,
+        private readonly RatingAverageUpdater $ratingAverageUpdater,
+        private readonly SearchKeywordUpdater $searchKeywordUpdater,
+        private readonly ChildCountUpdater $childCountUpdater,
+        private readonly ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater,
+        private readonly StockUpdater $stockUpdater,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly CheapestPriceUpdater $cheapestPriceUpdater,
+        private readonly ProductStreamUpdater $streamUpdater,
+        private readonly StatesUpdater $statesUpdater,
+        private readonly MessageBusInterface $messageBus
+    ) {
     }
 
     public function getName(): string

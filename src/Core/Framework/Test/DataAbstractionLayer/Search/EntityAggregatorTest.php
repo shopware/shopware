@@ -43,6 +43,7 @@ use Shopware\Core\System\Tax\TaxDefinition;
 
 /**
  * @internal
+ *
  * @group slow
  */
 class EntityAggregatorTest extends TestCase
@@ -1080,6 +1081,7 @@ class EntityAggregatorTest extends TestCase
 
     /**
      * @dataProvider dateHistogramProvider
+     *
      * @group slow
      */
     public function testDateHistogram(DateHistogramCase $case): void

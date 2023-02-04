@@ -26,8 +26,13 @@ class CategoryUrlProvider extends AbstractUrlProvider
     /**
      * @internal
      */
-    public function __construct(private readonly ConfigHandler $configHandler, private readonly Connection $connection, private readonly CategoryDefinition $definition, private readonly IteratorFactory $iteratorFactory, private readonly RouterInterface $router)
-    {
+    public function __construct(
+        private readonly ConfigHandler $configHandler,
+        private readonly Connection $connection,
+        private readonly CategoryDefinition $definition,
+        private readonly IteratorFactory $iteratorFactory,
+        private readonly RouterInterface $router
+    ) {
     }
 
     public function getDecorated(): AbstractUrlProvider

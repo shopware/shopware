@@ -18,8 +18,11 @@ class LandingPageLoader
     /**
      * @internal
      */
-    public function __construct(private readonly GenericPageLoaderInterface $genericPageLoader, private readonly AbstractLandingPageRoute $landingPageRoute, private readonly EventDispatcherInterface $eventDispatcher)
-    {
+    public function __construct(
+        private readonly GenericPageLoaderInterface $genericPageLoader,
+        private readonly AbstractLandingPageRoute $landingPageRoute,
+        private readonly EventDispatcherInterface $eventDispatcher
+    ) {
     }
 
     /**

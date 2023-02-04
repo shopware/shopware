@@ -16,8 +16,11 @@ class CustomerGroupRegistrationPageLoader extends AbstractCustomerGroupRegistrat
     /**
      * @internal
      */
-    public function __construct(private readonly AccountLoginPageLoader $accountLoginPageLoader, private readonly AbstractCustomerGroupRegistrationSettingsRoute $customerGroupRegistrationRoute, private readonly EventDispatcherInterface $eventDispatcher)
-    {
+    public function __construct(
+        private readonly AccountLoginPageLoader $accountLoginPageLoader,
+        private readonly AbstractCustomerGroupRegistrationSettingsRoute $customerGroupRegistrationRoute,
+        private readonly EventDispatcherInterface $eventDispatcher
+    ) {
     }
 
     public function load(Request $request, SalesChannelContext $salesChannelContext): CustomerGroupRegistrationPage

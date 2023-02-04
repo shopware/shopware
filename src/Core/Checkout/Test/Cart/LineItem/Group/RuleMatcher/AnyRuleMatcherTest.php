@@ -48,7 +48,6 @@ class AnyRuleMatcherTest extends TestCase
      * This means, that only line items with 50 or higher, are matched
      * with a positive result.
      *
-     * @test
      * @group lineitemgroup
      */
     public function testMatchesForSingleRule(): void
@@ -94,7 +93,6 @@ class AnyRuleMatcherTest extends TestCase
      * should get 3 out of our 4 products that match. Only the product with neither quantity nor price condition
      * should not match our group rules.
      *
-     * @test
      * @group lineitemgroup
      */
     public function testMatchesForMultipleRules(): void

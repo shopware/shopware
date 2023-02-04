@@ -14,8 +14,10 @@ class CustomerWishlistLoaderCriteriaEvent extends NestedEvent implements Shopwar
 {
     final public const EVENT_NAME = 'checkout.customer.customer_wishlist_loader_criteria';
 
-    public function __construct(private readonly Criteria $criteria, private readonly SalesChannelContext $context)
-    {
+    public function __construct(
+        private readonly Criteria $criteria,
+        private readonly SalesChannelContext $context
+    ) {
     }
 
     public function getName(): string

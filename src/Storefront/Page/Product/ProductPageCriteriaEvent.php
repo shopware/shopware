@@ -12,8 +12,11 @@ use Symfony\Contracts\EventDispatcher\Event;
 #[Package('storefront')]
 class ProductPageCriteriaEvent extends Event implements ShopwareSalesChannelEvent
 {
-    public function __construct(protected string $productId, protected Criteria $criteria, protected SalesChannelContext $context)
-    {
+    public function __construct(
+        protected string $productId,
+        protected Criteria $criteria,
+        protected SalesChannelContext $context
+    ) {
     }
 
     public function getProductId(): string

@@ -18,6 +18,7 @@ use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 
 /**
  * @internal
+ *
  * @group skip-paratest
  */
 #[Package('system-settings')]

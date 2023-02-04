@@ -28,7 +28,9 @@ use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader
+ *
  * @group slow
  */
 class ProductListingLoaderTest extends TestCase

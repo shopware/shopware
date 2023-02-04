@@ -8,6 +8,7 @@ use Shopware\Core\Migration\V6_4\Migration1638195971AddBaseAppUrl;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1635237551Script
  */
 class Migration1638195971AddBaseAppUrlTest extends TestCase

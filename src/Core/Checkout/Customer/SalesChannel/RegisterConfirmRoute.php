@@ -35,8 +35,13 @@ class RegisterConfirmRoute extends AbstractRegisterConfirmRoute
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $customerRepository, private readonly EventDispatcherInterface $eventDispatcher, private readonly DataValidator $validator, private readonly SalesChannelContextPersister $contextPersister, private readonly SalesChannelContextServiceInterface $contextService)
-    {
+    public function __construct(
+        private readonly EntityRepository $customerRepository,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly DataValidator $validator,
+        private readonly SalesChannelContextPersister $contextPersister,
+        private readonly SalesChannelContextServiceInterface $contextService
+    ) {
     }
 
     public function getDecorated(): AbstractRegisterConfirmRoute

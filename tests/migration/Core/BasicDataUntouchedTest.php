@@ -8,6 +8,7 @@ use Shopware\Core\Migration\V6_3\Migration1536233560BasicData;
 
 /**
  * @internal
+ *
  * @coversNothing
  */
 class BasicDataUntouchedTest extends TestCase

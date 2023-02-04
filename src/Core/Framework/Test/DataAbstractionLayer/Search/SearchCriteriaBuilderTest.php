@@ -21,6 +21,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
+ *
  * @group slow
  */
 class SearchCriteriaBuilderTest extends TestCase

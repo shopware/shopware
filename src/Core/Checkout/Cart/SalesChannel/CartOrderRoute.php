@@ -32,8 +32,15 @@ class CartOrderRoute extends AbstractCartOrderRoute
     /**
      * @internal
      */
-    public function __construct(private readonly CartCalculator $cartCalculator, private readonly EntityRepository $orderRepository, private readonly OrderPersisterInterface $orderPersister, private readonly AbstractCartPersister $cartPersister, private readonly EventDispatcherInterface $eventDispatcher, private readonly PreparedPaymentService $preparedPaymentService, private readonly TaxProviderProcessor $taxProviderProcessor)
-    {
+    public function __construct(
+        private readonly CartCalculator $cartCalculator,
+        private readonly EntityRepository $orderRepository,
+        private readonly OrderPersisterInterface $orderPersister,
+        private readonly AbstractCartPersister $cartPersister,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly PreparedPaymentService $preparedPaymentService,
+        private readonly TaxProviderProcessor $taxProviderProcessor
+    ) {
     }
 
     public function getDecorated(): AbstractCartOrderRoute

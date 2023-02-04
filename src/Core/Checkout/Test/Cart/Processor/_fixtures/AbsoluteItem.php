@@ -16,8 +16,10 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[Package('checkout')]
 class AbsoluteItem extends LineItem
 {
-    public function __construct(float $price, ?string $id = null)
-    {
+    public function __construct(
+        float $price,
+        ?string $id = null
+    ) {
         parent::__construct($id ?? Uuid::randomHex(), LineItem::DISCOUNT_LINE_ITEM);
 
         $this->priceDefinition = new CurrencyPriceDefinition(new PriceCollection([

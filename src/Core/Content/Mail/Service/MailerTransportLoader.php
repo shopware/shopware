@@ -22,8 +22,13 @@ class MailerTransportLoader
     /**
      * @internal
      */
-    public function __construct(private readonly Transport $envBasedTransport, private readonly SystemConfigService $configService, private readonly MailAttachmentsBuilder $attachmentsBuilder, private readonly FilesystemOperator $filesystem, private readonly EntityRepository $documentRepository)
-    {
+    public function __construct(
+        private readonly Transport $envBasedTransport,
+        private readonly SystemConfigService $configService,
+        private readonly MailAttachmentsBuilder $attachmentsBuilder,
+        private readonly FilesystemOperator $filesystem,
+        private readonly EntityRepository $documentRepository
+    ) {
     }
 
     /**

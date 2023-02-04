@@ -16,8 +16,13 @@ class MailAttachmentsConfig
     /**
      * @param mixed[] $eventConfig
      */
-    public function __construct(private Context $context, private MailTemplateEntity $mailTemplate, private MailSendSubscriberConfig $extension, private array $eventConfig, private ?string $orderId)
-    {
+    public function __construct(
+        private Context $context,
+        private MailTemplateEntity $mailTemplate,
+        private MailSendSubscriberConfig $extension,
+        private array $eventConfig,
+        private ?string $orderId
+    ) {
     }
 
     public function getContext(): Context

@@ -14,8 +14,10 @@ class FooterPageletLoader implements FooterPageletLoaderInterface
     /**
      * @internal
      */
-    public function __construct(private readonly EventDispatcherInterface $eventDispatcher, private readonly NavigationLoaderInterface $navigationLoader)
-    {
+    public function __construct(
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly NavigationLoaderInterface $navigationLoader
+    ) {
     }
 
     public function load(Request $request, SalesChannelContext $salesChannelContext): FooterPagelet

@@ -32,8 +32,11 @@ class CmsPageLoadedEvent extends NestedEvent implements ShopwareSalesChannelEven
     /**
      * @param EntityCollection<CmsPageEntity> $result
      */
-    public function __construct(Request $request, EntityCollection $result, SalesChannelContext $salesChannelContext)
-    {
+    public function __construct(
+        Request $request,
+        EntityCollection $result,
+        SalesChannelContext $salesChannelContext
+    ) {
         $this->request = $request;
         $this->result = $result;
         $this->salesChannelContext = $salesChannelContext;

@@ -16,8 +16,10 @@ class MailSender extends AbstractMailSender
     /**
      * @internal
      */
-    public function __construct(private readonly Mailer $mailer, private readonly SystemConfigService $configService)
-    {
+    public function __construct(
+        private readonly Mailer $mailer,
+        private readonly SystemConfigService $configService
+    ) {
     }
 
     public function getDecorated(): AbstractMailSender

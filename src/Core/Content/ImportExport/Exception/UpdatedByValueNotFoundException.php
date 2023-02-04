@@ -9,8 +9,10 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('system-settings')]
 class UpdatedByValueNotFoundException extends ShopwareHttpException
 {
-    public function __construct(string $entityName, string $field)
-    {
+    public function __construct(
+        string $entityName,
+        string $field
+    ) {
         parent::__construct('Data set "{{ entityName }}" is set to be updated by field "{{ field }}" but the field\'s column couldn\'t be found or isn\'t mapped', [
             'entityName' => $entityName,
             'field' => $field,

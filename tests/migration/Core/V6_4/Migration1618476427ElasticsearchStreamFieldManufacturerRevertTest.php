@@ -9,6 +9,7 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1618476427ElasticsearchStreamFieldManufacturerRevert
  */
 class Migration1618476427ElasticsearchStreamFieldManufacturerRevertTest extends TestCase

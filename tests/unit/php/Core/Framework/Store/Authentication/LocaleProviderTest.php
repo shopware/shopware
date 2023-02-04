@@ -19,6 +19,7 @@ use Shopware\Core\System\User\UserEntity;
  * @package merchant-services
  *
  * @internal
+ *
  * @covers \Shopware\Core\Framework\Store\Authentication\LocaleProvider
  */
 class LocaleProviderTest extends TestCase

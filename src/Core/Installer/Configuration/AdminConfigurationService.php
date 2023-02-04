@@ -9,6 +9,7 @@ use Shopware\Core\Maintenance\User\Service\UserProvisioner;
 
 /**
  * @internal
+ *
  * @phpstan-import-type AdminUser from ShopConfigurationController
  */
 #[Package('core')]

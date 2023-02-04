@@ -30,8 +30,11 @@ class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
     /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection, private readonly Tokenizer $tokenizer, private readonly AbstractTokenFilter $tokenFilter)
-    {
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly Tokenizer $tokenizer,
+        private readonly AbstractTokenFilter $tokenFilter
+    ) {
     }
 
     public function build(Criteria $criteria, Context $context): BoolQuery

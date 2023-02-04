@@ -20,8 +20,10 @@ class SystemConfigController extends AbstractController
     /**
      * @internal
      */
-    public function __construct(private readonly ConfigurationService $configurationService, private readonly SystemConfigService $systemConfig)
-    {
+    public function __construct(
+        private readonly ConfigurationService $configurationService,
+        private readonly SystemConfigService $systemConfig
+    ) {
     }
 
     #[Route(path: '/api/_action/system-config/check', name: 'api.action.core.system-config.check', methods: ['GET'], defaults: ['_acl' => ['system_config:read']])]

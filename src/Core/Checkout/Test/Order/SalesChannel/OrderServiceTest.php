@@ -40,6 +40,7 @@ use Symfony\Component\HttpFoundation\ParameterBag;
 
 /**
  * @internal
+ *
  * @group slow
  */
 #[Package('customer-order')]

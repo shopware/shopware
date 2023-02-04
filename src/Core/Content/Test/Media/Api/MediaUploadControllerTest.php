@@ -16,6 +16,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
+ *
  * @group needsWebserver
  */
 class MediaUploadControllerTest extends TestCase

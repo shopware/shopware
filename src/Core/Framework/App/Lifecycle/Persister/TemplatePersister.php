@@ -18,8 +18,11 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 class TemplatePersister
 {
-    public function __construct(private readonly AbstractTemplateLoader $templateLoader, private readonly EntityRepository $templateRepository, private readonly EntityRepository $appRepository)
-    {
+    public function __construct(
+        private readonly AbstractTemplateLoader $templateLoader,
+        private readonly EntityRepository $templateRepository,
+        private readonly EntityRepository $appRepository
+    ) {
     }
 
     public function updateTemplates(Manifest $manifest, string $appId, Context $context): void

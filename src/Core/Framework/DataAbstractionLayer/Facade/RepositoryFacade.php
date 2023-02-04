@@ -25,8 +25,12 @@ class RepositoryFacade
     /**
      * @internal
      */
-    public function __construct(private readonly DefinitionInstanceRegistry $registry, private readonly RequestCriteriaBuilder $criteriaBuilder, private readonly AclCriteriaValidator $criteriaValidator, private readonly Context $context)
-    {
+    public function __construct(
+        private readonly DefinitionInstanceRegistry $registry,
+        private readonly RequestCriteriaBuilder $criteriaBuilder,
+        private readonly AclCriteriaValidator $criteriaValidator,
+        private readonly Context $context
+    ) {
     }
 
     /**

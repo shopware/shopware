@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Util\ArrayNormalizer;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Framework\Util\ArrayNormalizer
  */
 class ArrayNormalizerTest extends TestCase

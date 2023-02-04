@@ -26,6 +26,7 @@ use Shopware\Core\System\User\UserEntity;
  * @package merchant-services
  *
  * @internal
+ *
  * @covers \Shopware\Core\Framework\Store\Authentication\StoreRequestOptionsProvider
  */
 class StoreRequestOptionsProviderTest extends TestCase

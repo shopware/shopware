@@ -17,6 +17,7 @@ use Shopware\Core\Test\CollectingMessageBus;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Content\ProductExport\ScheduledTask\ProductExportGenerateTaskHandler
  */
 class ProductExportGenerateTaskHandlerTest extends TestCase

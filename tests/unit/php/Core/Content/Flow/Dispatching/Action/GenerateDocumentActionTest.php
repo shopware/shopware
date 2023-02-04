@@ -18,6 +18,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  * @package business-ops
  *
  * @internal
+ *
  * @covers \Shopware\Core\Content\Flow\Dispatching\Action\GenerateDocumentAction
  */
 class GenerateDocumentActionTest extends TestCase

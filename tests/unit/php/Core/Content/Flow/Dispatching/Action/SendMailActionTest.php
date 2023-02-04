@@ -28,6 +28,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * @package business-ops
  *
  * @internal
+ *
  * @covers \Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction
  */
 class SendMailActionTest extends TestCase

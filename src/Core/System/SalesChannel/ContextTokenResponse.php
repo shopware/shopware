@@ -15,8 +15,10 @@ class ContextTokenResponse extends StoreApiResponse
      */
     protected $object;
 
-    public function __construct(string $token, ?string $redirectUrl = null)
-    {
+    public function __construct(
+        string $token,
+        ?string $redirectUrl = null
+    ) {
         $object = [
             'contextToken' => $token,
             'redirectUrl' => $redirectUrl,

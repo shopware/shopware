@@ -26,8 +26,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[Package('core')]
 class RefreshAppCommand extends Command
 {
-    public function __construct(private readonly AppService $appService, private readonly AppPrinter $appPrinter, private readonly ManifestValidator $manifestValidator)
-    {
+    public function __construct(
+        private readonly AppService $appService,
+        private readonly AppPrinter $appPrinter,
+        private readonly ManifestValidator $manifestValidator
+    ) {
         parent::__construct();
     }
 

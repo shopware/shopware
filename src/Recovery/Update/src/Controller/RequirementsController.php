@@ -24,8 +24,10 @@ class RequirementsController
      */
     private $app;
 
-    public function __construct(Container $container, App $app)
-    {
+    public function __construct(
+        Container $container,
+        App $app
+    ) {
         $this->container = $container;
         $this->app = $app;
     }

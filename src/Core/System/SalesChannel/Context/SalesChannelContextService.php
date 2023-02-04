@@ -45,8 +45,13 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
     /**
      * @internal
      */
-    public function __construct(private readonly AbstractSalesChannelContextFactory $factory, private readonly CartRuleLoader $ruleLoader, private readonly SalesChannelContextPersister $contextPersister, private readonly CartService $cartService, private readonly EventDispatcherInterface $eventDispatcher)
-    {
+    public function __construct(
+        private readonly AbstractSalesChannelContextFactory $factory,
+        private readonly CartRuleLoader $ruleLoader,
+        private readonly SalesChannelContextPersister $contextPersister,
+        private readonly CartService $cartService,
+        private readonly EventDispatcherInterface $eventDispatcher
+    ) {
     }
 
     public function get(SalesChannelContextServiceParameters $parameters): SalesChannelContext

@@ -26,8 +26,11 @@ class AfterLineItemQuantityChangedEvent implements ShopwareSalesChannelEvent
      */
     protected $salesChannelContext;
 
-    public function __construct(Cart $cart, array $items, SalesChannelContext $salesChannelContext)
-    {
+    public function __construct(
+        Cart $cart,
+        array $items,
+        SalesChannelContext $salesChannelContext
+    ) {
         $this->cart = $cart;
         $this->items = $items;
         $this->salesChannelContext = $salesChannelContext;

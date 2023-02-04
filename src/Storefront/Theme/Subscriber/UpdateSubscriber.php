@@ -23,8 +23,11 @@ class UpdateSubscriber implements EventSubscriberInterface
     /**
      * @internal
      */
-    public function __construct(private readonly ThemeService $themeService, private readonly ThemeLifecycleService $themeLifecycleService, private readonly EntityRepository $salesChannelRepository)
-    {
+    public function __construct(
+        private readonly ThemeService $themeService,
+        private readonly ThemeLifecycleService $themeLifecycleService,
+        private readonly EntityRepository $salesChannelRepository
+    ) {
     }
 
     /**

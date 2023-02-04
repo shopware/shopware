@@ -23,8 +23,14 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 class AppRegistrationService
 {
-    public function __construct(private readonly HandshakeFactory $handshakeFactory, private readonly Client $httpClient, private readonly EntityRepository $appRepository, private readonly string $shopUrl, private readonly ShopIdProvider $shopIdProvider, private readonly string $shopwareVersion)
-    {
+    public function __construct(
+        private readonly HandshakeFactory $handshakeFactory,
+        private readonly Client $httpClient,
+        private readonly EntityRepository $appRepository,
+        private readonly string $shopUrl,
+        private readonly ShopIdProvider $shopIdProvider,
+        private readonly string $shopwareVersion
+    ) {
     }
 
     public function registerApp(Manifest $manifest, string $id, string $secretAccessKey, Context $context): void
@@ -61,7 +67,7 @@ class AppRegistrationService
     /**
      * @throws GuzzleException
      *
-     * @return array<string,string>
+     * @return array<string, string>
      */
     private function registerWithApp(Manifest $manifest, Context $context): array
     {
@@ -104,7 +110,7 @@ class AppRegistrationService
     }
 
     /**
-     * @return array<string,string>
+     * @return array<string, string>
      */
     private function parseResponse(AppHandshakeInterface $handshake, ResponseInterface $response): array
     {
@@ -128,7 +134,7 @@ class AppRegistrationService
     }
 
     /**
-     * @return array<string,string>
+     * @return array<string, string>
      */
     private function getConfirmationPayload(string $id, string $secretAccessKey, Context $context): array
     {
@@ -152,7 +158,7 @@ class AppRegistrationService
     }
 
     /**
-     * @param array<string,string> $body
+     * @param array<string, string> $body
      */
     private function signPayload(array $body, string $secret): string
     {

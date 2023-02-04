@@ -15,8 +15,10 @@ class CountryStateDataPageletLoader
     /**
      * @internal
      */
-    public function __construct(private readonly AbstractCountryStateRoute $countryStateRoute, private readonly EventDispatcherInterface $eventDispatcher)
-    {
+    public function __construct(
+        private readonly AbstractCountryStateRoute $countryStateRoute,
+        private readonly EventDispatcherInterface $eventDispatcher
+    ) {
     }
 
     public function load(string $countryId, Request $request, SalesChannelContext $context): CountryStateDataPagelet

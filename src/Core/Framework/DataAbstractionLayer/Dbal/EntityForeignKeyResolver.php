@@ -36,8 +36,10 @@ class EntityForeignKeyResolver
     /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection, private readonly EntityDefinitionQueryHelper $queryHelper)
-    {
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly EntityDefinitionQueryHelper $queryHelper
+    ) {
     }
 
     /**

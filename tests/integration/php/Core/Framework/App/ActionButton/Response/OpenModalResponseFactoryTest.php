@@ -62,6 +62,7 @@ class OpenModalResponseFactoryTest extends TestCase
 
     /**
      * @param array<bool|string> $payload
+     *
      * @dataProvider provideInvalidPayloads
      */
     public function testThrowsExceptionWhenValidationFails(array $payload, string $message): void

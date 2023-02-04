@@ -27,8 +27,14 @@ class SalesChannelContextRestorer
     /**
      * @internal
      */
-    public function __construct(private readonly AbstractSalesChannelContextFactory $factory, private readonly CartRuleLoader $cartRuleLoader, private readonly OrderConverter $orderConverter, private readonly EntityRepository $orderRepository, private readonly Connection $connection, private readonly EventDispatcherInterface $eventDispatcher)
-    {
+    public function __construct(
+        private readonly AbstractSalesChannelContextFactory $factory,
+        private readonly CartRuleLoader $cartRuleLoader,
+        private readonly OrderConverter $orderConverter,
+        private readonly EntityRepository $orderRepository,
+        private readonly Connection $connection,
+        private readonly EventDispatcherInterface $eventDispatcher
+    ) {
     }
 
     /**

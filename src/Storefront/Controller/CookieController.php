@@ -26,8 +26,10 @@ class CookieController extends StorefrontController
     /**
      * @internal
      */
-    public function __construct(private readonly CookieProviderInterface $cookieProvider, private readonly SystemConfigService $systemConfigService)
-    {
+    public function __construct(
+        private readonly CookieProviderInterface $cookieProvider,
+        private readonly SystemConfigService $systemConfigService
+    ) {
     }
 
     #[Route(path: '/cookie/offcanvas', name: 'frontend.cookie.offcanvas', options: ['seo' => false], defaults: ['XmlHttpRequest' => true], methods: ['GET'])]

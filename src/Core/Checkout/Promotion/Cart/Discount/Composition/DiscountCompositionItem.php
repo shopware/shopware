@@ -7,8 +7,11 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('checkout')]
 class DiscountCompositionItem
 {
-    public function __construct(private readonly string $id, private readonly int $quantity, private readonly float $discountValue)
-    {
+    public function __construct(
+        private readonly string $id,
+        private readonly int $quantity,
+        private readonly float $discountValue
+    ) {
     }
 
     public function getId(): string

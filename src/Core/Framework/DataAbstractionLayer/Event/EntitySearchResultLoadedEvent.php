@@ -27,8 +27,10 @@ class EntitySearchResultLoadedEvent extends NestedEvent implements GenericEvent
      */
     protected $name;
 
-    public function __construct(EntityDefinition $definition, EntitySearchResult $result)
-    {
+    public function __construct(
+        EntityDefinition $definition,
+        EntitySearchResult $result
+    ) {
         $this->result = $result;
         $this->definition = $definition;
         $this->name = $this->definition->getEntityName() . '.search.result.loaded';

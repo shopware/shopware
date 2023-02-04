@@ -8,6 +8,7 @@ use Shopware\Core\Migration\V6_4\Migration1629204538AddTimeZoneField;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1629204538AddTimeZoneField
  */
 class Migration1629204538AddTimeZoneFieldTest extends TestCase

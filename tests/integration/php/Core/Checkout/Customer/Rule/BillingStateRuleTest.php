@@ -15,7 +15,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
  * @package business-ops
  *
  * @internal
+ *
  * @group rules
+ *
  * @covers \Shopware\Core\Checkout\Customer\Rule\BillingStateRule
  */
 class BillingStateRuleTest extends TestCase

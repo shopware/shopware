@@ -19,8 +19,11 @@ class CachedBaseContextFactory extends AbstractBaseContextFactory
     /**
      * @param AbstractCacheTracer<SalesChannelContext> $tracer
      */
-    public function __construct(private readonly AbstractBaseContextFactory $decorated, private readonly CacheInterface $cache, private readonly AbstractCacheTracer $tracer)
-    {
+    public function __construct(
+        private readonly AbstractBaseContextFactory $decorated,
+        private readonly CacheInterface $cache,
+        private readonly AbstractCacheTracer $tracer
+    ) {
     }
 
     public function getDecorated(): AbstractBaseContextFactory

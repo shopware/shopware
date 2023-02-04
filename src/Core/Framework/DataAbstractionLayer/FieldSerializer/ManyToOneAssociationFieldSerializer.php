@@ -71,7 +71,7 @@ class ManyToOneAssociationFieldSerializer implements FieldSerializerInterface
             $id = $value[$referenceField->getPropertyName()];
 
         // plugins can add a ManyToOne where they define that the local/storage column is the primary and the reference is the foreign key
-            // in this case we have a reversed many to one association configuration
+        // in this case we have a reversed many to one association configuration
         } elseif ($isPrimary) {
             $id = $parameters->getContext()->get($parameters->getDefinition()->getEntityName(), $fkField->getPropertyName());
         } else {

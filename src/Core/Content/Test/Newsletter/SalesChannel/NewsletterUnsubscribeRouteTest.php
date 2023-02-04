@@ -14,7 +14,9 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
  * @internal
+ *
  * @group store-api
+ *
  * @covers \Shopware\Core\Content\Newsletter\SalesChannel\NewsletterUnsubscribeRoute
  */
 #[Package('customer-order')]

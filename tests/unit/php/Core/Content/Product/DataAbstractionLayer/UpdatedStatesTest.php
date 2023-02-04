@@ -7,6 +7,7 @@ use Shopware\Core\Content\Product\DataAbstractionLayer\UpdatedStates;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Content\Product\DataAbstractionLayer\UpdatedStates
  */
 class UpdatedStatesTest extends TestCase

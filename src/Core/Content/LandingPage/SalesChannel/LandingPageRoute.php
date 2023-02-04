@@ -25,8 +25,11 @@ class LandingPageRoute extends AbstractLandingPageRoute
     /**
      * @internal
      */
-    public function __construct(private readonly SalesChannelRepository $landingPageRepository, private readonly SalesChannelCmsPageLoaderInterface $cmsPageLoader, private readonly LandingPageDefinition $landingPageDefinition)
-    {
+    public function __construct(
+        private readonly SalesChannelRepository $landingPageRepository,
+        private readonly SalesChannelCmsPageLoaderInterface $cmsPageLoader,
+        private readonly LandingPageDefinition $landingPageDefinition
+    ) {
     }
 
     public function getDecorated(): AbstractLandingPageRoute

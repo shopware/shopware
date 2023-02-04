@@ -38,8 +38,12 @@ class RuleAreaUpdater implements EventSubscriberInterface
     /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection, private readonly RuleDefinition $definition, private readonly RuleConditionRegistry $conditionRegistry, private readonly CacheInvalidator $cacheInvalidator)
-    {
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly RuleDefinition $definition,
+        private readonly RuleConditionRegistry $conditionRegistry,
+        private readonly CacheInvalidator $cacheInvalidator
+    ) {
     }
 
     public static function getSubscribedEvents(): array

@@ -18,8 +18,11 @@ class PartialSalesChannelEntityLoadedEvent extends SalesChannelEntityLoadedEvent
      */
     protected $entities;
 
-    public function __construct(EntityDefinition $definition, array $entities, SalesChannelContext $context)
-    {
+    public function __construct(
+        EntityDefinition $definition,
+        array $entities,
+        SalesChannelContext $context
+    ) {
         parent::__construct($definition, $entities, $context);
 
         $this->name = $this->definition->getEntityName() . '.partial_loaded';

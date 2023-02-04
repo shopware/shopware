@@ -26,8 +26,11 @@ class AfterLineItemRemovedEvent implements ShopwareSalesChannelEvent
      */
     protected $salesChannelContext;
 
-    public function __construct(array $lineItems, Cart $cart, SalesChannelContext $salesChannelContext)
-    {
+    public function __construct(
+        array $lineItems,
+        Cart $cart,
+        SalesChannelContext $salesChannelContext
+    ) {
         $this->lineItems = $lineItems;
         $this->cart = $cart;
         $this->salesChannelContext = $salesChannelContext;

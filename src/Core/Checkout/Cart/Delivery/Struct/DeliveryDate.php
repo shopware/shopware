@@ -20,8 +20,10 @@ class DeliveryDate extends Struct
      */
     protected $latest;
 
-    public function __construct(\DateTimeInterface $earliest, \DateTimeInterface $latest)
-    {
+    public function __construct(
+        \DateTimeInterface $earliest,
+        \DateTimeInterface $latest
+    ) {
         $earliest = new \DateTimeImmutable($earliest->format(Defaults::STORAGE_DATE_TIME_FORMAT));
         $latest = new \DateTimeImmutable($latest->format(Defaults::STORAGE_DATE_TIME_FORMAT));
 

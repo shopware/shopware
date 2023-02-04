@@ -35,8 +35,10 @@ class RequirementsValidator
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $pluginRepo, private readonly string $projectDir)
-    {
+    public function __construct(
+        private readonly EntityRepository $pluginRepo,
+        private readonly string $projectDir
+    ) {
     }
 
     /**

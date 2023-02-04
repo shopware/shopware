@@ -28,8 +28,15 @@ use Symfony\Component\Routing\RouterInterface;
 #[Package('core')]
 class Executor
 {
-    public function __construct(private readonly Client $guzzleClient, private readonly LoggerInterface $logger, private readonly ActionButtonResponseFactory $actionButtonResponseFactory, private readonly ShopIdProvider $shopIdProvider, private readonly RouterInterface $router, private readonly RequestStack $requestStack, private readonly KernelInterface $kernel)
-    {
+    public function __construct(
+        private readonly Client $guzzleClient,
+        private readonly LoggerInterface $logger,
+        private readonly ActionButtonResponseFactory $actionButtonResponseFactory,
+        private readonly ShopIdProvider $shopIdProvider,
+        private readonly RouterInterface $router,
+        private readonly RequestStack $requestStack,
+        private readonly KernelInterface $kernel
+    ) {
     }
 
     public function execute(AppAction $action, Context $context): Response

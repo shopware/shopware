@@ -19,8 +19,12 @@ class DataCollector extends BaseDataCollector
     /**
      * @internal
      */
-    public function __construct(private readonly bool $enabled, private readonly bool $adminEnabled, private readonly ClientProfiler $client, private readonly ClientProfiler $adminClient)
-    {
+    public function __construct(
+        private readonly bool $enabled,
+        private readonly bool $adminEnabled,
+        private readonly ClientProfiler $client,
+        private readonly ClientProfiler $adminClient
+    ) {
     }
 
     public function collect(Request $request, Response $response, ?\Throwable $exception = null): void

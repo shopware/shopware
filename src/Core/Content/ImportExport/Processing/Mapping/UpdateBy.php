@@ -8,8 +8,10 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('system-settings')]
 class UpdateBy extends Struct
 {
-    public function __construct(protected string $entityName, protected ?string $mappedKey = null)
-    {
+    public function __construct(
+        protected string $entityName,
+        protected ?string $mappedKey = null
+    ) {
     }
 
     public function getEntityName(): string

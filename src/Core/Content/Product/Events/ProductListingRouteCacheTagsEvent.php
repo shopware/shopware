@@ -12,8 +12,14 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('inventory')]
 class ProductListingRouteCacheTagsEvent extends StoreApiRouteCacheTagsEvent
 {
-    public function __construct(array $tags, protected string $categoryId, Request $request, StoreApiResponse $response, SalesChannelContext $context, Criteria $criteria)
-    {
+    public function __construct(
+        array $tags,
+        protected string $categoryId,
+        Request $request,
+        StoreApiResponse $response,
+        SalesChannelContext $context,
+        Criteria $criteria
+    ) {
         parent::__construct($tags, $request, $response, $context, $criteria);
     }
 

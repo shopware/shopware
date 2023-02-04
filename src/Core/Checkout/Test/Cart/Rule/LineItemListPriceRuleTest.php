@@ -31,6 +31,7 @@ use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
+ *
  * @group rules
  */
 #[Package('business-ops')]

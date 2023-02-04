@@ -18,8 +18,11 @@ class HttpCacheKeyGenerator extends AbstractHttpCacheKeyGenerator
      *
      * @internal
      */
-    public function __construct(private readonly string $cacheHash, private readonly EventDispatcherInterface $eventDispatcher, private readonly array $ignoredParameters)
-    {
+    public function __construct(
+        private readonly string $cacheHash,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly array $ignoredParameters
+    ) {
     }
 
     public function getDecorated(): AbstractHttpCacheKeyGenerator

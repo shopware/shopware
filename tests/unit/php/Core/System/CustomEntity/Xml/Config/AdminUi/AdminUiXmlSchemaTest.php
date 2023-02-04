@@ -21,6 +21,7 @@ use Symfony\Component\HttpFoundation\Response;
  * @package content
  *
  * @internal
+ *
  * @covers \Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\AdminUiXmlSchema
  * @covers \Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\AdminUi
  * @covers \Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Card

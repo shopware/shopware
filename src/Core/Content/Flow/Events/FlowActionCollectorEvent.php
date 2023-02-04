@@ -10,8 +10,10 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('business-ops')]
 class FlowActionCollectorEvent extends NestedEvent
 {
-    public function __construct(private readonly FlowActionCollectorResponse $flowActionCollectorResponse, private readonly Context $context)
-    {
+    public function __construct(
+        private readonly FlowActionCollectorResponse $flowActionCollectorResponse,
+        private readonly Context $context
+    ) {
     }
 
     public function getContext(): Context

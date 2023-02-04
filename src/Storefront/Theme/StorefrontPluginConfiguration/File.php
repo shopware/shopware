@@ -18,8 +18,10 @@ class File extends Struct
      */
     protected $resolveMapping;
 
-    public function __construct(string $filepath, array $resolveMapping = [])
-    {
+    public function __construct(
+        string $filepath,
+        array $resolveMapping = []
+    ) {
         $this->filepath = $filepath;
         $this->resolveMapping = $resolveMapping;
     }

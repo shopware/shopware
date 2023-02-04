@@ -24,8 +24,12 @@ class EntityIndexingMessage implements AsyncMessageInterface
     /**
      * @internal
      */
-    public function __construct(protected $data, protected $offset = null, ?Context $context = null, private readonly bool $forceQueue = false)
-    {
+    public function __construct(
+        protected $data,
+        protected $offset = null,
+        ?Context $context = null,
+        private readonly bool $forceQueue = false
+    ) {
         $this->context = $context ?? Context::createDefaultContext();
     }
 

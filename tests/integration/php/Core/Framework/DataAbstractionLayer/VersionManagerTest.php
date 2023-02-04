@@ -25,6 +25,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Framework\DataAbstractionLayer\VersionManager
  */
 class VersionManagerTest extends TestCase

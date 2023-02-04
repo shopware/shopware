@@ -23,6 +23,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Storefront\Checkout\Payment\BlockedPaymentMethodSwitcher
  */
 class BlockedPaymentMethodSwitcherTest extends TestCase

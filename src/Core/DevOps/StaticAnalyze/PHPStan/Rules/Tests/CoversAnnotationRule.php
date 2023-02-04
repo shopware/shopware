@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
+ *
  * @implements Rule<InClassNode>
  */
 #[Package('core')]

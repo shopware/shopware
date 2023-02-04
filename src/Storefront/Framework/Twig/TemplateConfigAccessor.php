@@ -13,8 +13,10 @@ class TemplateConfigAccessor
     /**
      * @internal
      */
-    public function __construct(private readonly SystemConfigService $systemConfigService, private readonly ThemeConfigValueAccessor $themeConfigAccessor)
-    {
+    public function __construct(
+        private readonly SystemConfigService $systemConfigService,
+        private readonly ThemeConfigValueAccessor $themeConfigAccessor
+    ) {
     }
 
     /**

@@ -36,6 +36,7 @@ use Shopware\Tests\Unit\Common\Stubs\DataAbstractionLayer\StaticEntityRepository
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceCalculator
  */
 class ProductPriceCalculatorTest extends TestCase
@@ -394,7 +395,11 @@ class ProductPriceCalculatorTest extends TestCase
  */
 class PriceAssertion
 {
-    public function __construct(public float $price, public ?float $listPrice = null, public ?float $reference = null, public ?float $regulation = null)
-    {
+    public function __construct(
+        public float $price,
+        public ?float $listPrice = null,
+        public ?float $reference = null,
+        public ?float $regulation = null
+    ) {
     }
 }

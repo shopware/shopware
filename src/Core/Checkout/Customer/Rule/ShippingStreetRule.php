@@ -19,8 +19,10 @@ class ShippingStreetRule extends Rule
     /**
      * @internal
      */
-    public function __construct(protected string $operator = self::OPERATOR_EQ, protected ?string $streetName = null)
-    {
+    public function __construct(
+        protected string $operator = self::OPERATOR_EQ,
+        protected ?string $streetName = null
+    ) {
         parent::__construct();
     }
 

@@ -12,8 +12,10 @@ class LineItemGroupServiceRegistry
     /**
      * @internal
      */
-    public function __construct(private readonly iterable $packagers, private readonly iterable $sorters)
-    {
+    public function __construct(
+        private readonly iterable $packagers,
+        private readonly iterable $sorters
+    ) {
     }
 
     /**

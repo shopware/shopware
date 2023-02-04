@@ -11,8 +11,10 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('inventory')]
 class ProductAvailableFilter extends MultiFilter
 {
-    public function __construct(string $salesChannelId, int $visibility = ProductVisibilityDefinition::VISIBILITY_ALL)
-    {
+    public function __construct(
+        string $salesChannelId,
+        int $visibility = ProductVisibilityDefinition::VISIBILITY_ALL
+    ) {
         parent::__construct(
             self::CONNECTION_AND,
             [

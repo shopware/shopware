@@ -12,6 +12,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Content\Product\Cart\ProductLineItemValidator
  */
 class ProductLineItemValidatorTest extends TestCase

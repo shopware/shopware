@@ -9,6 +9,7 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegis
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Framework\Api\ApiDefinition\DefinitionService
  */
 class DefinitionServiceTest extends TestCase

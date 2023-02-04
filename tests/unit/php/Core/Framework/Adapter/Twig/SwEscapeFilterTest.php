@@ -13,6 +13,7 @@ use function Shopware\Core\Framework\Adapter\Twig\sw_escape_filter;
  * @internal
  *
  * @see Twig\Tests\Twig_Tests_Extension_EscaperTest
+ *
  * @covers \Shopware\Core\Framework\Adapter\Twig\sw_escape_filter
  */
 class SwEscapeFilterTest extends TestCase
@@ -345,6 +346,7 @@ class SwEscapeFilterTest extends TestCase
      * @dataProvider provideCustomEscaperCases
      *
      * @param string|int|null $string
+     *
      * @runInSeparateProcess
      * custom escaper are cached inside twig, therefore this test has to run in seperate processes, where the custom escapers are not yet cached
      */

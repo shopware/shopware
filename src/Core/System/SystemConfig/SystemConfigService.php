@@ -41,8 +41,13 @@ class SystemConfigService
     /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection, private readonly EntityRepository $systemConfigRepository, private readonly ConfigReader $configReader, private readonly AbstractSystemConfigLoader $loader, private readonly EventDispatcherInterface $eventDispatcher)
-    {
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly EntityRepository $systemConfigRepository,
+        private readonly ConfigReader $configReader,
+        private readonly AbstractSystemConfigLoader $loader,
+        private readonly EventDispatcherInterface $eventDispatcher
+    ) {
     }
 
     public static function buildName(string $key): string

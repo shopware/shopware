@@ -9,8 +9,11 @@ use Shopware\Core\Framework\Update\Struct\Version;
 #[Package('system-settings')]
 class DownloadStep
 {
-    public function __construct(private readonly Version $version, private readonly string $destination, private readonly bool $testMode = false)
-    {
+    public function __construct(
+        private readonly Version $version,
+        private readonly string $destination,
+        private readonly bool $testMode = false
+    ) {
     }
 
     /**

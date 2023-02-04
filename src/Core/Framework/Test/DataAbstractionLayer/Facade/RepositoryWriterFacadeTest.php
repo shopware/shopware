@@ -43,6 +43,7 @@ class RepositoryWriterFacadeTest extends TestCase
 
     /**
      * @param array<int, mixed> $payload
+     *
      * @dataProvider testCases
      */
     public function testFacade(array $payload, string $method, IdsCollection $ids, callable $expectation): void
@@ -169,6 +170,7 @@ class RepositoryWriterFacadeTest extends TestCase
 
     /**
      * @param array<int, mixed> $arguments
+     *
      * @dataProvider withoutPermissionsCases
      */
     public function testWithoutPermission(array $arguments, string $method, IdsCollection $ids): void

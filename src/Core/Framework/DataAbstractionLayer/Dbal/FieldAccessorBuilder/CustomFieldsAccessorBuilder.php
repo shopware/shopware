@@ -20,8 +20,10 @@ class CustomFieldsAccessorBuilder extends JsonFieldAccessorBuilder
     /**
      * @internal
      */
-    public function __construct(private readonly CustomFieldService $customFieldService, Connection $connection)
-    {
+    public function __construct(
+        private readonly CustomFieldService $customFieldService,
+        Connection $connection
+    ) {
         parent::__construct($connection);
     }
 

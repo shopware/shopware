@@ -17,8 +17,11 @@ class FlowPayloadUpdater
     /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection, private readonly FlowBuilder $flowBuilder, private readonly CacheInvalidator $cacheInvalidator)
-    {
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly FlowBuilder $flowBuilder,
+        private readonly CacheInvalidator $cacheInvalidator
+    ) {
     }
 
     public function update(array $ids): array

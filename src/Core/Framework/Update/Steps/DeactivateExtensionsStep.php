@@ -15,8 +15,14 @@ class DeactivateExtensionsStep
 {
     final public const UPDATE_DEACTIVATED_PLUGINS = 'core.update.deactivatedPlugins';
 
-    public function __construct(private readonly Version $toVersion, private readonly string $deactivationFilter, private readonly PluginCompatibility $pluginCompatibility, private readonly AbstractExtensionLifecycle $extensionLifecycleService, private readonly SystemConfigService $systemConfigService, private readonly Context $context)
-    {
+    public function __construct(
+        private readonly Version $toVersion,
+        private readonly string $deactivationFilter,
+        private readonly PluginCompatibility $pluginCompatibility,
+        private readonly AbstractExtensionLifecycle $extensionLifecycleService,
+        private readonly SystemConfigService $systemConfigService,
+        private readonly Context $context
+    ) {
     }
 
     /**

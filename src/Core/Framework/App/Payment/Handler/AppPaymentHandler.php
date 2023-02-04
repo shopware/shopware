@@ -43,8 +43,12 @@ use Shopware\Core\System\StateMachine\Transition;
 #[Package('core')]
 class AppPaymentHandler implements RefundPaymentHandlerInterface, PreparedPaymentHandlerInterface
 {
-    public function __construct(protected OrderTransactionStateHandler $transactionStateHandler, protected StateMachineRegistry $stateMachineRegistry, protected PaymentPayloadService $payloadService, protected EntityRepository $refundRepository)
-    {
+    public function __construct(
+        protected OrderTransactionStateHandler $transactionStateHandler,
+        protected StateMachineRegistry $stateMachineRegistry,
+        protected PaymentPayloadService $payloadService,
+        protected EntityRepository $refundRepository
+    ) {
     }
 
     public function validate(Cart $cart, RequestDataBag $requestDataBag, SalesChannelContext $context): Struct

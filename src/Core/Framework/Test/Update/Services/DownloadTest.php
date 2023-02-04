@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Update\Services\Download;
 
 /**
  * @internal
+ *
  * @group needsWebserver
  */
 class DownloadTest extends TestCase

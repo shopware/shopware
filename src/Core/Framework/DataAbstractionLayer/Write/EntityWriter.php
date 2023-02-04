@@ -55,6 +55,7 @@ class EntityWriter implements EntityWriterInterface
     // TODO: prefetch
     /**
      * @param SyncOperation[] $operations
+     *
      * @throw InvalidSyncOperationException
      */
     public function sync(array $operations, WriteContext $context): WriteResult

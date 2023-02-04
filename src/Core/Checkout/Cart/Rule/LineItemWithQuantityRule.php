@@ -20,8 +20,11 @@ class LineItemWithQuantityRule extends Rule
     /**
      * @internal
      */
-    public function __construct(protected string $operator = self::OPERATOR_EQ, protected ?string $id = null, protected ?int $quantity = null)
-    {
+    public function __construct(
+        protected string $operator = self::OPERATOR_EQ,
+        protected ?string $id = null,
+        protected ?int $quantity = null
+    ) {
         parent::__construct();
     }
 

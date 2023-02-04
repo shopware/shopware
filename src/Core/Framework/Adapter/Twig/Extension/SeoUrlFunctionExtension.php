@@ -14,8 +14,10 @@ class SeoUrlFunctionExtension extends AbstractExtension
     /**
      * @internal
      */
-    public function __construct(private readonly RoutingExtension $routingExtension, private readonly SeoUrlPlaceholderHandlerInterface $seoUrlReplacer)
-    {
+    public function __construct(
+        private readonly RoutingExtension $routingExtension,
+        private readonly SeoUrlPlaceholderHandlerInterface $seoUrlReplacer
+    ) {
     }
 
     public function getFunctions(): array

@@ -22,8 +22,10 @@ class CartSavedEvent extends Event implements ShopwareSalesChannelEvent
      */
     protected $cart;
 
-    public function __construct(SalesChannelContext $context, Cart $cart)
-    {
+    public function __construct(
+        SalesChannelContext $context,
+        Cart $cart
+    ) {
         $this->context = $context;
         $this->cart = $cart;
     }

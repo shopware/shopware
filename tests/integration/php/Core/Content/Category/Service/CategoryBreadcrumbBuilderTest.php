@@ -110,6 +110,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
 
     /**
      * @dataProvider breadcrumbDataProvider
+     *
      * @group slow
      */
     public function testIsWithoutEntrypoint(string $key, bool $withSalesChannel, bool $withCategoryId = false): void
@@ -172,6 +173,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
 
     /**
      * @dataProvider seoCategoryProvider
+     *
      * @group slow
      */
     public function testItHasSeoCategory(bool $hasCategories, bool $hasMainCategory, bool $hasMainCategory2ndChannel): void

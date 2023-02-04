@@ -43,6 +43,7 @@ class RepositoryFacadeTest extends TestCase
 
     /**
      * @param array<string, array<int, mixed>> $criteria
+     *
      * @dataProvider withoutAppTestCases
      */
     public function testWithoutApp(array $criteria, string $method, IdsCollection $ids, callable $expectation): void

@@ -18,12 +18,15 @@ class StoreApiTestOtherRoute
 {
     /**
      * @Entity("test")
+     *
      * @OA\Post(
      *      path="/test",
      *      summary="A test route",
      *      operationId="readOtherInternalTest",
      *      tags={"Admin API", "Test"},
+     *
      *      @OA\Parameter(name="Api-Basic-Parameters"),
+     *
      *      @OA\Response(
      *          response="200",
      *          description="Success"

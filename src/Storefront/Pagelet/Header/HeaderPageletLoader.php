@@ -25,8 +25,12 @@ class HeaderPageletLoader implements HeaderPageletLoaderInterface
     /**
      * @internal
      */
-    public function __construct(private readonly EventDispatcherInterface $eventDispatcher, private readonly AbstractCurrencyRoute $currencyRoute, private readonly AbstractLanguageRoute $languageRoute, private readonly NavigationLoaderInterface $navigationLoader)
-    {
+    public function __construct(
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly AbstractCurrencyRoute $currencyRoute,
+        private readonly AbstractLanguageRoute $languageRoute,
+        private readonly NavigationLoaderInterface $navigationLoader
+    ) {
     }
 
     /**

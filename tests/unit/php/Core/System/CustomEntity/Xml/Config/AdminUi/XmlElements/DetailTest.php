@@ -10,6 +10,7 @@ use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Tabs;
  * @package content
  *
  * @internal
+ *
  * @covers \Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Detail
  */
 class DetailTest extends TestCase

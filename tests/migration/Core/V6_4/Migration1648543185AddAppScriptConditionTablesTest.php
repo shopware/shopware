@@ -14,6 +14,7 @@ use Shopware\Core\Migration\V6_4\Migration1648543185AddAppScriptConditionTables;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_4\Migration1648543185AddAppScriptConditionTables
  */
 class Migration1648543185AddAppScriptConditionTablesTest extends TestCase

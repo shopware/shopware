@@ -10,8 +10,10 @@ use Shopware\Core\Framework\ShopwareHttpException;
 #[Package('core')]
 class PrimaryKeyNotProvidedException extends ShopwareHttpException
 {
-    public function __construct(EntityDefinition $definition, Field $field)
-    {
+    public function __construct(
+        EntityDefinition $definition,
+        Field $field
+    ) {
         parent::__construct(
             'Expected primary key field {{ propertyName }} for definition {{ definition }} not provided',
             ['definition' => $definition->getEntityName(), 'propertyName' => $field->getPropertyName()]

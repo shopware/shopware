@@ -21,8 +21,10 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 #[Package('core')]
 class SystemGenerateJwtSecretCommand extends Command
 {
-    public function __construct(private readonly string $projectDir, private readonly JwtCertificateGenerator $jwtCertificateGenerator)
-    {
+    public function __construct(
+        private readonly string $projectDir,
+        private readonly JwtCertificateGenerator $jwtCertificateGenerator
+    ) {
         parent::__construct();
     }
 

@@ -17,8 +17,11 @@ class MatchAllLineItemsRule extends Container
     /**
      * @internal
      */
-    public function __construct(array $rules = [], protected ?int $minimumShouldMatch = null, protected ?string $type = null)
-    {
+    public function __construct(
+        array $rules = [],
+        protected ?int $minimumShouldMatch = null,
+        protected ?string $type = null
+    ) {
         parent::__construct($rules);
     }
 

@@ -22,8 +22,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[Package('core')]
 class SystemDumpDatabaseCommand extends Command
 {
-    public function __construct(private readonly string $defaultDirectory, private readonly Connection $connection)
-    {
+    public function __construct(
+        private readonly string $defaultDirectory,
+        private readonly Connection $connection
+    ) {
         parent::__construct();
     }
 

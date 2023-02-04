@@ -20,8 +20,10 @@ class PaymentMethodRule extends Rule
      *
      * @internal
      */
-    public function __construct(protected string $operator = RULE::OPERATOR_EQ, protected array $paymentMethodIds = [])
-    {
+    public function __construct(
+        protected string $operator = RULE::OPERATOR_EQ,
+        protected array $paymentMethodIds = []
+    ) {
         parent::__construct();
     }
 

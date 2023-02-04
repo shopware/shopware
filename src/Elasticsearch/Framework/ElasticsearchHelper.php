@@ -26,8 +26,17 @@ class ElasticsearchHelper
     /**
      * @internal
      */
-    public function __construct(private readonly string $environment, private bool $searchEnabled, private bool $indexingEnabled, private readonly string $prefix, private readonly bool $throwException, private readonly Client $client, private readonly ElasticsearchRegistry $registry, private readonly CriteriaParser $parser, private readonly LoggerInterface $logger)
-    {
+    public function __construct(
+        private readonly string $environment,
+        private bool $searchEnabled,
+        private bool $indexingEnabled,
+        private readonly string $prefix,
+        private readonly bool $throwException,
+        private readonly Client $client,
+        private readonly ElasticsearchRegistry $registry,
+        private readonly CriteriaParser $parser,
+        private readonly LoggerInterface $logger
+    ) {
     }
 
     public function logAndThrowException(\Throwable $exception): bool

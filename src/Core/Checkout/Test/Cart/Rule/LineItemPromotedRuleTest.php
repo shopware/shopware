@@ -16,6 +16,7 @@ use Symfony\Component\Validator\Constraints\Type;
 
 /**
  * @internal
+ *
  * @group rules
  */
 #[Package('business-ops')]
@@ -170,6 +171,6 @@ class LineItemPromotedRuleTest extends TestCase
 
     private function createLineItemWithTopsellerMarker(bool $markAsTopseller): LineItem
     {
-        return ($this->createLineItem())->setPayloadValue(self::PAYLOAD_KEY, $markAsTopseller);
+        return $this->createLineItem()->setPayloadValue(self::PAYLOAD_KEY, $markAsTopseller);
     }
 }

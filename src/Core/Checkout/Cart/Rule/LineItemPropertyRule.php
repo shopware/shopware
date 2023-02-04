@@ -19,8 +19,10 @@ class LineItemPropertyRule extends Rule
      *
      * @internal
      */
-    public function __construct(protected array $identifiers = [], protected string $operator = self::OPERATOR_EQ)
-    {
+    public function __construct(
+        protected array $identifiers = [],
+        protected string $operator = self::OPERATOR_EQ
+    ) {
         parent::__construct();
     }
 

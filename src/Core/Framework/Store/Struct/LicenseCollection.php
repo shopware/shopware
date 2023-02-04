@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Struct\Collection;
 
 /**
  * @codeCoverageIgnore
+ *
  * @extends Collection<LicenseStruct>
  */
 #[Package('merchant-services')]

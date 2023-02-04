@@ -17,7 +17,9 @@ use Symfony\Component\VarDumper\Dumper\CliDumper;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Profiling\Doctrine\ConnectionProfiler
+ *
  * @group time-sensitive
  */
 class ConnectionProfilerTest extends TestCase

@@ -17,8 +17,11 @@ class ProductSearchBuilder implements ProductSearchBuilderInterface
     /**
      * @internal
      */
-    public function __construct(private readonly ProductSearchBuilderInterface $decorated, private readonly ElasticsearchHelper $helper, private readonly ProductDefinition $productDefinition)
-    {
+    public function __construct(
+        private readonly ProductSearchBuilderInterface $decorated,
+        private readonly ElasticsearchHelper $helper,
+        private readonly ProductDefinition $productDefinition
+    ) {
     }
 
     public function build(Request $request, Criteria $criteria, SalesChannelContext $context): void

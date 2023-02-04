@@ -46,8 +46,17 @@ class RegisterController extends StorefrontController
     /**
      * @internal
      */
-    public function __construct(private readonly AccountLoginPageLoader $loginPageLoader, private readonly AbstractRegisterRoute $registerRoute, private readonly AbstractRegisterConfirmRoute $registerConfirmRoute, private readonly CartService $cartService, private readonly CheckoutRegisterPageLoader $registerPageLoader, private readonly SystemConfigService $systemConfigService, private readonly EntityRepository $customerRepository, private readonly AbstractCustomerGroupRegistrationPageLoader $customerGroupRegistrationPageLoader, private readonly EntityRepository $domainRepository)
-    {
+    public function __construct(
+        private readonly AccountLoginPageLoader $loginPageLoader,
+        private readonly AbstractRegisterRoute $registerRoute,
+        private readonly AbstractRegisterConfirmRoute $registerConfirmRoute,
+        private readonly CartService $cartService,
+        private readonly CheckoutRegisterPageLoader $registerPageLoader,
+        private readonly SystemConfigService $systemConfigService,
+        private readonly EntityRepository $customerRepository,
+        private readonly AbstractCustomerGroupRegistrationPageLoader $customerGroupRegistrationPageLoader,
+        private readonly EntityRepository $domainRepository
+    ) {
     }
 
     #[Route(path: '/account/register', name: 'frontend.account.register.page', defaults: ['_noStore' => true], methods: ['GET'])]

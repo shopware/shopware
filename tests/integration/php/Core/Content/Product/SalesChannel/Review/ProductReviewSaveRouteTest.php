@@ -22,6 +22,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
+ *
  * @group store-api
  */
 class ProductReviewSaveRouteTest extends TestCase

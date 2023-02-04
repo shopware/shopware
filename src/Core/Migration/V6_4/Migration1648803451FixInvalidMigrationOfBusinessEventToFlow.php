@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
+ *
  * @phpstan-type SequenceData array{id: string, parent_id: string|null, true_case: int|null, flow_id: string|null, rule_id: string|null, action_name: string|null, position: int, created_at: string|null, config: string|null}
  */
 #[Package('core')]

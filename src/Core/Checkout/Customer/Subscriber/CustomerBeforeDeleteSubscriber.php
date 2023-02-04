@@ -25,8 +25,11 @@ class CustomerBeforeDeleteSubscriber implements EventSubscriberInterface
     /**
      * @internal
      */
-    public function __construct(private readonly EntityRepository $customerRepository, private readonly SalesChannelContextServiceInterface $salesChannelContextService, private readonly EventDispatcherInterface $eventDispatcher)
-    {
+    public function __construct(
+        private readonly EntityRepository $customerRepository,
+        private readonly SalesChannelContextServiceInterface $salesChannelContextService,
+        private readonly EventDispatcherInterface $eventDispatcher
+    ) {
     }
 
     /**

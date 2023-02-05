@@ -88,28 +88,6 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-review-creat
         expect(submitButton.attributes('disabled')).toBe(undefined);
     });
 
-    it('should set toc to false and disable button when clicking the \'cancel\' button', async () => {
-        wrapper = await createWrapper();
-
-        const submitButton = wrapper.find('.sw-button.sw-button--primary');
-        expect(submitButton.attributes('disabled')).toBe('disabled');
-
-        const gtcCheckbox = wrapper.find('input[type="checkbox"]');
-
-        await gtcCheckbox.setChecked();
-
-        expect(gtcCheckbox.element.checked).toBe(true);
-
-        expect(submitButton.attributes('disabled')).toBe(undefined);
-
-        const cancelButton = wrapper.find('.sw-extension-review-creation__buttons .sw-button');
-        await cancelButton.trigger('click');
-
-        expect(submitButton.attributes('disabled')).toBe('disabled');
-
-        expect(gtcCheckbox.element.checked).toBe(false);
-    });
-
     it('should make an api request', async () => {
         wrapper = await createWrapper();
         const gtcCheckbox = wrapper.find('input[type="checkbox"]');

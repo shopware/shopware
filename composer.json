@@ -300,19 +300,6 @@
             "@npm:storefront run production",
             "cd src/Storefront/Resources/app/storefront && node copy-to-vendor.js"
         ],
-        "e2e:admin:cypress": [
-            "@e2e:cypress"
-        ],
-        "e2e:admin:open": [
-            "Composer\\Config::disableProcessTimeout",
-            "@e2e:admin:cypress open"
-        ],
-        "e2e:admin:percy": [
-            "@e2e:percy"
-        ],
-        "e2e:admin:run": [
-            "@e2e:admin:cypress run --browser chrome --headless --spec \"cypress/integration/administration/**/*\""
-        ],
         "e2e:cypress": [
             "export APP_ENV=e2e; export CYPRESS_localUsage=1; export CYPRESS_shopwareRoot=\"$PWD\"; cd tests/e2e; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$CYPRESS_shopwareRoot\"/bin/exec-with-env cypress"
         ],
@@ -329,19 +316,6 @@
             "@e2e:sdk-plugin:fixture-to-plugin",
             "@e2e:sdk-plugin:prepare-plugin",
             "@php bin/console e2e:dump-db"
-        ],
-        "e2e:recovery:cypress": [
-            "@e2e:cypress"
-        ],
-        "e2e:recovery:open": [
-            "Composer\\Config::disableProcessTimeout",
-            "@e2e:recovery:cypress open"
-        ],
-        "e2e:recovery:percy": [
-            "@e2e:percy"
-        ],
-        "e2e:recovery:run": [
-            "@e2e:recovery:cypress run --browser chrome --headless --spec \"cypress/integration/recovery/**/*\""
         ],
         "e2e:sdk-plugin:fixture-to-plugin": [
             "rm -rf $PWD/custom/plugins/TestPlugin;",
@@ -361,19 +335,6 @@
             "@putenv APP_ENV=e2e",
             "@setup",
             "@e2e:prepare"
-        ],
-        "e2e:storefront:cypress": [
-            "@e2e:cypress"
-        ],
-        "e2e:storefront:open": [
-            "Composer\\Config::disableProcessTimeout",
-            "@e2e:storefront:cypress open"
-        ],
-        "e2e:storefront:percy": [
-            "@e2e:percy"
-        ],
-        "e2e:storefront:run": [
-            "@e2e:storefront:cypress run --browser chrome --headless --spec \"cypress/integration/storefront/**/*\""
         ],
         "ecs": "ecs check src tests",
         "ecs-fix": "ecs check --fix src tests",
@@ -404,9 +365,6 @@
             "@php bin/console system:install --drop-database --basic-setup --force --no-assign-theme"
         ],
         "init:e2e": "@npm:e2e clean-install",
-        "init:e2e:admin": "@npm:e2e:admin clean-install",
-        "init:e2e:recovery": "@npm:e2e:recovery clean-install",
-        "init:e2e:storefront": "@npm:e2e:storefront clean-install",
         "init:js": [
             "@npm:admin clean-install",
             "@npm:storefront clean-install"
@@ -430,13 +388,7 @@
         "npm:component-library": "@npm:component-library:bin npm",
         "npm:component-library:bin": "export PROJECT_ROOT=\"$PWD\"; cd src/Administration/Resources/app/administration/build/nuxt-component-library; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$PROJECT_ROOT\"/bin/exec-with-env ",
         "npm:e2e": "@npm:e2e:bin npm",
-        "npm:e2e:admin": "@npm:e2e:admin:bin npm",
-        "npm:e2e:admin:bin": "@npm:e2e:bin ",
         "npm:e2e:bin": "export CYPRESS_shopwareRoot=\"$PWD\"; cd tests/e2e; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$CYPRESS_shopwareRoot\"/bin/exec-with-env ",
-        "npm:e2e:recovery": "@npm:e2e:recovery:bin npm",
-        "npm:e2e:recovery:bin": "@npm:e2e:bin ",
-        "npm:e2e:storefront": "@npm:e2e:storefront:bin npm",
-        "npm:e2e:storefront:bin": "@npm:e2e:bin ",
         "npm:storefront": "@npm:storefront:bin npm",
         "npm:storefront:bin": "export PROJECT_ROOT=\"$PWD\"; cd src/Storefront/Resources/app/storefront; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$PROJECT_ROOT\"/bin/exec-with-env ",
         "paratest": [

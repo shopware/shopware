@@ -6,14 +6,16 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
+use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionCartAddedInformationError;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
-use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductListRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
@@ -39,7 +41,8 @@ class CartLineItemController extends StorefrontController
         private readonly PromotionItemBuilder $promotionItemBuilder,
         private readonly ProductLineItemFactory $productLineItemFactory,
         private readonly HtmlSanitizer $htmlSanitizer,
-        private readonly AbstractProductListRoute $productListRoute
+        private readonly AbstractProductListRoute $productListRoute,
+        private readonly LineItemFactoryRegistry $lineItemFactoryRegistry
     ) {
     }
 
@@ -164,7 +167,7 @@ class CartLineItemController extends StorefrontController
             /** @var string $productId */
             $productId = array_shift($data);
 
-            $product = $this->productLineItemFactory->create($productId);
+            $product = $this->productLineItemFactory->create(['id' => $productId, 'referencedId' => $productId], $context);
 
             $cart = $this->cartService->getCart($context->getToken(), $context);
 
@@ -209,19 +212,38 @@ class CartLineItemController extends StorefrontController
                 $items = [];
                 /** @var RequestDataBag $lineItemData */
                 foreach ($lineItems as $lineItemData) {
-                    $lineItem = new LineItem(
-                        $lineItemData->getAlnum('id'),
-                        $lineItemData->getAlnum('type'),
-                        $lineItemData->get('referencedId'),
-                        $lineItemData->getInt('quantity', 1)
-                    );
+                    try {
+                        $item = $this->lineItemFactoryRegistry->create($this->getLineItemArray($lineItemData), $context);
+                        $count += $item->getQuantity();
 
-                    $lineItem->setStackable($lineItemData->getBoolean('stackable', true));
-                    $lineItem->setRemovable($lineItemData->getBoolean('removable', true));
+                        $items[] = $item;
+                    } catch (CartException $e) {
+                        if ($e->getErrorCode() !== CartException::CART_LINE_ITEM_TYPE_NOT_SUPPORTED_CODE) {
+                            throw $e;
+                        }
 
-                    $count += $lineItem->getQuantity();
+                        /**
+                         * @deprecated tag:v6.6.0 - remove complete try/catch and just leave the try content
+                         */
+                        Feature::triggerDeprecationOrThrow(
+                            'v6.6.0.0',
+                            'With Shopware 6.6.0.0, you will only be able to create line items only with registered LineItemFactories',
+                        );
 
-                    $items[] = $lineItem;
+                        $lineItem = new LineItem(
+                            $lineItemData->getAlnum('id'),
+                            $lineItemData->getAlnum('type'),
+                            $lineItemData->get('referencedId'),
+                            $lineItemData->getInt('quantity', 1)
+                        );
+
+                        $lineItem->setStackable($lineItemData->getBoolean('stackable', true));
+                        $lineItem->setRemovable($lineItemData->getBoolean('removable', true));
+
+                        $count += $lineItem->getQuantity();
+
+                        $items[] = $lineItem;
+                    }
                 }
 
                 $cart = $this->cartService->add($cart, $items, $context);
@@ -246,5 +268,26 @@ class CartLineItemController extends StorefrontController
         $this->addCartErrors($cart, fn (Error $error) => $error->isPersistent());
 
         return true;
+    }
+
+    /**
+     * @return array<string|int, mixed>
+     */
+    private function getLineItemArray(RequestDataBag $lineItemData): array
+    {
+        $lineItemArray = $lineItemData->all();
+        $lineItemArray['quantity'] = $lineItemData->getInt('quantity', 1);
+        $lineItemArray['stackable'] = $lineItemData->getBoolean('stackable', true);
+        $lineItemArray['removable'] = $lineItemData->getBoolean('removable', true);
+
+        if (isset($lineItemArray['priceDefinition']) && isset($lineItemArray['priceDefinition']['quantity'])) {
+            $lineItemArray['priceDefinition']['quantity'] = (int) $lineItemArray['priceDefinition']['quantity'];
+        }
+
+        if (isset($lineItemArray['priceDefinition']) && isset($lineItemArray['priceDefinition']['isCalculated'])) {
+            $lineItemArray['priceDefinition']['isCalculated'] = (int) $lineItemArray['priceDefinition']['isCalculated'];
+        }
+
+        return $lineItemArray;
     }
 }

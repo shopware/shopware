@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
@@ -17,7 +18,6 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
-use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -165,7 +165,7 @@ class ProductCartProcessorTest extends TestCase
         static::assertEquals($valid, \in_array($ids->get('rule-1'), $context->getRuleIds(), true));
 
         $lineItem = $this->getContainer()->get(ProductLineItemFactory::class)
-            ->create($ids->get('test'));
+            ->create(['id' => $ids->get('test'), 'referencedId' => $ids->get('test')], $context);
 
         $cart = $this->getContainer()->get(CartService::class)
             ->add($cart, [$lineItem], $context);
@@ -201,7 +201,7 @@ class ProductCartProcessorTest extends TestCase
             ->get(new SalesChannelContextServiceParameters(TestDefaults::SALES_CHANNEL, $token));
 
         $product = $this->getContainer()->get(ProductLineItemFactory::class)
-            ->create($this->ids->get('product'));
+            ->create(['id' => $this->ids->get('product'), 'referencedId' => $this->ids->get('product')], $context);
 
         $product->setLabel('My special product');
 
@@ -226,7 +226,7 @@ class ProductCartProcessorTest extends TestCase
             ->create($token, TestDefaults::SALES_CHANNEL, $options);
 
         $product = $this->getContainer()->get(ProductLineItemFactory::class)
-            ->create($this->ids->get('product'));
+            ->create(['id' => $this->ids->get('product'), 'referencedId' => $this->ids->get('product')], $context);
 
         $product->setLabel('My special product');
 
@@ -251,7 +251,7 @@ class ProductCartProcessorTest extends TestCase
             ->create($token, TestDefaults::SALES_CHANNEL, $options);
 
         $product = $this->getContainer()->get(ProductLineItemFactory::class)
-            ->create($this->ids->get('product'));
+            ->create(['id' => $this->ids->get('product'), 'referencedId' => $this->ids->get('product')], $context);
 
         $product->setLabel(null);
 
@@ -275,7 +275,8 @@ class ProductCartProcessorTest extends TestCase
         $context = $salesChannelContextService->get(new SalesChannelContextServiceParameters(TestDefaults::SALES_CHANNEL, $token, null, Defaults::CURRENCY));
         $cartService = $this->getContainer()->get(CartService::class);
         $cart = $cartService->getCart($token, $context);
-        $product = $this->getContainer()->get(ProductLineItemFactory::class)->create($this->ids->get('product'));
+        $product = $this->getContainer()->get(ProductLineItemFactory::class)
+            ->create(['id' => $this->ids->get('product'), 'referencedId' => $this->ids->get('product')], $context);
         $cartService->add($cart, $product, $context);
 
         $productCartProcessor = $this->getContainer()->get(ProductCartProcessor::class);
@@ -572,7 +573,7 @@ class ProductCartProcessorTest extends TestCase
             ->create($token, TestDefaults::SALES_CHANNEL, $options);
 
         $product = $this->getContainer()->get(ProductLineItemFactory::class)
-            ->create($this->ids->get('product'));
+            ->create(['id' => $this->ids->get('product'), 'referencedId' => $this->ids->get('product')], $context);
 
         $product->setLabel('My special product');
 
@@ -613,10 +614,12 @@ class ProductCartProcessorTest extends TestCase
             ->create($token, TestDefaults::SALES_CHANNEL, $options);
 
         $config = [
+            'id' => $this->ids->get('product'),
+            'referencedId' => $this->ids->get('product'),
             'quantity' => $quantity,
         ];
         $product = $this->getContainer()->get(ProductLineItemFactory::class)
-            ->create($this->ids->get('product'), $config);
+            ->create($config, $context);
 
         $product->setLabel('My special product');
 
@@ -672,7 +675,7 @@ class ProductCartProcessorTest extends TestCase
         $definition = new QuantityPriceDefinition(10, new TaxRuleCollection(), 1);
 
         $product = $this->getContainer()->get(ProductLineItemFactory::class)
-            ->create($this->ids->get('product'));
+            ->create(['id' => $this->ids->get('product'), 'referencedId' => $this->ids->get('product')], $context);
         $product->setPriceDefinition($definition);
         $product->setLabel('My test product');
         $product->setQuantity(5);
@@ -710,7 +713,7 @@ class ProductCartProcessorTest extends TestCase
             ->create($token, TestDefaults::SALES_CHANNEL, $options);
 
         $product = $this->getContainer()->get(ProductLineItemFactory::class)
-            ->create($this->ids->get('product'));
+            ->create(['id' => $this->ids->get('product'), 'referencedId' => $this->ids->get('product')], $context);
         $product->setLabel('My test product');
 
         $cart = $this->cartService->getCart($token, $context);
@@ -744,7 +747,7 @@ class ProductCartProcessorTest extends TestCase
             ->create($token, TestDefaults::SALES_CHANNEL, $options);
 
         $product = $this->getContainer()->get(ProductLineItemFactory::class)
-            ->create($this->ids->get('product'));
+            ->create(['id' => $this->ids->get('product'), 'referencedId' => $this->ids->get('product')], $context);
         $product->setLabel('My test product');
 
         $cart = $this->cartService->getCart($token, $context);
@@ -788,10 +791,10 @@ class ProductCartProcessorTest extends TestCase
 
     private function getProductCart(): Cart
     {
-        $product = $this->getContainer()->get(ProductLineItemFactory::class)
-            ->create($this->ids->get('product'));
-
         $context = $this->getContext();
+
+        $product = $this->getContainer()->get(ProductLineItemFactory::class)
+            ->create(['id' => $this->ids->get('product'), 'referencedId' => $this->ids->get('product')], $context);
 
         $cart = $this->cartService->getCart($context->getToken(), $context);
 

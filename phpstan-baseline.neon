@@ -4111,16 +4111,6 @@ parameters:
 			path: src/Core/Content/Product/Cart/ProductLineItemCommandValidator.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Cart\\\\ProductLineItemFactory\\:\\:create\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/Cart/ProductLineItemFactory.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Cart\\\\ProductLineItemFactory\\:\\:createList\\(\\) has parameter \\$products with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/Cart/ProductLineItemFactory.php
-
-		-
 			message: "#^Parameter \\#1 \\$ids of method Shopware\\\\Core\\\\Content\\\\Product\\\\DataAbstractionLayer\\\\CheapestPriceUpdater\\:\\:fetchPrices\\(\\) expects list\\<string\\>, non\\-empty\\-array\\<non\\-falsy\\-string\\> given\\.$#"
 			count: 1
 			path: src/Core/Content/Product/DataAbstractionLayer/CheapestPriceUpdater.php

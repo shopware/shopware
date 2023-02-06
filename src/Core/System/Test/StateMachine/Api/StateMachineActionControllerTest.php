@@ -4,8 +4,10 @@ namespace Shopware\Core\System\Test\StateMachine\Api;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Cart\PriceDefinitionFactory;
 use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
@@ -14,7 +16,6 @@ use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
-use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -212,7 +213,7 @@ class StateMachineActionControllerTest extends TestCase
             ->create([$product], $salesChannelContext->getContext());
         $this->addTaxDataToSalesChannel($salesChannelContext, $product['tax']);
 
-        $lineItem = (new ProductLineItemFactory())->create($productId);
+        $lineItem = (new ProductLineItemFactory(new PriceDefinitionFactory()))->create(['id' => $productId, 'referencedId' => $productId], $salesChannelContext);
 
         $cart = $cartService->getCart($salesChannelContext->getToken(), $salesChannelContext);
 
@@ -276,7 +277,7 @@ class StateMachineActionControllerTest extends TestCase
             ->create([$product], $salesChannelContext->getContext());
         $this->addTaxDataToSalesChannel($salesChannelContext, $product['tax']);
 
-        $lineItem = (new ProductLineItemFactory())->create($productId);
+        $lineItem = (new ProductLineItemFactory(new PriceDefinitionFactory()))->create(['id' => $productId, 'referencedId' => $productId], $salesChannelContext);
 
         $cart = $cartService->getCart($salesChannelContext->getToken(), $salesChannelContext);
 

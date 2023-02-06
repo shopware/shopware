@@ -178,8 +178,13 @@ export default {
         productStates() {
             this.getList();
         },
-    },
 
+        'product.id': {
+            handler() {
+                this.getList();
+            },
+        },
+    },
 
     methods: {
         removeFile(fileName, item) {
@@ -230,10 +235,13 @@ export default {
             });
         },
 
-
         getList() {
             // Promise needed for inline edit error handling
             return new Promise((resolve) => {
+                if (this.product.parentId) {
+                    return;
+                }
+
                 Shopware.State.commit('swProductDetail/setLoading', ['variants', true]);
 
                 // Get criteria for search and for option sorting

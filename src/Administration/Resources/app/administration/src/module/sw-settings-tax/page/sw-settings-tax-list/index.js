@@ -184,7 +184,6 @@ export default {
                 property: 'default',
                 inlineEdit: 'boolean',
                 label: 'sw-settings-tax.list.columnDefault',
-                align: 'center',
             }];
         },
 

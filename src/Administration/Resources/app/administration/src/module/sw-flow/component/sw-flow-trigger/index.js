@@ -559,7 +559,7 @@ export default {
         getLastEventName({ parentId = null, id }) {
             const [eventName] = parentId ? id.split('.').reverse() : [id];
 
-            return this.$tc(`sw-flow.triggers.${camelCase(eventName)}`);
+            return this.getEventNameTranslated(eventName);
         },
 
         getDataByEvent(event) {
@@ -674,12 +674,18 @@ export default {
             const keyWords = eventName.split('.');
 
             return keyWords.map(key => {
-                return this.$tc(`sw-flow.triggers.${camelCase(key)}`);
+                return this.getEventNameTranslated(key);
             }).join(' / ');
         },
 
         isSearchResultInFocus(item) {
             return item.name === this.searchResultFocusItem.name;
+        },
+
+        getEventNameTranslated(eventName) {
+            return this.$te(`sw-flow.triggers.${camelCase(eventName)}`)
+                ? this.$tc(`sw-flow.triggers.${camelCase(eventName)}`)
+                : eventName.replace(/_|-/g, ' ');
         },
     },
 };

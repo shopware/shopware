@@ -437,7 +437,8 @@ upload zip to store:
     variables:
         GIT_STRATEGY: none
     needs:
-        - build and validate zip
+        - build zip
+        - validate zip
     rules:
         - exists:
               - composer.json

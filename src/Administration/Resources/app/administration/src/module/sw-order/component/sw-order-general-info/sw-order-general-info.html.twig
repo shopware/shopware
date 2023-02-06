@@ -40,8 +40,10 @@
                 }) }}
                 {{ $tc('sw-order.generalTab.info.summary.with') }}
                 {{ order.transactions.last().paymentMethod.translated.distinguishableName }}
-                {{ $tc('sw-order.generalTab.info.summary.and') }}
-                {{ order.deliveries.last().shippingMethod.translated.name }}
+                <template v-if="order.deliveries.last()">
+                    {{ $tc('sw-order.generalTab.info.summary.and') }}
+                    {{ order.deliveries.last().shippingMethod.translated.name }}
+                </template>
             </div>
             {% endblock %}
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -118,7 +120,10 @@
         {% endblock %}
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_base_general_info_order_states_shipping %}
-        <div class="sw-order-general-info__order-state">
+        <div
+            v-if="delivery"
+            class="sw-order-general-info__order-state"
+        >
             <sw-order-state-select-v2
                 v-tooltip="{
                     message: $tc('sw-privileges.tooltip.warning'),

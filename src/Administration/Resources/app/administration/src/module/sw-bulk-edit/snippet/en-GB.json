@@ -18,6 +18,17 @@
       "alertInheritance": {
         "message": "These variants have inherited fields. The contents of inherited fields are drawn form the respective parent product. You can activate and deactivate inheritances by clicking on the chain symbol."
       },
+      "alertRestrictedFields": {
+        "title": "Restricted bulk edit",
+        "message": "Bulk edit can only be applied to fields that are available for all selected products.<br><br>Not available for all selected products:",
+        "stock": "Stock",
+        "isCloseout": "On clearance sale",
+        "restockTime": "Restock time",
+        "maxPurchase": "Max. order quantity",
+        "purchaseSteps": "Purchase steps",
+        "minPurchase": "Min. order quantity",
+        "shippingFree": "Free shipping"
+      },
       "generalInformation": {
         "cardTitle": "General information",
         "description": {
@@ -266,6 +277,11 @@
       "textTitle": "Bulk edit: {orderTotal} order | Bulk edit: {orderTotal} orders",
       "messageEmptyTitle": "No orders selected",
       "messageEmptySubline": "Go back and select orders.",
+      "alertRestrictedFields": {
+        "title": "Restricted bulk edit",
+        "message": "Bulk edit can only be applied to fields that are available for all selected orders.<br><br>Not available for all selected orders:",
+        "orderDeliveries": "Delivery status"
+      },
       "status": {
         "cardTitle": "Status",
         "payment": {

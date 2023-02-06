@@ -160,7 +160,7 @@ default:
     - '(cd $CI_PROJECT_DIR/src/Storefront/Resources/app/storefront/ && npm ci && npm run production && node copy-to-vendor.js)'
     -  $CI_PROJECT_DIR/bin/console assets:install
 
-build and validate zip:
+build zip:
     stage: build
     image:
         name: ghcr.io/friendsofshopware/shopware-cli
@@ -181,6 +181,12 @@ build and validate zip:
         name: '${PLUGIN_NAME}.zip'
         paths:
             - '${PLUGIN_NAME}.zip'
+
+validate zip:
+  before_script:
+    - 'echo @WARNING: the validate step was integrated into build zip. This job will be removed from the template in 6.5'
+  script:
+    - exit 0
 
 phpunit:
     stage: test

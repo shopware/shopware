@@ -145,6 +145,10 @@
         top: 30px;
         right: 10px;
     }
+
+    &__restricted-fields .sw-alert {
+        margin: 0 auto;
+    }
 }
 
 .sw-bulk-edit-product-base__property {

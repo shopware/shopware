@@ -430,12 +430,22 @@ describe('module/sw-product/component/sw-product-variant-modal', () => {
 
     it('should push to a new route when editing items', async () => {
         wrapper.vm.$router.push = jest.fn();
+        await wrapper.setData({
+            $refs: {
+                variantGrid: {
+                    selection: {
+                        foo: { states: ['is-download'] },
+                    },
+                },
+            },
+        });
 
         await wrapper.vm.onEditItems();
         expect(wrapper.vm.$router.push).toHaveBeenCalledWith(expect.objectContaining({
             name: 'sw.bulk.edit.product',
             params: expect.objectContaining({
                 parentId: '72bfaf5d90214ce592715a9649d8760a',
+                includesDigital: true,
             }),
         }));
 

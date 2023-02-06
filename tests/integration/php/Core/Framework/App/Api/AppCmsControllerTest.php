@@ -3,9 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Framework\App\Api;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
 
@@ -18,9 +16,6 @@ class AppCmsControllerTest extends TestCase
     use AdminApiTestBehaviour;
     use AppSystemTestBehaviour;
 
-    /**
-     * @DisabledFeatures({"FEATURE_NEXT_15172"})
-     */
     public function testGetBlocks(): void
     {
         $this->loadAppsFromDir(__DIR__ . '/../Manifest/_fixtures/test');

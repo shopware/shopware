@@ -8,7 +8,6 @@ use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Validation\ManifestValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
@@ -24,12 +23,6 @@ class ManifestValidatorTest extends TestCase
         $this->manifestValidator = $this->getContainer()->get(ManifestValidator::class);
     }
 
-    /**
-     * Due to the deprecation of NewsletterUpdateEvent (in NewsletterEvents).
-     * Only remove DisabledFeatures not the method when removing the event
-     *
-     * @DisabledFeatures(features={"v6.5.0.0"})
-     */
     public function testValidate(): void
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
@@ -37,12 +30,6 @@ class ManifestValidatorTest extends TestCase
         $this->manifestValidator->validate($manifest, Context::createDefaultContext());
     }
 
-    /**
-     * Due to the deprecation of NewsletterUpdateEvent (in NewsletterEvents).
-     * Only remove DisabledFeatures not the method when removing the event
-     *
-     * @DisabledFeatures(features={"v6.5.0.0"})
-     */
     public function testValidateInvalidManifest(): void
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/invalidManifest/manifest.xml');

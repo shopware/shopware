@@ -30,7 +30,7 @@ class FeatureFlagExtension implements BeforeTestHook, AfterTestHook
     private ?array $savedServerVars = null;
 
     public function __construct(
-        private readonly string $namespacePrefix = 'Shopware\\Tests\\',
+        private readonly string $namespacePrefix = 'Shopware\\Tests\\Unit\\',
         private readonly bool $testMode = false
     ) {
         $this->annotationReader = new AnnotationReader();

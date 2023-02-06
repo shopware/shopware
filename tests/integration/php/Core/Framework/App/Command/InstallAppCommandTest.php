@@ -12,7 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchemaValidator;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
 
@@ -156,12 +155,6 @@ class InstallAppCommandTest extends TestCase
         static::assertStringContainsString('[INFO] App withoutPermissions is already installed', $commandTester->getDisplay());
     }
 
-    /**
-     * Due to the deprecation of NewsletterUpdateEvent (in NewsletterEvents).
-     * Only remove DisabledFeatures not the method when removing the event
-     *
-     * @DisabledFeatures(features={"v6.5.0.0"})
-     */
     public function testInstallFailsIfAppHasValidations(): void
     {
         $commandTester = new CommandTester($this->createCommand(__DIR__ . '/../Manifest/_fixtures'));

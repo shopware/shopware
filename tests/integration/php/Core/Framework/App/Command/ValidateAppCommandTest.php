@@ -6,7 +6,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Command\ValidateAppCommand;
 use Shopware\Core\Framework\App\Validation\ManifestValidator;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
@@ -25,12 +24,6 @@ class ValidateAppCommandTest extends TestCase
         static::assertStringContainsString('[OK]', $commandTester->getDisplay());
     }
 
-    /**
-     * Due to the deprecation of NewsletterUpdateEvent (in NewsletterEvents).
-     * Only remove DisabledFeatures not the method when removing the event
-     *
-     * @DisabledFeatures(features={"v6.5.0.0"})
-     */
     public function testUsesAllAppFoldersFromAppDirIfMissingArgument(): void
     {
         $commandTester = new CommandTester($this->createCommand(__DIR__ . '/_fixtures'));

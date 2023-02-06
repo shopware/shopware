@@ -10,7 +10,6 @@ use Shopware\Core\Framework\App\Validation\HookableValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
@@ -35,12 +34,6 @@ class HookableValidatorTest extends TestCase
         $this->hookableValidator->validate($manifest, Context::createDefaultContext());
     }
 
-    /**
-     * Due to the deprecation of NewsletterUpdateEvent (in NewsletterEvents).
-     * Only remove DisabledFeatures not the method when removing the event
-     *
-     * @DisabledFeatures(features={"v6.5.0.0"})
-     */
     public function testValidateDoesNotThrowIfWebhooksAreValid(): void
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../../App/Manifest/_fixtures/test/manifest.xml');
@@ -51,12 +44,6 @@ class HookableValidatorTest extends TestCase
         static::assertCount(0, $validations);
     }
 
-    /**
-     * Due to the deprecation of NewsletterUpdateEvent (in NewsletterEvents).
-     * Only remove DisabledFeatures not the method when removing the event
-     *
-     * @DisabledFeatures(features={"v6.5.0.0"})
-     */
     public function testValidateThrowsIfWebhooksIncludeNotHookableWebhooks(): void
     {
         $this->createAppWithAclRole('notHookableWebhooks');
@@ -71,12 +58,6 @@ class HookableValidatorTest extends TestCase
 - hook2: test.event', $validations->first()->getMessage());
     }
 
-    /**
-     * Due to the deprecation of NewsletterUpdateEvent (in NewsletterEvents).
-     * Only remove DisabledFeatures not the method when removing the event
-     *
-     * @DisabledFeatures(features={"v6.5.0.0"})
-     */
     public function testValidateThrowsIfWebhooksMissingPermissions(): void
     {
         $this->createAppWithAclRole('missingPermissions');

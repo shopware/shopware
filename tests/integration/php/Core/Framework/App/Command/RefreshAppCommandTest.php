@@ -13,7 +13,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 use Symfony\Component\Console\Tester\CommandTester;
 
@@ -286,12 +285,6 @@ class RefreshAppCommandTest extends TestCase
         static::assertEquals(0, $registeredApps->getTotal());
     }
 
-    /**
-     * Due to the deprecation of NewsletterUpdateEvent (in NewsletterEvents).
-     * Only remove DisabledFeatures not the method when removing the event
-     *
-     * @DisabledFeatures(features={"v6.5.0.0"})
-     */
     public function testRefreshValidationFailure(): void
     {
         $commandTester = new CommandTester($this->createCommand(__DIR__ . '/_fixtures'));

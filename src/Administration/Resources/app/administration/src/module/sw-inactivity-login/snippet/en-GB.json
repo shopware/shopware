@@ -1,7 +1,7 @@
 {
   "sw-inactivity-login": {
     "general": {
-      "mainMenuItemIndex": "Inactivity login",
+      "mainMenuItemIndex": "Session timeout",
       "description": "Inactivity-Login"
     },
     "modal": {

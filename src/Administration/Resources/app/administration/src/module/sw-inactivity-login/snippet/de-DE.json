@@ -1,7 +1,7 @@
 {
   "sw-inactivity-login": {
     "general": {
-      "mainMenuItemIndex": "Inaktivitäts Anmeldung",
+      "mainMenuItemIndex": "Sitzung abgelaufen",
       "description": "Inaktivitäts-Anmeldung"
     },
     "modal": {

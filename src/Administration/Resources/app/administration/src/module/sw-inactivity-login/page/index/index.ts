@@ -28,9 +28,18 @@ Component.register('sw-inactivity-login', {
         };
     },
 
+    computed: {
+        title(): string {
+            const moduleName = this.$tc('sw-inactivity-login.general.mainMenuItemIndex');
+            const adminName = this.$tc('global.sw-admin-menu.textShopwareAdmin');
+
+            return `${moduleName} | ${adminName}`;
+        },
+    },
+
     metaInfo(): MetaInfo {
         return {
-            title: this.$createTitle(),
+            title: this.title,
         };
     },
 

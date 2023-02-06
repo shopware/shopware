@@ -26,6 +26,7 @@ class InstallerTest extends TestCase
             [
                 'de' => 'de-DE',
                 'en' => 'en-GB',
+                'us' => 'en-US',
                 'cs' => 'cs-CZ',
                 'es' => 'es-ES',
                 'fr' => 'fr-FR',

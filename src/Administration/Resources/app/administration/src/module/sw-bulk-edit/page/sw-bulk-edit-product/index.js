@@ -155,6 +155,24 @@ export default {
             return this.$route.params.parentId !== 'null';
         },
 
+        restrictedFields() {
+            let restrictedFields = [];
+
+            if (this.$route.params.includesDigital) {
+                restrictedFields = restrictedFields.concat([
+                    'stock',
+                    'isCloseout',
+                    'restockTime',
+                    'maxPurchase',
+                    'purchaseSteps',
+                    'minPurchase',
+                    'shippingFree',
+                ]);
+            }
+
+            return restrictedFields;
+        },
+
         generalFormFields() {
             return [{
                 name: 'description',
@@ -319,7 +337,7 @@ export default {
         },
 
         deliverabilityFormFields() {
-            return [{
+            const fields = [{
                 name: 'stock',
                 type: 'int',
                 canInherit: false,
@@ -426,6 +444,10 @@ export default {
                     disabled: this.bulkEditProduct?.maxPurchase?.isInherited,
                 },
             }];
+
+            return fields.filter((field) => {
+                return !this.restrictedFields.includes(field.name);
+            });
         },
 
         assignmentFormFields() {

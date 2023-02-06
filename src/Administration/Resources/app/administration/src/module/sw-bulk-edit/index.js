@@ -42,7 +42,7 @@ Module.register('sw-bulk-edit', {
     routes: {
         product: {
             component: 'sw-bulk-edit-product',
-            path: 'product/:parentId',
+            path: 'product/:parentId/:includesDigital',
             meta: {
                 parentPath: 'sw.product.index',
             },
@@ -76,7 +76,7 @@ Module.register('sw-bulk-edit', {
         },
         order: {
             component: 'sw-bulk-edit-order',
-            path: 'order',
+            path: 'order/:excludeDelivery',
             meta: {
                 parentPath: 'sw.order.index',
             },

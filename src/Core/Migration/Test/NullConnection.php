@@ -7,7 +7,6 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Statement;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Profiling\Doctrine\DebugStack;
 
 /**
  * @internal
@@ -32,7 +31,7 @@ class NullConnection extends Connection
      */
     public function executeQuery($sql, array $params = [], $types = [], ?QueryCacheProfile $qcp = null): Result
     {
-        $matches = preg_match_all(DebugStack::$writeSqlRegex, $sql);
+        $matches = preg_match_all('/^\s*(UPDATE|ALTER|BACKUP|CREATE|DELETE|DROP|EXEC|INSERT|TRUNCATE)/i', $sql);
 
         if ($matches) {
             throw new \RuntimeException(self::EXCEPTION_MESSAGE);

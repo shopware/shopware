@@ -265,6 +265,8 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-25218 - Update Dompdf](/changelog/release-6-5-0-0/2023-02-01-update-dompdf.md)
 *  [Make admin compatible with NPM 9](/changelog/release-6-5-0-0/2023-02-03-make-admin-compatible-with-npm-9.md)
 *  [Fix profiling bundle when no dev deps](/changelog/release-6-5-0-0/2023-02-01-fix-profiling-bundle-when-no-dev-deps.md)
+*  [NEXT-25306 - Remove unused DebugStack class](/changelog/release-6-5-0-0/2023-02-07-remove-debugstack-class.md)
+
 
 ## 6.4.20.0 
 *  [NEXT-24983 - Make user activity tab overarching](/changelog/release-6-4-20-0/2023-01-30-make-user-activity-tab-overarching.md)

@@ -90,6 +90,10 @@ async function createWrapper(propsData) {
             $tc(translationKey) {
                 return mockTranslations[translationKey] ? mockTranslations[translationKey] : translationKey;
             },
+
+            $te(translationKey) {
+                return !!mockTranslations[translationKey];
+            },
         },
         stubs: {
             'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
@@ -603,5 +607,13 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
 
         const emittedEvent = wrapper.emitted()['option-select'];
         expect(emittedEvent).toBeFalsy();
+    });
+
+    it('should not translate if the snippet is not exists', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.vm.getEventNameTranslated('send')).toEqual('Send');
+        expect(wrapper.vm.getEventNameTranslated('test_event_name')).toEqual('test event name');
     });
 });

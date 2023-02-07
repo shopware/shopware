@@ -348,7 +348,7 @@ class ApplicationBootstrapper {
         // if user is not logged in
         if (!isUserLoggedIn) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            loginService.logout();
+            loginService.logout(false, false);
             return this.bootLogin();
         }
 

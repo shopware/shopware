@@ -82,7 +82,7 @@ export function date(val: string, options: Intl.DateTimeFormatOptions = {}): str
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
     const lastKnownLang = Shopware.Application.getContainer('factory').locale.getLastKnownLocale();
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    const userTimeZone = (Shopware?.State?.get('session')?.currentUser?.timeZone as string) ?? 'UTC';
+    const userTimeZone = (Shopware?.State?.get('session')?.currentUser?.timeZone) ?? 'UTC';
 
     const dateTimeFormatter = new Intl.DateTimeFormat(lastKnownLang, {
         timeZone: userTimeZone,
@@ -106,7 +106,7 @@ export function date(val: string, options: Intl.DateTimeFormatOptions = {}): str
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function dateWithUserTimezone(dateObj: Date = new Date()): Date {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    const userTimeZone = (Shopware.State.get('session').currentUser?.timeZone as string) ?? 'UTC';
+    const userTimeZone = (Shopware.State.get('session').currentUser?.timeZone) ?? 'UTC';
 
     // Language and options are set in order to re-create the date object
     const localizedDate = dateObj.toLocaleDateString('en-GB', {

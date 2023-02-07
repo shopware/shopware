@@ -4,7 +4,9 @@ namespace Shopware\Tests\Unit\Core\Content\Product\Cart;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\LineItem\QuantityInformation;
+use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
 use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
 use Shopware\Core\Content\Product\Cart\ProductLineItemValidator;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -12,10 +14,49 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Content\Product\Cart\ProductLineItemValidator
  */
 class ProductLineItemValidatorTest extends TestCase
 {
+    public function testSkipStockValidation(): void
+    {
+        $cart = new Cart(Uuid::randomHex());
+        $builder = new ProductLineItemFactory();
+        $cart->add(
+            $builder
+                ->create('product-1')
+                ->setQuantityInformation(
+                    (new QuantityInformation())
+                        ->setMinPurchase(1)
+                        ->setMaxPurchase(1)
+                        ->setPurchaseSteps(1)
+                )
+        );
+        $cart->add(
+            $builder
+                ->create('product-2')
+                ->setReferencedId('product-1')
+                ->setQuantityInformation(
+                    (new QuantityInformation())
+                        ->setMinPurchase(1)
+                        ->setMaxPurchase(1)
+                        ->setPurchaseSteps(1)
+                )
+        );
+
+        $cart->setBehavior(new CartBehavior([
+            ProductCartProcessor::SKIP_PRODUCT_STOCK_VALIDATION => true,
+        ]));
+
+        static::assertCount(0, $cart->getErrors());
+
+        $validator = new ProductLineItemValidator();
+        $validator->validate($cart, $cart->getErrors(), $this->createMock(SalesChannelContext::class));
+
+        static::assertCount(0, $cart->getErrors());
+    }
+
     public function testValidateOnDuplicateProductsAtMaxPurchase(): void
     {
         $cart = new Cart(Uuid::randomHex());

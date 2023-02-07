@@ -691,6 +691,7 @@
         "lineItemTotalPriceRule": "Item subtotal",
         "lineItemWithQuantityRule": "Item quantity",
         "orderTagRule": "Order with tag",
+        "orderDeliveryStatusRule": "Delivery status",
         "yes": "Yes",
         "no": "No",
         "withTime": "Including timestamp",

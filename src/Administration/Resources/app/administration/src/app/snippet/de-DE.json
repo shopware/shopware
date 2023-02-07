@@ -691,6 +691,7 @@
         "lineItemTotalPriceRule": "Positionszwischensumme",
         "lineItemWithQuantityRule": "Positionsanzahl",
         "orderTagRule": "Bestellung mit Tag",
+        "orderDeliveryStatusRule": "Lieferstatus",
         "yes": "Ja",
         "no": "Nein",
         "withTime": "Mit Zeitabfrage",

@@ -186,4 +186,40 @@ describe('Rule builder: Test app script conditions', () => {
             cy.get('.sw-condition .sw-single-select__selection-text').eq(index).contains(name);
         });
     });
+
+    it.only('@base @rule: check rule condition options filtered via rule config', { tags: ['pa-business-ops'] }, () => {
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/rule`,
+            method: 'POST',
+        }).as('saveData');
+
+        cy.get('a[href="#/sw/settings/rule/create"]').click();
+
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+
+        // fill basic data
+        cy.get('input[name=sw-field--rule-name]').clearTypeAndCheck('Rule');
+        cy.get('input[name=sw-field--rule-priority]').clearTypeAndCheck('100');
+
+        // select condition type and operator
+        cy.get('.sw-condition-type-select__select')
+            .typeSingleSelectAndCheck(
+                'Delivery status',
+                '.sw-condition-type-select__select',
+            );
+        cy.get('.sw-condition .sw-condition-operator-select__select').should('exist');
+
+        cy.get('.sw-condition-operator-select__select')
+            .typeSingleSelectAndCheck(
+                'Is one of',
+                '.sw-condition-operator-select__select',
+            );
+
+        cy.get('.sw-condition .sw-entity-multi-select')
+            .typeMultiSelectAndCheck('Open');
+
+        cy.get('.sw-settings-rule-detail__save-action').click();
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
+    });
 });

@@ -57,7 +57,7 @@ final class RuleConfig extends Struct
     }
 
     /**
-     * @param array<string> $config
+     * @param array<string, mixed> $config
      */
     public function entitySelectField(string $name, string $entity, bool $multi = false, array $config = []): self
     {
@@ -70,7 +70,7 @@ final class RuleConfig extends Struct
 
     /**
      * @param array<string|int> $options
-     * @param array<mixed> $config
+     * @param array<string, mixed> $config
      */
     public function selectField(string $name, array $options, bool $multi = false, array $config = []): self
     {
@@ -82,7 +82,7 @@ final class RuleConfig extends Struct
     }
 
     /**
-     * @param array<string> $config
+     * @param array<string, mixed> $config
      */
     public function stringField(string $name, array $config = []): self
     {
@@ -90,7 +90,7 @@ final class RuleConfig extends Struct
     }
 
     /**
-     * @param array<string> $config
+     * @param array<string, mixed> $config
      */
     public function numberField(string $name, array $config = []): self
     {
@@ -98,7 +98,7 @@ final class RuleConfig extends Struct
     }
 
     /**
-     * @param array<string> $config
+     * @param array<string, mixed> $config
      */
     public function intField(string $name, array $config = []): self
     {
@@ -106,7 +106,7 @@ final class RuleConfig extends Struct
     }
 
     /**
-     * @param array<string> $config
+     * @param array<string, mixed> $config
      */
     public function dateTimeField(string $name, array $config = []): self
     {
@@ -114,7 +114,7 @@ final class RuleConfig extends Struct
     }
 
     /**
-     * @param array<string> $config
+     * @param array<string, mixed> $config
      */
     public function booleanField(string $name, array $config = []): self
     {
@@ -122,7 +122,7 @@ final class RuleConfig extends Struct
     }
 
     /**
-     * @param array<string> $config
+     * @param array<string, mixed> $config
      */
     public function taggedField(string $name, array $config = []): self
     {
@@ -130,7 +130,7 @@ final class RuleConfig extends Struct
     }
 
     /**
-     * @param array<array<string>|string> $config
+     * @param array<string, mixed> $config
      */
     public function field(string $name, string $type, array $config = []): self
     {
@@ -140,7 +140,7 @@ final class RuleConfig extends Struct
     }
 
     /**
-     * @return array<mixed>
+     * @return array<string, mixed>
      */
     public function getData(): array
     {
@@ -154,9 +154,9 @@ final class RuleConfig extends Struct
     }
 
     /**
-     * @param array<array<string>|string> $config
+     * @param array<string, mixed> $config
      *
-     * @return array<mixed>
+     * @return array<string, mixed>
      */
     private function getFieldTemplate(string $name, string $type, array $config): array
     {

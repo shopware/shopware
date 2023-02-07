@@ -14,6 +14,11 @@ class ProductLineItemValidator implements CartValidatorInterface
 {
     public function validate(Cart $cart, ErrorCollection $errors, SalesChannelContext $context): void
     {
+        $behavior = $cart->getBehavior();
+        if ($behavior !== null && $behavior->hasPermission(ProductCartProcessor::SKIP_PRODUCT_STOCK_VALIDATION)) {
+            return;
+        }
+
         $productLineItems = array_filter($cart->getLineItems()->getFlat(), static function (LineItem $lineItem) {
             return $lineItem->getType() === LineItem::PRODUCT_LINE_ITEM_TYPE;
         });

@@ -30,6 +30,7 @@ function getScrollbarWidth(element: HTMLElement): number {
 
 /**
  * uses the browser's copy function to copy a string
+ * @deprecated tag:v6.6.0 - The document.execCommand() API is deprecated, use copyStringToClipBoard instead
  */
 function copyToClipboard(stringToCopy: string): void {
     const tempTextArea = document.createElement('textarea');
@@ -40,9 +41,14 @@ function copyToClipboard(stringToCopy: string): void {
     document.body.removeChild(tempTextArea);
 }
 
+async function copyStringToClipboard(stringToCopy: string): Promise<void> {
+    await navigator.clipboard.writeText(stringToCopy);
+}
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     getScrollbarHeight,
     getScrollbarWidth,
     copyToClipboard,
+    copyStringToClipboard,
 };

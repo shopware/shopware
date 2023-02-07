@@ -71,6 +71,7 @@ export const dom = {
     getScrollbarHeight: domUtils.getScrollbarHeight,
     getScrollbarWidth: domUtils.getScrollbarWidth,
     copyToClipboard: domUtils.copyToClipboard,
+    copyStringToClipboard: domUtils.copyStringToClipboard,
 };
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

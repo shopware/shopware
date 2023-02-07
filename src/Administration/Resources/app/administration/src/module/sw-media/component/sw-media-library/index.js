@@ -289,7 +289,7 @@ export default {
                 'productManufacturers.products',
                 'mailTemplateMedia.mailTemplate',
                 'documentBaseConfigs',
-                'avatarUser',
+                'avatarUsers',
                 'paymentMethods',
                 'shippingMethods',
                 'cmsBlocks.section.page',

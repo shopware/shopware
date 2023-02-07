@@ -12,7 +12,7 @@ describe('components/media/sw-media-modal-delete', () => {
             getEntityName: () => { return 'media'; },
             id: 'z928dj393n83o02092dh292hjd92',
             fileName: 'demo.jpg',
-            avatarUser: {},
+            avatarUsers: {},
             categories: [],
             productManufacturers: [],
             productMedia: [],
@@ -93,7 +93,7 @@ describe('components/media/sw-media-modal-delete', () => {
         const wrapper = await createWrapper([
             itemDeleteMock({
                 id: '2028dh992hd021jdj0202j',
-                avatarUser,
+                avatarUsers: [avatarUser],
                 categories: [category],
                 productManufacturers: [productManufacturer],
                 productMedia: [productMedia],
@@ -109,7 +109,7 @@ describe('components/media/sw-media-modal-delete', () => {
 
         expect(wrapper.vm.mediaQuickInfo.fileName).toMatch(itemDeleteMock().fileName);
         expect(wrapper.vm.mediaInUsages.length).toEqual(0);
-        expect(wrapper.vm.mediaQuickInfo.avatarUser).toEqual(avatarUser);
+        expect(wrapper.vm.mediaQuickInfo.avatarUsers).toEqual([avatarUser]);
         expect(wrapper.vm.mediaQuickInfo.categories).toEqual([category]);
         expect(wrapper.vm.mediaQuickInfo.productManufacturers).toEqual([productManufacturer]);
         expect(wrapper.vm.mediaQuickInfo.productMedia).toEqual([productMedia]);

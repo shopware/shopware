@@ -259,6 +259,7 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-6450 - Make first run wizard closable](/changelog/release-6-5-0-0/2023-01-19-make-first-run-wizard-closable.md)
 *  [NEXT-24512 - Replace element modal icon sizing](/changelog/release-6-5-0-0/2023-01-19-replace-element-modal-icon-sizing.md)
 *  [NEXT-21203 - Remove psalm dependency](/changelog/release-6-5-0-0/2023-01-20-remove-psalm-dependency.md)
+*  [NEXT-22262 - Fix foreign key resolving](/changelog/release-6-5-0-0/2023-01-26-fix-foreign-key-resolving.md)
 *  [NEXT-25050 - Update meteor icon kit](/changelog/release-6-5-0-0/2023-01-23-update-meteor-icon-kit.md)
 *  [NEXT-25174 - Update Monolog](/changelog/release-6-5-0-0/2023-01-30-update-monolog.md)
 *  [NEXT-25218 - Update Dompdf](/changelog/release-6-5-0-0/2023-02-01-update-dompdf.md)

@@ -30,6 +30,9 @@ class TestBasicWithToManyExtension extends SerializationFixture
         return $extendable;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     protected function getJsonApiFixtures(string $baseUrl): array
     {
         return [
@@ -112,6 +115,9 @@ class TestBasicWithToManyExtension extends SerializationFixture
         ];
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     protected function getJsonFixtures(): array
     {
         return [

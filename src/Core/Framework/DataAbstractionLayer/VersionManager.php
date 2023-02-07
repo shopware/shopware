@@ -120,12 +120,7 @@ class VersionManager
 
     public function createVersion(EntityDefinition $definition, string $id, WriteContext $context, ?string $name = null, ?string $versionId = null): string
     {
-        $primaryKey = [
-            'id' => $id,
-            'versionId' => Defaults::LIVE_VERSION,
-        ];
-
-        $versionId ??= Uuid::randomHex();
+        $versionId = $versionId ?? Uuid::randomHex();
         $versionData = ['id' => $versionId];
 
         if ($name) {
@@ -136,7 +131,7 @@ class VersionManager
             $this->entityWriter->upsert($this->versionDefinition, [$versionData], $context);
         });
 
-        $affected = $this->cloneEntity($definition, $primaryKey['id'], $primaryKey['id'], $versionId, $context, new CloneBehavior(), false);
+        $affected = $this->cloneEntity($definition, $id, $id, $versionId, $context, new CloneBehavior());
 
         $versionContext = $context->createWithVersionId($versionId);
 
@@ -170,7 +165,7 @@ class VersionManager
 
         $readCriteria
             ->getAssociation('data')
-            ->addSorting(new FieldSorting('autoIncrement'));
+            ->addSorting(new FieldSorting('autoIncrement', FieldSorting::DESCENDING));
 
         /** @var VersionCommitCollection $commits */
         $commits = $this->entityReader->read($this->versionCommitDefinition, $readCriteria, $writeContext->getContext());
@@ -195,7 +190,7 @@ class VersionManager
                 }
 
                 $entity = [
-                    'definition' => $dataDefinition,
+                    'definition' => $dataDefinition->getEntityName(),
                     'primary' => $data->getEntityId(),
                 ];
 
@@ -278,9 +273,11 @@ class VersionManager
         $this->entityWriter->delete($this->versionDefinition, [['id' => $versionId]], $writeContext);
 
         $versionContext->addState('merge-scope');
+
         foreach ($entities as $entity) {
             /** @var EntityDefinition $definition */
-            $definition = $entity['definition'];
+            $definition = $this->registry->getByEntityName($entity['definition']);
+
             $primary = $entity['primary'];
             $primary = $this->addVersionToPayload($primary, $definition, $versionId);
 

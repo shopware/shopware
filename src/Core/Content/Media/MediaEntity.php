@@ -27,6 +27,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Tag\TagCollection;
+use Shopware\Core\System\User\UserCollection;
 use Shopware\Core\System\User\UserEntity;
 
 #[Package('content')]
@@ -128,9 +129,9 @@ class MediaEntity extends Entity
     protected $productMedia;
 
     /**
-     * @var UserEntity|null
+     * @var UserCollection|null
      */
-    protected $avatarUser;
+    protected $avatarUsers;
 
     /**
      * @var MediaThumbnailCollection|null
@@ -388,14 +389,14 @@ class MediaEntity extends Entity
         $this->productMedia = $productMedia;
     }
 
-    public function getAvatarUser(): ?UserEntity
+    public function getAvatarUsers(): ?UserCollection
     {
-        return $this->avatarUser;
+        return $this->avatarUsers;
     }
 
-    public function setAvatarUser(UserEntity $avatarUser): void
+    public function setAvatarUsers(UserCollection $avatarUsers): void
     {
-        $this->avatarUser = $avatarUser;
+        $this->avatarUsers = $avatarUsers;
     }
 
     public function getThumbnails(): ?MediaThumbnailCollection

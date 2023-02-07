@@ -219,7 +219,7 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
             'productManufacturers.products',
             'mailTemplateMedia.mailTemplate',
             'documentBaseConfigs',
-            'avatarUser',
+            'avatarUsers',
             'paymentMethods',
             'shippingMethods',
             'cmsBlocks.section.page',

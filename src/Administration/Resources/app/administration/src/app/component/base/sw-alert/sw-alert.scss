@@ -61,6 +61,7 @@ $sw-alert-size-close: 40px;
         margin-bottom: 3px;
         display: block;
         font-weight: bold;
+        overflow-wrap: break-word;
     }
 
     &__actions {
@@ -136,6 +137,10 @@ $sw-alert-size-close: 40px;
                 }
             }
         }
+    }
+
+    .sw-alert__message {
+        overflow-wrap: break-word;
     }
 
     &--error {

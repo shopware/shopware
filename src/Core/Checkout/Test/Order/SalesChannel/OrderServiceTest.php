@@ -142,8 +142,6 @@ class OrderServiceTest extends TestCase
         $domain = 'http://shopware.' . Uuid::randomHex();
         $this->setDomainForSalesChannel($domain, Defaults::LANGUAGE_SYSTEM);
 
-        $this->assignMailtemplatesToSalesChannel(TestDefaults::SALES_CHANNEL, $this->salesChannelContext->getContext());
-
         /** @var EventDispatcher $dispatcher */
         $dispatcher = $this->getContainer()->get('event_dispatcher');
 
@@ -191,8 +189,6 @@ class OrderServiceTest extends TestCase
 
         $domain = 'http://shopware.' . Uuid::randomHex();
         $this->setDomainForSalesChannel($domain, Defaults::LANGUAGE_SYSTEM);
-
-        $this->assignMailtemplatesToSalesChannel(TestDefaults::SALES_CHANNEL, $this->salesChannelContext->getContext());
 
         /** @var EventDispatcher $dispatcher */
         $dispatcher = $this->getContainer()->get('event_dispatcher');
@@ -255,8 +251,6 @@ class OrderServiceTest extends TestCase
 
         $domain = 'http://shopware.' . Uuid::randomHex();
         $this->setDomainForSalesChannel($domain, $this->getDeDeLanguageId());
-
-        $this->assignMailtemplatesToSalesChannel(TestDefaults::SALES_CHANNEL, $this->salesChannelContext->getContext());
 
         /** @var EventDispatcher $dispatcher */
         $dispatcher = $this->getContainer()->get('event_dispatcher');
@@ -341,8 +335,6 @@ class OrderServiceTest extends TestCase
         $domain = 'http://shopware.' . Uuid::randomHex();
         $this->setDomainForSalesChannel($domain, Defaults::LANGUAGE_SYSTEM);
 
-        $this->assignMailtemplatesToSalesChannel(TestDefaults::SALES_CHANNEL, $this->salesChannelContext->getContext());
-
         /** @var EventDispatcher $dispatcher */
         $dispatcher = $this->getContainer()->get('event_dispatcher');
 
@@ -390,8 +382,6 @@ class OrderServiceTest extends TestCase
 
         $domain = 'http://shopware.' . Uuid::randomHex();
         $this->setDomainForSalesChannel($domain, Defaults::LANGUAGE_SYSTEM);
-
-        $this->assignMailtemplatesToSalesChannel(TestDefaults::SALES_CHANNEL, $this->salesChannelContext->getContext());
 
         /** @var EventDispatcher $dispatcher */
         $dispatcher = $this->getContainer()->get('event_dispatcher');
@@ -487,8 +477,6 @@ class OrderServiceTest extends TestCase
         $domain = 'http://shopware.' . Uuid::randomHex();
         $this->setDomainForSalesChannel($domain, Defaults::LANGUAGE_SYSTEM);
 
-        $this->assignMailtemplatesToSalesChannel(TestDefaults::SALES_CHANNEL, $this->salesChannelContext->getContext());
-
         /** @var EventDispatcher $dispatcher */
         $dispatcher = $this->getContainer()->get('event_dispatcher');
 
@@ -532,8 +520,6 @@ class OrderServiceTest extends TestCase
 
         $domain = 'http://shopware.' . Uuid::randomHex();
         $this->setDomainForSalesChannel($domain, Defaults::LANGUAGE_SYSTEM);
-
-        $this->assignMailtemplatesToSalesChannel(TestDefaults::SALES_CHANNEL, $this->salesChannelContext->getContext());
 
         /** @var EventDispatcher $dispatcher */
         $dispatcher = $this->getContainer()->get('event_dispatcher');
@@ -592,8 +578,6 @@ class OrderServiceTest extends TestCase
         $secondDomain = 'http://shopware.second-domain';
         $this->setDomainForSalesChannel($secondDomain, $languageId);
 
-        $this->assignMailtemplatesToSalesChannel(TestDefaults::SALES_CHANNEL, $this->salesChannelContext->getContext());
-
         /** @var EventDispatcher $dispatcher */
         $dispatcher = $this->getContainer()->get('event_dispatcher');
 
@@ -626,8 +610,6 @@ class OrderServiceTest extends TestCase
 
         $domain = 'http://shopware.test/virtual-domain';
         $this->setDomainForSalesChannel($domain, Defaults::LANGUAGE_SYSTEM);
-
-        $this->assignMailtemplatesToSalesChannel(TestDefaults::SALES_CHANNEL, $this->salesChannelContext->getContext());
 
         /** @var EventDispatcher $dispatcher */
         $dispatcher = $this->getContainer()->get('event_dispatcher');

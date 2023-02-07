@@ -55,6 +55,11 @@ class ProductSearchConfigFieldDefinition extends EntityDefinition
         return ProductSearchConfigFieldHydrator::class;
     }
 
+    protected function getParentDefinitionClass(): ?string
+    {
+        return ProductSearchConfigDefinition::class;
+    }
+
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([

@@ -43,6 +43,11 @@ class CustomerWishlistDefinition extends EntityDefinition
         return '6.3.4.0';
     }
 
+    protected function getParentDefinitionClass(): ?string
+    {
+        return CustomerDefinition::class;
+    }
+
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([

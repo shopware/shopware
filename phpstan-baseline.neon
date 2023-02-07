@@ -1716,46 +1716,6 @@ parameters:
 			path: src/Core/Checkout/Test/Order/Aggregate/OrderTransactionCaptureRefundPosition/OrderTransactionCaptureRefundPositionBuilder.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Order\\\\OrderBuilder\\:\\:add\\(\\) has parameter \\$value with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Order/OrderBuilder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Order\\\\OrderBuilder\\:\\:addAddress\\(\\) has parameter \\$customParams with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Order/OrderBuilder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Order\\\\OrderBuilder\\:\\:addTransaction\\(\\) has parameter \\$customParams with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Order/OrderBuilder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Order\\\\OrderBuilder\\:\\:build\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Order/OrderBuilder.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Test\\\\Order\\\\OrderBuilder\\:\\:\\$_dynamic type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Order/OrderBuilder.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Test\\\\Order\\\\OrderBuilder\\:\\:\\$addresses type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Order/OrderBuilder.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Test\\\\Order\\\\OrderBuilder\\:\\:\\$lineItems type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Order/OrderBuilder.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Test\\\\Order\\\\OrderBuilder\\:\\:\\$transactions type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Order/OrderBuilder.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Order\\\\SalesChannel\\\\OrderRouteTest\\:\\:createDefaultSalesChannelContext\\(\\) is unused\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Order/SalesChannel/OrderRouteTest.php

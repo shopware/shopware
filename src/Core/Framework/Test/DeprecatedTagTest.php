@@ -22,6 +22,7 @@ class DeprecatedTagTest extends TestCase
      * @var array<string>
      */
     private array $whiteList = [
+        'vendor',
         'Test/',
         'node_modules/',
         'Common/vendor/',
@@ -36,6 +37,8 @@ class DeprecatedTagTest extends TestCase
         'Framework/Csrf/SessionProvider.php',
         // some eslint rules check for @deprecated and therefore produce false positives
         'administration/eslint-rules',
+        // checks for deprecations too and annotation fails
+        'DataAbstractionLayer/DefinitionValidator.php',
     ];
 
     private string $rootDir;

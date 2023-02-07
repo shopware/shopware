@@ -51,6 +51,11 @@ class CustomEntityEntity extends Entity
         $this->storeApiAware = $storeApiAware;
     }
 
+    public function getCmsAware(): bool
+    {
+        return $this->cmsAware;
+    }
+
     public function getAppId(): ?string
     {
         return $this->appId;

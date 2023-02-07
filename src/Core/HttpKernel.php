@@ -17,7 +17,6 @@ use Shopware\Core\Framework\Plugin\KernelPluginLoader\DbalKernelPluginLoader;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Routing\CanonicalRedirectService;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
-use Shopware\Core\Profiling\Doctrine\DebugStack;
 use Shopware\Core\Profiling\Doctrine\ProfilingMiddleware;
 use Shopware\Storefront\Framework\Cache\CacheStore;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -160,13 +159,12 @@ class HttpKernel
                 . '@' . InstalledVersions::getReference('shopware/core');
         }
 
-        $middlewares = $this->environment === 'prod' ? [] : [new ProfilingMiddleware()];
+        $middlewares = [];
+        if (InstalledVersions::isInstalled('symfony/doctrine-bridge')) {
+            $middlewares = [new ProfilingMiddleware()];
+        }
 
         $connection = self::getConnection($middlewares);
-
-        if ($this->environment !== 'prod') {
-            $connection->getConfiguration()->setSQLLogger(new DebugStack());
-        }
 
         $pluginLoader = $this->createPluginLoader($connection);
 

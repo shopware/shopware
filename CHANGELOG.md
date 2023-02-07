@@ -36,6 +36,7 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-24382 - Fix adding new customer functionality](/changelog/release-6-4-19-0/2022-12-20-fix-adding-new-customer-functionality.md)
 *  [NEXT-23483 - Improve customer VAT-ID in invoice document to hide or display](/changelog/release-6-4-19-0/2022-12-20-improve-vat-id-should-hide-on-invoice.md)
 *  [NEXT-17997 - Fixing undefined data in listing flow template](/changelog/release-6-4-19-0/2022-12-29-fix-undefined-data-when-listing-flow-template.md)
+*  [NEXT-24739 - Improve SDK channel performance](/changelog/release-6-4-19-0/2022-12-29-improve-sdk-channel-performance.md)
 *  [NEXT-24759 - Consider key of CachedBaseContextFactory to invalidate context cache](/changelog/release-6-4-19-0/2022-12-30-consider-key-of-cachedbasecontextfactory-to-invalidate-context-cache.md)
 *  [NEXT-23119 - Fix credit note document can't preview in order detail](/changelog/release-6-4-19-0/2023-01-02-fix-credit-note-document-can-not-preview.md)
 *  [NEXT-17997 - Add a missing block to sw-flow-list](/changelog/release-6-4-19-0/2023-01-03-add-missing-block-to-sw-flow-list.md)
@@ -44,6 +45,9 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-23740 - Fix letter header invoice incorrect](/changelog/release-6-4-19-0/2023-01-09-fix-letter-header-invoice-incorrect.md)
 *  [NEXT-24833 - Correct get payment method id](/changelog/release-6-4-19-0/2023-01-11-correct-get-payment-method-id.md)
 *  [NEXT-17997 - Create rearrangeArrayObjects function in flow builder service](/changelog/release-6-4-19-0/2023-01-12-create-rearrange-array-objects-in-flow-builder-service.md)
+*  [NEXT-25115 - Add ForwardCompatibility for EntityRepositoryInterface removal](/changelog/release-6-4-19-0/2023-01-26-add-forward-compatibility-entity-repository-decorators.md)
+*  [NEXT-25121 - Add regenerator runtime to core](/changelog/release-6-4-19-0/2023-01-26-add-regenerator-runtime-to-core.md)
+*  [NEXT-25129 - Respect filesystem on duplicate upload](/changelog/release-6-4-19-0/2023-01-30-respect-filesystem-on-duplicate-upload.md)
 
 ## 6.4.18.1
 *  [NEXT-22891 - Fix newsletter route does not handle double optin setting correctly](/changelog/release-6-4-18-1/2022-09-01-fix-newsletter-route-does-not-handle-double-optin-setting-correctly.md)

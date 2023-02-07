@@ -44,6 +44,11 @@ class ActionButtonDefinition extends EntityDefinition
         return '6.3.1.0';
     }
 
+    protected function getParentDefinitionClass(): ?string
+    {
+        return AppDefinition::class;
+    }
+
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([

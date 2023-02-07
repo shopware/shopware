@@ -39,6 +39,11 @@ class UserConfigDefinition extends EntityDefinition
         return '6.3.5.0';
     }
 
+    protected function getParentDefinitionClass(): ?string
+    {
+        return UserDefinition::class;
+    }
+
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([

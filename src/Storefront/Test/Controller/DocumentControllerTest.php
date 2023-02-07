@@ -200,9 +200,8 @@ class DocumentControllerTest extends TestCase
     private function persistCart(Cart $cart): string
     {
         $cart = $this->getContainer()->get(CartService::class)->recalculate($cart, $this->salesChannelContext);
-        $orderId = $this->getContainer()->get(OrderPersister::class)->persist($cart, $this->salesChannelContext);
 
-        return $orderId;
+        return $this->getContainer()->get(OrderPersister::class)->persist($cart, $this->salesChannelContext);
     }
 
     private function createCustomer(string $paymentMethodId): string

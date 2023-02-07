@@ -53,6 +53,11 @@ class AppScriptConditionDefinition extends EntityDefinition
         return '6.4.10.3';
     }
 
+    protected function getParentDefinitionClass(): ?string
+    {
+        return AppDefinition::class;
+    }
+
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([

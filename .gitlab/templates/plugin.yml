@@ -24,6 +24,7 @@ variables:
     CYPRESS_shopwareRoot: $CI_PROJECT_DIR
     SHOPWARE_HTTP_CACHE_ENABLED: 0
     CYPRESS_screenshotsFolder: $CI_PROJECT_DIR/var/log/screenshots
+    NODE_VERSION: 16
     # percy
     PERCY_BRANCH: $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
     PERCY_COMMIT: $CI_COMMIT_SHA

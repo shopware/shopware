@@ -22,7 +22,6 @@ use Shopware\Storefront\Framework\Twig\Extension\IconCacheTwigFilter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\EventListener\AbstractSessionListener;
 use Twig\Environment;
 
 #[Package('storefront')]
@@ -85,7 +84,7 @@ abstract class StorefrontController extends AbstractController
 
         $response->setData($parameters);
         $response->setContext($salesChannelContext);
-        $response->headers->set(AbstractSessionListener::NO_AUTO_CACHE_CONTROL_HEADER, '1');
+
         $response->headers->set('Content-Type', 'text/html');
 
         return $response;

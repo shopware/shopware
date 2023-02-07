@@ -261,6 +261,7 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-21203 - Remove psalm dependency](/changelog/release-6-5-0-0/2023-01-20-remove-psalm-dependency.md)
 *  [NEXT-22262 - Fix foreign key resolving](/changelog/release-6-5-0-0/2023-01-26-fix-foreign-key-resolving.md)
 *  [NEXT-25050 - Update meteor icon kit](/changelog/release-6-5-0-0/2023-01-23-update-meteor-icon-kit.md)
+*  [NEXT-25129 - Respect filesystem on duplicate upload](/changelog/release-6-5-0-0/2023-01-30-respect-filesystem-on-duplicate-upload.md)
 *  [NEXT-25174 - Update Monolog](/changelog/release-6-5-0-0/2023-01-30-update-monolog.md)
 *  [NEXT-25218 - Update Dompdf](/changelog/release-6-5-0-0/2023-02-01-update-dompdf.md)
 *  [Make admin compatible with NPM 9](/changelog/release-6-5-0-0/2023-02-03-make-admin-compatible-with-npm-9.md)

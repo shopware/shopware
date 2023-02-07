@@ -452,7 +452,11 @@ export default {
             return false;
         },
 
-        findTreeItemVNodeById(itemId = this.selectedTreeItem.id, children = this.$refs.flowTriggerTree.$children) {
+        findTreeItemVNodeById(itemId = this.selectedTreeItem.id, children = this.$refs.flowTriggerTree?.$children) {
+            if (!children) {
+                return false;
+            }
+
             let found = false;
 
             if (Array.isArray(children)) {

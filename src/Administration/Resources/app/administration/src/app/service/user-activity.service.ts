@@ -3,10 +3,12 @@
  */
 export default class UserActivityService {
     updateLastUserActivity(date?: Date): void {
+        const cookieStorage = Shopware.Service('loginService').getStorage();
+
         if (date === undefined) {
             date = new Date();
         }
 
-        Shopware.Context.app.lastActivity = Math.round(+date / 1000);
+        cookieStorage.setItem('lastActivity', `${Math.round(+date / 1000)}`);
     }
 }

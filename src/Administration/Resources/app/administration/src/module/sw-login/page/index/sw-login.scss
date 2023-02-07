@@ -60,6 +60,11 @@ $sw-login-error-animation-duration: 0.15s;
         }
     }
 
+    .sw-login__content-headline {
+        font-size: $font-size-l;
+        font-weight: $font-weight-semi-bold;
+    }
+
     .sw-button {
         @media screen and (max-width: 600px) {
             display: block;
@@ -178,7 +183,8 @@ $sw-login-error-animation-duration: 0.15s;
     }
 
     .sw-login__sub-headline {
-        font-size: 50px;
+        font-size: 48px;
+        font-weight: $font-weight-regular;
         transition: font-size $sw-login-media-query-animation-duration ease-in-out;
 
         @media screen and (max-width: 1100px) {
@@ -189,7 +195,8 @@ $sw-login-error-animation-duration: 0.15s;
     .sw-login__forgot-password-action {
         color: $sw-login-badge-color-background;
         text-decoration: none;
-        margin-right: 10px;
+        margin-right: 12px;
+        font-size: $font-size-xs;
     }
 
     .sw-login__back-arrow {

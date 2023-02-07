@@ -39,6 +39,7 @@ interface ContextState {
         systemCurrencyISOCode: null | string,
         systemCurrencyId: null | string,
         disableExtensions: boolean,
+        /** @deprecated tag:v6.6.0 - Will be removed. Use cookie `lastActivity` instead */
         lastActivity: number,
     },
     api: {

@@ -23,8 +23,11 @@ class AssetInstallCommand extends Command
     /**
      * @internal
      */
-    public function __construct(private readonly KernelInterface $kernel, private readonly AssetService $assetService, private readonly ActiveAppsLoader $activeAppsLoader)
-    {
+    public function __construct(
+        private readonly KernelInterface $kernel,
+        private readonly AssetService $assetService,
+        private readonly ActiveAppsLoader $activeAppsLoader
+    ) {
         parent::__construct();
     }
 
@@ -47,6 +50,13 @@ class AssetInstallCommand extends Command
 
         $io->writeln('Copying files for bundle: Recovery');
         $this->assetService->copyRecoveryAssets();
+
+        $publicDir = $this->kernel->getProjectDir() . '/public/';
+
+        if (!file_exists($publicDir . '/.htaccess') && file_exists($publicDir . '/.htaccess.dist')) {
+            $io->writeln('Copying .htaccess.dist to .htaccess');
+            copy($publicDir . '/.htaccess.dist', $publicDir . '/.htaccess');
+        }
 
         $io->success('Successfully copied all bundle files');
 

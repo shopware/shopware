@@ -63,7 +63,7 @@
         "tecnickcom/tcpdf": "6.6.1",
         "setasign/fpdi": "2.3.6",
         "ezyang/htmlpurifier": "~4.16",
-        "guzzlehttp/guzzle": "~7.4.5",
+        "guzzlehttp/guzzle": "~7.5.0",
         "guzzlehttp/psr7": "^2.4",
         "lcobucci/jwt": "^4.2",
         "league/construct-finder": "^1.1",
@@ -128,7 +128,7 @@
         "twig/intl-extra": "^3.4",
         "twig/string-extra": "^3.4",
         "twig/twig": "~3.4.3",
-        "zircote/swagger-php": "~3.3.6",
+        "zircote/swagger-php": "~4.5.1",
         "squirrelphp/twig-php-syntax": "~1.7.0"
     },
     "require-dev": {

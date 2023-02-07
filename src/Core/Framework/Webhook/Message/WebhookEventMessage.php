@@ -10,7 +10,8 @@ class WebhookEventMessage implements AsyncMessageInterface
 {
     /**
      * @internal
-     * @depretacted tag:v6.5.0 - Parameters $languageId and $userLocale will be required
+     *
+     * @param array<string, mixed> $payload
      **/
     public function __construct(
         private readonly string $webhookEventId,
@@ -19,18 +20,15 @@ class WebhookEventMessage implements AsyncMessageInterface
         private readonly string $webhookId,
         private readonly string $shopwareVersion,
         private readonly string $url,
-        private readonly ?string $secret = null,
-        /**
-         * @depretacted tag:v6.5.0 - This will be required in the future
-         **/
-        private readonly ?string $languageId = null,
-        /**
-         * @depretacted tag:v6.5.0 - This will be required in the future
-         **/
-        private readonly ?string $userLocale = null
+        private readonly ?string $secret,
+        private readonly string $languageId,
+        private readonly string $userLocale
     ) {
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getPayload(): array
     {
         return $this->payload;

@@ -7,6 +7,8 @@ use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\Subscriber\RegisteredIndexerSubscriber;
 use Shopware\Core\Framework\Migration\IndexerQueuer;
+use Shopware\Core\Framework\Store\Event\FirstRunWizardFinishedEvent;
+use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
 
 /**
  * @internal
@@ -90,5 +92,16 @@ class RegisteredIndexerSubscriberTest extends TestCase
         );
 
         $subscriber->runRegisteredIndexers();
+    }
+
+    public function testGetSubscribedEvents(): void
+    {
+        static::assertSame(
+            [
+                UpdatePostFinishEvent::class => 'runRegisteredIndexers',
+                FirstRunWizardFinishedEvent::class => 'runRegisteredIndexers',
+            ],
+            RegisteredIndexerSubscriber::getSubscribedEvents()
+        );
     }
 }

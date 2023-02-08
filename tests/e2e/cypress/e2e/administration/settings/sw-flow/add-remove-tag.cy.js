@@ -163,6 +163,9 @@ describe('Flow builder: Add remove tag testing', () => {
             cy.contains('.finish-ordernumber', 'Your order number: #10001');
         });
 
+        // Clear Storefront cookie
+        cy.clearCookies();
+
         const page = new OrderPageObject();
 
         cy.loginViaApi().then(() => {

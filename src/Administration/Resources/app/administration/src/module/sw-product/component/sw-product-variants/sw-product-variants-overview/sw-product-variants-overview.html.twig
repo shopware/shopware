@@ -255,7 +255,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variants_overview_data_grid_column_stock_inline_edit_field %}
             <sw-field
-                v-if="isInlineEdit"
+                v-if="isInlineEdit && (!variantIsDigital(item) || item.isCloseout === true)"
                 v-model="item.stock"
                 type="number"
                 :size="compact ? 'small' : 'default'"

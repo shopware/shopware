@@ -806,6 +806,19 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         expect(changeField.value[0].ruleId).toBe('ruleId');
     });
 
+    it('should restrict fields on including digitial products', async () => {
+        wrapper = await createWrapper();
+
+        expect(wrapper.vm.deliverabilityFormFields.length).toBeGreaterThan(1);
+
+        wrapper.vm.$router.push({ name: 'sw.bulk.edit.product', params: { parentId: 'null', includesDigital: true } });
+
+        await flushPromises();
+
+        expect(wrapper.vm.deliverabilityFormFields.length).toEqual(1);
+        expect(wrapper.vm.deliverabilityFormFields[0].name).toEqual('deliveryTimeId');
+    });
+
     it('should set route meta module when component created', async () => {
         wrapper = await createWrapper();
         wrapper.vm.setRouteMetaModule = jest.fn();

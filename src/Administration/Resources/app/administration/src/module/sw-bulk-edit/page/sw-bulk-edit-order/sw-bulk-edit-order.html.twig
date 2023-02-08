@@ -47,6 +47,27 @@
         <sw-card-view
             v-if="selectedIds.length > 0 && isLoadedData"
         >
+            <sw-card
+                v-if="restrictedFields.length"
+                class="sw-bulk-edit-order__restricted-fields"
+                position-identifier="sw-bulk-edit-order-restricted-fields"
+            >
+                <sw-alert
+                    :title="$tc('sw-bulk-edit.order.alertRestrictedFields.title')"
+                    variant="warning"
+                >
+                    <span v-html="$tc('sw-bulk-edit.order.alertRestrictedFields.message')"></span>
+                    <ul>
+                        <li
+                            v-for="(restrictedField, index) in restrictedFields"
+                            :key="index"
+                        >
+                            {{ $tc(`sw-bulk-edit.order.alertRestrictedFields.${restrictedField}`) }}
+                        </li>
+                    </ul>
+                </sw-alert>
+            </sw-card>
+
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_bulk_edit_order_content_order_status_card %}
             <sw-card

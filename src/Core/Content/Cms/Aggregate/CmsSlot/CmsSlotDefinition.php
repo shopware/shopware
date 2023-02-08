@@ -72,6 +72,8 @@ class CmsSlotDefinition extends EntityDefinition
             (new TranslationsAssociationField(CmsSlotTranslationDefinition::class, 'cms_slot_id'))->addFlags(new ApiAware()),
         ]);
 
+        $collection->add((new JsonField('fieldConfig', 'fieldConfig'))->addFlags(new Runtime(), new ApiAware()));
+
         $collection->add((new ReferenceVersionField(CmsBlockDefinition::class))->addFlags(new Required(), new ApiAware()));
 
         return $collection;

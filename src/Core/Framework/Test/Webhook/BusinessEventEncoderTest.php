@@ -49,21 +49,16 @@ class BusinessEventEncoderTest extends TestCase
         static::assertEquals($event->getEncodeValues($shopwareVersion), $this->businessEventEncoder->encode($event));
     }
 
-    /**
-     * @return array<int, mixed>
-     */
-    public function getEvents(): array
+    public function getEvents(): \Generator
     {
-        return [
-            [new ScalarBusinessEvent()],
-            [new StructuredObjectBusinessEvent()],
-            [new StructuredArrayObjectBusinessEvent()],
-            [new UnstructuredObjectBusinessEvent()],
-            [new EntityBusinessEvent($this->getTaxEntity())],
-            [new CollectionBusinessEvent($this->getTaxCollection())],
-            [new ArrayBusinessEvent($this->getTaxCollection())],
-            [new NestedEntityBusinessEvent($this->getTaxEntity())],
-        ];
+        yield 'ScalarBusinessEvent' => [new ScalarBusinessEvent()];
+        yield 'StructuredObjectBusinessEvent' => [new StructuredObjectBusinessEvent()];
+        yield 'StructuredArrayObjectBusinessEvent' => [new StructuredArrayObjectBusinessEvent()];
+        yield 'UnstructuredObjectBusinessEvent' => [new UnstructuredObjectBusinessEvent()];
+        yield 'EntityBusinessEvent' => [new EntityBusinessEvent($this->getTaxEntity())];
+        yield 'CollectionBusinessEvent' => [new CollectionBusinessEvent($this->getTaxCollection())];
+        yield 'ArrayBusinessEvent' => [new ArrayBusinessEvent($this->getTaxCollection())];
+        yield 'NestedEntityBusinessEvent' => [new NestedEntityBusinessEvent($this->getTaxEntity())];
     }
 
     public function testInvalidType(): void

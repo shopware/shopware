@@ -4701,11 +4701,6 @@ parameters:
 			path: src/Core/Content/Seo/HreflangLoaderParameter.php
 
 		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Seo\\\\SeoUrl\\\\SeoUrlEntity\\:\\:\\$isCanonical \\(bool\\) does not accept bool\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Seo/SeoUrl/SeoUrlEntity.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Seo\\\\SeoUrlGenerator\\:\\:getAssociations\\(\\) should return list\\<string\\> but returns array\\<mixed\\>\\.$#"
 			count: 1
 			path: src/Core/Content/Seo/SeoUrlGenerator.php
@@ -14150,54 +14145,9 @@ parameters:
 			path: src/Core/Framework/Test/Webhook/Hookable/HookableBusinessEventTest.php
 
 		-
-			message: "#^Cannot call method format\\(\\) on DateTimeInterface\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Webhook/_fixtures/BusinessEvents/ArrayBusinessEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Webhook\\\\_fixtures\\\\BusinessEvents\\\\ArrayBusinessEvent\\:\\:getEncodeValues\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Webhook/_fixtures/BusinessEvents/ArrayBusinessEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Webhook\\\\_fixtures\\\\BusinessEvents\\\\ArrayBusinessEvent\\:\\:getTaxes\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Webhook/_fixtures/BusinessEvents/ArrayBusinessEvent.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Webhook\\\\_fixtures\\\\BusinessEvents\\\\BusinessEventEncoderTestInterface\\:\\:getEncodeValues\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Webhook/_fixtures/BusinessEvents/BusinessEventEncoderTestInterface.php
-
-		-
-			message: "#^Cannot call method format\\(\\) on DateTimeInterface\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Webhook/_fixtures/BusinessEvents/CollectionBusinessEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Webhook\\\\_fixtures\\\\BusinessEvents\\\\CollectionBusinessEvent\\:\\:getEncodeValues\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Webhook/_fixtures/BusinessEvents/CollectionBusinessEvent.php
-
-		-
-			message: "#^Cannot call method format\\(\\) on DateTimeInterface\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Webhook/_fixtures/BusinessEvents/EntityBusinessEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Webhook\\\\_fixtures\\\\BusinessEvents\\\\EntityBusinessEvent\\:\\:getEncodeValues\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Webhook/_fixtures/BusinessEvents/EntityBusinessEvent.php
-
-		-
-			message: "#^Cannot call method format\\(\\) on DateTimeInterface\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Webhook/_fixtures/BusinessEvents/NestedEntityBusinessEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Webhook\\\\_fixtures\\\\BusinessEvents\\\\NestedEntityBusinessEvent\\:\\:getEncodeValues\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Webhook/_fixtures/BusinessEvents/NestedEntityBusinessEvent.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Webhook\\\\_fixtures\\\\BusinessEvents\\\\ScalarBusinessEvent\\:\\:getEncodeValues\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -15235,61 +15185,6 @@ parameters:
 			path: src/Core/System/SalesChannel/Api/ResponseFields.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Api\\\\StructEncoder\\:\\:encode\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Api/StructEncoder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Api\\\\StructEncoder\\:\\:encodeExtensions\\(\\) has parameter \\$value with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Api/StructEncoder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Api\\\\StructEncoder\\:\\:encodeExtensions\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Api/StructEncoder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Api\\\\StructEncoder\\:\\:encodeNestedArray\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Api/StructEncoder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Api\\\\StructEncoder\\:\\:encodeNestedArray\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Api/StructEncoder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Api\\\\StructEncoder\\:\\:encodeStruct\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Api/StructEncoder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Api\\\\StructEncoder\\:\\:encodeStruct\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Api/StructEncoder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Api\\\\StructEncoder\\:\\:isStructArray\\(\\) has parameter \\$object with no type specified\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Api/StructEncoder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Api\\\\StructEncoder\\:\\:loop\\(\\) has parameter \\$array with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Api/StructEncoder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Api\\\\StructEncoder\\:\\:loop\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Api/StructEncoder.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Api\\\\StructEncoder\\:\\:\\$protections type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Api/StructEncoder.php
-
-		-
 			message: "#^Parameter \\#1 \\$entities of method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\EntityLoadedEventFactory\\:\\:createForSalesChannel\\(\\) expects list\\<mixed\\>, array\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\> given\\.$#"
 			count: 1
 			path: src/Core/System/SalesChannel/Entity/SalesChannelRepository.php
@@ -16143,26 +16038,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
 			count: 1
 			path: src/Core/System/Test/SalesChannel/SalesChannel/ContextLoadRouteTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\SalesChannel\\\\SalesChannel\\\\MyTestStruct\\:\\:__construct\\(\\) has parameter \\$bar with no type specified\\.$#"
-			count: 1
-			path: src/Core/System/Test/SalesChannel/SalesChannel/StructEncoderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\SalesChannel\\\\SalesChannel\\\\MyTestStruct\\:\\:__construct\\(\\) has parameter \\$foo with no type specified\\.$#"
-			count: 1
-			path: src/Core/System/Test/SalesChannel/SalesChannel/StructEncoderTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\System\\\\Test\\\\SalesChannel\\\\SalesChannel\\\\MyTestStruct\\:\\:\\$bar has no type specified\\.$#"
-			count: 1
-			path: src/Core/System/Test/SalesChannel/SalesChannel/StructEncoderTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\System\\\\Test\\\\SalesChannel\\\\SalesChannel\\\\MyTestStruct\\:\\:\\$foo has no type specified\\.$#"
-			count: 1
-			path: src/Core/System/Test/SalesChannel/SalesChannel/StructEncoderTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\SalesChannel\\\\Subscriber\\\\SalesChannelTypeValidatorTest\\:\\:listAvailable\\(\\) return type has no value type specified in iterable type array\\.$#"

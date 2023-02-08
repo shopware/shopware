@@ -143,6 +143,11 @@
             <argument type="collection"/>
         </service>
 
+        <service id="Shopware\Core\System\SalesChannel\Entity\DefinitionRegistryChain">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry"/>
+        </service>
+
         <service id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextValueResolver">
             <tag name="controller.argument_value_resolver" priority="1000"/>
         </service>
@@ -157,7 +162,7 @@
         </service>
 
         <service id="Shopware\Core\System\SalesChannel\Api\StructEncoder">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Entity\DefinitionRegistryChain"/>
             <argument type="service" id="serializer"/>
         </service>
 

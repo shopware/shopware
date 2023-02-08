@@ -6,7 +6,7 @@
   ];
 
   languages.javascript.enable = lib.mkDefault true;
-  languages.javascript.package = lib.mkDefault pkgs.nodejs-18_x;
+  languages.javascript.package = lib.mkDefault pkgs.nodejs-16_x;
 
   languages.php.enable = lib.mkDefault true;
   languages.php.package = lib.mkDefault (inputs.phps.packages.${builtins.currentSystem}.php74.buildEnv {

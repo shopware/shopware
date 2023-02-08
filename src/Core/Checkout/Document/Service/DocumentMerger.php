@@ -53,6 +53,9 @@ final class DocumentMerger
             return null;
         }
 
+        $this->fpdi->setPrintHeader(false);
+        $this->fpdi->setPrintFooter(false);
+
         $criteria = new Criteria($documentIds);
         $criteria->addAssociation('documentType');
 

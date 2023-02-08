@@ -63,6 +63,8 @@ describe('Order: Visual tests', () => {
             description: 'l33t',
         }).then(() => {
             return cy.createAdminOrder({
+                itemRounding: {"decimals": 2, "interval": 0.01, "roundForNet": true},
+                totalRounding: {"decimals": 2, "interval": 0.01, "roundForNet": true},
                 lineItems: [
                     getLineItem('1', [
                         getLineItem('1.1', [

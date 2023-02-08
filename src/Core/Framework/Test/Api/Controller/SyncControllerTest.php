@@ -351,7 +351,6 @@ class SyncControllerTest extends TestCase
         ];
 
         $this->connection->executeStatement('DELETE FROM messenger_messages;');
-        $this->connection->executeStatement('DELETE FROM message_queue_stats;');
         $this->connection->executeStatement('DELETE FROM `increment`;');
 
         $this->getBrowser()->request(
@@ -401,7 +400,6 @@ class SyncControllerTest extends TestCase
 
         $this->connection->executeStatement('DELETE FROM messenger_messages;');
         $this->connection->executeStatement('DELETE FROM `increment`;');
-        $this->connection->executeStatement('DELETE FROM message_queue_stats;');
 
         $keys = $this->gateway->list('message_queue_stats');
         static::assertEmpty($keys);

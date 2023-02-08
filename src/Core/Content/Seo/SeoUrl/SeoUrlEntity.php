@@ -61,6 +61,8 @@ class SeoUrlEntity extends Entity
     protected $isDeleted;
 
     /**
+     * @deprecated tag:v6.6.0 - Will be removed without replacement
+     *
      * @var bool
      */
     protected $isValid;
@@ -81,6 +83,8 @@ class SeoUrlEntity extends Entity
     protected $url;
 
     /**
+     * @deprecated tag:v6.6.0 - Will be removed without replacement
+     *
      * @var string|null
      */
     protected $error;

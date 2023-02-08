@@ -12,7 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 /**
  * @internal
  */
-class MultiFkFieldPrimaryDefinition extends EntityDefinition
+class MultiFkFieldPrimaryTestDefinition extends EntityDefinition
 {
     public function getEntityName(): string
     {

@@ -76,7 +76,7 @@ class OrderDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        $fields = new FieldCollection([
+        return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
             (new VersionField())->addFlags(new ApiAware()),
 
@@ -126,15 +126,8 @@ class OrderDefinition extends EntityDefinition
             (new ManyToManyAssociationField('tags', TagDefinition::class, OrderTagDefinition::class, 'order_id', 'tag_id'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),
             new ManyToOneAssociationField('createdBy', 'created_by_id', UserDefinition::class, 'id', false),
             new ManyToOneAssociationField('updatedBy', 'updated_by_id', UserDefinition::class, 'id', false),
+            (new CashRoundingConfigField('item_rounding', 'itemRounding'))->addFlags(new Required()),
+            (new CashRoundingConfigField('total_rounding', 'totalRounding'))->addFlags(new Required()),
         ]);
-
-        $fields->add(
-            new CashRoundingConfigField('item_rounding', 'itemRounding')
-        );
-        $fields->add(
-            new CashRoundingConfigField('total_rounding', 'totalRounding')
-        );
-
-        return $fields;
     }
 }

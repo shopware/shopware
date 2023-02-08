@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
@@ -41,10 +42,19 @@ class OrderBuilder
 
     protected CalculatedPrice $shippingCosts;
 
+    /**
+     * @var array<mixed>
+     */
     protected array $lineItems = [];
 
+    /**
+     * @var array<mixed>
+     */
     protected array $transactions = [];
 
+    /**
+     * @var array<mixed>
+     */
     protected array $addresses = [];
 
     protected string $stateId;
@@ -65,6 +75,8 @@ class OrderBuilder
 
         $this->price(420.69);
         $this->shippingCosts(0);
+        $this->add('itemRounding', json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR));
+        $this->add('totalRounding', json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR));
     }
 
     public function price(float $amount): self
@@ -93,6 +105,9 @@ class OrderBuilder
         return $this;
     }
 
+    /**
+     * @param array<mixed> $customParams
+     */
     public function addTransaction(string $key, array $customParams = []): self
     {
         if (\array_key_exists('amount', $customParams)) {
@@ -127,6 +142,9 @@ class OrderBuilder
         return $this;
     }
 
+    /**
+     * @param array<mixed> $customParams
+     */
     public function addAddress(string $key, array $customParams = []): self
     {
         $address = \array_replace([

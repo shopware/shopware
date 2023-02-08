@@ -7,9 +7,11 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\EntityProtectionCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\WriteProtection;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
@@ -58,6 +60,8 @@ class CustomEntityDefinition extends EntityDefinition
             new JsonField('flags', 'flags'),
             new FkField('app_id', 'appId', AppDefinition::class),
             new FkField('plugin_id', 'pluginId', PluginDefinition::class),
+            (new BoolField('cms_aware', 'cmsAware'))->addFlags(new Runtime()),
+            (new BoolField('store_api_aware', 'storeApiAware'))->addFlags(new Runtime()),
         ]);
     }
 }

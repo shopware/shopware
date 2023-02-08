@@ -9,7 +9,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
 
 /**
- * @interal
+ * @internal
  */
 #[Package('core')]
 class MailerConfigurationCompilerPass implements CompilerPassInterface

@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Log;
 
 /**
- * @interal
+ * @internal
  */
 #[\Attribute(\Attribute::TARGET_CLASS)]
 #[Package('core')]

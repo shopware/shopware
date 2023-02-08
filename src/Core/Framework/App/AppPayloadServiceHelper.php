@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * @interal only for use by the app-system
+ * @internal only for use by the app-system
  */
 #[Package('core')]
 class AppPayloadServiceHelper

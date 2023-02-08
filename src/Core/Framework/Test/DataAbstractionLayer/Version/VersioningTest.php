@@ -26,6 +26,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -48,6 +49,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
+use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
@@ -1884,6 +1886,34 @@ class VersioningTest extends TestCase
 
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertEquals('EAN', $product->getEan());
+    }
+
+    public function testMergeInCorrectOrder(): void
+    {
+        // we want to ensure that the data of a commit is persisted in the correct order
+        $ids = new IdsCollection();
+
+        $product = (new ProductBuilder($ids, 'p1'))
+            ->price(100);
+
+        $live = Context::createDefaultContext();
+
+        $this->getContainer()->get('product.repository')
+            ->create([$product->build()], $live);
+
+        // after having a simple product - create new version
+        $versionId = $this->productRepository->createVersion($ids->get('p1'), $live);
+
+        $version = $live->createWithVersionId($versionId);
+
+        // now we want to create a manufacturer and update the product record at the same time
+        $update = (new ProductBuilder($ids, 'p1'))
+            ->manufacturer('manufacturer');
+
+        $this->productRepository->update([$update->build()], $version);
+
+        // when the version is merged - the manufacturer should be created first
+        $this->getContainer()->get('product.repository')->merge($versionId, $live);
     }
 
     private function getReviewCount(string $productId, string $versionId): int

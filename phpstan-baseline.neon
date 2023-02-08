@@ -15600,21 +15600,6 @@ parameters:
 			path: src/Core/System/Snippet/SnippetValidatorInterface.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\StateMachine\\\\Aggregation\\\\StateMachineHistory\\\\StateMachineHistoryEntity\\:\\:getEntityId\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/StateMachine/Aggregation/StateMachineHistory/StateMachineHistoryEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\StateMachine\\\\Aggregation\\\\StateMachineHistory\\\\StateMachineHistoryEntity\\:\\:setEntityId\\(\\) has parameter \\$entityId with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/StateMachine/Aggregation/StateMachineHistory/StateMachineHistoryEntity.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\System\\\\StateMachine\\\\Aggregation\\\\StateMachineHistory\\\\StateMachineHistoryEntity\\:\\:\\$entityId type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/StateMachine/Aggregation/StateMachineHistory/StateMachineHistoryEntity.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\StateMachine\\\\Aggregation\\\\StateMachineState\\\\StateMachineStateTranslationCollection\\:\\:getLanguageIds\\(\\) should return list\\<string\\> but returns array\\.$#"
 			count: 1
 			path: src/Core/System/StateMachine/Aggregation/StateMachineState/StateMachineStateTranslationCollection.php

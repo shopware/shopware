@@ -29,6 +29,16 @@ Icons are shown by default. To hide the icon within the alert, set the value of 
         icon: false
     } %}
 
+*IconCache:
+IconCache is used by system settings. To avoid using the icon cache regardless of the system settings (e.g. for an icon rendered in an invisible area like <noscript>), set "iconCache" to false:
+
+    {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+        type:"primary",
+        content:"Primary Lorem ipsum dolor",
+        iconCache: false
+    } %}
+
+
 *Message Content:
 The component requires the parameters ```content``` or ```list``` to display a message. If no ```type``` is defined it
 will use the fallback option (success).
@@ -78,6 +88,10 @@ To display a dismissible button set the value of "dismissible" to true.
          class="alert {% if type %}alert-{{ type }}{% endif %}{% if dismissible %} alert-dismissible fade show{% endif %}{% if icon != "error" %} alert-has-icon{% endif %}">
         {% block utilities_alert_icon %}
             {% if icon != "false" %}
+                {% set iconCacheSystem = config('core.storefrontSettings.iconCache') %}
+                {% if iconCache === false and iconCacheSystem === true %}
+                    {{ sw_icon_cache_disable() }}
+                {% endif %}
                 {% if type == "danger" %}
                     {% sw_icon 'blocked' %}
                 {% elseif type == "warning" %}
@@ -88,6 +102,9 @@ To display a dismissible button set the value of "dismissible" to true.
                     {% sw_icon 'checkmark-circle' %}
                 {% else %}
                     {% sw_icon 'alert' %}
+                {% endif %}
+                {% if iconCache == false and iconCacheSystem === true %}
+                    {{ sw_icon_cache_enable() }}
                 {% endif %}
             {% endif %}
         {% endblock %}

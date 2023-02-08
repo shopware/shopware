@@ -161,6 +161,7 @@ export default {
             });
 
             this.userPromise = this.getUserData();
+            this.timezoneOptions = Shopware.Service('timezoneService').getTimezoneOptions();
 
             const promises = [
                 languagePromise,
@@ -179,7 +180,6 @@ export default {
 
             Promise.all(promises).then(() => {
                 this.loadLanguages();
-                this.loadTimezones();
             }).then(() => {
                 this.isUserLoading = false;
             });
@@ -227,21 +227,8 @@ export default {
             });
         },
 
+        // @deprecated tag:v6.6.0 - Unused
         loadTimezones() {
-            return Shopware.Service('timezoneService').loadTimezones()
-                .then((result) => {
-                    this.timezoneOptions.push({
-                        label: 'UTC',
-                        value: 'UTC',
-                    });
-
-                    const loadedTimezoneOptions = result.map(timezone => ({
-                        label: timezone,
-                        value: timezone,
-                    }));
-
-                    this.timezoneOptions.push(...loadedTimezoneOptions);
-                });
         },
 
         async getUserData() {

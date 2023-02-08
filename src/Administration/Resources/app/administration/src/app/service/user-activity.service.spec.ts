@@ -3,21 +3,7 @@ import UserActivityService from './user-activity.service';
 describe('src/app/service/user-activity.service.ts', () => {
     let service: UserActivityService | undefined;
 
-    const cookieStorageMock = {};
     beforeEach(() => {
-        // @ts-expect-error
-        Shopware.Service = () => {
-            return {
-                getStorage: () => {
-                    return {
-                        // eslint-disable-next-line no-undef
-                        setItem(key: string, value: unknown) {
-                            cookieStorageMock[key] = value;
-                        }
-                    };
-                }
-            };
-        };
         service = new UserActivityService();
     });
 
@@ -26,11 +12,11 @@ describe('src/app/service/user-activity.service.ts', () => {
     });
 
     it('should change last user activity', () => {
+        Shopware.Context.app.lastActivity = 0;
         const date = new Date();
         const expectedResult = Math.round(+date / 1000);
 
         service.updateLastUserActivity(date);
-        // @ts-expect-error
-        expect(cookieStorageMock.lastActivity).toBe(`${expectedResult}`);
+        expect(Shopware.Context.app.lastActivity).toBe(expectedResult);
     });
 });

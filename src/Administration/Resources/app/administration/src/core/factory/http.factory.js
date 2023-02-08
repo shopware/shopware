@@ -274,23 +274,21 @@ function refreshTokenInterceptor(client) {
             }
 
             return new Promise((resolve, reject) => {
-                tokenHandler.subscribe(
-                    (newToken) => {
+                tokenHandler.subscribe((newToken) => {
                     // replace the expired token and retry
-                        originalRequest.headers.Authorization = `Bearer ${newToken}`;
-                        originalRequest.url = originalRequest.url.replace(originalRequest.baseURL, '');
-                        resolve(Axios(originalRequest));
-                    },
-                    (err) => {
-                        if (!Shopware.Application.getApplicationRoot()) {
-                            reject(err);
-                            window.location.reload();
-                            return;
-                        }
-
+                    originalRequest.headers.Authorization = `Bearer ${newToken}`;
+                    originalRequest.url = originalRequest.url.replace(originalRequest.baseURL, '');
+                    resolve(Axios(originalRequest));
+                }, (err) => {
+                    if (!Shopware.Application.getApplicationRoot()) {
                         reject(err);
-                    },
-                );
+                        window.location.reload();
+                        return;
+                    }
+                    Shopware.Service('loginService').logout();
+                    Shopware.Application.getApplicationRoot().$router.push({ name: 'sw.login.index' });
+                    reject(err);
+                });
             });
         }
 

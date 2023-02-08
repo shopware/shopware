@@ -66,6 +66,9 @@ describe('Flow builder: change customer group testing', () => {
         cy.get('#loginPassword').typeAndCheckStorefront('shopware');
         cy.get('.login-submit [type="submit"]').click();
 
+        // Clear Storefront cookie
+        cy.clearCookies();
+
         const page = new CustomerPageObject();
 
         cy.loginViaApi().then(() => {

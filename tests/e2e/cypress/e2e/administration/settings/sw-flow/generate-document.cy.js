@@ -83,6 +83,9 @@ describe('Flow builder: generate document testing', () => {
             cy.contains('.finish-ordernumber', 'Your order number: #10000');
         });
 
+        // Clear Storefront cookie
+        cy.clearCookies();
+
         const page = new OrderPageObject();
 
         cy.loginViaApi().then(() => {

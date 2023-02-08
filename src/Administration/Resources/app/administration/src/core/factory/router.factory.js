@@ -85,14 +85,13 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
         const assetPath = getAssetPath();
 
         router.beforeEach((to, from, next) => {
-            const cookieStorage = Shopware.Service('loginService').getStorage();
-            cookieStorage.setItem('lastActivity', `${Math.round(+new Date() / 1000)}`);
+            Shopware.Context.app.lastActivity = Math.round(+new Date() / 1000);
 
             setModuleFavicon(to, assetPath);
             const loggedIn = LoginService.isLoggedIn();
             const tokenHandler = new Shopware.Helper.RefreshTokenHelper();
             const loginAllowlist = [
-                '/login', '/login/info', '/login/recovery', '/inactivity/login',
+                '/login', '/login/info', '/login/recovery',
             ];
 
             if (to.meta && to.meta.forceRoute === true) {
@@ -100,17 +99,19 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
             }
 
             // The login route will be called and the user is not logged in, let him see the login.
-            if (!loggedIn && (to.name === 'login' ||
+            if ((to.name === 'login' ||
                 loginAllowlist.includes(to.path) ||
                 to.path.startsWith('/login/user-recovery/'))
+                && !loggedIn
             ) {
                 return next();
             }
 
             // The login route will be called and the user is logged in, redirect to the dashboard.
-            if (loggedIn && (to.name === 'login' ||
+            if ((to.name === 'login' ||
                 loginAllowlist.includes(to.path) ||
                 to.path.startsWith('/login/user-recovery/'))
+                && loggedIn
             ) {
                 return next({ name: 'core' });
             }

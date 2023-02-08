@@ -45,6 +45,14 @@
     }
 }
 
+.sw-cms-stage-block {
+    .sw-text-editor {
+        .sw-text-editor__content {
+            background: transparent;
+        }
+    }
+}
+
 .sw-cms-section {
     position: relative;
     background-repeat: no-repeat;

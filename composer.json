@@ -172,14 +172,14 @@
         "phpunit/php-code-coverage": "~9.2.14",
         "phpunit/phpunit": "~9.5.17",
         "smalot/pdfparser": "~2.2.2",
-        "symfony/browser-kit": "~6.1.0",
-        "symfony/css-selector": "~6.1.0",
+        "symfony/browser-kit": "~6.2.0",
+        "symfony/css-selector": "~6.2.0",
         "symfony/doctrine-bridge": "^6.2",
-        "symfony/dom-crawler": "~6.1.0",
-        "symfony/expression-language": "~6.1.0",
+        "symfony/dom-crawler": "~6.2.0",
+        "symfony/expression-language": "~6.2.0",
         "symfony/phpunit-bridge": "~6.1.0",
-        "symfony/var-dumper": "~6.1.0",
-        "symfony/web-profiler-bundle": "~6.1.0"
+        "symfony/var-dumper": "~6.2.0",
+        "symfony/web-profiler-bundle": "~6.2.0"
     },
     "repositories": [
         {

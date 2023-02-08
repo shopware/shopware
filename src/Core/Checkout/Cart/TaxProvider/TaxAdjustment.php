@@ -122,9 +122,9 @@ class TaxAdjustment
             return;
         }
 
-        foreach ($taxes as $deliveryId => $deliveryTax) {
+        foreach ($taxes as $deliveryPositionId => $deliveryTax) {
             foreach ($deliveries as $delivery) {
-                $position = $delivery->getPositions()->get($deliveryId);
+                $position = $delivery->getPositions()->get($deliveryPositionId);
 
                 if (!$position) {
                     continue;

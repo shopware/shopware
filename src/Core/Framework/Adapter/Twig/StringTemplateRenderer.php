@@ -13,7 +13,7 @@ use Twig\Extension\EscaperExtension;
 use Twig\Loader\ArrayLoader;
 
 /**
- * @final tag:v6.5.0
+ * @final
  */
 #[Package('core')]
 class StringTemplateRenderer

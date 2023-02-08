@@ -14615,21 +14615,6 @@ parameters:
 			path: src/Core/Framework/Webhook/Hookable/WriteResultMerger.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Webhook\\\\Message\\\\WebhookEventMessage\\:\\:__construct\\(\\) has parameter \\$payload with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Webhook/Message/WebhookEventMessage.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Webhook\\\\Message\\\\WebhookEventMessage\\:\\:getPayload\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Webhook/Message/WebhookEventMessage.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Webhook\\\\Message\\\\WebhookEventMessage\\:\\:\\$payload type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Webhook/Message/WebhookEventMessage.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Webhook\\\\WebhookCollection\\:\\:filterForEvent\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Core/Framework/Webhook/WebhookCollection.php

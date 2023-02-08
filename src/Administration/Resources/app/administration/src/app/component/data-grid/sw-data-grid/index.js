@@ -226,13 +226,6 @@ Component.register('sw-data-grid', {
             };
         },
 
-        /**
-         * @major-deprecated tag:v6.5.0 - localStorageItemKey will be removed
-         */
-        localStorageItemKey() {
-            return `${this.identifier}-grid`;
-        },
-
         selectionCount() {
             return Object.values(this.selection).length;
         },
@@ -340,12 +333,6 @@ Component.register('sw-data-grid', {
 
         showSelection() {
             this.selection = this.showSelection ? this.selection : {};
-        },
-
-        /**
-         * @major-deprecated tag:v6.5.0 - will be removed
-         */
-        records() {
         },
 
         compactMode() {

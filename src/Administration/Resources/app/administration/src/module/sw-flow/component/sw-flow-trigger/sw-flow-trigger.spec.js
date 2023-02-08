@@ -611,7 +611,6 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
 
     it('should not translate if the snippet is not exists', async () => {
         const wrapper = await createWrapper();
-        await flushPromises();
 
         expect(wrapper.vm.getEventNameTranslated('send')).toEqual('Send');
         expect(wrapper.vm.getEventNameTranslated('test_event_name')).toEqual('test event name');

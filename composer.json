@@ -68,7 +68,7 @@
         "doctrine/annotations": "^1.14",
         "doctrine/dbal": "^3.5",
         "doctrine/inflector": "^2.0",
-        "dompdf/dompdf": "2.0.2",
+        "dompdf/dompdf": "2.0.3",
         "erusev/parsedown-extra": "0.8.1",
         "ezyang/htmlpurifier": "~4.16",
         "guzzlehttp/guzzle": "~7.5.0",

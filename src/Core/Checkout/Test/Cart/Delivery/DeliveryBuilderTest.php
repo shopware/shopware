@@ -58,6 +58,17 @@ class DeliveryBuilderTest extends TestCase
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
     }
 
+    public function testIndependenceOfLineItemAndDeliveryPositionPrices(): void
+    {
+        $cart = $this->createCart();
+        $firstDelivery = $this->getDeliveries($cart)->first();
+        static::assertNotNull($firstDelivery);
+
+        $firstPosition = $firstDelivery->getPositions()->first();
+
+        static::assertNotSame($firstPosition->getPrice(), $cart->getLineItems()->first()->getPrice());
+    }
+
     public function testEmptyCart(): void
     {
         $cart = $this->createCart(true);

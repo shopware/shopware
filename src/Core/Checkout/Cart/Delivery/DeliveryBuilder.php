@@ -142,10 +142,10 @@ class DeliveryBuilder
 
             // if the item is completely in stock, use the delivery date
             if ($item->getDeliveryInformation()->getStock() >= $item->getQuantity()) {
-                $position = new DeliveryPosition($item->getId(), clone $item, $item->getQuantity(), $item->getPrice(), $deliveryDate);
+                $position = new DeliveryPosition($item->getId(), clone $item, $item->getQuantity(), clone $item->getPrice(), $deliveryDate);
             } else {
                 // otherwise use the restock date as delivery date
-                $position = new DeliveryPosition($item->getId(), clone $item, $item->getQuantity(), $item->getPrice(), $restockDate);
+                $position = new DeliveryPosition($item->getId(), clone $item, $item->getQuantity(), clone $item->getPrice(), $restockDate);
             }
 
             $positions->add($position);

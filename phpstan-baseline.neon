@@ -17004,10 +17004,7 @@ parameters:
 			count: 1
 			path: src/Storefront/Test/Framework/Seo/SeoUrlTemplateRepositoryTest.php
 
-		-
-			message: "#^Method IconCacheTwigFilterTest\\:\\:createFinder\\(\\) has parameter \\$bundles with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Twig/Extension/IconCacheTwigFilterTest.php
+
 
 		-
 			message: "#^Method SlugifyExtensionTwigFilterTest\\:\\:sampleAnchorIdProvider\\(\\) return type has no value type specified in iterable type array\\.$#"

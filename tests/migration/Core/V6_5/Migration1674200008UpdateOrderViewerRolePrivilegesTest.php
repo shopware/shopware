@@ -1,18 +1,18 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Migration\Core\V6_4;
+namespace Shopware\Tests\Migration\Core\V6_5;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Migration\V6_4\Migration1674200008UpdateOrderViewerRolePrivileges;
+use Shopware\Core\Migration\V6_5\Migration1674200008UpdateOrderViewerRolePrivileges;
 use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
  *
- * @covers \Shopware\Core\Migration\V6_4\Migration1674200008UpdateOrderViewerRolePrivileges
+ * @covers \Shopware\Core\Migration\V6_5\Migration1674200008UpdateOrderViewerRolePrivileges
  */
 class Migration1674200008UpdateOrderViewerRolePrivilegesTest extends TestCase
 {

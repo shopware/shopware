@@ -7,7 +7,6 @@ import './sw-order-detail-details.scss';
 
 const { Component, State } = Shopware;
 const { Criteria } = Shopware.Data;
-const { array } = Shopware.Utils;
 const { mapGetters, mapState } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -16,10 +15,7 @@ export default {
 
     inject: [
         'repositoryFactory',
-        'orderService',
-        'stateStyleDataProviderService',
         'acl',
-        'feature',
     ],
 
     props: {
@@ -36,11 +32,6 @@ export default {
 
     data() {
         return {
-            nextRoute: null,
-            isDisplayingLeavePageWarning: false,
-            transactionOptions: [],
-            orderOptions: [],
-            deliveryOptions: [],
             customFieldSets: [],
             showStateHistoryModal: false,
         };
@@ -61,10 +52,6 @@ export default {
             return this.order.deliveries.length > 0 && this.order.deliveries[0];
         },
 
-        deliveryDiscounts() {
-            return array.slice(this.order.deliveries, 1) || [];
-        },
-
         transaction() {
             for (let i = 0; i < this.order.transactions.length; i += 1) {
                 if (!['cancelled', 'failed'].includes(this.order.transactions[i].stateMachineState.technicalName)) {
@@ -72,64 +59,6 @@ export default {
                 }
             }
             return this.order.transactions.last();
-        },
-
-        transactionOptionPlaceholder() {
-            if (this.isLoading) return null;
-
-            return `${this.$tc('sw-order.stateCard.headlineTransactionState')}: \
-            ${this.transaction.stateMachineState.translated.name}`;
-        },
-
-        transactionOptionsBackground() {
-            if (this.isLoading) {
-                return null;
-            }
-
-            return this.stateStyleDataProviderService.getStyle(
-                'order_transaction.state',
-                this.transaction.stateMachineState.technicalName,
-            ).selectBackgroundStyle;
-        },
-
-        orderOptionPlaceholder() {
-            if (this.isLoading) {
-                return null;
-            }
-
-            return `${this.$tc('sw-order.stateCard.headlineOrderState')}: \
-            ${this.order.stateMachineState.translated.name}`;
-        },
-
-        orderOptionsBackground() {
-            if (this.isLoading) {
-                return null;
-            }
-
-            return this.stateStyleDataProviderService.getStyle(
-                'order.state',
-                this.order.stateMachineState.technicalName,
-            ).selectBackgroundStyle;
-        },
-
-        deliveryOptionPlaceholder() {
-            if (this.isLoading) {
-                return null;
-            }
-
-            return `${this.$tc('sw-order.stateCard.headlineDeliveryState')}: \
-            ${this.delivery.stateMachineState.translated.name}`;
-        },
-
-        deliveryOptionsBackground() {
-            if (this.isLoading) {
-                return null;
-            }
-
-            return this.stateStyleDataProviderService.getStyle(
-                'order_delivery.state',
-                this.delivery.stateMachineState.technicalName,
-            ).selectBackgroundStyle;
         },
 
         customFieldSetRepository() {
@@ -169,23 +98,6 @@ export default {
             return this.order.price.taxStatus;
         },
 
-        displayRounded() {
-            return this.order.totalRounding.interval !== 0.01
-                || this.order.totalRounding.decimals !== this.order.itemRounding.decimals;
-        },
-
-        orderTotal() {
-            if (this.displayRounded) {
-                return this.order.price.rawTotal;
-            }
-
-            return this.order.price.totalPrice;
-        },
-
-        hasLineItem() {
-            return this.order.lineItems.filter(item => item.hasOwnProperty('id')).length > 0;
-        },
-
         currency() {
             return this.order.currency;
         },
@@ -209,6 +121,15 @@ export default {
             const currentAddress = this.orderAddressIds.find(item => item.type === 'shipping');
             return currentAddress?.customerAddressId || this.shippingAddress.id;
         },
+
+        shippingCosts: {
+            get() {
+                return this.delivery?.shippingCosts.totalPrice || 0.0;
+            },
+            set(value) {
+                this.onShippingChargeEdited(value);
+            },
+        },
     },
 
     created() {
@@ -230,34 +151,6 @@ export default {
             this.delivery.shippingCosts.totalPrice = amount;
 
             this.saveAndRecalculate();
-        },
-
-        sortByTaxRate(price) {
-            return price.sort((prev, current) => {
-                return prev.taxRate - current.taxRate;
-            });
-        },
-
-        onStateTransitionOptionsChanged(stateMachineName, options) {
-            if (stateMachineName === 'order.states') {
-                this.orderOptions = options;
-            } else if (stateMachineName === 'order_transaction.states') {
-                this.transactionOptions = options;
-            } else if (stateMachineName === 'order_delivery.states') {
-                this.deliveryOptions = options;
-            }
-        },
-
-        onQuickOrderStatusChange(actionName) {
-            this.$refs['state-card'].onOrderStateSelected(actionName);
-        },
-
-        onQuickTransactionStatusChange(actionName) {
-            this.$refs['state-card'].onTransactionStateSelected(actionName);
-        },
-
-        onQuickDeliveryStatusChange(actionName) {
-            this.$refs['state-card'].onDeliveryStateSelected(actionName);
         },
 
         saveAndRecalculate() {

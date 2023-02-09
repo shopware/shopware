@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Services\FirstRunWizardService;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
@@ -15,12 +16,32 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigEntity;
 use Shopware\Core\System\User\UserCollection;
 
+/**
+ * @internal
+ */
+#[Package('merchant-services')]
 trait StoreClientBehaviour
 {
+    /**
+     * @deprecated tag:v6.6.0 - Will be removed, use ::getStoreRequestHandler() instead
+     */
     public function getRequestHandler(): MockHandler
+    {
+        return $this->getStoreRequestHandler();
+    }
+
+    public function getStoreRequestHandler(): MockHandler
     {
         /** @var MockHandler $handler */
         $handler = $this->getContainer()->get('shopware.store.mock_handler');
+
+        return $handler;
+    }
+
+    public function getFrwRequestHandler(): MockHandler
+    {
+        /** @var MockHandler $handler */
+        $handler = $this->getContainer()->get('shopware.frw.mock_handler');
 
         return $handler;
     }
@@ -33,6 +54,16 @@ trait StoreClientBehaviour
     public function resetStoreMock(): void
     {
         $this->getRequestHandler()->reset();
+    }
+
+    /**
+     * @after
+     *
+     * @before
+     */
+    public function resetFrwMock(): void
+    {
+        $this->getFrwRequestHandler()->reset();
     }
 
     protected function createAdminStoreContext(): Context

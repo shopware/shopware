@@ -7,6 +7,7 @@ use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Media\Pathname\PathGenerator;
 use Shopware\Core\Content\Media\Pathname\PathnameStrategy\FilenamePathnameStrategy;
 use Shopware\Core\Content\Media\Pathname\UrlGenerator;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -24,12 +25,15 @@ class UrlGeneratorTest extends TestCase
         $mediaEntity->assign(
             [
                 'id' => Uuid::randomHex(),
-                'fileName' => 'file.jpg',
+                'fileName' => 'file',
+                'fileExtension' => 'jpg',
             ]
         );
-        $urlGenerator = new UrlGenerator(new FilenamePathnameStrategy(), new Filesystem(new InMemoryFilesystemAdapter(), ['public_url' => 'http://localhost:8000']));
+
+        $pathGenerator = new PathGenerator(new FilenamePathnameStrategy());
+        $urlGenerator = new UrlGenerator($pathGenerator, new Filesystem(new InMemoryFilesystemAdapter(), ['public_url' => 'http://localhost:8000']));
         static::assertSame(
-            'http://localhost:8000/media/d0/b3/24/file.jpg',
+            'http://localhost:8000/media/8c/7d/d9/file.jpg',
             $urlGenerator->getAbsoluteMediaUrl($mediaEntity)
         );
     }
@@ -40,14 +44,17 @@ class UrlGeneratorTest extends TestCase
         $mediaEntity->assign(
             [
                 'id' => Uuid::randomHex(),
-                'fileName' => 'file.jpg',
+                'fileName' => 'file',
+                'fileExtension' => 'jpg',
             ]
         );
+
+        $pathGenerator = new PathGenerator(new FilenamePathnameStrategy());
         $requestStack = new RequestStack();
         $requestStack->push(new Request());
-        $urlGenerator = new UrlGenerator(new FilenamePathnameStrategy(), new Filesystem(new InMemoryFilesystemAdapter(), ['public_url' => 'http://localhost:8000']));
+        $urlGenerator = new UrlGenerator($pathGenerator, new Filesystem(new InMemoryFilesystemAdapter(), ['public_url' => 'http://localhost:8000']));
         static::assertSame(
-            'http://localhost:8000/media/d0/b3/24/file.jpg',
+            'http://localhost:8000/media/8c/7d/d9/file.jpg',
             $urlGenerator->getAbsoluteMediaUrl($mediaEntity)
         );
     }
@@ -58,7 +65,8 @@ class UrlGeneratorTest extends TestCase
         $mediaEntity->assign(
             [
                 'id' => Uuid::randomHex(),
-                'fileName' => 'file.jpg',
+                'fileName' => 'file',
+                'fileExtension' => 'jpg',
             ]
         );
         $mediaThumbnailEntity = new MediaThumbnailEntity();
@@ -69,9 +77,10 @@ class UrlGeneratorTest extends TestCase
             ]
         );
 
-        $urlGenerator = new UrlGenerator(new FilenamePathnameStrategy(), new Filesystem(new InMemoryFilesystemAdapter(), ['public_url' => 'http://localhost:8000']));
+        $pathGenerator = new PathGenerator(new FilenamePathnameStrategy());
+        $urlGenerator = new UrlGenerator($pathGenerator, new Filesystem(new InMemoryFilesystemAdapter(), ['public_url' => 'http://localhost:8000']));
         static::assertSame(
-            'http://localhost:8000/thumbnail/d0/b3/24/file.jpg_100x100',
+            'http://localhost:8000/thumbnail/8c/7d/d9/file_100x100.jpg',
             $urlGenerator->getAbsoluteThumbnailUrl($mediaEntity, $mediaThumbnailEntity)
         );
     }
@@ -82,12 +91,15 @@ class UrlGeneratorTest extends TestCase
         $mediaEntity->assign(
             [
                 'id' => Uuid::randomHex(),
-                'fileName' => 'file.jpg',
+                'fileName' => 'file',
+                'fileExtension' => 'jpg',
             ]
         );
-        $urlGenerator = new UrlGenerator(new FilenamePathnameStrategy(), new Filesystem(new InMemoryFilesystemAdapter(), ['public_url' => 'http://localhost:8000']));
+
+        $pathGenerator = new PathGenerator(new FilenamePathnameStrategy());
+        $urlGenerator = new UrlGenerator($pathGenerator, new Filesystem(new InMemoryFilesystemAdapter(), ['public_url' => 'http://localhost:8000']));
         static::assertSame(
-            'media/d0/b3/24/file.jpg',
+            'media/8c/7d/d9/file.jpg',
             $urlGenerator->getRelativeMediaUrl($mediaEntity)
         );
     }
@@ -98,7 +110,8 @@ class UrlGeneratorTest extends TestCase
         $mediaEntity->assign(
             [
                 'id' => Uuid::randomHex(),
-                'fileName' => 'file.jpg',
+                'fileName' => 'file',
+                'fileExtension' => 'jpg',
             ]
         );
         $mediaThumbnailEntity = new MediaThumbnailEntity();
@@ -109,9 +122,10 @@ class UrlGeneratorTest extends TestCase
             ]
         );
 
-        $urlGenerator = new UrlGenerator(new FilenamePathnameStrategy(), new Filesystem(new InMemoryFilesystemAdapter(), ['public_url' => 'http://localhost:8000']));
+        $pathGenerator = new PathGenerator(new FilenamePathnameStrategy());
+        $urlGenerator = new UrlGenerator($pathGenerator, new Filesystem(new InMemoryFilesystemAdapter(), ['public_url' => 'http://localhost:8000']));
         static::assertSame(
-            'thumbnail/d0/b3/24/file.jpg_100x100',
+            'thumbnail/8c/7d/d9/file_100x100.jpg',
             $urlGenerator->getRelativeThumbnailUrl($mediaEntity, $mediaThumbnailEntity)
         );
     }
@@ -122,17 +136,20 @@ class UrlGeneratorTest extends TestCase
         $mediaEntity->assign(
             [
                 'id' => Uuid::randomHex(),
-                'fileName' => 'file.jpg',
+                'fileName' => 'file',
+                'fileExtension' => 'jpg',
+                'path' => 'my/pa/th/file.jpg',
             ]
         );
 
         $fs = new Filesystem(new InMemoryFilesystemAdapter(), ['public_url' => 'http://localhost:8000']);
 
-        $urlGenerator = new UrlGenerator(new FilenamePathnameStrategy(), $fs);
+        $pathGenerator = new PathGenerator(new FilenamePathnameStrategy());
+        $urlGenerator = new UrlGenerator($pathGenerator, $fs);
         $urlGenerator->getAbsoluteMediaUrl($mediaEntity);
-        $urlGeneratorAssert = new UrlGenerator(new FilenamePathnameStrategy(), $fs);
+        $urlGeneratorAssert = new UrlGenerator($pathGenerator, $fs);
         $urlGeneratorAssert->getAbsoluteMediaUrl($mediaEntity);
-        $urlGeneratorAssertStaysUntouched = new UrlGenerator(new FilenamePathnameStrategy(), $fs);
+        $urlGeneratorAssertStaysUntouched = new UrlGenerator($pathGenerator, $fs);
 
         // Both $fallbackBaseUrl should be same
         static::assertSame(print_r($urlGeneratorAssert, true), print_r($urlGenerator, true));

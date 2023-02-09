@@ -15,7 +15,7 @@ use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaType\ImageType;
 use Shopware\Core\Content\Media\MediaType\MediaType;
-use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
+use Shopware\Core\Content\Media\Pathname\AbstractPathGenerator;
 use Shopware\Core\Content\Media\Subscriber\MediaDeletionSubscriber;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -32,8 +32,8 @@ class ThumbnailService
         private readonly EntityRepository $thumbnailRepository,
         private readonly FilesystemOperator $filesystemPublic,
         private readonly FilesystemOperator $filesystemPrivate,
-        private readonly UrlGeneratorInterface $urlGenerator,
-        private readonly EntityRepository $mediaFolderRepository
+        private readonly EntityRepository $mediaFolderRepository,
+        private readonly AbstractPathGenerator $pathGenerator
     ) {
     }
 
@@ -144,7 +144,8 @@ class ThumbnailService
                 }
 
                 if ($strict === true
-                    && !$this->getFileSystem($media)->fileExists($this->urlGenerator->getRelativeThumbnailUrl($media, $thumbnail))) {
+                    && $thumbnail->getPath() !== null
+                    && !$this->getFileSystem($media)->fileExists($thumbnail->getPath())) {
                     continue;
                 }
 
@@ -192,9 +193,14 @@ class ThumbnailService
             return [];
         }
 
+        $originalPath = $media->getPath();
+
+        if ($originalPath === null) {
+            return [];
+        }
+
         $mediaImage = $this->getImageResource($media);
         $originalImageSize = $this->getOriginalImageSize($mediaImage);
-        $originalUrl = $this->urlGenerator->getRelativeMediaUrl($media);
 
         $savedThumbnails = [];
 
@@ -208,7 +214,7 @@ class ThumbnailService
                 $thumbnailSize = $this->calculateThumbnailSize($originalImageSize, $size, $config);
                 $thumbnail = $this->createNewImage($mediaImage, $type, $originalImageSize, $thumbnailSize);
 
-                $url = $this->urlGenerator->getRelativeThumbnailUrl(
+                $url = $this->pathGenerator->generatePath(
                     $media,
                     (new MediaThumbnailEntity())->assign(['width' => $size->getWidth(), 'height' => $size->getHeight()])
                 );
@@ -216,8 +222,8 @@ class ThumbnailService
 
                 $mediaFilesystem = $this->getFileSystem($media);
                 if ($originalImageSize === $thumbnailSize
-                    && $mediaFilesystem->fileSize($originalUrl) < $mediaFilesystem->fileSize($url)) {
-                    $mediaFilesystem->write($url, $mediaFilesystem->read($originalUrl));
+                    && $mediaFilesystem->fileSize($originalPath) < $mediaFilesystem->fileSize($url)) {
+                    $mediaFilesystem->write($url, (string) $mediaFilesystem->read($originalPath));
                 }
 
                 $savedThumbnails[] = [
@@ -255,7 +261,7 @@ class ThumbnailService
 
     private function getImageResource(MediaEntity $media): \GdImage
     {
-        $filePath = $this->urlGenerator->getRelativeMediaUrl($media);
+        $filePath = $this->pathGenerator->generatePath($media);
         /** @var string $file */
         $file = $this->getFileSystem($media)->read($filePath);
         $image = @imagecreatefromstring($file);

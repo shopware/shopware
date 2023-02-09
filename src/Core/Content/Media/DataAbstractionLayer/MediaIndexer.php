@@ -2,9 +2,14 @@
 
 namespace Shopware\Core\Content\Media\DataAbstractionLayer;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\Event\MediaIndexerEvent;
 use Shopware\Core\Content\Media\MediaDefinition;
+use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Media\Pathname\AbstractPathGenerator;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -29,7 +34,8 @@ class MediaIndexer extends EntityIndexer
         private readonly EntityRepository $repository,
         private readonly EntityRepository $thumbnailRepository,
         private readonly Connection $connection,
-        private readonly EventDispatcherInterface $eventDispatcher
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly AbstractPathGenerator $pathGenerator
     ) {
     }
 
@@ -71,15 +77,83 @@ class MediaIndexer extends EntityIndexer
             return;
         }
 
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsAnyFilter('mediaId', $ids));
-
         $context = $message->getContext();
 
+        $this->updateThumbnailsPath($context, $ids);
+
+        $this->updateThumbnailsRo($context, $ids);
+
+        $this->setMediaPaths($context, $ids);
+
+        $this->eventDispatcher->dispatch(new MediaIndexerEvent($ids, $context, $message->getSkip()));
+    }
+
+    public function getTotal(): int
+    {
+        return $this->iteratorFactory->createIterator($this->repository->getDefinition())->fetchCount();
+    }
+
+    public function getDecorated(): EntityIndexer
+    {
+        throw new DecorationPatternException(static::class);
+    }
+
+    /**
+     * @param string[] $ids
+     */
+    private function updateThumbnailsPath(Context $context, array $ids): void
+    {
+        $mediaThumbnailIdsWithMissingPaths = $this->connection->fetchFirstColumn(
+            'SELECT LOWER(HEX(id)) from media_thumbnail WHERE media_id IN (:ids) AND path IS NULL',
+            ['ids' => Uuid::fromHexToBytesList($ids)],
+            ['ids' => ArrayParameterType::STRING]
+        );
+
+        if (\count($mediaThumbnailIdsWithMissingPaths) === 0) {
+            return;
+        }
+
+        $query = new RetryableQuery(
+            $this->connection,
+            $this->connection->prepare('UPDATE `media_thumbnail` SET path = :path WHERE id = :id')
+        );
+
+        //get all media_thumbnails with missingPaths
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsAnyFilter('id', $mediaThumbnailIdsWithMissingPaths));
+        $criteria->addAssociation('media');
+
+        $all = $this->thumbnailRepository
+            ->search($criteria, $context)
+            ->getEntities();
+
+        /** @var MediaThumbnailEntity $mediaThumbnail */
+        foreach ($all as $mediaThumbnail) {
+            $media = $mediaThumbnail->getMedia();
+
+            if ($media === null) {
+                continue;
+            }
+
+            $query->execute([
+                'path' => $this->pathGenerator->generatePath($media, $mediaThumbnail),
+                'id' => Uuid::fromHexToBytes($mediaThumbnail->getId()),
+            ]);
+        }
+    }
+
+    /**
+     * @param string[] $ids
+     */
+    private function updateThumbnailsRo(Context $context, array $ids): void
+    {
         $query = new RetryableQuery(
             $this->connection,
             $this->connection->prepare('UPDATE `media` SET thumbnails_ro = :thumbnails_ro WHERE id = :id')
         );
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsAnyFilter('mediaId', $ids));
 
         $all = $this->thumbnailRepository
             ->search($criteria, $context)
@@ -93,17 +167,42 @@ class MediaIndexer extends EntityIndexer
                 'id' => Uuid::fromHexToBytes($id),
             ]);
         }
-
-        $this->eventDispatcher->dispatch(new MediaIndexerEvent($ids, $context, $message->getSkip()));
     }
 
-    public function getTotal(): int
+    /**
+     * @param string[] $ids
+     */
+    private function setMediaPaths(Context $context, array $ids): void
     {
-        return $this->iteratorFactory->createIterator($this->repository->getDefinition())->fetchCount();
-    }
+        $mediaIdsWithMissingPaths = $this->connection->fetchFirstColumn(
+            'SELECT LOWER(HEX(id)) from media WHERE id IN (:ids) AND path IS NULL AND file_name IS NOT NULL',
+            ['ids' => Uuid::fromHexToBytesList($ids)],
+            ['ids' => ArrayParameterType::STRING]
+        );
 
-    public function getDecorated(): EntityIndexer
-    {
-        throw new DecorationPatternException(static::class);
+        if (\count($mediaIdsWithMissingPaths) === 0) {
+            return;
+        }
+
+        $query = new RetryableQuery(
+            $this->connection,
+            $this->connection->prepare('UPDATE `media` SET path = :path WHERE id = :id')
+        );
+
+        //get all media with missingPaths
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsAnyFilter('id', $mediaIdsWithMissingPaths));
+
+        $all = $this->repository
+            ->search($criteria, $context)
+            ->getEntities();
+
+        /** @var MediaEntity $media */
+        foreach ($all as $media) {
+            $query->execute([
+                'path' => $this->pathGenerator->generatePath($media),
+                'id' => Uuid::fromHexToBytes($media->getId()),
+            ]);
+        }
     }
 }

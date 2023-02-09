@@ -14,30 +14,17 @@ class MediaThumbnailEntity extends Entity
     use EntityIdTrait;
     use EntityCustomFieldsTrait;
 
-    /**
-     * @var int
-     */
-    protected $width;
+    protected int $width = 0;
 
-    /**
-     * @var int
-     */
-    protected $height;
+    protected int $height = 0;
 
-    /**
-     * @var string
-     */
-    protected $url = '';
+    protected string $url = '';
 
-    /**
-     * @var string
-     */
-    protected $mediaId;
+    protected ?string $path = null;
 
-    /**
-     * @var MediaEntity|null
-     */
-    protected $media;
+    protected string $mediaId = '';
+
+    protected ?MediaEntity $media;
 
     public function getWidth(): int
     {
@@ -67,6 +54,16 @@ class MediaThumbnailEntity extends Entity
     public function setUrl(string $url): void
     {
         $this->url = $url;
+    }
+
+    public function getPath(): ?string
+    {
+        return $this->path;
+    }
+
+    public function setPath(?string $path): void
+    {
+        $this->path = $path;
     }
 
     public function getMediaId(): string

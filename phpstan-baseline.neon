@@ -3466,11 +3466,6 @@ parameters:
 			path: src/Core/Content/Media/Pathname/PathnameStrategy/FilenamePathnameStrategy.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\Pathname\\\\UrlGenerator\\:\\:toPathString\\(\\) has parameter \\$parts with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Media/Pathname/UrlGenerator.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\TypeDetector\\\\TypeDetector\\:\\:detect\\(\\) should return Shopware\\\\Core\\\\Content\\\\Media\\\\MediaType\\\\MediaType but returns Shopware\\\\Core\\\\Content\\\\Media\\\\MediaType\\\\MediaType\\|null\\.$#"
 			count: 1
 			path: src/Core/Content/Media/TypeDetector/TypeDetector.php
@@ -5204,11 +5199,6 @@ parameters:
 			message: "#^Parameter \\#4 \\$fileSize of class Shopware\\\\Core\\\\Content\\\\Media\\\\File\\\\MediaFile constructor expects int, int\\<0, max\\>\\|false given\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Media/Metadata/MetadataLoaderTest.php
-
-		-
-			message: "#^Cannot call method first\\(\\) on Shopware\\\\Core\\\\Content\\\\Media\\\\Aggregate\\\\MediaThumbnail\\\\MediaThumbnailCollection\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/Pathname/PathnameStrategyTest.php
 
 		-
 			message: "#^Cannot call method get\\(\\) on Shopware\\\\Core\\\\Content\\\\Media\\\\Aggregate\\\\MediaThumbnail\\\\MediaThumbnailCollection\\|null\\.$#"
@@ -15665,3 +15655,8 @@ parameters:
 			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ConfigLoader\\\\AbstractAvailableThemeProvider\\:\\:load\\(\\) invoked with 2 parameters, 1 required.$#"
 			count: 1
 			path: src/Storefront/Theme/ConfigLoader/StaticFileConfigDumper.php
+
+		-
+			message: "#^Call to function is_resource\\(\\) with resource will always evaluate to true\\.$#"
+			count: 1
+			path: src/Core/Content/Media/File/FileSaver.php

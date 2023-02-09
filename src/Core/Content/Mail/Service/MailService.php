@@ -9,8 +9,7 @@ use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeValidateEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailErrorEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
-use Shopware\Core\Content\Media\MediaCollection;
-use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -44,7 +43,6 @@ class MailService extends AbstractMailService
         private readonly EntityRepository $salesChannelRepository,
         private readonly SystemConfigService $systemConfigService,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly UrlGeneratorInterface $urlGenerator,
         private readonly LoggerInterface $logger
     ) {
     }
@@ -150,7 +148,7 @@ class MailService extends AbstractMailService
             $this->templateRenderer->disableTestMode();
         }
 
-        $mediaUrls = $this->getMediaUrls($data, $context);
+        $mediaUrls = $this->getMediaUrls($data, $context) ?? [];
 
         $binAttachments = $data['binAttachments'] ?? null;
 
@@ -272,25 +270,34 @@ class MailService extends AbstractMailService
     /**
      * @param mixed[] $data
      *
-     * @return string[]
+     * @return string[]|null
      */
-    private function getMediaUrls(array $data, Context $context): array
+    private function getMediaUrls(array $data, Context $context): ?array
     {
-        if (!isset($data['mediaIds']) || empty($data['mediaIds'])) {
-            return [];
+        if (empty($data['mediaIds'])) {
+            return null;
         }
         $criteria = new Criteria($data['mediaIds']);
         $criteria->setTitle('mail-service::resolve-media-ids');
         $media = null;
         $mediaRepository = $this->mediaRepository;
         $context->scope(Context::SYSTEM_SCOPE, static function (Context $context) use ($criteria, $mediaRepository, &$media): void {
-            /** @var MediaCollection $media */
             $media = $mediaRepository->search($criteria, $context)->getElements();
         });
 
+        if (empty($media)) {
+            return null;
+        }
+
         $urls = [];
-        foreach ($media ?? [] as $mediaItem) {
-            $urls[] = $this->urlGenerator->getRelativeMediaUrl($mediaItem);
+
+        /** @var MediaEntity $mediaItem */
+        foreach ($media as $mediaItem) {
+            $path = $mediaItem->getPath();
+
+            if ($path !== null) {
+                $urls[] = $path;
+            }
         }
 
         return $urls;

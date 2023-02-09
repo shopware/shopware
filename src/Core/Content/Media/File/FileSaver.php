@@ -18,7 +18,7 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaType\MediaType;
 use Shopware\Core\Content\Media\Message\GenerateThumbnailsMessage;
 use Shopware\Core\Content\Media\Metadata\MetadataLoader;
-use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
+use Shopware\Core\Content\Media\Pathname\AbstractPathGenerator;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Content\Media\TypeDetector\TypeDetector;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
@@ -47,7 +47,7 @@ class FileSaver
         private readonly EntityRepository $mediaRepository,
         private readonly FilesystemOperator $filesystemPublic,
         private readonly FilesystemOperator $filesystemPrivate,
-        private readonly UrlGeneratorInterface $urlGenerator,
+        private readonly AbstractPathGenerator $pathGenerator,
         private readonly ThumbnailService $thumbnailService,
         private readonly MetadataLoader $metadataLoader,
         private readonly TypeDetector $typeDetector,
@@ -136,28 +136,47 @@ class FileSaver
         $updatedMedia->setFileName($destination);
         $updatedMedia->setUploadedAt(new \DateTime());
 
+        $newMediaPath = $this->pathGenerator->generatePath($updatedMedia);
+
+        if ($currentMedia->getPath() === null) {
+            throw new CouldNotRenameFileException($currentMedia->getId(), (string) $currentMedia->getFileName());
+        }
+
         try {
             $renamedFiles = $this->renameFile(
-                $this->urlGenerator->getRelativeMediaUrl($currentMedia),
-                $this->urlGenerator->getRelativeMediaUrl($updatedMedia),
+                $currentMedia->getPath(),
+                $newMediaPath,
                 $this->getFileSystem($currentMedia)
             );
         } catch (\Exception) {
             throw new CouldNotRenameFileException($currentMedia->getId(), (string) $currentMedia->getFileName());
         }
 
-        foreach ($currentMedia->getThumbnails() ?? [] as $thumbnail) {
-            try {
-                $renamedFiles = [...$renamedFiles, ...$this->renameThumbnail($thumbnail, $currentMedia, $updatedMedia)];
-            } catch (\Exception) {
-                $this->rollbackRenameAction($currentMedia, $renamedFiles);
+        $updatedThumbnails = [];
+
+        if ($currentMedia->getThumbnails() !== null) {
+            foreach ($currentMedia->getThumbnails() as $thumbnail) {
+                try {
+                    $renameResult = $this->renameThumbnail($thumbnail, $currentMedia, $updatedMedia);
+
+                    $renamedFiles = [...$renamedFiles, ...$renameResult];
+
+                    $updatedThumbnails[] = [
+                        'id' => $thumbnail->getId(),
+                        'path' => $renameResult[$thumbnail->getPath()],
+                    ];
+                } catch (\Exception) {
+                    $this->rollbackRenameAction($currentMedia, $renamedFiles);
+                }
             }
         }
 
         $updateData = [
             'id' => $updatedMedia->getId(),
             'fileName' => $updatedMedia->getFileName(),
+            'path' => $newMediaPath,
             'uploadedAt' => $updatedMedia->getUploadedAt(),
+            'thumbnails' => $updatedThumbnails,
         ];
 
         try {
@@ -177,12 +196,13 @@ class FileSaver
         MediaEntity $currentMedia,
         MediaEntity $updatedMedia
     ): array {
+        if ($thumbnail->getPath() === null) {
+            throw new \RuntimeException('Path for thumbnail is not specified');
+        }
+
         return $this->renameFile(
-            $this->urlGenerator->getRelativeThumbnailUrl(
-                $currentMedia,
-                $thumbnail
-            ),
-            $this->urlGenerator->getRelativeThumbnailUrl(
+            $thumbnail->getPath(),
+            $this->pathGenerator->generatePath(
                 $updatedMedia,
                 $thumbnail
             ),
@@ -196,10 +216,12 @@ class FileSaver
             return;
         }
 
-        $oldMediaFilePath = $this->urlGenerator->getRelativeMediaUrl($media);
+        if ($media->getPath() === null) {
+            return;
+        }
 
         try {
-            $this->getFileSystem($media)->delete($oldMediaFilePath);
+            $this->getFileSystem($media)->delete($media->getPath());
         } catch (UnableToDeleteFile) {
             //nth
         }
@@ -209,16 +231,17 @@ class FileSaver
 
     private function saveFileToMediaDir(MediaFile $mediaFile, MediaEntity $media): void
     {
+        if ($media->getPath() === null) {
+            throw new \RuntimeException('Path for media is not specified' . $mediaFile->getFileName());
+        }
+
         $stream = fopen($mediaFile->getFileName(), 'rb');
         if (!\is_resource($stream)) {
             throw new \RuntimeException('Could not open stream for file ' . $mediaFile->getFileName());
         }
-        $path = $this->urlGenerator->getRelativeMediaUrl($media);
 
         try {
-            if (\is_resource($stream)) {
-                $this->getFileSystem($media)->writeStream($path, $stream);
-            }
+            $this->getFileSystem($media)->writeStream($media->getPath(), $stream);
         } finally {
             // The Google Cloud Storage filesystem closes the stream even though it should not. To prevent a fatal
             // error, we therefore need to check whether the stream has been closed yet.
@@ -259,6 +282,12 @@ class FileSaver
             'mediaTypeRaw' => serialize($mediaType),
             'uploadedAt' => new \DateTime(),
         ];
+
+        // we clone the entire media here, because we need to make sure to have all possible media data set
+        // for any custom pathGenerator accessing other fields
+        $newMedia = clone $media;
+        $newMedia->assign($data);
+        $data['path'] = $this->pathGenerator->generatePath($newMedia);
 
         $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($data): void {
             $this->mediaRepository->update([$data], $context);

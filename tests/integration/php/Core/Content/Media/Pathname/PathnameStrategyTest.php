@@ -1,8 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace src\Core\Content\Test\Media\Pathname;
+namespace Shopware\Tests\Integration\Core\Content\Media\Pathname;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\Pathname\PathnameStrategy\FilenamePathnameStrategy;
 use Shopware\Core\Content\Media\Pathname\PathnameStrategy\IdPathnameStrategy;
@@ -89,6 +90,7 @@ class PathnameStrategyTest extends TestCase
         $mediaWithThumbnail = $this->getMediaWithThumbnail();
 
         static::assertSame('jpgFileWithExtension.jpg', $strategy->generatePhysicalFilename($jpg));
+        static::assertInstanceOf(MediaThumbnailCollection::class, $mediaWithThumbnail->getThumbnails());
         static::assertSame('jpgFileWithExtension_200x200.jpg', $strategy->generatePhysicalFilename($jpg, $mediaWithThumbnail->getThumbnails()->first()));
     }
 }

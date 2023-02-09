@@ -12,7 +12,8 @@ use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\Message\GenerateThumbnailsMessage;
 use Shopware\Core\Content\Media\Metadata\MetadataLoader;
-use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
+use Shopware\Core\Content\Media\Pathname\PathGenerator;
+use Shopware\Core\Content\Media\Pathname\PathnameStrategy\FilenamePathnameStrategy;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Content\Media\TypeDetector\TypeDetector;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
@@ -36,11 +37,13 @@ class FileSaverTest extends TestCase
 
     private FileSaver $fileSaver;
 
+    private PathGenerator $pathGenerator;
+
     public function setUp(): void
     {
         $this->mediaRepository = $this->createMock(EntityRepository::class);
         $filesystemPublic = $this->createMock(FilesystemOperator::class);
-        $urlGenerator = $this->createMock(UrlGeneratorInterface::class);
+        $this->pathGenerator = new PathGenerator(new FilenamePathnameStrategy());
         $thumbnailService = $this->createMock(ThumbnailService::class);
         $this->messageBus = new CollectingMessageBus();
         $metadataLoader = $this->createMock(MetadataLoader::class);
@@ -52,7 +55,7 @@ class FileSaverTest extends TestCase
             $this->mediaRepository,
             $filesystemPublic,
             $filesystemPrivate,
-            $urlGenerator,
+            $this->pathGenerator,
             $thumbnailService,
             $metadataLoader,
             $typeDetector,
@@ -97,7 +100,7 @@ class FileSaverTest extends TestCase
         $mediaFile = new MediaFile('foo', 'image/png', 'png', 0);
 
         $context = Context::createDefaultContext(new AdminApiSource(Uuid::randomHex()));
-        static::expectException(DuplicatedMediaFileNameException::class);
+        $this->expectException(DuplicatedMediaFileNameException::class);
         $this->fileSaver->persistFileToMedia($mediaFile, 'foo', Uuid::randomHex(), $context);
     }
 
@@ -138,6 +141,7 @@ class FileSaverTest extends TestCase
         $currentMedia = new MediaEntity();
         $currentMedia->setId(Uuid::randomHex());
         $currentMedia->setPrivate($isPrivate);
+        $currentMedia->setPath($this->pathGenerator->generatePath($mediaA));
 
         $mediaSearchResult = $this->createMock(EntitySearchResult::class);
         $mediaSearchResult->method('get')->willReturn($currentMedia);

@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
- * @interal
+ * @internal
  */
 #[Package('checkout')]
 class TaxProviderResult extends Struct

@@ -299,6 +299,7 @@ PHP lint:
         - composer run ecs -- --no-progress-bar
         - composer run lint:changelog
         - composer run lint:snippets
+        - ./bin/console sync:composer:version --dry-run
         # TODO: Re-Enable BC-Check "real" after RC release
         # - composer run bc-check
         - composer run bc-check-65

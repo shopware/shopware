@@ -557,6 +557,13 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         group: 'flow',
     });
 
+    ruleConditionService.addCondition('orderCreatedByAdmin', {
+        component: 'sw-condition-generic',
+        label: 'global.sw-condition.condition.orderCreatedByAdminRule',
+        scopes: ['flow'],
+        group: 'flow',
+    });
+
     ruleConditionService.addAwarenessConfiguration(
         'personaPromotions',
         {

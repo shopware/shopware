@@ -694,6 +694,7 @@
         "lineItemWithQuantityRule": "Positionsanzahl",
         "orderTagRule": "Bestellung mit Tag",
         "orderDeliveryStatusRule": "Lieferstatus",
+        "orderCreatedByAdminRule": "Bestellung vom Administrator erstellt",
         "yes": "Ja",
         "no": "Nein",
         "withTime": "Mit Zeitabfrage",

@@ -694,6 +694,7 @@
         "lineItemWithQuantityRule": "Item quantity",
         "orderTagRule": "Order with tag",
         "orderDeliveryStatusRule": "Delivery status",
+        "orderCreatedByAdminRule": "Order created by admin",
         "yes": "Yes",
         "no": "No",
         "withTime": "Including timestamp",

@@ -14,9 +14,9 @@
   languages.php = {
     enable = lib.mkDefault true;
     version = lib.mkDefault "8.1";
-    extensions = lib.mkDefault [ "grpc" ];
+    extensions = [ "grpc" ];
 
-    ini = lib.mkDefault ''
+    ini = ''
       memory_limit = 2G
       realpath_cache_ttl = 3600
       session.gc_probability = 0

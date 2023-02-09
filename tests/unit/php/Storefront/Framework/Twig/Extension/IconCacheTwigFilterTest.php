@@ -1,53 +1,47 @@
 <?php declare(strict_types=1);
 
-use Doctrine\DBAL\Connection;
+namespace Shopware\Tests\Unit\Storefront\Framework\Twig\Extension;
+
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Adapter\Twig\Extension\NodeExtension;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\BundleHierarchyBuilder;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
 use Shopware\Core\PlatformRequest;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Controller\StorefrontController;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Framework\Twig\Extension\IconCacheTwigFilter;
 use Shopware\Storefront\Framework\Twig\IconExtension;
+use Shopware\Storefront\Storefront;
 use Shopware\Storefront\Test\Controller\fixtures\BundleFixture;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
-use Twig\Cache\FilesystemCache;
+use Symfony\Component\HttpKernel\Bundle\Bundle;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 
 /**
  * @internal
+ *
+ * @covers \Shopware\Storefront\Framework\Twig\Extension\IconCacheTwigFilter
+ * @covers \Shopware\Storefront\Framework\Twig\IconExtension
  */
 class IconCacheTwigFilterTest extends TestCase
 {
-    use KernelTestBehaviour;
-
-    private string $cacheDir;
-
-    private FilesystemCache $cache;
-
-    public function setUp(): void
-    {
-        $this->cacheDir = $this->getKernel()->getCacheDir() . '/twig_test_' . microtime();
-        $this->cache = new FilesystemCache($this->cacheDir);
-    }
-
     public function testStorefrontRenderIconCacheEnabled(): void
     {
         $twig = $this->createFinder([
             new BundleFixture('StorefrontTest', __DIR__ . '/fixtures/Storefront/'),
-            new BundleFixture('Storefront', __DIR__ . '/../../../..'),
+            new BundleFixture('Storefront', \dirname((string) (new \ReflectionClass(Storefront::class))->getFileName())),
         ]);
 
         $controller = new TestController();
@@ -58,10 +52,9 @@ class IconCacheTwigFilterTest extends TestCase
         $controller->systemConfigService = self::createMock(SystemConfigService::class);
         $controller->systemConfigService->method('get')->willReturn(true);
 
-        $factory = $this->getContainer()->get(SalesChannelContextFactory::class);
-        $salesChannelContext = $factory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
+        $salesChannelContext = $this->createMock(SalesChannelContext::class);
 
-        $rendered = $controller->testRenderStorefront('@Storefront/storefront/base.html.twig', $salesChannelContext);
+        $rendered = $controller->testRenderStorefront('@StorefrontTest/test/base.html.twig', $salesChannelContext);
 
         static::assertEquals('<span class="icon icon-minus-large icon-xs icon-filter-panel-item-toggle">
                         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="16" height="16" viewBox="0 0 16 16"><defs><path id="icons-solid-minus-large" d="M2 9h12c.5523 0 1-.4477 1-1s-.4477-1-1-1H2c-.5523 0-1 .4477-1 1s.4477 1 1 1z" /></defs><use xlink:href="#icons-solid-minus-large" fill="#758CA3" fill-rule="evenodd" /></svg>
@@ -80,7 +73,7 @@ class IconCacheTwigFilterTest extends TestCase
     {
         $twig = $this->createFinder([
             new BundleFixture('StorefrontTest', __DIR__ . '/fixtures/Storefront/'),
-            new BundleFixture('Storefront', __DIR__ . '/../../../..'),
+            new BundleFixture('Storefront', \dirname((string) (new \ReflectionClass(Storefront::class))->getFileName())),
         ]);
 
         $controller = new TestController();
@@ -91,10 +84,9 @@ class IconCacheTwigFilterTest extends TestCase
         $controller->systemConfigService = self::createMock(SystemConfigService::class);
         $controller->systemConfigService->method('get')->willReturn(false);
 
-        $factory = $this->getContainer()->get(SalesChannelContextFactory::class);
-        $salesChannelContext = $factory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
+        $salesChannelContext = $this->createMock(SalesChannelContext::class);
 
-        $rendered = $controller->testRenderStorefront('@Storefront/storefront/base.html.twig', $salesChannelContext);
+        $rendered = $controller->testRenderStorefront('@StorefrontTest/test/base.html.twig', $salesChannelContext);
 
         static::assertEquals('<span class="icon icon-minus-large icon-xs icon-filter-panel-item-toggle">
                         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="16" height="16" viewBox="0 0 16 16"><defs><path id="icons-solid-minus-large" d="M2 9h12c.5523 0 1-.4477 1-1s-.4477-1-1-1H2c-.5523 0-1 .4477-1 1s.4477 1 1 1z" /></defs><use xlink:href="#icons-solid-minus-large" fill="#758CA3" fill-rule="evenodd" /></svg>
@@ -109,6 +101,23 @@ class IconCacheTwigFilterTest extends TestCase
         </span>', $rendered->getContent());
     }
 
+    public function getContainer(): ContainerInterface
+    {
+        $container = new ContainerBuilder();
+        $container->set('request_stack', new RequestStack());
+        $container->set('event_dispatcher', new EventDispatcher());
+
+        $placeholder = $this->createMock(SeoUrlPlaceholderHandlerInterface::class);
+        $placeholder->method('replace')->willReturnArgument(0);
+
+        $container->set(SeoUrlPlaceholderHandlerInterface::class, $placeholder);
+
+        return $container;
+    }
+
+    /**
+     * @param Bundle[] $bundles
+     */
     private function createFinder(array $bundles): Environment
     {
         $loader = new FilesystemLoader(__DIR__ . '/fixtures/Storefront/Resources/views');
@@ -123,22 +132,24 @@ class IconCacheTwigFilterTest extends TestCase
             }
         }
 
-        $twig = new Environment($loader, ['cache' => $this->cache]);
+        $twig = new Environment($loader, ['cache' => false]);
 
         $kernel = $this->createMock(Kernel::class);
         $kernel->expects(static::any())
             ->method('getBundles')
             ->willReturn($bundles);
 
+        $builder = $this->createMock(BundleHierarchyBuilder::class);
+        $builder
+            ->method('buildNamespaceHierarchy')
+            ->willReturn(['Storefront' => 0]);
+
         $templateFinder = new TemplateFinder(
             $twig,
             $loader,
-            $this->cacheDir,
+            sys_get_temp_dir() . '/twig_test_' . microtime(true),
             new NamespaceHierarchyBuilder([
-                new BundleHierarchyBuilder(
-                    $kernel,
-                    $this->getContainer()->get(Connection::class)
-                ),
+                $builder,
             ])
         );
 
@@ -180,7 +191,7 @@ class TestController extends StorefrontController
         $current = $this->container->get('request_stack')->getCurrentRequest();
 
         if (!$current instanceof Request) {
-            throw new RuntimeException('Request not found');
+            throw new \RuntimeException('Request not found');
         }
 
         $current->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $salesChannelContext);

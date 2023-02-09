@@ -721,6 +721,7 @@
         "timeRangeRule": "Time range",
         "weightOfCartRule": "Total weight of all products",
         "volumeOfCartRule": "Total volume of all products",
+        "cartShippingCost": "Shipping costs",
         "dayOfWeekRule": "Day of the week",
         "lineItemTagRule": "Item with tag",
         "alwaysValidRule": "Always valid",

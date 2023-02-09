@@ -309,6 +309,12 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         scopes: ['cart'],
         group: 'cart',
     });
+    ruleConditionService.addCondition('cartShippingCost', {
+        component: 'sw-condition-generic',
+        label: 'global.sw-condition.condition.cartShippingCost',
+        scopes: ['cart'],
+        group: 'cart',
+    });
     ruleConditionService.addCondition('cartLineItemTag', {
         component: 'sw-condition-generic-line-item',
         label: 'global.sw-condition.condition.lineItemTagRule',
@@ -558,6 +564,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
                 'cartCartAmount',
                 'customerIsActive',
                 'orderTag',
+                'cartShippingCost',
             ],
             equalsAny: [
                 ...ruleConditionService.getRestrictionsByGroup('customer'),
@@ -574,6 +581,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
                 'cartCartAmount',
                 'customerIsActive',
                 'orderTag',
+                'cartShippingCost',
             ],
             equalsAny: [
                 ...ruleConditionService.getRestrictionsByGroup('customer'),
@@ -590,6 +598,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
                 'cartCartAmount',
                 'customerIsActive',
                 'orderTag',
+                'cartShippingCost',
             ],
             snippet: 'sw-restricted-rules.restrictedAssignment.cartPromotions',
         },
@@ -602,6 +611,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
                 'cartCartAmount',
                 'customerIsActive',
                 'orderTag',
+                'cartShippingCost',
             ],
             snippet: 'sw-restricted-rules.restrictedAssignment.promotionSetGroups',
         },
@@ -614,6 +624,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
                 'cartCartAmount',
                 'customerIsActive',
                 'orderTag',
+                'cartShippingCost',
             ],
             snippet: 'sw-restricted-rules.restrictedAssignment.promotionDiscounts',
         },

@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Schema\Table;
-use Doctrine\Inflector\InflectorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
@@ -99,16 +98,6 @@ class DefinitionValidator
         'coverId',
         'productMediaVersionId',
         'featureSetId',
-    ];
-
-    private const CUSTOM_SHORT_NAMES = [
-        'property_group' => 'group',
-        'property_group_option' => 'option',
-        'version_commit' => 'commit',
-    ];
-
-    private const INGNORED_IN_PREFIX_CHECK = [
-        'properties', 'options', 'translationcode', 'sections', 'logo',
     ];
 
     private const TABLES_WITHOUT_DEFINITION = [
@@ -405,11 +394,6 @@ class DefinitionValidator
             if ($association->is(Extension::class)) {
                 continue;
             }
-
-            $violations = array_merge_recursive(
-                $violations,
-                $this->validateReferenceNameContainedInName($definition, $association)
-            );
 
             if ($association instanceof OneToManyAssociationField) {
                 $violations = array_merge_recursive(
@@ -905,75 +889,6 @@ class DefinitionValidator
         ];
     }
 
-    private function mapRefNameContainedName(string $ref): string
-    {
-        $normalized = mb_strtolower(InflectorFactory::create()->build()->tableize($ref));
-        if (!isset(self::CUSTOM_SHORT_NAMES[$normalized])) {
-            return $ref;
-        }
-
-        return self::CUSTOM_SHORT_NAMES[$normalized];
-    }
-
-    /**
-     * @return array<int|string, mixed>
-     */
-    private function validateReferenceNameContainedInName(EntityDefinition $definition, AssociationField $association): array
-    {
-        if ($definition === $association->getReferenceDefinition()) {
-            return [];
-        }
-        $prop = $association->getPropertyName();
-
-        if (\in_array(mb_strtolower($prop), self::INGNORED_IN_PREFIX_CHECK, true)) {
-            return [];
-        }
-
-        $ref = $association instanceof ManyToManyAssociationField
-            ? $association->getToManyReferenceDefinition()
-            : $association->getReferenceDefinition();
-
-        $ref = $this->getShortClassName($ref);
-        $def = $this->getShortClassName($definition);
-
-        if ($ref !== $def) { // self referencing references have same name.
-            $ref = str_replace($def, '', $ref);
-        }
-
-        $namespace = $this->getAggregateNamespace($definition);
-        if ($namespace !== $ref) {
-            $ref = str_replace($namespace, '', $ref);
-        }
-
-        $ref = $this->mapRefNameContainedName($ref);
-        $refPlural = (new EnglishInflector())->pluralize($ref)[0];
-        $refSalesChannelPart = str_replace('SalesChannel', '', $ref);
-        $refSalesChannelPartPlural = (new EnglishInflector())->pluralize($refSalesChannelPart)[0];
-
-        if (
-            mb_stripos($prop, $ref) === false && mb_stripos($prop, $refPlural) === false
-            && mb_stripos($prop, $refSalesChannelPart) === false && mb_stripos($prop, $refSalesChannelPartPlural) === false
-        ) {
-            $ret = [
-                $definition->getClass() => [
-                    sprintf(
-                        'Association %s.%s does not contain reference class name `%s` or `%s` or `%s` or `%s`',
-                        $definition->getEntityName(),
-                        $association->getPropertyName(),
-                        $ref,
-                        $refPlural,
-                        $refSalesChannelPart,
-                        $refSalesChannelPartPlural
-                    ),
-                ],
-            ];
-
-            return $ret;
-        }
-
-        return [];
-    }
-
     /**
      * @return array<int, mixed>
      */
@@ -1042,11 +957,6 @@ class DefinitionValidator
     private function getShortClassName(EntityDefinition $definition): string
     {
         return lcfirst((string) preg_replace('/.*\\\\([^\\\\]+)Definition/', '$1', $definition->getClass()));
-    }
-
-    private function getAggregateNamespace(EntityDefinition $definition): string
-    {
-        return lcfirst((string) preg_replace('/.*\\\\([^\\\\]+)\\\\Aggregate.*/', '$1', $definition->getClass()));
     }
 
     /**

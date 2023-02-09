@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Migration\V6_4;
+namespace Shopware\Core\Migration\V6_5;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;

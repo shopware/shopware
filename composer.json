@@ -90,7 +90,7 @@
         "psr/http-message": "~1.0.1",
         "psr/log": "~3.0.0",
         "scssphp/scssphp": "v1.11.0",
-        "setasign/fpdi": "2.3.6",
+        "setasign/fpdi": "~2.3.7",
         "shopware/conflicts": "*",
         "shyim/opensearch-php-dsl": "~1.0.1",
         "squirrelphp/twig-php-syntax": "~1.7.0",

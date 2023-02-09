@@ -5,7 +5,7 @@
 const { Filter } = Shopware;
 const { date } = Shopware.Utils.format;
 
-Filter.register('date', (value: string, options: Intl.DateTimeFormatOptions): string => {
+Filter.register('date', (value: string, options: Intl.DateTimeFormatOptions = {}): string => {
     if (!value) {
         return '';
     }

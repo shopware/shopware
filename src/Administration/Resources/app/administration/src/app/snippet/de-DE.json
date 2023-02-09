@@ -247,7 +247,9 @@
     },
     "sw-time-ago": {
       "justNow": "Gerade eben",
-      "minutesAgo": "Vor einer Minute | Vor {minutesAgo} Minuten"
+      "minutesAgo": "Vor einer Minute | Vor {minutesAgo} Minuten",
+      "aboutNow": "In Kürze",
+      "minutesFromNow": "In einer Minute | In {minutesFromNow} Minuten"
     },
     "sw-media-field": {
       "labelToggleSearchExisting": "Medien durchsuchen ...",

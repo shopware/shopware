@@ -186,7 +186,7 @@ declare global {
     interface FilterTypes {
         asset: (value: string) => string,
         currency: $TSFixMeFunction,
-        date: (value: string, options: Intl.DateTimeFormatOptions) => string,
+        date: (value: string, options?: Intl.DateTimeFormatOptions) => string,
         'file-size': $TSFixMeFunction,
         'media-name': $TSFixMeFunction,
         salutation: (entity: SalutationFilterEntityType, fallbackSnippet: string) => string,

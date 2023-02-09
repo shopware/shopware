@@ -255,6 +255,7 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-24973 - Fix missing icons in Media](/changelog/release-6-5-0-0/2023-01-19-fix-icon-missing-in-media.md)
 *  [NEXT-24960 - Fix permissions for creating documents in sw-order](/changelog/release-6-5-0-0/2023-01-19-fix-permissions-for-creating-documents-in-sw-order.md)
 *  [NEXT-23920 - Improve static analysis](/changelog/release-6-5-0-0/2023-01-19-improve-static-analysis.md)
+*  [NEXT-25291 - ProductLineItem validator ignores skip product stock validation](/changelog/release-6-5-0-0/2023-02-07-productlineitem-validator-ignores-skip-product-stock-validation.md)
 *  [NEXT-20043 - Increase admin startup request performance](/changelog/release-6-5-0-0/2023-01-19-increase-admin-startup-request-performance.md)
 *  [NEXT-6450 - Make first run wizard closable](/changelog/release-6-5-0-0/2023-01-19-make-first-run-wizard-closable.md)
 *  [NEXT-24512 - Replace element modal icon sizing](/changelog/release-6-5-0-0/2023-01-19-replace-element-modal-icon-sizing.md)

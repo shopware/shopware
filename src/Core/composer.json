@@ -147,12 +147,12 @@
         "phpunit/phpunit": "~9.5.17",
         "phpunit/php-code-coverage": "~9.2.14",
         "smalot/pdfparser": "~2.2.2",
-        "symfony/browser-kit": "~6.1.0",
+        "symfony/browser-kit": "~6.2.0",
         "symfony/doctrine-bridge": "^6.2",
         "symfony/phpunit-bridge": "~6.1.0",
-        "symfony/var-dumper": "~6.1.0",
-        "symfony/web-profiler-bundle": "~6.1.0",
-        "symfony/dom-crawler": "~6.1.0",
+        "symfony/var-dumper": "~6.2.0",
+        "symfony/web-profiler-bundle": "~6.2.0",
+        "symfony/dom-crawler": "~6.2.0",
         "brianium/paratest": "^6.6"
     },
     "config": {

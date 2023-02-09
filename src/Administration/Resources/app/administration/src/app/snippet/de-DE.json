@@ -721,6 +721,7 @@
         "timeRangeRule": "Zeitraum",
         "weightOfCartRule": "Gesamtgewicht aller Produkte",
         "volumeOfCartRule": "Gesamtvolumen aller Produkte",
+        "cartShippingCost": "Versandkosten",
         "dayOfWeekRule": "Wochentag",
         "lineItemTagRule": "Position mit Tag",
         "alwaysValidRule": "Immer zutreffend",

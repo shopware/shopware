@@ -91,6 +91,10 @@ trait OrderFixture
                                 'id' => $countryId,
                             ],
                         ],
+                        'trackingCodes' => [
+                            'CODE-1',
+                            'CODE-2',
+                        ],
                         'positions' => [
                             [
                                 'price' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),

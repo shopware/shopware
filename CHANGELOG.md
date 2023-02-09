@@ -269,6 +269,7 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [Fix profiling bundle when no dev deps](/changelog/release-6-5-0-0/2023-02-01-fix-profiling-bundle-when-no-dev-deps.md)
 *  [NEXT-25306 - Remove unused DebugStack class](/changelog/release-6-5-0-0/2023-02-07-remove-debugstack-class.md)
 *  [NEXT-25062 - Fix DeliveryPosition taxes override LineItem taxes](/changelog/release-6-5-0-0/2023-01-26-fix-deliveryposition-taxes-override-lineitem-taxes.md)
+*  [NEXT-25306 - Fix quick opening and closing of OffCanvas cart](/changelog/release-6-5-0-0/2023-01-26-fix-offcanvas-timings.md)
 
 
 ## 6.4.20.0 

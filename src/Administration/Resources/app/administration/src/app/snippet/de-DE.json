@@ -695,6 +695,7 @@
         "orderTagRule": "Bestellung mit Tag",
         "orderDeliveryStatusRule": "Lieferstatus",
         "orderCreatedByAdminRule": "Bestellung vom Administrator erstellt",
+        "orderStatusRule": "Bestellstatus",
         "yes": "Ja",
         "no": "Nein",
         "withTime": "Mit Zeitabfrage",

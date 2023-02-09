@@ -564,6 +564,13 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         group: 'flow',
     });
 
+    ruleConditionService.addCondition('orderStatus', {
+        component: 'sw-condition-generic',
+        label: 'global.sw-condition.condition.orderStatusRule',
+        scopes: ['flow'],
+        group: 'flow',
+    });
+
     ruleConditionService.addAwarenessConfiguration(
         'personaPromotions',
         {

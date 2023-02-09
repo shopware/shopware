@@ -695,6 +695,7 @@
         "orderTagRule": "Order with tag",
         "orderDeliveryStatusRule": "Delivery status",
         "orderCreatedByAdminRule": "Order created by admin",
+        "orderStatusRule": "Order status",
         "yes": "Yes",
         "no": "No",
         "withTime": "Including timestamp",

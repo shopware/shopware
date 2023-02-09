@@ -45,7 +45,13 @@ class OrderSerializer extends EntitySerializer
 
         if (isset($entity['deliveries']) && (is_countable($entity['deliveries']) ? \count($entity['deliveries']) : 0) > 0) {
             $entity['deliveries'] = $entity['deliveries']->first()->jsonSerialize();
-            $entity['deliveries']['shippingOrderAddress'] = $entity['deliveries']['shippingOrderAddress']->jsonSerialize();
+            if (!empty($entity['deliveries']['trackingCodes'])) {
+                $entity['deliveries']['trackingCodes'] = implode('|', $entity['deliveries']['trackingCodes']);
+            }
+
+            if (!empty($entity['deliveries']['shippingOrderAddress'])) {
+                $entity['deliveries']['shippingOrderAddress'] = $entity['deliveries']['shippingOrderAddress']->jsonSerialize();
+            }
         }
 
         yield from $entity;

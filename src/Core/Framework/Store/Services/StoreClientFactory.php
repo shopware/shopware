@@ -17,20 +17,19 @@ class StoreClientFactory
 {
     private const CONFIG_KEY_STORE_API_URI = 'core.store.apiUri';
 
-    /**
-     * @param MiddlewareInterface[] $middlewares
-     */
     public function __construct(
-        private readonly SystemConfigService $configService,
-        private readonly iterable $middlewares
+        private readonly SystemConfigService $configService
     ) {
     }
 
-    public function create(): ClientInterface
+    /**
+     * @param MiddlewareInterface[] $middlewares
+     */
+    public function create(iterable $middlewares = []): ClientInterface
     {
         $stack = HandlerStack::create();
 
-        foreach ($this->middlewares as $middleware) {
+        foreach ($middlewares as $middleware) {
             $stack->push(Middleware::mapResponse($middleware));
         }
 

@@ -44,12 +44,9 @@ class StoreClientFactoryTest extends TestCase
 
     public function testItCreatesAnClientWithBaseConfig(): void
     {
-        $storeClientFactory = new StoreClientFactory(
-            $this->getSystemConfigService(),
-            [$this->createMock(VerifyResponseSignatureMiddleware::class)]
-        );
+        $storeClientFactory = new StoreClientFactory($this->getSystemConfigService());
 
-        $client = $storeClientFactory->create();
+        $client = $storeClientFactory->create([$this->createMock(VerifyResponseSignatureMiddleware::class)]);
         $config = $this->getConfigFromClient($client);
 
         static::assertEquals(self::TEST_STORE_URI, $config['base_uri']);

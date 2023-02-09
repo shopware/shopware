@@ -60,7 +60,7 @@
         </service>
 
         <service id="Shopware\Core\Framework\Store\Services\FirstRunWizardClient">
-            <argument type="service" id="shopware.store_client"/>
+            <argument type="service" id="shopware.frw_client"/>
             <argument type="service" id="Shopware\Core\Framework\Store\Authentication\FrwRequestOptionsProvider"/>
             <argument type="service" id="Shopware\Core\Framework\Store\Services\InstanceService"/>
         </service>
@@ -188,11 +188,16 @@
 
         <service id="Shopware\Core\Framework\Store\Services\StoreClientFactory">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <argument type="tagged_iterator" tag="shopware.store_client.middleware"/>
         </service>
 
         <service id="shopware.store_client" class="GuzzleHttp\Client" lazy="true" public="true">
             <factory service="Shopware\Core\Framework\Store\Services\StoreClientFactory" method="create"/>
+            <argument type="tagged_iterator" tag="shopware.store_client.middleware"/>
+        </service>
+
+        <service id="shopware.frw_client" class="GuzzleHttp\Client" lazy="true" public="true">
+            <factory service="Shopware\Core\Framework\Store\Services\StoreClientFactory" method="create"/>
+            <argument type="tagged_iterator" tag="shopware.frw_client.middleware"/>
         </service>
 
         <service id="shopware.store_download_client" class="GuzzleHttp\Client" />
@@ -208,6 +213,7 @@
             <argument type="service" id="Shopware\Core\Framework\Store\Services\OpenSSLVerifier"/>
 
             <tag name="shopware.store_client.middleware" priority="9999"/>
+            <tag name="shopware.frw_client.middleware" priority="9999"/>
         </service>
 
         <service id="Shopware\Core\Framework\Store\Services\StoreSessionExpiredMiddleware" public="true">

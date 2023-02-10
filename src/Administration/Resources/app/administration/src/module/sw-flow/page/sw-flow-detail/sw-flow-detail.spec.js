@@ -72,7 +72,7 @@ async function createWrapper(
     return shallowMount(await Shopware.Component.build('sw-flow-detail'), {
         localVue,
         provide: { repositoryFactory: {
-            create: () => ({
+            create: (entity) => ({
                 create: () => {
                     return {};
                 },
@@ -98,7 +98,16 @@ async function createWrapper(
                             config: config
                         }
                     );
-                }
+                },
+                search: () => {
+                    if (entity === 'rule') {
+                        return Promise.resolve([
+                            { id: '1111', name: 'test rule' },
+                        ]);
+                    }
+
+                    return Promise.resolve([]);
+                },
             })
         },
 
@@ -337,5 +346,25 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
 
         const alertElement = wrapper.findAll('.sw-flow-detail__template');
         expect(alertElement.exists()).toBe(true);
+    });
+
+    it('should be able to get rule data for flow template', async () => {
+        const wrapper = await createWrapper([
+            'flow.editor'
+        ], {
+            type: 'template'
+        }, {}, null, true, {
+            flowTemplateId: ID_FLOW_TEMPLATE
+        });
+
+        Shopware.State.commit('swFlowState/setSequences', getSequencesCollection(sequencesFixture));
+
+        await wrapper.vm.getRuleDataForFlowTemplate();
+        await flushPromises();
+
+        const sequences = Shopware.State.getters['swFlowState/sequences'];
+        expect(sequences.length).toEqual(4);
+        expect(sequences[0]).toHaveProperty('rule');
+        expect(sequences[0].rule).toEqual({ id: '1111', name: 'test rule' });
     });
 });

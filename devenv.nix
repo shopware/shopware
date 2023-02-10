@@ -57,7 +57,9 @@
         }
 
         root * public
-        php_fastcgi @default unix/${config.languages.php.fpm.pools.web.socket}
+        php_fastcgi @default unix/${config.languages.php.fpm.pools.web.socket} {
+            trusted_proxies private_ranges
+        }
         file_server
       '';
     };

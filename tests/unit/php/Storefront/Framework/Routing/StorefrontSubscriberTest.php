@@ -6,7 +6,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerLogoutEvent;
 use Shopware\Core\Framework\Event\BeforeSendResponseEvent;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Event\SalesChannelContextResolvedEvent;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Storefront\Event\StorefrontRenderEvent;
@@ -28,7 +27,6 @@ class StorefrontSubscriberTest extends TestCase
                 ['maintenanceResolver'],
             ],
             KernelEvents::EXCEPTION => [
-                ['showHtmlExceptionResponse', -100],
                 ['customerNotLoggedInHandler'],
                 ['maintenanceResolver'],
             ],
@@ -42,7 +40,6 @@ class StorefrontSubscriberTest extends TestCase
                 'updateSessionAfterLogout',
             ],
             BeforeSendResponseEvent::class => [
-                ['replaceCsrfToken'],
                 ['setCanonicalUrl'],
             ],
             StorefrontRenderEvent::class => [
@@ -54,39 +51,6 @@ class StorefrontSubscriberTest extends TestCase
                 ['replaceContextToken'],
             ],
         ];
-
-        if (Feature::isActive('v6.5.0.0')) {
-            $expected = [
-                KernelEvents::REQUEST => [
-                    ['startSession', 40],
-                    ['maintenanceResolver'],
-                ],
-                KernelEvents::EXCEPTION => [
-                    ['customerNotLoggedInHandler'],
-                    ['maintenanceResolver'],
-                ],
-                KernelEvents::CONTROLLER => [
-                    ['preventPageLoadingFromXmlHttpRequest', KernelListenerPriorities::KERNEL_CONTROLLER_EVENT_SCOPE_VALIDATE],
-                ],
-                CustomerLoginEvent::class => [
-                    'updateSessionAfterLogin',
-                ],
-                CustomerLogoutEvent::class => [
-                    'updateSessionAfterLogout',
-                ],
-                BeforeSendResponseEvent::class => [
-                    ['setCanonicalUrl'],
-                ],
-                StorefrontRenderEvent::class => [
-                    ['addHreflang'],
-                    ['addShopIdParameter'],
-                    ['addIconSetConfig'],
-                ],
-                SalesChannelContextResolvedEvent::class => [
-                    ['replaceContextToken'],
-                ],
-            ];
-        }
 
         static::assertSame($expected, StorefrontSubscriber::getSubscribedEvents());
     }

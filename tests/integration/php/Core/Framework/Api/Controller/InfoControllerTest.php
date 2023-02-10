@@ -445,13 +445,6 @@ class InfoControllerTest extends TestCase
             ],
         ];
 
-        if (!Feature::isActive('v6.5.0.0')) {
-            $expected[0]['requirements'] = [
-                OrderAware::class,
-                'orderAware',
-            ];
-        }
-
         foreach ($expected as $action) {
             $actualActions = array_values(array_filter($response, fn ($x) => $x['name'] === $action['name']));
             static::assertNotEmpty($actualActions, 'Event with name "' . $action['name'] . '" not found');

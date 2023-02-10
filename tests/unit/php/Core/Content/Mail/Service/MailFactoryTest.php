@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Core\Content\Mail\Service;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Mail\Service\Mail;
 use Shopware\Core\Content\Mail\Service\MailFactory;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Validation\HappyPathValidator;
 use Symfony\Component\Validator\ConstraintViolationList;
 
@@ -53,9 +52,7 @@ class MailFactoryTest extends TestCase
         static::assertSame('Message', $mail->getHtmlBody());
         static::assertEmpty($mail->getTextBody());
 
-        $attach = Feature::isActive('v6.5.0.0') ? 'attachment' : 'inline';
-
-        static::assertStringContainsString($attach, $mail->getAttachments()[0]->asDebugString());
+        static::assertStringContainsString('attachment', $mail->getAttachments()[0]->asDebugString());
 
         static::assertCount(1, $mail->getAttachments());
 

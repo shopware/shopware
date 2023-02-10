@@ -15,6 +15,13 @@ final class PdfRenderer
 
     public const FILE_CONTENT_TYPE = 'application/pdf';
 
+    /**
+     * @param array<string, mixed> $dompdfOptions
+     */
+    public function __construct(private array $dompdfOptions)
+    {
+    }
+
     public function getContentType(): string
     {
         return self::FILE_CONTENT_TYPE;
@@ -24,9 +31,7 @@ final class PdfRenderer
     {
         $dompdf = new Dompdf();
 
-        $options = new Options();
-        $options->setIsRemoteEnabled(true);
-        $options->setIsHtml5ParserEnabled(true);
+        $options = new Options($this->dompdfOptions);
 
         $dompdf->setOptions($options);
         $dompdf->setPaper($document->getPageSize(), $document->getPageOrientation());

@@ -6,11 +6,9 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\Country\SalesChannel\CachedCountryRoute;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
@@ -59,45 +57,14 @@ class CountryStateControllerTest extends TestCase
     {
         $response = $this->countryStateController->getCountryData(new Request([], ['countryId' => $this->countryIdDE]), $this->salesChannelContext);
 
-        if (!Feature::isActive('v6.5.0.0')) {
-            static::assertFalse(\json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR)['stateRequired']);
-        }
         static::assertCount(16, \json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR)['states']);
+    }
 
-        if (!Feature::isActive('v6.5.0.0')) {
-            // Check state required
-            $this->connection->executeStatement(
-                'UPDATE country SET force_state_in_registration = 1',
-                [
-                    'salesChannelId' => Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL),
-                    'countryId' => Uuid::fromHexToBytes($this->countryIdDE),
-                ]
-            );
-
-            $this->getContainer()->get('cache.object')
-                ->invalidateTags([CachedCountryRoute::buildName(TestDefaults::SALES_CHANNEL)]);
-
-            $response = $this->countryStateController->getCountryData(new Request([], ['countryId' => $this->countryIdDE]), $this->salesChannelContext);
-
-            $data = \json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-            static::assertArrayHasKey('zipcodeRequired', $data);
-            static::assertArrayHasKey('stateRequired', $data);
-            static::assertTrue($data['stateRequired']);
-        }
-
-        // Check empty CountryId
-
+    public function testEmptyCountryId(): void
+    {
         static::expectException(\InvalidArgumentException::class);
         static::expectExceptionMessage('Parameter countryId is empty');
-        $response = $this->countryStateController->getCountryData(new Request([], ['countryId' => null]), $this->salesChannelContext);
-
-        if (!Feature::isActive('v6.5.0.0')) {
-            $data = \json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-            static::assertArrayHasKey('zipcodeRequired', $data);
-            static::assertArrayHasKey('stateRequired', $data);
-            static::assertArrayNotHasKey('states', $data);
-            static::assertTrue($data['stateRequired']);
-        }
+        $this->countryStateController->getCountryData(new Request([], ['countryId' => null]), $this->salesChannelContext);
     }
 
     public function testCountryStateControllerEvents(): void

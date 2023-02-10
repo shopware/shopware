@@ -258,3 +258,8 @@ shopware:
 
     twig:
         allowed_php_functions: []
+
+    dompdf:
+        options:
+            isRemoteEnabled: true
+            isHtml5ParserEnabled: true

@@ -61,7 +61,7 @@
         "doctrine/inflector": "^2.0",
         "dompdf/dompdf": "2.0.3",
         "tecnickcom/tcpdf": "6.6.1",
-        "setasign/fpdi": "2.3.6",
+        "setasign/fpdi": "~2.3.7",
         "ezyang/htmlpurifier": "~4.16",
         "guzzlehttp/guzzle": "~7.5.0",
         "guzzlehttp/psr7": "^2.4",

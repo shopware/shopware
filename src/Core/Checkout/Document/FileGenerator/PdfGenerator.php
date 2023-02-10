@@ -18,6 +18,19 @@ class PdfGenerator implements FileGeneratorInterface
     public const FILE_EXTENSION = 'pdf';
     public const FILE_CONTENT_TYPE = 'application/pdf';
 
+    /**
+     * @var array<string, mixed>
+     */
+    private array $dompdfOptions;
+
+    /**
+     * @param array<string, mixed> $dompdfOptions
+     */
+    public function __construct(array $dompdfOptions)
+    {
+        $this->dompdfOptions = $dompdfOptions;
+    }
+
     public function supports(): string
     {
         Feature::triggerDeprecationOrThrow(
@@ -55,9 +68,8 @@ class PdfGenerator implements FileGeneratorInterface
             'Will be removed, use PdfRenderer::render instead'
         );
 
-        $options = new Options();
-        $options->set('isRemoteEnabled', true);
-        $options->setIsHtml5ParserEnabled(true);
+        $options = new Options($this->dompdfOptions);
+
         $dompdf = new Dompdf($options);
         $dompdf->setPaper($generatedDocument->getPageSize(), $generatedDocument->getPageOrientation());
         $dompdf->loadHtml($generatedDocument->getHtml());

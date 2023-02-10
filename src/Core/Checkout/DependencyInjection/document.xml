@@ -6,6 +6,8 @@
 
     <services>
         <service id="Shopware\Core\Checkout\Document\FileGenerator\PdfGenerator">
+            <argument>%shopware.dompdf.options%</argument>
+
             <tag name="file.generator"/>
             <tag name="deprecated" flag="v6.5.0.0" version="tag:v6.5.0"/>
         </service>
@@ -170,7 +172,9 @@
             <argument type="tagged" tag="document.renderer"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Document\Service\PdfRenderer" />
+        <service id="Shopware\Core\Checkout\Document\Service\PdfRenderer">
+            <argument>%shopware.dompdf.options%</argument>
+        </service>
 
         <service id="Shopware\Core\Checkout\Document\Service\DocumentGenerator">
             <argument type="service" id="Shopware\Core\Checkout\Document\Renderer\DocumentRendererRegistry" />

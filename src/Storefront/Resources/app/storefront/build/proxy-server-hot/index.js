@@ -7,9 +7,14 @@
 const { createServer, request } = require('http');
 const { spawn } = require('child_process');
 
-module.exports = function createProxyServer({ appPort, originalHost, proxyHost, proxyPort }) {
+module.exports = function createProxyServer({ schema, appPort, originalHost, proxyHost, proxyPort, uri }) {
     const proxyUrl = proxyPort !== 80 && proxyPort !== 443 ? `${proxyHost}:${proxyPort}`: proxyHost;
     const originalUrl = appPort !== 80 && appPort !== 443 ? `${originalHost}:${appPort}` : originalHost;
+
+    let fullProxyUrl = `${schema}://${proxyUrl}/${uri || ''}`;
+    if (fullProxyUrl.charAt(fullProxyUrl.length - 1) !== '/') {
+        fullProxyUrl += '/';
+    }
 
     // Create the HTTP proxy
     const server = createServer((client_req, client_res) => {
@@ -71,9 +76,9 @@ module.exports = function createProxyServer({ appPort, originalHost, proxyHost, 
     }).listen(proxyPort);
 
     // open the browser with the proxy url
-    openBrowserWithUrl(proxyUrl);
+    openBrowserWithUrl(fullProxyUrl);
 
-    return Promise.resolve({ server, proxyUrl });
+    return Promise.resolve({ server, proxyUrl: fullProxyUrl });
 };
 
 function openBrowserWithUrl(url) {

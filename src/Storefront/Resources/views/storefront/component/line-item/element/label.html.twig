@@ -2,14 +2,23 @@
     {% set label = lineItem.label|trans|sw_sanitize %}
     {% set label = label !== '' ? label : lineItem.label %}
 
-    {% if productLink %}
-        <a href="{{ seoUrl('frontend.detail.page', { 'productId': lineItem.referencedId }) }}"
+    {# @deprecated productLink variable will be removed without replacement, directly set lineItemLink and lineItemModalLink #}
+    {% if productLink and not lineItemLink %}
+        {% set lineItemLink = seoUrl('frontend.detail.page', { 'productId': lineItem.referencedId }) %}
+
+        {% if controllerAction is same as('confirmPage') %}
+            {% set lineItemModalLink = path('widgets.quickview.minimal', { 'productId': lineItem.referencedId }) %}
+        {% endif %}
+    {% endif %}
+
+    {% if lineItemLink %}
+        <a href="{{ lineItemLink }}"
            class="line-item-label"
            title="{{ label }}"
-            {% if controllerAction is same as('confirmPage') %}
-                data-toggle="modal"
+            {% if lineItemModalLink %}
+                data-ajax-modal="modal"
                 data-modal-class="quickview-modal"
-                data-url="{{ path('widgets.quickview.minimal', { 'productId': lineItem.referencedId }) }}"
+                data-url="{{ lineItemModalLink }}"
             {% endif %}
         >
             {{ label|u.truncate(60, '...', false)|raw }}

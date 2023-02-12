@@ -19,6 +19,7 @@ use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Adapter\Twig\TwigVariableParser;
+use Shopware\Core\Framework\Adapter\Twig\TwigVariableParserFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\SalesChannelRepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -32,10 +33,13 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParamete
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Twig\Environment;
 
 #[Package('sales-channel')]
 class ProductExportGenerator implements ProductExportGeneratorInterface
 {
+    private readonly TwigVariableParser $twigVariableParser;
+
     /**
      * @internal
      */
@@ -51,10 +55,12 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
         private readonly Connection $connection,
         private readonly int $readBufferSize,
         private readonly SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler,
-        private readonly TwigVariableParser $twigVariableParser,
+        Environment $twig,
         private readonly ProductDefinition $productDefinition,
-        private readonly LanguageLocaleCodeProvider $languageLocaleProvider
+        private readonly LanguageLocaleCodeProvider $languageLocaleProvider,
+        TwigVariableParserFactory $parserFactory
     ) {
+        $this->twigVariableParser = $parserFactory->getParser($twig);
     }
 
     public function generate(ProductExportEntity $productExport, ExportBehavior $exportBehavior): ?ProductExportResult

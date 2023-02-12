@@ -22,7 +22,7 @@ use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
-use Shopware\Core\Framework\Adapter\Twig\TwigVariableParser;
+use Shopware\Core\Framework\Adapter\Twig\TwigVariableParserFactory;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -125,9 +125,10 @@ class ProductExportGeneratorTest extends TestCase
             $this->getContainer()->get(Connection::class),
             100,
             $this->getContainer()->get(SeoUrlPlaceholderHandlerInterface::class),
-            $this->getContainer()->get(TwigVariableParser::class),
+            $this->getContainer()->get('twig'),
             $this->getContainer()->get(ProductDefinition::class),
             $this->getContainer()->get(LanguageLocaleCodeProvider::class),
+            $this->getContainer()->get(TwigVariableParserFactory::class)
         );
 
         $exportGenerator->generate($productExport, $exportBehavior);
@@ -190,9 +191,10 @@ class ProductExportGeneratorTest extends TestCase
             $this->getContainer()->get(Connection::class),
             100,
             $this->getContainer()->get(SeoUrlPlaceholderHandlerInterface::class),
-            $this->getContainer()->get(TwigVariableParser::class),
+            $this->getContainer()->get('twig'),
             $this->getContainer()->get(ProductDefinition::class),
             $this->getContainer()->get(LanguageLocaleCodeProvider::class),
+            $this->getContainer()->get(TwigVariableParserFactory::class)
         );
 
         try {

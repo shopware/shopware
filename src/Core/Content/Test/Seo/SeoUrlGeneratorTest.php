@@ -14,7 +14,7 @@ use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Content\Test\TestNavigationSeoUrlRoute;
 use Shopware\Core\Content\Test\TestProductSeoUrlRoute;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Adapter\Twig\TwigVariableParser;
+use Shopware\Core\Framework\Adapter\Twig\TwigVariableParserFactory;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
@@ -66,7 +66,7 @@ class SeoUrlGeneratorTest extends TestCase
             $this->getContainer()->get('router.default'),
             $this->getContainer()->get('request_stack'),
             $this->getContainer()->get('shopware.seo_url.twig'),
-            $this->getContainer()->get(TwigVariableParser::class)
+            $this->getContainer()->get(TwigVariableParserFactory::class)
         );
 
         $this->seoUrlRouteRegistry = $this->getContainer()->get(SeoUrlRouteRegistry::class);
@@ -267,6 +267,29 @@ class SeoUrlGeneratorTest extends TestCase
         $result = $this->seoUrlGenerator->generate($productIds, $template, $route, Context::createDefaultContext(), $this->salesChannelContext->getSalesChannel());
 
         $expected = ['test-category-shopware-product'];
+        foreach ($result as $index => $seoUrl) {
+            static::assertEquals($expected[$index], $seoUrl->getSeoPathInfo());
+        }
+    }
+
+    public function testTemplateWithCustomTwigExtension(): void
+    {
+        $ids = new IdsCollection();
+
+        $product = (new ProductBuilder($ids, 'my product'))
+            ->price(100)
+            ->visibility($this->salesChannelId);
+
+        $this->getContainer()->get('product.repository')
+            ->create([$product->build()], Context::createDefaultContext());
+
+        $productIds = $ids->getList(['product']);
+        $template = '{{ product.translated.name|lastBigLetter }}';
+        $route = $this->seoUrlRouteRegistry->findByRouteName(TestProductSeoUrlRoute::ROUTE_NAME);
+
+        $result = $this->seoUrlGenerator->generate($productIds, $template, $route, Context::createDefaultContext(), $this->salesChannelContext->getSalesChannel());
+
+        $expected = ['my-producT'];
         foreach ($result as $index => $seoUrl) {
             static::assertEquals($expected[$index], $seoUrl->getSeoPathInfo());
         }

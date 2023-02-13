@@ -89,6 +89,9 @@
                 },
                 "twig": {
                     "$ref": "#/definitions/twig"
+                },
+                "dompdf": {
+                    "$ref": "#/definitions/dompdf"
                 }
             },
             "title": "Shopware"
@@ -125,6 +128,16 @@
                     "items": {
                         "type": "string"
                     }
+                }
+            }
+        },
+        "dompdf": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "options": {
+                    "type": "object",
+                    "additionalProperties": true
                 }
             }
         },

@@ -276,6 +276,7 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 
 ## 6.4.20.0 
 *  [NEXT-24983 - Make user activity tab overarching](/changelog/release-6-4-20-0/2023-01-30-make-user-activity-tab-overarching.md)
+*  [NEXT-25359 - Overwrite Dompdf configuration](/changelog/release-6-4-20-0/2023-02-10-configurable-dompdf.md)
 
 ## 6.4.19.0
 *  [NEXT-22617 - Admin users can mark CMS blocks and CMS elements as favorites](/changelog/release-6-4-19-0/2022-05-31-cms-favorites.md) ([Joshua Behrens](https://github.com/JoshuaBehrens))

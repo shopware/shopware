@@ -11,7 +11,7 @@ trait TaxFixtures
     use EntityFixturesBase;
 
     /**
-     * @var array
+     * @var array<string, mixed>
      */
     public $taxFixtures;
 
@@ -40,12 +40,69 @@ trait TaxFixtures
                     ],
                 ],
             ],
+            'SeventeenPointOnePercentTax' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'SeventeenPointOnePercentTax',
+                'taxRate' => 17.1,
+                'areaRules' => [
+                    [
+                        'id' => Uuid::randomHex(),
+                        'taxRate' => 17.1,
+                        'active' => true,
+                        'name' => 'required',
+                        'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+                    ],
+                ],
+            ],
+            'NinePointSevenFourPercentTax' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'NinePointSevenFourPercentTax',
+                'taxRate' => 9.74,
+                'areaRules' => [
+                    [
+                        'id' => Uuid::randomHex(),
+                        'taxRate' => 9.74,
+                        'active' => true,
+                        'name' => 'required',
+                        'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+                    ],
+                ],
+            ],
+            'ThirteenPointFourEightSixPercentTax' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'ThirteenPointFourEightSixPercentTax',
+                'taxRate' => 13.486,
+                'areaRules' => [
+                    [
+                        'id' => Uuid::randomHex(),
+                        'taxRate' => 13.486,
+                        'active' => true,
+                        'name' => 'required',
+                        'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+                    ],
+                ],
+            ],
         ];
     }
 
     public function getTaxNineteenPercent(): TaxEntity
     {
         return $this->getTaxFixture('NineteenPercentTax');
+    }
+
+    public function getTaxSeventeenPointOnePercent(): TaxEntity
+    {
+        return $this->getTaxFixture('SeventeenPointOnePercentTax');
+    }
+
+    public function getTaxNinePointSevenFourPercent(): TaxEntity
+    {
+        return $this->getTaxFixture('NinePointSevenFourPercentTax');
+    }
+
+    public function getTaxThirteenPointFourEightSixPercent(): TaxEntity
+    {
+        return $this->getTaxFixture('ThirteenPointFourEightSixPercentTax');
     }
 
     public function getTaxNineteenPercentWithAreaRule(): TaxEntity

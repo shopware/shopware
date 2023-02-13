@@ -180,6 +180,7 @@
 
         <service id="Shopware\Core\Checkout\Cart\TaxProvider\TaxAdjustment">
             <argument type="service" id="shopware.tax.adjustment_calculator"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\CashRounding"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\TaxProvider\Payload\TaxProviderPayloadService">

@@ -38,7 +38,7 @@ Publish entity-schema-types NPM package:
         policy: pull
     before_script:
       - composer install --no-scripts --quiet
-      - '[[ -d src/Administration/Resources/app/administration/node_modules/ ]] || npm --prefix src/Administration/Resources/app/administration/ ci'
+      - '[[ -d src/Administration/Resources/app/administration/node_modules/ ]] || npm --prefix src/Administration/Resources/app/administration/ ci --no-audit --prefer-offline'
       - composer run admin:generate-entity-schema-types
       - !reference [ .scripts, install-node, script ]
     script:

@@ -91,7 +91,7 @@ jobs:
 
       - name: Install dependencies (if the cached directory was not found)
         if: steps.node-cache.outputs.cache-hit != 'true'
-        run: npm --prefix src/Administration/Resources/app/administration ci
+        run: npm --prefix src/Administration/Resources/app/administration ci --no-audit --prefer-offline
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -135,7 +135,7 @@ jobs:
 
       - name: Install dependencies (if the cached directory was not found)
         if: steps.node-cache.outputs.cache-hit != 'true'
-        run: npm --prefix src/Storefront/Resources/app/storefront ci
+        run: npm --prefix src/Storefront/Resources/app/storefront ci --no-audit --prefer-offline
 
       - name: Run Jest Storefront
         run: npm --prefix src/Storefront/Resources/app/storefront run unit -- --silent

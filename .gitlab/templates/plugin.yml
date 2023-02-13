@@ -107,10 +107,10 @@ workflow:
         plugin_url="$(echo "$plugin" | jq -r .url)"
         plugin_branch="$(echo "$plugin" | jq -r .branch)"
         git clone "https://gitlab-ci-token:${CI_JOB_TOKEN}@${plugin_url}" --branch "${plugin_branch}" "${PROJECT_ROOT}/custom/plugins/${plugin_name}"
-        npm ci --prefix  "${PROJECT_ROOT}/custom/plugins/${plugin_name}/Resources/app/administration" || true
-        npm ci --prefix  "${PROJECT_ROOT}/custom/plugins/${plugin_name}/src/Resources/app/administration" || true
-        npm ci --prefix  "${PROJECT_ROOT}/custom/plugins/${plugin_name}/Resources/app/storefront" || true
-        npm ci --prefix  "${PROJECT_ROOT}/custom/plugins/${plugin_name}/src/Resources/app/storefront" || true
+        npm ci --prefix  "${PROJECT_ROOT}/custom/plugins/${plugin_name}/Resources/app/administration" --no-audit --prefer-offline || true
+        npm ci --prefix  "${PROJECT_ROOT}/custom/plugins/${plugin_name}/src/Resources/app/administration" --no-audit --prefer-offline || true
+        npm ci --prefix  "${PROJECT_ROOT}/custom/plugins/${plugin_name}/Resources/app/storefront" --no-audit --prefer-offline || true
+        npm ci --prefix  "${PROJECT_ROOT}/custom/plugins/${plugin_name}/src/Resources/app/storefront" --no-audit --prefer-offline || true
         composer -d "${PROJECT_ROOT}/custom/plugins/${plugin_name}" dump-autoload || true
     done
   - bin/console plugin:refresh
@@ -265,7 +265,7 @@ jest (administration):
         - '(cd $ADMIN_PATH && npm ci)'
         - $CI_PROJECT_DIR/bin/console framework:schema -s 'entity-schema' $ADMIN_PATH/test/_mocks_/entity-schema.json
         - cd ${PLUGIN_SOURCE_DIR}Resources/app/administration/
-        - npm ci
+        - npm ci --no-audit --prefer-offline
         - '$(npm bin)/jest --config jest.config.js --ci'
     coverage: '/^\s?All files[^|]*\|[^|]*\s+([\d\.]+)/'
 
@@ -283,7 +283,7 @@ jest (storefront):
     script:
         - *build-js
         - cd ${PLUGIN_SOURCE_DIR}Resources/app/storefront/
-        - npm ci
+        - npm ci --no-audit --prefer-offline
         - '$(npm bin)/jest --config jest.config.js --ci'
     coverage: '/^\s?All files[^|]*\|[^|]*\s+([\d\.]+)/'
 
@@ -307,7 +307,7 @@ template filled:
     - $CI_PROJECT_DIR/bin/console assets:install
     - APP_ENV=e2e $CI_PROJECT_DIR/bin/console e2e:dump-db
     - cd ${PLUGIN_SOURCE_DIR}${E2E_PROJECT_PATH}
-    - npm ci
+    - npm ci --no-audit --prefer-offline
 
 .base e2e:
     stage: E2E

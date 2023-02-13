@@ -227,7 +227,7 @@ jest:
         STOREFRONT_PATH: $CI_PROJECT_DIR/src/Storefront/Resources/app/storefront
     script:
         - cd ${THEME_SOURCE_DIR}Resources/app/storefront/
-        - npm ci
+        - npm ci --no-audit --prefer-offline
         - '$(npm bin)/jest --config jest.config.js --ci'
     coverage: '/^\s?All files[^|]*\|[^|]*\s+([\d\.]+)/'
 
@@ -268,7 +268,7 @@ cypress:
         - SERVICE_PHPFPM_OPTS=--allow-to-run-as-root CONTAINER_UID=root /entrypoint supervisord > /dev/null 2>&1 &
         - bin/console e2e:dump-db
         - cd custom/apps/$THEME_NAME/${THEME_SOURCE_DIR}${E2E_PROJECT_PATH}
-        - npm ci
+        - npm ci --no-audit --prefer-offline
     script:
         - >
           if [[ -z "$CYPRESS_SPEC" ]]; then

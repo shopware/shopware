@@ -131,7 +131,7 @@ class ProductDetailRouteTest extends TestCase
     private function assertArray(array $expected, array $actual, string $pointer = ''): void
     {
         foreach ($expected as $key => $value) {
-            $current = empty($pointer) ? $pointer . '.' . $key : (string) $key;
+            $current = \implode('.', \array_filter([$pointer, (string) $key]));
 
             static::assertArrayHasKey($key, $actual, sprintf('Missing key %s', $current));
 

@@ -20,6 +20,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Api\ResponseFields;
 use Shopware\Core\System\SalesChannel\Api\StructEncoder;
+use Shopware\Core\System\SalesChannel\Entity\DefinitionRegistryChain;
 
 /**
  * @internal
@@ -203,7 +204,7 @@ class StructEncoderTest extends TestCase
             'description' => 'test',
         ]);
 
-        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry = $this->createMock(DefinitionRegistryChain::class);
         $registry->method('has')
             ->willReturn(true);
 
@@ -292,7 +293,7 @@ class StructEncoderTest extends TestCase
             'description' => 'test',
         ]);
 
-        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry = $this->createMock(DefinitionRegistryChain::class);
         $registry->method('has')
             ->willReturn(true);
 
@@ -325,8 +326,10 @@ class StructEncoderTest extends TestCase
  */
 class MyTestStruct extends Struct
 {
-    public function __construct(public $foo = null, public $bar = null)
-    {
+    public function __construct(
+        public mixed $foo = null,
+        public mixed $bar = null
+    ) {
     }
 
     public function getApiAlias(): string

@@ -4,7 +4,6 @@ namespace Shopware\Core\System\Currency;
 
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscountPrice\PromotionDiscountPriceCollection;
-use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceCollection;
 use Shopware\Core\Content\ProductExport\ProductExportCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
@@ -76,11 +75,6 @@ class CurrencyEntity extends Entity
      * @var SalesChannelDomainCollection|null
      */
     protected $salesChannelDomains;
-
-    /**
-     * @var ShippingMethodPriceCollection|null
-     */
-    protected $shippingMethodPrices;
 
     /**
      * @var PromotionDiscountPriceCollection
@@ -225,16 +219,6 @@ class CurrencyEntity extends Entity
     public function setSalesChannelDomains(SalesChannelDomainCollection $salesChannelDomains): void
     {
         $this->salesChannelDomains = $salesChannelDomains;
-    }
-
-    public function getShippingMethodPrices(): ?ShippingMethodPriceCollection
-    {
-        return $this->shippingMethodPrices;
-    }
-
-    public function setShippingMethodPrices(ShippingMethodPriceCollection $shippingMethodPrices): void
-    {
-        $this->shippingMethodPrices = $shippingMethodPrices;
     }
 
     public function getIsSystemDefault(): ?bool

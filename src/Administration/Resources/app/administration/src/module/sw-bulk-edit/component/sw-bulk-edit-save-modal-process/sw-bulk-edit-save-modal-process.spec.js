@@ -12,7 +12,7 @@ async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-bulk-edit-save-modal-process'), {
         stubs: {
             'sw-alert': true,
-            'sw-icon': true,
+            'sw-loader': true,
             'sw-label': true,
         },
         provide: {

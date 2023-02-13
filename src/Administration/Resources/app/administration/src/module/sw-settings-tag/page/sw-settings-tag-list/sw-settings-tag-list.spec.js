@@ -126,6 +126,7 @@ async function createWrapper(privileges = []) {
             'sw-context-menu-item': true,
             'sw-search-bar': true,
             'sw-icon': true,
+            'sw-loader': true,
             'sw-button': true,
             'sw-modal': true,
             'sw-empty-state': true

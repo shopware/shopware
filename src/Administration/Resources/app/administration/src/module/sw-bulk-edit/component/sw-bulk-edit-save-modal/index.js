@@ -142,6 +142,7 @@ export default {
         redirect(routeName) {
             if (!routeName) {
                 this.$emit('modal-close');
+                return;
             }
 
             this.$router.push({ path: routeName });

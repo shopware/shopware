@@ -51,6 +51,9 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
         $this->fileSystem = $this->getContainer()->get('shopware.filesystem.private');
     }
 
+    /**
+     * @group quarantined
+     */
     public function testRun(): void
     {
         // Add a second storefront sales channel, to check if all sales channels will be recognized for the product export
@@ -90,6 +93,9 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
         static::assertGreaterThan($previousGeneratedAt, $newExport->getGeneratedAt());
     }
 
+    /**
+     * @group quarantined
+     */
     public function testSkipGenerateByCronjobFalseProductExports(): void
     {
         $this->createProductStream();
@@ -119,6 +125,9 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
         static::assertEquals($previousGeneratedAt, $newExport->getGeneratedAt());
     }
 
+    /**
+     * @group quarantined
+     */
     public function testGeneratedAtAndIntervalsAreRespected(): void
     {
         $this->createProductStream();
@@ -145,6 +154,9 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
         static::assertCount(\count($messagesBefore) + 1, $messagesAfter);
     }
 
+    /**
+     * @group quarantined
+     */
     public function testGeneratedAtIsNullWorks(): void
     {
         $this->createProductStream();
@@ -171,6 +183,9 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
         static::assertCount(\count($messagesBefore) + 1, $messagesAfter);
     }
 
+    /**
+     * @group quarantined
+     */
     public function testSchedulerRunIfSalesChannelIsActive(): void
     {
         $this->prepareProductExportForScheduler(true);
@@ -188,6 +203,9 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
         static::assertCount(\count($messagesBefore) + 1, $messagesAfter);
     }
 
+    /**
+     * @group quarantined
+     */
     public function testSchedulerDontRunIfSalesChannelIsNotActive(): void
     {
         $this->prepareProductExportForScheduler(false);

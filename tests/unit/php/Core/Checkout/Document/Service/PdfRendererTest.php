@@ -46,7 +46,10 @@ class PdfRendererTest extends TestCase
         static::assertStringContainsString('</html>', $rendered->getHtml());
         static::assertStringContainsString('DOMPDF_PAGE_COUNT_PLACEHOLDER', $rendered->getHtml());
 
-        $pdfRenderer = new PdfRenderer();
+        $pdfRenderer = new PdfRenderer([
+            'isRemoteEnabled' => true,
+            'isHtml5ParserEnabled' => true,
+        ]);
         $generatorOutput = $pdfRenderer->render($rendered);
         static::assertNotEmpty($generatorOutput);
 

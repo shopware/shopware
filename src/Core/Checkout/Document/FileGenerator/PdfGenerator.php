@@ -24,6 +24,8 @@ class PdfGenerator implements FileGeneratorInterface
     private array $dompdfOptions;
 
     /**
+     * @internal
+     *
      * @param array<string, mixed> $dompdfOptions
      */
     public function __construct(array $dompdfOptions)

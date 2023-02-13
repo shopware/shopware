@@ -39,6 +39,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createHtmlSanitizerSection())
                 ->append($this->createIncrementSection())
                 ->append($this->createTwigSection())
+                ->append($this->createDompdfSection())
             ->end();
 
         return $treeBuilder;
@@ -617,6 +618,23 @@ class Configuration implements ConfigurationInterface
                     ->performNoDeepMerging()
                     ->scalarPrototype()
                 ->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createDompdfSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('dompdf');
+
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
+            ->children()
+            ->arrayNode('options')
+                ->useAttributeAsKey('name')
+                ->scalarPrototype()
+                ->end()
+            ->end()
             ->end();
 
         return $rootNode;

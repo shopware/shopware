@@ -18,6 +18,11 @@ class ProductTranslationEntity extends TranslationEntity
     protected $productId;
 
     /**
+     * @var string
+     */
+    protected $productVersionId;
+
+    /**
      * @var string|null
      */
     protected $metaDescription;
@@ -175,5 +180,15 @@ class ProductTranslationEntity extends TranslationEntity
     public function setCustomSearchKeywords(?array $customSearchKeywords): void
     {
         $this->customSearchKeywords = $customSearchKeywords;
+    }
+
+    public function getProductVersionId(): string
+    {
+        return $this->productVersionId;
+    }
+
+    public function setProductVersionId(string $productVersionId): void
+    {
+        $this->productVersionId = $productVersionId;
     }
 }

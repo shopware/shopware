@@ -19,6 +19,11 @@ class CategoryTranslationEntity extends TranslationEntity
     protected $categoryId;
 
     /**
+     * @var string
+     */
+    protected $categoryVersionId;
+
+    /**
      * @var string|null
      */
     protected $name;
@@ -211,5 +216,15 @@ class CategoryTranslationEntity extends TranslationEntity
     public function setKeywords(?string $keywords): void
     {
         $this->keywords = $keywords;
+    }
+
+    public function getCategoryVersionId(): string
+    {
+        return $this->categoryVersionId;
+    }
+
+    public function setCategoryVersionId(string $categoryVersionId): void
+    {
+        $this->categoryVersionId = $categoryVersionId;
     }
 }

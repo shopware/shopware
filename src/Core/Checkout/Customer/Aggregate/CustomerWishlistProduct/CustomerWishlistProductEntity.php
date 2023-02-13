@@ -24,6 +24,11 @@ class CustomerWishlistProductEntity extends Entity
     protected $productId;
 
     /**
+     * @var string
+     */
+    protected $productVersionId;
+
+    /**
      * @var CustomerWishlistEntity|null
      */
     protected $wishlist;
@@ -71,5 +76,15 @@ class CustomerWishlistProductEntity extends Entity
     public function setProductId(string $productId): void
     {
         $this->productId = $productId;
+    }
+
+    public function getProductVersionId(): string
+    {
+        return $this->productVersionId;
+    }
+
+    public function setProductVersionId(string $productVersionId): void
+    {
+        $this->productVersionId = $productVersionId;
     }
 }

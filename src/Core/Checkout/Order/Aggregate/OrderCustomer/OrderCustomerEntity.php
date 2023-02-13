@@ -86,6 +86,11 @@ class OrderCustomerEntity extends Entity
      */
     protected $remoteAddress;
 
+    /**
+     * @var string
+     */
+    protected $orderVersionId;
+
     public function getEmail(): string
     {
         return $this->email;
@@ -227,5 +232,15 @@ class OrderCustomerEntity extends Entity
     public function setRemoteAddress(?string $remoteAddress): void
     {
         $this->remoteAddress = $remoteAddress;
+    }
+
+    public function getOrderVersionId(): string
+    {
+        return $this->orderVersionId;
+    }
+
+    public function setOrderVersionId(string $orderVersionId): void
+    {
+        $this->orderVersionId = $orderVersionId;
     }
 }

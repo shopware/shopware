@@ -23,6 +23,11 @@ class CmsPageTranslationEntity extends TranslationEntity
     protected $cmsPageId;
 
     /**
+     * @var string
+     */
+    protected $cmsPageVersionId;
+
+    /**
      * @var CmsPageEntity|null
      */
     protected $cmsPage;
@@ -55,5 +60,15 @@ class CmsPageTranslationEntity extends TranslationEntity
     public function setCmsPage(CmsPageEntity $cmsPage): void
     {
         $this->cmsPage = $cmsPage;
+    }
+
+    public function getCmsPageVersionId(): string
+    {
+        return $this->cmsPageVersionId;
+    }
+
+    public function setCmsPageVersionId(string $cmsPageVersionId): void
+    {
+        $this->cmsPageVersionId = $cmsPageVersionId;
     }
 }

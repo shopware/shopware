@@ -39,6 +39,11 @@ class LandingPageEntity extends Entity
     protected $cmsPageId;
 
     /**
+     * @var string|null
+     */
+    protected $cmsPageVersionId;
+
+    /**
      * @var CmsPageEntity|null
      */
     protected $cmsPage;
@@ -211,5 +216,15 @@ class LandingPageEntity extends Entity
     public function setSeoUrls(SeoUrlCollection $seoUrls): void
     {
         $this->seoUrls = $seoUrls;
+    }
+
+    public function getCmsPageVersionId(): ?string
+    {
+        return $this->cmsPageVersionId;
+    }
+
+    public function setCmsPageVersionId(?string $cmsPageVersionId): void
+    {
+        $this->cmsPageVersionId = $cmsPageVersionId;
     }
 }

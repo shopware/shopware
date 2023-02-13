@@ -123,6 +123,11 @@ class OrderAddressEntity extends Entity
      */
     protected $orderId;
 
+    /**
+     * @var string
+     */
+    protected $orderVersionId;
+
     public function getCountryId(): string
     {
         return $this->countryId;
@@ -331,5 +336,15 @@ class OrderAddressEntity extends Entity
     public function setOrderId(string $orderId): void
     {
         $this->orderId = $orderId;
+    }
+
+    public function getOrderVersionId(): string
+    {
+        return $this->orderVersionId;
+    }
+
+    public function setOrderVersionId(string $orderVersionId): void
+    {
+        $this->orderVersionId = $orderVersionId;
     }
 }

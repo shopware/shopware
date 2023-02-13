@@ -638,4 +638,27 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         expect(buttonCreate.attributes()['tooltip-message']).toEqual('sw-order.documentTab.tooltipSaveBeforeCreateDocument');
         expect(buttonCreate.attributes('disabled')).toBeTruthy();
     });
+
+    it('should search documents with criteria queries', async () => {
+        wrapper = await createWrapper();
+
+        expect(wrapper.vm.documentCriteria.term).toBeNull();
+        expect(wrapper.vm.documentCriteria.queries).toEqual([]);
+
+        await wrapper.setData({
+            term: '1000',
+        });
+
+        expect(wrapper.vm.documentCriteria.term).toEqual('1000');
+        expect(wrapper.vm.documentCriteria.queries).toEqual([
+            {
+                score: 500,
+                query: { type: 'contains', field: 'config.documentDate', value: '1000' }
+            },
+            {
+                score: 500,
+                query: { type: 'equals', field: 'config.documentNumber', value: '1000' }
+            }
+        ]);
+    });
 });

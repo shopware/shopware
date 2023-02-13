@@ -3,7 +3,7 @@ import swSettingsTaxRuleModal from 'src/module/sw-settings-tax/component/sw-sett
 import 'src/app/component/base/sw-modal';
 import 'src/app/component/base/sw-button';
 
-Shopware.Component.extend('sw-settings-tax-rule-modal', 'sw-modal', swSettingsTaxRuleModal);
+Shopware.Component.register('sw-settings-tax-rule-modal', swSettingsTaxRuleModal);
 
 /**
  * @package customer-order
@@ -71,5 +71,13 @@ describe('sw-settings-tax-rule-modal', () => {
                 }),
             ]),
         }));
+    });
+
+    it('should have a tax rate field with a correct "digits" property', async () => {
+        const taxRateField = wrapper.find(
+            'sw-number-field-stub[label="sw-settings-tax.taxRuleCard.labelTaxRate"]'
+        );
+
+        expect(taxRateField.attributes('digits')).toEqual('3');
     });
 });

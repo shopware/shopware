@@ -93,6 +93,7 @@
                         <sw-number-field
                             v-model="tax.taxRate"
                             required
+                            :digits="3"
                             :disabled="!acl.can('tax.editor')"
                             :label="$tc('sw-settings-tax.detail.labelDefaultTaxRate')"
                             :placeholder="$tc('sw-settings-tax.detail.placeholderDefaultTaxRate')"

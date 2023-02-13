@@ -61,6 +61,7 @@
         <sw-number-field
             v-model="taxRule.taxRate"
             required
+            :digits="3"
             :error="taxRuleTaxRateError"
             :label="$tc('sw-settings-tax.taxRuleCard.labelTaxRate')"
         >

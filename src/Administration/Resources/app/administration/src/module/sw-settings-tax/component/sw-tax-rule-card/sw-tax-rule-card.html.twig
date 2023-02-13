@@ -69,10 +69,11 @@
             >
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_tax_rule_grid_column_tax_rate %}
-                <template #column-taxRate="{ item, isInlineEdit }">
+                <template #column-taxRate="{ item, isInlineEdit, compact }">
                     <template v-if="isInlineEdit">
                         <sw-number-field
                             v-model="item.taxRate"
+                            :digits="3"
                             :size="compact ? 'small' : 'default'"
                         >
                             <template #suffix>

@@ -105,12 +105,14 @@ async function createWrapper(privileges = [], additionalOptions = {}) {
                     </div>
                 `
             },
+            'sw-number-field': true,
             'sw-entity-listing': {
                 props: ['items'],
                 template: `
                     <div>
                         <template v-for="item in items">
                             <slot name="actions" v-bind="{ item }"></slot>
+                            <slot name="column-taxRate" v-bind="{ item, isInlineEdit: true }"></slot>
                         </template>
                     </div>
                 `
@@ -320,5 +322,19 @@ describe('module/sw-settings-tax/page/sw-settings-tax-list', () => {
 
         expect(wrapper.vm.noTaxProvidersFound).toBeTruthy();
         expect(wrapper.find('.sw-empty-state').exists()).toBeTruthy();
+    });
+
+    it('should have a tax rate field with a correct "digits" property', async () => {
+        const wrapper = await createWrapper([
+            'tax.editor'
+        ]);
+
+        await wrapper.vm.$nextTick();
+
+        const entityListing = wrapper.find('.sw-settings-tax-list-grid');
+
+        const taxRateField = entityListing.find('sw-number-field-stub');
+
+        expect(taxRateField.attributes('digits')).toEqual('3');
     });
 });

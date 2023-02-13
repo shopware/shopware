@@ -1486,11 +1486,6 @@ parameters:
 			path: src/Core/Checkout/Test/Cart/Tax/TaxCalculationTypeTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Tax\\\\TaxCalculatorTest\\:\\:netPricesToGross\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Tax/TaxCalculatorTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Customer\\\\Command\\\\DeleteUnusedGuestCustomersCommandTest\\:\\:createOrderForCustomer\\(\\) has parameter \\$customer with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Customer/Command/DeleteUnusedGuestCustomersCommandTest.php
@@ -12131,36 +12126,6 @@ parameters:
 			message: "#^Parameter \\#6 \\$content of method Symfony\\\\Component\\\\BrowserKit\\\\AbstractBrowser\\:\\:request\\(\\) expects string\\|null, string\\|false given\\.$#"
 			count: 8
 			path: src/Core/Framework/Test/Api/Controller/IntegrationControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Controller\\\\PriceActionControllerTest\\:\\:sendRequest\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Controller/PriceActionControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Controller\\\\PriceActionControllerTest\\:\\:sendRequestCalculatePrices\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Controller/PriceActionControllerTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 8
-			path: src/Core/Framework/Test/Api/Controller/PriceActionControllerTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Controller\\\\PriceActionControllerTest\\:\\:\\$serializer is never read, only written\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Controller/PriceActionControllerTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Controller\\\\PriceActionControllerTest\\:\\:\\$taxFixtures type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Controller/PriceActionControllerTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Controller\\\\PriceActionControllerTest\\:\\:\\$taxRepository is never read, only written\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Controller/PriceActionControllerTest.php
 
 		-
 			message: "#^Cannot call method get\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\Aggregate\\\\PromotionDiscount\\\\PromotionDiscountCollection\\|null\\.$#"

@@ -15,15 +15,9 @@
     - !reference [ .rules, skip ]
     - if: '$CI_MERGE_REQUEST_LABELS =~ /.*branch::rufus::match.*/'
       when: never
-    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^6\.\d+\.\d+\.\d+/
-      when: never
-    - if: $CI_COMMIT_BRANCH =~ /^6\.\d+\.\d+\.\d+/
-      when: never
     - !reference [ .rules, run ]
     - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
-    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH'
-    - when: manual
-      allow_failure: true
+    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "6.4"'
 
 .downstream-commercial-trunk:
   extends: .downstream-trunk
@@ -31,15 +25,9 @@
     - !reference [ .rules, skip ]
     - if: '$CI_MERGE_REQUEST_LABELS =~ /.*branch::commercial::match.*/'
       when: never
-    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^6\.\d+\.\d+\.\d+/
-      when: never
-    - if: $CI_COMMIT_BRANCH =~ /^6\.\d+\.\d+\.\d+/
-      when: never
     - !reference [ .rules, run ]
     - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
-    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH'
-    - when: manual
-      allow_failure: true
+    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "6.4"'
 
 .downstream-release-branch-creation:
   stage: downstream
@@ -91,7 +79,6 @@ rufus matching branch:
     project: shopware/6/product/rufus
     branch: ${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}
     strategy: depend
-  allow_failure: false
 
 commercial trunk:
   extends: .downstream-commercial-trunk
@@ -109,7 +96,6 @@ commercial matching branch:
     project: shopware/6/product/commercial
     branch: ${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}
     strategy: depend
-  allow_failure: false
 
 create downstream branch:
   extends: .downstream-release-branch-creation

@@ -262,4 +262,3 @@ shopware:
     dompdf:
         options:
             isRemoteEnabled: true
-            isHtml5ParserEnabled: true

@@ -16,6 +16,8 @@ final class PdfRenderer
     public const FILE_CONTENT_TYPE = 'application/pdf';
 
     /**
+     * @internal
+     *
      * @param array<string, mixed> $dompdfOptions
      */
     public function __construct(private array $dompdfOptions)

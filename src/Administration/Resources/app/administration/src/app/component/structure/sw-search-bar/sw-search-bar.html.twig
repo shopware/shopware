@@ -160,7 +160,11 @@
                         </div>
                         {% endblock %}
 
-                        <ul class="sw-search-bar__results-list">
+                        {# "34" below is the <sw-search-bar-item />'s height #}
+                        <ul
+                            class="sw-search-bar__results-list"
+                            :style="{ minHeight: `${34 * entity.entities.length}px` }"
+                        >
                             <sw-search-bar-item
                                 v-for="(item, index) in entity.entities"
                                 :key="item.id"

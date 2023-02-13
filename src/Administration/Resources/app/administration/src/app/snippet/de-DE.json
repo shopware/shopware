@@ -695,6 +695,7 @@
         "orderTagRule": "Bestellung mit Tag",
         "orderDeliveryStatusRule": "Lieferstatus",
         "orderCreatedByAdminRule": "Bestellung vom Administrator erstellt",
+        "orderTransactionStatusRule": "Zahlungsstatus",
         "orderStatusRule": "Bestellstatus",
         "yes": "Ja",
         "no": "Nein",

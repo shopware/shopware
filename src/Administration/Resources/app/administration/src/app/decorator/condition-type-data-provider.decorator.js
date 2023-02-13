@@ -557,9 +557,9 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         group: 'flow',
     });
 
-    ruleConditionService.addCondition('orderCreatedByAdmin', {
+    ruleConditionService.addCondition('orderTransactionStatus', {
         component: 'sw-condition-generic',
-        label: 'global.sw-condition.condition.orderCreatedByAdminRule',
+        label: 'global.sw-condition.condition.orderTransactionStatusRule',
         scopes: ['flow'],
         group: 'flow',
     });
@@ -567,6 +567,13 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
     ruleConditionService.addCondition('orderStatus', {
         component: 'sw-condition-generic',
         label: 'global.sw-condition.condition.orderStatusRule',
+        scopes: ['flow'],
+        group: 'flow',
+    });
+
+    ruleConditionService.addCondition('orderCreatedByAdmin', {
+        component: 'sw-condition-generic',
+        label: 'global.sw-condition.condition.orderCreatedByAdminRule',
         scopes: ['flow'],
         group: 'flow',
     });

@@ -299,16 +299,15 @@ class Translator extends AbstractTranslator
      */
     private function loadSnippets(MessageCatalogueInterface $catalog, string $snippetSetId, ?string $fallbackLocale): array
     {
-        $salesChannelId = $this->resolveSalesChannelId();
+        $this->resolveSalesChannelId();
 
-        $key = sprintf('translation.catalog.%s.%s', $salesChannelId ?? 'DEFAULT', $snippetSetId);
+        $key = sprintf('translation.catalog.%s.%s', $this->salesChannelId ?: 'DEFAULT', $snippetSetId);
 
-        return $this->cache->get($key, function (ItemInterface $item) use ($catalog, $snippetSetId, $fallbackLocale, $salesChannelId) {
+        return $this->cache->get($key, function (ItemInterface $item) use ($catalog, $snippetSetId, $fallbackLocale) {
             $item->tag('translation.catalog.' . $snippetSetId);
-            $salesChannelKey = sprintf('translation.catalog.%s', $salesChannelId ?? 'DEFAULT');
-            $item->tag($salesChannelKey);
+            $item->tag(sprintf('translation.catalog.%s', $this->salesChannelId ?: 'DEFAULT'));
 
-            return $this->snippetService->getStorefrontSnippets($catalog, $snippetSetId, $fallbackLocale, $salesChannelId);
+            return $this->snippetService->getStorefrontSnippets($catalog, $snippetSetId, $fallbackLocale, $this->salesChannelId);
         });
     }
 
@@ -322,23 +321,18 @@ class Translator extends AbstractTranslator
         }
     }
 
-    private function resolveSalesChannelId(): ?string
+    private function resolveSalesChannelId(): void
     {
-        $salesChannelId = $this->salesChannelId;
-
-        if ($salesChannelId !== null) {
-            return $salesChannelId;
+        if ($this->salesChannelId !== null) {
+            return;
         }
 
         $request = $this->requestStack->getCurrentRequest();
 
         if (!$request) {
-            return null;
+            return;
         }
 
-        /** @var string|null $salesChannelId */
-        $salesChannelId = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
-
-        return $salesChannelId;
+        $this->salesChannelId = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
     }
 }

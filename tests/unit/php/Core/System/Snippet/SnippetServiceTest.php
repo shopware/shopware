@@ -16,7 +16,6 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConf
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Shopware\Tests\Unit\Core\System\Snippet\Mock\MockSnippetFile;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Translation\MessageCatalogue;
 
 /**
@@ -34,28 +33,67 @@ class SnippetServiceTest extends TestCase
     {
         $this->connection = $this->createMock(Connection::class);
         $this->snippetCollection = new SnippetFileCollection();
+        $this->addThemes();
     }
 
-    public function testGetStorefrontSnippets(): void
-    {
-        $themeRegistry = class_exists(StorefrontPluginRegistry::class) ? $this->createMock(StorefrontPluginRegistry::class) : null;
+    /**
+     * @dataProvider getStorefrontSnippetsDataProvider
+     *
+     * @param list<string> $catalogMessages
+     * @param \Throwable|list<string> $expected
+     * @param list<string> $databaseSnippets
+     */
+    public function testGetStorefrontSnippets(
+        array|\Throwable $expected = [],
+        false|string $fetchLocaleResult = 'en-GB',
+        array $catalogMessages = [],
+        ?string $fallbackLocale = null,
+        ?string $salesChannelId = null,
+        ?bool $withThemeRegistry = true,
+        ?string $usedTheme = null,
+        ?array $databaseSnippets = []
+    ): void {
+        $classExists = class_exists(StorefrontPluginRegistry::class);
 
-        if ($themeRegistry === null) {
+        if ($withThemeRegistry && !$classExists) {
             $this->testGetStorefrontSnippetsWithoutThemeRegistry();
 
             return;
         }
 
-        $this->addThemes();
+        if ($expected instanceof \Throwable) {
+            static::expectException($expected::class);
+        }
 
-        $locale = 'de-DE';
-        $snippetSetId = Uuid::randomHex();
-        $catalog = new MessageCatalogue($locale, []);
-
-        $requestStack = new RequestStack();
         $container = $this->createMock(ContainerInterface::class);
-        $container->expects(static::once())->method('has')->with(StorefrontPluginRegistry::class)->willReturn(true);
-        $container->expects(static::once())->method('get')->with(StorefrontPluginRegistry::class)->willReturn($themeRegistry);
+        $container->method('has')->with(StorefrontPluginRegistry::class)->willReturn($withThemeRegistry);
+        $themeLoader = null;
+        $this->connection->expects(static::once())->method('fetchOne')->willReturn($fetchLocaleResult);
+
+        if ($withThemeRegistry) {
+            $plugins = new StorefrontPluginConfigurationCollection();
+
+            foreach (['Storefront', 'SwagTheme'] as $technicalName) {
+                $theme = new StorefrontPluginConfiguration($technicalName);
+                $theme->setIsTheme(true);
+                $plugins->add($theme);
+            }
+
+            $themeRegistry = $this->createMock(StorefrontPluginRegistry::class);
+            $themeRegistry->expects(static::once())->method('getConfigurations')->willReturn($plugins);
+            $container->expects(static::exactly(1))->method('get')->with(StorefrontPluginRegistry::class)->willReturn($themeRegistry);
+        }
+
+        if ($salesChannelId !== null) {
+            $themeLoader = $this->createMock(SalesChannelThemeLoader::class);
+            $themeLoader->expects(static::once())->method('load')->with($salesChannelId)->willReturn([
+                'themeName' => $usedTheme ?? 'Storefront',
+            ]);
+        }
+
+        if (!empty($databaseSnippets)) {
+            $this->connection->expects(static::once())->method('fetchAllKeyValue')->willReturn($databaseSnippets);
+        }
 
         $snippetService = new SnippetService(
             $this->connection,
@@ -64,108 +102,22 @@ class SnippetServiceTest extends TestCase
             $this->createMock(EntityRepository::class),
             $this->createMock(EntityRepository::class),
             $this->createMock(SnippetFilterFactory::class),
-            $requestStack,
-            $container
-        );
-
-        $plugins = new StorefrontPluginConfigurationCollection();
-
-        $storefront = new StorefrontPluginConfiguration('Storefront');
-        $storefront->setIsTheme(true);
-        $swagTheme = new StorefrontPluginConfiguration('SwagTheme');
-        $swagTheme->setIsTheme(true);
-
-        $plugins->add($storefront);
-        $plugins->add($swagTheme);
-
-        $themeRegistry->expects(static::once())->method('getConfigurations')->willReturn($plugins);
-
-        $snippets = $snippetService->getStorefrontSnippets($catalog, $snippetSetId, $locale);
-
-        static::assertSame([
-            'title' => 'Storefront DE',
-        ], $snippets);
-    }
-
-    public function testGetStorefrontSnippetsWithSalesChannelId(): void
-    {
-        $themeRegistry = class_exists(StorefrontPluginRegistry::class) ? $this->createMock(StorefrontPluginRegistry::class) : null;
-        $themeLoader = class_exists(SalesChannelThemeLoader::class) ? $this->createMock(SalesChannelThemeLoader::class) : null;
-
-        if ($themeRegistry === null || $themeLoader === null) {
-            $this->testGetStorefrontSnippetsWithoutThemeRegistry();
-
-            return;
-        }
-
-        $this->addThemes();
-
-        $locale = 'de-DE';
-        $snippetSetId = Uuid::randomHex();
-        $catalog = new MessageCatalogue($locale, []);
-
-        $requestStack = new RequestStack();
-
-        $salesChannelId = Uuid::randomHex();
-
-        $container = $this->createMock(ContainerInterface::class);
-
-        $container->expects(static::exactly(2))->method('get')->withConsecutive(
-            [SalesChannelThemeLoader::class],
-            [StorefrontPluginRegistry::class]
-        )->willReturnOnConsecutiveCalls(
+            $container,
             $themeLoader,
-            $themeRegistry,
-        );
-        $container->expects(static::exactly(2))->method('has')->withConsecutive(
-            [SalesChannelThemeLoader::class],
-            [StorefrontPluginRegistry::class]
-        )->willReturn(true);
-
-        $themeLoader->expects(static::once())->method('load')->with($salesChannelId)->willReturn([
-            'themeName' => 'SwagTheme',
-            'parentThemeName' => null,
-        ]);
-
-        $snippetService = new SnippetService(
-            $this->connection,
-            $this->snippetCollection,
-            $this->createMock(EntityRepository::class),
-            $this->createMock(EntityRepository::class),
-            $this->createMock(EntityRepository::class),
-            $this->createMock(SnippetFilterFactory::class),
-            $requestStack,
-            $container
         );
 
-        $plugins = new StorefrontPluginConfigurationCollection();
+        $catalog = new MessageCatalogue((string) $fetchLocaleResult, ['messages' => $catalogMessages]);
 
-        $storefront = new StorefrontPluginConfiguration('Storefront');
-        $storefront->setIsTheme(true);
-        $swagTheme = new StorefrontPluginConfiguration('SwagTheme');
-        $swagTheme->setIsTheme(true);
+        $snippets = $snippetService->getStorefrontSnippets($catalog, Uuid::randomHex(), $fallbackLocale, $salesChannelId);
 
-        $plugins->add($storefront);
-        $plugins->add($swagTheme);
-
-        $themeRegistry->expects(static::once())->method('getConfigurations')->willReturn($plugins);
-
-        $snippets = $snippetService->getStorefrontSnippets($catalog, $snippetSetId, $locale, $salesChannelId);
-
-        static::assertSame([
-            'title' => 'SwagTheme DE',
-        ], $snippets);
+        static::assertEquals($expected, $snippets);
     }
 
     public function testGetStorefrontSnippetsWithoutThemeRegistry(): void
     {
-        $this->addThemes();
-
         $locale = 'de-DE';
         $snippetSetId = Uuid::randomHex();
         $catalog = new MessageCatalogue($locale, []);
-
-        $requestStack = new RequestStack();
 
         $container = $this->createMock(ContainerInterface::class);
         $container->expects(static::once())->method('has')->with(StorefrontPluginRegistry::class)->willReturn(false);
@@ -177,7 +129,6 @@ class SnippetServiceTest extends TestCase
             $this->createMock(EntityRepository::class),
             $this->createMock(EntityRepository::class),
             $this->createMock(SnippetFilterFactory::class),
-            $requestStack,
             $container
         );
 
@@ -186,6 +137,130 @@ class SnippetServiceTest extends TestCase
         static::assertSame([
             'title' => 'SwagTheme DE',
         ], $snippets);
+    }
+
+    /**
+     * @return iterable<string, array<mixed>>
+     */
+    public static function getStorefrontSnippetsDataProvider(): iterable
+    {
+        yield 'with unknown snippet id' => [
+            'expected' => new \InvalidArgumentException('No snippetSet with id "%s" found'),
+            'fetchLocaleResult' => false,
+            'catalogMessages' => [],
+            'fallbackLocale' => null,
+            'salesChannelId' => null,
+            'withThemeRegistry' => false,
+        ];
+
+        yield 'with messages from catalog' => [
+            'expected' => [
+                'catalog_key' => 'Catalog DE',
+                'title' => 'Storefront EN',
+            ],
+            'fetchLocaleResult' => 'en-GB',
+            'catalogMessages' => [
+                'catalog_key' => 'Catalog DE',
+            ],
+        ];
+
+        yield 'fallback snippets are used if no localized snippet found' => [
+            'expected' => [
+                'title' => 'Storefront DE',
+            ],
+            'fetchLocaleResult' => 'vi-VN',
+            'catalogMessages' => [],
+            'fallbackLocale' => 'de-DE',
+        ];
+
+        yield 'fallback snippets are overrided by catalog messages' => [
+            'expected' => [
+                'catalog_key' => 'Catalog DE',
+                'title' => 'Catalog title',
+            ],
+            'fetchLocaleResult' => 'vi-VN',
+            'catalogMessages' => [
+                'catalog_key' => 'Catalog DE',
+                'title' => 'Catalog title',
+            ],
+            'fallbackLocale' => 'en-GB',
+        ];
+
+        yield 'fallback snippets, catalog messages are overrided by localized snippets' => [
+            'expected' => [
+                'catalog_key' => 'Catalog DE',
+                'title' => 'Storefront DE',
+            ],
+            'fetchLocaleResult' => 'de-DE',
+            'catalogMessages' => [
+                'catalog_key' => 'Catalog DE',
+                'title' => 'Catalog title',
+            ],
+            'fallbackLocale' => 'en-GB',
+        ];
+
+        yield 'fallback snippets, catalog message, localized snippets are overrided by database snippets' => [
+            'expected' => [
+                'title' => 'Database title',
+                'catalog_key' => 'Catalog DE',
+            ],
+            'fetchLocaleResult' => 'de-DE',
+            'catalogMessages' => [
+                'catalog_key' => 'Catalog DE',
+                'title' => 'Catalog title',
+            ],
+            'fallbackLocale' => 'en-GB',
+            'salesChannelId' => null,
+            'withThemeRegistry' => true,
+            'usedTheme' => null,
+            'databaseSnippets' => [
+                'title' => 'Database title',
+            ],
+        ];
+
+        yield 'with sales channel id without theme' => [
+            'expected' => [
+                'title' => 'Storefront DE',
+            ],
+            'fetchLocaleResult' => 'de-DE',
+            'catalogMessages' => [],
+            'fallbackLocale' => 'en-GB',
+            'salesChannelId' => Uuid::randomHex(),
+            'withThemeRegistry' => true,
+            'usedTheme' => null,
+            'databaseSnippets' => [],
+        ];
+
+        yield 'with sales channel id and theme' => [
+            'expected' => [
+                'title' => 'SwagTheme DE',
+            ],
+            'fetchLocaleResult' => 'de-DE',
+            'catalogMessages' => [],
+            'fallbackLocale' => 'en-GB',
+            'salesChannelId' => Uuid::randomHex(),
+            'withThemeRegistry' => true,
+            'usedTheme' => 'SwagTheme',
+        ];
+
+        yield 'theme snippets are overrided by database snippets' => [
+            'expected' => [
+                'title' => 'Database title',
+                'catalog_key' => 'Catalog DE',
+            ],
+            'fetchLocaleResult' => 'de-DE',
+            'catalogMessages' => [
+                'catalog_key' => 'Catalog DE',
+                'title' => 'Catalog title',
+            ],
+            'fallbackLocale' => 'en-GB',
+            'salesChannelId' => Uuid::randomHex(),
+            'withThemeRegistry' => true,
+            'usedTheme' => 'SwagTheme',
+            'databaseSnippets' => [
+                'title' => 'Database title',
+            ],
+        ];
     }
 
     private function addThemes(): void

@@ -915,4 +915,19 @@ describe('src/app/component/form/sw-text-editor', () => {
         expect(getData.mock.calls).toEqual([['text/plain'], ['text/html']]);
         expect(wrapper.vm.getContentValue()).toBe('<span id=\"anchor\">test</span>');
     });
+
+    it('should not render transparent background', async () => {
+        wrapper = await createWrapper(false);
+
+        expect(wrapper.find('.sw-text-editor__content').classes()).not.toContain('is--transparent-background');
+    });
+
+    it('should render transparent background', async () => {
+        wrapper = await createWrapper(false);
+        await wrapper.setProps({
+            enableTransparentBackground: true
+        });
+
+        expect(wrapper.find('.sw-text-editor__content').classes()).toContain('is--transparent-background');
+    });
 });

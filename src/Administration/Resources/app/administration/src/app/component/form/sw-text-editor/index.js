@@ -96,6 +96,12 @@ Component.register('sw-text-editor', {
             default: null,
         },
 
+        enableTransparentBackground: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+
         buttonConfig: {
             type: Array,
             required: false,
@@ -305,6 +311,12 @@ Component.register('sw-text-editor', {
                 'is--empty': this.isEmpty,
                 'has--vertical-align': !!this.verticalAlign,
                 'has--error': !!this.error,
+            };
+        },
+
+        contentClasses() {
+            return {
+                'is--transparent-background': this.enableTransparentBackground,
             };
         },
 

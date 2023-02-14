@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules;
 
-use PhpParser\Node\Name;
 use PhpParser\Node;
 use PhpParser\Node\Expr\New_;
+use PhpParser\Node\Name;
 use PHPStan\Analyser\Scope;
 use PHPStan\Reflection\ReflectionProvider;
 use PHPStan\Rules\Rule;

@@ -633,7 +633,7 @@ class TranslationTest extends TestCase
 
         static::assertArrayHasKey('data', $responseData, $response->getContent());
         foreach ($expectedTranslations as $key => $expectedTranslation) {
-            if (!is_array($expectedTranslations[$key])) {
+            if (!\is_array($expectedTranslations[$key])) {
                 static::assertEquals($expectedTranslations[$key], $responseData['data'][$key]);
             } else {
                 foreach ($expectedTranslations[$key] as $key2 => $expectedTranslation2) {

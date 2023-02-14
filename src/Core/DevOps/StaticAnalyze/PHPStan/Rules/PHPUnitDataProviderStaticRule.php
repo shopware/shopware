@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules;
 
@@ -23,7 +23,7 @@ class PHPUnitDataProviderStaticRule implements Rule
 
     /**
      * @param Node\Stmt\ClassMethod $node
-     * @param Scope $scope
+     *
      * @return string[]
      */
     public function processNode(Node $node, Scope $scope): array

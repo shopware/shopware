@@ -1179,7 +1179,7 @@ class SalesChannelProxyControllerTest extends TestCase
         $responseData = json_decode($response->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
         foreach ($expectedTranslations as $key => $expectedTranslation) {
-            if (!is_array($expectedTranslations[$key])) {
+            if (!\is_array($expectedTranslations[$key])) {
                 static::assertEquals($expectedTranslations[$key], $responseData[$key]);
             } else {
                 foreach ($expectedTranslations[$key] as $key2 => $expectedTranslation2) {

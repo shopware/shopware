@@ -6,7 +6,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\Event\DocumentTemplateRendererParameterEvent;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\SalesChannelRequest;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Theme\SalesChannelThemeLoader;
 use Shopware\Storefront\Theme\Twig\ThemeInheritanceBuilderInterface;
 use Shopware\Storefront\Theme\Twig\ThemeNamespaceHierarchyBuilder;

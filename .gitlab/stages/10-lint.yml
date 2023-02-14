@@ -317,7 +317,7 @@ NPM CI:
     before_script: []
     script:
         - cd $JS_APP_DIR
-        - npm ci
+        - npm ci --no-audit --prefer-offline
     parallel:
       matrix:
         - JS_APP_DIR: "src/Administration/Resources/app/administration/"
@@ -350,7 +350,7 @@ Administration Cache (Push):
   before_script:
     - composer install --no-scripts --quiet
     - !reference [ .scripts, install-node, script ]
-    - npm --prefix src/Administration/Resources/app/administration ci
+    - npm --prefix src/Administration/Resources/app/administration ci --no-audit --prefer-offline
     - composer run admin:generate-entity-schema-types
   script:
     - cd src/Administration/Resources/app/administration
@@ -375,7 +375,7 @@ Storefront Cache (Push):
       policy: push
   before_script: []
   script:
-    - npm --prefix src/Storefront/Resources/app/storefront ci
+    - npm --prefix src/Storefront/Resources/app/storefront ci --no-audit --prefer-offline
     - cd src/Storefront/Resources/app/storefront
     - npm run lint
     - npm run lint:scss

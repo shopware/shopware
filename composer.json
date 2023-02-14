@@ -331,7 +331,7 @@
             "cp -a $PWD/custom/plugins/TestPlugin/. $PWD/tests/e2e/cypress/fixtures/TestPlugin/"
         ],
         "e2e:sdk-plugin:prepare-plugin": [
-            "cd $PWD/custom/plugins/TestPlugin/src/Resources/app/administration/; npm install;",
+            "cd $PWD/custom/plugins/TestPlugin/src/Resources/app/administration/; npm install --no-audit --prefer-offline;",
             "bin/console plugin:refresh;",
             "bin/console plugin:install --activate TestPlugin;",
             "@build:js:admin"
@@ -370,10 +370,10 @@
         "init:db": [
             "@php bin/console system:install --drop-database --basic-setup --force --no-assign-theme"
         ],
-        "init:e2e": "@npm:e2e clean-install",
+        "init:e2e": "@npm:e2e clean-install --no-audit --prefer-offline",
         "init:js": [
-            "@npm:admin clean-install",
-            "@npm:storefront clean-install"
+            "@npm:admin clean-install --no-audit --prefer-offline",
+            "@npm:storefront clean-install --no-audit --prefer-offline"
         ],
         "init:testdb": [
             "FORCE_INSTALL=true vendor/bin/phpunit --group=none"

@@ -33,7 +33,7 @@ jobs:
 
       - name: Install dependencies (if the cached directory was not found)
         if: steps.node-cache.outputs.cache-hit != 'true'
-        run: npm --prefix src/Storefront/Resources/app/storefront ci
+        run: npm --prefix src/Storefront/Resources/app/storefront ci --no-audit --prefer-offline
 
       - name: Cache ESLint
         uses: actions/cache@v2

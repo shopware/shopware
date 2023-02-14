@@ -44,7 +44,7 @@ Jest (Administration):
         - when: always
     before_script:
       - composer install --no-scripts --quiet
-      - '[[ -d src/Administration/Resources/app/administration/node_modules/ ]] || npm --prefix src/Administration/Resources/app/administration/ ci'
+      - '[[ -d src/Administration/Resources/app/administration/node_modules/ ]] || npm --prefix src/Administration/Resources/app/administration/ ci --no-audit --prefer-offline'
       - composer run admin:generate-entity-schema-types
       - !reference [ .scripts, install-node, script ]
     script:
@@ -76,7 +76,7 @@ Jest (Storefront):
         policy: pull
     before_script:
       - !reference [ .scripts, install-node, script ]
-      - '[[ -d src/Storefront/Resources/app/storefront/node_modules/ ]] || npm --prefix src/Storefront/Resources/app/storefront/ ci'
+      - '[[ -d src/Storefront/Resources/app/storefront/node_modules/ ]] || npm --prefix src/Storefront/Resources/app/storefront/ ci --no-audit --prefer-offline'
     script:
         - npm --prefix "$STOREFRONT_PATH" run unit -- --silent
     coverage: '/^\s?All files[^|]*\|[^|]*\s+([\d\.]+)/'

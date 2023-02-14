@@ -181,7 +181,7 @@ class CustomerCustomFieldRuleTest extends TestCase
         static::assertSame($result, $this->rule->match($this->scope));
     }
 
-    public function customFieldCheckoutScopeProvider(): array
+    public static function customFieldCheckoutScopeProvider(): array
     {
         return [
             'testBooleanCustomFieldFalse' => [false, 'bool', false, true],
@@ -195,7 +195,7 @@ class CustomerCustomFieldRuleTest extends TestCase
     /**
      * @return array<array<string>>
      */
-    public function getStringRuleValueWhichShouldBeConsideredAsTrueProvider(): array
+    public static function getStringRuleValueWhichShouldBeConsideredAsTrueProvider(): array
     {
         return [
             ['yes'],
@@ -209,7 +209,7 @@ class CustomerCustomFieldRuleTest extends TestCase
     /**
      * @return array<array<string>>
      */
-    public function getStringRuleValueWhichShouldBeConsideredAsFalseProvider(): array
+    public static function getStringRuleValueWhichShouldBeConsideredAsFalseProvider(): array
     {
         return [
             ['no'],

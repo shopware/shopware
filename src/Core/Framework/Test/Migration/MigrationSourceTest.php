@@ -23,13 +23,6 @@ use Shopware\Core\Migration\V6_3\Migration1570622696CustomerPasswordRecovery;
 use Shopware\Core\Migration\V6_3\Migration1570629862ClearCategoryBreadcrumbs;
 use Shopware\Core\Migration\V6_3\Migration1570684913ScheduleIndexer;
 use Shopware\Core\Migration\V6_3\Migration1571059598ChangeGreatBritainToUnitedKingdom;
-use Shopware\Storefront\Controller\ProductController;
-use Shopware\Storefront\Migration\V6_3\Migration1555406153SalesChannelTheme;
-use Shopware\Storefront\Migration\V6_3\Migration1563785071AddThemeHelpText;
-use Shopware\Storefront\Migration\V6_3\Migration1564385954ThemeMedia;
-use Shopware\Storefront\Migration\V6_3\Migration1564385960ThemeAddActiveFlag;
-use Shopware\Storefront\Migration\V6_3\Migration1565640170ThemeMigrateMedia;
-use Shopware\Storefront\Migration\V6_3\Migration1565640175RemoveSalesChannelTheme;
 
 /**
  * @internal
@@ -122,7 +115,7 @@ class MigrationSourceTest extends TestCase
         static::assertSame($expected, $sourceAb->getSourceDirectories());
     }
 
-    public function provideCoreRegexDataV6_3(): array
+    public static function provideCoreRegexDataV6_3(): array
     {
         $cases = [
             [Migration1565270366PromotionSetGroupRule::class, true],
@@ -146,28 +139,10 @@ class MigrationSourceTest extends TestCase
             ['Shopware\Core\Migration\V6_3\Something\Migration1571059598ChangeGreatBritainToUnitedKingdom', false],
         ];
 
-        if ($this->getContainer()->has(ProductController::class)) {
-            $cases = array_merge(
-                $cases,
-                [
-                    [Migration1555406153SalesChannelTheme::class, true],
-                    [Migration1563785071AddThemeHelpText::class, true],
-                    [Migration1564385954ThemeMedia::class, true],
-                    [Migration1564385960ThemeAddActiveFlag::class, true],
-                    [Migration1565640170ThemeMigrateMedia::class, true],
-                    [Migration1565640175RemoveSalesChannelTheme::class, true],
-                    ['Shopware\Storefront\Migration\V6_3\Migration1568787535AddSeoUrlConstraints', true],
-                    ['Shopware\Storefront\Migration\V6_3\Migration1595919251MainCategory', true],
-                    ['Shopware\Storefront\Migration\V6_3\Migration1569907970RemoveUnusedSeoColumns', true],
-                    ['Shopware\Storefront\Migration\V6_3\Migration1572858066UpdateDefaultCategorySeoUrlTemplate', true],
-                ]
-            );
-        }
-
         return $cases;
     }
 
-    public function provideUnitTestData(): array
+    public static function provideUnitTestData(): array
     {
         return [
             ['__NOPE__', false],

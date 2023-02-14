@@ -29,7 +29,7 @@ class MemorySizeCalculatorTest extends TestCase
      *
      * @return array{0: string, 1: int}[]
      */
-    public function memorySizeDataProvider(): array
+    public static function memorySizeDataProvider(): array
     {
         return [
             ['2k', 2048],

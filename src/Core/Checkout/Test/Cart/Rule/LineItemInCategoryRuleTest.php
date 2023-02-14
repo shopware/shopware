@@ -72,7 +72,7 @@ class LineItemInCategoryRuleTest extends TestCase
         static::assertSame($expected, $match);
     }
 
-    public function getLineItemScopeTestData(): \Generator
+    public static function getLineItemScopeTestData(): \Generator
     {
         yield 'single product / equal / match category id' => [['1', '2'], Rule::OPERATOR_EQ, ['1'], true];
         yield 'single product / equal / no match' => [['1', '2'], Rule::OPERATOR_EQ, ['3'], false];
@@ -145,7 +145,7 @@ class LineItemInCategoryRuleTest extends TestCase
         static::assertSame($expected, $match);
     }
 
-    public function getCartRuleScopeTestData(): \Generator
+    public static function getCartRuleScopeTestData(): \Generator
     {
         yield 'multiple products / equal / match category id' => [['1', '2'], Rule::OPERATOR_EQ, ['2'], true];
         yield 'multiple products / equal / no match' => [['4', '5'], Rule::OPERATOR_EQ, ['2'], false];

@@ -27,6 +27,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Cache\Adapter\TagAwareAdapter;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -95,7 +96,7 @@ class CachedCountryRouteTest extends TestCase
         $route->load(new Request(), $criteria, $context);
     }
 
-    public function criteriaProvider(): \Generator
+    public static function criteriaProvider(): \Generator
     {
         yield 'Paginated criteria' => [(new Criteria())->setOffset(1)->setLimit(20)];
         yield 'Filtered criteria' => [(new Criteria())->addFilter(new EqualsFilter('active', true))];
@@ -124,31 +125,31 @@ class CachedCountryRouteTest extends TestCase
         $listener->expects(static::exactly($calls))->method('__invoke');
         $this->addEventListener($dispatcher, 'country.loaded', $listener);
 
-        $before();
+        $before($this->getContainer());
 
         $route->load(new Request(), new Criteria(), $this->context);
         $route->load(new Request(), new Criteria(), $this->context);
 
-        $after();
+        $after($this->getContainer());
 
         $route->load(new Request(), new Criteria(), $this->context);
         $route->load(new Request(), new Criteria(), $this->context);
     }
 
-    public function invalidationProvider()
+    public static function invalidationProvider()
     {
         $ids = new IdsCollection();
 
         yield 'Cache not invalidated if country not assigned' => [
             function (): void {
             },
-            function () use ($ids): void {
+            function (ContainerInterface $container) use ($ids): void {
                 $data = [
                     'id' => $ids->get('country'),
                     'name' => 'test',
                 ];
 
-                $this->getContainer()->get('country.repository')->create([$data], Context::createDefaultContext());
+                $container->get('country.repository')->create([$data], Context::createDefaultContext());
             },
             1,
         ];
@@ -156,136 +157,136 @@ class CachedCountryRouteTest extends TestCase
         yield 'Cache invalidated if created country assigned' => [
             function (): void {
             },
-            function () use ($ids): void {
+            function (ContainerInterface $container) use ($ids): void {
                 $data = [
                     'id' => $ids->get('country'),
                     'name' => 'test',
                     'salesChannels' => [['id' => TestDefaults::SALES_CHANNEL]],
                 ];
 
-                $this->getContainer()->get('country.repository')->create([$data], Context::createDefaultContext());
+                $container->get('country.repository')->create([$data], Context::createDefaultContext());
             },
             2,
         ];
 
         yield 'Cache not invalidated if updated country not assigned' => [
-            function () use ($ids): void {
+            function (ContainerInterface $container) use ($ids): void {
                 $data = [
                     'id' => $ids->get('country'),
                     'name' => 'test',
                 ];
 
-                $this->getContainer()->get('country.repository')->create([$data], Context::createDefaultContext());
+                $container->get('country.repository')->create([$data], Context::createDefaultContext());
             },
-            function () use ($ids): void {
+            function (ContainerInterface $container) use ($ids): void {
                 $data = [
                     'id' => $ids->get('country'),
                     'name' => 'update',
                 ];
 
-                $this->getContainer()->get('country.repository')->update([$data], Context::createDefaultContext());
+                $container->get('country.repository')->update([$data], Context::createDefaultContext());
             },
             1,
         ];
 
         yield 'Cache invalidated if updated country assigned' => [
-            function () use ($ids): void {
+            function (ContainerInterface $container) use ($ids): void {
                 $data = [
                     'id' => $ids->get('country'),
                     'name' => 'test',
                     'salesChannels' => [['id' => TestDefaults::SALES_CHANNEL]],
                 ];
 
-                $this->getContainer()->get('country.repository')->create([$data], Context::createDefaultContext());
+                $container->get('country.repository')->create([$data], Context::createDefaultContext());
             },
-            function () use ($ids): void {
+            function (ContainerInterface $container) use ($ids): void {
                 $data = [
                     'id' => $ids->get('country'),
                     'name' => 'update',
                 ];
 
-                $this->getContainer()->get('country.repository')->update([$data], Context::createDefaultContext());
+                $container->get('country.repository')->update([$data], Context::createDefaultContext());
             },
             2,
         ];
 
         yield 'Cache invalidated if deleted country not assigned' => [
-            function () use ($ids): void {
+            function (ContainerInterface $container) use ($ids): void {
                 $data = [
                     'id' => $ids->get('country'),
                     'name' => 'test',
                 ];
 
-                $this->getContainer()->get('country.repository')->create([$data], Context::createDefaultContext());
+                $container->get('country.repository')->create([$data], Context::createDefaultContext());
             },
-            function () use ($ids): void {
+            function (ContainerInterface $container) use ($ids): void {
                 $data = [
                     'id' => $ids->get('country'),
                 ];
 
-                $this->getContainer()->get('country.repository')->delete([$data], Context::createDefaultContext());
+                $container->get('country.repository')->delete([$data], Context::createDefaultContext());
             },
             2,
         ];
 
         yield 'Cache invalidated if deleted country assigned' => [
-            function () use ($ids): void {
+            function (ContainerInterface $container) use ($ids): void {
                 $data = [
                     'id' => $ids->get('country'),
                     'name' => 'test',
                     'salesChannels' => [['id' => TestDefaults::SALES_CHANNEL]],
                 ];
 
-                $this->getContainer()->get('country.repository')->create([$data], Context::createDefaultContext());
+                $container->get('country.repository')->create([$data], Context::createDefaultContext());
             },
-            function () use ($ids): void {
+            function (ContainerInterface $container) use ($ids): void {
                 $data = [
                     'id' => $ids->get('country'),
                 ];
 
-                $this->getContainer()->get('country.repository')->delete([$data], Context::createDefaultContext());
+                $container->get('country.repository')->delete([$data], Context::createDefaultContext());
             },
             2,
         ];
 
         yield 'Cache invalidated when country assigned' => [
-            function () use ($ids): void {
+            function (ContainerInterface $container) use ($ids): void {
                 $data = [
                     'id' => $ids->get('country'),
                     'name' => 'test',
                 ];
 
-                $this->getContainer()->get('country.repository')->create([$data], Context::createDefaultContext());
+                $container->get('country.repository')->create([$data], Context::createDefaultContext());
             },
-            function () use ($ids): void {
+            function (ContainerInterface $container) use ($ids): void {
                 $data = [
                     'countryId' => $ids->get('country'),
                     'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 ];
 
-                $this->getContainer()->get('sales_channel_country.repository')
+                $container->get('sales_channel_country.repository')
                     ->create([$data], Context::createDefaultContext());
             },
             2,
         ];
 
         yield 'Cache invalidated when delete country assignment' => [
-            function () use ($ids): void {
+            function (ContainerInterface $container) use ($ids): void {
                 $data = [
                     'id' => $ids->get('country'),
                     'name' => 'test',
                     'salesChannels' => [['id' => TestDefaults::SALES_CHANNEL]],
                 ];
 
-                $this->getContainer()->get('country.repository')->create([$data], Context::createDefaultContext());
+                $container->get('country.repository')->create([$data], Context::createDefaultContext());
             },
-            function () use ($ids): void {
+            function (ContainerInterface $container) use ($ids): void {
                 $data = [
                     'countryId' => $ids->get('country'),
                     'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 ];
 
-                $this->getContainer()->get('sales_channel_country.repository')
+                $container->get('sales_channel_country.repository')
                     ->delete([$data], Context::createDefaultContext());
             },
             2,

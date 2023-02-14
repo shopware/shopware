@@ -162,7 +162,7 @@ class MatchAllLineItemsRuleTest extends TestCase
         static::assertSame($expected, $match);
     }
 
-    public function getCartScopeTestData(): array
+    public static function getCartScopeTestData(): array
     {
         return [
             'all products / equal / match category id' => [['1', '2'], ['1', '3'], MatchAllLineItemsRule::OPERATOR_EQ, ['1'], true],
@@ -216,7 +216,7 @@ class MatchAllLineItemsRuleTest extends TestCase
         static::assertSame($expected, $match);
     }
 
-    public function getCartScopeTestMinimumShouldMatchData(): array
+    public static function getCartScopeTestMinimumShouldMatchData(): array
     {
         return [
             'minimum 2 products / equal / match category id' => [['1', '2'], ['1', '3'], ['2', '3'], MatchAllLineItemsRule::OPERATOR_EQ, ['1'], true],

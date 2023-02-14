@@ -54,7 +54,7 @@ class SqlQueryParserTest extends TestCase
         static::assertEquals($expected, $has);
     }
 
-    public function whenToUseNullSafeOperatorProvider()
+    public static function whenToUseNullSafeOperatorProvider()
     {
         yield 'Dont used for simple equals' => [new EqualsFilter('product.id', Uuid::randomHex()), false];
         yield 'Used for negated comparison' => [new NandFilter([new EqualsFilter('product.id', Uuid::randomHex())]), true];

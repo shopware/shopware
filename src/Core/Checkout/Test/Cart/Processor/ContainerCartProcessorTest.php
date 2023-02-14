@@ -76,7 +76,7 @@ class ContainerCartProcessorTest extends TestCase
         }
     }
 
-    public function calculationProvider(): \Generator
+    public static function calculationProvider(): \Generator
     {
         yield 'Test empty container will be removed' => [
             new ContainerItem(),

@@ -34,7 +34,7 @@ class RequestCriteriaBuilderTest extends TestCase
         $this->requestCriteriaBuilder = $this->getContainer()->get(RequestCriteriaBuilder::class);
     }
 
-    public function maxApiLimitProvider(): iterable
+    public static function maxApiLimitProvider(): iterable
     {
         yield 'Test null max limit' => [10000, null, 10000, false];
         yield 'Test null max limit and null limit' => [null, null, null, false];
@@ -248,7 +248,7 @@ class RequestCriteriaBuilderTest extends TestCase
         static::assertSame($expectedMode, $criteria->getTotalCountMode());
     }
 
-    public function providerTotalCount(): iterable
+    public static function providerTotalCount(): iterable
     {
         yield [
             '0',

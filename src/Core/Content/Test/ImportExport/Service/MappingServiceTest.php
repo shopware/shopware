@@ -187,7 +187,7 @@ class MappingServiceTest extends TestCase
         }
     }
 
-    public function templateProfileProvider(): iterable
+    public static function templateProfileProvider(): iterable
     {
         yield 'Import/Export profile with mapping' => [
             [
@@ -278,7 +278,7 @@ class MappingServiceTest extends TestCase
         ];
     }
 
-    public function mappingInputProvider(): iterable
+    public static function mappingInputProvider(): iterable
     {
         yield 'With existing mapping' => [
             [

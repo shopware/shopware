@@ -41,7 +41,7 @@ class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
         $indexing->updateCustomersRecipient([Uuid::randomHex()]);
     }
 
-    public function dataProvider(): \Generator
+    public static function dataProvider(): \Generator
     {
         yield 'Email Newsletter Recipient Registered' => [
             'newsletter_sales_channel_ids' => json_encode([Uuid::randomHex() => Uuid::randomHex()], \JSON_THROW_ON_ERROR),

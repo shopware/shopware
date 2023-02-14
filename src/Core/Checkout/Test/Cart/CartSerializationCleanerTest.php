@@ -89,7 +89,7 @@ class CartSerializationCleanerTest extends TestCase
         }
     }
 
-    public function cleanupCustomFieldsProvider(): \Generator
+    public static function cleanupCustomFieldsProvider(): \Generator
     {
         yield 'Test empty cart' => [
             new Cart('test'),
@@ -120,7 +120,7 @@ class CartSerializationCleanerTest extends TestCase
         ];
     }
 
-    public function cleanupCoversProvider(): \Generator
+    public static function cleanupCoversProvider(): \Generator
     {
         yield 'Test cover thumbnailRo cleanup' => [
             self::coverCart('foo', 'test'),

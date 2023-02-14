@@ -102,7 +102,7 @@ class SetCustomerGroupCustomFieldActionTest extends TestCase
         $this->action->handleFlow($this->flow);
     }
 
-    public function actionExecutedProvider(): \Generator
+    public static function actionExecutedProvider(): \Generator
     {
         yield 'Test aware with upsert config' => [
             [

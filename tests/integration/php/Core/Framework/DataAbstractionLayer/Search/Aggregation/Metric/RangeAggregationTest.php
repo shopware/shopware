@@ -35,7 +35,7 @@ class RangeAggregationTest extends TestCase
     /**
      * @return iterable<string, mixed>
      */
-    public function buildRangeKeyDataProvider(): iterable
+    public static function buildRangeKeyDataProvider(): iterable
     {
         yield 'empty from and empty to' => [null, null, '*-*'];
         yield 'empty from and to' => [null, 10, '*-10'];
@@ -57,7 +57,7 @@ class RangeAggregationTest extends TestCase
     /**
      * @return array<string, array{rangesDefinition: mixed, rangesExpectedResult: mixed}>
      */
-    public function rangeAggregationDataProvider(): iterable
+    public static function rangeAggregationDataProvider(): iterable
     {
         yield 'default ranges test cases' => [
             'rangesDefinition' => [

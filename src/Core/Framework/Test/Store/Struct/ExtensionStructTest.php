@@ -48,7 +48,7 @@ class ExtensionStructTest extends TestCase
         ], array_keys($categorizedPermissions));
     }
 
-    public function badValuesProvider(): iterable
+    public static function badValuesProvider(): iterable
     {
         yield [[]];
         yield [['name' => 'foo']];

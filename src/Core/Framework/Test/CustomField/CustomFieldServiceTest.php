@@ -39,7 +39,7 @@ class CustomFieldServiceTest extends TestCase
         $this->attributeService = $this->getContainer()->get(CustomFieldService::class);
     }
 
-    public function attributeFieldTestProvider(): array
+    public static function attributeFieldTestProvider(): array
     {
         return [
             [

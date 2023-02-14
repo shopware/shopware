@@ -174,7 +174,7 @@ class GrantDownloadAccessActionTest extends TestCase
         $this->assertOrderWithGrantedAccess($orderId, $productDownloads);
     }
 
-    public function orderCaseProvider(): \Generator
+    public static function orderCaseProvider(): \Generator
     {
         yield 'downloadable only' => [
             [

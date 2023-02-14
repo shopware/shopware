@@ -14,6 +14,7 @@ use Shopware\Core\Checkout\Cart\Processor\DiscountCartProcessor;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Checkout\Test\Cart\Processor\_fixtures\AbsoluteItem;
 use Shopware\Core\Checkout\Test\Cart\Processor\_fixtures\CalculatedItem;
 use Shopware\Core\Checkout\Test\Cart\Processor\_fixtures\CalculatedTaxes;
@@ -25,7 +26,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 
 /**
@@ -98,12 +98,11 @@ class DiscountProcessorTest extends TestCase
         }
     }
 
-    public function processorProvider(): \Generator
+    public static function processorProvider(): \Generator
     {
-        $context = $this->createMock(SalesChannelContext::class);
-
-        $context->method('getItemRounding')->willReturn(new CashRoundingConfig(2, 0.01, true));
-        $context->method('getTaxState')->willReturn(CartPrice::TAX_STATE_GROSS);
+        $context = Generator::createSalesChannelContext();
+        $context->setTaxState(CartPrice::TAX_STATE_GROSS);
+        $context->setItemRounding(new CashRoundingConfig(2, 0.01, true));
 
         yield 'Remove discounts when cart is empty' => [
             [new PercentageItem(10, self::DISCOUNT_ID)],

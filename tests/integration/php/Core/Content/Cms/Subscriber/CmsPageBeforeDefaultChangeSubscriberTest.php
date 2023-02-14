@@ -96,7 +96,7 @@ class CmsPageBeforeDefaultChangeSubscriberTest extends TestCase
         }
     }
 
-    public function validDefaultCmsPageDataProvider(): \Generator
+    public static function validDefaultCmsPageDataProvider(): \Generator
     {
         $ids = new IdsCollection();
 
@@ -111,7 +111,7 @@ class CmsPageBeforeDefaultChangeSubscriberTest extends TestCase
         ];
     }
 
-    public function invalidDefaultCmsPageDataProvider(): \Generator
+    public static function invalidDefaultCmsPageDataProvider(): \Generator
     {
         $ids = new IdsCollection();
 

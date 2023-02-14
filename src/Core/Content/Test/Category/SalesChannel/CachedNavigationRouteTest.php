@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -66,12 +67,12 @@ class CachedNavigationRouteTest extends TestCase
         $context = $this->context;
         $root = $context->getSalesChannel()->getNavigationCategoryId();
 
-        $id = $before($ids, $context);
+        $id = $before($ids, $context, $this->getContainer());
 
         $route->load($id, $root, self::request($depth), $context, new Criteria());
         $route->load($id, $root, self::request($depth), $context, new Criteria());
 
-        $after($ids, $context);
+        $after($ids, $context, $this->getContainer());
 
         $route->load($id, $root, self::request($depth), $context, new Criteria());
         $response = $route->load($id, $root, self::request($depth), $context, new Criteria());
@@ -80,7 +81,7 @@ class CachedNavigationRouteTest extends TestCase
         static::assertTrue($response->getCategories()->count() > 0);
     }
 
-    public function invalidationProvider()
+    public static function invalidationProvider()
     {
         $ids = new IdsCollection();
 
@@ -115,8 +116,8 @@ class CachedNavigationRouteTest extends TestCase
             $ids,
             1,
             fn (IdsCollection $ids): string => $ids->get('cat-1.1.1'),
-            function (IdsCollection $ids): void {
-                $this->getContainer()->get('category.repository')->update([
+            function (IdsCollection $ids, SalesChannelContext $context, ContainerInterface $container): void {
+                $container->get('category.repository')->update([
                     ['id' => $ids->get('cat-1.2.0'), 'active' => false],
                 ], Context::createDefaultContext());
             },
@@ -127,8 +128,8 @@ class CachedNavigationRouteTest extends TestCase
             $ids,
             1,
             fn (IdsCollection $ids): string => $ids->get('cat-1.1.1'),
-            function (IdsCollection $ids): void {
-                $this->getContainer()->get('category.repository')->delete([
+            function (IdsCollection $ids, SalesChannelContext $context, ContainerInterface $container): void {
+                $container->get('category.repository')->delete([
                     ['id' => $ids->get('cat-1.2.2')],
                 ], Context::createDefaultContext());
             },
@@ -139,8 +140,8 @@ class CachedNavigationRouteTest extends TestCase
             $ids,
             1,
             fn (IdsCollection $ids): string => $ids->get('cat-1.1.1'),
-            function (IdsCollection $ids): void {
-                $this->getContainer()->get('category.repository')->create([
+            function (IdsCollection $ids, SalesChannelContext $context, ContainerInterface $container): void {
+                $container->get('category.repository')->create([
                     ['id' => $ids->get('cat-1.2.4'), 'name' => 'cat 1.2.4', 'active' => true],
                 ], Context::createDefaultContext());
             },

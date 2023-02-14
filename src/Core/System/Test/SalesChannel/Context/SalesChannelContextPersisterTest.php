@@ -307,7 +307,7 @@ class SalesChannelContextPersisterTest extends TestCase
         static::assertNull($this->connection->fetchOne('SELECT customer_id FROM sales_channel_api_context'));
     }
 
-    public function tokenExpiringDataProvider(): \Generator
+    public static function tokenExpiringDataProvider(): \Generator
     {
         yield [0, 'P2D', false];
         yield [1, 'P2D', false];
@@ -373,7 +373,7 @@ class SalesChannelContextPersisterTest extends TestCase
         }
     }
 
-    public function testRevokeTokensDataProvider(): \Generator
+    public static function testRevokeTokensDataProvider(): \Generator
     {
         yield [Uuid::randomHex(), ''];
         yield [$token = Uuid::randomHex(), $token];

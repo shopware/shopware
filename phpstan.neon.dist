@@ -226,3 +226,8 @@ services:
         class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoDALAutoload
         tags:
             - phpstan.rules.rule
+
+    -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\PHPUnitDataProviderStaticRule
+        tags:
+            - phpstan.rules.rule

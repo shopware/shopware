@@ -188,7 +188,7 @@ class ScriptExecutorTest extends TestCase
     /**
      * @return array<string, array{0: array<string>, 1: array<string, string|int>}>
      */
-    public function executeProvider(): iterable
+    public static function executeProvider(): iterable
     {
         yield 'Test simple function call' => [
             ['simple-function-case'],

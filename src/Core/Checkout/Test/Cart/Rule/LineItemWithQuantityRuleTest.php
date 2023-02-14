@@ -271,7 +271,7 @@ class LineItemWithQuantityRuleTest extends TestCase
         );
     }
 
-    public function matchProvider(): \Generator
+    public static function matchProvider(): \Generator
     {
         $ids = new IdsCollection();
 

@@ -198,7 +198,7 @@ class ImportExportActionControllerTest extends TestCase
         static::assertSame($expectedMapping, $result);
     }
 
-    public function mappingFromProvider(): iterable
+    public static function mappingFromProvider(): iterable
     {
         yield 'Product entity with mapped keys' => [
             'sourceEntity' => 'product',

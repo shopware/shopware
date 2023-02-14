@@ -138,7 +138,7 @@ class ContactFormRouteTest extends TestCase
         static::assertArrayHasKey('h.mac@example.com', $recipients);
     }
 
-    public function navigationProvider(): \Generator
+    public static function navigationProvider(): \Generator
     {
         yield 'Category with Slot Config' => [CategoryDefinition::ENTITY_NAME];
         yield 'Landing Page with Slot Config' => [LandingPageDefinition::ENTITY_NAME];
@@ -217,7 +217,7 @@ class ContactFormRouteTest extends TestCase
         $expectClosure($response);
     }
 
-    public function contactFormWithDomainProvider(): \Generator
+    public static function contactFormWithDomainProvider(): \Generator
     {
         yield 'subscribe with URL protocol HTTPS' => [
             'Y https://shopware.test',

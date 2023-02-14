@@ -94,7 +94,7 @@ class ProductFeatureSetEntityTest extends TestCase
         );
     }
 
-    public function definitionMethodProvider(): array
+    public static function definitionMethodProvider(): array
     {
         return [
             [

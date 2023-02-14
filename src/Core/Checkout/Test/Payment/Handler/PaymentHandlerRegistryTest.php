@@ -166,7 +166,7 @@ class PaymentHandlerRegistryTest extends TestCase
     /**
      * @return array<string, array<string|class-string<PaymentHandlerInterface>|array<class-string<PaymentHandlerInterface>>>>
      */
-    public function paymentMethodDataProvider(): array
+    public static function paymentMethodDataProvider(): array
     {
         return [
             'app async' => [
@@ -215,7 +215,7 @@ class PaymentHandlerRegistryTest extends TestCase
     /**
      * @return array<array<array<string>|bool|string>>
      */
-    public function appPaymentMethodUrlProvider(): iterable
+    public static function appPaymentMethodUrlProvider(): iterable
     {
         yield [[], AppSyncPaymentHandler::class];
         yield [['payUrl' => 'https://foo.bar/pay'], AppSyncPaymentHandler::class];

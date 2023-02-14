@@ -101,7 +101,7 @@ class FileSaverTest extends TestCase
         $this->fileSaver->persistFileToMedia($mediaFile, 'foo', Uuid::randomHex(), $context);
     }
 
-    public function duplicateFileNameProvider(): \Generator
+    public static function duplicateFileNameProvider(): \Generator
     {
         yield 'new private file exists as private in database / different filesystems' => [
             true,
@@ -167,7 +167,7 @@ class FileSaverTest extends TestCase
         static::assertEquals($message, $this->messageBus->getMessages()[0]->getMessage());
     }
 
-    public function uniqueFileNameProvider(): \Generator
+    public static function uniqueFileNameProvider(): \Generator
     {
         yield 'new public file exists as private in database' => [
             false,

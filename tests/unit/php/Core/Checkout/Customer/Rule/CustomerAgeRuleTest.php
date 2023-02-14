@@ -82,7 +82,7 @@ class CustomerAgeRuleTest extends TestCase
     /**
      * @return \Traversable<list<mixed>>
      */
-    public function getCaseTestMatchValues(): \Traversable
+    public static function getCaseTestMatchValues(): \Traversable
     {
         $birthday = new \DateTime('1991/10/16');
         $now = new \DateTime();

@@ -107,7 +107,7 @@ class ProductPriceCalculatorTest extends TestCase
         static::assertEquals($expected, $price->getTotalPrice());
     }
 
-    public function taxStateWillBeUsedProvider(): \Generator
+    public static function taxStateWillBeUsedProvider(): \Generator
     {
         $product = (new PartialEntity())->assign([
             'taxId' => Uuid::randomHex(),
@@ -156,7 +156,7 @@ class ProductPriceCalculatorTest extends TestCase
         ))->getDecorated();
     }
 
-    public function priceWillBeCalculated(): \Generator
+    public static function priceWillBeCalculated(): \Generator
     {
         yield 'Price will not be calculated without tax id' => [
             new PartialEntity(),
@@ -271,7 +271,7 @@ class ProductPriceCalculatorTest extends TestCase
         }
     }
 
-    public function advancedPricesWillBeCalculatedProvider(): \Generator
+    public static function advancedPricesWillBeCalculatedProvider(): \Generator
     {
         yield 'Prices will not be calculated when not loaded' => [
             (new PartialEntity())->assign(['prices' => null]),
@@ -360,7 +360,7 @@ class ProductPriceCalculatorTest extends TestCase
         static::assertEquals($expected->listPrice, $price->getListPrice()?->getPrice());
     }
 
-    public function cheapestPriceWillBeCalculatedProvider(): \Generator
+    public static function cheapestPriceWillBeCalculatedProvider(): \Generator
     {
         yield 'Cheapest price calculation uses the price object' => [
             (new PartialEntity())->assign([

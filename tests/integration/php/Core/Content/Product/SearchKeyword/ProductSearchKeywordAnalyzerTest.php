@@ -300,7 +300,7 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
     /**
      * @return array<string, array<int, bool|int>>
      */
-    public function casesSearchBaseOnConfigField(): array
+    public static function casesSearchBaseOnConfigField(): array
     {
         return [
             'searchable is true, tokenize is true, ranking is 500' => [true, true, 500],

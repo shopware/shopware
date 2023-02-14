@@ -35,7 +35,7 @@ class KeyMappingPipeTest extends TestCase
     /**
      * @return array<array{input: array<string, mixed>, expectedOutput: array<string, mixed>}>
      */
-    public function simpleMappingProvider(): array
+    public static function simpleMappingProvider(): array
     {
         return [
             [
@@ -108,7 +108,7 @@ class KeyMappingPipeTest extends TestCase
     /**
      * @return array<array{input: array<string, mixed>, expectedOutput: array<string, mixed>}>
      */
-    public function nestedProvider(): array
+    public static function nestedProvider(): array
     {
         return [
             [
@@ -202,7 +202,7 @@ class KeyMappingPipeTest extends TestCase
     /**
      * @return array<array{input: array<string, mixed>, expectedOutput: array<string, mixed>}>
      */
-    public function nestedProviderNoFlatten(): array
+    public static function nestedProviderNoFlatten(): array
     {
         return [
             [

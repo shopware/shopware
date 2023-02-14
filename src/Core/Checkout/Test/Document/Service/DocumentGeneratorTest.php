@@ -282,7 +282,7 @@ class DocumentGeneratorTest extends TestCase
         static::assertEquals($uploadFileRequest->getContent(), $savedContent);
     }
 
-    public function uploadDataProvider(): \Generator
+    public static function uploadDataProvider(): \Generator
     {
         yield 'upload successfully' => [
             false,
@@ -876,7 +876,7 @@ class DocumentGeneratorTest extends TestCase
         static::assertNotNull($media);
     }
 
-    public function readDocumentDataProvider(): \Generator
+    public static function readDocumentDataProvider(): \Generator
     {
         yield 'read static document' => [
             true,

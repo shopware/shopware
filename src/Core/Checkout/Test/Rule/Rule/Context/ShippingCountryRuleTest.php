@@ -155,7 +155,7 @@ class ShippingCountryRuleTest extends TestCase
     /**
      * @return array<array{0: string}>
      */
-    public function unsupportedOperators(): array
+    public static function unsupportedOperators(): array
     {
         return [
             [''],

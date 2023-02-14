@@ -41,7 +41,7 @@ class LicenseFetcherTest extends TestCase
         static::assertSame($expectedContent, $license);
     }
 
-    public function licenseDataProvider(): \Generator
+    public static function licenseDataProvider(): \Generator
     {
         yield 'german license' => [
             'de',

@@ -192,7 +192,7 @@ class NewsletterSubscribeRouteTest extends TestCase
         $newsletterSubscribeRoute->subscribe($requestData, $this->salesChannelContext, false);
     }
 
-    public function validatorDataProvider(): \Generator
+    public static function validatorDataProvider(): \Generator
     {
         yield 'subscribe with no correct validation' => [
             [

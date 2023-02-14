@@ -381,7 +381,7 @@ class ProductSliderTypeDataResolverTest extends TestCase
      * @return array<array<bool|int>> closeout, hidden, availableStock
      *                 This sets if an product can be backordered, if it should be hidden if it can not an is no longer available and the available products
      */
-    public function enrichDataProvider(): array
+    public static function enrichDataProvider(): array
     {
         return [
             [false, false, 1],

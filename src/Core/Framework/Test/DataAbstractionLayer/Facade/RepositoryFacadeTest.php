@@ -64,7 +64,7 @@ class RepositoryFacadeTest extends TestCase
     /**
      * @return array<string, array<int, mixed>>
      */
-    public function withoutAppTestCases(): array
+    public static function withoutAppTestCases(): array
     {
         $ids = new IdsCollection();
 
@@ -229,7 +229,7 @@ class RepositoryFacadeTest extends TestCase
     /**
      * @return array<array<string>>
      */
-    public function withoutPermissionProvider(): array
+    public static function withoutPermissionProvider(): array
     {
         return [
             ['search'],

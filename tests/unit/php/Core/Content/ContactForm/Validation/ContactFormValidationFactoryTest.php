@@ -42,7 +42,7 @@ class ContactFormValidationFactoryTest extends TestCase
         $expectsClosure($definition, $contextMock);
     }
 
-    public function systemConfigDataProvider(): \Generator
+    public static function systemConfigDataProvider(): \Generator
     {
         yield 'is required' => [
             true,

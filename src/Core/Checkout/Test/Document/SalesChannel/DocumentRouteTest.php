@@ -93,7 +93,7 @@ class DocumentRouteTest extends TestCase
         $assertionCallback($response);
     }
 
-    public function documentDownloadRouteDataProvider(): \Generator
+    public static function documentDownloadRouteDataProvider(): \Generator
     {
         yield 'guest with valid deep link code' => [
             true,

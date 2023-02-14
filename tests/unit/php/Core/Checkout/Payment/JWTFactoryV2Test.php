@@ -132,7 +132,7 @@ class JWTFactoryV2Test extends TestCase
     /**
      * @return iterable<array-key, array{int, bool}>
      */
-    public function dataProviderExpiration(): iterable
+    public static function dataProviderExpiration(): iterable
     {
         yield 'positive expire' => [30, false];
         yield 'negative expire' => [-30, true];

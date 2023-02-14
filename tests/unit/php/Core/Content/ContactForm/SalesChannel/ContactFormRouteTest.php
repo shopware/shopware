@@ -93,7 +93,7 @@ class ContactFormRouteTest extends TestCase
         $contactFormRoute->load($requestData, $this->salesChannelContext);
     }
 
-    public function validatorDataProvider(): \Generator
+    public static function validatorDataProvider(): \Generator
     {
         yield 'subscribe with no correct validation' => [
             [

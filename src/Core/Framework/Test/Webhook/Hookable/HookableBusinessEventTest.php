@@ -80,7 +80,7 @@ class HookableBusinessEventTest extends TestCase
         static::assertFalse($event->isAllowed(Uuid::randomHex(), $notAllowedPermissions));
     }
 
-    public function getEventsWithoutPermissions(): array
+    public static function getEventsWithoutPermissions(): array
     {
         return [
             [new ScalarBusinessEvent()],

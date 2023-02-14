@@ -59,17 +59,17 @@ class AbsolutePriceCalculatorTest extends TestCase
     /**
      * @return array<string, list<AbsoluteCalculation>>
      */
-    public function provider(): array
+    public static function provider(): array
     {
         return [
-            'small-discounts' => [$this->getSmallDiscountCase()],
-            '100%' => [$this->getOneHundredPercentageDiscountCase()],
+            'small-discounts' => [self::getSmallDiscountCase()],
+            '100%' => [self::getOneHundredPercentageDiscountCase()],
         ];
     }
 
-    private function getSmallDiscountCase(): AbsoluteCalculation
+    private static function getSmallDiscountCase(): AbsoluteCalculation
     {
-        $calculator = $this->createQuantityPriceCalculator();
+        $calculator = self::createQuantityPriceCalculator();
 
         $definition = new QuantityPriceDefinition(30, new TaxRuleCollection([new TaxRule(19)]));
         $price1 = $calculator->calculate($definition, Generator::createSalesChannelContext());
@@ -96,9 +96,9 @@ class AbsolutePriceCalculatorTest extends TestCase
         );
     }
 
-    private function getOneHundredPercentageDiscountCase(): AbsoluteCalculation
+    private static function getOneHundredPercentageDiscountCase(): AbsoluteCalculation
     {
-        $calculator = $this->createQuantityPriceCalculator();
+        $calculator = self::createQuantityPriceCalculator();
 
         $priceDefinition = new QuantityPriceDefinition(29.00, new TaxRuleCollection([new TaxRule(17, 100)]), 10);
 
@@ -118,7 +118,7 @@ class AbsolutePriceCalculatorTest extends TestCase
         );
     }
 
-    private function createQuantityPriceCalculator(): QuantityPriceCalculator
+    private static function createQuantityPriceCalculator(): QuantityPriceCalculator
     {
         $rounding = new CashRounding();
         $taxCalculator = new TaxCalculator();

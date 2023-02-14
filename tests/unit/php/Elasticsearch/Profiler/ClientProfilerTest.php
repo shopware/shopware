@@ -49,7 +49,7 @@ class ClientProfilerTest extends TestCase
     /**
      * @return iterable<array<int, array<int, string>|string>>
      */
-    public function providerQueries(): iterable
+    public static function providerQueries(): iterable
     {
         yield 'index string' => [
             'test',

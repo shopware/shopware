@@ -141,7 +141,7 @@ class BillingStateRuleTest extends TestCase
     /**
      * @return array<string, array{string, bool, string}>
      */
-    public function getMatchValues(): array
+    public static function getMatchValues(): array
     {
         return [
             'operator_oq / not match / state id' => [Rule::OPERATOR_EQ, false, Uuid::randomHex()],

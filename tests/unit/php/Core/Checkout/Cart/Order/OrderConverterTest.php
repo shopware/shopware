@@ -139,7 +139,7 @@ class OrderConverterTest extends TestCase
     /**
      * @return array<mixed>
      */
-    public function assembleSalesChannelContextData(): array
+    public static function assembleSalesChannelContextData(): array
     {
         return [
             [
@@ -289,7 +289,7 @@ class OrderConverterTest extends TestCase
     /**
      * @return array<mixed>
      */
-    public function convertToOrderExceptionsData(): array
+    public static function convertToOrderExceptionsData(): array
     {
         return [
             [
@@ -376,7 +376,7 @@ class OrderConverterTest extends TestCase
     /**
      * @return array<array<string>>
      */
-    public function convertToCartManipulatedOrderData(): array
+    public static function convertToCartManipulatedOrderData(): array
     {
         return [
             [
@@ -426,7 +426,7 @@ class OrderConverterTest extends TestCase
     /**
      * @return array<array<string>>
      */
-    public function convertToCartExceptionsData(): array
+    public static function convertToCartExceptionsData(): array
     {
         return [
             [

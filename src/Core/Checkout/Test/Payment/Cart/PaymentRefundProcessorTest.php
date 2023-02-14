@@ -202,7 +202,7 @@ class PaymentRefundProcessorTest extends TestCase
         );
     }
 
-    public function getInvalidStatesForTransitions(): iterable
+    public static function getInvalidStatesForTransitions(): iterable
     {
         yield [OrderTransactionCaptureRefundStates::STATE_CANCELLED];
         yield [OrderTransactionCaptureRefundStates::STATE_COMPLETED];

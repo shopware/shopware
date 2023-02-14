@@ -60,7 +60,7 @@ class JsonFieldSerializerTest extends TestCase
         );
     }
 
-    public function encodeProvider(): array
+    public static function encodeProvider(): array
     {
         return [
             [new JsonField('data', 'data'), ['foo' => 'bar'], JsonFieldSerializer::encodeJson(['foo' => 'bar'])],
@@ -91,7 +91,7 @@ class JsonFieldSerializerTest extends TestCase
         static::assertEquals($expected, $actual);
     }
 
-    public function decodeProvider(): array
+    public static function decodeProvider(): array
     {
         return [
             [new JsonField('data', 'data'), JsonFieldSerializer::encodeJson(['foo' => 'bar']), ['foo' => 'bar']],

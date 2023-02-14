@@ -210,7 +210,7 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
         static::assertStringEndsWith('/?somethingSpecial=1', $caughtEvent->getResetUrl());
     }
 
-    public function sendMailWithDomainAndLeadingSlashProvider()
+    public static function sendMailWithDomainAndLeadingSlashProvider()
     {
         return [
             // test without leading slash

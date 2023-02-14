@@ -103,7 +103,7 @@ class AffiliateCodeRuleTest extends TestCase
     /**
      * @return \Traversable<list<mixed>>
      */
-    public function getCaseTestMatchValues(): \Traversable
+    public static function getCaseTestMatchValues(): \Traversable
     {
         yield 'Equals Operator is matching' => [
             Rule::OPERATOR_EQ,

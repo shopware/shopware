@@ -57,17 +57,17 @@ class PercentagePriceCalculatorTest extends TestCase
         static::assertEquals($expected->getQuantity(), $price->getQuantity());
     }
 
-    public function grossPriceDataProvider(): \Generator
+    public static function grossPriceDataProvider(): \Generator
     {
-        yield [$this->getDifferentTaxesCalculation()];
-        yield [$this->getOneHundredPercentageCalculation()];
-        yield [$this->getFiftyPercentageCalculation()];
-        yield [$this->regression_next_12270()];
+        yield [self::getDifferentTaxesCalculation()];
+        yield [self::getOneHundredPercentageCalculation()];
+        yield [self::getFiftyPercentageCalculation()];
+        yield [self::regression_next_12270()];
     }
 
-    private function regression_next_12270(): PercentageCalculation
+    private static function regression_next_12270(): PercentageCalculation
     {
-        $calculator = $this->createQuantityPriceCalculator();
+        $calculator = self::createQuantityPriceCalculator();
 
         $priceDefinition = new QuantityPriceDefinition(10.40, new TaxRuleCollection([new TaxRule(21, 100)]), 1);
         $price = $calculator->calculate($priceDefinition, Generator::createSalesChannelContext());
@@ -93,9 +93,9 @@ class PercentagePriceCalculatorTest extends TestCase
         );
     }
 
-    private function getFiftyPercentageCalculation(): PercentageCalculation
+    private static function getFiftyPercentageCalculation(): PercentageCalculation
     {
-        $calculator = $this->createQuantityPriceCalculator();
+        $calculator = self::createQuantityPriceCalculator();
 
         $priceDefinition = new QuantityPriceDefinition(100.00, new TaxRuleCollection([new TaxRule(20, 100)]), 5);
 
@@ -117,9 +117,9 @@ class PercentagePriceCalculatorTest extends TestCase
         );
     }
 
-    private function getOneHundredPercentageCalculation(): PercentageCalculation
+    private static function getOneHundredPercentageCalculation(): PercentageCalculation
     {
-        $calculator = $this->createQuantityPriceCalculator();
+        $calculator = self::createQuantityPriceCalculator();
 
         $priceDefinition = new QuantityPriceDefinition(29.00, new TaxRuleCollection([new TaxRule(17, 100)]), 10);
 
@@ -139,9 +139,9 @@ class PercentagePriceCalculatorTest extends TestCase
         );
     }
 
-    private function getDifferentTaxesCalculation(): PercentageCalculation
+    private static function getDifferentTaxesCalculation(): PercentageCalculation
     {
-        $calculator = $this->createQuantityPriceCalculator();
+        $calculator = self::createQuantityPriceCalculator();
 
         $definition = new QuantityPriceDefinition(30, new TaxRuleCollection([new TaxRule(19)]));
         $price1 = $calculator->calculate($definition, Generator::createSalesChannelContext());
@@ -164,7 +164,7 @@ class PercentagePriceCalculatorTest extends TestCase
         );
     }
 
-    private function createQuantityPriceCalculator(): QuantityPriceCalculator
+    private static function createQuantityPriceCalculator(): QuantityPriceCalculator
     {
         $rounding = new CashRounding();
         $taxCalculator = new TaxCalculator();

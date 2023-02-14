@@ -29,7 +29,7 @@ class ConfigSetCommandTest extends TestCase
         $this->configSetCommand = new ConfigSet($this->systemConfigService);
     }
 
-    public function configValueProvider(): iterable
+    public static function configValueProvider(): iterable
     {
         /* value, expected_value, decode */
         yield 'String false' => ['false', 'false', false];

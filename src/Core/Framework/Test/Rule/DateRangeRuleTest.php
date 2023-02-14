@@ -189,7 +189,7 @@ class DateRangeRuleTest extends TestCase
         static::assertSame($expectedResult, $matchResult);
     }
 
-    public function matchDataProvider(): array
+    public static function matchDataProvider(): array
     {
         return [
             // from and to set, useTime = false

@@ -153,7 +153,7 @@ class CartAmountRuleTest extends TestCase
         );
     }
 
-    public function unsupportedOperators(): array
+    public static function unsupportedOperators(): array
     {
         return [
             ['random'],

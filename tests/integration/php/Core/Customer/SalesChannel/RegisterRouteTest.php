@@ -335,7 +335,7 @@ class RegisterRouteTest extends TestCase
     /**
      * @return array{array{array{domain: string, expectDomain: string}}, array{array{domain: string, expectDomain: string}}}
      */
-    public function registerWithDomainAndLeadingSlashProvider(): array
+    public static function registerWithDomainAndLeadingSlashProvider(): array
     {
         return [
             // test without leading slash
@@ -676,7 +676,7 @@ class RegisterRouteTest extends TestCase
     /**
      * @return array<int, array<int, bool|int>>
      */
-    public function customerBoundToSalesChannelProvider(): array
+    public static function customerBoundToSalesChannelProvider(): array
     {
         $isCustomerScoped = true;
         $hasGlobalAccount = true; // Account which has bound_sales_channel_id = null

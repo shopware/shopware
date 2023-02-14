@@ -178,14 +178,14 @@ class CartFacadeTest extends TestCase
         $service->factory(new TestHook('test', Context::createDefaultContext()), $this->script);
     }
 
-    public function addProductProvider(): \Generator
+    public static function addProductProvider(): \Generator
     {
         yield 'Test with simple product' => ['p1', 'p1'];
         yield 'Test variant support' => ['v2.1', 'v2.1'];
         yield 'Test parents will not be added' => ['p2', null];
     }
 
-    public function scriptProvider(): \Generator
+    public static function scriptProvider(): \Generator
     {
         yield 'Test add product case' => [
             'add-product-cases',

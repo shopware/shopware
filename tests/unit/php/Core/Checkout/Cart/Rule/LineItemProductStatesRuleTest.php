@@ -134,7 +134,7 @@ class LineItemProductStatesRuleTest extends TestCase
     /**
      * @return array<string, array<int, array<int, string>|bool|string>>
      */
-    public function caseDataProvider(): array
+    public static function caseDataProvider(): array
     {
         return [
             'equal / match' => [[State::IS_PHYSICAL, State::IS_DOWNLOAD], Rule::OPERATOR_EQ, State::IS_DOWNLOAD, true],

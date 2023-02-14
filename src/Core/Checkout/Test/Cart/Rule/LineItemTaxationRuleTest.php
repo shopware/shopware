@@ -71,7 +71,7 @@ class LineItemTaxationRuleTest extends TestCase
     /**
      * @return array<string, array<array<string>|string|bool>>
      */
-    public function getLineItemScopeTestData(): array
+    public static function getLineItemScopeTestData(): array
     {
         return [
             'single product / equal / match tax id' => [['1', '2'], Rule::OPERATOR_EQ, '1', true],
@@ -113,7 +113,7 @@ class LineItemTaxationRuleTest extends TestCase
     /**
      * @return array<string, array<array<string>|string|bool>>
      */
-    public function getCartRuleScopeTestData(): array
+    public static function getCartRuleScopeTestData(): array
     {
         return [
             'multiple products / equal / match tax id' => [['1', '2'], Rule::OPERATOR_EQ, '2', true],

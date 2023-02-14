@@ -106,7 +106,7 @@ class JsonApiEncoderTest extends TestCase
     /**
      * @return array<mixed>
      */
-    public function emptyInputProvider(): array
+    public static function emptyInputProvider(): array
     {
         return [
             [null],
@@ -134,7 +134,7 @@ class JsonApiEncoderTest extends TestCase
     /**
      * @return array<array{string, SerializationFixture}>
      */
-    public function complexStructsProvider(): array
+    public static function complexStructsProvider(): array
     {
         return [
             [MediaDefinition::class, new TestBasicStruct()],
@@ -331,7 +331,7 @@ class JsonApiEncoderTest extends TestCase
         static::assertEquals($output, $actual->data->attributes->customFields);
     }
 
-    public function customFieldsProvider(): \Generator
+    public static function customFieldsProvider(): \Generator
     {
         yield 'Custom field null' => [
             [

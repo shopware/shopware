@@ -32,7 +32,7 @@ class FloatComparatorTest extends TestCase
     /**
      * @return array{0: float, 1: float, 2: bool}[]
      */
-    public function equalsDataProvider(): array
+    public static function equalsDataProvider(): array
     {
         return [
             [0, 0, true],
@@ -85,7 +85,7 @@ class FloatComparatorTest extends TestCase
     /**
      * @return array{0: float, 1: float, 2: bool}[]
      */
-    public function lessThanDataProvider(): array
+    public static function lessThanDataProvider(): array
     {
         return [
             [1, 2, true],
@@ -121,7 +121,7 @@ class FloatComparatorTest extends TestCase
     /**
      * @return array{0: float, 1: float, 2: bool}[]
      */
-    public function greaterThanDataProvider(): array
+    public static function greaterThanDataProvider(): array
     {
         return [
             [2, 1, true],
@@ -156,7 +156,7 @@ class FloatComparatorTest extends TestCase
     /**
      * @return array{0: float, 1: float, 2: bool}[]
      */
-    public function lessThanOrEqualsDataProvider(): array
+    public static function lessThanOrEqualsDataProvider(): array
     {
         return [
             [0, 0, true],
@@ -191,7 +191,7 @@ class FloatComparatorTest extends TestCase
     /**
      * @return array{0: float, 1: float, 2: bool}[]
      */
-    public function greaterThanOrEqualsDataProvider(): array
+    public static function greaterThanOrEqualsDataProvider(): array
     {
         return [
             [0, 0, true],

@@ -62,7 +62,7 @@ class SlotTest extends TestCase
     /**
      * @return array<array<string|int|array<string, mixed>>>
      */
-    public function provideSlots(): array
+    public static function provideSlots(): array
     {
         return [
             [

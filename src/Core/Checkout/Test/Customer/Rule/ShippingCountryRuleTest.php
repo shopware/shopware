@@ -258,7 +258,7 @@ class ShippingCountryRuleTest extends TestCase
         }
     }
 
-    public function getMatchValues(): array
+    public static function getMatchValues(): array
     {
         return [
             'operator_oq / not match / country id' => [Rule::OPERATOR_EQ, false, Uuid::randomHex()],

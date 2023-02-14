@@ -215,7 +215,7 @@ class DocumentMergerTest extends TestCase
         $assertionCallback($result);
     }
 
-    public function documentMergeDataProvider(): \Generator
+    public static function documentMergeDataProvider(): \Generator
     {
         yield 'merge 0 documents' => [
             0,

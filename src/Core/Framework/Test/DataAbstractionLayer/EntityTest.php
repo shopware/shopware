@@ -20,7 +20,7 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer {
      */
     class EntityTest extends TestCase
     {
-        public function apiAliasDefaultsDataProvider(): iterable
+        public static function apiAliasDefaultsDataProvider(): iterable
         {
             yield [
                 FooEntity::class,

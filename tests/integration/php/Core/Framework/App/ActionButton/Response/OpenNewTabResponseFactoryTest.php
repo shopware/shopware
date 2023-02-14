@@ -78,7 +78,7 @@ class OpenNewTabResponseFactoryTest extends TestCase
     /**
      * @return array<array<string|bool>>
      */
-    public function provideActionTypes(): array
+    public static function provideActionTypes(): array
     {
         return [
             [NotificationResponse::ACTION_TYPE, false],
@@ -91,7 +91,7 @@ class OpenNewTabResponseFactoryTest extends TestCase
     /**
      * @return array<array<string|array<string, mixed>>>
      */
-    public function provideInvalidPayloads(): array
+    public static function provideInvalidPayloads(): array
     {
         return [
             [

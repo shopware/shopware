@@ -248,7 +248,7 @@ class BillingCountryRuleTest extends TestCase
     /**
      * @return \Traversable<string, array<string|bool>>
      */
-    public function getMatchValues(): \Traversable
+    public static function getMatchValues(): \Traversable
     {
         yield 'operator_eq / not match / country id' => [Rule::OPERATOR_EQ, false, Uuid::randomHex()];
         yield 'operator_eq / match / country id' => [Rule::OPERATOR_EQ, true, 'kyln123'];

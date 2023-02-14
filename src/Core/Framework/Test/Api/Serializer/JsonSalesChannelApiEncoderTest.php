@@ -32,7 +32,7 @@ class JsonSalesChannelApiEncoderTest extends TestCase
     use DataAbstractionLayerFieldTestBehaviour;
     use AssertValuesTrait;
 
-    public function emptyInputProvider(): array
+    public static function emptyInputProvider(): array
     {
         return [
             [null],
@@ -56,7 +56,7 @@ class JsonSalesChannelApiEncoderTest extends TestCase
         $encoder->encode(new Criteria(), $this->getContainer()->get(ProductDefinition::class), $input, SerializationFixture::SALES_CHANNEL_API_BASE_URL);
     }
 
-    public function complexStructsProvider(): array
+    public static function complexStructsProvider(): array
     {
         return [
             [MediaDefinition::class, new TestBasicStruct()],

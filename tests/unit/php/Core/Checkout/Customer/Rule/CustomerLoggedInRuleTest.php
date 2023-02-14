@@ -82,7 +82,7 @@ class CustomerLoggedInRuleTest extends TestCase
         static::assertEquals($match, $isMatching);
     }
 
-    public function getCaseTestMatchValues(): \Generator
+    public static function getCaseTestMatchValues(): \Generator
     {
         yield 'Condition is not logged in => Not match because user logged in' => [
             false,

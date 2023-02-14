@@ -206,7 +206,7 @@ class BundleHierarchyBuilderTest extends TestCase
     /**
      * @return iterable<string, array<array<int|string, int|string>>>
      */
-    public function sortingProvider(): iterable
+    public static function sortingProvider(): iterable
     {
         yield 'all with default prio' => [
             ['TestPluginB' => 0, 'TestPluginA' => 0],

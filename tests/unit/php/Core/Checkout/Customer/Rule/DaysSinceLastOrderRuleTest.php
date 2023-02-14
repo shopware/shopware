@@ -257,7 +257,7 @@ class DaysSinceLastOrderRuleTest extends TestCase
     /**
      * @return \Traversable<list<mixed>>
      */
-    public function getMatchValues(): \Traversable
+    public static function getMatchValues(): \Traversable
     {
         $datetime = self::getTestTimestamp();
         if (!$datetime instanceof \DateTimeImmutable) {

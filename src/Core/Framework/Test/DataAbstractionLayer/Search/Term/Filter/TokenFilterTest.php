@@ -47,7 +47,7 @@ class TokenFilterTest extends TestCase
     /**
      * @return array<array{list<string>, list<string>, list<string>}>
      */
-    public function cases(): array
+    public static function cases(): array
     {
         return [
             [

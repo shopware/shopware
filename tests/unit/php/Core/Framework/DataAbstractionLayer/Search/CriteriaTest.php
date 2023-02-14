@@ -25,7 +25,7 @@ class CriteriaTest extends TestCase
         static::assertEquals(\json_decode($expected, true, 512, \JSON_THROW_ON_ERROR), \json_decode((string) $criteria, true, 512, \JSON_THROW_ON_ERROR));
     }
 
-    public function string_convert_provider(): \Generator
+    public static function string_convert_provider(): \Generator
     {
         yield 'test empty' => [
             new Criteria(),

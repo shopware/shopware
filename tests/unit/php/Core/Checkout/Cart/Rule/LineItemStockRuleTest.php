@@ -53,7 +53,7 @@ class LineItemStockRuleTest extends TestCase
         $rule->match($ruleScope);
     }
 
-    public function provideLineItemTestCases(): \Generator
+    public static function provideLineItemTestCases(): \Generator
     {
         // EQ operator
         yield 'EQ: same stock' => [Rule::OPERATOR_EQ, 5, true];

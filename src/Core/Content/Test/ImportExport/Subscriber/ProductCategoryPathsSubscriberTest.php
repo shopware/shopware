@@ -29,7 +29,7 @@ class ProductCategoryPathsSubscriberTest extends TestCase
         $this->categoryRepository = $this->getContainer()->get('category.repository');
     }
 
-    public function provideCategoryPaths()
+    public static function provideCategoryPaths()
     {
         return [
             '2 Layer assignment' => [

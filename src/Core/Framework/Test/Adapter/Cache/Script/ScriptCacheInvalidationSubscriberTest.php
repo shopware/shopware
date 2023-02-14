@@ -38,7 +38,7 @@ class ScriptCacheInvalidationSubscriberTest extends TestCase
         static::assertEquals(!$shouldBeInvalidated, $cache->hasItem($tagName));
     }
 
-    public function invalidationCasesProvider(): \Generator
+    public static function invalidationCasesProvider(): \Generator
     {
         $ids = new IdsCollection();
 

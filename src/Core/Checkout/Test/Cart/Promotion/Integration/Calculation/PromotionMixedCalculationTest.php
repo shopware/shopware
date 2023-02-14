@@ -318,7 +318,7 @@ class PromotionMixedCalculationTest extends TestCase
      * groupCount,
      * groupSorting
      */
-    public function setGroupPackageAndPickerTestData(): array
+    public static function setGroupPackageAndPickerTestData(): array
     {
         return [
             /*
@@ -690,7 +690,7 @@ class PromotionMixedCalculationTest extends TestCase
     /**
      * @return array<string, array<mixed>>
      */
-    public function getBuyThreeTshirtsGetFirstOneFreeTestData(): array
+    public static function getBuyThreeTshirtsGetFirstOneFreeTestData(): array
     {
         return [
             'Buy 3 t-shirts, get one free, horizontal picking' => [-(5.0 + 10.0 + 15.0), 'HORIZONTAL'],
@@ -776,7 +776,7 @@ class PromotionMixedCalculationTest extends TestCase
     /**
      * @return array<string, array<mixed>>
      */
-    public function getBuyThreeTshirtsGetSecondOneFreeTestData(): array
+    public static function getBuyThreeTshirtsGetSecondOneFreeTestData(): array
     {
         return [
             'Buy 3 t-shirts, get one free, horizontal picking' => [-(10.0 + 25.0 + 40.0), 'HORIZONTAL'],

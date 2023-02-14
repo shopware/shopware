@@ -34,7 +34,7 @@ class NetPriceCalculatorTest extends TestCase
         static::assertEquals($expected, $price->getReferencePrice());
     }
 
-    public function referencePriceCalculationProvider(): \Generator
+    public static function referencePriceCalculationProvider(): \Generator
     {
         yield 'test calculation without reference price' => [
             null,
@@ -73,7 +73,7 @@ class NetPriceCalculatorTest extends TestCase
         static::assertEquals($expected, $price->getRegulationPrice());
     }
 
-    public function regulationPriceCalculationProvider(): \Generator
+    public static function regulationPriceCalculationProvider(): \Generator
     {
         yield 'test calculation without reference price' => [
             null,

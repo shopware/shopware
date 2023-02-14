@@ -147,7 +147,7 @@ class AclAnnotationValidatorTest extends TestCase
     /**
      * @return list<array{0: list<string>, 1: list<string>, 2: bool}>
      */
-    public function annotationProvider(): array
+    public static function annotationProvider(): array
     {
         return [
             [

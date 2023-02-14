@@ -271,7 +271,7 @@ class BuyBoxTypeDataResolverTest extends TestCase
         static::assertSame($expectedReviews, $buyBoxStruct->getTotalReviews());
     }
 
-    public function reviewCountDataProvider(): iterable
+    public static function reviewCountDataProvider(): iterable
     {
         // variant count, reviews per variant, expected review count
         yield 'No variants, No reviews' => [0, 0, 0];

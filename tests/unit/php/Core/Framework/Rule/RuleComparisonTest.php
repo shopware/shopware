@@ -24,7 +24,7 @@ class RuleComparisonTest extends TestCase
         static::assertEquals($result, RuleComparison::numeric($itemValue, $ruleValue, Rule::OPERATOR_EQ));
     }
 
-    public function valuesForNumericEqualComparison(): \Generator
+    public static function valuesForNumericEqualComparison(): \Generator
     {
         yield 'Numeric: 5.1 = 5.1 should be true' => [5.1, 5.1, true];
         yield 'Numeric: 7 = 5 should be false' => [7, 5, false];
@@ -44,7 +44,7 @@ class RuleComparisonTest extends TestCase
         static::assertEquals($result, RuleComparison::numeric($itemValue, $ruleValue, Rule::OPERATOR_NEQ));
     }
 
-    public function valuesForNumericNotEqualComparison(): \Generator
+    public static function valuesForNumericNotEqualComparison(): \Generator
     {
         yield 'Numeric: 7.1 != 5.1 should be true' => [7.1, 5.1, true];
         yield 'Numeric: 0.0 != 0.0 should be false' => [0.0, 0.0, false];
@@ -63,7 +63,7 @@ class RuleComparisonTest extends TestCase
         static::assertEquals($result, RuleComparison::numeric($itemValue, $ruleValue, Rule::OPERATOR_GT));
     }
 
-    public function valuesForNumericGreaterThanComparison(): \Generator
+    public static function valuesForNumericGreaterThanComparison(): \Generator
     {
         yield 'Numeric: 7.1 > 5.1 should be true' => [7.1, 5.1, true];
         yield 'Numeric: 5.1 > 5.1 should be false' => [5.1, 5.1, false];
@@ -85,7 +85,7 @@ class RuleComparisonTest extends TestCase
         static::assertEquals($result, RuleComparison::numeric($itemValue, $ruleValue, Rule::OPERATOR_LTE));
     }
 
-    public function valuesForLessThanOrEqualComparison(): \Generator
+    public static function valuesForLessThanOrEqualComparison(): \Generator
     {
         yield 'Numeric: 1.0 <= 1.0 should be true' => [1.0, 1.0, true];
         yield 'Numeric: 1.0 <= 2.0 should be true' => [1.0, 2.0, true];
@@ -107,7 +107,7 @@ class RuleComparisonTest extends TestCase
         static::assertEquals($result, RuleComparison::numeric($itemValue, $ruleValue, Rule::OPERATOR_GTE));
     }
 
-    public function valuesForGreaterThanOrEqualComparison(): \Generator
+    public static function valuesForGreaterThanOrEqualComparison(): \Generator
     {
         yield 'Numeric: 1.0 >= 1.0 should be true' => [1.0, 1.0, true];
         yield 'Numeric: 1.0 >= 2.0 should be false' => [1.0, 2.0, false];
@@ -129,7 +129,7 @@ class RuleComparisonTest extends TestCase
         static::assertEquals($result, RuleComparison::numeric($itemValue, $ruleValue, Rule::OPERATOR_LT));
     }
 
-    public function valuesForLessThanComparison(): \Generator
+    public static function valuesForLessThanComparison(): \Generator
     {
         yield 'Numeric: 1.0 < 1.0 should be false' => [1.0, 1.0, false];
         yield 'Numeric: 1.0 < 2.0 should be true' => [1.0, 2.0, true];
@@ -151,7 +151,7 @@ class RuleComparisonTest extends TestCase
         static::assertEquals($result, RuleComparison::numeric($itemValue, null, Rule::OPERATOR_EMPTY));
     }
 
-    public function valuesForNumericEmptyComparison(): \Generator
+    public static function valuesForNumericEmptyComparison(): \Generator
     {
         yield 'Numeric: 1.0 empty should be false' => [1.0, false];
         yield 'Numeric: -1.0 empty should be false' => [-1.0, false];

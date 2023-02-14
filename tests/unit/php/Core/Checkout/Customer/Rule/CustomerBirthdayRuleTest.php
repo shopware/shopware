@@ -156,7 +156,7 @@ class CustomerBirthdayRuleTest extends TestCase
     /**
      * @return array<string, array{bool, string|null, string|null, string}>
      */
-    public function getMatchBirthdayValues(): array
+    public static function getMatchBirthdayValues(): array
     {
         return [
             'EQ - true' => [true, '2000-09-05', '2000-09-05', Rule::OPERATOR_EQ],

@@ -41,7 +41,7 @@ class EntityDefinitionQueryHelperTest extends TestCase
     /**
      * @return iterable<string, array<int, array<int, string>|string|false>>
      */
-    public function getData(): iterable
+    public static function getData(): iterable
     {
         yield 'With product prefix and skippable fields' => [
             ProductDefinition::class,

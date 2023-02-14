@@ -35,7 +35,7 @@ class SalesChannelRuleTest extends TestCase
         static::assertSame($expected, $salesChannelRule->match($ruleScope));
     }
 
-    public function provideTestData(): \Generator
+    public static function provideTestData(): \Generator
     {
         yield 'matches with correct sales channel' => [
             Rule::OPERATOR_EQ,

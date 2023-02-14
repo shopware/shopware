@@ -96,7 +96,7 @@ class SalesChannelCreateCommandTest extends TestCase
         static::assertEquals(Command::SUCCESS, $result);
     }
 
-    public function dataProviderTestExecuteSuccess(): \Generator
+    public static function dataProviderTestExecuteSuccess(): \Generator
     {
         yield 'Test execute success' => [
             'Mock method getOption from input' => [
@@ -114,7 +114,7 @@ class SalesChannelCreateCommandTest extends TestCase
         ];
     }
 
-    public function dataProviderTestExecuteFailure(): \Generator
+    public static function dataProviderTestExecuteFailure(): \Generator
     {
         yield 'Test execute failure' => [
             'Mock method getOption from input' => [

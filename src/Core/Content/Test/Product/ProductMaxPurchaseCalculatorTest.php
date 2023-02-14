@@ -35,7 +35,7 @@ class ProductMaxPurchaseCalculatorTest extends TestCase
         static::assertSame($expected, $this->service->calculate($entity, $this->createMock(SalesChannelContext::class)));
     }
 
-    public function cases(): iterable
+    public static function cases(): iterable
     {
         yield 'empty' => [
             [

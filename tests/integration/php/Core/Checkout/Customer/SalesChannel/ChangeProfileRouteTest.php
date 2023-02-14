@@ -184,7 +184,7 @@ class ChangeProfileRouteTest extends TestCase
         static::assertEquals($changeData['lastName'], $customer->getLastName());
     }
 
-    public function dataProviderVatIds(): \Generator
+    public static function dataProviderVatIds(): \Generator
     {
         yield 'Error when vatIds is require but no validate format, and has value is empty' => [
             [''],

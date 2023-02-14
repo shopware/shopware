@@ -38,7 +38,7 @@ class CmsExceptionTest extends TestCase
     /**
      * @return array<string, array{exception: CmsException, statusCode: int, errorCode: string, message: string}>
      */
-    public function exceptionDataProvider(): iterable
+    public static function exceptionDataProvider(): iterable
     {
         yield CmsException::DELETION_OF_DEFAULT_CODE => [
             'exception' => CmsException::deletionOfDefault(['id1', 'id2', 'id3']),

@@ -498,7 +498,7 @@ class PluginLifecycleServiceTest extends TestCase
     /**
      * @return array<string, array{bool}>
      */
-    public function themeProvideData(): array
+    public static function themeProvideData(): array
     {
         return [
             'Test with keep data' => [true],

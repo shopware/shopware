@@ -24,6 +24,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -119,12 +120,12 @@ class CachedSitemapRouteTest extends TestCase
             $config
         );
 
-        $before($this->context);
+        $before($this->context, $this->getContainer());
 
         $route->load(new Request(), $this->context);
         $route->load(new Request(), $this->context);
 
-        $after($this->context);
+        $after($this->context, $this->getContainer());
 
         $route->load(new Request(), $this->context);
         $route->load(new Request(), $this->context);
@@ -132,13 +133,13 @@ class CachedSitemapRouteTest extends TestCase
         static::assertSame($calls, $counter->getCount());
     }
 
-    public function invalidationProvider()
+    public static function invalidationProvider()
     {
         yield 'Cache invalidated if sitemap generated' => [
             function (): void {
             },
-            function (SalesChannelContext $context): void {
-                $this->getContainer()->get(SitemapExporter::class)->generate($context, true);
+            function (SalesChannelContext $context, ContainerInterface $container): void {
+                $container->get(SitemapExporter::class)->generate($context, true);
             },
             2,
         ];

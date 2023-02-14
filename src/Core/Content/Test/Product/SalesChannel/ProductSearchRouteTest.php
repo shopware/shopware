@@ -517,7 +517,7 @@ class ProductSearchRouteTest extends TestCase
         ];
     }
 
-    public function searchAndCases(): array
+    public static function searchAndCases(): array
     {
         return [
             [
@@ -573,7 +573,7 @@ class ProductSearchRouteTest extends TestCase
         ];
     }
 
-    public function searchOrCases(): array
+    public static function searchOrCases(): array
     {
         return [
             [

@@ -52,7 +52,7 @@ class ConfigurationRequirementsValidatorTest extends TestCase
         }
     }
 
-    public function configRequirements(): \Generator
+    public static function configRequirements(): \Generator
     {
         yield 'all checks pass with minimum requirements' => [
             [

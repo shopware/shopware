@@ -81,7 +81,7 @@ class UserRecoveryServiceTest extends TestCase
         static::assertSame($expectedResult, $this->userRecoveryService->checkHash($hash, $this->context));
     }
 
-    public function dataProviderTestCheckHash(): array
+    public static function dataProviderTestCheckHash(): array
     {
         return [
             [

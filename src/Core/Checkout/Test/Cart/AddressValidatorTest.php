@@ -109,7 +109,7 @@ class AddressValidatorTest extends TestCase
         }
     }
 
-    public function validationProvider(): \Generator
+    public static function validationProvider(): \Generator
     {
         yield 'test not active' => [false, true, true];
         yield 'test not shipping available' => [true, false, true];
@@ -119,7 +119,7 @@ class AddressValidatorTest extends TestCase
         yield 'test is valid' => [true, true, true];
     }
 
-    public function salutationProvider(): \Generator
+    public static function salutationProvider(): \Generator
     {
         yield 'no salutation at all' => [null, null, null];
         yield 'customer salutation' => [Uuid::randomHex(), null, null];

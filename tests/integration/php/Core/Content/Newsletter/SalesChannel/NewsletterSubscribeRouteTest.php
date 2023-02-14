@@ -374,7 +374,7 @@ class NewsletterSubscribeRouteTest extends TestCase
         static::assertSame(1, $count);
     }
 
-    public function subscribeWithDomainProvider(): \Generator
+    public static function subscribeWithDomainProvider(): \Generator
     {
         yield 'subscribe with invalid first name' => [
             'Y https://shopware.test',
@@ -404,7 +404,7 @@ class NewsletterSubscribeRouteTest extends TestCase
         ];
     }
 
-    public function subscribeWithDomainAndLeadingSlashProvider(): \Generator
+    public static function subscribeWithDomainAndLeadingSlashProvider(): \Generator
     {
         yield 'test without leading slash' => [['domain' => 'http://my-evil-page', 'expectDomain' => 'http://my-evil-page']];
 

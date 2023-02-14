@@ -83,7 +83,7 @@ class CategoryUrlGeneratorTest extends TestCase
         static::assertSame($route, $this->urlGenerator->generate($category, $this->salesChannel));
     }
 
-    public function dataProviderLinkTypes(): array
+    public static function dataProviderLinkTypes(): array
     {
         return [
             [CategoryDefinition::LINK_TYPE_PRODUCT, 'frontend.detail.page'],

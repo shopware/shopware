@@ -29,7 +29,7 @@ class ChangelogCommandTest extends TestCase
     /**
      * @return list<array{0: string, 1: list<string>}>
      */
-    public function provideCheckCommandFixtures(): array
+    public static function provideCheckCommandFixtures(): array
     {
         return [
             [
@@ -58,7 +58,7 @@ class ChangelogCommandTest extends TestCase
     /**
      * @return list<array{0: string, 1: string|null, 2: list<string>}>
      */
-    public function provideChangeCommandFixtures(): array
+    public static function provideChangeCommandFixtures(): array
     {
         return [
             [
@@ -92,7 +92,7 @@ class ChangelogCommandTest extends TestCase
     /**
      * @return array<string, array{0: string, 1: string, 2: string|null, 3: array<string, list<string>>}>
      */
-    public function provideReleaseCommandFixtures(): array
+    public static function provideReleaseCommandFixtures(): array
     {
         return [
             'invalid-version' => [

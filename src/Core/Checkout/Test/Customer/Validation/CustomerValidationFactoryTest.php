@@ -46,14 +46,14 @@ class CustomerValidationFactoryTest extends TestCase
         static::assertEquals($expected, $actual);
     }
 
-    public function getCreateTestData(): iterable
+    public static function getCreateTestData(): iterable
     {
         $faker = Factory::create();
 
         // test with no constraints added
         $profileDefinition = new DataValidationDefinition();
         $expected = new DataValidationDefinition('customer.create');
-        $this->addConstraints($expected);
+        self::addConstraints($expected);
 
         yield [$profileDefinition, $expected];
 
@@ -78,7 +78,7 @@ class CustomerValidationFactoryTest extends TestCase
             $expected->add($notBlankName, new NotBlank());
             $expected->add($emailName, new Email());
 
-            $this->addConstraints($expected);
+            self::addConstraints($expected);
 
             yield [$profileDefinition, $expected];
         }
@@ -87,7 +87,7 @@ class CustomerValidationFactoryTest extends TestCase
     /**
      * @see CustomerValidationFactory::addConstraints
      */
-    private function addConstraints(DataValidationDefinition $definition): void
+    private static function addConstraints(DataValidationDefinition $definition): void
     {
         $definition->add('email', new NotBlank(), new Email());
         $definition->add('active', new Type('boolean'));

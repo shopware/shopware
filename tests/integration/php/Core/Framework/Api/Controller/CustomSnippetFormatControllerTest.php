@@ -112,7 +112,7 @@ class CustomSnippetFormatControllerTest extends TestCase
     /**
      * @return iterable<string, array<string, string|array<string, array<mixed>>>>
      */
-    public function renderProvider(): iterable
+    public static function renderProvider(): iterable
     {
         yield 'without data and format' => [
             'payload' => [

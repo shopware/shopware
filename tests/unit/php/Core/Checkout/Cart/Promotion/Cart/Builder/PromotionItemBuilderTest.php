@@ -429,7 +429,7 @@ class PromotionItemBuilderTest extends TestCase
     /**
      * @return array<string, array{0: string}>
      */
-    public function getDefaultCurrencyDataProvider(): array
+    public static function getDefaultCurrencyDataProvider(): array
     {
         return [
             'absolute' => [PromotionDiscountEntity::TYPE_ABSOLUTE],

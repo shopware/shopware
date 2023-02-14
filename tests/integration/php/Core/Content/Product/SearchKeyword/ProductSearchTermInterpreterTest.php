@@ -148,7 +148,7 @@ class ProductSearchTermInterpreterTest extends TestCase
     /**
      * @return array<array{0: string, 1: list<string>}>
      */
-    public function cases(): array
+    public static function cases(): array
     {
         return [
             [
@@ -177,7 +177,7 @@ class ProductSearchTermInterpreterTest extends TestCase
     /**
      * @return array<array{0: string, 1: list<string>}>
      */
-    public function casesWithTokenFilter(): array
+    public static function casesWithTokenFilter(): array
     {
         return [
             [
@@ -214,7 +214,7 @@ class ProductSearchTermInterpreterTest extends TestCase
     /**
      * @return array<array{0: string, 1: list<list<string>>}>
      */
-    public function caseWithFetchingTokenTerms(): array
+    public static function caseWithFetchingTokenTerms(): array
     {
         return [
             [
@@ -301,7 +301,7 @@ class ProductSearchTermInterpreterTest extends TestCase
     /**
      * @return array<array{0: bool, 1: string}>
      */
-    public function caseWithMatchingBooleanCause(): array
+    public static function caseWithMatchingBooleanCause(): array
     {
         return [
             [
@@ -318,7 +318,7 @@ class ProductSearchTermInterpreterTest extends TestCase
     /**
      * @return array<array{0: bool, 1: string}>
      */
-    public function caseWithMatchingSearchPatternTermLength(): array
+    public static function caseWithMatchingSearchPatternTermLength(): array
     {
         return [
             [

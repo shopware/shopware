@@ -72,7 +72,7 @@ class LongTextFieldTest extends TestCase
     /**
      * @return list<array{string, bool|string|null, ?string, Flag[]}>
      */
-    public function longTextFieldDataProvider(): array
+    public static function longTextFieldDataProvider(): array
     {
         return [
             ['writeException', '<test>', 'This value should not be blank.', [new Required()]],

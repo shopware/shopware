@@ -61,7 +61,7 @@ class EntityProtectionValidatorTest extends TestCase
         static::assertEquals(403, $response->getStatusCode(), $response->getContent());
     }
 
-    public function blockedApiRequest(): array
+    public static function blockedApiRequest(): array
     {
         return [
             ['GET', 'plugin/' . Uuid::randomHex()], // detail

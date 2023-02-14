@@ -55,7 +55,7 @@ class ProductSearchBuilderTest extends TestCase
     /**
      * @return iterable<string, array<int, string|array<string>>>
      */
-    public function providerQueries(): iterable
+    public static function providerQueries(): iterable
     {
         yield 'search is array' => [
             [

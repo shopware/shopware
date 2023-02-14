@@ -275,7 +275,7 @@ class ProductBoxTypeDataResolverTest extends TestCase
      * @return array[] closeout, hidden, availableStock
      *                 This sets if an product can be backordered, if it should be hidden if it can not an is no longer available and the available products
      */
-    public function EnrichWithStaticConfigProvider(): array
+    public static function EnrichWithStaticConfigProvider(): array
     {
         return [
             [false, false, 1],

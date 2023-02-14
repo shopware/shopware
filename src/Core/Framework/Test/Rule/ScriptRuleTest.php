@@ -91,7 +91,7 @@ class ScriptRuleTest extends TestCase
         }
     }
 
-    public function scriptProvider(): \Generator
+    public static function scriptProvider(): \Generator
     {
         yield 'simple script return true' => ['/_fixture/scripts/simple.twig', ['test' => 'foo'], true];
         yield 'simple script return false' => ['/_fixture/scripts/simple.twig', ['test' => 'bar'], false];

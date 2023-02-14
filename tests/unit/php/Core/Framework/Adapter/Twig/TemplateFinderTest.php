@@ -77,7 +77,7 @@ class TemplateFinderTest extends TestCase
     /**
      * @return iterable<string, array<int, string>>
      */
-    public function templateNameProvider(): iterable
+    public static function templateNameProvider(): iterable
     {
         yield 'with @' => [
             '@Framework/documents/credit_note.html.twig',
@@ -93,7 +93,7 @@ class TemplateFinderTest extends TestCase
     /**
      * @return iterable<string, array<mixed>>
      */
-    public function bundleTemplatesMappingProvider(): iterable
+    public static function bundleTemplatesMappingProvider(): iterable
     {
         $coreBundles = [
             'Elasticsearch' => true,

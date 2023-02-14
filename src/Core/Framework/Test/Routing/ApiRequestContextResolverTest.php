@@ -142,7 +142,7 @@ class ApiRequestContextResolverTest extends TestCase
         static::assertTrue($context->hasState(Context::SKIP_TRIGGER_FLOW));
     }
 
-    public function userRoleProvider()
+    public static function userRoleProvider()
     {
         return [
             [

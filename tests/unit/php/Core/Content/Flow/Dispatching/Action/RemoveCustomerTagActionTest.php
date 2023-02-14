@@ -91,7 +91,7 @@ class RemoveCustomerTagActionTest extends TestCase
         $this->action->handleFlow($this->flow);
     }
 
-    public function actionExecutedProvider(): \Generator
+    public static function actionExecutedProvider(): \Generator
     {
         $ids = new TestDataCollection();
 

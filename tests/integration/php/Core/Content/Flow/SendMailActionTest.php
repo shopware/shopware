@@ -441,7 +441,7 @@ class SendMailActionTest extends TestCase
     /**
      * @return iterable<string, array<int, bool>>
      */
-    public function sendMailContactFormProvider(): iterable
+    public static function sendMailContactFormProvider(): iterable
     {
         yield 'Test send mail has data valid' => [true, true, true];
         yield 'Test send mail contact form without email' => [false, true, true];
@@ -575,7 +575,7 @@ class SendMailActionTest extends TestCase
         }
     }
 
-    public function updateTemplateDataProvider(): \Generator
+    public static function updateTemplateDataProvider(): \Generator
     {
         yield 'Test disable mail template updates' => [false];
         yield 'Test enable mail template updates' => [true];

@@ -80,7 +80,7 @@ class ProductFeatureSetTranslationEntityTest extends TestCase
         static::assertInstanceOf(EntityRepository::class, $this->getContainer()->get('product_feature_set_translation.repository'));
     }
 
-    public function definitionMethodProvider(): array
+    public static function definitionMethodProvider(): array
     {
         return [
             [

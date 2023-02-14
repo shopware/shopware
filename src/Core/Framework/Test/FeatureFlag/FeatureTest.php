@@ -216,7 +216,7 @@ class FeatureTest extends TestCase
     /**
      * @return array{0: string, 1: bool}[]
      */
-    public function featureAllDataProvider(): array
+    public static function featureAllDataProvider(): array
     {
         return [
             ['dev', true],
@@ -243,7 +243,7 @@ class FeatureTest extends TestCase
         static::assertTrue(Feature::isActive('FEATURE_NEXT_102'));
     }
 
-    public function isActiveDataProvider(): \Generator
+    public static function isActiveDataProvider(): \Generator
     {
         yield 'registered active feature' => [
             [

@@ -239,7 +239,7 @@ class IndexCreatorTest extends TestCase
     /**
      * @return iterable<array<mixed>>
      */
-    public function providerCreateIndices(): iterable
+    public static function providerCreateIndices(): iterable
     {
         yield 'with given number of shards' => [
             [

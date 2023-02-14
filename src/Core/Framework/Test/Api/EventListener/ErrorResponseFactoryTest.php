@@ -202,7 +202,7 @@ class ErrorResponseFactoryTest extends TestCase
         ], $responseBody['errors']);
     }
 
-    public function invalidUtf8SequencesProvider(): array
+    public static function invalidUtf8SequencesProvider(): array
     {
         return [
             ['Invalid 2 Octet Sequence' => "\xc3\x28"],

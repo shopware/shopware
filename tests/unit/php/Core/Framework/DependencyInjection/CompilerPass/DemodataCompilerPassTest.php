@@ -64,7 +64,7 @@ class DemodataCompilerPassTest extends TestCase
     /**
      * @return array{0: ?string, 1: ?int, 2: ?string}[]
      */
-    public function definitionProvider(): iterable
+    public static function definitionProvider(): iterable
     {
         yield ['foo', null, 'example foo'];
         yield ['foo', 0, 'example foo'];

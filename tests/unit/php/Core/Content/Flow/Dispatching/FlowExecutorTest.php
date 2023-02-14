@@ -173,7 +173,7 @@ class FlowExecutorTest extends TestCase
         $flowExecutor->execute($flow, $storableFlow);
     }
 
-    public function actionsProvider(): \Generator
+    public static function actionsProvider(): \Generator
     {
         yield 'Single action executed' => [
             [

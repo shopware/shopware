@@ -88,7 +88,7 @@ class CsvReaderTest extends TestCase
         static::assertSame(['foo' => '', 'bar' => 'zxcv'], $result[$i]);
     }
 
-    public function eolProvider(): array
+    public static function eolProvider(): array
     {
         return [
             ["\r\n"], // windows

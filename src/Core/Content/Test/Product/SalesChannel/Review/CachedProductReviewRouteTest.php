@@ -28,6 +28,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Cache\Adapter\TagAwareAdapter;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -143,12 +144,12 @@ class CachedProductReviewRouteTest extends TestCase
         $listener->expects(static::exactly($calls))->method('__invoke');
         $this->addEventListener($dispatcher, 'product_review.loaded', $listener);
 
-        $before($ids);
+        $before($ids, $this->getContainer());
 
         $route->load($productId, new Request(), $this->context, new Criteria());
         $route->load($productId, new Request(), $this->context, new Criteria());
 
-        $after($ids);
+        $after($ids, $this->getContainer());
 
         $route->load($productId, new Request(), $this->context, new Criteria());
         $route->load($productId, new Request(), $this->context, new Criteria());
@@ -156,7 +157,7 @@ class CachedProductReviewRouteTest extends TestCase
         $dispatcher->removeListener('product_review.loaded', $listener);
     }
 
-    public function invalidationProvider()
+    public static function invalidationProvider()
     {
         $ids = new IdsCollection();
 
@@ -164,40 +165,40 @@ class CachedProductReviewRouteTest extends TestCase
             $ids,
             function (): void {
             },
-            function (IdsCollection $ids): void {
+            function (IdsCollection $ids, ContainerInterface $container): void {
                 $data = self::review($ids->get('review'), $ids->get('product'), 'Title', 'Content');
 
-                $this->getContainer()->get('product_review.repository')->create([$data], Context::createDefaultContext());
+                $container->get('product_review.repository')->create([$data], Context::createDefaultContext());
             },
             1,
         ];
 
         yield 'Cache invalidated if review updated' => [
             $ids,
-            function (IdsCollection $ids): void {
+            function (IdsCollection $ids, ContainerInterface $container): void {
                 $data = self::review($ids->get('review-update'), $ids->get('product'), 'Title', 'Content');
 
-                $this->getContainer()->get('product_review.repository')->create([$data], Context::createDefaultContext());
+                $container->get('product_review.repository')->create([$data], Context::createDefaultContext());
             },
-            function (IdsCollection $ids): void {
+            function (IdsCollection $ids, ContainerInterface $container): void {
                 $data = ['id' => $ids->get('review-update'), 'title' => 'updated'];
 
-                $this->getContainer()->get('product_review.repository')->update([$data], Context::createDefaultContext());
+                $container->get('product_review.repository')->update([$data], Context::createDefaultContext());
             },
             2,
         ];
 
         yield 'Cache invalidated if review deleted' => [
             $ids,
-            function (IdsCollection $ids): void {
+            function (IdsCollection $ids, ContainerInterface $container): void {
                 $data = self::review($ids->get('to-delete'), $ids->get('product'), 'Title', 'Content');
 
-                $this->getContainer()->get('product_review.repository')->create([$data], Context::createDefaultContext());
+                $container->get('product_review.repository')->create([$data], Context::createDefaultContext());
             },
-            function (IdsCollection $ids): void {
+            function (IdsCollection $ids, ContainerInterface $container): void {
                 $data = ['id' => $ids->get('to-delete')];
 
-                $this->getContainer()->get('product_review.repository')->delete([$data], Context::createDefaultContext());
+                $container->get('product_review.repository')->delete([$data], Context::createDefaultContext());
             },
             1,
         ];
@@ -206,10 +207,10 @@ class CachedProductReviewRouteTest extends TestCase
             $ids,
             function (): void {
             },
-            function (IdsCollection $ids): void {
+            function (IdsCollection $ids, ContainerInterface $container): void {
                 $data = self::review($ids->get('other-review'), $ids->get('other-product'), 'Title', 'Content');
 
-                $this->getContainer()->get('product_review.repository')->create([$data], Context::createDefaultContext());
+                $container->get('product_review.repository')->create([$data], Context::createDefaultContext());
             },
             0,
         ];

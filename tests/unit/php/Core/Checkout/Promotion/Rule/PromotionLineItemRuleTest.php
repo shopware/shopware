@@ -97,7 +97,7 @@ class PromotionLineItemRuleTest extends TestCase
         static::assertSame(!$expected, $notEqualsRule->match($scope));
     }
 
-    public function lineItemScopeCases(): \Generator
+    public static function lineItemScopeCases(): \Generator
     {
         yield 'Line item id in configured ids' => [
             ['matchedId', 'notMatchedId'],
@@ -167,7 +167,7 @@ class PromotionLineItemRuleTest extends TestCase
         static::assertSame(!$expected, $notEqualsRule->match($scope));
     }
 
-    public function cartScopeCases(): \Generator
+    public static function cartScopeCases(): \Generator
     {
         yield 'multiple matches' => [
             ['matchedId', 'alsoMatchedId'],

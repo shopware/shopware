@@ -203,7 +203,7 @@ class PromotionCodeOfTypeRuleTest extends TestCase
     /**
      * @return array<string, array<string|bool|null>>
      */
-    public function getCartRuleScopeTestData(): array
+    public static function getCartRuleScopeTestData(): array
     {
         return [
             'equal / match' => ['fixed', Rule::OPERATOR_EQ, 'fixed', true],

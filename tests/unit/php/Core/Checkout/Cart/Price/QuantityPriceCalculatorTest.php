@@ -104,7 +104,7 @@ class QuantityPriceCalculatorTest extends TestCase
     /**
      * @return list<array{0: CalculatedPrice, 1: QuantityPriceDefinition}>
      */
-    public function netPrices(): array
+    public static function netPrices(): array
     {
         $highTaxRules = new TaxRuleCollection([new TaxRule(19)]);
 
@@ -119,7 +119,7 @@ class QuantityPriceCalculatorTest extends TestCase
     /**
      * @return list<array{0: CalculatedPrice, 1: QuantityPriceDefinition}>
      */
-    public function netDeliveryPrices(): array
+    public static function netDeliveryPrices(): array
     {
         $highTaxRules = new TaxRuleCollection([new TaxRule(19)]);
 
@@ -134,7 +134,7 @@ class QuantityPriceCalculatorTest extends TestCase
     /**
      * @return list<array{0: CashRoundingConfig, 1: CalculatedPrice, 2: QuantityPriceDefinition}>
      */
-    public function priceCalculationWithGrossPricesProvider(): array
+    public static function priceCalculationWithGrossPricesProvider(): array
     {
         $highTaxRules = new TaxRuleCollection([new TaxRule(19)]);
         $lowTaxRuleCollection = new TaxRuleCollection([new TaxRule(7)]);

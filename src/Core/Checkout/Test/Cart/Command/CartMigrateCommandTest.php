@@ -161,7 +161,7 @@ class CartMigrateCommandTest extends TestCase
         static::assertInstanceOf(Cart::class, $redisCart);
     }
 
-    public function dataProvider(): \Generator
+    public static function dataProvider(): \Generator
     {
         yield 'Test sql compressed and redis compressed' => [true, true];
         yield 'Test sql uncompressed and redis uncompressed' => [false, false];

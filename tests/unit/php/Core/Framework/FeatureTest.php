@@ -138,7 +138,7 @@ class FeatureTest extends TestCase
         Feature::triggerDeprecationOrThrow('v6.5.0.0', 'test');
     }
 
-    public function callSilentIfInactiveProvider(): \Generator
+    public static function callSilentIfInactiveProvider(): \Generator
     {
         yield 'Execute a callable with inactivated feature flag in silent' => [
             'v6.5.0.0', 'deprecated message', function ($deprecatedMessage, $errorMessage): void {

@@ -27,7 +27,7 @@ class VersionParserTest extends TestCase
     /**
      * @return string[][]
      */
-    public function provideVersions(): array
+    public static function provideVersions(): array
     {
         return [
             [

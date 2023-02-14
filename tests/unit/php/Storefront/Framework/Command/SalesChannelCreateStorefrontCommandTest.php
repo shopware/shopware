@@ -126,7 +126,7 @@ class SalesChannelCreateStorefrontCommandTest extends TestCase
         static::assertEquals($expected, $result);
     }
 
-    public function dataProviderTestGetSalesChannelConfiguration(): \Generator
+    public static function dataProviderTestGetSalesChannelConfiguration(): \Generator
     {
         $url = 'http://localhost';
         $languageId = Uuid::randomHex();
@@ -157,7 +157,7 @@ class SalesChannelCreateStorefrontCommandTest extends TestCase
         ];
     }
 
-    public function dataProviderTestGetSnippetSetId(): \Generator
+    public static function dataProviderTestGetSnippetSetId(): \Generator
     {
         $snippetSetId = Uuid::randomHex();
 

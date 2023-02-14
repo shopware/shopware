@@ -82,7 +82,7 @@ class MailServiceTest extends TestCase
     /**
      * @return array<int, mixed[]>
      */
-    public function senderEmailDataProvider(): array
+    public static function senderEmailDataProvider(): array
     {
         return [
             ['basic@example.com', 'basic@example.com', null, null],

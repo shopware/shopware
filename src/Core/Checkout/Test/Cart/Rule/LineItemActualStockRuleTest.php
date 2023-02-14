@@ -66,7 +66,7 @@ class LineItemActualStockRuleTest extends TestCase
         static::assertSame($expected, $match);
     }
 
-    public function getMatchingRuleTestData(): \Generator
+    public static function getMatchingRuleTestData(): \Generator
     {
         // OPERATOR_EQ
         yield 'match / operator equals / same stock' => [Rule::OPERATOR_EQ, 100, 100, true];
@@ -151,7 +151,7 @@ class LineItemActualStockRuleTest extends TestCase
         static::assertSame($expected, $match);
     }
 
-    public function getCartRuleScopeTestData(): \Generator
+    public static function getCartRuleScopeTestData(): \Generator
     {
         // OPERATOR_EQ
         yield 'match / operator equals / same stock' => [Rule::OPERATOR_EQ, 100, 100, 200, true];

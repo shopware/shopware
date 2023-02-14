@@ -33,7 +33,7 @@ class ProductVariationBuilderTest extends TestCase
         static::assertEquals($expected, $product->get('variation'));
     }
 
-    public function buildingProvider(): \Generator
+    public static function buildingProvider(): \Generator
     {
         yield 'Test without options' => [
             new ProductEntity(),

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Test\Api\Controller;
 
-use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartPersister;
@@ -43,7 +42,6 @@ use Symfony\Component\HttpFoundation\Response;
 class SalesChannelProxyControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
-    use ArraySubsetAsserts;
     use PromotionTestFixtureBehaviour;
 
     /**
@@ -1180,7 +1178,15 @@ class SalesChannelProxyControllerTest extends TestCase
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         $responseData = json_decode($response->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertArraySubset($expectedTranslations, $responseData);
+        foreach ($expectedTranslations as $key => $expectedTranslation) {
+            if (!\is_array($expectedTranslations[$key])) {
+                static::assertEquals($expectedTranslations[$key], $responseData[$key]);
+            } else {
+                foreach ($expectedTranslations[$key] as $key2 => $expectedTranslation2) {
+                    static::assertEquals($expectedTranslation[$key2], $responseData[$key][$key2]);
+                }
+            }
+        }
     }
 
     private function createLanguage(string $langId, string $salesChannelId, ?string $fallbackId = null): void

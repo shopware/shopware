@@ -122,7 +122,7 @@ class RedisCartPersisterTest extends TestCase
     /**
      * @return iterable<string, array{mixed, class-string<CartException>}>
      */
-    public function dataProviderInvalidData(): iterable
+    public static function dataProviderInvalidData(): iterable
     {
         yield 'not existing' => [null, CartTokenNotFoundException::class];
         yield 'invalid serialize' => ['abc', CartTokenNotFoundException::class];

@@ -74,7 +74,7 @@ class ActionButtonResponseFactoryTest extends TestCase
     /**
      * @return array<int, array<int, array<string, bool|string>|string>>
      */
-    public function provideActionTypes(): array
+    public static function provideActionTypes(): array
     {
         return [
             [

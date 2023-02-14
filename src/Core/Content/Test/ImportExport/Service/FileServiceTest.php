@@ -68,7 +68,7 @@ class FileServiceTest extends TestCase
         static::assertSame('testfile.csv', $dbFile->getOriginalName());
     }
 
-    public function fileTypesProvider(): iterable
+    public static function fileTypesProvider(): iterable
     {
         yield 'CSV file with correct type' => [
             [

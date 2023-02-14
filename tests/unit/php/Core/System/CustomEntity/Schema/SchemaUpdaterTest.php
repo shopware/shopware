@@ -118,7 +118,7 @@ class SchemaUpdaterTest extends TestCase
         }
     }
 
-    public function associationPairsProvider(): \Generator
+    public static function associationPairsProvider(): \Generator
     {
         $oneToOnePair = [
             [

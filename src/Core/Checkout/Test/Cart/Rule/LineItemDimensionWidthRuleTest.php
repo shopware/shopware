@@ -62,9 +62,9 @@ class LineItemDimensionWidthRuleTest extends TestCase
             'operator' => $operator,
         ]);
 
-        $lineItem = $this->createLineItemWithWidth($lineItemAmount);
+        $lineItem = self::createLineItemWithWidth($lineItemAmount);
         if ($lineItemWithoutDeliveryInfo) {
-            $lineItem = $this->createLineItem();
+            $lineItem = self::createLineItem();
         }
 
         $match = $this->rule->match(new LineItemScope(
@@ -78,7 +78,7 @@ class LineItemDimensionWidthRuleTest extends TestCase
     /**
      * @return \Traversable<string, array<string|int|bool|null>>
      */
-    public function getMatchingRuleTestData(): \Traversable
+    public static function getMatchingRuleTestData(): \Traversable
     {
         // OPERATOR_EQ
         yield 'match / operator equals / same width' => [Rule::OPERATOR_EQ, 100, 100, true];
@@ -128,14 +128,14 @@ class LineItemDimensionWidthRuleTest extends TestCase
             'operator' => $operator,
         ]);
 
-        $lineItem1 = $this->createLineItemWithWidth($lineItemAmount1);
+        $lineItem1 = self::createLineItemWithWidth($lineItemAmount1);
         if ($lineItem1WithoutDeliveryInfo) {
-            $lineItem1 = $this->createLineItem();
+            $lineItem1 = self::createLineItem();
         }
 
-        $lineItem2 = $this->createLineItemWithWidth($lineItemAmount2);
+        $lineItem2 = self::createLineItemWithWidth($lineItemAmount2);
         if ($lineItem2WithoutDeliveryInfo) {
-            $lineItem2 = $this->createLineItem();
+            $lineItem2 = self::createLineItem();
         }
 
         $lineItemCollection = new LineItemCollection([
@@ -171,14 +171,14 @@ class LineItemDimensionWidthRuleTest extends TestCase
             'operator' => $operator,
         ]);
 
-        $lineItem1 = $this->createLineItemWithWidth($lineItemAmount1);
+        $lineItem1 = self::createLineItemWithWidth($lineItemAmount1);
         if ($lineItem1WithoutDeliveryInfo) {
-            $lineItem1 = $this->createLineItem();
+            $lineItem1 = self::createLineItem();
         }
 
-        $lineItem2 = $this->createLineItemWithWidth($lineItemAmount2);
+        $lineItem2 = self::createLineItemWithWidth($lineItemAmount2);
         if ($lineItem2WithoutDeliveryInfo) {
-            $lineItem2 = $this->createLineItem();
+            $lineItem2 = self::createLineItem();
         }
 
         $lineItemCollection = new LineItemCollection([
@@ -186,9 +186,9 @@ class LineItemDimensionWidthRuleTest extends TestCase
             $lineItem2,
         ]);
 
-        $containerLineItem = $this->createLineItem();
+        $containerLineItem = self::createLineItem();
         if ($containerLineItemWidth !== null) {
-            $containerLineItem = $this->createLineItemWithWidth($containerLineItemWidth);
+            $containerLineItem = self::createLineItemWithWidth($containerLineItemWidth);
         }
         $containerLineItem->setChildren($lineItemCollection);
         $cart = $this->createCart(new LineItemCollection([$containerLineItem]));
@@ -204,7 +204,7 @@ class LineItemDimensionWidthRuleTest extends TestCase
     /**
      * @return \Traversable<string, array<string|int|bool|null>>
      */
-    public function getCartRuleScopeTestData(): \Traversable
+    public static function getCartRuleScopeTestData(): \Traversable
     {
         // OPERATOR_EQ
         yield 'match / operator equals / same width' => [Rule::OPERATOR_EQ, 100, 100, 200, true];
@@ -278,61 +278,61 @@ class LineItemDimensionWidthRuleTest extends TestCase
     /**
      * @return \Traversable<string, array<string|bool|array<LineItem>>>
      */
-    public function getDataWithMatchAllLineItemsRule(): \Traversable
+    public static function getDataWithMatchAllLineItemsRule(): \Traversable
     {
         yield 'only matching products / equals / match' => [
             [
-                ($this->createLineItemWithWidth(100)),
-                ($this->createLineItemWithWidth(100)),
+                (self::createLineItemWithWidth(100)),
+                (self::createLineItemWithWidth(100)),
             ],
             MatchAllLineItemsRule::OPERATOR_EQ, true,
         ];
 
         yield 'only matching products / not equals / no match' => [
             [
-                ($this->createLineItemWithWidth(100)),
-                ($this->createLineItemWithWidth(100)),
+                (self::createLineItemWithWidth(100)),
+                (self::createLineItemWithWidth(100)),
             ],
             MatchAllLineItemsRule::OPERATOR_NEQ, false,
         ];
 
         yield 'only one matching product / equals / match' => [
             [
-                ($this->createLineItemWithWidth(100)),
+                (self::createLineItemWithWidth(100)),
             ],
             MatchAllLineItemsRule::OPERATOR_EQ, true,
         ];
 
         yield 'only one matching product / not equals / no match' => [
             [
-                ($this->createLineItemWithWidth(100)),
+                (self::createLineItemWithWidth(100)),
             ],
             MatchAllLineItemsRule::OPERATOR_NEQ, false,
         ];
 
         yield 'matching and not matching products / equals / not match' => [
             [
-                ($this->createLineItemWithWidth(100)),
-                ($this->createLineItemWithWidth(100)),
-                ($this->createLineItemWithWidth(500)),
+                (self::createLineItemWithWidth(100)),
+                (self::createLineItemWithWidth(100)),
+                (self::createLineItemWithWidth(500)),
             ],
             MatchAllLineItemsRule::OPERATOR_EQ, false,
         ];
 
         yield 'matching and not matching products / not equals / not match' => [
             [
-                ($this->createLineItemWithWidth(100)),
-                ($this->createLineItemWithWidth(100)),
-                ($this->createLineItemWithWidth(500)),
+                (self::createLineItemWithWidth(100)),
+                (self::createLineItemWithWidth(100)),
+                (self::createLineItemWithWidth(500)),
             ],
             MatchAllLineItemsRule::OPERATOR_NEQ, false,
         ];
 
         yield 'matching products and one promotion / equals / match' => [
             [
-                ($this->createLineItemWithWidth(100)),
-                ($this->createLineItemWithWidth(100)),
-                ($this->createLineItem(LineItem::PROMOTION_LINE_ITEM_TYPE, 1, 'PROMO'))->setPayloadValue('promotionId', 'A'),
+                (self::createLineItemWithWidth(100)),
+                (self::createLineItemWithWidth(100)),
+                (self::createLineItem(LineItem::PROMOTION_LINE_ITEM_TYPE, 1, 'PROMO'))->setPayloadValue('promotionId', 'A'),
             ],
             MatchAllLineItemsRule::OPERATOR_EQ, true,
         ];
@@ -364,8 +364,8 @@ class LineItemDimensionWidthRuleTest extends TestCase
         static::assertEquals(new Type('numeric'), $amount[1]);
     }
 
-    private function createLineItemWithWidth(?float $width): LineItem
+    private static function createLineItemWithWidth(?float $width): LineItem
     {
-        return $this->createLineItemWithDeliveryInfo(false, 1, 50.0, null, $width);
+        return self::createLineItemWithDeliveryInfo(false, 1, 50.0, null, $width);
     }
 }

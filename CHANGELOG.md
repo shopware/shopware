@@ -1,6 +1,22 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.4.20.0
+*  [NEXT-24382 - Fix adding new customer functionality](/changelog/release-6-4-20-0/2022-12-20-fix-adding-new-customer-functionality.md)
+*  [NEXT-24739 - Improve SDK channel performance](/changelog/release-6-4-20-0/2022-12-29-improve-sdk-channel-performance.md)
+*  [NEXT-24678 - Fix snippet problem in Admin API and Store API](/changelog/release-6-4-20-0/2023-01-19-fix-snippet-problem-in-admin-api-and-store-api.md)
+*  [NEXT-25115 - Add ForwardCompatibility for EntityRepositoryInterface removal](/changelog/release-6-4-20-0/2023-01-26-add-forward-compatibility-entity-repository-decorators.md)
+*  [NEXT-25121 - Add regenerator runtime to core](/changelog/release-6-4-20-0/2023-01-26-add-regenerator-runtime-to-core.md)
+*  [NEXT-20474 - Fix VAT ID pattern for cyprus country is not correct.](/changelog/release-6-4-20-0/2023-01-26-fix-vat-pattern-for-cycrus-is-not-correct.md)
+*  [NEXT-25129 - Respect filesystem on duplicate upload](/changelog/release-6-4-20-0/2023-01-30-respect-filesystem-on-duplicate-upload.md)
+*  [NEXT-25069 - Fix UI broken at country state label in registration form](/changelog/release-6-4-20-0/2023-01-31-fix-ui-broken-at-country-state-label-in-registration-form.md)
+*  [NEXT-25212 - Update deliver ordered product downloads flow template](/changelog/release-6-4-20-0/2023-02-01-update-deliver-ordered-product-downloads-flow-template.md)
+*  [NEXT-23955 - Fix customer cannot create with language not available](/changelog/release-6-4-20-0/2023-02-02-fix-customer-cannot-create-with-language-not-available.md)
+*  [NEXT-25291 - ProductLineItem validator ignores skip product stock validation](/changelog/release-6-4-20-0/2023-02-07-productlineitem-validator-ignores-skip-product-stock-validation.md)
+*  [NEXT-23049 - Fix merged PDF contains a line at the top](/changelog/release-6-4-20-0/2023-02-08-fix-merged-pdf-contains-a-line-at-the-top.md)
+*  [NEXT-25067 - Fix tracking codes cannot be exported](/changelog/release-6-4-20-0/2023-02-09-fix-tracking-codes-cannot-be-exported.md)
+*  [NEXT-25359 - Overwrite Dompdf configuration](/changelog/release-6-4-20-0/2023-02-10-configurable-dompdf.md)
+
 ## 6.4.19.0
 *  [NEXT-22617 - Admin users can mark CMS blocks and CMS elements as favorites](/changelog/release-6-4-19-0/2022-05-31-cms-favorites.md) ([Joshua Behrens](https://github.com/JoshuaBehrens))
 *  [NEXT-22616 - Implement flow builder templates](/changelog/release-6-4-19-0/2022-08-09-implement-flow-builder-templates.md)

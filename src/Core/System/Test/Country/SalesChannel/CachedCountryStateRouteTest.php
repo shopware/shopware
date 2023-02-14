@@ -17,6 +17,7 @@ use Shopware\Core\System\Country\SalesChannel\CountryStateRoute;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -72,6 +73,23 @@ class CachedCountryStateRouteTest extends TestCase
      */
     public function testInvalidation(string $countryId, \Closure $before, \Closure $after, int $calls): void
     {
+        $ids = new IdsCollection();
+        $this->getContainer()->get('country.repository')->create(
+            [
+                [
+                    'id' => $ids->get('country'),
+                    'name' => 'testCountry',
+                ],
+                [
+                    'id' => $ids->get('other_country'),
+                    'name' => 'otherCountry',
+                ],
+            ],
+            Context::createDefaultContext()
+        );
+
+        $countryId = $ids->get($countryId);
+
         $this->getContainer()->get('cache.object')->invalidateTags([self::ALL_TAG]);
 
         $this->getContainer()->get('event_dispatcher')
@@ -89,35 +107,74 @@ class CachedCountryStateRouteTest extends TestCase
             ->get('event_dispatcher')
             ->addListener(CountryStateRouteCacheTagsEvent::class, $listener);
 
-        $before();
+        $before($this->getContainer(), $ids);
 
         $route->load($countryId, new Request(), new Criteria(), $this->context);
         $route->load($countryId, new Request(), new Criteria(), $this->context);
 
-        $after();
+        $after($this->getContainer(), $ids);
 
         $route->load($countryId, new Request(), new Criteria(), $this->context);
         $route->load($countryId, new Request(), new Criteria(), $this->context);
     }
 
-    public function invalidationProvider(): \Generator
+    public static function invalidationProvider(): \Generator
     {
-        $ids = new IdsCollection();
-        $this->getContainer()->get('country.repository')->create(
-            [
-                [
-                    'id' => $ids->get('country'),
-                    'name' => 'testCountry',
-                ],
-                [
-                    'id' => $ids->get('other_country'),
-                    'name' => 'otherCountry',
-                ],
-            ],
-            Context::createDefaultContext()
-        );
+        yield 'Cache gets invalidated, if state is updated' => [
+            'country',
+            function (ContainerInterface $container, IdsCollection $ids): void {
+                $container->get('country_state.repository')->create(self::getStates($ids), Context::createDefaultContext());
+            },
+            function (ContainerInterface $container, IdsCollection $ids): void {
+                $state = ['id' => $ids->get('stateId1'), 'name' => 'test00'];
+                $container->get('country_state.repository')->update([$state], Context::createDefaultContext());
+            },
+            2,
+        ];
 
-        $states = [
+        yield 'Cache gets invalidated, if country gets active' => [
+            'country',
+            function (ContainerInterface $container, IdsCollection $ids): void {
+                $container->get('country_state.repository')->create(self::getStates($ids), Context::createDefaultContext());
+            },
+            function (ContainerInterface $container, IdsCollection $ids): void {
+                $state = ['id' => $ids->get('stateId3'), 'active' => true];
+                $container->get('country_state.repository')->update([$state], Context::createDefaultContext());
+            },
+            2,
+        ];
+
+        yield 'Cache gets invalidated, if country gets deleted' => [
+            'country',
+            function (ContainerInterface $container, IdsCollection $ids): void {
+                $container->get('country_state.repository')->create(self::getStates($ids), Context::createDefaultContext());
+            },
+            function (ContainerInterface $container, IdsCollection $ids): void {
+                $delete = ['id' => $ids->get('stateId2')];
+                $container->get('country_state.repository')->delete([$delete], Context::createDefaultContext());
+            },
+            2,
+        ];
+
+        yield 'Cache gets invalidated, if state gets reassigned' => [
+            'country',
+            function (ContainerInterface $container, IdsCollection $ids): void {
+                $container->get('country_state.repository')->create(self::getStates($ids), Context::createDefaultContext());
+            },
+            function (ContainerInterface $container, IdsCollection $ids): void {
+                $update = ['id' => $ids->get('stateId2'), 'countryId' => $ids->get('other_country')];
+                $container->get('country_state.repository')->update([$update], Context::createDefaultContext());
+            },
+            2,
+        ];
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    private static function getStates(IdsCollection $ids): array
+    {
+        return [
             [
                 'id' => $ids->get('stateId1'),
                 'name' => 'test1',
@@ -150,54 +207,6 @@ class CachedCountryStateRouteTest extends TestCase
                 'active' => true,
                 'position' => 4,
             ],
-        ];
-
-        yield 'Cache gets invalidated, if state is updated' => [
-            $ids->get('country'),
-            function () use ($states): void {
-                $this->getContainer()->get('country_state.repository')->create($states, Context::createDefaultContext());
-            },
-            function () use ($ids): void {
-                $state = ['id' => $ids->get('stateId1'), 'name' => 'test00'];
-                $this->getContainer()->get('country_state.repository')->update([$state], Context::createDefaultContext());
-            },
-            2,
-        ];
-
-        yield 'Cache gets invalidated, if country gets active' => [
-            $ids->get('country'),
-            function () use ($states): void {
-                $this->getContainer()->get('country_state.repository')->create($states, Context::createDefaultContext());
-            },
-            function () use ($ids): void {
-                $state = ['id' => $ids->get('stateId3'), 'active' => true];
-                $this->getContainer()->get('country_state.repository')->update([$state], Context::createDefaultContext());
-            },
-            2,
-        ];
-
-        yield 'Cache gets invalidated, if country gets deleted' => [
-            $ids->get('country'),
-            function () use ($states): void {
-                $this->getContainer()->get('country_state.repository')->create($states, Context::createDefaultContext());
-            },
-            function () use ($ids): void {
-                $delete = ['id' => $ids->get('stateId2')];
-                $this->getContainer()->get('country_state.repository')->delete([$delete], Context::createDefaultContext());
-            },
-            2,
-        ];
-
-        yield 'Cache gets invalidated, if state gets reassigned' => [
-            $ids->get('country'),
-            function () use ($states): void {
-                $this->getContainer()->get('country_state.repository')->create($states, Context::createDefaultContext());
-            },
-            function () use ($ids): void {
-                $update = ['id' => $ids->get('stateId2'), 'countryId' => $ids->get('other_country')];
-                $this->getContainer()->get('country_state.repository')->update([$update], Context::createDefaultContext());
-            },
-            2,
         ];
     }
 }

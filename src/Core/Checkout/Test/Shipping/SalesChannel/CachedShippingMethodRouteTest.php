@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -81,51 +82,51 @@ class CachedShippingMethodRouteTest extends TestCase
             ->get('event_dispatcher')
             ->addListener(ShippingMethodRouteCacheTagsEvent::class, $listener);
 
-        $before();
+        $before($this->getContainer());
 
         $route->load(new Request(), $this->context, new Criteria());
         $route->load(new Request(), $this->context, new Criteria());
 
-        $after();
+        $after($this->getContainer());
 
         $route->load(new Request(), $this->context, new Criteria());
         $route->load(new Request(), $this->context, new Criteria());
     }
 
-    public function invalidationProvider()
+    public static function invalidationProvider()
     {
         $ids = new IdsCollection();
 
         yield 'Cache gets invalidated, if created shipping method assigned to the sales channel' => [
             function (): void {
             },
-            function () use ($ids): void {
+            function (ContainerInterface $container) use ($ids): void {
                 $shippingMethod = array_merge(self::DATA, self::ASSIGNED, ['id' => $ids->get('shipping')]);
-                $this->getContainer()->get('shipping_method.repository')->create([$shippingMethod], Context::createDefaultContext());
+                $container->get('shipping_method.repository')->create([$shippingMethod], Context::createDefaultContext());
             },
             2,
         ];
 
         yield 'Cache gets invalidated, if updated shipping method assigned to the sales channel' => [
-            function () use ($ids): void {
+            function (ContainerInterface $container) use ($ids): void {
                 $shippingMethod = array_merge(self::DATA, self::ASSIGNED, ['id' => $ids->get('shipping')]);
-                $this->getContainer()->get('shipping_method.repository')->create([$shippingMethod], Context::createDefaultContext());
+                $container->get('shipping_method.repository')->create([$shippingMethod], Context::createDefaultContext());
             },
-            function () use ($ids): void {
+            function (ContainerInterface $container) use ($ids): void {
                 $update = ['id' => $ids->get('shipping'), 'name' => 'update'];
-                $this->getContainer()->get('shipping_method.repository')->update([$update], Context::createDefaultContext());
+                $container->get('shipping_method.repository')->update([$update], Context::createDefaultContext());
             },
             2,
         ];
 
         yield 'Cache gets invalidated, if deleted shipping method assigned to the sales channel' => [
-            function () use ($ids): void {
+            function (ContainerInterface $container) use ($ids): void {
                 $shippingMethod = array_merge(self::DATA, self::ASSIGNED, ['id' => $ids->get('shipping')]);
-                $this->getContainer()->get('shipping_method.repository')->create([$shippingMethod], Context::createDefaultContext());
+                $container->get('shipping_method.repository')->create([$shippingMethod], Context::createDefaultContext());
             },
-            function () use ($ids): void {
+            function (ContainerInterface $container) use ($ids): void {
                 $delete = ['id' => $ids->get('shipping')];
-                $this->getContainer()->get('shipping_method.repository')->delete([$delete], Context::createDefaultContext());
+                $container->get('shipping_method.repository')->delete([$delete], Context::createDefaultContext());
             },
             2,
         ];
@@ -133,33 +134,33 @@ class CachedShippingMethodRouteTest extends TestCase
         yield 'Cache gets not invalidated, if created shipping method not assigned to the sales channel' => [
             function (): void {
             },
-            function () use ($ids): void {
+            function (ContainerInterface $container) use ($ids): void {
                 $shippingMethod = array_merge(self::DATA, ['id' => $ids->get('shipping')]);
-                $this->getContainer()->get('shipping_method.repository')->create([$shippingMethod], Context::createDefaultContext());
+                $container->get('shipping_method.repository')->create([$shippingMethod], Context::createDefaultContext());
             },
             1,
         ];
 
         yield 'Cache gets not invalidated, if updated shipping method not assigned to the sales channel' => [
-            function () use ($ids): void {
+            function (ContainerInterface $container) use ($ids): void {
                 $shippingMethod = array_merge(self::DATA, ['id' => $ids->get('shipping')]);
-                $this->getContainer()->get('shipping_method.repository')->create([$shippingMethod], Context::createDefaultContext());
+                $container->get('shipping_method.repository')->create([$shippingMethod], Context::createDefaultContext());
             },
-            function () use ($ids): void {
+            function (ContainerInterface $container) use ($ids): void {
                 $update = ['id' => $ids->get('shipping'), 'name' => 'update'];
-                $this->getContainer()->get('shipping_method.repository')->update([$update], Context::createDefaultContext());
+                $container->get('shipping_method.repository')->update([$update], Context::createDefaultContext());
             },
             1,
         ];
 
         yield 'Cache gets invalidated, if deleted shipping method is not assigned to the sales channel' => [
-            function () use ($ids): void {
+            function (ContainerInterface $container) use ($ids): void {
                 $shippingMethod = array_merge(self::DATA, ['id' => $ids->get('shipping')]);
-                $this->getContainer()->get('shipping_method.repository')->create([$shippingMethod], Context::createDefaultContext());
+                $container->get('shipping_method.repository')->create([$shippingMethod], Context::createDefaultContext());
             },
-            function () use ($ids): void {
+            function (ContainerInterface $container) use ($ids): void {
                 $delete = ['id' => $ids->get('shipping')];
-                $this->getContainer()->get('shipping_method.repository')->delete([$delete], Context::createDefaultContext());
+                $container->get('shipping_method.repository')->delete([$delete], Context::createDefaultContext());
             },
             2,
         ];

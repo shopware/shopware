@@ -16,6 +16,7 @@ use Shopware\Core\System\Currency\SalesChannel\CurrencyRoute;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -86,51 +87,51 @@ class CachedCurrencyRouteTest extends TestCase
             ->get('event_dispatcher')
             ->addListener(CurrencyRouteCacheTagsEvent::class, $listener);
 
-        $before();
+        $before($this->getContainer());
 
         $route->load(new Request(), $this->context, new Criteria());
         $route->load(new Request(), $this->context, new Criteria());
 
-        $after();
+        $after($this->getContainer());
 
         $route->load(new Request(), $this->context, new Criteria());
         $route->load(new Request(), $this->context, new Criteria());
     }
 
-    public function invalidationProvider()
+    public static function invalidationProvider()
     {
         $ids = new IdsCollection();
 
         yield 'Cache gets invalidated, if created currency assigned to the sales channel' => [
-            function (): void {
+            function (ContainerInterface $container): void {
             },
-            function () use ($ids): void {
+            function (ContainerInterface $container) use ($ids): void {
                 $currency = array_merge(self::CURRENCY, self::ASSIGNED, ['id' => $ids->get('currency')]);
-                $this->getContainer()->get('currency.repository')->create([$currency], Context::createDefaultContext());
+                $container->get('currency.repository')->create([$currency], Context::createDefaultContext());
             },
             2,
         ];
 
         yield 'Cache gets invalidated, if updated currency assigned to the sales channel' => [
-            function () use ($ids): void {
+            function (ContainerInterface $container) use ($ids): void {
                 $currency = array_merge(self::CURRENCY, self::ASSIGNED, ['id' => $ids->get('currency')]);
-                $this->getContainer()->get('currency.repository')->create([$currency], Context::createDefaultContext());
+                $container->get('currency.repository')->create([$currency], Context::createDefaultContext());
             },
-            function () use ($ids): void {
+            function (ContainerInterface $container) use ($ids): void {
                 $update = ['id' => $ids->get('currency'), 'name' => 'update'];
-                $this->getContainer()->get('currency.repository')->update([$update], Context::createDefaultContext());
+                $container->get('currency.repository')->update([$update], Context::createDefaultContext());
             },
             2,
         ];
 
         yield 'Cache gets invalidated, if deleted currency assigned to the sales channel' => [
-            function () use ($ids): void {
+            function (ContainerInterface $container) use ($ids): void {
                 $currency = array_merge(self::CURRENCY, self::ASSIGNED, ['id' => $ids->get('currency')]);
-                $this->getContainer()->get('currency.repository')->create([$currency], Context::createDefaultContext());
+                $container->get('currency.repository')->create([$currency], Context::createDefaultContext());
             },
-            function () use ($ids): void {
+            function (ContainerInterface $container) use ($ids): void {
                 $delete = ['id' => $ids->get('currency')];
-                $this->getContainer()->get('currency.repository')->delete([$delete], Context::createDefaultContext());
+                $container->get('currency.repository')->delete([$delete], Context::createDefaultContext());
             },
             2,
         ];
@@ -138,33 +139,33 @@ class CachedCurrencyRouteTest extends TestCase
         yield 'Cache gets not invalidated, if created currency not assigned to the sales channel' => [
             function (): void {
             },
-            function () use ($ids): void {
+            function (ContainerInterface $container) use ($ids): void {
                 $currency = array_merge(self::CURRENCY, ['id' => $ids->get('currency')]);
-                $this->getContainer()->get('currency.repository')->create([$currency], Context::createDefaultContext());
+                $container->get('currency.repository')->create([$currency], Context::createDefaultContext());
             },
             1,
         ];
 
         yield 'Cache gets not invalidated, if updated currency not assigned to the sales channel' => [
-            function () use ($ids): void {
+            function (ContainerInterface $container) use ($ids): void {
                 $currency = array_merge(self::CURRENCY, ['id' => $ids->get('currency')]);
-                $this->getContainer()->get('currency.repository')->create([$currency], Context::createDefaultContext());
+                $container->get('currency.repository')->create([$currency], Context::createDefaultContext());
             },
-            function () use ($ids): void {
+            function (ContainerInterface $container) use ($ids): void {
                 $update = ['id' => $ids->get('currency'), 'name' => 'update'];
-                $this->getContainer()->get('currency.repository')->update([$update], Context::createDefaultContext());
+                $container->get('currency.repository')->update([$update], Context::createDefaultContext());
             },
             1,
         ];
 
         yield 'Cache gets invalidated, if deleted currency is not assigned to the sales channel' => [
-            function () use ($ids): void {
+            function (ContainerInterface $container) use ($ids): void {
                 $currency = array_merge(self::CURRENCY, ['id' => $ids->get('currency')]);
-                $this->getContainer()->get('currency.repository')->create([$currency], Context::createDefaultContext());
+                $container->get('currency.repository')->create([$currency], Context::createDefaultContext());
             },
-            function () use ($ids): void {
+            function (ContainerInterface $container) use ($ids): void {
                 $delete = ['id' => $ids->get('currency')];
-                $this->getContainer()->get('currency.repository')->delete([$delete], Context::createDefaultContext());
+                $container->get('currency.repository')->delete([$delete], Context::createDefaultContext());
             },
             2,
         ];

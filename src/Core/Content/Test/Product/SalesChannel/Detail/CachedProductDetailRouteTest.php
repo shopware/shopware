@@ -17,6 +17,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Tax\TaxEntity;
 use Shopware\Core\Test\TestDefaults;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -94,58 +95,58 @@ class CachedProductDetailRouteTest extends TestCase
         $route->load($productId, new Request(), $this->context, new Criteria());
         $route->load($productId, new Request(), $this->context, new Criteria());
 
-        $closure($propertyId);
+        $closure($propertyId, $this->getContainer());
 
         $route->load($productId, new Request(), $this->context, new Criteria());
         $route->load($productId, new Request(), $this->context, new Criteria());
     }
 
-    public function invalidationProvider(): \Generator
+    public static function invalidationProvider(): \Generator
     {
         $ids = new IdsCollection();
 
         yield 'Cache is invalidated if the updated property is used by the product' => [
-            function (string $propertyId): void {
+            function (string $propertyId, ContainerInterface $container): void {
                 $update = ['id' => $propertyId, 'name' => 'yellow'];
-                $this->getContainer()->get('property_group_option.repository')->update([$update], Context::createDefaultContext());
+                $container->get('property_group_option.repository')->update([$update], Context::createDefaultContext());
             },
             2,
         ];
 
         yield 'Cache is invalidated if the deleted property is used by the product' => [
-            function (string $propertyId): void {
+            function (string $propertyId, ContainerInterface $container): void {
                 $delete = ['id' => $propertyId];
-                $this->getContainer()->get('property_group_option.repository')->delete([$delete], Context::createDefaultContext());
+                $container->get('property_group_option.repository')->delete([$delete], Context::createDefaultContext());
             },
             2,
         ];
 
         yield 'Cache is invalidated if the updated options is used by the product' => [
-            function (string $propertyId): void {
+            function (string $propertyId, ContainerInterface $container): void {
                 $update = ['id' => $propertyId, 'name' => 'yellow'];
-                $this->getContainer()->get('property_group_option.repository')->update([$update], Context::createDefaultContext());
+                $container->get('property_group_option.repository')->update([$update], Context::createDefaultContext());
             },
             2,
             true,
         ];
 
         yield 'Cache is not invalidated if the updated property is not used by the product' => [
-            function () use ($ids): void {
-                $this->getContainer()->get('property_group_option.repository')->create(
+            function (string $propertyId, ContainerInterface $container) use ($ids): void {
+                $container->get('property_group_option.repository')->create(
                     [
                         ['id' => $ids->get('property2'), 'name' => 'L', 'group' => ['name' => 'size']],
                     ],
                     Context::createDefaultContext()
                 );
                 $update = ['id' => $ids->get('property2'), 'name' => 'XL'];
-                $this->getContainer()->get('property_group_option.repository')->update([$update], Context::createDefaultContext());
+                $container->get('property_group_option.repository')->update([$update], Context::createDefaultContext());
             },
             1,
         ];
 
         yield 'Cache is not invalidated if the deleted property is not used by the product' => [
-            function () use ($ids): void {
-                $this->getContainer()->get('property_group_option.repository')->create(
+            function (string $propertyId, ContainerInterface $container) use ($ids): void {
+                $container->get('property_group_option.repository')->create(
                     [
                         ['id' => $ids->get('property3'), 'name' => 'L', 'group' => ['name' => 'size']],
                     ],
@@ -153,29 +154,29 @@ class CachedProductDetailRouteTest extends TestCase
                 );
 
                 $delete = ['id' => $ids->get('property3')];
-                $this->getContainer()->get('property_group_option.repository')->delete([$delete], Context::createDefaultContext());
+                $container->get('property_group_option.repository')->delete([$delete], Context::createDefaultContext());
             },
             1,
         ];
 
         yield 'Cache is not invalidated if the updated options is not used by the product' => [
-            function () use ($ids): void {
-                $this->getContainer()->get('property_group_option.repository')->create(
+            function (string $propertyId, ContainerInterface $container) use ($ids): void {
+                $container->get('property_group_option.repository')->create(
                     [
                         ['id' => $ids->get('property2'), 'name' => 'L', 'group' => ['name' => 'size']],
                     ],
                     Context::createDefaultContext()
                 );
                 $update = ['id' => $ids->get('property2'), 'name' => 'XL'];
-                $this->getContainer()->get('property_group_option.repository')->update([$update], Context::createDefaultContext());
+                $container->get('property_group_option.repository')->update([$update], Context::createDefaultContext());
             },
             1,
             true,
         ];
 
         yield 'Cache is not invalidated if the deleted options is not used by the product' => [
-            function () use ($ids): void {
-                $this->getContainer()->get('property_group_option.repository')->create(
+            function (string $propertyId, ContainerInterface $container) use ($ids): void {
+                $container->get('property_group_option.repository')->create(
                     [
                         ['id' => $ids->get('property3'), 'name' => 'L', 'group' => ['name' => 'size']],
                     ],
@@ -183,7 +184,7 @@ class CachedProductDetailRouteTest extends TestCase
                 );
 
                 $delete = ['id' => $ids->get('property3')];
-                $this->getContainer()->get('property_group_option.repository')->delete([$delete], Context::createDefaultContext());
+                $container->get('property_group_option.repository')->delete([$delete], Context::createDefaultContext());
             },
             1,
             true,

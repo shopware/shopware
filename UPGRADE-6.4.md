@@ -1,6 +1,12 @@
 UPGRADE FROM 6.3.x.x to 6.4
 =======================
 
+# 6.4.20.0
+## `EntityRepositoryInterface` removal forward compatible
+To improve forward compatible with the `EntityRepositoryInterface` we added a `ForwardCompatibilityDecorator` to all `EntityRepositories`.
+This decorator extends the `EntityRepository` and is added with negative priority, so this class is always the outermost decorator.
+The decorator is empty and only delegates to the inner implementations, but by extending the `EntityRepository` it is now possible to switch the type hints from `EntityRepositoryInterface` to `EntityRepository` already in preparation for the breaking change in 6.5.0.0.
+
 # 6.4.19.0
 ## `EntityRepositoryInterface` removal forward compatible
 To improve forward compatible with the `EntityRepositoryInterface` we added a `ForwardCompatibilityDecorator` to all `EntityRepositories`.

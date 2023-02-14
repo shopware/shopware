@@ -58,6 +58,17 @@ class CoversAnnotationRule implements Rule
 
     private function hasCovers(InClassNode $class): bool
     {
+        foreach ($class->getOriginalNode()->attrGroups as $group) {
+            $attribute = $group->attrs[0];
+
+            /** @var Node\Name\FullyQualified $name */
+            $name = $attribute->name;
+
+            if ($name->toString() === 'PHPUnit\Metadata\CoversClass\CoversClass') {
+                return true;
+            }
+        }
+
         $doc = $class->getDocComment();
 
         if ($doc === null) {

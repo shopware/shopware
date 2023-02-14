@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Test\Api;
 
-use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -24,7 +23,6 @@ use Symfony\Component\HttpFoundation\Response;
 class TranslationTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
-    use ArraySubsetAsserts;
 
     public function testNoOverride(): void
     {
@@ -634,7 +632,15 @@ class TranslationTest extends TestCase
         $responseData = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('data', $responseData, $response->getContent());
-        static::assertArraySubset($expectedTranslations, $responseData['data']);
+        foreach ($expectedTranslations as $key => $expectedTranslation) {
+            if (!is_array($expectedTranslations[$key])) {
+                static::assertEquals($expectedTranslations[$key], $responseData['data'][$key]);
+            } else {
+                foreach ($expectedTranslations[$key] as $key2 => $expectedTranslation2) {
+                    static::assertEquals($expectedTranslation[$key2], $responseData['data'][$key][$key2]);
+                }
+            }
+        }
     }
 
     private function createLanguage(string $langId, ?string $fallbackId = null): void

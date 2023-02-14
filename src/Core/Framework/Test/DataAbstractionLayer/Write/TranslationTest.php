@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Write;
 
-use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationCollection;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationEntity;
@@ -39,7 +38,6 @@ use Shopware\Core\System\Tax\TaxDefinition;
 class TranslationTest extends TestCase
 {
     use IntegrationTestBehaviour;
-    use ArraySubsetAsserts;
 
     private EntityRepository $productRepository;
 
@@ -97,8 +95,10 @@ class TranslationTest extends TestCase
         static::assertContains(Defaults::LANGUAGE_SYSTEM, $languageIds);
 
         $payload = $translations->getPayloads()[0];
-        static::assertArraySubset(['name' => $name], $payload);
-        static::assertArraySubset(['shortName' => $shortName], $payload);
+        static::assertArrayHasKey('name', $payload);
+        static::assertArrayHasKey('shortName', $payload);
+        static::assertSame($name, $payload['name']);
+        static::assertSame($shortName, $payload['shortName']);
     }
 
     public function testCurrencyWithTranslationViaLanguageIdSimpleNotation(): void
@@ -137,8 +137,10 @@ class TranslationTest extends TestCase
 
         $payload = $translations->getPayloads()[0];
 
-        static::assertArraySubset(['name' => $name], $payload);
-        static::assertArraySubset(['shortName' => $shortName], $payload);
+        static::assertArrayHasKey('name', $payload);
+        static::assertArrayHasKey('shortName', $payload);
+        static::assertSame($name, $payload['name']);
+        static::assertSame($shortName, $payload['shortName']);
     }
 
     public function testCurrencyWithTranslationMergeViaLocaleAndLanguageId(): void
@@ -178,8 +180,10 @@ class TranslationTest extends TestCase
 
         $payload = $translations->getPayloads()[0];
 
-        static::assertArraySubset(['name' => $name], $payload);
-        static::assertArraySubset(['shortName' => $shortName], $payload);
+        static::assertArrayHasKey('name', $payload);
+        static::assertArrayHasKey('shortName', $payload);
+        static::assertSame($name, $payload['name']);
+        static::assertSame($shortName, $payload['shortName']);
     }
 
     public function testCurrencyWithTranslationMergeOverwriteViaLocaleAndLanguageId(): void
@@ -219,8 +223,10 @@ class TranslationTest extends TestCase
         static::assertContains(Defaults::LANGUAGE_SYSTEM, $languageIds);
 
         $payload = $translations->getPayloads()[0];
-        static::assertArraySubset(['name' => $name], $payload);
-        static::assertArraySubset(['shortName' => $shortName], $payload);
+        static::assertArrayHasKey('name', $payload);
+        static::assertArrayHasKey('shortName', $payload);
+        static::assertSame($name, $payload['name']);
+        static::assertSame($shortName, $payload['shortName']);
     }
 
     public function testCurrencyWithTranslationViaLocaleAndLanguageId(): void
@@ -287,21 +293,15 @@ class TranslationTest extends TestCase
         $payload1 = $translations->getPayloads()[0];
         $payload2 = $translations->getPayloads()[1];
 
-        static::assertArraySubset(
-            [
-                'shortName' => $germanShortName,
-                'name' => $germanName,
-            ],
-            $payload1
-        );
+        static::assertArrayHasKey('name', $payload1);
+        static::assertArrayHasKey('shortName', $payload1);
+        static::assertSame($germanName, $payload1['name']);
+        static::assertSame($germanShortName, $payload1['shortName']);
 
-        static::assertArraySubset(
-            [
-                'shortName' => $englishShortName,
-                'name' => $englishName,
-            ],
-            $payload2
-        );
+        static::assertArrayHasKey('name', $payload2);
+        static::assertArrayHasKey('shortName', $payload2);
+        static::assertSame($englishName, $payload2['name']);
+        static::assertSame($englishShortName, $payload2['shortName']);
     }
 
     public function testCurrencyTranslationWithCachingAndInvalidation(): void
@@ -337,8 +337,10 @@ class TranslationTest extends TestCase
         static::assertContains(Defaults::LANGUAGE_SYSTEM, $languageIds);
 
         $payload = $translations->getPayloads()[0];
-        static::assertArraySubset(['name' => $englishName], $payload);
-        static::assertArraySubset(['shortName' => $englishShortName], $payload);
+        static::assertArrayHasKey('name', $payload);
+        static::assertArrayHasKey('shortName', $payload);
+        static::assertSame($englishName, $payload['name']);
+        static::assertSame($englishShortName, $payload['shortName']);
 
         $germanLanguageId = Uuid::randomHex();
         $data = [
@@ -390,11 +392,15 @@ class TranslationTest extends TestCase
 
         $payload = $translations->getPayloads();
 
-        static::assertArraySubset(['name' => 'default'], $payload[0]);
-        static::assertArraySubset(['shortName' => 'def'], $payload[0]);
+        static::assertArrayHasKey('name', $payload[0]);
+        static::assertArrayHasKey('shortName', $payload[0]);
+        static::assertSame('default', $payload[0]['name']);
+        static::assertSame('def', $payload[0]['shortName']);
 
-        static::assertArraySubset(['name' => $nlName], $payload[1]);
-        static::assertArraySubset(['shortName' => $nlShortName], $payload[1]);
+        static::assertArrayHasKey('name', $payload[1]);
+        static::assertArrayHasKey('shortName', $payload[1]);
+        static::assertSame($nlName, $payload[1]['name']);
+        static::assertSame($nlShortName, $payload[1]['shortName']);
     }
 
     public function testTranslationsOfUnknownLanguageCodesAreSkipped(): void

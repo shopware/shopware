@@ -47,7 +47,7 @@
       "messageSaveError": "Beim Speichern ist ein Fehler aufgetreten",
       "messageShippingNotAvailable": "Lieferung in das Zielland nicht möglich.",
       "labelManualOrder": "Erstellt von Admin",
-      "textUnsavedOrderWarning": "TEs gibt ungespeicherte Änderungen. Bitte speichern die Bestellung, bevor Du diese Seite verlässt."
+      "textUnsavedOrderWarning": "Es gibt ungespeicherte Änderungen. Bitte speichern die Bestellung, bevor Du diese Seite verlässt."
     },
     "create": {
       "textNewOrder": "Neue Bestellung",

@@ -7,8 +7,8 @@ export default function initializeCms(): void {
         const extension = Object.values(Shopware.State.get('extensions'))
             .find(ext => ext.baseUrl.startsWith(additionalInformation._event_.origin));
 
-        if (!extension) {
-            return;
+        if (extension && !element.src) {
+            element.src = extension.baseUrl;
         }
 
         Shopware.Service('cmsService').registerCmsElement({
@@ -18,7 +18,7 @@ export default function initializeCms(): void {
             previewComponent: 'sw-cms-el-preview-location-renderer',
             configComponent: 'sw-cms-el-config-location-renderer',
             appData: {
-                baseUrl: extension.baseUrl,
+                baseUrl: element.src,
             },
         });
     });

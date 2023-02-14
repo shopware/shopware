@@ -477,7 +477,6 @@ class AuthControllerTest extends TestCase
             'label' => 'test integration',
             'access_key' => $accessKey,
             'secret_access_key' => password_hash($secretKey, \PASSWORD_BCRYPT),
-            'write_access' => 1,
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
@@ -583,7 +582,6 @@ class AuthControllerTest extends TestCase
 
         $data = [
             'userId' => $user->getUserId(),
-            'writeAccess' => true,
             'accessKey' => $accessKey,
             'secretAccessKey' => $secretKey,
         ];

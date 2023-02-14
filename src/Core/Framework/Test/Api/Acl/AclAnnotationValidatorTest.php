@@ -206,7 +206,6 @@ class AclAnnotationValidatorTest extends TestCase
             ],
             'integration' => [
                 'label' => $appName,
-                'writeAccess' => false,
                 'accessKey' => 'test',
                 'secretAccessKey' => 'test',
             ],

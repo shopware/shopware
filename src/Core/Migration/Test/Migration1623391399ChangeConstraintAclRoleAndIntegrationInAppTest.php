@@ -64,7 +64,6 @@ class Migration1623391399ChangeConstraintAclRoleAndIntegrationInAppTest extends 
             'integration' => [
                 'id' => $integrationId,
                 'label' => 'test',
-                'writeAccess' => false,
                 'accessKey' => 'api access key',
                 'secretAccessKey' => 'test',
             ],

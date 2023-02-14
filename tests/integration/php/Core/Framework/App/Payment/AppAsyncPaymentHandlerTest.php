@@ -21,71 +21,6 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTest
 {
     final public const REDIRECT_URL = 'http://payment.app/do/something';
 
-    /**
-     * @group quarantined
-     *
-     * @dataProvider dataProviderFinalize
-     */
-    public function testPay(string $finalizeFunction): void
-    {
-        $paymentMethodId = $this->getPaymentMethodId('async');
-        $orderId = $this->createOrder($paymentMethodId);
-        $transactionId = $this->createTransaction($orderId, $paymentMethodId);
-        $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
-
-        $response = (new AsyncPayResponse())->assign([
-            'redirectUrl' => self::REDIRECT_URL,
-        ]);
-        $this->appendNewResponse($this->signResponse($response->jsonSerialize()));
-
-        $response = $this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag(), $salesChannelContext);
-        static::assertNotNull($response);
-
-        static::assertEquals(self::REDIRECT_URL, $response->getTargetUrl());
-        /** @var Request $request */
-        $request = $this->getLastRequest();
-        $body = $request->getBody()->getContents();
-
-        $appSecret = $this->app->getAppSecret();
-        static::assertNotNull($appSecret);
-
-        static::assertTrue($request->hasHeader('shopware-shop-signature'));
-        static::assertSame(\hash_hmac('sha256', $body, $appSecret), $request->getHeaderLine('shopware-shop-signature'));
-        static::assertNotEmpty($request->getHeaderLine('sw-version'));
-        static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE));
-        static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE));
-        static::assertSame('POST', $request->getMethod());
-        static::assertJson($body);
-        $content = json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertArrayHasKey('source', $content);
-        static::assertSame([
-            'url' => $this->shopUrl,
-            'shopId' => $this->shopIdProvider->getShopId(),
-            'appVersion' => '1.0.0',
-        ], $content['source']);
-        static::assertArrayHasKey('returnUrl', $content);
-        static::assertNotEmpty($content['returnUrl']);
-        $token = $this->getToken($content['returnUrl']);
-        static::assertNotEmpty($token);
-        static::assertArrayHasKey('order', $content);
-        static::assertIsArray($content['order']);
-        static::assertArrayHasKey('orderCustomer', $content['order']);
-        static::assertIsArray($content['order']['orderCustomer']);
-        static::assertArrayHasKey('customer', $content['order']['orderCustomer']);
-        static::assertIsArray($content['order']['orderCustomer']['customer']);
-        static::assertArrayHasKey('requestData', $content);
-        static::assertIsArray($content['requestData']);
-        // sensitive data is removed
-        static::assertArrayNotHasKey('password', $content['order']['orderCustomer']['customer']);
-        static::assertNull($content['orderTransaction']['paymentMethod']['appPaymentMethod']['app']);
-        static::assertArrayHasKey('orderTransaction', $content);
-        static::assertIsArray($content['orderTransaction']);
-        static::assertCount(5, $content);
-        $this->assertOrderTransactionState(OrderTransactionStates::STATE_UNCONFIRMED, $transactionId);
-
-        $this->$finalizeFunction($token, $transactionId, $paymentMethodId);
-    }
-
     public function testPayOtherState(): void
     {
         $paymentMethodId = $this->getPaymentMethodId('async');
@@ -225,8 +160,10 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTest
         $this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag(), $salesChannelContext);
     }
 
-    public function addTestFinalizeWithUnsignedResponse(string $token, string $transactionId, string $paymentMethodId): void
+    public function testPayFinalizeWithUnsignedResponse(): void
     {
+        $data = $this->prepareTransaction();
+
         $response = (new AsyncFinalizeResponse())->assign([
             'message' => self::ERROR_MESSAGE,
         ]);
@@ -235,13 +172,15 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTest
 
         $this->appendNewResponse(new Response(200, ['shopware-app-signature' => 'invalid'], $json));
 
-        $return = $this->paymentService->finalizeTransaction($token, new \Symfony\Component\HttpFoundation\Request(), $this->getSalesChannelContext($paymentMethodId));
+        $return = $this->paymentService->finalizeTransaction($data['token'], new \Symfony\Component\HttpFoundation\Request(), $this->getSalesChannelContext($data['paymentMethodId']));
         static::assertInstanceOf(AsyncPaymentFinalizeException::class, $return->getException());
-        $this->assertOrderTransactionState(OrderTransactionStates::STATE_FAILED, $transactionId);
+        $this->assertOrderTransactionState(OrderTransactionStates::STATE_FAILED, $data['transactionId']);
     }
 
-    public function addTestFinalizeWithWronglySignedResponse(string $token, string $transactionId, string $paymentMethodId): void
+    public function testPayFinalizeWithWronglySignedResponse(): void
     {
+        $data = $this->prepareTransaction();
+
         $response = (new AsyncFinalizeResponse())->assign([
             'message' => self::ERROR_MESSAGE,
         ]);
@@ -250,37 +189,32 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTest
 
         $this->appendNewResponse(new Response(200, [], $json));
 
-        $return = $this->paymentService->finalizeTransaction($token, new \Symfony\Component\HttpFoundation\Request(), $this->getSalesChannelContext($paymentMethodId));
+        $return = $this->paymentService->finalizeTransaction($data['token'], new \Symfony\Component\HttpFoundation\Request(), $this->getSalesChannelContext($data['paymentMethodId']));
         static::assertInstanceOf(AsyncPaymentFinalizeException::class, $return->getException());
-        $this->assertOrderTransactionState(OrderTransactionStates::STATE_FAILED, $transactionId);
+        $this->assertOrderTransactionState(OrderTransactionStates::STATE_FAILED, $data['transactionId']);
     }
 
-    public function addTestFinalizeWithErrorResponse(string $token, string $transactionId, string $paymentMethodId): void
+    public function testPayFinalizeWithErrorResponse(): void
     {
+        $data = $this->prepareTransaction();
+
         $this->appendNewResponse(new Response(500));
 
-        $return = $this->paymentService->finalizeTransaction($token, new \Symfony\Component\HttpFoundation\Request(), $this->getSalesChannelContext($paymentMethodId));
+        $return = $this->paymentService->finalizeTransaction($data['token'], new \Symfony\Component\HttpFoundation\Request(), $this->getSalesChannelContext($data['paymentMethodId']));
         static::assertInstanceOf(AsyncPaymentFinalizeException::class, $return->getException());
-        $this->assertOrderTransactionState(OrderTransactionStates::STATE_FAILED, $transactionId);
+        $this->assertOrderTransactionState(OrderTransactionStates::STATE_FAILED, $data['transactionId']);
     }
 
-    public static function dataProviderFinalize(): \Generator
+    public function testPayFinalize(): void
     {
-        foreach (get_class_methods(self::class) as $functionName) {
-            if (str_starts_with($functionName, 'addTestFinalize')) {
-                yield str_replace('addTest', '', $functionName) => [$functionName];
-            }
-        }
-    }
+        $data = $this->prepareTransaction();
 
-    private function addTestFinalize(string $token, string $transactionId, string $paymentMethodId): void
-    {
         $response = (new AsyncFinalizeResponse())->assign([
             'status' => StateMachineTransitionActions::ACTION_AUTHORIZE,
         ]);
         $this->appendNewResponse($this->signResponse($response->jsonSerialize()));
 
-        $this->paymentService->finalizeTransaction($token, new \Symfony\Component\HttpFoundation\Request(), $this->getSalesChannelContext($paymentMethodId));
+        $this->paymentService->finalizeTransaction($data['token'], new \Symfony\Component\HttpFoundation\Request(), $this->getSalesChannelContext($data['paymentMethodId']));
 
         /** @var Request $request */
         $request = $this->getLastRequest();
@@ -309,34 +243,105 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTest
         static::assertArrayHasKey('queryParameters', $content);
         static::assertIsArray($content['queryParameters']);
         static::assertCount(3, $content);
-        $this->assertOrderTransactionState(OrderTransactionStates::STATE_AUTHORIZED, $transactionId);
+        $this->assertOrderTransactionState(OrderTransactionStates::STATE_AUTHORIZED, $data['transactionId']);
     }
 
-    private function addTestFinalizeCanceledState(string $token, string $transactionId, string $paymentMethodId): void
+    public function testPayFinalizeCanceledState(): void
     {
+        $data = $this->prepareTransaction();
+
         $response = (new AsyncFinalizeResponse())->assign([
             'status' => StateMachineTransitionActions::ACTION_CANCEL,
         ]);
         $this->appendNewResponse($this->signResponse($response->jsonSerialize()));
 
-        $return = $this->paymentService->finalizeTransaction($token, new \Symfony\Component\HttpFoundation\Request(), $this->getSalesChannelContext($paymentMethodId));
+        $return = $this->paymentService->finalizeTransaction($data['token'], new \Symfony\Component\HttpFoundation\Request(), $this->getSalesChannelContext($data['paymentMethodId']));
         static::assertInstanceOf(CustomerCanceledAsyncPaymentException::class, $return->getException());
-        $this->assertOrderTransactionState(OrderTransactionStates::STATE_CANCELLED, $transactionId);
+        $this->assertOrderTransactionState(OrderTransactionStates::STATE_CANCELLED, $data['transactionId']);
     }
 
-    private function addTestFinalizeOnlyMessage(string $token, string $transactionId, string $paymentMethodId): void
+    public function testPayFinalizeOnlyMessage(): void
     {
+        $data = $this->prepareTransaction();
+
         $response = (new AsyncFinalizeResponse())->assign([
             'message' => self::ERROR_MESSAGE,
         ]);
         $this->appendNewResponse($this->signResponse($response->jsonSerialize()));
 
-        $return = $this->paymentService->finalizeTransaction($token, new \Symfony\Component\HttpFoundation\Request(), $this->getSalesChannelContext($paymentMethodId));
+        $return = $this->paymentService->finalizeTransaction($data['token'], new \Symfony\Component\HttpFoundation\Request(), $this->getSalesChannelContext($data['paymentMethodId']));
         static::assertInstanceOf(AsyncPaymentFinalizeException::class, $return->getException());
-        $this->assertOrderTransactionState(OrderTransactionStates::STATE_FAILED, $transactionId);
+        $this->assertOrderTransactionState(OrderTransactionStates::STATE_FAILED, $data['transactionId']);
     }
 
-    private function getToken(string $returnUrl): ?string
+    /**
+     * @return array{token: string, transactionId: string, paymentMethodId: string}
+     */
+    private function prepareTransaction(): array
+    {
+        $paymentMethodId = $this->getPaymentMethodId('async');
+        $orderId = $this->createOrder($paymentMethodId);
+        $transactionId = $this->createTransaction($orderId, $paymentMethodId);
+        $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
+
+        $response = (new AsyncPayResponse())->assign([
+            'redirectUrl' => self::REDIRECT_URL,
+        ]);
+        $this->appendNewResponse($this->signResponse($response->jsonSerialize()));
+
+        $response = $this->paymentService->handlePaymentByOrder($orderId, new RequestDataBag(), $salesChannelContext);
+        static::assertNotNull($response);
+
+        static::assertEquals(self::REDIRECT_URL, $response->getTargetUrl());
+        /** @var Request $request */
+        $request = $this->getLastRequest();
+        $body = $request->getBody()->getContents();
+
+        $appSecret = $this->app->getAppSecret();
+        static::assertNotNull($appSecret);
+
+        static::assertTrue($request->hasHeader('shopware-shop-signature'));
+        static::assertSame(\hash_hmac('sha256', $body, $appSecret), $request->getHeaderLine('shopware-shop-signature'));
+        static::assertNotEmpty($request->getHeaderLine('sw-version'));
+        static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE));
+        static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE));
+        static::assertSame('POST', $request->getMethod());
+        static::assertJson($body);
+        $content = json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertArrayHasKey('source', $content);
+        static::assertSame([
+            'url' => $this->shopUrl,
+            'shopId' => $this->shopIdProvider->getShopId(),
+            'appVersion' => '1.0.0',
+        ], $content['source']);
+        static::assertArrayHasKey('returnUrl', $content);
+        static::assertNotEmpty($content['returnUrl']);
+        $token = $this->getToken($content['returnUrl']);
+        static::assertNotEmpty($token);
+        static::assertArrayHasKey('order', $content);
+        static::assertIsArray($content['order']);
+        static::assertArrayHasKey('orderCustomer', $content['order']);
+        static::assertIsArray($content['order']['orderCustomer']);
+        static::assertArrayHasKey('customer', $content['order']['orderCustomer']);
+        static::assertIsArray($content['order']['orderCustomer']['customer']);
+        static::assertArrayHasKey('requestData', $content);
+        static::assertIsArray($content['requestData']);
+        // sensitive data is removed
+        static::assertArrayNotHasKey('password', $content['order']['orderCustomer']['customer']);
+        static::assertNull($content['orderTransaction']['paymentMethod']['appPaymentMethod']['app']);
+        static::assertArrayHasKey('orderTransaction', $content);
+        static::assertIsArray($content['orderTransaction']);
+        static::assertCount(5, $content);
+        $this->assertOrderTransactionState(OrderTransactionStates::STATE_UNCONFIRMED, $transactionId);
+
+        return [
+            'token' => $token,
+            'transactionId' => $transactionId,
+            'paymentMethodId' => $paymentMethodId,
+        ];
+    }
+
+    private function getToken(string $returnUrl): string
     {
         $query = \parse_url($returnUrl, \PHP_URL_QUERY);
         static::assertIsString($query);
@@ -344,10 +349,6 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTest
         \parse_str($query, $params);
 
         $token = $params['_sw_payment_token'];
-
-        if ($token === null) {
-            return null;
-        }
 
         static::assertIsString($token);
 

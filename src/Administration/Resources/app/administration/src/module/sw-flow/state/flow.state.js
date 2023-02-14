@@ -1,5 +1,3 @@
-import { ACTION, GROUPS } from '../constant/flow.constant';
-
 const { Service } = Shopware;
 const { EntityCollection } = Shopware.Data;
 const { types } = Shopware.Utils;
@@ -27,9 +25,17 @@ export default {
         customFields: [],
         customerGroups: [],
         restrictedRules: [],
+        appActions: [],
     },
 
     mutations: {
+        setAppActions(state, actions) {
+            state.appActions = [
+                ...state.appActions,
+                ...actions,
+            ];
+        },
+
         setFlow(state, flow) {
             state.flow = flow;
             if (flow.config) {
@@ -150,6 +156,16 @@ export default {
     },
 
     getters: {
+        appActions(state) {
+            return state.appActions;
+        },
+
+        getSelectedAppAction(state) {
+            return (actionName) => {
+                return state.appActions?.find((item) => item.name === actionName);
+            };
+        },
+
         sequences(state) {
             return state.flow.sequences;
         },
@@ -219,28 +235,30 @@ export default {
 
         mailTemplateIds(state) {
             return state.flow.sequences
-                .filter(item => item.actionName === ACTION.MAIL_SEND)
+                .filter(item => item.actionName === Service('flowBuilderService').getActionName('MAIL_SEND'))
                 .map(item => item.config?.mailTemplateId);
         },
 
         customFieldSetIds(state) {
+            const service = Service('flowBuilderService');
             return state.flow.sequences
-                .filter(item => item.actionName === ACTION.SET_CUSTOMER_CUSTOM_FIELD
-                    || item.actionName === ACTION.SET_ORDER_CUSTOM_FIELD
-                    || item.actionName === ACTION.SET_CUSTOMER_GROUP_CUSTOM_FIELD)
+                .filter(item => item.actionName === service.getActionName('SET_CUSTOMER_CUSTOM_FIELD')
+                    || item.actionName === service.getActionName('SET_ORDER_CUSTOM_FIELD')
+                    || item.actionName === service.getActionName('SET_CUSTOMER_GROUP_CUSTOM_FIELD'))
                 .map(item => item.config?.customFieldSetId);
         },
 
         customFieldIds(state) {
+            const service = Service('flowBuilderService');
             return state.flow.sequences
-                .filter(item => item.actionName === ACTION.SET_CUSTOMER_CUSTOM_FIELD
-                    || item.actionName === ACTION.SET_ORDER_CUSTOM_FIELD
-                    || item.actionName === ACTION.SET_CUSTOMER_GROUP_CUSTOM_FIELD)
+                .filter(item => item.actionName === service.getActionName('SET_CUSTOMER_CUSTOM_FIELD')
+                    || item.actionName === service.getActionName('SET_ORDER_CUSTOM_FIELD')
+                    || item.actionName === service.getActionName('SET_CUSTOMER_GROUP_CUSTOM_FIELD'))
                 .map(item => item.config?.customFieldId);
         },
 
         actionGroups() {
-            return GROUPS;
+            return Service('flowBuilderService').getGroups();
         },
     },
 

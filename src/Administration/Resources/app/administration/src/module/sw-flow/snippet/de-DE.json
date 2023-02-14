@@ -1,5 +1,9 @@
 {
   "sw-flow": {
+    "labelDescription": {
+      "labelEntity": "Entität",
+      "labelTag": "Tag"
+    },
     "general": {
       "mainMenuItemGeneral": "Flow Builder",
       "descriptionTextModule": "Flow Builder",

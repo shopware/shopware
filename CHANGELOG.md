@@ -38,6 +38,7 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-18625 - Extend rule condition service](/changelog/release-6-5-0-0/2021-11-26-extend-rule-condition-service.md)
 *  [NEXT-16683 - Implement modal to create new order](/changelog/release-6-5-0-0/2021-11-26-implement-modal-to-create-new-order.md)
 *  [NEXT-17414 - Make rule assignment aware](/changelog/release-6-5-0-0/2021-12-09-make-rule-assignment-aware.md)
+*  [NEXT-24931 - Database table cleanup](/changelog/release-6-5-0-0/2023-02-02-database-table-cleanup.md)
 *  [NEXT-18187 - Moved admin dashboard statistics into separate component](/changelog/release-6-5-0-0/2021-12-15-moved-admin-dashboard-statistics-into-separate-component.md)
 *  [NEXT-15381 - Save theme compilation](/changelog/release-6-5-0-0/2021-12-30-save-theme-compilation.md)
 *  [NEXT-11634 - Webpack alias refactor](/changelog/release-6-5-0-0/2022-01-10-webpack-alias-refactor.md)

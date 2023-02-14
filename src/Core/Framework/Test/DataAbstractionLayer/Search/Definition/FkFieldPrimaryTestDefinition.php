@@ -2,37 +2,35 @@
 
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Search\Definition;
 
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 /**
  * @internal
  */
-class GroupByDefinition extends EntityDefinition
+class FkFieldPrimaryTestDefinition extends EntityDefinition
 {
     public function getEntityName(): string
     {
-        return 'group_by_test';
+        return 'fk_field_primary';
     }
 
     public function since(): string
     {
-        return '6.1.0';
+        return '6.4.1';
     }
 
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
+            (new FkField('product_id', 'productId', ProductDefinition::class))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
             (new StringField('name', 'name'))->addFlags(new ApiAware(), new Required()),
-            (new IntField('field1', 'field1'))->addFlags(new ApiAware(), new Required()),
-            (new IntField('field2', 'field2'))->addFlags(new ApiAware(), new Required()),
         ]);
     }
 }

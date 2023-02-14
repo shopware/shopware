@@ -41,8 +41,6 @@ class ContactFormRouteTest extends TestCase
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
         ]);
-
-        $this->assignMailtemplatesToSalesChannel(TestDefaults::SALES_CHANNEL, Context::createDefaultContext());
     }
 
     public function testContactFormSendMail(): void

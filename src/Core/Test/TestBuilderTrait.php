@@ -8,10 +8,13 @@ trait TestBuilderTrait
 {
     protected IdsCollection $ids;
 
+    /**
+     * @var array<mixed>
+     */
     protected array $_dynamic = [];
 
     /**
-     * @param array|object|string|float|int|bool|null $value
+     * @param array<mixed>|object|string|float|int|bool|null $value
      */
     public function add(string $key, $value): self
     {
@@ -20,6 +23,9 @@ trait TestBuilderTrait
         return $this;
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function build(): array
     {
         $data = \get_object_vars($this);

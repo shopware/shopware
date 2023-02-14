@@ -506,6 +506,8 @@
     "category.updatedAt",
     "category.translated",
     "category.customEntityTypeId",
+    "category.cmsPageIdSwitched",
+    "category.visibleChildCount",
     "category_translation.name",
     "category_translation.breadcrumb",
     "category_translation.linkType",

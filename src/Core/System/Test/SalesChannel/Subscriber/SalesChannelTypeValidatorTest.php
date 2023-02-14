@@ -76,7 +76,7 @@ class SalesChannelTypeValidatorTest extends TestCase
         ], Context::createDefaultContext());
     }
 
-    public function listAvailable(): array
+    public static function listAvailable(): array
     {
         return [
             [Defaults::SALES_CHANNEL_TYPE_API],

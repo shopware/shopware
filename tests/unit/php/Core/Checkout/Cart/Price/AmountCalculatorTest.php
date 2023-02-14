@@ -101,7 +101,7 @@ class AmountCalculatorTest extends TestCase
     /**
      * @return list<array{0: CartPrice, 1: PriceCollection}>
      */
-    public function calculateAmountForNetDeliveriesProvider(): array
+    public static function calculateAmountForNetDeliveriesProvider(): array
     {
         $highTax = new TaxRuleCollection([new TaxRule(19)]);
         $lowTax = new TaxRuleCollection([new TaxRule(7)]);
@@ -153,7 +153,7 @@ class AmountCalculatorTest extends TestCase
     /**
      * @return list<array{0: CartPrice, 1: PriceCollection}>
      */
-    public function calculateAmountWithNetPricesProvider(): array
+    public static function calculateAmountWithNetPricesProvider(): array
     {
         $highTax = new TaxRuleCollection([new TaxRule(19)]);
         $lowTax = new TaxRuleCollection([new TaxRule(7)]);
@@ -282,7 +282,7 @@ class AmountCalculatorTest extends TestCase
     /**
      * @return list<array{0: CartPrice, 1: PriceCollection}>
      */
-    public function calculateAmountWithGrossPricesProvider(): array
+    public static function calculateAmountWithGrossPricesProvider(): array
     {
         $highTax = new TaxRuleCollection([new TaxRule(19)]);
         $lowTax = new TaxRuleCollection([new TaxRule(7)]);
@@ -424,7 +424,7 @@ class AmountCalculatorTest extends TestCase
     /**
      * @return array<string, array{0: CashRoundingConfig, 1: CashRoundingConfig, 2: PriceCollection, 3: CartPrice}>
      */
-    public function cashRoundingProvider(): array
+    public static function cashRoundingProvider(): array
     {
         return [
             'Item and total rounding with different decimals' => [

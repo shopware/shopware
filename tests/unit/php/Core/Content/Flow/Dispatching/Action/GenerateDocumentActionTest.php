@@ -82,7 +82,7 @@ class GenerateDocumentActionTest extends TestCase
         $this->action->handleFlow($this->flow);
     }
 
-    public function actionExecutedProvider(): \Generator
+    public static function actionExecutedProvider(): \Generator
     {
         yield 'Generate invoice multi' => [
             [

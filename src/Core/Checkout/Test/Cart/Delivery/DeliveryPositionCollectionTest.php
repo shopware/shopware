@@ -166,7 +166,7 @@ class DeliveryPositionCollectionTest extends TestCase
         static::assertEquals($expect, $deliveryPositionCollection->getVolume());
     }
 
-    public function volumeDataProvider(): array
+    public static function volumeDataProvider(): array
     {
         return [
             'test height/width/length: -1, -1, -1' => [-1, -1, -1, 0],

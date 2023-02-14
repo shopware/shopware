@@ -36,7 +36,7 @@ class LocaleExceptionTest extends TestCase
     /**
      * @return array<string, array{exception: LocaleException, statusCode: int, errorCode: string, message: string}>
      */
-    public function exceptionDataProvider(): iterable
+    public static function exceptionDataProvider(): iterable
     {
         yield LocaleException::LOCALE_DOES_NOT_EXISTS_EXCEPTION => [
             'exception' => LocaleException::localeDoesNotExists('myCustomLocale'),

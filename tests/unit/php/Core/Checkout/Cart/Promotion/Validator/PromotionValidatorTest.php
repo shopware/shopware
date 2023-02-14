@@ -199,7 +199,7 @@ class PromotionValidatorTest extends TestCase
     /**
      * @return array<string, array{0: string, 1: float}>
      */
-    public function invalidProvider(): array
+    public static function invalidProvider(): array
     {
         return [
             'negative percentage' => ['percentage', -0.01],
@@ -252,7 +252,7 @@ class PromotionValidatorTest extends TestCase
     /**
      * @return array<string, array{0: string, 1: float}>
      */
-    public function validProvider(): array
+    public static function validProvider(): array
     {
         return [
             'zero percentage' => ['percentage', -0.00],

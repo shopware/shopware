@@ -137,7 +137,7 @@ class SeoUrlUpdaterTest extends TestCase
     /**
      * @return list<array{translations: list<string>, pathInfo: string}>
      */
-    public function seoLanguageDataProvider(): array
+    public static function seoLanguageDataProvider(): array
     {
         return [
             [

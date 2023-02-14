@@ -26,7 +26,7 @@ class JsonApiDecoderTest extends TestCase
         static::assertFalse($this->decoder->supportsDecoding('yml'));
     }
 
-    public function emptyInputProvider(): array
+    public static function emptyInputProvider(): array
     {
         return [
             [null],
@@ -38,7 +38,7 @@ class JsonApiDecoderTest extends TestCase
         ];
     }
 
-    public function inputWithoutDataOnRootProvider(): array
+    public static function inputWithoutDataOnRootProvider(): array
     {
         return [
             ['randomKey' => 'randomValue'],
@@ -46,7 +46,7 @@ class JsonApiDecoderTest extends TestCase
         ];
     }
 
-    public function resourceIdentifierWIthInvalidStructureProvider(): array
+    public static function resourceIdentifierWIthInvalidStructureProvider(): array
     {
         return [
             [['data' => ['id' => 'some-id']]],

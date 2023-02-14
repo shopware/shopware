@@ -76,7 +76,7 @@ class ErrorResponseFactoryTest extends TestCase
         }
     }
 
-    public function getResponseFromExceptionProvider(): \Generator
+    public static function getResponseFromExceptionProvider(): \Generator
     {
         $message = 'this is an error';
 

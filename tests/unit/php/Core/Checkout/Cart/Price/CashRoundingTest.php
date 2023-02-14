@@ -78,7 +78,7 @@ class CashRoundingTest extends TestCase
         static::assertEquals($expected, $actual);
     }
 
-    public function provider_german(): \Generator
+    public static function provider_german(): \Generator
     {
         yield '19.990 should be 19.99' => [19.990, 19.99];
         yield '19.991 should be 19.99' => [19.991, 19.99];
@@ -87,7 +87,7 @@ class CashRoundingTest extends TestCase
         yield '19.999 should be 20.00' => [19.999, 20.00];
     }
 
-    public function provider_hong_kong(): \Generator
+    public static function provider_hong_kong(): \Generator
     {
         yield '19.40 should be 19.40' => [19.40, 19.40];
         yield '19.41 should be 19.40' => [19.41, 19.40];
@@ -98,7 +98,7 @@ class CashRoundingTest extends TestCase
         yield '19.49 should be 19.50' => [19.49, 19.50];
     }
 
-    public function provider_denmark(): \Generator
+    public static function provider_denmark(): \Generator
     {
         yield '19.01 should be 19.00' => [19.01, 19.00];
         yield '19.24 should be 19.00' => [19.24, 19.00];
@@ -115,7 +115,7 @@ class CashRoundingTest extends TestCase
         yield '19.99 should be 20.00' => [19.99, 20.00];
     }
 
-    public function provider_italy(): \Generator
+    public static function provider_italy(): \Generator
     {
         yield '19.50 should be 19.50' => [19.50, 19.50];
         yield '19.51 should be 19.50' => [19.51, 19.50];
@@ -133,7 +133,7 @@ class CashRoundingTest extends TestCase
         yield '19.59 should be 19.60' => [19.59, 19.60];
     }
 
-    public function provider_sweden(): \Generator
+    public static function provider_sweden(): \Generator
     {
         yield '19.00 should be 19.00' => [19.00, 19.00];
         yield '19.01 should be 19.00' => [19.01, 19.00];

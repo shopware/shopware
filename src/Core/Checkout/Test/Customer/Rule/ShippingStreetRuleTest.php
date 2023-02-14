@@ -190,7 +190,7 @@ class ShippingStreetRuleTest extends TestCase
     /**
      * @return \Traversable<string, array<string|bool>>
      */
-    public function getMatchValues(): \Traversable
+    public static function getMatchValues(): \Traversable
     {
         yield 'operator_eq / not match / street' => [Rule::OPERATOR_EQ, false, 'kyln000'];
         yield 'operator_eq / match / street' => [Rule::OPERATOR_EQ, true, 'kyln123'];

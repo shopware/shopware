@@ -91,7 +91,7 @@ class StructNormalizerTest extends TestCase
         );
     }
 
-    public function denormalizeShouldReturnNonArraysProvider(): array
+    public static function denormalizeShouldReturnNonArraysProvider(): array
     {
         return [
             ['string'],

@@ -122,7 +122,7 @@ class MigrationSourceTest extends TestCase
         static::assertSame($expected, $sourceAb->getSourceDirectories());
     }
 
-    public function provideCoreRegexDataV6_3(): array
+    public static function provideCoreRegexDataV6_3(): array
     {
         $cases = [
             [Migration1565270366PromotionSetGroupRule::class, true],
@@ -146,7 +146,7 @@ class MigrationSourceTest extends TestCase
             ['Shopware\Core\Migration\V6_3\Something\Migration1571059598ChangeGreatBritainToUnitedKingdom', false],
         ];
 
-        if ($this->getContainer()->has(ProductController::class)) {
+        if (class_exists(ProductController::class)) {
             $cases = array_merge(
                 $cases,
                 [
@@ -167,7 +167,7 @@ class MigrationSourceTest extends TestCase
         return $cases;
     }
 
-    public function provideUnitTestData(): array
+    public static function provideUnitTestData(): array
     {
         return [
             ['__NOPE__', false],

@@ -140,7 +140,7 @@ class CartLoadRouteTest extends TestCase
     /**
      * @return array<string, array<int|array<string, string|array<string, string>>|null>>
      */
-    public function dataProviderPaymentMethodRule(): array
+    public static function dataProviderPaymentMethodRule(): array
     {
         return [
             'No Rule' => [

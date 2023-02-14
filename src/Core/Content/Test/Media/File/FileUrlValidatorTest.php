@@ -20,7 +20,7 @@ class FileUrlValidatorTest extends TestCase
         static::assertEquals($expectedResult, $validator->isValid($source));
     }
 
-    public function fileSourceProvider(): array
+    public static function fileSourceProvider(): array
     {
         return [
             'reserved IPv4' => ['https://127.0.0.1', false],

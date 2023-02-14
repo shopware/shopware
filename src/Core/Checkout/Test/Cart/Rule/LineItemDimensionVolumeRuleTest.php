@@ -74,7 +74,7 @@ class LineItemDimensionVolumeRuleTest extends TestCase
     /**
      * @return \Traversable<string, array<string|int|bool|null>>
      */
-    public function getMatchingRuleTestData(): \Traversable
+    public static function getMatchingRuleTestData(): \Traversable
     {
         // OPERATOR_EQ
         yield 'match / operator equals / same volume' => [Rule::OPERATOR_EQ, 100, 100, true];
@@ -195,7 +195,7 @@ class LineItemDimensionVolumeRuleTest extends TestCase
     /**
      * @return \Traversable<string, array<string|int|bool|null>>
      */
-    public function getCartRuleScopeTestData(): \Traversable
+    public static function getCartRuleScopeTestData(): \Traversable
     {
         // OPERATOR_EQ
         yield 'match / operator equals / same volume' => [Rule::OPERATOR_EQ, 100, 100, 200, true];

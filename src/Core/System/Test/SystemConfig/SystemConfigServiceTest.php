@@ -46,7 +46,7 @@ class SystemConfigServiceTest extends TestCase
     /**
      * @return array<mixed>
      */
-    public function setGetDifferentTypesProvider(): array
+    public static function setGetDifferentTypesProvider(): array
     {
         return [
             [true],
@@ -76,7 +76,7 @@ class SystemConfigServiceTest extends TestCase
     /**
      * @return array<mixed>
      */
-    public function getStringProvider(): array
+    public static function getStringProvider(): array
     {
         return [
             [true, '1'],
@@ -110,7 +110,7 @@ class SystemConfigServiceTest extends TestCase
     /**
      * @return array<mixed>
      */
-    public function getIntProvider(): array
+    public static function getIntProvider(): array
     {
         return [
             [true, 1],
@@ -144,7 +144,7 @@ class SystemConfigServiceTest extends TestCase
     /**
      * @return array<mixed>
      */
-    public function getFloatProvider(): array
+    public static function getFloatProvider(): array
     {
         return [
             [true, 1],
@@ -178,7 +178,7 @@ class SystemConfigServiceTest extends TestCase
     /**
      * @return array<mixed>
      */
-    public function getBoolProvider(): array
+    public static function getBoolProvider(): array
     {
         return [
             [true, true],

@@ -1125,7 +1125,7 @@ class EntityAggregatorTest extends TestCase
     /**
      * @return list<list<DateHistogramCase>>
      */
-    public function dateHistogramProvider(): array
+    public static function dateHistogramProvider(): array
     {
         return array_filter([
             [

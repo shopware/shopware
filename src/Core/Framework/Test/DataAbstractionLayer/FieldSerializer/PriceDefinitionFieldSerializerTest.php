@@ -64,7 +64,7 @@ class PriceDefinitionFieldSerializerTest extends TestCase
         static::assertEquals($definition, $decoded);
     }
 
-    public function serializerProvider()
+    public static function serializerProvider()
     {
         $rule = new AndRule([
             new OrRule([

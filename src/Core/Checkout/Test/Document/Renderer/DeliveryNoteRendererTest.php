@@ -105,7 +105,7 @@ class DeliveryNoteRendererTest extends TestCase
         $assertionCallback($deliveryNoteNumber, $order->getOrderNumber(), $rendered);
     }
 
-    public function deliveryNoteRendererDataProvider(): \Generator
+    public static function deliveryNoteRendererDataProvider(): \Generator
     {
         yield 'render delivery_note successfully' => [
             '2000',

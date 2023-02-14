@@ -231,7 +231,7 @@ class ShippingMethodRuleTest extends TestCase
     /**
      * @return array<array<string|bool|array<string, string|array<string>>>>
      */
-    public function matchDataProvider(): array
+    public static function matchDataProvider(): array
     {
         return [
             [

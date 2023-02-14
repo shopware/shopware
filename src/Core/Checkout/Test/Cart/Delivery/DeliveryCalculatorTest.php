@@ -1872,7 +1872,7 @@ class DeliveryCalculatorTest extends TestCase
     /**
      * @return array<string, array<int>>
      */
-    public function mixedShippingProvider(): array
+    public static function mixedShippingProvider(): array
     {
         return [
             'Mixed shipping by quantity' => [DeliveryCalculator::CALCULATION_BY_LINE_ITEM_COUNT, 1, 100],

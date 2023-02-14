@@ -150,7 +150,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
     /**
      * @return list<array{0: list<string>, 1: Request}>
      */
-    public function manufacturerProvider(): array
+    public static function manufacturerProvider(): array
     {
         $id1 = Uuid::randomHex();
         $id2 = Uuid::randomHex();
@@ -191,7 +191,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
     /**
      * @return list<array{0: ?bool, 1: Request}>
      */
-    public function shippingFreeProvider(): array
+    public static function shippingFreeProvider(): array
     {
         return [
             [null, new Request()],
@@ -229,7 +229,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
     /**
      * @return list<array{0: array{min?: int|null, max?: int|null}, 1: Request}>
      */
-    public function priceFilterProvider(): array
+    public static function priceFilterProvider(): array
     {
         return [
             [['min' => 10, 'max' => null], new Request(['min-price' => 10])],
@@ -313,7 +313,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
     /**
      * @return list<array{0: array<string, string>, 1: Request}>
      */
-    public function searchSortingProvider(): array
+    public static function searchSortingProvider(): array
     {
         return [
             [
@@ -353,7 +353,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
     /**
      * @return list<array{0: array<string, string>, 1: Request}>
      */
-    public function listSortingProvider(): array
+    public static function listSortingProvider(): array
     {
         return [
             [
@@ -393,7 +393,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
     /**
      * @return list<array{0: Request}>
      */
-    public function unavailableSearchSortingProvider(): array
+    public static function unavailableSearchSortingProvider(): array
     {
         return [
             [new Request(['order' => 'unknown'])],
@@ -406,7 +406,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
     /**
      * @return list<array{0: Request}>
      */
-    public function unavailableListSortingProvider(): array
+    public static function unavailableListSortingProvider(): array
     {
         return [
             [new Request(['order' => 'unknown'])],
@@ -480,7 +480,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
     /**
      * @return list<array{0: int, 1: int, 2: Request, 3?: int}>
      */
-    public function paginationProvider(): array
+    public static function paginationProvider(): array
     {
         return [
             [24, 0, new Request()],
@@ -512,7 +512,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
     /**
      * @return list<array{0: int, 1: int, 2: Request, 3: int}>
      */
-    public function paginationSalesChannelProvider(): array
+    public static function paginationSalesChannelProvider(): array
     {
         return [
             [12, 0, new Request(), 12, 0],
@@ -638,7 +638,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
     /**
      * @return list<array{0: list<string>, 1: array<string, bool|list<string>|null>, 2: Request}>
      */
-    public function filterAggregationsProvider(): array
+    public static function filterAggregationsProvider(): array
     {
         $defaultAggregations = [
             'manufacturer',
@@ -918,7 +918,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
     /**
      * @return list<array{0: IdsCollection, 1: array<string, mixed>, 2: Request, 3: array<string, mixed>}>
      */
-    public function filterAggregationsWithProducts(): array
+    public static function filterAggregationsWithProducts(): array
     {
         $ids = new TestDataCollection();
 

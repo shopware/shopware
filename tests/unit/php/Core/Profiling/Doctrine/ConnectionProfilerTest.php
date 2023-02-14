@@ -143,7 +143,7 @@ class ConnectionProfilerTest extends TestCase
     /**
      * @return array<array{0: mixed, 1: array<mixed>, 2: mixed}>
      */
-    public function paramProvider(): array
+    public static function paramProvider(): array
     {
         return [
             ['some value', [], 'some value'],

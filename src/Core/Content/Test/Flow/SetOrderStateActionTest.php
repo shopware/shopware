@@ -144,7 +144,7 @@ class SetOrderStateActionTest extends TestCase
     /**
      * @return array<string, mixed>
      */
-    public function setStatusProvider(): array
+    public static function setStatusProvider(): array
     {
         return [
             'Set three states success' => [

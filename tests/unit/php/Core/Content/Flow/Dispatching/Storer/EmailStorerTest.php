@@ -71,7 +71,7 @@ class EmailStorerTest extends TestCase
         $this->storer->restore($storable);
     }
 
-    public function storableProvider(): \Generator
+    public static function storableProvider(): \Generator
     {
         yield 'Store key exists' => [
             true,

@@ -159,7 +159,7 @@ class SetOrderStateActionTest extends TestCase
         $this->action->handleFlow($this->flow);
     }
 
-    public function actionProvider(): \Generator
+    public static function actionProvider(): \Generator
     {
         yield 'Test aware with config three states success' => [
             [

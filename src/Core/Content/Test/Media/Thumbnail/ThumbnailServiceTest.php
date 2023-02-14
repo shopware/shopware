@@ -490,7 +490,7 @@ class ThumbnailServiceTest extends TestCase
         }
     }
 
-    public function strictModeConditionsProvider(): array
+    public static function strictModeConditionsProvider(): array
     {
         return [[true], [false]];
     }

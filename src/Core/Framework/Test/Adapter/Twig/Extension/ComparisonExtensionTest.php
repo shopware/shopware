@@ -25,7 +25,7 @@ class ComparisonExtensionTest extends TestCase
         }
     }
 
-    public function comparisonProvider(): \Generator
+    public static function comparisonProvider(): \Generator
     {
         // equals
         yield 'Test string / equals / true' => [true, '=', 'foo', 'foo'];

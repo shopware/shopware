@@ -48,7 +48,7 @@ class SystemInstallCommandTest extends TestCase
         static::assertEquals($result, Command::FAILURE);
     }
 
-    public function dataProviderTestExecuteWhenInstallLockExists(): \Generator
+    public static function dataProviderTestExecuteWhenInstallLockExists(): \Generator
     {
         yield 'Data provider for test execute failure' => [
             'Mock method getOption from input' => [

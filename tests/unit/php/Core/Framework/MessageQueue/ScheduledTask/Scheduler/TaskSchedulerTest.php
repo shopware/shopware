@@ -53,7 +53,7 @@ class TaskSchedulerTest extends TestCase
     /**
      * @return iterable<array<AggregationResult[]|\DateTime|null>>
      */
-    public function providerGetNextExecutionTime(): iterable
+    public static function providerGetNextExecutionTime(): iterable
     {
         yield [
             [],
@@ -101,7 +101,7 @@ class TaskSchedulerTest extends TestCase
     /**
      * @return iterable<array<AggregationResult[]|int|null>>
      */
-    public function providerGetMinRunInterval(): iterable
+    public static function providerGetMinRunInterval(): iterable
     {
         yield [
             [],
@@ -234,7 +234,7 @@ class TaskSchedulerTest extends TestCase
     /**
      * @return iterable<array<int|bool>>
      */
-    public function providerScheduledTaskQueues(): iterable
+    public static function providerScheduledTaskQueues(): iterable
     {
         yield [1, true];
         yield [0, false];

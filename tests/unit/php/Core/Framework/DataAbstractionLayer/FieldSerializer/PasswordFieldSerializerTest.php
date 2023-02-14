@@ -115,7 +115,7 @@ class PasswordFieldSerializerTest extends TestCase
     /**
      * @return iterable<string, array<int|string|array<int, Constraint>|bool|null>>
      */
-    public function encodeProvider(): iterable
+    public static function encodeProvider(): iterable
     {
         $minPasswordLength = 8;
 

@@ -71,7 +71,7 @@ class SalesChannelRepositoryFacadeTest extends TestCase
     /**
      * @return array<string, array<int, mixed>>
      */
-    public function testCases(): array
+    public static function testCases(): array
     {
         $ids = new IdsCollection();
 

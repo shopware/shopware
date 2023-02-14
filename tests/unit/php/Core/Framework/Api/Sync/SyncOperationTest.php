@@ -27,7 +27,7 @@ class SyncOperationTest extends TestCase
         static::assertEmpty($operation->validate());
     }
 
-    public function invalidOperationProvider(): \Generator
+    public static function invalidOperationProvider(): \Generator
     {
         yield 'Invalid entity argument' => [
             'invalid-entity',

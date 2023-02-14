@@ -200,7 +200,7 @@ class LanguageRuleTest extends TestCase
         }
     }
 
-    public function getMatchValues(): array
+    public static function getMatchValues(): array
     {
         return [
             'operator_eq / not match / language id' => [Rule::OPERATOR_EQ, false, Uuid::randomHex()],

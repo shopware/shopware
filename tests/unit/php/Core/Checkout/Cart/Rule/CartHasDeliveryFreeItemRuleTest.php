@@ -107,7 +107,7 @@ class CartHasDeliveryFreeItemRuleTest extends TestCase
     /**
      * @return array<string, array<bool|null>>
      */
-    public function inputProvider(): array
+    public static function inputProvider(): array
     {
         return [
             'free item' => [true],

@@ -75,7 +75,7 @@ class LineItemCreationDateRuleTest extends TestCase
     /**
      * @return array<string, array<bool|string>>
      */
-    public function getMatchValues(): array
+    public static function getMatchValues(): array
     {
         return [
             'EQ - positive 1' => [true, '2020-02-06 02:00:00', '2020-02-06 02:00:00', Rule::OPERATOR_EQ],
@@ -221,7 +221,7 @@ class LineItemCreationDateRuleTest extends TestCase
     /**
      * @return array<string, array<string|bool>>
      */
-    public function getCartRuleScopeTestData(): array
+    public static function getCartRuleScopeTestData(): array
     {
         return [
             'no match' => ['2020-02-06 00:00:00', '2020-01-01 12:30:00', '2020-01-01 18:00:00', false],

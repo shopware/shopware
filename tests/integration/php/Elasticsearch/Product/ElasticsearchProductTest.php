@@ -507,7 +507,7 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @return array<int, array<MultiFilter|string[]>>
      */
-    public function multiFilterWithOneToManyRelationProvider(): array
+    public static function multiFilterWithOneToManyRelationProvider(): array
     {
         return [
             [
@@ -1821,7 +1821,7 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @return array<int, array<int, DateHistogramCase>>
      */
-    public function dateHistogramProvider(): array
+    public static function dateHistogramProvider(): array
     {
         return [
             [
@@ -3130,7 +3130,7 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @return array<string, array{productIds: string, expected: int}>
      */
-    public function variantListingConfigProvider(): iterable
+    public static function variantListingConfigProvider(): iterable
     {
         yield 'Should index main product when displayParent is true' => ['productIds' => 'variant-1', 'expected' => 3];
         yield 'Should not index main product when displayParent is false' => ['productIds' => 'variant-2', 'expected' => 2];
@@ -3139,7 +3139,7 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @return array<string, array{rangesDefinition: mixed, rangesExpectedResult: mixed}>
      */
-    public function rangeAggregationDataProvider(): iterable
+    public static function rangeAggregationDataProvider(): iterable
     {
         yield 'default ranges test cases' => [
             'rangesDefinition' => [

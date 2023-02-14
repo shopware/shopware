@@ -34,7 +34,7 @@ class ConfigGetCommandTest extends TestCase
         static::assertJsonStringEqualsJsonString($commandOutput, $output);
     }
 
-    public function configFormatJsonProvider(): iterable
+    public static function configFormatJsonProvider(): iterable
     {
         // config key, format, output
         yield 'test scalar value' => ['foo.bar.testBoolTrue', 'json', '{"foo.bar.testBoolTrue":true}'];
@@ -51,7 +51,7 @@ class ConfigGetCommandTest extends TestCase
         static::assertEquals($commandOutput, $output);
     }
 
-    public function configFormatScalarProvider(): iterable
+    public static function configFormatScalarProvider(): iterable
     {
         // config key, output
         yield 'test string' => ['foo.bar.testString', 'test'];
@@ -69,7 +69,7 @@ class ConfigGetCommandTest extends TestCase
         static::assertEquals($commandOutput, $output);
     }
 
-    public function configFormatDefaultProvider(): iterable
+    public static function configFormatDefaultProvider(): iterable
     {
         // config key, output
         yield 'test 1D array' => ['foo.bar', "testBoolFalse => false\n  testBoolTrue => true\n  testInt => 123\n  testString => test"];
@@ -87,7 +87,7 @@ class ConfigGetCommandTest extends TestCase
         static::assertEquals(addslashes($commandOutput), addslashes($output));
     }
 
-    public function configFormatLegacyProvider(): iterable
+    public static function configFormatLegacyProvider(): iterable
     {
         // config key, output
         yield 'test 1d array value' => ['foo.bar', "1\n123\ntest"];

@@ -93,7 +93,7 @@ class CachedProductListingRouteTest extends TestCase
         $route->load($ids->get('c.1'), new Request(), $context, $criteria);
     }
 
-    public function criteriaProvider(): \Generator
+    public static function criteriaProvider(): \Generator
     {
         yield 'Paginated criteria' => [(new Criteria())->setOffset(1)->setLimit(20)];
         yield 'Filtered criteria' => [(new Criteria())->addFilter(new EqualsFilter('active', true))];
@@ -146,7 +146,7 @@ class CachedProductListingRouteTest extends TestCase
         $route->load($ids->get('c.1'), new Request(), $context, $criteria);
     }
 
-    public function stateProvider(): \Generator
+    public static function stateProvider(): \Generator
     {
         yield 'No states' => [[], []];
         yield 'Has one state' => [['logged-in'], ['logged-in', 'cart-filled']];

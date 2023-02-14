@@ -61,7 +61,7 @@ class AnyRuleLineItemMatcherTest extends TestCase
     /**
      * @return iterable<string, array<bool>>
      */
-    public function lineItemProvider(): iterable
+    public static function lineItemProvider(): iterable
     {
         yield 'Matching line item not in group with rules' => [true, true, false];
         yield 'Matching line item not in group without rules' => [false, false, true];

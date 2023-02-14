@@ -124,7 +124,7 @@ class CustomerSalutationRuleTest extends TestCase
     /**
      * @return array<string, array{boolean, string|null, list<string>, string}>
      */
-    public function getMatchCustomerSalutationValues(): array
+    public static function getMatchCustomerSalutationValues(): array
     {
         $id = Uuid::randomHex();
 

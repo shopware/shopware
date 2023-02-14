@@ -93,7 +93,7 @@ class CustomFieldSubscriberTest extends TestCase
         }
     }
 
-    public function dataProvider(): \Traversable
+    public static function dataProvider(): \Traversable
     {
         $customFieldSet = Uuid::randomHex();
         $customField = Uuid::randomHex();

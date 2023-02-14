@@ -107,7 +107,7 @@ class MailerTransportLoaderTest extends TestCase
     /**
      * @return iterable<string, array{0: string|null}>
      */
-    public function providerSmtpEncryption(): iterable
+    public static function providerSmtpEncryption(): iterable
     {
         yield 'tls' => ['tls'];
         yield 'ssl' => ['ssl'];

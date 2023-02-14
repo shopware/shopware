@@ -53,7 +53,7 @@ class DateFieldSerializerTest extends TestCase
         );
     }
 
-    public function serializerProvider(): array
+    public static function serializerProvider(): array
     {
         return [
             [

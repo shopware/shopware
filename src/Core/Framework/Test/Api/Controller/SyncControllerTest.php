@@ -459,7 +459,7 @@ class SyncControllerTest extends TestCase
         static::assertSame(0, $count, 'Search keywords should be empty as we skipped it');
     }
 
-    public function invalidOperationProvider(): \Generator
+    public static function invalidOperationProvider(): \Generator
     {
         yield 'Invalid entity argument' => [
             'invalid-entity',

@@ -26,7 +26,7 @@ class LineItemCollectionTest extends TestCase
         }
     }
 
-    public function lineItemStateProvider(): \Generator
+    public static function lineItemStateProvider(): \Generator
     {
         yield 'collection has line item with state download and physical' => [
             new LineItemCollection([

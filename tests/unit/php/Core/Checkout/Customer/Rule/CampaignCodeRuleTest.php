@@ -108,7 +108,7 @@ class CampaignCodeRuleTest extends TestCase
     /**
      * @return \Traversable<list<mixed>>
      */
-    public function getMatchValues(): \Traversable
+    public static function getMatchValues(): \Traversable
     {
         yield 'equal operator is matching' => ['code a', Rule::OPERATOR_EQ, 'code a', true];
         yield 'equal operator is not matching' => ['code a', Rule::OPERATOR_EQ, 'code b', false];

@@ -63,7 +63,7 @@ class ApiCriteriaValidatorTest extends TestCase
         }
     }
 
-    public function criteriaProvider(): \Generator
+    public static function criteriaProvider(): \Generator
     {
         $store = new Context(new ShopApiSource('test'));
         $sales = new Context(new SalesChannelApiSource('test'));

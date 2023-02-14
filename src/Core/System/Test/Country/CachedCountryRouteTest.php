@@ -95,7 +95,7 @@ class CachedCountryRouteTest extends TestCase
         $route->load(new Request(), $criteria, $context);
     }
 
-    public function criteriaProvider(): \Generator
+    public static function criteriaProvider(): \Generator
     {
         yield 'Paginated criteria' => [(new Criteria())->setOffset(1)->setLimit(20)];
         yield 'Filtered criteria' => [(new Criteria())->addFilter(new EqualsFilter('active', true))];

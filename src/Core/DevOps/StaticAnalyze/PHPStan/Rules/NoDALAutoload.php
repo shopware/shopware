@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules;
 
+use PhpParser\Node\Name;
 use PhpParser\Node;
 use PhpParser\Node\Expr\New_;
 use PHPStan\Analyser\Scope;
@@ -57,7 +58,7 @@ class NoDALAutoload implements Rule
             return [];
         }
 
-        if (!$node->class instanceof Node\Name) {
+        if (!$node->class instanceof Name) {
             return [];
         }
 

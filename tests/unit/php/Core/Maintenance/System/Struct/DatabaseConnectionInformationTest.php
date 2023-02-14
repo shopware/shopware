@@ -133,7 +133,7 @@ class DatabaseConnectionInformationTest extends TestCase
         static::assertSame($expectedDsn, $dsn);
     }
 
-    public function dsnProvider(): \Generator
+    public static function dsnProvider(): \Generator
     {
         yield 'with database' => [
             (new DatabaseConnectionInformation())->assign([
@@ -207,7 +207,7 @@ class DatabaseConnectionInformationTest extends TestCase
         static::assertSame($expected->getVars(), $info->getVars());
     }
 
-    public function validEnvProvider(): \Generator
+    public static function validEnvProvider(): \Generator
     {
         yield 'only database' => [
             [
@@ -305,7 +305,7 @@ class DatabaseConnectionInformationTest extends TestCase
         DatabaseConnectionInformation::fromEnv();
     }
 
-    public function invalidEnvProvider(): \Generator
+    public static function invalidEnvProvider(): \Generator
     {
         yield 'Database url not set' => [
             [

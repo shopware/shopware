@@ -361,7 +361,7 @@ class SwEscapeFilterTest extends TestCase
     /**
      * @return array<int, array<int, int|string|null>>
      */
-    public function provideCustomEscaperCases(): array
+    public static function provideCustomEscaperCases(): array
     {
         return [
             ['fooUTF-8', 'foo', 'foo'],
@@ -398,7 +398,7 @@ class SwEscapeFilterTest extends TestCase
     /**
      * @return array<int, array<int, array<string, array<int, string>>|string>>
      */
-    public function provideObjectsForEscaping(): array
+    public static function provideObjectsForEscaping(): array
     {
         return [
             ['&lt;br /&gt;', '<br />', ['\\' . Extension_TestClass::class => ['js']]],

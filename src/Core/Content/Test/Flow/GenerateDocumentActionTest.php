@@ -234,7 +234,7 @@ class GenerateDocumentActionTest extends TestCase
     /**
      * @return iterable<string, array<int, string|bool>>
      */
-    public function genDocumentProvider(): iterable
+    public static function genDocumentProvider(): iterable
     {
         yield 'Generate invoice' => ['invoice', 'document_invoice'];
         yield 'Generate multiple doc' => ['invoice', 'document_invoice', false, true];
@@ -246,7 +246,7 @@ class GenerateDocumentActionTest extends TestCase
     /**
      * @return iterable<string, array<int, string>>
      */
-    public function genErrorDocumentProvider(): iterable
+    public static function genErrorDocumentProvider(): iterable
     {
         yield 'Generate storno with invoice not exist' => ['storno', 'document_storno'];
         yield 'Generate credit with invoice not exist' => ['credit_note', 'document_credit_note'];

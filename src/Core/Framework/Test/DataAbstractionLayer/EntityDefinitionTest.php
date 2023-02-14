@@ -99,7 +99,7 @@ class EntityDefinitionTest extends TestCase
         static::assertSame($baseDefinition, $translationDefinition->getParentDefinition());
     }
 
-    public function provideTranslatedDefinitions(): array
+    public static function provideTranslatedDefinitions(): array
     {
         return [
             [CmsPageDefinition::class, CmsPageTranslationDefinition::class],

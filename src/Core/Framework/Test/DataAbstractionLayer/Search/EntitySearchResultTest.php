@@ -66,7 +66,7 @@ class EntitySearchResultTest extends TestCase
         static::assertSame($entitySearchResult->getContext(), $newInstance->getContext());
     }
 
-    public function resultPageCriteriaDataProvider(): \Generator
+    public static function resultPageCriteriaDataProvider(): \Generator
     {
         yield [(new Criteria())->setLimit(5)->setOffset(0), 1];
         yield [(new Criteria())->setLimit(5)->setOffset(1), 1];

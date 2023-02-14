@@ -240,7 +240,7 @@ class EntityScoreBuilderTest extends TestCase
         );
     }
 
-    public function searchCustomerEmail()
+    public static function searchCustomerEmail()
     {
         $shouldTokenize = true;
 
@@ -250,7 +250,7 @@ class EntityScoreBuilderTest extends TestCase
         ];
     }
 
-    public function inValidDateTerms()
+    public static function inValidDateTerms()
     {
         return [
             'query should not be return abc123' => ['abc123'],
@@ -263,7 +263,7 @@ class EntityScoreBuilderTest extends TestCase
         ];
     }
 
-    public function validDateTerms()
+    public static function validDateTerms()
     {
         return [
             'query should be return 2020-01-01' => ['2020-01-01'],

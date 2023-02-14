@@ -63,7 +63,7 @@ class CartTotalPurchasePriceRuleTest extends TestCase
     /**
      * @return iterable<string, mixed[]>
      */
-    public function provideLineItemTestCases(): iterable
+    public static function provideLineItemTestCases(): iterable
     {
         // EQ operator
         yield 'EQ: same price' => [Rule::OPERATOR_EQ, [2.3, 3.2], 5.5, true];

@@ -71,7 +71,7 @@ class LineItemIsNewRuleTest extends TestCase
     /**
      * @return array<string, array<bool>>
      */
-    public function getLineItemScopeTestData(): array
+    public static function getLineItemScopeTestData(): array
     {
         return [
             'rule yes / newcomer yes' => [true, true, true],
@@ -128,7 +128,7 @@ class LineItemIsNewRuleTest extends TestCase
     /**
      * @return array<string, array<bool>>
      */
-    public function getCartRuleScopeTestData(): array
+    public static function getCartRuleScopeTestData(): array
     {
         return [
             'rule yes / newcomer yes' => [true, true, true],

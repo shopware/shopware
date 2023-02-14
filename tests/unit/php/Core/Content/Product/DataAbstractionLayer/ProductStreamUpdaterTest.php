@@ -80,7 +80,7 @@ class ProductStreamUpdaterTest extends TestCase
     /**
      * @return iterable<string, array<int, array<int, array<string, bool|string>|string>|Criteria>>
      */
-    public function filterProvider(): iterable
+    public static function filterProvider(): iterable
     {
         yield 'Active filter' => [
             ['foobar'],

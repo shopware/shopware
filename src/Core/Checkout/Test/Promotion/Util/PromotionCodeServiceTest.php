@@ -49,7 +49,7 @@ class PromotionCodeServiceTest extends TestCase
         static::assertMatchesRegularExpression($expectedRegex, $actualCode);
     }
 
-    public function codePreviewDataProvider(): array
+    public static function codePreviewDataProvider(): array
     {
         return [
             ['%s', '/([A-Z]){1}/'],
@@ -94,7 +94,7 @@ class PromotionCodeServiceTest extends TestCase
         static::assertEquals($expectedCodeLength, $codeLengthList[0]);
     }
 
-    public function generateIndividualCodesDataProvider(): array
+    public static function generateIndividualCodesDataProvider(): array
     {
         return [
             [1],
@@ -116,7 +116,7 @@ class PromotionCodeServiceTest extends TestCase
         $this->codesService->generateIndividualCodes($pattern, $requestedCodeAmount);
     }
 
-    public function generateIndividualCodesWithInsufficientPatternDataProvider(): array
+    public static function generateIndividualCodesWithInsufficientPatternDataProvider(): array
     {
         return [
             [6],

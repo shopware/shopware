@@ -104,7 +104,7 @@ class CustomerTagRuleTest extends TestCase
     /**
      * @return \Traversable<list<mixed>>
      */
-    public function getMatchValues(): \Traversable
+    public static function getMatchValues(): \Traversable
     {
         yield 'operator_eq / not match / identifier' => [Rule::OPERATOR_EQ, false, ['kyln123', 'kyln456'], 'kyln000'];
         yield 'operator_eq / match partly / identifier' => [Rule::OPERATOR_EQ, true, ['kyln123', 'kyln456'], 'kyln123'];

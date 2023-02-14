@@ -49,7 +49,7 @@ class OrderTransactionStateHandlerTest extends TestCase
         $this->orderTransactionStateHelper = $this->getContainer()->get(OrderTransactionStateHandler::class);
     }
 
-    public function dataProviderActions(): array
+    public static function dataProviderActions(): array
     {
         return [
             'Cancel' => [[

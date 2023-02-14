@@ -227,7 +227,7 @@ class FlowDispatcherTest extends TestCase
         $this->flowDispatcher->dispatch($event);
     }
 
-    public function flowsData(): \Generator
+    public static function flowsData(): \Generator
     {
         yield 'Single flow' => [[
             'state_enter.order.state.in_progress' => [

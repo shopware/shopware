@@ -116,7 +116,7 @@ class SnippetFinderTest extends TestCase
     /**
      * @return array<string, array{existingSnippets: array<string, mixed>, appSnippets: array<string, mixed>, duplicatedSnippets: list<string>}>
      */
-    public function validateAppSnippetsExceptionDataProvider(): iterable
+    public static function validateAppSnippetsExceptionDataProvider(): iterable
     {
         yield 'Throw exception if existing snippets will be overwritten' => [
             'existingSnippets' => [
@@ -137,7 +137,7 @@ class SnippetFinderTest extends TestCase
     /**
      * @return array<string, array{before: array<string, mixed>, after: array<string, mixed>}>
      */
-    public function sanitizeAppSnippetDataProvider(): iterable
+    public static function sanitizeAppSnippetDataProvider(): iterable
     {
         yield 'Test it sanitises app snippets' => [
             'before' => [

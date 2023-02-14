@@ -200,7 +200,7 @@ class CustomFieldUpdaterTest extends TestCase
     /**
      * @return iterable<string, array{0: string, 1: array<mixed>}>
      */
-    public function providerMapping(): iterable
+    public static function providerMapping(): iterable
     {
         yield 'int' => [
             CustomFieldTypes::INT,

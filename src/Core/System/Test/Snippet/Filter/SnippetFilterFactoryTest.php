@@ -39,7 +39,7 @@ class SnippetFilterFactoryTest extends TestCase
         static::assertInstanceOf($expectedResult, $result);
     }
 
-    public function dataProviderForTestGetFilter(): array
+    public static function dataProviderForTestGetFilter(): array
     {
         return [
             ['', null, true],

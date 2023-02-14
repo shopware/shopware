@@ -32,7 +32,7 @@ class RedisConnectionFactoryTest extends TestCase
         static::assertEquals($equals, $a->get('foo') === $b->get('foo'));
     }
 
-    public function prefixProvider(): \Generator
+    public static function prefixProvider(): \Generator
     {
         yield 'Test different namespace' => ['namespace-1', 'namespace-2', false];
         yield 'Test same namespace' => ['namespace-1', 'namespace-1', true];

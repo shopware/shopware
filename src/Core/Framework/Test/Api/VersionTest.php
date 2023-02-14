@@ -25,7 +25,7 @@ class VersionTest extends TestCase
         ]);
     }
 
-    public function protectedRoutesDataProvider(): array
+    public static function protectedRoutesDataProvider(): array
     {
         return [
             ['GET', '/api/product'],

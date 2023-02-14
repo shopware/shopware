@@ -221,7 +221,7 @@ class BillingStreetRuleTest extends TestCase
     /**
      * @return \Traversable<string, array<string|bool>>
      */
-    public function getMatchValues(): \Traversable
+    public static function getMatchValues(): \Traversable
     {
         yield 'operator_oq / not match / street' => [Rule::OPERATOR_EQ, false, 'kyln000'];
         yield 'operator_oq / match / street' => [Rule::OPERATOR_EQ, true, 'kyln123'];

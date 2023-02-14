@@ -83,7 +83,7 @@ class ShippingStateRuleTest extends TestCase
     /**
      * @return \Traversable<list<mixed>>
      */
-    public function getMatchValues(): \Traversable
+    public static function getMatchValues(): \Traversable
     {
         yield 'operator_eq / not match / state id' => [Rule::OPERATOR_EQ, false, Uuid::randomHex()];
         yield 'operator_eq / match / state id' => [Rule::OPERATOR_EQ, true, 'kyln123'];

@@ -64,7 +64,7 @@ class IndexingControllerTest extends TestCase
         }
     }
 
-    public function provideOffsets(): array
+    public static function provideOffsets(): array
     {
         return [
             'offset 0' => [0],

@@ -137,7 +137,7 @@ class TaskSchedulerTest extends TestCase
     /**
      * @return list<array{0: string}>
      */
-    public function nonScheduledStatus(): array
+    public static function nonScheduledStatus(): array
     {
         return [
             [ScheduledTaskDefinition::STATUS_RUNNING],

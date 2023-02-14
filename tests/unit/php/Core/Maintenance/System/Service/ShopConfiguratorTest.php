@@ -200,7 +200,7 @@ class ShopConfiguratorTest extends TestCase
     /**
      * @return iterable<string, array<string, mixed>>
      */
-    public function countryStateTranslationsProvider(): iterable
+    public static function countryStateTranslationsProvider(): iterable
     {
         /**
          * @param array<string, string> $parameters

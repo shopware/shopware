@@ -79,7 +79,7 @@ class LineItemListPriceRatioRuleTest extends TestCase
     /**
      * @return \Traversable<string, array<string|int|bool|null>>
      */
-    public function getMatchingRuleTestData(): \Traversable
+    public static function getMatchingRuleTestData(): \Traversable
     {
         // OPERATOR_EQ
         yield 'match / operator equals / same ratio' => [Rule::OPERATOR_EQ, 50, 100, 200, true];
@@ -209,7 +209,7 @@ class LineItemListPriceRatioRuleTest extends TestCase
     /**
      * @return \Traversable<string, array<string|int|bool|null>>
      */
-    public function getCartRuleScopeTestData(): \Traversable
+    public static function getCartRuleScopeTestData(): \Traversable
     {
         // OPERATOR_EQ
         yield 'match / operator equals / same ratio' => [Rule::OPERATOR_EQ, 50, 100, 200, 50, 500, true];

@@ -29,7 +29,7 @@ class StringFieldSerializerTest extends TestCase
     use CacheTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
 
-    public function serializerProvider(): \Generator
+    public static function serializerProvider(): \Generator
     {
         $update = new EntityExistence('product', [], true, false, false, []);
         $create = new EntityExistence('product', [], false, false, false, []);

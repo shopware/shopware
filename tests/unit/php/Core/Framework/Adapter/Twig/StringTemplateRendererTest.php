@@ -53,7 +53,7 @@ TWIG;
         static::assertEquals($expected, $result);
     }
 
-    public function labelRenderingDataProvider(): \Generator
+    public static function labelRenderingDataProvider(): \Generator
     {
         yield 'Test normal label' => ['Some cool product name', 'Some cool product name'];
         yield 'Test with special chars' => ['Some cool ! % & product name', 'Some cool ! % &amp; product name'];

@@ -53,7 +53,7 @@ class CriteriaFieldsResolverTest extends TestCase
         static::assertEquals($expected, $result);
     }
 
-    public function resolveFieldsProvider(): \Generator
+    public static function resolveFieldsProvider(): \Generator
     {
         yield 'empty criteria' => [new Criteria(), []];
 

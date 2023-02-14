@@ -388,7 +388,7 @@ class LineItemTagRuleTest extends TestCase
     /**
      * @return array<string, array<string|bool|null>>
      */
-    public function getMatchValues(): array
+    public static function getMatchValues(): array
     {
         return [
             'operator_oq / not match / tagId' => [Rule::OPERATOR_EQ, false, 'kyln000'],

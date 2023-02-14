@@ -104,7 +104,7 @@ class CustomerValueResolverTest extends TestCase
     /**
      * @return array<string, array{0: bool, 1: bool, 2: bool}>
      */
-    public function loginRequiredAnnotationData(): array
+    public static function loginRequiredAnnotationData(): array
     {
         return [
             'Success Case' => [

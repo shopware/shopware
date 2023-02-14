@@ -192,7 +192,7 @@ class RepositoryWriterFacadeTest extends TestCase
     /**
      * @return array<string, array<int, mixed>>
      */
-    public function withoutPermissionsCases(): array
+    public static function withoutPermissionsCases(): array
     {
         $ids = new IdsCollection();
 

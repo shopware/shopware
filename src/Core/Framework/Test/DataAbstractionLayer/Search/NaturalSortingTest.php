@@ -80,7 +80,7 @@ class NaturalSortingTest extends TestCase
         static::assertEquals($naturalOrder, array_values($actual));
     }
 
-    public function sortingFixtures(): array
+    public static function sortingFixtures(): array
     {
         return [
             [

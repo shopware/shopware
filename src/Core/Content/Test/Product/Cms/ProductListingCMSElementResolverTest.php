@@ -270,7 +270,7 @@ class ProductListingCMSElementResolverTest extends TestCase
         }
     }
 
-    public function filtersProvider()
+    public static function filtersProvider()
     {
         $sizeId = Uuid::randomHex();
         $textileId = Uuid::randomHex();

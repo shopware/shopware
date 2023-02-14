@@ -31,7 +31,7 @@ class PcreExtensionTest extends TestCase
     /**
      * @return iterable<array-key, array{string, string}>
      */
-    public function replaceCases(): iterable
+    public static function replaceCases(): iterable
     {
         yield 'replaces' => [
             '{{ "foo"|preg_replace("/foo/", "bar") }}',
@@ -72,7 +72,7 @@ class PcreExtensionTest extends TestCase
     /**
      * @return iterable<array-key, array{string, string}>
      */
-    public function matchCases(): iterable
+    public static function matchCases(): iterable
     {
         yield 'matches' => [
             '{% if preg_match("foo", "/foo/") %}yes{% else %}no{% endif %}',

@@ -88,7 +88,7 @@ class DaysSinceLastLoginRuleTest extends TestCase
     /**
      * @return \Traversable<list<mixed>>
      */
-    public function getCaseTestMatchValues(): \Traversable
+    public static function getCaseTestMatchValues(): \Traversable
     {
         $datetime = self::getTestTimestamp();
 

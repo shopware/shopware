@@ -93,7 +93,7 @@ class CachedSalutationRouteTest extends TestCase
         $route->load(new Request(), $context, $criteria);
     }
 
-    public function criteriaProvider(): \Generator
+    public static function criteriaProvider(): \Generator
     {
         yield 'Paginated criteria' => [(new Criteria())->setOffset(1)->setLimit(20)];
         yield 'Filtered criteria' => [(new Criteria())->addFilter(new EqualsFilter('active', true))];

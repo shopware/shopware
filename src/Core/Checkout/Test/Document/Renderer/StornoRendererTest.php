@@ -164,7 +164,7 @@ class StornoRendererTest extends TestCase
         );
     }
 
-    public function stornoNoteRendererDataProvider(): \Generator
+    public static function stornoNoteRendererDataProvider(): \Generator
     {
         yield 'render storno successfully' => [
             [

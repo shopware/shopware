@@ -259,7 +259,7 @@ class ProductExportGeneratorTest extends TestCase
         static::assertStringContainsString($code, $result->getContent());
     }
 
-    public function isoCodeProvider(): \Generator
+    public static function isoCodeProvider(): \Generator
     {
         yield 'Polish zloty iso code' => ['PLN'];
         yield 'Euro iso code' => ['EUR'];

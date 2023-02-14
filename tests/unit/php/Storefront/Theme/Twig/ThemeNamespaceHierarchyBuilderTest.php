@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Storefront\Theme\Twig;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\Event\DocumentTemplateRendererParameterEvent;
+use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Theme\SalesChannelThemeLoader;
@@ -162,9 +163,9 @@ class ThemeNamespaceHierarchyBuilderTest extends TestCase
     /**
      * @return iterable<string, array<mixed>>
      */
-    public function onRenderingDocumentProvider(): iterable
+    public static function onRenderingDocumentProvider(): iterable
     {
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = Generator::createSalesChannelContext();
 
         yield 'no theme is using' => [
             [

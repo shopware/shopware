@@ -59,7 +59,7 @@ class CacheInvalidatorTest extends TestCase
         }
     }
 
-    public function demandInvalidationProvider(): \Generator
+    public static function demandInvalidationProvider(): \Generator
     {
         yield 'Test one key match' => [
             [

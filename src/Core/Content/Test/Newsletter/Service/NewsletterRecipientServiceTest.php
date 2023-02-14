@@ -48,7 +48,7 @@ class NewsletterRecipientServiceTest extends TestCase
             ->subscribe($dataBag, $context, false);
     }
 
-    public function dataProvider_testSubscribeNewsletterExpectsConstraintViolationException(): array
+    public static function dataProvider_testSubscribeNewsletterExpectsConstraintViolationException(): array
     {
         $testData1 = ['email' => null, 'salutationId' => null, 'option' => null];
         $testData2 = ['email' => '', 'salutationId' => null, 'option' => null];

@@ -98,7 +98,7 @@ class SalesChannelRequestContextResolverTest extends TestCase
     /**
      * @return list<array{0: string, 1: string, 2: string}>
      */
-    public function domainData(): array
+    public static function domainData(): array
     {
         return [
             [
@@ -156,7 +156,7 @@ class SalesChannelRequestContextResolverTest extends TestCase
     /**
      * @return list<array{0: bool, 1: bool, 2: array<string, bool>, 3: bool}>
      */
-    public function loginRequiredAnnotationData(): array
+    public static function loginRequiredAnnotationData(): array
     {
         $loginRequiredNotAllowGuest = [PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true];
         $loginRequiredAllowGuest = [PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true, PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST => true];

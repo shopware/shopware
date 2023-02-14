@@ -55,7 +55,7 @@ class CartScopeDiscountPackagerTest extends TestCase
         static::assertEquals($expected, $ids);
     }
 
-    public function buildPackagesProvider(): \Generator
+    public static function buildPackagesProvider(): \Generator
     {
         $stackable = new LineItem('stackable', LineItem::PRODUCT_LINE_ITEM_TYPE, null, 1);
         $stackable->setPrice(new CalculatedPrice(100, 100, new CalculatedTaxCollection(), new TaxRuleCollection()));

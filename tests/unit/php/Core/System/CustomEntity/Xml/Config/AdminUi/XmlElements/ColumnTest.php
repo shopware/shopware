@@ -34,7 +34,7 @@ class ColumnTest extends TestCase
         static::assertEquals('column ref', $column->getRef());
     }
 
-    public function provider(): \Generator
+    public static function provider(): \Generator
     {
         yield 'is hidden' => ['hidden' => 'true', 'result' => true];
         yield 'is visible' => ['hidden' => 'false', 'result' => false];

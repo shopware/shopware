@@ -103,7 +103,7 @@ class StoreSessionExpiredMiddlewareTest extends TestCase
         static::assertNull($adminUser->getStoreToken());
     }
 
-    public function provideRequestStacks(): \Generator
+    public static function provideRequestStacks(): \Generator
     {
         yield 'request stack without request' => [new RequestStack()];
 

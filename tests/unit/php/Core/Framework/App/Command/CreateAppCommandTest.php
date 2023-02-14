@@ -255,7 +255,7 @@ class CreateAppCommandTest extends TestCase
         );
     }
 
-    public function invalidInputProvider(): \Generator
+    public static function invalidInputProvider(): \Generator
     {
         yield 'invalid_name' => [
             [

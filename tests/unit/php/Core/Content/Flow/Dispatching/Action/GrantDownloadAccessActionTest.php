@@ -78,7 +78,7 @@ class GrantDownloadAccessActionTest extends TestCase
         static::assertEquals($expectedPayload, $this->updatePayload);
     }
 
-    public function orderProvider(): \Generator
+    public static function orderProvider(): \Generator
     {
         yield 'no order found' => [null, []];
 

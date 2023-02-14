@@ -44,7 +44,7 @@ class MediaThumbnailRepositoryTest extends TestCase
         static::assertFalse($this->getFilesystem($service)->has($thumbnailPath));
     }
 
-    public function deleteThumbnailProvider(): \Generator
+    public static function deleteThumbnailProvider(): \Generator
     {
         yield 'Test private filesystem' => [true];
         yield 'Test public filesystem' => [true];

@@ -63,7 +63,7 @@ class TaxCalculationTypeTest extends TestCase
         static::assertEquals($vertical, $amount->getCalculatedTaxes());
     }
 
-    public function calculationProvider()
+    public static function calculationProvider()
     {
         return [
             [

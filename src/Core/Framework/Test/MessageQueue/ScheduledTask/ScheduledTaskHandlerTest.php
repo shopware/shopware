@@ -78,7 +78,7 @@ class ScheduledTaskHandlerTest extends TestCase
     /**
      * @return list<array{0: string}>
      */
-    public function allowedStatus(): array
+    public static function allowedStatus(): array
     {
         return [
             [ScheduledTaskDefinition::STATUS_QUEUED],
@@ -213,7 +213,7 @@ class ScheduledTaskHandlerTest extends TestCase
     /**
      * @return list<array{0: string}>
      */
-    public function notAllowedStatus(): array
+    public static function notAllowedStatus(): array
     {
         return [
             [ScheduledTaskDefinition::STATUS_RUNNING],

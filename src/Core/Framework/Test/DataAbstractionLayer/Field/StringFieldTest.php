@@ -72,7 +72,7 @@ class StringFieldTest extends TestCase
     /**
      * @return list<array{string, bool|string|null, ?string, Flag[]}>
      */
-    public function stringFieldDataProvider(): array
+    public static function stringFieldDataProvider(): array
     {
         return [
             ['writeException', '<test>', 'This value should not be blank.', [new Required()]],

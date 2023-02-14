@@ -92,7 +92,7 @@ class AddCustomerAffiliateAndCampaignCodeActionTest extends TestCase
         $this->action->handleFlow($this->flow);
     }
 
-    public function actionExecuteProvider(): \Generator
+    public static function actionExecuteProvider(): \Generator
     {
         yield 'Test with non data exists' => [
             [

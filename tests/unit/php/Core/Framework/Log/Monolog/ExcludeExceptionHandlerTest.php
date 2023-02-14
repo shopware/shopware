@@ -36,7 +36,7 @@ class ExcludeExceptionHandlerTest extends TestCase
     /**
      * @return iterable<string, array{0: LogRecord, 1: list<string>, 2: bool}>
      */
-    public function cases(): iterable
+    public static function cases(): iterable
     {
         // record, exclude list, should be passed
         yield 'empty record' => [

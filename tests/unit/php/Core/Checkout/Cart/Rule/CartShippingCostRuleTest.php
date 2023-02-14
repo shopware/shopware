@@ -73,7 +73,7 @@ class CartShippingCostRuleTest extends TestCase
     /**
      * @return iterable <string, array{CartShippingCostRule, CalculatedPrice, boolean}>
      */
-    public function getRuleTestData(): iterable
+    public static function getRuleTestData(): iterable
     {
         yield 'operator equals / same shipping cost / match' => [
             new CartShippingCostRule(Rule::OPERATOR_EQ, 8.99),

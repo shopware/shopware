@@ -107,7 +107,7 @@ class AvailableCombinationLoaderTest extends TestCase
         }
     }
 
-    public function availabilityProvider(): iterable
+    public static function availabilityProvider(): iterable
     {
         yield 'test parentCloseout = true and isCloseout = true and stock = 0 and minPurchase = 1' => [0, false, true, true, 1];
         yield 'test parentCloseout = true and isCloseout = false and stock = 0 and minPurchase = 1' => [0, true, true, false, 1];

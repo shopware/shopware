@@ -60,7 +60,7 @@ class LineItemQuantitySplitterTest extends TestCase
         }
     }
 
-    public function splitProvider(): iterable
+    public static function splitProvider(): iterable
     {
         yield 'should not split items when item qty = 10 and splitter qty = 10' => [10, 10, 0];
         yield 'should split items when item qty = 10 and splitter qty = 9' => [10, 9, 1];

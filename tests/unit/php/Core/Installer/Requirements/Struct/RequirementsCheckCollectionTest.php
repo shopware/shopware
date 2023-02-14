@@ -35,7 +35,7 @@ class RequirementsCheckCollectionTest extends TestCase
         static::assertSame($expected, array_values($collection->getPathChecks()->getElements()));
     }
 
-    public function pathCheckProvider(): \Generator
+    public static function pathCheckProvider(): \Generator
     {
         $pathCheck = new PathCheck('name', RequirementCheck::STATUS_SUCCESS);
         $systemCheck = new SystemCheck('name', RequirementCheck::STATUS_SUCCESS, 'required', 'installed');
@@ -74,7 +74,7 @@ class RequirementsCheckCollectionTest extends TestCase
         static::assertSame($expected, array_values($collection->getSystemChecks()->getElements()));
     }
 
-    public function systemCheckProvider(): \Generator
+    public static function systemCheckProvider(): \Generator
     {
         $pathCheck = new PathCheck('name', RequirementCheck::STATUS_SUCCESS);
         $systemCheck = new SystemCheck('name', RequirementCheck::STATUS_SUCCESS, 'required', 'installed');
@@ -112,7 +112,7 @@ class RequirementsCheckCollectionTest extends TestCase
         static::assertSame($expected, $collection->hasError());
     }
 
-    public function errorProvider(): \Generator
+    public static function errorProvider(): \Generator
     {
         $successCheck = new PathCheck('name', RequirementCheck::STATUS_SUCCESS);
         $errorCheck = new PathCheck('name', RequirementCheck::STATUS_ERROR);
@@ -151,7 +151,7 @@ class RequirementsCheckCollectionTest extends TestCase
         static::assertSame($expected, $collection->hasPathError());
     }
 
-    public function pathErrorProvider(): \Generator
+    public static function pathErrorProvider(): \Generator
     {
         $successCheck = new PathCheck('name', RequirementCheck::STATUS_SUCCESS);
         $pathErrorCheck = new PathCheck('name', RequirementCheck::STATUS_ERROR);
@@ -190,7 +190,7 @@ class RequirementsCheckCollectionTest extends TestCase
         static::assertSame($expected, $collection->hasSystemError());
     }
 
-    public function systemErrorProvider(): \Generator
+    public static function systemErrorProvider(): \Generator
     {
         $successCheck = new PathCheck('name', RequirementCheck::STATUS_SUCCESS);
         $pathErrorCheck = new PathCheck('name', RequirementCheck::STATUS_ERROR);

@@ -62,7 +62,7 @@ class AclCriteriaValidatorTest extends TestCase
         static::assertNotEmpty($missing);
     }
 
-    public function criteriaProvider()
+    public static function criteriaProvider()
     {
         return [
             // association validation

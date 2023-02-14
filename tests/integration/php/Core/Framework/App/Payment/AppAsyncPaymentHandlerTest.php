@@ -264,9 +264,9 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTest
         $this->assertOrderTransactionState(OrderTransactionStates::STATE_FAILED, $transactionId);
     }
 
-    public function dataProviderFinalize(): \Generator
+    public static function dataProviderFinalize(): \Generator
     {
-        foreach (get_class_methods($this) as $functionName) {
+        foreach (get_class_methods(self::class) as $functionName) {
             if (str_starts_with($functionName, 'addTestFinalize')) {
                 yield str_replace('addTest', '', $functionName) => [$functionName];
             }

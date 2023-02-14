@@ -195,7 +195,7 @@ class CreditNoteRendererTest extends TestCase
         );
     }
 
-    public function creditNoteRendererDataProvider(): \Generator
+    public static function creditNoteRendererDataProvider(): \Generator
     {
         yield 'render credit_note successfully' => [
             [7, 19, 22],
@@ -393,7 +393,7 @@ class CreditNoteRendererTest extends TestCase
         $successCallback($order);
     }
 
-    public function creditNoteRendererCustomerGroupDataProvider(): \Generator
+    public static function creditNoteRendererCustomerGroupDataProvider(): \Generator
     {
         yield 'render credit_note with customer group gross' => [
             false,

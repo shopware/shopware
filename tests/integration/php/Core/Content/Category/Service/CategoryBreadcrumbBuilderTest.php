@@ -77,7 +77,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
     /**
      * @return iterable<array<string|boolean>>
      */
-    public function breadcrumbDataProvider(): iterable
+    public static function breadcrumbDataProvider(): iterable
     {
         yield ['navigation', true, false];
         yield ['navigation', true, true];
@@ -95,7 +95,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
     /**
      * @return iterable<array<boolean>>
      */
-    public function seoCategoryProvider(): iterable
+    public static function seoCategoryProvider(): iterable
     {
         yield [false, false, false];
         yield [false, false, false];

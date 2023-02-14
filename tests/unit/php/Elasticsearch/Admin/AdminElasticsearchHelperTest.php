@@ -41,7 +41,7 @@ class AdminElasticsearchHelperTest extends TestCase
         static::assertTrue($searchHelper->getEnabled());
     }
 
-    public function searchHelperProvider(): \Generator
+    public static function searchHelperProvider(): \Generator
     {
         yield 'Not enable ES and not refresh indices' => [
             false,

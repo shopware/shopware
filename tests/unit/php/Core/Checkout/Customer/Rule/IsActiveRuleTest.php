@@ -84,7 +84,7 @@ class IsActiveRuleTest extends TestCase
     /**
      * @return \Traversable<list<mixed>>
      */
-    public function getCustomerScopeTestData(): \Traversable
+    public static function getCustomerScopeTestData(): \Traversable
     {
         yield 'match / operator yes / active customer' => [true, true, true, false];
         yield 'match / operator no / deactivated customer' => [false, false, true, false];

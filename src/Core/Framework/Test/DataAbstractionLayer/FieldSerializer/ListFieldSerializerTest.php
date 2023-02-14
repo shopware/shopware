@@ -33,7 +33,7 @@ class ListFieldSerializerTest extends TestCase
     /**
      * @return list<array{0: ListField, 1: string|null, 2: array<mixed>|null}>
      */
-    public function decodeProvider(): array
+    public static function decodeProvider(): array
     {
         return [
             [new ListField('data', 'data'), JsonFieldSerializer::encodeJson(['foo' => 'bar']), ['bar']],

@@ -21,7 +21,7 @@ class XmlReaderTest extends TestCase
         static::assertSame($expected, XmlReader::phpize($value));
     }
 
-    public function phpizeTestCases(): \Generator
+    public static function phpizeTestCases(): \Generator
     {
         yield 'numeric string values' => [
             '100',

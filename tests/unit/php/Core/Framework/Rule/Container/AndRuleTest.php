@@ -53,7 +53,7 @@ class AndRuleTest extends TestCase
         );
     }
 
-    public function cases(): \Generator
+    public static function cases(): \Generator
     {
         yield 'Test with single matching rule' => [
             new AndRule([new TrueRule()]),

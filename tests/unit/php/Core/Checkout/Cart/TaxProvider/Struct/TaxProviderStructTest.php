@@ -49,7 +49,7 @@ class TaxProviderStructTest extends TestCase
     /**
      * @return \Generator
      */
-    public function structDataProvider(): iterable
+    public static function structDataProvider(): iterable
     {
         yield [null, null, null, false];
         yield [[], null, null, false];

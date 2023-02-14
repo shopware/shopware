@@ -146,7 +146,7 @@ class TimeBackoffLimiterTest extends TestCase
         }
     }
 
-    public function exceptionData(): \Generator
+    public static function exceptionData(): \Generator
     {
         yield 'consume 4 and expect 3' => [4, 3];
         yield 'consume 2, then consoume 2 and expect 1' => [2, 1, 2];

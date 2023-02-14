@@ -303,7 +303,7 @@ class OrderTotalAmountRuleTest extends TestCase
     /**
      * @return \Traversable<string, array<string|int|bool>>
      */
-    public function getMatchValues(): \Traversable
+    public static function getMatchValues(): \Traversable
     {
         yield 'operator_eq / no match / greater value' => [Rule::OPERATOR_EQ, false, 100, 50];
         yield 'operator_eq / match / equal value' => [Rule::OPERATOR_EQ, true, 50, 50];

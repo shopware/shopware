@@ -186,15 +186,15 @@ class MaintenanceModeResolverTest extends TestCase
     /**
      * @return array<string, array{0: Request, 1: boolean}>
      */
-    public function maintenancePageRequestProvider(): array
+    public static function maintenancePageRequestProvider(): array
     {
         return [
             'maintenance mode is active, maintenance page requested' => [
-                $this->getRequest(false, false, false, true, false, true),
+                self::getRequest(false, false, false, true, false, true),
                 false,
             ],
             'maintenance mode is active, maintenance page requested, proxy' => [
-                $this->getRequest(true, false, false, true, false, true),
+                self::getRequest(true, false, false, true, false, true),
                 false,
             ],
         ];
@@ -203,15 +203,15 @@ class MaintenanceModeResolverTest extends TestCase
     /**
      * @return array<string, array{0: Request, 1: boolean}>
      */
-    public function errorControllerRequestProvider(): array
+    public static function errorControllerRequestProvider(): array
     {
         return [
             'maintenance mode is active, error controller requested' => [
-                $this->getRequest(false, false, true, false, false, true),
+                self::getRequest(false, false, true, false, false, true),
                 false,
             ],
             'maintenance mode is active, error controller requested, proxy' => [
-                $this->getRequest(true, false, true, false, false, true),
+                self::getRequest(true, false, true, false, false, true),
                 false,
             ],
         ];
@@ -231,7 +231,7 @@ class MaintenanceModeResolverTest extends TestCase
     /**
      * @param string[] $allowedIpAddresses
      */
-    private function getRequest(
+    private static function getRequest(
         bool $useProxy,
         bool $isXmlHttpRequest,
         bool $isErrorControllerRequest,

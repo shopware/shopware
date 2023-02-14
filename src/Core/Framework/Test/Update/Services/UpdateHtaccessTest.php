@@ -30,7 +30,7 @@ class UpdateHtaccessTest extends TestCase
         static::assertSame($expected, file_get_contents($fs . '.env'));
     }
 
-    public function getCombinations(): iterable
+    public static function getCombinations(): iterable
     {
         // Dist file missing
         yield [

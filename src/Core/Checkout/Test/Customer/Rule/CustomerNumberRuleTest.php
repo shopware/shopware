@@ -163,7 +163,7 @@ class CustomerNumberRuleTest extends TestCase
     /**
      * @return \Traversable<string, array<string|bool|array<string>>>
      */
-    public function getMatchValues(): \Traversable
+    public static function getMatchValues(): \Traversable
     {
         yield 'operator_eq / match / customer number' => [Rule::OPERATOR_EQ, true, ['1337']];
         yield 'operator_eq / no match / customer number' => [Rule::OPERATOR_EQ, false, ['0000']];

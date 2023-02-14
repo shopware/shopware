@@ -310,7 +310,7 @@ class CartTaxTest extends TestCase
      *
      * @return array<mixed>
      */
-    public function dataTestHandlingTaxFreeInStorefrontWithCountryBaseCurrencyUSD(): array
+    public static function dataTestHandlingTaxFreeInStorefrontWithCountryBaseCurrencyUSD(): array
     {
         return [
             'case 1 tax-free' => ['tax-free', true, false, 100, 100, 1],
@@ -340,7 +340,7 @@ class CartTaxTest extends TestCase
      *
      * @return array<array<mixed>>
      */
-    public function dataTestHandlingTaxFreeInStorefront(): array
+    public static function dataTestHandlingTaxFreeInStorefront(): array
     {
         return [
             'case 1 tax-free' => ['tax-free', 500, false, false, 0, 0, 1],

@@ -105,7 +105,7 @@ class SetCustomerGroupCustomFieldActionTest extends TestCase
     /**
      * @return array<string, mixed>
      */
-    public function createDataProvider(): array
+    public static function createDataProvider(): array
     {
         return [
             'upsert / existed data / update data / expect data' => ['upsert', ['red', 'green'], ['blue', 'gray'], ['blue', 'gray']],

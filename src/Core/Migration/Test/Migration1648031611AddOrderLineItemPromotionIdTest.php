@@ -91,7 +91,7 @@ class Migration1648031611AddOrderLineItemPromotionIdTest extends TestCase
     /**
      * @return iterable<array{0: bool}>
      */
-    public function dataProviderPromotion(): iterable
+    public static function dataProviderPromotion(): iterable
     {
         return [
             [true],

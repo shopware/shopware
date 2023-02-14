@@ -84,7 +84,7 @@ class AddCustomerAffiliateAndCampaignCodeActionTest extends TestCase
     /**
      * @return array<int, mixed>
      */
-    public function createDataProvider(): array
+    public static function createDataProvider(): array
     {
         return [
             // existed data / update data / expect data

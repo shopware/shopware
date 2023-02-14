@@ -181,7 +181,7 @@ class EmailRuleTest extends TestCase
     /**
      * @return \Traversable<string, array<string|bool>>
      */
-    public function getMatchValues(): \Traversable
+    public static function getMatchValues(): \Traversable
     {
         // OPERATOR_EQ
         yield 'operator_eq / match exact / email' => [Rule::OPERATOR_EQ, 'test@example.com', 'test@example.com', true];

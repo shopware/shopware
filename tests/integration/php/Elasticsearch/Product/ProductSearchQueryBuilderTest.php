@@ -217,7 +217,7 @@ class ProductSearchQueryBuilderTest extends TestCase
     /**
      * @return iterable<string, array{array<string>, string, array<string>}>
      */
-    public function providerSearchCases(): iterable
+    public static function providerSearchCases(): iterable
     {
         yield 'search inside description' => [
             ['name', 'description'],

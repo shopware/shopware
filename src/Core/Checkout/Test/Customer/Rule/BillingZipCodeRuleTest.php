@@ -338,7 +338,7 @@ class BillingZipCodeRuleTest extends TestCase
     /**
      * @return array<string, array<string|bool>>
      */
-    public function getMatchValuesNumeric(): array
+    public static function getMatchValuesNumeric(): array
     {
         return [
             'operator_lt / match / zip code' => [Rule::OPERATOR_LT, true, '56000'],
@@ -355,7 +355,7 @@ class BillingZipCodeRuleTest extends TestCase
     /**
      * @return \Traversable<string, array<string|bool|null>>
      */
-    public function getMatchValuesAlphanumeric(): \Traversable
+    public static function getMatchValuesAlphanumeric(): \Traversable
     {
         yield 'operator_eq / not match exact / zip code' => [Rule::OPERATOR_EQ, false, '56GG0'];
         yield 'operator_eq / match exact / zip code' => [Rule::OPERATOR_EQ, true, '9e21l'];

@@ -18,7 +18,7 @@ class ChangelogParserTest extends TestCase
     /**
      * @return list<array{0: string, 1: array<string, string|null>, 2: string, 3: int}>
      */
-    public function provide(): array
+    public static function provide(): array
     {
         return [
             [

@@ -80,7 +80,7 @@ class ShippingCityRuleTest extends TestCase
     /**
      * @return \Traversable<list<mixed>>
      */
-    public function getMatchValues(): \Traversable
+    public static function getMatchValues(): \Traversable
     {
         yield 'operator_oq / not match / city' => [Rule::OPERATOR_EQ, false, 'kyln000'];
         yield 'operator_oq / match / city' => [Rule::OPERATOR_EQ, true, 'kyln123'];

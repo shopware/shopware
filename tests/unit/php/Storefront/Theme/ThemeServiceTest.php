@@ -659,7 +659,7 @@ class ThemeServiceTest extends TestCase
     /**
      * @return array<int, array<string, array<string, array<int|string, mixed>|string>|ThemeCollection|null>>
      */
-    public function getThemeCollectionForThemeConfiguration(): array
+    public static function getThemeCollectionForThemeConfiguration(): array
     {
         $themeId = Uuid::randomHex();
         $parentThemeId = Uuid::randomHex();

@@ -101,7 +101,7 @@ class StoreSessionExpiredMiddlewareTest extends TestCase
         $middleware($response);
     }
 
-    public function provideRequestStacks(): \Generator
+    public static function provideRequestStacks(): \Generator
     {
         yield 'request stack without request' => [new RequestStack()];
 

@@ -87,7 +87,7 @@ class CartVolumeRuleTest extends TestCase
         static::assertSame($expected, $match);
     }
 
-    public function getMatchingRuleTestData(): array
+    public static function getMatchingRuleTestData(): array
     {
         return [
             // OPERATOR_EQ

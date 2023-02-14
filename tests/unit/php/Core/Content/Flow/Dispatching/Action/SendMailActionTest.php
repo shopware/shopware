@@ -215,7 +215,7 @@ class SendMailActionTest extends TestCase
         $this->action->handleFlow($this->flow);
     }
 
-    public function replyToProvider(): \Generator
+    public static function replyToProvider(): \Generator
     {
         yield 'no reply to' => [null];
         yield 'custom reply to' => ['foo@example.com', ['senderMail' => 'foo@example.com']];

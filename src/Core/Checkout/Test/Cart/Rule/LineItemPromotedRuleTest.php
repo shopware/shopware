@@ -58,7 +58,7 @@ class LineItemPromotedRuleTest extends TestCase
         static::assertEquals($expectedType, $ruleConstraints['isPromoted'][0]);
     }
 
-    public function matchTestData(): array
+    public static function matchTestData(): array
     {
         return [
             [true, true, true],

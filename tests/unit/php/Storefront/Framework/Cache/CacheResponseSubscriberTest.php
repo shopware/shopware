@@ -311,10 +311,10 @@ class CacheResponseSubscriberTest extends TestCase
     /**
      * @return array<string, array<int, CustomerEntity|Cart|bool|string|null>>
      */
-    public function cashHashProvider(): iterable
+    public static function cashHashProvider(): iterable
     {
         $emptyCart = new Cart('empty');
-        $customer = $this->createMock(CustomerEntity::class);
+        $customer = new CustomerEntity();
 
         $filledCart = new Cart('filled');
         $filledCart->add(new LineItem('test', 'test', 'test'));
@@ -329,7 +329,7 @@ class CacheResponseSubscriberTest extends TestCase
     /**
      * @return array<string, array<int, bool|string[]>>
      */
-    public function maintenanceRequest(): iterable
+    public static function maintenanceRequest(): iterable
     {
         yield 'Always cache requests when maintenance is inactive' => [false, [], true];
         yield 'Always cache requests when maintenance is active' => [true, [], true];
@@ -366,7 +366,7 @@ class CacheResponseSubscriberTest extends TestCase
     /**
      * @return array<string, array<int, bool|string|null>>
      */
-    public function headerCases(): iterable
+    public static function headerCases(): iterable
     {
         yield 'no cache proxy, default response' => [
             false,
@@ -471,7 +471,7 @@ class CacheResponseSubscriberTest extends TestCase
     /**
      * @return array<string, array<int, string|null>>
      */
-    public function providerCurrencyChange(): iterable
+    public static function providerCurrencyChange(): iterable
     {
         yield 'no currency' => [null];
         yield 'currency' => [Defaults::CURRENCY];
@@ -628,7 +628,7 @@ class CacheResponseSubscriberTest extends TestCase
      *     assertEqualsErrorMessage: string
      * }>
      */
-    public function providerSetResponseCacheOnLogin(): iterable
+    public static function providerSetResponseCacheOnLogin(): iterable
     {
         yield 'Don\'t set the cache on no_login via post' => [
             'route' => 'no.login',

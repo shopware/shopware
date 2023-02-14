@@ -25,7 +25,7 @@ class IniConfigReaderTest extends TestCase
         \ini_restore($key);
     }
 
-    public function configProvider(): \Generator
+    public static function configProvider(): \Generator
     {
         yield 'max_execution_time' => [
             'max_execution_time',

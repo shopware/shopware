@@ -126,7 +126,7 @@ class VarnishReverseProxyGatewayTest extends TestCase
     /**
      * @return array<string, array<\Throwable|string>>
      */
-    public function providerExceptions(): iterable
+    public static function providerExceptions(): iterable
     {
         yield 'timed out' => [
             new ServerException('request timed out', new Request('GET', '/'), new GuzzleResponse(500)),

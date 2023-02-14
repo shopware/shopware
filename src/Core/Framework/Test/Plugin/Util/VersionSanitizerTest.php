@@ -20,7 +20,7 @@ class VersionSanitizerTest extends TestCase
         static::assertSame($expectedVersion, $sanitizedVersion);
     }
 
-    public function versionProvider(): array
+    public static function versionProvider(): array
     {
         return [
             ['1.2.3.4', '1.2.3'],

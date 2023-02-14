@@ -1157,7 +1157,7 @@ class ImportExportTest extends AbstractImportExportTest
     /**
      * @return list<array{0: string}>
      */
-    public function salesChannelAssignmentCsvProvider(): array
+    public static function salesChannelAssignmentCsvProvider(): array
     {
         return [
             ['/fixtures/products_with_visibilities.csv'],

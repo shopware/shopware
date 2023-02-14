@@ -164,7 +164,7 @@ class CartHasFreeDeliveryItemRuleTest extends TestCase
         static::assertSame($expected, $match);
     }
 
-    public function getLineItemFreeDeliveryTestData(): array
+    public static function getLineItemFreeDeliveryTestData(): array
     {
         return [
             'rule yes / shipping free yes' => [true, true, true],

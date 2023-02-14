@@ -236,7 +236,7 @@ json
     /**
      * @return array<int, array<int, MessageCatalogue|array<int|string, string>>>
      */
-    public function dataProviderForTestGetStoreFrontSnippets(): array
+    public static function dataProviderForTestGetStoreFrontSnippets(): array
     {
         return [
             [new MessageCatalogue('en-GB', []), []],

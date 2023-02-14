@@ -122,7 +122,7 @@ class Migration1599570560FixSlovakiaDisplayedAsSloveniaTest extends TestCase
      *                    DeTranslation -> sets the name of the country in german
      *                    expectedEnTranslation -> What the translation should be after the Migration
      */
-    public function migrationCases(): array
+    public static function migrationCases(): array
     {
         return [
             //already correct/modified, should be no changes

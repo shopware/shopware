@@ -94,7 +94,7 @@ class CheckoutControllerTest extends TestCase
     /**
      * @return array<mixed>
      */
-    public function customerComments(): array
+    public static function customerComments(): array
     {
         return [
             ["  Hello, \nthis is a customer comment!  ", "Hello, \nthis is a customer comment!"],
@@ -327,7 +327,7 @@ class CheckoutControllerTest extends TestCase
     /**
      * @return array<array<mixed>>
      */
-    public function errorDataProvider(): array
+    public static function errorDataProvider(): array
     {
         return [
             // One shipping method blocked is expected to be switched

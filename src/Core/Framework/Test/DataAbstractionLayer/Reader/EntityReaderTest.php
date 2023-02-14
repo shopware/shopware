@@ -2281,7 +2281,7 @@ class EntityReaderTest extends TestCase
     /**
      * @return iterable<string, array{0: list<array<string, mixed>>, 1: callable(Criteria): void, 2: list<string>}>
      */
-    public function casesToManyPaginated(): iterable
+    public static function casesToManyPaginated(): iterable
     {
         yield 'Multi sort' => [
             [
@@ -2453,7 +2453,7 @@ class EntityReaderTest extends TestCase
     /**
      * @return iterable<string, array{0: array<string, mixed>, 1: list<string>, 2: string}>
      */
-    public function casesToManyReadPaginatedInherited(): iterable
+    public static function casesToManyReadPaginatedInherited(): iterable
     {
         yield 'parent-data: with limit at 2 with 3 elements' => [
             ['limit' => 2], // Criteria

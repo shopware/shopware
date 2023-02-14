@@ -185,7 +185,7 @@ class ProductCartProcessorTest extends TestCase
     /**
      * @return \Traversable<string, array{0: bool, 1: int}>
      */
-    public function advancedPricingProvider(): \Traversable
+    public static function advancedPricingProvider(): \Traversable
     {
         yield 'Test not matching rule' => [false, 100];
 
@@ -355,7 +355,7 @@ class ProductCartProcessorTest extends TestCase
      *     2: array{type: string, value: mixed, label: string}
      *     }[]
      */
-    public function productFeatureProdiver(): array
+    public static function productFeatureProdiver(): array
     {
         return [
             [
@@ -639,7 +639,7 @@ class ProductCartProcessorTest extends TestCase
     /**
      * @return array<string, array{0: int, 1: int, 2: int, 3: int, 4: int, 5: string}>
      */
-    public function productDeliverabilityProvider(): array
+    public static function productDeliverabilityProvider(): array
     {
         return [
             'fixed quantity should be return 2' => [2, 2, 20, 3, 2, self::PURCHASE_STEP_QUANTITY_ERROR_KEY],

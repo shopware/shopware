@@ -12,7 +12,7 @@ use Shopware\Core\Content\Media\File\FileNameValidator;
  */
 class FileNameValidatorTest extends TestCase
 {
-    public function restrictedCharacters()
+    public static function restrictedCharacters()
     {
         return array_map(
             fn ($value) => [$value],
@@ -37,7 +37,7 @@ class FileNameValidatorTest extends TestCase
         );
     }
 
-    public function ntfsInternals(): array
+    public static function ntfsInternals(): array
     {
         return [
             ['$Mft'],
@@ -57,7 +57,7 @@ class FileNameValidatorTest extends TestCase
         ];
     }
 
-    public function controlCharacters(): array
+    public static function controlCharacters(): array
     {
         $c = [];
 

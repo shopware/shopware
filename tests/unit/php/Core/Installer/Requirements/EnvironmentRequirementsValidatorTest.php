@@ -62,7 +62,7 @@ class EnvironmentRequirementsValidatorTest extends TestCase
         static::assertEquals($expectedChecks, $validator->validateRequirements($checks)->getElements());
     }
 
-    public function composerRequirementsProvider(): \Generator
+    public static function composerRequirementsProvider(): \Generator
     {
         $versionParser = new VersionParser();
 

@@ -83,7 +83,7 @@ class ProductSubscriberTest extends TestCase
         static::assertSame($expected, $entity->get('cmsPageId'));
     }
 
-    public function resolveCmsPageIdProviderWithLoadedEventProvider(): \Generator
+    public static function resolveCmsPageIdProviderWithLoadedEventProvider(): \Generator
     {
         yield 'It does not set cms page id if already given' => [
             (new ProductEntity())->assign(['cmsPageId' => 'own-id']),
@@ -122,7 +122,7 @@ class ProductSubscriberTest extends TestCase
         ];
     }
 
-    public function resolveCmsPageIdProviderWithSalesChannelLoadedEventProvider(): \Generator
+    public static function resolveCmsPageIdProviderWithSalesChannelLoadedEventProvider(): \Generator
     {
         yield 'It does not set cms page id if already given' => [
             (new SalesChannelProductEntity())->assign(['cmsPageId' => 'own-id']),

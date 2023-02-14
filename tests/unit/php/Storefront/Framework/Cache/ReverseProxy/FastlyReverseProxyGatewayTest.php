@@ -114,7 +114,7 @@ class FastlyReverseProxyGatewayTest extends TestCase
     /**
      * @return array<string, array<int, string|string[]>>
      */
-    public function providerTags(): iterable
+    public static function providerTags(): iterable
     {
         yield 'normal' => [['foo']];
         yield 'duplicate gets merged' => [['foo', 'foo']];
@@ -186,7 +186,7 @@ class FastlyReverseProxyGatewayTest extends TestCase
     /**
      * @return array<string, array<\Throwable|string>>
      */
-    public function providerExceptions(): iterable
+    public static function providerExceptions(): iterable
     {
         yield 'timed out' => [
             new ServerException('request timed out', new Request('GET', '/'), new GuzzleResponse(500)),

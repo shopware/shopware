@@ -33,7 +33,7 @@ class TaxCalculatorTest extends TestCase
         );
     }
 
-    public function netPricesToGross(): array
+    public static function netPricesToGross(): array
     {
         return [
             [0.01,         2, new TaxRule(7),  0.00934579439252336],

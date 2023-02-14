@@ -131,7 +131,7 @@ class LastNameRuleTest extends TestCase
     /**
      * @return array<string, array{bool, string|null, string|null, string}>
      */
-    public function getMatchCustomerLastNameValues(): array
+    public static function getMatchCustomerLastNameValues(): array
     {
         return [
             'EQ - true' => [true, 'shopware', 'shopware', Rule::OPERATOR_EQ],

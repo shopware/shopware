@@ -44,7 +44,7 @@ class ImportExportServiceTest extends TestCase
         );
     }
 
-    public function mimeTypeProvider(): array
+    public static function mimeTypeProvider(): array
     {
         return [
             [
@@ -244,7 +244,7 @@ class ImportExportServiceTest extends TestCase
         }
     }
 
-    public function profileProvider(): array
+    public static function profileProvider(): array
     {
         return [
             [

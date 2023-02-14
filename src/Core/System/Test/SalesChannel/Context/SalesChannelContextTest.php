@@ -675,7 +675,7 @@ class SalesChannelContextTest extends TestCase
         $salesChannelContext->ensureLoggedIn($allowGuest);
     }
 
-    public function ensureLoginProvider(): \Generator
+    public static function ensureLoginProvider(): \Generator
     {
         yield 'Not logged in' => [
             false,

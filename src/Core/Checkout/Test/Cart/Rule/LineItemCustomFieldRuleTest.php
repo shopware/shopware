@@ -176,7 +176,7 @@ class LineItemCustomFieldRuleTest extends TestCase
     /**
      * @return array<string, array<bool|string|null>>
      */
-    public function customFieldCartScopeProvider(): array
+    public static function customFieldCartScopeProvider(): array
     {
         return [
             'testBooleanCustomFieldFalse' => [false, 'bool', false, true],

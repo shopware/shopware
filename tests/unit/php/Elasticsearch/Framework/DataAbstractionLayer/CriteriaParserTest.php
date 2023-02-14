@@ -85,7 +85,7 @@ class CriteriaParserTest extends TestCase
     /**
      * @return iterable<string, array{string, Context, string}>
      */
-    public function accessorContextProvider(): iterable
+    public static function accessorContextProvider(): iterable
     {
         yield 'normal field' => [
             'foo',
@@ -140,7 +140,7 @@ class CriteriaParserTest extends TestCase
     /**
      * @return iterable<string, array{FieldSorting, array<mixed>, Context}>
      */
-    public function providerCheapestPrice(): iterable
+    public static function providerCheapestPrice(): iterable
     {
         yield 'default cheapest price' => [
             new FieldSorting('cheapestPrice', FieldSorting::ASCENDING),
@@ -287,7 +287,7 @@ class CriteriaParserTest extends TestCase
     /**
      * @return iterable<string, array{Filter, array<mixed>}>
      */
-    public function providerFilter(): iterable
+    public static function providerFilter(): iterable
     {
         yield 'not filter: and' => [
             new NotFilter(MultiFilter::CONNECTION_AND, [new EqualsFilter('test', 'value'), new EqualsFilter('test2', 'value')]),

@@ -78,7 +78,7 @@ class ShippingMethodValidatorTest extends TestCase
         }
     }
 
-    public function shippingMethodTaxProvider(): iterable
+    public static function shippingMethodTaxProvider(): iterable
     {
         yield 'Test tax type is null' => [null, null, true];
         yield 'Test tax type is invalid' => ['invalid', null, false];

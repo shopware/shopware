@@ -26,6 +26,11 @@ class OrderTransactionEntity extends Entity
     /**
      * @var string
      */
+    protected $orderVersionId;
+
+    /**
+     * @var string
+     */
     protected $paymentMethodId;
 
     /**
@@ -133,5 +138,15 @@ class OrderTransactionEntity extends Entity
     public function setCaptures(OrderTransactionCaptureCollection $captures): void
     {
         $this->captures = $captures;
+    }
+
+    public function getOrderVersionId(): string
+    {
+        return $this->orderVersionId;
+    }
+
+    public function setOrderVersionId(string $orderVersionId): void
+    {
+        $this->orderVersionId = $orderVersionId;
     }
 }

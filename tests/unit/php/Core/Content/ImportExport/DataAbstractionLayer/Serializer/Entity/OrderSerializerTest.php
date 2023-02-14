@@ -169,6 +169,7 @@ class OrderSerializerTest extends TestCase
                         'orderId' => null,
                         'id' => null,
                         'customFields' => null,
+                        'orderVersionId' => null,
                     ],
                     'stateId' => '',
                     'stateMachineState' => null,
@@ -177,6 +178,8 @@ class OrderSerializerTest extends TestCase
                     'positions' => [],
                     'id' => null,
                     'customFields' => null,
+                    'orderVersionId' => null,
+                    'shippingOrderAddressVersionId' => null,
                 ],
             ]),
         ];
@@ -242,6 +245,7 @@ class OrderSerializerTest extends TestCase
                         'orderId' => null,
                         'id' => null,
                         'customFields' => null,
+                        'orderVersionId' => null,
                     ],
                     'stateId' => '',
                     'stateMachineState' => null,
@@ -250,6 +254,8 @@ class OrderSerializerTest extends TestCase
                     'positions' => [],
                     'id' => null,
                     'customFields' => null,
+                    'orderVersionId' => null,
+                    'shippingOrderAddressVersionId' => null,
                 ],
             ]),
         ];
@@ -317,6 +323,7 @@ class OrderSerializerTest extends TestCase
                     'zipcode' => 'billing-address-zipcode',
                 ],
             ],
+            'billingAddressVersionId' => null,
         ];
 
         $data = array_merge_recursive($rawData, $data);
@@ -476,6 +483,7 @@ class OrderSerializerTest extends TestCase
                     'zipcode' => 'billing-address-zipcode',
                 ],
             ],
+            'billingAddressVersionId' => null,
         ], $overrided);
     }
 

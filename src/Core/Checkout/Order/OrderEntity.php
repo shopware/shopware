@@ -55,6 +55,11 @@ class OrderEntity extends Entity
     protected $billingAddressId;
 
     /**
+     * @var string
+     */
+    protected $billingAddressVersionId;
+
+    /**
      * @var \DateTimeInterface
      */
     protected $orderDateTime;
@@ -646,6 +651,16 @@ class OrderEntity extends Entity
     public function setTotalRounding(?CashRoundingConfig $totalRounding): void
     {
         $this->totalRounding = $totalRounding;
+    }
+
+    public function getBillingAddressVersionId(): string
+    {
+        return $this->billingAddressVersionId;
+    }
+
+    public function setBillingAddressVersionId(string $billingAddressVersionId): void
+    {
+        $this->billingAddressVersionId = $billingAddressVersionId;
     }
 
     private function addChildren(OrderLineItemCollection $lineItems, OrderLineItemCollection $parents): void

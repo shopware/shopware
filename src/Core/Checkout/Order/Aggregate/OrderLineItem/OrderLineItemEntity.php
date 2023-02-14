@@ -168,6 +168,21 @@ class OrderLineItemEntity extends Entity
      */
     protected ?PromotionEntity $promotion = null;
 
+    /**
+     * @var string
+     */
+    protected $orderVersionId;
+
+    /**
+     * @var string
+     */
+    protected $productVersionId;
+
+    /**
+     * @var string
+     */
+    protected $parentVersionId;
+
     public function getOrderId(): string
     {
         return $this->orderId;
@@ -490,5 +505,35 @@ class OrderLineItemEntity extends Entity
     public function setDownloads(OrderLineItemDownloadCollection $downloads): void
     {
         $this->downloads = $downloads;
+    }
+
+    public function getOrderVersionId(): string
+    {
+        return $this->orderVersionId;
+    }
+
+    public function setOrderVersionId(string $orderVersionId): void
+    {
+        $this->orderVersionId = $orderVersionId;
+    }
+
+    public function getProductVersionId(): string
+    {
+        return $this->productVersionId;
+    }
+
+    public function setProductVersionId(string $productVersionId): void
+    {
+        $this->productVersionId = $productVersionId;
+    }
+
+    public function getParentVersionId(): string
+    {
+        return $this->parentVersionId;
+    }
+
+    public function setParentVersionId(string $parentVersionId): void
+    {
+        $this->parentVersionId = $parentVersionId;
     }
 }

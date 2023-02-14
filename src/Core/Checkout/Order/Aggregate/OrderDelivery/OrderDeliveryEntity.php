@@ -27,7 +27,17 @@ class OrderDeliveryEntity extends Entity
     /**
      * @var string
      */
+    protected $orderVersionId;
+
+    /**
+     * @var string
+     */
     protected $shippingOrderAddressId;
+
+    /**
+     * @var string
+     */
+    protected $shippingOrderAddressVersionId;
 
     /**
      * @var string
@@ -218,5 +228,25 @@ class OrderDeliveryEntity extends Entity
     public function setStateMachineState(StateMachineStateEntity $stateMachineState): void
     {
         $this->stateMachineState = $stateMachineState;
+    }
+
+    public function getOrderVersionId(): string
+    {
+        return $this->orderVersionId;
+    }
+
+    public function setOrderVersionId(string $orderVersionId): void
+    {
+        $this->orderVersionId = $orderVersionId;
+    }
+
+    public function getShippingOrderAddressVersionId(): string
+    {
+        return $this->shippingOrderAddressVersionId;
+    }
+
+    public function setShippingOrderAddressVersionId(string $shippingOrderAddressVersionId): void
+    {
+        $this->shippingOrderAddressVersionId = $shippingOrderAddressVersionId;
     }
 }

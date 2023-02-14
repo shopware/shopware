@@ -16,7 +16,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
@@ -188,8 +187,6 @@ class NewsletterRecipientServiceTest extends TestCase
 
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $context = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
-        $property = ReflectionHelper::getProperty(Context::class, 'languageIdChain');
-        $property->setValue($context, [Defaults::LANGUAGE_SYSTEM]);
 
         $this->getContainer()
             ->get(NewsletterConfirmRoute::class)

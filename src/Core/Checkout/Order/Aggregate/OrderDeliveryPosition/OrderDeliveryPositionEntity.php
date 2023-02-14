@@ -56,6 +56,16 @@ class OrderDeliveryPositionEntity extends Entity
      */
     protected $orderDelivery;
 
+    /**
+     * @var string
+     */
+    protected $orderDeliveryVersionId;
+
+    /**
+     * @var string
+     */
+    protected $orderLineItemVersionId;
+
     public function getOrderDeliveryId(): string
     {
         return $this->orderDeliveryId;
@@ -134,5 +144,25 @@ class OrderDeliveryPositionEntity extends Entity
     public function setOrderDelivery(OrderDeliveryEntity $orderDelivery): void
     {
         $this->orderDelivery = $orderDelivery;
+    }
+
+    public function getOrderDeliveryVersionId(): string
+    {
+        return $this->orderDeliveryVersionId;
+    }
+
+    public function setOrderDeliveryVersionId(string $orderDeliveryVersionId): void
+    {
+        $this->orderDeliveryVersionId = $orderDeliveryVersionId;
+    }
+
+    public function getOrderLineItemVersionId(): string
+    {
+        return $this->orderLineItemVersionId;
+    }
+
+    public function setOrderLineItemVersionId(string $orderLineItemVersionId): void
+    {
+        $this->orderLineItemVersionId = $orderLineItemVersionId;
     }
 }

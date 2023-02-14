@@ -18,6 +18,11 @@ class ProductManufacturerTranslationEntity extends TranslationEntity
     protected $productManufacturerId;
 
     /**
+     * @var string
+     */
+    protected $productManufacturerVersionId;
+
+    /**
      * @var string|null
      */
     protected $name;
@@ -70,5 +75,15 @@ class ProductManufacturerTranslationEntity extends TranslationEntity
     public function setProductManufacturer(ProductManufacturerEntity $productManufacturer): void
     {
         $this->productManufacturer = $productManufacturer;
+    }
+
+    public function getProductManufacturerVersionId(): string
+    {
+        return $this->productManufacturerVersionId;
+    }
+
+    public function setProductManufacturerVersionId(string $productManufacturerVersionId): void
+    {
+        $this->productManufacturerVersionId = $productManufacturerVersionId;
     }
 }

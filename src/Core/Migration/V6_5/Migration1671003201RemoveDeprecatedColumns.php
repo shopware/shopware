@@ -19,7 +19,14 @@ class Migration1671003201RemoveDeprecatedColumns extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        // implement update
+        if (!$this->columnExists($connection, 'user_access_key', 'write_access')) {
+            return;
+        }
+
+        // Add default value, so you don't need to provide the deprecated value, even if the destructive migrations are not executed immediately
+        $connection->executeStatement('
+            ALTER TABLE `user_access_key` CHANGE `write_access` `write_access` TINYINT(1) DEFAULT 0
+        ');
     }
 
     public function updateDestructive(Connection $connection): void

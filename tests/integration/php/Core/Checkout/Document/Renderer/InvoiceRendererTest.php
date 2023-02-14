@@ -513,7 +513,9 @@ class InvoiceRendererTest extends TestCase
         $themeService = $this->getContainer()->get(ThemeService::class);
         $themeRepo = $this->getContainer()->get('theme.repository');
 
-        $this->loadAppsFromDir(__DIR__ . '/../fixtures/theme', true, true);
+        $this->loadAppsFromDir(__DIR__ . '/../fixtures/theme');
+        $this->reloadAppSnippets();
+
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('technicalName', 'SwagTheme'));
         $themeId = $themeRepo->searchIds($criteria, $this->context)->firstId();

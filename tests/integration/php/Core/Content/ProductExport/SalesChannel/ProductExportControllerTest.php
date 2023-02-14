@@ -115,7 +115,9 @@ class ProductExportControllerTest extends TestCase
         );
 
         $context = Context::createDefaultContext();
-        $this->loadAppsFromDir(__DIR__ . '/fixtures/theme', true, true);
+        $this->loadAppsFromDir(__DIR__ . '/fixtures/theme');
+        $this->reloadAppSnippets();
+
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('technicalName', 'SwagTheme'));
         $themeId = $themeRepo->searchIds($criteria, $context)->firstId();

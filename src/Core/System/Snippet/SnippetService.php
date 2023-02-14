@@ -12,7 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetEntity;
 use Shopware\Core\System\Snippet\Files\AbstractSnippetFile;
@@ -23,7 +22,6 @@ use Shopware\Storefront\Theme\SalesChannelThemeLoader;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Translation\MessageCatalogueInterface;
 
 #[Package('system-settings')]
@@ -41,7 +39,7 @@ class SnippetService
 
     private EntityRepositoryInterface $salesChannelDomain;
 
-    private RequestStack $requestStack;
+    private ?SalesChannelThemeLoader $salesChannelThemeLoader;
 
     /**
      * The "kernel" service is synthetic, it needs to be set at boot time before it can be used.
@@ -59,8 +57,8 @@ class SnippetService
         EntityRepositoryInterface $snippetSetRepository,
         EntityRepositoryInterface $salesChannelDomain,
         SnippetFilterFactory $snippetFilterFactory,
-        RequestStack $requestStack,
-        ContainerInterface $container
+        ContainerInterface $container,
+        ?SalesChannelThemeLoader $salesChannelThemeLoader = null
     ) {
         $this->connection = $connection;
         $this->snippetFileCollection = $snippetFileCollection;
@@ -68,8 +66,8 @@ class SnippetService
         $this->snippetSetRepository = $snippetSetRepository;
         $this->snippetFilterFactory = $snippetFilterFactory;
         $this->salesChannelDomain = $salesChannelDomain;
-        $this->requestStack = $requestStack;
         $this->container = $container;
+        $this->salesChannelThemeLoader = $salesChannelThemeLoader;
     }
 
     /**
@@ -137,15 +135,17 @@ class SnippetService
 
         $snippetFileCollection = clone $this->snippetFileCollection;
 
-        $usingThemes = $this->getUsingThemes($salesChannelId);
+        $usingThemes = $this->getUsedThemes($salesChannelId);
         $unusedThemes = $this->getUnusedThemes($usingThemes);
         $snippetCollection = $snippetFileCollection->filter(function (AbstractSnippetFile $snippetFile) use ($unusedThemes) {
             return !\in_array($snippetFile->getTechnicalName(), $unusedThemes, true);
         });
 
+        $fallbackSnippets = [];
+
         if ($fallbackLocale !== null) {
             // fallback has to be the base
-            $snippets = $this->getSnippetsByLocale($snippetCollection, $fallbackLocale);
+            $snippets = $fallbackSnippets = $this->getSnippetsByLocale($snippetCollection, $fallbackLocale);
         }
 
         // now override fallback with defaults in catalog
@@ -157,16 +157,14 @@ class SnippetService
         // after fallback and default catalog merged, overwrite them with current locale snippets
         $snippets = array_replace_recursive(
             $snippets,
-            $this->getSnippetsByLocale($snippetCollection, $locale)
+            $locale === $fallbackLocale ? $fallbackSnippets : $this->getSnippetsByLocale($snippetCollection, $locale)
         );
 
         // at least overwrite the snippets with the database customer overwrites
-        $snippets = array_replace_recursive(
+        return array_replace_recursive(
             $snippets,
-            $this->fetchSnippetsFromDatabase($snippetSetId, $usingThemes)
+            $this->fetchSnippetsFromDatabase($snippetSetId, $unusedThemes)
         );
-
-        return $snippets;
     }
 
     /**
@@ -265,8 +263,6 @@ class SnippetService
      * @param list<string> $usingThemes
      *
      * @return list<string>
-     *
-     * @deprecated tag:v6.6.0 - reason:visibility-change - method will become private in v6.6.0
      */
     protected function getUnusedThemes(array $usingThemes = []): array
     {
@@ -286,11 +282,13 @@ class SnippetService
     }
 
     /**
-     * @param list<string> $usingThemes
+     * Second parameter $unusedThemes is used for external dependencies
+     *
+     * @param list<string> $unusedThemes
      *
      * @return array<string, string>
      */
-    protected function fetchSnippetsFromDatabase(string $snippetSetId, array $usingThemes = []): array
+    protected function fetchSnippetsFromDatabase(string $snippetSetId, array $unusedThemes = []): array
     {
         /** @var array<string, string> $snippets */
         $snippets = $this->connection->fetchAllKeyValue('SELECT translation_key, value FROM snippet WHERE snippet_set_id = :snippetSetId', [
@@ -330,48 +328,24 @@ class SnippetService
     /**
      * @return list<string>
      */
-    private function getUsingThemes(?string $salesChannelId = null): array
+    private function getUsedThemes(?string $salesChannelId = null): array
     {
-        $request = $this->requestStack->getMainRequest();
-        $hasThemeFromRequest = $request && $request->attributes->has(SalesChannelRequest::ATTRIBUTE_THEME_NAME);
-
-        // Using $salesChannelId to resolve using themes if there're none from request attributes
-        if ($salesChannelId && !$hasThemeFromRequest) {
-            $usingThemes = $this->loadSalesChannelThemes($salesChannelId);
-        } else {
-            $usingThemes = [
-                $request ? $request->attributes->get(SalesChannelRequest::ATTRIBUTE_THEME_NAME) : null,
-                $request ? $request->attributes->get(SalesChannelRequest::ATTRIBUTE_THEME_BASE_NAME) : null,
-            ];
+        if (!$salesChannelId || $this->salesChannelThemeLoader === null) {
+            return [StorefrontPluginRegistry::BASE_THEME_NAME];
         }
 
-        return array_filter(array_unique([
-            ...$usingThemes,
+        $saleChannelThemes = $this->salesChannelThemeLoader->load($salesChannelId);
+
+        $usedThemes = array_filter([
+            $saleChannelThemes['themeName'] ?? null,
+            $saleChannelThemes['parentThemeName'] ?? null,
+        ]);
+
+        /** @var list<string> */
+        return array_values(array_unique([
+            ...$usedThemes,
             StorefrontPluginRegistry::BASE_THEME_NAME, // Storefront snippets should always be loaded
         ]));
-    }
-
-    /**
-     * @return list<string>
-     */
-    private function loadSalesChannelThemes(string $salesChannelId): array
-    {
-        if (!$this->container->has(SalesChannelThemeLoader::class)) {
-            return [];
-        }
-
-        $themeLoader = $this->container->get(SalesChannelThemeLoader::class);
-
-        $themes = $themeLoader->load($salesChannelId);
-
-        if (empty($themes)) {
-            return [];
-        }
-
-        return [
-            $themes['themeName'],
-            $themes['parentThemeName'],
-        ];
     }
 
     /**

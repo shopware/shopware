@@ -28,7 +28,7 @@ trait AppSystemTestBehaviour
         );
     }
 
-    protected function loadAppsFromDir(string $appDir, bool $activateApps = true, bool $reloadAppSnippets = false): void
+    protected function loadAppsFromDir(string $appDir, bool $activateApps = true): void
     {
         $appService = new AppService(
             new AppLifecycleIterator(
@@ -46,10 +46,13 @@ trait AppSystemTestBehaviour
             }, $fails);
 
             static::fail('App synchronisation failed: ' . \print_r($errors, true));
-        } elseif ($activateApps && $reloadAppSnippets) {
-            $collection = $this->getContainer()->get(SnippetFileCollection::class);
-            $this->getContainer()->get(SnippetFileLoader::class)->loadSnippetFilesIntoCollection($collection);
         }
+    }
+
+    protected function reloadAppSnippets(): void
+    {
+        $collection = $this->getContainer()->get(SnippetFileCollection::class);
+        $this->getContainer()->get(SnippetFileLoader::class)->loadSnippetFilesIntoCollection($collection);
     }
 
     /**

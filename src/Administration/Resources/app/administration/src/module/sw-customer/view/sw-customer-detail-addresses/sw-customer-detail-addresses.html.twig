@@ -109,9 +109,8 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_customer_detail_addresses_grid_columns_default_shipping_address %}
                 <template #column-defaultShippingAddress="{ item }">
-                    <sw-field
+                    <sw-radio-field
                         v-model="activeCustomer.defaultShippingAddressId"
-                        type="radio"
                         :disabled="!customerEditMode"
                         name="defaultShippingAddress"
                         :options="[{ value: item.id }]"
@@ -123,9 +122,8 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_customer_detail_addresses_grid_columns_default_billing_address %}
                 <template #column-defaultBillingAddress="{ item }">
-                    <sw-field
+                    <sw-radio-field
                         v-model="activeCustomer.defaultBillingAddressId"
-                        type="radio"
                         :disabled="!customerEditMode"
                         name="defaultBillingAddress"
                         :options="[{ value: item.id }]"

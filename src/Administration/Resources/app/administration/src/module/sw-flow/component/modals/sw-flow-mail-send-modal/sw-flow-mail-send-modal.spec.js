@@ -431,6 +431,78 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
         expect(adminOption.exists()).toBeTruthy();
     });
 
+    it('should show default recipient with newsletter recipient confirm', async () => {
+        Shopware.State.commit('swFlowState/setTriggerEvent', {
+            data: {},
+            customerAware: true,
+            extensions: [],
+            mailAware: true,
+            name: 'newsletter.confirm',
+            aware: [
+                'Shopware\\Core\\Framework\\Event\\MailAware'
+            ]
+        });
+
+        const wrapper = await createWrapper();
+        const recipientSelect = wrapper.find('.sw-flow-mail-send-modal__recipient .sw-select__selection');
+        await recipientSelect.trigger('click');
+
+        const customOption = wrapper.find('.sw-select-option--custom');
+        expect(customOption.exists()).toBeTruthy();
+        const standardOption = wrapper.find('.sw-select-option--default');
+        expect(standardOption.exists()).toBeTruthy();
+        const adminOption = wrapper.find('.sw-select-option--admin');
+        expect(adminOption.exists()).toBeTruthy();
+    });
+
+    it('should show default recipient with newsletter recipient register', async () => {
+        Shopware.State.commit('swFlowState/setTriggerEvent', {
+            data: {},
+            customerAware: true,
+            extensions: [],
+            mailAware: true,
+            name: 'newsletter.register',
+            aware: [
+                'Shopware\\Core\\Framework\\Event\\MailAware'
+            ]
+        });
+
+        const wrapper = await createWrapper();
+        const recipientSelect = wrapper.find('.sw-flow-mail-send-modal__recipient .sw-select__selection');
+        await recipientSelect.trigger('click');
+
+        const customOption = wrapper.find('.sw-select-option--custom');
+        expect(customOption.exists()).toBeTruthy();
+        const standardOption = wrapper.find('.sw-select-option--default');
+        expect(standardOption.exists()).toBeTruthy();
+        const adminOption = wrapper.find('.sw-select-option--admin');
+        expect(adminOption.exists()).toBeTruthy();
+    });
+
+    it('should show default recipient with newsletter recipient unsubscribe', async () => {
+        Shopware.State.commit('swFlowState/setTriggerEvent', {
+            data: {},
+            customerAware: true,
+            extensions: [],
+            mailAware: true,
+            name: 'newsletter.unsubscribe',
+            aware: [
+                'Shopware\\Core\\Framework\\Event\\MailAware'
+            ]
+        });
+
+        const wrapper = await createWrapper();
+        const recipientSelect = wrapper.find('.sw-flow-mail-send-modal__recipient .sw-select__selection');
+        await recipientSelect.trigger('click');
+
+        const customOption = wrapper.find('.sw-select-option--custom');
+        expect(customOption.exists()).toBeTruthy();
+        const standardOption = wrapper.find('.sw-select-option--default');
+        expect(standardOption.exists()).toBeTruthy();
+        const adminOption = wrapper.find('.sw-select-option--admin');
+        expect(adminOption.exists()).toBeTruthy();
+    });
+
     it('should validate reply to field', async () => {
         const sequence = { ...sequenceFixture, ...{ config: { replyTo: 'test@example.com' } } };
         const wrapper = await createWrapper(sequence);

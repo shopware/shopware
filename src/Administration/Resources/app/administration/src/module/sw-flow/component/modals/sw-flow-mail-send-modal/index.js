@@ -125,6 +125,15 @@ Component.register('sw-flow-mail-send-modal', {
                 ];
             }
 
+            if (['newsletter.confirm', 'newsletter.register', 'newsletter.unsubscribe']
+                .includes(this.triggerEvent.name)) {
+                return [
+                    ...this.recipientCustomer,
+                    ...this.recipientAdmin,
+                    ...this.recipientCustom,
+                ];
+            }
+
             const hasEntityAware = allowAwareConverted.some(allowedAware => this.entityAware.includes(allowedAware));
 
             if (hasEntityAware) {

@@ -49,7 +49,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
     ruleConditionService.addCondition('cartTaxDisplay', {
         component: 'sw-condition-generic',
         label: 'global.sw-condition.condition.cartTaxDisplay.label',
-        scopes: ['checkout'],
+        scopes: ['cart'],
         group: 'general',
     });
     ruleConditionService.addCondition('customerBillingCountry', {

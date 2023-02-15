@@ -7,6 +7,7 @@ import CUSTOMER from '../../../sw-customer/constant/sw-customer.constant';
  */
 
 const { Mixin } = Shopware;
+const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -26,6 +27,9 @@ export default {
     data() {
         return {
             customer: null,
+            /**
+             * @deprecated tag:v6.6.0 - salesChannels Will be removed due to unused
+             * */
             salesChannels: null,
             isLoading: false,
             customerNumberPreview: '',
@@ -85,6 +89,27 @@ export default {
         validCompanyField() {
             return this.customer.accountType === CUSTOMER.ACCOUNT_TYPE_BUSINESS ?
                 this.customer.company?.trim().length : true;
+        },
+
+        languageRepository() {
+            return this.repositoryFactory.create('language');
+        },
+
+        languageCriteria() {
+            const criteria = new Criteria();
+            criteria.setLimit(1);
+
+            if (this.customer?.salesChannelId) {
+                criteria.addFilter(
+                    Criteria.equals('salesChannelDefaultAssignments.id', this.customer.salesChannelId),
+                );
+            }
+
+            return criteria;
+        },
+
+        languageId() {
+            return this.loadLanguage(this.customer.salesChannelId);
         },
     },
 
@@ -170,12 +195,18 @@ export default {
             });
         },
 
-        saveCustomer() {
-            return this.customerRepository.save(this.customer).then(() => {
+        async saveCustomer() {
+            const languageId = await this.languageId;
+
+            const context = { ...Shopware.Context.api, ...{ languageId } };
+
+            return this.customerRepository.save(this.customer, context).then((response) => {
                 this.$emit('on-select-existing-customer', this.customer.id);
                 this.isLoading = false;
 
                 this.onClose();
+
+                return response;
             }).catch(() => {
                 this.createNotificationError({
                     message: this.$tc('sw-customer.detail.messageSaveError'),
@@ -228,6 +259,22 @@ export default {
                     error: exception?.response?.data?.errors[0],
                 });
             });
+        },
+
+        async loadLanguage(salesChannelId) {
+            const languageId = Shopware.Context.api.languageId;
+
+            if (!salesChannelId) {
+                return languageId;
+            }
+
+            const res = await this.languageRepository.searchIds(this.languageCriteria);
+
+            if (!res?.data) {
+                return languageId;
+            }
+
+            return res.data[0];
         },
     },
 };

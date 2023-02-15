@@ -196,7 +196,7 @@ export default {
                 result.push(
                     {
                         key: keyValue,
-                        name: this.$tc(`sw-promotion.filter.sorter.${keyValue}`),
+                        name: this.$tc(`sw-promotion-v2.detail.conditions.filter.sorter.${keyValue}`),
                     },
                 );
             });
@@ -211,7 +211,7 @@ export default {
                 result.push(
                     {
                         key: keyValue,
-                        name: this.$tc(`sw-promotion.filter.picker.${keyValue}`),
+                        name: this.$tc(`sw-promotion-v2.detail.conditions.filter.picker.${keyValue}`),
                     },
                 );
             });
@@ -235,7 +235,7 @@ export default {
             const appliers = [
                 {
                     key: 'ALL',
-                    name: this.$tc('sw-promotion.filter.applier.ALL'),
+                    name: this.$tc('sw-promotion-v2.detail.conditions.filter.applier.ALL'),
                 },
             ];
 
@@ -258,7 +258,7 @@ export default {
                 appliers.push(
                     {
                         key: i,
-                        name: this.$tc('sw-promotion.filter.applier.SELECT', 0, { count: i }),
+                        name: this.$tc('sw-promotion-v2.detail.conditions.filter.applier.SELECT', 0, { count: i }),
                     },
                 );
             }
@@ -270,7 +270,7 @@ export default {
             const counts = [
                 {
                     key: 'ALL',
-                    name: this.$tc('sw-promotion.filter.counter.ALL'),
+                    name: this.$tc('sw-promotion-v2.detail.conditions.filter.counter.ALL'),
                 },
             ];
 
@@ -279,7 +279,7 @@ export default {
                 counts.push(
                     {
                         key: i,
-                        name: this.$tc('sw-promotion.filter.counter.SELECT', 0, { count: i }),
+                        name: this.$tc('sw-promotion-v2.detail.conditions.filter.counter.SELECT', 0, { count: i }),
                     },
                 );
             }

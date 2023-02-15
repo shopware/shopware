@@ -136,6 +136,24 @@
                         "PRICE_ASC": "Preis aufsteigend",
                         "PRICE_DESC": "Preis absteigend"
                     }
+                },
+                "filter": {
+                    "sorter": {
+                        "PRICE_ASC": "Preis aufsteigend",
+                        "PRICE_DESC": "Preis absteigend"
+                    },
+                    "applier": {
+                        "ALL": "Jedes Produkt",
+                        "SELECT": "{count}. Produkt"
+                    },
+                    "counter": {
+                        "ALL": "Unbegrenzt",
+                        "SELECT": "{count} x"
+                    },
+                    "picker": {
+                        "VERTICAL": "Vertikal",
+                        "HORIZONTAL": "Horizontal"
+                    }
                 }
             },
             "discounts": {

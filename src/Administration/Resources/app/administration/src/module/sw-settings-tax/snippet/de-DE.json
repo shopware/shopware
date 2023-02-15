@@ -76,7 +76,7 @@
       "infoText": "Dies kann sich auf die Regeln Ihres Warenkorbs auswirken. Prüfen Sie Versandmethoden, Verfügbarkeitsregeln und ähnliches.",
       "cardTitleSettings": "Einstellungen",
       "cardTitleAvailability": "Verfügbarkeit",
-      "labelPosition": "Position",
+      "labelPriority": "Priorität",
       "labelActive": "Aktiv",
       "placeholderAvailabilityRule": "Verfügbarkeitsregel auswählen ..."
     }

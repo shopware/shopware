@@ -58,7 +58,7 @@ export default Component.wrapComponentConfig({
             this.isSaving = true;
 
             this.sortedTaxProviders.map((taxProvider: Entity<'tax_provider'>, index: number) => {
-                taxProvider.priority = index + 1;
+                taxProvider.priority = this.sortedTaxProviders.length - index;
                 return taxProvider;
             });
 

@@ -76,7 +76,7 @@
       "infoText": "This may affect your shopping cart rules. Check shipping methods, availability rules and similar.",
       "cardTitleSettings": "Settings",
       "cardTitleAvailability": "Availability",
-      "labelPosition": "Position",
+      "labelPriority": "Priority",
       "labelActive": "Active",
       "placeholderAvailabilityRule": "Choose availability rule..."
     }

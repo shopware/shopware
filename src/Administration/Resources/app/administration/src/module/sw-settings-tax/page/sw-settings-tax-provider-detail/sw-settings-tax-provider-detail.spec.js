@@ -108,7 +108,7 @@ describe('module/sw-settings-tax/page/sw-settings-tax-provider-detail', () => {
         );
 
         const taxProviderPriority = wrapper.find(
-            'sw-field-stub[label="sw-settings-tax.taxProviderDetail.labelPosition"]'
+            'sw-field-stub[label="sw-settings-tax.taxProviderDetail.labelPriority"]'
         );
         const taxProviderActive = wrapper.find(
             'sw-field-stub[label="sw-settings-tax.taxProviderDetail.labelActive"]'
@@ -133,7 +133,7 @@ describe('module/sw-settings-tax/page/sw-settings-tax-provider-detail', () => {
         );
 
         const taxProviderPriority = wrapper.find(
-            'sw-field-stub[label="sw-settings-tax.taxProviderDetail.labelPosition"]'
+            'sw-field-stub[label="sw-settings-tax.taxProviderDetail.labelPriority"]'
         );
         const taxProviderActive = wrapper.find(
             'sw-field-stub[label="sw-settings-tax.taxProviderDetail.labelActive"]'

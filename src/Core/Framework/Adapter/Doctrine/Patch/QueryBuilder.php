@@ -20,6 +20,10 @@ use function key;
 use function strtoupper;
 use function substr;
 
+if (class_exists('\Doctrine\DBAL\Query\QueryBuilder', false)) {
+    return;
+}
+
 #[Package('core')]
 class QueryBuilder
 {

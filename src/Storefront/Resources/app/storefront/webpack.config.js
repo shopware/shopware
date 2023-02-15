@@ -7,7 +7,6 @@ const babelrc = require('./.babelrc');
 const path = require('path');
 const webpack = require('webpack');
 const fs = require('fs');
-const chokidar = require('chokidar');
 const chalk = require('chalk');
 const TerserPlugin = require('terser-webpack-plugin');
 const WebpackBar = require('webpackbar');
@@ -75,7 +74,11 @@ let webpackConfig = {
                 port: parseInt(process.env.STOREFRONT_ASSETS_PORT || 9999, 10),
                 host: '127.0.0.1',
                 client: {
-                    webSocketURL: hostName,
+                    webSocketURL: {
+                        hostname: '0.0.0.0',
+                        protocol: 'ws',
+                        port: parseInt(process.env.STOREFRONT_ASSETS_PORT || 9999, 10),
+                    },
                     logging: 'warn',
                     overlay: {
                         warnings: false,
@@ -85,18 +88,13 @@ let webpackConfig = {
                 headers: {
                     'Access-Control-Allow-Origin': '*',
                 },
-                onBeforeSetupMiddleware(devServer) {
-                    const themePattern = `${themeFiles.basePath}/**/*.twig`;
-
-                    chokidar
-                        .watch([themePattern], {
-                            persistent: true,
-                            cwd: projectRootPath,
-                            ignorePermissionErrors: true,
-                        })
-                        .on('all', () => {
-                            devServer.sendMessage(devServer.sockets, 'content-changed');
-                        });
+                watchFiles: {
+                    paths: [`${themeFiles.basePath}/**/*.twig`],
+                    options: {
+                        persistent: true,
+                        cwd: projectRootPath,
+                        ignorePermissionErrors: true,
+                    },
                 },
             }
         }

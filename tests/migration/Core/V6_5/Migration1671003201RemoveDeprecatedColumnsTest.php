@@ -23,7 +23,7 @@ class Migration1671003201RemoveDeprecatedColumnsTest extends TestCase
         if ($this->getColumnInfo('user_access_key', 'write_access') === false) {
             $this->connection->executeStatement('
                 ALTER TABLE user_access_key
-                ADD `write_access` TINYINT(1) NOT NULL DEFAULT 0
+                ADD `write_access` TINYINT(1) NOT NULL
             ');
         }
 
@@ -47,6 +47,26 @@ class Migration1671003201RemoveDeprecatedColumnsTest extends TestCase
                 ADD `open_new_tab` TINYINT(1) NOT NULL DEFAULT 0
             ');
         }
+    }
+
+    public function testUpdateAddDefault(): void
+    {
+        $column = $this->getColumnInfo('user_access_key', 'write_access');
+        static::assertIsArray($column);
+        static::assertNull($column['COLUMN_DEFAULT']);
+
+        $migration = new Migration1671003201RemoveDeprecatedColumns();
+        $migration->update($this->connection);
+
+        // can execute two times
+        $migration->update($this->connection);
+
+        $column = $this->getColumnInfo('user_access_key', 'write_access');
+        static::assertIsArray($column);
+        static::assertEquals('0', $column['COLUMN_DEFAULT']);
+
+        // clean up state
+        $migration->updateDestructive($this->connection);
     }
 
     public function testColumnDoesNotExist(): void

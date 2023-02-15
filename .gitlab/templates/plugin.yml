@@ -266,7 +266,7 @@ jest (administration):
         - $CI_PROJECT_DIR/bin/console framework:schema -s 'entity-schema' $ADMIN_PATH/test/_mocks_/entity-schema.json
         - cd ${PLUGIN_SOURCE_DIR}Resources/app/administration/
         - npm ci --no-audit --prefer-offline
-        - '$(npm bin)/jest --config jest.config.js --ci'
+        - npm exec jest -- --config jest.config.js --ci
     coverage: '/^\s?All files[^|]*\|[^|]*\s+([\d\.]+)/'
 
 jest (storefront):

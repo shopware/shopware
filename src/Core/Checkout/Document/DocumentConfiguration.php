@@ -122,6 +122,11 @@ class DocumentConfiguration extends Struct
     /**
      * @var string|null
      */
+    protected $companyPhone;
+
+    /**
+     * @var string|null
+     */
     protected $companyUrl;
 
     /**

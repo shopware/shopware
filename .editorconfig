@@ -30,3 +30,6 @@ indent_size = 4
 
 [config-schema.json]
 indent_size = 4
+
+[*.nix]
+indent_size = 2

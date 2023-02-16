@@ -277,6 +277,7 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-25291 - ProductLineItem validator ignores skip product stock validation](/changelog/release-6-5-0-0/2023-02-07-productlineitem-validator-ignores-skip-product-stock-validation.md)
 *  [NEXT-25306 - Remove unused DebugStack class](/changelog/release-6-5-0-0/2023-02-07-remove-debugstack-class.md)
 *  [NEXT-19886 - Use bootstrap variable to define container width](/changelog/release-6-5-0-0/2023-02-09-use-bootstrap-variable-to-define-container-width.md)
+*  [NEXT-25391 - Fix JS error in account overview](/changelog/release-6-5-0-0/2023-02-16-fix-js-error-in-account-overview.md)
 *  [NEXT-25410 - Fix navigation duplicated error in bulk edit](/changelog/release-6-5-0-0/2023-02-13-fix-navigation-duplicated-error-in-bulk-edit.md)
 *  [NEXT-25346 - Change scope of cartTaxDisplay condition](/changelog/release-6-5-0-0/2023-02-15-change-scope-of-carttaxdisplay-condition.md)
 *  [NEXT-21258 - Add version state](/changelog/release-6-5-0-0/2023-02-16-add-version-state.md)

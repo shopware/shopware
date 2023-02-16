@@ -82,8 +82,7 @@ class CachedCountryRouteTest extends TestCase
             $this->getContainer()->get(EntityCacheKeyGenerator::class),
             $this->getContainer()->get(CacheTracer::class),
             $this->getContainer()->get('event_dispatcher'),
-            [],
-            $this->getContainer()->get('logger')
+            []
         );
 
         $route->load(new Request(), $criteria, $context);
@@ -136,7 +135,7 @@ class CachedCountryRouteTest extends TestCase
         $route->load(new Request(), new Criteria(), $this->context);
     }
 
-    public static function invalidationProvider()
+    public static function invalidationProvider(): \Generator
     {
         $ids = new IdsCollection();
 

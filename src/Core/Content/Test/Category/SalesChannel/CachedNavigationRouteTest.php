@@ -81,7 +81,7 @@ class CachedNavigationRouteTest extends TestCase
         static::assertTrue($response->getCategories()->count() > 0);
     }
 
-    public static function invalidationProvider()
+    public static function invalidationProvider(): \Generator
     {
         $ids = new IdsCollection();
 

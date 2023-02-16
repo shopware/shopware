@@ -93,7 +93,7 @@ class CachedShippingMethodRouteTest extends TestCase
         $route->load(new Request(), $this->context, new Criteria());
     }
 
-    public static function invalidationProvider()
+    public static function invalidationProvider(): \Generator
     {
         $ids = new IdsCollection();
 

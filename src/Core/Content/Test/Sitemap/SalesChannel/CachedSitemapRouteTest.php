@@ -133,7 +133,7 @@ class CachedSitemapRouteTest extends TestCase
         static::assertSame($calls, $counter->getCount());
     }
 
-    public static function invalidationProvider()
+    public static function invalidationProvider(): \Generator
     {
         yield 'Cache invalidated if sitemap generated' => [
             function (): void {
@@ -160,7 +160,7 @@ class CachedSitemapRouteTest extends TestCase
  */
 class SitemapRouteCounter extends AbstractSitemapRoute
 {
-    protected $count = 0;
+    public int $count = 0;
 
     public function __construct(private readonly AbstractSitemapRoute $decorated)
     {

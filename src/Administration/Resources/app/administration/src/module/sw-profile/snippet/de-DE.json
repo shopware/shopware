@@ -22,7 +22,6 @@
       "labelNewPasswordConfirm": "Passwort bestätigen",
       "placeholderNewPasswordConfirm": "Neues Passwort erneut eingeben ...",
       "notificationPasswordErrorMessage": "Die eingegebenen Passwörter stimmen nicht überein.",
-      "notificationOldPasswordErrorMessage": "Bitte gib Dein aktuelles Passwort korrekt ein.",
       "notificationNewPasswordIsSameAsOldErrorMessage": "Dein neues Passwort stimmt mit dem alten überein. Bitte überlege dir ein neues Passwort.",
       "notificationInvalidEmailErrorMessage": "Bitte gib eine gültige E-Mail-Adresse ein.",
       "notificationSaveSuccessMessage": "Deine Profilinformationen wurden erfolgreich gespeichert.",
@@ -31,12 +30,7 @@
       "labelUseAsAvatar": "Als Profilbild nutzen",
       "placeholderNewPasswordConfirm": "Wiederhole Dein neues Passwort ...",
       "placeholderNewPassword": "Gib ein neues Passwort ein ...",
-      "placeholderOldPassword": "Gib Dein altes Passwort ein ...",
-      "titleConfirmPasswordModal": "Passwort bestätigen",
-      "labelConfirmPassword": "Passwort",
-      "placeholderConfirmPassword": "Gib Dein aktuelles Passwort ein ...",
-      "labelButtonCancel": "Abbrechen",
-      "labelButtonConfirm": "Bestätigen"
+      "placeholderOldPassword": "Gib Dein altes Passwort ein ..."
     },
     "tabGeneral": {
       "title": "Allgemein"

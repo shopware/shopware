@@ -82,8 +82,7 @@ class CachedProductReviewRouteTest extends TestCase
             $this->getContainer()->get(EntityCacheKeyGenerator::class),
             $this->getContainer()->get(CacheTracer::class),
             $this->getContainer()->get('event_dispatcher'),
-            [],
-            $this->getContainer()->get('logger')
+            []
         );
 
         $ids = new IdsCollection();
@@ -97,7 +96,7 @@ class CachedProductReviewRouteTest extends TestCase
         $route->load($ids->get('product'), new Request(), $context, $criteria);
     }
 
-    public function criteriaProvider(): \Generator
+    public static function criteriaProvider(): \Generator
     {
         yield 'Paginated criteria' => [(new Criteria())->setOffset(1)->setLimit(20)];
         yield 'Filtered criteria' => [(new Criteria())->addFilter(new EqualsFilter('active', true))];
@@ -157,7 +156,7 @@ class CachedProductReviewRouteTest extends TestCase
         $dispatcher->removeListener('product_review.loaded', $listener);
     }
 
-    public static function invalidationProvider()
+    public static function invalidationProvider(): \Generator
     {
         $ids = new IdsCollection();
 
@@ -216,6 +215,9 @@ class CachedProductReviewRouteTest extends TestCase
         ];
     }
 
+    /**
+     * @return array{id: string, productId: string, title: string, content: string, points: float, status: bool, languageId: string, salesChannelId: string}
+     */
     private static function review(string $id, string $productId, string $title, string $content, float $points = 3, string $salesChannelId = TestDefaults::SALES_CHANNEL, string $languageId = Defaults::LANGUAGE_SYSTEM): array
     {
         return [

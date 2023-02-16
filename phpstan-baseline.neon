@@ -1621,11 +1621,6 @@ parameters:
 			path: src/Core/Checkout/Test/Payment/PaymentMethodRepositoryTest.php
 
 		-
-			message: "#^DataProvider method invalidationProvider should be static\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Payment/SalesChannel/CachedPaymentMethodRouteTest.php
-
-		-
 			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Test\\\\Payment\\\\SalesChannel\\\\HandlePaymentMethodRouteResponseTest\\:\\:\\$customerRepository is never read, only written\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Payment/SalesChannel/HandlePaymentMethodRouteResponseTest.php
@@ -1679,16 +1674,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Rule\\\\Rule\\\\Context\\\\CustomerCustomFieldRuleTest\\:\\:setCustomerCustomFields\\(\\) has parameter \\$customFields with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Rule/Rule/Context/CustomerCustomFieldRuleTest.php
-
-		-
-			message: "#^DataProvider method invalidationProvider should be static\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Shipping/SalesChannel/CachedShippingMethodRouteTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Shipping\\\\SalesChannel\\\\CachedShippingMethodRouteTest\\:\\:invalidationProvider\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Shipping/SalesChannel/CachedShippingMethodRouteTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Shipping\\\\ShippingMethodRepositoryTest\\:\\:createDeliveryTimeData\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -4506,21 +4491,6 @@ parameters:
 			path: src/Core/Content/Test/Category/DataAbstractionLayer/Indexing/BreadcrumbIndexerTest.php
 
 		-
-			message: "#^DataProvider method invalidationProvider should be static\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Category/SalesChannel/CachedCategoryRouteTest.php
-
-		-
-			message: "#^DataProvider method invalidationProvider should be static\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Category/SalesChannel/CachedNavigationRouteTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Category\\\\SalesChannel\\\\CachedNavigationRouteTest\\:\\:invalidationProvider\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Category/SalesChannel/CachedNavigationRouteTest.php
-
-		-
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
 			count: 4
 			path: src/Core/Content/Test/Category/SalesChannel/CategoryListRouteTest.php
@@ -5850,10 +5820,6 @@ parameters:
 			count: 1
 			path: src/Core/Content/Test/Product/SalesChannel/Detail/AvailableCombinationLoaderTest.php
 
-		-
-			message: "#^DataProvider method invalidationProvider should be static\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/SalesChannel/Detail/CachedProductDetailRouteTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\SalesChannel\\\\Fixture\\\\ListingTestData\\:\\:all\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -6024,31 +5990,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Product/SalesChannel/ProductSearchRouteTest.php
-
-		-
-			message: "#^Class Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\Review\\\\CachedProductReviewRoute constructor invoked with 7 parameters, 6 required\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/SalesChannel/Review/CachedProductReviewRouteTest.php
-
-		-
-			message: "#^DataProvider method criteriaProvider should be static\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/SalesChannel/Review/CachedProductReviewRouteTest.php
-
-		-
-			message: "#^DataProvider method invalidationProvider should be static\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/SalesChannel/Review/CachedProductReviewRouteTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\SalesChannel\\\\Review\\\\CachedProductReviewRouteTest\\:\\:invalidationProvider\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/SalesChannel/Review/CachedProductReviewRouteTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\SalesChannel\\\\Review\\\\CachedProductReviewRouteTest\\:\\:review\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Product/SalesChannel/Review/CachedProductReviewRouteTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Product\\\\SalesChannel\\\\Review\\\\ProductReviewRouteTest\\:\\:getUrl\\(\\) has no return type specified\\.$#"
@@ -6394,21 +6335,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\Sitemap\\\\Provider\\\\ProductUrlProviderTest\\:\\:\\$seoUrlSalesChannelRepository is never read, only written\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Sitemap/Provider/ProductUrlProviderTest.php
-
-		-
-			message: "#^DataProvider method invalidationProvider should be static\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Sitemap/SalesChannel/CachedSitemapRouteTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Sitemap\\\\SalesChannel\\\\CachedSitemapRouteTest\\:\\:invalidationProvider\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Sitemap/SalesChannel/CachedSitemapRouteTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\Sitemap\\\\SalesChannel\\\\SitemapRouteCounter\\:\\:\\$count has no type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Sitemap/SalesChannel/CachedSitemapRouteTest.php
 
 		-
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
@@ -14996,21 +14922,6 @@ parameters:
 			path: src/Core/System/Tax/TaxRuleType/ZipCodeRuleTypeFilter.php
 
 		-
-			message: "#^Class Shopware\\\\Core\\\\System\\\\Country\\\\SalesChannel\\\\CachedCountryRoute constructor invoked with 7 parameters, 6 required\\.$#"
-			count: 1
-			path: src/Core/System/Test/Country/CachedCountryRouteTest.php
-
-		-
-			message: "#^DataProvider method invalidationProvider should be static\\.$#"
-			count: 1
-			path: src/Core/System/Test/Country/CachedCountryRouteTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\Country\\\\CachedCountryRouteTest\\:\\:invalidationProvider\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/System/Test/Country/CachedCountryRouteTest.php
-
-		-
 			message: "#^Property Shopware\\\\Core\\\\System\\\\Test\\\\Country\\\\Repository\\\\CountryRepositoryTest\\:\\:\\$connection is never read, only written\\.$#"
 			count: 1
 			path: src/Core/System/Test/Country/Repository/CountryRepositoryTest.php
@@ -15021,11 +14932,6 @@ parameters:
 			path: src/Core/System/Test/Country/Repository/CountryStateRepositoryTest.php
 
 		-
-			message: "#^DataProvider method invalidationProvider should be static\\.$#"
-			count: 1
-			path: src/Core/System/Test/Country/SalesChannel/CachedCountryStateRouteTest.php
-
-		-
 			message: "#^Cannot call method getWriteResults\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\EntityWrittenEvent\\|null\\.$#"
 			count: 1
 			path: src/Core/System/Test/Currency/Repository/CurrencyRepositoryTest.php
@@ -15034,16 +14940,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\System\\\\Test\\\\Currency\\\\Repository\\\\CurrencyRepositoryTest\\:\\:\\$connection is never read, only written\\.$#"
 			count: 1
 			path: src/Core/System/Test/Currency/Repository/CurrencyRepositoryTest.php
-
-		-
-			message: "#^DataProvider method invalidationProvider should be static\\.$#"
-			count: 1
-			path: src/Core/System/Test/Currency/SalesChannel/CachedCurrencyRouteTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\Currency\\\\SalesChannel\\\\CachedCurrencyRouteTest\\:\\:invalidationProvider\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/System/Test/Currency/SalesChannel/CachedCurrencyRouteTest.php
 
 		-
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
@@ -15064,16 +14960,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\Language\\\\LanguageRuleTest\\:\\:getMatchValues\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/Test/Language/LanguageRuleTest.php
-
-		-
-			message: "#^DataProvider method invalidationProvider should be static\\.$#"
-			count: 1
-			path: src/Core/System/Test/Language/SalesChannel/CachedLanguageRouteTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\Language\\\\SalesChannel\\\\CachedLanguageRouteTest\\:\\:invalidationProvider\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/System/Test/Language/SalesChannel/CachedLanguageRouteTest.php
 
 		-
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"

@@ -42,7 +42,7 @@ class StorefrontResponseTest extends TestCase
         static::assertEmpty($response->getData());
 
         /** @deprecated tag:v6.6.0 - This can be removed if parameter `$data` will be strictly typed to `array` in `setData` */
-        $this->expectDeprecationMessageMatches('/deprecated functionality:/');
+        $this->expectExceptionMessageMatches('/deprecated functionality:/');
         $response->setData(null);
     }
 

@@ -1,100 +1,11 @@
 # requires /.gitlab/base.yml
 
-.administration-node-cache: &administration-node-cache
-  key:
-    files:
-      - src/Administration/Resources/app/administration/package-lock.json
-  paths:
-    - src/Administration/Resources/app/administration/node_modules/
-  policy: push
-
-.administration-eslint-cache: &administration-eslint-cache
-  key: 'eslint-administration'
-  paths:
-    - src/Administration/Resources/app/administration/.eslintcache
-  policy: push
-
-.administration-stylelint-cache: &administration-stylelint-cache
-  key: 'stylelint-administration'
-  paths:
-    - src/Administration/Resources/app/administration/.stylelintcache
-  policy: push
-
-.administration-jest-cache: &administration-jest-cache
-  key: 'jestcache-administration'
-  paths:
-    - src/Administration/Resources/app/administration/.jestcache
-  policy: push
-
-.e2e-node-cache: &e2e-node-cache
-  key:
-    files:
-      - tests/e2e/package-lock.json
-  paths:
-    - tests/e2e/node_modules/
-    - .Cypress/
-  policy: push
-
-.e2e-eslint-cache: &e2e-eslint-cache
-  key: 'eslint-e2e'
-  paths:
-    - tests/e2e/.eslintcache
-  policy: push
-
-.storefront-node-cache: &storefront-node-cache
-  key:
-    files:
-      - src/Storefront/Resources/app/storefront/package-lock.json
-  paths:
-    - src/Storefront/Resources/app/storefront/node_modules/
-  policy: push
-
-.storefront-eslint-cache: &storefront-eslint-cache
-  key: 'eslint-storefront'
-  paths:
-    - src/Storefront/Resources/app/storefront/.eslintcache
-  policy: push
-
-.storefront-stylelint-cache: &storefront-stylelint-cache
-  key: 'stylelint-storefront'
-  paths:
-    - src/Storefront/Resources/app/storefront/.stylelintcache
-  policy: push
-
-.storefront-jest-cache: &storefront-jest-cache
-  key: 'jestcache-storefront'
-  paths:
-    - src/Storefront/Resources/app/storefront/.jestcache
-  policy: push
-
-.php-ecs: &php-ecs
-  key: 'php-ecs'
-  paths:
-    - var/cache/cs_fixer
-  policy: push
-
-.phpstan-vendor: &phpstan-vendor
-  key: 'phpstan-vendor'
-  paths:
-    - vendor
-    - vendor-bin
-  policy: push
-
-.phpstan-result-cache: &phpstan-result-cache
-  key: 'phpstan-result-cache'
-  paths:
-    - var/cache/phpstan
-  policy: push
-
-
 Danger:
     extends: .base-no-setup
     stage: lint
     image:
         name: ghcr.io/shyim/danger-php:latest
         entrypoint: ["/bin/sh", "-c"]
-    tags:
-        - t3.nano
     rules:
         - !reference [.rules, skip]
         - !reference [.rules, run]
@@ -111,19 +22,14 @@ ESLint (Administration):
         - !reference [.rules, run]
         - changes:
               - 'src/Administration/Resources/app/administration/**/*'
-    cache:
-      - <<: *administration-node-cache
-        policy: pull
-      - <<: *administration-eslint-cache
-        policy: pull
     before_script:
-      - composer install --no-scripts --quiet
-      - '[[ -d src/Administration/Resources/app/administration/node_modules/ ]] || npm --prefix src/Administration/Resources/app/administration/ ci'
-      - composer run admin:generate-entity-schema-types
+      - !reference [ .scripts, init, composer ]
       - !reference [ .scripts, install-node, script ]
+      - !reference [ .scripts, init, npm, admin ]
+      - composer run admin:generate-entity-schema-types
     script:
         - cd src/Administration/Resources/app/administration
-        - npm run lint -- --format junit --output-file $CI_PROJECT_DIR/eslint.junit.xml
+        - 'npm run lint -- --format junit --cache-location /shared_cache/npm/eslint/admin --output-file $CI_PROJECT_DIR/eslint.junit.xml --plugin file-progress --rule "file-progress/activate: 0"'
         - npm run lint:types
     after_script:
         - grep 'failure message' eslint.junit.xml
@@ -143,15 +49,10 @@ ESLint (Storefront):
         - !reference [.rules, run]
         - changes:
               - 'src/Storefront/Resources/app/storefront/**/*'
-    cache:
-      - <<: *storefront-node-cache
-        policy: pull
-      - <<: *storefront-eslint-cache
-        policy: pull
     script:
-        - '[[ -d src/Storefront/Resources/app/storefront/node_modules/ ]] || npm --prefix src/Storefront/Resources/app/storefront/ ci'
+        - !reference [ .scripts, init, npm, storefront ]
         - cd src/Storefront/Resources/app/storefront
-        - npm run --silent lint:js -- --format junit --output-file $CI_PROJECT_DIR/eslint.junit.xml
+        - npm run --silent lint:js -- --format junit --cache-location /cache/npm/eslint/storefront --output-file $CI_PROJECT_DIR/eslint.junit.xml
     after_script:
         - grep 'failure message' eslint.junit.xml
     artifacts:
@@ -169,18 +70,13 @@ ESLint (E2E):
     - !reference [.rules, run]
     - changes:
         - 'tests/e2e/**/*'
-  cache:
-    - <<: *e2e-node-cache
-      policy: pull
-    - <<: *e2e-eslint-cache
-      policy: pull
   before_script:
-    - composer install --no-scripts --quiet
-    - '[[ -d tests/e2e/node_modules/ ]] || npm --prefix tests/e2e/ ci'
+    - !reference [ .scripts, init, composer ]
     - !reference [ .scripts, install-node, script ]
+    - !reference [ .scripts, init, npm, e2e ]
   script:
     - cd tests/e2e
-    - npm run lint -- --format junit --output-file $CI_PROJECT_DIR/eslint.junit.xml
+    - npm run lint -- --format junit --cache-location /cache/npm/eslint/e2e --output-file $CI_PROJECT_DIR/eslint.junit.xml
   after_script:
     - grep 'failure message' eslint.junit.xml
   artifacts:
@@ -200,13 +96,8 @@ Stylelint (Administration):
         - changes:
               - 'src/Administration/Resources/app/administration/.stylelintrc'
               - 'src/Administration/Resources/app/administration/**/*.scss'
-    cache:
-      - <<: *storefront-node-cache
-        policy: pull
-      - <<: *storefront-stylelint-cache
-        policy: pull
     script:
-        - '[[ -d src/Administration/Resources/app/administration/node_modules/ ]] || npm --prefix src/Administration/Resources/app/administration/ ci'
+        - !reference [ .scripts, init, npm, admin ]
         - cd src/Administration/Resources/app/administration
         - npm run lint:scss -- --custom-formatter 'node_modules/stylelint-junit-formatter' --output-file stylelint.junit.xml
     artifacts:
@@ -223,13 +114,8 @@ Stylelint (Storefront):
         - changes:
               - 'src/Storefront/Resources/app/storefront/stylelint.config.js'
               - 'src/Storefront/Resources/app/storefront/**/*.scss'
-    cache:
-      - <<: *storefront-node-cache
-        policy: pull
-      - <<: *storefront-stylelint-cache
-        policy: pull
     script:
-        - '[[ -d src/Storefront/Resources/app/storefront/node_modules/ ]] || npm --prefix src/Storefront/Resources/app/storefront/ ci'
+        - !reference [ .scripts, init, npm, storefront ]
         - cd src/Storefront/Resources/app/storefront
         - npm run lint:scss -- --custom-formatter 'node_modules/stylelint-junit-formatter' --output-file stylelint.junit.xml
     artifacts:
@@ -252,33 +138,18 @@ PHP static analysis:
               - composer.json
               - phpstan-baseline.neon
               - '**/*.php'
-    cache:
-      - <<: *phpstan-vendor
-        policy: pull
-      - <<: *phpstan-result-cache
-        policy: pull
     before_script:
-        - composer update --no-interaction
-        - composer update
+        - !reference [ .scripts, init, composer ]
     script:
-        - composer run phpstan -- --error-format=gitlab --no-progress | tee phpstan-report.json
+        - composer run phpstan -- --error-format=gitlab | tee phpstan-report.json
     artifacts:
-        reports:
-            codequality: phpstan-report.json
-
-PHP static analysis (push cache):
-    extends: PHP static analysis
-    rules:
-        - if: '$CI_COMMIT_BRANCH == "trunk"'
-    cache:
-      - <<: *phpstan-vendor
-        policy: push
-      - <<: *phpstan-result-cache
-        policy: push
+      reports:
+        codequality: phpstan-report.json
 
 PHP lint:
     extends: .base-no-setup
     variables:
+        GIT_STRATEGY: clone
         GIT_DEPTH: 0
     stage: lint
     image: shopware/development:8.1-composer-2
@@ -290,11 +161,8 @@ PHP lint:
               - 'changelog/**/*.md'
               - 'src/**/snippet/**/*.json'
               - '**/*.php'
-    cache:
-      - <<: *php-ecs
-        policy: pull
     before_script:
-        - composer install --no-interaction
+        - !reference [ .scripts, init, composer_full ]
     script:
         - composer run ecs -- --no-progress-bar
         - composer run lint:changelog
@@ -315,7 +183,7 @@ NPM CI:
     before_script: []
     script:
         - cd $JS_APP_DIR
-        - npm ci
+        - npm ci --no-audit --prefer-offline
     parallel:
       matrix:
         - JS_APP_DIR: "src/Administration/Resources/app/administration/"
@@ -328,67 +196,3 @@ NPM CI:
             - "12-alpine"
             - "14-alpine"
             - "16-alpine"
-
-## Caching
-
-Administration Cache (Push):
-  extends: .base
-  stage: lint
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "trunk"'
-  cache:
-    - <<: *administration-node-cache
-      policy: push
-    - <<: *administration-eslint-cache
-      policy: push
-    - <<: *administration-stylelint-cache
-      policy: push
-    - <<: *administration-jest-cache
-      policy: push
-  before_script:
-    - composer install --no-scripts --quiet
-    - !reference [ .scripts, install-node, script ]
-    - npm --prefix src/Administration/Resources/app/administration ci
-    - composer run admin:generate-entity-schema-types
-  script:
-    - cd src/Administration/Resources/app/administration
-    - npm run lint
-    - npm run lint:scss
-    - npm run unit -- --silent
-
-Storefront Cache (Push):
-  extends: .base-no-setup
-  stage: lint
-  image: node:lts-alpine
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "trunk"'
-  cache:
-    - <<: *storefront-node-cache
-      policy: push
-    - <<: *storefront-eslint-cache
-      policy: push
-    - <<: *storefront-stylelint-cache
-      policy: push
-    - <<: *storefront-jest-cache
-      policy: push
-  before_script: []
-  script:
-    - npm --prefix src/Storefront/Resources/app/storefront ci
-    - cd src/Storefront/Resources/app/storefront
-    - npm run lint
-    - npm run lint:scss
-    - npm --prefix "$STOREFRONT_PATH" run unit -- --silent
-
-PHP Cache (Push):
-  extends: .base-no-setup
-  stage: lint
-  image: shopware/development:8.1-composer-2
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "trunk"'
-  cache:
-    - <<: *php-ecs
-      policy: push
-  before_script: []
-  script:
-    - composer install
-    - composer run ecs

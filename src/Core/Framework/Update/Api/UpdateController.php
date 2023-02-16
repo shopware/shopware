@@ -63,13 +63,18 @@ class UpdateController extends AbstractController
         private readonly AbstractExtensionLifecycle $extensionLifecycleService,
         private readonly EntityRepository $userRepository,
         private readonly string $shopwareVersion,
-        private readonly bool $isUpdateTest = false
+        private readonly bool $isUpdateTest = false,
+        private readonly bool $disableUpdateCheck = false
     ) {
     }
 
     #[Route(path: '/api/_action/update/check', name: 'api.custom.updateapi.check', methods: ['GET'], defaults: ['_acl' => ['system:core:update']])]
     public function updateApiCheck(): JsonResponse
     {
+        if ($this->disableUpdateCheck) {
+            return new JsonResponse();
+        }
+
         if ($this->isUpdateTest) {
             $version = VersionFactory::createTestVersion();
 

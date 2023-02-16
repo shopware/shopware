@@ -2,53 +2,20 @@
 
 # unit stage - This files contains all jobs belonging to the unit stage
 
-.administration-node-cache: &administration-node-cache
-  key:
-    files:
-      - src/Administration/Resources/app/administration/package-lock.json
-  paths:
-    - src/Administration/Resources/app/administration/node_modules/
-  policy: push
-
-.administration-jest-cache: &administration-jest-cache
-  key: 'jestcache-administration'
-  paths:
-    - src/Administration/Resources/app/administration/.jestcache
-  policy: push
-
-.storefront-node-cache: &storefront-node-cache
-  key:
-    files:
-      - src/Storefront/Resources/app/storefront/package-lock.json
-  paths:
-    - src/Storefront/Resources/app/storefront/node_modules/
-  policy: push
-
-.storefront-jest-cache: &storefront-jest-cache
-  key: 'jestcache-storefront'
-  paths:
-    - src/Storefront/Resources/app/storefront/.jestcache
-  policy: push
-
 Jest (Administration):
     extends: .base
     stage: unit
     needs: []
     services: []
-    cache:
-      - <<: *administration-node-cache
-        policy: pull
-    rules:
-        - !reference [ .rules, skip ]
-        - !reference [ .rules, run ]
-        - when: always
     before_script:
-      - composer install --no-scripts --quiet
-      - '[[ -d src/Administration/Resources/app/administration/node_modules/ ]] || npm --prefix src/Administration/Resources/app/administration/ ci'
-      - composer run admin:generate-entity-schema-types
       - !reference [ .scripts, install-node, script ]
+      - !reference [ .scripts, init, composer ]
+      - !reference [ .scripts, init, npm, admin ]
+      - composer run admin:generate-entity-schema-types
     script:
-        - npm --prefix $ADMIN_PATH run unit -- --silent
+      - echo -e "\e[0Ksection_start:$(date +%s):jest[collapsed=true]\r\e[0Kjest output"
+      - npm --prefix $ADMIN_PATH run unit -- --silent --maxWorkers=25% | grep -A 5 -E '^(All files|Fail|    )'
+      - echo -e "\e[0Ksection_end:`date +%s`:jest\r\e[0K"
     coverage: '/^\s?All files[^|]*\|[^|]*\s+([\d\.]+)/'
     artifacts:
         when: always
@@ -71,14 +38,13 @@ Jest (Storefront):
         - when: always
     variables:
       NODE_VERSION: 12
-    cache:
-      - <<: *storefront-node-cache
-        policy: pull
     before_script:
       - !reference [ .scripts, install-node, script ]
-      - '[[ -d src/Storefront/Resources/app/storefront/node_modules/ ]] || npm --prefix src/Storefront/Resources/app/storefront/ ci'
+      - !reference [ .scripts, init, npm, storefront ]
     script:
-        - npm --prefix "$STOREFRONT_PATH" run unit -- --silent
+      - echo -e "\e[0Ksection_start:$(date +%s):jest[collapsed=true]\r\e[0Kjest output"
+      - npm --prefix "$STOREFRONT_PATH" run unit -- --silent --maxWorkers=50% | grep -A 5 -E '^(All files|Fail|    )'
+      - echo -e "\e[0Ksection_end:`date +%s`:jest\r\e[0K"
     coverage: '/^\s?All files[^|]*\|[^|]*\s+([\d\.]+)/'
     artifacts:
         when: always
@@ -115,7 +81,7 @@ PHP unit:
         - !reference [.rules, run]
         - when: always
     before_script:
-        - composer install --optimize-autoloader --no-interaction
+        - !reference [ .scripts, init, composer_full ]
         - mkdir -p config/jwt || true
         - echo 'LogFormat "[httpd:access] %V:%p %h %l %u %t \"%r\" %>s bytesIn:%I bytesOut:%O reqTime:%{ms}T" dockerlog' > /opt/docker/etc/httpd/conf.d/20-custom-log.conf
         - SERVICE_PHPFPM_OPTS=--allow-to-run-as-root CONTAINER_UID=root /entrypoint supervisord > /dev/null 2>&1 &
@@ -133,9 +99,7 @@ PHP unit:
             junit: phpunit.junit.xml
     parallel:
         matrix:
-            - TESTSUITE: ["framework", "storefront,administration,system,profiling,maintenance", "migration"]
-            - TESTSUITE: ["content", "checkout"]
-              RUNNER_INSTANCE_TYPE: m5.large
+            - TESTSUITE: ["framework", "storefront,administration,system,profiling,maintenance,migration", "content", "checkout"]
 
 PHP unit Elasticsearch:
   extends: PHP unit
@@ -151,14 +115,13 @@ PHP unit Elasticsearch:
   parallel:
     matrix:
       - TESTSUITE: ["integration"]
-        RUNNER_INSTANCE_TYPE: m5.large
 
 PHP bench:
     extends: .base-no-setup
     image: shopware/development:8.1-composer-2
     stage: unit
-    needs: []
     timeout: 30m
+    needs: []
     services:
         -   name: mariadb:10.4
             alias: database
@@ -167,7 +130,6 @@ PHP bench:
             alias: redis
     variables:
         APP_ENV: "dev"
-        RUNNER_INSTANCE_TYPE: m5.large
         REDIS_URL: redis://redis:6379
     rules:
         # do not run in merge trains
@@ -179,7 +141,7 @@ PHP bench:
             - 'composer.json'
 
     before_script:
-        - composer install --optimize-autoloader --no-interaction
+        - !reference [ .scripts, init, composer ]
         - mkdir -p config/jwt || true
     script:
         - php vendor/bin/phpbench run
@@ -199,7 +161,7 @@ PHP unit coverage:
         - !reference [.rules, run]
         - when: always
     before_script:
-        - composer install --optimize-autoloader --no-interaction --quiet
+        - !reference [ .scripts, init, composer ]
     script:
         - PHP_OPTIONS="-d pcov.enabled=1 -d pcov.directory=$PWD/src -d pcov.exclude='~(vendor|node_modules)~'"
         - php $PHP_OPTIONS vendor/bin/phpunit
@@ -238,7 +200,7 @@ PHP migration coverage:
         - !reference [.rules, run]
         - when: always
     before_script:
-        - composer install --optimize-autoloader --no-interaction --quiet
+        - !reference [ .scripts, init, composer ]
     script:
         - PHP_OPTIONS="-d pcov.enabled=1 -d pcov.directory=$PWD/src -d pcov.exclude='~(vendor|Test|node_modules)~'"
         - php $PHP_OPTIONS vendor/bin/phpunit
@@ -262,7 +224,6 @@ PHP Full:
     extends: .long-running
     image: $DEV_IMAGE
     stage: unit
-    needs: []
     services:
         -   name: $MYSQL_IMAGE
             alias: database
@@ -278,7 +239,6 @@ PHP Full:
         TEST_SUITES: "administration storefront checkout content framework profiling system elasticsearch unit integration migration migration-tests"
         APP_ENV: test
         GIT_DEPTH: 0 # we need all commits for composer to detect the version which is then checked in a unit test
-        RUNNER_INSTANCE_TYPE: m5.large
         ALLOW_FAILURE: "false"
         REDIS_URL: redis://redis:6379
         SWAGGER_VALIDATOR_URL: http://swagger:8080/validator/debug
@@ -304,7 +264,7 @@ PHP Full:
                 FEATURE_ALL: 'false'
             -   MYSQL_IMAGE:
                     - mysql:5.7
-                    - mariadb:10.3
+                    - mariadb:10.4
                 DEV_IMAGE: shopware/development:8.1-composer-2
                 FEATURE_ALL: "false"
             -   MYSQL_IMAGE:
@@ -328,6 +288,8 @@ PHP Full:
                 TEST_SUITES: "checkout content framework profiling system integration migration"
                 ALLOW_FAILURE: 'true'
     script:
+        - 'bin/console plugin:deactivate TestPlugin || true'
+        - 'rm -Rf custom/plugins/* || true'
         - >
             if [ "$DEPENDENCY_DEV" == "true" ]; then
                composer config minimum-stability dev

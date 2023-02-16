@@ -9,8 +9,6 @@ stages:
     - quarantine
     # downstream pipelines trigger by this pipeline
     - downstream
-    # build artifacts used in deploy
-    - build
     # deploy artifacts build in the `build` stage
     - deploy
     # percy

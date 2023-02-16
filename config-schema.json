@@ -159,6 +159,12 @@
                 "enable_admin_worker": {
                     "type": "boolean"
                 },
+                "enable_queue_stats_worker": {
+                    "type": "boolean"
+                },
+                "enable_notification_worker": {
+                    "type": "boolean"
+                },
                 "poll_interval": {
                     "type": "integer"
                 },
@@ -177,6 +183,12 @@
             "properties": {
                 "max_limit": {
                     "type": "integer"
+                },
+                "access_token_ttl": {
+                    "type": "string"
+                },
+                "refresh_token_ttl": {
+                    "type": "string"
                 },
                 "api_browser": {
                     "$ref": "#/definitions/api_browser"

@@ -4,10 +4,11 @@ E2E:
     extends:
        - .long-running
     stage: E2E
-    needs: []
     services:
-        -   name: mariadb:10.3
+        -   name: mariadb:10.4
             alias: database
+    needs: [ Build, 'Jest (Administration)' ]
+    dependencies: [ Build ]
     variables:
         APP_ENV: e2e
         CYPRESS_baseUrl: "http://localhost:8000"
@@ -20,36 +21,38 @@ E2E:
         CYPRESS_TARGET_COMMIT: $CI_MERGE_REQUEST_DIFF_BASE_SHA
         CYPRESS_COMMIT_BRANCH: $CI_COMMIT_BRANCH
         CYPRESS_PIPELINE_ID: $CI_PIPELINE_ID
-        CYPRESS_CACHE_FOLDER: $CI_PROJECT_DIR/.Cypress
         CYPRESS_grepTags: '-quarantined'
-        RUNNER_INSTANCE_TYPE: 'm5.large'
+        SHOPWARE_DISABLE_UPDATE_CHECK: 'true'
     parallel:
         matrix:
             -   TEST_DIRECTORY:
-                    - "cypress/e2e/administration/settings/**/*"
-                    - "cypress/e2e/administration/catalogue/**/*,cypress/e2e/administration/media-marketing/**/*,cypress/e2e/administration/customer/**/*"
-                    - "cypress/e2e/administration/content/**/*,cypress/e2e/administration/general/**/*,cypress/e2e/administration/order/**/*,cypress/e2e/administration/rule-product-stream/**/*"
-                    - "cypress/e2e/administration/sdk-plugin/**/*"
+                    - "cypress/e2e/administration/settings/sw-flow/*,cypress/e2e/administration/settings/sw-import-export/*,cypress/e2e/administration/settings/sw-integration/*,cypress/e2e/administration/settings/sw-mail-template/*,cypress/e2e/administration/sdk-plugin/**/*"
+                    - "cypress/e2e/administration/settings/sw-settings-*/*"
+                    - "cypress/e2e/administration/catalogue/**/*,cypress/e2e/administration/media-marketing/**/*,cypress/e2e/administration/customer/**/*,cypress/e2e/administration/rule-product-stream/**/*"
+                    - "cypress/e2e/administration/order/**/*,cypress/e2e/administration/content/**/*,cypress/e2e/administration/general/**/*"
                     - "cypress/e2e/storefront/**/*"
                 BROWSER: 'chrome'
                 FEATURE_ALL: 'false'
     before_script:
+        - echo -e "\e[0Ksection_start:$(date +%s):init[collapsed=true]\r\e[0Ke2e preparation"
         - !reference [ .scripts, install-node, script ]
         - cp public/.htaccess.dist public/.htaccess
-        - composer install -o --no-scripts
+        - !reference [ .scripts, init, composer ]
+        - touch install.lock
         - mkdir -p config/jwt custom/plugins || true
-        - composer run init:db
-        - composer run init:js
-        - composer run init:e2e
-        - composer run e2e:sdk-plugin:fixture-to-plugin
-        - '(cd custom/plugins/TestPlugin/src/Resources/app/administration/ && npm install)'
-        - bin/console plugin:refresh
-        - bin/console plugin:install --activate TestPlugin
-        - composer run build:js
-        - bin/console theme:compile
-        - bin/console theme:change --all Storefront
+        - npm --prefix tests/e2e ci
+        - >
+          if [[ -r var/database.sql ]]; then
+              mysql -uroot -papp -hdatabase -e 'CREATE database `root`';
+              mysql -uroot -papp -hdatabase root -e 'source var/database.sql';
+              bin/console system:generate-jwt || true
+          else
+              composer run setup
+              composer run e2e:sdk-plugin:fixture-to-plugin
+          fi
         - bin/console assets:install
         - bin/console e2e:dump-db
+        - echo -e "\e[0Ksection_end:`date +%s`:init\r\e[0K"
         - echo 'LogFormat "[httpd:access] %V:%p %h %l %u %t \"%r\" %>s bytesIn:%I bytesOut:%O reqTime:%{ms}T" dockerlog' > /opt/docker/etc/httpd/conf.d/20-custom-log.conf
         - SERVICE_PHPFPM_OPTS=--allow-to-run-as-root CONTAINER_UID=root /entrypoint supervisord > /dev/null 2>&1 &
     script:
@@ -57,8 +60,10 @@ E2E:
           if [[ $CI_MERGE_REQUEST_EVENT_TYPE == "merge_train" ]]; then
             export CYPRESS_INTERRUPT_ON_ERROR="true"
           fi
-        - timeout 115m composer run e2e:cypress -- run
-            --browser chrome
+        - export CYPRESS_INTERRUPT_ON_ERROR="true"
+        - composer run e2e:cypress -- run
+            --config retries=1
+            --browser $BROWSER
             --spec "$TEST_DIRECTORY"
             --headless
     after_script:
@@ -69,14 +74,6 @@ E2E:
         - mv tests/E2E/cypress/results/single-reports/*.xml var/log/e2e/ || true
         - mv tests/E2E/mochareports/ var/log/e2e/ || true
         - !reference [.upload-junit-xml, after_script]
-    cache:
-      key:
-        files:
-          - tests/package-lock.json
-      paths:
-        - .Cypress
-      # only one job needs to upload
-      policy: pull
     artifacts:
         when: always
         paths:
@@ -99,19 +96,44 @@ E2E quarantined:
   parallel:
     matrix:
       - TEST_DIRECTORY:
-         - 'cypress/e2e/administration/**/*'
-         - 'cypress/e2e/storefront/**/*'
+          - 'cypress/e2e/administration/**/*'
+          - 'cypress/e2e/storefront/**/*'
         CYPRESS_grepTags: 'quarantined'
         BROWSER: 'chrome'
         ALLOW_FAILURE: 'true'
+
+Changed E2E:
+    extends: E2E
+    parallel:
+      matrix:
+        - _DUMMY_VAR: 'dummy'
+    rules:
+      - !reference [ .rules, skip ]
+      - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_EVENT_TYPE != "merge_train"'
+        changes:
+          - 'tests/e2e/cypress/e2e/administration/**/*.cy.js'
+          - 'tests/e2e/cypress/e2e/storefront/**/*.cy.js'
+    script:
+        - 'CHANGED_FILES=$(git diff --diff-filter=ACMRT --name-only ${CI_MERGE_REQUEST_DIFF_BASE_SHA} | grep -E "^tests/e2e/cypress/e2e/(administration|storefront)")'
+        - 'echo "Changed files: $CHANGED_FILES"'
+        # remove prefix tests/e2e/, replace newlines with commas and trim trailing comma
+        - 'TEST_SPEC=$(echo "${CHANGED_FILES}" | sed "s|^tests/e2e/||g" | tr "\\n" "," | sed "s/,*$//g")'
+        - 'echo "Test spec: $TEST_SPEC"'
+        - composer run e2e:cypress-repeat -- run
+          -n 50
+          --config retries=0
+          --browser chrome
+          --spec "$TEST_SPEC"
+          --headless
 
 E2E install NL:
     extends:
       - .long-running
     stage: E2E
-    needs: [ ]
+    needs: [ Build, 'Jest (Administration)' ]
+    dependencies: [ Build ]
     services:
-        -   name: mariadb:10.3
+        -   name: mariadb:10.4
             alias: database
     variables:
         APP_ENV: e2e
@@ -127,12 +149,9 @@ E2E install NL:
         CYPRESS_dbPassword: $MYSQL_ROOT_PASSWORD
         CYPRESS_dbName: root
         CYPRESS_locale: nl-NL
-        CYPRESS_CACHE_FOLDER: $CI_PROJECT_DIR/.Cypress
-    parallel:
-      matrix:
-        - FEATURE_ALL: 'false'
-        - FEATURE_ALL: 'major'
-          ALLOW_FAILURE: 'true'
+        FEATURE_ALL: 'false'
+        ALLOW_FAILURE: 'true'
+        SHOPWARE_DISABLE_UPDATE_CHECK: 'true'
     script:
         - export PLATFORM_VERSION="$(jq -r .version < composer.json)"
         # fake version by using the latest tag if not set
@@ -179,13 +198,6 @@ E2E install NL:
         - mv $CI_PROJECT_DIR/src/Recovery/Test/e2e/cypress/results/single-reports/*.xml var/log/e2e/ || true
         - mv $CI_PROJECT_DIR/src/Recovery/Test/e2e/mochareports/ var/log/e2e/ || true
         - !reference [ .upload-junit-xml, after_script ]
-    cache:
-      key:
-        files:
-          - tests/package-lock.json
-      paths:
-        - .Cypress
-      policy: pull-push
     artifacts:
         when: always
         paths:

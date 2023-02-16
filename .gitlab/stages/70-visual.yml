@@ -4,7 +4,7 @@ Percy:
     stage: visual
     timeout: 1h
     services:
-        -   name: mariadb:10.3
+        -   name: mariadb:10.4
             alias: database
     variables:
         PERCY_ENABLE: $CYPRESS_PERCY_USAGE

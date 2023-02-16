@@ -41,7 +41,7 @@ variables:
         value: src/
         description: 'Defines the src dir. Use "" (empty string) if it starts in the root dir.'
     MYSQL_IMAGE:
-        value: mysql:5.7
+        value: mysql:8.0
         description: 'database image to use. Possible values: "mysql:8.0.19" (also change $MYSQL_CMD!), "mariadb:10.3", "mariadb:10.4"'
     MYSQL_CMD:
         value: mysqld
@@ -81,6 +81,14 @@ workflow:
               PLATFORM_BRANCH: ${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}
         -   when: always
 
+.setup_platform_and_plugin_files: &setup_platform_and_plugin_files
+  - tar -czf /tmp/plugin.tar.gz .
+  - rm -Rf .* * || true
+  - echo "Checkout platform branch $PLATFORM_BRANCH"
+  - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.shopware.com/shopware/6/product/platform.git . --branch $PLATFORM_BRANCH
+  - mkdir -p "custom/plugins/${PLUGIN_NAME}" || true
+  - tar -xzf /tmp/plugin.tar.gz --directory="custom/plugins/${PLUGIN_NAME}"
+
 .install_composer_dependencies: &install_composer_dependencies
   - apt-get update && apt-get install -y jq
   - |
@@ -99,10 +107,10 @@ workflow:
         plugin_url="$(echo "$plugin" | jq -r .url)"
         plugin_branch="$(echo "$plugin" | jq -r .branch)"
         git clone "https://gitlab-ci-token:${CI_JOB_TOKEN}@${plugin_url}" --branch "${plugin_branch}" "${PROJECT_ROOT}/custom/plugins/${plugin_name}"
-        npm ci --prefix  "${PROJECT_ROOT}/custom/plugins/${plugin_name}/Resources/app/administration" || true
-        npm ci --prefix  "${PROJECT_ROOT}/custom/plugins/${plugin_name}/src/Resources/app/administration" || true
-        npm ci --prefix  "${PROJECT_ROOT}/custom/plugins/${plugin_name}/Resources/app/storefront" || true
-        npm ci --prefix  "${PROJECT_ROOT}/custom/plugins/${plugin_name}/src/Resources/app/storefront" || true
+        npm ci --no-audit --prefer-offline --prefix  "${PROJECT_ROOT}/custom/plugins/${plugin_name}/Resources/app/administration" || true
+        npm ci --no-audit --prefer-offline --prefix  "${PROJECT_ROOT}/custom/plugins/${plugin_name}/src/Resources/app/administration" || true
+        npm ci --no-audit --prefer-offline --prefix  "${PROJECT_ROOT}/custom/plugins/${plugin_name}/Resources/app/storefront" || true
+        npm ci --no-audit --prefer-offline --prefix  "${PROJECT_ROOT}/custom/plugins/${plugin_name}/src/Resources/app/storefront" || true
         composer -d "${PROJECT_ROOT}/custom/plugins/${plugin_name}" dump-autoload || true
     done
   - bin/console plugin:refresh
@@ -120,19 +128,14 @@ default:
     tags:
       - t3.medium
     services:
-        - name: mysql:5.7
+        - name: "$MYSQL_IMAGE"
           alias: database
-          entrypoint: [ "sh", "-c", "docker-entrypoint.sh $MYSQL_CMD" ]
+          entrypoint: [ "sh", "-c", "docker-entrypoint.sh $MYSQL8_CMD" ]
     before_script:
+        - echo 'memory_limit = -1' | tee /usr/local/etc/php/conf.d/99-memory-limit.ini
         - export PLUGIN_NAME="${PLUGIN_NAME:-${CI_PROJECT_TITLE}}"
         - echo "$PLUGIN_NAME"
-        - zip -rq plugin.zip .
-        - mv plugin.zip /tmp/plugin.zip
-        - rm -Rf .* * || true
-        - echo "Checkout platform branch $PLATFORM_BRANCH"
-        - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.shopware.com/shopware/6/product/platform.git . --branch $PLATFORM_BRANCH
-        - mkdir -p custom/plugins || true
-        - unzip -q /tmp/plugin.zip -d custom/plugins/$PLUGIN_NAME
+        - *setup_platform_and_plugin_files
         - composer install --no-interaction
         - *install_composer_dependencies
         - mkdir -p config/jwt || true
@@ -155,64 +158,36 @@ default:
         - mkdir -p vendor/shopware
         - ln -s $PROJECT_ROOT/src/Core vendor/shopware/core
         - ln -s $PROJECT_ROOT/src/Storefront vendor/shopware/storefront
+        - rm /usr/local/etc/php/conf.d/99-memory-limit.ini
 
 .build-js: &build-js
     - $CI_PROJECT_DIR/bin/console bundle:dump
     - $CI_PROJECT_DIR/bin/console framework:schema -s 'entity-schema' $CI_PROJECT_DIR/src/Administration/Resources/app/administration/test/_mocks_/entity-schema.json
-    - '(cd $CI_PROJECT_DIR/src/Administration/Resources/app/administration/ && npm ci && npm run build)'
-    - '(cd $CI_PROJECT_DIR/src/Storefront/Resources/app/storefront/ && npm ci && npm run production && node copy-to-vendor.js)'
+    - '(cd $CI_PROJECT_DIR/src/Administration/Resources/app/administration/ && npm ci --no-audit --prefer-offline && npm run build)'
+    - '(cd $CI_PROJECT_DIR/src/Storefront/Resources/app/storefront/ && npm ci --no-audit --prefer-offline && npm run production && node copy-to-vendor.js)'
     -  $CI_PROJECT_DIR/bin/console assets:install
 
-build zip:
+build and validate zip:
     stage: build
-    # Revert after node is fixed in ghcr.io/friendsofshopware/platform-plugin-dev
-    allow_failure: true
     image:
-        name: ghcr.io/friendsofshopware/platform-plugin-dev:v6.4.17
-        entrypoint: [""]
+        name: ghcr.io/friendsofshopware/shopware-cli
+        entrypoint: [ "/usr/local/bin/entrypoint.sh" ]
     rules:
         - exists:
               - composer.json
     variables:
-        ADMIN_PATH: $CI_PROJECT_DIR/src/Administration/Resources/app/administration
-        STOREFRONT_PATH: $CI_PROJECT_DIR/src/Storefront/Resources/app/storefront
         SHOPWARE_ADMIN_BUILD_ONLY_EXTENSIONS: 1
+        SHOPWARE_PROJECT_ROOT: "${CI_PROJECT_DIR}"
+        APP_ENV: 'dev'
+    before_script:
+      - *setup_platform_and_plugin_files
     script:
-        - (cd ${PLUGIN_SOURCE_DIR}Resources/app/administration && npm ci) || true
-        - (cd ${PLUGIN_SOURCE_DIR}Resources/app/storefront && npm ci) || true
-        - *build-js
-        - rm -rf "Resources/app/administration/node_modules" || true
-        - rm -rf "Resources/app/storefront/node_modules" || true
-        - rm -rf vendor composer.lock || true
-        - cd $CI_PROJECT_DIR/custom/plugins/$PLUGIN_NAME
-        - composer config --unset 'repositories.platform-packages'
-        - plugin-uploader ext:zip --strategy=plain -- "$PWD"
-        - '[[ -r $PLUGIN_NAME.zip ]] || (echo "failed to create $PLUGIN_NAME.zip. Please run ./bin/init $PLUGIN_NAME" && exit 1)'
-        - mv $PLUGIN_NAME.zip ${CI_PROJECT_DIR}/$PLUGIN_NAME.zip
+        - shopware-cli extension zip "${CI_PROJECT_DIR}/custom/plugins/${PLUGIN_NAME}" --disable-git
+        - shopware-cli extension validate "${PLUGIN_NAME}.zip"
     artifacts:
-        name: '${CI_PROJECT_TITLE}.zip'
+        name: '${PLUGIN_NAME}.zip'
         paths:
-            - '*.zip'
-
-validate zip:
-    stage: test
-    # Revert after node is fixed in ghcr.io/friendsofshopware/platform-plugin-dev
-    allow_failure: true
-    image:
-        name: ghcr.io/friendsofshopware/platform-plugin-dev:v6.4.17
-        entrypoint: [""]
-    variables:
-        GIT_STRATEGY: none
-    needs:
-        - build zip
-    rules:
-        - exists:
-              - composer.json
-          if: '$CI_PROJECT_TITLE != "SwagPluginTemplate"'
-    before_script: []
-    script:
-        - export PLUGIN_NAME="${PLUGIN_NAME:-${CI_PROJECT_TITLE}}"
-        - plugin-uploader ext:validate $PWD/$PLUGIN_NAME.zip
+            - '${PLUGIN_NAME}.zip'
 
 phpunit:
     stage: test
@@ -261,6 +236,8 @@ ecs:
     stage: test
     needs: []
     rules:
+        - if: '$CI_PIPELINE_SOURCE == "pipeline"'
+          when: never
         - exists:
               - ecs.php
     script:
@@ -270,6 +247,8 @@ validate snippets:
     stage: test
     needs: []
     rules:
+        - if: '$CI_PIPELINE_SOURCE == "pipeline"'
+          when: never
         - changes:
               - '**/*.json'
     script:
@@ -290,8 +269,8 @@ jest (administration):
         - '(cd $ADMIN_PATH && npm ci)'
         - $CI_PROJECT_DIR/bin/console framework:schema -s 'entity-schema' $ADMIN_PATH/test/_mocks_/entity-schema.json
         - cd ${PLUGIN_SOURCE_DIR}Resources/app/administration/
-        - npm ci
-        - '$(npm bin)/jest --config jest.config.js --ci'
+        - npm ci --no-audit --prefer-offline
+        - npm exec jest -- --config jest.config.js --ci
     coverage: '/^\s?All files[^|]*\|[^|]*\s+([\d\.]+)/'
 
 jest (storefront):
@@ -308,7 +287,7 @@ jest (storefront):
     script:
         - *build-js
         - cd ${PLUGIN_SOURCE_DIR}Resources/app/storefront/
-        - npm ci
+        - npm ci --no-audit --prefer-offline
         - '$(npm bin)/jest --config jest.config.js --ci'
     coverage: '/^\s?All files[^|]*\|[^|]*\s+([\d\.]+)/'
 
@@ -332,7 +311,7 @@ template filled:
     - $CI_PROJECT_DIR/bin/console assets:install
     - APP_ENV=e2e $CI_PROJECT_DIR/bin/console e2e:dump-db
     - cd ${PLUGIN_SOURCE_DIR}${E2E_PROJECT_PATH}
-    - npm ci
+    - npm ci --no-audit --prefer-offline
 
 .base e2e:
     stage: E2E
@@ -458,12 +437,12 @@ upload zip to store:
         name: account.shopware.com
         url: 'https://account.shopware.com'
     image:
-        name: ghcr.io/friendsofshopware/platform-plugin-dev:v6.4.17
+        name: ghcr.io/friendsofshopware/platform-plugin-dev:6.5
         entrypoint: [""]
     variables:
         GIT_STRATEGY: none
     needs:
-        - build zip
+        - build and validate zip
     rules:
         - exists:
               - composer.json

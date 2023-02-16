@@ -58,6 +58,7 @@ use Symfony\Component\Serializer\SerializerInterface;
 class VersionManager
 {
     final public const DISABLE_AUDIT_LOG = 'disable-audit-log';
+    final public const MERGE_SCOPE = 'merge-scope';
 
     public function __construct(private readonly EntityWriterInterface $entityWriter, private readonly EntityReaderInterface $entityReader, private readonly EntitySearcherInterface $entitySearcher, private readonly EntityWriteGatewayInterface $entityWriteGateway, private readonly EventDispatcherInterface $eventDispatcher, private readonly SerializerInterface $serializer, private readonly DefinitionInstanceRegistry $registry, private readonly VersionCommitDefinition $versionCommitDefinition, private readonly VersionCommitDataDefinition $versionCommitDataDefinition, private readonly VersionDefinition $versionDefinition, private readonly LockFactory $lockFactory)
     {
@@ -160,6 +161,9 @@ class VersionManager
         $versionContext = $writeContext->createWithVersionId($versionId);
         $liveContext = $writeContext->createWithVersionId(Defaults::LIVE_VERSION);
 
+        $versionContext->addState(self::MERGE_SCOPE);
+        $liveContext->addState(self::MERGE_SCOPE);
+
         // group all payloads by their action (insert, update, delete) and by their entity name
         $writes = $this->buildWrites($commits);
 
@@ -184,6 +188,9 @@ class VersionManager
             $writes->addEvent(...$deletes->getEvents()->getElements());
         }
         $this->eventDispatcher->dispatch($writes);
+
+        $versionContext->removeState(self::MERGE_SCOPE);
+        $liveContext->addState(self::MERGE_SCOPE);
     }
 
     /**
@@ -828,7 +835,6 @@ class VersionManager
     private function deleteClones(VersionCommitCollection $commits, WriteContext $versionContext, string $versionId): void
     {
         $handled = [];
-        $versionContext->addState('merge-scope');
 
         foreach ($commits as $commit) {
             foreach ($commit->getData() as $data) {
@@ -851,7 +857,5 @@ class VersionManager
                 $this->entityWriter->delete($definition, [$primary], $versionContext);
             }
         }
-
-        $versionContext->removeState('merge-scope');
     }
 }

@@ -1,8 +1,7 @@
 {
     "require-dev": {
         "roave/backward-compatibility-check": "^7.0",
-        "symplify/vendor-patches": "^11.1",
-        "phpunit/phpunit": "^9.5"
+        "symplify/vendor-patches": "^11.1"
     },
     "bin": [
         "bin/bc-check"

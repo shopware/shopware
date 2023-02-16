@@ -306,6 +306,9 @@
         "e2e:cypress": [
             "export APP_ENV=e2e; export CYPRESS_localUsage=1; export CYPRESS_shopwareRoot=\"$PWD\"; cd tests/e2e; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$CYPRESS_shopwareRoot\"/bin/exec-with-env cypress"
         ],
+        "e2e:cypress-repeat": [
+            "export APP_ENV=e2e; export CYPRESS_localUsage=1; export CYPRESS_shopwareRoot=\"$PWD\"; cd tests/e2e; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$CYPRESS_shopwareRoot\"/bin/exec-with-env cypress-repeat"
+        ],
         "e2e:open": [
             "Composer\\Config::disableProcessTimeout",
             "@e2e:cypress open"

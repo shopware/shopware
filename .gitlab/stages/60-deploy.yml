@@ -1,13 +1,5 @@
 # requires /.gitlab/base.yml
 
-.administration-node-cache: &administration-node-cache
-  key:
-    files:
-      - src/Administration/Resources/app/administration/package-lock.json
-  paths:
-    - src/Administration/Resources/app/administration/node_modules/
-  policy: push
-
 Upload Component Library:
     extends: .long-running-no-setup
     stage: deploy
@@ -33,14 +25,11 @@ Publish entity-schema-types NPM package:
     stage: deploy
     rules:
       - if: '$CI_COMMIT_TAG && $CI_COMMIT_REF_PROTECTED == "true"'
-    cache:
-      - <<: *administration-node-cache
-        policy: pull
     before_script:
-      - composer install --no-scripts --quiet
-      - '[[ -d src/Administration/Resources/app/administration/node_modules/ ]] || npm --prefix src/Administration/Resources/app/administration/ ci --no-audit --prefer-offline'
-      - composer run admin:generate-entity-schema-types
+      - !reference [ .scripts, init, composer ]
       - !reference [ .scripts, install-node, script ]
+      - !reference [ .scripts, init, npm, admin ]
+      - composer run admin:generate-entity-schema-types
     script:
       - cd src/Administration/Resources/app/administration
       - npm run generate-entity-schema-package

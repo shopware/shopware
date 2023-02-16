@@ -10,6 +10,8 @@ shopware:
         enable_url_validation: false
     admin_worker:
         enable_admin_worker: false
+        enable_queue_stats_worker: false
+        enable_notification_worker: false
     api:
         rate_limiter:
             login:
@@ -26,3 +28,4 @@ shopware:
                 enabled: false
             notification:
                 enabled: false
+        access_token_ttl: 'PT4H'

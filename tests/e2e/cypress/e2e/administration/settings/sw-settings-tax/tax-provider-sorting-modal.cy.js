@@ -8,14 +8,14 @@ describe('Tax provider sorting: Visual testing', () => {
                     name: 'Tax provider one',
                     identifier: 'tax-provider-one',
                     active: true,
-                    priority: 1,
+                    priority: 2,
                 }, 'tax-provider');
             }).then(() => {
                 return cy.createDefaultFixture('tax-provider', {
                     name: 'Tax provider two',
                     identifier: 'tax-provider-two',
                     active: true,
-                    priority: 2,
+                    priority: 1,
                 }, 'tax-provider');
             })
             .then(() => {

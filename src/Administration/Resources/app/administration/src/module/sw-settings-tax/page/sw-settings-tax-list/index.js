@@ -51,7 +51,7 @@ export default {
             const criteria = new Criteria(this.page, this.limit);
 
             criteria.addSorting(
-                Criteria.sort('priority', 'ASC'),
+                Criteria.sort('priority', 'DESC'),
             );
 
             return criteria;

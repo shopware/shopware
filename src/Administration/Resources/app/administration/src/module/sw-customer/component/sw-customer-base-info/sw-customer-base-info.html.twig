@@ -15,6 +15,28 @@
         v-else
         class="sw-customer-base-info-columns"
     >
+        <template v-if="isBusinessAccountType && !customerEditMode">
+            <sw-description-list>
+                <dt class="sw-customer-base-info__label">
+                    {{ $tc('sw-customer.baseInfo.labelCompany') }}
+                </dt>
+
+                <dd>
+                    {{ customer.company }}
+                </dd>
+            </sw-description-list>
+
+            <sw-description-list>
+                <dt class="sw-customer-base-info__label">
+                    {{ $tc('sw-customer.baseInfo.labelVatId') }}
+                </dt>
+
+                <dd>
+                    {{ customer.vatIds[0] || '-' }}
+                </dd>
+            </sw-description-list>
+        </template>
+
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_base_metadata_customer_group %}
         <sw-description-list>

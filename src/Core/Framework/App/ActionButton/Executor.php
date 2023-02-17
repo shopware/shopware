@@ -66,16 +66,16 @@ class Executor
             return new JsonResponse();
         }
 
-        $content = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
-        if (!\array_key_exists('actionType', $content) || !\array_key_exists('payload', $content)) {
-            throw new ActionProcessException($action->getActionId(), 'Invalid app response');
+        if (!\array_key_exists('actionType', $response) || !\array_key_exists('payload', $response)) {
+            throw new ActionProcessException($action->getActionId(), sprintf('Invalid app response: %s', $content));
         }
 
         $actionResponse = $this->actionButtonResponseFactory->createFromResponse(
             $action,
-            $content['actionType'],
-            $content['payload'],
+            $response['actionType'],
+            $response['payload'],
             $context
         );
 
@@ -130,11 +130,18 @@ class Executor
             $request = $this->requestStack->getCurrentRequest();
             $subRequest = $request->duplicate(null, null, $route);
 
-            $response = $this->kernel->handle($subRequest, HttpKernelInterface::SUB_REQUEST);
+            // Bug fix: Remove content type, so old json content are not loaded
+            $subRequest->headers->remove('Content-Type');
+            $payload = $action->asPayload();
+            $subRequest->request->replace($payload);
+            // Backward compatibility: Add ids on first level of the request
+            $subRequest->request->set('ids', $payload['data']['ids'] ?? null);
+
+            $response = $this->kernel->handle($subRequest, HttpKernelInterface::SUB_REQUEST, false);
 
             return $response->getContent() ?: '';
         } catch (\Exception $e) {
-            throw new ActionProcessException($action->getActionId(), 'ActionButton local execution failed', $e);
+            throw new ActionProcessException($action->getActionId(), $e->getMessage(), $e);
         }
     }
 }

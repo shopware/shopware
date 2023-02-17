@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Script\Exception\HookMethodException;
 use Shopware\Core\Framework\Script\Execution\Awareness\SalesChannelContextAware;
 use Shopware\Core\Framework\Script\Execution\Awareness\ScriptResponseAwareTrait;
 use Shopware\Core\Framework\Script\Execution\FunctionHook;
+use Shopware\Core\Framework\Script\Execution\HookNameTrait;
 use Shopware\Core\Framework\Script\Execution\InterfaceHook;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -18,9 +19,10 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * @since 6.4.9.0
  */
 #[Package('core')]
-class StoreApiHook extends InterfaceHook implements SalesChannelContextAware
+class StoreApiHook extends InterfaceHook implements SalesChannelContextAware, ResponseHook
 {
     use ScriptResponseAwareTrait;
+    use HookNameTrait;
 
     final public const HOOK_NAME = 'store-api-{hook}';
 
@@ -51,15 +53,6 @@ class StoreApiHook extends InterfaceHook implements SalesChannelContextAware
     public function getSalesChannelContext(): SalesChannelContext
     {
         return $this->salesChannelContext;
-    }
-
-    public function getName(): string
-    {
-        return \str_replace(
-            ['{hook}'],
-            [$this->script],
-            self::HOOK_NAME
-        );
     }
 
     public function getFunction(string $name): FunctionHook

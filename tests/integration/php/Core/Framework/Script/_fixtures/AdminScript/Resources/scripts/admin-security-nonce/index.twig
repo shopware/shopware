@@ -1,0 +1,4 @@
+{% set content = services.security.nonce() %}
+{% set response = services.security.response(content) %}
+{% do hook.setResponse(response) %}
+

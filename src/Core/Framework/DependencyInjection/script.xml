@@ -39,20 +39,37 @@
             <argument type="service" id="logger"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Script\Api\ScriptApiRoute" public="true">
-            <argument type="service" id="Shopware\Core\Framework\Script\Execution\ScriptExecutor"/>
-            <argument type="service" id="Shopware\Core\Framework\Script\Execution\ScriptLoader"/>
-            <argument type="service" id="Shopware\Core\Framework\Script\Api\ScriptResponseEncoder"/>
-        </service>
+        <service id="Shopware\Core\Framework\Script\Api\ScriptApiRoute" public="true" autowire="true"/>
 
         <service id="Shopware\Core\Framework\Script\Api\ScriptResponseFactoryFacadeHookFactory" public="true">
             <argument type="service" id="router"/>
             <argument type="service" id="Shopware\Storefront\Controller\ScriptController" on-invalid="null"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Script\Execution\ScriptContextValidator" autowire="true"/>
+
         <service id="Shopware\Core\Framework\Script\Api\ScriptResponseEncoder">
             <argument type="service" id="Shopware\Core\System\SalesChannel\Api\StructEncoder"/>
         </service>
+
+        <service id="Shopware\Core\Framework\Script\Api\KernelEventSubscriber">
+            <tag name="kernel.event_subscriber"/>
+            <argument type="service" id="Shopware\Core\Framework\App\AppLocaleProvider"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Translation\Translator"/>
+            <argument type="service" id="router"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Api\Controller\ScriptController" public="true" autowire="true">
+            <tag name="controller.service_arguments" />
+        </service>
+
+        <service id="Shopware\Core\Framework\Script\Router\RouterFactory" public="true">
+            <argument type="service" id="Symfony\Component\HttpFoundation\RequestStack"/>
+            <argument type="service" id="router"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Script\Security\SecurityFactory" public="true">
+            <argument type="service" id="Symfony\Component\HttpFoundation\RequestStack"/>
+        </service>
     </services>
 </container>
-

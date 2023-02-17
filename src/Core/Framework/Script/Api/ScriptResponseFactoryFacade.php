@@ -97,4 +97,21 @@ class ScriptResponseFactoryFacade
 
         return new ScriptResponse($inner, $inner->getStatusCode());
     }
+
+    /**
+     * Generates response with custom content and content type
+     *
+     * @param string $content Various content as input
+     * @param int $code Http status code
+     * @param string $contentType The content type e.g. text/html
+     *
+     * @return ScriptResponse A script response
+     */
+    public function raw(string $content, int $code = Response::HTTP_OK, string $contentType = 'text/html; charset=UTF-8'): ScriptResponse
+    {
+        return new ScriptResponse(
+            new Response($content, $code, ['Content-Type' => $contentType]),
+            $code
+        );
+    }
 }

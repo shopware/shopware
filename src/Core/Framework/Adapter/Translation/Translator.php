@@ -284,8 +284,9 @@ class Translator extends AbstractTranslator
      */
     private function getCustomizedCatalog(MessageCatalogueInterface $catalog, ?string $fallbackLocale, ?string $locale = null): MessageCatalogueInterface
     {
-        $snippetSetId = $this->getSnippetSetId($locale);
+        $locale = $locale ?? $this->getLocale();
 
+        $snippetSetId = $this->getSnippetSetId($locale);
         if (!$snippetSetId) {
             return $catalog;
         }

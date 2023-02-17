@@ -266,4 +266,115 @@ The `response` service allows you to create HTTP-Responses.
 		) %}
         ```
         {% endraw %}
+### raw()
+
+* Generates response with custom content and content type
+
+    
+* **Returns** [`Shopware\Core\Framework\Script\Api\ScriptResponse`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Script/Api/ScriptResponse.php)
+
+    A script response
+* **Arguments:**
+    * *`string`* **content**: Various content as input
+    * *`int`* **code**: Http status code
+
+        Default: `200`
+    * *`string`* **contentType**: The content type e.g. text/html
+
+        Default: `&#039;text/html; charset=utf-8&#039;`
+_________
+## [`Shopware\Core\Framework\Script\Router\RouterService`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Script/Router/RouterService.php) {#routerservice}
+
+
+
+
+### path()
+
+* Returns the absolute path to a script hook
+
+    
+* **Returns** `string`
+
+    Example: /api/app/hook-name?query
+* **Arguments:**
+    * *`string|array` | `null`* **hook**: Hook name or query parameters. If no hook name is defined, the current hook will be used.
+
+        Default: `null`
+    * *`array`* **query**: Query paramters as associative array.
+
+        Default: `array (
+)`
+### url()
+
+* Returns the absolute url to a script hook
+
+    
+* **Returns** `string`
+
+    Example: http://localhost/api/app/hook-name?query
+* **Arguments:**
+    * *`string|array` | `null`* **hook**: Hook name or query parameters. If no hook name is defined, the current hook will be used.
+
+        Default: `null`
+    * *`array`* **query**: Query paramters as associative array.
+
+        Default: `array (
+)`
+### redirect()
+
+* 
+
+    
+* **Arguments:**
+    * *`string|array` | `null`* **hook**: Hook name or query parameters. If no hook name is defined, the current hook will be used.
+
+        Default: `null`
+    * *`array`* **query**: Query paramters as associative array.
+
+        Default: `array (
+)`
+    * *`int`* **code**: HTTP status code
+
+        Default: `302`
+_________
+## [`Shopware\Core\Framework\Script\Security\SecurityService`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Script/Security/SecurityService.php) {#securityservice}
+
+
+
+
+### nonce()
+
+* Returns nonce value from the content security policy.
+
+    
+* **Returns** `string`
+
+    A nonce
+### setContentSecurityPolicy()
+
+* Change the content security policy. Use the response function in this service and not the response service.
+
+    
+* **Arguments:**
+    * *`string` | `null`* **contentSecurityPolicy**: The new content security policy
+### setFrameOptions()
+
+* Change the frame options. Use the response function in this service and not the response service.
+
+    
+* **Arguments:**
+    * *`string` | `null`* **frameOptions**: The new frame options
+### response()
+
+* Generates a response with current security options.
+
+    
+* **Returns** [`Shopware\Core\Framework\Script\Api\ScriptResponse`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Script/Api/ScriptResponse.php)
+
+    A script response
+* **Arguments:**
+    * *`string`* **content**: HTML content
+    * *`int`* **code**: HTTP status code
+
+        Default: `200`
 _________

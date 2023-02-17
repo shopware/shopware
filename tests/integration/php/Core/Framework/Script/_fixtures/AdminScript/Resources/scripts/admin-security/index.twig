@@ -1,0 +1,5 @@
+{% do services.security.setContentSecurityPolicy('') %}
+{% do services.security.setFrameOptions('sameorigin') %}
+{% set response = services.security.response('') %}
+{% do hook.setResponse(response) %}
+

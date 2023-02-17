@@ -5,7 +5,6 @@ namespace Shopware\Storefront\Controller;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Api\ScriptResponseEncoder;
 use Shopware\Core\PlatformRequest;
-use Shopware\Core\System\SalesChannel\Api\ResponseFields;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Cache\CacheStore;
 use Shopware\Storefront\Framework\Script\Api\StorefrontHook;
@@ -31,28 +30,18 @@ class ScriptController extends StorefrontController
     #[Route(path: '/storefront/script/{hook}', name: 'frontend.script_endpoint', requirements: ['hook' => '.+'], defaults: ['XmlHttpRequest' => true], methods: ['GET', 'POST'])]
     public function execute(string $hook, Request $request, SalesChannelContext $context): Response
     {
-        //  blog/update =>  blog-update
-        $hookName = \str_replace('/', '-', $hook);
-
         $page = $this->pageLoader->load($request, $context);
 
-        $hook = new StorefrontHook($hookName, $request->request->all(), $request->query->all(), $page, $context);
+        $hook = new StorefrontHook($hook, $request->request->all(), $request->query->all(), $page, $context);
 
-        // hook: storefront-{hook}
         $this->hook($hook);
 
-        $fields = new ResponseFields(
+        $symfonyResponse = $this->scriptResponseEncoder->encodeByHook(
+            $hook,
             $request->get('includes', [])
         );
 
         $response = $hook->getScriptResponse();
-
-        $symfonyResponse = $this->scriptResponseEncoder->encodeToSymfonyResponse(
-            $response,
-            $fields,
-            \str_replace('-', '_', 'storefront_' . $hookName . '_response')
-        );
-
         if ($response->getCache()->isEnabled()) {
             $request->attributes->set(PlatformRequest::ATTRIBUTE_HTTP_CACHE, ['maxAge' => $response->getCache()->getMaxAge(), 'states' => $response->getCache()->getInvalidationStates()]);
             $symfonyResponse->headers->set(CacheStore::TAG_HEADER, \json_encode($response->getCache()->getCacheTags(), \JSON_THROW_ON_ERROR));

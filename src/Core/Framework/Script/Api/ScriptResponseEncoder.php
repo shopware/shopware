@@ -30,4 +30,13 @@ class ScriptResponseEncoder
 
         return new JsonResponse($data, $scriptResponse->getCode());
     }
+
+    public function encodeByHook(ResponseHook $hook, array $responseFields): Response
+    {
+        return $this->encodeToSymfonyResponse(
+            $hook->getScriptResponse(),
+            new ResponseFields($responseFields),
+            \str_replace('-', '_', $hook->getName() . '_response')
+        );
+    }
 }

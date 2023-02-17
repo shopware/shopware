@@ -1,0 +1,4 @@
+{% set content = include('include/snippet.twig') %}
+{% set response = services.response.raw(content) %}
+{% do hook.setResponse(response) %}
+

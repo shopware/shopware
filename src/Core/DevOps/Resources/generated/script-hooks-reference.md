@@ -505,6 +505,18 @@ All available hooks within the Store-API and API
 | **Available Services** | [cache](./custom-endpoint-script-services-reference.md#CacheInvalidatorFacade)<br> |
 | **Stoppable**          | `false`                  |
 
+#### admin-{hook}
+
+| <!-- -->               | <!-- -->                                |
+|:-----------------------|:----------------------------------------|
+| **Name**               | admin-{hook}                         |
+| **Since**              | 6.5.0.0                        |
+| **Class**              | `Shopware\Core\Framework\Script\Api\AdminHook`                      |
+| **Description**        | Triggered when the page /api/app/{hook} is called<br>                  |
+| **Available Data**     | script: `string`<br>request: `array`<br>query: `array`<br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php)<br>isPropagationStopped: `bool`<br>scriptResponse: [`Shopware\Core\Framework\Script\Api\ScriptResponse`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Script/Api/ScriptResponse.php)<br>        |
+| **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[writer](./custom-endpoint-script-services-reference.md#RepositoryWriterFacade)<br>[response](./custom-endpoint-script-services-reference.md#ScriptResponseFactoryFacade)<br>[router](./custom-endpoint-script-services-reference.md#RouterService)<br>[security](./custom-endpoint-script-services-reference.md#SecurityService)<br> |
+| **Stoppable**          | `true`                  |
+
 #### api-{hook}
 
 | <!-- -->               | <!-- -->                                |
@@ -513,7 +525,7 @@ All available hooks within the Store-API and API
 | **Since**              | 6.4.9.0                        |
 | **Class**              | `Shopware\Core\Framework\Script\Api\ApiHook`                      |
 | **Description**        | Triggered when the api endpoint /api/script/{hook} is called<br>                  |
-| **Available Data**     | name: `string`<br>request: `array`<br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php)<br>isPropagationStopped: `bool`<br>scriptResponse: [`Shopware\Core\Framework\Script\Api\ScriptResponse`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Script/Api/ScriptResponse.php)<br>        |
+| **Available Data**     | script: `string`<br>request: `array`<br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php)<br>isPropagationStopped: `bool`<br>scriptResponse: [`Shopware\Core\Framework\Script\Api\ScriptResponse`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Script/Api/ScriptResponse.php)<br>        |
 | **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[writer](./custom-endpoint-script-services-reference.md#RepositoryWriterFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[response](./custom-endpoint-script-services-reference.md#ScriptResponseFactoryFacade)<br> |
 | **Stoppable**          | `true`                  |
 

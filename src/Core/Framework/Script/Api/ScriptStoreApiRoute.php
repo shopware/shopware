@@ -6,7 +6,6 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
-use Shopware\Core\System\SalesChannel\Api\ResponseFields;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -33,10 +32,7 @@ class ScriptStoreApiRoute
     #[Route(path: '/store-api/script/{hook}', name: 'store-api.script_endpoint', methods: ['GET', 'POST'], requirements: ['hook' => '.+'])]
     public function execute(string $hook, Request $request, SalesChannelContext $context): Response
     {
-        //  blog/update =>  blog-update
-        $hookName = \str_replace('/', '-', $hook);
-
-        $hook = new StoreApiHook($hookName, $request->request->all(), $request->query->all(), $context);
+        $hook = new StoreApiHook($hook, $request->request->all(), $request->query->all(), $context);
 
         $cacheKey = null;
         if ($request->isMethodCacheable()) {
@@ -56,17 +52,11 @@ class ScriptStoreApiRoute
 
         /** @var StoreApiResponseHook $responseHook */
         $responseHook = $hook->getFunction(StoreApiResponseHook::FUNCTION_NAME);
-        // hook: store-api-{hook}
         $this->executor->execute($responseHook);
 
-        $fields = new ResponseFields(
+        $symfonyResponse = $this->scriptResponseEncoder->encodeByHook(
+            $responseHook,
             $request->get('includes', [])
-        );
-
-        $symfonyResponse = $this->scriptResponseEncoder->encodeToSymfonyResponse(
-            $responseHook->getScriptResponse(),
-            $fields,
-            \str_replace('-', '_', 'store_api_' . $hookName . '_response')
         );
 
         $cacheConfig = $responseHook->getScriptResponse()->getCache();

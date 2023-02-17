@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Script\Execution\Awareness\AppSpecificHook;
 use Shopware\Core\Framework\Script\Execution\Awareness\HookServiceFactory;
 use Shopware\Core\Framework\Script\Execution\Awareness\StoppableHook;
 use Shopware\Core\Framework\Script\ServiceStubs;
+use Symfony\Bridge\Twig\Extension\RoutingExtension;
 use Symfony\Bridge\Twig\Extension\TranslationExtension;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
@@ -151,6 +152,7 @@ class ScriptExecutor
         $twig->addExtension(new SecurityExtension([]));
         $twig->addExtension(new PcreExtension());
         $twig->addExtension(new ReplaceRecursiveFilter());
+        $twig->addExtension(new RoutingExtension($this->container->get('router')));
 
         if ($script->getTwigOptions()['debug'] ?? false) {
             $twig->addExtension(new DebugExtension());

@@ -1,38 +1,36 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Framework\Script\Api;
+namespace Shopware\Core\Framework\Script\Api;
 
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryFacadeHookFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryWriterFacadeHookFactory;
-use Shopware\Core\Framework\DataAbstractionLayer\Facade\SalesChannelRepositoryFacadeHookFactory;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Script\Api\ResponseHook;
 use Shopware\Core\Framework\Script\Api\ScriptResponseFactoryFacadeHookFactory;
-use Shopware\Core\Framework\Script\Execution\Awareness\SalesChannelContextAware;
 use Shopware\Core\Framework\Script\Execution\Awareness\ScriptResponseAwareTrait;
 use Shopware\Core\Framework\Script\Execution\Awareness\StoppableHook;
 use Shopware\Core\Framework\Script\Execution\Awareness\StoppableHookTrait;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Script\Execution\HookNameTrait;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Framework\Script\Router\RouterFactory;
+use Shopware\Core\Framework\Script\Security\SecurityFactory;
 use Shopware\Core\System\SystemConfig\Facade\SystemConfigFacadeHookFactory;
-use Shopware\Storefront\Page\Page;
 
 /**
- * Triggered when the storefront endpoint /storefront/script/{hook} is called
+ * Triggered when the page /api/app/{hook} is called
  *
  * @hook-use-case custom_endpoint
  *
- * @since 6.4.9.0
+ * @since 6.5.0.0
  */
 #[Package('core')]
-class StorefrontHook extends Hook implements SalesChannelContextAware, StoppableHook, ResponseHook
+class AdminHook extends Hook implements StoppableHook, ResponseHook
 {
-    use HookNameTrait;
     use StoppableHookTrait;
     use ScriptResponseAwareTrait;
+    use HookNameTrait;
 
-    final public const HOOK_NAME = 'storefront-{hook}';
+    private const HOOK_NAME = 'admin-{hook}';
 
     /**
      * @param array<string, mixed> $request
@@ -42,10 +40,9 @@ class StorefrontHook extends Hook implements SalesChannelContextAware, Stoppable
         private readonly string $script,
         private readonly array $request,
         private readonly array $query,
-        private readonly Page $page,
-        private readonly SalesChannelContext $salesChannelContext
+        Context $context
     ) {
-        parent::__construct($salesChannelContext->getContext());
+        parent::__construct($context);
     }
 
     /**
@@ -64,24 +61,15 @@ class StorefrontHook extends Hook implements SalesChannelContextAware, Stoppable
         return $this->query;
     }
 
-    public function getSalesChannelContext(): SalesChannelContext
-    {
-        return $this->salesChannelContext;
-    }
-
     public static function getServiceIds(): array
     {
         return [
             RepositoryFacadeHookFactory::class,
             SystemConfigFacadeHookFactory::class,
-            SalesChannelRepositoryFacadeHookFactory::class,
             RepositoryWriterFacadeHookFactory::class,
             ScriptResponseFactoryFacadeHookFactory::class,
+            RouterFactory::class,
+            SecurityFactory::class,
         ];
-    }
-
-    public function getPage(): Page
-    {
-        return $this->page;
     }
 }

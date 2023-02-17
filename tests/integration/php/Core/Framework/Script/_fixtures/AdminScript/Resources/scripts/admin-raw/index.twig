@@ -1,0 +1,4 @@
+{% set content = include('include/xml.twig') %}
+{% set response = services.response.raw(content, 404, 'text/xml') %}
+{% do hook.setResponse(response) %}
+

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/master/src/Core/Framework/App/Manifest/Schema/manifest-2.0.xsd">
+    <meta>
+        <name>AdminScript</name>
+        <label>AdminScript</label>
+        <label lang="de-DE">AdminScript</label>
+        <author></author>
+        <license>MIT</license>
+        <copyright></copyright>
+        <version>1.0.0</version>
+    </meta>
+    <permissions>
+        <read>product</read>
+        <read>product_price</read>
+    </permissions>
+</manifest>

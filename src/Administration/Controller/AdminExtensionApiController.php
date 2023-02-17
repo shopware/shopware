@@ -101,12 +101,11 @@ class AdminExtensionApiController extends AbstractController
             throw new AppByNameNotFoundException($appName);
         }
 
+        $uri = $requestDataBag->get('uri');
         $secret = $app->getAppSecret();
-        if ($secret === null) {
-            throw new MissingAppSecretException();
+        if ($secret !== null) {
+            $uri = (string) $this->querySigner->signUri($uri, $secret, $context);
         }
-
-        $uri = $this->querySigner->signUri($requestDataBag->get('uri'), $secret, $context)->__toString();
 
         return new JsonResponse([
             'uri' => $uri,

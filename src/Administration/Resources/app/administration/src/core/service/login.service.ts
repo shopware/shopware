@@ -75,7 +75,7 @@ export default function createLoginService(
      */
     function verifyUserToken(password: string): Promise<string> {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        return verifyUserByUsername(Shopware.State.get('session').currentUser.username, password)
+        return verifyUserByUsername(getUsername(), password)
             .then(({ access }) => {
                 if (Shopware.Utils.types.isString(access)) {
                     return access;
@@ -328,6 +328,11 @@ export default function createLoginService(
         context.authToken = null;
         bearerAuth = null;
 
+        httpClient.post('/oauth/logout', {}, {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            baseURL: context.apiPath!,
+        }).then(():void => {});
+
         notifyOnLogoutListener();
 
         // @ts-expect-error
@@ -343,7 +348,7 @@ export default function createLoginService(
                 void html2canvas(document.querySelector('#app'), { scale: 0.1 }).then(canvas => {
                     window.localStorage.setItem('inactivityBackground', canvas.toDataURL('image/jpeg'));
 
-                    window.localStorage.setItem('lastKnownUser', Shopware.State.get('session').currentUser.username);
+                    window.localStorage.setItem('lastKnownUser', getUsername());
 
                     void $router.push({ name: 'sw.inactivity.login.index' });
                 });
@@ -416,5 +421,12 @@ export default function createLoginService(
      */
     function getStorage(): CookieStorage {
         return cookieStorage;
+    }
+
+    /**
+     * Returns the current username
+     */
+    function getUsername(): string {
+        return Shopware.State.get('session').currentUser?.username;
     }
 }

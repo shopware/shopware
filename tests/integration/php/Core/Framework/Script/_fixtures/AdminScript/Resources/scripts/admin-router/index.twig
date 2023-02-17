@@ -1,0 +1,4 @@
+{% set listUrl = services.router.generate('router', {'query': 'value'}) %}
+{% do hook.setResponse(services.response.json({
+    'listUrl': listUrl
+})) %}

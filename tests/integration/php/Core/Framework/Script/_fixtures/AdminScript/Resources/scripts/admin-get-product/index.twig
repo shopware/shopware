@@ -1,0 +1,10 @@
+{% set product = services.repository.search(
+    'product', {
+        'ids': [hook.query.productId],
+    }
+).first %}
+{% set response = services.response.json({
+    "product": product,
+    "price": product.price.first
+}) %}
+{% do hook.setResponse(response) %}

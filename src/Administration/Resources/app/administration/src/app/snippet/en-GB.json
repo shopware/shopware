@@ -698,6 +698,7 @@
         "orderCreatedByAdminRule": "Order created by admin",
         "orderTransactionStatusRule": "Payment status",
         "orderStatusRule": "Order status",
+        "orderCustomFieldRule": "Order with custom field",
         "yes": "Yes",
         "no": "No",
         "withTime": "Including timestamp",

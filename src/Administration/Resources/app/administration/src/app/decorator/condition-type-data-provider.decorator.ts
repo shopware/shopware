@@ -594,6 +594,13 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         group: 'flow',
     });
 
+    ruleConditionService.addCondition('orderCustomField', {
+        component: 'sw-condition-order-custom-field',
+        label: 'global.sw-condition.condition.orderCustomFieldRule',
+        scopes: ['flow'],
+        group: 'flow',
+    });
+
     ruleConditionService.addCondition('cartLineItemPropertyValue', {
         component: 'sw-condition-line-item-property',
         label: 'global.sw-condition.condition.lineItemPropertyValueRule',

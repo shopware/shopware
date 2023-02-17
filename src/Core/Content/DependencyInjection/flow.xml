@@ -320,6 +320,10 @@
             <tag name="shopware.rule.definition"/>
         </service>
 
+        <service id="Shopware\Core\Content\Flow\Rule\OrderCustomFieldRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
         <service id="Shopware\Core\Content\Flow\Aggregate\FlowTemplate\FlowTemplateDefinition">
             <tag name="shopware.entity.definition" />
         </service>

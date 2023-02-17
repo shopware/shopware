@@ -17,7 +17,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -55,16 +54,6 @@ class MediaSerializer extends EntitySerializer implements EventSubscriberInterfa
         $this->fileSaver = $fileSaver;
         $this->mediaFolderRepository = $mediaFolderRepository;
         $this->mediaRepository = $mediaRepository;
-    }
-
-    /**
-     * @param array<mixed>|Struct|null $entity
-     *
-     * @return \Generator
-     */
-    public function serialize(Config $config, EntityDefinition $definition, $entity): iterable
-    {
-        yield from parent::serialize($config, $definition, $entity);
     }
 
     /**

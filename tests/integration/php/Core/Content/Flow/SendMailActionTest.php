@@ -35,6 +35,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
@@ -205,7 +206,7 @@ class SendMailActionTest extends TestCase
     /**
      * @return iterable<string, mixed>
      */
-    public function sendMailProvider(): iterable
+    public static function sendMailProvider(): iterable
     {
         yield 'Test send mail default' => [['type' => 'customer']];
         yield 'Test send mail admin' => [['type' => 'admin']];
@@ -219,7 +220,7 @@ class SendMailActionTest extends TestCase
         yield 'Test send mail with attachments from order setting' => [['type' => 'customer'], [], true];
         yield 'Test send mail with attachments from order setting and flow setting ' => [
             ['type' => 'customer'],
-            [$this->getDocIdByType(DeliveryNoteRenderer::TYPE)],
+            [self::getDocIdByType(DeliveryNoteRenderer::TYPE)],
             true,
         ];
     }
@@ -581,9 +582,6 @@ class SendMailActionTest extends TestCase
         yield 'Test enable mail template updates' => [true];
     }
 
-    /**
-     * @group quarantined
-     */
     public function testTranslatorInjectionInMail(): void
     {
         $criteria = new Criteria();
@@ -613,10 +611,6 @@ class SendMailActionTest extends TestCase
 
         $event = new ContactFormEvent($context, TestDefaults::SALES_CHANNEL, new MailRecipientStruct(['test@example.com' => 'Shopware ag']), new DataBag());
         $translator = $this->getContainer()->get(Translator::class);
-
-        if ($translator->getSnippetSetId()) {
-            $translator->resetInjection();
-        }
 
         $mailService = new TestEmailService();
         $subscriber = new SendMailAction(
@@ -764,9 +758,9 @@ class SendMailActionTest extends TestCase
         return $document->getId();
     }
 
-    private function getDocIdByType(string $documentType): ?string
+    private static function getDocIdByType(string $documentType): ?string
     {
-        $document = $this->getContainer()->get(Connection::class)->fetchFirstColumn(
+        $document = KernelLifecycleManager::getConnection()->fetchFirstColumn(
             'SELECT LOWER(HEX(`id`)) FROM `document_type` WHERE `technical_name` = :documentType',
             [
                 'documentType' => $documentType,

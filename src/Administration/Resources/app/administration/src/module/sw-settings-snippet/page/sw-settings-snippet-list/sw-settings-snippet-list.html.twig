@@ -263,29 +263,27 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_snippet_list_delete_modal_footer %}
                         <template #modal-footer>
-                            <div class="sw-settings-snippet-list__delete-modal-footer">
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                                {% block sw_settings_snippet_list_delete_modal_cancel %}
-                                <sw-button
-                                    size="small"
-                                    @click="onCloseDeleteModal"
-                                >
-                                    {{ $tc('sw-settings-snippet.list.buttonCancel', item.isCustomSnippet) }}
-                                </sw-button>
-                                {% endblock %}
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_settings_snippet_list_delete_modal_cancel %}
+                            <sw-button
+                                size="small"
+                                @click="onCloseDeleteModal"
+                            >
+                                {{ $tc('sw-settings-snippet.list.buttonCancel', item.isCustomSnippet) }}
+                            </sw-button>
+                            {% endblock %}
 
-                                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                                {% block sw_settings_snippet_list_delete_modal_confirm %}
-                                <sw-button
-                                    :disabled="hasResetableItems && !item.isCustomSnippet && resetItems.length !== 1"
-                                    variant="danger"
-                                    size="small"
-                                    @click="onConfirmReset(item)"
-                                >
-                                    {{ $tc('sw-settings-snippet.list.contextMenuDelete', item.isCustomSnippet) }}
-                                </sw-button>
-                                {% endblock %}
-                            </div>
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_settings_snippet_list_delete_modal_confirm %}
+                            <sw-button
+                                :disabled="hasResetableItems && !item.isCustomSnippet && resetItems.length !== 1"
+                                variant="danger"
+                                size="small"
+                                @click="onConfirmReset(item)"
+                            >
+                                {{ $tc('sw-settings-snippet.list.contextMenuDelete', item.isCustomSnippet) }}
+                            </sw-button>
+                            {% endblock %}
                         </template>
                         {% endblock %}
                     </sw-modal>

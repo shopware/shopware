@@ -16,42 +16,25 @@
         class="sw-customer-base-info-columns"
     >
         <template v-if="isBusinessAccountType && !customerEditMode">
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_customer_base_metadata_company %}
-                <sw-description-list>
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_customer_base_metadata_company_label %}
-                        <dt class="sw-customer-base-info__label">
-                            {{ $tc('sw-customer.baseInfo.labelCompany') }}
-                        </dt>
-                    {% endblock %}
+            <sw-description-list>
+                <dt class="sw-customer-base-info__label">
+                    {{ $tc('sw-customer.baseInfo.labelCompany') }}
+                </dt>
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_customer_base_metadata_company_content %}
-                        <dd>
-                            {{ customer.company }}
-                        </dd>
-                    {% endblock %}
-                </sw-description-list>
-            {% endblock %}
+                <dd>
+                    {{ customer.company }}
+                </dd>
+            </sw-description-list>
 
-            {% block sw_customer_base_metadata_vat_id %}
-                <sw-description-list>
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_customer_base_metadata_vat_id_label %}
-                        <dt class="sw-customer-base-info__label">
-                            {{ $tc('sw-customer.baseInfo.labelVatId') }}
-                        </dt>
-                    {% endblock %}
+            <sw-description-list>
+                <dt class="sw-customer-base-info__label">
+                    {{ $tc('sw-customer.baseInfo.labelVatId') }}
+                </dt>
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_customer_base_metadata_vat_id_content %}
-                        <dd>
-                            {{ customer.vatIds[0] }}
-                        </dd>
-                    {% endblock %}
-                </sw-description-list>
-            {% endblock %}
+                <dd>
+                    {{ customer.vatIds[0] }}
+                </dd>
+            </sw-description-list>
         </template>
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

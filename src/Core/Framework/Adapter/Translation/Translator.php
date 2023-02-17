@@ -210,7 +210,11 @@ class Translator extends AbstractTranslator
 
     public function resetInjection(): void
     {
-        \assert($this->localeBeforeInject !== null);
+        if ($this->localeBeforeInject === null) {
+            // Nothing was injected, so no need to reset
+            return;
+        }
+
         $this->setLocale($this->localeBeforeInject);
         $this->snippetSetId = null;
         $this->salesChannelId = null;

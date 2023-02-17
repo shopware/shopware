@@ -16667,11 +16667,6 @@ parameters:
 			path: tests/integration/php/Core/Checkout/Document/Renderer/InvoiceRendererTest.php
 
 		-
-			message: "#^DataProvider method sendMailProvider should be static\\.$#"
-			count: 1
-			path: tests/integration/php/Core/Content/Flow/SendMailActionTest.php
-
-		-
 			message: "#^Method Shopware\\\\Tests\\\\Integration\\\\Core\\\\Content\\\\Product\\\\DataAbstractionLayer\\\\ProductCategoryDenormalizerTest\\:\\:getProductCategoryList\\(\\) should return list\\<string\\>\\|null but returns array\\<string\\>\\|null\\.$#"
 			count: 1
 			path: tests/integration/php/Core/Content/Product/DataAbstractionLayer/ProductCategoryDenormalizerTest.php

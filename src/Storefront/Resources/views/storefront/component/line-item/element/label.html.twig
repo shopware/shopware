@@ -2,7 +2,7 @@
     {% set label = lineItem.label|trans|sw_sanitize %}
     {% set label = label !== '' ? label : lineItem.label %}
 
-    {# @deprecated productLink variable will be removed without replacement, directly set lineItemLink and lineItemModalLink #}
+    {# @deprecated tag:v6.6.0 - Boolean variable productLink will be removed, use lineItemLink and lineItemModalLink instead and pass the desired url as string. Remove this if block. #}
     {% if productLink and not lineItemLink %}
         {% set lineItemLink = seoUrl('frontend.detail.page', { 'productId': lineItem.referencedId }) %}
 

@@ -34,7 +34,6 @@ class BundleHierarchyBuilderTest extends TestCase
                 'templateLoadPriority' => 2,
                 'integration' => [
                     'label' => 'test',
-                    'writeAccess' => false,
                     'accessKey' => 'test',
                     'secretAccessKey' => 'test',
                 ],
@@ -75,7 +74,6 @@ class BundleHierarchyBuilderTest extends TestCase
                 'accessToken' => 'test',
                 'integration' => [
                     'label' => 'test',
-                    'writeAccess' => false,
                     'accessKey' => 'test',
                     'secretAccessKey' => 'test',
                 ],
@@ -112,7 +110,6 @@ class BundleHierarchyBuilderTest extends TestCase
                 'accessToken' => 'test',
                 'integration' => [
                     'label' => 'test',
-                    'writeAccess' => false,
                     'accessKey' => 'test',
                     'secretAccessKey' => 'test',
                 ],
@@ -148,7 +145,6 @@ class BundleHierarchyBuilderTest extends TestCase
                 'accessToken' => 'test',
                 'integration' => [
                     'label' => 'test',
-                    'writeAccess' => false,
                     'accessKey' => 'test',
                     'secretAccessKey' => 'test',
                 ],

@@ -12687,56 +12687,6 @@ parameters:
 			path: src/Core/Framework/Test/Plugin/_fixture/plugins/SwagTestWithBundle/src/SwagTestWithBundle.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Routing\\\\ApiRequestContextResolverTest\\:\\:addRoleToIntegration\\(\\) has parameter \\$privileges with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Routing/ApiRequestContextResolverTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Routing\\\\ApiRequestContextResolverTest\\:\\:createUser\\(\\) has parameter \\$roles with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Routing/ApiRequestContextResolverTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Routing\\\\ApiRequestContextResolverTest\\:\\:testResolveAdminSourceByOAuthUserId\\(\\) has parameter \\$expected with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Routing/ApiRequestContextResolverTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Routing\\\\ApiRequestContextResolverTest\\:\\:testResolveAdminSourceByOAuthUserId\\(\\) has parameter \\$roles with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Routing/ApiRequestContextResolverTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Routing\\\\ApiRequestContextResolverTest\\:\\:testResolveContextByClientId\\(\\) has parameter \\$expected with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Routing/ApiRequestContextResolverTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Routing\\\\ApiRequestContextResolverTest\\:\\:testResolveContextByClientId\\(\\) has parameter \\$roles with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Routing/ApiRequestContextResolverTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Routing\\\\ApiRequestContextResolverTest\\:\\:userRoleProvider\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Routing/ApiRequestContextResolverTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 6
-			path: src/Core/Framework/Test/Routing/ApiRequestContextResolverTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$userId of method Shopware\\\\Core\\\\Framework\\\\Test\\\\Routing\\\\ApiRequestContextResolverTest\\:\\:createAccessKey\\(\\) expects string, string\\|null given\\.$#"
-			count: 3
-			path: src/Core/Framework/Test/Routing/ApiRequestContextResolverTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$uuid of static method Shopware\\\\Core\\\\Framework\\\\Uuid\\\\Uuid\\:\\:fromHexToBytes\\(\\) expects string, string\\|null given\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/Routing/ApiRequestContextResolverTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Routing\\\\ApiRouteScopeTest\\:\\:provideAllowedData\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Routing/ApiRouteScopeTest.php
@@ -13115,21 +13065,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\TestCaseHelper\\\\ExtensionHelper\\:\\:removeExtensions\\(\\) has parameter \\$object with no type specified\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/TestCaseHelper/ExtensionHelper.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\TestCaseHelper\\\\TestUser\\:\\:buildRole\\(\\) has parameter \\$permissions with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/TestCaseHelper/TestUser.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\TestCaseHelper\\\\TestUser\\:\\:createNewTestUser\\(\\) has parameter \\$permissions with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/TestCaseHelper/TestUser.php
-
-		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/TestCaseHelper/TestUser.php
 
 		-
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\TestSessionStorage\\:\\:\\$data type has no value type specified in iterable type array\\.$#"
@@ -15170,16 +15105,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\System\\\\Test\\\\SystemConfig\\\\ConfigurationServiceInFlagTest\\:\\:\\$fixtureFlags type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/Test/SystemConfig/ConfigurationServiceInFlagTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\SystemConfig\\\\ConfigurationServiceTest\\:\\:getConfigWithoutValues\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Test/SystemConfig/ConfigurationServiceTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\SystemConfig\\\\MockedConfigurationsService\\:\\:getConfiguration\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Test/SystemConfig/ConfigurationServiceTest.php
 
 		-
 			message: "#^DataProvider method getWithoutAppCases should be static\\.$#"

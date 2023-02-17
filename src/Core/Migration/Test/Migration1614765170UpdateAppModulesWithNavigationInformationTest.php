@@ -188,7 +188,6 @@ class Migration1614765170UpdateAppModulesWithNavigationInformationTest extends T
                 'version' => '1.0.0',
                 'integration' => [
                     'label' => 'App1',
-                    'writeAccess' => false,
                     'accessKey' => 'test',
                     'secretAccessKey' => 'test',
                 ],

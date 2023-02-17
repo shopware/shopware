@@ -222,7 +222,6 @@ trait AdminApiTestBehaviour
         try {
             $connection->insert('integration', [
                 'id' => $id,
-                'write_access' => true,
                 'access_key' => $accessKey,
                 'secret_access_key' => password_hash($secretAccessKey, \PASSWORD_BCRYPT),
                 'label' => 'test integration',

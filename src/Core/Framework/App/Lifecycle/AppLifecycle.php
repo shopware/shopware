@@ -299,7 +299,6 @@ class AppLifecycle extends AbstractAppLifecycle
 
         $metadata['integration'] = [
             'label' => $manifest->getMetadata()->getName(),
-            'writeAccess' => true,
             'accessKey' => AccessKeyHelper::generateAccessKey('integration'),
             'secretAccessKey' => $secret,
             'admin' => false,

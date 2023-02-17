@@ -41,6 +41,9 @@ class ApiRequestContextResolverTest extends TestCase
 
     /**
      * @dataProvider userRoleProvider
+     *
+     * @param array<string, bool> $expected
+     * @param array<string, list<string>> $roles
      */
     public function testResolveAdminSourceByOAuthUserId(array $expected, array $roles, bool $isAdmin = false): void
     {
@@ -72,6 +75,9 @@ class ApiRequestContextResolverTest extends TestCase
 
     /**
      * @dataProvider userRoleProvider
+     *
+     * @param array<string, bool> $expected
+     * @param array<string, list<string>> $roles
      */
     public function testResolveContextByClientId(array $expected, array $roles, bool $isAdmin = false): void
     {
@@ -142,7 +148,10 @@ class ApiRequestContextResolverTest extends TestCase
         static::assertTrue($context->hasState(Context::SKIP_TRIGGER_FLOW));
     }
 
-    public static function userRoleProvider()
+    /**
+     * @return list<array{0: array<string, bool>, 1: array<string, list<string>>, 2: bool}>
+     */
+    public static function userRoleProvider(): array
     {
         return [
             [
@@ -203,7 +212,7 @@ class ApiRequestContextResolverTest extends TestCase
         $browser->request('POST', '/api/search/currency', [
             'limit' => 2,
         ]);
-        $response = json_decode($browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals(200, $browser->getResponse()->getStatusCode());
         static::assertArrayHasKey('data', $response);
@@ -217,7 +226,6 @@ class ApiRequestContextResolverTest extends TestCase
 
         $connection->insert('integration', [
             'id' => Uuid::fromHexToBytes($ids->get('integration')),
-            'write_access' => true,
             'access_key' => 'foo',
             'secret_access_key' => password_hash('bar', \PASSWORD_BCRYPT),
             'label' => 'test integration',
@@ -257,7 +265,7 @@ class ApiRequestContextResolverTest extends TestCase
         $browser->request('POST', '/api/search/currency', [
             'limit' => 2,
         ]);
-        $response = json_decode($browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals(Response::HTTP_FORBIDDEN, $browser->getResponse()->getStatusCode(), \json_encode($response, \JSON_THROW_ON_ERROR));
         static::assertArrayHasKey('errors', $response);
@@ -271,7 +279,6 @@ class ApiRequestContextResolverTest extends TestCase
 
         $connection->insert('integration', [
             'id' => Uuid::fromHexToBytes($ids->get('integration')),
-            'write_access' => true,
             'access_key' => 'foo',
             'secret_access_key' => password_hash('bar', \PASSWORD_BCRYPT),
             'label' => 'test integration',
@@ -324,7 +331,7 @@ class ApiRequestContextResolverTest extends TestCase
         $browser->request('POST', '/api/search/currency', [
             'limit' => 2,
         ]);
-        $response = json_decode($browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals(Response::HTTP_FORBIDDEN, $browser->getResponse()->getStatusCode(), \json_encode($response, \JSON_THROW_ON_ERROR));
         static::assertArrayHasKey('errors', $response);
@@ -348,7 +355,6 @@ class ApiRequestContextResolverTest extends TestCase
 
         $connection->insert('integration', [
             'id' => Uuid::fromHexToBytes($ids->get('integration')),
-            'write_access' => true,
             'access_key' => 'foo',
             'secret_access_key' => password_hash('bar', \PASSWORD_BCRYPT),
             'label' => 'test integration',
@@ -389,7 +395,7 @@ class ApiRequestContextResolverTest extends TestCase
         $browser->request('POST', '/api/search/currency', [
             'limit' => 2,
         ]);
-        $response = json_decode($browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR, $browser->getResponse()->getStatusCode(), \json_encode($response, \JSON_THROW_ON_ERROR));
         static::assertArrayHasKey('errors', $response);
@@ -417,7 +423,7 @@ class ApiRequestContextResolverTest extends TestCase
 
         static::assertEquals(403, $browser->getResponse()->getStatusCode());
 
-        $response = json_decode($browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
         $errors = $response['errors'];
@@ -438,12 +444,15 @@ class ApiRequestContextResolverTest extends TestCase
         $browser->request('POST', '/api/search/currency', [
             'limit' => 2,
         ]);
-        $response = json_decode($browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals(200, $browser->getResponse()->getStatusCode());
         static::assertArrayHasKey('data', $response);
     }
 
+    /**
+     * @param array<string, list<string>> $roles
+     */
     private function createUser(array $roles, bool $isAdmin): TestUser
     {
         $user = TestUser::createNewTestUser($this->connection);
@@ -478,7 +487,6 @@ class ApiRequestContextResolverTest extends TestCase
 
         $data = [
             'userId' => $userId,
-            'writeAccess' => true,
             'accessKey' => $key,
             'secretAccessKey' => AccessKeyHelper::generateSecretAccessKey(),
         ];
@@ -489,6 +497,9 @@ class ApiRequestContextResolverTest extends TestCase
         return $key;
     }
 
+    /**
+     * @param list<string> $privileges
+     */
     private function addRoleToIntegration(string $integrationId, array $privileges): void
     {
         $id = Uuid::randomHex();

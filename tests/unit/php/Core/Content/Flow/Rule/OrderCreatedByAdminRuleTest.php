@@ -83,7 +83,7 @@ class OrderCreatedByAdminRuleTest extends TestCase
         static::assertEquals($match, $isMatching);
     }
 
-    public function getCaseTestMatchValues(): \Generator
+    public static function getCaseTestMatchValues(): \Generator
     {
         yield 'Condition is not created by admin => Not match because order created by admin' => [
             new OrderCreatedByAdminRule(false),

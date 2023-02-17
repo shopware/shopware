@@ -90,7 +90,7 @@ class OrderStatusRuleTest extends TestCase
     /**
      * @return array<string, array{boolean, string, list<string>, string}>
      */
-    public function getMatchingValues(): array
+    public static function getMatchingValues(): array
     {
         $id = Uuid::randomHex();
 

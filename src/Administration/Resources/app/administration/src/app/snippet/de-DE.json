@@ -864,6 +864,27 @@
         "weight": "kg",
         "volume": "mm³",
         "age": "Jahre"
+      },
+      "orderCreatedByAdmin": {
+        "shouldOrderBeCreatedByAdmin": {
+          "placeholder": "Condition auswählen ..."
+        }
+      },
+      "orderTransactionStatus": {
+        "stateIds": {
+          "placeholder": "State auswählen ..."
+        },
+        "operator": {
+          "placeholder": "Operator auswählen ..."
+        }
+      },
+      "orderStatus": {
+        "stateIds": {
+          "placeholder": "State auswählen ..."
+        },
+        "operator": {
+          "placeholder": "Operator auswählen ..."
+        }
       }
     },
     "sw-product-image": {

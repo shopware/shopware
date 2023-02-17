@@ -64,9 +64,9 @@ class FloatComparatorTest extends TestCase
     /**
      * @return array{0: float, 1: float, 2: bool}[]
      */
-    public function notEqualsDataProvider(): array
+    public static function notEqualsDataProvider(): array
     {
-        $equalsData = $this->equalsDataProvider();
+        $equalsData = self::equalsDataProvider();
 
         return \array_map(
             fn ($testData) => [$testData[0], $testData[1], !$testData[2]],

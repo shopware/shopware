@@ -64,7 +64,7 @@ class OrderSerializerTest extends TestCase
     /**
      * @return iterable<string, array{entity: Struct|array<mixed>|null, expected: array<string, mixed>}>
      */
-    public function serializeDataProvider(): iterable
+    public static function serializeDataProvider(): iterable
     {
         yield 'without entity' => [
             'entity' => null,
@@ -81,40 +81,40 @@ class OrderSerializerTest extends TestCase
         ];
 
         yield 'with entity' => [
-            'entity' => $this->createOrderEntity(),
-            'expected' => $this->getExpected(),
+            'entity' => self::createOrderEntity(),
+            'expected' => self::getExpected(),
         ];
 
         yield 'with order empty line items' => [
-            'entity' => $this->createOrderEntity([
+            'entity' => self::createOrderEntity([
                 'lineItems' => new OrderLineItemCollection(),
             ]),
-            'expected' => $this->getExpected(),
+            'expected' => self::getExpected(),
         ];
 
         yield 'with order line items' => [
-            'entity' => $this->createOrderEntity([
-                'lineItems' => $this->createLineItems(),
+            'entity' => self::createOrderEntity([
+                'lineItems' => self::createLineItems(),
             ]),
-            'expected' => $this->getExpected([
+            'expected' => self::getExpected([
                 'lineItems' => '3x |2x ',
             ]),
         ];
 
         yield 'with order empty deliveries' => [
-            'entity' => $this->createOrderEntity([
+            'entity' => self::createOrderEntity([
                 'deliveries' => [],
             ]),
-            'expected' => $this->getExpected([
+            'expected' => self::getExpected([
                 'deliveries' => [],
             ]),
         ];
 
         yield 'with order deliveries' => [
-            'entity' => $this->createOrderEntity([
-                'deliveries' => $this->createDeliveries(),
+            'entity' => self::createOrderEntity([
+                'deliveries' => self::createDeliveries(),
             ]),
-            'expected' => $this->getExpected([
+            'expected' => self::getExpected([
                 'deliveries' => [
                     'extensions' => [],
                     '_uniqueIdentifier' => 'delivery-1',
@@ -185,11 +185,11 @@ class OrderSerializerTest extends TestCase
         ];
 
         yield 'with order with line items and deliveries' => [
-            'entity' => $this->createOrderEntity([
-                'lineItems' => $this->createLineItems(),
-                'deliveries' => $this->createDeliveries(),
+            'entity' => self::createOrderEntity([
+                'lineItems' => self::createLineItems(),
+                'deliveries' => self::createDeliveries(),
             ]),
-            'expected' => $this->getExpected([
+            'expected' => self::getExpected([
                 'lineItems' => '3x |2x ',
                 'deliveries' => [
                     'extensions' => [],
@@ -264,7 +264,7 @@ class OrderSerializerTest extends TestCase
     /**
      * @param array<string, mixed> $data
      */
-    private function createOrderEntity(array $data = []): OrderEntity
+    private static function createOrderEntity(array $data = []): OrderEntity
     {
         $rawData = [
             'price' => [
@@ -331,7 +331,7 @@ class OrderSerializerTest extends TestCase
         return (new OrderEntity())->assign($data);
     }
 
-    private function createLineItems(): OrderLineItemCollection
+    private static function createLineItems(): OrderLineItemCollection
     {
         $lineItem1 = (new OrderLineItemEntity())->assign([
             '_uniqueIdentifier' => 'line-item-id-1',
@@ -391,7 +391,7 @@ class OrderSerializerTest extends TestCase
      *
      * @return array<string, mixed>
      */
-    private function getExpected(array $overrided = []): array
+    private static function getExpected(array $overrided = []): array
     {
         return array_merge([
             'id' => null,
@@ -487,7 +487,7 @@ class OrderSerializerTest extends TestCase
         ], $overrided);
     }
 
-    private function createDeliveries(): OrderDeliveryCollection
+    private static function createDeliveries(): OrderDeliveryCollection
     {
         $delivery1 = (new OrderDeliveryEntity())->assign([
             '_uniqueIdentifier' => 'delivery-1',

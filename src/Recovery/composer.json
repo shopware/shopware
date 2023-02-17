@@ -38,6 +38,6 @@
         "sort-packages": true
     },
     "require-dev": {
-        "phpunit/phpunit": "~9.5.17"
+        "phpunit/phpunit": "~9.6"
     }
 }

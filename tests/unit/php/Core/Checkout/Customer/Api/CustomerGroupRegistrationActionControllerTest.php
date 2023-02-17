@@ -109,24 +109,24 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
     /**
      * @return array<string, array{int|null, array<CustomerEntity>|null, Request, string|null}>
      */
-    public function getRegistrationValues(): array
+    public static function getRegistrationValues(): array
     {
-        $customer = $this->createCustomer();
-        $customerB = $this->createCustomer();
-        $customerWithoutRequest = $this->createCustomer(false);
+        $customer = self::createCustomer();
+        $customerB = self::createCustomer();
+        $customerWithoutRequest = self::createCustomer(false);
 
         return [
-            'without user' => [null, null, $this->createRequest([Uuid::randomHex()]), 'Cannot find Customers'],
-            'without customer' => [null, null, $this->createRequest([$customer->getId()]),  'Cannot find Customers'],
-            'without customerId' => [null, null, $this->createRequest([]), 'customerId or customerIds parameter are missing'],
-            'without request group' => [null,  [$customerWithoutRequest], $this->createRequest([$customerWithoutRequest->getId()]), 'User ' . $customerWithoutRequest->getId() . ' dont have approval'],
-            'accept/decline' => [204, [$customer], $this->createRequest([$customer->getId()]),  null],
-            'accept/decline silent' => [204,  [$customerWithoutRequest], $this->createRequest([$customerWithoutRequest->getId()], true), null],
-            'in batch' => [204, [$customer, $customerB], $this->createRequest([$customer->getId(), $customerB->getId()]), null],
+            'without user' => [null, null, self::createRequest([Uuid::randomHex()]), 'Cannot find Customers'],
+            'without customer' => [null, null, self::createRequest([$customer->getId()]),  'Cannot find Customers'],
+            'without customerId' => [null, null, self::createRequest([]), 'customerId or customerIds parameter are missing'],
+            'without request group' => [null,  [$customerWithoutRequest], self::createRequest([$customerWithoutRequest->getId()]), 'User ' . $customerWithoutRequest->getId() . ' dont have approval'],
+            'accept/decline' => [204, [$customer], self::createRequest([$customer->getId()]),  null],
+            'accept/decline silent' => [204,  [$customerWithoutRequest], self::createRequest([$customerWithoutRequest->getId()], true), null],
+            'in batch' => [204, [$customer, $customerB], self::createRequest([$customer->getId(), $customerB->getId()]), null],
         ];
     }
 
-    private function createCustomer(bool $requestedGroup = true): CustomerEntity
+    private static function createCustomer(bool $requestedGroup = true): CustomerEntity
     {
         $customer = new CustomerEntity();
         $customer->setId(Uuid::randomHex());
@@ -144,7 +144,7 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
     /**
      * @param string[] $customerId
      */
-    private function createRequest(array $customerId, bool $silentError = false): Request
+    private static function createRequest(array $customerId, bool $silentError = false): Request
     {
         $request = new Request();
         $request->request->add(['customerIds' => $customerId, 'silentError' => $silentError]);

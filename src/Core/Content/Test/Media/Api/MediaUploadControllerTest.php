@@ -18,8 +18,10 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- * @covers \Shopware\Core\Content\Media\Api\MediaUploadController
+ *
  * @group needsWebserver
+ *
+ * @covers \Shopware\Core\Content\Media\Api\MediaUploadController
  */
 class MediaUploadControllerTest extends TestCase
 {
@@ -38,6 +40,8 @@ class MediaUploadControllerTest extends TestCase
 
     private bool $mediaDirCreated = false;
 
+    private ?MediaUploadedEvent $thrownMediaEvent;
+
     protected function setUp(): void
     {
         $this->mediaRepository = $this->getContainer()->get('media.repository');
@@ -45,6 +49,15 @@ class MediaUploadControllerTest extends TestCase
 
         $this->context = Context::createDefaultContext();
         $this->mediaId = $this->getEmptyMedia()->getId();
+        $this->thrownMediaEvent = null;
+
+        $this->addEventListener(
+            $this->getContainer()->get('event_dispatcher'),
+            MediaUploadedEvent::class,
+            function (MediaUploadedEvent $event): void {
+                $this->thrownMediaEvent = $event;
+            }
+        );
 
         $projectDir = $this->getContainer()->getParameter('kernel.project_dir');
         if (!\is_dir($projectDir . '/public/media')) {
@@ -197,6 +210,8 @@ class MediaUploadControllerTest extends TestCase
 
         static::assertEquals(400, $response->getStatusCode());
         static::assertEquals('CONTENT__MEDIA_EMPTY_FILE', $responseData['errors'][0]['code']);
+
+        static::assertNull($this->thrownMediaEvent);
     }
 
     public function testRenameMediaFileHappyPath(): void
@@ -335,5 +350,12 @@ class MediaUploadControllerTest extends TestCase
             $responseData['data']['attributes']['mediaType']['flags'][0],
             print_r($responseData['data']['attributes']['mediaType']['flags'], true)
         );
+        $this->assertMediaEventThrown();
+    }
+
+    private function assertMediaEventThrown(): void
+    {
+        static::assertNotNull($this->thrownMediaEvent);
+        static::assertEquals($this->mediaId, $this->thrownMediaEvent->getMediaId());
     }
 }

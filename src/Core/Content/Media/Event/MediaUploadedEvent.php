@@ -14,14 +14,10 @@ class MediaUploadedEvent extends Event implements MediaUploadedAware
 {
     public const EVENT_NAME = 'media.uploaded';
 
-    private string $mediaId;
-
-    private Context $context;
-
-    public function __construct(string $mediaId, Context $context)
-    {
-        $this->mediaId = $mediaId;
-        $this->context = $context;
+    public function __construct(
+        private readonly string $mediaId,
+        private readonly Context $context
+    ) {
     }
 
     public function getName(): string

@@ -9111,41 +9111,6 @@ parameters:
 			path: src/Core/Content/Test/ProductExport/ProductExportRepositoryTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ProductExport\\\\SalesChannel\\\\ProductExportControllerTest\\:\\:createCsvExport\\(\\) should return Shopware\\\\Core\\\\Content\\\\ProductExport\\\\ProductExportEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ProductExport/SalesChannel/ProductExportControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ProductExport\\\\SalesChannel\\\\ProductExportControllerTest\\:\\:createProducts\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ProductExport/SalesChannel/ProductExportControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ProductExport\\\\SalesChannel\\\\ProductExportControllerTest\\:\\:createXmlExport\\(\\) should return Shopware\\\\Core\\\\Content\\\\ProductExport\\\\ProductExportEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ProductExport/SalesChannel/ProductExportControllerTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$data of function simplexml_load_string expects string, string\\|false given\\.$#"
-			count: 2
-			path: src/Core/Content/Test/ProductExport/SalesChannel/ProductExportControllerTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$str of function explode expects string, string\\|false given\\.$#"
-			count: 2
-			path: src/Core/Content/Test/ProductExport/SalesChannel/ProductExportControllerTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertEquals\\(\\) expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ProductExport/SalesChannel/ProductExportControllerTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ProductExport/SalesChannel/ProductExportControllerTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ProductExport\\\\ScheduledTask\\\\ProductExportGenerateTaskHandlerTest\\:\\:createProducts\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Test/ProductExport/ScheduledTask/ProductExportGenerateTaskHandlerTest.php

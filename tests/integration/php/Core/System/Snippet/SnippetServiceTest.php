@@ -13,7 +13,7 @@ use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\Filter\SnippetFilterFactory;
 use Shopware\Core\System\Snippet\SnippetService;
 use Shopware\Core\System\Test\Snippet\Mock\MockSnippetFile;
-use Symfony\Component\HttpFoundation\RequestStack;
+use Shopware\Storefront\Theme\SalesChannelThemeLoader;
 use Symfony\Component\Translation\MessageCatalogue;
 use Symfony\Component\Translation\MessageCatalogueInterface;
 
@@ -951,18 +951,16 @@ json
             $collection->add($file);
         }
 
-        $snippetService = new SnippetService(
+        return new SnippetService(
             $this->getContainer()->get(Connection::class),
             $collection,
             $this->getContainer()->get('snippet.repository'),
             $this->getContainer()->get('snippet_set.repository'),
             $this->getContainer()->get('sales_channel_domain.repository'),
             $this->getContainer()->get(SnippetFilterFactory::class),
-            $this->getContainer()->get(RequestStack::class),
-            $this->getContainer()
+            $this->getContainer(),
+            $this->getContainer()->has(SalesChannelThemeLoader::class) ? $this->getContainer()->get(SalesChannelThemeLoader::class) : null
         );
-
-        return $snippetService;
     }
 
     /**

@@ -9,6 +9,8 @@ use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchemaValidator;
+use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
+use Shopware\Core\System\Snippet\Files\SnippetFileLoader;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -45,6 +47,12 @@ trait AppSystemTestBehaviour
 
             static::fail('App synchronisation failed: ' . \print_r($errors, true));
         }
+    }
+
+    protected function reloadAppSnippets(): void
+    {
+        $collection = $this->getContainer()->get(SnippetFileCollection::class);
+        $this->getContainer()->get(SnippetFileLoader::class)->loadSnippetFilesIntoCollection($collection);
     }
 
     /**

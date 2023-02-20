@@ -89,5 +89,14 @@ describe('Customer:  Visual test', () => {
         // Take snapshot for visual testing
         cy.prepareAdminForScreenshot();
         cy.takeSnapshot(`${Cypress.env('testDataUsage') ? '[Update]' : '[Install]'} Customer detail`, '.sw-customer-card', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
+
+        cy.openInitialPage(`${Cypress.env('admin')}#/sw/customer/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-data-grid__row--0 > .sw-data-grid__cell--firstName .sw-data-grid__cell-content')
+            .should('contain',`${customer.lastName}, ${customer.firstName}`);
+
+        // Take snapshot for visual testing
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot(`${Cypress.env('testDataUsage') ? '[Update]' : '[Install]'} Customer listing after the customer created`, null, null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
     });
 });

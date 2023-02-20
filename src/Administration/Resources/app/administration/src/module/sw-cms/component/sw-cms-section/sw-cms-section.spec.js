@@ -31,6 +31,11 @@ async function createWrapper() {
         propsData: {
             page: {},
             section: {
+                visibility: {
+                    mobile: true,
+                    tablet: true,
+                    desktop: true,
+                },
                 type: 'sidebar',
                 blocks: [
                     {

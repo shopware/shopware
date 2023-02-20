@@ -4,27 +4,37 @@
 
 import { shallowMount } from '@vue/test-utils';
 import swCmsBlock from 'src/module/sw-cms/component/sw-cms-block';
-import swCmsVisibilityToggle from 'src/module/sw-cms/component/sw-cms-visibility-toggle';
 
 Shopware.Component.register('sw-cms-block', swCmsBlock);
-Shopware.Component.register('sw-cms-visibility-toggle', swCmsVisibilityToggle);
 
 async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-cms-block'), {
         propsData: {
-            block: {}
+            block: {
+                visibility: {
+                    desktop: true,
+                    tablet: true,
+                    mobile: true,
+                }
+            }
         },
         provide: {
             cmsService: {}
         },
         stubs: {
             'sw-icon': true,
-            'sw-cms-visibility-toggle': await Shopware.Component.build('sw-cms-visibility-toggle'),
+            'sw-cms-visibility-toggle': {
+                template: '<div class="sw-cms-visibility-toggle-wrapper"></div>'
+            },
         }
     });
 }
 describe('module/sw-cms/component/sw-cms-block', () => {
-    beforeAll(() => {
+    beforeEach(() => {
+        if (Shopware.State.get('cmsPageState')) {
+            Shopware.State.unregisterModule('cmsPageState');
+        }
+
         Shopware.State.registerModule('cmsPageState', {
             namespaced: true,
             state: {
@@ -42,9 +52,7 @@ describe('module/sw-cms/component/sw-cms-block', () => {
     it('the overlay should exist and be visible', async () => {
         const wrapper = await createWrapper();
 
-        const overlay = wrapper.find('.sw-cms-block__config-overlay');
-        expect(overlay.exists()).toBeTruthy();
-        expect(overlay.isVisible()).toBeTruthy();
+        expect(wrapper.get('.sw-cms-block__config-overlay').isVisible()).toBeTruthy();
     });
 
     it('the overlay should not exist', async () => {
@@ -53,8 +61,7 @@ describe('module/sw-cms/component/sw-cms-block', () => {
             disabled: true
         });
 
-        const overlay = wrapper.find('.sw-cms-block__config-overlay');
-        expect(overlay.exists()).toBeFalsy();
+        expect(wrapper.find('.sw-cms-block__config-overlay').exists()).toBeFalsy();
     });
 
     it('the visibility toggle wrapper should exist and be visible', async () => {
@@ -86,20 +93,15 @@ describe('module/sw-cms/component/sw-cms-block', () => {
             }
         });
 
-        expect(wrapper.find('.sw-cms-visibility-toggle-wrapper').classes()).not.toContain('is--expanded');
-        await wrapper.find('.sw-cms-visibility-toggle__button').trigger('click');
-        expect(wrapper.find('.sw-cms-visibility-toggle-wrapper').classes()).toContain('is--expanded');
+        expect(wrapper.get('.sw-cms-visibility-toggle-wrapper').classes()).not.toContain('is--expanded');
+        wrapper.get('.sw-cms-visibility-toggle-wrapper').vm.$emit('toggle');
+        await wrapper.vm.$nextTick();
+        expect(wrapper.get('.sw-cms-visibility-toggle-wrapper').classes()).toContain('is--expanded');
     });
 
     it('the visibility toggle wrapper should not exist', async () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.find('.sw-cms-visibility-toggle-wrapper').exists()).toBeFalsy();
-    });
-
-    it('the `visibility` property should not be empty', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.props().block.visibility).toStrictEqual({ desktop: true, mobile: true, tablet: true });
     });
 });

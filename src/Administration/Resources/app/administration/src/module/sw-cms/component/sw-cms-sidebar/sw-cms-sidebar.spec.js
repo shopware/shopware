@@ -54,8 +54,26 @@ async function createWrapper({ cmsBlockRegistry } = { cmsBlockRegistry: null }) 
         state: {
             isSystemDefaultLanguage: true,
             currentPageType: 'product_list',
-            selectedBlock: {},
-            selectedSection: {}
+            selectedBlock: {
+                id: '1a2b',
+                sectionPosition: 'main',
+                type: 'foo-bar',
+                slots: [],
+                visibility: {
+                    desktop: true,
+                    tablet: true,
+                    mobile: true
+                }
+            },
+            selectedSection: {
+                id: '1111',
+                blocks: [],
+                visibility: {
+                    desktop: true,
+                    tablet: true,
+                    mobile: true
+                }
+            }
         }
     });
 
@@ -115,7 +133,9 @@ async function createWrapper({ cmsBlockRegistry } = { cmsBlockRegistry: null }) 
                 template: '<div class="sw-sidebar-item"><slot #default /></div>',
                 props: ['disabled'],
             },
-            'sw-sidebar-collapse': await Shopware.Component.build('sw-sidebar-collapse'),
+            'sw-sidebar-collapse': {
+                template: '<div class="sw-sidebar-collapse"><slot name="header" /><slot name="content" /></div>',
+            },
             'sw-text-field': true,
             'sw-select-field': true,
             'sw-cms-block-config': true,
@@ -127,9 +147,11 @@ async function createWrapper({ cmsBlockRegistry } = { cmsBlockRegistry: null }) 
             'sw-entity-single-select': true,
             'sw-modal': true,
             'sw-checkbox-field': true,
-            'sw-collapse': await Shopware.Component.build('sw-collapse'),
             'sw-icon': true,
-            'sw-cms-visibility-config': true
+            'sw-cms-visibility-config': {
+                template: '<div class="sw-cms-visibility-config"></div>',
+                props: ['visibility']
+            }
         },
         provide: {
             repositoryFactory: {
@@ -440,6 +462,34 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
         expect(wrapper.vm.cmsBlocksBySelectedBlockCategory.map(block => block.name)).toStrictEqual(['product_list_block']);
     });
 
+    it('should allow editing of the visibility setting of blocks', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.get('.sw-cms-sidebar__visibility-config-block').props('visibility')).toStrictEqual({ desktop: true, mobile: true, tablet: true });
+        wrapper.get('.sw-cms-sidebar__visibility-config-block').vm.$emit('visibility-change', 'desktop', false);
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.selectedBlock.visibility).toStrictEqual({
+            desktop: false,
+            tablet: true,
+            mobile: true
+        });
+    });
+
+    it('should allow editing of the visibility setting of sections', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.get('.sw-cms-sidebar__visibility-config-section').props('visibility')).toStrictEqual({ desktop: true, mobile: true, tablet: true });
+        wrapper.get('.sw-cms-sidebar__visibility-config-section').vm.$emit('visibility-change', 'desktop', false);
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.selectedSection.visibility).toStrictEqual({
+            desktop: false,
+            tablet: true,
+            mobile: true
+        });
+    });
+
     it('should apply default data when dropping new elements', async () => {
         const wrapper = await createWrapper();
 
@@ -511,10 +561,15 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
                             value: 'preview_mountain_large.jpg',
                             source: 'default'
                         }
-                    }
+                    },
                 }
             ],
             type: 'image',
+            visibility: {
+                desktop: true,
+                tablet: true,
+                mobile: true
+            },
             position: 0,
             sectionPosition: 'main',
             marginBottom: '20px',

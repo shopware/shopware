@@ -143,14 +143,6 @@ export default {
             if (!this.block.backgroundMediaMode) {
                 this.block.backgroundMediaMode = 'cover';
             }
-
-            if (!this.block.visibility) {
-                this.block.visibility = {
-                    mobile: true,
-                    tablet: true,
-                    desktop: true,
-                };
-            }
         },
 
         onBlockOverlayClick() {

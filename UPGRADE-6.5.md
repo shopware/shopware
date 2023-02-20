@@ -147,9 +147,13 @@ public function myRoute(): Response
 ## Only mapped properties encoded
 The `\Shopware\Core\System\SalesChannel\Api\StructEncoder` now only encodes entity properties which are mapped in the entity definition.  If you have custom code which relies on the encoder to encode properties which aren't mapped in the entity definition, you need to adjust your code to map these properties in the entity definition.
 
-## `@internal` entity repositories
+## `EntityRepositoryInterface` removal
 
-We removed the `EntityRepositoryInterface` & `SalesChannelRepositoryInterface` classes and declared the `EntityRepository` & `SalesChannelRepository` as final. Therefor if you implemented an own repository class for your entities, you have to remove this now. To modify the repository calls you can use one of the following events:
+All type hints from EntityRepositoryInterface should be changed to EntityRepository, you can use [rector](https://github.com/FriendsOfShopware/shopware-rector) for that.
+
+We removed the `EntityRepositoryInterface` & `SalesChannelRepositoryInterface` classes and declared the `EntityRepository` & `SalesChannelRepository` as final.
+Therefore, if you implemented an own repository class for your entities, you have to remove this now.
+To modify the repository calls, you can use one of the following events:
 * `BeforeDeleteEvent`: Allows an access point for before and after deleting the entity
 * `EntitySearchedEvent`: Allows access points to the criteria for search and search-ids
 * `PreWriteValidationEvent`/`PostWriteValidationEvent`: Allows access points before and after the entity written
@@ -170,7 +174,7 @@ you have to change your type hints to `EntityRepository`:
 
 ## Removed unused entity fields
 
-Following entity properties/methods has been removed:
+Following, entity properties/methods have been removed:
 
 - `product.blacklistIds`
 - `product.whitelistIds`

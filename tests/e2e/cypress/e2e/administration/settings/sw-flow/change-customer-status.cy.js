@@ -77,6 +77,8 @@ describe('Flow builder: change customer status testing', () => {
 
         cy.get('.sw-loader').should('not.exist');
 
-        cy.get('.sw-description-list dd').should('be.visible').eq(4).contains('Inactive');
+        cy.get('.sw-description-list dt').contains('Account status')
+            .siblings('dd')
+            .contains('Inactive');
     });
 });

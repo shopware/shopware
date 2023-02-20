@@ -4,6 +4,13 @@
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
+    <parameters>
+        <parameter key="customer.account_types" type="collection">
+            <parameter type="constant">Shopware\Core\Checkout\Customer\CustomerEntity::ACCOUNT_TYPE_BUSINESS</parameter>
+            <parameter type="constant">Shopware\Core\Checkout\Customer\CustomerEntity::ACCOUNT_TYPE_PRIVATE</parameter>
+        </parameter>
+    </parameters>
+
     <services>
         <service id="Shopware\Core\Checkout\Customer\CustomerDefinition">
             <tag name="shopware.entity.definition"/>
@@ -48,6 +55,7 @@
         <service id="Shopware\Core\Checkout\Customer\Validation\CustomerProfileValidationFactory">
             <argument type="service" id="Shopware\Core\System\Salutation\SalutationDefinition"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument>%customer.account_types%</argument>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\Validation\CustomerValidationFactory">

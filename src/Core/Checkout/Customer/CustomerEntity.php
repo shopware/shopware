@@ -88,6 +88,8 @@ class CustomerEntity extends Entity implements \Stringable
 
     protected ?\DateTimeInterface $lastLogin = null;
 
+    protected string $accountType;
+
     /**
      * @var array<string>|null
      *
@@ -814,6 +816,16 @@ class CustomerEntity extends Entity implements \Stringable
     public function setBoundSalesChannel(SalesChannelEntity $boundSalesChannel): void
     {
         $this->boundSalesChannel = $boundSalesChannel;
+    }
+
+    public function setAccountType(string $accountType): void
+    {
+        $this->accountType = $accountType;
+    }
+
+    public function getAccountType(): string
+    {
+        return $this->accountType;
     }
 
     public function getWishlists(): ?CustomerWishlistCollection

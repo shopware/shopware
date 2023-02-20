@@ -82,6 +82,8 @@ describe('Flow builder: change customer group testing', () => {
 
         cy.get('.sw-loader').should('not.exist');
 
-        cy.get('.sw-description-list dd').should('be.visible').eq(2).contains('Net customergroup');
+        cy.get('.sw-description-list dt').contains('Customer group')
+            .siblings('dd')
+            .contains('Net customergroup');
     });
 });

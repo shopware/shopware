@@ -1078,6 +1078,7 @@
     "customer.lastPaymentMethod",
     "customer.defaultBillingAddress",
     "customer.defaultShippingAddress",
+    "customer.accountType",
     "customer.salutation",
     "customer.addresses",
     "customer.tagIds",

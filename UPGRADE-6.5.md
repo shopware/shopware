@@ -409,8 +409,16 @@ abstract public function sort(PropertyGroupOptionCollection $groupOptionCollecti
 // after
 abstract public function sort(EntityCollection $options): PropertyGroupCollection;
 ```
+## Removed unused entity fields
 
-# 6.5.0.0
+Following entity properties/methods has been removed:
+
+- `product.blacklistIds`
+- `product.whitelistIds`
+- `seo_url.isValid`
+## Only mapped properties encoded
+The `\Shopware\Core\System\SalesChannel\Api\StructEncoder` now only encodes entity properties which are mapped in the entity definition.  If you have custom code which relies on the encoder to encode properties which are not mapped in the entity definition, you need to adjust your code to map these properties in the entity definition.
+
 ## Introduced in 6.4.18.0
 ## Create new shipping method
 When you create a new shipping method, the default value for the active flag is false, i.e. the method is inactive after saving. 

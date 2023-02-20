@@ -170,7 +170,7 @@ class AuthController extends StorefrontController
 
                 return $this->createActionResponse($request);
             }
-        } catch (BadCredentialsException | UnauthorizedHttpException | CustomerOptinNotCompletedException | CustomerAuthThrottledException | PasswordPoliciesUpdatedException $e) {
+        } catch (BadCredentialsException | UnauthorizedHttpException | CustomerOptinNotCompletedException | CustomerAuthThrottledException $e) {
             if ($e instanceof CustomerOptinNotCompletedException) {
                 $errorSnippet = $e->getSnippetKey();
             }
@@ -178,12 +178,10 @@ class AuthController extends StorefrontController
             if ($e instanceof CustomerAuthThrottledException) {
                 $waitTime = $e->getWaitTime();
             }
+        } catch (PasswordPoliciesUpdatedException $e) {
+            $this->addFlash(self::WARNING, $this->trans('account.passwordPoliciesUpdated'));
 
-            if ($e instanceof PasswordPoliciesUpdatedException) {
-                $this->addFlash(self::WARNING, $this->trans('account.passwordPoliciesUpdated'));
-
-                return $this->forwardToRoute('frontend.account.recover.page');
-            }
+            return $this->forwardToRoute('frontend.account.recover.page');
         }
 
         $data->set('password', null);

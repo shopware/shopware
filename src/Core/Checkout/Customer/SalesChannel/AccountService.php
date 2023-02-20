@@ -11,19 +11,25 @@ use Shopware\Core\Checkout\Customer\Exception\BadCredentialsException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByIdException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerOptinNotCompletedException;
+use Shopware\Core\Checkout\Customer\Exception\PasswordPoliciesUpdatedException;
 use Shopware\Core\Checkout\Customer\Password\LegacyPasswordVerifier;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\SalesChannel\Context\CartRestorer;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
+use Symfony\Component\Messenger\Exception\ValidationFailedException;
+use Symfony\Component\Validator\ConstraintViolation;
+use Symfony\Component\Validator\ConstraintViolationList;
 
 #[Package('customer-order')]
 class AccountService
@@ -242,13 +248,35 @@ class AccountService
 
     private function updatePasswordHash(string $password, CustomerEntity $customer, Context $context): void
     {
-        $this->customerRepository->update([
-            [
-                'id' => $customer->getId(),
-                'password' => $password,
-                'legacyPassword' => null,
-                'legacyEncoder' => null,
-            ],
-        ], $context);
+        try {
+            $this->customerRepository->update([
+                [
+                    'id' => $customer->getId(),
+                    'password' => $password,
+                    'legacyPassword' => null,
+                    'legacyEncoder' => null,
+                ],
+            ], $context);
+        } catch (WriteException $writeException) {
+            $this->handleWriteExceptionForUpdatingPasswordHash($writeException);
+        }
+    }
+
+    private function handleWriteExceptionForUpdatingPasswordHash(WriteException $writeException): void
+    {
+        foreach ($writeException->getExceptions() as $exception) {
+            if (!$exception instanceof WriteConstraintViolationException) {
+                continue;
+            }
+
+            /** @var ConstraintViolation $constraintViolation */
+            foreach ($exception->getViolations() as $constraintViolation) {
+                if ($constraintViolation->getPropertyPath() === '/password') {
+                    throw new PasswordPoliciesUpdatedException();
+                }
+            }
+        }
+
+        throw $writeException;
     }
 }

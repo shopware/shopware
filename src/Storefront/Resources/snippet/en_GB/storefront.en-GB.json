@@ -181,6 +181,7 @@
     "emailChangeNoSuccess": "Email address could not be changed.",
     "passwordChangeSuccess": "Your password has been updated.",
     "passwordChangeNoSuccess": "Password could not be changed.",
+    "passwordPoliciesUpdated": "The password policies has changed. Please request a new one.",
     "passwordHashNotFound": "The password reset link seems to be invalid.",
     "passwordHashExpired": "The password reset link is no longer valid. Please request a new one.",
     "recoveryMailSend": " If the provided email address is registered, a confirmation email including a password reset link has been sent.",

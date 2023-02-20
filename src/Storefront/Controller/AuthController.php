@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByHashException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerOptinNotCompletedException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerRecoveryHashExpiredException;
+use Shopware\Core\Checkout\Customer\Exception\PasswordPoliciesUpdatedException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLoginRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLogoutRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractResetPasswordRoute;
@@ -169,13 +170,19 @@ class AuthController extends StorefrontController
 
                 return $this->createActionResponse($request);
             }
-        } catch (BadCredentialsException | UnauthorizedHttpException | CustomerOptinNotCompletedException | CustomerAuthThrottledException $e) {
+        } catch (BadCredentialsException | UnauthorizedHttpException | CustomerOptinNotCompletedException | CustomerAuthThrottledException | PasswordPoliciesUpdatedException $e) {
             if ($e instanceof CustomerOptinNotCompletedException) {
                 $errorSnippet = $e->getSnippetKey();
             }
 
             if ($e instanceof CustomerAuthThrottledException) {
                 $waitTime = $e->getWaitTime();
+            }
+
+            if ($e instanceof PasswordPoliciesUpdatedException) {
+                $this->addFlash(self::WARNING, $this->trans('account.passwordPoliciesUpdated'));
+
+                return $this->forwardToRoute('frontend.account.recover.page');
             }
         }
 

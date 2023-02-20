@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Test\Media\Api;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\Event\MediaUploadedEvent;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaType\ImageType;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
@@ -12,12 +13,15 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
  *
  * @group needsWebserver
+ *
+ * @covers \Shopware\Core\Content\Media\Api\MediaUploadController
  */
 class MediaUploadControllerTest extends TestCase
 {
@@ -36,6 +40,8 @@ class MediaUploadControllerTest extends TestCase
 
     private bool $mediaDirCreated = false;
 
+    private ?MediaUploadedEvent $thrownMediaEvent;
+
     protected function setUp(): void
     {
         $this->mediaRepository = $this->getContainer()->get('media.repository');
@@ -43,6 +49,15 @@ class MediaUploadControllerTest extends TestCase
 
         $this->context = Context::createDefaultContext();
         $this->mediaId = $this->getEmptyMedia()->getId();
+        $this->thrownMediaEvent = null;
+
+        $this->addEventListener(
+            $this->getContainer()->get('event_dispatcher'),
+            MediaUploadedEvent::class,
+            function (MediaUploadedEvent $event): void {
+                $this->thrownMediaEvent = $event;
+            }
+        );
 
         $projectDir = $this->getContainer()->getParameter('kernel.project_dir');
         if (!\is_dir($projectDir . '/public/media')) {
@@ -91,6 +106,11 @@ class MediaUploadControllerTest extends TestCase
 
     public function testUploadFromBinaryUsesFileName(): void
     {
+        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener->expects(static::once())->method('__invoke');
+        $this->addEventListener($dispatcher, MediaUploadedEvent::class, $listener);
+
         $url = sprintf(
             '/api/_action/media/%s/upload',
             $this->mediaId
@@ -119,6 +139,11 @@ class MediaUploadControllerTest extends TestCase
 
     public function testUploadFromURL(): void
     {
+        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener->expects(static::once())->method('__invoke');
+        $this->addEventListener($dispatcher, MediaUploadedEvent::class, $listener);
+
         $baseUrl = EnvironmentHelper::getVariable('APP_URL') . '/media/shopware-logo.png';
 
         $url = sprintf(
@@ -155,6 +180,11 @@ class MediaUploadControllerTest extends TestCase
 
     public function testRenameMediaFileThrowsExceptionIfFileNameIsNotPresent(): void
     {
+        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener->expects(static::never())->method('__invoke');
+        $this->addEventListener($dispatcher, MediaUploadedEvent::class, $listener);
+
         $context = Context::createDefaultContext();
         $this->setFixtureContext($context);
         $media = $this->getPng();
@@ -180,6 +210,8 @@ class MediaUploadControllerTest extends TestCase
 
         static::assertEquals(400, $response->getStatusCode());
         static::assertEquals('CONTENT__MEDIA_EMPTY_FILE', $responseData['errors'][0]['code']);
+
+        static::assertNull($this->thrownMediaEvent);
     }
 
     public function testRenameMediaFileHappyPath(): void
@@ -318,5 +350,12 @@ class MediaUploadControllerTest extends TestCase
             $responseData['data']['attributes']['mediaType']['flags'][0],
             print_r($responseData['data']['attributes']['mediaType']['flags'], true)
         );
+        $this->assertMediaEventThrown();
+    }
+
+    private function assertMediaEventThrown(): void
+    {
+        static::assertNotNull($this->thrownMediaEvent);
+        static::assertEquals($this->mediaId, $this->thrownMediaEvent->getMediaId());
     }
 }

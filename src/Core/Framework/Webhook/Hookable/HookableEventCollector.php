@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Document\DocumentDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Content\Category\CategoryDefinition;
+use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
@@ -37,6 +38,7 @@ class HookableEventCollector
         OrderDefinition::ENTITY_NAME,
         OrderAddressDefinition::ENTITY_NAME,
         DocumentDefinition::ENTITY_NAME,
+        MediaDefinition::ENTITY_NAME,
     ];
 
     private const PRIVILEGES = 'privileges';

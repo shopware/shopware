@@ -1,9 +1,9 @@
 ---
 title: Storefront watcher with an URI
-issue: NEXT-0000
+issue: NEXT-25435
 author: Max
 author_email: max@swk-web.com
 author_github: @aragon999
 ---
 # Storefront
-* Compatibility to use the storefront watcher with an non empty URI
+* Changed `createProxyServer` in `app/storefront/build/proxy-server-hot/index.js` to ensure compatibility of the storefront watcher with a non-empty URI

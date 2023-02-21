@@ -100,7 +100,7 @@ elasticsearch:
 
 ## DBAL upgrade
 
-We upgraded DBAL from 2.x to 3.x. Please take a look at the [DBAL upgrade information](https://github.com/doctrine/dbal/blob/3.5.x/UPGRADE.md) itself to see if you need to adjust your code.
+We upgraded DBAL from 2.x to 3.x. Please take a look at the [DBAL upgrade information](https://github.com/doctrine/dbal/blob/3.6.0/UPGRADE.md) itself to see if you need to adjust your code.
 
 ## Changed default queue name
 Before 6.5 our default message queue transport name were `default`. We changed this to `async` to ensure that application which are running with the 6.5 aren't handling the message of the 6.4.

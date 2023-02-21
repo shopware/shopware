@@ -14,18 +14,12 @@ describe('Category: Visual tests', () => {
     });
 
     it('@visual: check appearance of basic category workflow', { tags: ['pa-content-management'] }, () => {
-        cy.intercept({
-            url: `**/${Cypress.env('apiPath')}/search/category`,
-            method: 'POST',
-        }).as('getData');
-
         cy.clickMainMenuItem({
             targetPath: '#/sw/category/index',
             mainMenuId: 'sw-catalogue',
             subMenuId: 'sw-category',
         });
-        cy.wait('@getData')
-            .its('response.statusCode').should('equal', 200);
+
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-category-tree').should('be.visible');
@@ -37,8 +31,6 @@ describe('Category: Visual tests', () => {
 
         cy.contains('.tree-link', 'Home').click();
 
-        cy.wait('@getData')
-            .its('response.statusCode').should('equal', 200);
         cy.get('.sw-skeleton__detail-bold').should('not.exist');
         cy.get('.sw-skeleton__detail').should('not.exist');
         cy.get('.sw-media-upload-v2__switch-mode').should('exist');

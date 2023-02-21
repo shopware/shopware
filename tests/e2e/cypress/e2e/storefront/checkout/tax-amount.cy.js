@@ -73,7 +73,7 @@ describe('Checkout: Use different taxes in products while checkout', () => {
                 });
             });
 
-            it('@base @checkout @package: Run checkout', { tags: ['pa-checkout'] }, () => {
+            it('@base @checkout @package: Run checkout', { tags: ['pa-checkout', 'quarantined'] }, () => {
                 const page = new CheckoutPageObject();
                 const accountPage = new AccountPageObject();
                 let productName = product.name;

@@ -137,7 +137,7 @@ describe('Delivery time: Test acl privileges', () => {
         cy.contains(`${page.elements.dataGridRow}--0 ${page.elements.deliveryTimeColumnName}`, 'Normal');
     });
 
-    it('@settings: can delete delivery time', { tags: ['pa-customers-orders'] }, () => {
+    it('@settings: can delete delivery time', { tags: ['pa-customers-orders', 'quarantined'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([

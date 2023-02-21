@@ -99,7 +99,7 @@ describe('Order: Test order state', () => {
         cy.contains('.sw-context-menu-item', 'Download');
     });
 
-    it('@base @order: add document to order with existing invoice number', { tags: ['pa-customers-orders'] }, () => {
+    it('@base @order: add document to order with existing invoice number', { tags: ['pa-customers-orders', 'quarantined'] }, () => {
         const page = new OrderPageObject();
         const createInvoiceUrl = `**/${Cypress.env('apiPath')}/_action/order/document/invoice/create`;
 

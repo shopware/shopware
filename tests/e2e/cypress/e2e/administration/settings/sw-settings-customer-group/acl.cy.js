@@ -154,7 +154,7 @@ describe('Customer groups: Test acl privileges', () => {
         cy.contains(`${page.elements.dataGridRow}--0 ${page.elements.customerGroupColumnName}`, 'VIP');
     });
 
-    it('@settings: can delete customer group', { tags: ['pa-customers-orders'] }, () => {
+    it('@settings: can delete customer group', { tags: ['pa-customers-orders', 'quarantined'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([

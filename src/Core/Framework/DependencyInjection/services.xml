@@ -262,8 +262,8 @@ base-uri 'self';
             <argument type="service" id="snippet_set.repository"/>
             <argument type="service" id="sales_channel_domain.repository"/>
             <argument type="service" id="Shopware\Core\System\Snippet\Filter\SnippetFilterFactory"/>
-            <argument type="service" id="Symfony\Component\HttpFoundation\RequestStack"/>
             <argument type="service" id="service_container" />
+            <argument type="service" id="Shopware\Storefront\Theme\SalesChannelThemeLoader" on-invalid="null" />
         </service>
 
         <service id="Shopware\Core\System\Snippet\Api\SnippetController" public="true">

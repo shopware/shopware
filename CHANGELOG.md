@@ -274,6 +274,7 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-25267 - Make admin compatible with NPM 9](/changelog/release-6-5-0-0/2023-02-03-make-admin-compatible-with-npm-9.md)
 *  [NEXT-25277 - Adjust login styling](/changelog/release-6-5-0-0/2023-02-07-adjust-login-styling.md)
 *  [NEXT-25272 - Adjust menu styling](/changelog/release-6-5-0-0/2023-02-07-adjust-menu-styling.md)
+*  [NEXT-25272 - Storefront watcher with an URI](/changelog/release-6-5-0-0/2023-02-11-storefront-watcher-with-an-uri.md)
 *  [NEXT-25291 - ProductLineItem validator ignores skip product stock validation](/changelog/release-6-5-0-0/2023-02-07-productlineitem-validator-ignores-skip-product-stock-validation.md)
 *  [NEXT-25306 - Remove unused DebugStack class](/changelog/release-6-5-0-0/2023-02-07-remove-debugstack-class.md)
 *  [NEXT-19886 - Use bootstrap variable to define container width](/changelog/release-6-5-0-0/2023-02-09-use-bootstrap-variable-to-define-container-width.md)

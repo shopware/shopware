@@ -2,8 +2,8 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Document\Renderer;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Psr\Container\ContainerInterface;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -24,6 +24,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\TaxFreeConfig;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyFormatter;
@@ -33,10 +34,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 
 /**
- * @package customer-order
- *
  * @internal
  */
+#[Package('customer-order')]
 class InvoiceRendererTest extends TestCase
 {
     use DocumentTrait;
@@ -51,15 +51,20 @@ class InvoiceRendererTest extends TestCase
 
     private CartService $cartService;
 
-    private CurrencyFormatter $currencyFormatter;
+    private static string $deLanguageId;
 
-    private string $deLanguageId;
+    private static ?\Closure $callback = null;
 
     protected function setUp(): void
     {
-        parent::setUp();
-
         $this->initServices();
+    }
+
+    protected function tearDown(): void
+    {
+        if (self::$callback) {
+            $this->getContainer()->get('event_dispatcher')->removeListener(DocumentTemplateRendererParameterEvent::class, self::$callback);
+        }
     }
 
     /**
@@ -82,7 +87,7 @@ class InvoiceRendererTest extends TestCase
             });
 
         if ($beforeRenderHook) {
-            $beforeRenderHook($operationInvoice);
+            $beforeRenderHook($operationInvoice, $this->getContainer());
         }
 
         $processedTemplate = $this->invoiceRenderer->render(
@@ -112,27 +117,25 @@ class InvoiceRendererTest extends TestCase
             static::assertStringContainsString($firstLineItem->getLabel(), $rendered->getHtml());
             static::assertStringContainsString($lastLineItem->getLabel(), $rendered->getHtml());
 
-            $assertionCallback($rendered, $order);
+            $assertionCallback($rendered, $order, $this->getContainer());
         } else {
             $assertionCallback($order->getId(), $processedTemplate->getErrors());
         }
     }
 
-    public function invoiceDataProvider(): \Generator
+    public static function invoiceDataProvider(): \Generator
     {
-        $this->initServices();
-
         yield 'render with default language' => [
             [7],
             null,
-            function (RenderedDocument $rendered, OrderEntity $order): void {
+            function (RenderedDocument $rendered, OrderEntity $order, ContainerInterface $container): void {
                 static::assertNotNull($order->getCurrency());
                 static::assertStringContainsString(
-                    $this->currencyFormatter->formatCurrencyByLanguage(
+                    $container->get(CurrencyFormatter::class)->formatCurrencyByLanguage(
                         $order->getAmountTotal(),
                         $order->getCurrency()->getIsoCode(),
-                        $this->context->getLanguageId(),
-                        $this->context
+                        (Context::createDefaultContext())->getLanguageId(),
+                        Context::createDefaultContext(),
                     ),
                     $rendered->getHtml()
                 );
@@ -141,34 +144,34 @@ class InvoiceRendererTest extends TestCase
 
         yield 'render with different language' => [
             [7],
-            function (DocumentGenerateOperation $operation): void {
-                $this->getContainer()->get('order.repository')->upsert([[
+            function (DocumentGenerateOperation $operation, ContainerInterface $container): void {
+                $container->get('order.repository')->upsert([[
                     'id' => $operation->getOrderId(),
-                    'languageId' => $this->deLanguageId,
-                ]], $this->context);
+                    'languageId' => self::$deLanguageId,
+                ]], Context::createDefaultContext());
 
                 $criteria = OrderDocumentCriteriaFactory::create([$operation->getOrderId()]);
                 /** @var OrderEntity $order */
-                $order = $this->getContainer()->get('order.repository')->search($criteria, $this->context)->get($operation->getOrderId());
+                $order = $container->get('order.repository')->search($criteria, Context::createDefaultContext())->get($operation->getOrderId());
 
-                $context = clone $this->context;
+                $context = clone Context::createDefaultContext();
                 $context = $context->assign([
-                    'languageIdChain' => array_unique(array_filter([$this->deLanguageId, $this->context->getLanguageId()])),
+                    'languageIdChain' => array_unique(array_filter([self::$deLanguageId, (Context::createDefaultContext())->getLanguageId()])),
                 ]);
                 static::assertNotNull($order->getDeliveries());
-                $this->getContainer()->get('shipping_method.repository')->upsert([[
+                $container->get('shipping_method.repository')->upsert([[
                     'id' => $order->getDeliveries()->first()->getShippingMethod()->getId(),
                     'name' => 'DE express',
                 ]], $context);
             },
-            function (RenderedDocument $rendered, OrderEntity $order): void {
+            function (RenderedDocument $rendered, OrderEntity $order, ContainerInterface $container): void {
                 static::assertNotNull($order->getCurrency());
                 static::assertStringContainsString(
-                    preg_replace('/\xc2\xa0/', ' ', $this->currencyFormatter->formatCurrencyByLanguage(
+                    preg_replace('/\xc2\xa0/', ' ', $container->get(CurrencyFormatter::class)->formatCurrencyByLanguage(
                         $order->getAmountTotal(),
                         $order->getCurrency()->getIsoCode(),
-                        $this->deLanguageId,
-                        $this->context
+                        self::$deLanguageId,
+                        Context::createDefaultContext(),
                     )) ?? '',
                     preg_replace('/\xc2\xa0/', ' ', $rendered->getHtml()) ?? ''
                 );
@@ -178,23 +181,21 @@ class InvoiceRendererTest extends TestCase
 
         yield 'render with syntax error' => [
             [7, 19, 22],
-            function (): void {
-                $this->addEventListener(
-                    $this->getContainer()->get('event_dispatcher'),
-                    DocumentTemplateRendererParameterEvent::class,
-                    function (DocumentTemplateRendererParameterEvent $event): void {
-                        throw new \RuntimeException('Errors happened while rendering');
-                    }
-                );
+            function (DocumentGenerateOperation $operation, ContainerInterface $container): void {
+                self::$callback = function (DocumentTemplateRendererParameterEvent $event): void {
+                    throw new \RuntimeException('Errors happened while rendering');
+                };
+
+                $container->get('event_dispatcher')->addListener(DocumentTemplateRendererParameterEvent::class, self::$callback);
             },
             function (string $orderId, array $errors): void {
+                static::assertNotNull(self::$callback);
                 static::assertNotEmpty($errors);
                 static::assertArrayHasKey($orderId, $errors);
                 static::assertEquals(
                     'Errors happened while rendering',
                     ($errors[$orderId]->getMessage())
                 );
-                $this->resetEventDispatcher();
             },
         ];
 
@@ -213,27 +214,27 @@ class InvoiceRendererTest extends TestCase
 
         yield 'render with shipping address' => [
             [7],
-            function (DocumentGenerateOperation $operation): void {
+            function (DocumentGenerateOperation $operation, ContainerInterface $container): void {
                 $orderId = $operation->getOrderId();
                 $criteria = OrderDocumentCriteriaFactory::create([$orderId]);
                 /** @var OrderEntity $order */
-                $order = $this->getContainer()->get('order.repository')->search($criteria, $this->context)->get($orderId);
+                $order = $container->get('order.repository')->search($criteria, Context::createDefaultContext())->get($orderId);
                 static::assertNotNull($order->getDeliveries());
                 $country = $order->getDeliveries()->getShippingAddress()->getCountries()->first();
                 $country->setCompanyTax(new TaxFreeConfig(true, Defaults::CURRENCY, 0));
 
-                $this->getContainer()->get('country.repository')->update([[
+                $container->get('country.repository')->update([[
                     'id' => $country->getId(),
                     'companyTax' => ['enabled' => true, 'currencyId' => Defaults::CURRENCY, 'amount' => 0],
-                ]], $this->context);
+                ]], Context::createDefaultContext());
                 $companyPhone = '123123123';
                 $vatIds = ['VAT-123123'];
 
                 static::assertNotNull($order->getOrderCustomer());
-                $this->getContainer()->get('customer.repository')->update([[
+                $container->get('customer.repository')->update([[
                     'id' => $order->getOrderCustomer()->getCustomerId(),
                     'vatIds' => $vatIds,
-                ]], $this->context);
+                ]], Context::createDefaultContext());
 
                 $operation->assign([
                     'config' => [
@@ -273,19 +274,19 @@ class InvoiceRendererTest extends TestCase
 
         yield 'render with billing address' => [
             [7],
-            function (DocumentGenerateOperation $operation): void {
+            function (DocumentGenerateOperation $operation, ContainerInterface $container): void {
                 $orderId = $operation->getOrderId();
                 $criteria = OrderDocumentCriteriaFactory::create([$orderId]);
 
                 /** @var OrderEntity $order */
-                $order = $this->getContainer()->get('order.repository')
-                    ->search($criteria, $this->context)->get($orderId);
+                $order = $container->get('order.repository')
+                    ->search($criteria, Context::createDefaultContext())->get($orderId);
 
                 static::assertNotNull($order->getOrderCustomer());
-                $this->getContainer()->get('customer.repository')->update([[
+                $container->get('customer.repository')->update([[
                     'id' => $order->getOrderCustomer()->getCustomerId(),
                     'vatIds' => ['VAT-123123'],
-                ]], $this->context);
+                ]], Context::createDefaultContext());
 
                 $operation->assign([
                     'config' => [
@@ -319,27 +320,27 @@ class InvoiceRendererTest extends TestCase
 
         yield 'render customer VAT-ID with displayCustomerVatId is checked' => [
             [7],
-            function (DocumentGenerateOperation $operation): void {
+            function (DocumentGenerateOperation $operation, ContainerInterface $container): void {
                 $orderId = $operation->getOrderId();
                 $criteria = OrderDocumentCriteriaFactory::create([$orderId]);
 
                 /** @var OrderEntity $order */
-                $order = $this->getContainer()->get('order.repository')
-                    ->search($criteria, $this->context)->get($orderId);
+                $order = $container->get('order.repository')
+                    ->search($criteria, Context::createDefaultContext())->get($orderId);
 
                 static::assertNotNull($order->getOrderCustomer());
-                $this->getContainer()->get('customer.repository')->update([[
+                $container->get('customer.repository')->update([[
                     'id' => $order->getOrderCustomer()->getCustomerId(),
                     'vatIds' => ['VAT-123123'],
-                ]], $this->context);
+                ]], Context::createDefaultContext());
 
                 static::assertNotNull($order->getAddresses());
                 static::assertNotNull($order->getAddresses()->get($order->getBillingAddressId()));
                 static::assertNotNull($order->getAddresses()->get($order->getBillingAddressId())->getCountry());
-                $this->getContainer()->get('country.repository')->upsert([[
+                $container->get('country.repository')->upsert([[
                     'id' => $order->getAddresses()->get($order->getBillingAddressId())->getCountry()->getId(),
-                    'companyTax' => ['amount' => 0, 'enabled' => true, 'currencyId' => $this->context->getCurrencyId()],
-                ]], $this->context);
+                    'companyTax' => ['amount' => 0, 'enabled' => true, 'currencyId' => (Context::createDefaultContext())->getCurrencyId()],
+                ]], Context::createDefaultContext());
 
                 $operation->assign([
                     'config' => [
@@ -371,27 +372,27 @@ class InvoiceRendererTest extends TestCase
 
         yield 'render customer VAT-ID with displayCustomerVatId unchecked' => [
             [7],
-            function (DocumentGenerateOperation $operation): void {
+            function (DocumentGenerateOperation $operation, ContainerInterface $container): void {
                 $orderId = $operation->getOrderId();
                 $criteria = OrderDocumentCriteriaFactory::create([$orderId]);
 
                 /** @var OrderEntity $order */
-                $order = $this->getContainer()->get('order.repository')
-                    ->search($criteria, $this->context)->get($orderId);
+                $order = $container->get('order.repository')
+                    ->search($criteria, Context::createDefaultContext())->get($orderId);
 
                 static::assertNotNull($order->getOrderCustomer());
-                $this->getContainer()->get('customer.repository')->update([[
+                $container->get('customer.repository')->update([[
                     'id' => $order->getOrderCustomer()->getCustomerId(),
                     'vatIds' => ['VAT-123123'],
-                ]], $this->context);
+                ]], Context::createDefaultContext());
 
                 static::assertNotNull($order->getAddresses());
                 static::assertNotNull($order->getAddresses()->get($order->getBillingAddressId()));
                 static::assertNotNull($order->getAddresses()->get($order->getBillingAddressId())->getCountry());
-                $this->getContainer()->get('country.repository')->upsert([[
+                $container->get('country.repository')->upsert([[
                     'id' => $order->getAddresses()->get($order->getBillingAddressId())->getCountry()->getId(),
-                    'companyTax' => ['amount' => 0, 'enabled' => true, 'currencyId' => $this->context->getCurrencyId()],
-                ]], $this->context);
+                    'companyTax' => ['amount' => 0, 'enabled' => true, 'currencyId' => (Context::createDefaultContext())->getCurrencyId()],
+                ]], Context::createDefaultContext());
 
                 $operation->assign([
                     'config' => [
@@ -422,27 +423,27 @@ class InvoiceRendererTest extends TestCase
 
         yield 'render with customer VAT-ID is null' => [
             [7],
-            function (DocumentGenerateOperation $operation): void {
+            function (DocumentGenerateOperation $operation, ContainerInterface $container): void {
                 $orderId = $operation->getOrderId();
                 $criteria = OrderDocumentCriteriaFactory::create([$orderId]);
 
                 /** @var OrderEntity $order */
-                $order = $this->getContainer()->get('order.repository')
-                    ->search($criteria, $this->context)->get($orderId);
+                $order = $container->get('order.repository')
+                    ->search($criteria, Context::createDefaultContext())->get($orderId);
 
                 static::assertNotNull($order->getOrderCustomer());
-                $this->getContainer()->get('customer.repository')->update([[
+                $container->get('customer.repository')->update([[
                     'id' => $order->getOrderCustomer()->getCustomerId(),
                     'vatIds' => [],
-                ]], $this->context);
+                ]], Context::createDefaultContext());
 
                 static::assertNotNull($order->getAddresses());
                 static::assertNotNull($order->getAddresses()->get($order->getBillingAddressId()));
                 static::assertNotNull($order->getAddresses()->get($order->getBillingAddressId())->getCountry());
-                $this->getContainer()->get('country.repository')->upsert([[
+                $container->get('country.repository')->upsert([[
                     'id' => $order->getAddresses()->get($order->getBillingAddressId())->getCountry()->getId(),
-                    'companyTax' => ['amount' => 0, 'enabled' => true, 'currencyId' => $this->context->getCurrencyId()],
-                ]], $this->context);
+                    'companyTax' => ['amount' => 0, 'enabled' => true, 'currencyId' => (Context::createDefaultContext())->getCurrencyId()],
+                ]], Context::createDefaultContext());
 
                 $operation->assign([
                     'config' => [
@@ -470,8 +471,6 @@ class InvoiceRendererTest extends TestCase
                 static::assertStringNotContainsString('VAT Reg.No:', $rendered);
             },
         ];
-
-        $this->getContainer()->get(Connection::class)->executeStatement('DELETE FROM customer');
     }
 
     public function testCreateNewOrderVersionId(): void
@@ -512,8 +511,7 @@ class InvoiceRendererTest extends TestCase
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->invoiceRenderer = $this->getContainer()->get(InvoiceRenderer::class);
         $this->cartService = $this->getContainer()->get(CartService::class);
-        $this->currencyFormatter = $this->getContainer()->get(CurrencyFormatter::class);
-        $this->deLanguageId = $this->getDeDeLanguageId();
+        self::$deLanguageId = $this->getDeDeLanguageId();
     }
 
     /**

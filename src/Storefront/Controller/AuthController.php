@@ -182,9 +182,9 @@ class AuthController extends StorefrontController
             $this->addFlash(self::WARNING, $this->trans('account.passwordPoliciesUpdated'));
 
             return $this->forwardToRoute('frontend.account.recover.page');
+        } finally {
+            $data->set('password', null);
         }
-
-        $data->set('password', null);
 
         return $this->forwardToRoute(
             'frontend.account.login.page',

@@ -871,6 +871,54 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
             expect(result).toEqual(expected);
         });
 
+        it('flattens array entityData values', async () => {
+            const element = {
+                type: 'product-slider',
+                component: 'sw-cms-el-test',
+                config: {
+                    products: {
+                        source: 'static',
+                        value: [
+                            '16a2beeb80f041c29390efa3432760cc',
+                            'acb449f51754404596f53787b994381e',
+                            'ace9aa1742764f298811fa49410ff69d',
+                        ],
+                        entity: {
+                            name: 'product',
+                        }
+                    },
+                },
+                collect: cmsService.getCollectFunction(),
+            };
+
+            const entityCriteria = new Shopware.Data.Criteria(1, 25);
+            entityCriteria.setIds([
+                '16a2beeb80f041c29390efa3432760cc',
+                'acb449f51754404596f53787b994381e',
+                'ace9aa1742764f298811fa49410ff69d'
+            ]);
+
+
+            cmsService.registerCmsElement(element);
+            const result = element.collect(element);
+
+            const expected = {
+                'entity-product-0': {
+                    value: [
+                        '16a2beeb80f041c29390efa3432760cc',
+                        'acb449f51754404596f53787b994381e',
+                        'ace9aa1742764f298811fa49410ff69d',
+                    ],
+                    key: 'products',
+                    name: 'product',
+                    searchCriteria: entityCriteria,
+                    context,
+                },
+            };
+
+            expect(result).toEqual(expected);
+        });
+
         it('skips config key with source equal to "mapped" or "default"', async () => {
             // cms element components call the initElementConfig() function from cms-service mixin
             // to add the defaultConfig properties to the config root level

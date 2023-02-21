@@ -282,7 +282,7 @@ function getCollectFunction() {
                 entityCount += 1;
 
                 const entityData = {
-                    value: [elem.config[configKey].value],
+                    value: [elem.config[configKey].value].flat(),
                     key: configKey,
                     searchCriteria: entity.criteria ? entity.criteria : new Criteria(1, 25),
                     ...entity,

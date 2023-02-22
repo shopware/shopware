@@ -3961,21 +3961,6 @@ parameters:
 			path: src/Core/Content/ProductExport/Exception/ExportInvalidException.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ProductExport\\\\Service\\\\ProductExportGenerator\\:\\:getAssociations\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/ProductExport/Service/ProductExportGenerator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ProductExport\\\\Service\\\\ProductExportRenderer\\:\\:renderBody\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/ProductExport/Service/ProductExportRenderer.php
-
-		-
-			message: "#^Parameter \\#1 \\$templateSource of method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\StringTemplateRenderer\\:\\:render\\(\\) expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Content/ProductExport/Service/ProductExportRenderer.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\ProductExport\\\\Service\\\\ProductExportRendererInterface\\:\\:renderBody\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/ProductExport/Service/ProductExportRendererInterface.php
@@ -3989,21 +3974,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\ProductExport\\\\Service\\\\ProductExportValidatorInterface\\:\\:validate\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/ProductExport/Service/ProductExportValidatorInterface.php
-
-		-
-			message: "#^Cannot call method getContent\\(\\) on Shopware\\\\Core\\\\Content\\\\ProductExport\\\\Struct\\\\ProductExportResult\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/ProductExport/Service/ProductExporter.php
-
-		-
-			message: "#^Cannot call method getErrors\\(\\) on Shopware\\\\Core\\\\Content\\\\ProductExport\\\\Struct\\\\ProductExportResult\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/ProductExport/Service/ProductExporter.php
-
-		-
-			message: "#^Cannot call method hasErrors\\(\\) on Shopware\\\\Core\\\\Content\\\\ProductExport\\\\Struct\\\\ProductExportResult\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/ProductExport/Service/ProductExporter.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\ProductExport\\\\Struct\\\\ProductExportResult\\:\\:getErrors\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -9892,11 +9862,6 @@ parameters:
 			path: src/Core/Framework/Increment/RedisIncrementer.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Log\\\\LogAware\\:\\:getLogData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Log/LogAware.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Migration\\\\Command\\\\RefreshMigrationCommand\\:\\:updateMigrationFile\\(\\) has parameter \\$replace with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Migration/Command/RefreshMigrationCommand.php
@@ -12285,11 +12250,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Language\\\\LanguageValidatorTest\\:\\:assertWriteStackViolations\\(\\) has parameter \\$expectedCodePathPairs with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Language/LanguageValidatorTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Logging\\\\Event\\\\LogAwareTestFlowEvent\\:\\:getLogData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Logging/Event/LogAwareTestFlowEvent.php
 
 		-
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"

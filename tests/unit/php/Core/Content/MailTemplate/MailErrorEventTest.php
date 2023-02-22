@@ -2,7 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\MailTemplate;
 
-use Monolog\Logger;
+use Monolog\Level;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailErrorEvent;
@@ -24,7 +24,7 @@ class MailErrorEventTest extends TestCase
 
         $event = new MailErrorEvent(
             $context,
-            Logger::ERROR,
+            Level::Error,
             $exception,
             'Test',
             '{{ subject }}',
@@ -35,7 +35,7 @@ class MailErrorEventTest extends TestCase
         );
 
         static::assertSame('Test', $event->getMessage());
-        static::assertSame(400, $event->getLogLevel());
+        static::assertSame(Level::Error->value, $event->getLogLevel());
         static::assertSame([
             'exception' => (string) $exception,
             'message' => 'Test',

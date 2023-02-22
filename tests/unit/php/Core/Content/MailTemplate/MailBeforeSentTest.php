@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\MailTemplate;
 
+use Monolog\Level;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent;
@@ -38,7 +39,7 @@ class MailBeforeSentTest extends TestCase
             CheckoutOrderPlacedEvent::EVENT_NAME
         );
 
-        static::assertSame(200, $event->getLogLevel());
+        static::assertSame(Level::Info->value, $event->getLogLevel());
         static::assertSame('mail.after.create.message', $event->getName());
         static::assertSame($context, $event->getContext());
         static::assertSame([

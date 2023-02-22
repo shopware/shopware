@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\ProductExport\Api;
 
-use Monolog\Logger;
+use Monolog\Level;
 use Shopware\Core\Content\ProductExport\Error\Error;
 use Shopware\Core\Content\ProductExport\Event\ProductExportLoggingEvent;
 use Shopware\Core\Content\ProductExport\Exception\SalesChannelDomainNotFoundException;
@@ -146,7 +146,7 @@ class ProductExportController extends AbstractController
             $loggingEvent = new ProductExportLoggingEvent(
                 $context,
                 $salesChannelDomainNotFoundException->getMessage(),
-                Logger::ERROR,
+                Level::Error,
                 $salesChannelDomainNotFoundException
             );
             $this->eventDispatcher->dispatch($loggingEvent);
@@ -171,7 +171,7 @@ class ProductExportController extends AbstractController
             $loggingEvent = new ProductExportLoggingEvent(
                 $context,
                 $salesChannelNotFoundException->getMessage(),
-                Logger::ERROR,
+                Level::Error,
                 $salesChannelNotFoundException
             );
             $this->eventDispatcher->dispatch($loggingEvent);

@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\Mail\Service;
 
-use Monolog\Logger;
+use Monolog\Level;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\MailTemplate\Exception\SalesChannelNotFoundException;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent;
@@ -96,7 +96,7 @@ class MailService extends AbstractMailService
         if ($senderEmail === null) {
             $event = new MailErrorEvent(
                 $context,
-                Logger::ERROR,
+                Level::Error,
                 null,
                 'senderMail not configured for salesChannel: ' . $salesChannelId . '. Please check system_config \'core.basicInformation.email\'',
                 null,
@@ -129,7 +129,7 @@ class MailService extends AbstractMailService
         } catch (\Throwable $e) {
             $event = new MailErrorEvent(
                 $context,
-                Logger::ERROR,
+                Level::Error,
                 $e,
                 'Could not render Mail-Template with error message: ' . $e->getMessage(),
                 $template,
@@ -167,7 +167,7 @@ class MailService extends AbstractMailService
         if (trim($mail->getBody()->toString()) === '') {
             $event = new MailErrorEvent(
                 $context,
-                Logger::ERROR,
+                Level::Error,
                 null,
                 'mail body is null',
                 null,

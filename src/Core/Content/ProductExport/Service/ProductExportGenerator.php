@@ -3,7 +3,7 @@
 namespace Shopware\Core\Content\ProductExport\Service;
 
 use Doctrine\DBAL\Connection;
-use Monolog\Logger;
+use Monolog\Level;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\ProductExport\Event\ProductExportChangeEncodingEvent;
@@ -122,7 +122,7 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
             $loggingEvent = new ProductExportLoggingEvent(
                 $context->getContext(),
                 $exception->getMessage(),
-                Logger::WARNING,
+                Level::Warning,
                 $exception
             );
 
@@ -150,8 +150,11 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
 
         $body = '';
         while ($productResult = $iterator->fetch()) {
-            /** @var ProductEntity $product */
             foreach ($productResult->getEntities() as $product) {
+                if (!$product instanceof ProductEntity) {
+                    continue;
+                }
+
                 $data = $productContext->getContext();
                 $data['product'] = $product;
 
@@ -175,7 +178,6 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
             $content .= $this->productExportRender->renderFooter($productExport, $context);
         }
 
-        /** @var ProductExportChangeEncodingEvent $encodingEvent */
         $encodingEvent = $this->eventDispatcher->dispatch(
             new ProductExportChangeEncodingEvent($productExport, $content, mb_convert_encoding($content, $productExport->getEncoding()))
         );
@@ -195,6 +197,9 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
         );
     }
 
+    /**
+     * @return array<string>
+     */
     private function getAssociations(ProductExportEntity $productExport, SalesChannelContext $context): array
     {
         try {
@@ -202,7 +207,7 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
         } catch (\Exception $e) {
             $e = new RenderProductException($e->getMessage());
 
-            $loggingEvent = new ProductExportLoggingEvent($context->getContext(), $e->getMessage(), Logger::ERROR, $e);
+            $loggingEvent = new ProductExportLoggingEvent($context->getContext(), $e->getMessage(), Level::Error, $e);
 
             $this->eventDispatcher->dispatch($loggingEvent);
 

@@ -3,7 +3,7 @@
 namespace Shopware\Core\Content\ProductExport\SalesChannel;
 
 use League\Flysystem\FilesystemOperator;
-use Monolog\Logger;
+use Monolog\Level;
 use Shopware\Core\Content\ProductExport\Event\ProductExportContentTypeEvent;
 use Shopware\Core\Content\ProductExport\Event\ProductExportLoggingEvent;
 use Shopware\Core\Content\ProductExport\Exception\ExportNotFoundException;
@@ -112,7 +112,7 @@ class ExportController
         $loggingEvent = new ProductExportLoggingEvent(
             $context,
             $exception->getMessage(),
-            Logger::ERROR,
+            Level::Error,
             $exception
         );
 

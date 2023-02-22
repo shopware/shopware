@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\MailTemplate\Service\Event;
 
-use Monolog\Logger;
+use Monolog\Level;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ContentsAware;
 use Shopware\Core\Content\Flow\Dispatching\Aware\RecipientsAware;
 use Shopware\Core\Content\Flow\Dispatching\Aware\SubjectAware;
@@ -71,9 +71,6 @@ class MailSentEvent extends Event implements LogAware, SubjectAware, ContentsAwa
         return $this->recipients;
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     public function getLogData(): array
     {
         return [
@@ -84,8 +81,11 @@ class MailSentEvent extends Event implements LogAware, SubjectAware, ContentsAwa
         ];
     }
 
+    /**
+     * @deprecated tag:v6.6.0 - reason:return-type-change - Return type will change to @see \Monolog\Level
+     */
     public function getLogLevel(): int
     {
-        return Logger::INFO;
+        return Level::Info->value;
     }
 }

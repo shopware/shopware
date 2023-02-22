@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\System\Language;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\FetchMode;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\CascadeDeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
@@ -125,9 +125,9 @@ class LanguageValidator implements EventSubscriberInterface
              WHERE (child.id IN (:ids) OR child.parent_id IN (:ids))
              AND parent.parent_id IS NOT NULL',
             ['ids' => $affectedIds],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::STRING]
         );
-        $ids = $statement->fetchAll(FetchMode::COLUMN);
+        $ids = $statement->fetchFirstColumn();
 
         $violations = new ConstraintViolationList();
         foreach ($ids as $binId) {
@@ -159,9 +159,9 @@ class LanguageValidator implements EventSubscriberInterface
              AND lang.parent_id IS NULL # root
              AND lang.id IN (:ids)',
             ['ids' => $affectedIds],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::STRING]
         );
-        $ids = $statement->fetchAll(FetchMode::COLUMN);
+        $ids = $statement->fetchFirstColumn();
 
         $violations = new ConstraintViolationList();
         foreach ($ids as $binId) {

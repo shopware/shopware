@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\SalesChannel\Context;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Defaults;
@@ -178,7 +179,7 @@ class SalesChannelContextPersister
         if ($preserveTokens) {
             $qb
                 ->andWhere($qb->expr()->notIn('token', ':preserveTokens'))
-                ->setParameter('preserveTokens', $preserveTokens, Connection::PARAM_STR_ARRAY);
+                ->setParameter('preserveTokens', $preserveTokens, ArrayParameterType::STRING);
         }
 
         $qb->executeStatement();

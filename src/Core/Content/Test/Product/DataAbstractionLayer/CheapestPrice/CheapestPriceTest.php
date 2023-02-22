@@ -444,7 +444,7 @@ class CheapestPriceTest extends TestCase
             $prices = str_replace(sprintf('__id_placeholder_%s__', $key), $id, $prices);
         }
         foreach (\json_decode($prices, true, 512, \JSON_THROW_ON_ERROR) as $productName => $serializedPrice) {
-            $cheapestPriceQuery->execute([
+            $cheapestPriceQuery->executeStatement([
                 'price' => $serializedPrice,
                 'id' => $ids->getBytes($productName),
                 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),

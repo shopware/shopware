@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Test\Category\Repository;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryCollection;
@@ -45,7 +46,7 @@ class CategoryRepositoryTest extends TestCase
         $exists = $this->connection->fetchAllAssociative(
             'SELECT * FROM category WHERE id IN (:ids)',
             ['ids' => [Uuid::fromHexToBytes($parentId), Uuid::fromHexToBytes($childId)]],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::STRING]
         );
 
         static::assertCount(2, $exists);
@@ -53,7 +54,7 @@ class CategoryRepositoryTest extends TestCase
         $child = $this->connection->fetchAllAssociative(
             'SELECT * FROM category WHERE id IN (:ids)',
             ['ids' => [Uuid::fromHexToBytes($childId)]],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::STRING]
         );
         $child = array_shift($child);
 
@@ -79,7 +80,7 @@ class CategoryRepositoryTest extends TestCase
         $exists = $this->connection->fetchAllAssociative(
             'SELECT * FROM category WHERE id IN (:ids)',
             ['ids' => [Uuid::fromHexToBytes($parentId), Uuid::fromHexToBytes($childId)]],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::STRING]
         );
 
         static::assertEmpty($exists);
@@ -98,14 +99,14 @@ class CategoryRepositoryTest extends TestCase
         $exists = $this->connection->fetchAllAssociative(
             'SELECT * FROM category WHERE id IN (:ids)',
             ['ids' => [Uuid::fromHexToBytes($parentId), Uuid::fromHexToBytes($childId)]],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::STRING]
         );
         static::assertCount(2, $exists);
 
         $child = $this->connection->fetchAllAssociative(
             'SELECT * FROM category WHERE id IN (:ids)',
             ['ids' => [Uuid::fromHexToBytes($childId)]],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::STRING]
         );
         $child = array_shift($child);
 
@@ -126,14 +127,14 @@ class CategoryRepositoryTest extends TestCase
         $exists = $this->connection->fetchAllAssociative(
             'SELECT * FROM category WHERE id IN (:ids)',
             ['ids' => [Uuid::fromHexToBytes($childId)]],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::STRING]
         );
         static::assertEmpty($exists);
 
         $exists = $this->connection->fetchAllAssociative(
             'SELECT * FROM category WHERE id IN (:ids)',
             ['ids' => [Uuid::fromHexToBytes($parentId)]],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::STRING]
         );
         static::assertNotEmpty($exists);
     }
@@ -151,7 +152,7 @@ class CategoryRepositoryTest extends TestCase
         $exists = $this->connection->fetchAllAssociative(
             'SELECT * FROM category WHERE id IN (:ids)',
             ['ids' => [Uuid::fromHexToBytes($parentId), Uuid::fromHexToBytes($childId)]],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::STRING]
         );
 
         static::assertCount(2, $exists);
@@ -159,7 +160,7 @@ class CategoryRepositoryTest extends TestCase
         $child = $this->connection->fetchAllAssociative(
             'SELECT * FROM category WHERE id IN (:ids)',
             ['ids' => [Uuid::fromHexToBytes($childId)]],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::STRING]
         );
         $child = array_shift($child);
 

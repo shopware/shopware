@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Cart;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
@@ -464,7 +465,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
                 'liveVersionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
             ],
             [
-                'ids' => Connection::PARAM_STR_ARRAY,
+                'ids' => ArrayParameterType::STRING,
             ]
         );
 

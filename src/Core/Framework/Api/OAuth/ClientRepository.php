@@ -78,8 +78,8 @@ class ClientRepository implements ClientRepositoryInterface
             ->from('user_access_key')
             ->where('access_key = :accessKey')
             ->setParameter('accessKey', $clientIdentifier)
-            ->execute()
-            ->fetch();
+            ->executeQuery()
+            ->fetchAssociative();
 
         if (!$key) {
             return null;
@@ -96,8 +96,8 @@ class ClientRepository implements ClientRepositoryInterface
             ->leftJoin('integration', 'app', 'app', 'app.integration_id = integration.id')
             ->where('access_key = :accessKey')
             ->setParameter('accessKey', $clientIdentifier)
-            ->execute()
-            ->fetch();
+            ->executeQuery()
+            ->fetchAssociative();
 
         if (!$key) {
             return null;

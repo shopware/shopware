@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport\Event\Subscriber;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\ImportExport\Event\ImportExportAfterImportRecordEvent;
 use Shopware\Core\Content\ImportExport\Exception\ProcessingException;
@@ -95,7 +96,7 @@ class ProductVariantsSubscriber implements EventSubscriberInterface, ResetInterf
         $this->connection->executeStatement(
             'DELETE FROM `product_option` WHERE `product_id` IN (:ids);',
             ['ids' => Uuid::fromHexToBytesList($variantIds)],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::STRING]
         );
         $configuratorSettingPayload = $this->getProductConfiguratorSettingPayload($payload, $parentId);
         $this->connection->executeStatement(
@@ -104,7 +105,7 @@ class ProductVariantsSubscriber implements EventSubscriberInterface, ResetInterf
                 'parentId' => Uuid::fromHexToBytes($parentId),
                 'ids' => Uuid::fromHexToBytesList(array_column($configuratorSettingPayload, 'id')),
             ],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::STRING]
         );
 
         $this->syncService->sync([

@@ -333,7 +333,6 @@ class MigrationForeignDefaultLanguageTest extends TestCase
             ),
             $orgConnection->getDriver(),
             $orgConnection->getConfiguration(),
-            $orgConnection->getEventManager()
         );
 
         /** @var string $dumpFile */

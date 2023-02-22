@@ -214,7 +214,7 @@ class Migration1649858046UpdateConfigurableFormatAndValidationForAddressCountry 
 
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate('
+        $connection->executeStatement('
             ALTER TABLE `country`
             ADD COLUMN `postal_code_required` TINYINT (1) NOT NULL DEFAULT 0 AFTER `company_tax`,
             ADD COLUMN `default_postal_code_pattern` VARCHAR (1024) NULL AFTER `company_tax`,

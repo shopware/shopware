@@ -2,7 +2,7 @@
 
 namespace Shopware\Tests\Migration\Core\V6_3;
 
-use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ArrayParameterType;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Migration\V6_3\Migration1608624028RemoveDefaultSalesChannelAssignmentForCustomerRecoveryEvent;
@@ -38,7 +38,7 @@ class Migration1608624028RemoveDefaultSalesChannelAssignmentForCustomerRecoveryE
         $customerRecoveryEventSalesChannel = $connection->fetchAllAssociative(
             'SELECT * FROM event_action_sales_channel WHERE event_action_id IN (:eventActionIds)',
             ['eventActionIds' => $customerRecoveryEvents],
-            ['eventActionIds' => Connection::PARAM_STR_ARRAY]
+            ['eventActionIds' => ArrayParameterType::STRING]
         );
 
         static::assertEmpty($customerRecoveryEventSalesChannel);

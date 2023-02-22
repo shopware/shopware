@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Migration\V6_3;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\MailTemplate\MailTemplateActions;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
@@ -100,8 +101,8 @@ class Migration1599822061MigrateOrderMails extends MigrationStep
                 'mail_template.mail_template_type_id = mail_template_type.id'
             )
             ->andWhere('mail_template_type.id IN (:ids)')
-            ->setParameter('ids', Uuid::fromHexToBytesList($ids), Connection::PARAM_STR_ARRAY)
-            ->execute()
+            ->setParameter('ids', Uuid::fromHexToBytesList($ids), ArrayParameterType::STRING)
+            ->executeQuery()
             ->fetchAllAssociative();
 
         $mapping = [];
@@ -125,8 +126,8 @@ class Migration1599822061MigrateOrderMails extends MigrationStep
                 'mail_template_sales_channel.mail_template_type_id = mail_template_type.id'
             )
             ->andWhere('mail_template_type.id IN (:ids)')
-            ->setParameter('ids', Uuid::fromHexToBytesList($ids), Connection::PARAM_STR_ARRAY)
-            ->execute()
+            ->setParameter('ids', Uuid::fromHexToBytesList($ids), ArrayParameterType::STRING)
+            ->executeQuery()
             ->fetchAllAssociative();
 
         foreach ($mails as $mail) {
@@ -148,7 +149,7 @@ class Migration1599822061MigrateOrderMails extends MigrationStep
         return $connection->fetchFirstColumn(
             'SELECT LOWER(HEX(id)) as id FROM mail_template_type WHERE technical_name IN (:names)',
             ['names' => $names],
-            ['names' => Connection::PARAM_STR_ARRAY]
+            ['names' => ArrayParameterType::STRING]
         );
     }
 

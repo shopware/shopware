@@ -134,8 +134,8 @@ class SalesChannelContextRestorer
             ->from('customer')
             ->where('id = :id')
             ->setParameter('id', Uuid::fromHexToBytes($customerId))
-            ->execute()
-            ->fetch();
+            ->executeQuery()
+            ->fetchAssociative();
 
         if (!$customer) {
             throw new CustomerNotFoundByIdException($customerId);

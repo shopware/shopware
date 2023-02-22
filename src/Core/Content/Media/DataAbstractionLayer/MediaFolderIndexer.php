@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media\DataAbstractionLayer;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderDefinition;
 use Shopware\Core\Content\Media\Event\MediaFolderIndexerEvent;
@@ -165,7 +166,7 @@ class MediaFolderIndexer extends EntityIndexer
         $childIds = $this->connection->fetchAllAssociative(
             'SELECT LOWER(HEX(id)) as id FROM media_folder WHERE parent_id IN (:ids) AND use_parent_configuration = 1',
             ['ids' => Uuid::fromHexToBytesList($parentIds)],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::STRING]
         );
 
         $childIds = array_column($childIds, 'id');
@@ -186,7 +187,7 @@ class MediaFolderIndexer extends EntityIndexer
         $parentIds = $this->connection->fetchFirstColumn(
             'SELECT DISTINCT LOWER(HEX(media_folder.parent_id)) as id FROM media_folder WHERE id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids)],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::STRING]
         );
 
         return array_unique(array_filter($parentIds));

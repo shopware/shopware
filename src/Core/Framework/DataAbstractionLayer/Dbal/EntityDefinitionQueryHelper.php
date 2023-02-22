@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -558,7 +559,7 @@ class EntityDefinitionQueryHelper
                 EntityDefinitionQueryHelper::escape($primaryKeyField->getStorageName())
             ));
 
-            $query->setParameter('ids', $primaryKeys, Connection::PARAM_STR_ARRAY);
+            $query->setParameter('ids', $primaryKeys, ArrayParameterType::STRING);
 
             return;
         }

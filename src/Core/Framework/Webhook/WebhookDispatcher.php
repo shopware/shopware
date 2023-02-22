@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Webhook;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use GuzzleHttp\Client;
 use GuzzleHttp\Pool;
@@ -381,7 +382,7 @@ class WebhookDispatcher implements EventDispatcherInterface
             SELECT `id`, `privileges`
             FROM `acl_role`
             WHERE `id` IN (:aclRoleIds)
-        ', ['aclRoleIds' => $affectedRoleIds], ['aclRoleIds' => Connection::PARAM_STR_ARRAY]);
+        ', ['aclRoleIds' => $affectedRoleIds], ['aclRoleIds' => ArrayParameterType::STRING]);
 
         if (!$roles) {
             $this->privileges[$eventName] = [];

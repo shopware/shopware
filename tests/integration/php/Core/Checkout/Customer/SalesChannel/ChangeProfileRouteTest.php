@@ -541,7 +541,7 @@ class ChangeProfileRouteTest extends TestCase
     private function setVatIdOfTheCountryToValidateFormat(): void
     {
         $this->getContainer()->get(Connection::class)
-            ->executeUpdate(
+            ->executeStatement(
                 'UPDATE `country` SET `check_vat_id_pattern` = 1, `vat_id_pattern` = "(DE)?[0-9]{9}"
                  WHERE id = :id',
                 [
@@ -553,7 +553,7 @@ class ChangeProfileRouteTest extends TestCase
     private function setVatIdOfTheCountryToBeRequired(): void
     {
         $this->getContainer()->get(Connection::class)
-            ->executeUpdate(
+            ->executeStatement(
                 'UPDATE `country` SET `vat_id_required` = 1
                  WHERE id = :id',
                 [

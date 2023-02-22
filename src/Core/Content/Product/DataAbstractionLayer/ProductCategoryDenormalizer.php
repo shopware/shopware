@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\DataAbstractionLayer;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -70,7 +71,7 @@ class ProductCategoryDenormalizer
             $this->connection->executeStatement(
                 'DELETE FROM product_category_tree WHERE `product_id` IN (:ids) AND `product_version_id` = :version',
                 ['ids' => $allIds, 'version' => $versionId],
-                ['ids' => Connection::PARAM_STR_ARRAY]
+                ['ids' => ArrayParameterType::STRING]
             );
         });
 
@@ -78,7 +79,7 @@ class ProductCategoryDenormalizer
             $query = $this->connection->prepare('UPDATE product SET category_tree = :tree WHERE id = :id AND version_id = :version');
 
             foreach ($updates as $update) {
-                $query->execute($update);
+                $query->executeStatement($update);
             }
         });
 
@@ -138,7 +139,7 @@ class ProductCategoryDenormalizer
 
         $bytes = array_map(fn (string $id) => Uuid::fromHexToBytes($id), $ids);
 
-        $query->setParameter('ids', $bytes, Connection::PARAM_STR_ARRAY);
+        $query->setParameter('ids', $bytes, ArrayParameterType::STRING);
 
         $rows = $query->executeQuery()->fetchAllAssociative();
 

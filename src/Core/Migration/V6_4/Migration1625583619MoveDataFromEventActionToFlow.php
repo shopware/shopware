@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Migration\V6_4;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Flow\Aggregate\FlowSequence\FlowSequenceDefinition;
 use Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction;
@@ -300,7 +301,7 @@ class Migration1625583619MoveDataFromEventActionToFlow extends MigrationStep
                 'salesChannelIds' => $salesChannelIds,
                 'numberSalesChannel' => \count($salesChannelIds),
             ],
-            ['salesChannelIds' => Connection::PARAM_STR_ARRAY]
+            ['salesChannelIds' => ArrayParameterType::STRING]
         );
 
         if (!$ruleId) {
@@ -365,7 +366,7 @@ class Migration1625583619MoveDataFromEventActionToFlow extends MigrationStep
                 'languageId' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
                 'salesChannelIds' => Uuid::fromHexToBytesList($salesChannelIds),
             ],
-            ['salesChannelIds' => Connection::PARAM_STR_ARRAY]
+            ['salesChannelIds' => ArrayParameterType::STRING]
         );
 
         $result = 'Match one of saleschannels';

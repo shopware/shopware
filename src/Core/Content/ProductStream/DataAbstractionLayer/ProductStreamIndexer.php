@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ProductStream\DataAbstractionLayer;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\ProductStream\Event\ProductStreamIndexerEvent;
@@ -84,7 +85,7 @@ class ProductStreamIndexer extends EntityIndexer
              WHERE product_stream_id IN (:ids)
              ORDER BY product_stream_id',
             ['ids' => Uuid::fromHexToBytesList($ids)],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::STRING]
         );
 
         $filters = FetchModeHelper::group($filters);

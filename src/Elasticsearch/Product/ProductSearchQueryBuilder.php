@@ -2,6 +2,7 @@
 
 namespace Shopware\Elasticsearch\Product;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use OpenSearchDSL\Query\Compound\BoolQuery;
 use OpenSearchDSL\Query\FullText\MatchPhrasePrefixQuery;
@@ -119,7 +120,7 @@ WHERE product_search_config.language_id = :languageId AND product_search_config_
                 'fields' => self::NOT_SUPPORTED_FIELDS,
             ],
             [
-                'fields' => Connection::PARAM_STR_ARRAY,
+                'fields' => ArrayParameterType::STRING,
             ]
         );
 

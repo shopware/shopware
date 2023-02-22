@@ -15,12 +15,11 @@ class BasicDataUntouchedTest extends TestCase
 {
     public function testBasicDataUntouched(): void
     {
-        $loader = KernelLifecycleManager::getClassLoader();
-        /** @var string $file */
-        $file = $loader->findFile(Migration1536233560BasicData::class);
+        $file = KernelLifecycleManager::getClassLoader()->findFile(Migration1536233560BasicData::class);
+        static::assertIsString($file);
 
         static::assertSame(
-            'd9f207e8a9f72e831b2a0f495bfa2d86094da0f3',
+            'f7d6941bdee90a11dfc65a891756c6dbdca6c3f8',
             sha1_file($file),
             'BasicData migration has changed. This is not allowed.'
         );

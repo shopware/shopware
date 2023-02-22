@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\DataAbstractionLayer;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -275,7 +276,7 @@ GROUP BY product_id;
                 'ids' => Uuid::fromHexToBytesList($ids),
             ],
             [
-                'ids' => Connection::PARAM_STR_ARRAY,
+                'ids' => ArrayParameterType::STRING,
             ]
         );
 
@@ -339,14 +340,14 @@ GROUP BY product_id;
             $this->connection->executeStatement(
                 $sql,
                 ['ids' => $bytes, 'version' => Uuid::fromHexToBytes($context->getVersionId())],
-                ['ids' => Connection::PARAM_STR_ARRAY]
+                ['ids' => ArrayParameterType::STRING]
             );
         });
 
         $updated = $this->connection->fetchFirstColumn(
             'SELECT LOWER(HEX(id)) FROM product WHERE available = 0 AND id IN (:ids) AND product.version_id = :version',
             ['ids' => $bytes, 'version' => Uuid::fromHexToBytes($context->getVersionId())],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::STRING]
         );
 
         if (!empty($updated)) {

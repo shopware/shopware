@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Seo;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteRegistry;
 use Shopware\Core\Defaults;
@@ -108,7 +109,7 @@ class SeoUrlUpdater
              FROM seo_url_template
              WHERE route_name IN (:routes)',
             ['routes' => $routes],
-            ['routes' => Connection::PARAM_STR_ARRAY]
+            ['routes' => ArrayParameterType::STRING]
         );
 
         if ($modified === []) {

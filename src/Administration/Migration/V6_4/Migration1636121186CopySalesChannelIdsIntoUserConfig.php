@@ -82,7 +82,7 @@ class Migration1636121186CopySalesChannelIdsIntoUserConfig extends MigrationStep
             ->innerJoin('user', LanguageDefinition::ENTITY_NAME, 'language', 'user.locale_id = language.locale_id')
             ->innerJoin('language', SalesChannelTranslationDefinition::ENTITY_NAME, 'translation', 'translation.language_id = language.id')
             ->orderBy('translation.name', 'ASC')
-            ->execute()
+            ->executeQuery()
             ->fetchAllAssociative();
 
         return $result;

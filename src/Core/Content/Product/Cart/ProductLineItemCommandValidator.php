@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Cart;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition;
@@ -128,7 +129,7 @@ class ProductLineItemCommandValidator implements EventSubscriberInterface
         $products = \array_flip($this->connection->fetchFirstColumn(
             'SELECT DISTINCT LOWER(HEX(id)) FROM order_line_item WHERE id IN (:ids) AND type = \'product\'',
             ['ids' => $ids],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::STRING]
         ));
 
         return $products;

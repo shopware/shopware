@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Order\Api;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\Exception;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
@@ -212,7 +213,7 @@ class OrderActionController extends AbstractController
         $query->andWhere('document_type.technical_name IN (:documentTypes)');
         $query->orderBy('document.created_at', 'DESC');
 
-        $query->setParameter('documentTypes', $documentTypes, Connection::PARAM_STR_ARRAY);
+        $query->setParameter('documentTypes', $documentTypes, ArrayParameterType::STRING);
 
         $documents = $query->executeQuery()->fetchAllAssociative();
 

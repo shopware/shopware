@@ -51,14 +51,14 @@ CREATE TABLE `_test_nullable` (
 );
 EOF;
         $this->connection->rollBack();
-        $this->connection->executeUpdate($nullableTable);
+        $this->connection->executeStatement($nullableTable);
         $this->connection->beginTransaction();
     }
 
     public function tearDown(): void
     {
         $this->connection->rollBack();
-        $this->connection->executeUpdate('DROP TABLE `_test_nullable`');
+        $this->connection->executeStatement('DROP TABLE `_test_nullable`');
         $this->connection->beginTransaction();
     }
 

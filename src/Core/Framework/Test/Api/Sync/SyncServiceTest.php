@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\Api\Sync;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
@@ -151,21 +152,21 @@ class SyncServiceTest extends TestCase
         $exists = $this->connection->fetchAllAssociative(
             'SELECT id FROM product_manufacturer WHERE id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids->getList(['m1', 'm2', 'm3', 'm4']))],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::STRING]
         );
         static::assertCount(4, $exists);
 
         $exists = $this->connection->fetchAllAssociative(
             'SELECT id FROM tax WHERE id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids->getList(['t1', 't2']))],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::STRING]
         );
         static::assertEmpty($exists);
 
         $exists = $this->connection->fetchAllAssociative(
             'SELECT id FROM country WHERE id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids->getList(['c1', 'c2']))],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::STRING]
         );
         static::assertEmpty($exists);
     }

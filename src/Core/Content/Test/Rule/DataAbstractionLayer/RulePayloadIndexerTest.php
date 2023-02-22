@@ -446,7 +446,7 @@ class RulePayloadIndexerTest extends TestCase
                 ->setParameter('payload', $payload)
                 ->setParameter('name', 'Rule' . $i)
                 ->setParameter('createdAt', (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT))
-                ->execute();
+                ->executeStatement();
         }
 
         $this->eventDispatcher->dispatch($event);
@@ -454,8 +454,8 @@ class RulePayloadIndexerTest extends TestCase
         $rules = $this->connection->createQueryBuilder()
             ->select(['id', 'payload', 'invalid'])
             ->from('rule')
-            ->execute()
-            ->fetchAll();
+            ->executeQuery()
+            ->fetchAllAssociative();
 
         foreach ($rules as $rule) {
             static::assertEquals(0, $rule['invalid']);

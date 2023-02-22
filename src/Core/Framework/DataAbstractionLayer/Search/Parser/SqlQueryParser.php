@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Parser;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
@@ -220,7 +221,7 @@ class SqlQueryParser
         if ($field instanceof IdField || $field instanceof FkField) {
             $value = array_filter(array_map(fn (bool|float|int|string $id): string => Uuid::fromHexToBytes((string) $id), $value));
         }
-        $result->addParameter($key, $value, Connection::PARAM_STR_ARRAY);
+        $result->addParameter($key, $value, ArrayParameterType::STRING);
 
         return $result;
     }

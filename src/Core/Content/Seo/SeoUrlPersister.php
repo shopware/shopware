@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Seo;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Seo\Event\SeoUrlUpdateEvent;
 use Shopware\Core\Defaults;
@@ -158,7 +159,7 @@ class SeoUrlPersister
 
         $query->setParameter('routeName', $routeName);
         $query->setParameter('language_id', $languageId);
-        $query->setParameter('foreign_keys', $fks, Connection::PARAM_STR_ARRAY);
+        $query->setParameter('foreign_keys', $fks, ArrayParameterType::STRING);
 
         $rows = $query->executeQuery()->fetchAllAssociative();
 
@@ -192,7 +193,7 @@ class SeoUrlPersister
             ->update('seo_url')
             ->set('is_canonical', 'NULL')
             ->where('id IN (:ids)')
-            ->setParameter('ids', $ids, Connection::PARAM_STR_ARRAY);
+            ->setParameter('ids', $ids, ArrayParameterType::STRING);
 
         if ($salesChannelId) {
             $query->andWhere('sales_channel_id = :salesChannelId');
@@ -218,7 +219,7 @@ class SeoUrlPersister
             ->update('seo_url')
             ->set('is_deleted', $deleted ? '1' : '0')
             ->where('foreign_key IN (:fks)')
-            ->setParameter('fks', $ids, Connection::PARAM_STR_ARRAY);
+            ->setParameter('fks', $ids, ArrayParameterType::STRING);
 
         if ($salesChannelId) {
             $query->andWhere('sales_channel_id = :salesChannelId');

@@ -36,7 +36,7 @@ class Migration1603293043FixCurrencyTypo extends MigrationStep
                 ->innerJoin('lang', 'locale', 'loc', 'lang.translation_code_id = loc.id')
                 ->where('loc.code = :englishLocale')
                 ->setParameter('englishLocale', 'en-GB')
-                ->execute()
+                ->executeQuery()
                 ->fetchOne();
 
             if ($englishLanguageId === false) {
@@ -48,7 +48,7 @@ class Migration1603293043FixCurrencyTypo extends MigrationStep
                 ->from('currency_translation')
                 ->where('language_id = :englishLocale AND short_name = :swedishKronaShortName AND updated_at IS NULL ')
                 ->setParameters(['englishLocale' => $englishLanguageId, 'swedishKronaShortName' => 'SEK'])
-                ->execute()
+                ->executeQuery()
                 ->fetchOne();
 
             if ($enSwedishCurrencyTranslationUnchanged === false) {

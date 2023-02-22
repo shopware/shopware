@@ -84,7 +84,7 @@ CREATE TABLE `_test_nullable` (
   PRIMARY KEY `id` (`id`)
 );
 EOF;
-        $this->connection->executeUpdate($nullableTable);
+        $this->connection->executeStatement($nullableTable);
         $this->connection->beginTransaction();
     }
 

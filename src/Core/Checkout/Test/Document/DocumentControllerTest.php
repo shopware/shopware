@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Test\Document;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -574,7 +575,7 @@ class DocumentControllerTest extends TestCase
             [
                 'documentIds' => $documentIds,
             ],
-            ['documentIds' => Connection::PARAM_STR_ARRAY]
+            ['documentIds' => ArrayParameterType::STRING]
         );
     }
 

@@ -216,7 +216,7 @@ class ProductStreamBuilderTest extends TestCase
 
         $randomProductIds = implode('|', \array_slice(array_column($this->createProducts(), 'id'), 0, 2));
 
-        $connection->exec(
+        $connection->executeStatement(
             "
             INSERT INTO `product_stream` (`id`, `api_filter`, `invalid`, `created_at`, `updated_at`)
             VALUES
@@ -224,7 +224,7 @@ class ProductStreamBuilderTest extends TestCase
         "
         );
 
-        $connection->exec(
+        $connection->executeStatement(
             "
             INSERT INTO `product_stream_filter` (`id`, `product_stream_id`, `parent_id`, `type`, `field`, `operator`, `value`, `parameters`, `position`, `custom_fields`, `created_at`, `updated_at`)
             VALUES
@@ -245,7 +245,7 @@ class ProductStreamBuilderTest extends TestCase
     {
         $connection = $this->getContainer()->get(Connection::class);
 
-        $connection->exec(
+        $connection->executeStatement(
             '
             INSERT INTO `product_stream` (`id`, `api_filter`, `invalid`, `created_at`, `updated_at`)
             VALUES

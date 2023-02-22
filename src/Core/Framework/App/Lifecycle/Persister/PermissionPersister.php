@@ -33,7 +33,7 @@ class PermissionPersister
      */
     public function removeRole(string $roleId): void
     {
-        $this->connection->executeUpdate(
+        $this->connection->executeStatement(
             'DELETE FROM `acl_role` WHERE id = :id',
             [
                 'id' => Uuid::fromHexToBytes($roleId),
@@ -43,7 +43,7 @@ class PermissionPersister
 
     public function softDeleteRole(string $roleId): void
     {
-        $this->connection->executeUpdate(
+        $this->connection->executeStatement(
             'UPDATE `acl_role` SET `deleted_at` = :datetime WHERE id = :id',
             [
                 'id' => Uuid::fromHexToBytes($roleId),
@@ -54,7 +54,7 @@ class PermissionPersister
 
     private function addPrivileges(array $privileges, string $roleId): void
     {
-        $this->connection->executeUpdate(
+        $this->connection->executeStatement(
             'UPDATE `acl_role` SET `privileges` = :privileges WHERE id = :id',
             [
                 'privileges' => json_encode($privileges, \JSON_THROW_ON_ERROR),

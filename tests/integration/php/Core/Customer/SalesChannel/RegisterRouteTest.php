@@ -813,7 +813,7 @@ class RegisterRouteTest extends TestCase
     public function testRegistrationBusinessAccountWithVatIdsNotMatchRegex(): void
     {
         $this->getContainer()->get(Connection::class)
-            ->executeUpdate('UPDATE `country` SET `check_vat_id_pattern` = 1, `vat_id_pattern` = "(DE)?[0-9]{9}" WHERE id = :id', ['id' => Uuid::fromHexToBytes($this->getValidCountryId($this->ids->get('sales-channel')))]);
+            ->executeStatement('UPDATE `country` SET `check_vat_id_pattern` = 1, `vat_id_pattern` = "(DE)?[0-9]{9}" WHERE id = :id', ['id' => Uuid::fromHexToBytes($this->getValidCountryId($this->ids->get('sales-channel')))]);
 
         $additionalData = [
             'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
@@ -846,7 +846,7 @@ class RegisterRouteTest extends TestCase
     public function testRegistrationBusinessAccountWithVatIdsMatchRegex(): void
     {
         $this->getContainer()->get(Connection::class)
-            ->executeUpdate('UPDATE `country` SET `check_vat_id_pattern` = 1, `vat_id_pattern` = "(DE)?[0-9]{9}" WHERE id = :id', ['id' => Uuid::fromHexToBytes($this->getValidCountryId())]);
+            ->executeStatement('UPDATE `country` SET `check_vat_id_pattern` = 1, `vat_id_pattern` = "(DE)?[0-9]{9}" WHERE id = :id', ['id' => Uuid::fromHexToBytes($this->getValidCountryId())]);
 
         $additionalData = [
             'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,

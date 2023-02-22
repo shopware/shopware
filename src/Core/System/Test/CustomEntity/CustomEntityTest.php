@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Test\CustomEntity;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\TableNotFoundException;
 use Doctrine\DBAL\Schema\Schema;
@@ -228,8 +229,8 @@ class CustomEntityTest extends TestCase
     {
         $schema = $container
             ->get(Connection::class)
-            ->getSchemaManager()
-            ->createSchema();
+            ->createSchemaManager()
+            ->introspectSchema();
 
         self::assertColumns($schema, 'custom_entity_blog', ['id', 'top_seller_restrict_id', 'top_seller_restrict_version_id', 'top_seller_cascade_id', 'top_seller_cascade_version_id', 'top_seller_set_null_id', 'top_seller_set_null_version_id', 'link_product_restrict_id', 'link_product_restrict_version_id', 'link_product_cascade_id', 'link_product_cascade_version_id', 'link_product_set_null_id', 'link_product_set_null_version_id', 'inherited_top_seller_id', 'inherited_top_seller_version_id', 'created_at', 'updated_at', 'position', 'rating', 'payload', 'email']);
         self::assertColumns($schema, 'custom_entity_blog_translation', ['custom_entity_blog_id', 'language_id', 'created_at', 'updated_at', 'title', 'content', 'display']);
@@ -970,8 +971,8 @@ class CustomEntityTest extends TestCase
     {
         return $this->getContainer()
             ->get(Connection::class)
-            ->getSchemaManager()
-            ->createSchema();
+            ->createSchemaManager()
+            ->introspectSchema();
     }
 
     private static function cleanUp(ContainerInterface $container): void
@@ -990,7 +991,7 @@ class CustomEntityTest extends TestCase
         $container->get(Connection::class)->executeStatement(
             'DELETE FROM app WHERE name IN (:name)',
             ['name' => ['custom-entity-test', 'store-api-custom-entity-test']],
-            ['name' => Connection::PARAM_STR_ARRAY]
+            ['name' => ArrayParameterType::STRING]
         );
 
         $container->get(CustomEntitySchemaUpdater::class)->update();

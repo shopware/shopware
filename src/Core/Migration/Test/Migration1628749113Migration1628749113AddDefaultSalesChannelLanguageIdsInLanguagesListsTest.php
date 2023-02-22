@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Migration\Test;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
@@ -79,7 +80,7 @@ class Migration1628749113Migration1628749113AddDefaultSalesChannelLanguageIdsInL
             FROM sales_channel_language
             WHERE sales_channel_id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids)],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::STRING]
         );
     }
 
@@ -97,7 +98,7 @@ class Migration1628749113Migration1628749113AddDefaultSalesChannelLanguageIdsInL
             ON sc.id = scl.sales_channel_id
             WHERE sc.id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids)],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::STRING]
         );
 
         $languages = [];

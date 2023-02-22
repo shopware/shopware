@@ -63,7 +63,7 @@ class UserProvisioner
             ->from('user')
             ->where('username = :username')
             ->setParameter('username', $username)
-            ->execute()
+            ->executeQuery()
             ->rowCount() > 0;
     }
 
@@ -76,7 +76,7 @@ class UserProvisioner
                 ->innerJoin('language', 'locale', 'locale', 'language.locale_id = locale.id')
                 ->where('language.id = :id')
                 ->setParameter('id', Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM))
-                ->execute()
+                ->executeQuery()
                 ->fetchOne();
     }
 

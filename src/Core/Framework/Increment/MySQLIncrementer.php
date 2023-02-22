@@ -74,7 +74,7 @@ class MySQLIncrementer extends AbstractIncrementer
         }
 
         RetryableQuery::retryable($this->connection, function () use ($query): void {
-            $query->execute();
+            $query->executeStatement();
         });
     }
 

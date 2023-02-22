@@ -43,7 +43,7 @@ class Migration1623305620ChangeSalutationIdNullableTest extends TestCase
 
     public function testSalutationColumnsAreNullable(): void
     {
-        $schema = $this->connection->getSchemaManager();
+        $schema = $this->connection->createSchemaManager();
 
         /** @var array<Column[]> $columns */
         $columns = array_map(static fn (string $table): array => $schema->listTableColumns($table), MigrationTested::TABLES);

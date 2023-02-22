@@ -109,7 +109,7 @@ abstract class Plugin extends Bundle
         }
 
         $class = addcslashes($this->getMigrationNamespace(), '\\_%') . '%';
-        Kernel::getConnection()->executeUpdate('DELETE FROM migration WHERE class LIKE :class', ['class' => $class]);
+        Kernel::getConnection()->executeStatement('DELETE FROM migration WHERE class LIKE :class', ['class' => $class]);
     }
 
     public function getBasePath(): string

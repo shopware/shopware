@@ -42,7 +42,7 @@ class WriterExtensionTest extends TestCase
 
         $this->connection->rollBack();
 
-        $this->connection->executeUpdate('
+        $this->connection->executeStatement('
             DROP TABLE IF EXISTS `extended_product`;
             CREATE TABLE `extended_product` (
                 `id` BINARY(16) NOT NULL,
@@ -63,7 +63,7 @@ class WriterExtensionTest extends TestCase
     protected function tearDown(): void
     {
         $this->connection->rollBack();
-        $this->connection->executeUpdate('DROP TABLE `extended_product`');
+        $this->connection->executeStatement('DROP TABLE `extended_product`');
         $this->connection->beginTransaction();
 
         $this->removeExtension(ProductExtension::class);

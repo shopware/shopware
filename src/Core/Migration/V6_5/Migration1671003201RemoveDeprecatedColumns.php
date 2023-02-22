@@ -61,7 +61,7 @@ class Migration1671003201RemoveDeprecatedColumns extends MigrationStep
         }
 
         try {
-            $connection->executeUpdate('
+            $connection->executeStatement('
             ALTER TABLE `country`
             DROP COLUMN `tax_free`,
             DROP COLUMN `company_tax_free`;

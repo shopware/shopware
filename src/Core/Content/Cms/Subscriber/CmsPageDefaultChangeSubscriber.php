@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Cms\Subscriber;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Cms\CmsException;
@@ -124,7 +125,7 @@ class CmsPageDefaultChangeSubscriber implements EventSubscriberInterface
                 'configKeys' => self::$defaultCmsPageConfigKeys,
             ],
             [
-                'configKeys' => Connection::PARAM_STR_ARRAY,
+                'configKeys' => ArrayParameterType::STRING,
             ]
         );
 

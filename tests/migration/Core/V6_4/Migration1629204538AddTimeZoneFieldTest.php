@@ -17,7 +17,7 @@ class Migration1629204538AddTimeZoneFieldTest extends TestCase
     {
         $c = KernelLifecycleManager::getConnection();
 
-        $columns = array_keys($c->getSchemaManager()->listTableColumns('user'));
+        $columns = array_keys($c->createSchemaManager()->listTableColumns('user'));
 
         if (\in_array('time_zone', $columns, true)) {
             $c->executeStatement('ALTER TABLE `user` DROP `time_zone`;');
@@ -26,6 +26,6 @@ class Migration1629204538AddTimeZoneFieldTest extends TestCase
         $m = new Migration1629204538AddTimeZoneField();
         $m->update($c);
 
-        static::assertArrayHasKey('time_zone', $c->getSchemaManager()->listTableColumns('user'));
+        static::assertArrayHasKey('time_zone', $c->createSchemaManager()->listTableColumns('user'));
     }
 }

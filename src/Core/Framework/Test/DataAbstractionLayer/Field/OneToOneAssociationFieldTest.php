@@ -75,7 +75,7 @@ class OneToOneAssociationFieldTest extends TestCase
 
         $this->connection->rollBack();
 
-        $this->connection->executeUpdate('
+        $this->connection->executeStatement('
 DROP TABLE IF EXISTS `root_sub_many`;
 DROP TABLE IF EXISTS `root_sub_cascade`;
 DROP TABLE IF EXISTS `root_sub`;
@@ -143,7 +143,7 @@ ADD FOREIGN KEY (`root_sub_id`, `root_sub_version_id`) REFERENCES `root_sub` (`i
 
         $this->connection->rollBack();
 
-        $this->connection->executeUpdate('
+        $this->connection->executeStatement('
 SET FOREIGN_KEY_CHECKS = 0;
 DROP TABLE IF EXISTS `root`;
 DROP TABLE IF EXISTS `root_sub`;

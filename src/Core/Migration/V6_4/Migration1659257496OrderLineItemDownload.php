@@ -34,7 +34,7 @@ class Migration1659257496OrderLineItemDownload extends MigrationStep
             ', ['states' => json_encode([State::IS_PHYSICAL])]);
         }
 
-        $connection->executeUpdate('
+        $connection->executeStatement('
             CREATE TABLE IF NOT EXISTS `order_line_item_download` (
               `id` BINARY(16) NOT NULL,
               `version_id` BINARY(16) NOT NULL,

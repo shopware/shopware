@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
@@ -18,6 +19,11 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[Package('core')]
 class TranslationFieldResolver extends AbstractFieldResolver
 {
+    public function __construct(
+        private readonly Connection $connection,
+    ) {
+    }
+
     public function join(FieldResolverContext $context): string
     {
         $field = $context->getField();
@@ -55,7 +61,7 @@ class TranslationFieldResolver extends AbstractFieldResolver
             $translatedVersionFieldName = $definition->getEntityName() . '_version_id';
         }
 
-        $query = $this->getTranslationQuery($definition, $translationDefinition, $context->getPath(), $context->getQuery(), $context->getContext(), $translatedVersionFieldName);
+        $query = $this->getTranslationQuery($definition, $translationDefinition, $context->getPath(), $context->getContext(), $translatedVersionFieldName);
 
         if ($rootVersionFieldName && $translatedVersionFieldName) {
             $variables['#rootVersionField#'] = $rootVersionFieldName;
@@ -83,7 +89,7 @@ class TranslationFieldResolver extends AbstractFieldResolver
             return $alias;
         }
 
-        $query = $this->getTranslationQuery($definition, $translationDefinition, $context->getPath() . '.parent', $context->getQuery(), $context->getContext(), $translatedVersionFieldName);
+        $query = $this->getTranslationQuery($definition, $translationDefinition, $context->getPath() . '.parent', $context->getContext(), $translatedVersionFieldName);
 
         $variables = [
             '#alias#' => EntityDefinitionQueryHelper::escape($alias . '.parent'),
@@ -124,15 +130,20 @@ class TranslationFieldResolver extends AbstractFieldResolver
         return implode(', ', $select);
     }
 
-    private function getTranslationQuery(EntityDefinition $definition, EntityDefinition $translationDefinition, string $on, QueryBuilder $queryBuilder, Context $context, ?string $versionFieldName = null): QueryBuilder
-    {
+    private function getTranslationQuery(
+        EntityDefinition $definition,
+        EntityDefinition $translationDefinition,
+        string $on,
+        Context $context,
+        ?string $versionFieldName = null,
+    ): QueryBuilder {
         $table = $definition->getEntityName() . '_translation';
 
-        $query = new QueryBuilder($queryBuilder->getConnection());
+        $query = new QueryBuilder($this->connection);
 
         $select = $this->getSelectTemplate($translationDefinition);
 
-        // first language has to be the from part, in this case we have to use the system language to enforce we have a record
+        // first language has to be the "from" part, in this case we have to use the system language to enforce we have a record
         $chain = array_reverse($context->getLanguageIdChain());
 
         $first = array_shift($chain);

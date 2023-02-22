@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\DataAbstractionLayer;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
@@ -193,7 +194,7 @@ class ProductStreamUpdater extends EntityIndexer
             $this->connection->executeStatement(
                 'DELETE FROM product_stream_mapping WHERE product_id IN (:ids)',
                 ['ids' => Uuid::fromHexToBytesList($ids)],
-                ['ids' => Connection::PARAM_STR_ARRAY]
+                ['ids' => ArrayParameterType::STRING]
             );
             $insert->execute();
         });

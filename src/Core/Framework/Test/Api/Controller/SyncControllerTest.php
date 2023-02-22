@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\Api\Controller;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
@@ -304,7 +305,7 @@ class SyncControllerTest extends TestCase
         $exists = $this->connection->fetchAllAssociative(
             'SELECT * FROM product WHERE id IN(:id)',
             ['id' => [Uuid::fromHexToBytes($product), Uuid::fromHexToBytes($product2)]],
-            ['id' => Connection::PARAM_STR_ARRAY]
+            ['id' => ArrayParameterType::STRING]
         );
         static::assertCount(2, $exists);
 
@@ -324,7 +325,7 @@ class SyncControllerTest extends TestCase
         $exists = $this->connection->fetchAllAssociative(
             'SELECT * FROM product WHERE id IN (:id)',
             ['id' => [Uuid::fromHexToBytes($product), Uuid::fromHexToBytes($product2)]],
-            ['id' => Connection::PARAM_STR_ARRAY]
+            ['id' => ArrayParameterType::STRING]
         );
         static::assertEmpty($exists);
     }
@@ -365,7 +366,7 @@ class SyncControllerTest extends TestCase
         $exists = $this->connection->fetchAllAssociative(
             'SELECT * FROM product WHERE id IN(:id)',
             ['id' => [Uuid::fromHexToBytes($product)]],
-            ['id' => Connection::PARAM_STR_ARRAY]
+            ['id' => ArrayParameterType::STRING]
         );
 
         static::assertNotEmpty($exists);
@@ -416,7 +417,7 @@ class SyncControllerTest extends TestCase
         $exists = $this->connection->fetchAllAssociative(
             'SELECT * FROM product WHERE id IN(:id)',
             ['id' => [Uuid::fromHexToBytes($product)]],
-            ['id' => Connection::PARAM_STR_ARRAY]
+            ['id' => ArrayParameterType::STRING]
         );
 
         static::assertNotEmpty($exists);

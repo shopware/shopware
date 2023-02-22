@@ -5381,16 +5381,6 @@ parameters:
 			path: src/Core/Content/Test/Newsletter/SalesChannel/NewsletterConfirmRouteTest.php
 
 		-
-			message: "#^Parameter \\#1 \\$sql of method Doctrine\\\\DBAL\\\\Connection\\:\\:exec\\(\\) expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Newsletter/ScheduledTask/NewsletterRecipientTaskHandlerTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$subject of function str_replace expects array\\|string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Newsletter/ScheduledTask/NewsletterRecipientTaskHandlerTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Newsletter\\\\Service\\\\NewsletterRecipientServiceTest\\:\\:dataProvider_testSubscribeNewsletterExpectsConstraintViolationException\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Newsletter/Service/NewsletterRecipientServiceTest.php
@@ -5402,16 +5392,6 @@ parameters:
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Newsletter\\\\Service\\\\NewsletterRecipientServiceTest\\:\\:testSubscribeNewsletterExpectsConstraintViolationException\\(\\) has parameter \\$testData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Newsletter/Service/NewsletterRecipientServiceTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$sql of method Doctrine\\\\DBAL\\\\Connection\\:\\:exec\\(\\) expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Newsletter/Service/NewsletterRecipientServiceTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$subject of function str_replace expects array\\|string, string\\|false given\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Newsletter/Service/NewsletterRecipientServiceTest.php
 
@@ -6075,16 +6055,6 @@ parameters:
 			message: "#^Parameter \\#2 \\$haystack of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertCount\\(\\) expects Countable\\|iterable, Shopware\\\\Core\\\\Content\\\\ProductStream\\\\Aggregate\\\\ProductStreamFilter\\\\ProductStreamFilterCollection\\|null given\\.$#"
 			count: 1
 			path: src/Core/Content/Test/ProductStream/ProductStreamRepositoryTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ProductStream/ProductStreamSyncTest.php
-
-		-
-			message: "#^Parameter \\#6 \\$content of method Symfony\\\\Component\\\\BrowserKit\\\\AbstractBrowser\\:\\:request\\(\\) expects string\\|null, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ProductStream/ProductStreamSyncTest.php
 
 		-
 			message: "#^DataProvider method relativeTimeFiltersDataProvider should be static\\.$#"

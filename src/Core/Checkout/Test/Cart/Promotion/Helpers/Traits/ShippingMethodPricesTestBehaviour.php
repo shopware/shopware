@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Shopware\Core\Defaults;
@@ -46,7 +47,7 @@ trait ShippingMethodPricesTestBehaviour
         $conn->executeStatement(
             'UPDATE shipping_method_price SET currency_price=:currencyPrice WHERE id in(:ids)',
             ['currencyPrice' => $priceStruct, 'ids' => array_keys($this->oldValues)],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::STRING]
         );
     }
 

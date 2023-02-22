@@ -67,7 +67,7 @@ class Migration1648543185AddAppScriptConditionTablesTest extends TestCase
         $scriptIdForeignKey = null;
 
         foreach ($foreignKeys as $foreignKey) {
-            if ($foreignKey->getColumns() === ['script_id'] && $foreignKey->getForeignTableName() === AppScriptConditionDefinition::ENTITY_NAME) {
+            if ($foreignKey->getLocalColumns() === ['script_id'] && $foreignKey->getForeignTableName() === AppScriptConditionDefinition::ENTITY_NAME) {
                 $scriptIdForeignKey = $foreignKey;
 
                 break;

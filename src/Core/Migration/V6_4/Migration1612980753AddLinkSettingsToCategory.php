@@ -33,7 +33,7 @@ SQL;
             ->where('translation.external_link IS NOT NULL')
             ->orWhere('translation.category_id IN (SELECT id FROM category WHERE translation.category_id = category.id AND category.type = \'link\')')
             ->setParameter('linkType', 'external')
-            ->execute();
+            ->executeStatement();
     }
 
     public function updateDestructive(Connection $connection): void

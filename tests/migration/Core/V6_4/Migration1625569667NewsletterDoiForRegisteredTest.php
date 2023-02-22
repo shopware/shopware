@@ -2,7 +2,7 @@
 
 namespace Shopware\Tests\Migration\Core\V6_4;
 
-use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ArrayParameterType;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Migration\V6_4\Migration1625569667NewsletterDoiForRegistered;
@@ -35,7 +35,7 @@ class Migration1625569667NewsletterDoiForRegisteredTest extends TestCase
                     'core.newsletter.doubleOptInRegistered',
                 ],
             ],
-            ['keys' => Connection::PARAM_STR_ARRAY]
+            ['keys' => ArrayParameterType::STRING]
         );
 
         static::assertEquals('{"_value": false}', $configs[0]['configuration_value']);

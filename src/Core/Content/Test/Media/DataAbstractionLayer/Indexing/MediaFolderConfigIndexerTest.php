@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Test\Media\DataAbstractionLayer\Indexing;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\DataAbstractionLayer\MediaFolderIndexer;
@@ -187,9 +188,9 @@ class MediaFolderConfigIndexerTest extends TestCase
             ->setParameter(
                 'ids',
                 [Uuid::fromHexToBytes($child1Id), Uuid::fromHexToBytes($child1_1Id)],
-                Connection::PARAM_STR_ARRAY
+                ArrayParameterType::STRING
             )
-            ->execute();
+            ->executeStatement();
 
         $message = $this->configIndexer->iterate(['offset' => 0]);
         $this->configIndexer->handle($message);

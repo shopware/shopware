@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Migration\V6_4;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
@@ -91,7 +92,7 @@ class Migration1617356092UpdateCmsPdpLayoutSection extends MigrationStep
             FROM cms_slot
             WHERE cms_block_id IN (:cmsBlockId)
             AND type = "image-gallery" OR `type` = "manufacturer-logo"
-        ', ['cmsBlockId' => $blockIds], ['cmsBlockId' => Connection::PARAM_STR_ARRAY]);
+        ', ['cmsBlockId' => $blockIds], ['cmsBlockId' => ArrayParameterType::STRING]);
 
         foreach ($slots as $slot) {
             $configData = match ($slot['type']) {

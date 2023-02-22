@@ -28,7 +28,7 @@ class LanguageLoader implements LanguageLoaderInterface
             ->select(['LOWER(HEX(language.id)) AS array_key, LOWER(HEX(language.id)) AS id, locale.code, LOWER(HEX(language.parent_id)) parentId'])
             ->from('language')
             ->leftJoin('language', 'locale', 'locale', 'language.translation_code_id = locale.id')
-            ->execute()
+            ->executeQuery()
             ->fetchAllAssociative();
 
         return FetchModeHelper::groupUnique($data);

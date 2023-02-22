@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\SalesChannel\Validation;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
@@ -362,7 +363,7 @@ class SalesChannelValidator implements EventSubscriberInterface
                 ON mapping.sales_channel_id = sales_channel.id
                 WHERE sales_channel.id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($salesChannelIds)],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::STRING]
         );
 
         return $result;

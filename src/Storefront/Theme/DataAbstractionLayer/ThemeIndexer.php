@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Theme\DataAbstractionLayer;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
@@ -78,7 +79,7 @@ class ThemeIndexer extends EntityIndexer
             $this->connection->executeStatement(
                 'DELETE FROM theme_child WHERE parent_id IN (:ids)',
                 ['ids' => Uuid::fromHexToBytesList($ids)],
-                ['ids' => Connection::PARAM_STR_ARRAY]
+                ['ids' => ArrayParameterType::STRING]
             );
 
             $this->connection->executeStatement(
@@ -89,7 +90,7 @@ class ThemeIndexer extends EntityIndexer
                     )
                 ',
                 ['ids' => Uuid::fromHexToBytesList($ids)],
-                ['ids' => Connection::PARAM_STR_ARRAY]
+                ['ids' => ArrayParameterType::STRING]
             );
         });
 

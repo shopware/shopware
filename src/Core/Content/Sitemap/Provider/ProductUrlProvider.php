@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Sitemap\Provider;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
@@ -137,7 +138,7 @@ class ProductUrlProvider extends AbstractUrlProvider
         $excludedProductIds = $this->getExcludedProductIds($context);
         if (!empty($excludedProductIds)) {
             $query->andWhere('`product`.id NOT IN (:productIds)');
-            $query->setParameter('productIds', Uuid::fromHexToBytesList($excludedProductIds), Connection::PARAM_STR_ARRAY);
+            $query->setParameter('productIds', Uuid::fromHexToBytesList($excludedProductIds), ArrayParameterType::STRING);
         }
 
         $query->setParameter('versionId', Uuid::fromHexToBytes(Defaults::LIVE_VERSION));

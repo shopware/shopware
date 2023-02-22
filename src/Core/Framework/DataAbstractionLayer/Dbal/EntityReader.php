@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
@@ -960,7 +961,7 @@ class EntityReader implements EntityReaderInterface
             }
         }
 
-        $wrapper->setParameter('rootIds', $bytes, Connection::PARAM_STR_ARRAY);
+        $wrapper->setParameter('rootIds', $bytes, ArrayParameterType::STRING);
 
         $limit = $fieldCriteria->getOffset() + $fieldCriteria->getLimit();
         $offset = $fieldCriteria->getOffset() + 1;

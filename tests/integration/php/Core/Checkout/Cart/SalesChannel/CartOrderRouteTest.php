@@ -447,7 +447,7 @@ class CartOrderRouteTest extends TestCase
         $intervalInDays = $intervalInSeconds / 86400 + 1;
 
         // expire $originalToken context
-        $connection->executeUpdate(
+        $connection->executeStatement(
             '
             UPDATE sales_channel_api_context
             SET updated_at = DATE_ADD(updated_at, INTERVAL :intervalInDays DAY)',

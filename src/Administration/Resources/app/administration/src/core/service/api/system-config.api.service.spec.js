@@ -73,3 +73,82 @@ describe('system-config.api.service', () => {
         expect(values).toEqual({});
     });
 });
+
+describe('Test function batchSave at file src/core/service/api/system-config.api.service.js', () => {
+    let systemConfigService = null;
+    let axiosMock = null;
+
+    beforeEach(async () => {
+        const { mockAdapter, apiService } = getApiServiceAndMockAdapter();
+
+        systemConfigService = apiService;
+        axiosMock = mockAdapter;
+    });
+
+    it('should successfully', async () => {
+        axiosMock.onPost(
+            '_action/system-config/batch'
+        )
+            .reply(200, {});
+
+        const res = await systemConfigService.batchSave([]);
+        expect(res).toEqual({});
+    });
+
+    it('should throw exception', async () => {
+        axiosMock.onPost('_action/system-config/batch')
+            .reply(400, {
+                data: {
+                    errors: [],
+                },
+            });
+
+        try {
+            await systemConfigService.batchSave([]);
+        } catch (error) {
+            expect(error).toBeInstanceOf(Error);
+        }
+    });
+});
+
+describe('Test getConfig at file src/core/service/api/system-config.api.service.js', () => {
+    let systemConfigService = null;
+    let axiosMock = null;
+
+    beforeEach(async () => {
+        const { mockAdapter, apiService } = getApiServiceAndMockAdapter();
+
+        systemConfigService = apiService;
+        axiosMock = mockAdapter;
+    });
+
+    it('should successfully', async () => {
+        axiosMock.onGet('_action/system-config/schema')
+            .reply(200, {});
+
+        const res = await systemConfigService.getConfig('dummy.domain');
+
+        expect(res).toEqual({});
+    });
+});
+
+describe('Test checkConfig at file src/core/service/api/system-config.api.service.js', () => {
+    let systemConfigService = null;
+    let axiosMock = null;
+
+    beforeEach(async () => {
+        const { mockAdapter, apiService } = getApiServiceAndMockAdapter();
+
+        systemConfigService = apiService;
+        axiosMock = mockAdapter;
+    });
+
+    it('should successfully', async () => {
+        axiosMock.onGet('_action/system-config/check')
+            .reply(200, {});
+
+        const res = await systemConfigService.checkConfig('dummy.domain');
+
+        expect(res).toEqual({});
+    });
+});

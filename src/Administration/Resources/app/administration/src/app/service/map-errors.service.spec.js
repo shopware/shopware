@@ -4,6 +4,7 @@
 
 // import * as mapErrors from 'src/app/service/map-errors.service';
 import * as mapErrors from 'src/app/service/map-errors.service';
+import ShopwareError from 'src/core/data/ShopwareError';
 
 describe('app/service/map-errors.service.js', () => {
     Shopware.Utils.debug.warn = jest.fn();
@@ -27,6 +28,10 @@ describe('app/service/map-errors.service.js', () => {
 
     it('all: should contain mapPageErrors function', async () => {
         expect(mapErrors).toHaveProperty('mapPageErrors');
+    });
+
+    it('all: should contain mapSystemConfigErrors function', () => {
+        expect(mapErrors).toHaveProperty('mapSystemConfigErrors');
     });
 
     it('mapPropertyErrors: should return an object with properties in camel case', async () => {
@@ -143,5 +148,22 @@ describe('app/service/map-errors.service.js', () => {
 
         const errorExists = mapPageErrors.routeOneError();
         expect(errorExists).toBeFalsy();
+    });
+
+    it('mapSystemConfigErrors: it should return null', () => {
+        const result = mapErrors.mapSystemConfigErrors('testEntityName', 'testSaleChannelId');
+
+        expect(result).toBeNull();
+    });
+
+    it('mapSystemConfigErrors: it should return an object', () => {
+        Shopware.State.dispatch('error/addApiError', {
+            expression: 'SYSTEM_CONFIG.testSaleChannelId.dummyKey',
+            error: new ShopwareError({ code: 'dummyCode' }),
+        });
+
+        const result = mapErrors.mapSystemConfigErrors('SYSTEM_CONFIG', 'testSaleChannelId', 'dummyKey');
+
+        expect(result).toBeInstanceOf(ShopwareError);
     });
 });

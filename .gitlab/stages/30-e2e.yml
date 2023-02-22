@@ -93,6 +93,12 @@ E2E quarantined:
     - if: !reference [ .rules, long-running-allow-failure, if ]
       allow_failure: true
     - !reference [ .rules, long-running ]
+  script:
+    - composer run e2e:cypress -- run
+      --config retries=0
+      --browser $BROWSER
+      --spec "$TEST_DIRECTORY"
+      --headless
   parallel:
     matrix:
       - TEST_DIRECTORY:

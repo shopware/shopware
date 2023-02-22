@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
+ * @internal
  */
 #[Package('core')]
 class Script extends Struct

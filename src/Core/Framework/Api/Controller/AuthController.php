@@ -69,7 +69,7 @@ class AuthController extends AbstractController
         $psr7Response = $this->authorizationServer->respondToAccessTokenRequest($psr7Request, $psr7Response);
 
         $response = (new HttpFoundationFactory())->createResponse($psr7Response);
-        $auth = json_decode((string)$psr7Response->getBody(), true);
+        $auth = json_decode((string) $psr7Response->getBody(), true);
 
         self::setAdminAuthCookie($request, $response, $auth);
 

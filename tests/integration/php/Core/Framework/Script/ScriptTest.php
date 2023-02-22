@@ -3,8 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Framework\Script;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
-use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
@@ -48,7 +46,6 @@ class ScriptTest extends TestCase
         $builder->translation(Defaults::LANGUAGE_SYSTEM, 'name', 'English');
         $builder->translation($deLanguageId, 'name', 'Deutsch');
         $builder->write($this->getContainer());
-
 
         $request = new Request([
             'productId' => $idsCollection->get('product1'),

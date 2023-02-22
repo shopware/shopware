@@ -6,7 +6,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryFacadeHookFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryWriterFacadeHookFactory;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Script\Api\ScriptResponseFactoryFacadeHookFactory;
 use Shopware\Core\Framework\Script\Execution\Awareness\ScriptResponseAwareTrait;
 use Shopware\Core\Framework\Script\Execution\Awareness\StoppableHook;
 use Shopware\Core\Framework\Script\Execution\Awareness\StoppableHookTrait;

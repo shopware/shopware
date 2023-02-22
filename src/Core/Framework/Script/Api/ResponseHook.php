@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Script\Api;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Script\Api\ScriptResponse;
 
 #[Package('core')]
 interface ResponseHook

@@ -64,10 +64,6 @@ class UpdateHtaccess implements EventSubscriberInterface
     {
         $dist = $path . '.dist';
 
-        if (!file_exists($dist)) {
-            return;
-        }
-
         $perms = fileperms($dist);
         copy($dist, $path);
 
@@ -105,7 +101,9 @@ class UpdateHtaccess implements EventSubscriberInterface
     {
         $fp = fopen($path, 'rb+');
         if (!$fp) {
+            // @codeCoverageIgnoreStart
             return [[], [], []];
+            // @codeCoverageIgnoreEnd
         }
 
         $lines = [];

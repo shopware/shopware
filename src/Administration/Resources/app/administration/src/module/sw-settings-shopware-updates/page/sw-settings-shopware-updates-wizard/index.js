@@ -1,11 +1,12 @@
-/**
- * @package system-settings
- */
 import template from './sw-settings-shopware-updates-wizard.html.twig';
 import './sw-settings-shopware-updates-wizard.scss';
 
 const { Component, Mixin } = Shopware;
 
+/**
+ * @package system-settings
+ * @deprecated tag:v6.6.0 - Will be private
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-settings-shopware-updates-wizard', {
     template,
@@ -41,8 +42,15 @@ Component.register('sw-settings-shopware-updates-wizard', {
     },
     computed: {
         updatePossible() {
-            // check if result of every requirement is true. If it's the case return true otherwise return false.
+            // Check if the result of every requirement is true. If it's the case, return true, otherwise return false.
             return this.requirements.every(requirement => requirement.result === true);
+        },
+
+        /**
+         * @deprecated tag:v6.6.0 - Will be removed
+         */
+        changelog() {
+            return this.updateInfo.changelog;
         },
 
         updateButtonTooltip() {
@@ -57,18 +65,6 @@ Component.register('sw-settings-shopware-updates-wizard', {
                 message: this.$tc('sw-settings-shopware-updates.infos.requirementsNotMet'),
                 position: 'bottom',
             };
-        },
-
-        changelog() {
-            if (!this.updateInfo.version) {
-                return '';
-            }
-
-            if (this.$i18n.locale.substr(0, 2) === 'de') {
-                return this.updateInfo.changelog.de.changelog;
-            }
-
-            return this.updateInfo.changelog.en.changelog;
         },
 
         displayIncompatiblePluginsWarning() {
@@ -125,7 +121,7 @@ Component.register('sw-settings-shopware-updates-wizard', {
 
         onRequirementsResponse(requirementsStore) {
             this.requirements = requirementsStore;
-            this.updateService.pluginCompatibility().then(plugins => {
+            this.updateService.extensionCompatibility().then(plugins => {
                 this.plugins = plugins;
 
                 if (this.displayUnknownPluginsWarning && this.displayIncompatiblePluginsWarning) {
@@ -146,7 +142,7 @@ Component.register('sw-settings-shopware-updates-wizard', {
                 message: this.$tc('sw-settings-shopware-updates.notifications.updateStarted'),
             });
 
-            this.downloadUpdate(0);
+            this.downloadRecovery();
         },
 
         stopUpdateProcess() {
@@ -158,20 +154,24 @@ Component.register('sw-settings-shopware-updates-wizard', {
             });
         },
 
+        /**
+         * @deprecated tag:v6.6.0 - Will be removed
+         */
         downloadUpdate(offset) {
-            this.updateService.downloadUpdate(offset).then(response => {
-                this.progressbarValue = (Math.floor((response.offset / response.total) * 100));
+            return this.downloadRecovery(offset);
+        },
 
-                if (response.offset === response.total && response.success) {
-                    this.progressbarValue = 0;
-                    this.deactivatePlugins(0);
-                } else if (response.offset !== response.total && response.success) {
-                    this.downloadUpdate(response.offset);
-                } else {
-                    this.createNotificationError({
-                        message: this.$tc('sw-settings-shopware-updates.notifications.downloadFailed'),
-                    });
-                }
+        /**
+         * @deprecated tag:v6.6.0 - Will be removed
+         */
+        unpackUpdate() {
+
+        },
+
+        downloadRecovery(offset) {
+            this.updateService.downloadRecovery(offset).then(() => {
+                this.progressbarValue = 0;
+                this.deactivatePlugins(0);
             }).catch(() => {
                 this.createNotificationError({
                     message: this.$tc('sw-settings-shopware-updates.notifications.downloadFailed'),
@@ -184,15 +184,10 @@ Component.register('sw-settings-shopware-updates-wizard', {
             this.updateService.deactivatePlugins(offset, this.chosenPluginBehaviour).then(response => {
                 this.progressbarValue = (Math.floor((response.offset / response.total) * 100));
 
-                if (response.offset === response.total && response.success) {
-                    this.progressbarValue = 0;
-                    this.unpackUpdate(0);
-                } else if (response.offset !== response.total && response.success) {
-                    this.deactivatePlugins(response.offset);
+                if (response.offset === response.total) {
+                    this.redirectToPage(`${Shopware.Context.api.basePath}/shopware-installer.phar.php`);
                 } else {
-                    this.createNotificationError({
-                        message: this.$tc('sw-settings-shopware-updates.notifications.deactivationFailed'),
-                    });
+                    this.deactivatePlugins(response.offset);
                 }
             }).catch((e) => {
                 this.stopUpdateProcess();
@@ -224,21 +219,8 @@ Component.register('sw-settings-shopware-updates-wizard', {
             });
         },
 
-        unpackUpdate(offset) {
-            this.step = 'unpack';
-            this.updateService.unpackUpdate(offset).then(response => {
-                this.progressbarValue = (Math.floor((response.offset / response.total) * 100));
-
-                if (response.redirectTo) {
-                    window.location.href = response.redirectTo;
-                } else if (response.offset !== response.total && response.success) {
-                    this.unpackUpdate(response.offset);
-                } else {
-                    this.createNotificationError({
-                        message: this.$tc('sw-settings-shopware-updates.notifications.unpackFailed'),
-                    });
-                }
-            });
+        redirectToPage(url) {
+            window.location.href = url;
         },
     },
 });

@@ -1,0 +1,34 @@
+{% extends "base.html.twig" %}
+
+{% block main %}
+    <div class="card__title">
+        <h2>{{ 'shopware.update.steps.install.title'|trans }}</h2>
+    </div>
+
+    <div class="card__body">
+        <p>
+            {{ 'shopware.update.steps.install.info'|trans|raw }}
+        </p>
+
+        <p>
+            <label for="folder">{{ "shopware.update.steps.install.folderInput"|trans }}</label>
+            <input type="text" value="shopware" name="folder" id="folder" required="required" />
+        </p>
+
+        <div class="alert alert-info" role="alert">
+            {{ 'shopware.update.steps.install.after_install'|trans|raw }}
+        </div>
+
+        <div class="alert alert-error" id="log-error" style="display: none">{{ 'shopware.update.steps.install.error'|trans|raw }}</div>
+
+        <div id="log-card" style="display: none;">
+            <pre class="form-control" id="log-output" style="height: 60vh;"></pre>
+        </div>
+
+    </div>
+
+    <div class="card__footer flex-container">
+        <a class="btn flex-item flex-left" href="{{ url('configure') }}">{{ 'shopware.update.back'|trans }}</a>
+        <button type="submit" class="btn btn-primary flex-item flex-right" id="install-start">{{ 'shopware.update.steps.install.submit'|trans }}</button>
+    </div>
+{% endblock %}

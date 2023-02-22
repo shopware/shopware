@@ -67,7 +67,7 @@ class SeoUrlUpdateListener implements EventSubscriberInterface
             return;
         }
 
-        $ids = array_merge($event->getIds(), $this->getCategoryChildren($event->getIds()));
+        $ids = array_merge(array_values($event->getIds()), $this->getCategoryChildren($event->getIds()));
 
         $this->seoUrlUpdater->update(NavigationPageSeoUrlRoute::ROUTE_NAME, $ids);
     }
@@ -78,7 +78,7 @@ class SeoUrlUpdateListener implements EventSubscriberInterface
             return;
         }
 
-        $this->seoUrlUpdater->update(ProductPageSeoUrlRoute::ROUTE_NAME, $event->getIds());
+        $this->seoUrlUpdater->update(ProductPageSeoUrlRoute::ROUTE_NAME, array_values($event->getIds()));
     }
 
     public function updateLandingPageUrls(LandingPageIndexerEvent $event): void
@@ -87,7 +87,7 @@ class SeoUrlUpdateListener implements EventSubscriberInterface
             return;
         }
 
-        $this->seoUrlUpdater->update(LandingPageSeoUrlRoute::ROUTE_NAME, $event->getIds());
+        $this->seoUrlUpdater->update(LandingPageSeoUrlRoute::ROUTE_NAME, array_values($event->getIds()));
     }
 
     /**
@@ -120,6 +120,9 @@ class SeoUrlUpdateListener implements EventSubscriberInterface
             return [];
         }
 
-        return Uuid::fromBytesToHexList($children);
+        /** @var list<string> $ids */
+        $ids = Uuid::fromBytesToHexList($children);
+
+        return $ids;
     }
 }

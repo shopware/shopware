@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection as DBALConnection;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Messenger\Bridge\Doctrine\Transport\Connection;
 use Symfony\Component\Messenger\Bridge\Doctrine\Transport\DoctrineTransport;
-use Symfony\Component\Messenger\Bridge\Doctrine\Transport\PostgreSqlConnection;
 use Symfony\Component\Messenger\Transport\Serialization\SerializerInterface;
 use Symfony\Component\Messenger\Transport\TransportFactoryInterface;
 use Symfony\Component\Messenger\Transport\TransportInterface;
@@ -26,7 +25,7 @@ class DoctrineTransportFactory implements TransportFactoryInterface
         unset($options['transport_name'], $options['use_notify']);
 
         // Always allow PostgreSQL-specific keys, to be able to transparently fallback to the native driver when LISTEN/NOTIFY isn't available
-        $configuration = PostgreSqlConnection::buildConfiguration($dsn, $options);
+        $configuration = Connection::buildConfiguration($dsn, $options);
 
         $connection = new Connection($configuration, $this->connection);
 

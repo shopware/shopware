@@ -7,32 +7,51 @@
 
 ## Decision
 
+### Routes annotations
+Route annotations respect the following schema:
+example:
+```php
+#[Route(path: '/example/endpoint/{id}', name: 'frontend.example.endpoint', options: ['seo' => false], defaults: ['id' => null, 'XmlHttpRequest' => true, '_loginRequired' => true, '_httpCache' => true], methods: ['GET', 'POST', 'DELETE'])]
+```
+* `path`: The path of the route. Parameters inside the path will be noted in {} brackets.
+* `name`: A unique name for the route beginning with `frontend.`
+* `options`: Options for the route to be determined for special cases. Currently `seo` = (true|false) is the only option.
+* `defaults`: A set of default parameter for the Route. Either preconfigured parameters or any route query/path parameter can be defined as a default here.
+  * `id` (any value): Stands as an example for any path parameter. Can be any noted parameter and the value is used, if it is not set by the request
+  * `XmlHttpRequest` (true|false): If the route is an XmlHttpRequest which is normally called by a frontend ajax request. These Routes don't return the `renderStorefront` call.
+  * `_loginRrequired` (true|false): Is a logged in user is required to call this route? Otherwise a "permission denied" redirect will be returned.
+  * `__httpCache` (true|false): Should this route be cached in the httpCache?
+* `methods`: One or more of the HTTP methods ('GET', 'POST', 'DELETE')
+  * `GET`: A request which returns data or a html page.
+  * `POST`: A request which sends data to the server.
+  * `DELETE`: A request which deletes data on the server. 
+
 ### Controller
-* Each controller action has to be declared with a @Since tag
-* Each controller action requires a @Route annotation
-* The name of the route should be starting with "frontend"
-* Each route should define the corresponding HTTP Method (GET, POST, DELETE, PATCH)
+* Each controller requires a Route annotation with a path, name and method: #[Route(path: '/xxx', name: 'frontend.xxx.page', methods: ['GET', 'POST'])]
+* The name of the route has to be starting with "frontend"
+* Each route has to define the corresponding HTTP Method (GET, POST, DELETE, PATCH)
 * Routes which renders pages for the storefront (GET calls) are calling a respective pageloader to get the data it needs. 
 * The function name should be concise
-* Each function should define a return type hint
-* A route should have a single purpose
-* Use Symfony flash bags for error reporting
+* Each function has to define a return type hint
+* A route only have a single purpose
+* Use Symfony flash bags for error reporting to the frontend user
 * Each storefront functionality has to be available inside the store-api too
 * A storefront controller should never contain business logic
-* The controller class requires the annotation: @RouteScope(scopes={"storefront"})
-* Depending services has to be injected over the class constructor
+* The controller class requires the annotation: #[Route(defaults: ['_routeScope' => ['storefront']])]
+* Depending services has to be injected over the class constructor. The only exceptions are the container and twig, which can be injected with the methods `setContainer` and `setTwig`
 * Depending services has to be defined in the DI-Container service definition
 * Depending services has to be assigned to a private class property
+* Each storefront controller needs to be declared as a public service. (otherwise the routes can be removed from the container)
 * A storefront controller has to extend the \Shopware\Storefront\Controller\StorefrontController
-* Using LoginRequired annotation to identify whether the Customer is logged in or not.
-* Each storefront functionality needs to make use of a store-api route service. to make sure, this functionality is also available via API
+* Using _loginRequired=true defaults parameter to identify whether the Customer is logged in or not.
+* Each storefront functionality needs to make use of a store-api route service. This is to make sure, this functionality is also available via API
 
 ### Operations inside Storefront controllers
 A storefront controller should never use a repository directly, It should be injected inside a Route.
 
 Routes which should load a full storefront page, should use a PageLoader class to load all corresponding data that returns a Page-Object.
 
-Pages which contains data which are the same for all customers, should have the @HttpCache annotation
+Pages which contains data which are the same for all customers, should have the _httpCache=true defaults parameter in the Routes annoation.
 
 #### Write operations inside Storefront controllers
 Write operations should create their response with the createActionResponse function to allow different forwards and redirects.

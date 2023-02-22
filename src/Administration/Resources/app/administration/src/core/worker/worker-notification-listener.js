@@ -23,6 +23,10 @@ class WorkerNotificationListener {
     }
 
     start() {
+        if (!Shopware.Context.app.config.adminWorker.enableQueueStatsWorker) {
+            return;
+        }
+
         this._isRunning = true;
         this._middlewareHelper = WorkerNotification.initialize();
         this._timeoutId = setTimeout(this._checkQueue.bind(this), this._interval);

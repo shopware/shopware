@@ -26,3 +26,30 @@
               curl -X PUT -H "Private-Token: ${CI_GITLAB_API_TOKEN}" -H 'Content-Type: application/json' -d "{\"add_labels\": \"$LABEL\"}" $MR_API_URL --insecure;
             fi
           fi
+
+  init:
+    composer:
+      - echo -e "\e[0Ksection_start:$(date +%s):composerinstall[collapsed=true]\r\e[0Kcomposer install"
+      - composer install -o -n --no-scripts
+      - echo -e "\e[0Ksection_end:`date +%s`:composerinstall\r\e[0K"
+    composer_full:
+      - echo -e "\e[0Ksection_start:$(date +%s):composerfull[collapsed=true]\r\e[0Kcomposer install"
+      - composer install -o -n
+      - echo -e "\e[0Ksection_end:`date +%s`:composerfull\r\e[0K"
+    composer_update:
+      - echo -e "\e[0Ksection_start:$(date +%s):composer_update[collapsed=true]\r\e[0Kcomposer update"
+      - composer update -n
+      - echo -e "\e[0Ksection_end:`date +%s`:composer_update\r\e[0K"
+    npm:
+      admin:
+        - echo -e "\e[0Ksection_start:$(date +%s):npminstalladmin[collapsed=true]\r\e[0Knpm install admin"
+        - 'npm --no-audit --prefer-offline --prefix src/Administration/Resources/app/administration/ ci'
+        - echo -e "\e[0Ksection_end:`date +%s`:npminstalladmin\r\e[0K"
+      storefront:
+        - echo -e "\e[0Ksection_start:$(date +%s):npminstallstorefront[collapsed=true]\r\e[0Knpm install storefront"
+        - 'npm --no-audit --prefer-offline --prefix src/Storefront/Resources/app/storefront/ ci'
+        - echo -e "\e[0Ksection_end:`date +%s`:npminstallstorefront\r\e[0K"
+      e2e:
+        - echo -e "\e[0Ksection_start:$(date +%s):npminstalle2e[collapsed=true]\r\e[0Knpm install e2e"
+        - 'npm --prefix tests/e2e ci'
+        - echo -e "\e[0Ksection_end:`date +%s`:npminstalle2e\r\e[0K"

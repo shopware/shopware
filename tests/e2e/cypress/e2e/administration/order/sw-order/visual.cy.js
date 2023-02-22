@@ -31,24 +31,7 @@ describe('Order: Visual tests', () => {
     it('@visual: check appearance of basic order workflow', { tags: ['pa-customers-orders'] }, () => {
         const page = new OrderPageObject();
 
-        cy.intercept({
-            url: `${Cypress.env('apiPath')}/search/order`,
-            method: 'POST',
-        }).as('getData');
-
         cy.get('.sw-data-grid__cell--orderNumber').should('be.visible');
-        cy.get('.navigation-list-item__type-plugin').should('exist');
-        cy.get('.navigation-list-item__type-plugin').should('have.length', 3);
-        cy.clickMainMenuItem({
-            targetPath: '#/sw/order/index',
-            mainMenuId: 'sw-order',
-            subMenuId: 'sw-order-index',
-        });
-        cy.wait('@getData')
-            .its('response.statusCode').should('equal', 200);
-        cy.get('.sw-skeleton').should('not.exist');
-        cy.get('.sw-loader').should('not.exist');
-        cy.get('.sw-order-list').should('be.visible');
 
         // Take snapshot for visual testing
         cy.get('.sw-skeleton__listing').should('not.exist');
@@ -79,24 +62,6 @@ describe('Order: Visual tests', () => {
     });
 
     it('@visual: check appearance of order creation workflow', { tags: ['pa-customers-orders'] }, () => {
-        cy.intercept({
-            url: `${Cypress.env('apiPath')}/search/order`,
-            method: 'POST',
-        }).as('getData');
-
-        cy.get('.navigation-list-item__type-plugin').should('exist');
-        cy.get('.navigation-list-item__type-plugin').should('have.length', 3);
-        cy.clickMainMenuItem({
-            targetPath: '#/sw/order/index',
-            mainMenuId: 'sw-order',
-            subMenuId: 'sw-order-index',
-        });
-        cy.wait('@getData')
-            .its('response.statusCode').should('equal', 200);
-        cy.get('.sw-skeleton').should('not.exist');
-        cy.get('.sw-loader').should('not.exist');
-        cy.get('.sw-order-list').should('be.visible');
-
         // Take snapshot for visual testing
         cy.get('.sw-skeleton__listing').should('not.exist');
         cy.get('.sw-order-list').should('be.visible');

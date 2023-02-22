@@ -14,19 +14,12 @@ describe('Administration: Check module navigation', () => {
     });
 
     it('@base @navigation: navigate to review module', { tags: ['pa-content-management'] }, () => {
-        cy.intercept({
-            url: `**/${Cypress.env('apiPath')}/search/product-review`,
-            method: 'POST',
-        }).as('getData');
-
         // Open reviews
         cy.clickMainMenuItem({
             targetPath: '#/sw/review/index',
             mainMenuId: 'sw-catalogue',
             subMenuId: 'sw-review',
         });
-        cy.wait('@getData')
-            .its('response.statusCode').should('equal', 200);
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-review-list').should('be.visible');

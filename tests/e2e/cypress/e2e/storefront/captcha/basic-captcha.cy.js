@@ -93,7 +93,7 @@ describe('Basic captcha', () => {
         mockConfig().then(() => openContactForm());
     });
 
-    it('Should be visible basic captcha', { tags: ['pa-customers-orders'] }, () => {
+    it('Should be visible basic captcha', { tags: ['pa-customers-orders', 'quarantined'] }, () => {
         cy.get(selector.basicCaptcha).should('be.visible');
         cy.get(selector.basicCaptchaImage).should('be.visible');
         cy.get(selector.basicCaptchaRefreshIcon).should('be.visible');

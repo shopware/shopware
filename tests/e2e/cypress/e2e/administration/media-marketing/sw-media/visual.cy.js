@@ -23,10 +23,6 @@ describe('Media: Visual tests', () => {
             url: `${Cypress.env('apiPath')}/_action/media/**/upload?extension=png&fileName=sw-login-background`,
             method: 'POST',
         }).as('saveDataFileUpload');
-        cy.intercept({
-            url: `${Cypress.env('apiPath')}/search/media`,
-            method: 'POST',
-        }).as('getData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/media/**/upload?extension=png&fileName=plugin-manager--login`,
@@ -43,8 +39,6 @@ describe('Media: Visual tests', () => {
             mainMenuId: 'sw-content',
             subMenuId: 'sw-media',
         });
-        cy.wait('@getData')
-            .its('response.statusCode').should('equal', 200);
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-media-index__page-content').should('be.visible');

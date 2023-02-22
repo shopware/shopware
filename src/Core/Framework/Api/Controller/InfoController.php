@@ -131,6 +131,8 @@ class InfoController extends AbstractController
             'versionRevision' => $this->params->get('kernel.shopware_version_revision'),
             'adminWorker' => [
                 'enableAdminWorker' => $this->params->get('shopware.admin_worker.enable_admin_worker'),
+                'enableQueueStatsWorker' => $this->params->get('shopware.admin_worker.enable_queue_stats_worker'),
+                'enableNotificationWorker' => $this->params->get('shopware.admin_worker.enable_notification_worker'),
                 'transports' => $this->params->get('shopware.admin_worker.transports'),
             ],
             'bundles' => $this->getBundles($context),

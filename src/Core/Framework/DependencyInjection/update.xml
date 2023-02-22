@@ -5,6 +5,7 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <parameters>
         <parameter key="env(SHOPWARE_UPDATE_TEST)" />
+        <parameter key="env(SHOPWARE_DISABLE_UPDATE_CHECK)" />
     </parameters>
     <services>
         <service id="Shopware\Core\Framework\Update\Api\UpdateController" public="true">
@@ -18,6 +19,7 @@
             <argument type="service" id="user.repository"/>
             <argument>%kernel.shopware_version%</argument>
             <argument>%env(bool:SHOPWARE_UPDATE_TEST)%</argument>
+            <argument>%env(bool:SHOPWARE_DISABLE_UPDATE_CHECK)%</argument>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

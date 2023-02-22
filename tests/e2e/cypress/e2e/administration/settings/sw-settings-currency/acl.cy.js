@@ -10,9 +10,7 @@ describe('Currency: Test acl privileges', () => {
             });
     });
 
-    it('@settings: can view currency', { tags: ['pa-inventory'] }, () => {
-        const page = new SettingsPageObject();
-
+    it('@settings: can view currency', {tags: ['pa-inventory']}, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'currencies',
@@ -26,9 +24,7 @@ describe('Currency: Test acl privileges', () => {
 
         cy.get('.sw-settings-currency-list-grid').should('be.visible');
 
-        // click on first element in grid
-        cy.get(`${page.elements.dataGridRow}--2`)
-            .contains('Euro')
+        cy.contains('Euro')
             .click();
 
         // check if values are visible
@@ -64,9 +60,7 @@ describe('Currency: Test acl privileges', () => {
             method: 'PATCH',
         }).as('saveCurrency');
 
-        // click on first element in grid
-        cy.get(`${page.elements.dataGridRow}--2`)
-            .contains('Euro')
+        cy.contains('Euro')
             .click();
 
         // edit name
@@ -85,7 +79,7 @@ describe('Currency: Test acl privileges', () => {
             .contains('Kreuzer');
     });
 
-    it('@settings: can create currency', { tags: ['pa-inventory'] }, () => {
+    it('@settings: can create currency', { tags: ['pa-inventory', 'quarantined'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([

@@ -92,6 +92,9 @@ export default class OrderPageObject {
                 stateSelector
             );
 
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+
         cy.get('.sw-order-state-change-modal')
             .should('be.visible');
 
@@ -104,6 +107,10 @@ export default class OrderPageObject {
             .click()
             .find('.sw-single-select__selection-input')
             .should('have.attr', 'placeholder', stateTitle);
+
+
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get(this.elements.loader).should('not.exist');
         cy.get(this.elements.smartBarHeader).click();

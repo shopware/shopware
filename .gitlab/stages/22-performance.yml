@@ -5,7 +5,8 @@
 Lighthouse (Administration):
     extends: .base
     stage: unit
-    needs: []
+    needs: [ Build, 'Jest (Administration)' ]
+    dependencies: [ Build ]
     services:
         -   name: mariadb:10.4
             alias: database
@@ -35,7 +36,8 @@ Lighthouse (Administration):
 Lighthouse Server (Storefront):
     extends: .base
     stage: unit
-    needs: []
+    needs: [ Build, 'Jest (Storefront)' ]
+    dependencies: [ Build ]
     allow_failure: true
     timeout: 1h
     services:

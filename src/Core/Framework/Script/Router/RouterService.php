@@ -36,10 +36,11 @@ class RouterService
         } else {
             $query = $hook + $query;
         }
+        $request = $this->requestStack->getCurrentRequest();
         if (!isset($query['hook'])) {
-            $query['hook'] = $this->responseHook->getName();
+            $query['hook'] = $request?->attributes->get('hook');
         }
-        $route = $query['_route'] ?? $this->requestStack->getCurrentRequest()?->attributes->get('_route');
+        $route = $query['_route'] ?? $request?->attributes->get('_route');
 
         return $this->urlGenerator->generate($route, $query, $referenceType);
     }
@@ -54,7 +55,7 @@ class RouterService
      */
     public function path(string|array $hook = null, array $query = []): string
     {
-        return $this->generate($hook, $query, UrlGeneratorInterface::ABSOLUTE_PATH);
+        return $this->generate($hook, $query);
     }
 
     /**

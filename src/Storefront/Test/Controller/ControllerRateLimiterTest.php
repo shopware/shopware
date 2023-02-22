@@ -219,6 +219,7 @@ class ControllerRateLimiterTest extends TestCase
 
         $errorContent = $crawler->filterXPath('//form[@class="login-form"]//div[@class="alert-content"]')->text();
 
+        $this->translator->setLocale('en-GB');
         static::assertStringContainsString($this->translator->trans('account.loginThrottled', ['%seconds%' => 5]), $errorContent);
     }
 

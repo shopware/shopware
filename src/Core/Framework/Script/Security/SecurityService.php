@@ -28,13 +28,13 @@ class SecurityService
      *
      * @return string A nonce
      */
-    public function nonce(): string
+    public function nonce(): ?string
     {
         return $this->nonce;
     }
 
     /**
-     * Change the content security policy. Use the response function in this service and not the response service.
+     * Change the content security policy. Use the response function form this service and not the response service.
      *
      * @param string|null $contentSecurityPolicy The new content security policy
      */
@@ -44,7 +44,7 @@ class SecurityService
     }
 
     /**
-     * Change the frame options. Use the response function in this service and not the response service.
+     * Change the frame options. Use the response function from this service and not the response service.
      *
      * @param string|null $frameOptions The new frame options
      */
@@ -54,7 +54,7 @@ class SecurityService
     }
 
     /**
-     * Generates a response with current security options.
+     * Generates a response with the current security options.
      *
      * @param string $content HTML content
      * @param int $code HTTP status code

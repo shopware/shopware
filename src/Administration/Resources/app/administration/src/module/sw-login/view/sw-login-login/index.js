@@ -70,6 +70,12 @@ Component.register('sw-login-login', {
             }
 
             return animationPromise.then(() => {
+                const redirectUrl = (new URLSearchParams(window.location.search)).get('redirectUrl');
+                if (redirectUrl && redirectUrl.startsWith('/')) {
+                    window.location.replace(redirectUrl);
+                    return;
+                }
+
                 this.$parent.isLoginSuccess = false;
                 this.forwardLogin();
 
@@ -78,6 +84,7 @@ Component.register('sw-login-login', {
                 if (shouldReload) {
                     sessionStorage.removeItem('sw-login-should-reload');
                     // reload page to rebuild the administration with all dependencies
+
                     window.location.reload(true);
                 }
             });

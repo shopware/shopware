@@ -328,10 +328,10 @@ export default function createLoginService(
         context.authToken = null;
         bearerAuth = null;
 
-        httpClient.post('/oauth/logout', {}, {
+        void httpClient.post('/oauth/logout', {}, {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             baseURL: context.apiPath!,
-        }).then(():void => {});
+        });
 
         notifyOnLogoutListener();
 
@@ -427,6 +427,10 @@ export default function createLoginService(
      * Returns the current username
      */
     function getUsername(): string {
-        return Shopware.State.get('session').currentUser?.username;
+        const user = Shopware.State.get('session').currentUser;
+        if (typeof user !== 'object') {
+            return '';
+        }
+        return user.username;
     }
 }

@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Script\Api;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\App\AppLocaleProvider;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\PlatformRequest;
@@ -51,18 +52,16 @@ class KernelEventSubscriber implements EventSubscriberInterface
         if ($request->headers->has('Authorization')) {
             return;
         }
-
         if (!$request->cookies->has('admin_auth')) {
-            if ($request->isMethod(Request::METHOD_GET)) {
-                $request->attributes->set('auth_required', false);
-                $event->setController(function () {
-                    return new RedirectResponse($this->urlGenerator->generate('administration.index'));
-                });
-            }
+            $request->attributes->set('auth_required', false);
+            $redirectUrl = $request->getRequestUri();
+            $redirectUrl = $this->urlGenerator->generate('administration.index', ['redirectUrl' => $redirectUrl]);
+            $event->setController(function () use ($redirectUrl): RedirectResponse {
+                return new RedirectResponse($redirectUrl);
+            });
 
             return;
         }
-
         $request->headers->set('Authorization', 'Bearer ' . $request->cookies->get('admin_auth'));
     }
 
@@ -75,7 +74,6 @@ class KernelEventSubscriber implements EventSubscriberInterface
         if ($request->headers->has(PlatformRequest::HEADER_LANGUAGE_ID)) {
             return;
         }
-
         $language = $request->get(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE);
         if ($language === null) {
             return;
@@ -89,10 +87,11 @@ class KernelEventSubscriber implements EventSubscriberInterface
         if (!$request->attributes->get('admin_script')) {
             return;
         }
-
         $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
+        if (!$context instanceof Context) {
+            return;
+        }
         $locale = $this->localeProvider->getLocaleFromContext($context);
-
         $this->translator->setLocale($locale);
     }
 }

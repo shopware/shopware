@@ -28,7 +28,12 @@ class MailFactoryTest extends TestCase
         $contents = ['text/html' => 'Message'];
         $attachments = ['test'];
 
-        $additionalData = ['recipientsCc' => 'ccMailRecipient@example.com'];
+        $additionalData = [
+            'recipientsCc' => 'ccMailRecipient@example.com',
+            'recipientsBcc' => [
+                'bccMailRecipient@example.com' => 'bccMailRecipient',
+            ]
+        ];
         $binAttachments = [['content' => 'Content', 'fileName' => 'content.txt', 'mimeType' => 'application/txt']];
 
         $mail = $mailFactory->create(
@@ -59,5 +64,8 @@ class MailFactoryTest extends TestCase
         static::assertEquals($attachments, $mail->getAttachmentUrls());
 
         static::assertSame('ccMailRecipient@example.com', $mail->getCc()[0]->getAddress());
+
+        static::assertSame('bccMailRecipient', $mail->getBcc()[0]->getName());
+        static::assertSame('bccMailRecipient@example.com', $mail->getBcc()[0]->getAddress());
     }
 }

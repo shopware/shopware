@@ -6172,11 +6172,6 @@ parameters:
 			path: src/Core/Content/Test/Seo/SalesChannel/SeoUrlRouteTest.php
 
 		-
-			message: "#^DataProvider method templateDataProvider should be static\\.$#"
-			count: 2
-			path: src/Core/Content/Test/Seo/SeoUrlGeneratorTest.php
-
-		-
 			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\Sitemap\\\\Provider\\\\CategoryUrlProviderTest\\:\\:\\$categorySalesChannelRepository is never read, only written\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Sitemap/Provider/CategoryUrlProviderTest.php

@@ -70,23 +70,27 @@ class MailFactory extends AbstractMailFactory
         foreach ($additionalData as $key => $value) {
             switch ($key) {
                 case 'recipientsCc':
-                    $this->assertValidAddresses(array_keys($value));
-                    $mail->addCc(...$this->formatMailAddresses($value));
+                    $mailAddresses = is_array($value) ? $value : [$value => $value];
+                    $this->assertValidAddresses(array_keys($mailAddresses));
+                    $mail->addCc(...$this->formatMailAddresses($mailAddresses));
 
                     break;
                 case 'recipientsBcc':
-                    $this->assertValidAddresses(array_keys($value));
-                    $mail->addBcc(...$this->formatMailAddresses($value));
+                    $mailAddresses = is_array($value) ? $value : [$value => $value];
+                    $this->assertValidAddresses(array_keys($mailAddresses));
+                    $mail->addBcc(...$this->formatMailAddresses($mailAddresses));
 
                     break;
                 case 'replyTo':
-                    $this->assertValidAddresses(array_keys($value));
-                    $mail->addReplyTo(...$this->formatMailAddresses($value));
+                    $mailAddresses = is_array($value) ? $value : [$value => $value];
+                    $this->assertValidAddresses(array_keys($mailAddresses));
+                    $mail->addReplyTo(...$this->formatMailAddresses($mailAddresses));
 
                     break;
                 case 'returnPath':
-                    $this->assertValidAddresses(array_keys($value));
-                    $mail->returnPath(...$this->formatMailAddresses($value));
+                    $mailAddresses = is_array($value) ? $value : [$value => $value];
+                    $this->assertValidAddresses(array_keys($mailAddresses));
+                    $mail->returnPath(...$this->formatMailAddresses($mailAddresses));
             }
         }
 

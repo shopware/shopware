@@ -31,7 +31,7 @@ module.exports = defineConfig({
     dbPassword: 'root',
     dbHost: 'mysql',
     dbName: 'shopware_e2e',
-    expectedVersion: '6.4.',
+    expectedVersion: '6.5.',
     grepOmitFiltered: true,
     grepFilterSpecs: true,
   },

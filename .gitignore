@@ -90,6 +90,7 @@ src/Core/DevOps/Locust/env.json
 src/Core/DevOps/Locust/**/__pycache__/
 /.shopware-project.yml
 /.tinkerwell
+/shop
 
 .php-cs-fixer.cache
 

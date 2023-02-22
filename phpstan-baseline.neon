@@ -1756,41 +1756,6 @@ parameters:
 			path: src/Core/Content/Category/DataAbstractionLayer/CategoryBreadcrumbUpdater.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Category\\\\DataAbstractionLayer\\\\CategoryIndexer\\:\\:fetchChildren\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Category/DataAbstractionLayer/CategoryIndexer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Category\\\\DataAbstractionLayer\\\\CategoryIndexer\\:\\:getIterator\\(\\) has parameter \\$offset with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Category/DataAbstractionLayer/CategoryIndexer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Category\\\\Event\\\\CategoryIndexerEvent\\:\\:__construct\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Category/Event/CategoryIndexerEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Category\\\\Event\\\\CategoryIndexerEvent\\:\\:__construct\\(\\) has parameter \\$skip with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Category/Event/CategoryIndexerEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Category\\\\Event\\\\CategoryIndexerEvent\\:\\:getIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Category/Event/CategoryIndexerEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Category\\\\Event\\\\CategoryIndexerEvent\\:\\:getSkip\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Category/Event/CategoryIndexerEvent.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Category\\\\Event\\\\CategoryIndexerEvent\\:\\:\\$ids type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Category/Event/CategoryIndexerEvent.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Category\\\\Event\\\\CategoryRouteCacheTagsEvent\\:\\:__construct\\(\\) has parameter \\$tags with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Category/Event/CategoryRouteCacheTagsEvent.php
@@ -6368,7 +6333,7 @@ parameters:
 
 		-
 			message: "#^Parameter \\#1 \\$tags of method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\CacheInvalidator\\:\\:invalidate\\(\\) expects list\\<string\\>, array\\<string\\> given\\.$#"
-			count: 9
+			count: 7
 			path: src/Core/Framework/Adapter/Cache/CacheInvalidationSubscriber.php
 
 		-
@@ -7630,11 +7595,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\ModuleLoader\\:\\:mapTranslatedLabels\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/App/Manifest/ModuleLoader.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\ActionButton\\:\\:parse\\(\\) should return array\\<string, mixed\\> but returns array\\<int\\|string, mixed\\>\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Manifest/Xml/ActionButton.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\Admin\\:\\:__construct\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
@@ -13022,56 +12982,6 @@ parameters:
 			path: src/Core/Framework/Test/TestSessionStorage.php
 
 		-
-			message: "#^Parameter \\#1 \\$values of method Shopware\\\\Core\\\\Framework\\\\Update\\\\Checkers\\\\LicenseCheck\\:\\:check\\(\\) expects array\\|int\\|string, null given\\.$#"
-			count: 3
-			path: src/Core/Framework/Test/Update/Checkers/LicenseCheckTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$body of class GuzzleHttp\\\\Psr7\\\\Response constructor expects Psr\\\\Http\\\\Message\\\\StreamInterface\\|resource\\|string\\|null, string\\|false given\\.$#"
-			count: 3
-			path: src/Core/Framework/Test/Update/Services/PluginCompatibilityTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Update\\\\Services\\\\UpdateHtaccessTest\\:\\:getCombinations\\(\\) return type has no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Update/Services/UpdateHtaccessTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$body of class GuzzleHttp\\\\Psr7\\\\Response constructor expects Psr\\\\Http\\\\Message\\\\StreamInterface\\|resource\\|string\\|null, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Update/Steps/DeactivateExtensionsStepTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\Update\\\\Steps\\\\DeactivateExtensionsStepTest\\:\\:\\$apiClient is never read, only written\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Update/Steps/DeactivateExtensionsStepTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\Update\\\\Steps\\\\DeactivateExtensionsStepTest\\:\\:\\$appRepository is never read, only written\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Update/Steps/DeactivateExtensionsStepTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\Update\\\\Steps\\\\DeactivateExtensionsStepTest\\:\\:\\$pluginRepository is never read, only written\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Update/Steps/DeactivateExtensionsStepTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\Update\\\\Steps\\\\DeactivateExtensionsStepTest\\:\\:\\$salesChannelRepository is never read, only written\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Update/Steps/DeactivateExtensionsStepTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Update/UpdateControllerTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertEquals\\(\\) expects string, string\\|false given\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/Update/UpdateControllerTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Validation\\\\HappyPathValidatorTest\\:\\:testValidator\\(\\) has parameter \\$value with no type specified\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Validation/HappyPathValidatorTest.php
@@ -13145,146 +13055,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\Webhook\\\\_fixtures\\\\BusinessEvents\\\\UnstructuredObjectBusinessEvent\\:\\:\\$nested type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Webhook/_fixtures/BusinessEvents/UnstructuredObjectBusinessEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Update\\\\Checkers\\\\CheckerInterface\\:\\:check\\(\\) has parameter \\$values with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Update/Checkers/CheckerInterface.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Update\\\\Checkers\\\\LicenseCheck\\:\\:check\\(\\) has parameter \\$values with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Update/Checkers/LicenseCheck.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Update\\\\Checkers\\\\MysqlVersionCheck\\:\\:check\\(\\) has parameter \\$values with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Update/Checkers/MysqlVersionCheck.php
-
-		-
-			message: "#^Parameter \\#2 \\$version2 of function version_compare expects string, array\\|int\\|string given\\.$#"
-			count: 1
-			path: src/Core/Framework/Update/Checkers/MysqlVersionCheck.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Update\\\\Checkers\\\\PhpVersionCheck\\:\\:check\\(\\) has parameter \\$values with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Update/Checkers/PhpVersionCheck.php
-
-		-
-			message: "#^Parameter \\#2 \\$version2 of function version_compare expects string, array\\|int\\|string given\\.$#"
-			count: 1
-			path: src/Core/Framework/Update/Checkers/PhpVersionCheck.php
-
-		-
-			message: "#^Argument of an invalid type array\\|int\\|string supplied for foreach, only iterables are supported\\.$#"
-			count: 1
-			path: src/Core/Framework/Update/Checkers/WriteableCheck.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Update\\\\Checkers\\\\WriteableCheck\\:\\:check\\(\\) has parameter \\$values with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Update/Checkers/WriteableCheck.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Update\\\\Services\\\\ApiClient\\:\\:getUpdateOptions\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Update/Services/ApiClient.php
-
-		-
-			message: "#^Class Shopware\\\\Core\\\\Framework\\\\Update\\\\Services\\\\Archive\\\\Adapter implements generic interface SeekableIterator but does not specify its types\\: TKey, TValue$#"
-			count: 1
-			path: src/Core/Framework/Update/Services/Archive/Adapter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Update\\\\Services\\\\Archive\\\\Adapter\\:\\:each\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Update/Services/Archive/Adapter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Update\\\\Services\\\\Archive\\\\Entry\\\\Zip\\:\\:getContents\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Update/Services/Archive/Entry/Zip.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Update\\\\Services\\\\Archive\\\\Entry\\\\Zip\\:\\:getStream\\(\\) should return resource but returns resource\\|false\\.$#"
-			count: 1
-			path: src/Core/Framework/Update/Services/Archive/Entry/Zip.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Update\\\\Services\\\\Archive\\\\Entry\\\\Zip\\:\\:\\$name \\(string\\) does not accept string\\|false\\.$#"
-			count: 1
-			path: src/Core/Framework/Update/Services/Archive/Entry/Zip.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Update\\\\Services\\\\Archive\\\\Zip\\:\\:getContents\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Update/Services/Archive/Zip.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Update\\\\Services\\\\Archive\\\\Zip\\:\\:getEntry\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Update/Services/Archive/Zip.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Update\\\\Services\\\\Archive\\\\Zip\\:\\:getStream\\(\\) should return resource but returns resource\\|false\\.$#"
-			count: 1
-			path: src/Core/Framework/Update/Services/Archive/Zip.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Update\\\\Services\\\\Filesystem\\:\\:checkDirectoryPermissions\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Update/Services/Filesystem.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Update\\\\Services\\\\Filesystem\\:\\:checkSingleDirectoryPermissions\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Update/Services/Filesystem.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Update\\\\Services\\\\RequirementsValidator\\:\\:validate\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Update/Services/RequirementsValidator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Update\\\\Steps\\\\UnpackStep\\:\\:__construct\\(\\) has parameter \\$destinationDir with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Update/Steps/UnpackStep.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Update\\\\Steps\\\\ValidResult\\:\\:__construct\\(\\) has parameter \\$args with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Update/Steps/ValidResult.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Update\\\\Steps\\\\ValidResult\\:\\:getArgs\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Update/Steps/ValidResult.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Update\\\\Struct\\\\ValidationResult\\:\\:__construct\\(\\) has parameter \\$vars with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Update/Struct/ValidationResult.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Update\\\\Struct\\\\ValidationResult\\:\\:\\$vars type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Update/Struct/ValidationResult.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Update\\\\Struct\\\\Version\\:\\:\\$changelog type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Update/Struct/Version.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Update\\\\Struct\\\\Version\\:\\:\\$checks type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Update/Struct/Version.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Update\\\\VersionFactory\\:\\:create\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Update/VersionFactory.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Util\\\\HtmlSanitizer\\:\\:__construct\\(\\) has parameter \\$fieldSets with no value type specified in iterable type array\\.$#"
@@ -15420,26 +15190,6 @@ parameters:
 			message: "#^Property Shopware\\\\Storefront\\\\Framework\\\\Routing\\\\StorefrontResponse\\:\\:\\$data type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Framework/Routing/StorefrontResponse.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Seo\\\\SeoUrlRoute\\\\SeoUrlUpdateListener\\:\\:getCategoryChildren\\(\\) should return list\\<string\\> but returns array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Seo/SeoUrlRoute/SeoUrlUpdateListener.php
-
-		-
-			message: "#^Parameter \\#1 \\$ids of method Shopware\\\\Storefront\\\\Framework\\\\Seo\\\\SeoUrlRoute\\\\SeoUrlUpdateListener\\:\\:getCategoryChildren\\(\\) expects list\\<string\\>, array given\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Seo/SeoUrlRoute/SeoUrlUpdateListener.php
-
-		-
-			message: "#^Parameter \\#2 \\$ids of method Shopware\\\\Core\\\\Content\\\\Seo\\\\SeoUrlUpdater\\:\\:update\\(\\) expects list\\<string\\>, array given\\.$#"
-			count: 2
-			path: src/Storefront/Framework/Seo/SeoUrlRoute/SeoUrlUpdateListener.php
-
-		-
-			message: "#^Parameter \\#2 \\$ids of method Shopware\\\\Core\\\\Content\\\\Seo\\\\SeoUrlUpdater\\:\\:update\\(\\) expects list\\<string\\>, array\\<string\\> given\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Seo/SeoUrlRoute/SeoUrlUpdateListener.php
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Twig\\\\Extension\\\\ConfigExtension\\:\\:config\\(\\) has parameter \\$context with no value type specified in iterable type array\\.$#"

@@ -4,6 +4,9 @@
   packages = [
     pkgs.gnupatch
     pkgs.nodePackages_latest.yalc
+    pkgs.gnused
+    pkgs.symfony-cli
+    pkgs.deno
   ];
 
   languages.javascript = {
@@ -98,7 +101,23 @@
 
   env.APP_URL = lib.mkDefault "http://localhost:8000";
   env.APP_SECRET = lib.mkDefault "devsecret";
-  env.CYPRESS_baseUrl = lib.mkDefault "http://localhost:8000";
   env.DATABASE_URL = lib.mkDefault "mysql://root@localhost:3306/shopware";
   env.MAILER_DSN = lib.mkDefault "smtp://localhost:1025";
+
+  # General cypress
+  env.CYPRESS_baseUrl = lib.mkDefault "http://localhost:8000";
+
+  # Installer/Updater testing
+  env.INSTALL_URL = lib.mkDefault "http://localhost:8050";
+  env.CYPRESS_dbHost = lib.mkDefault "localhost";
+  env.CYPRESS_dbUser = lib.mkDefault "shopware";
+  env.CYPRESS_dbPassword = lib.mkDefault "shopware";
+  env.CYPRESS_dbName = lib.mkDefault "shopware";
+
+  scripts.build-updater.exec = ''
+      ${pkgs.phpPackages.box}/bin/box compile -d src/WebInstaller
+      mv src/WebInstaller/shopware-installer.phar.php shop/public/shopware-installer.phar.php
+  '';
+
+  scripts.watch-updater.exec = "${pkgs.watchexec}/bin/watchexec -i src/WebInstaller/shopware-installer.phar.php  -eyaml,php,js build-updater";
 }

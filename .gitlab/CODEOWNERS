@@ -9,7 +9,6 @@
 /src/Core/**/SalesChannel/                                      @product/engineering/platform-group/core
 /src/Core/**/*Rule.php                                          @product/engineering/platform-group/core
 /src/Elasticsearch/                                             @product/engineering/platform-group/core
-/src/Recovery/**/*.php                                          @product/engineering/platform-group/core
 /src/Storefront/Migration/                                      @product/engineering/platform-group/core
 /bin/                                                           @product/engineering/platform-group/core
 /public/                                                        @product/engineering/platform-group/core

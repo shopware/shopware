@@ -24,10 +24,13 @@ class ValidationResult extends Struct
     protected $message;
 
     /**
-     * @var array
+     * @var array<mixed>
      */
     protected $vars;
 
+    /**
+     * @param array<mixed> $vars
+     */
     public function __construct(
         string $name,
         bool $result,

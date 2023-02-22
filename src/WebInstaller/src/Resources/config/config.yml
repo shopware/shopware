@@ -1,0 +1,18 @@
+imports:
+  - { resource: services.yml }
+
+framework:
+  secret: ''
+  default_locale: en
+  translator:
+    fallbacks: [ 'en' ]
+    cache_dir: null
+    default_path: '%kernel.project_dir%/Resources/translations'
+  session:
+    name: 'shopware-recovery'
+    cookie_secure: auto
+    cookie_samesite: strict
+
+twig:
+  cache: false
+  default_path: '%kernel.project_dir%/Resources/views'

@@ -1241,16 +1241,6 @@ parameters:
 			path: src/Core/Checkout/Shipping/Aggregate/ShippingMethodTranslation/ShippingMethodTranslationCollection.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Delivery\\\\DeliveryPositionCollectionTest\\:\\:volumeDataProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Delivery/DeliveryPositionCollectionTest.php
-
-		-
-			message: "#^Parameter \\#4 \\$price of class Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Delivery\\\\Struct\\\\DeliveryPosition constructor expects Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Price\\\\Struct\\\\CalculatedPrice, Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Price\\\\Struct\\\\CalculatedPrice\\|null given\\.$#"
-			count: 9
-			path: src/Core/Checkout/Test/Cart/Delivery/DeliveryPositionCollectionTest.php
-
-		-
 			message: "#^DataProvider method priceCases should be static\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Cart/Facade/CartFacadeHelperTest.php
@@ -1429,11 +1419,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Tax\\\\TaxCalculationTypeTest\\:\\:testCalculation\\(\\) has parameter \\$items with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Test/Cart/Tax/TaxCalculationTypeTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Tax\\\\TaxCalculatorTest\\:\\:netPricesToGross\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Tax/TaxCalculatorTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Customer\\\\Command\\\\DeleteUnusedGuestCustomersCommandTest\\:\\:createOrderForCustomer\\(\\) has parameter \\$customer with no value type specified in iterable type array\\.$#"

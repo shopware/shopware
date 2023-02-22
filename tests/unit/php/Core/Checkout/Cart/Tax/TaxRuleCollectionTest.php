@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Test\Cart\Tax;
+namespace Shopware\Tests\Unit\Core\Checkout\Cart\Tax;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
@@ -8,6 +8,8 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 
 /**
  * @internal
+ *
+ * @covers \Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection
  */
 class TaxRuleCollectionTest extends TestCase
 {

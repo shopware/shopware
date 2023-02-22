@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Core\Content\Product\DataAbstractionLayer\StockUpd
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\DataAbstractionLayer\StockUpdate\StockUpdateFilterProvider;
 use Shopware\Core\Framework\Context;
-use Shopware\Tests\Unit\Common\Stubs\DataAbstractionLayer\StockUpdate\TestStockUpdateFilter;
 
 /**
  * @internal

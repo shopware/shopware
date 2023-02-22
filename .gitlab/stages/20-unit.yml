@@ -336,6 +336,15 @@ PHP Full:
 PHP Full quarantined:
     extends: PHP Full
     stage: quarantine
+    rules:
+      - !reference [ .rules, skip ]
+      - !reference [ .rules, skip-in-merge-train ]
+      - if: !reference [ .rules, run-allow-failure, if ]
+        allow_failure: true
+      - !reference [ .rules, run ]
+      - if: !reference [ .rules, long-running-allow-failure, if ]
+        allow_failure: true
+      - !reference [ .rules, long-running ]
     parallel:
         matrix:
             - MYSQL_IMAGE: mariadb:10.4

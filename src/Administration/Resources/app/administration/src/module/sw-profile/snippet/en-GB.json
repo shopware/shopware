@@ -63,7 +63,8 @@
           "email": "Email address",
           "tagsName": "Tags",
           "customerNumber": "Customer number",
-          "documentNumber": "Document number"
+          "documentNumber": "Document number",
+          "promotionCode": "Applied promotion codes"
         },
         "customer": {
           "tagsName": "Tags",
@@ -122,7 +123,8 @@
           "name": "Name"
         },
         "promotion": {
-          "name": "Name"
+          "name": "Name",
+          "code": "Code"
         },
         "product_stream": {
           "name": "Name"

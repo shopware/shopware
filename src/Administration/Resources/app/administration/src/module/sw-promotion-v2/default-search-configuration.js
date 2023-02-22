@@ -6,6 +6,10 @@ const defaultSearchConfiguration = {
         _searchable: true,
         _score: searchRankingPoint.HIGH_SEARCH_RANKING,
     },
+    code: {
+        _searchable: true,
+        _score: searchRankingPoint.HIGH_SEARCH_RANKING,
+    },
 };
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

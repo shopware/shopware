@@ -18,6 +18,10 @@
 
                                 {% block page_account_overview_billing_address_actions %}
                                     <div class="card-actions">
+                                        {% set addressEditorOptions = {
+                                            changeBilling: true
+                                        } %}
+
                                         {% block page_account_overview_billing_address_actions_link %}
                                             <a href="{{ path('frontend.account.address.edit.page', {'addressId': context.customer.defaultBillingAddress.id}) }}"
                                                title="{{ "account.overviewChangeBilling"|trans|striptags }}"

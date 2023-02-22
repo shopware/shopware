@@ -22,6 +22,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\Tax\TaxCollection;
+use Shopware\Tests\Unit\Common\Stubs\SystemConfigService\StaticSystemConfigService;
 
 /**
  * @internal
@@ -61,64 +62,71 @@ class CategorySubscriberTest extends TestCase
     }
 
     /**
-     * @return array<string, array{systemConfigService: SystemConfigService, categoryEntity: CategoryEntity, cmsPageIdBeforeEvent: string|null, cmsPageIdAfterEvent:string|null, salesChannelId: string|null}>
+     * @return array<string, array{SystemConfigService, CategoryEntity, string|null, string|null, string|null}>
      */
-    public function entityLoadedEventDataProvider(): iterable
+    public static function entityLoadedEventDataProvider(): iterable
     {
         yield 'It does not set cms page id if already set by the user' => [
-            'systemConfigService' => $this->getSystemConfigServiceMock(),
-            'categoryEntity' => $this->getCategory('foobar', false),
-            'cmsPageIdBeforeEvent' => 'foobar',
-            'cmsPageIdAfterEvent' => 'foobar',
-            'salesChannelId' => null,
+            self::getSystemConfigServiceMock(),
+            self::getCategory('foobar', false),
+            'foobar',
+            'foobar',
+            null,
         ];
 
         yield 'It does not set cms page id if already set by the subscriber' => [
-            'systemConfigService' => $this->getSystemConfigServiceMock(null, 'cmsPageId'),
-            'categoryEntity' => $this->getCategory('differentCmsPageId', true),
-            'cmsPageIdBeforeEvent' => 'differentCmsPageId',
-            'cmsPageIdAfterEvent' => 'differentCmsPageId',
-            'salesChannelId' => 'salesChannelId',
+            self::getSystemConfigServiceMock(null, 'cmsPageId'),
+            self::getCategory('differentCmsPageId', true),
+            'differentCmsPageId',
+            'differentCmsPageId',
+            'salesChannelId',
         ];
 
         yield 'It does not set if no default is given' => [
-            'systemConfigService' => $this->getSystemConfigServiceMock(),
-            'categoryEntity' => $this->getCategory(null, false),
-            'cmsPageIdBeforeEvent' => null,
-            'cmsPageIdAfterEvent' => null,
-            'salesChannelId' => null,
+            self::getSystemConfigServiceMock(),
+            self::getCategory(null, false),
+            null,
+            null,
+            null,
         ];
 
         yield 'It uses overall default if no salesChannel is given' => [
-            'systemConfigService' => $this->getSystemConfigServiceMock(null, 'cmsPageId'),
-            'categoryEntity' => $this->getCategory(null, false),
-            'cmsPageIdBeforeEvent' => null,
-            'cmsPageIdAfterEvent' => 'cmsPageId',
-            'salesChannelId' => null,
+            self::getSystemConfigServiceMock(null, 'cmsPageId'),
+            self::getCategory(null, false),
+            null,
+            'cmsPageId',
+            null,
         ];
 
         yield 'It uses salesChannel specific default' => [
-            'systemConfigService' => $this->getSystemConfigServiceMock('salesChannelId', 'salesChannelSpecificDefault'),
-            'categoryEntity' => $this->getCategory(null, false),
-            'cmsPageIdBeforeEvent' => null,
-            'cmsPageIdAfterEvent' => 'salesChannelSpecificDefault',
-            'salesChannelId' => 'salesChannelId',
+            self::getSystemConfigServiceMock('salesChannelId', 'salesChannelSpecificDefault'),
+            self::getCategory(null, false),
+            null,
+            'salesChannelSpecificDefault',
+            'salesChannelId',
         ];
     }
 
-    private function getSystemConfigServiceMock(?string $salesChannelId = null, ?string $cmsPageId = null): SystemConfigService
+    private static function getSystemConfigServiceMock(?string $salesChannelId = null, ?string $cmsPageId = null): SystemConfigService
     {
-        $systemContextService = $this->createMock(SystemConfigService::class);
+        if ($salesChannelId === null && $cmsPageId === null) {
+            return new StaticSystemConfigService([]);
+        }
 
-        $systemContextService
-            ->method('get')
-            ->with(CategoryDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_CATEGORY, $salesChannelId)
-            ->willReturn($cmsPageId);
+        if ($salesChannelId === null) {
+            return new StaticSystemConfigService([
+                CategoryDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_CATEGORY => $cmsPageId,
+            ]);
+        }
 
-        return $systemContextService;
+        return new StaticSystemConfigService([
+            $salesChannelId => [
+                CategoryDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_CATEGORY => $cmsPageId,
+            ],
+        ]);
     }
 
-    private function getCategory(?string $cmsPageId, bool $cmsPageIdSwitched): CategoryEntity
+    private static function getCategory(?string $cmsPageId, bool $cmsPageIdSwitched): CategoryEntity
     {
         $category = new CategoryEntity();
 

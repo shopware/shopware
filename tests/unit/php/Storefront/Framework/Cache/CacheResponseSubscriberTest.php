@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Event\BeforeSendResponseEvent;
 use Shopware\Core\PlatformRequest;
@@ -538,9 +539,10 @@ class CacheResponseSubscriberTest extends TestCase
     /**
      * @return array<string, array<int, Request>>
      */
-    public function notCacheableRequestProvider(): iterable
+    public static function notCacheableRequestProvider(): iterable
     {
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = Generator::createSalesChannelContext();
+        $salesChannelContext->assign(['customer' => null]);
 
         $postRequest = new Request([], [], [PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT => $salesChannelContext]);
         $postRequest->setMethod(Request::METHOD_POST);

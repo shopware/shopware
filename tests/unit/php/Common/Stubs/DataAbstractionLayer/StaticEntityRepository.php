@@ -6,16 +6,28 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\Framework\Event\NestedEventCollection;
 
 /**
  * @internal
  */
 class StaticEntityRepository extends EntityRepository
 {
+    /**
+     * @var array<mixed>
+     */
+    private array $upserts;
+
+    /**
+     * @var array<mixed>
+     */
+    private array $updates;
+
     /**
      * @param array<\Closure|EntitySearchResult|AggregationResultCollection|mixed|EntityCollection<Entity>|IdSearchResult> $searches
      */
@@ -68,5 +80,53 @@ class StaticEntityRepository extends EntityRepository
         }
 
         return new IdSearchResult(\count($result), $result, $criteria, $context);
+    }
+
+    /**
+     * @experimental
+     */
+    public function update(array $data, Context $context): EntityWrittenContainerEvent
+    {
+        $this->updates[] = $data;
+
+        return new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection([]), []);
+    }
+
+    /**
+     * @experimental
+     */
+    public function upsert(array $data, Context $context): EntityWrittenContainerEvent
+    {
+        $this->upserts[] = $data;
+
+        return new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection([]), []);
+    }
+
+    /**
+     * @experimental
+     *
+     * @return array<mixed>
+     */
+    public function getUpsert(): array
+    {
+        if (empty($this->upserts)) {
+            throw new \RuntimeException('Upsert queue is empty');
+        }
+
+        return array_pop($this->upserts);
+    }
+
+    /**
+     * @experimental
+     *
+     * @return array<mixed>
+     */
+    public function getUpdates(): array
+    {
+        if (empty($this->updates)) {
+            throw new \RuntimeException('Updates queue is empty');
+        }
+
+        return array_pop($this->updates);
     }
 }

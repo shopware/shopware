@@ -347,26 +347,26 @@ _________
 * Returns nonce value from the content security policy.
 
     
-* **Returns** `string`
+* **Returns** `string` | `null`
 
     A nonce
 ### setContentSecurityPolicy()
 
-* Change the content security policy. Use the response function in this service and not the response service.
+* Change the content security policy. Use the response function form this service and not the response service.
 
     
 * **Arguments:**
     * *`string` | `null`* **contentSecurityPolicy**: The new content security policy
 ### setFrameOptions()
 
-* Change the frame options. Use the response function in this service and not the response service.
+* Change the frame options. Use the response function from this service and not the response service.
 
     
 * **Arguments:**
     * *`string` | `null`* **frameOptions**: The new frame options
 ### response()
 
-* Generates a response with current security options.
+* Generates a response with the current security options.
 
     
 * **Returns** [`Shopware\Core\Framework\Script\Api\ScriptResponse`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Script/Api/ScriptResponse.php)

@@ -288,6 +288,8 @@
             <argument type="service" id="Shopware\Core\Framework\Api\OAuth\RefreshTokenRepository"/>
             <argument type="service" id="Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory"/>
             <argument type="service" id="Shopware\Core\Framework\Routing\RouteScopeRegistry"/>
+            <argument type="string">%shopware.api.access_token_ttl%</argument>
+            <argument type="string">%shopware.api.refresh_token_ttl%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\Api\EventListener\Authentication\UserCredentialsChangedSubscriber">

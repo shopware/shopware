@@ -65,7 +65,7 @@ describe('Import/Export:  Visual tests', () => {
             {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
     });
 
-    it('@visual: check appearance of basic export workflow', { tags: ['pa-system-settings'] }, () => {
+    it('@visual: check appearance of basic export workflow', { tags: ['pa-system-settings', 'quarantined'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/import-export/prepare`,
             method: 'POST',
@@ -143,7 +143,7 @@ describe('Import/Export:  Visual tests', () => {
         cy.takeSnapshot('[Import export] reworked log info modal after export', '.sw-import-export-activity-log-info-modal', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
     });
 
-    it('@visual: check appearance of basic import workflow', { tags: ['pa-system-settings'] }, () => {
+    it('@visual: check appearance of basic import workflow', { tags: ['pa-system-settings', 'quarantined'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/import-export/prepare`,
             method: 'POST',

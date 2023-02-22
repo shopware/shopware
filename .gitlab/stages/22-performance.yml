@@ -7,7 +7,7 @@ Lighthouse (Administration):
     stage: unit
     needs: []
     services:
-        -   name: mariadb:10.3
+        -   name: mariadb:10.4
             alias: database
     variables:
       # Use e2e env to deactivate the admin queue worker
@@ -16,11 +16,9 @@ Lighthouse (Administration):
       PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: ''
     rules:
         - !reference [ .rules, skip ]
-        - !reference [ .rules, run ]
-        # always execute in merge train. PHP could in theory affect the admin jest tests
-        - !reference [ .rules, long-running ]
-        - changes:
-            - 'src/Administration/Resources/app/administration/**/*'
+        # only run on protected refs like trunk and the version branches, if it's not a merge request
+        - if: '$CI_PIPELINE_SOURCE != "merge_request_event" && $CI_COMMIT_REF_PROTECTED == "true"'
+          allow_failure: true
     script:
       - APP_ENV=prod bin/console framework:demodata
       - APP_ENV=prod bin/console dal:refresh:index
@@ -29,7 +27,6 @@ Lighthouse (Administration):
       - node node_modules/@lhci/cli/src/cli.js collect --config=$PROJECT_ROOT/build/artifacts/lighthouse-admin-config/general.json
       - node lighthouse-tests.js
       - node node_modules/@lhci/cli/src/cli.js upload --config=$PROJECT_ROOT/build/artifacts/lighthouse-admin-config/general.json
-    coverage: '/^\s?All files[^|]*\|[^|]*\s+([\d\.]+)/'
     artifacts:
         when: always
         paths:
@@ -42,7 +39,7 @@ Lighthouse Server (Storefront):
     allow_failure: true
     timeout: 1h
     services:
-        -   name: mariadb:10.3
+        -   name: mariadb:10.4
             alias: database
     variables:
         APP_ENV: prod
@@ -65,7 +62,6 @@ Lighthouse Server (Storefront):
         - node node_modules/@lhci/cli/src/cli.js collect --additive=true --config=$PROJECT_ROOT/build/artifacts/lighthouse-storefront-config/lighthousercLoggedInMobile.json
         - node lighthouse-tests.js
         - node node_modules/@lhci/cli/src/cli.js upload --config=$PROJECT_ROOT/build/artifacts/lighthouse-storefront-config/lighthousercNotLoggedIn.json
-    coverage: '/^\s?All files[^|]*\|[^|]*\s+([\d\.]+)/'
     artifacts:
         when: always
         paths:

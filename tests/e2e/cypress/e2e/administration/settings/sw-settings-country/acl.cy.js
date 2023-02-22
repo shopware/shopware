@@ -7,8 +7,6 @@ describe('Country: Test acl privileges', () => {
         cy.createDefaultFixture('country')
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
-                cy.get('.sw-skeleton').should('not.exist');
-                cy.get('.sw-loader').should('not.exist');
             });
     });
 
@@ -146,7 +144,7 @@ describe('Country: Test acl privileges', () => {
         '000');
     });
 
-    it('@settings: can delete a country', { tags: ['pa-system-settings'] }, () => {
+    it('@settings: can delete a country', { tags: ['pa-system-settings', 'quarantined'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([

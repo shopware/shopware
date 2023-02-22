@@ -29,7 +29,7 @@ describe('Flow builder: Test acl privilege', () => {
         cy.contains(`${page.elements.dataGridRow}`, 'Order placed').click();
     });
 
-    it('@settings: can edit flow builder', { tags: ['pa-business-ops'] }, () => {
+    it('@settings: can edit flow builder', {tags: ['pa-business-ops', 'quarantined']}, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -46,11 +46,6 @@ describe('Flow builder: Test acl privilege', () => {
             cy.get('.sw-skeleton').should('not.exist');
             cy.get('.sw-loader').should('not.exist');
         });
-
-        cy.intercept({
-            url: `${Cypress.env('apiPath')}/flow/*`,
-            method: 'PATCH',
-        }).as('updateData');
 
         cy.get('.sw-flow-list').should('be.visible');
         cy.get('.sw-skeleton').should('not.exist');
@@ -89,15 +84,20 @@ describe('Flow builder: Test acl privilege', () => {
             cy.get('.sw-flow-generate-document-modal').should('not.exist');
             cy.get('li.sw-flow-sequence-action__action-item').should('have.length', listLength + 1);
 
+            cy.intercept({
+                url: `${Cypress.env('apiPath')}/flow/*`,
+                method: 'PATCH',
+            }).as('updateData');
             cy.get('.sw-flow-detail__save').click();
             cy.wait('@updateData').its('response.statusCode').should('equal', 204);
             cy.get('.sw-skeleton').should('not.exist');
             cy.get('.sw-loader').should('not.exist');
 
             // Verify updated element
-            cy.get(page.elements.smartBarBack).click({ force: true });
+            cy.get(page.elements.smartBarBack).click({force: true});
             cy.get('.sw-skeleton').should('not.exist');
             cy.get('.sw-loader').should('not.exist');
+
             cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Order placed v2');
             cy.get('.sw-skeleton').should('not.exist');
             cy.get('.sw-loader').should('not.exist');

@@ -19,6 +19,10 @@ export default class AdminNotificationWorker {
     }
 
     start() {
+        if (!Shopware.Context.app.config.adminWorker.enableNotificationWorker) {
+            return;
+        }
+
         this.fetchUserConfig().then(() => {
             this.loadNotifications();
         });

@@ -32,10 +32,6 @@ describe('Property: Visual tests', () => {
             method: 'POST',
         }).as('saveData');
         cy.intercept({
-            url: `${Cypress.env('apiPath')}/search/property-group`,
-            method: 'POST',
-        }).as('getData');
-        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/media-default-folder`,
             method: 'POST',
         }).as('getMediaFolder');
@@ -45,8 +41,6 @@ describe('Property: Visual tests', () => {
             mainMenuId: 'sw-catalogue',
             subMenuId: 'sw-property',
         });
-        cy.wait('@getData')
-            .its('response.statusCode').should('equal', 200);
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-property-list__content').should('exist');

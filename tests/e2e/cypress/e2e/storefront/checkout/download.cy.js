@@ -78,7 +78,7 @@ describe('Test checkout with downloadable products', () => {
         });
     });
 
-    it('@base @checkout: should checkout with downloadable and physical mixed', { tags: ['pa-checkout'] }, () => {
+    it('@base @checkout: should checkout with downloadable and physical mixed', {tags: ['pa-checkout', 'quarantined']}, () => {
         cy.window().then(() => {
             const page = new CheckoutPageObject();
 

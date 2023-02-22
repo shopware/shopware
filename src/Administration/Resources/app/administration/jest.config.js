@@ -10,8 +10,10 @@ process.env.PROJECT_ROOT = process.env.PROJECT_ROOT || process.env.INIT_CWD || '
 process.env.ADMIN_PATH = process.env.ADMIN_PATH || __dirname;
 process.env.TZ = process.env.TZ || 'UTC';
 
+process.env.JEST_CACHE_DIR = process.env.JEST_CACHE_DIR || '<rootDir>.jestcache';
+
 module.exports = {
-    cacheDirectory: '<rootDir>.jestcache',
+    cacheDirectory: process.env.JEST_CACHE_DIR,
     preset: '@shopware-ag/jest-preset-sw6-admin',
     globals: {
         adminPath: process.env.ADMIN_PATH,

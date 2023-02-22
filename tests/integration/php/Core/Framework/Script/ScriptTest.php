@@ -121,8 +121,9 @@ class ScriptTest extends TestCase
     public function testSnippet(): void
     {
         $translator = $this->getContainer()->get(\Shopware\Core\Framework\Adapter\Translation\Translator::class);
-
+        $translator->resetInMemoryCache();
         $translator->setLocale('de-DE');
+
         $response = $this->scripController->execute('snippet', new Request(), Context::createDefaultContext());
 
         static::assertEquals('Beschreibung', $response->getContent());

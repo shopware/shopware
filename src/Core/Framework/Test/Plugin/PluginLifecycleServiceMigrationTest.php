@@ -63,8 +63,8 @@ class PluginLifecycleServiceMigrationTest extends TestCase
     {
         $connection = Kernel::getConnection();
 
-        $connection->executeUpdate('DELETE FROM migration WHERE `class` LIKE "SwagManualMigrationTest%"');
-        $connection->executeUpdate('DELETE FROM plugin');
+        $connection->executeStatement('DELETE FROM migration WHERE `class` LIKE "SwagManualMigrationTest%"');
+        $connection->executeStatement('DELETE FROM plugin');
 
         KernelLifecycleManager::bootKernel();
     }
@@ -95,7 +95,7 @@ class PluginLifecycleServiceMigrationTest extends TestCase
         $this->requireMigrationFiles();
 
         $this->pluginService->refreshPlugins($this->context, new NullIO());
-        $this->connection->executeUpdate('DELETE FROM plugin WHERE `name` = "SwagTest"');
+        $this->connection->executeStatement('DELETE FROM plugin WHERE `name` = "SwagTest"');
     }
 
     public function testInstall(): MigrationCollection

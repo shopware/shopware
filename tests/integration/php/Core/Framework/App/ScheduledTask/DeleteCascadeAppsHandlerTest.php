@@ -55,9 +55,9 @@ class DeleteCascadeAppsHandlerTest extends TestCase
 
     private function handleTask(string $timeExpired, int $numberEntities): void
     {
-        $this->connection->exec('DELETE FROM scheduled_task');
-        $this->connection->exec('DELETE FROM acl_role');
-        $this->connection->exec('DELETE FROM integration');
+        $this->connection->executeStatement('DELETE FROM scheduled_task');
+        $this->connection->executeStatement('DELETE FROM acl_role');
+        $this->connection->executeStatement('DELETE FROM integration');
 
         $taskId = Uuid::randomHex();
         $originalNextExecution = (new \DateTime())->modify('-10 seconds');

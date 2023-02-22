@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\TestCaseBase;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use PHPUnit\Framework\TestCase;
@@ -46,15 +47,15 @@ trait AdminApiTestBehaviour
             ->get(Connection::class);
 
         try {
-            $connection->executeUpdate(
+            $connection->executeStatement(
                 'DELETE FROM user WHERE username IN (:usernames)',
                 ['usernames' => $this->apiUsernames],
-                ['usernames' => Connection::PARAM_STR_ARRAY]
+                ['usernames' => ArrayParameterType::STRING]
             );
-            $connection->executeUpdate(
+            $connection->executeStatement(
                 'DELETE FROM integration WHERE id IN (:ids)',
                 ['ids' => $this->apiIntegrations],
-                ['ids' => Connection::PARAM_STR_ARRAY]
+                ['ids' => ArrayParameterType::STRING]
             );
         } catch (\Exception) {
             //nth

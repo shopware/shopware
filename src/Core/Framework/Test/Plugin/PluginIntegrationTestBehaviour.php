@@ -32,7 +32,7 @@ trait PluginIntegrationTestBehaviour
     {
         $this->connection = Kernel::getConnection();
         $this->connection->beginTransaction();
-        $this->connection->exec('DELETE FROM plugin');
+        $this->connection->executeStatement('DELETE FROM plugin');
 
         $this->classLoader = clone KernelLifecycleManager::getClassLoader();
         KernelLifecycleManager::getClassLoader()->unregister();

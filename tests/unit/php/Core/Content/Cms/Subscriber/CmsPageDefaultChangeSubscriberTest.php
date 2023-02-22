@@ -112,7 +112,7 @@ class CmsPageDefaultChangeSubscriberTest extends TestCase
                             'configKeys' => CmsPageDefaultChangeSubscriber::$defaultCmsPageConfigKeys,
                         ],
                         [
-                            'configKeys' => Connection::PARAM_STR_ARRAY,
+                            'configKeys' => ArrayParameterType::STRING,
                         ],
                     ],
                     'willReturn' => self::idsToSystemConfigurationArray(['defaultCmsPageId']),
@@ -152,7 +152,7 @@ class CmsPageDefaultChangeSubscriberTest extends TestCase
                             'configKeys' => CmsPageDefaultChangeSubscriber::$defaultCmsPageConfigKeys,
                         ],
                         [
-                            'configKeys' => Connection::PARAM_STR_ARRAY,
+                            'configKeys' => ArrayParameterType::STRING,
                         ],
                     ],
                     'willReturn' => self::idsToSystemConfigurationArray(['defaultCmsPageId']),

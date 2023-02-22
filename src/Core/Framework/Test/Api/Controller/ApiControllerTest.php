@@ -78,9 +78,9 @@ CREATE TABLE `named` (
 );
 EOF;
         $this->connection = $this->getContainer()->get(Connection::class);
-        $this->connection->executeUpdate($dropStatement);
-        $this->connection->executeUpdate($namedOptionalGroupStatement);
-        $this->connection->executeUpdate($namedStatement);
+        $this->connection->executeStatement($dropStatement);
+        $this->connection->executeStatement($namedOptionalGroupStatement);
+        $this->connection->executeStatement($namedStatement);
 
         $this->connection->beginTransaction();
     }
@@ -89,8 +89,8 @@ EOF;
     {
         $this->connection->rollBack();
 
-        $this->connection->executeUpdate('DROP TABLE IF EXISTS `named`');
-        $this->connection->executeUpdate('DROP TABLE IF EXISTS `named_optional_group`');
+        $this->connection->executeStatement('DROP TABLE IF EXISTS `named`');
+        $this->connection->executeStatement('DROP TABLE IF EXISTS `named_optional_group`');
 
         parent::tearDown();
     }
@@ -787,7 +787,7 @@ EOF;
             ->executeQuery(
                 'SELECT * FROM product_category WHERE product_id = :pid AND category_id = :cid',
                 ['pid' => Uuid::fromHexToBytes($id), 'cid' => Uuid::fromHexToBytes($category)]
-            )->fetchAll();
+            )->fetchAllAssociative();
         static::assertEmpty($a);
 
         $this->assertEntityExists($this->getBrowser(), 'product', $id);
@@ -830,7 +830,7 @@ EOF;
         $browser->request('DELETE', '/api/product/' . $id . '/categories/' . $category);
         static::assertSame(Response::HTTP_FORBIDDEN, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
 
-        $a = $this->getContainer()->get(Connection::class)->executeQuery('SELECT * FROM product_category WHERE product_id = :pid AND category_id = :cid', ['pid' => Uuid::fromHexToBytes($id), 'cid' => Uuid::fromHexToBytes($category)])->fetchAll();
+        $a = $this->getContainer()->get(Connection::class)->executeQuery('SELECT * FROM product_category WHERE product_id = :pid AND category_id = :cid', ['pid' => Uuid::fromHexToBytes($id), 'cid' => Uuid::fromHexToBytes($category)])->fetchAllAssociative();
         static::assertNotEmpty($a);
 
         $this->assertEntityExists($browser, 'product', $id);

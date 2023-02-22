@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Test\Seo;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -189,7 +190,7 @@ class SeoUrlGeneratorTest extends TestCase
                     'ids' => Uuid::fromHexToBytesList($ids->getList(['parent', 'red', 'green'])),
                     'channel' => Uuid::fromHexToBytes($this->salesChannelId),
                 ],
-                ['ids' => Connection::PARAM_STR_ARRAY]
+                ['ids' => ArrayParameterType::STRING]
             );
 
         $urls = FetchModeHelper::keyPair($urls);

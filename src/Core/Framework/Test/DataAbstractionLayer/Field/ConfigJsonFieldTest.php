@@ -50,7 +50,7 @@ CREATE TABLE `_test_nullable` (
   PRIMARY KEY `id` (`id`)
 );
 EOF;
-        $this->connection->executeUpdate($nullableTable);
+        $this->connection->executeStatement($nullableTable);
         $this->connection->beginTransaction();
         $this->configJsonDefinition = $this->registerDefinition(ConfigJsonDefinition::class);
     }
@@ -58,7 +58,7 @@ EOF;
     protected function tearDown(): void
     {
         $this->connection->rollBack();
-        $this->connection->executeUpdate('DROP TABLE `_test_nullable`');
+        $this->connection->executeStatement('DROP TABLE `_test_nullable`');
     }
 
     public function testFilter(): void

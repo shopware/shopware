@@ -28,7 +28,7 @@ class AntiJoinSearchTest extends TestCase
     {
         parent::setUp();
 
-        $this->getContainer()->get(Connection::class)->executeUpdate('DELETE FROM product');
+        $this->getContainer()->get(Connection::class)->executeStatement('DELETE FROM product');
     }
 
     public function testManyToMany(): void

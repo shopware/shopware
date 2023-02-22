@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Payment\DataAbstractionLayer;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Payment\Exception\PluginPaymentMethodsDeleteRestrictionException;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
@@ -45,7 +46,7 @@ final class PaymentMethodValidator implements EventSubscriberInterface
         $pluginIds = $this->connection->fetchOne(
             'SELECT id FROM payment_method WHERE id IN (:ids) AND plugin_id IS NOT NULL',
             ['ids' => $ids],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::STRING]
         );
 
         if (!empty($pluginIds)) {

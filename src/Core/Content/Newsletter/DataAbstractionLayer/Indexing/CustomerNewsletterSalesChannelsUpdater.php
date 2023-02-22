@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Newsletter\DataAbstractionLayer\Indexing;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
@@ -82,7 +83,7 @@ SQL;
             $this->connection->executeStatement(
                 $resetSql,
                 $parameters,
-                ['ids' => Connection::PARAM_STR_ARRAY]
+                ['ids' => ArrayParameterType::STRING]
             );
         });
 
@@ -90,7 +91,7 @@ SQL;
             $this->connection->executeStatement(
                 $sql,
                 $parameters,
-                ['ids' => Connection::PARAM_STR_ARRAY, 'states' => Connection::PARAM_STR_ARRAY]
+                ['ids' => ArrayParameterType::STRING, 'states' => ArrayParameterType::STRING]
             );
         });
     }
@@ -140,7 +141,7 @@ SQL;
         $customers = $this->connection->fetchAllAssociative(
             'SELECT newsletter_sales_channel_ids, email, first_name, last_name FROM customer WHERE id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids)],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::STRING]
         );
 
         $parameters = [];
@@ -174,7 +175,7 @@ SQL;
                         'firstName' => $parameter['first_name'],
                         'lastName' => $parameter['last_name'],
                     ],
-                    ['ids' => Connection::PARAM_STR_ARRAY],
+                    ['ids' => ArrayParameterType::STRING],
                 );
             });
         }

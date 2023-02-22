@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Translation;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
@@ -49,7 +50,7 @@ class TranslatorCacheInvalidate implements EventSubscriberInterface
             $setIds = $this->connection->fetchFirstColumn(
                 'SELECT LOWER(HEX(snippet_set_id)) FROM snippet WHERE HEX(id) IN (:ids)',
                 ['ids' => $snippetIds],
-                ['ids' => Connection::PARAM_STR_ARRAY]
+                ['ids' => ArrayParameterType::STRING]
             );
 
             $this->clearCache($setIds);

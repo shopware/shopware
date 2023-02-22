@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Rule\DataAbstractionLayer;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\CachedRuleLoader;
 use Shopware\Core\Content\Rule\RuleDefinition;
@@ -205,11 +206,11 @@ class RuleAreaUpdater implements EventSubscriberInterface
         $query->setParameter(
             'ids',
             Uuid::fromHexToBytesList($ids),
-            Connection::PARAM_STR_ARRAY
+            ArrayParameterType::STRING
         )->setParameter(
             'flowTypes',
             $this->conditionRegistry->getFlowRuleNames(),
-            Connection::PARAM_STR_ARRAY
+            ArrayParameterType::STRING
         );
 
         return FetchModeHelper::groupUnique($query->executeQuery()->fetchAllAssociative());

@@ -2,6 +2,7 @@
 
 namespace Shopware\Elasticsearch\Admin\Indexer;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use OpenSearchDSL\Query\Compound\BoolQuery;
@@ -125,7 +126,7 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
                 'versionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
             ],
             [
-                'ids' => Connection::PARAM_STR_ARRAY,
+                'ids' => ArrayParameterType::STRING,
             ]
         );
 

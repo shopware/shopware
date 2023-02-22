@@ -101,7 +101,7 @@ class MailServiceTest extends TestCase
     {
         $this->getContainer()
             ->get(Connection::class)
-            ->executeUpdate('DELETE FROM system_config WHERE configuration_key  IN ("core.mailerSettings.senderAddress", "core.basicInformation.email")');
+            ->executeStatement('DELETE FROM system_config WHERE configuration_key  IN ("core.mailerSettings.senderAddress", "core.basicInformation.email")');
 
         $systemConfig = $this->getContainer()->get(SystemConfigService::class);
         if ($configSender !== null) {

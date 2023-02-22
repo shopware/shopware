@@ -29,7 +29,7 @@ class Migration1645453538AddRuleTagTest extends TestCase
         $migration = new Migration1645453538AddRuleTag();
         $migration->update($this->connection);
 
-        $schemaManager = $this->connection->getSchemaManager();
+        $schemaManager = $this->connection->createSchemaManager();
         $columns = $schemaManager->listTableColumns('rule_tag');
 
         static::assertNotEmpty($columns);

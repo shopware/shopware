@@ -428,7 +428,7 @@ class EntityWriteGatewayTest extends TestCase
         $delete = [['id' => Uuid::randomHex()]];
 
         $errorCalled = false;
-        $sucessCalled = false;
+        $successCalled = false;
         $beforeDeleteEvent = null;
 
         $connection = $this->getContainer()->get(Connection::class);
@@ -444,21 +444,20 @@ class EntityWriteGatewayTest extends TestCase
                 ),
                 $connection->getDriver(),
                 $connection->getConfiguration(),
-                $connection->getEventManager(),
             ])
             ->onlyMethods(['delete'])
             ->getMock();
 
         $connection->method('delete')->willThrowException(new Exception('test'));
 
-        $listenerClosure = function (BeforeDeleteEvent $event) use (&$errorCalled, &$beforeDeleteEvent, &$sucessCalled): void {
+        $listenerClosure = function (BeforeDeleteEvent $event) use (&$errorCalled, &$beforeDeleteEvent, &$successCalled): void {
             $beforeDeleteEvent = $event;
             $event->addError(function () use (&$errorCalled): void {
                 $errorCalled = true;
             });
 
-            $event->addSuccess(function () use (&$sucessCalled): void {
-                $sucessCalled = true;
+            $event->addSuccess(function () use (&$successCalled): void {
+                $successCalled = true;
             });
         };
 
@@ -497,7 +496,7 @@ class EntityWriteGatewayTest extends TestCase
         static::assertInstanceOf(BeforeDeleteEvent::class, $beforeDeleteEvent);
         static::assertEquals($exceptionThrown, $beforeDeleteEvent->getWriteContext()->getExceptions()->getExceptions()[0]);
         static::assertTrue($errorCalled);
-        static::assertFalse($sucessCalled);
+        static::assertFalse($successCalled);
 
         $this->getContainer()->get('event_dispatcher')->removeListener(BeforeDeleteEvent::class, $listenerClosure);
     }

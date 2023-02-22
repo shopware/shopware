@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Test\Flow;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
@@ -108,7 +109,7 @@ class AddOrderTagActionTest extends TestCase
         $orderTag = $this->connection->fetchAllAssociative(
             'SELECT tag_id FROM order_tag WHERE tag_id IN (:ids)',
             ['ids' => [Uuid::fromHexToBytes($this->ids->get('tag_id')), Uuid::fromHexToBytes($this->ids->get('tag_id2')), Uuid::fromHexToBytes($this->ids->get('tag_id3'))]],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::STRING]
         );
 
         static::assertCount(3, $orderTag);
@@ -205,7 +206,7 @@ class AddOrderTagActionTest extends TestCase
         $orderTag = $this->connection->fetchAllAssociative(
             'SELECT tag_id FROM order_tag WHERE tag_id IN (:ids)',
             ['ids' => [Uuid::fromHexToBytes($this->ids->get('tag_id')), Uuid::fromHexToBytes($this->ids->get('tag_id2')), Uuid::fromHexToBytes($this->ids->get('tag_id3'))]],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::STRING]
         );
 
         static::assertCount(2, $orderTag);

@@ -2,6 +2,7 @@
 
 namespace Shopware\Elasticsearch\Admin\Indexer;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Shopware\Core\Content\Category\CategoryDefinition;
@@ -93,7 +94,7 @@ final class CategoryAdminSearchIndexer extends AbstractAdminIndexer
                 'ids' => Uuid::fromHexToBytesList($ids),
             ],
             [
-                'ids' => Connection::PARAM_STR_ARRAY,
+                'ids' => ArrayParameterType::STRING,
             ]
         );
 

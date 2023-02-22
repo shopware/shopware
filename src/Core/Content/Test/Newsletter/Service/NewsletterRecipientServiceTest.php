@@ -266,10 +266,13 @@ class NewsletterRecipientServiceTest extends TestCase
 
     private function installTestData(): void
     {
-        $this->getContainer()->get(Connection::class)->exec(file_get_contents(__DIR__ . '/../fixtures/salutation.sql'));
+        $salutationSql = file_get_contents(__DIR__ . '/../fixtures/salutation.sql');
+        static::assertIsString($salutationSql);
+        $this->getContainer()->get(Connection::class)->executeStatement($salutationSql);
 
         $recipientSql = file_get_contents(__DIR__ . '/../fixtures/recipient.sql');
+        static::assertIsString($recipientSql);
         $recipientSql = str_replace(':createdAt', (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT), $recipientSql);
-        $this->getContainer()->get(Connection::class)->exec($recipientSql);
+        $this->getContainer()->get(Connection::class)->executeStatement($recipientSql);
     }
 }

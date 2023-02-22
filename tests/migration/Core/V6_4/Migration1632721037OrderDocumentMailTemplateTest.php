@@ -162,7 +162,7 @@ class Migration1632721037OrderDocumentMailTemplateTest extends TestCase
             ->setParameter('creditNote', MailTemplateTypes::MAILTYPE_DOCUMENT_CREDIT_NOTE)
             ->setParameter('cancellation', MailTemplateTypes::MAILTYPE_DOCUMENT_CANCELLATION_INVOICE)
             ->setParameter('deliveryNote', MailTemplateTypes::MAILTYPE_DOCUMENT_DELIVERY_NOTE)
-            ->execute()
+            ->executeQuery()
             ->fetchFirstColumn();
 
         return $result;
@@ -181,7 +181,7 @@ class Migration1632721037OrderDocumentMailTemplateTest extends TestCase
                 ->setParameter($parameter, $associatedId, ParameterType::BINARY);
         }
 
-        $query->execute();
+        $query->executeStatement();
     }
 
     /**

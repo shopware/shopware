@@ -31,10 +31,10 @@ class ProductCategoryDenormalizerTest extends TestCase
     public function setUp(): void
     {
         $this->ids = new IdsCollection();
-        $this->connection = static::createMock(Connection::class);
+        $this->connection = $this->createMock(Connection::class);
         $this->connection->method('transactional')
             ->willReturnCallback(fn (\Closure $func) => $func($this->connection));
-        $this->queryBuilder = static::createMock(QueryBuilder::class);
+        $this->queryBuilder = $this->createMock(QueryBuilder::class);
         $this->productCategoryDenormalizer = new ProductCategoryDenormalizer($this->connection);
     }
 
@@ -55,7 +55,7 @@ class ProductCategoryDenormalizerTest extends TestCase
             ->with(
                 static::logicalAnd(
                     static::arrayHasKey('tree'),
-                    static::callback(fn (array $arr) => empty($arr['tree'])),
+                    static::callback(static fn (array $arr) => empty($arr['tree'])),
                 )
             );
         $result = $this->createMock(Result::class);
@@ -96,8 +96,8 @@ class ProductCategoryDenormalizerTest extends TestCase
 
         $statement = $this->createMock(Statement::class);
         $statement
-            ->expects(static::exactly(1))
-            ->method('execute')
+            ->expects(static::once())
+            ->method('executeStatement')
             ->with(
                 static::containsEqual(Uuid::fromHexToBytes($productId))
             );
@@ -162,7 +162,7 @@ class ProductCategoryDenormalizerTest extends TestCase
         $statement = $this->createMock(Statement::class);
         $statement
             ->expects(static::atLeast(1))
-            ->method('execute')
+            ->method('executeStatement')
             ->with(
                 static::logicalAnd(
                     static::arrayHasKey('id'),
@@ -196,15 +196,15 @@ class ProductCategoryDenormalizerTest extends TestCase
 
     public function testUpdateWithProductIdsWithCategoryAssignmentWillWriteCategoryTreeWithValidJSON(): void
     {
-        $validJson = function ($bindings) {
+        $validJson = static function ($bindings) {
             json_decode((string) $bindings['tree'], true);
 
             return json_last_error() === \JSON_ERROR_NONE;
         };
         $statement = $this->createMock(Statement::class);
         $statement
-            ->expects(static::exactly(1))
-            ->method('execute')
+            ->expects(static::once())
+            ->method('executeStatement')
             ->with(
                 static::logicalAnd(
                     static::arrayHasKey('tree'),

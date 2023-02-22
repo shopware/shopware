@@ -2,6 +2,7 @@
 
 namespace Shopware\Elasticsearch\Admin;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use OpenSearch\Client;
@@ -274,7 +275,7 @@ class AdminSearchRegistry implements MessageHandlerInterface, EventSubscriberInt
         $this->connection->executeStatement(
             'DELETE FROM admin_elasticsearch_index_task WHERE `entity` IN (:entities)',
             ['entities' => $entities],
-            ['entities' => Connection::PARAM_STR_ARRAY]
+            ['entities' => ArrayParameterType::STRING]
         );
 
         foreach ($indexTasks as $task) {
@@ -313,7 +314,7 @@ class AdminSearchRegistry implements MessageHandlerInterface, EventSubscriberInt
         $this->connection->executeStatement(
             'DELETE FROM admin_elasticsearch_index_task WHERE `entity` IN (:entities)',
             ['entities' => $entities],
-            ['entities' => Connection::PARAM_STR_ARRAY]
+            ['entities' => ArrayParameterType::STRING]
         );
 
         foreach ($indexTasks as $task) {

@@ -30,7 +30,7 @@ class Migration1639139581AddPriorityToPromotionsTest extends TestCase
         $migration->update($this->connection);
         $migration->update($this->connection);
 
-        $promotionColumns = $this->connection->getSchemaManager()->listTableColumns('promotion');
+        $promotionColumns = $this->connection->createSchemaManager()->listTableColumns('promotion');
         static::assertArrayHasKey('priority', $promotionColumns);
     }
 }

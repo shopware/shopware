@@ -33,7 +33,7 @@ class MigrationCommandTest extends TestCase
         $connection->createQueryBuilder()
             ->delete('migration')
             ->where('`class` LIKE "%_test_migrations_valid%"')
-            ->execute();
+            ->executeStatement();
     }
 
     public function getCommand(): MigrationCommand

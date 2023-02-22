@@ -84,7 +84,7 @@ class KernelPluginIntegrationTest extends TestCase
     {
         $this->insertPlugin($this->getActivePlugin());
 
-        $this->connection->executeUpdate('UPDATE plugin SET active = 1, installed_at = date(now())');
+        $this->connection->executeStatement('UPDATE plugin SET active = 1, installed_at = date(now())');
 
         $loader = new DbalKernelPluginLoader($this->classLoader, null, $this->connection);
         $this->kernel = $this->makeKernel($loader);

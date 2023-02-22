@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Sitemap\Provider;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
@@ -133,7 +134,7 @@ class CategoryUrlProvider extends AbstractUrlProvider
         $excludedCategoryIds = $this->getExcludedCategoryIds($context);
         if (!empty($excludedCategoryIds)) {
             $query->andWhere('`category`.id NOT IN (:categoryIds)');
-            $query->setParameter('categoryIds', Uuid::fromHexToBytesList($excludedCategoryIds), Connection::PARAM_STR_ARRAY);
+            $query->setParameter('categoryIds', Uuid::fromHexToBytesList($excludedCategoryIds), ArrayParameterType::STRING);
         }
 
         $query->setParameter('versionId', Uuid::fromHexToBytes(Defaults::LIVE_VERSION));

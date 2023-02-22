@@ -1,5 +1,5 @@
 <?php declare(strict_types=1);
-
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -71,7 +71,7 @@ $listings = $connection->fetchFirstColumn(
     [
         'ids' => Uuid::fromHexToBytesList($ids),
     ],
-    ['ids' => Connection::PARAM_STR_ARRAY]
+    ['ids' => ArrayParameterType::STRING]
 );
 
 $storeApiCategories = $connection->fetchFirstColumn('SELECT LOWER(HEX(id)) FROM category WHERE level <= 5 ' . $limit);

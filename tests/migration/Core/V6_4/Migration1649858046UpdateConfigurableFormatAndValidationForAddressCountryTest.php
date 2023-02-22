@@ -73,38 +73,38 @@ class Migration1649858046UpdateConfigurableFormatAndValidationForAddressCountryT
         $advancedPostalCodePatternColumnExists = $this->hasColumn('country', 'advanced_postal_code_pattern');
 
         if ($advancedPostalCodePatternColumnExists) {
-            $this->connection->executeUpdate('ALTER TABLE `country` DROP COLUMN `advanced_postal_code_pattern`');
+            $this->connection->executeStatement('ALTER TABLE `country` DROP COLUMN `advanced_postal_code_pattern`');
         }
 
         $checkAdvancedPostalCodePatternColumnExists = $this->hasColumn('country', 'check_advanced_postal_code_pattern');
 
         if ($checkAdvancedPostalCodePatternColumnExists) {
-            $this->connection->executeUpdate('ALTER TABLE `country` DROP COLUMN `check_advanced_postal_code_pattern`');
+            $this->connection->executeStatement('ALTER TABLE `country` DROP COLUMN `check_advanced_postal_code_pattern`');
         }
 
         $checkPostalCodePatternColumnExists = $this->hasColumn('country', 'check_postal_code_pattern');
 
         if ($checkPostalCodePatternColumnExists) {
-            $this->connection->executeUpdate('ALTER TABLE `country` DROP COLUMN `check_postal_code_pattern`');
+            $this->connection->executeStatement('ALTER TABLE `country` DROP COLUMN `check_postal_code_pattern`');
         }
 
         $postalCodeRequiredColumnExists = $this->hasColumn('country', 'postal_code_required');
 
         if ($postalCodeRequiredColumnExists) {
-            $this->connection->executeUpdate('ALTER TABLE `country` DROP COLUMN `postal_code_required`');
+            $this->connection->executeStatement('ALTER TABLE `country` DROP COLUMN `postal_code_required`');
         }
 
         $defaultPostalCodePatternColumnExists = $this->hasColumn('country', 'default_postal_code_pattern');
 
         if ($defaultPostalCodePatternColumnExists) {
-            $this->connection->executeUpdate('ALTER TABLE `country` DROP COLUMN `default_postal_code_pattern`');
+            $this->connection->executeStatement('ALTER TABLE `country` DROP COLUMN `default_postal_code_pattern`');
         }
     }
 
     private function hasColumn(string $table, string $columnName): bool
     {
         return \count(array_filter(
-            $this->connection->getSchemaManager()->listTableColumns($table),
+            $this->connection->createSchemaManager()->listTableColumns($table),
             static fn (Column $column): bool => $column->getName() === $columnName
         )) > 0;
     }

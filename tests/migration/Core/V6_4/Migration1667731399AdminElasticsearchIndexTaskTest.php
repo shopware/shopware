@@ -31,7 +31,7 @@ class Migration1667731399AdminElasticsearchIndexTaskTest extends TestCase
         $migration = new Migration1667731399AdminElasticsearchIndexTask();
         $migration->update($this->connection);
 
-        $schemaManager = $this->connection->getSchemaManager();
+        $schemaManager = $this->connection->createSchemaManager();
         $columns = $schemaManager->listTableColumns('admin_elasticsearch_index_task');
 
         static::assertNotEmpty($columns);

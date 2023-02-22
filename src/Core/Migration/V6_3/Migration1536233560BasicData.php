@@ -3,7 +3,6 @@
 namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\FetchMode;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
 use Shopware\Core\Checkout\Document\Renderer\CreditNoteRenderer;
@@ -50,7 +49,7 @@ class Migration1536233560BasicData extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $hasData = $connection->executeQuery('SELECT 1 FROM `language` LIMIT 1')->fetch();
+        $hasData = $connection->executeQuery('SELECT 1 FROM `language` LIMIT 1')->fetchAssociative();
         if ($hasData) {
             return;
         }
@@ -882,10 +881,10 @@ class Migration1536233560BasicData extends MigrationStep
 
     private function createSalesChannel(Connection $connection): void
     {
-        $currencies = $connection->executeQuery('SELECT id FROM currency')->fetchAll(FetchMode::COLUMN);
-        $languages = $connection->executeQuery('SELECT id FROM language')->fetchAll(FetchMode::COLUMN);
-        $shippingMethods = $connection->executeQuery('SELECT id FROM shipping_method')->fetchAll(FetchMode::COLUMN);
-        $paymentMethods = $connection->executeQuery('SELECT id FROM payment_method')->fetchAll(FetchMode::COLUMN);
+        $currencies = $connection->executeQuery('SELECT id FROM currency')->fetchFirstColumn();
+        $languages = $connection->executeQuery('SELECT id FROM language')->fetchFirstColumn();
+        $shippingMethods = $connection->executeQuery('SELECT id FROM shipping_method')->fetchFirstColumn();
+        $paymentMethods = $connection->executeQuery('SELECT id FROM payment_method')->fetchFirstColumn();
         $defaultPaymentMethod = $connection->executeQuery('SELECT id FROM payment_method WHERE active = 1 ORDER BY `position`')->fetchOne();
         $defaultShippingMethod = $connection->executeQuery('SELECT id FROM shipping_method WHERE active = 1')->fetchOne();
         $countryStatement = $connection->executeQuery('SELECT id FROM country WHERE active = 1 ORDER BY `position`');
@@ -968,7 +967,7 @@ class Migration1536233560BasicData extends MigrationStep
             FROM `media_default_folder`
                 LEFT JOIN `media_folder` ON `media_folder`.`default_folder_id` = `media_default_folder`.`id`
             WHERE `media_folder`.`id` IS NULL
-        ')->fetchAll();
+        ')->fetchAllAssociative();
 
         foreach ($notCreatedDefaultFolders as $notCreatedDefaultFolder) {
             $this->createDefaultFolder(

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Seo;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -87,7 +88,7 @@ class SeoUrlPlaceholderHandler implements SeoUrlPlaceholderHandlerInterface
         $query->andWhere('seo_url.language_id = :languageId');
         $query->andWhere('seo_url.sales_channel_id = :salesChannelId OR seo_url.sales_channel_id IS NULL');
         $query->andWhere('is_deleted = 0');
-        $query->setParameter('pathInfo', $mapping, Connection::PARAM_STR_ARRAY);
+        $query->setParameter('pathInfo', $mapping, ArrayParameterType::STRING);
         $query->setParameter('languageId', Uuid::fromHexToBytes($context->getContext()->getLanguageId()));
         $query->setParameter('salesChannelId', Uuid::fromHexToBytes($context->getSalesChannelId()));
         $query->addOrderBy('seo_url.sales_channel_id');

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Migration\V6_3;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
@@ -36,7 +37,7 @@ class Migration1608624028RemoveDefaultSalesChannelAssignmentForCustomerRecoveryE
             $connection->executeStatement(
                 'DELETE FROM event_action_sales_channel WHERE event_action_id IN (:eventActionIds)',
                 ['eventActionIds' => $customerRecoveryEvents],
-                ['eventActionIds' => Connection::PARAM_STR_ARRAY]
+                ['eventActionIds' => ArrayParameterType::STRING]
             );
         } catch (\Exception) {
             // nth

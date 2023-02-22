@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Cache;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\CachedRuleLoader;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupDefinition;
@@ -445,7 +446,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
              WHERE product.product_manufacturer_id IN (:ids)
              AND product.version_id = :version',
             ['ids' => Uuid::fromHexToBytesList($ids), 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::STRING]
         );
 
         $this->cacheInvalidator->invalidate(
@@ -489,7 +490,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
              WHERE product_stream_mapping.product_id IN (:ids)
              AND product_stream_mapping.product_version_id = :version',
             ['ids' => Uuid::fromHexToBytesList($ids), 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::STRING]
         );
 
         $this->cacheInvalidator->invalidate(
@@ -506,7 +507,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
              WHERE product_stream_mapping.product_id IN (:ids)
              AND product_stream_mapping.product_version_id = :version',
             ['ids' => Uuid::fromHexToBytesList($event->getIds()), 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::STRING]
         );
 
         $this->cacheInvalidator->invalidate(
@@ -526,7 +527,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
         $ids = $this->connection->fetchFirstColumn(
             'SELECT DISTINCT LOWER(HEX(product_id)) FROM product_cross_selling WHERE id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids)],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::STRING]
         );
 
         $this->cacheInvalidator->invalidate(
@@ -582,7 +583,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
              WHERE productProperties.property_group_id IN (:ids) OR productProperties.id IN (:optionIds)
              AND product_property.product_version_id = :version',
             ['ids' => Uuid::fromHexToBytesList($propertyGroupIds), 'optionIds' => Uuid::fromHexToBytesList($propertyOptionIds), 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
-            ['ids' => Connection::PARAM_STR_ARRAY, 'optionIds' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::STRING, 'optionIds' => ArrayParameterType::STRING]
         );
         $productIds = array_unique([...$productIds, ...$this->connection->fetchFirstColumn(
             'SELECT product_option.product_id
@@ -591,7 +592,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
                  WHERE productOptions.property_group_id IN (:ids) OR productOptions.id IN (:optionIds)
                  AND product_option.product_version_id = :version',
             ['ids' => Uuid::fromHexToBytesList($propertyGroupIds), 'optionIds' => Uuid::fromHexToBytesList($propertyOptionIds), 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
-            ['ids' => Connection::PARAM_STR_ARRAY, 'optionIds' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::STRING, 'optionIds' => ArrayParameterType::STRING]
         )]);
 
         if (empty($productIds)) {
@@ -603,7 +604,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
             FROM product
             WHERE id in (:productIds) AND version_id = :version',
             ['productIds' => $productIds, 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
-            ['productIds' => Connection::PARAM_STR_ARRAY]
+            ['productIds' => ArrayParameterType::STRING]
         );
 
         $categoryIds = $this->connection->fetchFirstColumn(
@@ -611,7 +612,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
             FROM product_category_tree
             WHERE product_id in (:productIds) AND product_version_id = :version',
             ['productIds' => $productIds, 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
-            ['productIds' => Connection::PARAM_STR_ARRAY]
+            ['productIds' => ArrayParameterType::STRING]
         );
 
         return [...array_map([CachedProductDetailRoute::class, 'buildName'], array_filter($parentIds)), ...array_map([CachedProductListingRoute::class, 'buildName'], array_filter($categoryIds))];
@@ -631,7 +632,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
              AND product_version_id = :version
              AND category_version_id = :version',
             ['ids' => Uuid::fromHexToBytesList($ids), 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::STRING]
         );
     }
 
@@ -648,7 +649,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
         $ids = $this->connection->fetchFirstColumn(
             'SELECT DISTINCT LOWER(HEX(sales_channel_id)) as id FROM sales_channel_shipping_method WHERE shipping_method_id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids)],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::STRING]
         );
 
         $tags = [];
@@ -685,7 +686,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
         $ids = $this->connection->fetchFirstColumn(
             'SELECT DISTINCT LOWER(HEX(sales_channel_id)) as id FROM sales_channel_payment_method WHERE payment_method_id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids)],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::STRING]
         );
 
         $tags = [];
@@ -757,7 +758,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
         $ids = $this->connection->fetchFirstColumn(
             'SELECT DISTINCT LOWER(HEX(sales_channel_id)) as id FROM sales_channel_country WHERE country_id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids)],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::STRING]
         );
 
         $tags = [];
@@ -808,7 +809,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
         $ids = $this->connection->fetchFirstColumn(
             'SELECT DISTINCT LOWER(HEX(sales_channel_id)) as id FROM sales_channel_language WHERE language_id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids)],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::STRING]
         );
 
         $tags = [];
@@ -847,7 +848,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
         $ids = $this->connection->fetchFirstColumn(
             'SELECT DISTINCT LOWER(HEX(sales_channel_id)) as id FROM sales_channel_currency WHERE currency_id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids)],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::STRING]
         );
 
         $tags = [];

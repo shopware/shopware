@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Indexing;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Statement;
@@ -270,7 +271,7 @@ class TreeUpdater
         $query->from($escaped);
         $query->select('id', 'parent_id');
         $query->andWhere($column . ' IN (:ids)');
-        $query->setParameter('ids', $ids, Connection::PARAM_STR_ARRAY);
+        $query->setParameter('ids', $ids, ArrayParameterType::STRING);
         $this->makeQueryVersionAware($definition, Uuid::fromHexToBytes($context->getVersionId()), $query);
 
         $fetchedIds = [];
@@ -359,7 +360,7 @@ class TreeUpdater
             $update['level'] = $entity['level'];
         }
 
-        $this->updateEntityStatement->execute($update);
+        $this->updateEntityStatement->executeStatement($update);
 
         $bag->addUpdated($entity['id']);
     }

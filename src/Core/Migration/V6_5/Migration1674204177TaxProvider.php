@@ -19,7 +19,7 @@ class Migration1674204177TaxProvider extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate('
+        $connection->executeStatement('
             CREATE TABLE IF NOT EXISTS`tax_provider` (
               `id`                      BINARY(16)          NOT NULL,
               `active`                  TINYINT(1) unsigned NOT NULL DEFAULT 1,
@@ -41,7 +41,7 @@ class Migration1674204177TaxProvider extends MigrationStep
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
 
-        $connection->executeUpdate('
+        $connection->executeStatement('
             CREATE TABLE IF NOT EXISTS `tax_provider_translation` (
               `tax_provider_id`     BINARY(16)                                  NOT NULL,
               `language_id`         BINARY(16)                                  NOT NULL,

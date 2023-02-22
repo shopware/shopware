@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
@@ -24,8 +25,10 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 class ManyToOneAssociationFieldResolver extends AbstractFieldResolver
 {
-    public function __construct(private readonly EntityDefinitionQueryHelper $queryHelper)
-    {
+    public function __construct(
+        private readonly EntityDefinitionQueryHelper $queryHelper,
+        private readonly Connection $connection,
+    ) {
     }
 
     public function join(FieldResolverContext $context): string
@@ -136,11 +139,14 @@ class ManyToOneAssociationFieldResolver extends AbstractFieldResolver
         return '';
     }
 
-    private function createSubVersionQuery(AssociationField $field, QueryBuilder $queryBuilder, Context $context, EntityDefinitionQueryHelper $queryHelper): QueryBuilder
-    {
+    private function createSubVersionQuery(
+        AssociationField $field,
+        Context $context,
+        EntityDefinitionQueryHelper $queryHelper
+    ): QueryBuilder {
         $subRoot = $field->getReferenceDefinition()->getEntityName();
 
-        $versionQuery = new QueryBuilder($queryBuilder->getConnection());
+        $versionQuery = new QueryBuilder($this->connection);
         $versionQuery->select(EntityDefinitionQueryHelper::escape($subRoot) . '.*');
         $versionQuery->from(
             EntityDefinitionQueryHelper::escape($subRoot),
@@ -165,7 +171,7 @@ class ManyToOneAssociationFieldResolver extends AbstractFieldResolver
 
     private function joinVersion(AssociationField $field, string $root, string $alias, QueryBuilder $query, Context $context, string $source, string $referenceColumn): void
     {
-        $versionQuery = $this->createSubVersionQuery($field, $query, $context, $this->queryHelper);
+        $versionQuery = $this->createSubVersionQuery($field, $context, $this->queryHelper);
 
         $parameters = [
             '#source#' => $source,

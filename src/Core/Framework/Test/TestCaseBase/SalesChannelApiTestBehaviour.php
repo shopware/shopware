@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\TestCaseBase;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler;
@@ -48,10 +49,10 @@ trait SalesChannelApiTestBehaviour
             ->get(Connection::class);
 
         try {
-            $connection->executeUpdate(
+            $connection->executeStatement(
                 'DELETE FROM sales_channel WHERE id IN (:salesChannelIds)',
                 ['salesChannelIds' => $this->salesChannelIds],
-                ['salesChannelIds' => Connection::PARAM_STR_ARRAY]
+                ['salesChannelIds' => ArrayParameterType::STRING]
             );
         } catch (\Exception $ex) {
             // nth

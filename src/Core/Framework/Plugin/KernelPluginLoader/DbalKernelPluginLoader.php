@@ -34,7 +34,7 @@ class DbalKernelPluginLoader extends KernelPluginLoader
         ORDER BY `installed_at`;
 SQL;
 
-        $plugins = $this->connection->executeQuery($sql)->fetchAll();
+        $plugins = $this->connection->executeQuery($sql)->fetchAllAssociative();
         foreach ($plugins as $i => $plugin) {
             $plugins[$i]['active'] = (bool) $plugin['active'];
             $plugins[$i]['managedByComposer'] = (bool) $plugin['managedByComposer'];

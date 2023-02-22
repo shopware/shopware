@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Mail\Service;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
@@ -107,7 +108,7 @@ class MailAttachmentsBuilder
                 'documentTypeIds' => Uuid::fromHexToBytesList($documentTypeIds),
             ],
             [
-                'documentTypeIds' => Connection::PARAM_STR_ARRAY,
+                'documentTypeIds' => ArrayParameterType::STRING,
             ]
         );
 

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Category\DataAbstractionLayer;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
@@ -42,7 +43,7 @@ class CategoryBreadcrumbUpdater
         $query->where('category.id IN (:ids)');
         $query->andWhere('category.version_id = :version');
         $query->setParameter('version', $versionId);
-        $query->setParameter('ids', Uuid::fromHexToBytesList($ids), Connection::PARAM_STR_ARRAY);
+        $query->setParameter('ids', Uuid::fromHexToBytesList($ids), ArrayParameterType::STRING);
 
         $paths = $query->executeQuery()->fetchFirstColumn();
 

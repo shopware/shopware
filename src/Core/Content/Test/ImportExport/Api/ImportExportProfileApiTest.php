@@ -38,7 +38,7 @@ class ImportExportProfileApiTest extends TestCase
         $this->context = Context::createDefaultContext();
 
         // Clean up system defaults before testing.
-        $this->connection->exec('DELETE FROM `import_export_profile`');
+        $this->connection->executeStatement('DELETE FROM `import_export_profile`');
     }
 
     public function testImportExportProfileCreateSuccess(): void

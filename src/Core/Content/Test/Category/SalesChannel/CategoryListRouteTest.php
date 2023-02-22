@@ -36,9 +36,9 @@ class CategoryListRouteTest extends TestCase
         $this->route = $this->getContainer()->get(CategoryRoute::class);
 
         $this->ids = new TestDataCollection();
-        $this->getContainer()->get(Connection::class)->executeUpdate('SET FOREIGN_KEY_CHECKS = 0;');
-        $this->getContainer()->get(Connection::class)->executeUpdate('DELETE FROM category');
-        $this->getContainer()->get(Connection::class)->executeUpdate('SET FOREIGN_KEY_CHECKS = 1;');
+        $this->getContainer()->get(Connection::class)->executeStatement('SET FOREIGN_KEY_CHECKS = 0;');
+        $this->getContainer()->get(Connection::class)->executeStatement('DELETE FROM category');
+        $this->getContainer()->get(Connection::class)->executeStatement('SET FOREIGN_KEY_CHECKS = 1;');
 
         $this->createData();
 

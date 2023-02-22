@@ -2,6 +2,7 @@
 
 namespace unit\php\Core\Content\Mail\Service;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -128,7 +129,7 @@ class MailAttachmentsBuilderTest extends TestCase
             ->with(
                 static::anything(),
                 ['orderId' => Uuid::fromHexToBytes($orderId), 'documentTypeIds' => Uuid::fromHexToBytesList($eventConfig['documentTypeIds'])],
-                ['documentTypeIds' => Connection::PARAM_STR_ARRAY]
+                ['documentTypeIds' => ArrayParameterType::STRING]
             )
             ->willReturn([
                 ['doc_type' => 'foo', 'doc_id' => '1'],

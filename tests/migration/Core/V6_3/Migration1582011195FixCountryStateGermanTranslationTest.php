@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Migration\Core\V6_3;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Result;
@@ -68,7 +69,7 @@ class Migration1582011195FixCountryStateGermanTranslationTest extends TestCase
                 'state.id = state_translation.country_state_id AND state_translation.language_id = :germanLanguageId'
             )->where('state.short_code IN (:shortCodes)')
             ->setParameter('germanLanguageId', $germanLanguageId)
-            ->setParameter('shortCodes', array_keys($testTranslations), Connection::PARAM_STR_ARRAY);
+            ->setParameter('shortCodes', array_keys($testTranslations), ArrayParameterType::STRING);
 
         $translations = $translationQuery->executeQuery()->fetchAllAssociative();
 

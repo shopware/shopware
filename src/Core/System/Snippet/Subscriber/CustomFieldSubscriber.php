@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Snippet\Subscriber;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
@@ -76,7 +77,7 @@ class CustomFieldSubscriber implements EventSubscriberInterface
             'DELETE FROM `snippet`
             WHERE JSON_EXTRACT(`custom_fields`, "$.custom_field_id") IN (:customFieldIds)',
             ['customFieldIds' => $event->getIds()],
-            ['customFieldIds' => Connection::PARAM_STR_ARRAY]
+            ['customFieldIds' => ArrayParameterType::STRING]
         );
     }
 

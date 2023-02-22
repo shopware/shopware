@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Indexing;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
@@ -75,6 +76,6 @@ class ChildCountUpdater
             $params['version'] = Uuid::fromHexToBytes($context->getVersionId());
         }
 
-        $this->connection->executeStatement($sql, $params, ['ids' => Connection::PARAM_STR_ARRAY]);
+        $this->connection->executeStatement($sql, $params, ['ids' => ArrayParameterType::STRING]);
     }
 }

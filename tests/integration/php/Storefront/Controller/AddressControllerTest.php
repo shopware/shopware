@@ -553,7 +553,7 @@ class AddressControllerTest extends TestCase
     private function setPostalCodeOfTheCountryToBeRequired(): void
     {
         $this->getContainer()->get(Connection::class)
-            ->executeUpdate('UPDATE `country` SET `postal_code_required` = 1
+            ->executeStatement('UPDATE `country` SET `postal_code_required` = 1
                  WHERE id = :id', [
                 'id' => Uuid::fromHexToBytes($this->getValidCountryId()),
             ]);

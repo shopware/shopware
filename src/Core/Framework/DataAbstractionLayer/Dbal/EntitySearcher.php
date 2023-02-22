@@ -165,7 +165,7 @@ class EntitySearcher implements EntitySearcherInterface
         $query->setMaxResults(null);
         $query->setFirstResult(0);
 
-        $total = new QueryBuilder($query->getConnection());
+        $total = new QueryBuilder($this->connection);
         $total->select(['COUNT(*)'])
             ->from(sprintf('(%s) total', $query->getSQL()))
             ->setParameters($query->getParameters(), $query->getParameterTypes());

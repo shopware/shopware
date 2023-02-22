@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Indexing;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
@@ -121,7 +122,7 @@ class InheritanceUpdater
                 $this->connection->executeStatement(
                     $sql,
                     $params,
-                    ['ids' => Connection::PARAM_STR_ARRAY]
+                    ['ids' => ArrayParameterType::STRING]
                 );
             });
         }
@@ -171,7 +172,7 @@ class InheritanceUpdater
                 $this->connection->executeStatement(
                     $sql,
                     $params,
-                    ['ids' => Connection::PARAM_STR_ARRAY]
+                    ['ids' => ArrayParameterType::STRING]
                 );
             });
 
@@ -198,7 +199,7 @@ class InheritanceUpdater
                 $this->connection->executeStatement(
                     $sql,
                     $params,
-                    ['ids' => Connection::PARAM_STR_ARRAY]
+                    ['ids' => ArrayParameterType::STRING]
                 );
             });
         }

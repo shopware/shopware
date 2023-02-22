@@ -37,7 +37,7 @@ class ConsumeMessagesControllerTest extends TestCase
     public function testConsumeMessages(): void
     {
         $connection = $this->getContainer()->get(Connection::class);
-        $connection->exec('DELETE FROM scheduled_task');
+        $connection->executeStatement('DELETE FROM scheduled_task');
 
         // queue a task
         $repo = $this->getContainer()->get('scheduled_task.repository');

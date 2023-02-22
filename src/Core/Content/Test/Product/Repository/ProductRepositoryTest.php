@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Test\Product\Repository;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
@@ -1186,7 +1187,7 @@ class ProductRepositoryTest extends TestCase
         $raw = $this->connection->fetchAllAssociative(
             'SELECT * FROM product WHERE id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList([$id, $child])],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::STRING]
         );
         static::assertCount(2, $raw);
 

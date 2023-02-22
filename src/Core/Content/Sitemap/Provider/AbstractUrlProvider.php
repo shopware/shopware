@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Sitemap\Provider;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Sitemap\Struct\UrlResult;
 use Shopware\Core\Framework\Log\Package;
@@ -46,7 +47,7 @@ abstract class AbstractUrlProvider
                 'ids' => Uuid::fromHexToBytesList(array_values($ids)),
             ],
             [
-                'ids' => Connection::PARAM_STR_ARRAY,
+                'ids' => ArrayParameterType::STRING,
             ]
         );
 

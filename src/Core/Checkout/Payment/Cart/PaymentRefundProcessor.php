@@ -32,7 +32,7 @@ class PaymentRefundProcessor
 
     public function processRefund(string $refundId, Context $context): void
     {
-        $statement = $this->connection->createQueryBuilder()
+        $result = $this->connection->createQueryBuilder()
             ->select('refund.id', 'state.technical_name', 'transaction.payment_method_id')
             ->from('order_transaction_capture_refund', self::TABLE_ALIAS)
             ->innerJoin(self::TABLE_ALIAS, 'state_machine_state', 'state', 'refund.state_id = state.id')
@@ -40,9 +40,8 @@ class PaymentRefundProcessor
             ->innerJoin(self::TABLE_ALIAS, 'order_transaction', 'transaction', 'transaction.id = capture.order_transaction_id')
             ->andWhere('refund.id = :refundId')
             ->setParameter('refundId', Uuid::fromHexToBytes($refundId))
-            ->execute();
-
-        $result = $statement->fetchAssociative();
+            ->executeQuery()
+            ->fetchAssociative();
 
         if (!$result || !\array_key_exists('technical_name', $result) || !\array_key_exists('payment_method_id', $result)) {
             throw new UnknownRefundException($refundId);

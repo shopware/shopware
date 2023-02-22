@@ -197,7 +197,7 @@ class Migration1632721037OrderDocumentMailTemplate extends MigrationStep
             ->from('mail_template_type')
             ->where('technical_name = :technicalName')
             ->setParameter('technicalName', $technicalName)
-            ->execute()
+            ->executeQuery()
             ->fetchOne();
 
         return $result ?: null;

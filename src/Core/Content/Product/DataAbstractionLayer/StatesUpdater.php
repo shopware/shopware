@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\DataAbstractionLayer;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\Events\ProductStatesBeforeChangeEvent;
 use Shopware\Core\Content\Product\Events\ProductStatesChangedEvent;
@@ -47,7 +48,7 @@ class StatesUpdater
         $products = $this->connection->fetchAllAssociative(
             $sql,
             $params,
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::STRING]
         );
 
         $updates = [];

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Api\Exception\IncompletePrimaryKeyException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
@@ -243,7 +244,7 @@ class EntityWriteResultFactory
         $parentIds = $this->connection->fetchAllAssociative(
             $fetchQuery,
             ['ids' => Uuid::fromHexToBytesList(array_column($rawData, 'id'))],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::STRING]
         );
 
         $ids = array_unique(array_filter(array_column($parentIds, 'id')));

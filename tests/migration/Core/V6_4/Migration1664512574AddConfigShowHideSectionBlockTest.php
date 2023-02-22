@@ -35,7 +35,7 @@ class Migration1664512574AddConfigShowHideSectionBlockTest extends TestCase
      */
     public function testMigrationColumn(string $tableName): void
     {
-        $schemaManager = $this->connection->getSchemaManager();
+        $schemaManager = $this->connection->createSchemaManager();
         $columns = $schemaManager->listTableColumns($tableName);
 
         static::assertNotEmpty($columns);

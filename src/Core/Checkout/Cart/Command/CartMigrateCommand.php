@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Command;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\RedisCartPersister;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
@@ -198,7 +199,7 @@ class CartMigrateCommand extends Command
         $payloadExists = EntityDefinitionQueryHelper::columnExists($this->connection, 'cart', 'payload');
 
         while ($tokens = $iterator->fetch()) {
-            $rows = $this->connection->fetchAllAssociative('SELECT * FROM cart WHERE token IN (:tokens)', ['tokens' => $tokens], ['tokens' => Connection::PARAM_STR_ARRAY]);
+            $rows = $this->connection->fetchAllAssociative('SELECT * FROM cart WHERE token IN (:tokens)', ['tokens' => $tokens], ['tokens' => ArrayParameterType::STRING]);
 
             $values = [];
             foreach ($rows as $row) {

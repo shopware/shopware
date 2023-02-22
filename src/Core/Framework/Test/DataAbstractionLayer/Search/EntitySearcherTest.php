@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Search;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -139,7 +140,7 @@ class EntitySearcherTest extends TestCase
         $increments = $this->getContainer()->get(Connection::class)->fetchAllKeyValue(
             'SELECT LOWER(HEX(id)) as id, auto_increment FROM product WHERE id IN (:ids)',
             ['ids' => $ids->getByteList(['p1', 'p2'])],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::STRING]
         );
 
         $data = $result->getData();

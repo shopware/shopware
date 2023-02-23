@@ -270,7 +270,7 @@ class DatabaseConfigLoaderTest extends TestCase
     /**
      * @return iterable<int|string, mixed>
      */
-    public function configurationLoadingProvider(): iterable
+    public static function configurationLoadingProvider(): iterable
     {
         yield 'Test simple inheritance' => [
             'child',

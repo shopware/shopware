@@ -50,7 +50,7 @@ class Migration1635230747UpdateProductExportTemplateTest extends TestCase
     /**
      * @return array{old_template: string, expectedTemplate: string}[][]
      */
-    public function dataProvider(): array
+    public static function dataProvider(): array
     {
         /** @var array<string, string> $templates */
         $templates = require __DIR__ . '/../../../../src/Core/Migration/Fixtures/productComparison-export-profiles/templates.php';

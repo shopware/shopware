@@ -93,7 +93,7 @@ class AdminSearchControllerTest extends TestCase
         static::assertArrayNotHasKey('password', $user);
     }
 
-    public function searchDataProvider(): iterable
+    public static function searchDataProvider(): iterable
     {
         $hasResponse = true;
 

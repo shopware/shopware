@@ -114,7 +114,7 @@ class StorefrontRoutingTest extends TestCase
         static::assertSame($case->getAbsoluteUrl(), $absoluteSeoUrl);
     }
 
-    public function getRequestTestCaseProvider(): array
+    public static function getRequestTestCaseProvider(): array
     {
         $config = [
             'https' => [false, true],
@@ -122,9 +122,9 @@ class StorefrontRoutingTest extends TestCase
             'subDir' => ['', '/public', '/sw/public'],
             'salesChannel' => ['', '/de', '/de/premium', '/public'],
         ];
-        $cases = $this->generateCases(array_keys($config), $config);
+        $cases = self::generateCases(array_keys($config), $config);
 
-        return array_map(fn ($params) => [$this->createCase($params['https'], $params['host'], $params['subDir'], $params['salesChannel'])], $cases);
+        return array_map(fn ($params) => [self::createCase($params['https'], $params['host'], $params['subDir'], $params['salesChannel'])], $cases);
     }
 
     private function getContext(Request $request): RequestContext
@@ -141,7 +141,7 @@ class StorefrontRoutingTest extends TestCase
         );
     }
 
-    private function createCase(bool $https, string $host, string $subDir, string $salesChannel): RequestTestCase
+    private static function createCase(bool $https, string $host, string $subDir, string $salesChannel): RequestTestCase
     {
         return new RequestTestCase(
             'POST',
@@ -156,7 +156,7 @@ class StorefrontRoutingTest extends TestCase
         );
     }
 
-    private function generateCases(array $keys, array $config): array
+    private static function generateCases(array $keys, array $config): array
     {
         if (empty($keys)) {
             return [];
@@ -165,7 +165,7 @@ class StorefrontRoutingTest extends TestCase
         $results = [];
         $key = array_pop($keys);
         foreach ($config[$key] as $value) {
-            $childResults = $this->generateCases($keys, $config);
+            $childResults = self::generateCases($keys, $config);
             $base = [$key => $value];
             foreach ($childResults as $childResult) {
                 $base = array_merge($base, $childResult);

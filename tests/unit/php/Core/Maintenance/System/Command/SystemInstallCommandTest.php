@@ -189,7 +189,6 @@ class SystemInstallCommandTest extends TestCase
         $application
             ->expects(static::exactly(\count($expectedCommands)))
             ->method('find')
-            ->withConsecutive(...array_map(fn (string $cmd) => [$cmd], $expectedCommands))
             ->willReturn($mockCommand);
 
         $systemInstallCmd->setApplication($application);

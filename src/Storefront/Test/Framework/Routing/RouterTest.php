@@ -47,7 +47,7 @@ class RouterTest extends TestCase
         $router->setContext($context);
     }
 
-    public function urlCases()
+    public static function urlCases()
     {
         $id = Uuid::randomHex();
 

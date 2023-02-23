@@ -80,7 +80,7 @@ class Migration1592978289ProductCustomFieldSetsTest extends TestCase
     /**
      * @return array{0: string, 1: DbColumn[]}[]
      */
-    public function tableInformationProvider(): array
+    public static function tableInformationProvider(): array
     {
         return [
             [

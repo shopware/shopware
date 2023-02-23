@@ -24,19 +24,19 @@ class CacheStateValidatorTest extends TestCase
         static::assertSame($isValid, $validator->isValid($request, $response));
     }
 
-    public function cases(): array
+    public static function cases(): array
     {
         return [
             [true, new Request(), new Response()],
-            [false, $this->createRequest('logged-in'), $this->createResponse('logged-in')],
-            [true, $this->createRequest('logged-in'), $this->createResponse()],
-            [true, $this->createRequest(), $this->createResponse('cart-filled')],
-            [false, $this->createRequest('logged-in'), $this->createResponse('cart-filled', 'logged-in')],
-            [false, $this->createRequest('cart-filled', 'logged-in'), $this->createResponse('cart-filled', 'logged-in')],
+            [false, self::createRequest('logged-in'), self::createResponse('logged-in')],
+            [true, self::createRequest('logged-in'), self::createResponse()],
+            [true, self::createRequest(), self::createResponse('cart-filled')],
+            [false, self::createRequest('logged-in'), self::createResponse('cart-filled', 'logged-in')],
+            [false, self::createRequest('cart-filled', 'logged-in'), self::createResponse('cart-filled', 'logged-in')],
         ];
     }
 
-    private function createRequest(string ...$states): Request
+    private static function createRequest(string ...$states): Request
     {
         $request = new Request();
         $request->cookies->set(CacheResponseSubscriber::SYSTEM_STATE_COOKIE, implode(',', $states));
@@ -44,7 +44,7 @@ class CacheStateValidatorTest extends TestCase
         return $request;
     }
 
-    private function createResponse(string ...$states): Response
+    private static function createResponse(string ...$states): Response
     {
         $response = new Response();
         $response->headers->set(CacheResponseSubscriber::INVALIDATION_STATES_HEADER, implode(',', $states));

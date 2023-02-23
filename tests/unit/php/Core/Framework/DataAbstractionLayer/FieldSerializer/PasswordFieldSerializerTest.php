@@ -78,6 +78,7 @@ class PasswordFieldSerializerTest extends TestCase
         if ($shouldThrowViolationException) {
             $constraintViolations->add(new ConstraintViolation('test', 'test', [], '', '', ''));
             static::expectException(WriteConstraintViolationException::class);
+            static::expectExceptionMessage(sprintf('Caught %d constraint violation errors.', \count($constraints)));
         }
 
         $existence = new EntityExistence('product', [], false, false, false, []);
@@ -94,11 +95,10 @@ class PasswordFieldSerializerTest extends TestCase
             $this->systemConfigService->expects(static::never())->method('getInt');
         }
 
-        $arguments = array_map(function (Constraint $constraint) use ($inputPassword) {
-            return [$inputPassword, $constraint];
-        }, $constraints);
+        $this->validator
+            ->expects(static::exactly(\count($constraints)))->method('validate')
+            ->willReturn($constraintViolations);
 
-        $this->validator->expects(static::exactly(\count($constraints)))->method('validate')->withConsecutive(...$arguments)->willReturn($constraintViolations);
         $result = $this->serializer->encode($field, $existence, $kv, $params)->current();
 
         if ($inputPassword) {

@@ -3,14 +3,12 @@
 namespace Shopware\Storefront\Test\Controller;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Address\Error\BillingAddressSalutationMissingError;
 use Shopware\Core\Checkout\Cart\Address\Error\ProfileSalutationMissingError;
 use Shopware\Core\Checkout\Cart\Address\Error\ShippingAddressSalutationMissingError;
 use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -20,12 +18,12 @@ use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBu
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Kernel;
+use Shopware\Core\Test\StaticTranslator;
 use Shopware\Storefront\Controller\StorefrontController;
 use Shopware\Storefront\Test\Controller\fixtures\BundleFixture;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\RouterInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Cache\FilesystemCache;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
@@ -68,6 +66,8 @@ class StorefrontControllerTest extends TestCase
 
         $controller->setContainer($container);
         $controller->addCartErrors($cart);
+
+        static::assertNotEmpty($cart->getErrors()->getElements());
     }
 
     public function testStorefrontRenderViewinheritance(): void
@@ -104,10 +104,10 @@ class StorefrontControllerTest extends TestCase
         static::assertEquals('plugin', $rendered);
     }
 
-    public function cartProvider(): \Generator
+    public static function cartProvider(): \Generator
     {
         $cart = new Cart('test');
-        $cart->setErrors(new ErrorCollection($this->getErrors()));
+        $cart->setErrors(new ErrorCollection(self::getErrors()));
 
         yield 'cart with salutation errors' => [
             $cart,
@@ -153,21 +153,17 @@ class StorefrontControllerTest extends TestCase
      * @return array{
      *     0: 'translator',
      *     1: ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE,
-     *     2: MockObject
+     *     2: StaticTranslator
      * }
      */
     private function getTranslator(ErrorCollection $errors): array
     {
-        $argumentValidation = array_map(static fn (Error $error): array => [
-            static::equalTo('checkout.' . $error->getMessageKey()),
-            static::callback(static fn (array $parameters): bool => \array_key_exists('%url%', $parameters) && $parameters['%url%'] === self::URL),
-        ], $errors->getElements());
+        $translations = [];
+        foreach ($errors->getElements() as $error) {
+            $translations['checkout.' . $error->getMessageKey()] = self::MESSAGE;
+        }
 
-        $translator = static::createMock(TranslatorInterface::class);
-        $translator->expects(static::exactly(\count($errors)))
-            ->method('trans')
-            ->withConsecutive(...$argumentValidation)
-            ->willReturn(self::MESSAGE);
+        $translator = new StaticTranslator($translations);
 
         return [
             'translator',
@@ -183,12 +179,25 @@ class StorefrontControllerTest extends TestCase
      *     2: ShippingAddressSalutationMissingError
      * }
      */
-    private function getErrors(): array
+    private static function getErrors(): array
     {
+        $customer = new CustomerEntity();
+        $customer->setId('1');
+        $customer->setCustomerNumber('');
+        $customer->setFirstName('');
+        $customer->setLastName('');
+
+        $address = new CustomerAddressEntity();
+        $address->setId('');
+        $address->setFirstName('');
+        $address->setLastName('');
+        $address->setZipcode('');
+        $address->setCity('');
+
         return [
-            new ProfileSalutationMissingError(static::createStub(CustomerEntity::class)),
-            new BillingAddressSalutationMissingError(static::createStub(CustomerAddressEntity::class)),
-            new ShippingAddressSalutationMissingError(static::createStub(CustomerAddressEntity::class)),
+            new ProfileSalutationMissingError($customer),
+            new BillingAddressSalutationMissingError($address),
+            new ShippingAddressSalutationMissingError($address),
         ];
     }
 

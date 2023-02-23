@@ -18,29 +18,29 @@ class PluginFromFileSystemStructTest extends TestCase
         static::assertSame($expectedResult, $pluginFromFileSystem->getName());
     }
 
-    public function dataProviderTestGetName(): array
+    public static function dataProviderTestGetName(): array
     {
         return [
             [
-                $this->getPluginFromFileSystemStructWithBaseClass('SwagFoo\\SwagFoo'),
+                self::getPluginFromFileSystemStructWithBaseClass('SwagFoo\\SwagFoo'),
                 'SwagFoo',
             ],
             [
-                $this->getPluginFromFileSystemStructWithBaseClass('Swag\\PayPal\\SwagPayPal\\SwagPayPalExtension'),
+                self::getPluginFromFileSystemStructWithBaseClass('Swag\\PayPal\\SwagPayPal\\SwagPayPalExtension'),
                 'SwagPayPalExtension',
             ],
             [
-                $this->getPluginFromFileSystemStructWithBaseClass('//Swag\\PayPal\\SwagPay/Pal\\SwagPayPal-Extension'),
+                self::getPluginFromFileSystemStructWithBaseClass('//Swag\\PayPal\\SwagPay/Pal\\SwagPayPal-Extension'),
                 'SwagPayPal-Extension',
             ],
             [
-                $this->getPluginFromFileSystemStructWithBaseClass('Test'),
+                self::getPluginFromFileSystemStructWithBaseClass('Test'),
                 'Test',
             ],
         ];
     }
 
-    private function getPluginFromFileSystemStructWithBaseClass(string $baseClass): PluginFromFileSystemStruct
+    private static function getPluginFromFileSystemStructWithBaseClass(string $baseClass): PluginFromFileSystemStruct
     {
         return (new PluginFromFileSystemStruct())->assign([
             'baseClass' => $baseClass,

@@ -183,11 +183,6 @@ class DatabaseConfigurationControllerTest extends TestCase
 
         $this->connectionFactory->expects(static::exactly(3))
             ->method('getConnection')
-            ->withConsecutive(
-                [static::isInstanceOf(DatabaseConnectionInformation::class)],
-                [static::isInstanceOf(DatabaseConnectionInformation::class), true],
-                [static::isInstanceOf(DatabaseConnectionInformation::class)],
-            )
             ->willReturnOnConsecutiveCalls(
                 static::throwException(new DummyDoctrineException(1049)),
                 $connectionWithoutDb,
@@ -336,10 +331,7 @@ class DatabaseConfigurationControllerTest extends TestCase
 
         $this->setupDatabaseAdapter->expects(static::exactly(2))
             ->method('getTableCount')
-            ->withConsecutive(
-                [$connection, 'empty-db'],
-                [$connection, 'used-db']
-            )->willReturnOnConsecutiveCalls(0, 4);
+            ->willReturnOnConsecutiveCalls(0, 4);
 
         $response = $this->controller->databaseInformation($request);
         static::assertIsString($response->getContent());

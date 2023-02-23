@@ -29,6 +29,11 @@ class StaticEntityRepository extends EntityRepository
     private array $updates;
 
     /**
+     * @var array<mixed>
+     */
+    private array $creates;
+
+    /**
      * @param array<\Closure|EntitySearchResult|AggregationResultCollection|mixed|EntityCollection<Entity>|IdSearchResult> $searches
      */
     public function __construct(private array $searches)
@@ -85,6 +90,16 @@ class StaticEntityRepository extends EntityRepository
     /**
      * @experimental
      */
+    public function create(array $data, Context $context): EntityWrittenContainerEvent
+    {
+        $this->creates[] = $data;
+
+        return new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection([]), []);
+    }
+
+    /**
+     * @experimental
+     */
     public function update(array $data, Context $context): EntityWrittenContainerEvent
     {
         $this->updates[] = $data;
@@ -128,5 +143,19 @@ class StaticEntityRepository extends EntityRepository
         }
 
         return array_pop($this->updates);
+    }
+
+    /**
+     * @experimental
+     *
+     * @return array<mixed>
+     */
+    public function getCreates(): array
+    {
+        if (empty($this->creates)) {
+            throw new \RuntimeException('Creates queue is empty');
+        }
+
+        return array_pop($this->creates);
     }
 }

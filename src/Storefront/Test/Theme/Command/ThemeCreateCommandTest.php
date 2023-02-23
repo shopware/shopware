@@ -64,7 +64,7 @@ class ThemeCreateCommandTest extends TestCase
         static::assertStringContainsString($expectedMessage, preg_replace('/\s+/', ' ', trim($commandTester->getDisplay(true))));
     }
 
-    public function commandFailsWithWrongNameDataProvider(): array
+    public static function commandFailsWithWrongNameDataProvider(): array
     {
         return [
             ['name' => 'abc', 'expectedMessage' => 'The name must start with an uppercase character'],

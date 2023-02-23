@@ -28,7 +28,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\TestUser;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
-use Shopware\Core\System\Test\SalesChannel\Validation\SalesChannelValidatorTest;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -43,6 +42,9 @@ class ApiControllerTest extends TestCase
     use FilesystemBehaviour;
     use BasicTestDataBehaviour;
     use AdminApiTestBehaviour;
+
+    private const DELETE_VALIDATION_MESSAGE = 'Cannot delete default language id from language list of the sales channel with id "%s".';
+    private const INSERT_VALIDATION_MESSAGE = 'The sales channel with id "%s" does not have a default sales channel language id in the language list.';
 
     /**
      * @var Connection
@@ -2152,7 +2154,7 @@ EOF;
         $content = json_decode((string) $response->getContent(), null, 512, \JSON_THROW_ON_ERROR);
         $error = $content->errors[0];
 
-        static::assertSame(sprintf(SalesChannelValidatorTest::INSERT_VALIDATION_MESSAGE, $salesChannelId), $error->detail);
+        static::assertSame(sprintf(self::INSERT_VALIDATION_MESSAGE, $salesChannelId), $error->detail);
     }
 
     public function testPreventDeletionOfDefaultSalesChannelLanguageFromLanguageList(): void
@@ -2169,7 +2171,7 @@ EOF;
         $content = json_decode((string) $response->getContent(), null, 512, \JSON_THROW_ON_ERROR);
         $error = $content->errors[0];
 
-        static::assertSame(sprintf(SalesChannelValidatorTest::DELETE_VALIDATION_MESSAGE, $salesChannelId), $error->detail);
+        static::assertSame(sprintf(self::DELETE_VALIDATION_MESSAGE, $salesChannelId), $error->detail);
     }
 
     public function testDirectlyAddMappingEntry(): void

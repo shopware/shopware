@@ -89,8 +89,17 @@ class CartLineItemControllerTest extends TestCase
         $stack = $this->createMock(RequestStack::class);
         $stack->method('getSession')->willReturn(new Session(new MockArraySessionStorage()));
         $this->container->method('get')
-            ->withConsecutive(['translator'], ['request_stack'])
-            ->willReturnOnConsecutiveCalls($this->createMock(TranslatorInterface::class), $stack);
+            ->willReturnCallback(function ($id) use ($stack) {
+                if ($id === 'translator') {
+                    return $this->createMock(TranslatorInterface::class);
+                }
+
+                if ($id === 'request_stack') {
+                    return $stack;
+                }
+
+                return null;
+            });
 
         $this->controller->addLineItems($cart, new RequestDataBag($request->request->all()), $request, $context);
     }
@@ -127,8 +136,17 @@ class CartLineItemControllerTest extends TestCase
         $stack = $this->createMock(RequestStack::class);
         $stack->method('getSession')->willReturn(new Session(new MockArraySessionStorage()));
         $this->container->method('get')
-            ->withConsecutive(['translator'], ['request_stack'])
-            ->willReturnOnConsecutiveCalls($this->createMock(TranslatorInterface::class), $stack);
+            ->willReturnCallback(function ($id) use ($stack) {
+                if ($id === 'translator') {
+                    return $this->createMock(TranslatorInterface::class);
+                }
+
+                if ($id === 'request_stack') {
+                    return $stack;
+                }
+
+                return null;
+            });
 
         $this->controller->addLineItems($cart, new RequestDataBag($request->request->all()), $request, $context);
     }

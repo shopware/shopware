@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace unit\php\Core\Content\Mail\Service;
+namespace Shopware\Tests\Unit\Core\Content\Mail\Service;
 
-use League\Flysystem\FilesystemOperator;
+use League\Flysystem\Filesystem;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Mail\Service\Mail;
@@ -11,6 +11,7 @@ use Shopware\Core\Content\Mail\Service\MailAttachmentsConfig;
 use Shopware\Core\Content\Mail\Service\MailerTransportDecorator;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
+use Shopware\Core\Framework\Adapter\Filesystem\MemoryFilesystemAdapter;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -29,7 +30,7 @@ class MailerTransportDecoratorTest extends TestCase
 
     private MockObject&MailAttachmentsBuilder $attachmentsBuilder;
 
-    private FilesystemOperator&MockObject $filesystem;
+    private Filesystem $filesystem;
 
     private MockObject&EntityRepository $documentRepository;
 
@@ -39,7 +40,7 @@ class MailerTransportDecoratorTest extends TestCase
     {
         $this->decorated = $this->createMock(TransportInterface::class);
         $this->attachmentsBuilder = $this->createMock(MailAttachmentsBuilder::class);
-        $this->filesystem = $this->createMock(FilesystemOperator::class);
+        $this->filesystem = new Filesystem(new MemoryFilesystemAdapter());
         $this->documentRepository = $this->createMock(EntityRepository::class);
 
         $this->decorator = new MailerTransportDecorator(
@@ -62,36 +63,27 @@ class MailerTransportDecoratorTest extends TestCase
 
     public function testMailerTransportDecoratorWithUrlAttachments(): void
     {
-        $mail = $this->createMock(Mail::class);
+        $mail = new Mail();
         $envelope = $this->createMock(Envelope::class);
+        $mail->addAttachmentUrl('foo');
+        $mail->addAttachmentUrl('bar');
 
-        $mail->expects(static::once())->method('getAttachmentUrls')->willReturn(['foo', 'bar']);
-
-        $mail
-            ->expects(static::exactly(2))
-            ->method('attach')
-            ->withConsecutive(['foo', 'foo', 'foo'], ['bar', 'bar', 'bar']);
+        $this->filesystem->write('foo', 'foo');
+        $this->filesystem->write('bar', 'bar');
 
         $this->decorated->expects(static::once())->method('send')->with($mail, $envelope);
 
-        $this->filesystem
-            ->expects(static::exactly(2))
-            ->method('read')
-            ->withConsecutive(['foo'], ['bar'])
-            ->willReturnOnConsecutiveCalls('foo', 'bar');
-
-        $this->filesystem
-            ->expects(static::exactly(2))
-            ->method('mimeType')
-            ->withConsecutive(['foo'], ['bar'])
-            ->willReturnOnConsecutiveCalls('foo', 'bar');
-
         $this->decorator->send($mail, $envelope);
+        $attachments = $mail->getAttachments();
+        static::assertCount(2, $attachments);
+
+        static::assertSame('foo', $attachments[0]->getBody());
+        static::assertSame('bar', $attachments[1]->getBody());
     }
 
     public function testMailerTransportDecoratorWithBuildAttachments(): void
     {
-        $mail = $this->createMock(Mail::class);
+        $mail = new Mail();
         $envelope = $this->createMock(Envelope::class);
         $mailAttachmentsConfig = new MailAttachmentsConfig(
             Context::createDefaultContext(),
@@ -101,16 +93,7 @@ class MailerTransportDecoratorTest extends TestCase
             Uuid::randomHex()
         );
 
-        $mail->expects(static::once())->method('getAttachmentUrls')->willReturn([]);
-        $mail
-            ->expects(static::once())
-            ->method('getMailAttachmentsConfig')
-            ->willReturn($mailAttachmentsConfig);
-
-        $mail
-            ->expects(static::exactly(2))
-            ->method('attach')
-            ->with('foo', 'bar', 'baz');
+        $mail->setMailAttachmentsConfig($mailAttachmentsConfig);
 
         $this->decorated->expects(static::once())->method('send')->with($mail, $envelope);
 
@@ -125,8 +108,8 @@ class MailerTransportDecoratorTest extends TestCase
                 $mailAttachmentsConfig->getOrderId()
             )
             ->willReturn([
-                ['id' => 'foo', 'content' => 'foo', 'fileName' => 'bar', 'mimeType' => 'baz'],
-                ['id' => 'bar', 'content' => 'foo', 'fileName' => 'bar', 'mimeType' => 'baz'],
+                ['id' => 'foo', 'content' => 'foo', 'fileName' => 'bar', 'mimeType' => 'baz/asd'],
+                ['id' => 'bar', 'content' => 'bar', 'fileName' => 'bar', 'mimeType' => 'baz/asd'],
             ]);
 
         $this->documentRepository
@@ -138,5 +121,11 @@ class MailerTransportDecoratorTest extends TestCase
             ], Context::createDefaultContext());
 
         $this->decorator->send($mail, $envelope);
+
+        $attachments = $mail->getAttachments();
+        static::assertCount(2, $attachments);
+
+        static::assertSame('foo', $attachments[0]->getBody());
+        static::assertSame('bar', $attachments[1]->getBody());
     }
 }

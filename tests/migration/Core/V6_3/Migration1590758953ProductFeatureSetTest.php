@@ -145,14 +145,14 @@ class Migration1590758953ProductFeatureSetTest extends TestCase
     /**
      * @return array{0: string, 1: DbColumn[]}[]
      */
-    public function tableInformationProvider(): array
+    public static function tableInformationProvider(): array
     {
         return [
             [
                 ProductFeatureSetDefinition::ENTITY_NAME,
                 [
                     self::getColumn('id', new BinaryType(), true),
-                    self::getColumn('features', $this->getJsonType()),
+                    self::getColumn('features', self::getJsonType()),
                     self::getColumn('created_at', new DateTimeType(), true),
                     self::getColumn('updated_at', new DateTimeType()),
                 ],
@@ -189,7 +189,7 @@ class Migration1590758953ProductFeatureSetTest extends TestCase
      *
      * @see https://www.doctrine-project.org/projects/doctrine-dbal/en/latest/reference/types.html#json
      */
-    private function getJsonType(): Type
+    private static function getJsonType(): Type
     {
         return KernelLifecycleManager::getConnection()
             ->getDatabasePlatform()

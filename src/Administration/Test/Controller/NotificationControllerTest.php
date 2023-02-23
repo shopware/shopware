@@ -101,7 +101,7 @@ class NotificationControllerTest extends TestCase
     /**
      * @return array<array<array<string>|string|bool>>
      */
-    public function saveNotificationProvider(): array
+    public static function saveNotificationProvider(): array
     {
         return [
             ['integration', 'success', 'This is a notification', false, ['cache:clear'], true],
@@ -158,7 +158,7 @@ class NotificationControllerTest extends TestCase
     /**
      * @return array<array<array<string>|bool|int|null>>
      */
-    public function getNotificationProvider(): array
+    public static function getNotificationProvider(): array
     {
         return [
             [true, [], null, 1],

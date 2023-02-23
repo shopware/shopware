@@ -17,7 +17,7 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMa
 /**
  * @internal
  */
-class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTest
+class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
 {
     final public const REDIRECT_URL = 'http://payment.app/do/something';
 

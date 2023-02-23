@@ -365,6 +365,10 @@ class ProductSearchRouteTest extends TestCase
     {
         [$browser, $ids] = $services;
 
+        if ($languageId === 'de-DE') {
+            $languageId = $this->getDeDeLanguageId();
+        }
+
         $searchRoute = $this->getContainer()->get(ProductSearchRoute::class);
         $suggestRoute = $this->getContainer()->get(ProductSuggestRoute::class);
 
@@ -413,7 +417,7 @@ class ProductSearchRouteTest extends TestCase
         }
     }
 
-    public function searchTestCases(): array
+    public static function searchTestCases(): array
     {
         return [
             'test it finds product' => [
@@ -441,7 +445,7 @@ class ProductSearchRouteTest extends TestCase
                     'Lorem ipsum' => false, // full name but different language
                     'manufacturer' => false, // manufacturer but different language
                 ],
-                $this->getDeDeLanguageId(),
+                'de-DE',
             ],
             'test it finds product by fallback translations' => [
                 '1002',
@@ -451,7 +455,7 @@ class ProductSearchRouteTest extends TestCase
                     'literature' => true, // part of name
                     'latin literature' => true, // full name
                 ],
-                $this->getDeDeLanguageId(),
+                'de-DE',
             ],
             'test it finds variant product' => [
                 '1000',
@@ -486,7 +490,7 @@ class ProductSearchRouteTest extends TestCase
                     'varius' => false, // manufacturer but of parent
                     'Vestibulum' => false, // manufacturer but of parent & different language
                 ],
-                $this->getDeDeLanguageId(),
+                'de-DE',
             ],
             'test it finds variant product by parent translation' => [
                 '1001.1',
@@ -499,7 +503,7 @@ class ProductSearchRouteTest extends TestCase
                     'consectetur adipiscing' => false, // full name but of parent language
                     'varius' => false, // manufacturer but of parent & different language
                 ],
-                $this->getDeDeLanguageId(),
+                'de-DE',
             ],
             'test it finds variant product with inherited data' => [
                 '1001.1',

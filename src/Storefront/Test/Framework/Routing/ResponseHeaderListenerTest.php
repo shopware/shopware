@@ -88,10 +88,15 @@ class ResponseHeaderListenerTest extends TestCase
     }
 
     /**
+     * @param array<string, string> $routeParameters
+     *
      * @dataProvider dataProviderRevalidateRoutes
      */
-    public function testNoStoreHeaderPresent(string $route): void
+    public function testNoStoreHeaderPresent(string $routeName, array $routeParameters): void
     {
+        $router = $this->getContainer()->get('router');
+        $route = $router->generate($routeName, $routeParameters);
+
         $browser = KernelLifecycleManager::createBrowser(KernelLifecycleManager::getKernel());
         $browser->request('GET', $_SERVER['APP_URL'] . $route);
         $response = $browser->getResponse();
@@ -102,14 +107,12 @@ class ResponseHeaderListenerTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array<string>>
+     * @return iterable<string, array{string, array<string>}>
      */
-    public function dataProviderRevalidateRoutes(): iterable
+    public static function dataProviderRevalidateRoutes(): iterable
     {
-        $router = $this->getContainer()->get('router');
-
         foreach (self::REVALIDATE_ROUTES as $route => $parameters) {
-            yield $route => [$router->generate($route, $parameters)];
+            yield $route => [$route, $parameters];
         }
     }
 

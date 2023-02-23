@@ -82,8 +82,10 @@ class SeoUrlGeneratorTest extends TestCase
      *
      * @dataProvider templateDataProvider
      */
-    public function testGenerateUrlCount(string $id, string $template, int $count): void
+    public function testGenerateUrlCount(string $template, int $count, string $pathInfo): void
     {
+        $id = $this->getValidCategoryId();
+
         $route = $this->seoUrlRouteRegistry->findByRouteName(TestNavigationSeoUrlRoute::ROUTE_NAME);
         static::assertInstanceOf(SeoUrlRouteInterface::class, $route);
 
@@ -105,8 +107,14 @@ class SeoUrlGeneratorTest extends TestCase
      *
      * @dataProvider templateDataProvider
      */
-    public function testGenerateSeoPathInfo(string $id, string $template, int $count, string $pathInfo): void
+    public function testGenerateSeoPathInfo(string $template, int $count, string $pathInfo): void
     {
+        $id = $this->getValidCategoryId();
+
+        if ($pathInfo === 'id') {
+            $pathInfo = $id;
+        }
+
         $route = $this->seoUrlRouteRegistry->findByRouteName(TestNavigationSeoUrlRoute::ROUTE_NAME);
         static::assertInstanceOf(SeoUrlRouteInterface::class, $route);
 
@@ -127,7 +135,7 @@ class SeoUrlGeneratorTest extends TestCase
     }
 
     /**
-     * @return list<array{id: string, template: string, count: int, pathInfo: string}>
+     * @return list<array{template: string, count: int, pathInfo: string}>
      */
     public static function templateDataProvider(): array
     {
@@ -137,19 +145,16 @@ class SeoUrlGeneratorTest extends TestCase
 
         return [
             [
-                'id' => $categoryId,
                 'template' => '{{ id }}',
                 'count' => 1,
-                'pathInfo' => $categoryId,
+                'pathInfo' => 'id',
             ],
             [
-                'id' => $categoryId,
                 'template' => 'STATIC',
                 'count' => 1,
                 'pathInfo' => 'STATIC',
             ],
             [
-                'id' => $categoryId,
                 'template' => '',
                 'count' => 0,
                 'pathInfo' => '',

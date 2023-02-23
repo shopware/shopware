@@ -1,6 +1,6 @@
 ---
 title: Fix storefront theme asset paths
-issue: X
+issue: NEXT-25537
 author: Benjamin Wittwer
 author_email: Discord.Benjamin@web.de
 author_github: Gecolay

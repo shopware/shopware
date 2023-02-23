@@ -15562,11 +15562,6 @@ parameters:
 			path: src/Storefront/Test/Theme/ConfigLoader/StaticFileAvailableThemeProviderTest.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Theme\\\\StorefrontPluginConfiguration\\\\StorefrontPluginConfigurationFactoryTest\\:\\:assertFileCollection\\(\\) has parameter \\$expected with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Theme/StorefrontPluginConfiguration/StorefrontPluginConfigurationFactoryTest.php
-
-		-
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Theme\\\\Subscriber\\\\AppLifecycleSubscriberTest\\:\\:themeProvideData\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Test/Theme/Subscriber/AppLifecycleSubscriberTest.php
@@ -15780,36 +15775,6 @@ parameters:
 			message: "#^Property Shopware\\\\Storefront\\\\Theme\\\\StorefrontPluginConfiguration\\\\StorefrontPluginConfiguration\\:\\:\\$themeConfig type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Theme/StorefrontPluginConfiguration/StorefrontPluginConfiguration.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\StorefrontPluginConfiguration\\\\StorefrontPluginConfigurationFactory\\:\\:addBasePathToArray\\(\\) has parameter \\$files with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/StorefrontPluginConfiguration/StorefrontPluginConfigurationFactory.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\StorefrontPluginConfiguration\\\\StorefrontPluginConfigurationFactory\\:\\:addBasePathToArray\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/StorefrontPluginConfiguration/StorefrontPluginConfigurationFactory.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\StorefrontPluginConfiguration\\\\StorefrontPluginConfigurationFactory\\:\\:getFilesInDir\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/StorefrontPluginConfiguration/StorefrontPluginConfigurationFactory.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\StorefrontPluginConfiguration\\\\StorefrontPluginConfigurationFactory\\:\\:getScssEntryFileInDir\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/StorefrontPluginConfiguration/StorefrontPluginConfigurationFactory.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\StorefrontPluginConfiguration\\\\StorefrontPluginConfigurationFactory\\:\\:resolveStyleFiles\\(\\) has parameter \\$styles with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/StorefrontPluginConfiguration/StorefrontPluginConfigurationFactory.php
-
-		-
-			message: "#^PHPDoc tag @var for variable \\$data has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/StorefrontPluginConfiguration/StorefrontPluginConfigurationFactory.php
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeConfigField\\:\\:getCustom\\(\\) return type has no value type specified in iterable type array\\.$#"

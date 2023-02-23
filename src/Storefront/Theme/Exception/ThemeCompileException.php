@@ -11,14 +11,16 @@ class ThemeCompileException extends ShopwareHttpException
 {
     public function __construct(
         string $themeName,
-        string $message = ''
+        string $message = '',
+        ?\Throwable $e = null
     ) {
         parent::__construct(
             'Unable to compile the theme "{{ themeName }}". {{ message }}',
             [
                 'themeName' => $themeName,
                 'message' => $message,
-            ]
+            ],
+            $e
         );
     }
 

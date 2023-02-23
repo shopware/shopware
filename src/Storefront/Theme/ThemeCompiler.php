@@ -58,15 +58,31 @@ class ThemeCompiler implements ThemeCompilerInterface
         bool $withAssets,
         Context $context
     ): void {
-        $resolvedFiles = $this->themeFileResolver->resolveFiles($themeConfig, $configurationCollection, false);
+        try {
+            $resolvedFiles = $this->themeFileResolver->resolveFiles($themeConfig, $configurationCollection, false);
 
-        $styleFiles = $resolvedFiles[ThemeFileResolver::STYLE_FILES];
+            $styleFiles = $resolvedFiles[ThemeFileResolver::STYLE_FILES];
+        } catch (\Throwable $e) {
+            throw new ThemeCompileException(
+                $themeConfig->getName() ?? '',
+                'Files could not be resolved with error: ' . $e->getMessage(),
+                $e
+            );
+        }
 
-        $concatenatedStyles = $this->concatenateStyles(
-            $styleFiles,
-            $themeConfig,
-            $salesChannelId
-        );
+        try {
+            $concatenatedStyles = $this->concatenateStyles(
+                $styleFiles,
+                $themeConfig,
+                $salesChannelId
+            );
+        } catch (\Throwable $e) {
+            throw new ThemeCompileException(
+                $themeConfig->getName() ?? '',
+                'Error while trying to concatenate Styles: ' . $e->getMessage(),
+                $e
+            );
+        }
 
         $compiled = $this->compileStyles(
             $concatenatedStyles,
@@ -76,7 +92,15 @@ class ThemeCompiler implements ThemeCompilerInterface
             $context
         );
 
-        $concatenatedScripts = $this->getConcatenatedScripts($resolvedFiles[ThemeFileResolver::SCRIPT_FILES], $themeConfig, $salesChannelId);
+        try {
+            $concatenatedScripts = $this->getConcatenatedScripts($resolvedFiles[ThemeFileResolver::SCRIPT_FILES], $themeConfig, $salesChannelId);
+        } catch (\Throwable $e) {
+            throw new ThemeCompileException(
+                $themeConfig->getName() ?? '',
+                'Error while trying to concatenate Scripts: ' . $e->getMessage(),
+                $e
+            );
+        }
 
         $newThemeHash = Uuid::randomHex();
         $themePrefix = $this->themePathBuilder->generateNewPath($salesChannelId, $themeId, $newThemeHash);
@@ -90,7 +114,11 @@ class ThemeCompiler implements ThemeCompilerInterface
                 $this->filesystem->deleteDirectory($themePrefix);
             }
 
-            throw $e;
+            throw new ThemeCompileException(
+                $themeConfig->getName() ?? '',
+                'Error while trying to write compiled files: ' . $e->getMessage(),
+                $e
+            );
         }
 
         $this->themePathBuilder->saveSeed($salesChannelId, $themeId, $newThemeHash);
@@ -188,28 +216,28 @@ class ThemeCompiler implements ThemeCompilerInterface
         string $salesChannelId,
         Context $context
     ): string {
-        $variables = $this->dumpVariables($configuration->getThemeConfig() ?? [], $salesChannelId, $context);
-        $features = $this->getFeatureConfigScssMap();
-
-        $resolveImportPath = $this->getResolveImportPathsCallback($resolveMappings);
-
-        $importPaths = [];
-
-        $cwd = \getcwd();
-        if ($cwd !== false) {
-            $importPaths[] = $cwd;
-        }
-
-        $importPaths[] = $resolveImportPath;
-
-        $compilerConfig = new CompilerConfiguration(
-            [
-                'importPaths' => $importPaths,
-                'outputStyle' => $this->debug ? OutputStyle::EXPANDED : OutputStyle::COMPRESSED,
-            ]
-        );
-
         try {
+            $variables = $this->dumpVariables($configuration->getThemeConfig() ?? [], $salesChannelId, $context);
+            $features = $this->getFeatureConfigScssMap();
+
+            $resolveImportPath = $this->getResolveImportPathsCallback($resolveMappings);
+
+            $importPaths = [];
+
+            $cwd = \getcwd();
+            if ($cwd !== false) {
+                $importPaths[] = $cwd;
+            }
+
+            $importPaths[] = $resolveImportPath;
+
+            $compilerConfig = new CompilerConfiguration(
+                [
+                    'importPaths' => $importPaths,
+                    'outputStyle' => $this->debug ? OutputStyle::EXPANDED : OutputStyle::COMPRESSED,
+                ]
+            );
+
             $cssOutput = $this->scssCompiler->compileString(
                 $compilerConfig,
                 $features . $variables . $concatenatedStyles
@@ -217,7 +245,8 @@ class ThemeCompiler implements ThemeCompilerInterface
         } catch (\Throwable $exception) {
             throw new ThemeCompileException(
                 $configuration->getTechnicalName(),
-                $exception->getMessage()
+                $exception->getMessage(),
+                $exception
             );
         }
         $autoPreFixer = new Autoprefixer($cssOutput);

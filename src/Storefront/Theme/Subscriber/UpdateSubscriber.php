@@ -9,7 +9,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Storefront\Theme\Exception\ThemeCompileException;
 use Shopware\Storefront\Theme\ThemeCollection;
+use Shopware\Storefront\Theme\ThemeEntity;
 use Shopware\Storefront\Theme\ThemeLifecycleService;
 use Shopware\Storefront\Theme\ThemeService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -65,6 +67,9 @@ class UpdateSubscriber implements EventSubscriberInterface
                 continue;
             }
 
+            $failedThemes = [];
+
+            /** @var ThemeEntity $theme */
             foreach ($themes as $theme) {
                 // NEXT-21735 - his is covered randomly
                 // @codeCoverageIgnoreStart
@@ -73,7 +78,16 @@ class UpdateSubscriber implements EventSubscriberInterface
                 }
                 // @codeCoverageIgnoreEnd
 
-                $alreadyCompiled += $this->themeService->compileThemeById($theme->getId(), $context);
+                try {
+                    $alreadyCompiled += $this->themeService->compileThemeById($theme->getId(), $context);
+                } catch (ThemeCompileException $e) {
+                    $failedThemes[] = $theme->getName();
+                    $alreadyCompiled[] = $theme->getId();
+                }
+            }
+
+            if (!empty($failedThemes)) {
+                $event->appendPostUpdateMessage('Theme(s): ' . implode(', ', $failedThemes) . ' could not be recompiled.');
             }
         }
     }

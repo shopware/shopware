@@ -1,8 +1,8 @@
 variables:
     MYSQL_ROOT_PASSWORD: app
     WEB_DOCUMENT_ROOT: $CI_PROJECT_DIR/public
-    GIT_STRATEGY: fetch
-    GIT_DEPTH: 10
+    GIT_STRATEGY: clone
+    GIT_DEPTH: 0
     LOG_STDOUT: $CI_PROJECT_DIR/var/log/stdout.log
     MYSQL_CMD: mysqld
     PROJECT_ROOT: $CI_PROJECT_DIR

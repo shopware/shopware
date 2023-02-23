@@ -162,4 +162,47 @@ describe('module/sw-settings-search/component/sw-settings-search-searchable-cont
 
         expect(wrapper.emitted('config-save')).toBeTruthy();
     });
+
+    it('should get ref attribute of searchable list when call onInlineEditItem function', async () => {
+        global.activeAclRoles = ['product_search_config.editor'];
+
+        const wrapper = await createWrapper();
+        await wrapper.setData({
+            $refs: {
+                swSettingsSearchableContentGrid: {
+                    onDbClickCell: () => Promise.resolve(),
+                },
+            },
+        });
+        await wrapper.vm.$nextTick();
+        const searchConfigs = [
+            {
+                apiAlias: null,
+                createdAt: '2021-01-29T02:18:11.171+00:00',
+                customFieldId: null,
+                field: 'categories.customFields',
+                id: '8bafeb17b2494781ac44dce2d3ecfae5',
+                ranking: 0,
+                searchConfigId: '61168b0c1f97454cbee670b12d045d32',
+                searchable: false,
+                tokenize: false
+            }
+        ];
+        searchConfigs.criteria = { page: 1, limit: 25 };
+
+        await wrapper.setProps({
+            searchConfigs,
+            isLoading: false
+        });
+
+        await wrapper.vm.onInlineEditItem({
+            field: 'categories.customFields',
+            id: '8bafeb17b2494781ac44dce2d3ecfae5'
+        });
+
+        expect(wrapper.vm.$refs.swSettingsSearchableContentGrid.onDbClickCell({
+            field: 'categories.customFields',
+            id: '8bafeb17b2494781ac44dce2d3ecfae5'
+        })).toBeTruthy();
+    });
 });

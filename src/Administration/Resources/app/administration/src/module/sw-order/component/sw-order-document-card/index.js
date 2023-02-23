@@ -1,4 +1,5 @@
 import { DocumentEvents } from 'src/core/service/api/document.api.service';
+import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import template from './sw-order-document-card.html.twig';
 import './sw-order-document-card.scss';
 
@@ -116,10 +117,23 @@ export default {
         documentCriteria() {
             const criteria = new Criteria(this.page, this.limit);
             criteria.addSorting(Criteria.sort('createdAt', 'DESC'));
-            criteria.setTerm(this.term);
             criteria.addAssociation('documentType');
             criteria.addFilter(Criteria.equals('order.id', this.order.id));
             criteria.addFilter(Criteria.equals('order.versionId', this.order.versionId));
+
+            if (!this.term) {
+                return criteria;
+            }
+
+            criteria.setTerm(this.term);
+            criteria.addQuery(
+                Criteria.contains('config.documentDate', this.term),
+                searchRankingPoint.HIGH_SEARCH_RANKING,
+            );
+            criteria.addQuery(
+                Criteria.equals('config.documentNumber', this.term),
+                searchRankingPoint.HIGH_SEARCH_RANKING,
+            );
 
             return criteria;
         },

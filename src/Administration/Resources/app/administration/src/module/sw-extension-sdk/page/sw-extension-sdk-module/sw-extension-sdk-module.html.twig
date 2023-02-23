@@ -1,10 +1,13 @@
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_extension_sdk_module %}
-<sw-page :show-search-bar="showSearchBar">
+<sw-page
+    class="sw-extension-sdk-module"
+    :show-search-bar="showSearchBar"
+>
     <template #smart-bar-header>
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_sdk_module_header %}
-        <template v-if="!isLoading">
+        <template v-if="module">
             <h2>{{ module.heading }}</h2>
         </template>
         {% endblock %}
@@ -16,21 +19,22 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_sdk_module_content_iframe_renderer %}
         <sw-iframe-renderer
-            v-if="!isLoading"
+            v-if="module"
             ref="iframeRenderer"
             :src="module.baseUrl"
             :location-id="module.locationId"
+            @load="onLoad"
         />
         {% endblock %}
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_sdk_module_content_loader %}
-        <sw-loader v-else-if="!timedOut" />
+        <sw-loader v-else-if="isLoading" />
         {% endblock %}
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_extension_sdk_module_content_error_state %}
-        <sw-my-apps-error-page v-if="timedOut" />
+        <sw-extension-app-module-error-page v-if="timedOut" />
         {% endblock %}
         {% endblock %}
     </template>

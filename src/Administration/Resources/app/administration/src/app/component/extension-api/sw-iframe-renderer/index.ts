@@ -1,5 +1,6 @@
 import template from './sw-iframe-renderer.html.twig';
 import type { Extension } from '../../../state/extensions.store';
+import './sw-iframe-renderer.scss';
 
 /**
  * @package admin
@@ -30,13 +31,13 @@ Shopware.Component.register('sw-iframe-renderer', {
     data(): {
         heightHandler: null | (() => void),
         locationHeight: null | number,
-        signedIframeSrc: null | string,
+        iFrameSrcResult: null | string,
         } {
         return {
             // eslint-disable-next-line @typescript-eslint/no-empty-function
             heightHandler: null,
             locationHeight: null,
-            signedIframeSrc: null,
+            iFrameSrcResult: null,
         };
     },
 
@@ -46,6 +47,7 @@ Shopware.Component.register('sw-iframe-renderer', {
                 this.locationHeight = Number(height) ?? null;
             }
         });
+        this.loadIframeSrc();
     },
 
     beforeDestroy() {
@@ -92,25 +94,26 @@ Shopware.Component.register('sw-iframe-renderer', {
     },
 
     watch: {
-        extension: {
-            immediate: true,
-            handler(extension) {
-                if (!extension || !this.extensionIsApp) {
+        locationId() {
+            this.loadIframeSrc();
+        },
+    },
+
+    methods: {
+        loadIframeSrc() {
+            if (!this.extension || !this.extensionIsApp) {
+                this.iFrameSrcResult = this.iFrameSrc;
+                return;
+            }
+            void this.extensionSdkService.signIframeSrc(this.extension.name, this.iFrameSrc).then((response) => {
+                const uri = (response as { uri?: string})?.uri;
+
+                if (!uri) {
                     return;
                 }
 
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
-                this.extensionSdkService.signIframeSrc(extension.name, this.iFrameSrc).then((response) => {
-                    const uri = (response as { uri?: string})?.uri;
-
-                    if (!uri) {
-                        return;
-                    }
-
-                    this.signedIframeSrc = uri;
-                    // eslint-disable-next-line @typescript-eslint/no-empty-function
-                }).catch(() => {});
-            },
+                this.iFrameSrcResult = uri;
+            });
         },
     },
 });

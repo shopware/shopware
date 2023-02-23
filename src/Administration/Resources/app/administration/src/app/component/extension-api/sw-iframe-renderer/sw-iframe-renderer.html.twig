@@ -1,27 +1,15 @@
-<div>
+<div class="sw-iframe-renderer">
     <template v-if="componentName">
         <component :is="componentName" />
     </template>
 
-    <template v-else-if="extensionIsApp">
-        <iframe
-            v-if="signedIframeSrc"
-            ref="iframe"
-            :src="signedIframeSrc"
-            frameborder="0"
-            :title="src"
-            width="100%"
-            :height="iFrameHeight"
-        ></iframe>
-    </template>
-
     <iframe
-        v-else
         ref="iframe"
-        :src="iFrameSrc"
+        :src="iFrameSrcResult"
         frameborder="0"
         :title="src"
         width="100%"
         :height="iFrameHeight"
+        @load="$emit('load')"
     ></iframe>
 </div>

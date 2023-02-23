@@ -17,6 +17,7 @@ Shopware.Component.register('sw-extension-sdk-module', {
         return {
             timedOut: false,
             loadingTimeOut: null,
+            isLoaded: false,
         };
     },
 
@@ -26,7 +27,7 @@ Shopware.Component.register('sw-extension-sdk-module', {
         },
 
         isLoading() {
-            return !this.module;
+            return !this.isLoaded && !this.timedOut;
         },
 
         showSearchBar() {
@@ -36,12 +37,7 @@ Shopware.Component.register('sw-extension-sdk-module', {
 
     watch: {
         $route() {
-            if (!this.$refs.iframeRenderer) {
-                return;
-            }
-
-            // Trick to reload iframes with same src but different routes
-            this.$refs.iframeRenderer.$refs.iframe.src = `${this.$refs.iframeRenderer.$refs.iframe.src}`;
+            this.load();
         },
     },
 
@@ -51,10 +47,6 @@ Shopware.Component.register('sw-extension-sdk-module', {
     created() {
         // Keep threshold synced with admin extension sdk
         this.loadingTimeOut = window.setTimeout(() => {
-            if (!this.isLoading) {
-                return;
-            }
-
             this.timedOut = true;
             this.loadingTimeOut = null;
         }, 7000);
@@ -64,5 +56,21 @@ Shopware.Component.register('sw-extension-sdk-module', {
         if (this.loadingTimeOut) {
             window.clearTimeout(this.loadingTimeOut);
         }
+    },
+
+    methods: {
+        onLoad() {
+            this.isLoaded = true;
+            window.clearTimeout(this.loadingTimeOut);
+        },
+        load() {
+            this.timedOut = false;
+            this.isLoaded = false;
+            if (!this.$refs.iframeRenderer) {
+                return;
+            }
+
+            this.$refs.iframeRenderer.loadIframeSrc();
+        },
     },
 });

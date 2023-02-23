@@ -60,7 +60,7 @@ describe('src/app/component/extension-api/sw-iframe-renderer', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        expect(wrapper.vm.signedIframeSrc).toBe(null);
+        expect(wrapper.vm.iFrameSrcResult).toBe(null);
     });
 
     it('should call signIframeSrc for apps', async () => {
@@ -76,7 +76,7 @@ describe('src/app/component/extension-api/sw-iframe-renderer', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        expect(wrapper.vm.signedIframeSrc).toBe('foo__SIGNED__');
+        expect(wrapper.vm.iFrameSrcResult).toBe('foo__SIGNED__');
     });
 
     it('should render iFrame', async () => {

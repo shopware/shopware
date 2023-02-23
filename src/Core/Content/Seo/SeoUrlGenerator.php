@@ -8,6 +8,7 @@ use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlMapping;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteConfig;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteInterface;
 use Shopware\Core\Framework\Adapter\Twig\TwigVariableParser;
+use Shopware\Core\Framework\Adapter\Twig\TwigVariableParserFactory;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
@@ -31,6 +32,8 @@ class SeoUrlGenerator
 {
     final public const ESCAPE_SLUGIFY = 'slugifyurlencode';
 
+    private readonly TwigVariableParser $twigVariableParser;
+
     /**
      * @internal
      */
@@ -39,8 +42,9 @@ class SeoUrlGenerator
         private readonly RouterInterface $router,
         private readonly RequestStack $requestStack,
         private readonly Environment $twig,
-        private readonly TwigVariableParser $twigVariableParser
+        TwigVariableParserFactory $parserFactory
     ) {
+        $this->twigVariableParser = $parserFactory->getParser($twig);
     }
 
     /**

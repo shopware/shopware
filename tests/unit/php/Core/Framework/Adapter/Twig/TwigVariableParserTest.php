@@ -1,18 +1,20 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Adapter\Twig;
+namespace Shopware\Tests\Unit\Core\Framework\Adapter\Twig;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\TwigVariableParser;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Twig\Environment;
+use Twig\Extension\DebugExtension;
+use Twig\Loader\ArrayLoader;
 
 /**
  * @internal
+ *
+ * @covers \Shopware\Core\Framework\Adapter\Twig\TwigVariableParser
  */
 class TwigVariableParserTest extends TestCase
 {
-    use IntegrationTestBehaviour;
-
     public function testParser(): void
     {
         $template = <<<TWIG
@@ -30,7 +32,9 @@ class TwigVariableParserTest extends TestCase
 
 TWIG;
 
-        $parser = $this->getContainer()->get(TwigVariableParser::class);
+        $twig = new Environment(new ArrayLoader([]));
+        $twig->addExtension(new DebugExtension());
+        $parser = new TwigVariableParser($twig);
 
         $variables = $parser->parse($template);
 
@@ -69,7 +73,7 @@ TWIG;
 
 TWIG;
 
-        $parser = $this->getContainer()->get(TwigVariableParser::class);
+        $parser = new TwigVariableParser(new Environment(new ArrayLoader([])));
 
         $variables = $parser->parse($template);
 

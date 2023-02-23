@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Test\Seo;
+namespace Shopware\Tests\Integration\Core\Content\Seo;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
@@ -15,12 +15,13 @@ use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Content\Test\TestNavigationSeoUrlRoute;
 use Shopware\Core\Content\Test\TestProductSeoUrlRoute;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Adapter\Twig\TwigVariableParser;
+use Shopware\Core\Framework\Adapter\Twig\TwigVariableParserFactory;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -29,6 +30,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
+ *
+ * @covers \Shopware\Core\Content\Seo\SeoUrlGenerator
  */
 class SeoUrlGeneratorTest extends TestCase
 {
@@ -67,19 +70,19 @@ class SeoUrlGeneratorTest extends TestCase
             $this->getContainer()->get('router.default'),
             $this->getContainer()->get('request_stack'),
             $this->getContainer()->get('shopware.seo_url.twig'),
-            $this->getContainer()->get(TwigVariableParser::class)
+            $this->getContainer()->get(TwigVariableParserFactory::class)
         );
 
         $this->seoUrlRouteRegistry = $this->getContainer()->get(SeoUrlRouteRegistry::class);
     }
 
     /**
-     * Checks wether the amount of generated URLs is correct. Empty SEO-URL
+     * Checks whether the amount of generated URLs is correct. Empty SEO-URL
      * templates should lead to no SEO-URL being generated.
      *
      * @dataProvider templateDataProvider
      */
-    public function testGenerateUrlCount(string $id, string $template, int $count, string $pathInfo): void
+    public function testGenerateUrlCount(string $id, string $template, int $count): void
     {
         $route = $this->seoUrlRouteRegistry->findByRouteName(TestNavigationSeoUrlRoute::ROUTE_NAME);
         static::assertInstanceOf(SeoUrlRouteInterface::class, $route);
@@ -98,7 +101,7 @@ class SeoUrlGeneratorTest extends TestCase
     }
 
     /**
-     * Checks wether the SEO-URL path generated fits the expected template.
+     * Checks whether the SEO-URL path generated fits the expected template.
      *
      * @dataProvider templateDataProvider
      */
@@ -126,23 +129,27 @@ class SeoUrlGeneratorTest extends TestCase
     /**
      * @return list<array{id: string, template: string, count: int, pathInfo: string}>
      */
-    public function templateDataProvider(): array
+    public static function templateDataProvider(): array
     {
+        $connection = KernelLifecycleManager::getConnection();
+
+        $categoryId = Uuid::fromBytesToHex((string) $connection->fetchOne('SELECT id FROM category'));
+
         return [
             [
-                'id' => $this->getValidCategoryId(),
+                'id' => $categoryId,
                 'template' => '{{ id }}',
                 'count' => 1,
-                'pathInfo' => $this->getValidCategoryId(),
+                'pathInfo' => $categoryId,
             ],
             [
-                'id' => $this->getValidCategoryId(),
+                'id' => $categoryId,
                 'template' => 'STATIC',
                 'count' => 1,
                 'pathInfo' => 'STATIC',
             ],
             [
-                'id' => $this->getValidCategoryId(),
+                'id' => $categoryId,
                 'template' => '',
                 'count' => 0,
                 'pathInfo' => '',
@@ -268,6 +275,30 @@ class SeoUrlGeneratorTest extends TestCase
         $result = $this->seoUrlGenerator->generate($productIds, $template, $route, Context::createDefaultContext(), $this->salesChannelContext->getSalesChannel());
 
         $expected = ['test-category-shopware-product'];
+        foreach ($result as $index => $seoUrl) {
+            static::assertEquals($expected[$index], $seoUrl->getSeoPathInfo());
+        }
+    }
+
+    public function testTemplateWithCustomTwigExtension(): void
+    {
+        $ids = new IdsCollection();
+
+        $product = (new ProductBuilder($ids, 'my product'))
+            ->price(100)
+            ->visibility($this->salesChannelId);
+
+        $this->getContainer()->get('product.repository')
+            ->create([$product->build()], Context::createDefaultContext());
+
+        $productIds = $ids->getList(['product']);
+        $template = '{{ product.translated.name|lastBigLetter }}';
+        $route = $this->seoUrlRouteRegistry->findByRouteName(TestProductSeoUrlRoute::ROUTE_NAME);
+        static::assertInstanceOf(SeoUrlRouteInterface::class, $route);
+
+        $result = $this->seoUrlGenerator->generate($productIds, $template, $route, Context::createDefaultContext(), $this->salesChannelContext->getSalesChannel());
+
+        $expected = ['my-producT'];
         foreach ($result as $index => $seoUrl) {
             static::assertEquals($expected[$index], $seoUrl->getSeoPathInfo());
         }

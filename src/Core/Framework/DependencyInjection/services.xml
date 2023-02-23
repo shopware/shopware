@@ -427,7 +427,10 @@ base-uri 'self';
 
         <service id="Shopware\Core\Framework\Adapter\Twig\TwigVariableParser">
             <argument type="service" id="twig" />
+            <deprecated package="shopware/core" version="6.6.0.0">tag:v6.6.0 - The %service_id% service will be removed in v6.6.0.0 use "TwigVariableParserFactory" instead.</deprecated>
         </service>
+
+        <service id="Shopware\Core\Framework\Adapter\Twig\TwigVariableParserFactory"/>
 
         <service id="Shopware\Core\Framework\Routing\ApiRequestContextResolver">
             <argument type="service" id="Doctrine\DBAL\Connection"/>

@@ -526,7 +526,10 @@ export default {
             Shopware.State.commit('cmsPageState/setCurrentDemoEntity', category);
 
             this.loadDemoCategoryProducts(category);
-            this.loadDemoCategoryMedia(category);
+
+            if (category.mediaId) {
+                this.loadDemoCategoryMedia(category);
+            }
         },
 
         async loadDemoCategoryProducts(entity) {

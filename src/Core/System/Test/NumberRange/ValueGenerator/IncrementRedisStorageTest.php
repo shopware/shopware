@@ -214,7 +214,6 @@ class IncrementRedisStorageTest extends TestCase
         $keys = array_map(fn (string $id) => [$this->getKey($id)], $numberRangeIds);
         $this->redisMock->expects(static::exactly(\count($keys)))
             ->method('get')
-            ->withConsecutive(...$keys)
             ->willReturnOnConsecutiveCalls(10, 5, false);
 
         static::assertEquals([

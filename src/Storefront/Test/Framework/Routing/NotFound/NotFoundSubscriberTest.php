@@ -172,7 +172,7 @@ class NotFoundSubscriberTest extends TestCase
     /**
      * @return iterable<string, array<mixed>>
      */
-    public function providerSystemConfigKeys(): iterable
+    public static function providerSystemConfigKeys(): iterable
     {
         yield 'key matches' => [
             'core.basicInformation.http404Page',

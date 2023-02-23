@@ -86,6 +86,12 @@ class UpsertAddressRouteTest extends TestCase
      */
     public function testCreateAddress(array $data): void
     {
+        $data['countryId'] = $this->getValidCountryId();
+
+        if (\array_key_exists('salutationId', $data)) {
+            $data['salutationId'] = $this->getValidSalutationId();
+        }
+
         $this->browser
             ->request(
                 'POST',
@@ -286,17 +292,16 @@ class UpsertAddressRouteTest extends TestCase
         ]), $this->createMock(SalesChannelContext::class), $customer);
     }
 
-    public function addressDataProvider(): \Generator
+    public static function addressDataProvider(): \Generator
     {
         yield 'salutation' => [
             [
-                'salutationId' => $this->getValidSalutationId(),
+                'salutationId' => '',
                 'firstName' => 'Test',
                 'lastName' => 'Test',
                 'street' => 'Test',
                 'city' => 'Test',
                 'zipcode' => 'Test',
-                'countryId' => $this->getValidCountryId(),
             ],
         ];
 
@@ -307,7 +312,6 @@ class UpsertAddressRouteTest extends TestCase
                 'street' => 'Test',
                 'city' => 'Test',
                 'zipcode' => 'Test',
-                'countryId' => $this->getValidCountryId(),
             ],
         ];
 
@@ -319,7 +323,6 @@ class UpsertAddressRouteTest extends TestCase
                 'street' => 'Test',
                 'city' => 'Test',
                 'zipcode' => 'Test',
-                'countryId' => $this->getValidCountryId(),
             ],
         ];
     }

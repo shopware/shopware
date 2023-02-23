@@ -93,21 +93,21 @@ class SeoUrlTemplateRepositoryTest extends TestCase
         static::assertNull($first);
     }
 
-    public function templateUpdateDataProvider(): iterable
+    public static function templateUpdateDataProvider(): iterable
     {
         $templates = [
             [
                 'id' => null,
                 'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'routeName' => ProductPageSeoUrlRoute::ROUTE_NAME,
-                'entityName' => $this->getContainer()->get(ProductDefinition::class)->getEntityName(),
+                'entityName' => ProductDefinition::ENTITY_NAME,
                 'template' => ProductPageSeoUrlRoute::DEFAULT_TEMPLATE,
             ],
             [
                 'id' => null,
                 'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'routeName' => ProductPageSeoUrlRoute::ROUTE_NAME,
-                'entityName' => $this->getContainer()->get(ProductDefinition::class)->getEntityName(),
+                'entityName' => ProductDefinition::ENTITY_NAME,
                 'template' => '',
             ],
         ];

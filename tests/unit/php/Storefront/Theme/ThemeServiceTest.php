@@ -203,28 +203,29 @@ class ThemeServiceTest extends TestCase
             ]
         );
 
-        $this->themeCompilerMock->expects(static::exactly(2))->method('compileTheme')->withConsecutive(
-            [
-                TestDefaults::SALES_CHANNEL,
-                $themeId,
-                static::anything(),
-                static::anything(),
-                true,
-                $this->context,
-            ],
-            [
-                TestDefaults::SALES_CHANNEL,
-                $dependendThemeId,
-                static::anything(),
-                static::anything(),
-                true,
-                $this->context,
-            ]
-        );
+        $parameters = [];
+
+        $this->themeCompilerMock
+            ->expects(static::exactly(2))
+            ->method('compileTheme')
+            ->willReturnCallback(function ($salesChannelId, $themeId) use (&$parameters): void {
+                $parameters[] = [$salesChannelId, $themeId];
+            });
 
         $mapping = $this->themeService->compileThemeById($themeId, $this->context);
 
         static::assertIsArray($mapping);
+
+        static::assertSame([
+            [
+                TestDefaults::SALES_CHANNEL,
+                $themeId,
+            ],
+            [
+                TestDefaults::SALES_CHANNEL,
+                $dependendThemeId,
+            ],
+        ], $parameters);
     }
 
     public function testUpdateThemeNoTheme(): void

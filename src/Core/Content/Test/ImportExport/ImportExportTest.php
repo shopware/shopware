@@ -72,7 +72,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  * @internal
  */
 #[Package('system-settings')]
-class ImportExportTest extends AbstractImportExportTest
+class ImportExportTest extends AbstractImportExportTestCase
 {
     use SalesChannelApiTestBehaviour;
     use OrderFixture;

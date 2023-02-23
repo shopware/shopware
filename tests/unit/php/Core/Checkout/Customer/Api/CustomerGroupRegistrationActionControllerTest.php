@@ -159,11 +159,9 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
         }
         $criteria = new Criteria(array_values($collection->getIds()));
 
-        $this->customerRepositoryMock->method('search')->withConsecutive(
-            [
-                $criteria,
-                $context,
-            ],
+        $this->customerRepositoryMock->method('search')->with(
+            $criteria,
+            $context,
         )
             ->willReturnOnConsecutiveCalls(
                 new EntitySearchResult(

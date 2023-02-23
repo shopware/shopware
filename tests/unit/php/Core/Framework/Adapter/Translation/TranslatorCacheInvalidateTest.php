@@ -69,11 +69,11 @@ class TranslatorCacheInvalidateTest extends TestCase
 
         $snippetIds = [Uuid::randomHex(), Uuid::randomHex()];
 
-        $this->connection->expects(static::once())->method('fetchFirstColumn')->withConsecutive([
+        $this->connection->expects(static::once())->method('fetchFirstColumn')->with(
             'SELECT LOWER(HEX(snippet_set_id)) FROM snippet WHERE HEX(id) IN (:ids)',
             ['ids' => $snippetIds],
             ['ids' => ArrayParameterType::STRING],
-        ])->willReturn($expectedSnippetSetIds);
+        )->willReturn($expectedSnippetSetIds);
 
         $writeResults = [];
         foreach ($snippetIds as $snippetId) {

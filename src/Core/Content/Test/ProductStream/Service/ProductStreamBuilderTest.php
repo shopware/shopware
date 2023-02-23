@@ -182,21 +182,21 @@ class ProductStreamBuilderTest extends TestCase
         static::assertCount($expected, $products);
     }
 
-    public function relativeTimeFiltersDataProvider(): array
+    public static function relativeTimeFiltersDataProvider(): array
     {
         return [
-            'days until - gt' => ['until', 'gt', 'releaseDate', 'P5D', $this->getReleaseDates('+'), 3],
-            'days until - lt' => ['until', 'lt', 'releaseDate', 'P5D', $this->getReleaseDates('+'), 5],
-            'days until - gte' => ['until', 'gte', 'releaseDate', 'P5D', $this->getReleaseDates('+'), 5],
-            'days until - lte' => ['until', 'lte', 'releaseDate', 'P5D', $this->getReleaseDates('+'), 7],
-            'days until - eq' => ['until', 'eq', 'releaseDate', 'P5D', $this->getReleaseDates('+'), 2],
-            'days until - neq' => ['until', 'neq', 'releaseDate', 'P5D', $this->getReleaseDates('+'), 8],
-            'days since - gt' => ['since', 'gt', 'releaseDate', 'P5D', $this->getReleaseDates('-'), 3],
-            'days since - lt' => ['since', 'lt', 'releaseDate', 'P5D', $this->getReleaseDates('-'), 5],
-            'days since - gte' => ['since', 'gte', 'releaseDate', 'P5D', $this->getReleaseDates('-'), 5],
-            'days since - lte' => ['since', 'lte', 'releaseDate', 'P5D', $this->getReleaseDates('-'), 7],
-            'days since - eq' => ['since', 'eq', 'releaseDate', 'P5D', $this->getReleaseDates('-'), 2],
-            'days since - neq' => ['since', 'neq', 'releaseDate', 'P5D', $this->getReleaseDates('-'), 8],
+            'days until - gt' => ['until', 'gt', 'releaseDate', 'P5D', self::getReleaseDates('+'), 3],
+            'days until - lt' => ['until', 'lt', 'releaseDate', 'P5D', self::getReleaseDates('+'), 5],
+            'days until - gte' => ['until', 'gte', 'releaseDate', 'P5D', self::getReleaseDates('+'), 5],
+            'days until - lte' => ['until', 'lte', 'releaseDate', 'P5D', self::getReleaseDates('+'), 7],
+            'days until - eq' => ['until', 'eq', 'releaseDate', 'P5D', self::getReleaseDates('+'), 2],
+            'days until - neq' => ['until', 'neq', 'releaseDate', 'P5D', self::getReleaseDates('+'), 8],
+            'days since - gt' => ['since', 'gt', 'releaseDate', 'P5D', self::getReleaseDates('-'), 3],
+            'days since - lt' => ['since', 'lt', 'releaseDate', 'P5D', self::getReleaseDates('-'), 5],
+            'days since - gte' => ['since', 'gte', 'releaseDate', 'P5D', self::getReleaseDates('-'), 5],
+            'days since - lte' => ['since', 'lte', 'releaseDate', 'P5D', self::getReleaseDates('-'), 7],
+            'days since - eq' => ['since', 'eq', 'releaseDate', 'P5D', self::getReleaseDates('-'), 2],
+            'days since - neq' => ['since', 'neq', 'releaseDate', 'P5D', self::getReleaseDates('-'), 8],
         ];
     }
 
@@ -284,7 +284,7 @@ class ProductStreamBuilderTest extends TestCase
         return $products;
     }
 
-    private function getReleaseDates(string $operator): array
+    private static function getReleaseDates(string $operator): array
     {
         return [
             (new \DateTimeImmutable())->modify($operator . '8 days')->format('Y-m-d'),

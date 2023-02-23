@@ -3,12 +3,10 @@
 namespace Shopware\Storefront\Test\Controller;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Rule\GoodsPriceRule;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -89,7 +87,7 @@ class CartLineItemControllerTest extends TestCase
         static::assertSame(200, $response->getStatusCode());
     }
 
-    public function productNumbers(): array
+    public static function productNumbers(): array
     {
         return [
             [Uuid::randomHex(), 'test.123'],
@@ -104,7 +102,7 @@ class CartLineItemControllerTest extends TestCase
         ];
     }
 
-    public function promotions(): array
+    public static function promotions(): array
     {
         return [
             ['testCode'],
@@ -133,23 +131,6 @@ class CartLineItemControllerTest extends TestCase
         static::assertArrayHasKey('danger', $flashBag);
         static::assertSame($this->getContainer()->get('translator')->trans('checkout.promotion-not-found', ['%code%' => \strip_tags($code)]), $flashBag['danger'][0]);
         static::assertCount(0, $cartService->getCart($contextToken, $salesChannelContext)->getLineItems());
-    }
-
-    private function getLineItemAddPayload(string $productId): array
-    {
-        return [
-            'redirectTo' => 'frontend.cart.offcanvas',
-            'lineItems' => [
-                $productId => [
-                    'id' => $productId,
-                    'referencedId' => $productId,
-                    'type' => 'product',
-                    'stackable' => 1,
-                    'removable' => 1,
-                    'quantity' => 1,
-                ],
-            ],
-        ];
     }
 
     private function getFlashBag(): FlashBagInterface
@@ -212,53 +193,5 @@ class CartLineItemControllerTest extends TestCase
         $request->setSession($this->getSession());
 
         return $request;
-    }
-
-    private function createPaymentWithRule(SalesChannelContext $context): string
-    {
-        $ruleId = Uuid::randomHex();
-
-        $this->getContainer()->get('rule.repository')->create(
-            [['id' => $ruleId, 'name' => 'Demo rule', 'priority' => 1, 'moduleTypes' => ['types' => ['payment']]]],
-            $context->getContext()
-        );
-
-        $this->getContainer()->get('rule_condition.repository')->create(
-            [
-                [
-                    'id' => Uuid::randomHex(),
-                    'type' => (new GoodsPriceRule())->getName(),
-                    'ruleId' => $ruleId,
-                    'value' => [
-                        'amount' => 20.0,
-                        'operator' => Rule::OPERATOR_LTE,
-                    ],
-                ],
-            ],
-            $context->getContext()
-        );
-
-        $paymentId = Uuid::randomHex();
-
-        $this->getContainer()->get('payment_method.repository')->create(
-            [
-                [
-                    'id' => $paymentId,
-                    'name' => 'Test Payment with Rule',
-                    'description' => 'Payment rule test',
-                    'active' => true,
-                    'afterOrderEnabled' => true,
-                    'availabilityRuleId' => $ruleId,
-                    'salesChannels' => [
-                        [
-                            'id' => $context->getSalesChannelId(),
-                        ],
-                    ],
-                ],
-            ],
-            $context->getContext()
-        );
-
-        return $paymentId;
     }
 }

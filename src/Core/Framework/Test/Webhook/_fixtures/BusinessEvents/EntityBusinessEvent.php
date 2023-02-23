@@ -35,18 +35,13 @@ class EntityBusinessEvent implements FlowEventAware, BusinessEventEncoderTestInt
                 '_uniqueIdentifier' => $this->tax->getId(),
                 'versionId' => null,
                 'name' => $this->tax->getName(),
-                'taxRate' => (int) $this->tax->getTaxRate(),
+                'taxRate' => $this->tax->getTaxRate(),
                 'position' => $this->tax->getPosition(),
                 'customFields' => null,
                 'translated' => [],
                 'createdAt' => $this->tax->getCreatedAt() ? $this->tax->getCreatedAt()->format(\DATE_RFC3339_EXTENDED) : null,
                 'updatedAt' => null,
-                'extensions' => [
-                    'foreignKeys' => [
-                        'extensions' => [],
-                        'apiAlias' => 'tax_foreign_keys_extension',
-                    ],
-                ],
+                'extensions' => [],
                 'apiAlias' => 'tax',
             ],
         ];

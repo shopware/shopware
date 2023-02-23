@@ -88,7 +88,7 @@ class Migration1603293043FixCurrencyTypoTest extends TestCase
     /**
      * @return bool[][]
      */
-    public function migrationCases(): array
+    public static function migrationCases(): array
     {
         return [
             [true, true, true, true],

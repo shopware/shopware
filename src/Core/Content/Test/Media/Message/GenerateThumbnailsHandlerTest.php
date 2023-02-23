@@ -203,13 +203,18 @@ class GenerateThumbnailsHandlerTest extends TestCase
             ...array_map(fn ($entity) => [$entity, $this->context, false], array_values($testEntities3->getElements())),
         ];
 
+        $parameters = [];
+
         $thumbnailServiceMock->expects(static::exactly($testEntities2->count() + $testEntities3->count()))
             ->method('updateThumbnails')
-            ->withConsecutive(...$consecutiveUpdateMessageParams)
-            ->willReturn(1);
+            ->willReturnCallback(function (...$params) use (&$parameters): void {
+                $parameters[] = $params;
+            });
 
         $handler->__invoke($generateMessage);
         $handler->__invoke($updateMessage1);
         $handler->__invoke($updateMessage2);
+
+        static::assertEquals($consecutiveUpdateMessageParams, $parameters);
     }
 }

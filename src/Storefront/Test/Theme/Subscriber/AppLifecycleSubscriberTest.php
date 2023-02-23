@@ -71,7 +71,7 @@ class AppLifecycleSubscriberTest extends TestCase
         static::assertCount(0, $apps);
     }
 
-    public function themeProvideData(): array
+    public static function themeProvideData(): array
     {
         return [
             'Test with keep data' => [true],

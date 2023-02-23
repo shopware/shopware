@@ -136,7 +136,7 @@ class SearchKeywordUpdaterTest extends TestCase
         $this->assertKeywords($ids->get('1000'), $ids->get('language'), []);
     }
 
-    public function productKeywordProvider(): array
+    public static function productKeywordProvider(): array
     {
         $idsCollection = new IdsCollection();
 
@@ -145,7 +145,7 @@ class SearchKeywordUpdaterTest extends TestCase
                 (new ProductBuilder($idsCollection, '1000'))
                     ->price(10)
                     ->name('Test product')
-                    ->translation($this->getDeDeLanguageId(), 'name', 'Test produkt')
+                    ->translation('de-DE', 'name', 'Test produkt')
                     ->build(),
                 $idsCollection,
                 [
@@ -180,7 +180,7 @@ class SearchKeywordUpdaterTest extends TestCase
                 (new ProductBuilder($idsCollection, '1000'))
                     ->price(10)
                     ->name('Test product')
-                    ->manufacturer('manufacturer', [$this->getDeDeLanguageId() => ['name' => 'Hersteller']])
+                    ->manufacturer('manufacturer', ['de-DE' => ['name' => 'Hersteller']])
                     ->build(),
                 $idsCollection,
                 [
@@ -199,7 +199,7 @@ class SearchKeywordUpdaterTest extends TestCase
             'test it uses correct translation from parent' => [
                 (new ProductBuilder($idsCollection, '1001'))
                     ->name('Test product')
-                    ->translation($this->getDeDeLanguageId(), 'name', 'Test produkt')
+                    ->translation('de-DE', 'name', 'Test produkt')
                     ->price(5)
                     ->variant(
                         (new ProductBuilder($idsCollection, '1000'))
@@ -224,7 +224,7 @@ class SearchKeywordUpdaterTest extends TestCase
             'test it uses correct translation from parent association' => [
                 (new ProductBuilder($idsCollection, '1001'))
                     ->name('Test product')
-                    ->manufacturer('manufacturer', [$this->getDeDeLanguageId() => ['name' => 'Hersteller']])
+                    ->manufacturer('manufacturer', ['de-DE' => ['name' => 'Hersteller']])
                     ->price(5)
                     ->variant(
                         (new ProductBuilder($idsCollection, '1000'))

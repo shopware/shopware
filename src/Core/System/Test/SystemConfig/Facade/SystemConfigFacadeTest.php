@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\Test\SystemConfig\Facade;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
@@ -17,7 +18,6 @@ use Shopware\Core\Framework\Test\Script\Execution\SalesChannelTestHook;
 use Shopware\Core\Framework\Test\Script\Execution\TestHook;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SystemConfig\Facade\SystemConfigFacadeHookFactory;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
@@ -61,10 +61,10 @@ class SystemConfigFacadeTest extends TestCase
     /**
      * @return array<string, array<int, mixed>>
      */
-    public function getWithoutAppCases(): array
+    public static function getWithoutAppCases(): array
     {
-        $salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)
-            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, []);
+        $salesChannelContext = Generator::createSalesChannelContext();
+        $salesChannelContext->getSalesChannel()->setId(TestDefaults::SALES_CHANNEL);
 
         return [
             'simpleGet' => [

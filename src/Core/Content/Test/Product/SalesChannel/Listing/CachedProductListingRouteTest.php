@@ -196,7 +196,7 @@ class CachedProductListingRouteTest extends TestCase
         $route->load($categoryId, new Request(), $this->context, new Criteria());
     }
 
-    public function invalidationProvider(): \Generator
+    public static function invalidationProvider(): \Generator
     {
         $ids = new IdsCollection();
 
@@ -375,9 +375,9 @@ class CachedProductListingRouteTest extends TestCase
 
                 $container->get('product.repository')->create([$product], Context::createDefaultContext());
             },
-            function (string $categoryId) use ($ids): void {
+            function (string $categoryId, ContainerInterface $container) use ($ids): void {
                 $delete = ['id' => $ids->get('manufacturer-not-used')];
-                $this->getContainer()->get('product_manufacturer.repository')->delete([$delete], Context::createDefaultContext());
+                $container->get('product_manufacturer.repository')->delete([$delete], Context::createDefaultContext());
             },
             1,
         ];

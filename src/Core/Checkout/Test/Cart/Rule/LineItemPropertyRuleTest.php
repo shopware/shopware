@@ -48,19 +48,19 @@ class LineItemPropertyRuleTest extends TestCase
     /**
      * @return array<array<CartRuleScopeCase>>
      */
-    public function cartRuleScopeProvider(): array
+    public static function cartRuleScopeProvider(): array
     {
-        $emptyItem = $this->createLineItemWithVariantOptions();
-        $redItem = $this->createLineItemWithVariantOptions(['red']);
-        $greenItem = $this->createLineItemWithVariantOptions(['green']);
-        $blueGreenItem = $this->createLineItemWithVariantOptions(['green', 'blue']);
+        $emptyItem = self::createLineItemWithVariantOptions();
+        $redItem = self::createLineItemWithVariantOptions(['red']);
+        $greenItem = self::createLineItemWithVariantOptions(['green']);
+        $blueGreenItem = self::createLineItemWithVariantOptions(['green', 'blue']);
 
-        $emptyOptionItem = $this->createLineItemWithVariantOptions();
-        $redOptionItem = $this->createLineItemWithVariantOptions([], ['red']);
-        $greenOptionItem = $this->createLineItemWithVariantOptions([], ['green']);
-        $blueGreenOptionItem = $this->createLineItemWithVariantOptions([], ['green', 'blue']);
+        $emptyOptionItem = self::createLineItemWithVariantOptions();
+        $redOptionItem = self::createLineItemWithVariantOptions([], ['red']);
+        $greenOptionItem = self::createLineItemWithVariantOptions([], ['green']);
+        $blueGreenOptionItem = self::createLineItemWithVariantOptions([], ['green', 'blue']);
 
-        $mergeCase = $this->createLineItemWithVariantOptions(['red'], ['green']);
+        $mergeCase = self::createLineItemWithVariantOptions(['red'], ['green']);
 
         $cases = [
             new CartRuleScopeCase('empty cart', false, new LineItemPropertyRule(['red']), []),
@@ -86,9 +86,9 @@ class LineItemPropertyRuleTest extends TestCase
      * @param array<string> $properties
      * @param array<string> $options
      */
-    private function createLineItemWithVariantOptions(array $properties = [], array $options = []): LineItem
+    private static function createLineItemWithVariantOptions(array $properties = [], array $options = []): LineItem
     {
-        $lineItem = $this->createLineItem();
+        $lineItem = self::createLineItem();
 
         $lineItem->setPayloadValue('propertyIds', $properties);
         $lineItem->setPayloadValue('optionIds', $options);

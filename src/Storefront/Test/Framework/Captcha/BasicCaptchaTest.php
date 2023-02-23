@@ -50,7 +50,7 @@ class BasicCaptchaTest extends TestCase
         }
     }
 
-    public function requestDataProvider(): array
+    public static function requestDataProvider(): array
     {
         return [
             [

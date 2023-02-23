@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
@@ -48,16 +49,14 @@ class PostWriteValidationEventTest extends TestCase
         }
     }
 
-    public function getDeletedPrimaryKeysProvider(): \Generator
+    public static function getDeletedPrimaryKeysProvider(): \Generator
     {
         $context = WriteContext::createFromContext(Context::createDefaultContext());
-
-        $definition = $this->createMock(EntityDefinition::class);
 
         $ids = new IdsCollection();
 
         yield 'Test single delete' => [
-            new PostWriteValidationEvent($context, [$this->delete('product', ['id' => $ids->get('p1')])]),
+            new PostWriteValidationEvent($context, [self::delete('product', ['id' => $ids->get('p1')])]),
             [
                 'product' => [['id' => $ids->get('p1')]],
             ],
@@ -65,21 +64,21 @@ class PostWriteValidationEventTest extends TestCase
 
         yield 'Test multi insert' => [
             new PostWriteValidationEvent($context, [
-                $this->insert('product', ['id' => $ids->get('p1')]),
-                $this->delete('product', ['id' => $ids->get('p2')]),
-                $this->delete('product', ['id' => $ids->get('p3')]),
+                self::insert('product', ['id' => $ids->get('p1')]),
+                self::delete('product', ['id' => $ids->get('p2')]),
+                self::delete('product', ['id' => $ids->get('p3')]),
 
-                $this->insert('category', ['id' => $ids->get('c1')]),
-                $this->delete('category', ['id' => $ids->get('c2')]),
-                $this->delete('category', ['id' => $ids->get('c3')]),
+                self::insert('category', ['id' => $ids->get('c1')]),
+                self::delete('category', ['id' => $ids->get('c2')]),
+                self::delete('category', ['id' => $ids->get('c3')]),
 
-                $this->delete('translation', ['language_id' => Defaults::LANGUAGE_SYSTEM, 'id' => $ids->get('c1')]),
-                $this->insert('translation', ['language_id' => Defaults::LANGUAGE_SYSTEM, 'id' => $ids->get('c2')]),
-                $this->delete('translation', ['language_id' => Defaults::LANGUAGE_SYSTEM, 'id' => $ids->get('c3')]),
+                self::delete('translation', ['language_id' => Defaults::LANGUAGE_SYSTEM, 'id' => $ids->get('c1')]),
+                self::insert('translation', ['language_id' => Defaults::LANGUAGE_SYSTEM, 'id' => $ids->get('c2')]),
+                self::delete('translation', ['language_id' => Defaults::LANGUAGE_SYSTEM, 'id' => $ids->get('c3')]),
 
-                $this->insert('foo', ['id' => $ids->get('f1')]),
-                $this->delete('foo', ['id' => $ids->get('f2')]),
-                $this->insert('foo', ['id' => $ids->get('f3')]),
+                self::insert('foo', ['id' => $ids->get('f1')]),
+                self::delete('foo', ['id' => $ids->get('f2')]),
+                self::insert('foo', ['id' => $ids->get('f3')]),
             ]),
             [
                 'product' => [
@@ -102,35 +101,35 @@ class PostWriteValidationEventTest extends TestCase
         ];
     }
 
-    public function getPrimaryKeysProvider(): \Generator
+    public static function getPrimaryKeysProvider(): \Generator
     {
         $context = WriteContext::createFromContext(Context::createDefaultContext());
 
         $ids = new IdsCollection();
 
         yield 'Test single insert' => [
-            new PostWriteValidationEvent($context, [$this->insert('product', ['id' => $ids->get('p1')])]),
+            new PostWriteValidationEvent($context, [self::insert('product', ['id' => $ids->get('p1')])]),
             [
                 'product' => [['id' => $ids->get('p1')]],
             ],
         ];
         yield 'Test multi insert' => [
             new PostWriteValidationEvent($context, [
-                $this->insert('product', ['id' => $ids->get('p1')]),
-                $this->insert('product', ['id' => $ids->get('p2')]),
-                $this->insert('product', ['id' => $ids->get('p3')]),
+                self::insert('product', ['id' => $ids->get('p1')]),
+                self::insert('product', ['id' => $ids->get('p2')]),
+                self::insert('product', ['id' => $ids->get('p3')]),
 
-                $this->insert('category', ['id' => $ids->get('c1')]),
-                $this->insert('category', ['id' => $ids->get('c2')]),
-                $this->insert('category', ['id' => $ids->get('c3')]),
+                self::insert('category', ['id' => $ids->get('c1')]),
+                self::insert('category', ['id' => $ids->get('c2')]),
+                self::insert('category', ['id' => $ids->get('c3')]),
 
-                $this->insert('translation', ['language_id' => Defaults::LANGUAGE_SYSTEM, 'id' => $ids->get('c1')]),
-                $this->insert('translation', ['language_id' => Defaults::LANGUAGE_SYSTEM, 'id' => $ids->get('c2')]),
-                $this->insert('translation', ['language_id' => Defaults::LANGUAGE_SYSTEM, 'id' => $ids->get('c3')]),
+                self::insert('translation', ['language_id' => Defaults::LANGUAGE_SYSTEM, 'id' => $ids->get('c1')]),
+                self::insert('translation', ['language_id' => Defaults::LANGUAGE_SYSTEM, 'id' => $ids->get('c2')]),
+                self::insert('translation', ['language_id' => Defaults::LANGUAGE_SYSTEM, 'id' => $ids->get('c3')]),
 
-                $this->delete('foo', ['id' => $ids->get('f1')]),
-                $this->delete('foo', ['id' => $ids->get('f2')]),
-                $this->delete('foo', ['id' => $ids->get('f3')]),
+                self::delete('foo', ['id' => $ids->get('f1')]),
+                self::delete('foo', ['id' => $ids->get('f2')]),
+                self::delete('foo', ['id' => $ids->get('f3')]),
             ]),
             [
                 'product' => [
@@ -158,25 +157,40 @@ class PostWriteValidationEventTest extends TestCase
         ];
     }
 
-    private function insert(string $entity, array $primaryKey): InsertCommand
+    private static function insert(string $entity, array $primaryKey): InsertCommand
     {
-        $definition = $this->createMock(EntityDefinition::class);
-        $definition->expects(static::any())
-            ->method('getEntityName')
-            ->willReturn($entity);
+        $definition = self::getDefinition($entity);
 
         $existence = new EntityExistence('', [], false, false, false, []);
 
         return new InsertCommand($definition, [], $primaryKey, $existence, '');
     }
 
-    private function delete(string $entity, array $primaryKey): DeleteCommand
+    private static function delete(string $entity, array $primaryKey): DeleteCommand
     {
-        $definition = $this->createMock(EntityDefinition::class);
-        $definition->expects(static::any())
-            ->method('getEntityName')
-            ->willReturn($entity);
+        $definition = self::getDefinition($entity);
 
         return new DeleteCommand($definition, $primaryKey, new EntityExistence('', [], false, false, false, []));
+    }
+
+    private static function getDefinition(string $entity): EntityDefinition
+    {
+        $definition = new class() extends EntityDefinition {
+            public string $entityName;
+
+            public function getEntityName(): string
+            {
+                return $this->entityName;
+            }
+
+            protected function defineFields(): FieldCollection
+            {
+                return new FieldCollection([]);
+            }
+        };
+
+        $definition->entityName = $entity;
+
+        return $definition;
     }
 }

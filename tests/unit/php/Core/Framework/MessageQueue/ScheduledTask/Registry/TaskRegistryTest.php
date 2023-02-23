@@ -16,6 +16,7 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskCollection;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskEntity;
 use Shopware\Elasticsearch\Framework\Indexing\CreateAliasTask;
+use Shopware\Tests\Unit\Common\Stubs\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 
 /**
@@ -43,8 +44,6 @@ class TaskRegistryTest extends TestCase
             'elasticsearch.enabled' => false,
         ]);
 
-        $registry = new TaskRegistry($tasks, $this->scheduleTaskRepository, $parameterBag);
-
         $registeredTask = new ScheduledTaskEntity();
 
         $registeredTask->setId('1');
@@ -53,37 +52,32 @@ class TaskRegistryTest extends TestCase
         $registeredTask->setStatus(ScheduledTaskDefinition::STATUS_SCHEDULED);
         $registeredTask->setNextExecutionTime(new \DateTimeImmutable());
         $registeredTask->setScheduledTaskClass(CleanupCartTask::class);
-        $result = $this->createMock(EntitySearchResult::class);
-        $result->method('getEntities')->willReturn(new ScheduledTaskCollection([$registeredTask]));
-        $this->scheduleTaskRepository->expects(static::once())->method('search')->willReturn($result);
-        $this->scheduleTaskRepository->expects(static::never())->method('update');
-        $this->scheduleTaskRepository->expects(static::never())->method('delete');
-        $this->scheduleTaskRepository->expects(static::exactly(2))->method('create')->withConsecutive(
-            [
-                [
-                    [
-                        'name' => InvalidateCacheTask::getTaskName(),
-                        'scheduledTaskClass' => InvalidateCacheTask::class,
-                        'runInterval' => InvalidateCacheTask::getDefaultInterval(),
-                        'status' => ScheduledTaskDefinition::STATUS_SCHEDULED,
-                    ],
-                ],
-                Context::createDefaultContext(),
-            ],
-            [
-                [
-                    [
-                        'name' => CreateAliasTask::getTaskName(),
-                        'scheduledTaskClass' => CreateAliasTask::class,
-                        'runInterval' => CreateAliasTask::getDefaultInterval(),
-                        'status' => ScheduledTaskDefinition::STATUS_SKIPPED,
-                    ],
-                ],
-                Context::createDefaultContext(),
-            ]
-        );
+
+        $staticRepository = new StaticEntityRepository([
+            new ScheduledTaskCollection([$registeredTask]),
+        ]);
+
+        $registry = new TaskRegistry($tasks, $staticRepository, $parameterBag);
 
         $registry->registerTasks();
+
+        static::assertSame([
+            [
+                'name' => CreateAliasTask::getTaskName(),
+                'scheduledTaskClass' => CreateAliasTask::class,
+                'runInterval' => CreateAliasTask::getDefaultInterval(),
+                'status' => ScheduledTaskDefinition::STATUS_SKIPPED,
+            ],
+        ], $staticRepository->getCreates());
+
+        static::assertSame([
+            [
+                'name' => InvalidateCacheTask::getTaskName(),
+                'scheduledTaskClass' => InvalidateCacheTask::class,
+                'runInterval' => InvalidateCacheTask::getDefaultInterval(),
+                'status' => ScheduledTaskDefinition::STATUS_SCHEDULED,
+            ],
+        ], $staticRepository->getCreates());
     }
 
     public function testInvalidTasksAreDeleted(): void

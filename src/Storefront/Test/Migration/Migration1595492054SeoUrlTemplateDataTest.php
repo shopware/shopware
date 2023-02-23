@@ -20,7 +20,7 @@ class Migration1595492054SeoUrlTemplateDataTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    public function customTemplateProvider(): array
+    public static function customTemplateProvider(): array
     {
         return [
             [

@@ -44,6 +44,15 @@ async function createWrapper() {
                         };
                     }
 
+                    if (entity === 'language') {
+                        return {
+                            searchIds: () => Promise.resolve({
+                                total: 1,
+                                data: ['1'],
+                            })
+                        };
+                    }
+
                     return {
                         create: () => Promise.resolve()
                     };
@@ -96,5 +105,58 @@ describe('src/module/sw-order/component/sw-order-new-customer-modal', () => {
 
         expect(customerBaseForm.exists()).toBeFalsy();
         expect(customerAddressForm.exists()).toBeTruthy();
+    });
+
+    it('should override context when the sales channel does not exist language compared to the API language', async () => {
+        wrapper.vm.validateEmail = jest.fn().mockImplementation(() => Promise.resolve({ isValid: true }));
+        wrapper.vm.customerRepository.save = jest.fn((customer, context) => Promise.resolve(context));
+
+        expect(await wrapper.vm.languageId).toEqual(Shopware.Context.api.languageId);
+
+        await wrapper.setData({
+            customer: {
+                id: '1',
+                email: 'user@domain.com',
+                accountType: 'business',
+                password: 'shopware',
+                salesChannelId: 'a7921464677a4ef591683d144beecd24',
+                company: 'Shopware',
+            },
+        });
+
+        expect(await wrapper.vm.languageId).toEqual('1');
+
+        const context = await wrapper.vm.onSave();
+
+        expect(context.languageId).toEqual('1');
+    });
+
+    it('should keep context when sales channel exists language compared to API language', async () => {
+        wrapper.vm.validateEmail = jest.fn().mockImplementation(() => Promise.resolve({ isValid: true }));
+        wrapper.vm.customerRepository.save = jest.fn((customer, context) => Promise.resolve(context));
+
+        wrapper.vm.languageRepository.searchIds = jest.fn(() => Promise.resolve({
+            total: 1,
+            data: [Shopware.Context.api.languageId],
+        }));
+
+        expect(await wrapper.vm.languageId).toEqual(Shopware.Context.api.languageId);
+
+        await wrapper.setData({
+            customer: {
+                id: '1',
+                email: 'user@domain.com',
+                accountType: 'business',
+                password: 'shopware',
+                salesChannelId: 'a7921464677a4ef591683d144beecd24',
+                company: 'Shopware',
+            },
+        });
+
+        expect(await wrapper.vm.languageId).toEqual(Shopware.Context.api.languageId);
+
+        const context = await wrapper.vm.onSave();
+
+        expect(context.languageId).toEqual(Shopware.Context.api.languageId);
     });
 });

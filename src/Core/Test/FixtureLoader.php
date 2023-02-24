@@ -20,9 +20,9 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 #[Package('core')]
 class FixtureLoader
 {
-    private ContainerInterface $container;
-
     private readonly Connection $connection;
+
+    private readonly EntityWriterInterface $writer;
 
     public function __construct(
         private readonly ContainerInterface $container

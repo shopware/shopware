@@ -1,6 +1,6 @@
 ---
 title: Make KernelTestBehaviour compatible with Symfony MailerAssertionsTrait
-issue: -
+issue: NEXT-25500
 author: Rafael Kraut
 author_email: rk@vi-arise.com
 author_github: RafaelKr

@@ -34,7 +34,7 @@
                                     {% if isPaymentNeeded %}
                                         {% block page_account_order_item_status_badge_payment_process_needed %}
                                             <a href="{{ path('frontend.account.edit-order.page', { 'orderId': order.id }) }}"
-                                               class="badge badge-lg order-item-status-badge badge-danger">
+                                               class="badge badge-lg order-item-status-badge bg-danger">
                                                 {{ "account.orderStatusActionCompletePayment"|trans|sw_sanitize }}
                                                 {% sw_icon 'arrow-medium-right' style { 'size': 'sm', 'pack': 'solid' } %}
                                             </a>

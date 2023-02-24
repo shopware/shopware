@@ -80,7 +80,7 @@
         "league/flysystem-memory": "~3.10",
         "league/oauth2-server": "~8.3.6",
         "meyfa/php-svg": "~0.13.0",
-        "monolog/monolog": "~3.2.0",
+        "monolog/monolog": "~3.3.1",
         "nyholm/psr7": "^1.5",
         "opensearch-project/opensearch-php": "~2.0",
         "padaliyajay/php-autoprefixer": "1.4",

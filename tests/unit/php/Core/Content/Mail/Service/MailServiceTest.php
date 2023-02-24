@@ -2,7 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Mail\Service;
 
-use Monolog\Logger;
+use Monolog\Level;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -210,7 +210,7 @@ class MailServiceTest extends TestCase
         static::assertNull($email);
         static::assertNotNull($beforeValidateEvent);
         static::assertInstanceOf(MailErrorEvent::class, $mailErrorEvent);
-        static::assertEquals(Logger::ERROR, $mailErrorEvent->getLogLevel());
+        static::assertEquals(Level::Error->value, $mailErrorEvent->getLogLevel());
         static::assertNotNull($mailErrorEvent->getMessage());
 
         $message = 'Could not render Mail-Template with error message: cannot render';

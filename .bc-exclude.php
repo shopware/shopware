@@ -25,6 +25,8 @@ return [
         'Method Shopware\\\\Core\\\\System\\\\Currency\\\\CurrencyEntity#setShippingMethodPrices\\(\\) was removed',
         'Property Shopware\\\\Core\\\\Checkout\\\\Shipping\\\\Aggregate\\\\ShippingMethodPrice\\\\ShippingMethodPriceEntity#\\$currency was removed',
         'Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\SchemaIndexListener',
+        'Shopware\\\\Core\\\\Framework\\\\Log\\\\LoggerFactory#createRotating\\(\\)',
+        'Shopware\\\\Core\\\\Content\\\\MailTemplate\\\\Service\\\\Event\\\\MailErrorEvent#__construct\\(\\)',
 
         // internal typos
         'Shopware\\\\Core\\\\Framework\\\\App\\\\AppPayloadServiceHelper was marked "@internal"',

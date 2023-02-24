@@ -2,15 +2,21 @@
 
 namespace Shopware\Core\Framework\Log;
 
+use Monolog\Level;
 use Shopware\Core\Framework\Event\FlowEventAware;
 
 #[Package('core')]
 interface LogAware extends FlowEventAware
 {
+    /**
+     * @return array<string, mixed>
+     */
     public function getLogData(): array;
 
     /**
-     * @return 100|200|250|300|400|500|550|600
+     * @deprecated tag:v6.6.0 - reason:return-type-change - Return type will change to @see \Monolog\Level
+     *
+     * @return value-of<Level::VALUES>
      */
     public function getLogLevel(): int;
 }

@@ -2,33 +2,42 @@
 
 namespace Shopware\Core\Content\MailTemplate\Service\Event;
 
-use Monolog\Logger;
+use Monolog\Level;
 use Shopware\Core\Content\Flow\Dispatching\Aware\NameAware;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
-use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Log\LogAware;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
 #[Package('sales-channel')]
-class MailErrorEvent extends Event implements LogAware, FlowEventAware, NameAware
+class MailErrorEvent extends Event implements LogAware, NameAware
 {
     final public const NAME = 'mail.sent.error';
 
     /**
-     * @param 100|200|250|300|400|500|550|600|null $logLevel
+     * @deprecated tag:v6.6.0 - Property $logLevel will no longer allow integer values
+     *
+     * @var value-of<Level::VALUES>|Level
+     */
+    private readonly int|Level $logLevel;
+
+    /**
+     * @deprecated tag:v6.6.0 - Parameter $logLevel will no longer allow integer values
+     *
+     * @param value-of<Level::VALUES>|Level|null $logLevel
      * @param array<string, mixed> $templateData
      */
     public function __construct(
         private readonly Context $context,
-        private readonly ?int $logLevel = Logger::DEBUG,
+        int|Level|null $logLevel = Level::Debug,
         private readonly ?\Throwable $throwable = null,
         private readonly ?string $message = null,
         private readonly ?string $template = null,
         private readonly ?array $templateData = []
     ) {
+        $this->logLevel = $logLevel ?? Level::Debug;
     }
 
     public function getThrowable(): ?\Throwable
@@ -47,16 +56,17 @@ class MailErrorEvent extends Event implements LogAware, FlowEventAware, NameAwar
     }
 
     /**
-     * @return 100|200|250|300|400|500|550|600
+     * @deprecated tag:v6.6.0 - reason:return-type-change - Return type will change to @see \Monolog\Level
      */
     public function getLogLevel(): int
     {
-        return $this->logLevel ?? Logger::DEBUG;
+        if (\is_int($this->logLevel)) {
+            return $this->logLevel;
+        }
+
+        return $this->logLevel->value;
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     public function getLogData(): array
     {
         $logData = [];

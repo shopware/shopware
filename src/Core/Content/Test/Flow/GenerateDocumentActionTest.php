@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Test\Flow;
 
 use Doctrine\DBAL\Connection;
 use Monolog\Handler\TestHandler;
+use Monolog\Level;
 use Monolog\Logger;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -159,7 +160,7 @@ class GenerateDocumentActionTest extends TestCase
             $this->addCreditItemToVersionedOrder($order->getId(), $context);
         }
 
-        $handler = new TestHandler(Logger::ERROR);
+        $handler = new TestHandler(Level::Error);
 
         $this->logger->pushHandler($handler);
 

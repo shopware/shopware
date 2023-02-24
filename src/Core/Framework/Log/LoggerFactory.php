@@ -3,10 +3,14 @@
 namespace Shopware\Core\Framework\Log;
 
 use Monolog\Handler\RotatingFileHandler;
+use Monolog\Level;
 use Monolog\Logger;
 use Monolog\Processor\PsrLogMessageProcessor;
 use Psr\Log\LoggerInterface;
 
+/**
+ * @deprecated tag:v6.6.0 - reason:becomes-internal
+ */
 #[Package('core')]
 class LoggerFactory
 {
@@ -20,9 +24,9 @@ class LoggerFactory
     }
 
     /**
-     * @param 100|200|250|300|400|500|550|600 $loggerLevel
+     * @param value-of<Level::VALUES>|Level $loggerLevel
      */
-    public function createRotating(string $filePrefix, ?int $fileRotationCount = null, int $loggerLevel = Logger::DEBUG): LoggerInterface
+    public function createRotating(string $filePrefix, ?int $fileRotationCount = null, int|Level $loggerLevel = Level::Debug): LoggerInterface
     {
         $filepath = sprintf($this->rotatingFilePathPattern, $filePrefix);
 

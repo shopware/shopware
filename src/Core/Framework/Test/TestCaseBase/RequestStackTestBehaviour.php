@@ -45,5 +45,5 @@ trait RequestStackTestBehaviour
         $router->setContext($context->fromRequest(Request::create((string) EnvironmentHelper::getVariable('APP_URL'))));
     }
 
-    abstract protected function getContainer(): ContainerInterface;
+    abstract protected static function getContainer(): ContainerInterface;
 }

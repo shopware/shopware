@@ -118,6 +118,12 @@
         <service id="messenger.test_receiver_locator" alias="messenger.receiver_locator" public="true"/>
         <service id="messenger.bus.test_shopware" alias="messenger.bus.shopware" public="true"/>
 
+        <service id="mailer.mailer" class="Symfony\Component\Mailer\Mailer">
+            <argument type="service" id="mailer.transports" />
+            <argument type="service" id="messenger.default_bus" />
+            <argument type="service" id="debug.event_dispatcher" on-invalid="ignore" />
+        </service>
+
         <service id="test.browser" class="Shopware\Core\Framework\Test\TestCaseHelper\TestBrowser" shared="false" public="true">
             <argument type="service" id="kernel" />
             <argument type="service" id="event_dispatcher"/>

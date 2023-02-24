@@ -5,6 +5,7 @@ namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules;
 use PhpParser\Node;
 use PhpParser\Node\Expr\New_;
 use PhpParser\Node\Name;
+use PhpParser\Node\Scalar\String_;
 use PHPStan\Analyser\Scope;
 use PHPStan\Reflection\ReflectionProvider;
 use PHPStan\Rules\Rule;
@@ -98,9 +99,14 @@ class NoDALAutoload implements Rule
         $propertyNameValueExpr = $node->getArgs()[$propertyNameParamPosition]->value;
 
         if ($scope->getType($autoloadValueExpr)->isTrue()->yes()) {
-            $constant = $definitionClassReflection->getConstant('ENTITY_NAME');
+            $constant = $definitionClassReflection->getReflectionConstant('ENTITY_NAME');
 
             if ($constant === false) {
+                return [];
+            }
+
+            $constantValue = $constant->getValueExpression();
+            if (!$constantValue instanceof String_) {
                 return [];
             }
 
@@ -112,7 +118,7 @@ class NoDALAutoload implements Rule
             return [
                 RuleErrorBuilder::message(sprintf(
                     '%s.%s association has a configured autoload===true, this is forbidden for platform integrations',
-                    $constant,
+                    $constantValue->value,
                     $propType->getValue()
                 ))->build(),
             ];

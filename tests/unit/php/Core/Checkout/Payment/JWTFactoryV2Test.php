@@ -15,6 +15,8 @@ use Shopware\Core\Checkout\Payment\Cart\Token\TokenStruct;
 use Shopware\Core\Checkout\Payment\Exception\InvalidTokenException;
 use Shopware\Core\Checkout\Payment\Exception\TokenInvalidatedException;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Tests\Unit\Core\Checkout\Payment\JWTMock\TestKey;
+use Shopware\Tests\Unit\Core\Checkout\Payment\JWTMock\TestSigner;
 
 /**
  * @internal
@@ -27,7 +29,7 @@ class JWTFactoryV2Test extends TestCase
 
     protected function setUp(): void
     {
-        $configuration = Configuration::forUnsecuredSigner();
+        $configuration = Configuration::forSymmetricSigner(new TestSigner(), new TestKey());
         $configuration->setValidationConstraints(new NoopConstraint());
         $connection = $this->createMock(Connection::class);
         $this->tokenFactory = new JWTFactoryV2($configuration, $connection);
@@ -85,7 +87,7 @@ class JWTFactoryV2Test extends TestCase
 
     public function testExpiredToken(): void
     {
-        $configuration = Configuration::forUnsecuredSigner();
+        $configuration = Configuration::forSymmetricSigner(new TestSigner(), new TestKey());
         $configuration->setValidationConstraints(new StrictValidAt(new FrozenClock(new \DateTimeImmutable('now - 1 day'))));
         $tokenFactory = new JWTFactoryV2($configuration, $this->createMock(Connection::class));
 
@@ -93,14 +95,14 @@ class JWTFactoryV2Test extends TestCase
         $tokenStruct = new TokenStruct(null, null, $transaction->getPaymentMethodId(), $transaction->getId(), null, -50);
         $token = $tokenFactory->generateToken($tokenStruct);
 
-        static::expectException(InvalidTokenException::class);
+        $this->expectException(InvalidTokenException::class);
 
         $tokenFactory->parseToken($token);
     }
 
     public function testTokenNotStored(): void
     {
-        $configuration = Configuration::forUnsecuredSigner();
+        $configuration = Configuration::forSymmetricSigner(new TestSigner(), new TestKey());
         $configuration->setValidationConstraints(new NoopConstraint());
         $connection = $this->createMock(Connection::class);
         $connection
@@ -113,7 +115,7 @@ class JWTFactoryV2Test extends TestCase
         $tokenStruct = new TokenStruct(null, null, $transaction->getPaymentMethodId(), $transaction->getId(), null, -50);
         $token = $tokenFactory->generateToken($tokenStruct);
 
-        static::expectException(TokenInvalidatedException::class);
+        $this->expectException(TokenInvalidatedException::class);
 
         $tokenFactory->parseToken($token);
     }

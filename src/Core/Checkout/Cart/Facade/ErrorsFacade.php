@@ -78,7 +78,7 @@ class ErrorsFacade implements \IteratorAggregate
      *
      * @param string $key The snippet-key of the message that should be displayed to the user.
      * @param string|null $id An optional id that can be used to reference the error, if none is provided the $key will be used as id.
-     * @param array $parameters Optional: Any parameters that the snippet for the error message may need.
+     * @param array<mixed> $parameters Optional: Any parameters that the snippet for the error message may need.
      */
     public function resubmittable(string $key, ?string $id = null, array $parameters = []): void
     {

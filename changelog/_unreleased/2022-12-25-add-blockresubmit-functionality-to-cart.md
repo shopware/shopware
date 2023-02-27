@@ -1,7 +1,6 @@
 ---
 title: Add blockResubmit functionality to cart validators
-issue: [#2898](https://github.com/shopware/platform/issues/2898)
-flag: 
+issue: NEXT-25555
 author: Altay Akkus
 author_email: altayakkus1993@googlemail.com
 author_github: @AltayAkkus

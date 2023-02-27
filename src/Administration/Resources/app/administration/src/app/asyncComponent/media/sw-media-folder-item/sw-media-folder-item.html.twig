@@ -12,14 +12,13 @@
     <template #preview="{ item }">
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_folder_parent_icon%}
-        <sw-icon
+        <img
             v-if="isParent"
+            :src="'/administration/static/img/media/folder--back.svg' | asset"
             key="sw-media-folder-preview"
-            name="solid-chevron-left"
-            size="25%"
             class="sw-media-folder-item__folder-thumbnails"
-            multicolor
-        />
+            alt="Folder back"
+        >
         {% endblock %}
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

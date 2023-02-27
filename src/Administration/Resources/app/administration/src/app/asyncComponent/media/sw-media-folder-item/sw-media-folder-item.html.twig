@@ -27,13 +27,11 @@
             v-else-if="!!item.defaultFolderId"
             key="sw-media-folder-preview"
         >
-            <sw-icon
-                :name="iconName"
-                size="90%"
+            <img
+                :src="'/administration/static/img/media/' + iconName + '.svg' | asset"
                 class="sw-media-folder-item__folder-thumbnails"
-                v-bind="iconConfig"
-                multicolor
-            />
+                :alt="iconName"
+            >
             <sw-icon
                 v-if="iconConfig.name"
                 class="sw-media-folder-item__folder-thumbnails is--inner"
@@ -44,14 +42,13 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_folder_folder_icon%}
-        <sw-icon
+        <img
             v-else
             key="sw-media-folder-preview"
-            size="90%"
-            name="multicolor-folder-thumbnail"
+            :src="'/administration/static/img/media/folder-thumbnail--large.svg' | asset"
             class="sw-media-folder-item__folder-thumbnails"
-            multicolor
-        />
+            alt="Folder thumbnail"
+        >
         {% endblock %}
     </template>
     {% endblock %}

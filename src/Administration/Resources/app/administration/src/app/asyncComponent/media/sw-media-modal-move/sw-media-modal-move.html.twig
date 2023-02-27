@@ -12,12 +12,11 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_modal_move_breadcrumbs %}
     <div class="sw-media-modal-move-folder-breadcrumbs">
-        <sw-icon
+        <img
+            :src="'/administration/static/img/media/multicolor-folder-thumbnail.svg' | asset"
             class="sw-media-modal-move__folder-icon"
-            name="multicolor-folder-thumbnail"
-            size="16px"
-            multicolor
-        />
+            alt="Folder thumbnail"
+        >
 
         <button
             v-if="parentFolder && parentFolder.id !== targetFolder.id"
@@ -27,7 +26,7 @@
             <sw-icon
                 class="sw-media-folder-content__switch-button"
                 name="regular-chevron-right-xxs"
-                size="16px"
+                size="12px"
             />
             {{ parentFolder.name }}
         </button>
@@ -40,7 +39,7 @@
             <sw-icon
                 class="sw-media-folder-content__switch-button"
                 name="regular-chevron-right-xxs"
-                size="16px"
+                size="12px"
             />
             {{ displayFolder.name }}
         </button>
@@ -53,7 +52,7 @@
             <sw-icon
                 class="sw-media-folder-content__switch-button"
                 name="regular-chevron-right-xxs"
-                size="16px"
+                size="12px"
             />
             {{ targetFolder.name }}
         </button>

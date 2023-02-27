@@ -24,6 +24,35 @@ class Migration1677510092UpdateRolePrivilegesOfCmsPermissions extends MigrationS
             'cms_slot_translation:create',
             'cms_slot_translation:update',
         ],
+
+        // privileges using getPermissions to not directly depend on them
+
+        'product.viewer' => [
+            'cms_page_translation:read',
+            'cms_slot_translation:read',
+        ],
+
+        'category.viewer' => [
+            'cms_page_translation:read',
+            'cms_slot_translation:read',
+        ],
+        'category.editor' => [
+            'cms_page_translation:create',
+            'cms_page_translation:update',
+            'cms_slot_translation:create',
+            'cms_slot_translation:update',
+        ],
+
+        'landing_page.viewer' => [
+            'cms_page_translation:read',
+            'cms_slot_translation:read',
+        ],
+        'landing_page.editor' => [
+            'cms_page_translation:create',
+            'cms_page_translation:update',
+            'cms_slot_translation:create',
+            'cms_slot_translation:update',
+        ],
     ];
 
     public function getCreationTimestamp(): int

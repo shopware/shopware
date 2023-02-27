@@ -50,13 +50,13 @@ class ErrorCollectionTest extends TestCase
     {
         $errors = new ErrorCollection([
             TestError::error(true, false),
-            TestError::error(true, false)
+            TestError::error(true, false),
         ]);
         static::assertFalse($errors->blockResubmit());
 
         $errors = new ErrorCollection([
             TestError::error(true, false),
-            TestError::error(true, true)
+            TestError::error(true, true),
         ]);
         static::assertTrue($errors->blockResubmit());
     }

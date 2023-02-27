@@ -16,7 +16,7 @@ class TestError extends Error
         private readonly int $level,
         private readonly bool $blockOrderVal = true,
         private readonly bool $blockResubmitVal = true
-    ){
+    ) {
     }
 
     public static function error(bool $blockOrder = true, bool $blockResubmit = true): self

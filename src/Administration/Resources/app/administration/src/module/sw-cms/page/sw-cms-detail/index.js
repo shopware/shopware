@@ -598,6 +598,12 @@ export default {
             section.position = index;
             section.pageId = this.page.id;
 
+            section.visibility = {
+                desktop: true,
+                tablet: true,
+                mobile: true,
+            };
+
             this.page.sections.splice(index, 0, section);
             this.updateSectionAndBlockPositions();
         },

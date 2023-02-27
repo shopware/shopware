@@ -27,7 +27,11 @@ function resolve(page) {
         cmsElements = cmsService.getCmsElementRegistry();
 
         page.sections.forEach((section) => {
+            initVisibility(section);
+
             section.blocks.forEach((block) => {
+                initVisibility(block);
+
                 block.slots.forEach((slot) => {
                     slots[slot.id] = slot;
                     initSlotConfig(slot);
@@ -87,6 +91,23 @@ function resolve(page) {
         return exception;
     });
 }
+
+function initVisibility(element) {
+    if (!element.visibility) {
+        element.visibility = {};
+    }
+
+    const visibilityProperties = ['mobile', 'tablet', 'desktop'];
+
+    visibilityProperties.forEach((key) => {
+        if (typeof element.visibility[key] === 'boolean') {
+            return;
+        }
+
+        element.visibility[key] = true;
+    });
+}
+
 
 /**
  * @private

@@ -174,14 +174,6 @@ export default {
 
     created() {
         this.createdComponent();
-
-        if (!this.section.visibility) {
-            this.section.visibility = {
-                mobile: true,
-                tablet: true,
-                desktop: true,
-            };
-        }
     },
 
     methods: {

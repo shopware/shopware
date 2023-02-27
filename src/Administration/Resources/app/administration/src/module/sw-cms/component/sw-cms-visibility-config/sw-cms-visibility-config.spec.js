@@ -73,4 +73,13 @@ describe('module/sw-cms/component/sw-cms-visibility-config', () => {
         const desktopIcon = wrapper.findAll('.sw-icon').at(2);
         expect(desktopIcon.classes()).toContain('icon--regular-desktop-slash');
     });
+
+    it('should emit an event when the visibility changes', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.get('#sw-cms-visibility-config-mobile').setChecked(true);
+        await wrapper.get('#sw-cms-visibility-config-tablet').setChecked(true);
+        await wrapper.get('#sw-cms-visibility-config-desktop').setChecked(true);
+
+        expect(wrapper.emitted()['visibility-change']).toStrictEqual([['mobile', false], ['tablet', false], ['desktop', false]]);
+    });
 });

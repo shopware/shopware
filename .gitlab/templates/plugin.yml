@@ -126,7 +126,7 @@ workflow:
 default:
     image: $DEV_IMAGE
     tags:
-      - t3.medium
+      - shopware
     services:
         - name: "$MYSQL_IMAGE"
           alias: database

@@ -17,6 +17,7 @@
             <sw-tabs-item
                 name="details"
                 :active-tab="active"
+                :has-error="swOrderNewCustomerDetailError"
             >
                 {{ $tc('sw-order.newCustomerModal.labelDetails') }}
             </sw-tabs-item>
@@ -27,6 +28,7 @@
             <sw-tabs-item
                 name="billingAddress"
                 :active-tab="active"
+                :has-error="swOrderNewCustomerAddressError"
             >
                 {{ $tc('sw-order.createBase.detailsBody.labelBillingAddress') }}
             </sw-tabs-item>
@@ -37,6 +39,7 @@
             <sw-tabs-item
                 name="shippingAddress"
                 :active-tab="active"
+                :has-error="!isSameBilling && swOrderNewCustomerAddressError"
             >
                 {{ $tc('sw-order.createBase.detailsBody.labelShippingAddress') }}
             </sw-tabs-item>

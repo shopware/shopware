@@ -8,6 +8,7 @@ import CUSTOMER from '../../../sw-customer/constant/sw-customer.constant';
 
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
+const { mapPageErrors } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -37,6 +38,30 @@ export default {
     },
 
     computed: {
+        ...mapPageErrors({
+            'sw.order.new.customer.detail': {
+                customer: [
+                    'firstName',
+                    'lastName',
+                    'email',
+                    'salesChannelId',
+                    'customerNumber',
+                    'defaultPaymentMethodId',
+                    'groupId',
+                ],
+            },
+
+            'sw.order.new.customer.address': {
+                customer_address: [
+                    'firstName',
+                    'lastName',
+                    'street',
+                    'city',
+                    'countryId',
+                ],
+            },
+        }),
+
         customerRepository() {
             return this.repositoryFactory.create('customer');
         },

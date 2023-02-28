@@ -6,6 +6,7 @@ Percy:
     services:
         -   name: mariadb:10.4
             alias: database
+    dependencies: [ Build ]
     variables:
         PERCY_ENABLE: $CYPRESS_PERCY_USAGE
         CYPRESS_localUsage: 'true'
@@ -23,9 +24,9 @@ Percy:
         - !reference [ .rules, skip ]
         - !reference [ .rules, run ]
     script:
-        - composer run init:e2e:admin
-        - composer run e2e:prepare
-        - composer run e2e:admin:percy -- exec -- cypress run
+        - npm --prefix tests/e2e ci
+        - bin/console e2e:dump-db
+        - composer run e2e:percy -- exec -- cypress run
             --browser chrome
             --spec "cypress/**/visual.*,cypress/**/percy-storefront-validation/*"
             --headless

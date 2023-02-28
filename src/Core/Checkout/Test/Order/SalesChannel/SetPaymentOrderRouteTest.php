@@ -418,6 +418,8 @@ class SetPaymentOrderRouteTest extends TestCase
         $criteria->addFilter(new EqualsFilter('orderId', $orderId));
         $criteria->addSorting(new FieldSorting('createdAt'));
 
+        $criteria->addAssociation('stateMachineState');
+
         /** @var OrderTransactionCollection $transactions */
         $transactions = $this->getContainer()->get('order_transaction.repository')->search($criteria, Context::createDefaultContext())->getEntities();
 

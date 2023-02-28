@@ -52,16 +52,21 @@ class OrderStorer extends FlowStorer
         [$orderId, $context] = $args;
 
         $criteria = new Criteria([$orderId]);
-        $criteria->addAssociation('orderCustomer');
-        $criteria->addAssociation('lineItems');
-        $criteria->addAssociation('lineItems.downloads.media');
-        $criteria->addAssociation('deliveries.shippingMethod');
-        $criteria->addAssociation('deliveries.shippingOrderAddress.country');
-        $criteria->addAssociation('deliveries.shippingOrderAddress.countryState');
-        $criteria->addAssociation('transactions.paymentMethod');
-        $criteria->addAssociation('currency');
-        $criteria->addAssociation('addresses.country');
-        $criteria->addAssociation('tags');
+
+        $criteria->addAssociations([
+            'orderCustomer',
+            'lineItems.downloads.media',
+            'deliveries.shippingMethod',
+            'deliveries.shippingOrderAddress.country',
+            'deliveries.shippingOrderAddress.countryState',
+            'stateMachineState',
+            'transactions.stateMachineState',
+            'transactions.paymentMethod',
+            'deliveries.stateMachineState',
+            'currency',
+            'addresses.country',
+            'tags',
+        ]);
 
         $order = $this->orderRepository->search($criteria, $context)->get($orderId);
 

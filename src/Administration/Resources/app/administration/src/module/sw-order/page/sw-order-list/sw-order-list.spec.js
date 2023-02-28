@@ -114,7 +114,7 @@ async function createWrapper(privileges = []) {
                 buildSearchQueriesForEntity: (searchFields, term, criteria) => {
                     return criteria;
                 }
-            }
+            },
         },
         mocks: {
             $route: { query: '' }
@@ -322,5 +322,29 @@ describe('src/module/sw-order/page/sw-order-list', () => {
         }));
 
         wrapper.vm.$router.push.mockRestore();
+    });
+
+    it('should get list with orderCriteria', () => {
+        const criteria = wrapper.vm.orderCriteria;
+
+        expect(criteria.getLimit()).toEqual(25);
+        [
+            'addresses',
+            'billingAddress',
+            'salesChannel',
+            'orderCustomer',
+            'currency',
+            'documents',
+            'deliveries',
+            'transactions',
+        ].forEach(association => expect(criteria.hasAssociation(association)).toBe(true));
+    });
+
+    it('should add associations no longer autoload in the orderCriteria', async () => {
+        const criteria = wrapper.vm.orderCriteria;
+
+        expect(criteria.hasAssociation('stateMachineState')).toBe(true);
+        expect(criteria.getAssociation('deliveries').hasAssociation('stateMachineState')).toBe(true);
+        expect(criteria.getAssociation('transactions').hasAssociation('stateMachineState')).toBe(true);
     });
 });

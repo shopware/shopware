@@ -78,6 +78,9 @@ class CartOrderRoute extends AbstractCartOrderRoute
             ->addAssociation('currency')
             ->addAssociation('addresses.country')
             ->addAssociation('addresses.countryState')
+            ->addAssociation('stateMachineState')
+            ->addAssociation('deliveries.stateMachineState')
+            ->addAssociation('transactions.stateMachineState')
             ->getAssociation('transactions')->addSorting(new FieldSorting('createdAt'));
 
         $this->eventDispatcher->dispatch(new CheckoutOrderPlacedCriteriaEvent($criteria, $context));

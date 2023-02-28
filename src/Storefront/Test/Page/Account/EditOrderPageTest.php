@@ -218,7 +218,8 @@ class EditOrderPageTest extends TestCase
         /** @var EntityRepository $orderRepository */
         $orderRepository = $this->getContainer()->get('order.repository');
         $criteria = new Criteria([$orderId]);
-        $criteria->addAssociation('transactions');
+
+        $criteria->addAssociations(['stateMachineState', 'transactions.stateMachineState']);
 
         return $orderRepository->search($criteria, $context->getContext())->first();
     }

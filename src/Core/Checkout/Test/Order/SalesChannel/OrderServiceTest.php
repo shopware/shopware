@@ -90,7 +90,12 @@ class OrderServiceTest extends TestCase
 
         // getting the id of the order delivery
         $criteria = new Criteria([$orderId]);
-        $criteria->addAssociation('deliveries');
+
+        $criteria->addAssociations([
+            'stateMachineState',
+            'deliveries.stateMachineState',
+            'deliveries.shippingOrderAddress',
+        ]);
 
         /** @var OrderEntity $order */
         $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
@@ -129,7 +134,12 @@ class OrderServiceTest extends TestCase
 
         // getting the id of the order delivery
         $criteria = new Criteria([$orderId]);
-        $criteria->addAssociation('deliveries');
+
+        $criteria->addAssociations([
+            'stateMachineState',
+            'deliveries.stateMachineState',
+            'deliveries.shippingOrderAddress',
+        ]);
 
         /** @var OrderEntity $order */
         $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
@@ -179,7 +189,12 @@ class OrderServiceTest extends TestCase
 
         // getting the id of the order delivery
         $criteria = new Criteria([$orderId]);
-        $criteria->addAssociation('deliveries');
+
+        $criteria->addAssociations([
+            'stateMachineState',
+            'deliveries.stateMachineState',
+            'deliveries.shippingOrderAddress',
+        ]);
 
         /** @var OrderEntity $order */
         $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
@@ -241,7 +256,12 @@ class OrderServiceTest extends TestCase
 
         // getting the id of the order delivery
         $criteria = new Criteria([$orderId]);
-        $criteria->addAssociation('deliveries');
+
+        $criteria->addAssociations([
+            'stateMachineState',
+            'deliveries.stateMachineState',
+            'deliveries.shippingOrderAddress',
+        ]);
 
         /** @var OrderEntity $order */
         $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
@@ -289,7 +309,8 @@ class OrderServiceTest extends TestCase
 
         // getting the id of the order transaction
         $criteria = new Criteria([$orderId]);
-        $criteria->addAssociation('transactions');
+
+        $criteria->addAssociation('transactions.stateMachineState');
 
         /** @var OrderEntity $order */
         $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
@@ -324,7 +345,11 @@ class OrderServiceTest extends TestCase
 
         // getting the id of the order transaction
         $criteria = new Criteria([$orderId]);
-        $criteria->addAssociation('transactions');
+
+        $criteria->addAssociations([
+            'stateMachineState',
+            'transactions.stateMachineState',
+        ]);
 
         /** @var OrderEntity $order */
         $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
@@ -372,7 +397,11 @@ class OrderServiceTest extends TestCase
 
         // getting the id of the order transaction
         $criteria = new Criteria([$orderId]);
-        $criteria->addAssociation('transactions');
+
+        $criteria->addAssociations([
+            'stateMachineState',
+            'transactions.stateMachineState',
+        ]);
 
         /** @var OrderEntity $order */
         $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
@@ -421,6 +450,8 @@ class OrderServiceTest extends TestCase
         $orderId = $this->orderService->createOrder($data, $this->salesChannelContext);
 
         $criteria = new Criteria([$orderId]);
+
+        $criteria->addAssociation('stateMachineState');
 
         /** @var OrderEntity $newlyCreatedOrder */
         $newlyCreatedOrder = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
@@ -501,6 +532,9 @@ class OrderServiceTest extends TestCase
         $this->orderService->orderStateTransition($orderId, 'cancel', new ParameterBag(), $this->salesChannelContext->getContext());
 
         $criteria = new Criteria([$orderId]);
+
+        $criteria->addAssociation('stateMachineState');
+
         /** @var OrderEntity $cancelledOrder */
         $cancelledOrder = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
         $state = $cancelledOrder->getStateMachineState();
@@ -525,6 +559,8 @@ class OrderServiceTest extends TestCase
         $dispatcher = $this->getContainer()->get('event_dispatcher');
 
         $criteria = new Criteria([$orderId]);
+
+        $criteria->addAssociation('stateMachineState');
 
         /** @var OrderEntity $order */
         $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();

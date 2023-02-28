@@ -7,14 +7,17 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('checkout')]
 class GenericCartError extends Error
 {
+    /**
+     * @deprecated tag:v6.6.0 $blockResubmit param will be required
+     */
     public function __construct(
         protected string $id,
         protected string $messageKey,
         protected array $parameters,
         protected int $level,
         protected bool $blockOrder,
-        protected bool $blockResubmit,
-        protected bool $persistent
+        protected bool $persistent,
+        protected bool $blockResubmit = true
     ) {
         parent::__construct();
     }

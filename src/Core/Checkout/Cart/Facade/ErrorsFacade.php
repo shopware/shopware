@@ -130,7 +130,7 @@ class ErrorsFacade implements \IteratorAggregate
     private function createError(string $key, bool $blockOrder, bool $blockResubmit, array $parameters, int $level, ?string $id = null): void
     {
         $this->collection->add(
-            new GenericCartError($id ?? $key, $key, $parameters, $level, $blockOrder, $blockResubmit, true)
+            new GenericCartError($id ?? $key, $key, $parameters, $level, $blockOrder, true, $blockResubmit)
         );
     }
 }

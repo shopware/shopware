@@ -369,11 +369,10 @@
         }
 
         .line-item-quantity {
-            justify-content: space-between;
+            justify-content: center;
             display: flex;
         }
 
-        .line-item-quantity,
         .line-item-unit-price,
         .line-item-total-price,
         .line-item-tax-price {

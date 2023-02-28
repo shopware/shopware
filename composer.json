@@ -313,7 +313,7 @@
         ],
         "bc-check": [
             "@php vendor-bin/roave-backward-compatibility-check/bin/verify-version.php",
-            "roave-backward-compatibility-check --from=$(git tag -l --sort -version:refname | head -n 1)"
+            "roave-backward-compatibility-check --from=$(git tag -l --sort -version:refname | grep '^v6.4.*' | head -n 1)"
         ],
         "static-analyze": [
             "@phpstan src/"

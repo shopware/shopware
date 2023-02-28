@@ -39,12 +39,14 @@ variables:
     before_script:
         - !reference [.scripts, install-node, script]
         - cp public/.htaccess.dist public/.htaccess
+        - !reference [ .scripts, init, composer ]
         - >
           if [[ -r var/database.sql ]]; then
               mysql -uroot -papp -hdatabase -e 'CREATE database `root`';
               mysql -uroot -papp -hdatabase root -e 'source var/database.sql';
               bin/console system:generate-jwt || true
               touch install.lock
+              bin/console assets:install
           else
               composer run setup
               composer run e2e:sdk-plugin:fixture-to-plugin

@@ -297,6 +297,18 @@
             <tag name="shopware.rule.definition"/>
         </service>
 
+        <service id="Shopware\Core\Content\Flow\Rule\OrderCreatedByAdminRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Flow\Rule\OrderTransactionStatusRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Flow\Rule\OrderStatusRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
         <service id="Shopware\Core\Content\Flow\Aggregate\FlowTemplate\FlowTemplateDefinition">
             <tag name="shopware.entity.definition" />
         </service>

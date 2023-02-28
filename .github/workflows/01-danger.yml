@@ -16,3 +16,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_PULL_REQUEST_ID: ${{ github.event.pull_request.number }}
+
+      - name: Codeball AI Code Review
+        uses: sturdy-dev/codeball-action@v2.6.0
+        with:
+          approvePullRequests: "false"
+          codeSuggestionsFromComments: "true"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

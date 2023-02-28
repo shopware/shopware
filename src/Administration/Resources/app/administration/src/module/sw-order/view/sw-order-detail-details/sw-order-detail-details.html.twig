@@ -88,8 +88,9 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_details_shipping_costs %}
         <sw-number-field
-            v-model="order.shippingTotal"
-            disabled
+            v-model="shippingCosts"
+            class="sw-order-detail-details__shipping-cost"
+            :disabled="!acl.can('order.editor')"
             fill-digits
             :label="$tc('sw-order.detailDeliveries.labelShippingCosts')"
         >

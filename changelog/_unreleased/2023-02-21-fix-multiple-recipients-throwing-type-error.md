@@ -1,6 +1,6 @@
 ---
 title: Fix multiple recipients throwing type error.
-issue: X
+issue: NEXT-16644
 author: Sven Mäurer
 author_email: s.maeurer@kellerkinder.de
 author_github: Zwaen91

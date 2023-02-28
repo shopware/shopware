@@ -33,7 +33,7 @@ class MailFactoryTest extends TestCase
             'recipientsBcc' => [
                 'bccMailRecipient1@example.com' => 'bccMailRecipient1',
                 'bccMailRecipient2@example.com' => 'bccMailRecipient2',
-            ]
+            ],
         ];
         $binAttachments = [['content' => 'Content', 'fileName' => 'content.txt', 'mimeType' => 'application/txt']];
 

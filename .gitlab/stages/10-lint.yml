@@ -156,7 +156,9 @@ PHP lint:
         - composer run ecs -- --no-progress-bar
         - composer run lint:changelog
         - composer run lint:snippets
-        - composer run bc-check
+        # BC-Check disabled for 6.4.* versions, since the 6.5.0.0-rc1 has
+        # already been tagged.
+        # - composer run bc-check
 
 NPM CI:
     extends: .base-no-setup

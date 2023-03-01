@@ -100,6 +100,10 @@ export default {
             this.$emit('data-load');
         },
 
+        onInlineEditItem(item) {
+            this.$refs.swSettingsSearchableContentGrid.onDbClickCell(item);
+        },
+
         onResetRanking(currentField) {
             if (!currentField.field) {
                 this.createNotificationError({

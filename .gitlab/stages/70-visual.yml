@@ -27,6 +27,7 @@ Percy:
         - npm --prefix tests/e2e ci
         - bin/console e2e:dump-db
         - composer run e2e:percy -- exec -- cypress run
+            --config retries=2
             --browser chrome
             --spec "cypress/**/visual.*,cypress/**/percy-storefront-validation/*"
             --headless

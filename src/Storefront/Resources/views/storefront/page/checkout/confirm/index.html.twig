@@ -218,7 +218,7 @@
                     <button id="confirmFormSubmit"
                             class="btn btn-primary btn-lg"
                             form="confirmOrderForm"
-                        {% if page.cart.errors.blockOrder %}
+                        {% if page.cart.errors.blockResubmit %}
                             disabled
                         {% endif %}
                             type="submit">

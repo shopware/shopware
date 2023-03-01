@@ -371,6 +371,20 @@ You can use it to add new errors to the cart or remove existing ones.
         {% do services.cart.errors.notice('MESSAGE_WITH_PARAMETERS', null, {'foo': 'bar'}) %}
         ```
         {% endraw %}
+### resubmittable()
+
+* The `resubmittable()` method adds a new error of type `error` to the cart.
+
+    The notice will be displayed to the user, the order will be blocked, but the user can submit the order again.
+* **Arguments:**
+    * *`string`* **key**: The snippet-key of the message that should be displayed to the user.
+    * *`string` | `null`* **id**: An optional id that can be used to reference the error, if none is provided the $key will be used as id.
+
+        Default: `null`
+    * *`array`* **parameters**: Optional: Any parameters that the snippet for the error message may need.
+
+        Default: `array (
+)`
 ### has()
 
 * The `has()` method, checks if an error with a given id exists.

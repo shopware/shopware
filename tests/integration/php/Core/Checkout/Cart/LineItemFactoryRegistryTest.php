@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Test\Cart;
+namespace Shopware\Tests\Integration\Core\Checkout\Cart;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
@@ -44,7 +44,7 @@ class LineItemFactoryRegistryTest extends TestCase
 
     public function testCreateProductWithPriceDefinition(): void
     {
-        static::expectException(CartException::class);
+        $this->expectException(CartException::class);
 
         $this->service->create([
             'type' => 'product',

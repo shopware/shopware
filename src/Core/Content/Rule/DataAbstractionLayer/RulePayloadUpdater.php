@@ -52,7 +52,7 @@ class RulePayloadUpdater implements EventSubscriberInterface
             FROM rule_condition rc
             LEFT JOIN app_script_condition rs ON rc.script_id = rs.id AND rs.active = 1
             WHERE rc.rule_id IN (:ids)
-            ORDER BY rc.rule_id',
+            ORDER BY rc.rule_id, rc.position',
             ['ids' => Uuid::fromHexToBytesList($ids)],
             ['ids' => ArrayParameterType::STRING]
         );

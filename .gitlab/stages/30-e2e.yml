@@ -137,7 +137,7 @@ E2E install NL:
         # fake version by using the latest tag if not set
         - >
           if [[ "$PLATFORM_VERSION" = "null" ]]; then
-            LATEST_TAG="$(git -c 'versionsort.suffix=-' ls-remote --exit-code --refs --sort='version:refname' --tags | tail --lines=1 | cut --delimiter='/' --fields=3)"
+            LATEST_TAG="$(git -c 'versionsort.suffix=-' ls-remote --exit-code --refs --sort='version:refname' --tags | grep 'v6.4.' | tail --lines=1 | cut --delimiter='/' --fields=3)"
             PLATFORM_VERSION="${LATEST_TAG#"v"}"
             composer config version "$PLATFORM_VERSION"
             composer update

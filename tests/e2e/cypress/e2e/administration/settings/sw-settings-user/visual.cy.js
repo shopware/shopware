@@ -28,7 +28,6 @@ describe('User: Visual testing', () => {
 
         // Log out and in as admin (again)
         cy.get('.sw-admin-menu__user-actions-toggle').click();
-        cy.clearCookies();
         cy.clearCookie('bearerAuth')
         cy.clearCookie('refreshBearerAuth')
         cy.reload().then(() => {

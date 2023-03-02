@@ -38,8 +38,18 @@ Cypress.on('window:before:load', (window) => {
 
 beforeEach(() => {
     if (!Cypress.env('SKIP_INIT')) {
+        cy.setCookie(
+            'lastActivity',
+            '99999999999'
+        );
+
         return cy.setToInitialState();
     }
+
+    cy.setCookie(
+        'lastActivity',
+        '99999999999'
+    );
 });
 
 // we need to use the classic function syntax to bind `this` correctly

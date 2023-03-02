@@ -2,7 +2,6 @@
 
 describe('User: Test crud operations', () => {
     beforeEach(() => {
-        cy.clearCookies();
         cy.clearCookie('bearerAuth');
         cy.clearCookie('refreshBearerAuth');
 
@@ -246,7 +245,6 @@ describe('User: Test crud operations', () => {
         cy.contains('.sw-settings-user-detail__grid-password .sw-field__error', 'This field must not be empty.')
             .should('be.visible');
 
-        cy.clearCookies();
         cy.clearCookie('bearerAuth');
         cy.clearCookie('refreshBearerAuth');
     });

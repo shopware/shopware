@@ -89,9 +89,6 @@ describe('Flow builder: set order status testing', () => {
             cy.contains('.finish-ordernumber', 'Your order number: #10000');
         });
 
-        // Clear Storefront cookie
-        cy.clearCookies();
-
         const page = new OrderPageObject();
 
         cy.loginViaApi().then(() => {
@@ -198,9 +195,6 @@ describe('Flow builder: set order status testing', () => {
         cy.get('#confirmFormSubmit').scrollIntoView();
         cy.get('#confirmFormSubmit').click();
         cy.contains('.finish-ordernumber', 'Your order number: #10000');
-
-        // Clear Storefront cookie
-        cy.clearCookies();
 
         const page = new OrderPageObject();
 

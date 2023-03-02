@@ -21,7 +21,7 @@ class PromotionActionController extends AbstractController
     {
     }
 
-    #[Route(path: '/api/_action/promotion/setgroup/packager', name: 'api.action.promotion.setgroup.packager', methods: ['GET'], defaults: ['_acl' => ['promotion.viewer']])]
+    #[Route(path: '/api/_action/promotion/setgroup/packager', name: 'api.action.promotion.setgroup.packager', methods: ['GET'], defaults: ['_acl' => ['promotion:read']])]
     public function getSetGroupPackagers(): JsonResponse
     {
         $packagerKeys = [];
@@ -34,7 +34,7 @@ class PromotionActionController extends AbstractController
         return new JsonResponse($packagerKeys);
     }
 
-    #[Route(path: '/api/_action/promotion/setgroup/sorter', name: 'api.action.promotion.setgroup.sorter', methods: ['GET'], defaults: ['_acl' => ['promotion.viewer']])]
+    #[Route(path: '/api/_action/promotion/setgroup/sorter', name: 'api.action.promotion.setgroup.sorter', methods: ['GET'], defaults: ['_acl' => ['promotion:read']])]
     public function getSetGroupSorters(): JsonResponse
     {
         $sorterKeys = [];

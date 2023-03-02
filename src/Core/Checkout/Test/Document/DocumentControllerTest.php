@@ -217,7 +217,7 @@ class DocumentControllerTest extends TestCase
 
         TestUser::createNewTestUser(
             $this->getContainer()->get(Connection::class),
-            ['document.viewer']
+            ['document:read']
         )->authorizeBrowser($this->getBrowser());
 
         $this->getBrowser()->request('GET', $endpoint);
@@ -449,7 +449,7 @@ class DocumentControllerTest extends TestCase
 
         TestUser::createNewTestUser(
             $this->getContainer()->get(Connection::class),
-            ['document.viewer']
+            ['document:read']
         )->authorizeBrowser($this->getBrowser());
 
         $order = $this->createOrder($this->customerId, $this->context);

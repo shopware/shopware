@@ -28,11 +28,18 @@ class DatabaseAvailableThemeProvider extends AbstractAvailableThemeProvider
         throw new DecorationPatternException(self::class);
     }
 
-    public function load(Context $context): array
+    /**
+     * @deprecated tag:6.6.0 - Second parameter $activeOnly will be required in future versions.
+     */
+    public function load(Context $context, bool $activeOnly = false): array
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT));
-        $criteria->addFilter(new EqualsFilter('active', 1));
+
+        if ($activeOnly) {
+            $criteria->addFilter(new EqualsFilter('active', 1));
+        }
+
         $criteria->addAssociation('themes');
 
         /** @var SalesChannelCollection $result */

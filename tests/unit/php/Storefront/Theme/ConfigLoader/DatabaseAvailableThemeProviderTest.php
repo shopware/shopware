@@ -35,6 +35,31 @@ class DatabaseAvailableThemeProviderTest extends TestCase
         $themeProvider->getDecorated();
     }
 
+    public function testThemeProviderIsSearchingForStorefrontsWithThemes(): void
+    {
+        $salesChannelRepository = new StaticEntityRepository([
+            static function (Criteria $criteria, Context $context): EntitySearchResult {
+                static::assertNotNull($criteria->getAssociation('themes'));
+
+                static::assertEquals([
+                    new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT),
+                ], $criteria->getFilters());
+
+                return new EntitySearchResult(
+                    SalesChannelDefinition::ENTITY_NAME,
+                    0,
+                    new SalesChannelCollection(),
+                    null,
+                    $criteria,
+                    $context,
+                );
+            },
+        ]);
+
+        $themeProvider = new DatabaseAvailableThemeProvider($salesChannelRepository);
+
+        static::assertEquals([], $themeProvider->load(Context::createDefaultContext(), false));
+    }
     public function testThemeProviderIsSearchingForActiveStorefrontsWithThemes(): void
     {
         $salesChannelRepository = new StaticEntityRepository([
@@ -59,7 +84,7 @@ class DatabaseAvailableThemeProviderTest extends TestCase
 
         $themeProvider = new DatabaseAvailableThemeProvider($salesChannelRepository);
 
-        static::assertEquals([], $themeProvider->load(Context::createDefaultContext()));
+        static::assertEquals([], $themeProvider->load(Context::createDefaultContext(), true));
     }
 
     public function testThemeProviderReturnsIdsOfFoundSalesChannelsWithThemes(): void
@@ -80,7 +105,7 @@ class DatabaseAvailableThemeProviderTest extends TestCase
 
         static::assertEquals(
             ['sales-channel-with-theme' => 'associated-theme'],
-            $themeProvider->load(Context::createDefaultContext()),
+            $themeProvider->load(Context::createDefaultContext(), false),
         );
     }
 
@@ -97,7 +122,7 @@ class DatabaseAvailableThemeProviderTest extends TestCase
 
         static::assertEquals(
             [],
-            $themeProvider->load(Context::createDefaultContext()),
+            $themeProvider->load(Context::createDefaultContext(), false),
         );
     }
 
@@ -112,7 +137,7 @@ class DatabaseAvailableThemeProviderTest extends TestCase
 
         static::assertEquals(
             [],
-            $themeProvider->load(Context::createDefaultContext()),
+            $themeProvider->load(Context::createDefaultContext(), false),
         );
     }
 }

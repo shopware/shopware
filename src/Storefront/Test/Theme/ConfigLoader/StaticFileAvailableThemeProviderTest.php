@@ -31,7 +31,7 @@ class StaticFileAvailableThemeProviderTest extends TestCase
         $fs->write(StaticFileAvailableThemeProvider::THEME_INDEX, json_encode(['test' => 'test']));
 
         $s = new StaticFileAvailableThemeProvider($fs);
-        static::assertSame(['test' => 'test'], $s->load(Context::createDefaultContext()));
+        static::assertSame(['test' => 'test'], $s->load(Context::createDefaultContext(), false));
     }
 
     public function testCallGetDecoratedThrowsError(): void

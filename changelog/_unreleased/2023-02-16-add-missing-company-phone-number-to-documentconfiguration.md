@@ -1,6 +1,6 @@
 ---
 title: Add missing company phone number to DocumentConfiguration
-issue: X
+issue: NEXT-25636
 author: Sven Mäurer
 author_email: s.maeurer@kellerkinder.de
 author_github: Zwaen91

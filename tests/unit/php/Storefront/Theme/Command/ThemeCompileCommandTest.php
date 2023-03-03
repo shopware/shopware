@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Tests\Unit\Storefront\Theme\Command;
 
@@ -61,7 +61,10 @@ class ThemeCompileCommandTest extends TestCase
         $commandTester->assertCommandIsSuccessful();
     }
 
-    public function getOptionsValue(): iterable
+    /**
+     * @return iterable<array<bool>>
+     */
+    public static function getOptionsValue(): iterable
     {
         yield [true];
         yield [false];

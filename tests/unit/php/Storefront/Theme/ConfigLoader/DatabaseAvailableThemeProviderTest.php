@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Storefront\Theme\ConfigLoader\DatabaseAvailableThemeProvider;
 use Shopware\Storefront\Theme\ThemeCollection;
 use Shopware\Storefront\Theme\ThemeEntity;
@@ -33,6 +34,24 @@ class DatabaseAvailableThemeProviderTest extends TestCase
 
         static::expectException(DecorationPatternException::class);
         $themeProvider->getDecorated();
+    }
+
+    public function testLoadThrowsExceptionInNextMajorWhenCalledWithOnlyOneParameter(): void
+    {
+        $themeProvider = new DatabaseAvailableThemeProvider(new StaticEntityRepository([new SalesChannelCollection()]));
+
+        static::expectException(\RuntimeException::class);
+        $themeProvider->load(Context::createDefaultContext());
+    }
+
+    /**
+     * @DisabledFeatures(features={"v6.6.0.0"})
+     */
+    public function testLoadCanStillBeCalledWithOneParameter(): void
+    {
+        $themeProvider = new DatabaseAvailableThemeProvider(new StaticEntityRepository([new SalesChannelCollection()]));
+
+        static::assertEquals([], $themeProvider->load(Context::createDefaultContext()));
     }
 
     public function testThemeProviderIsSearchingForStorefrontsWithThemes(): void
@@ -60,6 +79,7 @@ class DatabaseAvailableThemeProviderTest extends TestCase
 
         static::assertEquals([], $themeProvider->load(Context::createDefaultContext(), false));
     }
+
     public function testThemeProviderIsSearchingForActiveStorefrontsWithThemes(): void
     {
         $salesChannelRepository = new StaticEntityRepository([

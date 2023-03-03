@@ -1,6 +1,6 @@
 ---
 title: Add company and VAT id to customer detail page in the administration
-issue: X
+issue: NEXT-25637
 author: Sven Mäurer
 author_email: s.maeurer@kellerkinder.de
 author_github: Zwaen91

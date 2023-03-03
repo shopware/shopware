@@ -6,6 +6,8 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerEvents;
+use Shopware\Core\Checkout\Customer\DataAbstractionLayer\CustomerIndexer;
+use Shopware\Core\Checkout\Customer\DataAbstractionLayer\CustomerIndexingMessage;
 use Shopware\Core\Checkout\Customer\Event\CustomerChangedPaymentMethodEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerFlowEventsSubscriber;
@@ -32,6 +34,8 @@ class CustomerFlowEventsSubscriberTest extends TestCase
 
     private MockObject&SalesChannelContextRestorer $restorer;
 
+    private MockObject&CustomerIndexer $customerIndexer;
+
     private TestDataCollection $ids;
 
     private CustomerFlowEventsSubscriber $customerFlowEventsSubscriber;
@@ -41,8 +45,9 @@ class CustomerFlowEventsSubscriberTest extends TestCase
         $this->ids = new TestDataCollection();
         $this->dispatcher = $this->createMock(EventDispatcherInterface::class);
         $this->restorer = $this->createMock(SalesChannelContextRestorer::class);
+        $this->customerIndexer = $this->createMock(CustomerIndexer::class);
 
-        $this->customerFlowEventsSubscriber = new CustomerFlowEventsSubscriber($this->dispatcher, $this->restorer);
+        $this->customerFlowEventsSubscriber = new CustomerFlowEventsSubscriber($this->dispatcher, $this->restorer, $this->customerIndexer);
     }
 
     public function testGetSubscribedEvents(): void
@@ -164,13 +169,17 @@ class CustomerFlowEventsSubscriberTest extends TestCase
         $payloads = [
             [
                 'createdAt' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-                'id' => $this->ids->get('newPaymentMethod'),
+                'id' => $this->ids->get('customerId'),
             ],
         ];
 
         $event->expects(static::once())
             ->method('getPayloads')
             ->willReturn($payloads);
+
+        $this->customerIndexer->expects(static::once())
+            ->method('handle')
+            ->with(new CustomerIndexingMessage([$this->ids->get('customerId')]));
 
         $customer = new CustomerEntity();
         $salesChannelContext = $this->createMock(SalesChannelContext::class);

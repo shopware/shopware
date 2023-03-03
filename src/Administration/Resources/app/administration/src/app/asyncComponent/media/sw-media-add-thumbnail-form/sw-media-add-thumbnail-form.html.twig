@@ -26,7 +26,10 @@
             :class="lockedButtonClass"
             @click="onLockSwitch"
         >
-            <sw-icon :name="isLocked ? 'regular-lock' : 'regular-lock-open'" />
+            <sw-icon
+                :name="isLocked ? 'regular-lock' : 'regular-lock-open'"
+                size="16px"
+            />
         </button>
         {% endblock %}
 

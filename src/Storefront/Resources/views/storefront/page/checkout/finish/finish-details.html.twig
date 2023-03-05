@@ -16,7 +16,10 @@
 
                 {% block page_checkout_finish_ordernumber %}
                     <p class="finish-ordernumber" data-order-number="{{ page.order.orderNumber }}">
-                        {{ "checkout.finishInfoOrdernumber"|trans|sw_sanitize }}{{ page.order.orderNumber }}
+                        {{ "checkout.finishInfoOrdernumber"|trans|sw_sanitize }}
+                        {{ "checkout.finishInfoOrdernumberFormat"|trans({
+                            '%ordernumber%': page.order.orderNumber,
+                        })|sw_sanitize }}
                     </p>
                 {% endblock %}
 

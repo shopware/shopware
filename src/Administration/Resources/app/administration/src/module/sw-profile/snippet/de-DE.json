@@ -66,7 +66,8 @@
           "email": "E-Mail-Adresse",
           "tagsName": "Tags",
           "customerNumber": "Kundennummer",
-          "documentNumber": "Die Dokumentnummer"
+          "documentNumber": "Die Dokumentnummer",
+          "promotionCode": "Angewandter Aktionscode"
         },
         "customer": {
           "tagsName": "Tags",
@@ -125,7 +126,8 @@
           "name": "Name"
         },
         "promotion": {
-          "name": "Name"
+          "name": "Name",
+          "code": "Code"
         },
         "product_stream": {
           "name": "Name"

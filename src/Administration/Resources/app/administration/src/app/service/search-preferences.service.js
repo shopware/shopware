@@ -248,6 +248,9 @@ export default function SearchPreferencesService({ userConfigRepository: _userCo
             if (item.fieldName.includes('mediaFolder.name')) {
                 lastFieldName = 'mediaFolderName';
             }
+            if (item.fieldName.includes('promotion.code')) {
+                lastFieldName = 'promotionCode';
+            }
 
             fieldsGroup[lastFieldName] ??= {
                 group: [],

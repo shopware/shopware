@@ -9,6 +9,8 @@ stages:
     - quarantine
     # downstream pipelines trigger by this pipeline
     - downstream
+    # create manyrepos
+    - split
     # deploy artifacts build in the `build` stage
     - deploy
     # percy

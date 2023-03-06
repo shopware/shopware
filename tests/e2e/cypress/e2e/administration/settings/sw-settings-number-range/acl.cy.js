@@ -7,8 +7,7 @@ describe('Number Range: Test acl privileges', () => {
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
     });
 
-    // TODO: Unskip with NEXT-15489
-    it('@settings: read number range with ACL, but without rights', { tags: ['quarantined', 'pa-system-settings'] }, () => {
+    it('@settings: read number range with ACL, but without rights', { tags: ['pa-system-settings'] }, () => {
         cy.loginAsUserWithPermissions([]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/number/range/index`);
             cy.get('.sw-skeleton').should('not.exist');
@@ -21,8 +20,7 @@ describe('Number Range: Test acl privileges', () => {
         cy.location('hash').should('eq', '#/sw/privilege/error/index');
     });
 
-    // TODO: Unskip with NEXT-15489
-    it('@settings: read number range with ACL', { tags: ['quarantined', 'pa-system-settings'] }, () => {
+    it('@settings: read number range with ACL', { tags: ['pa-system-settings'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'number_ranges',

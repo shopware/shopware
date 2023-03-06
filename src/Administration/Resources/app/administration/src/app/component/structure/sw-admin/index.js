@@ -25,8 +25,8 @@ Component.register('sw-admin', {
     },
 
     methods: {
-        onUserActivity: Shopware.Utils.debounce(function updateUserActivity() {
+        onUserActivity() {
             this.userActivityService.updateLastUserActivity();
-        }, 5000),
+        },
     },
 });

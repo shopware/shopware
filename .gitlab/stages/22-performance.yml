@@ -21,6 +21,7 @@ Lighthouse (Administration):
         - if: '$CI_PIPELINE_SOURCE != "merge_request_event" && $CI_COMMIT_REF_PROTECTED == "true"'
           allow_failure: true
     script:
+      - !reference [ .scripts, init, npm, admin ]
       - APP_ENV=prod bin/console framework:demodata
       - APP_ENV=prod bin/console dal:refresh:index
       - cd $ADMIN_PATH
@@ -54,6 +55,7 @@ Lighthouse Server (Storefront):
         - if: '$CI_PIPELINE_SOURCE != "merge_request_event" && $CI_COMMIT_REF_PROTECTED == "true"'
           allow_failure: true
     script:
+        - !reference [ .scripts, init, npm, storefront ]
         - APP_ENV=prod bin/console framework:demodata
         - APP_ENV=prod bin/console dal:refresh:index
         - cd $STOREFRONT_PATH

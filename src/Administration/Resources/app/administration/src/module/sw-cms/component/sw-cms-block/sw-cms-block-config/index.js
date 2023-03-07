@@ -1,7 +1,7 @@
 import template from './sw-cms-block-config.html.twig';
 import './sw-cms-block-config.scss';
 
-const { Mixin } = Shopware;
+const { Mixin, Utils } = Shopware;
 
 /**
  * @private
@@ -92,5 +92,9 @@ export default {
 
             this.$emit('block-duplicate', this.block);
         },
+
+        onBlockNameChange: Utils.debounce(function debouncedOnChange(value) {
+            this.block.name = value;
+        }, 400),
     },
 };

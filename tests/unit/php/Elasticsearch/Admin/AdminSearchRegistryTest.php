@@ -43,11 +43,6 @@ class AdminSearchRegistryTest extends TestCase
         $this->indexer = $this->getMockBuilder(PromotionAdminSearchIndexer::class)->disableOriginalConstructor()->getMock();
     }
 
-    public function testGetHandledMessages(): void
-    {
-        static::assertEquals([AdminSearchIndexingMessage::class], AdminSearchRegistry::getHandledMessages());
-    }
-
     public function testGetSubscribedEvents(): void
     {
         $events = AdminSearchRegistry::getSubscribedEvents();
@@ -86,7 +81,7 @@ class AdminSearchRegistryTest extends TestCase
             [],
             []
         );
-        static::expectException(ElasticsearchIndexingException::class);
+        $this->expectException(ElasticsearchIndexingException::class);
         $registry->getIndexer('test');
     }
 
@@ -110,13 +105,12 @@ class AdminSearchRegistryTest extends TestCase
 
     public function testIterateWithExistedAliasWillBeSwap(): void
     {
-        $this->indexer->expects(static::any())->method('getName')->willReturn('promotion-listing');
+        $this->indexer->method('getName')->willReturn('promotion-listing');
 
         $client = $this->createMock(Client::class);
         $indices = $this->createMock(IndicesNamespace::class);
-        $indices->expects(static::any())->method('existsAlias')->willReturn(true);
+        $indices->method('existsAlias')->willReturn(true);
         $indices
-            ->expects(static::any())
             ->method('getAlias')
             ->willReturn([
                 'sw-admin-promotion-listing_12345' => [
@@ -148,13 +142,13 @@ class AdminSearchRegistryTest extends TestCase
     }
 
     /**
-     * @param array<mixed> $constructorConfig
+     * @param array{index: array{number_of_shards: int|null, number_of_replicas: int|null, test?: int}} $constructorConfig
      *
      * @dataProvider providerCreateIndices
      */
     public function testIterate(array $constructorConfig): void
     {
-        $this->indexer->expects(static::any())->method('getName')->willReturn('promotion-listing');
+        $this->indexer->method('getName')->willReturn('promotion-listing');
 
         $client = $this->createMock(Client::class);
         $indices = $this->createMock(IndicesNamespace::class);
@@ -166,7 +160,7 @@ class AdminSearchRegistryTest extends TestCase
         $client->method('indices')->willReturn($indices);
 
         $connection = $this->createMock(Connection::class);
-        $connection->expects(static::any())->method('fetchAllKeyValue')->willReturn(['sw-admin-promotion-listing' => 'sw-admin-promotion-listing_12345']);
+        $connection->method('fetchAllKeyValue')->willReturn(['sw-admin-promotion-listing' => 'sw-admin-promotion-listing_12345']);
 
         $searchHelper = new AdminElasticsearchHelper(true, false, 'sw-admin');
         $registry = new AdminSearchRegistry(
@@ -185,8 +179,8 @@ class AdminSearchRegistryTest extends TestCase
 
     public function testIterateFiresEvents(): void
     {
-        $this->indexer->expects(static::any())->method('getName')->willReturn('promotion-listing');
-        $this->indexer->expects(static::any())->method('getEntity')->willReturn('promotion');
+        $this->indexer->method('getName')->willReturn('promotion-listing');
+        $this->indexer->method('getEntity')->willReturn('promotion');
 
         $query = $this->createMock(IterableQuery::class);
         $firstRun = true;
@@ -202,7 +196,7 @@ class AdminSearchRegistryTest extends TestCase
         });
         $query->method('fetchCount')->willReturn(2);
 
-        $this->indexer->expects(static::any())->method('getIterator')->willReturn($query);
+        $this->indexer->method('getIterator')->willReturn($query);
 
         $client = $this->createMock(Client::class);
         $indices = $this->createMock(IndicesNamespace::class);
@@ -216,7 +210,7 @@ class AdminSearchRegistryTest extends TestCase
         $eventDispatcher = new EventDispatcher();
         $queue = $this->createMock(MessageBusInterface::class);
         $connection = $this->createMock(Connection::class);
-        $connection->expects(static::any())->method('fetchAllKeyValue')->willReturn(['sw-admin-promotion-listing' => 'sw-admin-promotion-listing_12345']);
+        $connection->method('fetchAllKeyValue')->willReturn(['sw-admin-promotion-listing' => 'sw-admin-promotion-listing_12345']);
 
         $searchHelper = new AdminElasticsearchHelper(true, false, 'sw-admin');
         $index = new AdminSearchRegistry(
@@ -272,9 +266,9 @@ class AdminSearchRegistryTest extends TestCase
      */
     public function testRefresh(bool $refreshIndices): void
     {
-        $this->indexer->expects(static::any())->method('getName')->willReturn('promotion-listing');
-        $this->indexer->expects(static::any())->method('getEntity')->willReturn('promotion');
-        $this->indexer->expects(static::any())->method('fetch')->willReturn([
+        $this->indexer->method('getName')->willReturn('promotion-listing');
+        $this->indexer->method('getEntity')->willReturn('promotion');
+        $this->indexer->method('fetch')->willReturn([
             'c1a28776116d4431a2208eb2960ec340' => [
                 'id' => 'c1a28776116d4431a2208eb2960ec340',
                 'text' => 'c1a28776116d4431a2208eb2960ec340 elasticsearch',
@@ -314,7 +308,7 @@ class AdminSearchRegistryTest extends TestCase
         }
 
         $connection = $this->createMock(Connection::class);
-        $connection->expects(static::any())->method('fetchAllKeyValue')->willReturn(['sw-admin-promotion-listing' => 'sw-admin-promotion-listing_12345']);
+        $connection->method('fetchAllKeyValue')->willReturn(['sw-admin-promotion-listing' => 'sw-admin-promotion-listing_12345']);
 
         $searchHelper = new AdminElasticsearchHelper(true, $refreshIndices, 'sw-admin');
         $index = new AdminSearchRegistry(
@@ -342,9 +336,9 @@ class AdminSearchRegistryTest extends TestCase
 
     public function testHandle(): void
     {
-        $this->indexer->expects(static::any())->method('getName')->willReturn('promotion-listing');
-        $this->indexer->expects(static::any())->method('getEntity')->willReturn('promotion');
-        $this->indexer->expects(static::any())->method('fetch')->willReturn([
+        $this->indexer->method('getName')->willReturn('promotion-listing');
+        $this->indexer->method('getEntity')->willReturn('promotion');
+        $this->indexer->method('fetch')->willReturn([
             'c1a28776116d4431a2208eb2960ec340' => [
                 'id' => 'c1a28776116d4431a2208eb2960ec340',
                 'text' => 'c1a28776116d4431a2208eb2960ec340 elasticsearch',
@@ -397,9 +391,9 @@ class AdminSearchRegistryTest extends TestCase
 
     public function testHandleThrowErrors(): void
     {
-        $this->indexer->expects(static::any())->method('getName')->willReturn('promotion-listing');
-        $this->indexer->expects(static::any())->method('getEntity')->willReturn('promotion');
-        $this->indexer->expects(static::any())->method('fetch')->willReturn([
+        $this->indexer->method('getName')->willReturn('promotion-listing');
+        $this->indexer->method('getEntity')->willReturn('promotion');
+        $this->indexer->method('fetch')->willReturn([
             'c1a28776116d4431a2208eb2960ec340' => [
                 'id' => 'c1a28776116d4431a2208eb2960ec340',
                 'text' => 'c1a28776116d4431a2208eb2960ec340 elasticsearch',
@@ -427,7 +421,7 @@ class AdminSearchRegistryTest extends TestCase
                 ],
             ],
         ];
-        $client->expects(static::any())->method('bulk')->willReturn($result);
+        $client->method('bulk')->willReturn($result);
 
         $indices = ['sw-admin-promotion-listing' => 'sw-admin-promotion-listing_12345'];
 
@@ -443,7 +437,7 @@ class AdminSearchRegistryTest extends TestCase
             []
         );
 
-        static::expectException(ElasticsearchIndexingException::class);
+        $this->expectException(ElasticsearchIndexingException::class);
         $index->__invoke(new AdminSearchIndexingMessage(
             'promotion',
             'promotion',
@@ -453,9 +447,9 @@ class AdminSearchRegistryTest extends TestCase
     }
 
     /**
-     * @return iterable<array<mixed>>
+     * @return \Generator<array<array{index: array{number_of_shards: int|null, number_of_replicas: int|null, test?: int}}>>
      */
-    public static function providerCreateIndices(): iterable
+    public static function providerCreateIndices(): \Generator
     {
         yield 'with given number of shards' => [
             [

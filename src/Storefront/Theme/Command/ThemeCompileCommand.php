@@ -35,7 +35,8 @@ class ThemeCompileCommand extends Command
     public function configure(): void
     {
         $this
-            ->addOption('keep-assets', 'k', InputOption::VALUE_NONE, 'Keep current assets, do not delete them');
+            ->addOption('keep-assets', 'k', InputOption::VALUE_NONE, 'Keep current assets, do not delete them')
+            ->addOption('active-only', 'a', InputOption::VALUE_NONE, 'Compile themes only for active  sales channels');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -44,7 +45,7 @@ class ThemeCompileCommand extends Command
         $context = Context::createDefaultContext();
         $this->io->writeln('Start theme compilation');
 
-        foreach ($this->themeProvider->load($context) as $salesChannelId => $themeId) {
+        foreach ($this->themeProvider->load($context, $input->getOption('active-only')) as $salesChannelId => $themeId) {
             $this->io->block(\sprintf('Compiling theme for sales channel for : %s', $salesChannelId));
 
             $start = microtime(true);

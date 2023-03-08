@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
 
-namespace Shopware\Storefront\Test\Theme\ConfigLoader;
+namespace Shopware\Tests\Integration\Storefront\Theme\ConfigLoader;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Storefront\Theme\ConfigLoader\DatabaseAvailableThemeProvider;
@@ -14,6 +14,7 @@ use Shopware\Storefront\Theme\ConfigLoader\DatabaseAvailableThemeProvider;
 /**
  * @internal
  */
+#[Package('storefront')]
 class DatabaseAvailableThemeProviderTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -25,6 +26,7 @@ class DatabaseAvailableThemeProviderTest extends TestCase
 
         $firstSc = $this->createSalesChannel();
         $secondSc = $this->createSalesChannel([
+            'active' => false,
             'themes' => [
                 [
                     'id' => $themeId,
@@ -32,21 +34,37 @@ class DatabaseAvailableThemeProviderTest extends TestCase
             ],
         ]);
 
-        $list = $this->getContainer()->get(DatabaseAvailableThemeProvider::class)->load(Context::createDefaultContext());
+        $list = $this->getContainer()->get(DatabaseAvailableThemeProvider::class)->load(Context::createDefaultContext(), false);
 
         static::assertArrayNotHasKey($firstSc['id'], $list, 'sc has no theme assigned');
         static::assertArrayHasKey($secondSc['id'], $list, 'sc has no theme assigned');
         static::assertSame($themeId, $list[$secondSc['id']]);
     }
 
-    public function testGetDecoratedShouldThrowException(): void
+    public function testItFiltersInactiveSalesChannels(): void
     {
-        static::expectException(DecorationPatternException::class);
-        $this->getContainer()->get(DatabaseAvailableThemeProvider::class)->getDecorated();
+        $themeId = $this->getThemeId();
+
+        $inactive = $this->createSalesChannel([
+            'active' => false,
+            'themes' => [
+                [
+                    'id' => $themeId,
+                ],
+            ],
+        ]);
+
+        $list = $this->getContainer()->get(DatabaseAvailableThemeProvider::class)->load(Context::createDefaultContext(), true);
+
+        static::assertArrayNotHasKey($inactive['id'], $list, 'inactive sales channel was returned but shouldn\'t');
     }
 
     private function getThemeId(): string
     {
-        return $this->getContainer()->get('theme.repository')->searchIds(new Criteria(), Context::createDefaultContext())->firstId();
+        $id = $this->getContainer()->get('theme.repository')->searchIds(new Criteria(), Context::createDefaultContext())->firstId();
+
+        static::assertIsString($id);
+
+        return $id;
     }
 }

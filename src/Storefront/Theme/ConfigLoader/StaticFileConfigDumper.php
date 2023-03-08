@@ -41,7 +41,7 @@ class StaticFileConfigDumper implements EventSubscriberInterface
 
     public function dumpConfig(Context $context): void
     {
-        $salesChannelToTheme = $this->availableThemeProvider->load($context);
+        $salesChannelToTheme = $this->availableThemeProvider->load($context, false);
         $this->filesystem->write(StaticFileAvailableThemeProvider::THEME_INDEX, json_encode($salesChannelToTheme, JSON_THROW_ON_ERROR));
 
         foreach ($salesChannelToTheme as $themeId) {

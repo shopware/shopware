@@ -149,10 +149,10 @@
         <component name="sw-switch-field">
             <name>useDefaultCookieConsent</name>
             <bordered>bordered</bordered>
-            <label>Use Default Cookie Notification</label>
-            <label lang="de-DE">Standard-Cookiehinweis verwenden</label>
-            <helpText>You can deactivate the default cookie notification if you are using a third party solution.</helpText>
-            <helpText lang="de-DE">Sie können hier den Standard-Cookiehinweis deaktivieren wenn Sie eine Lösung eines Drittanbieters nutzen.</helpText>
+            <label>Use default cookie notification</label>
+            <label lang="de-DE">Standard-Cookie-Hinweis verwenden</label>
+            <helpText>You should deactivate the default cookie notification only if you are using an alternative third-party solution.</helpText>
+            <helpText lang="de-DE">Du solltest den Standard-Cookie-Hinweis hier nur deaktivieren, wenn Du eine alternative Drittanbieterlösung verwendest.</helpText>
         </component>
 
         <component name="sw-switch-field">

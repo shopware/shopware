@@ -4,10 +4,10 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Services\FlexMigrator;
+use App\Services\ProjectComposerJsonUpdater;
 use App\Services\RecoveryManager;
 use App\Services\ReleaseInfoProvider;
 use App\Services\StreamedCommandResponseGenerator;
-use Composer\Util\Platform;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -66,7 +66,11 @@ class UpdateController extends AbstractController
     {
         $shopwarePath = $this->recoveryManager->getShopwareLocation();
 
-        $this->updateComposerJsonConstraint($request, $shopwarePath . '/composer.json');
+        ProjectComposerJsonUpdater::update(
+            $shopwarePath . '/composer.json',
+            $this->getLatestVersion($request),
+            $request->getSession()->get('channel', 'stable')
+        );
 
         return $this->streamedCommandResponseGenerator->runJSON([
             $this->recoveryManager->getPhpBinary($request),
@@ -168,7 +172,7 @@ class UpdateController extends AbstractController
 
         $channel = $request->getSession()->get('channel', 'stable');
 
-        $latestVersions = $this->releaseInfoProvider->fetchLatestRelease($channel === 'rc');
+        $latestVersions = $this->releaseInfoProvider->fetchLatestReleaseForUpdate($channel === 'rc');
 
         $shopwarePath = $this->recoveryManager->getShopwareLocation();
         \assert(\is_string($shopwarePath));
@@ -187,50 +191,5 @@ class UpdateController extends AbstractController
         $request->getSession()->set('latestVersion', $latestVersion);
 
         return $latestVersion;
-    }
-
-    private function updateComposerJsonConstraint(Request $request, string $file): void
-    {
-        $shopwarePackages = [
-            'shopware/core',
-            'shopware/administration',
-            'shopware/storefront',
-            'shopware/elasticsearch',
-        ];
-
-        /** @var array{minimum-stability?: string, require: array<string, string>} $composerJson */
-        $composerJson = json_decode((string) file_get_contents($file), true, \JSON_THROW_ON_ERROR);
-        $latestVersion = $this->getLatestVersion($request);
-
-        $channel = $request->getSession()->get('channel', 'stable');
-
-        if ($channel === 'rc') {
-            $composerJson['minimum-stability'] = 'RC';
-        } else {
-            unset($composerJson['minimum-stability']);
-        }
-
-        foreach ($shopwarePackages as $shopwarePackage) {
-            if (!isset($composerJson['require'][$shopwarePackage])) {
-                continue;
-            }
-
-            // Lock the composer version to that major version
-            $version = '~' . substr($latestVersion, 0, 3) . '.0';
-
-            $nextVersion = Platform::getEnv('SW_RECOVERY_NEXT_VERSION');
-            if (\is_string($nextVersion)) {
-                $nextBranch = Platform::getEnv('SW_RECOVERY_NEXT_BRANCH');
-                if ($nextBranch === false) {
-                    $nextBranch = 'dev-trunk';
-                }
-
-                $version = $nextBranch . ' as ' . $nextVersion;
-            }
-
-            $composerJson['require'][$shopwarePackage] = $version;
-        }
-
-        file_put_contents($file, json_encode($composerJson, \JSON_THROW_ON_ERROR | \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES));
     }
 }

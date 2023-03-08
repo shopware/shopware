@@ -28,7 +28,7 @@ class ReleaseInfoProviderTest extends TestCase
 
         $releaseInfoProvider = new ReleaseInfoProvider($mockClient);
 
-        $releaseInfo = $releaseInfoProvider->fetchLatestRelease();
+        $releaseInfo = $releaseInfoProvider->fetchLatestReleaseForUpdate();
 
         static::assertArrayHasKey('6.3', $releaseInfo);
         static::assertArrayHasKey('6.4', $releaseInfo);
@@ -49,7 +49,7 @@ class ReleaseInfoProviderTest extends TestCase
 
         $releaseInfoProvider = new ReleaseInfoProvider($mockClient);
 
-        $releaseInfo = $releaseInfoProvider->fetchLatestRelease(true);
+        $releaseInfo = $releaseInfoProvider->fetchLatestReleaseForUpdate(true);
 
         static::assertArrayHasKey('6.3', $releaseInfo);
         static::assertArrayHasKey('6.4', $releaseInfo);
@@ -65,7 +65,7 @@ class ReleaseInfoProviderTest extends TestCase
 
         $_SERVER['SW_RECOVERY_NEXT_VERSION'] = '6.5.99.9';
 
-        $releaseInfo = $releaseInfoProvider->fetchLatestRelease();
+        $releaseInfo = $releaseInfoProvider->fetchLatestReleaseForUpdate();
 
         static::assertArrayHasKey('6.4', $releaseInfo);
         static::assertArrayHasKey('6.5', $releaseInfo);
@@ -74,5 +74,40 @@ class ReleaseInfoProviderTest extends TestCase
         static::assertSame('6.5.99.9', $releaseInfo['6.5']);
 
         unset($_SERVER['SW_RECOVERY_NEXT_VERSION']);
+    }
+
+    public function testGetReleaseVersions(): void
+    {
+        $mockClient = new MockHttpClient([
+            new MockResponse(json_encode([
+                '6.5.0.0-rc1',
+                '6.4.19.0',
+                '6.4.18.0',
+            ], \JSON_THROW_ON_ERROR)),
+            new MockResponse(json_encode([
+                '6.5.0.0-rc1',
+                '6.4.19.0',
+                '6.4.18.0',
+            ], \JSON_THROW_ON_ERROR)),
+        ]);
+
+        $releaseInfoProvider = new ReleaseInfoProvider($mockClient);
+
+        static::assertSame(
+            [
+                '6.4.19.0',
+                '6.4.18.0',
+            ],
+            $releaseInfoProvider->fetchInstallVersions()
+        );
+
+        static::assertSame(
+            [
+                '6.5.0.0-rc1',
+                '6.4.19.0',
+                '6.4.18.0',
+            ],
+            $releaseInfoProvider->fetchInstallVersions(true)
+        );
     }
 }

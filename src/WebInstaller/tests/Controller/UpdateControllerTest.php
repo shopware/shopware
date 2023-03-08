@@ -25,6 +25,7 @@ use Twig\Environment;
  * @internal
  *
  * @covers \App\Controller\UpdateController
+ * @covers \App\Services\ProjectComposerJsonUpdater
  */
 class UpdateControllerTest extends TestCase
 {
@@ -287,7 +288,7 @@ class UpdateControllerTest extends TestCase
         $releaseInfoProvider = $this->createMock(ReleaseInfoProvider::class);
         $releaseInfoProvider
             ->expects(static::once())
-            ->method('fetchLatestRelease')
+            ->method('fetchLatestReleaseForUpdate')
             ->willReturn(['6.3' => '6.3.5.0', '6.4' => '6.4.18.0', '6.5' => '6.5.0.0-rc1']);
 
         $controller = new UpdateController(
@@ -444,7 +445,7 @@ class UpdateControllerTest extends TestCase
         $releaseInfoProvider = $this->createMock(ReleaseInfoProvider::class);
         $releaseInfoProvider
             ->expects(static::once())
-            ->method('fetchLatestRelease')
+            ->method('fetchLatestReleaseForUpdate')
             ->willReturn(['6.3' => '6.3.5.0', '6.4' => '6.4.18.0']);
 
         return $releaseInfoProvider;

@@ -9727,29 +9727,9 @@ parameters:
 			path: src/Core/Framework/Demodata/Generator/CustomerGenerator.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DependencyInjection\\\\CompilerPass\\\\ActionEventCompilerPass\\:\\:getEventClasses\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DependencyInjection/CompilerPass/ActionEventCompilerPass.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DependencyInjection\\\\CompilerPass\\\\ActionEventCompilerPass\\:\\:getReflectionClass\\(\\) return type with generic class ReflectionClass does not specify its types\\: T$#"
-			count: 1
-			path: src/Core/Framework/DependencyInjection/CompilerPass/ActionEventCompilerPass.php
-
-		-
-			message: "#^Parameter \\#1 \\$input of method Doctrine\\\\Common\\\\Annotations\\\\DocParser\\:\\:parse\\(\\) expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Framework/DependencyInjection/CompilerPass/ActionEventCompilerPass.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DependencyInjection\\\\FrameworkExtension\\:\\:addShopwareConfig\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/DependencyInjection/FrameworkExtension.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Event\\\\Annotation\\\\Event\\:\\:__construct\\(\\) has parameter \\$values with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/Annotation/Event.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Event\\\\BusinessEventRegistry\\:\\:addClasses\\(\\) has parameter \\$classes with no value type specified in iterable type array\\.$#"
@@ -12082,11 +12062,6 @@ parameters:
 			path: src/Core/Framework/Test/DependencyInjection/CompilerPass/FilesystemConfigMigrationCompilerPassTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DependencyInjection\\\\fixtures\\\\TestActionEventCompilerPass\\:\\:getReflectionClass\\(\\) return type with generic class ReflectionClass does not specify its types\\: T$#"
-			count: 1
-			path: src/Core/Framework/Test/DependencyInjection/fixtures/TestActionEventCompilerPass.php
-
-		-
 			message: "#^Parameter \\#1 \\$matches of method Shopware\\\\Core\\\\Framework\\\\Test\\\\DeprecationTagTester\\:\\:validateMatches\\(\\) expects array\\<array\\{1\\: string\\|null\\}\\>, list\\<array\\<string\\|null\\>\\> given\\.$#"
 			count: 2
 			path: src/Core/Framework/Test/DeprecationTagTester.php
@@ -12560,26 +12535,6 @@ parameters:
 			message: "#^Parameter \\#3 \\$route of method Shopware\\\\Core\\\\Content\\\\Seo\\\\SeoUrlGenerator\\:\\:generate\\(\\) expects Shopware\\\\Core\\\\Content\\\\Seo\\\\SeoUrlRoute\\\\SeoUrlRouteInterface, object\\|null given\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Seo/SeoUrlPersisterTest.php
-
-		-
-			message: "#^Cannot call method format\\(\\) on DateTime\\|false\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Serializer/StructNormalizerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Serializer\\\\AdvancedTestStruct\\:\\:setSubClasses\\(\\) has parameter \\$subClasses with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Serializer/StructNormalizerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Serializer\\\\StructNormalizerTest\\:\\:denormalizeShouldReturnNonArraysProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Serializer/StructNormalizerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Serializer\\\\StructNormalizerTest\\:\\:testDenormalizeShouldReturnNonArrays\\(\\) has parameter \\$input with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Serializer/StructNormalizerTest.php
 
 		-
 			message: "#^Call to an undefined method object\\:\\:get\\(\\)\\.$#"

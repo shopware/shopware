@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 
-use Doctrine\Common\Annotations\AnnotationRegistry;
 use Doctrine\Common\Annotations\DocParser;
 use Shopware\Core\Framework\Event\Annotation\Event;
 use Shopware\Core\Framework\Event\BusinessEventRegistry;
@@ -12,6 +11,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Contracts\EventDispatcher\Event as SymfonyBaseEvent;
 
 #[Package('core')]
 class ActionEventCompilerPass implements CompilerPassInterface
@@ -20,7 +20,7 @@ class ActionEventCompilerPass implements CompilerPassInterface
     {
         $classes = [];
         foreach ($this->getEventClasses() as $eventClass) {
-            if (!is_subclass_of($eventClass, FlowEventAware::class, true)) {
+            if (!is_subclass_of($eventClass, FlowEventAware::class)) {
                 continue;
             }
 
@@ -31,11 +31,17 @@ class ActionEventCompilerPass implements CompilerPassInterface
         $definition->addMethodCall('addClasses', [$classes]);
     }
 
+    /**
+     * @return \ReflectionClass<BusinessEvents>
+     */
     protected function getReflectionClass(): \ReflectionClass
     {
         return new \ReflectionClass(BusinessEvents::class);
     }
 
+    /**
+     * @return array<string, class-string<SymfonyBaseEvent>>
+     */
     private function getEventClasses(): array
     {
         $reflectionClass = $this->getReflectionClass();
@@ -43,7 +49,12 @@ class ActionEventCompilerPass implements CompilerPassInterface
 
         $eventClasses = [];
         foreach ($reflectionClass->getReflectionConstants() as $constant) {
-            foreach ($docParser->parse($constant->getDocComment()) as $annotation) {
+            $docComment = $constant->getDocComment();
+            if (!\is_string($docComment)) {
+                continue;
+            }
+
+            foreach ($docParser->parse($docComment) as $annotation) {
                 if ($annotation instanceof Event) {
                     $deprecationVersion = $annotation->getDeprecationVersion();
 
@@ -51,7 +62,7 @@ class ActionEventCompilerPass implements CompilerPassInterface
                         continue;
                     }
 
-                    $eventClasses[$constant->getValue()] = $annotation->getEventClass();
+                    $eventClasses[(string) $constant->getValue()] = $annotation->getEventClass();
                 }
             }
         }
@@ -66,7 +77,6 @@ class ActionEventCompilerPass implements CompilerPassInterface
             'event' => Event::class,
         ]);
         $docParser->setIgnoreNotImportedAnnotations(true);
-        AnnotationRegistry::registerLoader('class_exists');
 
         return $docParser;
     }

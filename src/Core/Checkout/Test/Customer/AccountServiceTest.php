@@ -24,10 +24,7 @@ class AccountServiceTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;
 
-    /**
-     * @var AccountService
-     */
-    private $accountService;
+    private AccountService $accountService;
 
     protected function setUp(): void
     {
@@ -65,7 +62,7 @@ class AccountServiceTest extends TestCase
         $context = $this->createSalesChannelContext([
             'domains' => [
                 [
-                    'url' => 'http://test.de',
+                    'url' => 'https://test.de',
                     'currencyId' => Defaults::CURRENCY,
                     'languageId' => Defaults::LANGUAGE_SYSTEM,
                     'snippetSetId' => $this->getRandomId('snippet_set'),
@@ -75,7 +72,6 @@ class AccountServiceTest extends TestCase
         $this->createCustomerOfSalesChannel($context->getSalesChannel()->getId(), $email);
 
         $customer = $this->accountService->getCustomerByLogin($email, 'shopware', $context);
-        static::assertInstanceOf(CustomerEntity::class, $customer);
         static::assertEquals($email, $customer->getEmail());
         static::assertEquals($context->getSalesChannel()->getId(), $customer->getSalesChannelId());
     }
@@ -89,7 +85,7 @@ class AccountServiceTest extends TestCase
         $context = $this->createSalesChannelContext([
             'domains' => [
                 [
-                    'url' => 'http://test.de',
+                    'url' => 'https://test.de',
                     'currencyId' => Defaults::CURRENCY,
                     'languageId' => Defaults::LANGUAGE_SYSTEM,
                     'snippetSetId' => $this->getRandomId('snippet_set'),
@@ -99,7 +95,6 @@ class AccountServiceTest extends TestCase
         $this->createCustomerOfSalesChannel($context->getSalesChannel()->getId(), $email);
 
         $customer = $this->accountService->getCustomerByLogin($email, 'invalid-password', $context);
-        static::assertInstanceOf(CustomerEntity::class, $customer);
         static::assertEquals($email, $customer->getEmail());
         static::assertEquals($context->getSalesChannel()->getId(), $customer->getSalesChannelId());
     }
@@ -112,7 +107,7 @@ class AccountServiceTest extends TestCase
         $context = $this->createSalesChannelContext([
             'domains' => [
                 [
-                    'url' => 'http://test.de',
+                    'url' => 'https://test.de',
                     'currencyId' => Defaults::CURRENCY,
                     'languageId' => Defaults::LANGUAGE_SYSTEM,
                     'snippetSetId' => $this->getRandomId('snippet_set'),
@@ -134,7 +129,7 @@ class AccountServiceTest extends TestCase
         $context1 = $this->createSalesChannelContext([
             'domains' => [
                 [
-                    'url' => 'http://test.de',
+                    'url' => 'https://test.de',
                     'currencyId' => Defaults::CURRENCY,
                     'languageId' => Defaults::LANGUAGE_SYSTEM,
                     'snippetSetId' => $this->getRandomId('snippet_set'),
@@ -158,11 +153,9 @@ class AccountServiceTest extends TestCase
 
         $customer1 = $this->accountService->getCustomerByLogin($email, 'shopware', $context1);
 
-        static::assertInstanceOf(CustomerEntity::class, $customer1);
         static::assertEquals($context1->getSalesChannel()->getId(), $customer1->getSalesChannelId());
 
         $customer2 = $this->accountService->getCustomerByLogin($email, 'shopware', $context2);
-        static::assertInstanceOf(CustomerEntity::class, $customer2);
         static::assertEquals($context2->getSalesChannel()->getId(), $customer2->getSalesChannelId());
     }
 
@@ -173,7 +166,7 @@ class AccountServiceTest extends TestCase
         $context = $this->createSalesChannelContext([
             'domains' => [
                 [
-                    'url' => 'http://test.de',
+                    'url' => 'https://test.de',
                     'currencyId' => Defaults::CURRENCY,
                     'languageId' => Defaults::LANGUAGE_SYSTEM,
                     'snippetSetId' => $this->getRandomId('snippet_set'),
@@ -182,8 +175,8 @@ class AccountServiceTest extends TestCase
         ]);
         $this->createCustomerOfSalesChannel($context->getSalesChannel()->getId(), $email, true, false);
 
-        static::expectException(CustomerNotFoundException::class);
-        static::expectErrorMessage('No matching customer for the email "johndoe@example.com" was found.');
+        $this->expectException(CustomerNotFoundException::class);
+        $this->expectExceptionMessage('No matching customer for the email "johndoe@example.com" was found.');
         $this->accountService->getCustomerByLogin($email, 'shopware', $context);
     }
 

@@ -46,13 +46,16 @@ if (installButton) {
 
         installButton.disabled = true;
 
-        const folder = document.getElementById('folder');
+        const shopwareVersion = document.getElementById('shopwareVersion');
 
-        const installResponse = await fetch(`${baseUrl}/install/_run?folder=` + folder.value, {method: 'POST'});
+        const installResponse = await fetch(`${baseUrl}/install/_run?shopwareVersion=` + shopwareVersion.value, {method: 'POST'});
 
         try {
             const result = await tailLog(installResponse, logOutput);
             if (result.newLocation) {
+                // Delete installer
+                await fetch(`${baseUrl}/install/_cleanup`, {method: 'POST'})
+
                 window.location = result.newLocation;
             }
         } catch (e) {

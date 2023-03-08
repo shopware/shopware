@@ -4,10 +4,10 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Services\FlexMigrator;
+use App\Services\ProjectComposerJsonUpdater;
 use App\Services\RecoveryManager;
 use App\Services\ReleaseInfoProvider;
 use App\Services\StreamedCommandResponseGenerator;
-use Composer\Util\Platform;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -66,7 +66,11 @@ class UpdateController extends AbstractController
     {
         $shopwarePath = $this->recoveryManager->getShopwareLocation();
 
-        $this->updateComposerJsonConstraint($request, $shopwarePath . '/composer.json');
+        ProjectComposerJsonUpdater::update(
+            $shopwarePath . '/composer.json',
+            $this->getLatestVersion($request),
+            $request->getSession()->get('channel', 'stable')
+        );
 
         return $this->streamedCommandResponseGenerator->runJSON([
             $this->recoveryManager->getPhpBinary($request),
@@ -166,7 +170,9 @@ class UpdateController extends AbstractController
             return $sessionValue;
         }
 
-        $latestVersions = $this->releaseInfoProvider->fetchLatestRelease();
+        $channel = $request->getSession()->get('channel', 'stable');
+
+        $latestVersions = $this->releaseInfoProvider->fetchLatestReleaseForUpdate($channel === 'rc');
 
         $shopwarePath = $this->recoveryManager->getShopwareLocation();
         \assert(\is_string($shopwarePath));

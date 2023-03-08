@@ -11,8 +11,12 @@
         </p>
 
         <p>
-            <label for="folder">{{ "shopware.update.steps.install.folderInput"|trans }}</label>
-            <input type="text" value="shopware" name="folder" id="folder" required="required" />
+            <label for="shopwareVersion">{{ "shopware.update.steps.install.shopwareVersion"|trans }}</label>
+            <select id="shopwareVersion" name="shopwareVersion" required="required">
+                {% for version in versions %}
+                    <option value="{{ version }}">{{ version }}</option>
+                {% endfor %}
+            </select>
         </p>
 
         <div class="alert alert-info" role="alert">

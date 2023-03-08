@@ -40,8 +40,8 @@ shopware.update:
             submit: Administration öffnen
         install:
             title: Shopware installieren
-            info: Wählen Sie ein Verzeichnis, um Shopware 6 zu installieren
-            folderInput: 'Installationsordner:'
+            info: Wählen Sie eine Shopware-Version zur Installation aus. Shopware wird in das aktuelle Verzeichnis installiert.
+            shopwareVersion: 'Shopware Version:'
             after_install: Nach der Installation solltest Du das Dokumenten-Stammverzeichnis auf das neu erstellte Verzeichnis <strong>public</strong> ändern.
             log: Protokoll
             installation_failed: Installation fehlgeschlagen

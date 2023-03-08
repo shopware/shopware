@@ -14356,16 +14356,6 @@ parameters:
 			path: src/Core/System/SystemConfig/AbstractSystemConfigLoader.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SystemConfig\\\\Api\\\\SystemConfigController\\:\\:saveKeyValues\\(\\) has parameter \\$kvs with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SystemConfig/Api/SystemConfigController.php
-
-		-
-			message: "#^PHPDoc tag @var for variable \\$kvs has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SystemConfig/Api/SystemConfigController.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\SystemConfig\\\\CachedSystemConfigLoader\\:\\:load\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/SystemConfig/CachedSystemConfigLoader.php

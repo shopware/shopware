@@ -3,6 +3,7 @@
  */
 
 import { shallowMount } from '@vue/test-utils';
+import ShopwareError from 'src/core/data/ShopwareError';
 import 'src/app/component/form/sw-form-field-renderer';
 
 async function createWrapper(additionalOptions = {}) {
@@ -65,5 +66,19 @@ describe('components/form/sw-form-field-renderer', () => {
         });
         const contentWrapper = wrapper.find('.sw-form-field-renderer');
         expect(contentWrapper.text()).toEqual('I am in the default slot');
+    });
+
+    it('should has props error', async () => {
+        const wrapper = await createWrapper({
+            propsData: {
+                config: { name: 'field2', type: 'text', config: { label: 'field2Label' } },
+                value: 'data value',
+                error: new ShopwareError({ code: 'dummyCode' }),
+            },
+        });
+
+        const fieldRenderer = wrapper.find('.sw-form-field-renderer');
+
+        expect(fieldRenderer.attributes('error')).toBeTruthy();
     });
 });

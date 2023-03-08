@@ -1,12 +1,22 @@
+import ErrorResolverSystemConfig from 'src/core/data/error-resolver.system-config.data';
 import ApiService from '../api.service';
 
 /**
  * @package system-settings
  */
 class SystemConfigApiService extends ApiService {
+    /**
+     * @private
+     *
+     * @type {ErrorResolverSystemConfig} errorResolver
+     */
+    errorResolver;
+
     constructor(httpClient, loginService, apiEndpoint = 'system-config') {
         super(httpClient, loginService, apiEndpoint);
         this.name = 'systemConfigApiService';
+
+        this.errorResolver = new ErrorResolverSystemConfig();
     }
 
     checkConfig(domain, additionalParams = {}, additionalHeaders = {}) {
@@ -72,7 +82,12 @@ class SystemConfigApiService extends ApiService {
                 },
             )
             .then((response) => {
+                this.errorResolver.cleanWriteErrors();
                 return ApiService.handleResponse(response);
+            })
+            .catch(errors => {
+                this.errorResolver.handleWriteErrors(errors?.response?.data?.errors);
+                throw errors;
             });
     }
 }

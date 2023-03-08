@@ -311,6 +311,9 @@ class ProductExportControllerTest extends TestCase
     ");
     }
 
+    /**
+     * @return array<int, array<string, mixed>>
+     */
     private function createProducts(): array
     {
         $productRepository = $this->getContainer()->get('product.repository');

@@ -1,0 +1,15 @@
+#!/usr/bin/env php
+<?php
+
+use App\Kernel;
+use Symfony\Bundle\FrameworkBundle\Console\Application;
+use Symfony\Component\Console\Input\ArgvInput;
+
+require_once dirname(__DIR__) . '/vendor/autoload.php';
+
+
+$kernel = new Kernel($_SERVER['APP_ENV'] ?? 'prod', (bool) ($_SERVER['APP_DEBUG'] ?? 0));
+
+$application = new Application($kernel);
+
+$application->run(new ArgvInput());

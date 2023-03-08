@@ -2,43 +2,27 @@
 
 namespace Shopware\Core\Framework\Update\Api;
 
-use Shopware\Core\Framework\Api\Context\AdminApiSource;
-use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
-use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceUserException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionLifecycle;
-use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
+use Shopware\Core\Framework\Update\Checkers\LicenseCheck;
+use Shopware\Core\Framework\Update\Checkers\WriteableCheck;
 use Shopware\Core\Framework\Update\Event\UpdatePostPrepareEvent;
-use Shopware\Core\Framework\Update\Event\UpdatePreFinishEvent;
 use Shopware\Core\Framework\Update\Event\UpdatePrePrepareEvent;
-use Shopware\Core\Framework\Update\Exception\UpdateFailedException;
 use Shopware\Core\Framework\Update\Services\ApiClient;
-use Shopware\Core\Framework\Update\Services\PluginCompatibility;
-use Shopware\Core\Framework\Update\Services\RequirementsValidator;
+use Shopware\Core\Framework\Update\Services\ExtensionCompatibility;
 use Shopware\Core\Framework\Update\Steps\DeactivateExtensionsStep;
-use Shopware\Core\Framework\Update\Steps\DownloadStep;
-use Shopware\Core\Framework\Update\Steps\FinishResult;
-use Shopware\Core\Framework\Update\Steps\UnpackStep;
-use Shopware\Core\Framework\Update\Steps\ValidResult;
-use Shopware\Core\Framework\Update\Struct\Version;
-use Shopware\Core\Framework\Update\VersionFactory;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
+use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Core\System\User\UserEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Routing\Exception\RouteNotFoundException;
 
 /**
  * @internal
@@ -47,159 +31,74 @@ use Symfony\Component\Routing\Exception\RouteNotFoundException;
 #[Package('system-settings')]
 class UpdateController extends AbstractController
 {
-    final public const UPDATE_TOKEN_KEY = 'core.update.token';
-    final public const UPDATE_PREVIOUS_VERSION_KEY = 'core.update.previousVersion';
+    public const UPDATE_PREVIOUS_VERSION_KEY = 'core.update.previousVersion';
 
     /**
      * @internal
      */
     public function __construct(
-        private readonly string $rootDir,
         private readonly ApiClient $apiClient,
-        private readonly RequirementsValidator $requirementsValidator,
-        private readonly PluginCompatibility $pluginCompatibility,
+        private readonly WriteableCheck $writeableCheck,
+        private readonly LicenseCheck $licenseCheck,
+        private readonly ExtensionCompatibility $extensionCompatibility,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly SystemConfigService $systemConfig,
         private readonly AbstractExtensionLifecycle $extensionLifecycleService,
-        private readonly EntityRepository $userRepository,
         private readonly string $shopwareVersion,
-        private readonly bool $isUpdateTest = false,
         private readonly bool $disableUpdateCheck = false
     ) {
     }
 
-    #[Route(path: '/api/_action/update/check', name: 'api.custom.updateapi.check', methods: ['GET'], defaults: ['_acl' => ['system:core:update']])]
+    #[Route(path: '/api/_action/update/check', name: 'api.custom.updateapi.check', defaults: ['_acl' => ['system:core:update']], methods: ['GET'])]
     public function updateApiCheck(): JsonResponse
     {
         if ($this->disableUpdateCheck) {
             return new JsonResponse();
         }
 
-        if ($this->isUpdateTest) {
-            $version = VersionFactory::createTestVersion();
+        $updates = $this->apiClient->checkForUpdates();
 
-            return new JsonResponse($version);
+        if (version_compare($this->shopwareVersion, $updates->version, '>')) {
+            return new JsonResponse();
         }
 
-        try {
-            $updates = $this->apiClient->checkForUpdates();
-
-            if (!$updates->isNewer) {
-                return new JsonResponse();
-            }
-
-            return new JsonResponse($updates);
-        } catch (\Throwable $e) {
-            return new JsonResponse([
-                '__class' => $e::class,
-                '__message' => $e->getMessage(),
-            ]);
-        }
+        return new JsonResponse($updates);
     }
 
-    #[Route(path: '/api/_action/update/check-requirements', name: 'api.custom.update.check_requirements', methods: ['GET'], defaults: ['_acl' => ['system:core:update']])]
+    #[Route(path: '/api/_action/update/check-requirements', name: 'api.custom.update.check_requirements', defaults: ['_acl' => ['system:core:update']], methods: ['GET'])]
     public function checkRequirements(): JsonResponse
     {
-        $update = $this->apiClient->checkForUpdates($this->shopwareVersion === Kernel::SHOPWARE_FALLBACK_VERSION);
-
-        return new JsonResponse($this->requirementsValidator->validate($update));
+        return new JsonResponse([
+            $this->writeableCheck->check(),
+            $this->licenseCheck->check(),
+        ]);
     }
 
-    #[Route(path: '/api/_action/update/plugin-compatibility', name: 'api.custom.updateapi.plugin_compatibility', methods: ['GET'], defaults: ['_acl' => ['system:core:update', 'system_config:read']])]
-    public function pluginCompatibility(Context $context): JsonResponse
+    #[Route('/api/_action/update/extension-compatibility', name: 'api.custom.updateapi.extension_compatibility', defaults: ['_acl' => ['system:core:update', 'system_config:read']], methods: ['GET'])]
+    public function extensionCompatibility(Context $context): JsonResponse
     {
-        $update = $this->apiClient->checkForUpdates($this->shopwareVersion === Kernel::SHOPWARE_FALLBACK_VERSION);
+        $update = $this->apiClient->checkForUpdates();
 
-        return new JsonResponse($this->pluginCompatibility->getExtensionCompatibilities($update, $context));
+        return new JsonResponse($this->extensionCompatibility->getExtensionCompatibilities($update, $context));
     }
 
-    #[Route(path: '/api/_action/update/download-latest-update', name: 'api.custom.updateapi.download_latest_update', methods: ['GET'], defaults: ['_acl' => ['system:core:update', 'system_config:read']])]
-    public function downloadLatestUpdate(Request $request): JsonResponse
+    #[Route(path: '/api/_action/update/download-recovery', name: 'api.custom.updateapi.download-recovery', defaults: ['_acl' => ['system:core:update', 'system_config:read']], methods: ['GET'])]
+    public function downloadLatestRecovery(): Response
     {
-        $update = $this->apiClient->checkForUpdates($this->shopwareVersion === Kernel::SHOPWARE_FALLBACK_VERSION);
-        $offset = $request->query->getInt('offset');
+        $this->apiClient->downloadRecoveryTool();
 
-        $destination = $this->createDestinationFromVersion($update);
-
-        if ($offset === 0 && file_exists($destination)) {
-            unlink($destination);
-        }
-
-        $result = (new DownloadStep(
-            $update,
-            $destination,
-            $this->shopwareVersion === Kernel::SHOPWARE_FALLBACK_VERSION
-        ))->run($offset);
-
-        return $this->toJson($result);
+        return new NoContentResponse();
     }
 
-    #[Route(path: '/api/_action/update/unpack', name: 'api.custom.updateapi.unpack', methods: ['GET'], defaults: ['_acl' => ['system:core:update', 'system_config:read']])]
-    public function unpack(Request $request, Context $context): JsonResponse
-    {
-        $update = $this->apiClient->checkForUpdates($this->shopwareVersion === Kernel::SHOPWARE_FALLBACK_VERSION);
-
-        $source = $this->createDestinationFromVersion($update);
-        $offset = $request->query->getInt('offset');
-
-        $fs = new Filesystem();
-
-        $updateDir = $this->rootDir . '/files/update/';
-        $fileDir = $this->rootDir . '/files/update/files';
-
-        $unpackStep = new UnpackStep($source, $fileDir, $this->shopwareVersion === Kernel::SHOPWARE_FALLBACK_VERSION);
-
-        if ($offset === 0) {
-            $fs->remove($updateDir);
-        }
-
-        $result = $unpackStep->run($offset);
-
-        // Test Mode
-        if ($result instanceof FinishResult && $this->shopwareVersion === Kernel::SHOPWARE_FALLBACK_VERSION) {
-            $updateToken = Uuid::randomHex();
-            $this->systemConfig->set(self::UPDATE_TOKEN_KEY, $updateToken);
-
-            return new JsonResponse([
-                'redirectTo' => $request->getBaseUrl() . '/api/_action/update/finish/' . $updateToken,
-            ]);
-        }
-
-        if ($result instanceof FinishResult) {
-            $fs->rename($fileDir . '/update-assets/', $updateDir . '/update-assets/');
-            $this->replaceRecoveryFiles($fileDir);
-
-            $payload = [
-                'clientIp' => $request->getClientIp(),
-                'version' => $update->version,
-                'locale' => $this->getUpdateLocale($context),
-            ];
-
-            $updateFilePath = $this->rootDir . '/files/update/update.json';
-
-            if (!file_put_contents($updateFilePath, json_encode($payload, \JSON_THROW_ON_ERROR))) {
-                throw new UpdateFailedException(sprintf('Could not write file %s', $updateFilePath));
-            }
-
-            $this->systemConfig->set(self::UPDATE_PREVIOUS_VERSION_KEY, $update->version);
-
-            return new JsonResponse([
-                'redirectTo' => $request->getBaseUrl() . '/recovery/update/index.php',
-            ]);
-        }
-
-        return $this->toJson($result);
-    }
-
-    #[Route(path: '/api/_action/update/deactivate-plugins', name: 'api.custom.updateapi.deactivate-plugins', methods: ['GET'], defaults: ['_acl' => ['system:core:update', 'system_config:read']])]
+    #[Route(path: '/api/_action/update/deactivate-plugins', name: 'api.custom.updateapi.deactivate-plugins', defaults: ['_acl' => ['system:core:update', 'system_config:read']], methods: ['GET'])]
     public function deactivatePlugins(Request $request, Context $context): JsonResponse
     {
-        $update = $this->apiClient->checkForUpdates($this->shopwareVersion === Kernel::SHOPWARE_FALLBACK_VERSION);
+        $update = $this->apiClient->checkForUpdates();
 
         $offset = $request->query->getInt('offset');
 
         if ($offset === 0) {
-            // plugins can subscribe to this events, check compatibility and throw exceptions to prevent the update
+            // plugins can subscribe to these events, check compatibility and throw exceptions to prevent the update
             $this->eventDispatcher->dispatch(
                 new UpdatePrePrepareEvent($context, $this->shopwareVersion, $update->version)
             );
@@ -208,13 +107,13 @@ class UpdateController extends AbstractController
         // disable plugins - save active plugins
         $deactivationFilter = (string) $request->query->get(
             'deactivationFilter',
-            PluginCompatibility::PLUGIN_DEACTIVATION_FILTER_NOT_COMPATIBLE
+            ExtensionCompatibility::PLUGIN_DEACTIVATION_FILTER_NOT_COMPATIBLE
         );
 
         $deactivatePluginStep = new DeactivateExtensionsStep(
             $update,
             $deactivationFilter,
-            $this->pluginCompatibility,
+            $this->extensionCompatibility,
             $this->extensionLifecycleService,
             $this->systemConfig,
             $context
@@ -222,7 +121,7 @@ class UpdateController extends AbstractController
 
         $result = $deactivatePluginStep->run($offset);
 
-        if ($result instanceof FinishResult) {
+        if ($result->getOffset() === $result->getTotal()) {
             $containerWithoutPlugins = $this->rebootKernelWithoutPlugins();
 
             // @internal plugins are deactivated
@@ -231,62 +130,10 @@ class UpdateController extends AbstractController
             );
         }
 
-        return $this->toJson($result);
-    }
-
-    #[Route(path: '/api/_action/update/finish/{token}', defaults: ['auth_required' => false, '_acl' => ['system:core:update', 'system_config:read']], name: 'api.custom.updateapi.finish', methods: ['GET'])]
-    public function finish(string $token, Request $request, Context $context): Response
-    {
-        $offset = $request->query->getInt('offset');
-        $oldVersion = $this->systemConfig->getString(self::UPDATE_PREVIOUS_VERSION_KEY);
-        if ($offset === 0) {
-            if (!$token) {
-                return $this->getFinishResponse();
-            }
-
-            $dbUpdateToken = $this->systemConfig->getString(self::UPDATE_TOKEN_KEY);
-            if (!$dbUpdateToken || $token !== $dbUpdateToken) {
-                return $this->getFinishResponse();
-            }
-
-            $_unusedPreviousSetting = ignore_user_abort(true);
-
-            $this->eventDispatcher->dispatch(new UpdatePreFinishEvent($context, $oldVersion, $this->shopwareVersion));
-        }
-
-        // TODO: NEXT-8271 - The kernel should be rebooted with the plugins reactivated. This does not happen to save some time, because plugins were not reactivated anyway.
-        $this->eventDispatcher->dispatch(
-            new UpdatePostFinishEvent($context, $oldVersion, $this->shopwareVersion)
-        );
-
-        return $this->getFinishResponse();
-    }
-
-    private function getUpdateLocale(Context $context): string
-    {
-        $contextSource = $context->getSource();
-        if (!($contextSource instanceof AdminApiSource)) {
-            throw new InvalidContextSourceException(AdminApiSource::class, $contextSource::class);
-        }
-
-        $userId = $contextSource->getUserId();
-        if ($userId === null) {
-            throw new InvalidContextSourceUserException($contextSource::class);
-        }
-
-        $criteria = new Criteria([$userId]);
-        $criteria->getAssociation('locale');
-
-        /** @var UserEntity|null $user */
-        $user = $this->userRepository->search($criteria, $context)->first();
-
-        if ($user && $user->getLocale()) {
-            $code = $user->getLocale()->getCode();
-
-            return mb_strtolower(explode('-', $code)[0]);
-        }
-
-        return 'en';
+        return new JsonResponse([
+            'offset' => $result->getOffset(),
+            'total' => $result->getTotal(),
+        ]);
     }
 
     private function rebootKernelWithoutPlugins(): ContainerInterface
@@ -298,80 +145,5 @@ class UpdateController extends AbstractController
         $kernel->reboot(null, new StaticKernelPluginLoader($classLoad));
 
         return $kernel->getContainer();
-    }
-
-    private function toJson(ValidResult|FinishResult $result): JsonResponse
-    {
-        if ($result instanceof FinishResult) {
-            return new JsonResponse([
-                'valid' => false,
-                'offset' => $result->getOffset(),
-                'total' => $result->getTotal(),
-                'success' => true,
-                '_class' => $result::class,
-            ]);
-        }
-
-        return new JsonResponse([
-            'valid' => true,
-            'offset' => $result->getOffset(),
-            'total' => $result->getTotal(),
-            'success' => true,
-            '_class' => $result::class,
-        ]);
-    }
-
-    private function replaceRecoveryFiles(string $fileDir): void
-    {
-        $recoveryDir = $fileDir . '/vendor/shopware/recovery';
-        if (!is_dir($recoveryDir)) {
-            return;
-        }
-
-        $iterator = $this->createRecursiveFileIterator($recoveryDir);
-
-        $fs = new Filesystem();
-
-        /** @var \SplFileInfo $file */
-        foreach ($iterator as $file) {
-            $sourceFile = $file->getPathname();
-            $destinationFile = $this->rootDir . '/' . str_replace($fileDir, '', $file->getPathname());
-
-            $destinationDirectory = \dirname($destinationFile);
-            $fs->mkdir($destinationDirectory);
-            $fs->rename($sourceFile, $destinationFile, true);
-        }
-    }
-
-    /**
-     * @return \RecursiveIteratorIterator<\RecursiveDirectoryIterator>
-     */
-    private function createRecursiveFileIterator(string $path): \RecursiveIteratorIterator
-    {
-        $directoryIterator = new \RecursiveDirectoryIterator(
-            $path,
-            \RecursiveDirectoryIterator::SKIP_DOTS
-        );
-
-        return new \RecursiveIteratorIterator(
-            $directoryIterator,
-            \RecursiveIteratorIterator::LEAVES_ONLY
-        );
-    }
-
-    private function createDestinationFromVersion(Version $version): string
-    {
-        $filename = 'update_' . $version->sha1 . '.zip';
-
-        return $this->rootDir . '/' . $filename;
-    }
-
-    private function getFinishResponse(): Response
-    {
-        try {
-            return $this->redirectToRoute('administration.index');
-        } catch (RouteNotFoundException) {
-            return new Response('', Response::HTTP_NO_CONTENT);
-        }
     }
 }

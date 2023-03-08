@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Update\Services\Filesystem;
 use Shopware\Core\Framework\Update\Struct\ValidationResult;
 
 #[Package('system-settings')]
-class WriteableCheck implements CheckerInterface
+class WriteableCheck
 {
     /**
      * @internal
@@ -16,34 +16,23 @@ class WriteableCheck implements CheckerInterface
     {
     }
 
-    public function supports(string $check): bool
-    {
-        return $check === 'writable';
-    }
-
-    /**
-     * @param int|string|array $values
-     */
-    public function check($values): ValidationResult
+    public function check(): ValidationResult
     {
         $directories = [];
         $checkedDirectories = [];
 
-        foreach ($values as $path) {
-            $fullPath = rtrim($this->rootDir . '/' . $path, '/');
-            $checkedDirectories[] = $fullPath;
-            $fixPermissions = true;
+        $fullPath = rtrim($this->rootDir . '/');
+        $checkedDirectories[] = $fullPath;
 
-            $directories = array_merge(
-                $directories,
-                $this->filesystem->checkSingleDirectoryPermissions($fullPath, $fixPermissions)
-            );
-        }
+        $directories = array_merge(
+            $directories,
+            $this->filesystem->checkSingleDirectoryPermissions($fullPath, true)
+        );
 
         if (empty($directories)) {
             return new ValidationResult(
                 'writeableCheck',
-                self::VALIDATION_SUCCESS,
+                true,
                 'writeableCheckValid',
                 ['checkedDirectories' => implode('<br>', $checkedDirectories)]
             );
@@ -51,7 +40,7 @@ class WriteableCheck implements CheckerInterface
 
         return new ValidationResult(
             'writeableCheck',
-            self::VALIDATION_ERROR,
+            false,
             'writeableCheckFailed',
             ['failedDirectories' => implode('<br>', $directories)]
         );

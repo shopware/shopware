@@ -192,11 +192,8 @@ E2E install NL:
             --headless
     after_script:
         - !reference [ .scripts, handle-failed-merge-train, after_script ]
-        - mkdir -p $CI_PROJECT_DIR/var/log/e2e $CI_PROJECT_DIR/src/Recovery/Test/e2e/cypress/mochareports || true
         - composer run npm:e2e -- run combine-reports
         - composer run npm:e2e -- run generate-report
-        - mv $CI_PROJECT_DIR/src/Recovery/Test/e2e/cypress/results/single-reports/*.xml var/log/e2e/ || true
-        - mv $CI_PROJECT_DIR/src/Recovery/Test/e2e/mochareports/ var/log/e2e/ || true
         - !reference [ .upload-junit-xml, after_script ]
     artifacts:
         when: always
@@ -205,3 +202,76 @@ E2E install NL:
         reports:
             junit: var/log/e2e/*.xml
     allow_failure: true # TODO: Remove this line as soon as the extensions involved are compatible with the new trunk branch
+
+.e2e-update-base:
+  extends:
+    - .long-running
+  stage: E2E
+  needs: [ Build, 'Jest (Administration)' ]
+  dependencies: [ Build ]
+  services:
+    -   name: mysql:8.0
+        alias: database
+  variables:
+    APP_ENV: e2e
+    APP_DEBUG: 0
+    CYPRESS_DD_API_KEY: "$DATADOG_API_KEY"
+    SHOPWARE_HTTP_CACHE_ENABLED: 1
+    cypress_usePercy: 'false'
+    E2E_PROJECT: recovery
+    CYPRESS_baseUrl: "http://localhost:8050"
+    INSTALL_URL: "http://localhost:8050"
+    CYPRESS_dbHost: database
+    CYPRESS_dbUser: root
+    CYPRESS_dbPassword: $MYSQL_ROOT_PASSWORD
+    CYPRESS_dbName: root
+    SW_RECOVERY_NEXT_VERSION: 6.5.0.0-rc1
+    SW_RECOVERY_NEXT_BRANCH: 6.5.0.0-rc1
+    CYPRESS_SKIP_INIT: 1
+    PROJECT_ROOT: $CI_PROJECT_DIR/shop
+    TRUSTED_PROXIES: '0.0.0.0/16,REMOTE_ADDR'
+    PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
+    DISABLE_ADMIN_COMPILATION_TYPECHECK: 'true'
+  before_script:
+    - composer install
+    - composer run init:e2e
+    - curl -sS https://get.symfony.com/cli/installer | bash -s -- --install-dir=/usr/bin
+    - composer e2e:web-update:prepare
+    - symfony local:server:start --dir=shop --port=8050 -d
+    - symfony local:server:start --dir=tests/e2e/update-api-mock --port=8060 -d
+    - symfony local:server:log --dir=shop &
+    - chown -R www-data:www-data shop
+  script:
+    - composer run e2e:cypress -- run
+      --browser chrome
+      --spec "cypress/e2e/recovery/updater/manual-update.cy.js"
+      --headless
+  after_script:
+    - !reference [ .scripts, handle-failed-merge-train, after_script ]
+    - composer run npm:e2e -- run combine-reports
+    - composer run npm:e2e -- run generate-report
+    - !reference [ .upload-junit-xml, after_script ]
+  artifacts:
+    when: always
+    paths:
+      - var/log/*
+    reports:
+      junit: var/log/e2e/*.xml
+
+E2E manual update:
+  extends:
+    - .e2e-update-base
+  script:
+    - composer run e2e:cypress -- run
+      --browser chrome
+      --spec "cypress/e2e/recovery/updater/manual-update.cy.js"
+      --headless
+
+E2E auto update:
+  extends:
+    - .e2e-update-base
+  script:
+    - composer run e2e:cypress -- run
+      --browser chrome
+      --spec "cypress/e2e/recovery/updater/auto-update.cy.js"
+      --headless

@@ -8,7 +8,7 @@ parameters:
     treatPhpDocTypesAsCertain: false
     checkMissingIterableValueType: true
     inferPrivatePropertyTypeFromConstructor: true
-    reportUnmatchedIgnoredErrors: false # Could be set to false if necessary during PHPStan update
+    reportUnmatchedIgnoredErrors: true # Could be set to false if necessary during PHPStan update
     tmpDir: var/cache/phpstan
     paths:
         - src
@@ -22,7 +22,11 @@ parameters:
         consoleApplicationLoader: src/Core/DevOps/StaticAnalyze/PHPStan/console-application.php
 
     excludePaths:
-        - src/Recovery/*
+        - src/WebInstaller/src/Resources/
+        - src/WebInstaller/ecs.php
+        - src/WebInstaller/vendor
+        - src/WebInstaller/tests/_fixtures
+
         - src/Core/DevOps/StaticAnalyze/Rector/ClassPackageRector.php
         # Compatibility fixes for doctrine annotation parser https://github.com/doctrine/annotations/issues/421
         - src/Core/Framework/Compatibility/AnnotationReader.php

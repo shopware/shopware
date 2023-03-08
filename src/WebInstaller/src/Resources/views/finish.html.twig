@@ -1,0 +1,17 @@
+{% extends "base.html.twig" %}
+
+{% block main %}
+    <div class="card__title">
+        <h2>{{ 'shopware.update.navigation.finish'|trans }}</h2>
+    </div>
+
+    <div class="card__body">
+        <p>
+            {{ 'shopware.update.steps.finish.message'|trans }}
+        </p>
+    </div>
+
+    <form method="post" class="card__footer flex-container">
+        <button type="submit" class="btn btn-primary flex-item flex-right">{{ 'shopware.update.steps.finish.submit'|trans }}</button>
+    </form>
+{% endblock %}

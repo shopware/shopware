@@ -29,7 +29,7 @@ describe('Account: Register via account menu', () => {
         cy.get('input[name="billingAddress[zipcode]"]').type('9876');
         cy.get('input[name="billingAddress[city]"]').type('Anytown');
 
-        cy.get('select[name="billingAddress[countryId]"]').select('USA');
+        cy.get('select[name="billingAddress[countryId]"]').select('United States of America');
         cy.get('select[name="billingAddress[countryStateId]"').should('be.visible');
 
         cy.get('select[name="billingAddress[countryStateId]"]').select('Ohio');
@@ -385,7 +385,7 @@ describe('Account: Register via account menu', () => {
         cy.get('input[name="billingAddress[zipcode]"]').type('9876');
         cy.get('input[name="billingAddress[city]"]').type('Anytown');
 
-        cy.get('select[name="billingAddress[countryId]"]').select('USA');
+        cy.get('select[name="billingAddress[countryId]"]').select('United States of America');
         cy.get('select[name="billingAddress[countryStateId]"').should('be.visible');
 
         cy.get(`${page.elements.registerSubmit} [type="submit"]`).click();
@@ -436,7 +436,7 @@ describe('Account: Register via account menu', () => {
         cy.get('input[name="billingAddress[zipcode]"]').type('9876');
         cy.get('input[name="billingAddress[city]"]').type('Anytown');
 
-        cy.get('select[name="billingAddress[countryId]"]').select('USA');
+        cy.get('select[name="billingAddress[countryId]"]').select('United States of America');
         cy.get('select[name="billingAddress[countryStateId]"').should('be.visible');
 
         cy.get('select[name="billingAddress[countryStateId]"]').select('Ohio');

@@ -1,192 +1,194 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-{% block sw_product_detail_reviews %}
-<div v-if="isLoading">
-    <sw-skeleton />
-    <sw-skeleton />
-</div>
-
-<sw-card
-    v-else
-    class="sw-product-detail-reviews"
-    position-identifier="sw-product-detail-reviews"
-    :title="cardTitle"
->
+<div class="sw-product-detail-reviews">
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-    {% block sw_product_detail_reviews_data %}
-    <template
-        v-if="total"
-        #grid
+    {% block sw_product_detail_reviews %}
+    <div v-if="isLoading">
+        <sw-skeleton />
+        <sw-skeleton />
+    </div>
+
+    <sw-card
+        v-if="!isLoading"
+        class="sw-product-detail-reviews__list"
+        position-identifier="sw-product-detail-reviews"
+        :title="cardTitle"
     >
-        <sw-data-grid
-            ref="gridReview"
-            :data-source="dataSource"
-            :columns="reviewColumns"
-            :is-loading="isLoading"
-            :show-selection="false"
-            :show-actions="true"
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_product_detail_reviews_data %}
+        <template
+            v-if="total"
+            #grid
+        >
+            <sw-data-grid
+                ref="gridReview"
+                :data-source="dataSource"
+                :columns="reviewColumns"
+                :is-loading="isLoading"
+                :show-selection="false"
+                :show-actions="true"
+            >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_product_detail_reviews_data_stars %}
+                <template #column-points="{ item }">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_product_detail_reviews_data_stars_content %}
+                    <div class="sw-product-detail-reviews__stars">
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_product_detail_reviews_data_stars_filled %}
+                        <sw-icon
+                            v-for="(filledStar, index) in item.points"
+                            :key="`filledStar-${index}`"
+                            size="14"
+                            name="default-review-star-full"
+                        />
+                        {% endblock %}
+
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_product_detail_reviews_data_stars_empty %}
+                        <sw-icon
+                            v-for="(emptyStar, index) in (5-item.points)"
+                            :key="`emptyStar-${index}`"
+                            size="14"
+                            name="regular-star"
+                        />
+                        {% endblock %}
+                    </div>
+                    {% endblock %}
+                </template>
+                {% endblock %}
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_product_detail_reviews_data_status %}
+                <template #column-status="{ item }">
+                    <sw-data-grid-column-boolean
+                        v-model="item.status"
+                        :is-inline-edit="false"
+                    />
+                </template>
+                {% endblock %}
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_product_detail_reviews_data_created_at %}
+                <template #column-createdAt="{ item }">
+                    {{ item.createdAt | date({ hour: '2-digit', minute: '2-digit', second: '2-digit' }) }}
+                </template>
+                {% endblock %}
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_product_detail_reviews_data_action %}
+                <template #actions="{ item }">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_product_detail_reviews_data_action_edit %}
+                    <sw-context-menu-item
+                        class="sw-product-detail-reviews__action-edit"
+                        :disabled="!acl.can('product.editor')"
+                        :router-link="{ name: 'sw.review.detail', params: { id: item.id } }"
+                    >
+                        {{ $tc('sw-product.reviewForm.contextMenuEdit') }}
+                    </sw-context-menu-item>
+                    {% endblock %}
+
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_product_detail_reviews_data_action_delete %}
+                    <sw-context-menu-item
+                        class="sw-product-detail-reviews__action-delete"
+                        variant="danger"
+                        :disabled="!acl.can('product.editor')"
+                        @click="onStartReviewDelete(item)"
+                    >
+                        {{ $tc('sw-product.reviewForm.contextMenuDelete') }}
+                    </sw-context-menu-item>
+                    {% endblock %}
+                </template>
+                {% endblock %}
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_product_detail_reviews_data_pagination %}
+                <template #pagination>
+                    <sw-pagination
+                        :total="total"
+                        :limit="limit"
+                        :page="page"
+                        :total-visible="7"
+                        :steps="[10]"
+                        @page-change="onChangePage"
+                    />
+                </template>
+                {% endblock %}
+            </sw-data-grid>
+        </template>
+        {% endblock %}
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_product_detail_reviews_empty_state %}
+
+        <sw-empty-state
+            v-if="!total"
+            :title="$tc('sw-product.reviewForm.messageEmptyTitle')"
+            :subline="$tc('sw-product.reviewForm.messageEmptySubline')"
+            :absolute="false"
+            empty-module
+        >
+            <template #icon>
+                <img
+                    :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
+                    :alt="$tc('sw-product.reviewForm.messageEmptyTitle')"
+                >
+            </template>
+
+            <template #actions>
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_product_detail_reviews_empty_state_button %}
+                <sw-button
+                    variant="ghost"
+                    :router-link="{ name: 'sw.review.index' }"
+                >
+                    {{ $tc('sw-product.reviewForm.emptyStateButton') }}
+                </sw-button>
+                {% endblock %}
+            </template>
+        </sw-empty-state>
+        {% endblock %}
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_product_detail_reviews_modal_delete %}
+        <sw-modal
+            v-if="showReviewDeleteModal"
+            variant="small"
+            :title="$tc('sw-product.reviewForm.modal.confirmTitle')"
+            @modal-close="onCancelReviewDelete"
         >
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_product_detail_reviews_data_stars %}
-            <template #column-points="{ item }">
+            {% block sw_product_detail_reviews_modal_delete_body %}
+            <p>{{ $tc('sw-product.reviewForm.modal.confirmText') }}</p>
+            {% endblock %}
+
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_product_detail_reviews_modal_delete_footer %}
+            <template #modal-footer>
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_product_detail_reviews_data_stars_content %}
-                <div class="sw-product-detail-reviews__stars">
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_product_detail_reviews_data_stars_filled %}
-                    <sw-icon
-                        v-for="(filledStar, index) in item.points"
-                        :key="`filledStar-${index}`"
-                        size="14"
-                        name="default-review-star-full"
-                    />
-                    {% endblock %}
-
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_product_detail_reviews_data_stars_empty %}
-                    <sw-icon
-                        v-for="(emptyStar, index) in (5-item.points)"
-                        :key="`emptyStar-${index}`"
-                        size="14"
-                        name="regular-star"
-                    />
-                    {% endblock %}
-                </div>
-                {% endblock %}
-            </template>
-            {% endblock %}
-
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_product_detail_reviews_data_status %}
-            <template #column-status="{ item }">
-                <sw-data-grid-column-boolean
-                    v-model="item.status"
-                    :is-inline-edit="false"
-                />
-            </template>
-            {% endblock %}
-
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_product_detail_reviews_data_created_at %}
-            <template #column-createdAt="{ item }">
-                {{ item.createdAt | date({ hour: '2-digit', minute: '2-digit', second: '2-digit' }) }}
-            </template>
-            {% endblock %}
-
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_product_detail_reviews_data_action %}
-            <template #actions="{ item }">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_product_detail_reviews_data_action_edit %}
-                <sw-context-menu-item
-                    class="sw-product-detail-reviews__action-edit"
-                    :disabled="!acl.can('product.editor')"
-                    :router-link="{ name: 'sw.review.detail', params: { id: item.id } }"
+                {% block sw_product_detail_reviews_modal_delete_button_cancel %}
+                <sw-button
+                    size="small"
+                    @click="onCancelReviewDelete"
                 >
-                    {{ $tc('sw-product.reviewForm.contextMenuEdit') }}
-                </sw-context-menu-item>
+                    {{ $tc('sw-product.reviewForm.modal.buttonCancel') }}
+                </sw-button>
                 {% endblock %}
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_product_detail_reviews_data_action_delete %}
-                <sw-context-menu-item
-                    class="sw-product-detail-reviews__action-delete"
+                {% block sw_product_detail_reviews_modal_delete_button_confirm %}
+                <sw-button
+                    size="small"
                     variant="danger"
-                    :disabled="!acl.can('product.editor')"
-                    @click="onStartReviewDelete(item)"
+                    @click="onConfirmReviewDelete"
                 >
-                    {{ $tc('sw-product.reviewForm.contextMenuDelete') }}
-                </sw-context-menu-item>
+                    {{ $tc('sw-product.reviewForm.modal.buttonDelete') }}
+                </sw-button>
                 {% endblock %}
             </template>
             {% endblock %}
-
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_product_detail_reviews_data_pagination %}
-            <template #pagination>
-                <sw-pagination
-                    :total="total"
-                    :limit="limit"
-                    :page="page"
-                    :total-visible="7"
-                    :steps="[10]"
-                    @page-change="onChangePage"
-                />
-            </template>
-            {% endblock %}
-        </sw-data-grid>
-    </template>
-    {% endblock %}
-
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-    {% block sw_product_detail_reviews_empty_state %}
-
-    <sw-empty-state
-        v-if="!total"
-        :title="$tc('sw-product.reviewForm.messageEmptyTitle')"
-        :subline="$tc('sw-product.reviewForm.messageEmptySubline')"
-        :absolute="false"
-        empty-module
-    >
-        <template #icon>
-            <img
-                :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
-                :alt="$tc('sw-product.reviewForm.messageEmptyTitle')"
-            >
-        </template>
-
-        <template #actions>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_product_detail_reviews_empty_state_button %}
-            <sw-button
-                variant="ghost"
-                :router-link="{ name: 'sw.review.index' }"
-            >
-                {{ $tc('sw-product.reviewForm.emptyStateButton') }}
-            </sw-button>
-            {% endblock %}
-        </template>
-    </sw-empty-state>
-    {% endblock %}
-
-    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-    {% block sw_product_detail_reviews_modal_delete %}
-    <sw-modal
-        v-if="showReviewDeleteModal"
-        variant="small"
-        :title="$tc('sw-product.reviewForm.modal.confirmTitle')"
-        @modal-close="onCancelReviewDelete"
-    >
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_product_detail_reviews_modal_delete_body %}
-        <p>{{ $tc('sw-product.reviewForm.modal.confirmText') }}</p>
+        </sw-modal>
         {% endblock %}
-
-        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-        {% block sw_product_detail_reviews_modal_delete_footer %}
-        <template #modal-footer>
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_product_detail_reviews_modal_delete_button_cancel %}
-            <sw-button
-                size="small"
-                @click="onCancelReviewDelete"
-            >
-                {{ $tc('sw-product.reviewForm.modal.buttonCancel') }}
-            </sw-button>
-            {% endblock %}
-
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_product_detail_reviews_modal_delete_button_confirm %}
-            <sw-button
-                size="small"
-                variant="danger"
-                @click="onConfirmReviewDelete"
-            >
-                {{ $tc('sw-product.reviewForm.modal.buttonDelete') }}
-            </sw-button>
-            {% endblock %}
-        </template>
-        {% endblock %}
-    </sw-modal>
+    </sw-card>
     {% endblock %}
-</sw-card>
-{% endblock %}
+</div>

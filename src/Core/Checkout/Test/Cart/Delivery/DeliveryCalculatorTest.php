@@ -51,10 +51,7 @@ class DeliveryCalculatorTest extends TestCase
 {
     use KernelTestBehaviour;
 
-    /**
-     * @var DeliveryCalculator
-     */
-    private $deliveryCalculator;
+    private DeliveryCalculator $deliveryCalculator;
 
     private DeliveryTime $deliveryTime;
 
@@ -115,8 +112,6 @@ class DeliveryCalculatorTest extends TestCase
         $this->deliveryCalculator->calculate(new CartDataCollection(), new Cart('test'), new DeliveryCollection([$delivery]), $context);
 
         $newCosts = $delivery->getShippingCosts();
-        static::assertNotNull($newCosts);
-        static::assertInstanceOf(CalculatedPrice::class, $newCosts);
         static::assertEquals(5, $newCosts->getUnitPrice());
         static::assertEquals(5, $newCosts->getTotalPrice());
         static::assertCount(0, $newCosts->getTaxRules());
@@ -135,7 +130,6 @@ class DeliveryCalculatorTest extends TestCase
 
         $delivery = $this->getMockBuilder(Delivery::class)
             ->disableOriginalConstructor()
-            ->setMethodsExcept(['setError', 'getError'])
             ->getMock();
         $costs = new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection());
         $delivery->expects(static::atLeastOnce())->method('getShippingCosts')->willReturn($costs);
@@ -187,7 +181,6 @@ class DeliveryCalculatorTest extends TestCase
 
         $delivery = $this->getMockBuilder(Delivery::class)
             ->disableOriginalConstructor()
-            ->setMethodsExcept(['hasExtension', 'addExtension', 'getExtension'])
             ->getMock();
         $costs = new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection());
         $delivery->expects(static::atLeastOnce())->method('getShippingCosts')->willReturn($costs);
@@ -1247,7 +1240,7 @@ class DeliveryCalculatorTest extends TestCase
         static::assertSame(20.0, $delivery->getShippingCosts()->getTotalPrice());
     }
 
-    public function testCalculateWithNotExistendCurrencyShouldUseDefaultCurrency(): void
+    public function testCalculateWithNotExistentCurrencyShouldUseDefaultCurrency(): void
     {
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setDeliveryTime($this->deliveryTimeEntity);
@@ -1492,7 +1485,7 @@ class DeliveryCalculatorTest extends TestCase
 
         $delivery = $deliveries->first();
         static::assertNotNull($delivery);
-        static::assertSame((float) 20, $delivery->getShippingCosts()->getTotalPrice());
+        static::assertSame(20.0, $delivery->getShippingCosts()->getTotalPrice());
     }
 
     public function testCalculateWithDifferentRulesUseNullIfNoRuleMatches(): void
@@ -1562,7 +1555,7 @@ class DeliveryCalculatorTest extends TestCase
 
         $delivery = $deliveries->first();
         static::assertNotNull($delivery);
-        static::assertSame((float) 5, $delivery->getShippingCosts()->getTotalPrice());
+        static::assertSame(5.0, $delivery->getShippingCosts()->getTotalPrice());
     }
 
     public function testCalculateByHighestTaxRateFromCartLineItem(): void
@@ -1812,7 +1805,7 @@ class DeliveryCalculatorTest extends TestCase
 
         $calculatedPrice = $deliveries->getShippingCosts()->first();
         static::assertNotNull($calculatedPrice);
-        static::assertSame((float) 1, $calculatedPrice->getTotalPrice());
+        static::assertSame(1.0, $calculatedPrice->getTotalPrice());
     }
 
     public function testCalculateFloatingNumberPrecision(): void

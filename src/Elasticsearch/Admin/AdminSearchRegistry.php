@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Elasticsearch\Admin\Indexer\AbstractAdminIndexer;
 use Shopware\Elasticsearch\Exception\ElasticsearchIndexingException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -25,7 +25,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * @final
  */
 #[Package('system-settings')]
-class AdminSearchRegistry implements MessageHandlerInterface, EventSubscriberInterface
+#[AsMessageHandler(handles: AdminSearchIndexingMessage::class)]
+class AdminSearchRegistry implements EventSubscriberInterface
 {
     /**
      * @var array<string, mixed>
@@ -33,14 +34,14 @@ class AdminSearchRegistry implements MessageHandlerInterface, EventSubscriberInt
     private readonly array $indexer;
 
     /**
-     * @var array<mixed>
+     * @var array<string, mixed>
      */
     private readonly array $config;
 
     /**
-     * @param AbstractAdminIndexer[] $indexer
-     * @param array<mixed> $config
-     * @param array<mixed> $mapping
+     * @param array<AbstractAdminIndexer>|\Traversable<AbstractAdminIndexer> $indexer
+     * @param array<string, mixed> $config
+     * @param array<string, mixed> $mapping
      */
     public function __construct(
         $indexer,
@@ -52,7 +53,7 @@ class AdminSearchRegistry implements MessageHandlerInterface, EventSubscriberInt
         array $config,
         private readonly array $mapping
     ) {
-        $this->indexer = $indexer instanceof \Traversable ? iterator_to_array($indexer) : $indexer;
+        $this->indexer = ($indexer instanceof \Traversable) ? iterator_to_array($indexer) : $indexer;
 
         if (isset($config['settings']['index'])) {
             if (\array_key_exists('number_of_shards', $config['settings']['index']) && $config['settings']['index']['number_of_shards'] === null) {
@@ -85,19 +86,9 @@ class AdminSearchRegistry implements MessageHandlerInterface, EventSubscriberInt
         ];
     }
 
-    /**
-     * @return iterable<class-string>
-     */
-    public static function getHandledMessages(): iterable
-    {
-        return [
-            AdminSearchIndexingMessage::class,
-        ];
-    }
-
     public function iterate(AdminIndexingBehavior $indexingBehavior): void
     {
-        if ($this->adminEsHelper->getEnabled() === false) {
+        if (!$this->adminEsHelper->getEnabled()) {
             return;
         }
 
@@ -120,7 +111,7 @@ class AdminSearchRegistry implements MessageHandlerInterface, EventSubscriberInt
 
             while ($ids = $iterator->fetch()) {
                 // we provide no queue when the data is sent by the admin
-                if ($indexingBehavior->getNoQueue() === true) {
+                if ($indexingBehavior->getNoQueue()) {
                     $this->__invoke(new AdminSearchIndexingMessage($indexer->getEntity(), $indexer->getName(), $indices, $ids));
                 } else {
                     $this->queue->dispatch(new AdminSearchIndexingMessage($indexer->getEntity(), $indexer->getName(), $indices, $ids));
@@ -137,7 +128,7 @@ class AdminSearchRegistry implements MessageHandlerInterface, EventSubscriberInt
 
     public function refresh(EntityWrittenContainerEvent $event): void
     {
-        if ($this->adminEsHelper->getEnabled() === false || !$this->isIndexedEntityWritten($event)) {
+        if (!$this->adminEsHelper->getEnabled() || !$this->isIndexedEntityWritten($event)) {
             return;
         }
 
@@ -387,9 +378,7 @@ class AdminSearchRegistry implements MessageHandlerInterface, EventSubscriberInt
 
     private function createAliasIfNotExisting(string $index, string $alias): void
     {
-        $exist = $this->client->indices()->existsAlias(['name' => $alias]);
-
-        if ($exist) {
+        if ($this->client->indices()->existsAlias(['name' => $alias])) {
             return;
         }
 
@@ -399,12 +388,10 @@ class AdminSearchRegistry implements MessageHandlerInterface, EventSubscriberInt
     /**
      * @param array<string, string> $indices
      */
-    private function swapAlias($indices): void
+    private function swapAlias(array $indices): void
     {
         foreach ($indices as $alias => $index) {
-            $exist = $this->client->indices()->existsAlias(['name' => $alias]);
-
-            if (!$exist) {
+            if (!$this->client->indices()->existsAlias(['name' => $alias])) {
                 $this->putAlias($index, $alias);
 
                 return;

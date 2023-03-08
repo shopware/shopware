@@ -19,22 +19,10 @@ class ReleaseInfoProviderTest extends TestCase
     {
         $mockClient = new MockHttpClient([
             new MockResponse(json_encode([
-                'packages' => [
-                    'shopware/core' => [
-                        [
-                            'version' => 'dev-trunk',
-                        ],
-                        [
-                            'version' => '6.4.12.0',
-                        ],
-                        [
-                            'version' => '6.4.11.0',
-                        ],
-                        [
-                            'version' => '6.3.5.0',
-                        ],
-                    ],
-                ],
+                '6.5.0.0-rc1',
+                '6.4.12.0',
+                '6.4.11.0',
+                '6.3.5.0',
             ], \JSON_THROW_ON_ERROR)),
         ]);
 
@@ -44,6 +32,29 @@ class ReleaseInfoProviderTest extends TestCase
 
         static::assertArrayHasKey('6.3', $releaseInfo);
         static::assertArrayHasKey('6.4', $releaseInfo);
+        static::assertSame('6.4.12.0', $releaseInfo['6.4']);
+        static::assertSame('6.3.5.0', $releaseInfo['6.3']);
+    }
+
+    public function testGetReleaseInfoIncludeRC(): void
+    {
+        $mockClient = new MockHttpClient([
+            new MockResponse(json_encode([
+                '6.5.0.0-rc1',
+                '6.4.12.0',
+                '6.4.11.0',
+                '6.3.5.0',
+            ], \JSON_THROW_ON_ERROR)),
+        ]);
+
+        $releaseInfoProvider = new ReleaseInfoProvider($mockClient);
+
+        $releaseInfo = $releaseInfoProvider->fetchLatestRelease(true);
+
+        static::assertArrayHasKey('6.3', $releaseInfo);
+        static::assertArrayHasKey('6.4', $releaseInfo);
+        static::assertArrayHasKey('6.5', $releaseInfo);
+        static::assertSame('6.5.0.0-rc1', $releaseInfo['6.5']);
         static::assertSame('6.4.12.0', $releaseInfo['6.4']);
         static::assertSame('6.3.5.0', $releaseInfo['6.3']);
     }

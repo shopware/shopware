@@ -166,7 +166,9 @@ class UpdateController extends AbstractController
             return $sessionValue;
         }
 
-        $latestVersions = $this->releaseInfoProvider->fetchLatestRelease();
+        $channel = $request->getSession()->get('channel', 'stable');
+
+        $latestVersions = $this->releaseInfoProvider->fetchLatestRelease($channel === 'rc');
 
         $shopwarePath = $this->recoveryManager->getShopwareLocation();
         \assert(\is_string($shopwarePath));
@@ -174,15 +176,12 @@ class UpdateController extends AbstractController
         $currentVersion = $this->recoveryManager->getCurrentShopwareVersion($shopwarePath);
         $latestVersion = $latestVersions[substr($currentVersion, 0, 3)];
 
-        // If the user is already on the latest version in the current major, we need to update to the next major
-        if ($latestVersion === $currentVersion) {
-            $first = (int) substr($currentVersion, 0, 1);
-            $second = (int) substr($currentVersion, 2, 1);
-            ++$second;
+        $first = (int) substr($currentVersion, 0, 1);
+        $second = (int) substr($currentVersion, 2, 1);
+        ++$second;
 
-            if (isset($latestVersions[$first . '.' . $second])) {
-                $latestVersion = $latestVersions[$first . '.' . $second];
-            }
+        if (isset($latestVersions[$first . '.' . $second])) {
+            $latestVersion = $latestVersions[$first . '.' . $second];
         }
 
         $request->getSession()->set('latestVersion', $latestVersion);
@@ -199,9 +198,17 @@ class UpdateController extends AbstractController
             'shopware/elasticsearch',
         ];
 
-        /** @var array{require: array<string, string>} $composerJson */
+        /** @var array{minimum-stability?: string, require: array<string, string>} $composerJson */
         $composerJson = json_decode((string) file_get_contents($file), true, \JSON_THROW_ON_ERROR);
         $latestVersion = $this->getLatestVersion($request);
+
+        $channel = $request->getSession()->get('channel', 'stable');
+
+        if ($channel === 'rc') {
+            $composerJson['minimum-stability'] = 'RC';
+        } else {
+            unset($composerJson['minimum-stability']);
+        }
 
         foreach ($shopwarePackages as $shopwarePackage) {
             if (!isset($composerJson['require'][$shopwarePackage])) {
@@ -215,10 +222,10 @@ class UpdateController extends AbstractController
             if (\is_string($nextVersion)) {
                 $nextBranch = Platform::getEnv('SW_RECOVERY_NEXT_BRANCH');
                 if ($nextBranch === false) {
-                    $nextBranch = 'trunk';
+                    $nextBranch = 'dev-trunk';
                 }
 
-                $version = 'dev-' . $nextBranch . ' as ' . $nextVersion;
+                $version = $nextBranch . ' as ' . $nextVersion;
             }
 
             $composerJson['require'][$shopwarePackage] = $version;

@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-return [
+$bundles = [
     Symfony\Bundle\FrameworkBundle\FrameworkBundle::class => ['all' => true],
     Symfony\Bundle\TwigBundle\TwigBundle::class => ['all' => true],
     Symfony\Bundle\MonologBundle\MonologBundle::class => ['all' => true],
@@ -17,3 +17,17 @@ return [
     Shopware\Elasticsearch\Elasticsearch::class => ['all' => true],
     Shopware\Storefront\Storefront::class => ['all' => true],
 ];
+
+if (class_exists(Sensio\Bundle\FrameworkExtraBundle\SensioFrameworkExtraBundle::class)) {
+    $bundles[Sensio\Bundle\FrameworkExtraBundle\SensioFrameworkExtraBundle::class] = ['all' => true];
+}
+
+if (class_exists(Enqueue\Bundle\EnqueueBundle::class)) {
+    $bundles[Enqueue\Bundle\EnqueueBundle::class] = ['all' => true];
+}
+
+if (class_exists(Enqueue\MessengerAdapter\Bundle\EnqueueAdapterBundle::class)) {
+    $bundles[Enqueue\MessengerAdapter\Bundle\EnqueueAdapterBundle::class] = ['all' => true];
+}
+
+return $bundles;

@@ -6,7 +6,7 @@ shopware.update:
         de: Deutsch
     navigation:
         start: Sprache
-        configure_php: PHP
+        configure_php: Konfigurieren
         download: Download
         finish: Abschluss
     steps:
@@ -19,10 +19,13 @@ shopware.update:
             submit: Weiter
 
         configure_php:
-            title: PHP-Ausführungsdatei konfigurieren
+            title: Konfigurieren
             info: PHP-Ausführungsdatei gefunden. Falls Du die Datei selber aussuchen möchtest, kannst Du das hier tun.
             pathInput: PHP-Ausführungsdatei
             submit: Konfiguration speichern
+            channel: Aktualisierungskanal
+            channel_stable: Stabil
+            channel_rc: Release Candidate (Not recommended for production)
         update:
             title: Aktualisiere Shopware auf die Version %latestShopwareVersion%
             log: Protokoll

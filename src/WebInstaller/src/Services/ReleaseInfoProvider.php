@@ -24,7 +24,7 @@ class ReleaseInfoProvider
     /**
      * @return array<string, string>
      */
-    public function fetchLatestRelease(): array
+    public function fetchLatestRelease(bool $includeRCReleases = false): array
     {
         $nextVersion = Platform::getEnv('SW_RECOVERY_NEXT_VERSION');
         if (\is_string($nextVersion)) {
@@ -34,16 +34,18 @@ class ReleaseInfoProvider
             ];
         }
 
-        /** @var array{packages: array{"shopware/core": array{version: string}[]}} $response */
-        $response = $this->client->request('GET', 'https://repo.packagist.org/p2/shopware/core.json')->toArray();
+        /** @var array<string> $response */
+        $versions = $this->client->request('GET', 'https://releases.shopware.com/changelog/index.json')->toArray();
 
-        $versions = array_column($response['packages']['shopware/core'], 'version');
+        usort($versions, function ($a, $b) {
+            return version_compare($b, $a);
+        });
 
         // Index them by major version
         $mappedVersions = [];
 
         foreach ($versions as $version) {
-            if (str_contains($version, 'dev-') || str_contains($version, 'alpha') || str_contains($version, 'beta') || str_contains($version, 'rc')) {
+            if (str_contains($version, 'rc') && !$includeRCReleases) {
                 continue;
             }
 

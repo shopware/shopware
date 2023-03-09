@@ -2,13 +2,26 @@
 
 {% block main %}
     <div class="card__title">
-        <h2>{{ 'shopware.update.steps.update.title'|trans({'%latestShopwareVersion%': latestShopwareVersion})}}</h2>
+        <h2>{{ 'shopware.update.steps.update.title'|trans}}</h2>
     </div>
 
     <div class="card__body">
         <p>
             {{ 'shopware.update.steps.update.currentVersion'|trans({'%version%': currentShopwareVersion})}}<br>
-            {{ 'shopware.update.steps.update.latestVersion'|trans({'%version%': latestShopwareVersion})}}
+
+            <label for="shopwareVersion">{{ "shopware.update.steps.update.updateVersion"|trans }}</label>
+            <select id="shopwareVersion" name="shopwareVersion" required="required">
+                {% set foundStable = false %}
+                {% for version in versions %}
+                    {% set isSelected = false %}
+                    {% if 'rc' not in version and foundStable == false %}
+                        {% set isSelected = true %}
+                        {% set foundStable = true %}
+                    {% endif %}
+
+                    <option value="{{ version }}"{% if isSelected %} selected{% endif %}>{{ version }}{% if 'rc' in version %} {{ 'shopware.update.rc_hint'|trans }}{% endif %}</option>
+                {% endfor %}
+            </select>
         </p>
 
         <div class="alert alert-info">{{ 'shopware.update.steps.update.backupHint'|trans }}</div>

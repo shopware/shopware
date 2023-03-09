@@ -11,11 +11,10 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Package('core')]
-
 /**
  * @internal
  */
+#[Package('core')]
 class PhpConfigController extends AbstractController
 {
     public function __construct(
@@ -34,6 +33,9 @@ class PhpConfigController extends AbstractController
         }
 
         if ($phpBinary = $request->request->get('phpBinary')) {
+            // Reset the latest version to force a new check
+            $request->getSession()->remove('latestVersion');
+
             $request->getSession()->set('phpBinary', $phpBinary);
 
             return $this->redirectToRoute($shopwareLocation === null ? 'install' : 'update');

@@ -19,48 +19,67 @@ class ReleaseInfoProviderTest extends TestCase
     {
         $mockClient = new MockHttpClient([
             new MockResponse(json_encode([
-                'packages' => [
-                    'shopware/core' => [
-                        [
-                            'version' => 'dev-trunk',
-                        ],
-                        [
-                            'version' => '6.4.12.0',
-                        ],
-                        [
-                            'version' => '6.4.11.0',
-                        ],
-                        [
-                            'version' => '6.3.5.0',
-                        ],
-                    ],
-                ],
+                '6.5.0.0-rc1',
+                '6.4.20.0',
+                '6.4.19.0',
+                '6.4.18.0',
+                '6.4.12.0',
+                '6.4.11.0',
+                '6.3.5.0',
             ], \JSON_THROW_ON_ERROR)),
         ]);
 
         $releaseInfoProvider = new ReleaseInfoProvider($mockClient);
 
-        $releaseInfo = $releaseInfoProvider->fetchLatestRelease();
+        $releaseInfo = $releaseInfoProvider->fetchUpdateVersions('6.4.0.0');
 
-        static::assertArrayHasKey('6.3', $releaseInfo);
-        static::assertArrayHasKey('6.4', $releaseInfo);
-        static::assertSame('6.4.12.0', $releaseInfo['6.4']);
-        static::assertSame('6.3.5.0', $releaseInfo['6.3']);
+        static::assertSame(
+            [
+                '6.5.0.0-rc1',
+                '6.4.20.0',
+                '6.4.19.0',
+                '6.4.18.0',
+            ],
+            $releaseInfo
+        );
     }
 
-    public function testGetReleaseInfoWithNextVersion(): void
+    public function testFetchVersions(): void
     {
-        $releaseInfoProvider = new ReleaseInfoProvider();
+        $mockClient = new MockHttpClient([
+            new MockResponse(json_encode([
+                '6.4.19.0',
+                '6.5.0.0-rc1',
+                '6.4.18.0',
+            ], \JSON_THROW_ON_ERROR)),
+        ]);
 
-        $_SERVER['SW_RECOVERY_NEXT_VERSION'] = '6.5.99.9';
+        $releaseInfoProvider = new ReleaseInfoProvider($mockClient);
 
-        $releaseInfo = $releaseInfoProvider->fetchLatestRelease();
+        static::assertSame(
+            [
+                '6.5.0.0-rc1',
+                '6.4.19.0',
+                '6.4.18.0',
+            ],
+            $releaseInfoProvider->fetchVersions()
+        );
+    }
 
-        static::assertArrayHasKey('6.4', $releaseInfo);
-        static::assertArrayHasKey('6.5', $releaseInfo);
+    public function testForcingVersion(): void
+    {
+        $_SERVER['SW_RECOVERY_NEXT_VERSION'] = '1.2.3';
 
-        static::assertSame('6.4.17.2', $releaseInfo['6.4']);
-        static::assertSame('6.5.99.9', $releaseInfo['6.5']);
+        $mockClient = new MockHttpClient([]);
+
+        $releaseInfoProvider = new ReleaseInfoProvider($mockClient);
+
+        static::assertSame(
+            [
+                '1.2.3',
+            ],
+            $releaseInfoProvider->fetchUpdateVersions('1.2.3')
+        );
 
         unset($_SERVER['SW_RECOVERY_NEXT_VERSION']);
     }

@@ -4,10 +4,10 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Services\FlexMigrator;
+use App\Services\ProjectComposerJsonUpdater;
 use App\Services\RecoveryManager;
 use App\Services\ReleaseInfoProvider;
 use App\Services\StreamedCommandResponseGenerator;
-use Composer\Util\Platform;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -34,9 +34,9 @@ class UpdateController extends AbstractController
         $shopwarePath = $this->recoveryManager->getShopwareLocation();
 
         $currentShopwareVersion = $this->recoveryManager->getCurrentShopwareVersion($shopwarePath);
-        $latestVersion = $this->getLatestVersion($request);
+        $latestVersions = $this->getLatestVersions($request);
 
-        if ($currentShopwareVersion === $latestVersion) {
+        if (empty($latestVersions)) {
             return $this->redirectToRoute('finish');
         }
 
@@ -44,7 +44,7 @@ class UpdateController extends AbstractController
             'shopwarePath' => $shopwarePath,
             'currentShopwareVersion' => $currentShopwareVersion,
             'isFlexProject' => $this->recoveryManager->isFlexProject($shopwarePath),
-            'latestShopwareVersion' => $latestVersion,
+            'versions' => $latestVersions,
         ]);
     }
 
@@ -64,12 +64,18 @@ class UpdateController extends AbstractController
     #[Route('/update/_run', name: 'update_run', methods: ['POST'])]
     public function run(Request $request): Response
     {
+        $version = $request->query->get('shopwareVersion', '');
+
         $shopwarePath = $this->recoveryManager->getShopwareLocation();
 
-        $this->updateComposerJsonConstraint($request, $shopwarePath . '/composer.json');
+        ProjectComposerJsonUpdater::update(
+            $shopwarePath . '/composer.json',
+            $version
+        );
 
         return $this->streamedCommandResponseGenerator->runJSON([
             $this->recoveryManager->getPhpBinary($request),
+            '-dmemory_limit=1G',
             $this->recoveryManager->getBinary(),
             'composer',
             'update',
@@ -96,6 +102,7 @@ class UpdateController extends AbstractController
 
         return $this->streamedCommandResponseGenerator->runJSON([
             $this->recoveryManager->getPhpBinary($request),
+            '-dmemory_limit=1G',
             $this->recoveryManager->getBinary(),
             'composer',
             '-d',
@@ -116,6 +123,7 @@ class UpdateController extends AbstractController
 
         return $this->streamedCommandResponseGenerator->runJSON([
             $this->recoveryManager->getPhpBinary($request),
+            '-dmemory_limit=1G',
             $shopwarePath . '/bin/console',
             'system:update:prepare',
             '--no-interaction',
@@ -129,6 +137,7 @@ class UpdateController extends AbstractController
 
         return $this->streamedCommandResponseGenerator->runJSON([
             $this->recoveryManager->getPhpBinary($request),
+            '-dmemory_limit=1G',
             $shopwarePath . '/bin/console',
             'system:update:finish',
             '--no-interaction',
@@ -157,73 +166,26 @@ class UpdateController extends AbstractController
         file_put_contents($shopwarePath . '/vendor/symfony/flex/src/Options.php', $optionsPhp);
     }
 
-    private function getLatestVersion(Request $request): string
+    /**
+     * @return array<string>
+     */
+    private function getLatestVersions(Request $request): array
     {
-        if ($request->getSession()->has('latestVersion')) {
-            $sessionValue = $request->getSession()->get('latestVersion');
-            \assert(\is_string($sessionValue));
+        if ($request->getSession()->has('latestVersions')) {
+            $sessionValue = $request->getSession()->get('latestVersions');
+            \assert(\is_array($sessionValue));
 
             return $sessionValue;
         }
-
-        $latestVersions = $this->releaseInfoProvider->fetchLatestRelease();
 
         $shopwarePath = $this->recoveryManager->getShopwareLocation();
         \assert(\is_string($shopwarePath));
 
         $currentVersion = $this->recoveryManager->getCurrentShopwareVersion($shopwarePath);
-        $latestVersion = $latestVersions[substr($currentVersion, 0, 3)];
+        $latestVersions = $this->releaseInfoProvider->fetchUpdateVersions($currentVersion);
 
-        // If the user is already on the latest version in the current major, we need to update to the next major
-        if ($latestVersion === $currentVersion) {
-            $first = (int) substr($currentVersion, 0, 1);
-            $second = (int) substr($currentVersion, 2, 1);
-            ++$second;
+        $request->getSession()->set('latestVersions', $latestVersions);
 
-            if (isset($latestVersions[$first . '.' . $second])) {
-                $latestVersion = $latestVersions[$first . '.' . $second];
-            }
-        }
-
-        $request->getSession()->set('latestVersion', $latestVersion);
-
-        return $latestVersion;
-    }
-
-    private function updateComposerJsonConstraint(Request $request, string $file): void
-    {
-        $shopwarePackages = [
-            'shopware/core',
-            'shopware/administration',
-            'shopware/storefront',
-            'shopware/elasticsearch',
-        ];
-
-        /** @var array{require: array<string, string>} $composerJson */
-        $composerJson = json_decode((string) file_get_contents($file), true, \JSON_THROW_ON_ERROR);
-        $latestVersion = $this->getLatestVersion($request);
-
-        foreach ($shopwarePackages as $shopwarePackage) {
-            if (!isset($composerJson['require'][$shopwarePackage])) {
-                continue;
-            }
-
-            // Lock the composer version to that major version
-            $version = '~' . substr($latestVersion, 0, 3) . '.0';
-
-            $nextVersion = Platform::getEnv('SW_RECOVERY_NEXT_VERSION');
-            if (\is_string($nextVersion)) {
-                $nextBranch = Platform::getEnv('SW_RECOVERY_NEXT_BRANCH');
-                if ($nextBranch === false) {
-                    $nextBranch = 'trunk';
-                }
-
-                $version = 'dev-' . $nextBranch . ' as ' . $nextVersion;
-            }
-
-            $composerJson['require'][$shopwarePackage] = $version;
-        }
-
-        file_put_contents($file, json_encode($composerJson, \JSON_THROW_ON_ERROR | \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES));
+        return $latestVersions;
     }
 }

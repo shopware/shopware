@@ -15,7 +15,7 @@ async function tailLog(response, element) {
             let strings = text.split("\n");
             result = JSON.parse(strings.pop());
 
-            element.innerHTML += strings.join("\n");
+            element.innerHTML += strings.join("\n") + "\n";
             element.scrollTop = element.scrollHeight;
         } catch (e) {
             element.innerHTML += text;
@@ -46,13 +46,16 @@ if (installButton) {
 
         installButton.disabled = true;
 
-        const folder = document.getElementById('folder');
+        const shopwareVersion = document.getElementById('shopwareVersion');
 
-        const installResponse = await fetch(`${baseUrl}/install/_run?folder=` + folder.value, {method: 'POST'});
+        const installResponse = await fetch(`${baseUrl}/install/_run?shopwareVersion=` + shopwareVersion.value, {method: 'POST'});
 
         try {
             const result = await tailLog(installResponse, logOutput);
             if (result.newLocation) {
+                // Delete installer
+                await fetch(`${baseUrl}/install/_cleanup`, {method: 'POST'})
+
                 window.location = result.newLocation;
             }
         } catch (e) {
@@ -66,6 +69,8 @@ if (updateButton) {
     updateButton.onclick = async function () {
         updateButton.disabled = true;
         logCard.style.removeProperty('display');
+
+        const shopwareVersion = document.getElementById('shopwareVersion');
 
         const prepareUpdate = await fetch(`${baseUrl}/update/_prepare`, {method: 'POST'})
         if (prepareUpdate.status !== 200) {
@@ -93,7 +98,7 @@ if (updateButton) {
             }
         }
 
-        const updateRun = await fetch(`${baseUrl}/update/_run`, {method: 'POST'});
+        const updateRun = await fetch(`${baseUrl}/update/_run?shopwareVersion=${shopwareVersion.value}`, {method: 'POST'});
 
         try {
             await tailLog(updateRun, logOutput);

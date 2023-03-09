@@ -58,6 +58,6 @@ class KernelTest extends TestCase
 
         /** @var Router $router */
         $router = $kernel->getContainer()->get('router');
-        static::assertCount(11, $router->getRouteCollection());
+        static::assertCount(12, $router->getRouteCollection());
     }
 }

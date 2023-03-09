@@ -25,7 +25,7 @@ async function generateVersionInfo() {
     const vulnerabilities = await fetchVulnerabilities();
 
     for (const release of json) {
-        if (json.prerelease || json.draft) {
+        if (json.draft) {
             continue;
         }
 

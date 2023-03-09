@@ -68,6 +68,7 @@ class InstallController extends AbstractController
 
         return $this->streamedCommandResponseGenerator->run([
             $this->recoveryManager->getPhpBinary($request),
+            '-dmemory_limit=1G',
             $this->recoveryManager->getBinary(),
             'composer',
             'install',

@@ -766,11 +766,7 @@ Component.register('sw-search-bar', {
         getEntityIconName(entityName) {
             const module = this.moduleFactory.getModuleByEntityName(entityName);
 
-            if (!module) {
-                return 'regular-books';
-            }
-
-            return module.manifest.icon || entityName;
+            return module?.manifest?.icon ?? 'regular-books';
         },
 
         getEntityIconColor(entityName) {
@@ -789,13 +785,8 @@ Component.register('sw-search-bar', {
 
         getEntityIcon(entityName) {
             const module = this.moduleFactory.getModuleByEntityName(entityName);
-            const defaultColor = '#AEC4DA';
 
-            if (!module) {
-                return defaultColor;
-            }
-
-            return module.manifest.icon || defaultColor;
+            return module?.manifest?.icon ?? 'regular-books';
         },
 
         isResultEmpty() {

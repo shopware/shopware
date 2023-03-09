@@ -5,6 +5,7 @@
 /* eslint-disable max-len */
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/app/component/structure/sw-search-bar';
+import 'src/app/component/structure/sw-search-bar-item';
 import Criteria from 'src/core/data/criteria.data';
 
 const { Module } = Shopware;
@@ -65,8 +66,11 @@ describe('src/app/component/structure/sw-search-bar', () => {
                 'sw-version': true,
                 'sw-loader': true,
                 'sw-search-more-results': true,
-                'sw-search-bar-item': true,
-                'sw-search-preferences-modal': true
+                'sw-search-bar-item': await Shopware.Component.build('sw-search-bar-item'),
+                'sw-search-preferences-modal': true,
+                'router-link': true,
+                'sw-highlight-text': true,
+                'sw-shortcut-overview-item': true,
             },
             mocks: {
                 $route: {
@@ -826,8 +830,8 @@ describe('src/app/component/structure/sw-search-bar', () => {
 
         await flushPromises();
 
-        const searchBarItemStub = wrapper.find('sw-search-bar-item-stub');
-        expect(searchBarItemStub.attributes().type).toBe('module');
+        const searchBarItem = wrapper.find('.sw-search-bar-item');
+        expect(searchBarItem.props().type).toBe('module');
 
         const module = wrapper.vm.results[0];
 
@@ -1236,10 +1240,10 @@ describe('src/app/component/structure/sw-search-bar', () => {
         const resultsContent = wrapper.find('.sw-search-bar__results--v2 .sw-search-bar__results-wrapper-content');
 
         const headerEntity = resultsContent.find('.sw-search-bar__types-header-entity');
-        const searchBarItemStub = resultsContent.find('sw-search-bar-item-stub');
+        const searchBarItem = resultsContent.find('.sw-search-bar-item');
 
         expect(headerEntity.text()).toBe('global.entities.frequently_used');
-        expect(searchBarItemStub.attributes().type).toBe('frequently_used');
+        expect(searchBarItem.props().type).toBe('frequently_used');
 
         const frequentlyUsed = wrapper.vm.resultsSearchTrends
             .find(item => item.entity === 'frequently_used');
@@ -1287,10 +1291,10 @@ describe('src/app/component/structure/sw-search-bar', () => {
         const lastColumn = resultsContent.findAll('.sw-search-bar__results-column').at(1);
 
         const headerEntity = lastColumn.find('.sw-search-bar__types-header-entity');
-        const searchBarItemStub = lastColumn.find('sw-search-bar-item-stub');
+        const searchBarItem = lastColumn.find('.sw-search-bar-item');
 
         expect(headerEntity.text()).toBe('global.entities.recently_searched');
-        expect(searchBarItemStub.attributes().type).toBe('product');
+        expect(searchBarItem.props().type).toBe('product');
 
         const recentlySearched = wrapper.vm.resultsSearchTrends
             .find(item => item.entity === 'recently_searched');
@@ -1435,5 +1439,72 @@ describe('src/app/component/structure/sw-search-bar', () => {
                 })
             ])
         );
+    });
+
+    it('should render the correct fallback icon when no entity icon exists', async () => {
+        wrapper = await createWrapper({
+            initialSearchType: 'product'
+        });
+
+        // open search
+        const searchInput = wrapper.find('.sw-search-bar__input');
+        await searchInput.trigger('focus');
+
+        await searchInput.setValue('sto');
+        expect(searchInput.element.value).toBe('sto');
+
+        await flushPromises();
+
+        const doGlobalSearch = swSearchBarComponent.methods.doGlobalSearch;
+        await doGlobalSearch.flush();
+
+        await flushPromises();
+
+        // should use fallback icon
+        const searchBarItem = wrapper.find('.sw-search-bar-item');
+        expect(searchBarItem.props('entity-icon-name')).toBe(undefined);
+    });
+
+    it('should render the icon from the entity icon', async () => {
+        const term = 'customer';
+        register(`sw-${term}`, {
+            title: `${term}s`,
+            color: '#A092F0',
+            icon: 'default-shopping-paper-bag',
+            entity: term,
+
+            routes: {
+                index: {
+                    component: `sw-${term}-list`,
+                    path: 'index',
+                    meta: {
+                        privilege: `${term}.viewer`
+                    }
+                },
+
+                create: {
+                    component: `sw-${term}-create`,
+                    path: 'create',
+                    meta: {
+                        privilege: `${term}.creator`
+                    }
+                }
+            }
+        });
+
+        wrapper = await createWrapper(
+            {
+                initialSearchType: '',
+                initialSearch: ''
+            }
+        );
+
+        await wrapper.find('.sw-search-bar__type--v2').trigger('click');
+
+        await flushPromises();
+
+        // should use correct icon
+        const shoppingBagIcon = wrapper.find('.sw-search-bar__type-item sw-icon-stub[name="default-shopping-paper-bag"]');
+        expect(shoppingBagIcon.exists()).toBe(true);
     });
 });

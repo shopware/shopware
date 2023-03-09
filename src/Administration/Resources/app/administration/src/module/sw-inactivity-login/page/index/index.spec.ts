@@ -8,6 +8,7 @@ import 'src/app/component/form/field-base/sw-contextual-field';
 import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/field-base/sw-field-error';
+import { BroadcastChannel } from 'worker_threads';
 import { shallowMount } from '@vue/test-utils';
 
 // eslint-disable-next-line no-undef
@@ -40,6 +41,9 @@ async function createWrapper(routerPushImplementation = jest.fn(), loginByUserna
             },
             validationService: {},
         },
+        propsData: {
+            hash: 'foo',
+        },
         attachTo: document.body,
     });
 }
@@ -48,10 +52,19 @@ describe('src/module/sw-inactivity-login/page/index/index.ts', () => {
     const original = window.location;
 
     beforeAll(() => {
+        // @ts-ignore
+        global.BroadcastChannel = BroadcastChannel;
+
         Object.defineProperty(window, 'location', {
             configurable: true,
             value: { reload: jest.fn() },
         });
+    });
+
+    afterEach(() => {
+        sessionStorage.removeItem('lastKnownUser');
+        sessionStorage.removeItem('sw-admin-previous-route_foo');
+        localStorage.removeItem('inactivityBackground_foo');
     });
 
     afterAll(() => {
@@ -59,14 +72,14 @@ describe('src/module/sw-inactivity-login/page/index/index.ts', () => {
     });
 
     it('should be a Vue.js component', async () => {
-        localStorage.setItem('lastKnownUser', 'max');
+        sessionStorage.setItem('lastKnownUser', 'max');
         const wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should set data:url as background image', async () => {
-        localStorage.setItem('lastKnownUser', 'admin');
-        localStorage.setItem('inactivityBackground', 'data:urlFoOBaR');
+        sessionStorage.setItem('lastKnownUser', 'admin');
+        localStorage.setItem('inactivityBackground_foo', 'data:urlFoOBaR');
         const wrapper = await createWrapper();
         await flushPromises();
 
@@ -91,8 +104,8 @@ describe('src/module/sw-inactivity-login/page/index/index.ts', () => {
         const loginByUserName = jest.fn(() => {
             return Promise.resolve();
         });
-        localStorage.setItem('lastKnownUser', 'max');
-        sessionStorage.setItem('sw-admin-previous-route', '{ "fullPath": "sw.example.route.index" }');
+        sessionStorage.setItem('lastKnownUser', 'max');
+        sessionStorage.setItem('sw-admin-previous-route_foo', '{ "fullPath": "sw.example.route.index" }');
         const wrapper = await createWrapper(push, loginByUserName);
         await flushPromises();
 
@@ -109,7 +122,7 @@ describe('src/module/sw-inactivity-login/page/index/index.ts', () => {
         const loginByUserName = jest.fn(() => {
             return Promise.reject();
         });
-        localStorage.setItem('lastKnownUser', 'max');
+        sessionStorage.setItem('lastKnownUser', 'max');
         const wrapper = await createWrapper(jest.fn(), loginByUserName);
         await flushPromises();
 
@@ -127,7 +140,7 @@ describe('src/module/sw-inactivity-login/page/index/index.ts', () => {
     });
 
     it('should navigate back to login', async () => {
-        localStorage.setItem('lastKnownUser', 'max');
+        sessionStorage.setItem('lastKnownUser', 'max');
         const push = jest.fn();
         const wrapper = await createWrapper(push);
         await flushPromises();
@@ -139,5 +152,43 @@ describe('src/module/sw-inactivity-login/page/index/index.ts', () => {
         expect(push).toBeCalledWith({
             name: 'sw.login.index',
         });
+    });
+
+    it('should redirect on valid channel message', async () => {
+        const push = jest.fn();
+        sessionStorage.setItem('lastKnownUser', 'max');
+        const wrapper = await createWrapper(push);
+        await flushPromises();
+
+        const channel = new BroadcastChannel('session_channel');
+        channel.postMessage({
+            inactive: false,
+        });
+
+        await flushPromises();
+
+        expect(push).toBeCalledTimes(1);
+
+        channel.close();
+    });
+
+    it('should not redirect on invalid channel message', async () => {
+        const push = jest.fn();
+        sessionStorage.setItem('lastKnownUser', 'max');
+        const wrapper = await createWrapper(push);
+        await flushPromises();
+
+        const channel = new BroadcastChannel('session_channel');
+        channel.postMessage(null);
+        channel.postMessage({});
+        channel.postMessage({
+            inactive: true,
+        });
+
+        await flushPromises();
+
+        expect(push).toBeCalledTimes(0);
+
+        channel.close();
     });
 });

@@ -75,6 +75,13 @@ So the old theme files will still be accessible for one hour after a new theme w
 
 We can expand on this deletion strategy, once we implement further features like manual rollback to previous theme versions.
 
+### Theme Assets
+
+Previously the theme assets were stored in the same folder as the compiled theme files, that meant, that for every saleschannel where a theme was used the theme assets were duplicated, even though the assets are always the same, regardless of the theme configuration.
+This does not scale, when we create new folders for the compiled theme files on the fly on every theme compile.
+So the asset files are now stored in a separate folder, that is not dependent on the sales channel or the theme configuration.
+We use the `themeId` as the folder name, so the assets are still unique per theme, but they are not duplicated for every sales channel.
+
 ### PaaS / Platform.sh
 
 Platform.sh currently does not offer to store the theme assets on an internal storage, therefore the assets need to be stored locally.

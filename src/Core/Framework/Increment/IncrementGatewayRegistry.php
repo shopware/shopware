@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Increment\Exception\IncrementGatewayNotFoundExceptio
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @internal - Used internally for Increment pattern
+ * @final
  */
 #[Package('core')]
 class IncrementGatewayRegistry

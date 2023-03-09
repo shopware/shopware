@@ -18,8 +18,6 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @final
  *
- * @internal
- *
  * @phpstan-import-type Offset from IterableQuery
  */
 #[AsMessageHandler]
@@ -46,6 +44,9 @@ class EntityIndexerRegistry
     ) {
     }
 
+    /**
+     * @internal
+     */
     public function __invoke(EntityIndexingMessage|IterateEntityIndexerMessage $message): void
     {
         if ($message instanceof EntityIndexingMessage) {

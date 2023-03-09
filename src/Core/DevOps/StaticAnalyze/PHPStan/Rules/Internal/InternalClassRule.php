@@ -9,6 +9,14 @@ use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Bundle;
+use Shopware\Core\Framework\DataAbstractionLayer\Command\RefreshIndexCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
+use Shopware\Core\Framework\Demodata\Command\DemodataCommand;
+use Shopware\Core\Framework\Demodata\DemodataContext;
+use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
+use Shopware\Core\Framework\Demodata\DemodataRequest;
+use Shopware\Core\Framework\Demodata\DemodataService;
+use Shopware\Core\Framework\Demodata\Event\DemodataRequestCreatedEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Plugin;
@@ -31,7 +39,20 @@ class InternalClassRule implements Rule
 
     private const INTERNAL_NAMESPACES = [
         '\\DevOps\\StaticAnalyze',
-        '\\Framework\\Demodata',
+    ];
+    private const SUBSCRIBER_EXCEPTIONS = [
+        RefreshIndexCommand::class,
+    ];
+    private const MESSAGE_HANDLER_EXCEPTIONS = [
+        EntityIndexerRegistry::class,
+    ];
+    private const DEMO_DATA_EXCEPTIONS = [
+        DemodataContext::class,
+        DemodataGeneratorInterface::class,
+        DemodataRequest::class,
+        DemodataService::class,
+        DemodataCommand::class,
+        DemodataRequestCreatedEvent::class,
     ];
 
     public function getNodeType(): string
@@ -50,6 +71,8 @@ class InternalClassRule implements Rule
             return [];
         }
 
+        $class = $node->getClassReflection()->getName();
+
         if ($this->isTestClass($node)) {
             return ['Test classes must be flagged @internal to not be captured by the BC checker'];
         }
@@ -62,7 +85,7 @@ class InternalClassRule implements Rule
             return ['Bundles must be flagged @internal to not be captured by the BC checker.'];
         }
 
-        if ($this->isEventSubscriber($node)) {
+        if ($this->isEventSubscriber($node) && !\in_array($class, self::SUBSCRIBER_EXCEPTIONS, true)) {
             return ['Event subscribers must be flagged @internal to not be captured by the BC checker.'];
         }
 
@@ -70,11 +93,15 @@ class InternalClassRule implements Rule
             return ['Classes in `' . $namespace . '` namespace must be flagged @internal to not be captured by the BC checker.'];
         }
 
+        if ($this->isInNamespace($node, '\\Framework\\Demodata') && !\in_array($class, self::DEMO_DATA_EXCEPTIONS, true)) {
+            return ['Classes in `Framework\\Demodata` namespace must be flagged @internal to not be captured by the BC checker.'];
+        }
+
         if ($this->isMigrationStep($node)) {
             return ['Migrations must be flagged @internal to not be captured by the BC checker.'];
         }
 
-        if ($this->isMessageHandler($node)) {
+        if ($this->isMessageHandler($node) && !\in_array($class, self::MESSAGE_HANDLER_EXCEPTIONS, true)) {
             return ['MessageHandlers must be flagged @internal to not be captured by the BC checker.'];
         }
 
@@ -165,6 +192,11 @@ class InternalClassRule implements Rule
         }
 
         return null;
+    }
+
+    private function isInNamespace(InClassNode $node, string $namespace): bool
+    {
+        return \str_contains($node->getClassReflection()->getName(), $namespace);
     }
 
     private function isMigrationStep(InClassNode $node): bool

@@ -7,19 +7,21 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @internal
+ * @final
  */
 #[Package('business-ops')]
 class StorableFlow
 {
-    protected ?FlowState $state = null;
+    private ?FlowState $state = null;
 
     /**
      * @var array<string, mixed>
      */
-    protected array $config = [];
+    private array $config = [];
 
     /**
+     * @internal
+     *
      * @param array<string, mixed> $store
      * @param array<string, mixed> $data
      */

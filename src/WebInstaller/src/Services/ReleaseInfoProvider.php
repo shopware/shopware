@@ -24,7 +24,7 @@ class ReleaseInfoProvider
     /**
      * @return array<string>
      */
-    public function fetchInstallVersions(bool $includeRCReleases = false): array
+    public function fetchVersions(): array
     {
         /** @var array<string> $versions */
         $versions = $this->client->request('GET', 'https://releases.shopware.com/changelog/index.json')->toArray();
@@ -33,52 +33,60 @@ class ReleaseInfoProvider
             return version_compare($b, $a);
         });
 
-        return array_values(array_filter($versions, function ($version) use ($includeRCReleases) {
-            if (str_contains($version, 'rc') && !$includeRCReleases) {
-                return false;
-            }
-
+        return array_values(array_filter($versions, function ($version) {
             return version_compare($version, '6.4.18.0', '>=');
         }));
     }
 
     /**
-     * @return array<string, string>
+     * @return array<string>
      */
-    public function fetchLatestReleaseForUpdate(bool $includeRCReleases = false): array
+    public function fetchUpdateVersions(string $currentVersion): array
     {
         $nextVersion = Platform::getEnv('SW_RECOVERY_NEXT_VERSION');
         if (\is_string($nextVersion)) {
             return [
-                '6.4' => '6.4.17.2',
-                '6.5' => $nextVersion,
+                $nextVersion,
             ];
         }
 
-        /** @var array<string> $versions */
-        $versions = $this->client->request('GET', 'https://releases.shopware.com/changelog/index.json')->toArray();
-
-        usort($versions, function ($a, $b) {
-            return version_compare($b, $a);
-        });
+        // Get all versions newer than the current one
+        $versions = array_values(array_filter($this->fetchVersions(), function ($version) use ($currentVersion) {
+            return version_compare($version, $currentVersion, '>');
+        }));
 
         // Index them by major version
         $mappedVersions = [];
 
         foreach ($versions as $version) {
-            if (str_contains($version, 'rc') && !$includeRCReleases) {
-                continue;
+            $major = $this->getMajor($version);
+
+            if (!isset($mappedVersions[$major])) {
+                $mappedVersions[$major] = [];
             }
 
-            $major = substr($version, 0, 3);
-
-            if (isset($mappedVersions[$major])) {
-                continue;
-            }
-
-            $mappedVersions[$major] = $version;
+            $mappedVersions[$major][] = $version;
         }
 
-        return $mappedVersions;
+        return [
+            ...$mappedVersions[$this->getNextMajor($currentVersion)] ?? [],
+            ...$mappedVersions[$this->getMajor($currentVersion)] ?? [],
+        ];
+    }
+
+    private function getMajor(string $version): string
+    {
+        $list = explode('.', $version, 3);
+
+        return $list[0] . '.' . $list[1];
+    }
+
+    private function getNextMajor(string $version): string
+    {
+        $list = explode('.', $version, 3);
+
+        ++$list[1];
+
+        return $list[0] . '.' . $list[1];
     }
 }

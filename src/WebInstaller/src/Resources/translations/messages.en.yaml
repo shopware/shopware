@@ -1,6 +1,7 @@
 shopware.update:
     header_title: Installation
     back: Back
+    rc_hint: (Not recommended for production)
     language:
         en: English
         de: German
@@ -24,12 +25,12 @@ shopware.update:
             pathInput: PHP binary
             submit: Save configuration
         update:
-            title: Updating Shopware to version %latestShopwareVersion%
+            title: Updating Shopware
             log: Log
             backupHint: Make sure you have created a backup before updating.
             submit: Update Shopware
             currentVersion: 'Current version: %version%'
-            latestVersion: 'Latest version: %version%'
+            updateVersion: 'Update version:'
             error: 'Update process has failed. You can download the log file <a href="#" id="download-log">here</a>.'
         finish:
             title: Finish
@@ -39,11 +40,11 @@ shopware.update:
                 The next step will remove the recovery files from the server and redirect to the Shopware Administration.
             submit: Open Administration
         install:
-            title: Install Shopware
-            info: Choose a Shopware version to install. Shopware will be installed in the current directory.
+            title: Download Shopware
+            info: Choose a Shopware version to download. Shopware will be downloaded into the current directory.
             shopwareVersion: 'Shopware version:'
-            after_install: After installation you should switch your Document Root to the newly created folder <strong>public</strong>.
+            after_install: After downloading you should switch your document root to the newly created folder <strong>public</strong>.
             log: Log
-            installation_failed: Installation failed
-            submit: Install
-            error: 'Installation has failed. You can download the log file <a href="#" id="download-log">here</a>.'
+            installation_failed: Download failed
+            submit: Download
+            error: 'Download has failed. You can download the log file <a href="#" id="download-log">here</a>.'

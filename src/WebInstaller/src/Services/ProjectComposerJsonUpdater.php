@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 class ProjectComposerJsonUpdater
 {
-    public static function update(string $file, string $latestVersion, string $channel): void
+    public static function update(string $file, string $latestVersion): void
     {
         $shopwarePackages = [
             'shopware/core',
@@ -23,7 +23,7 @@ class ProjectComposerJsonUpdater
         /** @var array{minimum-stability?: string, require: array<string, string>} $composerJson */
         $composerJson = json_decode((string) file_get_contents($file), true, \JSON_THROW_ON_ERROR);
 
-        if ($channel === 'rc') {
+        if (str_contains(strtolower($latestVersion), 'rc')) {
             $composerJson['minimum-stability'] = 'RC';
         } else {
             unset($composerJson['minimum-stability']);
@@ -44,7 +44,11 @@ class ProjectComposerJsonUpdater
                     $nextBranch = 'dev-trunk';
                 }
 
-                $version = $nextBranch . ' as ' . $nextVersion;
+                if ($nextBranch === $nextVersion) {
+                    $version = $nextBranch;
+                } else {
+                    $version = $nextBranch . ' as ' . $nextVersion;
+                }
             }
 
             $composerJson['require'][$shopwarePackage] = $version;

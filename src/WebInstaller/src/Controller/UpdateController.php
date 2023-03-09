@@ -34,9 +34,9 @@ class UpdateController extends AbstractController
         $shopwarePath = $this->recoveryManager->getShopwareLocation();
 
         $currentShopwareVersion = $this->recoveryManager->getCurrentShopwareVersion($shopwarePath);
-        $latestVersion = $this->getLatestVersion($request);
+        $latestVersions = $this->getLatestVersions($request);
 
-        if ($currentShopwareVersion === $latestVersion) {
+        if (empty($latestVersions)) {
             return $this->redirectToRoute('finish');
         }
 
@@ -44,7 +44,7 @@ class UpdateController extends AbstractController
             'shopwarePath' => $shopwarePath,
             'currentShopwareVersion' => $currentShopwareVersion,
             'isFlexProject' => $this->recoveryManager->isFlexProject($shopwarePath),
-            'latestShopwareVersion' => $latestVersion,
+            'versions' => $latestVersions,
         ]);
     }
 
@@ -64,12 +64,13 @@ class UpdateController extends AbstractController
     #[Route('/update/_run', name: 'update_run', methods: ['POST'])]
     public function run(Request $request): Response
     {
+        $version = $request->query->get('shopwareVersion', '');
+
         $shopwarePath = $this->recoveryManager->getShopwareLocation();
 
         ProjectComposerJsonUpdater::update(
             $shopwarePath . '/composer.json',
-            $this->getLatestVersion($request),
-            $request->getSession()->get('channel', 'stable')
+            $version
         );
 
         return $this->streamedCommandResponseGenerator->runJSON([
@@ -161,35 +162,26 @@ class UpdateController extends AbstractController
         file_put_contents($shopwarePath . '/vendor/symfony/flex/src/Options.php', $optionsPhp);
     }
 
-    private function getLatestVersion(Request $request): string
+    /**
+     * @return array<string>
+     */
+    private function getLatestVersions(Request $request): array
     {
-        if ($request->getSession()->has('latestVersion')) {
-            $sessionValue = $request->getSession()->get('latestVersion');
-            \assert(\is_string($sessionValue));
+        if ($request->getSession()->has('latestVersions')) {
+            $sessionValue = $request->getSession()->get('latestVersions');
+            \assert(\is_array($sessionValue));
 
             return $sessionValue;
         }
-
-        $channel = $request->getSession()->get('channel', 'stable');
-
-        $latestVersions = $this->releaseInfoProvider->fetchLatestReleaseForUpdate($channel === 'rc');
 
         $shopwarePath = $this->recoveryManager->getShopwareLocation();
         \assert(\is_string($shopwarePath));
 
         $currentVersion = $this->recoveryManager->getCurrentShopwareVersion($shopwarePath);
-        $latestVersion = $latestVersions[substr($currentVersion, 0, 3)];
+        $latestVersions = $this->releaseInfoProvider->fetchUpdateVersions($currentVersion);
 
-        $first = (int) substr($currentVersion, 0, 1);
-        $second = (int) substr($currentVersion, 2, 1);
-        ++$second;
+        $request->getSession()->set('latestVersions', $latestVersions);
 
-        if (isset($latestVersions[$first . '.' . $second])) {
-            $latestVersion = $latestVersions[$first . '.' . $second];
-        }
-
-        $request->getSession()->set('latestVersion', $latestVersion);
-
-        return $latestVersion;
+        return $latestVersions;
     }
 }

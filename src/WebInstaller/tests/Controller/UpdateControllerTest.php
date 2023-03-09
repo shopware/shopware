@@ -38,7 +38,7 @@ class UpdateControllerTest extends TestCase
 
         $controller = new UpdateController(
             $recoveryManager,
-            $this->getReleaseInfoProvider(),
+            $this->createMock(ReleaseInfoProvider::class),
             $this->createMock(FlexMigrator::class),
             $this->createMock(StreamedCommandResponseGenerator::class),
         );
@@ -230,13 +230,14 @@ class UpdateControllerTest extends TestCase
 
         $controller = new UpdateController(
             $recoveryManager,
-            $this->getReleaseInfoProvider(),
+            $this->createMock(ReleaseInfoProvider::class),
             $this->createMock(FlexMigrator::class),
             $responseGenerator,
         );
         $controller->setContainer($this->getContainer());
 
         $request = new Request();
+        $request->query->set('shopwareVersion', '6.4.15.0');
         $request->setSession(new Session(new MockArraySessionStorage()));
         $response = $controller->run($request);
 
@@ -285,23 +286,17 @@ class UpdateControllerTest extends TestCase
             ])
             ->willReturn(new StreamedResponse());
 
-        $releaseInfoProvider = $this->createMock(ReleaseInfoProvider::class);
-        $releaseInfoProvider
-            ->expects(static::once())
-            ->method('fetchLatestReleaseForUpdate')
-            ->willReturn(['6.3' => '6.3.5.0', '6.4' => '6.4.18.0', '6.5' => '6.5.0.0-rc1']);
-
         $controller = new UpdateController(
             $recoveryManager,
-            $releaseInfoProvider,
+            $this->createMock(ReleaseInfoProvider::class),
             $this->createMock(FlexMigrator::class),
             $responseGenerator,
         );
         $controller->setContainer($this->getContainer());
 
         $request = new Request();
+        $request->query->set('shopwareVersion', '6.5.0.0-rc1');
         $request->setSession(new Session(new MockArraySessionStorage()));
-        $request->getSession()->set('channel', 'rc');
         $response = $controller->run($request);
 
         /** @var array{minimum-stability: string, require: array<string, string>} $json */
@@ -368,7 +363,7 @@ class UpdateControllerTest extends TestCase
 
         $controller = new UpdateController(
             $recoveryManager,
-            $this->getReleaseInfoProvider(),
+            $this->createMock(ReleaseInfoProvider::class),
             $this->createMock(FlexMigrator::class),
             $responseGenerator,
         );
@@ -445,8 +440,8 @@ class UpdateControllerTest extends TestCase
         $releaseInfoProvider = $this->createMock(ReleaseInfoProvider::class);
         $releaseInfoProvider
             ->expects(static::once())
-            ->method('fetchLatestReleaseForUpdate')
-            ->willReturn(['6.3' => '6.3.5.0', '6.4' => '6.4.18.0']);
+            ->method('fetchUpdateVersions')
+            ->willReturn(['6.3.5.0', '6.4.18.0']);
 
         return $releaseInfoProvider;
     }

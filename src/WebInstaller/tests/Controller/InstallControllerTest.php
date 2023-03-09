@@ -38,10 +38,7 @@ class InstallControllerTest extends TestCase
         $controller = new InstallController($recovery, $responseGenerator, $this->createMock(ReleaseInfoProvider::class));
         $controller->setContainer($this->getContainer());
 
-        $request = new Request();
-        $request->setSession(new Session(new MockArraySessionStorage()));
-
-        $response = $controller->index($request);
+        $response = $controller->index();
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertSame('install.html.twig', $response->getContent());

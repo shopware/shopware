@@ -30,11 +30,9 @@ class InstallController extends AbstractController
     }
 
     #[Route('/install', name: 'install', defaults: ['step' => 2])]
-    public function index(Request $request): Response
+    public function index(): Response
     {
-        $channel = $request->getSession()->get('channel', 'stable');
-
-        $versions = $this->releaseInfoProvider->fetchInstallVersions($channel === 'rc');
+        $versions = $this->releaseInfoProvider->fetchVersions();
 
         return $this->render('install.html.twig', [
             'versions' => $versions,
@@ -44,7 +42,7 @@ class InstallController extends AbstractController
     #[Route('/install/_run', name: 'install_run', methods: ['POST'])]
     public function run(Request $request): StreamedResponse
     {
-        $shopwareVersion = $request->query->get('shopwareVersion', '6.4.20.0');
+        $shopwareVersion = $request->query->get('shopwareVersion', '');
         $folder = $this->recoveryManager->getProjectDir();
 
         $fs = new Filesystem();
@@ -58,8 +56,7 @@ class InstallController extends AbstractController
 
         ProjectComposerJsonUpdater::update(
             $folder . '/composer.json',
-            $shopwareVersion,
-            $request->getSession()->get('channel', 'stable')
+            $shopwareVersion
         );
 
         $finish = function (Process $process) use ($request): void {

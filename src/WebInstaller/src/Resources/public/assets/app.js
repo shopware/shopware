@@ -70,6 +70,8 @@ if (updateButton) {
         updateButton.disabled = true;
         logCard.style.removeProperty('display');
 
+        const shopwareVersion = document.getElementById('shopwareVersion');
+
         const prepareUpdate = await fetch(`${baseUrl}/update/_prepare`, {method: 'POST'})
         if (prepareUpdate.status !== 200) {
             logOutput.innerHTML += 'Failed to prepare update' + "\n"
@@ -96,7 +98,7 @@ if (updateButton) {
             }
         }
 
-        const updateRun = await fetch(`${baseUrl}/update/_run`, {method: 'POST'});
+        const updateRun = await fetch(`${baseUrl}/update/_run?shopwareVersion=${shopwareVersion.value}`, {method: 'POST'});
 
         try {
             await tailLog(updateRun, logOutput);

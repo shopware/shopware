@@ -28,7 +28,7 @@ class PhpConfigController extends AbstractController
     {
         try {
             $shopwareLocation = $this->recoveryManager->getShopwareLocation();
-        } catch (\RuntimeException) {
+        } catch (\RuntimeException $e) {
             $shopwareLocation = null;
         }
 
@@ -38,15 +38,11 @@ class PhpConfigController extends AbstractController
 
             $request->getSession()->set('phpBinary', $phpBinary);
 
-            $channel = $request->request->getAlpha('channel', 'stable');
-            $request->getSession()->set('channel', $channel);
-
             return $this->redirectToRoute($shopwareLocation === null ? 'install' : 'update');
         }
 
         return $this->render('php_config.html.twig', [
             'phpBinary' => $request->getSession()->get('phpBinary', $this->binaryFinder->find()),
-            'channel' => $request->getSession()->get('channel', 'stable'),
             'shopwareLocation' => $shopwareLocation,
         ]);
     }

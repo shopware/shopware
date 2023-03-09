@@ -13,8 +13,15 @@
         <p>
             <label for="shopwareVersion">{{ "shopware.update.steps.install.shopwareVersion"|trans }}</label>
             <select id="shopwareVersion" name="shopwareVersion" required="required">
+                {% set foundStable = false %}
                 {% for version in versions %}
-                    <option value="{{ version }}">{{ version }}</option>
+                    {% set isSelected = false %}
+                    {% if 'rc' not in version and foundStable == false %}
+                        {% set isSelected = true %}
+                        {% set foundStable = true %}
+                    {% endif %}
+
+                    <option value="{{ version }}"{% if isSelected %} selected{% endif %}>{{ version }}{% if 'rc' in version %} {{ 'shopware.update.rc_hint'|trans }}{% endif %}</option>
                 {% endfor %}
             </select>
         </p>

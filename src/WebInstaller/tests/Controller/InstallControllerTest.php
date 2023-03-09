@@ -59,6 +59,7 @@ class InstallControllerTest extends TestCase
             ->method('run')
             ->with([
                 'php',
+                '-dmemory_limit=1G',
                 '',
                 'composer',
                 'install',

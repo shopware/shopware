@@ -131,6 +131,7 @@ class UpdateControllerTest extends TestCase
             ->method('runJSON')
             ->with([
                 '/usr/bin/php',
+                '-dmemory_limit=1G',
                 '/path/to/shopware/bin/console',
                 'system:update:prepare',
                 '--no-interaction',
@@ -166,6 +167,7 @@ class UpdateControllerTest extends TestCase
             ->method('runJSON')
             ->with([
                 '/usr/bin/php',
+                '-dmemory_limit=1G',
                 '/path/to/shopware/bin/console',
                 'system:update:finish',
                 '--no-interaction',
@@ -215,6 +217,7 @@ class UpdateControllerTest extends TestCase
             ->method('runJSON')
             ->with([
                 '/usr/bin/php',
+                '-dmemory_limit=1G',
                 '/var/www/shopware-installer.phar.php',
                 'composer',
                 'update',
@@ -273,6 +276,7 @@ class UpdateControllerTest extends TestCase
             ->method('runJSON')
             ->with([
                 '/usr/bin/php',
+                '-dmemory_limit=1G',
                 '/var/www/shopware-installer.phar.php',
                 'composer',
                 'update',
@@ -348,6 +352,7 @@ class UpdateControllerTest extends TestCase
             ->method('runJSON')
             ->with([
                 '/usr/bin/php',
+                '-dmemory_limit=1G',
                 '/var/www/shopware-installer.phar.php',
                 'composer',
                 'update',
@@ -403,6 +408,7 @@ class UpdateControllerTest extends TestCase
             ->method('runJSON')
             ->with([
                 '/usr/bin/php',
+                '-dmemory_limit=1G',
                 '/var/www/shopware-installer.phar.php',
                 'composer',
                 '-d',

@@ -22,11 +22,11 @@ describe('Manual update', () => {
         cy.get('.welcome-title').contains('Welcome');
         cy.get('.btn-primary').click();
 
-        cy.get('.card__title').contains('Configure PHP executable');
+        cy.get('.card__title').contains('Configuration');
         cy.get('.btn-primary').click();
 
         // Show basic info
-        cy.get('.card__title').contains('Updating Shopware to');
+        cy.get('.card__title').contains('Updating Shopware');
 
         cy.get('.btn-primary').click();
 

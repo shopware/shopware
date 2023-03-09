@@ -75,6 +75,7 @@ class UpdateController extends AbstractController
 
         return $this->streamedCommandResponseGenerator->runJSON([
             $this->recoveryManager->getPhpBinary($request),
+            '-dmemory_limit=1G',
             $this->recoveryManager->getBinary(),
             'composer',
             'update',
@@ -101,6 +102,7 @@ class UpdateController extends AbstractController
 
         return $this->streamedCommandResponseGenerator->runJSON([
             $this->recoveryManager->getPhpBinary($request),
+            '-dmemory_limit=1G',
             $this->recoveryManager->getBinary(),
             'composer',
             '-d',
@@ -121,6 +123,7 @@ class UpdateController extends AbstractController
 
         return $this->streamedCommandResponseGenerator->runJSON([
             $this->recoveryManager->getPhpBinary($request),
+            '-dmemory_limit=1G',
             $shopwarePath . '/bin/console',
             'system:update:prepare',
             '--no-interaction',
@@ -134,6 +137,7 @@ class UpdateController extends AbstractController
 
         return $this->streamedCommandResponseGenerator->runJSON([
             $this->recoveryManager->getPhpBinary($request),
+            '-dmemory_limit=1G',
             $shopwarePath . '/bin/console',
             'system:update:finish',
             '--no-interaction',

@@ -2,7 +2,7 @@ import template from './sw-cms-el-config-image-slider.html.twig';
 import './sw-cms-el-config-image-slider.scss';
 
 const { Mixin } = Shopware;
-const { cloneDeep } = Shopware.Utils.object;
+const { moveItem, object: { cloneDeep } } = Shopware.Utils;
 const Criteria = Shopware.Data.Criteria;
 
 /**
@@ -146,6 +146,14 @@ export default {
             });
 
             this.mediaItems.push(...mediaItems);
+
+            this.updateMediaDataValue();
+            this.emitUpdateEl();
+        },
+
+        onItemSort(dragData, dropData) {
+            moveItem(this.mediaItems, dragData.position, dropData.position);
+            moveItem(this.element.config.sliderItems.value, dragData.position, dropData.position);
 
             this.updateMediaDataValue();
             this.emitUpdateEl();

@@ -9,9 +9,11 @@ import swCmsMappingField from 'src/module/sw-cms/component/sw-cms-mapping-field'
 import 'src/app/component/form/sw-switch-field';
 import 'src/app/component/form/sw-checkbox-field';
 import 'src/app/component/form/field-base/sw-base-field';
+import swMediaListSelectionV2 from 'src/app/asyncComponent/media/sw-media-list-selection-v2';
 
 Shopware.Component.register('sw-cms-el-config-image-slider', swCmsElConfigImageSlider);
 Shopware.Component.register('sw-cms-mapping-field', swCmsMappingField);
+Shopware.Component.register('sw-media-list-selection-v2', swMediaListSelectionV2);
 
 async function createWrapper(activeTab = 'content') {
     return shallowMount(await Shopware.Component.build('sw-cms-el-config-image-slider'), {
@@ -31,6 +33,7 @@ async function createWrapper(activeTab = 'content') {
                     };
                 },
             },
+            mediaService: {},
         },
         stubs: {
             'sw-tabs': {
@@ -50,12 +53,18 @@ async function createWrapper(activeTab = 'content') {
             'sw-text-field': true,
             'sw-number-field': true,
             'sw-cms-mapping-field': await Shopware.Component.build('sw-cms-mapping-field'),
-            'sw-media-list-selection-v2': true,
+            'sw-media-list-selection-v2': await Shopware.Component.build('sw-media-list-selection-v2'),
             'sw-switch-field': await Shopware.Component.build('sw-switch-field'),
             'sw-checkbox-field': await Shopware.Component.build('sw-checkbox-field'),
             'sw-base-field': await Shopware.Component.build('sw-base-field'),
             'sw-help-text': true,
             'sw-field-error': true,
+            'sw-upload-listener': true,
+            'sw-media-upload-v2': true,
+            'sw-media-list-selection-item-v2': {
+                template: '<div class="sw-media-item">{{item.id}}</div>',
+                props: ['item'],
+            },
         },
         propsData: {
             element: {
@@ -112,6 +121,24 @@ async function createWrapper(activeTab = 'content') {
                         type: 'ladingpage',
                     },
                 },
+                mediaItems: [
+                    {
+                        id: '0',
+                        position: 0,
+                    },
+                    {
+                        id: '1',
+                        position: 1,
+                    },
+                    {
+                        id: '2',
+                        position: 2,
+                    },
+                    {
+                        id: '3',
+                        position: 3,
+                    },
+                ],
             };
         },
     });
@@ -178,5 +205,21 @@ describe('src/module/sw-cms/elements/image-slider/config', () => {
         expect(wrapper.vm.showSlideConfig).toBe(true);
         expect(delaySlide.attributes().disabled).toBeUndefined();
         expect(speedSlide.attributes().disabled).toBeUndefined();
+    });
+
+    it('should sort the item list on drag and drop', async () => {
+        const wrapper = await createWrapper('content');
+
+        const mediaListSelectionV2Vm = wrapper.find('.sw-media-list-selection-v2').vm;
+        mediaListSelectionV2Vm.$emit('item-sort', mediaListSelectionV2Vm.mediaItems[1], mediaListSelectionV2Vm.mediaItems[2], true);
+        await wrapper.vm.$nextTick();
+
+        const items = wrapper.findAll('.sw-media-item');
+
+        expect(items).toHaveLength(4);
+        expect(items.at(0).text()).toBe('0');
+        expect(items.at(1).text()).toBe('2');
+        expect(items.at(2).text()).toBe('1');
+        expect(items.at(3).text()).toBe('3');
     });
 });

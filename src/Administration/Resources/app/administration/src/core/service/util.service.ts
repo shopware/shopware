@@ -143,6 +143,7 @@ export default {
     fileReader,
     sort,
     array,
+    moveItem,
 };
 
 /**
@@ -154,4 +155,34 @@ function createId(): string {
     // eslint-disable-next-line max-len
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-member-access
     return uuidv4().replace(/-/g, '');
+}
+
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export function moveItem(
+    entity: MutationObserver[],
+    oldIndex: number,
+    newIndex: number,
+) {
+    if (newIndex === null) {
+        newIndex = entity.length;
+    }
+
+    if (oldIndex < 0 || oldIndex >= entity.length || newIndex === oldIndex) {
+        return;
+    }
+
+    const movedItem = entity.find((_, index) => index === oldIndex);
+    if (!movedItem) {
+        return;
+    }
+
+    const remainingItems = entity.filter((_, index) => index !== oldIndex);
+
+    const orderedItems = [
+        ...remainingItems.slice(0, newIndex),
+        movedItem,
+        ...remainingItems.slice(newIndex),
+    ];
+
+    entity.splice(0, entity.length, ...orderedItems);
 }

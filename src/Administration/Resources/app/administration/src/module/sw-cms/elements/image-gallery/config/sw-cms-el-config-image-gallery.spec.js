@@ -5,9 +5,11 @@ import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
 import swCmsElConfigImageGallery from 'src/module/sw-cms/elements/image-gallery/config';
 import swCmsMappingField from 'src/module/sw-cms/component/sw-cms-mapping-field';
+import swMediaListSelectionV2 from 'src/app/asyncComponent/media/sw-media-list-selection-v2';
 
 Shopware.Component.register('sw-cms-el-config-image-gallery', swCmsElConfigImageGallery);
 Shopware.Component.register('sw-cms-mapping-field', swCmsMappingField);
+Shopware.Component.register('sw-media-list-selection-v2', swMediaListSelectionV2);
 
 const mediaDataMock = [
     {
@@ -42,6 +44,7 @@ async function createWrapper(activeTab = 'content') {
                     };
                 },
             },
+            mediaService: {},
         },
         stubs: {
             'sw-tabs': {
@@ -53,7 +56,7 @@ async function createWrapper(activeTab = 'content') {
             'sw-tabs-item': true,
             'sw-container': { template: '<div class="sw-container"><slot></slot></div>' },
             'sw-media-modal-v2': true,
-            'sw-media-list-selection-v2': true,
+            'sw-media-list-selection-v2': await Shopware.Component.build('sw-media-list-selection-v2'),
             'sw-field': true,
             'sw-switch-field': true,
             'sw-select-field': {
@@ -64,6 +67,12 @@ async function createWrapper(activeTab = 'content') {
             'sw-text-field': true,
             'sw-alert': true,
             'sw-cms-mapping-field': await Shopware.Component.build('sw-cms-mapping-field'),
+            'sw-upload-listener': true,
+            'sw-media-upload-v2': true,
+            'sw-media-list-selection-item-v2': {
+                template: '<div class="sw-media-item">{{item.id}}</div>',
+                props: ['item'],
+            },
         },
         propsData: {
             element: {
@@ -124,6 +133,24 @@ async function createWrapper(activeTab = 'content') {
                         type: 'ladingpage',
                     },
                 },
+                mediaItems: [
+                    {
+                        id: '0',
+                        position: 0,
+                    },
+                    {
+                        id: '1',
+                        position: 1,
+                    },
+                    {
+                        id: '2',
+                        position: 2,
+                    },
+                    {
+                        id: '3',
+                        position: 3,
+                    },
+                ],
             };
         },
     });
@@ -148,7 +175,7 @@ describe('src/module/sw-cms/elements/image-gallery/config', () => {
     it('should media selection if sliderItems config source is static', async () => {
         const wrapper = await createWrapper();
 
-        const mediaList = wrapper.find('sw-media-list-selection-v2-stub');
+        const mediaList = wrapper.find('.sw-media-list-selection-v2');
         const mappingValue = wrapper.find('.sw-cms-mapping-field__mapping-value');
         const mappingPreview = wrapper.find('.sw-cms-mapping-field__preview');
 
@@ -193,5 +220,21 @@ describe('src/module/sw-cms/elements/image-gallery/config', () => {
 
         // Should still have the previous value
         expect(wrapper.vm.element.config.minHeight.value).toBe('340px');
+    });
+
+    it('should sort the item list on drag and drop', async () => {
+        const wrapper = await createWrapper('content');
+
+        const mediaListSelectionV2Vm = wrapper.find('.sw-media-list-selection-v2').vm;
+        mediaListSelectionV2Vm.$emit('item-sort', mediaListSelectionV2Vm.mediaItems[1], mediaListSelectionV2Vm.mediaItems[2], true);
+        await wrapper.vm.$nextTick();
+
+        const items = wrapper.findAll('.sw-media-item');
+
+        expect(items).toHaveLength(4);
+        expect(items.at(0).text()).toBe('0');
+        expect(items.at(1).text()).toBe('2');
+        expect(items.at(2).text()).toBe('1');
+        expect(items.at(3).text()).toBe('3');
     });
 });

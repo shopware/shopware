@@ -35,5 +35,9 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <tag name="messenger.transport_factory" />
         </service>
+
+        <service id="Shopware\Core\Framework\MessageQueue\SendEmailMessageJsonSerializer">
+            <tag name="serializer.normalizer"/>
+        </service>
     </services>
 </container>

@@ -86,8 +86,18 @@ async function createWrapper(defaultFolderId, privileges = []) {
         },
         stubs: {
             'sw-media-base-item': {
+                props: {
+                    allowMultiSelect: {
+                        type: Boolean,
+                        required: false,
+                        default: true,
+                    },
+                },
+                // Hack with AllowMultiSelect is needed because the property
+                // can't be accessed in the test utils correctly
                 template: `
                     <div class="sw-media-base-item">
+                        AllowMultiSelect: "{{ allowMultiSelect }}"
                         <slot name="context-menu" v-bind="{ startInlineEdit: () => {}}"></slot>
                         <slot></slot>
                     </div>`
@@ -198,5 +208,25 @@ describe('components/media/sw-media-folder-item', () => {
 
         const editMenuItem = aclWrapper.find('.sw-media-context-item__move-folder-action');
         expect(editMenuItem.attributes().disabled).toBeDefined();
+    });
+
+    it('should show the icon when it is not parent', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.setProps({
+            isParent: false
+        });
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.text()).toContain('AllowMultiSelect: "true"');
+    });
+
+    it('should not show the icon on back folder', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.setProps({
+            isParent: true
+        });
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.text()).toContain('AllowMultiSelect: "false"');
     });
 });

@@ -249,10 +249,10 @@ const defaultSearchConfiguration = {
         },
     },
     lineItems: {
-        promotion: {
+        payload: {
             code: {
                 _searchable: true,
-                _score: searchRankingPoint.MIDDLE_SEARCH_RANKING,
+                _score: searchRankingPoint.HIGH_SEARCH_RANKING,
             },
         },
     },

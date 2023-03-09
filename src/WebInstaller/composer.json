@@ -62,6 +62,9 @@
             "wget -q https://github.com/box-project/box/releases/download/4.2.0/box.phar -O box.phar",
             "@php -d phar.readonly=0 box.phar compile",
             "rm box.phar"
+        ],
+        "test": [
+            "../../vendor/bin/phpunit"
         ]
     },
     "extra": {

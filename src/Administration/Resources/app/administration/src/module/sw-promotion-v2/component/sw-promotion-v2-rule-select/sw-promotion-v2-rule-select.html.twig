@@ -68,6 +68,7 @@
         v-if="showRuleModal"
         class="sw-promotion-v2-rule-select__create-modal"
         :allowed-rule-scopes="ruleScope"
+        :ruleAwareGroupKey="ruleAwareGroupKey"
         @save="onSaveRule"
         @modal-close="showRuleModal = false"
     />

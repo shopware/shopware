@@ -3,7 +3,7 @@ import './sw-settings-rule-detail.scss';
 
 const { Component, Mixin, Context } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
-const { Criteria } = Shopware.Data;
+const { Criteria, EntityCollection } = Shopware.Data;
 
 /**
  * @private
@@ -319,7 +319,67 @@ export default {
             this.deletedIds = [...this.deletedIds, ...deletedIds];
         },
 
+        validateRuleAwareness() {
+            if (this.rule.personaPromotions.length <= 0) {
+                return true;
+            }
+
+            const conditions = [];
+            this.conditionTree.forEach((condition) => {
+                conditions.push(condition);
+
+                if (condition.children) {
+                    const children = this.getChildrenConditions(condition);
+                    conditions.push(...children);
+                }
+            });
+
+            const restrictions = this.ruleConditionDataProviderService.getRestrictionsByAssociation(new EntityCollection(
+                this.conditionRepository.route,
+                this.conditionRepository.entityName,
+                Context.api,
+                null,
+                conditions
+            ), 'personaPromotions');
+
+            if (restrictions.isRestricted) {
+                const message = this.$tc(
+                    'sw-restricted-rules.restrictedAssignment.equalsAnyViolationTooltip',
+                    0,
+                    {
+                        conditions: this.ruleConditionDataProviderService.getTranslatedConditionViolationList(
+                            restrictions.equalsAnyNotMatched,
+                            'sw-restricted-rules.or',
+                        ),
+                        entityLabel: this.$tc(restrictions.assignmentSnippet, 2),
+                    },
+                )
+
+                this.createNotificationError({ message });
+                return false;
+            }
+
+            return true;
+        },
+
+        getChildrenConditions(condition) {
+            const conditions = [];
+            condition.children.forEach((child) => {
+                conditions.push(child);
+                if (child.children) {
+                    const children = this.getChildrenConditions(child);
+                    conditions.push(...children);
+                }
+            });
+
+            return conditions;
+        },
+
         onSave() {
+            if (!this.validateRuleAwareness()) {
+                return;
+            }
+
             this.isSaveSuccessful = false;
             this.isLoading = true;
 

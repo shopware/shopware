@@ -89,6 +89,7 @@ class ThemeCompiler implements ThemeCompilerInterface
             $themeConfig,
             $styleFiles->getResolveMappings(),
             $salesChannelId,
+            $themeId,
             $context
         );
 
@@ -107,7 +108,7 @@ class ThemeCompiler implements ThemeCompilerInterface
         $oldThemePrefix = $this->themePathBuilder->assemblePath($salesChannelId, $themeId);
 
         try {
-            $this->writeCompiledFiles($themePrefix, $compiled, $concatenatedScripts, $withAssets, $themeConfig, $configurationCollection);
+            $this->writeCompiledFiles($themePrefix, $themeId, $compiled, $concatenatedScripts, $withAssets, $themeConfig, $configurationCollection);
         } catch (\Throwable $e) {
             // delete folder in case of error and rethrow exception
             if ($themePrefix !== $oldThemePrefix) {
@@ -201,7 +202,6 @@ class ThemeCompiler implements ThemeCompilerInterface
 
             $assets = $this->themeFileImporter->getCopyBatchInputsForAssets($asset, $outputPath, $configuration);
 
-            // method copyBatch is provided by copyBatch filesystem plugin
             CopyBatch::copy($this->filesystem, ...$assets);
         }
     }
@@ -214,10 +214,11 @@ class ThemeCompiler implements ThemeCompilerInterface
         StorefrontPluginConfiguration $configuration,
         array $resolveMappings,
         string $salesChannelId,
+        string $themeId,
         Context $context
     ): string {
         try {
-            $variables = $this->dumpVariables($configuration->getThemeConfig() ?? [], $salesChannelId, $context);
+            $variables = $this->dumpVariables($configuration->getThemeConfig() ?? [], $themeId, $salesChannelId, $context);
             $features = $this->getFeatureConfigScssMap();
 
             $resolveImportPath = $this->getResolveImportPathsCallback($resolveMappings);
@@ -309,9 +310,12 @@ class ThemeCompiler implements ThemeCompilerInterface
     /**
      * @param array{fields?: array{value: null|string|array<mixed>, scss?: bool, type: string}[]} $config
      */
-    private function dumpVariables(array $config, string $salesChannelId, Context $context): string
+    private function dumpVariables(array $config, string $themeId, string $salesChannelId, Context $context): string
     {
-        $variables = [];
+        $variables = [
+            'theme-id' => $themeId,
+        ];
+
         foreach ($config['fields'] ?? [] as $key => $data) {
             if (!\is_array($data) || !$this->isDumpable($data)) {
                 continue;
@@ -424,6 +428,7 @@ PHP_EOL;
 
     private function writeCompiledFiles(
         string $themePrefix,
+        string $themeId,
         string $compiled,
         string $concatenatedScripts,
         bool $withAssets,
@@ -444,7 +449,12 @@ PHP_EOL;
 
         // assets
         if ($withAssets) {
-            $this->copyAssets($themeConfig, $configurationCollection, $path);
+            $assetPath = 'theme' . \DIRECTORY_SEPARATOR . $themeId;
+            if ($this->filesystem->has($assetPath)) {
+                $this->filesystem->deleteDirectory($assetPath);
+            }
+
+            $this->copyAssets($themeConfig, $configurationCollection, $assetPath);
         }
     }
 }

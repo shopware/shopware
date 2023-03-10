@@ -47,7 +47,7 @@ Build:
 Component Library:
   extends: .base
   stage: lint
-  image: node:18.12
+  image: node:18.15
   before_script: []
   needs: []
   variables:

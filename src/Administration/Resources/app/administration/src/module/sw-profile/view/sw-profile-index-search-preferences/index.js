@@ -4,8 +4,7 @@
 import template from './sw-profile-index-search-preferences.html.twig';
 import './sw-profile-index-search-preferences.scss';
 
-const { Module, State, Mixin, Utils } = Shopware;
-const { deepMergeObject } = Utils.object;
+const { Module, State, Mixin } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -54,7 +53,7 @@ export default {
                     return Object.keys(item)[0] === Object.keys(currentValue)[0];
                 });
 
-                accumulator.push(deepMergeObject(currentValue, value) || currentValue);
+                accumulator.push(value || currentValue);
 
                 return accumulator;
             }, []);

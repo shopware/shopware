@@ -53,9 +53,9 @@ class ElasticsearchHelper
     /**
      * Created the index alias
      */
-    public function getIndexName(EntityDefinition $definition, string $languageId): string
+    public function getIndexName(EntityDefinition $definition): string
     {
-        return $this->prefix . '_' . $definition->getEntityName() . '_' . $languageId;
+        return $this->prefix . '_' . $definition->getEntityName();
     }
 
     public function allowIndexing(): bool

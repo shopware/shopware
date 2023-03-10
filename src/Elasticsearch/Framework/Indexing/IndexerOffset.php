@@ -19,17 +19,13 @@ class IndexerOffset
      */
     protected array $allDefinitions;
 
-    protected ?string $languageId = null;
-
     protected ?string $definition = null;
 
     /**
-     * @param list<string> $languages
      * @param iterable<AbstractElasticsearchDefinition> $definitions
      * @param array{offset: int|null}|null $lastId
      */
     public function __construct(
-        protected array $languages,
         iterable $definitions,
         protected ?int $timestamp,
         protected ?array $lastId = null

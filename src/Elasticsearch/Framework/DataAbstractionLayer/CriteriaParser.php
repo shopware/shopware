@@ -89,9 +89,14 @@ class CriteriaParser
         }
 
         $field = $this->helper->getField($fieldName, $definition, $root, false);
+
         if ($field instanceof TranslatedField) {
             $ordered = [];
+            $parts[0] .= '_' . $context->getLanguageId();
             foreach ($parts as $part) {
+                if ($part === 'customFields') {
+                    $part .= '_' . $context->getLanguageId();
+                }
                 $ordered[] = $part;
             }
             $parts = $ordered;

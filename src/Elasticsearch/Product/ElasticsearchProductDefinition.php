@@ -198,13 +198,11 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
     }
 
     /**
-     * @param array<string> $ids
-     *
-     * @return array<mixed>
+     * @inheritDoc
      */
-    public function fetch(array $ids, Context $context): array
+    public function fetch(array $ids, Context $context, array $languageIds): array
     {
-        $data = $this->fetchProducts($ids, $context);
+        $data = $this->fetchProducts($ids, $context, array_keys($languageIds));
 
         $groupIds = [];
         foreach ($data as $row) {
@@ -216,7 +214,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
             }
         }
 
-        $groups = $this->fetchPropertyGroups(\array_keys($groupIds), $context);
+        $groups = $this->fetchPropertyGroups(\array_keys($groupIds), array_keys($languageIds));
 
         $documents = [];
 
@@ -245,29 +243,14 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
             $tags = $this->filterToOne(json_decode((string) $item['tags'], true, 512, \JSON_THROW_ON_ERROR), 'id');
             $categories = $this->filterToMany(json_decode((string) $item['categories'], true, 512, \JSON_THROW_ON_ERROR));
 
-            $customFields = $this->takeItem('customFields', $context, $translations, $parentTranslations) ?? [];
-
-            // MariaDB servers gives the result as string and not directly decoded
-            // @codeCoverageIgnoreStart
-            if (\is_string($customFields)) {
-                $customFields = json_decode($customFields, true, 512, \JSON_THROW_ON_ERROR);
-            }
-            // @codeCoverageIgnoreEnd
-
             $document = [
                 'id' => $id,
-                'name' => $this->stripText($this->takeItem('name', $context, $translations, $parentTranslations) ?? ''),
-                'description' => $this->stripText($this->takeItem('description', $context, $translations, $parentTranslations) ?? ''),
-                'metaTitle' => $this->stripText($this->takeItem('metaTitle', $context, $translations, $parentTranslations) ?? ''),
-                'metaDescription' => $this->stripText($this->takeItem('metaDescription', $context, $translations, $parentTranslations) ?? ''),
-                'customSearchKeywords' => $this->takeItem('customSearchKeywords', $context, $translations, $parentTranslations) ?? '[]',
                 'ratingAverage' => (float) $item['ratingAverage'],
                 'active' => (bool) $item['active'],
                 'available' => (bool) $item['available'],
                 'isCloseout' => (bool) $item['isCloseout'],
                 'shippingFree' => (bool) $item['shippingFree'],
                 'markAsTopseller' => (bool) $item['markAsTopseller'],
-                'customFields' => $this->formatCustomFields($customFields, $context),
                 'visibilities' => $visibilities,
                 'availableStock' => (int) $item['availableStock'],
                 'productNumber' => $item['productNumber'],
@@ -281,21 +264,10 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 'height' => (float) $item['height'],
                 'manufacturerId' => $item['productManufacturerId'],
                 'manufacturerNumber' => $item['manufacturerNumber'],
-                'manufacturer' => [
-                    'id' => $item['productManufacturerId'],
-                    'name' => $this->takeItem('name', $context, $manufacturer) ?? '',
-                    '_count' => 1,
-                ],
                 'releaseDate' => isset($item['releaseDate']) ? (new \DateTime($item['releaseDate']))->format('c') : null,
                 'createdAt' => isset($item['createdAt']) ? (new \DateTime($item['createdAt']))->format('c') : null,
-                'optionIds' => $optionIds,
-                'options' => array_values(array_map(fn (string $optionId) => ['id' => $optionId, 'name' => $groups[$optionId]['name'], 'groupId' => $groups[$optionId]['property_group_id'], '_count' => 1], $optionIds)),
-                'categories' => array_values(array_map(fn ($category) => [
-                    'id' => $category[Defaults::LANGUAGE_SYSTEM]['id'],
-                    'name' => $this->takeItem('name', $context, $category) ?? '',
-                ], $categories)),
                 'categoriesRo' => array_values(array_map(fn (string $categoryId) => ['id' => $categoryId, '_count' => 1], $categoriesRo)),
-                'properties' => array_values(array_map(fn (string $propertyId) => ['id' => $propertyId, 'name' => $groups[$propertyId]['name'], 'groupId' => $groups[$propertyId]['property_group_id'], '_count' => 1], $propertyIds)),
+                'optionIds' => $optionIds,
                 'propertyIds' => $propertyIds,
                 'taxId' => $item['taxId'],
                 'tags' => array_values(array_map(fn (string $tagId) => ['id' => $tagId, 'name' => $tags[$tagId]['name'], '_count' => 1], $tagIds)),
@@ -330,6 +302,40 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 }
             }
 
+            foreach ($languageIds as $languageId => $parentId) {
+                $document['name_' . $languageId] = $this->stripText($this->takeItem('name', [$languageId, $parentId], $translations, $parentTranslations) ?? '');
+                $document['description_' . $languageId] = $this->stripText($this->takeItem('description', [$languageId, $parentId], $translations, $parentTranslations) ?? '');
+                $document['metaTitle_' . $languageId] = $this->stripText($this->takeItem('metaTitle', [$languageId, $parentId], $translations, $parentTranslations) ?? '');
+                $document['metaDescription_' . $languageId] = $this->stripText($this->takeItem('metaDescription', [$languageId, $parentId], $translations, $parentTranslations) ?? '');
+                $document['customSearchKeywords_' . $languageId] = $this->takeItem('customSearchKeywords', [$languageId, $parentId], $translations, $parentTranslations) ?? '[]';
+                $document['properties_' . $languageId] = array_values(array_map(fn (string $propertyId) => [
+                    'id' => $propertyId,
+                    'name' => $this->stripText($this->takeItem('name', [$languageId, $parentId], $groups[$propertyId]) ?? ''),
+                    'groupId' => $groups[$propertyId]['property_group_id'],
+                    '_count' => 1,
+                ], $propertyIds));
+                $document['categories_' . $languageId] = array_values(array_map(fn ($category) => [
+                    'id' => $this->takeItem('id', [$languageId, $parentId], $category) ?? '',
+                    'name' => $this->takeItem('name', [$languageId, $parentId], $category) ?? '',
+                ], $categories));
+                $document['manufacturer_' . $languageId] = [
+                    'id' => $item['productManufacturerId'],
+                    'name' => $this->takeItem('name', [$languageId, $parentId], $manufacturer) ?? '',
+                    '_count' => 1,
+                ];
+                $document['options_' . $languageId] = array_values(array_map(fn (string $optionId) => ['id' => $optionId, 'name' => $groups[$optionId][$languageId]['name'] ?? '', 'groupId' => $groups[$optionId]['property_group_id'], '_count' => 1], $optionIds));
+
+                $customFields = $this->takeItem('customFields', [$languageId, $parentId], $translations, $parentTranslations) ?? [];
+                // MariaDB servers gives the result as string and not directly decoded
+                // @codeCoverageIgnoreStart
+                if (\is_string($customFields)) {
+                    $customFields = json_decode($customFields, true, 512, \JSON_THROW_ON_ERROR);
+                }
+                // @codeCoverageIgnoreEnd
+
+                $document['customFields_' . $languageId] = $this->formatCustomFields($customFields, $context);
+            }
+
             $documents[$id] = $document;
         }
 
@@ -341,7 +347,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
      *
      * @return array<mixed>
      */
-    private function fetchProducts(array $ids, Context $context): array
+    private function fetchProducts(array $ids, Context $context, array $languageIds): array
     {
         $sql = <<<'SQL'
 SELECT
@@ -466,7 +472,7 @@ SQL;
             $sql,
             [
                 'ids' => $ids,
-                'languageIds' => Uuid::fromHexToBytesList($context->getLanguageIdChain()),
+                'languageIds' => Uuid::fromHexToBytesList($languageIds),
                 'liveVersionId' => Uuid::fromHexToBytes($context->getVersionId()),
             ],
             [
@@ -529,11 +535,12 @@ SQL;
     }
 
     /**
-     * @param array<string> $propertyIds
+     * @param list<string> $propertyIds
+     * @param list<string> $languageIds
      *
      * @return array<string, array{id: string, name: string, property_group_id: string, translations: string}>
      */
-    private function fetchPropertyGroups(array $propertyIds, Context $context): array
+    private function fetchPropertyGroups(array $propertyIds, array $languageIds): array
     {
         $sql = <<<'SQL'
 SELECT
@@ -563,7 +570,7 @@ SQL;
             $sql,
             [
                 'ids' => Uuid::fromHexToBytesList($propertyIds),
-                'languageIds' => Uuid::fromHexToBytesList($context->getLanguageIdChain()),
+                'languageIds' => Uuid::fromHexToBytesList($languageIds),
             ],
             [
                 'ids' => ArrayParameterType::STRING,
@@ -572,9 +579,11 @@ SQL;
         );
 
         foreach ($options as $optionId => $option) {
-            $translation = $this->filterToOne(json_decode($option['translations'], true, 512, \JSON_THROW_ON_ERROR));
+            $translations = $this->filterToOne(json_decode($option['translations'], true, 512, \JSON_THROW_ON_ERROR));
 
-            $options[(string) $optionId]['name'] = (string) $this->takeItem('name', $context, $translation);
+            foreach ($translations as $languageId => $translation) {
+                $options[$optionId][$languageId]['name'] = (string) $this->takeItem('name', [$languageId], $translations);
+            }
         }
 
         return $options;
@@ -612,9 +621,11 @@ WHERE custom_field_set_relation.entity_name = "product"
      *
      * @return mixed|null
      */
-    private function takeItem(string $key, Context $context, ...$items)
+    private function takeItem(string $key, array $languageIds, ...$items)
     {
-        foreach ($context->getLanguageIdChain() as $languageId) {
+        $languageIds[] = Defaults::LANGUAGE_SYSTEM;
+
+        foreach ($languageIds as $languageId) {
             foreach ($items as $item) {
                 if (isset($item[$languageId][$key])) {
                     return $item[$languageId][$key];

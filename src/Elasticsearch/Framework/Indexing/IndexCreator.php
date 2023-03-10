@@ -2,9 +2,14 @@
 
 namespace Shopware\Elasticsearch\Framework\Indexing;
 
+use Doctrine\DBAL\Connection;
 use OpenSearch\Client;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexConfigEvent;
@@ -28,7 +33,8 @@ class IndexCreator
         private readonly Client $client,
         array $config,
         private readonly array $mapping,
-        private readonly EventDispatcherInterface $eventDispatcher
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private Connection $connection
     ) {
         if (isset($config['settings']['index'])) {
             if (\array_key_exists('number_of_shards', $config['settings']['index']) && $config['settings']['index']['number_of_shards'] === null) {
@@ -54,7 +60,7 @@ class IndexCreator
 
         $mapping = $definition->getMapping($context);
 
-        $mapping = $this->addFullText($mapping);
+        $mapping = $this->addTranslatedFields($mapping, $definition->getEntityDefinition());
 
         $mapping = array_merge_recursive($mapping, $this->mapping);
 
@@ -86,23 +92,53 @@ class IndexCreator
      *
      * @return array<mixed>
      */
-    private function addFullText(array $mapping): array
+    private function addTranslatedFields(array $mapping, EntityDefinition $definition): array
     {
-        $mapping['properties']['fullText'] = [
-            'type' => 'text',
-            'fields' => [
-                'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
-            ],
-        ];
+        $languageIds = $this->connection->fetchFirstColumn('SELECT DISTINCT LOWER(HEX(`language_id`))  FROM sales_channel_language');
 
-        $mapping['properties']['fullTextBoosted'] = ['type' => 'text'];
+        foreach ($definition->getFields() as $field) {
+            $fieldName = $field->getPropertyName();
 
-        if (!\array_key_exists('_source', $mapping) || !\array_key_exists('includes', $mapping['_source'])) {
-            return $mapping;
+            if (!\array_key_exists($fieldName, $mapping['properties'])) {
+                continue;
+            }
+
+            if (!$field instanceof TranslatedField && !$field instanceof AssociationField) {
+                continue;
+            }
+
+            if ($field instanceof AssociationField) {
+                $referenceDefinition = $field instanceof ManyToManyAssociationField ? $field->getToManyReferenceDefinition() : $field->getReferenceDefinition();
+
+                $subMapping = $mapping['properties'][$fieldName];
+
+                if (empty($subMapping['properties'])) {
+                    continue;
+                }
+
+                $hasTranslatedField = false;
+
+                foreach (array_keys($subMapping['properties']) as $property) {
+                    if ($referenceDefinition->getField($property) instanceof TranslatedField) {
+                        $hasTranslatedField = true;
+
+                        break;
+                    }
+                }
+
+                if (!$hasTranslatedField) {
+                    continue;
+                }
+            }
+
+            $fieldMapping = $mapping['properties'][$fieldName];
+
+            foreach ($languageIds as $languageId) {
+                $mapping['properties'][$fieldName . '_' . $languageId] = $fieldMapping;
+            }
+
+            unset($mapping['properties'][$fieldName]);
         }
-
-        $mapping['_source']['includes'][] = 'fullText';
-        $mapping['_source']['includes'][] = 'fullTextBoosted';
 
         return $mapping;
     }

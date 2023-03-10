@@ -93,6 +93,12 @@ E2E quarantined:
     - if: !reference [ .rules, long-running-allow-failure, if ]
       allow_failure: true
     - !reference [ .rules, long-running ]
+  script:
+    - composer run e2e:cypress -- run
+      --config retries=0
+      --browser $BROWSER
+      --spec "$TEST_DIRECTORY"
+      --headless
   parallel:
     matrix:
       - TEST_DIRECTORY:
@@ -106,7 +112,7 @@ Changed E2E:
     extends: E2E
     parallel:
       matrix:
-        - _DUMMY_VAR: [ 'dummy1' , 'dummy2', 'dummy3', 'dummy4', 'dummy5' ]
+        - _DUMMY_VAR: 'dummy'
     rules:
       - !reference [ .rules, skip ]
       - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_EVENT_TYPE != "merge_train"'
@@ -120,7 +126,7 @@ Changed E2E:
         - 'TEST_SPEC=$(echo "${CHANGED_FILES}" | sed "s|^tests/e2e/||g" | tr "\\n" "," | sed "s/,*$//g")'
         - 'echo "Test spec: $TEST_SPEC"'
         - composer run e2e:cypress-repeat -- run
-          -n 10
+          -n 50
           --config retries=0
           --browser chrome
           --spec "$TEST_SPEC"

@@ -25,6 +25,7 @@
         <service id="Shopware\Core\Framework\Update\Services\ApiClient">
             <argument type="service" id="http_client"/>
             <argument>%shopware.auto_update.enabled%</argument>
+            <argument>%kernel.shopware_version%</argument>
             <argument>%kernel.project_dir%</argument>
         </service>
 

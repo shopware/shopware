@@ -25,9 +25,35 @@ use Twig\Environment;
  * @internal
  *
  * @covers \App\Controller\UpdateController
+ * @covers \App\Services\ProjectComposerJsonUpdater
  */
 class UpdateControllerTest extends TestCase
 {
+    public function testRedirectWhenNotInstalled(): void
+    {
+        $recoveryManager = $this->createMock(RecoveryManager::class);
+
+        $recoveryManager
+            ->method('getShopwareLocation')
+            ->willThrowException(new \RuntimeException('Could not find Shopware installation'));
+
+        $controller = new UpdateController(
+            $recoveryManager,
+            $this->createMock(ReleaseInfoProvider::class),
+            $this->createMock(FlexMigrator::class),
+            $this->createMock(StreamedCommandResponseGenerator::class),
+        );
+
+        $controller->setContainer($this->getContainer());
+
+        $request = new Request();
+        $request->setSession(new Session(new MockArraySessionStorage()));
+        $response = $controller->index($request);
+
+        static::assertSame(Response::HTTP_FOUND, $response->getStatusCode());
+        static::assertSame('configure', $response->headers->get('location'));
+    }
+
     public function testRedirectToFinishWhenNoUpdateThere(): void
     {
         $recoveryManager = $this->createMock(RecoveryManager::class);
@@ -37,7 +63,7 @@ class UpdateControllerTest extends TestCase
 
         $controller = new UpdateController(
             $recoveryManager,
-            $this->getReleaseInfoProvider(),
+            $this->createMock(ReleaseInfoProvider::class),
             $this->createMock(FlexMigrator::class),
             $this->createMock(StreamedCommandResponseGenerator::class),
         );
@@ -130,6 +156,7 @@ class UpdateControllerTest extends TestCase
             ->method('runJSON')
             ->with([
                 '/usr/bin/php',
+                '-dmemory_limit=1G',
                 '/path/to/shopware/bin/console',
                 'system:update:prepare',
                 '--no-interaction',
@@ -165,6 +192,7 @@ class UpdateControllerTest extends TestCase
             ->method('runJSON')
             ->with([
                 '/usr/bin/php',
+                '-dmemory_limit=1G',
                 '/path/to/shopware/bin/console',
                 'system:update:finish',
                 '--no-interaction',
@@ -214,6 +242,7 @@ class UpdateControllerTest extends TestCase
             ->method('runJSON')
             ->with([
                 '/usr/bin/php',
+                '-dmemory_limit=1G',
                 '/var/www/shopware-installer.phar.php',
                 'composer',
                 'update',
@@ -229,19 +258,80 @@ class UpdateControllerTest extends TestCase
 
         $controller = new UpdateController(
             $recoveryManager,
-            $this->getReleaseInfoProvider(),
+            $this->createMock(ReleaseInfoProvider::class),
             $this->createMock(FlexMigrator::class),
             $responseGenerator,
         );
         $controller->setContainer($this->getContainer());
 
         $request = new Request();
+        $request->query->set('shopwareVersion', '6.4.15.0');
         $request->setSession(new Session(new MockArraySessionStorage()));
         $response = $controller->run($request);
 
         /** @var array{require: array<string, string>} $json */
         $json = json_decode((string) file_get_contents($tmpDir . '/composer.json'), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame('~6.4.0', $json['require']['shopware/core']);
+
+        static::assertInstanceOf(StreamedResponse::class, $response);
+    }
+
+    public function testUpdateToRC(): void
+    {
+        $recoveryManager = $this->createMock(RecoveryManager::class);
+
+        $fs = new Filesystem();
+        $tmpDir = sys_get_temp_dir() . '/' . uniqid('test', true);
+        $fs->mkdir($tmpDir);
+
+        $fs->dumpFile($tmpDir . '/composer.json', json_encode([
+            'require' => [
+                'shopware/core' => '6.4.0',
+            ],
+        ], \JSON_THROW_ON_ERROR));
+
+        $recoveryManager->method('getShopwareLocation')->willReturn($tmpDir);
+        $recoveryManager->method('getCurrentShopwareVersion')->willReturn('6.4.0');
+        $recoveryManager->method('getBinary')->willReturn('/var/www/shopware-installer.phar.php');
+        $recoveryManager->method('getPHPBinary')->willReturn('/usr/bin/php');
+
+        $responseGenerator = $this->createMock(StreamedCommandResponseGenerator::class);
+        $responseGenerator
+            ->expects(static::once())
+            ->method('runJSON')
+            ->with([
+                '/usr/bin/php',
+                '-dmemory_limit=1G',
+                '/var/www/shopware-installer.phar.php',
+                'composer',
+                'update',
+                '-d',
+                $tmpDir,
+                '--no-interaction',
+                '--no-ansi',
+                '--no-scripts',
+                '-v',
+                '--with-all-dependencies',
+            ])
+            ->willReturn(new StreamedResponse());
+
+        $controller = new UpdateController(
+            $recoveryManager,
+            $this->createMock(ReleaseInfoProvider::class),
+            $this->createMock(FlexMigrator::class),
+            $responseGenerator,
+        );
+        $controller->setContainer($this->getContainer());
+
+        $request = new Request();
+        $request->query->set('shopwareVersion', '6.5.0.0-rc1');
+        $request->setSession(new Session(new MockArraySessionStorage()));
+        $response = $controller->run($request);
+
+        /** @var array{minimum-stability: string, require: array<string, string>} $json */
+        $json = json_decode((string) file_get_contents($tmpDir . '/composer.json'), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame('~6.5.0', $json['require']['shopware/core']);
+        static::assertSame('RC', $json['minimum-stability']);
 
         static::assertInstanceOf(StreamedResponse::class, $response);
     }
@@ -287,6 +377,7 @@ class UpdateControllerTest extends TestCase
             ->method('runJSON')
             ->with([
                 '/usr/bin/php',
+                '-dmemory_limit=1G',
                 '/var/www/shopware-installer.phar.php',
                 'composer',
                 'update',
@@ -302,7 +393,7 @@ class UpdateControllerTest extends TestCase
 
         $controller = new UpdateController(
             $recoveryManager,
-            $this->getReleaseInfoProvider(),
+            $this->createMock(ReleaseInfoProvider::class),
             $this->createMock(FlexMigrator::class),
             $responseGenerator,
         );
@@ -342,6 +433,7 @@ class UpdateControllerTest extends TestCase
             ->method('runJSON')
             ->with([
                 '/usr/bin/php',
+                '-dmemory_limit=1G',
                 '/var/www/shopware-installer.phar.php',
                 'composer',
                 '-d',
@@ -379,8 +471,8 @@ class UpdateControllerTest extends TestCase
         $releaseInfoProvider = $this->createMock(ReleaseInfoProvider::class);
         $releaseInfoProvider
             ->expects(static::once())
-            ->method('fetchLatestRelease')
-            ->willReturn(['6.3' => '6.3.5.0', '6.4' => '6.4.18.0']);
+            ->method('fetchUpdateVersions')
+            ->willReturn(['6.3.5.0', '6.4.18.0']);
 
         return $releaseInfoProvider;
     }

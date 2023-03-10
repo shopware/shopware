@@ -1,9 +1,18 @@
 <?php declare(strict_types=1);
 
 use App\Kernel;
+use Symfony\Component\Dotenv\Dotenv;
 use Symfony\Component\HttpFoundation\Request;
 
 require_once __DIR__ . '/vendor/autoload.php';
+
+/** @var string $rootFile */
+$rootFile = $_SERVER['SCRIPT_FILENAME'];
+$configEnv = dirname($rootFile) . '/.env.installer';
+if (file_exists($configEnv)) {
+    $dotenv = new Dotenv();
+    $dotenv->usePutenv(false)->load($configEnv);
+}
 
 $debug = (bool) ($_SERVER['APP_DEBUG'] ?? 0);
 $debug = true;

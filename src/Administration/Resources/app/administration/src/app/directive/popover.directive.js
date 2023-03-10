@@ -59,7 +59,7 @@ Directive.register('popover', {
         }
 
         // append to target element
-        calculateOutsideEdges(element);
+        calculateOutsideEdges(element, vnode);
 
         registerVirtualScrollingElement(element, vnode.context, config);
     },
@@ -81,40 +81,32 @@ Directive.register('popover', {
  * v-placement
  */
 
-function calculateOutsideEdges(el) {
+function calculateOutsideEdges(el, vnode) {
+    // orientation element is needed for calculating the available space
+    const orientationElement = vnode?.context?.$parent?.$el ?? el;
+
     // get position
-    const boundingClientRect = el.getBoundingClientRect();
+    const boundingClientRect = orientationElement.getBoundingClientRect();
     const windowHeight =
         window.innerHeight || document.documentElement.clientHeight;
     const windowWidth = window.innerWidth || document.documentElement.clientWidth;
 
     // calculate which edges are in viewport
     const visibleEdges = {
-        top: boundingClientRect.top > 0,
-        right: boundingClientRect.right < windowWidth,
-        bottom: boundingClientRect.bottom < windowHeight,
-        left: boundingClientRect.left > 0
+        topSpace: boundingClientRect.top,
+        rightSpace: windowWidth - boundingClientRect.right,
+        bottomSpace: windowHeight - boundingClientRect.bottom,
+        leftSpace: boundingClientRect.left
     };
 
     // remove all existing placement classes
     el.classList.remove(...Object.values(outsideClasses));
 
     // get new classes for placement
-    const placementClasses = Object.entries(visibleEdges).reduce((acc, edge) => {
-        const edgeName = edge[0];
-        const isVisible = edge[1];
-
-        // when edge is not visible
-        if (isVisible) {
-            return acc;
-        }
-
-        // add to classes
-        acc.push(outsideClasses[edgeName]);
-
-        return acc;
-    }, []);
-
+    const placementClasses = [
+        visibleEdges.bottomSpace < visibleEdges.topSpace ? outsideClasses.bottom : outsideClasses.top,
+        visibleEdges.rightSpace > visibleEdges.leftSpace ? outsideClasses.left : outsideClasses.right
+    ]
     // add new classes to element
     el.classList.add(...placementClasses);
 }

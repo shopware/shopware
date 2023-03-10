@@ -46,10 +46,12 @@ class VariantListingConfigFieldSerializerTest extends TestCase
         ];
 
         $result = $this->encode($data);
+        static::assertArrayHasKey('variant_listing_config', $result);
+        $result = json_decode($result['variant_listing_config'], true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertSame($data['displayParent'], $result['display_parent']);
-        static::assertSame(Uuid::fromHexToBytes($data['mainVariantId']), $result['main_variant_id']);
-        static::assertSame('[]', $result['configurator_group_config']);
+        static::assertSame($data['displayParent'], $result['displayParent']);
+        static::assertSame($data['mainVariantId'], $result['mainVariantId']);
+        static::assertSame($data['configuratorGroupConfig'], $result['configuratorGroupConfig']);
     }
 
     public function testExpandedList(): void
@@ -65,10 +67,12 @@ class VariantListingConfigFieldSerializerTest extends TestCase
         ];
 
         $result = $this->encode($data);
+        static::assertArrayHasKey('variant_listing_config', $result);
+        $result = json_decode($result['variant_listing_config'], true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertNull($result['display_parent']);
-        static::assertNull($result['main_variant_id']);
-        static::assertSame(json_encode($data['configuratorGroupConfig'], \JSON_THROW_ON_ERROR), $result['configurator_group_config']);
+        static::assertSame($data['displayParent'], $result['displayParent']);
+        static::assertSame($data['mainVariantId'], $result['mainVariantId']);
+        static::assertSame($data['configuratorGroupConfig'], $result['configuratorGroupConfig']);
     }
 
     public function testEncodeThrowExceptionOnWrongField(): void
@@ -125,7 +129,7 @@ class VariantListingConfigFieldSerializerTest extends TestCase
      *
      * @throws \JsonException
      *
-     * @return array<string, int|string|array<string, bool|string>|null>
+     * @return array<string>
      */
     private function encode(array $data): array
     {

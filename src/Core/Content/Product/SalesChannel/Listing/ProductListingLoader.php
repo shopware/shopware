@@ -174,11 +174,11 @@ class ProductListingLoader
             }
             $variantListingConfig = json_decode((string) $item['variantListingConfig'], true, 512, \JSON_THROW_ON_ERROR);
 
-            if ($variantListingConfig['mainVariantId']) {
+            if (isset($variantListingConfig['mainVariantId']) && $variantListingConfig['mainVariantId']) {
                 $mapping[$item['id']] = $variantListingConfig['mainVariantId'];
             }
 
-            if ($variantListingConfig['displayParent']) {
+            if (isset($variantListingConfig['displayParent']) && $variantListingConfig['displayParent']) {
                 $mapping[$item['id']] = $item['parentId'];
             }
         }

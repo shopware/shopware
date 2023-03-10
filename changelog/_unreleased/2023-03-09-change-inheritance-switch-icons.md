@@ -7,3 +7,6 @@ author_github: Deristes
 ---
 # Administration
 * Changed `sw-inheritance-switch` to use right icons in right color
+___
+# Core
+* Added default value for markAsTopseller option in `ProductDefinition`

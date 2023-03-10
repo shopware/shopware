@@ -20,7 +20,7 @@ We changed the approach to Multilingual fields strategy following these criteria
 
 1. Each searchable entity have only one index (e.g sw_product)
 2. Each translated field's mapping will have a language_id as suffix, other fields will be mapped normally (no suffix)
-3. When searching for these fields, use multi-match search with <translated_field>_<context_lang_id> and <translated_field>_<default_lang_id> as fallback, this way we have a fallback mechanism without needing duplicate data
+3. When searching for these fields, use multi-match search with <translated_field>_<context_lang_id>, <translated_field>_<parent_current_lang_id> and <translated_field>_<default_lang_id> as fallback, this way we have a fallback mechanism without needing duplicate data
 
 Example:
 
@@ -61,7 +61,7 @@ GET /sw_product/_search
           "title_de^2", // as we want to prioritize german language for example
           "title_en" // as a fallback
       ],
-      "type": "most_fields" 
+      "type": "best_fields" 
     }
   }
 }

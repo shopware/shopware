@@ -62,15 +62,9 @@ class ElasticsearchHelper
      *
      * @deprecated tag:v6.6.0 - reason:new-optional-parameter - Parameter $languageId will be removed.
      */
-    public function getIndexName(EntityDefinition $definition/* , ?string $languageId = null */): string
+    public function getIndexName(EntityDefinition $definition): string
     {
-        $languageId = \func_get_args()[1] ?? '';
-
-        if ($languageId === '') {
-            return $this->prefix . '_' . $definition->getEntityName();
-        }
-
-        return $this->prefix . '_' . $definition->getEntityName() . '_' . $languageId;
+        return $this->prefix . '_' . $definition->getEntityName();
     }
 
     public function allowIndexing(): bool

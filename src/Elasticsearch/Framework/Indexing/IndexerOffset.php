@@ -19,23 +19,16 @@ class IndexerOffset
      */
     protected array $allDefinitions;
 
-    /**
-     * @deprecated tag:v6.6.0 - Property $languageId will be removed.
-     */
-    protected ?string $languageId = null;
-
     protected ?string $definition = null;
 
     /**
-     * @param list<string> $languages
-     * @param iterable<AbstractElasticsearchDefinition>|iterable<string> $mappingDefinitions
+     * @param iterable<AbstractElasticsearchDefinition> $definitions
      * @param array{offset: int|null}|null $lastId
      *
      * @deprecated tag:v6.6.0 - Parameter $languages will be removed.
      */
     public function __construct(
-        protected array $languages,
-        iterable $mappingDefinitions,
+        iterable $definitions,
         protected ?int $timestamp,
         protected ?array $lastId = null
     ) {

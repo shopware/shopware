@@ -42,10 +42,11 @@ abstract class AbstractElasticsearchDefinition
 
     /**
      * @param array<string> $ids
+     * @param list<string> $languageIds
      *
      * @return array<string, array<string, mixed>>
      */
-    public function fetch(array $ids, Context $context): array
+    public function fetch(array $ids, Context $context, array $languageIds): array
     {
         return [];
     }

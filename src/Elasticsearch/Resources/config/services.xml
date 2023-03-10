@@ -85,6 +85,7 @@
             <argument>%elasticsearch.index.config%</argument>
             <argument type="service" id="Shopware\Elasticsearch\Framework\Indexing\IndexMappingProvider"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\Indexing\IndexMappingProvider">
@@ -245,9 +246,6 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper"/>
             <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
-            <argument type="service" id="Shopware\Elasticsearch\Product\StopwordTokenFilter"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer"/>
-            <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchHelper"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Product\CustomFieldUpdater">
@@ -314,12 +312,7 @@
             <argument type="service" id="OpenSearch\Client"/>
             <argument type="service" id="logger"/>
             <argument type="service" id="currency.repository"/>
-            <argument type="service" id="language.repository"/>
             <argument>%elasticsearch.indexing_batch_size%</argument>
-            <argument type="service" id="messenger.bus.shopware"/>
-            <argument type="service" id="Shopware\Elasticsearch\Framework\Indexing\MultilingualEsIndexer"/>
-            <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchLanguageProvider"/>
-            <argument>%kernel.environment%</argument>
             <tag name="messenger.message_handler"/>
         </service>
 

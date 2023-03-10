@@ -10,9 +10,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\Facade\SystemConfigFacadeHookFactory;
 
 /**
- * @package checkout
- */
-/**
  * Triggered during the cart calculation process.
  *
  * @hook-use-case cart_manipulation

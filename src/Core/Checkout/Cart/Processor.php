@@ -39,6 +39,13 @@ class Processor
             $cart->setBehavior($behavior);
             $cart->addState(...$original->getStates());
 
+            if ($behavior->hookAware()) {
+                // reset modified state that apps always have the same entry state
+                foreach ($cart->getLineItems()->getFlat() as $item) {
+                    $item->markUnModifiedByApp();
+                }
+            }
+
             // move data from previous calculation into new cart
             $cart->setData($original->getData());
 

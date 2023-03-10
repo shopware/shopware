@@ -1,0 +1,46 @@
+{# @var services \Shopware\Core\Framework\Script\ServiceStubs #}
+{% set price = services.price.create({
+    'default': { 'gross': 1.5, 'net': 1.5}
+}) %}
+
+{% set product = hook.products[hook.ids.get('p1')] %}
+
+{% do debug.dump(product.calculatedPrice.unit, 'original') %}
+
+{% do product.calculatedPrice.change(price) %}
+
+{% do debug.dump(product.calculatedPrice.unit, 'changed') %}
+
+{% do product.calculatedPrice.plus(price) %}
+
+{% do debug.dump(product.calculatedPrice.unit, 'plus') %}
+
+{% do product.calculatedPrice.minus(price) %}
+
+{% do debug.dump(product.calculatedPrice.unit, 'minus') %}
+
+{% do product.calculatedPrice.discount(10) %}
+
+{% do debug.dump(product.calculatedPrice.unit, 'discount') %}
+
+{% do product.calculatedPrice.surcharge(10) %}
+
+{% do debug.dump(product.calculatedPrice.unit, 'surcharge') %}
+
+{% set product = hook.products[hook.ids.get('p2')] %}
+
+{% do product.calculatedPrices.change([
+    { to: 20, price: services.price.create({ 'default': { 'gross': 15, 'net': 15} }) },
+    { to: 30, price: services.price.create({ 'default': { 'gross': 10, 'net': 10} }) },
+    { to: null, price: services.price.create({ 'default': { 'gross': 5, 'net': 5} }) },
+]) %}
+
+{% foreach product.calculatedPrices as key => calculated %}
+    {% do debug.dump(calculated.unit, 'price-' ~ calculated.quantity) %}
+{% endforeach %}
+
+{% set name = product.name %}
+
+{% set manufacturer = product.manufacturer %}
+
+{% do debug.dump(name, 'name') %}

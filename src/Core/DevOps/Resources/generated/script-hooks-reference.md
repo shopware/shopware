@@ -625,3 +625,19 @@ All available hooks that can be used to execute scripts during your app's lifecy
 | **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[writer](./custom-endpoint-script-services-reference.md#RepositoryWriterFacade)<br> |
 | **Stoppable**          | `false`                  |
 
+## 
+
+
+
+#### product-pricing
+
+| <!-- -->               | <!-- -->                                |
+|:-----------------------|:----------------------------------------|
+| **Name**               | product-pricing                         |
+| **Since**              | 6.5.1.0                        |
+| **Class**              | `Shopware\Core\Content\Product\Hook\Pricing\ProductPricingHook`                      |
+| **Description**        | Triggered when product prices are calculated for the store<br>                  |
+| **Available Data**     | products: `array`<br>salesChannelContext: [`Shopware\Core\System\SalesChannel\SalesChannelContext`](https://github.com/shopware/platform/blob/trunk/src/Core/System/SalesChannel/SalesChannelContext.php)<br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php)<br>        |
+| **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[price](./cart-manipulation-script-services-reference.md#PriceFactory)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[store](./data-loading-script-services-reference.md#SalesChannelRepositoryFacade)<br> |
+| **Stoppable**          | `false`                  |
+

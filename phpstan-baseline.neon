@@ -271,71 +271,6 @@ parameters:
 			path: src/Core/Checkout/Cart/Event/CheckoutOrderPlacedEvent.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Facade\\\\CartFacadeHelper\\:\\:price\\(\\) has parameter \\$price with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Facade/CartFacadeHelper.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Facade\\\\CartFacadeHelper\\:\\:resolveIsoCodes\\(\\) has parameter \\$prices with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Facade/CartFacadeHelper.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Facade\\\\CartFacadeHelper\\:\\:resolveIsoCodes\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Facade/CartFacadeHelper.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Facade\\\\CartFacadeHelper\\:\\:validatePrice\\(\\) has parameter \\$price with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Facade/CartFacadeHelper.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Facade\\\\CartFacadeHelper\\:\\:validatePrice\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Facade/CartFacadeHelper.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Facade\\\\CartFacadeHelper\\:\\:\\$currencies type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Facade/CartFacadeHelper.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Facade\\\\CartPriceFacade\\:\\:create\\(\\) has parameter \\$price with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Facade/CartPriceFacade.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Facade\\\\ErrorsFacade\\:\\:createError\\(\\) has parameter \\$parameters with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Facade/ErrorsFacade.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Facade\\\\ErrorsFacade\\:\\:error\\(\\) has parameter \\$parameters with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Facade/ErrorsFacade.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Facade\\\\ErrorsFacade\\:\\:notice\\(\\) has parameter \\$parameters with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Facade/ErrorsFacade.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Facade\\\\ErrorsFacade\\:\\:warning\\(\\) has parameter \\$parameters with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Facade/ErrorsFacade.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Facade\\\\PriceFacade\\:\\:create\\(\\) has parameter \\$price with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Facade/PriceFacade.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Facade\\\\StatesFacade\\:\\:get\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Facade/StatesFacade.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\Group\\\\LineItemGroupServiceRegistry\\:\\:__construct\\(\\) has parameter \\$packagers with no value type specified in iterable type iterable\\.$#"
 			count: 1
 			path: src/Core/Checkout/Cart/LineItem/Group/LineItemGroupServiceRegistry.php
@@ -1204,26 +1139,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Shipping\\\\Aggregate\\\\ShippingMethodTranslation\\\\ShippingMethodTranslationCollection\\:\\:getShippingMethodIds\\(\\) should return list\\<string\\> but returns array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Shipping/Aggregate/ShippingMethodTranslation/ShippingMethodTranslationCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Facade\\\\CartFacadeHelperTest\\:\\:testPriceFactory\\(\\) has parameter \\$prices with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Facade/CartFacadeHelperTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Facade\\\\CartTestHook\\:\\:__construct\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Facade/CartTestHook.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Facade\\\\CartTestHook\\:\\:getServiceIds\\(\\) should return list\\<class\\-string\\<object\\>\\> but returns array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Facade/CartTestHook.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Test\\\\Cart\\\\Facade\\\\CartTestHook\\:\\:\\$serviceIds type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Test/Cart/Facade/CartTestHook.php
 
 		-
 			message: "#^Cannot call method getTotalPrice\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Price\\\\Struct\\\\CalculatedPrice\\|null\\.$#"
@@ -10162,69 +10077,19 @@ parameters:
 			path: src/Core/Framework/Script/Execution/Script.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Script\\\\Facade\\\\ArrayFacade\\:\\:__construct\\(\\) has parameter \\$items with no value type specified in iterable type array\\.$#"
+			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Script\\\\Execution\\\\ScriptLoader\\:\\:getAppInfo\\(\\) has parameter \\$script with no value type specified in iterable type array\\.$#"
 			count: 1
-			path: src/Core/Framework/Script/Facade/ArrayFacade.php
+			path: src/Core/Framework/Script/Execution/ScriptLoader.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Script\\\\Facade\\\\ArrayFacade\\:\\:all\\(\\) return type has no value type specified in iterable type array\\.$#"
+			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Script\\\\Execution\\\\ScriptLoader\\:\\:load\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
-			path: src/Core/Framework/Script/Facade/ArrayFacade.php
+			path: src/Core/Framework/Script/Execution/ScriptLoader.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Script\\\\Facade\\\\ArrayFacade\\:\\:merge\\(\\) has parameter \\$array with no value type specified in iterable type array\\.$#"
+			message: "#^PHPDoc tag @var for variable \\$script has no value type specified in iterable type array\\.$#"
 			count: 1
-			path: src/Core/Framework/Script/Facade/ArrayFacade.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Script\\\\Facade\\\\ArrayFacade\\:\\:merge\\(\\) has parameter \\$array with no value type specified in iterable type array\\|Shopware\\\\Core\\\\Framework\\\\Script\\\\Facade\\\\ArrayFacade\\.$#"
-			count: 1
-			path: src/Core/Framework/Script/Facade/ArrayFacade.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Script\\\\Facade\\\\ArrayFacade\\:\\:offsetGet\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Script/Facade/ArrayFacade.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Script\\\\Facade\\\\ArrayFacade\\:\\:offsetSet\\(\\) has parameter \\$value with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Script/Facade/ArrayFacade.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Script\\\\Facade\\\\ArrayFacade\\:\\:push\\(\\) has parameter \\$value with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Script/Facade/ArrayFacade.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Script\\\\Facade\\\\ArrayFacade\\:\\:remove\\(\\) has parameter \\$value with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Script/Facade/ArrayFacade.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Script\\\\Facade\\\\ArrayFacade\\:\\:replace\\(\\) has parameter \\$array with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Script/Facade/ArrayFacade.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Script\\\\Facade\\\\ArrayFacade\\:\\:replace\\(\\) has parameter \\$array with no value type specified in iterable type array\\|Shopware\\\\Core\\\\Framework\\\\Script\\\\Facade\\\\ArrayFacade\\.$#"
-			count: 1
-			path: src/Core/Framework/Script/Facade/ArrayFacade.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Script\\\\Facade\\\\ArrayFacade\\:\\:set\\(\\) has parameter \\$value with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Script/Facade/ArrayFacade.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Script\\\\ServiceStubs\\:\\:__call\\(\\) has parameter \\$arguments with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Script/ServiceStubs.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Script\\\\ServiceStubs\\:\\:\\$services type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Script/ServiceStubs.php
+			path: src/Core/Framework/Script/Execution/ScriptLoader.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Store\\\\Search\\\\EqualsFilterStruct\\:\\:fromArray\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"

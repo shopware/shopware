@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Test\Cart\Facade;
+namespace Shopware\Tests\Integration\Core\Checkout\Cart\Facade;
 
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Hook\CartAware;
@@ -20,10 +20,14 @@ class CartTestHook extends Hook implements CartAware
 
     public IdsCollection $ids;
 
+    /**
+     * @var list<class-string<object>>
+     */
     private static array $serviceIds;
 
     /**
-     * @param array<string> $serviceIds
+     * @param list<class-string<object>> $serviceIds
+     * @param array<string, mixed> $data
      */
     public function __construct(
         private readonly string $name,
@@ -46,6 +50,9 @@ class CartTestHook extends Hook implements CartAware
         return $this->cart;
     }
 
+    /**
+     * @return list<class-string<object>>
+     */
     public static function getServiceIds(): array
     {
         return self::$serviceIds;

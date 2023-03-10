@@ -9,9 +9,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * @package checkout
- */
-/**
  * The ItemFacade is a wrapper around one line-item.
  *
  * @script-service cart_manipulation
@@ -23,9 +20,10 @@ class ItemFacade
      * @internal
      */
     public function __construct(
-        private readonly LineItem $item,
-        private readonly CartFacadeHelper $helper,
-        private readonly SalesChannelContext $context
+        private LineItem $item,
+        private ScriptPriceStubs $priceStubs,
+        private CartFacadeHelper $helper,
+        private SalesChannelContext $context
     ) {
     }
 
@@ -37,7 +35,7 @@ class ItemFacade
     public function getPrice(): ?PriceFacade
     {
         if ($this->item->getPrice()) {
-            return new PriceFacade($this->item->getPrice(), $this->helper);
+            return new PriceFacade($this->item, $this->item->getPrice(), $this->priceStubs, $this->context);
         }
 
         return null;
@@ -72,7 +70,7 @@ class ItemFacade
             $this->item->getQuantity() - $quantity
         );
 
-        return new ItemFacade($new, $this->helper, $this->context);
+        return new ItemFacade($new, $this->priceStubs, $this->helper, $this->context);
     }
 
     /**
@@ -138,7 +136,7 @@ class ItemFacade
      */
     public function getChildren(): ItemsFacade
     {
-        return new ItemsFacade($this->item->getChildren(), $this->helper, $this->context);
+        return new ItemsFacade($this->item->getChildren(), $this->priceStubs, $this->helper, $this->context);
     }
 
     /**

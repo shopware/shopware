@@ -225,6 +225,13 @@
             <tag name="kernel.reset" method="reset"/>
         </service>
 
+        <service id="Shopware\Core\Content\Product\SalesChannel\Price\AppScriptProductPriceCalculator" decorates="Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceCalculator">
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Price\AppScriptProductPriceCalculator.inner"/>
+            <argument type="service" id="Shopware\Core\Framework\Script\Execution\ScriptExecutor"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Facade\ScriptPriceStubs"/>
+            <tag name="kernel.reset" method="reset"/>
+        </service>
+
         <service id="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingFeaturesSubscriber">
             <tag name="kernel.event_subscriber"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>

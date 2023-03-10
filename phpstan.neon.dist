@@ -210,6 +210,11 @@ services:
             - phpstan.rules.rule
 
     -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\DomainExceptionRule
+        tags:
+            - phpstan.rules.rule
+
+    -
         class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\MockingSimpleObjectsNotAllowedRule
         tags:
             - phpstan.rules.rule

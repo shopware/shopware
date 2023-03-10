@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Test\Cart\Facade;
+namespace Shopware\Tests\Integration\Core\Checkout\Cart\Facade;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
@@ -162,6 +162,9 @@ class CartFacadeTest extends TestCase
             ->factory($hook, $this->script);
 
         $this->getContainer()->get(ScriptExecutor::class)->execute($hook);
+
+        // add {% do debug.dump('foo') %} to debug scripts
+//         dump($this->getContainer()->get(ScriptTraces::class)->getTraces());
 
         $this->assertItems($service, $expectations);
 
@@ -351,6 +354,13 @@ class CartFacadeTest extends TestCase
                 static::assertTrue($cart->states()->has('my-custom-state'));
                 static::assertFalse($cart->states()->has('default-state'));
             },
+        ];
+
+        yield 'Discount product price' => [
+            'discount-product-price',
+            [
+                'p1' => new ExpectedPrice(90, 90),
+            ],
         ];
     }
 

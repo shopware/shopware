@@ -26,8 +26,12 @@ class ElasticsearchIndexingCommand extends Command
     /**
      * @internal
      */
-    public function __construct(private readonly ElasticsearchIndexer $indexer, private readonly MessageBusInterface $messageBus, private readonly CreateAliasTaskHandler $aliasHandler)
-    {
+    public function __construct(
+        private readonly ElasticsearchIndexer $indexer,
+        private readonly MessageBusInterface $messageBus,
+        private readonly CreateAliasTaskHandler $aliasHandler,
+        private readonly bool $enabled
+    ) {
         parent::__construct();
     }
 
@@ -42,6 +46,12 @@ class ElasticsearchIndexingCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->io = new ShopwareStyle($input, $output);
+
+        if (!$this->enabled) {
+            $this->io->error('Elasticsearch indexing is disabled');
+
+            return self::FAILURE;
+        }
 
         $progressBar = new ProgressBar($output);
         $progressBar->start();

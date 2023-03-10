@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Indexing;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\IterateEntityIndexerMessage;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
@@ -19,8 +18,6 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * @final
  *
  * @internal
- *
- * @phpstan-import-type Offset from IterableQuery
  */
 #[AsMessageHandler]
 #[Package('core')]
@@ -214,7 +211,7 @@ class EntityIndexerRegistry
     }
 
     /**
-     * @param Offset|null $offset
+     * @param array{offset: int|null}|null $offset
      * @param list<string> $skip
      */
     private function iterateIndexer(string $name, ?array $offset, bool $useQueue, array $skip): ?EntityIndexingMessage

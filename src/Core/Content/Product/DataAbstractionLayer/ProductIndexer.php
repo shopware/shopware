@@ -25,9 +25,6 @@ use Shopware\Core\Profiling\Profiler;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @phpstan-import-type Offset from IterableQuery
- */
 #[Package('core')]
 class ProductIndexer extends EntityIndexer
 {
@@ -293,7 +290,7 @@ class ProductIndexer extends EntityIndexer
     }
 
     /**
-     * @param Offset|null $offset
+     * @param array{offset: int|null}|null $offset
      */
     private function getIterator(?array $offset): IterableQuery
     {

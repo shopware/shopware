@@ -10,6 +10,6 @@
             "in": "vendor"
         }
     ],
-    "git-version": "package_version",
+    "git-commit-short": "git_commit_short",
     "output": "shopware-installer.phar.php"
 }

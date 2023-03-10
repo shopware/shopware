@@ -29,6 +29,31 @@ use Twig\Environment;
  */
 class UpdateControllerTest extends TestCase
 {
+    public function testRedirectWhenNotInstalled(): void
+    {
+        $recoveryManager = $this->createMock(RecoveryManager::class);
+
+        $recoveryManager
+            ->method('getShopwareLocation')
+            ->willThrowException(new \RuntimeException('Could not find Shopware installation'));
+
+        $controller = new UpdateController(
+            $recoveryManager,
+            $this->createMock(ReleaseInfoProvider::class),
+            $this->createMock(FlexMigrator::class),
+            $this->createMock(StreamedCommandResponseGenerator::class),
+        );
+
+        $controller->setContainer($this->getContainer());
+
+        $request = new Request();
+        $request->setSession(new Session(new MockArraySessionStorage()));
+        $response = $controller->index($request);
+
+        static::assertSame(Response::HTTP_FOUND, $response->getStatusCode());
+        static::assertSame('configure', $response->headers->get('location'));
+    }
+
     public function testRedirectToFinishWhenNoUpdateThere(): void
     {
         $recoveryManager = $this->createMock(RecoveryManager::class);

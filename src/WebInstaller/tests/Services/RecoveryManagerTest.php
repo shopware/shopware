@@ -80,7 +80,9 @@ class RecoveryManagerTest extends TestCase
     {
         $recoveryManager = new RecoveryManager();
 
-        static::assertSame('unknown', $recoveryManager->getCurrentShopwareVersion(__DIR__));
+        static::expectException(\RuntimeException::class);
+        static::expectExceptionMessage('Could not find composer.lock file');
+        $recoveryManager->getCurrentShopwareVersion(__DIR__);
     }
 
     public function testGetVersionFromLock(): void
@@ -97,7 +99,9 @@ class RecoveryManagerTest extends TestCase
             'packages' => [],
         ], \JSON_THROW_ON_ERROR));
 
-        static::assertSame('unknown', $recoveryManager->getCurrentShopwareVersion($tmpDir));
+        static::expectException(\RuntimeException::class);
+        static::expectExceptionMessage('Could not find shopware package in the composer.lock');
+        $recoveryManager->getCurrentShopwareVersion($tmpDir);
     }
 
     public function testSymfonyLock(): void

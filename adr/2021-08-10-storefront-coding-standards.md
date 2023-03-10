@@ -1,4 +1,9 @@
-# 2021-08-10 - Storefront coding standars
+---
+title: Storefront coding standards
+date: 2021-08-10
+area: storefront
+tags: [storefront, coding-standards, architecture]
+--- 
 
 ## Context
 

@@ -1,5 +1,11 @@
-# 2020-08-12 - Handling feature flags
-# Superseded by [Feature flags for major versions](2022-01-20-feature-flags-for-major-versions.md)
+---
+title: Handling feature flags
+date: 2020-08-12
+area: core
+tags: [feature-flag, workflow, major]
+---
+
+## Superseded by [Feature flags for major versions](2022-01-20-feature-flags-for-major-versions.md)
 
 ## Context
 

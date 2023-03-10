@@ -1,4 +1,9 @@
-# ADR - 2023-02-27 - Native Extension System with Vue
+---
+title: Native extension system with vue
+date: 2023-02-27
+area: administration
+tags: [vue, extensibility, performance, administration]
+---
 
 ## Context
 Our current plugin extension system for the administration is based on our Component Factory. This factory generates native Vue components at runtime based on a base Shopware component which can be extended or overwritten by plugins. This approach offers flexibility to plugin developers to modify every component. For the template part, we use Twig.JS and compile the Vue template in the client at runtime.

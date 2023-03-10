@@ -66,7 +66,7 @@ class ADRValidationTest extends TestCase
                 $errors[] = 'ADR contains no date';
             }
 
-            if (!isset($properties['keywords'])) {
+            if (!isset($properties['tags'])) {
                 $errors[] = 'ADR contains no keywords';
             }
 

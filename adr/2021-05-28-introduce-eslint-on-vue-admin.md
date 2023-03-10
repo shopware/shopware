@@ -1,4 +1,9 @@
-# 2021-05-28 - Vue Administration App has ESLint support
+---
+title: Vue administration app has ESLint support
+date: 2021-05-28
+area: administration
+tags: [administration, eslint, vue, linting]
+--- 
 
 ## Context
 

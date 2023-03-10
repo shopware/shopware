@@ -1,4 +1,9 @@
-# 15.06.2022 - providing the Admin Extension SDK
+---
+title: Providing the admin extension SDK
+date: 2022-06-15
+area: administration
+tags: [admin-extension-sdk, vue]
+---
 
 ## Context
 The Admin Extension SDK is a toolkit for plugin and app developers to extend or modify the administration via their plugins or apps. The SDK contains easy to use methods which interact with the administration in the background via the PostMessage API for iFrames.

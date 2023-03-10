@@ -1,4 +1,9 @@
-# 2020-09-17 - The best-practice to always re-fetch the data after saving
+---
+title: The best-practice to always re-fetch the data after saving
+date: 2020-09-17
+area: administration
+tags: [administration, data-handling]
+--- 
 
 ## Context
 

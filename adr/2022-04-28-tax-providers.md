@@ -1,4 +1,9 @@
-# 2022-04-28 - Introducing tax providers
+---
+title: Introducing tax providers
+date: 2022-04-28
+area: checkout
+tags: [tax, tax-provider, checkout]
+--- 
 
 ## Context
 In other countries like the USA, there are different tax rates for different states and counties you are shipping to, leading to thousands of different tax rates in the USA alone.

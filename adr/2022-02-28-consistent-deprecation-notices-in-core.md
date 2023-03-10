@@ -1,4 +1,9 @@
-# 2022-02-09 - Consistent deprecation notices in Core
+---
+title: Consistent deprecation notices in Core
+date: 2022-02-09
+area: core
+tags: [deprecation, annotations, trigger-deprecation]
+--- 
 
 ## Context
 

@@ -1,4 +1,9 @@
-# 2020-09-08 - CustomField label loading in storefront
+---
+title: CustomField label loading in storefront
+date: 2020-09-08
+area: storefront
+tags: [custom-fields, storefront, snippets]
+--- 
 
 ## Context
 

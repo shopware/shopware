@@ -1,5 +1,11 @@
-# 2022-03-25 Profiler integrations
+---
+title: Profiler integrations
+date: 2022-03-25
+area: core
+tags: [profile, performance, tideways, datadog, blackfire]
+---
 
+## Context
 During the last performance benchmarks we have intensively dealt with profiling tools like Blackfire, Tideways and datadog. We often encountered the difficulty of getting detailed trace information when the server is under high load.
 
 Tideways gave us very good monitoring tools, but in contrast to Blackfire it was difficult to detect bottlenecks by interpreting the timeline. We used Blackfire for single traces, but it turned out to be difficult to catch a "bad trace".

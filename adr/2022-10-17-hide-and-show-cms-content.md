@@ -1,4 +1,9 @@
-# 17.10.2022 - Hide and Show CMS Content
+---
+title: Hide and show CMS content
+date: 2022-10-17
+area: content
+tags: [cms, storefront, admin]
+---
 
 ## Context
 Many merchants reached out to us, that the possibility to customize content per device is important for them. Therefore, we would like to provide a solution to allow merchants to hide and show cms sections or blocks per devices.

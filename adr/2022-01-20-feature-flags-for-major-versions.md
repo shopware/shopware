@@ -1,4 +1,9 @@
-# 2022-01-20 - Feature flags for major versions
+---
+title: Feature flags for major versions
+date: 2022-01-20
+area: core
+tags: [core, feature-flag, workflow, major-version]
+--- 
 
 ## Context
 Feature flags enable the developer to create new code which is hidden behind the flag and merge it into the trunk branch, even when the code is not finalized.

@@ -1,4 +1,9 @@
-# 2022-09-28 - Mapping of Product Area
+---
+title: Mapping of product area
+date: 2022-09-28
+area: product-operations
+tags: [workflow]
+--- 
 
 ## Context
 

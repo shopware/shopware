@@ -1,4 +1,9 @@
-# 2020-08-28 - Import ACL privileges from other roles
+---
+title: Import ACL privileges from other roles
+date: 2020-08-28
+area: administration
+tags: [acl, privileges, dependency, administration]
+--- 
 
 ## Context
 Some modules have components which require many acl privileges. Examples

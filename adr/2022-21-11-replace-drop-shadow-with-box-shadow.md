@@ -1,4 +1,9 @@
-# 2022-21-11 - Replace drop-shadow with box-shadow
+---
+title: Replace drop-shadow with box-shadow
+date: 2022-21-11
+area: storefront
+tags: [safari, performance, storefront]
+--- 
 
 ## Context
 Safari has drastic performance issues with drop-shadow.

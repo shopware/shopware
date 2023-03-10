@@ -1,4 +1,9 @@
-# 2021-06-14 - Introduce jest-fail-on-console
+---
+title: Introduce jest-fail-on-console
+date: 2021-06-14
+area: administration
+tags: [jest, test, console, error, warning]
+--- 
 
 ## Context
 A jest pipeline run produced previously hundreds of errors and warnings, which made it hard to see why a test failed and if a passing test isn’t just a false positive.

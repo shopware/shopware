@@ -1,4 +1,9 @@
-# 2022-10-20 - Test structure
+---
+title: Test structure
+date: 2022-10-20
+area: administration
+tags: [test, structure]
+--- 
 
 ## Context
 Currently, all tests are in the same folder: `src/Administration/Resources/app/administration/test`.

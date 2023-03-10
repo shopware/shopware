@@ -1,4 +1,9 @@
-# 2022-02-09 - Move controller level annotation into Symfony route annotation
+---
+title: Move controller level annotation into Symfony route annotation
+date: 2022-02-09
+area: core
+tags: [annotations, controller, route, defaults]
+--- 
 
 ## Context
 

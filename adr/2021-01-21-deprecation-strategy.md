@@ -1,5 +1,9 @@
-# 2021-01-21 - Deprecation Strategy
-# Superseded by [Feature flags for major versions](2022-01-20-feature-flags-for-major-versions.md)
+---
+title: Deprecation strategy
+date: 2021-01-21
+area: core
+tags: [deprecation, feature-flags, workflow]
+---# Superseded by [Feature flags for major versions](2022-01-20-feature-flags-for-major-versions.md)
 
 ## Context
 

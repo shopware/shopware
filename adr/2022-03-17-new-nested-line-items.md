@@ -1,4 +1,9 @@
-# 2022-03-17 - New templates for line items and nested line items
+---
+title: New templates for line items and nested line items
+date: 2022-03-17
+area: storefront
+tags: [storefront, line-items, checkout]
+--- 
 
 ## Context
 

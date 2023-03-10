@@ -1,4 +1,9 @@
-# 2021-12-07 - Admin-Extension-API standards
+---
+title: Admin extension API standards
+date: 2021-12-07
+area: administration
+tags: [plugin, admin, extension-api]
+--- 
 
 ## Context
 We need to provide ways for extension developers to add custom components and views to different places in the administration. Multiple solutions where discussed and tested, this ADR contains a summary of the final solution.

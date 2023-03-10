@@ -1,8 +1,13 @@
-# 2022-11-09 - Composer-based web updater
+---
+title: Composer-based web updater
+date: 2022-11-09
+area: core
+tags: [composer, plugin, web-updater]
+--- 
 
 ## Context
 
-Currently we are using a Slim Framework 2 based web updater which downloads the zip file from our server and unpacks it.
+Currently, we are using a Slim Framework 2 based web updater which downloads the zip file from our server and unpacks it.
 This is a very old approach and blocks us implementing new features like using Composer to install additional composer packages.
 
 So our main problems are:

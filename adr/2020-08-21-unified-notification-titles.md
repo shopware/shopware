@@ -1,4 +1,9 @@
-# 2020-08-21 - Notification titles are pre-defined and make use of the global namespace
+---
+title: Notification titles are pre-defined and make use of the global namespace
+date: 2020-08-21
+area: administration
+tags: [administration, notification]
+--- 
 
 ## Context
 

@@ -1,4 +1,9 @@
-# 2023-16-01 - Npm packages pre-release versions
+---
+title: Npm packages pre-release versions
+date: 2023-16-01
+area: administration
+tags: [npm, package, pre-release]
+--- 
 
 ## Context
 A pre-release package version is a version followed by a hyphen and an alphanumeric string.

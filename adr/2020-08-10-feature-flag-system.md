@@ -1,5 +1,11 @@
-# 2020-08-10 - Feature flag system
-# Superseded by [Feature flags for major versions](2022-01-20-feature-flags-for-major-versions.md)
+---
+title: Feature flag system
+date: 2020-08-10
+area: core
+tags: [feature-flag, workflow]
+---
+
+## Superseded by [Feature flags for major versions](2022-01-20-feature-flags-for-major-versions.md)
 
 ## Context
 To provide a way to toggle code from incomplete features, the feature flag system was implemented.

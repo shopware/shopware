@@ -1,4 +1,9 @@
-# 2022-04-06 - Add default cms pages to products and categories
+---
+title: Add default cms pages to products and categories
+date: 2022-04-06
+area: content
+tags: [cms, product, category]
+--- 
 
 ## Context
 

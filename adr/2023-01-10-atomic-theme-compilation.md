@@ -1,4 +1,9 @@
-# 2023-01-10 - Atomic Theme Compilation
+---
+title: Atomic theme compilation
+date: 2023-01-10
+area: storefront
+tags: [theme, storefront, performance]
+--- 
 
 ## Context
 

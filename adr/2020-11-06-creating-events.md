@@ -1,4 +1,9 @@
-# 2020-11-06 - Creating events in Shopware
+---
+title: Creating events in Shopware
+date: 2020-11-06
+area: core
+tags: [event, context, sales-channel-context]
+--- 
 
 ## Context
 

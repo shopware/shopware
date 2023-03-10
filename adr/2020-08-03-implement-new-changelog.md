@@ -1,4 +1,9 @@
-# 2020-08-03 - Implement New Changelog
+---
+title: Implement new changelog
+date: 2020-08-03
+area: core
+tags: [changelog]
+--- 
 
 ## Context
 The current workflow for writing technical changelog is not very suited for a trunk based development and branching process. There are some major issues with the current workflow of using one file with a fixed version number:

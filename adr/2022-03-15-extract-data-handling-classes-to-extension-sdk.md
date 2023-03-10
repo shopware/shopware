@@ -1,4 +1,9 @@
-# 2022-03-15 - Extract data handling classes to extension sdk
+---
+title: Extract data handling classes to extension sdk
+date: 2022-03-15
+area: administration
+tags: [admin, extension-api]
+--- 
 
 ## Context
 * The package `@shopware-ag/admin-extension-sdk` will be referred to as sdk

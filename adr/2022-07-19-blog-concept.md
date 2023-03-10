@@ -1,4 +1,9 @@
-# 2022-07-18 - Concept for blogs using Shopping Experiences
+---
+title: Concept for blogs using Shopping Experiences
+date: 2022-07-18
+area: content
+tags: [content, cms, blog, custom-entities]
+--- 
 
 ## Context
 A highly requested feature & expected for the CMS of Shopware 6 is the blog. In addition, this is an ideal use case and example for the use of [Custom Entities](../app/2021-09-14-technical-concept-custom-entities.md).

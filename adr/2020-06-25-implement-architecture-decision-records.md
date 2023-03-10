@@ -1,4 +1,9 @@
-# 2020-06-25 - Implement architecture decision records
+---
+title: Implement architecture decision records
+date: 2020-06-25
+area: core
+tags: [adr, workflow]
+--- 
 
 ## Context
 We should document architecture and technical decisions for the shopware platform. The documentation should be easy to understand and easy to follow. The workflow for new decisions should add to our existing workflows and should not block the whole development process. One solution could be the form of architecture decision records (ADR) as described in the following articles:

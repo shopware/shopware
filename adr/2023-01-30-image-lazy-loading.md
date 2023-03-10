@@ -1,4 +1,9 @@
-# 2023-01-30 - Add native lazy loading for images to the Storefront
+---
+title: Add native lazy loading for images to the storefront
+date: 2023-01-30
+area: storefront
+tags: [image, lazy-loading, storefront]
+--- 
 
 ## Context
 

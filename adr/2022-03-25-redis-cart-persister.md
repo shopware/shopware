@@ -1,5 +1,9 @@
-# 2022-03-25 - Redis cart persister
-
+---
+title: Redis cart persister
+date: 2022-03-25
+area: checkout
+tags: [checkout, cart, redis, performance]
+---
 With the last benchmarks it became clear how cost intensive the loading and saving of the shopping cart to and from the database is. A detailed analysis revealed two problems:
 
 1) Every time the shopping cart is loaded, it is written back to the database after validation. However, this leads to a write on the connection which causes us to lose support for master-slave database setups.

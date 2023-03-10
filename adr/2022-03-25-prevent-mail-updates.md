@@ -1,5 +1,9 @@
-# 2022-03-25 - Prevent mail updates 
-
+---
+title: Prevent mail updates 
+date: 2022-03-25
+area: system-settings
+tags: [mail, flow]
+---
 In order to guarantee an autocompletion for the different mail templates in the administration UI, we currently have a mechanism, which writes the current mail into the database when sending a mail:
 
 ```php

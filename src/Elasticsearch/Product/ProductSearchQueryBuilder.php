@@ -7,12 +7,14 @@ use Doctrine\DBAL\Connection;
 use OpenSearchDSL\Query\Compound\BoolQuery;
 use OpenSearchDSL\Query\FullText\MatchPhrasePrefixQuery;
 use OpenSearchDSL\Query\FullText\MatchQuery;
+use OpenSearchDSL\Query\FullText\MultiMatchQuery;
 use OpenSearchDSL\Query\Joining\NestedQuery;
 use OpenSearchDSL\Query\TermLevel\WildcardQuery;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\AbstractTokenFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -33,8 +35,8 @@ class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
      */
     public function __construct(
         private readonly Connection $connection,
-        private readonly Tokenizer $tokenizer,
-        private readonly AbstractTokenFilter $tokenFilter
+        private readonly EntityDefinitionQueryHelper $helper,
+        private readonly ProductDefinition $productDefinition
     ) {
     }
 
@@ -46,33 +48,72 @@ class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
 
         $isAndSearch = $searchConfig[0]['and_logic'] === '1';
 
-        $tokens = $this->tokenizer->tokenize((string) $criteria->getTerm());
-        $tokens = $this->tokenFilter->filter($tokens, $context);
+        $languageIds = $context->getLanguageIdChain();
 
-        foreach ($tokens as $token) {
-            $tokenBool = new BoolQuery();
-            $bool->add($tokenBool, $isAndSearch ? BoolQuery::MUST : BoolQuery::SHOULD);
+        $tokenBool = new BoolQuery();
 
-            foreach ($searchConfig as $item) {
-                $ranking = $item['ranking'];
+        $bool->add($tokenBool, BoolQuery::SHOULD);
 
-                if (!str_contains($item['field'], 'customFields')) {
-                    $searchField = $item['field'] . '.search';
-                    $ngramField = $item['field'] . '.ngram';
-                } else {
-                    $searchField = $item['field'];
-                    $ngramField = $item['field'];
+        foreach ($searchConfig as $item) {
+            $ranking = $item['ranking'];
+
+            $fieldName = $item['field'];
+            $suffix = $item['tokenize'] ? '.ngram' : '.search';
+
+            $association = null;
+
+            if (str_contains($item['field'], '.')) {
+                $parts = explode('.', $item['field']);
+                $association = $parts[0] !== 'customFields' ? $parts[0] : null;
+                $fieldName = end($parts);
+            }
+
+            $field = $this->helper->getField($item['field'], $this->productDefinition, $this->productDefinition->getEntityName(), false);
+
+            if ($field instanceof TranslatedField) {
+                $multiMatchFields = [];
+
+                foreach ($languageIds as $languageId) {
+                    $fieldName = $association ? $association . '_' . $languageId . '.' . $fieldName : $fieldName . '_' . $languageId;
+
+                    $searchField = $fieldName;
+
+                    if (!str_contains($fieldName, 'customFields')) {
+                        $searchField = $fieldName . $suffix;
+                    }
+
+                    if ($languageId === $context->getLanguageId()) {
+                        $multiMatchFields[] = $searchField . '^2';
+                    } else {
+                        $multiMatchFields[] = $searchField;
+                    }
                 }
 
+                if ($association) {
+                    $tokenBool->add(new NestedQuery($association . '_' . $languageId, new MultiMatchQuery($multiMatchFields, $criteria->getTerm(), [
+                        'type' => 'best_fields',
+                        'fuzziness' => 'auto',
+                        'operator' => $isAndSearch ? 'and' : 'or',
+                        'boost' => $ranking * 5,
+                    ])), BoolQuery::SHOULD);
+                } else {
+                    $tokenBool->add(new MultiMatchQuery($multiMatchFields, $criteria->getTerm(), [
+                        'type' => 'best_fields',
+                        'fuzziness' => 'auto',
+                        'operator' => $isAndSearch ? 'and' : 'or',
+                        'boost' => $ranking * 5,
+                    ]), BoolQuery::SHOULD);
+                }
+            } else {
                 $queries = [];
 
-                $queries[] = new MatchQuery($searchField, $token, ['boost' => 5 * $ranking]);
-                $queries[] = new MatchPhrasePrefixQuery($searchField, $token, ['boost' => $ranking, 'slop' => 5]);
-                $queries[] = new WildcardQuery($searchField, '*' . $token . '*');
+                $queries[] = new MatchQuery($fieldName . '.search', $criteria->getTerm(), ['boost' => 5 * $ranking]);
+                $queries[] = new MatchPhrasePrefixQuery($fieldName . '.search', $criteria->getTerm(), ['boost' => $ranking, 'slop' => 5]);
+                $queries[] = new WildcardQuery($fieldName . '.search', '*' . $criteria->getTerm() . '*');
 
                 if ($item['tokenize']) {
-                    $queries[] = new MatchQuery($searchField, $token, ['fuzziness' => 'auto', 'boost' => 3 * $ranking]);
-                    $queries[] = new MatchQuery($ngramField, $token);
+                    $queries[] = new MatchQuery($fieldName . '.ngram', $criteria->getTerm(), ['fuzziness' => 'auto', 'boost' => 3 * $ranking]);
+                    $queries[] = new MatchQuery($fieldName . '.ngram', $criteria->getTerm());
                 }
 
                 if (str_contains($item['field'], '.') && !str_contains($item['field'], 'customFields')) {

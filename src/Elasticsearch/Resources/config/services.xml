@@ -67,6 +67,7 @@
             <argument>%elasticsearch.index.config%</argument>
             <argument>%elasticsearch.index.mapping%</argument>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\Command\ElasticsearchIndexingCommand">
@@ -182,8 +183,8 @@
 
         <service id="Shopware\Elasticsearch\Product\AbstractProductSearchQueryBuilder" class="Shopware\Elasticsearch\Product\ProductSearchQueryBuilder">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\TokenFilter"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper"/>
+            <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Product\CustomFieldUpdater">
@@ -243,10 +244,7 @@
             <argument type="service" id="OpenSearch\Client"/>
             <argument type="service" id="logger"/>
             <argument type="service" id="currency.repository"/>
-            <argument type="service" id="language.repository"/>
-            <argument type="service" id="event_dispatcher"/>
             <argument>%elasticsearch.indexing_batch_size%</argument>
-            <argument type="service" id="messenger.bus.shopware"/>
             <tag name="messenger.message_handler"/>
         </service>
 

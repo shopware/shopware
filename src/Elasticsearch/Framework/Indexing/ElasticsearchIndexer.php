@@ -6,8 +6,6 @@ use Doctrine\DBAL\Connection;
 use OpenSearch\Client;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Log\LoggerInterface;
-use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -16,14 +14,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NandFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Elasticsearch\Exception\ElasticsearchIndexingException;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\ElasticsearchRegistry;
-use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexerLanguageCriteriaEvent;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -84,35 +81,7 @@ class ElasticsearchIndexer
             $offset = $this->init();
         }
 
-        if ($offset->getLanguageId() === null) {
-            return null;
-        }
-
-        $language = $this->getLanguageForId($offset->getLanguageId());
-
-        if (!$language) {
-            return null;
-        }
-
-        $context = $this->createLanguageContext($language);
-
-        // current language has next message?
-        $message = $this->createIndexingMessage($offset, $context);
-        if ($message) {
-            return $message;
-        }
-
-        // all definitions in all languages indexed
-        if (!$offset->hasNextLanguage()) {
-            return null;
-        }
-
-        // all definitions are indexed in current language, start again with next language
-        $offset->selectNextLanguage();
-        $offset->resetDefinitions();
-        $offset->setLastId(null);
-
-        return $this->iterate($offset);
+        return $this->createIndexingMessage($offset);
     }
 
     /**
@@ -124,46 +93,30 @@ class ElasticsearchIndexer
             return;
         }
 
-        $alias = $this->helper->getIndexName($definition, Defaults::LANGUAGE_SYSTEM);
+        $alias = $this->helper->getIndexName($definition);
 
         if (!$this->client->indices()->existsAlias(['name' => $alias])) {
             $this->init();
         }
 
-        $messages = $this->generateMessages($definition, $ids);
-
-        /** @var ElasticsearchIndexingMessage $message */
-        foreach ($messages as $message) {
-            $this->__invoke($message);
-        }
+        $this->__invoke($this->generateMessage($definition, $ids));
     }
 
     /**
      * @param array<string> $ids
-     *
-     * @return ElasticsearchIndexingMessage[]
      */
-    private function generateMessages(EntityDefinition $definition, array $ids): array
+    private function generateMessage(EntityDefinition $definition, array $ids): ElasticsearchIndexingMessage
     {
-        $languages = $this->getLanguages();
+        $context = Context::createDefaultContext();
 
-        $messages = [];
-        foreach ($languages as $language) {
-            $context = $this->createLanguageContext($language);
+        $alias = $this->helper->getIndexName($definition);
 
-            $alias = $this->helper->getIndexName($definition, $language->getId());
+        $indexing = new IndexingDto($ids, $alias, $definition->getEntityName());
 
-            $indexing = new IndexingDto($ids, $alias, $definition->getEntityName());
-
-            $message = new ElasticsearchIndexingMessage($indexing, null, $context);
-
-            $messages[] = $message;
-        }
-
-        return $messages;
+        return new ElasticsearchIndexingMessage($indexing, null, $context);
     }
 
-    private function createIndexingMessage(IndexerOffset $offset, Context $context): ?ElasticsearchIndexingMessage
+    private function createIndexingMessage(IndexerOffset $offset): ?ElasticsearchIndexingMessage
     {
         $definition = $this->registry->get((string) $offset->getDefinition());
 
@@ -177,17 +130,16 @@ class ElasticsearchIndexer
 
         $ids = $iterator->fetch();
 
-        // current definition in current language has more ids to index
         if (!empty($ids)) {
             // increment last id with iterator offset
             $offset->setLastId($iterator->getOffset());
 
-            $alias = $this->helper->getIndexName($definition->getEntityDefinition(), (string) $offset->getLanguageId());
+            $alias = $this->helper->getIndexName($definition->getEntityDefinition());
 
             $index = $alias . '_' . $offset->getTimestamp();
 
             // return indexing message for current offset
-            return new ElasticsearchIndexingMessage(new IndexingDto(array_values($ids), $index, $entity), $offset, $context);
+            return new ElasticsearchIndexingMessage(new IndexingDto(array_values($ids), $index, $entity), $offset, Context::createDefaultContext());
         }
 
         if (!$offset->hasNextDefinition()) {
@@ -200,7 +152,7 @@ class ElasticsearchIndexer
         // reset last id to start iterator at the beginning
         $offset->setLastId(null);
 
-        return $this->createIndexingMessage($offset, $context);
+        return $this->createIndexingMessage($offset);
     }
 
     private function init(): IndexerOffset
@@ -209,16 +161,11 @@ class ElasticsearchIndexer
 
         $this->createScripts();
 
-        $languages = $this->getLanguages();
-
         $timestamp = new \DateTime();
 
-        foreach ($languages as $language) {
-            $this->createLanguageIndex($language, $timestamp);
-        }
+        $this->createIndex($timestamp);
 
         return new IndexerOffset(
-            array_values($languages->getIds()),
             $this->registry->getDefinitions(),
             $timestamp->getTimestamp()
         );
@@ -252,43 +199,9 @@ class ElasticsearchIndexer
         return $errors;
     }
 
-    private function getLanguages(): LanguageCollection
+    private function getCurrencies(): EntitySearchResult
     {
-        $context = Context::createDefaultContext();
-        $criteria = new Criteria();
-        $criteria->addFilter(new NandFilter([new EqualsFilter('salesChannels.id', null)]));
-        $criteria->addSorting(new FieldSorting('id'));
-
-        $this->eventDispatcher->dispatch(new ElasticsearchIndexerLanguageCriteriaEvent($criteria, $context));
-
-        /** @var LanguageCollection $languages */
-        $languages = $this->languageRepository
-            ->search($criteria, $context)
-            ->getEntities();
-
-        return $languages;
-    }
-
-    private function createLanguageContext(LanguageEntity $language): Context
-    {
-        return new Context(
-            new SystemSource(),
-            [],
-            Defaults::CURRENCY,
-            array_filter([$language->getId(), $language->getParentId(), Defaults::LANGUAGE_SYSTEM])
-        );
-    }
-
-    private function getLanguageForId(string $languageId): ?LanguageEntity
-    {
-        $context = Context::createDefaultContext();
-        $criteria = new Criteria([$languageId]);
-
-        /** @var LanguageCollection $languages */
-        $languages = $this->languageRepository
-            ->search($criteria, $context);
-
-        return $languages->get($languageId);
+        return $this->currencyRepository->search(new Criteria(), Context::createDefaultContext());
     }
 
     private function createScripts(): void
@@ -313,12 +226,12 @@ class ElasticsearchIndexer
         }
     }
 
-    private function createLanguageIndex(LanguageEntity $language, \DateTime $timestamp): void
+    private function createIndex(\DateTime $timestamp): void
     {
-        $context = $this->createLanguageContext($language);
+        $context = Context::createDefaultContext();
 
         foreach ($this->registry->getDefinitions() as $definition) {
-            $alias = $this->helper->getIndexName($definition->getEntityDefinition(), $language->getId());
+            $alias = $this->helper->getIndexName($definition->getEntityDefinition());
 
             $index = $alias . '_' . $timestamp->getTimestamp();
 
@@ -370,8 +283,9 @@ class ElasticsearchIndexer
             throw new \RuntimeException(sprintf('Entity %s has no registered elasticsearch definition', $entity));
         }
 
-        $data = $definition->fetch(Uuid::fromHexToBytesList($ids), $context);
+        $languages = $this->connection->fetchAllKeyValue('SELECT DISTINCT LOWER(HEX(`language_id`)), LOWER(HEX(`parent_id`))  FROM sales_channel_language INNER JOIN language ON `sales_channel_language`.`language_id` = `language`.`id`');
 
+        $data = $definition->fetch(Uuid::fromHexToBytesList($ids), $context, $languages);
         $toRemove = array_filter($ids, fn (string $id) => !isset($data[$id]));
 
         $documents = [];
@@ -416,5 +330,4 @@ class ElasticsearchIndexer
 
             $this->bus->dispatch($message);
         }
-    }
-}
+    }}

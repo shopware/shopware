@@ -1465,8 +1465,12 @@
     "restrictedConditions": {
       "restrictedConditionTooltip": "Diese Regel ist an folgenden Stellen zugewiesen:<br/><br/>{assignments}<br/><br/>Die Verwendung dieser Bedingung ist in diesem Zusammenhang nicht möglich.",
       "relation": {
-        "flowTrigger": "Flows mit Trigger: {assignments}",
-        "promotion": "Rabattaktionen als: {assignments}"
+        "flowTrigger": "Flows mit Auslöser: {assignments}",
+        "promotion": "Rabattaktionen als: {assignments}",
+        "productPrices": "Produkte als: {assignments}",
+        "shippingMethods": "Versandarten als: {assignments}",
+        "shippingMethodPrices": "Versandarten als: {assignments}",
+        "paymentMethods": "Zahlarten als: {assignments}"
       }
     },
     "and": "und",

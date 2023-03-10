@@ -142,10 +142,6 @@ Component.register('sw-select-rule-create', {
         },
 
         isRuleRestricted(rule) {
-            if (rule.areas?.includes('flow-condition') && this.ruleAwareGroupKey !== 'flowConditions') {
-                return true;
-            }
-
             const insideRestrictedRuleIds = this.restrictedRuleIds.includes(rule.id);
 
             const isRuleRestricted = this.ruleConditionDataProviderService.isRuleRestricted(

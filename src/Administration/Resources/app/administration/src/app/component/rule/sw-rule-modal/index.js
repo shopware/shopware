@@ -36,6 +36,11 @@ Component.register('sw-rule-modal', {
             required: false,
             default: null,
         },
+        ruleAwareGroupKey: {
+            type: String,
+            required: false,
+            default: null,
+        },
     },
 
     data() {
@@ -88,6 +93,11 @@ Component.register('sw-rule-modal', {
                 this.ruleConditionDataProviderService.addScriptConditions(scripts);
                 this.rule = this.ruleRepository.create(Context.api);
                 this.initialConditions = EntityCollection.fromCollection(this.rule.conditions);
+
+                if (this.rule[this.ruleAwareGroupKey]) {
+                    this.rule[this.ruleAwareGroupKey].push({});
+                }
+
                 this.isLoading = false;
             });
         },
@@ -108,7 +118,55 @@ Component.register('sw-rule-modal', {
             this.rule.conditions = conditions;
         },
 
+        getChildrenConditions(condition) {
+            const conditions = [];
+            condition.children.forEach((child) => {
+                conditions.push(child);
+                if (child.children) {
+                    const children = this.getChildrenConditions(child);
+                    conditions.push(...children);
+                }
+            });
+
+            return conditions;
+        },
+
+        validateRuleAwareness() {
+            const conditions = [];
+            this.rule.conditions.forEach((condition) => {
+                conditions.push(condition);
+
+                if (condition.children) {
+                    const children = this.getChildrenConditions(condition);
+                    conditions.push(...children);
+                }
+            });
+
+            const tooltip = this.ruleConditionDataProviderService.getRestrictedRuleTooltipConfig(
+                conditions,
+                this.ruleAwareGroupKey,
+            );
+
+            if (!tooltip.disabled) {
+                this.createNotificationError({
+                    title: this.$tc('global.default.error'),
+                    message: tooltip.message,
+                });
+                return false;
+            }
+
+            return true;
+        },
+
         saveAndClose() {
+            if (!this.validateRuleAwareness()) {
+                return Promise.resolve();
+            }
+            if (this.rule[this.ruleAwareGroupKey]) {
+                this.rule[this.ruleAwareGroupKey] = [];
+            }
+
+
             const titleSaveSuccess = this.$tc('global.default.success');
             const messageSaveSuccess = this.$tc(
                 'sw-rule-modal.messageSaveSuccess',

@@ -146,6 +146,8 @@ export default {
             this.rule = this.ruleRepository.create();
             this.conditions = this.rule?.conditions;
             this.conditionTree = this.conditions;
+            this.rule.flowSequences = [];
+            this.rule.flowSequences.push({ flow: { eventName: this.flow.eventName } });
         },
 
         loadRule(ruleId) {
@@ -229,6 +231,7 @@ export default {
             this.isSaveLoading = true;
 
             if (this.rule.isNew()) {
+                this.rule.flowSequences = [];
                 this.rule.conditions = this.conditionTree;
 
                 this.saveRule()

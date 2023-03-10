@@ -92,10 +92,6 @@ export default {
         },
 
         isRuleRestricted(rule) {
-            if (rule.areas?.includes('flow-condition') && this.ruleAwareGroupKey !== 'flowConditions') {
-                return true;
-            }
-
             return this.ruleConditionDataProviderService.isRuleRestricted(rule.conditions, this.ruleAwareGroupKey);
         },
     },

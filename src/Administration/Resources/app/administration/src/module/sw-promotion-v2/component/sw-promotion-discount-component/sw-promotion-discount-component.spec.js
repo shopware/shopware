@@ -1,7 +1,17 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import swPromotionDiscountComponent from 'src/module/sw-promotion-v2/component/sw-promotion-discount-component';
+import 'src/app/component/form/sw-select-field';
+import 'src/app/component/form/field-base/sw-block-field';
+import 'src/app/component/form/field-base/sw-base-field';
+import 'src/app/component/form/sw-field';
+import 'src/app/component/form/sw-switch-field';
+import 'src/app/component/form/sw-checkbox-field';
+import 'src/app/component/form/select/base/sw-select-base';
+import 'src/app/component/form/select/entity/sw-entity-many-to-many-select';
+import swPromotionV2RuleSelect from 'src/module/sw-promotion-v2/component/sw-promotion-v2-rule-select';
 
 Shopware.Component.register('sw-promotion-discount-component', swPromotionDiscountComponent);
+Shopware.Component.register('sw-promotion-v2-rule-select', swPromotionV2RuleSelect);
 
 async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
@@ -13,12 +23,18 @@ async function createWrapper(privileges = []) {
             'sw-container': {
                 template: '<div class="sw-container"><slot></slot></div>'
             },
-            'sw-select-field': {
-                template: '<div class="sw-select-field"></div>'
-            },
-            'sw-field': {
-                template: '<div class="sw-field"></div>'
-            },
+            'sw-select-field': await Shopware.Component.build('sw-select-field'),
+            'sw-block-field': await Shopware.Component.build('sw-block-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
+            'sw-field': await Shopware.Component.build('sw-field'),
+            'sw-switch-field': await Shopware.Component.build('sw-switch-field'),
+            'sw-checkbox-field': await Shopware.Component.build('sw-checkbox-field'),
+            'sw-promotion-v2-rule-select': await Shopware.Component.build('sw-promotion-v2-rule-select'),
+            'sw-entity-many-to-many-select': await Shopware.Component.build('sw-entity-many-to-many-select'),
+            'sw-select-base': await Shopware.Component.build('sw-select-base'),
+            'sw-select-selection-list': true,
+            'sw-number-field': true,
+            'sw-field-error': true,
             'sw-icon': {
                 template: '<div class="sw-icon"></div>'
             },
@@ -56,6 +72,7 @@ async function createWrapper(privileges = []) {
             },
 
             ruleConditionDataProviderService: {
+                getAwarenessConfigurationByAssignmentName: () => ({ snippet: 'fooBar' }),
                 getRestrictedRules: () => Promise.resolve([])
             }
         },
@@ -102,8 +119,9 @@ async function createWrapper(privileges = []) {
                 hasOrders: false
             },
             discount: {
+                isNew: () => false,
                 promotionId: 'promotionId',
-                scope: 'delivery',
+                scope: 'cart',
                 type: 'absolute',
                 value: 100,
                 considerAdvancedRules: false,
@@ -155,13 +173,13 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-discount-component',
 
         let elements = wrapper.findAll('.sw-field');
         expect(elements.wrappers.length).toBeGreaterThan(0);
-        elements.wrappers.forEach(el => expect(el.attributes().disabled).toBe('disabled'));
+        elements.wrappers.forEach(el => expect(el.classes()).toContain('is--disabled'));
 
         elements = wrapper.findAll('.sw-context-menu-item');
         expect(elements.wrappers.length).toBeGreaterThan(0);
         elements.wrappers.forEach(el => expect(el.attributes().disabled).toBe('disabled'));
 
-        elements = wrapper.findAll('.sw-select-field');
+        elements = wrapper.findAll('select');
         expect(elements.wrappers.length).toBeGreaterThan(0);
         elements.wrappers.forEach(el => expect(el.attributes().disabled).toBe('disabled'));
     });
@@ -175,14 +193,24 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-discount-component',
 
         let elements = wrapper.findAll('.sw-field');
         expect(elements.wrappers.length).toBeGreaterThan(0);
-        elements.wrappers.forEach(el => expect(el.attributes().disabled).toBeUndefined());
+        elements.wrappers.forEach(el => expect(el.classes()).not.toContain('is--disabled'));
 
         elements = wrapper.findAll('.sw-context-menu-item');
         expect(elements.wrappers.length).toBeGreaterThan(0);
         elements.wrappers.forEach(el => expect(el.attributes().disabled).toBeUndefined());
 
-        elements = wrapper.findAll('.sw-select-field');
+        elements = wrapper.findAll('select');
         expect(elements.wrappers.length).toBeGreaterThan(0);
         elements.wrappers.forEach(el => expect(el.attributes().disabled).toBeUndefined());
+    });
+
+    it('should show product rule selection, if considerAdvancedRules switch is checked', async () => {
+        wrapper = await createWrapper([
+            'promotion.editor'
+        ]);
+
+        expect(wrapper.find('.sw-promotion-discount-component__select-discount-rules').exists()).toBeFalsy();
+        await wrapper.find('[name="sw-field--discount-considerAdvancedRules"]').setChecked();
+        expect(wrapper.find('.sw-promotion-discount-component__select-discount-rules').exists()).toBeTruthy();
     });
 });

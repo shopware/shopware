@@ -93,6 +93,13 @@ export default {
                 },
                 ...this.currencyColumns,
                 {
+                    property: 'sales',
+                    dataIndex: 'sales',
+                    label: this.$tc('sw-product.list.columnSales'),
+                    allowResize: true,
+                    align: 'right',
+                },
+                {
                     property: 'stock',
                     label: this.$tc('sw-product.variations.generatedListColumnStock'),
                     allowResize: true,

@@ -236,6 +236,21 @@
                 {% endblock %}
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_product_list_grid_columns_sales %}
+                <template #column-sales="{ item }">
+                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_product_list_grid_columns_sales_content %}
+                    <template v-if="productHasVariants(item)">
+                        -
+                    </template>
+                    <template v-else>
+                        {{ item.sales }}
+                    </template>
+                    {% endblock %}
+                </template>
+                {% endblock %}
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_list_grid_columns_price %}
                 <template
                     v-for="currency in currencies"

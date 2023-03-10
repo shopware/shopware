@@ -41,18 +41,20 @@ class RecoveryManager
         $projectDir = $this->getProjectDir();
 
         $composerLookups = [
-            \dirname($projectDir) . '/composer.json',
-            $projectDir . '/composer.json',
-            $projectDir . '/shopware/composer.json',
+            \dirname($projectDir) . '/composer.lock',
+            $projectDir . '/composer.lock',
+            $projectDir . '/shopware/composer.lock',
         ];
 
         foreach ($composerLookups as $composerLookup) {
             if (file_exists($composerLookup)) {
-                /** @var array{require: array<string, string>} $composerJson */
+                /** @var array{packages: array{name: string, version: string}[]} $composerJson */
                 $composerJson = json_decode((string) file_get_contents($composerLookup), true, \JSON_THROW_ON_ERROR);
 
-                if (isset($composerJson['require']['shopware/core']) || isset($composerJson['require']['shopware/platform'])) {
-                    return \dirname($composerLookup);
+                foreach ($composerJson['packages'] as $package) {
+                    if ($package['name'] === 'shopware/core' || $package['name'] === 'shopware/platform') {
+                        return \dirname($composerLookup);
+                    }
                 }
             }
         }
@@ -65,7 +67,7 @@ class RecoveryManager
         $lockFile = $shopwarePath . '/composer.lock';
 
         if (!file_exists($lockFile)) {
-            return 'unknown';
+            throw new \RuntimeException('Could not find composer.lock file');
         }
 
         /** @var array{packages: array{name: string, version: string}[]} $composerLock */
@@ -77,7 +79,7 @@ class RecoveryManager
             }
         }
 
-        return 'unknown';
+        throw new \RuntimeException('Could not find shopware package in the composer.lock');
     }
 
     public function isFlexProject(string $shopwarePath): bool

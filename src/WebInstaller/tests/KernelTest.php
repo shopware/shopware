@@ -45,8 +45,8 @@ class KernelTest extends TestCase
     {
         $kernel = new Kernel('test', true);
 
-        static::assertSame(sys_get_temp_dir() . '/shopware-recovery/', $kernel->getCacheDir());
-        static::assertSame(sys_get_temp_dir() . '/shopware-recovery/', $kernel->getLogDir());
+        static::assertSame(sys_get_temp_dir() . '/shopware-recovery@git_commit_short@/', $kernel->getCacheDir());
+        static::assertSame(sys_get_temp_dir() . '/shopware-recovery@git_commit_short@/', $kernel->getLogDir());
     }
 
     public function testBuildKernel(): void

@@ -31,7 +31,11 @@ class UpdateController extends AbstractController
     #[Route('/update', name: 'update', defaults: ['step' => 2], methods: ['GET'])]
     public function index(Request $request): Response
     {
-        $shopwarePath = $this->recoveryManager->getShopwareLocation();
+        try {
+            $shopwarePath = $this->recoveryManager->getShopwareLocation();
+        } catch (\RuntimeException) {
+            return $this->redirectToRoute('configure');
+        }
 
         $currentShopwareVersion = $this->recoveryManager->getCurrentShopwareVersion($shopwarePath);
         $latestVersions = $this->getLatestVersions($request);

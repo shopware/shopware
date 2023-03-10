@@ -11,7 +11,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Validator\Constraints\Collection;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Optional;
@@ -47,14 +46,9 @@ class VariantListingConfigFieldSerializer extends AbstractFieldSerializer
         $this->validateIfNeeded($field, $existence, $data, $parameters);
 
         $value = $data->getValue();
+        $value['displayParent'] = isset($value['displayParent']) ? (int) $value['displayParent'] : null;
 
-        $displayParent = isset($value['displayParent']) ? (int) $value['displayParent'] : null;
-        $mainVariantId = isset($value['mainVariantId']) ? Uuid::fromHexToBytes($value['mainVariantId']) : null;
-        $configuratorGroupConfig = isset($value['configuratorGroupConfig']) ? \json_encode($value['configuratorGroupConfig'], \JSON_THROW_ON_ERROR) : null;
-
-        yield 'display_parent' => $displayParent;
-        yield 'main_variant_id' => $mainVariantId;
-        yield 'configurator_group_config' => $configuratorGroupConfig;
+        yield $field->getStorageName() => !empty($value) ? JsonFieldSerializer::encodeJson($value) : null;
     }
 
     public function decode(Field $field, mixed $value): ?VariantListingConfig
@@ -68,9 +62,9 @@ class VariantListingConfigFieldSerializer extends AbstractFieldSerializer
         }
 
         return new VariantListingConfig(
-            $value['displayParent'] !== null ? (bool) $value['displayParent'] : null,
-            $value['mainVariantId'],
-            $value['configuratorGroupConfig']
+            isset($value['displayParent']) ? (bool) $value['displayParent'] : null,
+            $value['mainVariantId'] ?? null,
+            $value['configuratorGroupConfig'] ?? null,
         );
     }
 

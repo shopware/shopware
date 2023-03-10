@@ -15,7 +15,7 @@ async function tailLog(response, element) {
             let strings = text.split("\n");
             result = JSON.parse(strings.pop());
 
-            element.innerHTML += strings.join("\n");
+            element.innerHTML += strings.join("\n") + "\n";
             element.scrollTop = element.scrollHeight;
         } catch (e) {
             element.innerHTML += text;

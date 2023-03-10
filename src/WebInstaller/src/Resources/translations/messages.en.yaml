@@ -7,7 +7,7 @@ shopware.update:
         de: German
     navigation:
         start: Language
-        configure_php: PHP
+        configure_php: Configuration
         download: Download
         finish: Finish
     steps:
@@ -20,7 +20,7 @@ shopware.update:
             submit: Continue
 
         configure_php:
-            title: Configure PHP executable
+            title: Configuration
             info: PHP binary found. If you want to select the file yourself, you can specify it here.
             pathInput: PHP binary
             submit: Save configuration

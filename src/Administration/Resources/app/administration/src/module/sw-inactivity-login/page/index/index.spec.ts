@@ -157,7 +157,7 @@ describe('src/module/sw-inactivity-login/page/index/index.ts', () => {
     it('should redirect on valid channel message', async () => {
         const push = jest.fn();
         sessionStorage.setItem('lastKnownUser', 'max');
-        const wrapper = await createWrapper(push);
+        await createWrapper(push);
         await flushPromises();
 
         const channel = new BroadcastChannel('session_channel');
@@ -175,7 +175,7 @@ describe('src/module/sw-inactivity-login/page/index/index.ts', () => {
     it('should not redirect on invalid channel message', async () => {
         const push = jest.fn();
         sessionStorage.setItem('lastKnownUser', 'max');
-        const wrapper = await createWrapper(push);
+        await createWrapper(push);
         await flushPromises();
 
         const channel = new BroadcastChannel('session_channel');

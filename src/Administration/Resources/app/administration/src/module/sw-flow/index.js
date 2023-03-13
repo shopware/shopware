@@ -69,7 +69,7 @@ Module.register('sw-flow', {
                     component: 'sw-flow-list',
                     path: 'flows',
                     meta: {
-                        parentPath: 'sw.flow.index',
+                        parentPath: 'sw.settings.index',
                         privilege: 'flow.viewer',
                     },
                 },
@@ -77,7 +77,7 @@ Module.register('sw-flow', {
                     component: 'sw-flow-list-flow-templates',
                     path: 'templates',
                     meta: {
-                        parentPath: 'sw.flow.index',
+                        parentPath: 'sw.settings.index',
                         privilege: 'flow.viewer',
                     },
                 },

@@ -2,7 +2,7 @@ import orderBy from 'lodash/orderBy';
 import sortBy from 'lodash/sortBy';
 import template from './sw-flow-sequence-action.html.twig';
 import './sw-flow-sequence-action.scss';
-import { ACTION, ACTION_GROUP, GENERAL_GROUP } from '../../constant/flow.constant';
+import { ACTION } from '../../constant/flow.constant';
 
 const { Component, State, Mixin } = Shopware;
 const utils = Shopware.Utils;
@@ -56,6 +56,9 @@ export default {
             return this.repositoryFactory.create('custom_field_set');
         },
 
+        /**
+         * @deprecated tag:v6.6.0 - use appFlowActionRepository in `sw-flow-detail` instead
+         */
         appFlowActionRepository() {
             return this.repositoryFactory.create('app_flow_action');
         },
@@ -76,8 +79,8 @@ export default {
                 };
             });
 
-            if (this.appFlowActions.length) {
-                const action = this.appFlowActions[0];
+            if (this.appActions.length) {
+                const action = this.appActions[0];
                 const appGroup = this.actionGroups.find(group => group === action?.app?.name);
                 if (!appGroup) {
                     groups.unshift({
@@ -110,9 +113,13 @@ export default {
 
         showAddAction() {
             return !(
-                this.sequence.actionName === ACTION.STOP_FLOW ||
-                this.sequenceData.some(sequence => sequence.actionName === ACTION.STOP_FLOW)
+                this.sequence.actionName === this.stopFlowActionName ||
+                this.sequenceData.some(sequence => sequence.actionName === this.stopFlowActionName)
             );
+        },
+
+        stopFlowActionName() {
+            return this.flowBuilderService.getActionName('STOP_FLOW');
         },
 
         actionClasses() {
@@ -127,7 +134,7 @@ export default {
         },
 
         modalName() {
-            if (this.getSelectedAppFlowAction(this.selectedAction)) {
+            if (this.getSelectedAppAction(this.selectedAction)) {
                 return 'sw-flow-app-action-modal';
             }
 
@@ -138,6 +145,9 @@ export default {
             return Shopware.State.get('session').currentLocale;
         },
 
+        /**
+         * @deprecated tag:v6.6.0 - use getActionDescriptions in `flow-builder.service` instead
+         */
         actionDescription() {
             return {
                 [ACTION.STOP_FLOW]: () => this.$tc('sw-flow.actions.textStopFlowDescription'),
@@ -172,7 +182,16 @@ export default {
                 'triggerActions',
             ],
         ),
-        ...mapGetters('swFlowState', ['availableActions', 'actionGroups', 'sequences']),
+        ...mapGetters(
+            'swFlowState',
+            [
+                'availableActions',
+                'actionGroups',
+                'sequences',
+                'appActions',
+                'getSelectedAppAction',
+            ],
+        ),
     },
 
     watch: {
@@ -188,20 +207,21 @@ export default {
     },
 
     methods: {
-        createdComponent() {
-            this.getAppFlowAction();
-        },
+        /**
+         * @deprecated tag:v6.6.0 - will be removed
+         */
+        createdComponent() {},
 
         openDynamicModal(value) {
-            const appAction = this.getSelectedAppFlowAction(value);
+            const appAction = this.getSelectedAppAction(value);
             if (appAction) {
                 this.isAppAction = true;
                 this.currentSequence.propsAppFlowAction = appAction;
             }
 
-            if (value === ACTION.STOP_FLOW) {
+            if (value === this.stopFlowActionName) {
                 this.addAction({
-                    name: ACTION.STOP_FLOW,
+                    name: this.stopFlowActionName,
                     config: null,
                 });
                 return;
@@ -209,6 +229,9 @@ export default {
             this.selectedAction = value;
         },
 
+        /**
+         * @deprecated tag:v6.6.0 - use getSelectedAppFlowAction in `flow-builder.service` instead
+         */
         getSelectedAppFlowAction(actionName) {
             return this.appFlowActions.find((item) => item.name === actionName);
         },
@@ -251,7 +274,7 @@ export default {
                 return;
             }
 
-            const appAction = this.getSelectedAppFlowAction(action.name);
+            const appAction = this.getSelectedAppAction(action.name);
 
             if (!this.sequence.actionName && this.sequence.id) {
                 const data = {
@@ -319,7 +342,7 @@ export default {
                 });
             }
 
-            if (this.isAppDisabled(this.getSelectedAppFlowAction(this.sequence[id]?.actionName))) return;
+            if (this.isAppDisabled(this.getSelectedAppAction(this.sequence[id]?.actionName))) return;
 
             State.commit('swFlowState/removeSequences', [id]);
         },
@@ -333,7 +356,7 @@ export default {
             }
 
             const sequences = Object.values(this.sequence);
-            return this.sortByPosition(sequences.filter(sequence => sequence.actionName !== ACTION.STOP_FLOW));
+            return this.sortByPosition(sequences.filter(sequence => sequence.actionName !== this.stopFlowActionName));
         },
 
         showMoveOption(action, type) {
@@ -342,11 +365,11 @@ export default {
             if (type === 'up' && actions[0].position === action.position) return false;
             if (type === 'down' && actions[actions.length - 1].position === action.position) return false;
 
-            return action.actionName !== ACTION.STOP_FLOW;
+            return action.actionName !== this.stopFlowActionName;
         },
 
         moveAction(action, type) {
-            if (this.isAppDisabled(this.getSelectedAppFlowAction(action.actionName))) return;
+            if (this.isAppDisabled(this.getSelectedAppAction(action.actionName))) return;
 
             const actions = this.actionsWithoutStopFlow();
             const currentIndex = actions.findIndex(item => item.position === action.position);
@@ -358,7 +381,7 @@ export default {
         },
 
         onEditAction(sequence, target, key) {
-            if (sequence.actionName && sequence.actionName === ACTION.STOP_FLOW) {
+            if (sequence.actionName && sequence.actionName === this.stopFlowActionName) {
                 return;
             }
 
@@ -374,9 +397,9 @@ export default {
                 return;
             }
 
-            if (this.isAppDisabled(this.getSelectedAppFlowAction(sequence.actionName))) return;
+            if (this.isAppDisabled(this.getSelectedAppAction(sequence.actionName))) return;
 
-            sequence.propsAppFlowAction = this.getSelectedAppFlowAction(sequence.actionName);
+            sequence.propsAppFlowAction = this.getSelectedAppAction(sequence.actionName);
             this.currentSequence = sequence;
             this.selectedAction = sequence.actionName;
         },
@@ -392,7 +415,7 @@ export default {
                 return null;
             }
 
-            const appAction = this.getSelectedAppFlowAction(actionName);
+            const appAction = this.getSelectedAppAction(actionName);
             if (appAction) {
                 return {
                     label: appAction.label || appAction.translated?.label,
@@ -408,10 +431,13 @@ export default {
             return {
                 ...actionTitle,
                 label: this.$tc(actionTitle.label),
-                group: ACTION_GROUP[actionName] || GENERAL_GROUP,
+                group: this.flowBuilderService.getActionGroupMapping(actionName),
             };
         },
 
+        /**
+         * @deprecated tag:v6.6.0 - use getAppFlowAction in `sw-flow-detail` instead
+         */
         getAppFlowAction() {
             const criteria = new Criteria(1, 25);
             criteria.addAssociation('app');
@@ -428,14 +454,20 @@ export default {
 
         stopFlowStyle(value) {
             return {
-                'is--stop-flow': value === ACTION.STOP_FLOW,
+                'is--stop-flow': value === this.stopFlowActionName,
             };
         },
 
+        /**
+         * @deprecated tag:v6.6.0 - use convertTagString in `flow-builder.service` instead
+         */
         convertTagString(tagsString) {
             return tagsString.toString().replace(/,/g, ', ');
         },
 
+        /**
+         * @deprecated tag:v6.6.0 - use method `getActionDescriptions` of `flowBuilderService ` instead
+         */
         getActionDescription(sequence) {
             const { actionName, config } = sequence;
 
@@ -461,6 +493,22 @@ export default {
             return this.actionDescription[actionName](config);
         },
 
+        getActionDescriptions(sequence) {
+            if (!sequence.actionName) return '';
+
+            const data = {
+                appActions: this.appActions,
+                customerGroups: this.customerGroups,
+                customFieldSets: this.customFieldSets,
+                customFields: this.customFields,
+                stateMachineState: this.stateMachineState,
+                documentTypes: this.documentTypes,
+                mailTemplates: this.mailTemplates,
+            };
+
+            return this.flowBuilderService.getActionDescriptions(data, sequence, this);
+        },
+
         setFieldError() {
             if (!this.invalidSequences?.includes(this.sequence.id)) {
                 this.fieldError = null;
@@ -483,9 +531,12 @@ export default {
         },
 
         isNotStopFlow(item) {
-            return item.actionName !== ACTION.STOP_FLOW;
+            return item.actionName !== this.stopFlowActionName;
         },
 
+        /**
+         * @deprecated tag:v6.6.0 - use getSetOrderStateDescription in `flow-builder.service` instead
+         */
         getSetOrderStateDescription(config) {
             const description = [];
             if (config.order) {
@@ -518,6 +569,9 @@ export default {
             return description.join('<br>');
         },
 
+        /**
+         * @deprecated tag:v6.6.0 - use getGenerateDocumentDescription in `flow-builder.service` instead
+         */
         getGenerateDocumentDescription(config) {
             if (config.documentType) {
                 config = {
@@ -532,17 +586,26 @@ export default {
             return this.convertTagString(documentType);
         },
 
+        /**
+         * @deprecated tag:v6.6.0 - use getCustomerGroupDescription in `flow-builder.service` instead
+         */
         getCustomerGroupDescription(config) {
             const customerGroup = this.customerGroups.find(item => item.id === config.customerGroupId);
             return customerGroup?.translated?.name;
         },
 
+        /**
+         * @deprecated tag:v6.6.0 - use getCustomerStatusDescription in `flow-builder.service` instead
+         */
         getCustomerStatusDescription(config) {
             return config.active
                 ? this.$tc('sw-flow.modals.customerStatus.active')
                 : this.$tc('sw-flow.modals.customerStatus.inactive');
         },
 
+        /**
+         * @deprecated tag:v6.6.0 - use getMailSendDescription in `flow-builder.service` instead
+         */
         getMailSendDescription(config) {
             const mailTemplateData = this.mailTemplates.find(item => item.id === config.mailTemplateId);
 
@@ -566,6 +629,9 @@ export default {
             return mailSendDescription;
         },
 
+        /**
+         * @deprecated tag:v6.6.0 - use getCustomFieldDescription in `flow-builder.service` instead
+         */
         getCustomFieldDescription(config) {
             const customFieldSet = this.customFieldSets.find(item => item.id === config.customFieldSetId);
             const customField = this.customFields.find(item => item.id === config.customFieldId);
@@ -582,6 +648,9 @@ export default {
             })}`;
         },
 
+        /**
+         * @deprecated tag:v6.6.0 - use getAffiliateAndCampaignCodeDescription in `flow-builder.service` instead
+         */
         getAffiliateAndCampaignCodeDescription(config) {
             let description = this.$tc('sw-flow.actions.labelTo', 0, {
                 entity: this.capitalize(config.entity),
@@ -606,6 +675,9 @@ export default {
             return `${msg.slice(0, 1).toUpperCase()}${msg.slice(1)}`;
         },
 
+        /**
+         * @deprecated tag:v6.6.0 - use getAppFlowActionDescription in `flow-builder.service` instead
+         */
         getAppFlowActionDescription(config, actionName) {
             const cloneConfig = { ...config };
             let descriptions = '';
@@ -630,6 +702,9 @@ export default {
             return descriptions;
         },
 
+        /**
+         * @deprecated tag:v6.6.0 - use formatValuePreview in `flow-builder.service` instead
+         */
         formatValuePreview(fieldName, actionName, val) {
             const appAction = this.getSelectedAppFlowAction(actionName);
             if (appAction === undefined) {
@@ -666,6 +741,9 @@ export default {
             return val;
         },
 
+        /**
+         * @deprecated tag:v6.6.0 - use convertLabelPreview in `flow-builder.service` instead
+         */
         convertLabelPreview(fieldName, actionName) {
             const appAction = this.getSelectedAppFlowAction(actionName);
             if (appAction === undefined) {
@@ -687,7 +765,7 @@ export default {
 
         getStopFlowIndex(actions) {
             const indexes = actions.map((item, index) => {
-                if (item.group === GENERAL_GROUP) {
+                if (item.group === this.flowBuilderService.getGroup('GENERAL')) {
                     return index;
                 }
 
@@ -702,11 +780,12 @@ export default {
             actions = orderBy(actions, ['group', 'label']);
 
             actions.forEach((action) => {
-                if (action.group && action.group !== GENERAL_GROUP) return;
+                if (action.group && action.group !== this.flowBuilderService.getGroup('GENERAL')) return;
 
-                action.group = action.group || GENERAL_GROUP;
+                action.group = action.group || this.flowBuilderService.getGroup('GENERAL');
 
-                actions.push(actions.splice(actions.findIndex(el => el.group === GENERAL_GROUP), 1)[0]);
+                // eslint-disable-next-line max-len
+                actions.push(actions.splice(actions.findIndex(el => el.group === this.flowBuilderService.getGroup('GENERAL')), 1)[0]);
             });
 
             actions = sortBy(actions, ['group', 'label'], ['esc', 'esc']);

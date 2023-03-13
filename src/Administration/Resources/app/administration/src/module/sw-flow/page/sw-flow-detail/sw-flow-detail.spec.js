@@ -4,8 +4,17 @@ import swFlowDetail from 'src/module/sw-flow/page/sw-flow-detail';
 import Vuex from 'vuex';
 import flowState from 'src/module/sw-flow/state/flow.state';
 import EntityCollection from 'src/core/data/entity-collection.data';
+import FlowBuilderService from 'src/module/sw-flow/service/flow-builder.service';
 
 Shopware.Component.register('sw-flow-detail', swFlowDetail);
+Shopware.Service().register('flowBuilderService', () => {
+    return {
+        ...new FlowBuilderService(),
+        rearrangeArrayObjects: (sequences) => {
+            return sequences;
+        }
+    };
+});
 
 const sequenceFixture = {
     id: '1',
@@ -110,6 +119,7 @@ async function createWrapper(
                 },
             })
         },
+        flowBuilderService: Shopware.Service('flowBuilderService'),
 
         ruleConditionDataProviderService: {
             getRestrictedRules: () => Promise.resolve([])
@@ -176,16 +186,9 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
                     eventName: '',
                     sequences: getSequencesCollection([{ ...sequenceFixture }])
                 },
-                invalidSequences: []
+                invalidSequences: [],
+                appActions: [],
             }
-        });
-
-        Shopware.Service().register('flowBuilderService', () => {
-            return {
-                rearrangeArrayObjects: (sequences) => {
-                    return sequences;
-                }
-            };
         });
     });
 

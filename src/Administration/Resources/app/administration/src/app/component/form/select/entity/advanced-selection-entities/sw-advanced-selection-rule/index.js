@@ -241,10 +241,6 @@ Component.register('sw-advanced-selection-rule', {
 
     methods: {
         getColumnClass(item) {
-            if (!this.restrictedRuleIds.includes(item.id)) {
-                return '';
-            }
-
             return (this.isRestricted(item)) ? 'sw-advanced-selection-rule-disabled' : '';
         },
 
@@ -278,10 +274,6 @@ Component.register('sw-advanced-selection-rule', {
         },
 
         isRecordSelectable(item) {
-            if (!this.restrictedRuleIds.includes(item.id)) {
-                return {};
-            }
-
             const isRestricted = this.isRestricted(item);
 
             if (isRestricted) {

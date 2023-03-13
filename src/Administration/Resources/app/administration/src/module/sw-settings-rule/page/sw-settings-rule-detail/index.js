@@ -339,7 +339,7 @@ export default {
                 this.conditionRepository.entityName,
                 Context.api,
                 null,
-                conditions
+                conditions,
             ), 'personaPromotions');
 
             if (restrictions.isRestricted) {
@@ -353,7 +353,7 @@ export default {
                         ),
                         entityLabel: this.$tc(restrictions.assignmentSnippet, 2),
                     },
-                )
+                );
 
                 this.createNotificationError({ message });
                 return false;
@@ -377,7 +377,7 @@ export default {
 
         onSave() {
             if (!this.validateRuleAwareness()) {
-                return;
+                return Promise.resolve();
             }
 
             this.isSaveSuccessful = false;

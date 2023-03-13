@@ -142,7 +142,11 @@ Component.register('sw-rule-modal', {
                 }
             });
 
-            const tooltip = this.ruleConditionDataProviderService.getRestrictedRuleTooltipConfig(conditions, this.ruleAwareGroupKey);
+            const tooltip = this.ruleConditionDataProviderService.getRestrictedRuleTooltipConfig(
+                conditions,
+                this.ruleAwareGroupKey,
+            );
+
             if (!tooltip.disabled) {
                 this.createNotificationError({
                     title: this.$tc('global.default.error'),
@@ -156,7 +160,7 @@ Component.register('sw-rule-modal', {
 
         saveAndClose() {
             if (!this.validateRuleAwareness()) {
-                return;
+                return Promise.resolve();
             }
             if (this.rule[this.ruleAwareGroupKey]) {
                 this.rule[this.ruleAwareGroupKey] = [];

@@ -15,6 +15,9 @@
         {% set maxQuantity = config('core.cart.maxQuantity') %}
     {% endif %}
 
+    {% set DOWNLOAD_STATE = constant('Shopware\\Core\\Content\\Product\\State::IS_DOWNLOAD') %}
+    {% set isDigital = lineItem.states is defined and DOWNLOAD_STATE in lineItem.states and (DOWNLOAD_STATE not in lineItem.states or quantityInformation.maxPurchase === 1) %}
+
     {% block component_line_item_quantity_inner %}
         <div class="row line-item-quantity-row">
 
@@ -33,7 +36,7 @@
                                 delayChangeEvent: 800,
                             } %}
                             <form action="{{ path('frontend.checkout.line-item.change-quantity', { 'id': lineItem.id }) }}"
-                                  class="line-item-quantity-container"
+                                  class="line-item-quantity-container {% if isDigital %}disabled{% endif %}"
                                   method="post"
                                   {% if displayMode == 'default' %}
                                   data-form-auto-submit="true"
@@ -51,19 +54,28 @@
                                 {% block component_line_item_quantity_select %}
                                     {% block component_line_item_quantity_select_input %}
                                         <div class="input-group line-item-quantity-group quantity-selector-group" data-quantity-selector="true">
-                                                <button type="button" class="btn btn-outline-light btn-minus js-btn-minus">
+                                                <button
+                                                    {% if isDigital %}disabled="disabled"{% endif %}
+                                                    type="button"
+                                                    class="btn btn-outline-light btn-minus js-btn-minus"
+                                                >
                                                         {% sw_icon 'minus' style {'size': 'xs'}  %}
                                                 </button>
-                                            <input
-                                                type="number"
-                                                name="quantity"
-                                                class="form-control js-quantity-selector quantity-selector-group-input quantity-input-{{ lineItem.id }} {% if displayMode === 'offcanvas' %} js-offcanvas-cart-change-quantity-number{% endif %}"
-                                                min="{{ quantityInformation.minPurchase }}"
-                                                max="{{ maxQuantity }}"
-                                                step="{{ quantityInformation.purchaseSteps }}"
-                                                value="{{ lineItem.quantity }}"
-                                            />
-                                                <button type="button" class="btn btn-outline-light btn-plus js-btn-plus">
+                                                <input
+                                                    {% if isDigital %}disabled="disabled"{% endif %}
+                                                    type="number"
+                                                    name="quantity"
+                                                    class="form-control js-quantity-selector quantity-selector-group-input quantity-input-{{ lineItem.id }} {% if displayMode === 'offcanvas' %} js-offcanvas-cart-change-quantity-number{% endif %}"
+                                                    min="{{ quantityInformation.minPurchase }}"
+                                                    max="{{ maxQuantity }}"
+                                                    step="{{ quantityInformation.purchaseSteps }}"
+                                                    value="{{ lineItem.quantity }}"
+                                                />
+                                                <button
+                                                    {% if isDigital %}disabled="disabled"{% endif %}
+                                                    type="button"
+                                                    class="btn btn-outline-light btn-plus js-btn-plus"
+                                                >
                                                         {% sw_icon 'plus' style {'size': 'xs'} %}
                                                 </button>
                                         {% endblock %}

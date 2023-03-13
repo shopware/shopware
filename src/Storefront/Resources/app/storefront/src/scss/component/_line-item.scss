@@ -225,6 +225,23 @@
     order: 3;
 }
 
+.line-item-quantity-container {
+    &.disabled {
+        background-color: $gray-200;
+        border: 1px solid $gray-600;
+
+        .icon {
+            color: $gray-300;
+        }
+
+        input {
+            background-color: $gray-200;
+            color: $gray-600;
+            border: 0;
+        }
+    }
+}
+
 .line-item-unit-price,
 .line-item-tax-price {
     order: 5;
@@ -369,7 +386,7 @@
         }
 
         .line-item-quantity {
-            justify-content: center;
+            flex-direction: column;
             display: flex;
         }
 

@@ -611,10 +611,6 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
                 'orderTag',
                 'cartShippingCost',
             ],
-            equalsAny: [
-                ...ruleConditionService.getRestrictionsByGroup('customer'),
-                'alwaysValid',
-            ],
             snippet: 'sw-restricted-rules.restrictedAssignment.orderPromotions',
         },
     );

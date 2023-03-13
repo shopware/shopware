@@ -390,6 +390,7 @@ export default function createConditionService() {
 
     function addAwarenessConfiguration(assignmentName, configuration) {
         awarenessConfiguration[assignmentName] = configuration;
+        configuration.equalsAny = configuration.equalsAny?.filter(value => !configuration.notEquals?.includes(value));
     }
 
     function getAwarenessConfigurationByAssignmentName(assignmentName) {

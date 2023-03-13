@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Migration\V6_3;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Shopware\Core\Defaults;
@@ -192,7 +193,7 @@ class Migration1591361320ChargebackAndAuthorized extends MigrationStep
         return $connection->fetchFirstColumn(
             'SELECT LOWER(HEX(id)) as id FROM state_machine_state WHERE technical_name IN (:name) AND state_machine_id = :id',
             ['name' => $names, 'id' => Uuid::fromHexToBytes($machineId)],
-            ['name' => Connection::PARAM_STR_ARRAY]
+            ['name' => ArrayParameterType::STRING]
         );
     }
 }

@@ -5,9 +5,6 @@ namespace Shopware\Core\Framework\Test\Webhook\Hookable;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\Webhook\_fixtures\BusinessEvents\ArrayBusinessEvent;
@@ -90,29 +87,19 @@ class HookableBusinessEventTest extends TestCase
         ];
     }
 
-    public function getEventsWithPermissions(): array
+    public static function getEventsWithPermissions(): array
     {
+        $tax = new TaxEntity();
+        $tax->setId('tax-id');
+        $tax->setName('test');
+        $tax->setTaxRate(19);
+        $tax->setPosition(1);
+
         return [
-            [new EntityBusinessEvent($this->getTaxEntity())],
-            [new CollectionBusinessEvent($this->getTaxCollection())],
-            [new ArrayBusinessEvent($this->getTaxCollection())],
-            [new NestedEntityBusinessEvent($this->getTaxEntity())],
+            [new EntityBusinessEvent($tax)],
+            [new CollectionBusinessEvent(new TaxCollection([$tax]))],
+            [new ArrayBusinessEvent(new TaxCollection([$tax]))],
+            [new NestedEntityBusinessEvent($tax)],
         ];
-    }
-
-    private function getTaxEntity(): TaxEntity
-    {
-        /** @var EntityRepository $taxRepo */
-        $taxRepo = $this->getContainer()->get('tax.repository');
-
-        return $taxRepo->search(new Criteria(), Context::createDefaultContext())->first();
-    }
-
-    private function getTaxCollection(): TaxCollection
-    {
-        /** @var EntityRepository $taxRepo */
-        $taxRepo = $this->getContainer()->get('tax.repository');
-
-        return $taxRepo->search(new Criteria(), Context::createDefaultContext())->getEntities();
     }
 }

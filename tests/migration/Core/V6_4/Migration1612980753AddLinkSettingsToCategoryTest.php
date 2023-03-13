@@ -61,7 +61,7 @@ class Migration1612980753AddLinkSettingsToCategoryTest extends TestCase
         $migration = new Migration1612980753AddLinkSettingsToCategory();
         $migration->update($this->connection);
 
-        $schemaManager = $this->connection->getSchemaManager();
+        $schemaManager = $this->connection->createSchemaManager();
         $columns = $schemaManager->listTableColumns(CategoryTranslationDefinition::ENTITY_NAME);
 
         static::assertArrayHasKey('link_type', $columns);

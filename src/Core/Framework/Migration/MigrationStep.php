@@ -32,7 +32,7 @@ abstract class MigrationStep
     public function removeTrigger(Connection $connection, string $name): void
     {
         try {
-            $connection->executeUpdate(sprintf('DROP TRIGGER IF EXISTS %s', $name));
+            $connection->executeStatement(sprintf('DROP TRIGGER IF EXISTS %s', $name));
         } catch (Exception) {
         }
     }

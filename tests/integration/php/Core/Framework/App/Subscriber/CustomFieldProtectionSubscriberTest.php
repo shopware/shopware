@@ -145,7 +145,6 @@ class CustomFieldProtectionSubscriberTest extends TestCase
         $connection = $browser->getContainer()->get(Connection::class);
 
         $connection->update('integration', [
-            'write_access' => true,
             'access_key' => $accessKey,
             'secret_access_key' => password_hash($secretAccessKey, \PASSWORD_BCRYPT),
         ], ['id' => $id]);

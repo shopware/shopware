@@ -17,27 +17,29 @@ use Shopware\Core\Kernel;
  */
 class SnippetFinderTest extends TestCase
 {
-    /**
-     * @dataProvider findSnippetsFromAppDataProvider
-     *
-     * @param array<string, mixed> $expectedSnippets
-     */
-    public function testFindSnippetsFromApp(Kernel $kernel, array $expectedSnippets, Connection $connection): void
+    public function testFindSnippetsFromAppNoSnippetsAdded(): void
     {
         $snippetFinder = new SnippetFinder(
-            $kernel,
-            $connection
+            $this->getKernelWithNoPlugins(),
+            $this->getConnectionMock('en-GB', [])
+        );
+
+        $snippets = $snippetFinder->findSnippets('en-GB');
+        static::assertArrayNotHasKey('my-custom-snippet-key', $snippets);
+    }
+
+    public function testFindSnippetsFromApp(): void
+    {
+        $snippetFinder = new SnippetFinder(
+            $this->getKernelWithNoPlugins(),
+            $this->getConnectionMock('en-GB', $this->getSnippetFixtures())
         );
 
         $snippets = $snippetFinder->findSnippets('en-GB');
 
-        if (!empty($expectedSnippets)) {
-            $key = array_key_first($expectedSnippets);
-            static::assertEquals($expectedSnippets[$key], $snippets[$key]);
-        } else {
-            // assert no exception was thrown
-            static::assertTrue(true);
-        }
+        $expectedSnippets = $this->getSnippetFixtures();
+        $key = array_key_first($expectedSnippets);
+        static::assertEquals($expectedSnippets[$key], $snippets[$key]);
     }
 
     /**
@@ -93,24 +95,6 @@ class SnippetFinderTest extends TestCase
         $result = $reflectionMethod->invoke($snippetFinder, $before);
 
         static::assertEquals($after, $result);
-    }
-
-    /**
-     * @return array<string, array{kernel: Kernel, expectedSnippets: array<string, mixed>, connection: Connection}>
-     */
-    public function findSnippetsFromAppDataProvider(): iterable
-    {
-        yield 'Test no snippets are provided' => [
-            'kernel' => $this->getKernelWithNoPlugins(),
-            'expectedSnippets' => [],
-            'connection' => $this->getConnectionMock('en-GB', []),
-        ];
-
-        yield 'Test snippets are provided' => [
-            'kernel' => $this->getKernelWithNoPlugins(),
-            'expectedSnippets' => $this->getSnippetFixtures(),
-            'connection' => $this->getConnectionMock('en-GB', $this->getSnippetFixtures()),
-        ];
     }
 
     /**

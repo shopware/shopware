@@ -143,7 +143,7 @@ class ScriptControllerTest extends TestCase
         static::assertStringContainsString($expectedResponse, $response->getContent());
     }
 
-    public function ensureLoginProvider(): \Generator
+    public static function ensureLoginProvider(): \Generator
     {
         yield 'Not logged in' => [
             false,

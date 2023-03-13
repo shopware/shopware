@@ -38,27 +38,18 @@ class TwigLoaderConfigCompilerPassTest extends TestCase
 
     public function testDevModeNoPluginsButApps(): void
     {
-        /** @var ContainerBuilder&MockObject $containerMock */
-        $containerMock = $this->createMock(ContainerBuilder::class);
+        /** @var ContainerBuilder&MockObject $container */
+        $container = new ContainerBuilder();
+        $container->setParameter('kernel.bundles_metadata', []);
+        $container->setParameter('kernel.environment', 'dev');
+        $container->setParameter('kernel.project_dir', '/project');
 
-        /** @var Definition&MockObject $filesystemLoaderMock */
-        $filesystemLoaderMock = $this->createMock(Definition::class);
-
-        $containerMock->expects(static::exactly(3))->method('getParameter')->withConsecutive(
-            ['kernel.bundles_metadata'],
-            ['kernel.environment'],
-            ['kernel.project_dir']
-        )->willReturnOnConsecutiveCalls(
-            [],
-            'dev',
-            __DIR__
-        );
-
-        $containerMock->method('findDefinition')->with('twig.loader.native_filesystem')->willReturn($filesystemLoaderMock);
+        $filesystemLoaderDefinition = new Definition(FilesystemLoader::class);
+        $container->setDefinition('twig.loader.native_filesystem', $filesystemLoaderDefinition);
 
         $connectionMock = $this->createMock(Connection::class);
 
-        $containerMock->expects(static::once())->method('get')->with(Connection::class)->willReturn($connectionMock);
+        $container->set(Connection::class, $connectionMock);
 
         $connectionMock->expects(static::once())->method('fetchAllAssociative')->willReturn(
             [
@@ -73,39 +64,36 @@ class TwigLoaderConfigCompilerPassTest extends TestCase
             ]
         );
 
-        $filesystemLoaderMock->expects(static::exactly(8))->method('addMethodCall');
-
         $entityCompilerPass = new TwigLoaderConfigCompilerPass();
-        $entityCompilerPass->process($containerMock);
+        $entityCompilerPass->process($container);
+
+        static::assertEmpty($filesystemLoaderDefinition->getMethodCalls(), 'no method calls expected, as no apps loaded');
     }
 
     public function testDevModeNoPluginsAndApps(): void
     {
-        /** @var ContainerBuilder&MockObject $containerMock */
-        $containerMock = $this->createMock(ContainerBuilder::class);
+        /** @var ContainerBuilder&MockObject $container */
+        $container = new ContainerBuilder();
 
-        /** @var Definition&MockObject $filesystemLoaderMock */
-        $filesystemLoaderMock = $this->createMock(Definition::class);
+        /** @var Definition&MockObject $filesystemLoader */
+        $filesystemLoader = new Definition(FilesystemLoader::class);
 
-        $containerMock->expects(static::exactly(3))->method('getParameter')->withConsecutive(
-            ['kernel.bundles_metadata'],
-            ['kernel.environment'],
-            ['kernel.project_dir']
-        )->willReturnOnConsecutiveCalls(
+        $container->setParameter(
+            'kernel.bundles_metadata',
             [
                 'pluginOne' => [
                     'path' => __DIR__ . '/fixtures/pluginOnePath',
                 ],
-            ],
-            'dev',
-            __DIR__
+            ]
         );
+        $container->setParameter('kernel.environment', 'dev');
+        $container->setParameter('kernel.project_dir', __DIR__);
 
-        $containerMock->method('findDefinition')->with('twig.loader.native_filesystem')->willReturn($filesystemLoaderMock);
+        $container->setDefinition('twig.loader.native_filesystem', $filesystemLoader);
 
         $connectionMock = $this->createMock(Connection::class);
 
-        $containerMock->expects(static::once())->method('get')->with(Connection::class)->willReturn($connectionMock);
+        $container->set(Connection::class, $connectionMock);
 
         $connectionMock->expects(static::once())->method('fetchAllAssociative')->willReturn(
             [
@@ -120,9 +108,10 @@ class TwigLoaderConfigCompilerPassTest extends TestCase
             ]
         );
 
-        $filesystemLoaderMock->expects(static::exactly(12))->method('addMethodCall');
-
         $entityCompilerPass = new TwigLoaderConfigCompilerPass();
-        $entityCompilerPass->process($containerMock);
+        $entityCompilerPass->process($container);
+
+        $calls = $filesystemLoader->getMethodCalls();
+        static::assertCount(12, $calls);
     }
 }

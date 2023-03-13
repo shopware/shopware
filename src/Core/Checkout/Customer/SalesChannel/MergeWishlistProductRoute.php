@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\WishlistMergedEvent;
@@ -134,7 +135,7 @@ class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
         $query->where('`customer_wishlist_id` = :id');
         $query->andWhere('`product_id` IN (:productIds)');
         $query->setParameter('id', Uuid::fromHexToBytes($wishlistId));
-        $query->setParameter('productIds', Uuid::fromHexToBytesList($productIds), Connection::PARAM_STR_ARRAY);
+        $query->setParameter('productIds', Uuid::fromHexToBytesList($productIds), ArrayParameterType::STRING);
         $result = $query->executeQuery();
 
         /** @var array<string, string> $values */

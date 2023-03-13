@@ -35,7 +35,7 @@ class Migration1652441129ReplaceIconNames extends MigrationStep
             ->from('sales_channel_type')
             ->where('icon_name = :iconName')
             ->setParameter('iconName', $oldIconName)
-            ->execute()
+            ->executeQuery()
             ->fetchFirstColumn();
 
         foreach ($oldIconSalesChannelTypes as $id) {

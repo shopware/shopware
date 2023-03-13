@@ -73,7 +73,7 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
     /**
      * @return iterable<string, array{0:array<string, array<string, string|array<int|string, string|array<int|string>>>|int|string|TagCollection>, 1:array<int, array{field: string, tokenize: bool, ranking: int}>, 2:array<int, int|string>}>
      */
-    public function analyzeCases(): iterable
+    public static function analyzeCases(): iterable
     {
         $tag1 = new TagEntity();
         $tag1->setId('tag-1');
@@ -89,7 +89,7 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
             [
                 'maxPurchase' => 20,
                 'manufacturerNumber' => 'MANU_001',
-                'description' => $this->getLongTextDescription(),
+                'description' => self::getLongTextDescription(),
                 'tags' => $tags,
                 'translated' => [
                     'name' => 'Awesome product',
@@ -140,7 +140,7 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
             [
                 'maxPurchase' => 20,
                 'manufacturerNumber' => 'MANU_001',
-                'description' => $this->getLongTextDescription(),
+                'description' => self::getLongTextDescription(),
                 'tags' => $tags,
                 'translated' => [
                     'name' => 'Awesome product',
@@ -178,8 +178,8 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
                 'MANU_001',
                 'Tag Pink',
                 'Tag Yellow',
-                $this->getLongTextPart1(),
-                $this->getLongTextPart2(),
+                self::getLongTextPart1(),
+                self::getLongTextPart2(),
                 'awesome',
                 'product',
             ],
@@ -195,7 +195,7 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
                         'part-a' => ['a1', 'a2'], 'part-b' => ['b1', 'b2'],
                     ],
                     'nested-with-long-desc' => [
-                        'part-a' => [$this->getLongTextDescription()],
+                        'part-a' => [self::getLongTextDescription()],
                     ],
                 ],
                 'translated' => [
@@ -233,17 +233,17 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
         ];
     }
 
-    private function getLongTextDescription(): string
+    private static function getLongTextDescription(): string
     {
-        return $this->getLongTextPart1() . $this->getLongTextPart2();
+        return self::getLongTextPart1() . self::getLongTextPart2();
     }
 
-    private function getLongTextPart1(): string
+    private static function getLongTextPart1(): string
     {
         return 'This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long descripti';
     }
 
-    private function getLongTextPart2(): string
+    private static function getLongTextPart2(): string
     {
         return 'on. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description. This is a long description.';
     }

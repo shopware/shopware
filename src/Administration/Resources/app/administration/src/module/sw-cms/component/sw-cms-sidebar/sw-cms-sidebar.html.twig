@@ -319,7 +319,11 @@
                         <span>{{ $tc('sw-cms.sidebar.contentMenu.visibilitySettings') }}</span>
                     </template>
                     <template #content>
-                        <sw-cms-visibility-config :visibility="selectedBlock.visibility" />
+                        <sw-cms-visibility-config
+                            class="sw-cms-sidebar__visibility-config-block"
+                            :visibility="selectedBlock.visibility"
+                            @visibility-change="(viewport, isVisible) => onVisibilityChange(selectedBlock, viewport, isVisible)"
+                        />
                     </template>
                 </sw-sidebar-collapse>
             </template>
@@ -361,7 +365,11 @@
                         <span>{{ $tc('sw-cms.sidebar.contentMenu.visibilitySettings') }}</span>
                     </template>
                     <template #content>
-                        <sw-cms-visibility-config :visibility="selectedSection.visibility" />
+                        <sw-cms-visibility-config
+                            class="sw-cms-sidebar__visibility-config-section"
+                            :visibility="selectedSection.visibility"
+                            @visibility-change="(viewport, isVisible) => onVisibilityChange(selectedSection, viewport, isVisible)"
+                        />
                     </template>
                 </sw-sidebar-collapse>
                 {% endblock %}

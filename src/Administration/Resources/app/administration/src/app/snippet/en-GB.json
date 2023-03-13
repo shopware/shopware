@@ -694,6 +694,9 @@
         "lineItemWithQuantityRule": "Item quantity",
         "orderTagRule": "Order with tag",
         "orderDeliveryStatusRule": "Delivery status",
+        "orderCreatedByAdminRule": "Order created by admin",
+        "orderTransactionStatusRule": "Payment status",
+        "orderStatusRule": "Order status",
         "yes": "Yes",
         "no": "No",
         "withTime": "Including timestamp",
@@ -861,6 +864,27 @@
         "weight": "kg",
         "volume": "mm³",
         "age": "Years"
+      },
+      "orderCreatedByAdmin": {
+        "shouldOrderBeCreatedByAdmin": {
+          "placeholder": "Select condition ..."
+        }
+      },
+      "orderTransactionStatus": {
+        "stateIds": {
+          "placeholder": "Select state ..."
+        },
+        "operator": {
+          "placeholder": "Select operator ..."
+        }
+      },
+      "orderStatus": {
+        "stateIds": {
+          "placeholder": "Select state ..."
+        },
+        "operator": {
+          "placeholder": "Select operator ..."
+        }
       }
     },
     "sw-product-image": {

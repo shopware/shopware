@@ -23,7 +23,11 @@ parameters:
         consoleApplicationLoader: src/Core/DevOps/StaticAnalyze/PHPStan/console-application.php
 
     excludePaths:
-        - src/Recovery/*
+        - src/WebInstaller/src/Resources/
+        - src/WebInstaller/ecs.php
+        - src/WebInstaller/vendor
+        - src/WebInstaller/tests/_fixtures
+
         - src/Core/DevOps/StaticAnalyze/Rector/ClassPackageRector.php
         # Compatibility fixes for doctrine annotation parser https://github.com/doctrine/annotations/issues/421
         - src/Core/Framework/Compatibility/AnnotationReader.php
@@ -67,8 +71,10 @@ parameters:
             message: '#Service ".*" is private#'
             paths:
                 - src/**/*Test.php
+                - src/**/*TestCase.php
                 - tests/performance/**/*Bench.php
                 - tests/integration/**/*Test.php
+                - tests/integration/**/*TestCase.php
 
         # ignore errors caused by static::markTestSkipped
         -
@@ -158,6 +164,12 @@ parameters:
                 - src/Core/Checkout/Order/Aggregate/OrderDelivery/OrderDeliveryDefinition.php
                 - src/Core/System/NumberRange/NumberRangeDefinition.php
 
+        - # NEXT-25276 - Needs to be fixed with the update ot PHPUnit 10
+            message: '#deprecated interface PHPUnit\\Framework\\TestListener#'
+            path: src/Core/Framework/Test/TestCaseBase/DatadogListener.php
+
+        # Internal deprecations of Shopware are handled in other places
+        - '#deprecated.*class Shopware\\#'
 
 services:
     -

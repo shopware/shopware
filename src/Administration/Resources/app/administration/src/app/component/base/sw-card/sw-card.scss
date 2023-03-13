@@ -281,3 +281,19 @@
         }
     }
 }
+
+.sw-inherit-wrapper {
+    .sw-card {
+        border: 1px solid transparent;
+    }
+}
+
+.sw-inherit-wrapper.is--inherited {
+    .sw-card {
+        border: 1px solid $color-module-purple-900;
+
+        .sw-card__content {
+            background-color: $color-module-purple-50;
+        }
+    }
+}

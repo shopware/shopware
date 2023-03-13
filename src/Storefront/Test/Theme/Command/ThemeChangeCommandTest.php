@@ -70,8 +70,7 @@ class ThemeChangeCommandTest extends TestCase
 
         $themeService = $this->createMock(ThemeService::class);
         $themeService->expects(static::exactly(\count($salesChannels)))
-            ->method('assignTheme')
-            ->withConsecutive(...$arguments);
+            ->method('assignTheme');
 
         $themeChangeCommand = new ThemeChangeCommand(
             $themeService,

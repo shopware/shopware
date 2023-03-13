@@ -164,16 +164,12 @@ class DemodataCommand extends Command
      */
     private function ensureAllDependenciesArePresent(): void
     {
-        if (!class_exists(Factory::class)) {
-            throw new \RuntimeException('Please install composer package "fakerphp/faker" to use the demo-data command.');
-        }
+        $classes = [Factory::class, Commerce::class, ImagesGeneratorProvider::class];
 
-        if (!class_exists(Commerce::class)) {
-            throw new \RuntimeException('Please install composer package "mbezhanov/faker-provider-collection" to use the demo-data command.');
-        }
-
-        if (!class_exists(ImagesGeneratorProvider::class)) {
-            throw new \RuntimeException('Please install composer package "maltyxx/images-generator" to use the demo-data command.');
+        foreach ($classes as $class) {
+            if (!class_exists($class)) {
+                throw new \RuntimeException('Please install composer package "shopware/dev-tools" to use the demo-data command.');
+            }
         }
     }
 }

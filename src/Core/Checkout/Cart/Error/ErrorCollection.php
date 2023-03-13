@@ -30,6 +30,17 @@ class ErrorCollection extends Collection
         return false;
     }
 
+    public function blockResubmit(): bool
+    {
+        foreach ($this->getIterator() as $error) {
+            if ($error->blockResubmit()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public function getErrors(): array
     {
         return $this->filterByErrorLevel(Error::LEVEL_ERROR);

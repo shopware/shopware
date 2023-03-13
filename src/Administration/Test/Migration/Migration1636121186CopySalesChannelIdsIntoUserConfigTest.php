@@ -2,6 +2,7 @@
 
 namespace Shopware\Administration\Test\Migration;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Migration\V6_4\Migration1636121186CopySalesChannelIdsIntoUserConfig;
@@ -116,10 +117,10 @@ class Migration1636121186CopySalesChannelIdsIntoUserConfigTest extends TestCase
             ->from(SalesChannelTranslationDefinition::ENTITY_NAME)
             ->where('sales_channel_id IN (:salesChannelIds)')
             ->andWhere('language_id = :languageId')
-            ->setParameter('salesChannelIds', $salesChannelIds, Connection::PARAM_STR_ARRAY)
+            ->setParameter('salesChannelIds', $salesChannelIds, ArrayParameterType::STRING)
             ->setParameter('languageId', $languageId)
             ->addOrderBy('name', 'ASC')
-            ->execute()
+            ->executeQuery()
             ->fetchFirstColumn();
     }
 
@@ -164,7 +165,7 @@ class Migration1636121186CopySalesChannelIdsIntoUserConfigTest extends TestCase
             )
             ->where('locale.code = "de-DE"')
             ->orWhere('locale.code = "en-GB"')
-            ->execute()
+            ->executeQuery()
             ->fetchAllAssociative();
 
         return FetchModeHelper::keyPair($all);
@@ -183,7 +184,7 @@ class Migration1636121186CopySalesChannelIdsIntoUserConfigTest extends TestCase
                 'user.id = config.user_id'
             )
             ->where('config.key = "sales-channel-favorites"')
-            ->execute()
+            ->executeQuery()
             ->fetchAllAssociative();
 
         return FetchModeHelper::keyPair($all);
@@ -197,8 +198,8 @@ class Migration1636121186CopySalesChannelIdsIntoUserConfigTest extends TestCase
             ->from(SalesChannelTranslationDefinition::ENTITY_NAME)
             ->where('language_id IN (:languages)')
             ->orderBy('name', 'ASC')
-            ->setParameter('languages', Uuid::fromHexToBytesList($languages), Connection::PARAM_STR_ARRAY)
-            ->execute()
+            ->setParameter('languages', Uuid::fromHexToBytesList($languages), ArrayParameterType::STRING)
+            ->executeQuery()
             ->fetchAllAssociative();
 
         $salesChannels = [];

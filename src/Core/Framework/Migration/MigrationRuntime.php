@@ -107,7 +107,7 @@ class MigrationRuntime
     {
         return (int) $this->getExecutableMigrationsBaseQuery($source, $until, $limit)
             ->select('COUNT(*)')
-            ->execute()
+            ->executeQuery()
             ->fetchOne();
     }
 

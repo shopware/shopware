@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Checkout\Promotion\DataAbstractionLayer;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
-use Doctrine\DBAL\FetchMode;
 use Shopware\Core\Checkout\Promotion\PromotionDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\Log\Package;
@@ -114,10 +114,10 @@ class PromotionExclusionUpdater
         if (\count($excludeThisIds) > 0) {
             $sqlStatement .= ' AND id NOT IN (:excludedIds)';
             $params['excludedIds'] = $this->convertHexArrayToByteArray($excludeThisIds);
-            $types['excludedIds'] = Connection::PARAM_STR_ARRAY;
+            $types['excludedIds'] = ArrayParameterType::STRING;
         }
 
-        $results = $this->connection->executeQuery($sqlStatement, $params, $types)->fetchAll();
+        $results = $this->connection->executeQuery($sqlStatement, $params, $types)->fetchAllAssociative();
 
         if (\count($results) === 0) {
             return [];
@@ -136,7 +136,7 @@ class PromotionExclusionUpdater
                 WHERE id IN(:affectedIds)
             ';
 
-            $this->connection->executeStatement($sqlStatement, ['value' => $deleteId, 'affectedIds' => $affectedIds], ['affectedIds' => Connection::PARAM_STR_ARRAY]);
+            $this->connection->executeStatement($sqlStatement, ['value' => $deleteId, 'affectedIds' => $affectedIds], ['affectedIds' => ArrayParameterType::STRING]);
         });
 
         return $tags;
@@ -164,7 +164,7 @@ class PromotionExclusionUpdater
                     'addToTheseIds' => $this->convertHexArrayToByteArray($ids),
                 ],
                 [
-                    'addToTheseIds' => Connection::PARAM_STR_ARRAY,
+                    'addToTheseIds' => ArrayParameterType::STRING,
                 ]
             );
         });
@@ -207,11 +207,11 @@ class PromotionExclusionUpdater
 
         $params = ['ids' => $bytes];
 
-        $type = ['ids' => Connection::PARAM_STR_ARRAY];
+        $type = ['ids' => ArrayParameterType::STRING];
 
         $rows = $this->connection
             ->executeQuery($sqlStatement, $params, $type)
-            ->fetchAll(FetchMode::ASSOCIATIVE);
+            ->fetchAllAssociative();
 
         $results = [];
         foreach ($rows as $row) {

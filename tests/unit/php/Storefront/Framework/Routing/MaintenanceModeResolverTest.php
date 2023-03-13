@@ -17,7 +17,7 @@ class MaintenanceModeResolverTest extends TestCase
 {
     public function testShouldInstantiate(): void
     {
-        static::assertInstanceOf(MaintenanceModeResolver::class, new MaintenanceModeResolver($this->getRequestStack()));
+        static::assertInstanceOf(MaintenanceModeResolver::class, new MaintenanceModeResolver(self::getRequestStack()));
     }
 
     /**
@@ -36,7 +36,7 @@ class MaintenanceModeResolverTest extends TestCase
          * we need to be able to set the master-request's config here, since
          * the resolver reads the whitelist from it.
          */
-        $resolver = new MaintenanceModeResolver($this->getRequestStack($request));
+        $resolver = new MaintenanceModeResolver(self::getRequestStack($request));
 
         if ($shouldRedirect) {
             static::assertTrue(
@@ -59,7 +59,7 @@ class MaintenanceModeResolverTest extends TestCase
      */
     public function testShouldRedirectToShop(Request $request, bool $shouldRedirect): void
     {
-        $resolver = new MaintenanceModeResolver($this->getRequestStack($request));
+        $resolver = new MaintenanceModeResolver(self::getRequestStack($request));
 
         if ($shouldRedirect) {
             static::assertFalse(
@@ -83,7 +83,7 @@ class MaintenanceModeResolverTest extends TestCase
     public function testIsMaintenanceRequest(Request $request, bool $expected): void
     {
         static::assertEquals(
-            (new MaintenanceModeResolver($this->getRequestStack($request)))->isMaintenanceRequest($request),
+            (new MaintenanceModeResolver(self::getRequestStack($request)))->isMaintenanceRequest($request),
             $expected
         );
     }
@@ -91,23 +91,23 @@ class MaintenanceModeResolverTest extends TestCase
     /**
      * @return array<string, array{0: Request, 1: boolean}>
      */
-    public function maintenanceModeInactiveProvider(): array
+    public static function maintenanceModeInactiveProvider(): array
     {
         return [
             'maintenance mode is inactive, no sales channel request' => [
-                $this->getRequest(false, false, false, false, false, false),
+                self::getRequest(false, false, false, false, false, false),
                 false,
             ],
             'maintenance mode is inactive, sales channel requested' => [
-                $this->getRequest(false, false, false, false, true, false),
+                self::getRequest(false, false, false, false, true, false),
                 false,
             ],
             'maintenance mode is inactive, no sales channel request, proxy' => [
-                $this->getRequest(true, false, false, false, false, false),
+                self::getRequest(true, false, false, false, false, false),
                 false,
             ],
             'maintenance mode is inactive, sales channel requested, proxy' => [
-                $this->getRequest(true, false, false, false, true, false),
+                self::getRequest(true, false, false, false, true, false),
                 false,
             ],
         ];
@@ -116,43 +116,43 @@ class MaintenanceModeResolverTest extends TestCase
     /**
      * @return array<string, array{0: Request, 1: boolean}>
      */
-    public function maintenanceModeActiveProvider(): array
+    public static function maintenanceModeActiveProvider(): array
     {
         return [
             'maintenance mode is active, sales channel requested' => [
-                $this->getRequest(false, false, false, false, true, true),
+                self::getRequest(false, false, false, false, true, true),
                 true,
             ],
             'maintenance mode is active, sales channel requested, client-ip' => [
-                $this->getRequest(false, false, false, false, true, true),
+                self::getRequest(false, false, false, false, true, true),
                 true,
             ],
             'maintenance mode is active, sales channel requested, whitelisted client ip' => [
-                $this->getRequest(false, false, false, false, true, true, ['192.168.2.16', '192.168.1.16']),
+                self::getRequest(false, false, false, false, true, true, ['192.168.2.16', '192.168.1.16']),
                 false,
             ],
             'maintenance mode is active, sales channel requested, whitelisted loopback ip' => [
-                $this->getRequest(false, false, false, false, true, true, ['127.0.0.1', '::1']),
+                self::getRequest(false, false, false, false, true, true, ['127.0.0.1', '::1']),
                 true,
             ],
             'maintenance mode is active, sales channel requested, proxy' => [
-                $this->getRequest(true, false, false, false, true, true),
+                self::getRequest(true, false, false, false, true, true),
                 true,
             ],
             'maintenance mode is active, sales channel requested, proxy, client-ip' => [
-                $this->getRequest(true, false, false, false, true, true),
+                self::getRequest(true, false, false, false, true, true),
                 true,
             ],
             'maintenance mode is active, sales channel requested, proxy, whitelisted client ip' => [
-                $this->getRequest(true, false, false, false, true, true, ['192.168.2.16', '192.168.1.16']),
+                self::getRequest(true, false, false, false, true, true, ['192.168.2.16', '192.168.1.16']),
                 false,
             ],
             'maintenance mode is active, sales channel requested, proxy, whitelisted loopback ip' => [
-                $this->getRequest(true, false, false, false, true, true, ['127.0.0.1', '::1']),
+                self::getRequest(true, false, false, false, true, true, ['127.0.0.1', '::1']),
                 true,
             ],
             'maintenance mode is active, sales channel requested, proxy, whitelisted client ip - mixed case' => [
-                $this->getRequest(true, false, false, false, true, true, ['2003:F0:3f08:Db00:6D4:c4Ff:Fe48:74F4'], '2003:f0:3F08:dB00:6d4:C4fF:fE48:74f4'),
+                self::getRequest(true, false, false, false, true, true, ['2003:F0:3f08:Db00:6D4:c4Ff:Fe48:74F4'], '2003:f0:3F08:dB00:6d4:C4fF:fE48:74f4'),
                 false,
             ],
         ];
@@ -161,23 +161,23 @@ class MaintenanceModeResolverTest extends TestCase
     /**
      * @return array<string, array{0: Request, 1: boolean}>
      */
-    public function xmlHttpRequestProvider(): array
+    public static function xmlHttpRequestProvider(): array
     {
         return [
             'maintenance mode is active, sales channel requested, ajax' => [
-                $this->getRequest(false, true, false, false, true, true),
+                self::getRequest(false, true, false, false, true, true),
                 false,
             ],
             'maintenance mode is active, maintenance page requested, ajax' => [
-                $this->getRequest(false, true, false, true, false, true),
+                self::getRequest(false, true, false, true, false, true),
                 false,
             ],
             'maintenance mode is active, sales channel requested, ajax, proxy' => [
-                $this->getRequest(true, true, false, false, true, true),
+                self::getRequest(true, true, false, false, true, true),
                 false,
             ],
             'maintenance mode is active, maintenance page requested, ajax, proxy' => [
-                $this->getRequest(true, true, false, true, false, true),
+                self::getRequest(true, true, false, true, false, true),
                 false,
             ],
         ];

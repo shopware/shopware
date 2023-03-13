@@ -16,14 +16,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\CollectingEventDispatcher;
 use Shopware\Storefront\Event\RouteRequest\OrderRouteRequestEvent;
 use Shopware\Storefront\Page\Account\Overview\AccountOverviewPage;
 use Shopware\Storefront\Page\Account\Overview\AccountOverviewPageLoadedEvent;
 use Shopware\Storefront\Page\Account\Overview\AccountOverviewPageLoader;
 use Shopware\Storefront\Page\GenericPageLoader;
 use Shopware\Storefront\Pagelet\Newsletter\Account\NewsletterAccountPageletLoader;
-use Symfony\Component\EventDispatcher\EventDispatcher;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -33,10 +32,7 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class AccountOverviewPageLoaderTest extends TestCase
 {
-    /**
-     * @var EventDispatcherInterface&MockObject
-     */
-    private EventDispatcherInterface $eventDispatcher;
+    private CollectingEventDispatcher $eventDispatcher;
 
     /**
      * @var OrderRoute&MockObject
@@ -47,7 +43,7 @@ class AccountOverviewPageLoaderTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->eventDispatcher = $this->createMock(EventDispatcher::class);
+        $this->eventDispatcher = new CollectingEventDispatcher();
 
         $this->orderRoute = $this->createMock(OrderRoute::class);
 
@@ -82,18 +78,16 @@ class AccountOverviewPageLoaderTest extends TestCase
             ->method('load')
             ->willReturn($orderResponse);
 
-        $this->eventDispatcher
-            ->expects(static::exactly(2))
-            ->method('dispatch')
-            ->withConsecutive(
-                [static::isInstanceOf(OrderRouteRequestEvent::class)],
-                [static::isInstanceOf(AccountOverviewPageLoadedEvent::class)],
-            );
-
         $customer = new CustomerEntity();
         $page = $this->pageLoader->load(new Request(), $this->createMock(SalesChannelContext::class), $customer);
 
         static::assertInstanceOf(AccountOverviewPage::class, $page);
         static::assertEquals($order, $page->getNewestOrder());
+
+        $events = $this->eventDispatcher->getEvents();
+        static::assertCount(2, $events);
+
+        static::assertInstanceOf(OrderRouteRequestEvent::class, $events[0]);
+        static::assertInstanceOf(AccountOverviewPageLoadedEvent::class, $events[1]);
     }
 }

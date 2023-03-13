@@ -123,13 +123,13 @@ class ShopConfigurator
             $stmt = $conn->prepare('UPDATE currency SET id = :newId WHERE id = :oldId');
 
             // assign new uuid to old DEFAULT
-            $stmt->execute([
+            $stmt->executeStatement([
                 'newId' => Uuid::randomBytes(),
                 'oldId' => Uuid::fromHexToBytes(Defaults::CURRENCY),
             ]);
 
             // change id to DEFAULT
-            $stmt->execute([
+            $stmt->executeStatement([
                 'newId' => Uuid::fromHexToBytes(Defaults::CURRENCY),
                 'oldId' => $newDefaultCurrencyId,
             ]);
@@ -366,13 +366,13 @@ class ShopConfigurator
             );
 
             // assign new uuid to old DEFAULT
-            $stmt->execute([
+            $stmt->executeStatement([
                 'newId' => Uuid::randomBytes(),
                 'oldId' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
             ]);
 
             // change id to DEFAULT
-            $stmt->execute([
+            $stmt->executeStatement([
                 'newId' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
                 'oldId' => $newLanguageId,
             ]);

@@ -17,6 +17,9 @@ use Symfony\Component\Validator\Constraints\Required;
 use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @final tag:v6.6.0
+ */
 #[Package('checkout')]
 class LineItemFactoryRegistry
 {
@@ -65,6 +68,14 @@ class LineItemFactoryRegistry
             throw CartException::lineItemNotFound($identifier);
         }
 
+        $this->updateLineItem($cart, $data, $lineItem, $context);
+    }
+
+    /**
+     * @param array<string|int, mixed> $data
+     */
+    public function updateLineItem(Cart $cart, array $data, LineItem $lineItem, SalesChannelContext $context): void
+    {
         if (!isset($data['type'])) {
             $data['type'] = $lineItem->getType();
         }

@@ -1,0 +1,15 @@
+name: Codeball
+on:
+  pull_request:
+
+jobs:
+  codeball_job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Codeball AI Code Review
+        uses: sturdy-dev/codeball-action@v2.6.0
+        with:
+          approvePullRequests: "false"
+          labelPullRequestsWhenReviewNeeded: "true"
+          codeSuggestionsFromComments: "true"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

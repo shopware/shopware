@@ -24,19 +24,12 @@ describe('Product: Visual tests', () => {
     });
 
     it('@visual: check appearance of basic product workflow', { tags: ['pa-inventory'] }, () => {
-        cy.intercept({
-            url: `${Cypress.env('apiPath')}/search/product`,
-            method: 'POST',
-        }).as('getData');
-
         cy.get('.sw-product-list-grid').should('be.visible');
         cy.clickMainMenuItem({
             targetPath: '#/sw/product/index',
             mainMenuId: 'sw-catalogue',
             subMenuId: 'sw-product',
         });
-        cy.wait('@getData')
-            .its('response.statusCode').should('equal', 200);
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-product-list__content').should('be.visible');

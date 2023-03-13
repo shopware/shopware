@@ -28,7 +28,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\TestUser;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
-use Shopware\Core\System\Test\SalesChannel\Validation\SalesChannelValidatorTest;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -43,6 +42,9 @@ class ApiControllerTest extends TestCase
     use FilesystemBehaviour;
     use BasicTestDataBehaviour;
     use AdminApiTestBehaviour;
+
+    private const DELETE_VALIDATION_MESSAGE = 'Cannot delete default language id from language list of the sales channel with id "%s".';
+    private const INSERT_VALIDATION_MESSAGE = 'The sales channel with id "%s" does not have a default sales channel language id in the language list.';
 
     /**
      * @var Connection
@@ -78,9 +80,9 @@ CREATE TABLE `named` (
 );
 EOF;
         $this->connection = $this->getContainer()->get(Connection::class);
-        $this->connection->executeUpdate($dropStatement);
-        $this->connection->executeUpdate($namedOptionalGroupStatement);
-        $this->connection->executeUpdate($namedStatement);
+        $this->connection->executeStatement($dropStatement);
+        $this->connection->executeStatement($namedOptionalGroupStatement);
+        $this->connection->executeStatement($namedStatement);
 
         $this->connection->beginTransaction();
     }
@@ -89,8 +91,8 @@ EOF;
     {
         $this->connection->rollBack();
 
-        $this->connection->executeUpdate('DROP TABLE IF EXISTS `named`');
-        $this->connection->executeUpdate('DROP TABLE IF EXISTS `named_optional_group`');
+        $this->connection->executeStatement('DROP TABLE IF EXISTS `named`');
+        $this->connection->executeStatement('DROP TABLE IF EXISTS `named_optional_group`');
 
         parent::tearDown();
     }
@@ -787,7 +789,7 @@ EOF;
             ->executeQuery(
                 'SELECT * FROM product_category WHERE product_id = :pid AND category_id = :cid',
                 ['pid' => Uuid::fromHexToBytes($id), 'cid' => Uuid::fromHexToBytes($category)]
-            )->fetchAll();
+            )->fetchAllAssociative();
         static::assertEmpty($a);
 
         $this->assertEntityExists($this->getBrowser(), 'product', $id);
@@ -830,7 +832,7 @@ EOF;
         $browser->request('DELETE', '/api/product/' . $id . '/categories/' . $category);
         static::assertSame(Response::HTTP_FORBIDDEN, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
 
-        $a = $this->getContainer()->get(Connection::class)->executeQuery('SELECT * FROM product_category WHERE product_id = :pid AND category_id = :cid', ['pid' => Uuid::fromHexToBytes($id), 'cid' => Uuid::fromHexToBytes($category)])->fetchAll();
+        $a = $this->getContainer()->get(Connection::class)->executeQuery('SELECT * FROM product_category WHERE product_id = :pid AND category_id = :cid', ['pid' => Uuid::fromHexToBytes($id), 'cid' => Uuid::fromHexToBytes($category)])->fetchAllAssociative();
         static::assertNotEmpty($a);
 
         $this->assertEntityExists($browser, 'product', $id);
@@ -2152,7 +2154,7 @@ EOF;
         $content = json_decode((string) $response->getContent(), null, 512, \JSON_THROW_ON_ERROR);
         $error = $content->errors[0];
 
-        static::assertSame(sprintf(SalesChannelValidatorTest::INSERT_VALIDATION_MESSAGE, $salesChannelId), $error->detail);
+        static::assertSame(sprintf(self::INSERT_VALIDATION_MESSAGE, $salesChannelId), $error->detail);
     }
 
     public function testPreventDeletionOfDefaultSalesChannelLanguageFromLanguageList(): void
@@ -2169,7 +2171,7 @@ EOF;
         $content = json_decode((string) $response->getContent(), null, 512, \JSON_THROW_ON_ERROR);
         $error = $content->errors[0];
 
-        static::assertSame(sprintf(SalesChannelValidatorTest::DELETE_VALIDATION_MESSAGE, $salesChannelId), $error->detail);
+        static::assertSame(sprintf(self::DELETE_VALIDATION_MESSAGE, $salesChannelId), $error->detail);
     }
 
     public function testDirectlyAddMappingEntry(): void

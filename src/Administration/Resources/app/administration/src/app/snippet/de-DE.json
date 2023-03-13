@@ -694,6 +694,9 @@
         "lineItemWithQuantityRule": "Positionsanzahl",
         "orderTagRule": "Bestellung mit Tag",
         "orderDeliveryStatusRule": "Lieferstatus",
+        "orderCreatedByAdminRule": "Bestellung vom Administrator erstellt",
+        "orderTransactionStatusRule": "Zahlungsstatus",
+        "orderStatusRule": "Bestellstatus",
         "yes": "Ja",
         "no": "Nein",
         "withTime": "Mit Zeitabfrage",
@@ -861,6 +864,27 @@
         "weight": "kg",
         "volume": "mm³",
         "age": "Jahre"
+      },
+      "orderCreatedByAdmin": {
+        "shouldOrderBeCreatedByAdmin": {
+          "placeholder": "Condition auswählen ..."
+        }
+      },
+      "orderTransactionStatus": {
+        "stateIds": {
+          "placeholder": "State auswählen ..."
+        },
+        "operator": {
+          "placeholder": "Operator auswählen ..."
+        }
+      },
+      "orderStatus": {
+        "stateIds": {
+          "placeholder": "State auswählen ..."
+        },
+        "operator": {
+          "placeholder": "Operator auswählen ..."
+        }
       }
     },
     "sw-product-image": {

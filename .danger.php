@@ -331,6 +331,10 @@ return (new Config())
         $addedLegacyTests = [];
 
         foreach ($addedFiles->matches('src/**/*Test.php') as $file) {
+            if (str_contains($file->name, 'src/WebInstaller/')) {
+                continue;
+            }
+
             $content = $file->getContent();
 
             if (str_contains($content, 'extends TestCase')) {

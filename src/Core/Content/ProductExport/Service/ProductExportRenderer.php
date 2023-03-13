@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\ProductExport\Service;
 
-use Monolog\Logger;
+use Monolog\Level;
 use Shopware\Core\Content\ProductExport\Event\ProductExportLoggingEvent;
 use Shopware\Core\Content\ProductExport\Event\ProductExportRenderFooterContextEvent;
 use Shopware\Core\Content\ProductExport\Event\ProductExportRenderHeaderContextEvent;
@@ -97,14 +97,22 @@ class ProductExportRenderer implements ProductExportRendererInterface
         }
     }
 
+    /**
+     * @param array<string, mixed>               $data
+     */
     public function renderBody(
         ProductExportEntity $productExport,
         SalesChannelContext $salesChannelContext,
         array $data
     ): string {
+        $bodyTemplate = $productExport->getBodyTemplate();
+        if (!\is_string($bodyTemplate)) {
+            throw new \RuntimeException('Product export body template is not set');
+        }
+
         try {
             $content = $this->templateRenderer->render(
-                $productExport->getBodyTemplate(),
+                $bodyTemplate,
                 $data,
                 $salesChannelContext->getContext()
             ) . \PHP_EOL;
@@ -125,15 +133,18 @@ class ProductExportRenderer implements ProductExportRendererInterface
         $loggingEvent = new ProductExportLoggingEvent(
             $context,
             $exception->getMessage(),
-            Logger::ERROR,
+            Level::Error,
             $exception
         );
 
         $this->eventDispatcher->dispatch($loggingEvent);
     }
 
-    private function replaceSeoUrlPlaceholder(string $content, ProductExportEntity $productExportEntity, SalesChannelContext $salesChannelContext): string
-    {
+    private function replaceSeoUrlPlaceholder(
+        string $content,
+        ProductExportEntity $productExportEntity,
+        SalesChannelContext $salesChannelContext
+    ): string {
         return $this->seoUrlPlaceholderHandler->replace(
             $content,
             $productExportEntity->getSalesChannelDomain()->getUrl(),

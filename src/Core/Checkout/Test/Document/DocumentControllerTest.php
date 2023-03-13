@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Test\Document;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -216,7 +217,7 @@ class DocumentControllerTest extends TestCase
 
         TestUser::createNewTestUser(
             $this->getContainer()->get(Connection::class),
-            ['document.viewer']
+            ['document:read']
         )->authorizeBrowser($this->getBrowser());
 
         $this->getBrowser()->request('GET', $endpoint);
@@ -448,7 +449,7 @@ class DocumentControllerTest extends TestCase
 
         TestUser::createNewTestUser(
             $this->getContainer()->get(Connection::class),
-            ['document.viewer']
+            ['document:read']
         )->authorizeBrowser($this->getBrowser());
 
         $order = $this->createOrder($this->customerId, $this->context);
@@ -574,7 +575,7 @@ class DocumentControllerTest extends TestCase
             [
                 'documentIds' => $documentIds,
             ],
-            ['documentIds' => Connection::PARAM_STR_ARRAY]
+            ['documentIds' => ArrayParameterType::STRING]
         );
     }
 

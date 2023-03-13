@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\SearchKeyword;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Defaults;
@@ -282,7 +283,7 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
         $configurations = $this->connection->fetchAllAssociative(
             'SELECT `and_logic`, `language_id` FROM `product_search_config` WHERE `language_id` IN (:language)',
             ['language' => Uuid::fromHexToBytesList([$currentLanguageId, Defaults::LANGUAGE_SYSTEM])],
-            ['language' => Connection::PARAM_STR_ARRAY]
+            ['language' => ArrayParameterType::STRING]
         );
         foreach ($configurations as $configuration) {
             $andLogic = (bool) $configuration['and_logic'];

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Dbal;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryEntity;
@@ -243,7 +244,7 @@ class TreeIndexerTest extends TestCase
         $categoryC = $this->createCategory($categoryA);
         $categoryD = $this->createCategory($categoryC);
 
-        $this->connection->executeUpdate(
+        $this->connection->executeStatement(
             'UPDATE category SET path = NULL, level = 0 WHERE HEX(id) IN (:ids)',
             [
                 'ids' => [
@@ -253,7 +254,7 @@ class TreeIndexerTest extends TestCase
                     $categoryD,
                 ],
             ],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::STRING]
         );
 
         $categories = $this->categoryRepository->search(new Criteria([$categoryA, $categoryB, $categoryC, $categoryD]), $this->context);

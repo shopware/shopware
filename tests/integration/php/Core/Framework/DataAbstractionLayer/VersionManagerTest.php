@@ -13,11 +13,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ManyToOneProductDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ToOneProductExtension;
+use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestDataCollection;
@@ -118,6 +120,47 @@ class VersionManagerTest extends TestCase
         static::assertSame($extendableId, $clonedManyToOneId);
     }
 
+    public function testContextScopeAvailableDuringMerge(): void
+    {
+        $ids = new IdsCollection();
+
+        $product = (new ProductBuilder($ids, 'p1'))->price(100)->build();
+
+        $context = Context::createDefaultContext();
+
+        $this->getContainer()->get('product.repository')->create([$product], $context);
+
+        $versionId = $this->getContainer()->get('product.repository')
+            ->createVersion($ids->get('p1'), $context);
+
+        $versionContext = $context->createWithVersionId($versionId);
+
+        $this->getContainer()->get('product.repository')
+            ->update([['id' => $ids->get('p1'), 'name' => 'test']], $versionContext);
+
+        // now ensure that we get a validate event for the merge request
+        $called = false;
+
+        $this->addEventListener(
+            $this->getContainer()->get('event_dispatcher'),
+            PreWriteValidationEvent::class,
+            function (PreWriteValidationEvent $event) use (&$called): void {
+                // we also get a validation event for the version tables
+                if (!$event->getPrimaryKeys('product')) {
+                    return;
+                }
+
+                $called = true;
+                // some validators depend on that to disable insert/update validation for merge requests
+                static::assertTrue($event->getWriteContext()->hasState(VersionManager::MERGE_SCOPE));
+            }
+        );
+
+        $this->getContainer()->get('product.repository')->merge($versionId, $context);
+
+        static::assertTrue($called);
+    }
+
     public function testWhenNotAddingFKThenItShouldNotBeAvailable(): void
     {
         $product = (new ProductBuilder($this->ids, self::PRODUCT_ID))->stock(1)
@@ -171,7 +214,7 @@ class VersionManagerTest extends TestCase
         $this->connection->executeStatement('
             ALTER TABLE `product`
                 ADD COLUMN `many_to_one_id` binary(16) NULL,
-                ADD CONSTRAINT `fk.product.many_to_one_id` FOREIGN KEY (`many_to_one_id`) 
+                ADD CONSTRAINT `fk.product.many_to_one_id` FOREIGN KEY (`many_to_one_id`)
                 REFERENCES `many_to_one_product` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
         ');
 

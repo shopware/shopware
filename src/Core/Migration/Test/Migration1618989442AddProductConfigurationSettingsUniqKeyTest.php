@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Migration\Test;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -125,7 +126,7 @@ class Migration1618989442AddProductConfigurationSettingsUniqKeyTest extends Test
                 Uuid::fromHexToBytes($productConfiguratorSettingId3),
             ],
         ], [
-            'ids' => Connection::PARAM_STR_ARRAY,
+            'ids' => ArrayParameterType::STRING,
         ]);
 
         $this->connection->beginTransaction();

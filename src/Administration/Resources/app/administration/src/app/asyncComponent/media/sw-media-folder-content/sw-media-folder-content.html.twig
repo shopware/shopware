@@ -20,12 +20,11 @@
             >
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_folder_content_folder_icon %}
-                <sw-icon
+                <img
+                    :src="'/administration/static/img/media/folder-thumbnail.svg' | asset"
                     class="sw-media-folder-content__folder-icon"
-                    name="multicolor-folder-thumbnail"
-                    size="24px"
-                    multicolor
-                />
+                    alt="Folder thumbnail"
+                >
                 {% endblock %}
                 {{ parentFolder.name }}
             </button>
@@ -47,12 +46,11 @@
             <button class="sw-media-folder-content__button sw-media-folder-content__folder-button">
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_folder_content_folder_button_icon %}
-                <sw-icon
+                <img
+                    :src="'/administration/static/img/media/folder-thumbnail.svg' | asset"
                     class="sw-media-folder-content__folder-icon"
-                    name="multicolor-folder-thumbnail"
-                    size="24px"
-                    multicolor
-                />
+                    alt="Folder thumbnail"
+                >
                 {% endblock %}
                 {{ folder.name }}
             </button>
@@ -63,7 +61,7 @@
                 v-if="getChildCount(folder) > 0"
                 class="sw-media-folder-content__switch-button"
                 name="regular-chevron-right-xxs"
-                size="16px"
+                size="12px"
             />
             {% endblock %}
             {% endblock %}

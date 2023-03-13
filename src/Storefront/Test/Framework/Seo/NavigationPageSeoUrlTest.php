@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Test\Framework\Seo;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
@@ -404,7 +405,7 @@ class NavigationPageSeoUrlTest extends TestCase
             $query->setParameter('salesChannel', Uuid::fromHexToBytes($salesChannelId));
         }
 
-        $query->setParameter('ids', Uuid::fromHexToBytesList(array_values($ids)), Connection::PARAM_STR_ARRAY);
+        $query->setParameter('ids', Uuid::fromHexToBytesList(array_values($ids)), ArrayParameterType::STRING);
         $query->setParameter('routeName', NavigationPageSeoUrlRoute::ROUTE_NAME);
         $query->setParameter('language', Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM));
 

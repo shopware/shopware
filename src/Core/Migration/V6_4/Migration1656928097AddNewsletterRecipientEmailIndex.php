@@ -19,7 +19,7 @@ class Migration1656928097AddNewsletterRecipientEmailIndex extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $existingIndexes = $connection->getSchemaManager()->listTableIndexes('newsletter_recipient');
+        $existingIndexes = $connection->createSchemaManager()->listTableIndexes('newsletter_recipient');
         if (isset($existingIndexes['idx.newsletter_recipient.email'])) {
             return;
         }

@@ -31,14 +31,11 @@ module.exports = defineConfig({
     dbPassword: 'root',
     dbHost: 'mysql',
     dbName: 'shopware_e2e',
-    expectedVersion: '6.4.',
+    expectedVersion: '6.5.',
     grepOmitFiltered: true,
     grepFilterSpecs: true,
   },
-  retries: {
-    runMode: 2,
-    openMode: 0,
-  },
+  retries: 0,
   reporter: 'cypress-multi-reporters',
   reporterOptions: {
     reporterEnabled: 'mochawesome, mocha-junit-reporter',

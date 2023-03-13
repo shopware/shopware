@@ -1,11 +1,13 @@
 /**
  * @package system-settings
  */
+import ErrorResolverSystemConfig from 'src/core/data/error-resolver.system-config.data';
 import template from './sw-system-config.html.twig';
 import './sw-system-config.scss';
 
 const { Mixin } = Shopware;
 const { object, string: { kebabCase } } = Shopware.Utils;
+const { mapSystemConfigErrors } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -92,6 +94,10 @@ export default {
     },
 
     methods: {
+        getFieldError(fieldName) {
+            return mapSystemConfigErrors(ErrorResolverSystemConfig.ENTITY_NAME, this.salesChannelId, fieldName);
+        },
+
         async createdComponent() {
             this.isLoading = true;
             try {

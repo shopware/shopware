@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Migration\V6_3;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetDefinition;
 use Shopware\Core\Defaults;
@@ -218,7 +219,7 @@ SQL;
         $languageId = $connection->fetchOne(
             $sql,
             ['locale_codes' => $localeCodes],
-            ['locale_codes' => Connection::PARAM_STR_ARRAY]
+            ['locale_codes' => ArrayParameterType::STRING]
         );
 
         if (\is_array($languageId)) {

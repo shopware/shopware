@@ -46,8 +46,8 @@ class CustomFieldTest extends TestCase
         parent::setUp();
 
         $this->connection = $this->getContainer()->get(Connection::class);
-        $this->connection->exec('DROP TABLE IF EXISTS `attribute_test`');
-        $this->connection->exec('
+        $this->connection->executeStatement('DROP TABLE IF EXISTS `attribute_test`');
+        $this->connection->executeStatement('
             CREATE TABLE `attribute_test` (
               id BINARY(16) NOT NULL PRIMARY KEY,
               parent_id BINARY(16) NULL,
@@ -57,8 +57,8 @@ class CustomFieldTest extends TestCase
               updated_at DATETIME(3) NULL
         )');
 
-        $this->connection->exec('DROP TABLE IF EXISTS `attribute_test_translation`');
-        $this->connection->exec('
+        $this->connection->executeStatement('DROP TABLE IF EXISTS `attribute_test_translation`');
+        $this->connection->executeStatement('
             CREATE TABLE `attribute_test_translation` (
               attribute_test_id BINARY(16) NOT NULL,
               language_id BINARY(16) NOT NULL,
@@ -74,8 +74,8 @@ class CustomFieldTest extends TestCase
     public function tearDown(): void
     {
         $this->connection->rollBack();
-        $this->connection->exec('DROP TABLE `attribute_test_translation`');
-        $this->connection->executeUpdate('DROP TABLE `attribute_test`');
+        $this->connection->executeStatement('DROP TABLE `attribute_test_translation`');
+        $this->connection->executeStatement('DROP TABLE `attribute_test`');
     }
 
     public function testSearch(): void

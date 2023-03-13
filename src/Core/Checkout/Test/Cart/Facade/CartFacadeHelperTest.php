@@ -30,10 +30,22 @@ class CartFacadeHelperTest extends TestCase
      */
     public function testPriceFactory(array $prices, PriceCollection $expected): void
     {
+        foreach ($prices as &$price) {
+            if (isset($price['currencyId']) && $price['currencyId'] === 'USD') {
+                $price['currencyId'] = $this->getCurrencyIdByIso('USD');
+            }
+        }
+
         $actual = $this->cartFacadeHelper->price($prices);
 
         foreach ($expected as $expectedPrice) {
-            $actualPrice = $actual->getCurrencyPrice($expectedPrice->getCurrencyId());
+            $currencyId = $expectedPrice->getCurrencyId();
+
+            if ($currencyId === 'USD') {
+                $currencyId = $this->getCurrencyIdByIso('USD');
+            }
+
+            $actualPrice = $actual->getCurrencyPrice($currencyId);
 
             static::assertInstanceOf(Price::class, $actualPrice);
             static::assertEquals($expectedPrice->getNet(), $actualPrice->getNet());
@@ -42,7 +54,7 @@ class CartFacadeHelperTest extends TestCase
         }
     }
 
-    public function priceCases(): \Generator
+    public static function priceCases(): \Generator
     {
         yield 'manual price definition' => [
             [
@@ -51,18 +63,18 @@ class CartFacadeHelperTest extends TestCase
             ],
             new PriceCollection([
                 new Price(Defaults::CURRENCY, 90, 100, false),
-                new Price($this->getCurrencyIdByIso('USD'), 80, 90, false),
+                new Price('USD', 80, 90, false),
             ]),
         ];
 
         yield 'storage price definition' => [
             [
                 ['gross' => 100, 'net' => 90, 'linked' => true, 'currencyId' => Defaults::CURRENCY],
-                ['gross' => 90, 'net' => 80, 'linked' => false, 'currencyId' => $this->getCurrencyIdByIso('USD')],
+                ['gross' => 90, 'net' => 80, 'linked' => false, 'currencyId' => 'USD'],
             ],
             new PriceCollection([
                 new Price(Defaults::CURRENCY, 90, 100, true),
-                new Price($this->getCurrencyIdByIso('USD'), 80, 90, false),
+                new Price('USD', 80, 90, false),
             ]),
         ];
     }

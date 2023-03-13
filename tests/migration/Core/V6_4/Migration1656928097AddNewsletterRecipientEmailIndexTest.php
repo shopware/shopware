@@ -47,7 +47,7 @@ class Migration1656928097AddNewsletterRecipientEmailIndexTest extends TestCase
 
     public function assertIndexExists(): void
     {
-        $indices = $this->connection->getSchemaManager()->listTableIndexes('newsletter_recipient');
+        $indices = $this->connection->createSchemaManager()->listTableIndexes('newsletter_recipient');
         static::assertArrayHasKey('idx.newsletter_recipient.email', $indices);
     }
 }

@@ -293,7 +293,7 @@ class MigrationCollectionRuntimeTest extends TestCase
             ->where('`class` LIKE \'%_test_migrations_valid_run_time%\'
               OR `class` LIKE \'%_test_migrations_valid_run_time_exceptions%\'')
             ->orderBy('creation_timestamp', 'ASC')
-            ->execute()
-            ->fetchAll();
+            ->executeQuery()
+            ->fetchAllAssociative();
     }
 }

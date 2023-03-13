@@ -126,6 +126,8 @@
       "labelActive": "Account status",
       "labelAffiliateCode": "Affiliate code",
       "labelCampaignCode": "Campaign code",
+      "labelCompany": "Company",
+      "labelVatId": "VAT Reg.No.",
       "contentActive": "Active | Inactive",
       "emptyTextLogin": "No login yet",
       "emptyTextBirthday": "No information",

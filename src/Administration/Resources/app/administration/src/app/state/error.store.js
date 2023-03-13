@@ -66,6 +66,20 @@ class VuexErrorStore {
                 return getters.getApiErrorFromPath(entity.getEntityName(), entity.id, path);
             },
 
+            getSystemConfigApiError: (state, getters) => (entityName, saleChannelId, key) => {
+                const errors = getters.getErrorsForEntity(entityName, saleChannelId);
+
+                if (!errors) {
+                    return null;
+                }
+
+                if (errors.hasOwnProperty(key)) {
+                    return errors[key];
+                }
+
+                return null;
+            },
+
             getAllApiErrors: (state) => () => {
                 return Object.values(state.api);
             },
@@ -86,6 +100,10 @@ class VuexErrorStore {
 
             getSystemError: (state) => (id) => {
                 return state.system[id] || null;
+            },
+
+            countSystemError: (state) => () => {
+                return Object.keys(state.system).length;
             },
         };
 

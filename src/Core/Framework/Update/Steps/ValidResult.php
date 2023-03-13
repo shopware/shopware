@@ -9,14 +9,8 @@ class ValidResult
 {
     public function __construct(
         private readonly int $offset,
-        private readonly int $total,
-        private readonly array $args = []
+        private readonly int $total
     ) {
-    }
-
-    public function getArgs(): array
-    {
-        return $this->args;
     }
 
     public function getOffset(): int

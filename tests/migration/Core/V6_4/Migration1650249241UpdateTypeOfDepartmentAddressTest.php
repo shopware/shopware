@@ -37,7 +37,7 @@ class Migration1650249241UpdateTypeOfDepartmentAddressTest extends TestCase
 
     public function testDepartmentColumnCustomerAddress(): void
     {
-        $schema = $this->connection->getSchemaManager();
+        $schema = $this->connection->createSchemaManager();
 
         $column = array_filter($schema->listTableColumns('customer_address'), static fn (Column $column): bool => $column->getName() === 'department');
 
@@ -51,7 +51,7 @@ class Migration1650249241UpdateTypeOfDepartmentAddressTest extends TestCase
 
     public function testDepartmentColumnOrderAddress(): void
     {
-        $schema = $this->connection->getSchemaManager();
+        $schema = $this->connection->createSchemaManager();
 
         $column = array_filter($schema->listTableColumns('order_address'), static fn (Column $column): bool => $column->getName() === 'department');
 

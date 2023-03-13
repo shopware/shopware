@@ -63,3 +63,5 @@ framework:
 
         routing:
             'Shopware\Core\Framework\MessageQueue\AsyncMessageInterface': async
+            'Symfony\Component\Mailer\Messenger\SendEmailMessage': async
+

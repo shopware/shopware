@@ -88,8 +88,7 @@ describe('Snippets: Test acl privileges', () => {
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
     });
 
-    // TODO: Unskip with NEXT-15489
-    it('@settings: Create snippets', { tags: ['quarantined', 'pa-system-settings'] }, () => {
+    it('@settings: Create snippets', { tags: ['pa-system-settings'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'snippet',
@@ -107,8 +106,18 @@ describe('Snippets: Test acl privileges', () => {
             method: 'POST',
         }).as('saveData');
 
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/search/snippet-set`,
+            method: 'POST',
+        }).as('getSnippetSet');
+
         cy.get('.sw-grid__row--0 > .sw-settings-snippet-set__column-name > .sw-grid__cell-content > a').click();
 
+        cy.wait('@getSnippetSet').its('response.statusCode').should('equal', 200);
+
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+        
         // clicking snippet create button
         cy.get('.sw-tooltip--wrapper > .sw-button')
             .should('be.visible')
@@ -140,12 +149,7 @@ describe('Snippets: Test acl privileges', () => {
                 key: 'snippet',
                 role: 'creator',
             },
-        ]).then(() => {
-            // visiting settings page to prove that snippets element is visible
-            cy.visit(`${Cypress.env('admin')}#/sw/settings/snippet/index`);
-            cy.get('.sw-skeleton').should('not.exist');
-            cy.get('.sw-loader').should('not.exist');
-        });
+        ]);
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/snippet-set`,
@@ -155,6 +159,8 @@ describe('Snippets: Test acl privileges', () => {
         cy.get('.sw-settings-snippet-set-list__action-add')
             .should('be.visible')
             .click();
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get('.sw-grid__row--0 > .sw-settings-snippet-set__column-name > .sw-grid__cell-inline-editing > .sw-field > .sw-block-field__block > #sw-field--item-name')
             .typeAndCheck('Custom de-DE');

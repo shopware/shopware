@@ -62,7 +62,7 @@ class PluginManagementServiceTest extends TestCase
         $this->filesystem->remove(self::PLUGIN_ZIP_FIXTURE_PATH);
         $this->filesystem->remove($this->cacheDir);
 
-        Kernel::getConnection()->executeUpdate('DELETE FROM plugin');
+        Kernel::getConnection()->executeStatement('DELETE FROM plugin');
     }
 
     public function testUploadPlugin(): void

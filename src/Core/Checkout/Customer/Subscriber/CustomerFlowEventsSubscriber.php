@@ -3,6 +3,8 @@
 namespace Shopware\Core\Checkout\Customer\Subscriber;
 
 use Shopware\Core\Checkout\Customer\CustomerEvents;
+use Shopware\Core\Checkout\Customer\DataAbstractionLayer\CustomerIndexer;
+use Shopware\Core\Checkout\Customer\DataAbstractionLayer\CustomerIndexingMessage;
 use Shopware\Core\Checkout\Customer\Event\CustomerChangedPaymentMethodEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
@@ -24,7 +26,8 @@ class CustomerFlowEventsSubscriber implements EventSubscriberInterface
      */
     public function __construct(
         private readonly EventDispatcherInterface $dispatcher,
-        private readonly SalesChannelContextRestorer $restorer
+        private readonly SalesChannelContextRestorer $restorer,
+        private readonly CustomerIndexer $customerIndexer
     ) {
     }
 
@@ -62,6 +65,9 @@ class CustomerFlowEventsSubscriber implements EventSubscriberInterface
     private function dispatchCustomerRegisterEvent(string $customerId, EntityWrittenEvent $event): void
     {
         $context = $event->getContext();
+        $message = new CustomerIndexingMessage([$customerId]);
+        $this->customerIndexer->handle($message);
+
         $salesChannelContext = $this->restorer->restoreByCustomer($customerId, $context);
 
         if (!$customer = $salesChannelContext->getCustomer()) {

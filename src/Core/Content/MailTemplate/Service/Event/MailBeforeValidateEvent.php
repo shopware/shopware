@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\MailTemplate\Service\Event;
 
-use Monolog\Logger;
+use Monolog\Level;
 use Shopware\Core\Content\Flow\Dispatching\Aware\DataAware;
 use Shopware\Core\Content\Flow\Dispatching\Aware\TemplateDataAware;
 use Shopware\Core\Framework\Context;
@@ -94,9 +94,6 @@ class MailBeforeValidateEvent extends Event implements LogAware, TemplateDataAwa
         $this->templateData[$key] = $value;
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     public function getLogData(): array
     {
         $data = $this->data;
@@ -109,8 +106,11 @@ class MailBeforeValidateEvent extends Event implements LogAware, TemplateDataAwa
         ];
     }
 
+    /**
+     * @deprecated tag:v6.6.0 - reason:return-type-change - Return type will change to @see \Monolog\Level
+     */
     public function getLogLevel(): int
     {
-        return Logger::INFO;
+        return Level::Info->value;
     }
 }

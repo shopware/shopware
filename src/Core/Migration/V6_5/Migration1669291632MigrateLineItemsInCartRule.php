@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Migration\V6_5;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
@@ -30,7 +31,7 @@ class Migration1669291632MigrateLineItemsInCartRule extends MigrationStep
         $connection->executeStatement('UPDATE rule SET payload = NULL WHERE id in (:rule_ids)', [
             'rule_ids' => $ruleIds,
         ], [
-            'rule_ids' => Connection::PARAM_STR_ARRAY,
+            'rule_ids' => ArrayParameterType::STRING,
         ]);
 
         // rebuild payload on rule (because it contains the conditions serialized)

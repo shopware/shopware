@@ -4,7 +4,6 @@ namespace Shopware\Tests\Unit\Core\Framework\Store\Services;
 
 use League\Flysystem\FilesystemOperator;
 use League\Flysystem\UnableToWriteFile;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
@@ -33,6 +32,7 @@ use Shopware\Core\Framework\Store\Struct\ShopUserTokenStruct;
 use Shopware\Core\Framework\Store\Struct\StorePluginStruct;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Tests\Unit\Common\Stubs\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -247,15 +247,11 @@ class FirstRunWizardServiceTest extends TestCase
 
     public function testFrwShouldNotRunIfStatusIsFailedAndFailureCountIsAboveThreshold(): void
     {
-        $systemConfigService = $this->createMock(SystemConfigService::class);
-        $systemConfigService->expects(static::exactly(2))
-            ->method('getString')
-            ->withConsecutive(['core.frw.completedAt'], ['core.frw.failedAt'])
-            ->willReturnOnConsecutiveCalls('', (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT));
-        $systemConfigService->expects(static::once())
-            ->method('getInt')
-            ->with('core.frw.failureCount')
-            ->willReturn(4);
+        $systemConfigService = new StaticSystemConfigService([
+            'core.frw.failureCount' => 4,
+            'core.frw.completedAt' => '',
+            'core.frw.failedAt' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
 
         $frwService = $this->createFirstRunWizardService(
             systemConfigService: $systemConfigService,
@@ -266,15 +262,11 @@ class FirstRunWizardServiceTest extends TestCase
 
     public function testFrwShouldRunIfStatusIsFailedAndFailureCountIsUnderThreshold(): void
     {
-        $systemConfigService = $this->createMock(SystemConfigService::class);
-        $systemConfigService->expects(static::exactly(2))
-            ->method('getString')
-            ->withConsecutive(['core.frw.completedAt'], ['core.frw.failedAt'])
-            ->willReturnOnConsecutiveCalls('', (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT));
-        $systemConfigService->expects(static::once())
-            ->method('getInt')
-            ->with('core.frw.failureCount')
-            ->willReturn(3);
+        $systemConfigService = new StaticSystemConfigService([
+            'core.frw.failureCount' => 3,
+            'core.frw.completedAt' => '',
+            'core.frw.failedAt' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
 
         $frwService = $this->createFirstRunWizardService(
             systemConfigService: $systemConfigService,
@@ -328,14 +320,7 @@ class FirstRunWizardServiceTest extends TestCase
                 $domainVerificationRequestStruct->getContent(),
             );
 
-        $systemConfigService = $this->createMock(SystemConfigService::class);
-        $systemConfigService->expects(static::exactly(2))
-            ->method('set')
-            ->withConsecutive(
-                [StoreService::CONFIG_KEY_STORE_LICENSE_DOMAIN, $domain],
-                [StoreService::CONFIG_KEY_STORE_LICENSE_EDITION, $edition],
-            );
-
+        $systemConfigService = new StaticSystemConfigService([]);
         $frwService = $this->createFirstRunWizardService(
             systemConfigService: $systemConfigService,
             filesystemOperator: $filesystem,
@@ -343,6 +328,9 @@ class FirstRunWizardServiceTest extends TestCase
         );
 
         $frwService->verifyLicenseDomain($domain, $this->context);
+
+        static::assertSame($domain, $systemConfigService->getString(StoreService::CONFIG_KEY_STORE_LICENSE_DOMAIN));
+        static::assertSame($edition, $systemConfigService->getString(StoreService::CONFIG_KEY_STORE_LICENSE_EDITION));
     }
 
     public function testThrowsExceptionIfNewLicenseDomainIsNotVerified(): void
@@ -390,9 +378,7 @@ class FirstRunWizardServiceTest extends TestCase
                 $domainVerificationRequestStruct->getContent(),
             );
 
-        $systemConfigService = $this->createMock(SystemConfigService::class);
-        $systemConfigService->expects(static::never())
-            ->method('set');
+        $systemConfigService = new StaticSystemConfigService([]);
 
         $frwService = $this->createFirstRunWizardService(
             systemConfigService: $systemConfigService,
@@ -403,6 +389,7 @@ class FirstRunWizardServiceTest extends TestCase
         $this->expectException(LicenseDomainVerificationException::class);
 
         $frwService->verifyLicenseDomain($domain, $this->context);
+        static::assertEmpty($systemConfigService->all());
     }
 
     public function testThrowsExceptionIfVerificationSecretCanNotBeStoredOnFilesystem(): void
@@ -807,15 +794,7 @@ class FirstRunWizardServiceTest extends TestCase
         $trackingEventClient->expects(static::never())
             ->method('fireTrackingEvent');
 
-        $systemConfigService = $this->createSystemConfigWithOpenFrwState();
-        $systemConfigService->expects(static::exactly(3))
-            ->method('set')
-            ->withConsecutive(
-                ['core.frw.completedAt', static::isNull()],
-                ['core.frw.failedAt', static::isType('string')],
-                ['core.frw.failureCount', static::isType('int')]
-            );
-
+        $systemConfigService = new StaticSystemConfigService();
         $frwService = $this->createFirstRunWizardService(
             systemConfigService: $systemConfigService,
             eventDispatcher: $eventDispatcher,
@@ -823,6 +802,8 @@ class FirstRunWizardServiceTest extends TestCase
         );
 
         $frwService->finishFrw(true, $this->context);
+
+        static::assertSame(1, $systemConfigService->get('core.frw.failureCount'));
     }
 
     public function testUpdatesFrwStateToCompletedOnFrwFinishWithTrackingEvent(): void
@@ -836,14 +817,7 @@ class FirstRunWizardServiceTest extends TestCase
         $trackingEventClient->expects(static::once())
             ->method('fireTrackingEvent');
 
-        $systemConfigService = $this->createSystemConfigWithOpenFrwState();
-        $systemConfigService->expects(static::exactly(3))
-            ->method('set')
-            ->withConsecutive(
-                ['core.frw.completedAt', static::isType('string')],
-                ['core.frw.failedAt', static::isNull()],
-                ['core.frw.failureCount', static::isNull()]
-            );
+        $systemConfigService = new StaticSystemConfigService();
 
         $frwService = $this->createFirstRunWizardService(
             systemConfigService: $systemConfigService,
@@ -852,6 +826,8 @@ class FirstRunWizardServiceTest extends TestCase
         );
 
         $frwService->finishFrw(false, $this->context);
+
+        static::assertNull($systemConfigService->get('core.frw.successCount'));
     }
 
     public function testGetLanguagePlugins(): void
@@ -930,14 +906,5 @@ class FirstRunWizardServiceTest extends TestCase
             $userConfigRepository ?? $this->createMock(EntityRepository::class),
             $trackingEventClient ?? $this->createMock(TrackingEventClient::class),
         );
-    }
-
-    private function createSystemConfigWithOpenFrwState(): SystemConfigService&MockObject
-    {
-        $systemConfigService = $this->createMock(SystemConfigService::class);
-        $systemConfigService->method('getString')
-            ->willReturn('');
-
-        return $systemConfigService;
     }
 }

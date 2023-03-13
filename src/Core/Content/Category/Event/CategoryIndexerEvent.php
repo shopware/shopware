@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
 class CategoryIndexerEvent extends NestedEvent
 {
     /**
-     * @var array
+     * @var list<string>
      */
     protected $ids;
 
@@ -19,6 +19,10 @@ class CategoryIndexerEvent extends NestedEvent
      */
     protected $context;
 
+    /**
+     * @param list<string> $ids
+     * @param array<string> $skip
+     */
     public function __construct(
         array $ids,
         Context $context,
@@ -28,6 +32,9 @@ class CategoryIndexerEvent extends NestedEvent
         $this->context = $context;
     }
 
+    /**
+     * @return list<string>
+     */
     public function getIds(): array
     {
         return $this->ids;
@@ -38,6 +45,9 @@ class CategoryIndexerEvent extends NestedEvent
         return $this->context;
     }
 
+    /**
+     * @return array<string>
+     */
     public function getSkip(): array
     {
         return $this->skip;

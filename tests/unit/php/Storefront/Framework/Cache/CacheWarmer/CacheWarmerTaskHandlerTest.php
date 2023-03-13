@@ -70,25 +70,14 @@ class CacheWarmerTaskHandlerTest extends TestCase
     {
         $this->cacheIdLoader->expects(static::once())->method('load')->willReturn('cacheId');
 
-        $this->router->expects(static::exactly(2))->method('generate')->withConsecutive(
-            ['product.list', ['page' => '1']],
-            ['product.list', ['page' => '2']],
-        )->willReturnOnConsecutiveCalls(
-            '/product/list?page=1',
-            '/product/list?page=2',
-        );
+        $this->router->expects(static::exactly(2))->method('generate')->willReturnCallback(static function (string $route, array $parameters) {
+            return '/product/list?page=' . $parameters['page'];
+        });
 
         $request1 = Request::create('/product/list?page=1');
         $request2 = Request::create('/product/list?page=2');
 
-        $this->requestTransformer->expects(static::exactly(2))->method('transform')->withConsecutive(
-            [
-                static::callback(static fn (Request $request) => $request->getRequestUri() === '/product/list?page=1'),
-            ],
-            [
-                static::callback(static fn (Request $request) => $request->getRequestUri() === '/product/list?page=2'),
-            ],
-        )->willReturnOnConsecutiveCalls(
+        $this->requestTransformer->expects(static::exactly(2))->method('transform')->willReturnOnConsecutiveCalls(
             $request1,
             $request2,
         );
@@ -98,14 +87,13 @@ class CacheWarmerTaskHandlerTest extends TestCase
 
         $this->kernel->expects(static::exactly(2))
             ->method('handle')
-            ->withConsecutive(
-                [
-                    static::callback(static fn (Request $request) => $request->getRequestUri() === '/product/list?page=1'),
-                ],
-                [
-                    static::callback(static fn (Request $request) => $request->getRequestUri() === '/product/list?page=2'),
-                ],
-            )->willReturn(new Response());
+            ->willReturnCallback(static function (Request $request) {
+                if ($request->getRequestUri() === '/product/list?page=1' || $request->getRequestUri() === '/product/list?page=2') {
+                    return new Response();
+                }
+
+                throw new \RuntimeException('Unexpected request');
+            });
 
         $this->kernel->expects(static::once())
             ->method('reboot')

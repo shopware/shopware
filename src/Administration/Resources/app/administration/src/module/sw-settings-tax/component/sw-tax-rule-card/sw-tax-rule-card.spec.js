@@ -73,12 +73,14 @@ async function createWrapper(privileges = []) {
                     </div>
                 `
             },
+            'sw-number-field': true,
             'sw-data-grid': {
                 props: ['dataSource'],
                 template: `
                     <div class="sw-data-grid">
                         <template v-for="item in dataSource">
                             <slot name="actions" v-bind="{ item }"></slot>
+                            <slot name="column-taxRate" v-bind="{ item, isInlineEdit: true }"></slot>
                         </template>
                     </div>
                 `
@@ -210,5 +212,19 @@ describe('module/sw-settings-tax/component/sw-tax-rule-card', () => {
 
             expect(addButton.attributes().disabled).toBeTruthy();
         });
+    });
+
+    it('should have a tax rate field with a correct "digits" property', async () => {
+        const wrapper = await createWrapper([
+            'tax.editor'
+        ]);
+
+        await wrapper.vm.$nextTick();
+
+        const taxRuleDataGrid = wrapper.find('.sw-data-grid');
+
+        const taxRateField = taxRuleDataGrid.find('sw-number-field-stub');
+
+        expect(taxRateField.attributes('digits')).toEqual('3');
     });
 });

@@ -45,18 +45,13 @@ class ArrayBusinessEvent implements FlowEventAware, BusinessEventEncoderTestInte
                 '_uniqueIdentifier' => $tax->getId(),
                 'versionId' => null,
                 'name' => $tax->getName(),
-                'taxRate' => (int) $tax->getTaxRate(),
+                'taxRate' => $tax->getTaxRate(),
                 'position' => $tax->getPosition(),
                 'customFields' => null,
                 'translated' => [],
                 'createdAt' => $tax->getCreatedAt() ? $tax->getCreatedAt()->format(\DATE_RFC3339_EXTENDED) : null,
                 'updatedAt' => null,
-                'extensions' => [
-                    'foreignKeys' => [
-                        'extensions' => [],
-                        'apiAlias' => 'tax_foreign_keys_extension',
-                    ],
-                ],
+                'extensions' => [],
                 'apiAlias' => 'tax',
             ];
         }

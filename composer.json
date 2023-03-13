@@ -66,7 +66,7 @@
         "composer/composer": "^2.4.4",
         "composer/semver": "^3.2",
         "doctrine/annotations": "^1.14",
-        "doctrine/dbal": "^3.5",
+        "doctrine/dbal": "^3.6",
         "doctrine/inflector": "^2.0",
         "dompdf/dompdf": "2.0.3",
         "erusev/parsedown-extra": "0.8.1",
@@ -80,7 +80,7 @@
         "league/flysystem-memory": "~3.10",
         "league/oauth2-server": "~8.3.6",
         "meyfa/php-svg": "~0.13.0",
-        "monolog/monolog": "~3.2.0",
+        "monolog/monolog": "~3.3.1",
         "nyholm/psr7": "^1.5",
         "opensearch-project/opensearch-php": "~2.0",
         "padaliyajay/php-autoprefixer": "1.4",
@@ -144,7 +144,7 @@
         "twig/intl-extra": "^3.4",
         "twig/string-extra": "^3.4",
         "twig/twig": "~3.4.3",
-        "zircote/swagger-php": "~4.5.1"
+        "zircote/swagger-php": "~4.5.1 || ~3"
     },
     "require-dev": {
         "ext-tokenizer": "*",
@@ -152,19 +152,16 @@
         "bamarni/composer-bin-plugin": "~1.8.2",
         "brianium/paratest": "^6.6",
         "dg/bypass-finals": "^1.3",
-        "doctrine/sql-formatter": "^1.1",
-        "fakerphp/faker": "^1.20",
         "jdorn/sql-formatter": "~1.2.17",
         "johnkary/phpunit-speedtrap": "~4.0.0",
         "league/construct-finder": "^1.1",
-        "maltyxx/images-generator": "~1.0.0",
-        "mbezhanov/faker-provider-collection": "~2.0.1",
         "nikic/php-parser": "~4.15.0",
         "opis/json-schema": "~2.3.0",
         "phpbench/phpbench": "^1.2",
         "phpdocumentor/reflection-docblock": "^5.3.0",
         "phpstan/extension-installer": "^1.2.0",
         "phpstan/phpstan": "1.9.14",
+        "phpstan/phpstan-deprecation-rules": "1.1.1",
         "phpstan/phpstan-doctrine": "1.3.32",
         "phpstan/phpstan-phpunit": "1.3.3",
         "phpstan/phpstan-symfony": "1.2.20",
@@ -172,12 +169,14 @@
         "smalot/pdfparser": "~2.2.2",
         "symfony/browser-kit": "~6.2.0",
         "symfony/css-selector": "~6.2.0",
-        "symfony/doctrine-bridge": "^6.2",
         "symfony/dom-crawler": "~6.2.0",
         "symfony/expression-language": "~6.2.0",
         "symfony/phpunit-bridge": "~6.1.0",
         "symfony/var-dumper": "~6.2.0",
-        "symfony/web-profiler-bundle": "~6.2.0"
+        "shopware/dev-tools": "^1.0.1"
+    },
+    "suggest": {
+        "shopware/dev-tools": "For development tools, profiler, faker, etc"
     },
     "repositories": [
         {
@@ -306,6 +305,9 @@
         "e2e:cypress": [
             "export APP_ENV=e2e; export CYPRESS_localUsage=1; export CYPRESS_shopwareRoot=\"$PWD\"; cd tests/e2e; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$CYPRESS_shopwareRoot\"/bin/exec-with-env cypress"
         ],
+        "e2e:cypress-repeat": [
+            "export APP_ENV=e2e; export CYPRESS_localUsage=1; export CYPRESS_shopwareRoot=\"$PWD\"; cd tests/e2e; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$CYPRESS_shopwareRoot\"/bin/exec-with-env cypress-repeat"
+        ],
         "e2e:open": [
             "Composer\\Config::disableProcessTimeout",
             "@e2e:cypress open"
@@ -339,6 +341,37 @@
             "@setup",
             "@init:e2e",
             "@e2e:prepare"
+        ],
+        "e2e:web-update:start": [
+            "@putenv SW_RECOVERY_NEXT_VERSION=6.5.99.9",
+            "@putenv CYPRESS_SKIP_INIT=1",
+            "symfony local:server:stop --dir=shop",
+            "symfony local:server:stop --dir=tests/e2e/update-api-mock",
+            "APP_URL=${INSTALL_URL-${CYPRESS_baseUrl-http://localhost:8000}} symfony local:server:start --dir=shop --port=8050 -d",
+            "symfony local:server:start --dir=tests/e2e/update-api-mock --port=8060 -d"
+        ],
+        "e2e:web-update:open": [
+            "Composer\\Config::disableProcessTimeout",
+            "@e2e:web-update:start",
+            "export CYPRESS_baseUrl=${INSTALL_URL-${CYPRESS_baseUrl-http://localhost:8000}}; export APP_ENV=e2e; export CYPRESS_localUsage=1; export CYPRESS_shopwareRoot=\"$PWD\"; cd tests/e2e; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$CYPRESS_shopwareRoot\"/bin/exec-with-env cypress open"
+        ],
+        "e2e:web-update:prepare": [
+            "rm -rf shop",
+            "wget -q -O install.zip https://releases.shopware.com/sw6/install_v6.4.17.2_4d2c85fb448571fa4f30edce635f33a67dda1d76.zip",
+            "unzip -q -o -d shop install.zip",
+            "rm install.zip",
+            "cd shop; bin/console system:setup --database-url mysql://${CYPRESS_dbUser-root}:${CYPRESS_dbPassword-root}@${CYPRESS_dbHost-localhost}/${CYPRESS_dbName-shopware} --app-url ${INSTALL_URL-${CYPRESS_baseUrl-http://localhost:8000}} -f -n",
+            "echo PROJECT_ROOT=$PWD/shop >> shop/.env",
+            "cd shop; APP_URL=${INSTALL_URL-${CYPRESS_baseUrl-http://localhost:8000}} bin/console system:install --basic-setup --create-database --drop-database --force -n",
+            "cd shop; bin/console system:config:set core.frw.completedAt '2019-10-07T10:46:23+00:00'",
+            "cd shop; bin/console system:config:set core.store.apiUri http://localhost:8060",
+            "cd shop; bin/console system:config:set core.update.apiUri http://localhost:8060",
+            "cd shop; composer config repositories.0 '{\"type\": \"path\", \"url\": \"../src/*\"}'",
+            "cd shop; sed -i '/\\$this->verifyResponseSignature(\\$response);/d' vendor/shopware/core/Framework/Update/Services/ApiClient.php",
+            "cd shop; sed -i 's/\\$signatureHeaderName = self::SHOPWARE_SIGNATURE_HEADER;/return \\$response;/g' vendor/shopware/core/Framework/Store/Services/VerifyResponseSignatureMiddleware.php",
+            "cd src/WebInstaller; composer install",
+            "cd src/WebInstaller; composer build-phar",
+            "mv src/WebInstaller/shopware-installer.phar.php shop/public/shopware-installer.phar.php"
         ],
         "ecs": "ecs check src tests",
         "ecs-fix": "ecs check --fix src tests",
@@ -424,7 +457,6 @@
         ],
         "setup": [
             "@composer install -o",
-            "@composer install -d src/Recovery",
             "mkdir -p config/jwt || true",
             "mkdir -p custom/plugins || true",
             "@init:db",
@@ -484,7 +516,6 @@
         "psr-4": {
             "Shopware\\Storefront\\Test\\": "src/Storefront/Test/",
             "Shopware\\Administration\\Test\\": "src/Administration/Test",
-            "Shopware\\Recovery\\Test\\": "src/Recovery/Test",
             "Shopware\\Core\\Content\\Test\\": "src/Core/Content/Test/",
             "Shopware\\Core\\Framework\\Test\\": "src/Core/Framework/Test/",
             "Shopware\\Core\\Migration\\Test\\": "src/Core/Migration/Test/",

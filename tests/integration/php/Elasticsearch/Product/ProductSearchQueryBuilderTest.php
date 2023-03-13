@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Elasticsearch\Product;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
@@ -302,7 +303,7 @@ class ProductSearchQueryBuilderTest extends TestCase
                 'fields' => $enabledFields,
             ],
             [
-                'fields' => Connection::PARAM_STR_ARRAY,
+                'fields' => ArrayParameterType::STRING,
             ]
         );
 

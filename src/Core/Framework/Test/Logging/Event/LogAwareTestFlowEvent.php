@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\Logging\Event;
 
-use Monolog\Logger;
+use Monolog\Level;
 use Shopware\Core\Content\Test\Flow\TestFlowBusinessEvent;
 use Shopware\Core\Framework\Log\LogAware;
 
@@ -23,8 +23,11 @@ class LogAwareTestFlowEvent extends TestFlowBusinessEvent implements LogAware
         return ['awesomekey' => 'awesomevalue'];
     }
 
+    /**
+     * @deprecated tag:v6.6.0 - reason:return-type-change - Return type will change to @see \Monolog\Level
+     */
     public function getLogLevel(): int
     {
-        return Logger::EMERGENCY;
+        return Level::Emergency->value;
     }
 }

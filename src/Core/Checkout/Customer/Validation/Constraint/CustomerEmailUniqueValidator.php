@@ -41,7 +41,7 @@ class CustomerEmailUniqueValidator extends ConstraintValidator
             ->select('email', 'guest', 'LOWER(HEX(bound_sales_channel_id)) as bound_sales_channel_id')
             ->from('customer')
             ->where($query->expr()->eq('email', $query->createPositionalParameter($value)))
-            ->execute()
+            ->executeQuery()
             ->fetchAllAssociative();
 
         $results = array_filter($results, static function (array $entry) use ($constraint) {

@@ -10,16 +10,16 @@ $sw-media-index-page-background-color: $color-white;
     .sw-media-index__navigation {
         display: grid;
         grid-template-columns: auto 1fr;
-        grid-column-gap: 8px;
+        grid-column-gap: 16px;
         align-items: center;
-        padding-left: 20px;
+        padding-left: 26px;
         min-width: 150px;
         font-size: $sw-media-index-font-size-navigation;
     }
 
     .sw-media-index__navigation-breadcrumb {
         color: $sw-media-index-color-breadcrumb-icon;
-        height: 14px;
+        height: 28px;
     }
 
     .sw-media-index__navigation-label {

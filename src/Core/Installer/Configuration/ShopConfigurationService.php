@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Installer\Configuration;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
@@ -296,7 +297,7 @@ SQL;
         $connection->executeStatement(
             'DELETE FROM currency WHERE iso_code NOT IN (:currencies)',
             ['currencies' => array_unique($selectedCurrencies)],
-            ['currencies' => Connection::PARAM_STR_ARRAY]
+            ['currencies' => ArrayParameterType::STRING]
         );
     }
 

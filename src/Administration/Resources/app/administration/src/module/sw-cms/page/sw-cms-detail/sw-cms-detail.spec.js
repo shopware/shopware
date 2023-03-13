@@ -39,7 +39,7 @@ const defaultRepository = {
 };
 
 const categoryRepository = {
-    search: () => Promise.resolve([{ id: categoryID, products: { entity: 'product', source: 'source' } }]),
+    search: () => Promise.resolve([{ id: categoryID, products: { entity: 'product', source: 'source' }, mediaId: mediaID }]),
 };
 
 const productRepository = {
@@ -342,7 +342,7 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
             id: categoryID,
             media: {
                 id: mediaID
-            }
+            },
         });
         expect(State.currentDemoProducts).toMatchObject([{ id: productID }]);
 
@@ -355,7 +355,7 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
             id: categoryID,
             media: {
                 id: mediaID
-            }
+            },
         });
         expect(State.currentDemoProducts).toMatchObject([{ id: productID }]);
     });

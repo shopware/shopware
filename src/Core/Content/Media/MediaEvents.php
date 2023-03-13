@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Media;
 use Shopware\Core\Content\Media\Event\MediaFolderConfigurationIndexerEvent;
 use Shopware\Core\Content\Media\Event\MediaFolderIndexerEvent;
 use Shopware\Core\Content\Media\Event\MediaIndexerEvent;
+use Shopware\Core\Content\Media\Event\MediaUploadedEvent;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('content')]
@@ -24,6 +25,11 @@ class MediaEvents
      * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent")
      */
     final public const MEDIA_LOADED_EVENT = 'media.loaded';
+
+    /**
+     * @Event("Shopware\Core\Content\Media\Event\MediaUploadedEvent")
+     */
+    public const MEDIA_UPDATED_EVENT = MediaUploadedEvent::EVENT_NAME;
 
     /**
      * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntitySearchResultLoadedEvent")

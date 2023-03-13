@@ -102,7 +102,7 @@ CREATE TABLE `acl_resource` (
     /**
      * @return array<string, array<string, array<string>>[]>
      */
-    public function migrationCases(): array
+    public static function migrationCases(): array
     {
         return [
             'no roles or privs' => [

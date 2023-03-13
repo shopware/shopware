@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Maintenance\System\Service;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Kernel;
@@ -71,7 +72,7 @@ class SetupDatabaseAdapter
 
         if (!empty($ignoredSchemas)) {
             $query->andWhere('SCHEMA_NAME NOT IN (:ignoredSchemas)')
-                ->setParameter('ignoredSchemas', $ignoredSchemas, Connection::PARAM_STR_ARRAY);
+                ->setParameter('ignoredSchemas', $ignoredSchemas, ArrayParameterType::STRING);
         }
 
         return $query->executeQuery()->fetchFirstColumn();

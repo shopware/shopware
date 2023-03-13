@@ -16,6 +16,8 @@ interface ContextState {
         config: {
             adminWorker: null | {
                 enableAdminWorker: boolean,
+                enableQueueStatsWorker: boolean,
+                enableNotificationWorker: boolean,
                 transports: string[]
             },
             bundles: null | {
@@ -169,6 +171,8 @@ const ContextStore: Module<ContextState, VuexRootState> = {
 
         setAppConfigAdminWorker(state, value: {
             enableAdminWorker: boolean,
+            enableQueueStatsWorker: boolean,
+            enableNotificationWorker: boolean,
             transports: string[]
         }) {
             state.app.config.adminWorker = value;

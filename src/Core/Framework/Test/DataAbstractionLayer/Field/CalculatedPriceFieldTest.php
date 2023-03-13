@@ -32,7 +32,7 @@ class CalculatedPriceFieldTest extends TestCase
         $connection = $this->getContainer()->get(Connection::class);
 
         $connection->rollBack();
-        $connection->executeUpdate(CalculatedPriceFieldTestDefinition::getCreateTable());
+        $connection->executeStatement(CalculatedPriceFieldTestDefinition::getCreateTable());
         $connection->beginTransaction();
 
         $ids = new TestDataCollection();

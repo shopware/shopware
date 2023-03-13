@@ -69,7 +69,7 @@ class Migration1620376945AddCompanyTaxAndCustomerTaxToCountryTest extends TestCa
     /**
      * @return array<string, array<array<string, mixed>>>
      */
-    public function dataProvider(): array
+    public static function dataProvider(): array
     {
         return [
             'Write old value' => [

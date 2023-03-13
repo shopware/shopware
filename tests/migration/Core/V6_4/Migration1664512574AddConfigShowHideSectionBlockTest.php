@@ -35,7 +35,7 @@ class Migration1664512574AddConfigShowHideSectionBlockTest extends TestCase
      */
     public function testMigrationColumn(string $tableName): void
     {
-        $schemaManager = $this->connection->getSchemaManager();
+        $schemaManager = $this->connection->createSchemaManager();
         $columns = $schemaManager->listTableColumns($tableName);
 
         static::assertNotEmpty($columns);
@@ -45,7 +45,7 @@ class Migration1664512574AddConfigShowHideSectionBlockTest extends TestCase
     /**
      * @return iterable<array<string>>
      */
-    public function tableProvider(): iterable
+    public static function tableProvider(): iterable
     {
         yield ['cms_block'];
         yield ['cms_section'];

@@ -37,7 +37,9 @@ class ApiAuthenticationListener implements EventSubscriberInterface
         private readonly UserRepositoryInterface $userRepository,
         private readonly RefreshTokenRepositoryInterface $refreshTokenRepository,
         private readonly PsrHttpFactory $psrHttpFactory,
-        private readonly RouteScopeRegistry $routeScopeRegistry
+        private readonly RouteScopeRegistry $routeScopeRegistry,
+        private readonly string $accessTokenTtl = 'PT10M',
+        private readonly string $refreshTokenTtl = 'P1W'
     ) {
     }
 
@@ -59,18 +61,18 @@ class ApiAuthenticationListener implements EventSubscriberInterface
             return;
         }
 
-        $tenMinuteInterval = new \DateInterval('PT10M');
-        $oneWeekInterval = new \DateInterval('P1W');
+        $accessTokenInterval = new \DateInterval($this->accessTokenTtl);
+        $refreshTokenInterval = new \DateInterval($this->refreshTokenTtl);
 
         $passwordGrant = new PasswordGrant($this->userRepository, $this->refreshTokenRepository);
-        $passwordGrant->setRefreshTokenTTL($oneWeekInterval);
+        $passwordGrant->setRefreshTokenTTL($refreshTokenInterval);
 
         $refreshTokenGrant = new RefreshTokenGrant($this->refreshTokenRepository);
-        $refreshTokenGrant->setRefreshTokenTTL($oneWeekInterval);
+        $refreshTokenGrant->setRefreshTokenTTL($refreshTokenInterval);
 
-        $this->authorizationServer->enableGrantType($passwordGrant, $tenMinuteInterval);
-        $this->authorizationServer->enableGrantType($refreshTokenGrant, $tenMinuteInterval);
-        $this->authorizationServer->enableGrantType(new ClientCredentialsGrant(), $tenMinuteInterval);
+        $this->authorizationServer->enableGrantType($passwordGrant, $accessTokenInterval);
+        $this->authorizationServer->enableGrantType($refreshTokenGrant, $accessTokenInterval);
+        $this->authorizationServer->enableGrantType(new ClientCredentialsGrant(), $accessTokenInterval);
     }
 
     public function validateRequest(ControllerEvent $event): void

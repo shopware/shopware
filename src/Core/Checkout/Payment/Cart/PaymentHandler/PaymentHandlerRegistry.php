@@ -57,7 +57,7 @@ class PaymentHandlerRegistry
         string $paymentMethodId,
         ?string $expectedHandlerType = null
     ): ?PaymentHandlerInterface {
-        $statement = $this->connection->createQueryBuilder()
+        $result = $this->connection->createQueryBuilder()
             ->select('
                 payment_method.handler_identifier,
                 app_payment_method.id as app_payment_method_id,
@@ -76,9 +76,8 @@ class PaymentHandlerRegistry
             )
             ->andWhere('payment_method.id = :paymentMethodId')
             ->setParameter('paymentMethodId', Uuid::fromHexToBytes($paymentMethodId))
-            ->execute();
-
-        $result = $statement->fetchAssociative();
+            ->executeQuery()
+            ->fetchAssociative();
 
         if (!$result || !\array_key_exists('handler_identifier', $result)) {
             return null;

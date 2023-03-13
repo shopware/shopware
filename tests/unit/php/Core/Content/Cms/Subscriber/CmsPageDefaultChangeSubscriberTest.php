@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Cms\Subscriber;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\CmsException;
@@ -33,15 +34,19 @@ class CmsPageDefaultChangeSubscriberTest extends TestCase
     }
 
     /**
+     * @param list<string> $event
+     * @param array<mixed> $connectionData
+     *
      * @dataProvider beforeDeletionEventDataProvider
      */
-    public function testBeforeDeletionEvent(BeforeDeleteEvent $event, Connection $connection, ?string $expectedExceptionCode = null): void
+    public function testBeforeDeletionEvent(array $event, array $connectionData, ?string $expectedExceptionCode = null): void
     {
+        $connection = $this->getConnectionMock($connectionData);
         $cmsPageDefaultChangeSubscriber = new CmsPageDefaultChangeSubscriber($connection);
         $exceptionWasThrown = false;
 
         try {
-            $cmsPageDefaultChangeSubscriber->beforeDeletion($event);
+            $cmsPageDefaultChangeSubscriber->beforeDeletion($this->getBeforeDeleteEvent($event));
         } catch (CmsException $exception) {
             if ($expectedExceptionCode) {
                 static::assertEquals($expectedExceptionCode, $exception->getErrorCode());
@@ -58,10 +63,13 @@ class CmsPageDefaultChangeSubscriberTest extends TestCase
     }
 
     /**
+     * @param array<mixed> $connectionData
+     *
      * @dataProvider beforeSystemConfigChangedEventDataProvider
      */
-    public function testBeforeSystemConfigChangedEvent(BeforeSystemConfigChangedEvent $event, Connection $connection, ?string $expectedExceptionCode = null): void
+    public function testBeforeSystemConfigChangedEvent(BeforeSystemConfigChangedEvent $event, array $connectionData, ?string $expectedExceptionCode = null): void
     {
+        $connection = $this->getConnectionMock($connectionData);
         $cmsPageDefaultChangeSubscriber = new CmsPageDefaultChangeSubscriber($connection);
         $exceptionWasThrown = false;
 
@@ -83,19 +91,19 @@ class CmsPageDefaultChangeSubscriberTest extends TestCase
     }
 
     /**
-     * @return array<string, array{beforeDeleteEvent: BeforeDeleteEvent, connectionMock: Connection, expectedExceptionCode: string|null}>
+     * @return array<string, array{list<string>, array<mixed>, string|null}>
      */
-    public function beforeDeletionEventDataProvider(): iterable
+    public static function beforeDeletionEventDataProvider(): iterable
     {
         yield 'Is does nothing if no cms page is affected' => [
-            'beforeDeleteEvent' => $this->getBeforeDeleteEvent(),
-            'connectionMock' => $this->getConnectionMock(),
-            'expectedExceptionCode' => null,
+            [],
+            [],
+            null,
         ];
 
         yield 'It does nothing if cms page is not default' => [
-            'beforeDeleteEvent' => $this->getBeforeDeleteEvent(['cmsPageId']),
-            'connectionMock' => $this->getConnectionMock([
+            ['cmsPageId'],
+            [
                 [
                     'method' => 'fetchAllAssociative',
                     'with' => [
@@ -104,18 +112,18 @@ class CmsPageDefaultChangeSubscriberTest extends TestCase
                             'configKeys' => CmsPageDefaultChangeSubscriber::$defaultCmsPageConfigKeys,
                         ],
                         [
-                            'configKeys' => Connection::PARAM_STR_ARRAY,
+                            'configKeys' => ArrayParameterType::STRING,
                         ],
                     ],
-                    'willReturn' => $this->idsToSystemConfigurationArray(['defaultCmsPageId']),
+                    'willReturn' => self::idsToSystemConfigurationArray(['defaultCmsPageId']),
                 ],
-            ]),
-            'expectedExceptionCode' => null,
+            ],
+            null,
         ];
 
         yield 'It throws exception before deletion of default cms page' => [
-            'beforeDeleteEvent' => $this->getBeforeDeleteEvent(['defaultCmsPageId']),
-            'connectionMock' => $this->getConnectionMock([
+            ['defaultCmsPageId'],
+            [
                 [
                     'method' => 'fetchAllAssociative',
                     'with' => [
@@ -124,18 +132,18 @@ class CmsPageDefaultChangeSubscriberTest extends TestCase
                             'configKeys' => CmsPageDefaultChangeSubscriber::$defaultCmsPageConfigKeys,
                         ],
                         [
-                            'configKeys' => Connection::PARAM_STR_ARRAY,
+                            'configKeys' => ArrayParameterType::STRING,
                         ],
                     ],
-                    'willReturn' => $this->idsToSystemConfigurationArray(['defaultCmsPageId']),
+                    'willReturn' => self::idsToSystemConfigurationArray(['defaultCmsPageId']),
                 ],
-            ]),
-            'expectedExceptionCode' => CmsException::DELETION_OF_DEFAULT_CODE,
+            ],
+            CmsException::DELETION_OF_DEFAULT_CODE,
         ];
 
         yield 'It throws exception before deletion of multiple cms pages' => [
-            'beforeDeleteEvent' => $this->getBeforeDeleteEvent(['cmsPage1', 'cmsPage2', 'cmsPage3', 'defaultCmsPageId']),
-            'connectionMock' => $this->getConnectionMock([
+            ['cmsPage1', 'cmsPage2', 'cmsPage3', 'defaultCmsPageId'],
+            [
                 [
                     'method' => 'fetchAllAssociative',
                     'with' => [
@@ -144,30 +152,30 @@ class CmsPageDefaultChangeSubscriberTest extends TestCase
                             'configKeys' => CmsPageDefaultChangeSubscriber::$defaultCmsPageConfigKeys,
                         ],
                         [
-                            'configKeys' => Connection::PARAM_STR_ARRAY,
+                            'configKeys' => ArrayParameterType::STRING,
                         ],
                     ],
-                    'willReturn' => $this->idsToSystemConfigurationArray(['defaultCmsPageId']),
+                    'willReturn' => self::idsToSystemConfigurationArray(['defaultCmsPageId']),
                 ],
-            ]),
-            'expectedExceptionCode' => CmsException::DELETION_OF_DEFAULT_CODE,
+            ],
+            CmsException::DELETION_OF_DEFAULT_CODE,
         ];
     }
 
     /**
-     * @return array<string, array{beforeSystemConfigChangedEvent: BeforeSystemConfigChangedEvent, connectionMock: Connection, expectedExceptionCode: string|null}>
+     * @return array<string, array{BeforeSystemConfigChangedEvent, array<mixed>, string|null}>
      */
-    public function beforeSystemConfigChangedEventDataProvider(): iterable
+    public static function beforeSystemConfigChangedEventDataProvider(): iterable
     {
         yield 'It does nothing if no cms page default related config is changed' => [
-            'beforeSystemConfigChangedEvent' => $this->getBeforeSystemConfigChangedEvent('differentSystemConfigKey', 'foobar'),
-            'connectionMock' => $this->getConnectionMock(),
-            'expectedExceptionCode' => null,
+            self::getBeforeSystemConfigChangedEvent('differentSystemConfigKey', 'foobar'),
+            [],
+            null,
         ];
 
         yield 'It throws an exception on deletion of overall default' => [
-            'beforeSystemConfigChangedEvent' => $this->getBeforeSystemConfigChangedEvent(CmsPageDefaultChangeSubscriber::$defaultCmsPageConfigKeys[0], null),
-            'connectionMock' => $this->getConnectionMock([
+            self::getBeforeSystemConfigChangedEvent(CmsPageDefaultChangeSubscriber::$defaultCmsPageConfigKeys[0], null),
+            [
                 [
                     'method' => 'fetchOne',
                     'with' => [
@@ -176,22 +184,22 @@ class CmsPageDefaultChangeSubscriberTest extends TestCase
                             'configKey' => CmsPageDefaultChangeSubscriber::$defaultCmsPageConfigKeys[0],
                         ],
                     ],
-                    'willReturn' => $this->idsToSystemConfigurationArray(['cmsPageId'])[0]['configuration_value'],
+                    'willReturn' => self::idsToSystemConfigurationArray(['cmsPageId'])[0]['configuration_value'],
                 ],
-            ]),
-            'expectedExceptionCode' => CmsException::OVERALL_DEFAULT_SYSTEM_CONFIG_DELETION_CODE,
+            ],
+            CmsException::OVERALL_DEFAULT_SYSTEM_CONFIG_DELETION_CODE,
         ];
 
         yield 'It throws an exception if an invalid cms page id is given' => [
-            'beforeSystemConfigChangedEvent' => $this->getBeforeSystemConfigChangedEvent(CmsPageDefaultChangeSubscriber::$defaultCmsPageConfigKeys[0], []),
-            'connectionMock' => $this->getConnectionMock(),
-            'expectedExceptionCode' => PageNotFoundException::ERROR_CODE,
+            self::getBeforeSystemConfigChangedEvent(CmsPageDefaultChangeSubscriber::$defaultCmsPageConfigKeys[0], []),
+            [],
+            PageNotFoundException::ERROR_CODE,
         ];
 
         $notExistingCmsPageId = Uuid::randomHex();
         yield 'It throws an exception if the cms page does not exist' => [
-            'beforeSystemConfigChangedEvent' => $this->getBeforeSystemConfigChangedEvent(CmsPageDefaultChangeSubscriber::$defaultCmsPageConfigKeys[0], $notExistingCmsPageId),
-            'connectionMock' => $this->getConnectionMock([
+            self::getBeforeSystemConfigChangedEvent(CmsPageDefaultChangeSubscriber::$defaultCmsPageConfigKeys[0], $notExistingCmsPageId),
+            [
                 [
                     'method' => 'fetchOne',
                     'with' => [
@@ -203,8 +211,8 @@ class CmsPageDefaultChangeSubscriberTest extends TestCase
                     ],
                     'willReturn' => '0',
                 ],
-            ]),
-            'expectedExceptionCode' => PageNotFoundException::ERROR_CODE,
+            ],
+            PageNotFoundException::ERROR_CODE,
         ];
     }
 
@@ -222,7 +230,7 @@ class CmsPageDefaultChangeSubscriberTest extends TestCase
         return $event;
     }
 
-    private function getBeforeSystemConfigChangedEvent(string $key, mixed $value): BeforeSystemConfigChangedEvent
+    private static function getBeforeSystemConfigChangedEvent(string $key, mixed $value): BeforeSystemConfigChangedEvent
     {
         return new BeforeSystemConfigChangedEvent($key, $value, null);
     }
@@ -249,7 +257,7 @@ class CmsPageDefaultChangeSubscriberTest extends TestCase
      *
      * @return array<int, array{configuration_value: string}>
      */
-    private function idsToSystemConfigurationArray(array $ids): array
+    private static function idsToSystemConfigurationArray(array $ids): array
     {
         $config = [];
 

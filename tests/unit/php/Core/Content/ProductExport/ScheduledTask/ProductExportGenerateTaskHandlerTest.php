@@ -50,31 +50,31 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
         }
     }
 
-    public function shouldBeRunDataProvider(): \Generator
+    public static function shouldBeRunDataProvider(): \Generator
     {
         yield 'next generation not reached' => [
             //Should not run because: next generation time not reached (time + intervall > now)
-            $this->prepareProductExportEntity(false, false, 45),
+            self::prepareProductExportEntity(false, false, 45),
             false,
         ];
         yield 'already running' => [
             //Should not run because: is running is true (another export is being generated atm.)
-            $this->prepareProductExportEntity(true, false, 10),
+            self::prepareProductExportEntity(true, false, 10),
             false,
         ];
         yield 'not generated before' => [
             //Should run because: has not been generated before
-            $this->prepareProductExportEntity(false, null, 0),
+            self::prepareProductExportEntity(false, null, 0),
             true,
         ];
         yield 'generation is due' => [
             //Should run because: next run is due (last generated + intervall < now)
-            $this->prepareProductExportEntity(false, true, 10),
+            self::prepareProductExportEntity(false, true, 10),
             true,
         ];
     }
 
-    private function getGeneratedAtTimestamp(?bool $generatedAtBeforeInterval): ?\DateTime
+    private static function getGeneratedAtTimestamp(?bool $generatedAtBeforeInterval): ?\DateTime
     {
         if ($generatedAtBeforeInterval === true) {
             return new \DateTime('1022-07-18 10:59:30');
@@ -86,11 +86,11 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
         return null;
     }
 
-    private function prepareProductExportEntity(bool $isRunning, ?bool $generatedAtBeforeInterval, int $interval): ProductExportEntity
+    private static function prepareProductExportEntity(bool $isRunning, ?bool $generatedAtBeforeInterval, int $interval): ProductExportEntity
     {
         $productExportEntity = new ProductExportEntity();
         $productExportEntity->setIsRunning($isRunning);
-        $productExportEntity->setGeneratedAt($this->getGeneratedAtTimestamp($generatedAtBeforeInterval));
+        $productExportEntity->setGeneratedAt(self::getGeneratedAtTimestamp($generatedAtBeforeInterval));
         $productExportEntity->setInterval($interval);
         $productExportEntity->setUniqueIdentifier('TestExportEntity');
         $productExportEntity->setId('afdd4e21be6b4ad59656fb856d0375e5');

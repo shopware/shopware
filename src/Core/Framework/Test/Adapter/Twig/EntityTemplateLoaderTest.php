@@ -181,7 +181,6 @@ class EntityTemplateLoaderTest extends TestCase
                     'active' => true,
                     'integration' => [
                         'label' => 'test',
-                        'writeAccess' => false,
                         'accessKey' => 'test',
                         'secretAccessKey' => 'test',
                     ],
@@ -204,7 +203,6 @@ class EntityTemplateLoaderTest extends TestCase
                     'active' => false,
                     'integration' => [
                         'label' => 'test',
-                        'writeAccess' => false,
                         'accessKey' => 'test',
                         'secretAccessKey' => 'test',
                     ],

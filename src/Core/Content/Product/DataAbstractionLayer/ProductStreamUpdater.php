@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\DataAbstractionLayer;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
@@ -158,6 +159,8 @@ class ProductStreamUpdater extends EntityIndexer
 
         $version = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
 
+        $considerInheritance = $context->considerInheritance();
+        $context->setConsiderInheritance(true);
         foreach ($streams as $stream) {
             $filter = json_decode((string) $stream['api_filter'], true, 512, \JSON_THROW_ON_ERROR);
             if (empty($filter)) {
@@ -188,12 +191,13 @@ class ProductStreamUpdater extends EntityIndexer
                 ]);
             }
         }
+        $context->setConsiderInheritance($considerInheritance);
 
         RetryableTransaction::retryable($this->connection, function () use ($ids, $insert): void {
             $this->connection->executeStatement(
                 'DELETE FROM product_stream_mapping WHERE product_id IN (:ids)',
                 ['ids' => Uuid::fromHexToBytesList($ids)],
-                ['ids' => Connection::PARAM_STR_ARRAY]
+                ['ids' => ArrayParameterType::STRING]
             );
             $insert->execute();
         });

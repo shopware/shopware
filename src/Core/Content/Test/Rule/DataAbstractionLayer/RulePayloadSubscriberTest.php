@@ -29,10 +29,7 @@ class RulePayloadSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     private RulePayloadSubscriber $rulePayloadSubscriber;
 
@@ -40,10 +37,7 @@ class RulePayloadSubscriberTest extends TestCase
 
     private MockObject&RulePayloadUpdater $updater;
 
-    /**
-     * @var RuleDefinition
-     */
-    private $ruleDefinition;
+    private RuleDefinition $ruleDefinition;
 
     protected function setUp(): void
     {
@@ -184,7 +178,7 @@ class RulePayloadSubscriberTest extends TestCase
             ->setParameter('name', 'Rule')
             ->setParameter('id', Uuid::fromHexToBytes($id))
             ->setParameter('createdAt', (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT))
-            ->execute();
+            ->executeStatement();
 
         $this->connection->createQueryBuilder()
             ->insert('rule_condition')
@@ -193,11 +187,10 @@ class RulePayloadSubscriberTest extends TestCase
             ->setParameter('type', (new AndRule())->getName())
             ->setParameter('ruleId', Uuid::fromHexToBytes($id))
             ->setParameter('createdAt', (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT))
-            ->execute();
+            ->executeStatement();
 
-        /** @var RuleEntity $rule */
         $rule = $this->getContainer()->get('rule.repository')->search(new Criteria([$id]), $this->context)->get($id);
-        static::assertNotNull($rule);
+        static::assertInstanceOf(RuleEntity::class, $rule);
         static::assertNotNull($rule->getPayload());
         static::assertInstanceOf(AndRule::class, $rule->getPayload());
         static::assertFalse($rule->isInvalid());
@@ -207,9 +200,10 @@ class RulePayloadSubscriberTest extends TestCase
             ->from('rule')
             ->where('id = :id')
             ->setParameter('id', Uuid::fromHexToBytes($id))
-            ->execute()
-            ->fetch();
+            ->executeQuery()
+            ->fetchAssociative();
 
+        static::assertIsArray($ruleData);
         static::assertNotNull($ruleData['payload']);
         static::assertSame(0, (int) $ruleData['invalid']);
     }
@@ -223,7 +217,7 @@ class RulePayloadSubscriberTest extends TestCase
             ->setParameter('name', 'Rule')
             ->setParameter('id', Uuid::fromHexToBytes($id))
             ->setParameter('createdAt', (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT))
-            ->execute();
+            ->executeStatement();
 
         $this->connection->createQueryBuilder()
             ->insert('rule_condition')
@@ -232,10 +226,10 @@ class RulePayloadSubscriberTest extends TestCase
             ->setParameter('type', 'invalid')
             ->setParameter('ruleId', Uuid::fromHexToBytes($id))
             ->setParameter('createdAt', (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT))
-            ->execute();
+            ->executeStatement();
 
-        /** @var RuleEntity $rule */
         $rule = $this->getContainer()->get('rule.repository')->search(new Criteria([$id]), $this->context)->get($id);
+        static::assertInstanceOf(RuleEntity::class, $rule);
         static::assertNotNull($rule);
         static::assertNull($rule->getPayload());
         static::assertTrue($rule->isInvalid());
@@ -245,9 +239,10 @@ class RulePayloadSubscriberTest extends TestCase
             ->from('rule')
             ->where('id = :id')
             ->setParameter('id', Uuid::fromHexToBytes($id))
-            ->execute()
-            ->fetch();
+            ->executeQuery()
+            ->fetchAssociative();
 
+        static::assertIsArray($ruleData);
         static::assertNull($ruleData['payload']);
         static::assertSame(1, (int) $ruleData['invalid']);
     }

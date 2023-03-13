@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Product\DataAbstractionLayer;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexer;
@@ -96,7 +97,7 @@ class StatesUpdaterTest extends TestCase
                 'states' => json_encode([State::IS_PHYSICAL]),
                 'ids' => Uuid::fromHexToBytesList([$ids->get('product-1'), $ids->get('product-2')]),
             ],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::STRING]
         );
     }
 }

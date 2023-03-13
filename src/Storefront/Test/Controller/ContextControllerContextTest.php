@@ -43,7 +43,7 @@ class ContextControllerContextTest extends TestCase
         $this->defaultBaseUrl = $_SERVER['APP_URL'];
         $this->testBaseUrl = $_SERVER['APP_URL'] . '/tst-TST';
 
-        $this->getContainer()->get(Connection::class)->executeUpdate('DELETE FROM sales_channel');
+        $this->getContainer()->get(Connection::class)->executeStatement('DELETE FROM sales_channel');
 
         $domains = [
             [

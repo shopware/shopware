@@ -2,94 +2,120 @@
 
 namespace Shopware\Core\Framework\Update\Services;
 
-use GuzzleHttp\Client;
-use Psr\Http\Message\ResponseInterface;
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Store\Services\OpenSSLVerifier;
-use Shopware\Core\Framework\Update\Exception\UpdateApiSignatureValidationException;
 use Shopware\Core\Framework\Update\Struct\Version;
-use Shopware\Core\Framework\Update\VersionFactory;
-use Shopware\Core\Kernel;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Component\HttpClient\Exception\ClientException;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
+/**
+ * @phpstan-import-type VersionFixedVulnerabilities from \Shopware\Core\Framework\Update\Struct\Version
+ */
 #[Package('system-settings')]
-final class ApiClient
+class ApiClient
 {
-    private const SHOPWARE_SIGNATURE_HEADER = 'x-shopware-signature';
-
     /**
      * @internal
      */
     public function __construct(
+        private readonly HttpClientInterface $client,
+        private readonly bool $shopwareUpdateEnabled,
         private readonly string $shopwareVersion,
-        private readonly SystemConfigService $systemConfigService,
-        private readonly OpenSSLVerifier $openSSLVerifier,
-        private readonly Client $client,
-        private readonly bool $shopwareUpdateEnabled
+        private readonly string $projectDir
     ) {
     }
 
-    public function checkForUpdates(bool $testMode = false): Version
+    public function checkForUpdates(): Version
     {
+        $fakeVersion = EnvironmentHelper::getVariable('SW_RECOVERY_NEXT_VERSION');
+        if (\is_string($fakeVersion)) {
+            return new Version([
+                'version' => $fakeVersion,
+                'title' => 'Shopware ' . $fakeVersion,
+                'body' => 'This is a fake version for testing purposes',
+                'date' => new \DateTimeImmutable(),
+                'fixedVulnerabilities' => [],
+            ]);
+        }
+
         if (!$this->shopwareUpdateEnabled) {
             return new Version();
         }
 
-        if ($testMode === true) {
-            return VersionFactory::createTestVersion();
+        try {
+            /** @var array{title: string, body: string, date: string, version: string, fixedVulnerabilities: VersionFixedVulnerabilities[]} $github */
+            $github = $this->client->request('GET', 'https://releases.shopware.com/changelog/' . $this->determineLatestShopwareVersion() . '.json')->toArray();
+        } catch (ClientException $e) {
+            if ($e->getCode() === Response::HTTP_NOT_FOUND || $e->getCode() === Response::HTTP_FORBIDDEN) {
+                return new Version();
+            }
+
+            throw $e;
         }
-        $response = $this->client->get('/v1/release/update?' . http_build_query($this->getUpdateOptions()));
 
-        $this->verifyResponseSignature($response);
+        $version = new Version();
+        $version->title = $github['title'];
+        $version->body = $github['body'];
+        $version->date = new \DateTimeImmutable($github['date']);
+        $version->version = $github['version'];
+        $version->fixedVulnerabilities = $github['fixedVulnerabilities'];
 
-        $data = json_decode((string) $response->getBody(), true, 512, \JSON_THROW_ON_ERROR);
-
-        return VersionFactory::create($data);
+        return $version;
     }
 
-    private function getShopwareVersion(): string
+    public function downloadRecoveryTool(): void
     {
-        if ($this->shopwareVersion === Kernel::SHOPWARE_FALLBACK_VERSION) {
-            return '___VERSION___';
-        }
-
-        return $this->shopwareVersion;
-    }
-
-    private function getUpdateOptions(): array
-    {
-        return [
-            'shopware_version' => $this->getShopwareVersion(),
-            'channel' => $this->systemConfigService->get('core.update.channel'),
-            'major' => 6,
-            'code' => $this->systemConfigService->get('core.update.code'),
-        ];
-    }
-
-    private function verifyResponseSignature(ResponseInterface $response): void
-    {
-        $signatureHeaderName = self::SHOPWARE_SIGNATURE_HEADER;
-        $header = $response->getHeader($signatureHeaderName);
-        if (!isset($header[0])) {
-            throw new UpdateApiSignatureValidationException(sprintf('Signature not found in header "%s"', $signatureHeaderName));
-        }
-
-        $signature = $header[0];
-
-        if (empty($signature)) {
-            throw new UpdateApiSignatureValidationException(sprintf('Signature not found in header "%s"', $signatureHeaderName));
-        }
-
-        if (!$this->openSSLVerifier->isSystemSupported()) {
+        if (\is_string(EnvironmentHelper::getVariable('SW_RECOVERY_NEXT_VERSION'))) {
             return;
         }
 
-        if ($this->openSSLVerifier->isValid($response->getBody()->getContents(), $signature)) {
-            $response->getBody()->rewind();
+        $content = $this->client->request('GET', 'https://github.com/shopware/web-installer/releases/latest/download/shopware-installer.phar.php')->getContent();
 
-            return;
+        file_put_contents($this->projectDir . '/public/shopware-installer.phar.php', $content);
+    }
+
+    private function determineLatestShopwareVersion(): string
+    {
+        /** @var non-empty-array<string> $versions */
+        $versions = $this->client->request('GET', 'https://releases.shopware.com/changelog/index.json')->toArray();
+
+        usort($versions, function ($a, $b) {
+            return version_compare($b, $a);
+        });
+
+        // Index them by major version
+        $mappedVersions = [];
+
+        foreach ($versions as $version) {
+            if (str_contains($version, 'rc')) {
+                continue;
+            }
+
+            $major = substr($version, 0, 3);
+
+            if (isset($mappedVersions[$major])) {
+                continue;
+            }
+
+            $mappedVersions[$major] = $version;
         }
 
-        throw new UpdateApiSignatureValidationException('Signature not valid');
+        $currentMajor = substr($this->shopwareVersion, 0, 3);
+        if (!isset($mappedVersions[$currentMajor])) {
+            return strtolower($this->shopwareVersion);
+        }
+
+        $latestVersion = $mappedVersions[$currentMajor];
+
+        $first = (int) substr($this->shopwareVersion, 0, 1);
+        $second = (int) substr($this->shopwareVersion, 2, 1);
+        ++$second;
+
+        if (isset($mappedVersions[$first . '.' . $second])) {
+            $latestVersion = $mappedVersions[$first . '.' . $second];
+        }
+
+        return $latestVersion;
     }
 }

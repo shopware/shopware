@@ -238,6 +238,7 @@
       "columnTags": "Tags",
       "columnActions": "Aktion(en)",
       "columnMedia": "Medien",
+      "columnSales": "Verkäufe",
       "columnDownloadsTooltip": "Digitale Produkte müssen über mindestens eine Datei verfügen.",
       "contextMenuEdit": "Bearbeiten",
       "contextMenuDelete": "Löschen",
@@ -525,6 +526,9 @@
       "categoriesFilter": {
         "label": "Kategorien",
         "placeholder": "Kategorien auswählen ..."
+      },
+      "salesFilter": {
+        "label": "Verkäufe"
       },
       "tagsFilter": {
         "label": "Tags",

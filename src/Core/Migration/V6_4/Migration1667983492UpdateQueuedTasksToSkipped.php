@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Migration\V6_4;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
@@ -21,7 +22,7 @@ class Migration1667983492UpdateQueuedTasksToSkipped extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate(
+        $connection->executeStatement(
             'UPDATE `scheduled_task` SET `status` = :skippedStatus, next_execution_time = :nextExecutionTime
                 WHERE `status` = :queuedStatus AND `name` IN (:skippedTasks)',
             [
@@ -31,7 +32,7 @@ class Migration1667983492UpdateQueuedTasksToSkipped extends MigrationStep
                 'nextExecutionTime' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ],
             [
-                'skippedTasks' => Connection::PARAM_STR_ARRAY,
+                'skippedTasks' => ArrayParameterType::STRING,
             ]
         );
     }

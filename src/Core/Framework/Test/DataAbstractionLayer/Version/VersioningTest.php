@@ -327,7 +327,7 @@ class VersioningTest extends TestCase
 
         $this->connection->rollBack();
 
-        $this->connection->executeUpdate(CalculatedPriceFieldTestDefinition::getCreateTable());
+        $this->connection->executeStatement(CalculatedPriceFieldTestDefinition::getCreateTable());
 
         $this->connection->beginTransaction();
 
@@ -434,9 +434,9 @@ class VersioningTest extends TestCase
 
         $this->connection->rollBack();
 
-        $this->connection->exec(CalculatedPriceFieldTestDefinition::dropTable());
+        $this->connection->executeStatement(CalculatedPriceFieldTestDefinition::dropTable());
         // We have created a table so the transaction rollback don't work -> we have to do it manually
-        $this->connection->executeUpdate('DELETE FROM version_commit WHERE version_id = ?', [Uuid::fromHexToBytes($versionId)]);
+        $this->connection->executeStatement('DELETE FROM version_commit WHERE version_id = ?', [Uuid::fromHexToBytes($versionId)]);
 
         $this->connection->beginTransaction();
     }

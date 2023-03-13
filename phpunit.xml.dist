@@ -129,7 +129,6 @@
             <directory>src/Core/*/Test</directory>
             <directory>src/*/Test</directory>
             <directory>tests/unit/php</directory>
-            <exclude>src/Recovery/Test</exclude>
             <exclude>src/Storefront/Test/Migration</exclude>
             <exclude>src/Core/Migration/Test</exclude>
         </testsuite>

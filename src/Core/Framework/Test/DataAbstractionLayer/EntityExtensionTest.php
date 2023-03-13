@@ -143,7 +143,7 @@ class EntityExtensionTest extends TestCase
 
         $this->connection->rollBack();
 
-        $this->connection->executeUpdate('ALTER TABLE `product` DROP COLUMN my_tax_id');
+        $this->connection->executeStatement('ALTER TABLE `product` DROP COLUMN my_tax_id');
 
         $this->connection->beginTransaction();
 

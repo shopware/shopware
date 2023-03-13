@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Test\Product\Repository;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
@@ -1186,7 +1187,7 @@ class ProductRepositoryTest extends TestCase
         $raw = $this->connection->fetchAllAssociative(
             'SELECT * FROM product WHERE id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList([$id, $child])],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::STRING]
         );
         static::assertCount(2, $raw);
 
@@ -2629,7 +2630,7 @@ class ProductRepositoryTest extends TestCase
     /**
      * @return array<string, mixed>
      */
-    public function customFieldVariantsProvider(): array
+    public static function customFieldVariantsProvider(): array
     {
         return [
             'Test own values' => [
@@ -2645,7 +2646,7 @@ class ProductRepositoryTest extends TestCase
                     'parent' => ['foo' => 'parent'],
                     'child' => ['foo' => 'child'],
                 ],
-                $this->createLanguageContext([Defaults::LANGUAGE_SYSTEM], true),
+                self::createLanguageContext([Defaults::LANGUAGE_SYSTEM], true),
             ],
             'Test merged with parent' => [
                 [
@@ -2660,7 +2661,7 @@ class ProductRepositoryTest extends TestCase
                     'parent' => ['foo' => 'parent', 'bar' => 'parent'],
                     'child' => ['foo' => 'child', 'bar' => 'parent'],
                 ],
-                $this->createLanguageContext([Defaults::LANGUAGE_SYSTEM], true),
+                self::createLanguageContext([Defaults::LANGUAGE_SYSTEM], true),
             ],
             'Test not merged with parent, no inheritance' => [
                 [
@@ -2675,7 +2676,7 @@ class ProductRepositoryTest extends TestCase
                     'parent' => ['foo' => 'parent', 'bar' => 'parent'],
                     'child' => ['foo' => 'child'],
                 ],
-                $this->createLanguageContext([Defaults::LANGUAGE_SYSTEM], false),
+                self::createLanguageContext([Defaults::LANGUAGE_SYSTEM], false),
             ],
             'Test inheritance child null value' => [
                 [
@@ -2690,7 +2691,7 @@ class ProductRepositoryTest extends TestCase
                     'parent' => ['foo' => 'parent'],
                     'child' => ['foo' => 'parent'],
                 ],
-                $this->createLanguageContext([Defaults::LANGUAGE_SYSTEM], true),
+                self::createLanguageContext([Defaults::LANGUAGE_SYSTEM], true),
             ],
             'Test child null value no inheritance' => [
                 [
@@ -2705,7 +2706,7 @@ class ProductRepositoryTest extends TestCase
                     'parent' => ['foo' => 'parent'],
                     'child' => [],
                 ],
-                $this->createLanguageContext([Defaults::LANGUAGE_SYSTEM], false),
+                self::createLanguageContext([Defaults::LANGUAGE_SYSTEM], false),
             ],
             'Test child and parent null value no inheritance' => [
                 [
@@ -2720,7 +2721,7 @@ class ProductRepositoryTest extends TestCase
                     'parent' => [],
                     'child' => [],
                 ],
-                $this->createLanguageContext([Defaults::LANGUAGE_SYSTEM], false),
+                self::createLanguageContext([Defaults::LANGUAGE_SYSTEM], false),
             ],
             'Test only parent null value with inheritance' => [
                 [
@@ -2735,7 +2736,7 @@ class ProductRepositoryTest extends TestCase
                     'parent' => [],
                     'child' => ['foo' => 'child'],
                 ],
-                $this->createLanguageContext([Defaults::LANGUAGE_SYSTEM], true),
+                self::createLanguageContext([Defaults::LANGUAGE_SYSTEM], true),
             ],
             'Test inheritance with language chain' => [
                 [
@@ -2752,7 +2753,7 @@ class ProductRepositoryTest extends TestCase
                     'parent' => ['foo' => 'parent translated'],
                     'child' => ['foo' => 'child translated'],
                 ],
-                $this->createLanguageContext([self::TEST_LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM], true),
+                self::createLanguageContext([self::TEST_LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM], true),
             ],
             'Test inheritance with language chain merged with parent' => [
                 [
@@ -2769,7 +2770,7 @@ class ProductRepositoryTest extends TestCase
                     'parent' => ['foo' => 'parent translated'],
                     'child' => ['foo' => 'parent translated'],
                 ],
-                $this->createLanguageContext([self::TEST_LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM], true),
+                self::createLanguageContext([self::TEST_LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM], true),
             ],
             'Test inheritance with language chain no translation for language' => [
                 [
@@ -2786,7 +2787,7 @@ class ProductRepositoryTest extends TestCase
                     'parent' => ['foo' => 'parent'],
                     'child' => ['foo' => 'child'],
                 ],
-                $this->createLanguageContext([self::TEST_LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM], true),
+                self::createLanguageContext([self::TEST_LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM], true),
             ],
             'Test inheritance with language chain no translation for language and child at all' => [
                 [
@@ -2803,7 +2804,7 @@ class ProductRepositoryTest extends TestCase
                     'parent' => ['foo' => 'parent'],
                     'child' => ['foo' => 'parent'],
                 ],
-                $this->createLanguageContext([self::TEST_LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM], true),
+                self::createLanguageContext([self::TEST_LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM], true),
             ],
             'Test language chain without inheritance' => [
                 [
@@ -2820,7 +2821,7 @@ class ProductRepositoryTest extends TestCase
                     'parent' => ['foo' => 'parent'],
                     'child' => [],
                 ],
-                $this->createLanguageContext([self::TEST_LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM], false),
+                self::createLanguageContext([self::TEST_LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM], false),
             ],
             'Test language chain without inheritance but language is set' => [
                 [
@@ -2837,7 +2838,7 @@ class ProductRepositoryTest extends TestCase
                     'parent' => ['foo' => 'parent translated'],
                     'child' => [],
                 ],
-                $this->createLanguageContext([self::TEST_LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM], false),
+                self::createLanguageContext([self::TEST_LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM], false),
             ],
             'Test language chain without inheritance but language is set, main is not' => [
                 [
@@ -2854,7 +2855,7 @@ class ProductRepositoryTest extends TestCase
                     'parent' => ['foo' => 'parent translated'],
                     'child' => [],
                 ],
-                $this->createLanguageContext([self::TEST_LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM], false),
+                self::createLanguageContext([self::TEST_LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM], false),
             ],
             'Test language chain without inheritance and only main language set' => [
                 [
@@ -2871,7 +2872,7 @@ class ProductRepositoryTest extends TestCase
                     'parent' => ['foo' => 'parent'],
                     'child' => ['foo' => 'child'],
                 ],
-                $this->createLanguageContext([self::TEST_LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM], false),
+                self::createLanguageContext([self::TEST_LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM], false),
             ],
             'Test language with inheritance and merge with parent and languages' => [
                 [
@@ -2888,7 +2889,7 @@ class ProductRepositoryTest extends TestCase
                     'parent' => ['foo' => 'parent translated', 'bar' => 'parent'],
                     'child' => ['foo' => 'child translated', 'bar' => 'parent'],
                 ],
-                $this->createLanguageContext([self::TEST_LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM], true),
+                self::createLanguageContext([self::TEST_LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM], true),
             ],
             'Test language with inheritance and merge with parent and languages, child own values' => [
                 [
@@ -2905,7 +2906,7 @@ class ProductRepositoryTest extends TestCase
                     'parent' => ['foo' => 'parent translated', 'bar' => 'parent'],
                     'child' => ['foo' => 'child translated', 'bar' => 'child translated'],
                 ],
-                $this->createLanguageContext([self::TEST_LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM], true),
+                self::createLanguageContext([self::TEST_LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM], true),
             ],
             'Test language with inheritance and merge with parent and languages, main child has values' => [
                 [
@@ -2922,7 +2923,7 @@ class ProductRepositoryTest extends TestCase
                     'parent' => ['foo' => 'parent translated', 'bar' => 'parent'],
                     'child' => ['foo' => 'child translated', 'bar' => 'child'],
                 ],
-                $this->createLanguageContext([self::TEST_LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM], true),
+                self::createLanguageContext([self::TEST_LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM], true),
             ],
             'Test language with inheritance and merge with parent and languages, main child has values and parent language has values' => [
                 [
@@ -2939,7 +2940,7 @@ class ProductRepositoryTest extends TestCase
                     'parent' => ['foo' => 'parent translated', 'bar' => 'parent translated'],
                     'child' => ['foo' => 'child translated', 'bar' => 'parent translated'],
                 ],
-                $this->createLanguageContext([self::TEST_LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM], true),
+                self::createLanguageContext([self::TEST_LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM], true),
             ],
         ];
     }
@@ -3308,7 +3309,7 @@ class ProductRepositoryTest extends TestCase
     /**
      * @param non-empty-array<string> $languages
      */
-    private function createLanguageContext(array $languages, bool $inheritance): Context
+    private static function createLanguageContext(array $languages, bool $inheritance): Context
     {
         return new Context(new SystemSource(), [], Defaults::CURRENCY, $languages, Defaults::LIVE_VERSION, 1.0, $inheritance);
     }

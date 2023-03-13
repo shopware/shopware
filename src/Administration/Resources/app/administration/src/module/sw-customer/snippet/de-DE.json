@@ -126,6 +126,8 @@
       "labelActive": "Kontostatus",
       "labelAffiliateCode": "Affiliate-Code",
       "labelCampaignCode": "Kampagnen-Code",
+      "labelCompany": "Unternehmen",
+      "labelVatId": "USt-IdNr.",
       "contentActive": "Aktiv | Inaktiv",
       "emptyTextLogin": "Noch keine Anmeldung",
       "emptyTextBirthday": "keine Angabe",

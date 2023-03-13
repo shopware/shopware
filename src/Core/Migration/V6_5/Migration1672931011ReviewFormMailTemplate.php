@@ -127,7 +127,7 @@ class Migration1672931011ReviewFormMailTemplate extends MigrationStep
             ->from('mail_template_type')
             ->where('technical_name = :technicalName')
             ->setParameter('technicalName', $technicalName)
-            ->execute()
+            ->executeQuery()
             ->fetchOne();
 
         return $result ?: null;

@@ -155,6 +155,8 @@ shopware:
 
     admin_worker:
         enable_admin_worker: true
+        enable_queue_stats_worker: true
+        enable_notification_worker: true
         # This has to be lower than PHP's max_execution_time (default: 30s)
         poll_interval: 20
         transports: ["async"]

@@ -115,6 +115,7 @@ class CategoryIndexer extends EntityIndexer
     {
         $ids = $message->getData();
 
+        /** @var list<string> $ids */
         $ids = array_unique(array_filter($ids));
         if (empty($ids)) {
             return;
@@ -157,6 +158,8 @@ class CategoryIndexer extends EntityIndexer
 
     /**
      * @param array<string> $categoryIds
+     *
+     * @return array<string>
      */
     private function fetchChildren(array $categoryIds, string $versionId): array
     {
@@ -178,6 +181,9 @@ class CategoryIndexer extends EntityIndexer
         return $query->executeQuery()->fetchFirstColumn();
     }
 
+    /**
+     * @param array{offset: int|null}|null $offset
+     */
     private function getIterator(?array $offset): IterableQuery
     {
         return $this->iteratorFactory->createIterator($this->repository->getDefinition(), $offset);

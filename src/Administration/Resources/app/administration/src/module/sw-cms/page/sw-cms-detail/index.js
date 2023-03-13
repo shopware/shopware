@@ -526,7 +526,10 @@ export default {
             Shopware.State.commit('cmsPageState/setCurrentDemoEntity', category);
 
             this.loadDemoCategoryProducts(category);
-            this.loadDemoCategoryMedia(category);
+
+            if (category.mediaId) {
+                this.loadDemoCategoryMedia(category);
+            }
         },
 
         async loadDemoCategoryProducts(entity) {
@@ -594,6 +597,12 @@ export default {
             section.sizingMode = 'boxed';
             section.position = index;
             section.pageId = this.page.id;
+
+            section.visibility = {
+                desktop: true,
+                tablet: true,
+                mobile: true,
+            };
 
             this.page.sections.splice(index, 0, section);
             this.updateSectionAndBlockPositions();

@@ -38,8 +38,8 @@ class UserRepository implements UserRepositoryInterface
             ->from('user')
             ->where('username = :username')
             ->setParameter('username', $username)
-            ->execute()
-            ->fetch();
+            ->executeQuery()
+            ->fetchAssociative();
 
         if (!$user) {
             return null;

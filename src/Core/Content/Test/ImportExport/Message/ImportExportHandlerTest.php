@@ -8,7 +8,7 @@ use Shopware\Core\Content\ImportExport\Message\ImportExportHandler;
 use Shopware\Core\Content\ImportExport\Message\ImportExportMessage;
 use Shopware\Core\Content\ImportExport\Service\ImportExportService;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionDefinition;
-use Shopware\Core\Content\Test\ImportExport\AbstractImportExportTest;
+use Shopware\Core\Content\Test\ImportExport\AbstractImportExportTestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -18,7 +18,7 @@ use Symfony\Component\Messenger\TraceableMessageBus;
  * @internal
  */
 #[Package('system-settings')]
-class ImportExportHandlerTest extends AbstractImportExportTest
+class ImportExportHandlerTest extends AbstractImportExportTestCase
 {
     public function testImportExportHandlerDispatchesMessage(): void
     {

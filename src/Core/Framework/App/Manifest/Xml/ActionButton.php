@@ -27,7 +27,7 @@ class ActionButton extends XmlElement
     protected string $url;
 
     /**
-     * @param array<string, string> $data
+     * @param array<int|string, mixed> $data
      */
     private function __construct(array $data)
     {
@@ -89,7 +89,7 @@ class ActionButton extends XmlElement
     }
 
     /**
-     * @return array<string, mixed>
+     * @return array<int|string, mixed>
      */
     private static function parse(\DOMElement $element): array
     {

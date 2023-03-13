@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Migration\V6_4;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Flow\Aggregate\FlowSequence\FlowSequenceDefinition;
 use Shopware\Core\Defaults;
@@ -151,7 +152,7 @@ class Migration1648803451FixInvalidMigrationOfBusinessEventToFlow extends Migrat
                 'ids' => array_column($this->sequenceDelete, 'id'),
             ],
             [
-                'ids' => Connection::PARAM_STR_ARRAY,
+                'ids' => ArrayParameterType::STRING,
             ]
         );
     }

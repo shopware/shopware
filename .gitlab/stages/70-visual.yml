@@ -4,8 +4,9 @@ Percy:
     stage: visual
     timeout: 1h
     services:
-        -   name: mariadb:10.3
+        -   name: mariadb:10.4
             alias: database
+    dependencies: [ Build ]
     variables:
         PERCY_ENABLE: $CYPRESS_PERCY_USAGE
         CYPRESS_localUsage: 'true'
@@ -23,14 +24,15 @@ Percy:
         - !reference [ .rules, skip ]
         - !reference [ .rules, run ]
     script:
-        - composer run init:e2e:admin
-        - composer run e2e:prepare
-        - composer run e2e:admin:percy -- exec -- cypress run
+        - npm --prefix tests/e2e ci
+        - bin/console e2e:dump-db
+        - composer run e2e:percy -- exec -- cypress run
+            --config retries=2
             --browser chrome
             --spec "cypress/**/visual.*,cypress/**/percy-storefront-validation/*"
             --headless
     after_script:
-        - mkdir $CI_PROJECT_DIR/var/log/e2e
+        - mkdir -p $CI_PROJECT_DIR/var/log/e2e
         - mv $ADMIN_PATH/test/e2e/cypress/results/*.xml var/log/e2e/ || true
         - mv $STOREFRONT_PATH/test/e2e/cypress/results/*.xml var/log/e2e/ || true
         - !reference [.upload-junit-xml, after_script]
@@ -43,8 +45,6 @@ Percy:
 
 Percy scheduled:
     extends: Percy
-    dependencies: []
-    needs: []
     rules:
         -   if: '$CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"'
             when: never

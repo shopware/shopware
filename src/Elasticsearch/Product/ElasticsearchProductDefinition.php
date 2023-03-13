@@ -2,6 +2,7 @@
 
 namespace Shopware\Elasticsearch\Product;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use OpenSearchDSL\Query\Compound\BoolQuery;
 use Psr\EventDispatcher\EventDispatcherInterface;
@@ -465,8 +466,8 @@ SQL;
                 'liveVersionId' => Uuid::fromHexToBytes($context->getVersionId()),
             ],
             [
-                'ids' => Connection::PARAM_STR_ARRAY,
-                'languageIds' => Connection::PARAM_STR_ARRAY,
+                'ids' => ArrayParameterType::STRING,
+                'languageIds' => ArrayParameterType::STRING,
             ]
         );
 
@@ -561,8 +562,8 @@ SQL;
                 'languageIds' => Uuid::fromHexToBytesList($context->getLanguageIdChain()),
             ],
             [
-                'ids' => Connection::PARAM_STR_ARRAY,
-                'languageIds' => Connection::PARAM_STR_ARRAY,
+                'ids' => ArrayParameterType::STRING,
+                'languageIds' => ArrayParameterType::STRING,
             ]
         );
 

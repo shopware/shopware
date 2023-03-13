@@ -281,6 +281,10 @@
             <tag name="flow.storer"/>
         </service>
 
+        <service id="Shopware\Core\Content\Flow\Dispatching\Storer\MediaUploadedStorer">
+            <tag name="flow.storer"/>
+        </service>
+
         <service id="Shopware\Core\Content\Flow\Dispatching\FlowFactory" public="true">
             <argument type="tagged_iterator" tag="flow.storer"/>
         </service>
@@ -290,6 +294,18 @@
         </service>
 
         <service id="Shopware\Core\Content\Flow\Rule\OrderDeliveryStatusRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Flow\Rule\OrderCreatedByAdminRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Flow\Rule\OrderTransactionStatusRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Flow\Rule\OrderStatusRule">
             <tag name="shopware.rule.definition"/>
         </service>
 

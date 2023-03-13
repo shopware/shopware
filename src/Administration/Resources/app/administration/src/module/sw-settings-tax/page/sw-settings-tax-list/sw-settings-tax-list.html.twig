@@ -128,6 +128,7 @@
                             <template v-if="isInlineEdit">
                                 <sw-number-field
                                     v-model="item.taxRate"
+                                    :digits="3"
                                     :size="compact ? 'small' : 'default'"
                                 >
                                     <template #suffix>

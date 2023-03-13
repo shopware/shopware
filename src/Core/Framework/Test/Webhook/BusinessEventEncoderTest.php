@@ -3,9 +3,6 @@
 namespace Shopware\Core\Framework\Test\Webhook;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\Webhook\_fixtures\BusinessEvents\ArrayBusinessEvent;
@@ -49,16 +46,22 @@ class BusinessEventEncoderTest extends TestCase
         static::assertEquals($event->getEncodeValues($shopwareVersion), $this->businessEventEncoder->encode($event));
     }
 
-    public function getEvents(): \Generator
+    public static function getEvents(): \Generator
     {
+        $tax = new TaxEntity();
+        $tax->setId('tax-id');
+        $tax->setName('test');
+        $tax->setTaxRate(19);
+        $tax->setPosition(1);
+
         yield 'ScalarBusinessEvent' => [new ScalarBusinessEvent()];
         yield 'StructuredObjectBusinessEvent' => [new StructuredObjectBusinessEvent()];
         yield 'StructuredArrayObjectBusinessEvent' => [new StructuredArrayObjectBusinessEvent()];
         yield 'UnstructuredObjectBusinessEvent' => [new UnstructuredObjectBusinessEvent()];
-        yield 'EntityBusinessEvent' => [new EntityBusinessEvent($this->getTaxEntity())];
-        yield 'CollectionBusinessEvent' => [new CollectionBusinessEvent($this->getTaxCollection())];
-        yield 'ArrayBusinessEvent' => [new ArrayBusinessEvent($this->getTaxCollection())];
-        yield 'NestedEntityBusinessEvent' => [new NestedEntityBusinessEvent($this->getTaxEntity())];
+        yield 'EntityBusinessEvent' => [new EntityBusinessEvent($tax)];
+        yield 'CollectionBusinessEvent' => [new CollectionBusinessEvent(new TaxCollection([$tax]))];
+        yield 'ArrayBusinessEvent' => [new ArrayBusinessEvent(new TaxCollection([$tax]))];
+        yield 'NestedEntityBusinessEvent' => [new NestedEntityBusinessEvent($tax)];
     }
 
     public function testInvalidType(): void
@@ -71,24 +74,5 @@ class BusinessEventEncoderTest extends TestCase
     {
         static::expectException(\RuntimeException::class);
         $this->businessEventEncoder->encode(new InvalidAvailableDataBusinessEvent());
-    }
-
-    private function getTaxEntity(): TaxEntity
-    {
-        /** @var EntityRepository $taxRepo */
-        $taxRepo = $this->getContainer()->get('tax.repository');
-
-        return $taxRepo->search(new Criteria(), Context::createDefaultContext())->first();
-    }
-
-    private function getTaxCollection(): TaxCollection
-    {
-        /** @var EntityRepository $taxRepo */
-        $taxRepo = $this->getContainer()->get('tax.repository');
-
-        $taxes = $taxRepo->search(new Criteria(), Context::createDefaultContext())->getEntities();
-        static::assertInstanceOf(TaxCollection::class, $taxes);
-
-        return $taxes;
     }
 }

@@ -34,7 +34,7 @@ class DocumentGeneratorController extends AbstractController
     ) {
     }
 
-    #[Route(path: '/api/_action/order/document/{documentTypeName}/create', name: 'api.action.document.bulk.create', methods: ['POST'], defaults: ['_acl' => ['document.viewer']])]
+    #[Route(path: '/api/_action/order/document/{documentTypeName}/create', name: 'api.action.document.bulk.create', methods: ['POST'], defaults: ['_acl' => ['document:create']])]
     public function createDocuments(Request $request, string $documentTypeName, Context $context): JsonResponse
     {
         $documents = $this->serializer->decode($request->getContent(), 'json');
@@ -71,7 +71,7 @@ class DocumentGeneratorController extends AbstractController
         return new JsonResponse($this->documentGenerator->generate($documentTypeName, $operations, $context));
     }
 
-    #[Route(path: '/api/_action/document/{documentId}/upload', name: 'api.action.document.upload', methods: ['POST'])]
+    #[Route(path: '/api/_action/document/{documentId}/upload', name: 'api.action.document.upload', methods: ['POST'], defaults: ['_acl' => ['document:update']])]
     public function uploadToDocument(Request $request, string $documentId, Context $context): JsonResponse
     {
         $documentIdStruct = $this->documentGenerator->upload(

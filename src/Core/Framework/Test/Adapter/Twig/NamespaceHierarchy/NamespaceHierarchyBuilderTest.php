@@ -30,7 +30,6 @@ class NamespaceHierarchyBuilderTest extends TestCase
                 'accessToken' => 'test',
                 'integration' => [
                     'label' => 'test',
-                    'writeAccess' => false,
                     'accessKey' => 'test',
                     'secretAccessKey' => 'test',
                 ],
@@ -48,7 +47,6 @@ class NamespaceHierarchyBuilderTest extends TestCase
                 'templateLoadPriority' => 2,
                 'integration' => [
                     'label' => 'test',
-                    'writeAccess' => false,
                     'accessKey' => 'test',
                     'secretAccessKey' => 'test',
                 ],

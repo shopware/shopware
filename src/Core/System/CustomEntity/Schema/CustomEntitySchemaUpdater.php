@@ -5,8 +5,6 @@ namespace Shopware\Core\System\CustomEntity\Schema;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Platforms\MySQLPlatform;
-use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Schema;
 use Shopware\Core\Framework\Log\Package;
@@ -35,7 +33,7 @@ class CustomEntitySchemaUpdater
             /** @var list<array{name: string, fields: string}> $tables */
             $tables = $this->connection->fetchAllAssociative('SELECT name, fields FROM custom_entity');
 
-            $schema = $this->getSchemaManager()->introspectSchema();
+            $schema = $this->connection->createSchemaManager()->introspectSchema();
 
             $this->cleanup($schema);
 
@@ -58,10 +56,8 @@ class CustomEntitySchemaUpdater
 
     private function applyNewSchema(Schema $update): void
     {
-        $baseSchema = $this->getSchemaManager()->createSchema();
-        $queries = (new Comparator())
-            ->compare($baseSchema, $update)
-            ->toSql($this->getPlatform());
+        $baseSchema = $this->connection->createSchemaManager()->introspectSchema();
+        $queries = $this->getPlatform()->getAlterSchemaSQL((new Comparator())->compareSchemas($baseSchema, $update));
 
         foreach ($queries as $query) {
             try {
@@ -74,19 +70,6 @@ class CustomEntitySchemaUpdater
                 }
             }
         }
-    }
-
-    /**
-     * @return AbstractSchemaManager<MySQLPlatform>
-     */
-    private function getSchemaManager(): AbstractSchemaManager
-    {
-        $manager = $this->connection->getSchemaManager();
-        if (!$manager instanceof AbstractSchemaManager) {
-            throw new \RuntimeException('The schema manager could not be found.');
-        }
-
-        return $manager;
     }
 
     private function getPlatform(): AbstractPlatform

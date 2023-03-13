@@ -134,7 +134,7 @@ class CachedSalutationRouteTest extends TestCase
         $route->load(new Request(), $this->context, new Criteria());
     }
 
-    public function invalidationProvider()
+    public static function invalidationProvider()
     {
         $ids = new IdsCollection();
 

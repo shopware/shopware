@@ -1,0 +1,14 @@
+services:
+  _defaults:
+    autoconfigure: true
+    autowire: true
+    public: false
+
+  App\:
+    resource: '../../*'
+    exclude: '../../{Command,Controller,Resources,Tests}'
+
+  App\Controller\:
+    resource: '../../Controller'
+    public: true
+    tags: ['controller.service_arguments']

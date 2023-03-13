@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Promotion\Validator;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountDefinition;
@@ -169,7 +170,7 @@ class PromotionValidator implements EventSubscriberInterface
             $promotionQuery = $this->connection->executeQuery(
                 'SELECT * FROM `promotion` WHERE `id` IN (:ids)',
                 ['ids' => $promotionIds],
-                ['ids' => Connection::PARAM_STR_ARRAY]
+                ['ids' => ArrayParameterType::STRING]
             );
 
             $this->databasePromotions = $promotionQuery->fetchAllAssociative();
@@ -180,7 +181,7 @@ class PromotionValidator implements EventSubscriberInterface
             $discountQuery = $this->connection->executeQuery(
                 'SELECT * FROM `promotion_discount` WHERE `id` IN (:ids)',
                 ['ids' => $discountIds],
-                ['ids' => Connection::PARAM_STR_ARRAY]
+                ['ids' => ArrayParameterType::STRING]
             );
 
             $this->databaseDiscounts = $discountQuery->fetchAllAssociative();

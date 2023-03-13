@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Rule\DataAbstractionLayer;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Statement;
@@ -105,7 +106,7 @@ class RuleAreaUpdaterTest extends TestCase
             . 'EXISTS(SELECT 1 FROM rule_condition WHERE (`rule_id` = `rule`.`id`) AND (`type` IN (:flowTypes))) AS flowCondition '
             . 'FROM rule WHERE `rule`.`id` IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList([$id]), 'flowTypes' => ['orderTags']],
-            ['ids' => Connection::PARAM_STR_ARRAY, 'flowTypes' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::STRING, 'flowTypes' => ArrayParameterType::STRING]
         )->willReturn($resultStatement);
 
         $statement = $this->createMock(Statement::class);

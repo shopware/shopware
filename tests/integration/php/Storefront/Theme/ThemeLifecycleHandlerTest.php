@@ -64,7 +64,7 @@ class ThemeLifecycleHandlerTest extends TestCase
 
         $this->configFactory = $this->getContainer()->get(StorefrontPluginConfigurationFactory::class);
 
-        $this->getContainer()->get(Connection::class)->executeUpdate('DELETE FROM `theme_sales_channel`');
+        $this->getContainer()->get(Connection::class)->executeStatement('DELETE FROM `theme_sales_channel`');
         $this->assignThemeToDefaultSalesChannel();
     }
 

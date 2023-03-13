@@ -26,6 +26,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\CollectingEventDispatcher;
 use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
 use Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPage;
 use Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoadedEvent;
@@ -392,15 +393,7 @@ class CheckoutConfirmPageLoaderTest extends TestCase
 
     public function testValidationEventIsDispatched(): void
     {
-        $eventDispatcher = $this->createMock(EventDispatcher::class);
-        $eventDispatcher
-            ->expects(static::exactly(3))
-            ->method('dispatch')
-            ->withConsecutive(
-                [static::isInstanceOf(BuildValidationEvent::class)],
-                [static::isInstanceOf(BuildValidationEvent::class)],
-                [static::isInstanceOf(CheckoutConfirmPageLoadedEvent::class)]
-            );
+        $eventDispatcher = new CollectingEventDispatcher();
 
         $checkoutConfirmPageLoader = new CheckoutConfirmPageLoader(
             $eventDispatcher,
@@ -413,6 +406,13 @@ class CheckoutConfirmPageLoaderTest extends TestCase
         );
 
         $checkoutConfirmPageLoader->load(new Request(), $this->getContextWithDummyCustomer());
+
+        $events = $eventDispatcher->getEvents();
+        static::assertCount(3, $events);
+
+        static::assertInstanceOf(BuildValidationEvent::class, $events[0]);
+        static::assertInstanceOf(BuildValidationEvent::class, $events[1]);
+        static::assertInstanceOf(CheckoutConfirmPageLoadedEvent::class, $events[2]);
     }
 
     public function testCartServiceIsCalledTaxedAndWithNoCaching(): void

@@ -24,7 +24,7 @@ describe('Category: Test ACL privileges', () => {
             });
     });
 
-    it('@base @catalogue: can view category', { tags: ['pa-content-management'] }, () => {
+    it('@base @catalogue: can view category', { tags: ['pa-content-management', 'quarantined'] }, () => {
         const page = new CategoryPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -210,11 +210,12 @@ describe('Category: Test ACL privileges', () => {
 
         const page = new CategoryPageObject();
 
-        cy.clickContextMenuItem(
-            '.sw-context-menu__group-button-delete',
-            page.elements.contextMenuButton,
-            `${page.elements.categoryTreeItem}:nth-of-type(2)`,
-        );
+        cy.contains('.sw-tree-item__element', 'ParentCategory')
+            .find(page.elements.contextMenuButton)
+            .click({ scrollBehavior: 'top' });
+        cy.get('.sw-context-menu__group-button-delete')
+            .click({ scrollBehavior: 'top' });
+        cy.get('.sw-context-menu__group-button-delete').should('not.exist');
 
         // expect modal to be open
         cy.get('.sw-modal')

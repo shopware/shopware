@@ -506,7 +506,7 @@ class RegisterRoute extends AbstractRegisterRoute
             ->select('LOWER(HEX(bound_sales_channel_id)) as bound_sales_channel_id')
             ->from('customer')
             ->where($query->expr()->eq('email', $query->createPositionalParameter($email)))
-            ->execute()
+            ->executeQuery()
             ->fetchAllAssociative();
 
         foreach ($results as $result) {

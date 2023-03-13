@@ -1,7 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace unit\php\Core\Content\Mail\Service;
+namespace Shopware\Tests\Unit\Core\Content\Mail\Service;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -75,7 +76,6 @@ class MailAttachmentsBuilderTest extends TestCase
         $this->mediaService
             ->expects(static::exactly(2))
             ->method('getAttachment')
-            ->withConsecutive([$mediaA->getMedia(), $context], [$mediaC->getMedia(), $context])
             ->willReturnOnConsecutiveCalls(
                 [
                     'content' => 'foo',
@@ -128,7 +128,7 @@ class MailAttachmentsBuilderTest extends TestCase
             ->with(
                 static::anything(),
                 ['orderId' => Uuid::fromHexToBytes($orderId), 'documentTypeIds' => Uuid::fromHexToBytesList($eventConfig['documentTypeIds'])],
-                ['documentTypeIds' => Connection::PARAM_STR_ARRAY]
+                ['documentTypeIds' => ArrayParameterType::STRING]
             )
             ->willReturn([
                 ['doc_type' => 'foo', 'doc_id' => '1'],
@@ -143,7 +143,6 @@ class MailAttachmentsBuilderTest extends TestCase
         $this->documentGenerator
             ->expects(static::exactly(4))
             ->method('readDocument')
-            ->withConsecutive([$idA, $context], [$idB, $context], [$idC, $context], [$idD, $context])
             ->willReturn($document);
 
         $criteria = new Criteria($extension->getMediaIds());
@@ -164,7 +163,6 @@ class MailAttachmentsBuilderTest extends TestCase
         $this->mediaService
             ->expects(static::exactly(2))
             ->method('getAttachment')
-            ->withConsecutive([$entities[0], $context], [$entities[1], $context])
             ->willReturnOnConsecutiveCalls(
                 [
                     'content' => '',

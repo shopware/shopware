@@ -25,7 +25,7 @@ use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 use Shopware\Core\System\StateMachine\Event\StateMachineTransitionEvent;
-use Shopware\Tests\Unit\Common\Stubs\DataAbstractionLayer\StockUpdate\TestStockUpdateFilter;
+use Shopware\Tests\Unit\Core\Content\Product\DataAbstractionLayer\StockUpdate\TestStockUpdateFilter;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**

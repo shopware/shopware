@@ -37,7 +37,7 @@ class Migration1617896006MakeNameNullableTest extends TestCase
 
     public function testNameColumnIsNullable(): void
     {
-        $schema = $this->connection->getSchemaManager();
+        $schema = $this->connection->createSchemaManager();
 
         $column = array_filter($schema->listTableColumns('cms_page_translation'), static fn (Column $column): bool => $column->getName() === 'name');
 

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace unit\php\Core\Content\Mail\Service;
+namespace Shopware\Tests\Unit\Core\Content\Mail\Service;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Mail\Service\MailAttachmentsConfig;

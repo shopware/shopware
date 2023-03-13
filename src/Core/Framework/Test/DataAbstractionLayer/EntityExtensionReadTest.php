@@ -69,7 +69,7 @@ class EntityExtensionReadTest extends TestCase
 
         $this->connection->rollBack();
 
-        $this->connection->executeUpdate('
+        $this->connection->executeStatement('
             DROP TABLE IF EXISTS `extended_product`;
             CREATE TABLE `extended_product` (
                 `id` BINARY(16) NOT NULL,
@@ -84,7 +84,7 @@ class EntityExtensionReadTest extends TestCase
             )
         ');
 
-        $this->connection->executeUpdate('
+        $this->connection->executeStatement('
             DROP TABLE IF EXISTS `many_to_one_product`;
             CREATE TABLE `many_to_one_product` (
                 `id` BINARY(16) NOT NULL,
@@ -110,7 +110,7 @@ class EntityExtensionReadTest extends TestCase
             )
         ');
 
-        $this->connection->executeUpdate('
+        $this->connection->executeStatement('
             ALTER TABLE `product`
                 ADD COLUMN `linked_product_id` binary(16) NULL,
                 ADD COLUMN `linked_product_version_id` binary(16) NULL,
@@ -125,14 +125,14 @@ class EntityExtensionReadTest extends TestCase
     protected function tearDown(): void
     {
         $this->connection->rollBack();
-        $this->connection->executeUpdate('
+        $this->connection->executeStatement('
             ALTER TABLE `product`
             DROP FOREIGN KEY `fk.product.many_to_one_id`;
         ');
-        $this->connection->executeUpdate('DROP TABLE `extended_product`');
-        $this->connection->executeUpdate('DROP TABLE `many_to_one_product`');
+        $this->connection->executeStatement('DROP TABLE `extended_product`');
+        $this->connection->executeStatement('DROP TABLE `many_to_one_product`');
         $this->connection->executeStatement('DROP TABLE `product_one_to_one_inherited`');
-        $this->connection->executeUpdate('
+        $this->connection->executeStatement('
             ALTER TABLE `product`
             DROP COLUMN `linked_product_id`,
             DROP COLUMN `linked_product_version_id`,

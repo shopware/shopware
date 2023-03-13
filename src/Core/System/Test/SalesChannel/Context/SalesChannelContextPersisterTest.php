@@ -335,7 +335,7 @@ class SalesChannelContextPersisterTest extends TestCase
 
         if ($tokenAgeInDays !== 0) {
             // change age
-            $connection->executeUpdate(
+            $connection->executeStatement(
                 'UPDATE sales_channel_api_context
                 SET updated_at = DATE_ADD(updated_at, INTERVAL :intervalInDays DAY)',
                 ['intervalInDays' => -$tokenAgeInDays]

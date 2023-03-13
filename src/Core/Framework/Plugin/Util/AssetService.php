@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Plugin\Util;
 use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Parameter\AdditionalBundleParameters;
 use Shopware\Core\Framework\Plugin;
@@ -27,7 +28,6 @@ class AssetService
         private readonly KernelPluginLoader $pluginLoader,
         private readonly CacheInvalidator $cacheInvalidator,
         private readonly AbstractAppLoader $appLoader,
-        private readonly string $coreDir,
         private readonly ParameterBagInterface $parameterBag
     ) {
     }
@@ -65,6 +65,14 @@ class AssetService
         $this->cacheInvalidator->invalidate(['asset-metaData'], true);
     }
 
+    /**
+     * @decrecated tag:v6.6.0 - Will be removed without replacement
+     */
+    public function copyRecoveryAssets(): void
+    {
+        Feature::triggerDeprecationOrThrow('v6.6.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0'));
+    }
+
     public function copyAssetsFromApp(string $appName, string $appPath): void
     {
         $originDir = $this->appLoader->getAssetPathForAppPath($appPath);
@@ -98,27 +106,6 @@ class AssetService
         } catch (PluginNotFoundException) {
             // plugin is already unloaded, we cannot find it. Ignore it
         }
-    }
-
-    public function copyRecoveryAssets(): void
-    {
-        $targetDirectory = 'recovery';
-
-        // @codeCoverageIgnoreStart
-        if (is_dir($this->coreDir . '/../Recovery/Resources/public')) {
-            // platform installation
-            $originDir = $this->coreDir . '/../Recovery/Resources/public';
-        } elseif (is_dir($this->coreDir . '/../recovery/Resources/public')) {
-            // composer installation over many repos
-            $originDir = $this->coreDir . '/../recovery/Resources/public';
-        } else {
-            return;
-        }
-        // @codeCoverageIgnoreEnd
-
-        $this->filesystem->deleteDirectory($targetDirectory);
-
-        $this->copy($originDir, $targetDirectory);
     }
 
     public function removeAssets(string $name): void

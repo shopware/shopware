@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Flow\Indexing;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Flow\Dispatching\CachedFlowLoader;
 use Shopware\Core\Content\Flow\Dispatching\FlowBuilder;
@@ -44,7 +45,7 @@ class FlowPayloadUpdater
                 AND (`flow_sequence`.`id` IS NULL OR (`flow_sequence`.`rule_id` IS NOT NULL OR `flow_sequence`.`action_name` IS NOT NULL))
                 AND `flow`.`id` IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids)],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::STRING]
         );
 
         $listFlowSequence = FetchModeHelper::group($listFlowSequence);

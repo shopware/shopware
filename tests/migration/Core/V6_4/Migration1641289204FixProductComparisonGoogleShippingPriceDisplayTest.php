@@ -71,7 +71,7 @@ class Migration1641289204FixProductComparisonGoogleShippingPriceDisplayTest exte
     /**
      * @return array{old_template: string, expectedTemplate: string}[][]
      */
-    public function dataProvider(): array
+    public static function dataProvider(): array
     {
         $old_template = (string) file_get_contents(__DIR__ . '/../../../../src/Core/Migration/Fixtures/productComparison-export-profiles/next-19135/body_old.xml.twig');
         $new_template = (string) file_get_contents(__DIR__ . '/../../../../src/Core/Migration/Fixtures/productComparison-export-profiles/next-19135/body_new.xml.twig');

@@ -23,7 +23,7 @@ class Migration1627540693MakeAccessTokenNullableTest extends TestCase
         $m = new Migration1627540693MakeAccessTokenNullable();
         $m->update($connection);
 
-        $columns = $connection->getSchemaManager()->listTableColumns('import_export_file');
+        $columns = $connection->createSchemaManager()->listTableColumns('import_export_file');
 
         $foundColumn = false;
         foreach ($columns as $column) {

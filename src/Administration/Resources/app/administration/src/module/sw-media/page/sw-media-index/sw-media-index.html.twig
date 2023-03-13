@@ -24,11 +24,11 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_index_bread_crumb_navigation_icon %}
                 <router-link :to="{ name: 'sw.media.index', params: { folderId: null } }">
-                    <sw-icon
+                    <img
+                        :src="'/administration/static/img/media/folder--back--breadcrumb.svg' | asset"
                         class="sw-media-index__navigation-breadcrumb"
-                        name="regular-double-chevron-left-s"
-                        multicolor
-                    />
+                        alt="Folder back breadcrumb"
+                    >
                 </router-link>
                 {% endblock %}
 

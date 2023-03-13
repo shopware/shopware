@@ -248,6 +248,14 @@ const defaultSearchConfiguration = {
             },
         },
     },
+    lineItems: {
+        promotion: {
+            code: {
+                _searchable: true,
+                _score: searchRankingPoint.MIDDLE_SEARCH_RANKING,
+            },
+        },
+    },
 };
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

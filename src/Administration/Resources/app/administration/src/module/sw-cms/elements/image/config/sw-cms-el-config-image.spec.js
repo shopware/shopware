@@ -5,11 +5,9 @@ import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
 import swCmsElConfigImage from 'src/module/sw-cms/elements/image/config';
 import swCmsMappingField from 'src/module/sw-cms/component/sw-cms-mapping-field';
-import swDynamicUrlField from 'src/app/component/form/sw-dynamic-url-field';
 
 Shopware.Component.register('sw-cms-el-config-image', swCmsElConfigImage);
 Shopware.Component.register('sw-cms-mapping-field', swCmsMappingField);
-Shopware.Component.register('sw-dynamic-url-field', swDynamicUrlField);
 
 async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-cms-el-config-image'), {

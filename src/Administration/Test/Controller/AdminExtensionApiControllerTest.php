@@ -109,7 +109,7 @@ class AdminExtensionApiControllerTest extends TestCase
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
     }
 
-    public function providerRunAction(): array
+    public static function providerRunAction(): array
     {
         return [
             [
@@ -182,7 +182,7 @@ class AdminExtensionApiControllerTest extends TestCase
         static::assertStringContainsString('shopware-shop-signature=', $data['uri']);
     }
 
-    public function providerSignUri(): array
+    public static function providerSignUri(): array
     {
         return [
             [

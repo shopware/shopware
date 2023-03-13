@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Adapter\Translation;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -68,11 +69,11 @@ class TranslatorCacheInvalidateTest extends TestCase
 
         $snippetIds = [Uuid::randomHex(), Uuid::randomHex()];
 
-        $this->connection->expects(static::once())->method('fetchFirstColumn')->withConsecutive([
+        $this->connection->expects(static::once())->method('fetchFirstColumn')->with(
             'SELECT LOWER(HEX(snippet_set_id)) FROM snippet WHERE HEX(id) IN (:ids)',
             ['ids' => $snippetIds],
-            ['ids' => Connection::PARAM_STR_ARRAY],
-        ])->willReturn($expectedSnippetSetIds);
+            ['ids' => ArrayParameterType::STRING],
+        )->willReturn($expectedSnippetSetIds);
 
         $writeResults = [];
         foreach ($snippetIds as $snippetId) {

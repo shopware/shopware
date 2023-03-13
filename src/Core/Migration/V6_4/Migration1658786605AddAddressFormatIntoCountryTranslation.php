@@ -31,7 +31,7 @@ class Migration1658786605AddAddressFormatIntoCountryTranslation extends Migratio
 
         $addressFormat = json_encode(CountryDefinition::DEFAULT_ADDRESS_FORMAT);
 
-        $connection->executeUpdate('
+        $connection->executeStatement('
             ALTER TABLE `country_translation` ADD COLUMN `address_format` JSON NULL AFTER `name`;
         ');
 

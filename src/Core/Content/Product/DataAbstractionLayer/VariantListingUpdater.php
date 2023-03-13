@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\DataAbstractionLayer;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Shopware\Core\Framework\Context;
@@ -133,7 +134,7 @@ class VariantListingUpdater
         $query->from('product');
         $query->andWhere('product.version_id = :version');
         $query->andWhere('product.id IN (:ids)');
-        $query->setParameter('ids', Uuid::fromHexToBytesList($ids), Connection::PARAM_STR_ARRAY);
+        $query->setParameter('ids', Uuid::fromHexToBytesList($ids), ArrayParameterType::STRING);
         $query->setParameter('version', $versionBytes);
 
         $configuration = $query->executeQuery()->fetchAllAssociative();

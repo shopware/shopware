@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Migration\V6_4;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
@@ -27,7 +28,7 @@ class Migration1611817467ChangeDefaultProductSettingConfigField extends Migratio
 
         $connection->executeStatement('UPDATE product_search_config_field SET searchable = 1 WHERE field IN (:fieldsName)', [
             'fieldsName' => ['productNumber', 'ean', 'customSearchKeywords', 'manufacturer.name', 'manufacturerNumber'],
-        ], ['fieldsName' => Connection::PARAM_STR_ARRAY,
+        ], ['fieldsName' => ArrayParameterType::STRING,
         ]);
 
         $connection->executeStatement('UPDATE product_search_config_field SET field = :newName where field = :oldName', [

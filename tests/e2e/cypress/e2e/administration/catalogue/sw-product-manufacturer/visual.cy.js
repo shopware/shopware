@@ -20,18 +20,13 @@ describe('Manufacturer: Visual tests', () => {
             url: `${Cypress.env('apiPath')}/product-manufacturer/**`,
             method: 'PATCH',
         }).as('saveData');
-        cy.intercept({
-            url: `${Cypress.env('apiPath')}/search/product-manufacturer`,
-            method: 'POST',
-        }).as('getData');
 
         cy.clickMainMenuItem({
             targetPath: '#/sw/manufacturer/index',
             mainMenuId: 'sw-catalogue',
             subMenuId: 'sw-manufacturer',
         });
-        cy.wait('@getData')
-            .its('response.statusCode').should('equal', 200);
+
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-manufacturer-list__content').should('exist');

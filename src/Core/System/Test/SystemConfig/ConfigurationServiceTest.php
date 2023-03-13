@@ -196,6 +196,9 @@ class ConfigurationServiceTest extends TestCase
         static::assertEquals($expectedConfig, $actualConfig);
     }
 
+    /**
+     * @return list<array<string, mixed>>
+     */
     private function getConfigWithoutValues(): array
     {
         return [
@@ -312,7 +315,6 @@ class ConfigurationServiceTest extends TestCase
             'accessToken' => 'test',
             'integration' => [
                 'label' => 'test',
-                'writeAccess' => false,
                 'accessKey' => 'test',
                 'secretAccessKey' => 'test',
             ],
@@ -328,6 +330,9 @@ class ConfigurationServiceTest extends TestCase
  */
 class MockedConfigurationsService extends ConfigurationService
 {
+    /**
+     * @return list<array<string, mixed>>
+     */
     public function getConfiguration(string $domain, Context $context): array
     {
         return [

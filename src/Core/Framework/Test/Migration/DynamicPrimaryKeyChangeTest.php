@@ -21,7 +21,7 @@ class DynamicPrimaryKeyChangeTest extends TestCase
     public function testPrimaryKeyExistsEverywhere(): void
     {
         $connection = $this->getContainer()->get(Connection::class);
-        $schemaManager = $connection->getSchemaManager();
+        $schemaManager = $connection->createSchemaManager();
 
         $tables = $schemaManager->listTableNames();
 
@@ -37,7 +37,7 @@ class DynamicPrimaryKeyChangeTest extends TestCase
         $connection = $this->getContainer()->get(Connection::class);
 
         $this->importFixtureSchema();
-        $schemaManager = $connection->getSchemaManager();
+        $schemaManager = $connection->createSchemaManager();
 
         $tableName = '_dpkc_main';
 
@@ -57,7 +57,7 @@ class DynamicPrimaryKeyChangeTest extends TestCase
         }
 
         foreach ($playbook as $query) {
-            $connection->exec($query);
+            $connection->executeStatement($query);
         }
 
         foreach ($this->getExpectationsAfter() as $tableName => $expectation) {
@@ -120,7 +120,7 @@ class DynamicPrimaryKeyChangeTest extends TestCase
         static::assertIsString($fixture);
 
         foreach (array_filter(array_map('trim', explode(';', $fixture))) as $stmt) {
-            $connection->exec($stmt);
+            $connection->executeStatement($stmt);
         }
     }
 
@@ -132,7 +132,7 @@ class DynamicPrimaryKeyChangeTest extends TestCase
         $fixture .= file_get_contents(__DIR__ . '/_dynamicPrimaryKeyChangeAfterWithAdditionalColumn.sql');
 
         foreach (array_filter(array_map('trim', explode(';', $fixture))) as $stmt) {
-            $connection->exec($stmt);
+            $connection->executeStatement($stmt);
         }
     }
 

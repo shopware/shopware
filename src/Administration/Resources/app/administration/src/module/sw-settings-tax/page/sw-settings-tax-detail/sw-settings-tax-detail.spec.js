@@ -139,4 +139,14 @@ describe('module/sw-settings-tax/page/sw-settings-tax-detail', () => {
         expect(taxNameField.attributes().disabled).toBeTruthy();
         expect(taxRateField.attributes().disabled).toBeTruthy();
     });
+
+    it('should have a tax rate field with a correct "digits" property', async () => {
+        const wrapper = await createWrapper();
+
+        const taxRateField = wrapper.find(
+            'sw-number-field-stub[label="sw-settings-tax.detail.labelDefaultTaxRate"]'
+        );
+
+        expect(taxRateField.attributes('digits')).toEqual('3');
+    });
 });

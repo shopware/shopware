@@ -80,7 +80,7 @@ class Migration1592978289ProductCustomFieldSetsTest extends TestCase
     /**
      * @return array{0: string, 1: DbColumn[]}[]
      */
-    public function tableInformationProvider(): array
+    public static function tableInformationProvider(): array
     {
         return [
             [
@@ -112,8 +112,8 @@ class Migration1592978289ProductCustomFieldSetsTest extends TestCase
     private function fetchTableInformation(string $name): array
     {
         $columns = $this->connection
-            ->getSchemaManager()
-            ->listTableDetails($name)
+            ->createSchemaManager()
+            ->introspectTable($name)
             ->getColumns();
 
         return array_map(static fn (Column $column): array => self::getColumn(
@@ -126,7 +126,7 @@ class Migration1592978289ProductCustomFieldSetsTest extends TestCase
     private function hasCustomFieldSetColumn(Connection $connection, string $table): bool
     {
         return \count(array_filter(
-            $connection->getSchemaManager()->listTableColumns($table),
+            $connection->createSchemaManager()->listTableColumns($table),
             static fn (Column $column): bool => $column->getName() === 'customFieldSets'
         )) > 0;
     }
@@ -134,7 +134,7 @@ class Migration1592978289ProductCustomFieldSetsTest extends TestCase
     private function hasGlobalColumn(Connection $connection, string $table): bool
     {
         return \count(array_filter(
-            $connection->getSchemaManager()->listTableColumns($table),
+            $connection->createSchemaManager()->listTableColumns($table),
             static fn (Column $column): bool => $column->getName() === 'global'
         )) > 0;
     }

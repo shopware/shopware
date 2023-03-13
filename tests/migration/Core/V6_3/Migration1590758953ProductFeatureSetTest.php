@@ -85,7 +85,7 @@ class Migration1590758953ProductFeatureSetTest extends TestCase
     public function testProductTableExtensionIsComplete(): void
     {
         $columns = array_filter(
-            $this->connection->getSchemaManager()->listTableColumns('product'),
+            $this->connection->createSchemaManager()->listTableColumns('product'),
             static fn (Column $column): bool => \in_array($column->getName(), ['product_feature_set_id', 'featureSet'], true)
         );
 
@@ -145,14 +145,14 @@ class Migration1590758953ProductFeatureSetTest extends TestCase
     /**
      * @return array{0: string, 1: DbColumn[]}[]
      */
-    public function tableInformationProvider(): array
+    public static function tableInformationProvider(): array
     {
         return [
             [
                 ProductFeatureSetDefinition::ENTITY_NAME,
                 [
                     self::getColumn('id', new BinaryType(), true),
-                    self::getColumn('features', $this->getJsonType()),
+                    self::getColumn('features', self::getJsonType()),
                     self::getColumn('created_at', new DateTimeType(), true),
                     self::getColumn('updated_at', new DateTimeType()),
                 ],
@@ -189,11 +189,11 @@ class Migration1590758953ProductFeatureSetTest extends TestCase
      *
      * @see https://www.doctrine-project.org/projects/doctrine-dbal/en/latest/reference/types.html#json
      */
-    private function getJsonType(): Type
+    private static function getJsonType(): Type
     {
         return KernelLifecycleManager::getConnection()
             ->getDatabasePlatform()
-            ->hasNativeJsonType() ? new JsonType() : new TextType();
+            ->getJsonTypeDeclarationSQL([]) === 'JSON' ? new JsonType() : new TextType();
     }
 
     /**
@@ -202,8 +202,8 @@ class Migration1590758953ProductFeatureSetTest extends TestCase
     private function fetchTableInformation(string $name): array
     {
         $columns = $this->connection
-            ->getSchemaManager()
-            ->listTableDetails($name)
+            ->createSchemaManager()
+            ->introspectTable($name)
             ->getColumns();
 
         return array_map(static fn (Column $column): array => self::getColumn(
@@ -237,7 +237,7 @@ class Migration1590758953ProductFeatureSetTest extends TestCase
     private function hasColumn(Connection $connection, string $table, string $columnName): bool
     {
         return \count(array_filter(
-            $connection->getSchemaManager()->listTableColumns($table),
+            $connection->createSchemaManager()->listTableColumns($table),
             static fn (Column $column): bool => $column->getName() === $columnName
         )) > 0;
     }

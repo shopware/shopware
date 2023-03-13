@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Promotion\DataAbstractionLayer;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
@@ -64,7 +65,7 @@ SQL;
         $promotions = $this->connection->fetchAllAssociative(
             $sql,
             ['type' => PromotionProcessor::LINE_ITEM_TYPE, 'ids' => Uuid::fromHexToBytesList($ids), 'versionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::STRING]
         );
 
         if (empty($promotions)) {
@@ -165,7 +166,7 @@ SQL;
         $countResult = $this->connection->fetchAllAssociative(
             'SELECT `id`, `orders_per_customer_count` FROM `promotion` WHERE `id` IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($promotionIds)],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::STRING]
         );
 
         foreach ($countResult as $row) {

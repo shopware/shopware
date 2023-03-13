@@ -5,9 +5,9 @@
       "description": "Inaktivitäts-Anmeldung"
     },
     "modal": {
-      "title": "Um sicher zu gehen, haben wir dich abgemeldet",
+      "title": "Um sicherzugehen, haben wir dich abgemeldet",
       "actions": {
-        "backToLogin": "Zurück zum Login"
+        "backToLogin": "Zurück zur Anmeldung"
       },
       "errors": {
         "password": "Falsches Passwort"

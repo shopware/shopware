@@ -42,7 +42,7 @@ describe('src/core/service/utils/format.utils.js', () => {
             setLocale('en-US');
             setTimeZone('UTC');
 
-            expect(date('2000-06-18T08:30:00.000+00:00')).toBe('June 18, 2000 at 8:30\u202fAM');
+            expect(date('2000-06-18T08:30:00.000+00:00')).toBe('June 18, 2000 at 8:30 AM');
         });
 
         it('should convert the date correctly with timezone UTC in de-DE', async () => {
@@ -63,7 +63,7 @@ describe('src/core/service/utils/format.utils.js', () => {
             setLocale('en-US');
             setTimeZone('America/New_York');
 
-            expect(date('2000-06-18T08:30:00.000+00:00')).toBe('June 18, 2000 at 4:30\u202fAM');
+            expect(date('2000-06-18T08:30:00.000+00:00')).toBe('June 18, 2000 at 4:30 AM');
         });
 
         it('should convert the date correctly with timezone America/New_York in de-DE', async () => {

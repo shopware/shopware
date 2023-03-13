@@ -143,7 +143,7 @@ describe('module/sw-product/component/sw-product-deliverability-downloadable-for
         expect(wrapper.find('input[name="sw-field--product-stock"]').element.value).toBe('0');
     });
 
-    it('should set stock value to zero if isCloseout is set to false', async () => {
+    it('should set stock to before value if stock was not saved and isCloseout is set to false', async () => {
         wrapper = await createWrapper();
 
         const isCloseoutSwitch = wrapper.find('input[name="sw-field--product-is-closeout"]');
@@ -156,5 +156,27 @@ describe('module/sw-product/component/sw-product-deliverability-downloadable-for
         await wrapper.vm.$nextTick();
 
         expect(stockElement.element.value).toBe('0');
+    });
+
+    it('should set stock to persisted product stock if stock was saved and stock deliverability menu is reopened', async () => {
+        wrapper = await createWrapper({
+            stock: 10
+        });
+
+        const isCloseoutSwitch = wrapper.find('input[name="sw-field--product-is-closeout"]');
+        const stockElement = wrapper.find('input[name="sw-field--product-stock"]');
+
+        expect(stockElement.element.value).toBe('10');
+
+        await stockElement.setValue('20');
+        expect(stockElement.element.value).toBe('20');
+
+        await isCloseoutSwitch.setChecked(false);
+        await wrapper.vm.$nextTick();
+
+        await isCloseoutSwitch.setChecked(true);
+        await wrapper.vm.$nextTick();
+
+        expect(stockElement.element.value).toBe('10');
     });
 });

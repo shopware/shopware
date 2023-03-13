@@ -4,6 +4,7 @@
         v-model="product.isCloseout"
         :has-parent="!!parentProduct.id"
         :inherited-value="parentProduct.isCloseout"
+        @input="onSwitchInput"
     >
         <template #content="props">
 

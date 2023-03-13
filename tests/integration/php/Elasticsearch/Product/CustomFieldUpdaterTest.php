@@ -11,6 +11,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Elasticsearch\Framework\Command\ElasticsearchIndexingCommand;
 use Shopware\Elasticsearch\Framework\ElasticsearchOutdatedIndexDetector;
+use Shopware\Elasticsearch\Framework\Indexing\CreateAliasTaskHandler;
+use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer;
 use Shopware\Elasticsearch\Test\ElasticsearchTestTestBehaviour;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
@@ -47,9 +49,14 @@ class CustomFieldUpdaterTest extends TestCase
 
         $connection->executeStatement('DELETE FROM custom_field');
 
-        $this->getContainer()
-            ->get(ElasticsearchIndexingCommand::class)
-            ->run(new ArrayInput([]), new NullOutput());
+        $command = new ElasticsearchIndexingCommand(
+            $this->getContainer()->get(ElasticsearchIndexer::class),
+            $this->getContainer()->get('messenger.bus.shopware'),
+            $this->getContainer()->get(CreateAliasTaskHandler::class),
+            true
+        );
+
+        $command->run(new ArrayInput([]), new NullOutput());
 
         static::assertNotEmpty($this->indexDetector->getAllUsedIndices());
     }

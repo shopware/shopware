@@ -9031,11 +9031,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/FieldVisibility.php
 
 		-
-			message: "#^Parameter \\#4 \\$skip of method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Indexing\\\\EntityIndexerRegistry\\:\\:iterateIndexer\\(\\) expects list\\<string\\>, array given\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Indexing/EntityIndexerRegistry.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Indexing\\\\EntityIndexingMessage\\:\\:__construct\\(\\) has parameter \\$data with no type specified\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Indexing/EntityIndexingMessage.php
@@ -9054,31 +9049,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Indexing\\\\EntityIndexingMessage\\:\\:getOffset\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Indexing/EntityIndexingMessage.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Indexing\\\\MessageQueue\\\\IterateEntityIndexerMessage\\:\\:__construct\\(\\) has parameter \\$offset with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Indexing/MessageQueue/IterateEntityIndexerMessage.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Indexing\\\\MessageQueue\\\\IterateEntityIndexerMessage\\:\\:__construct\\(\\) has parameter \\$skip with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Indexing/MessageQueue/IterateEntityIndexerMessage.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Indexing\\\\MessageQueue\\\\IterateEntityIndexerMessage\\:\\:getOffset\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Indexing/MessageQueue/IterateEntityIndexerMessage.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Indexing\\\\MessageQueue\\\\IterateEntityIndexerMessage\\:\\:getSkip\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Indexing/MessageQueue/IterateEntityIndexerMessage.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Indexing\\\\MessageQueue\\\\IterateEntityIndexerMessage\\:\\:setOffset\\(\\) has parameter \\$offset with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Indexing/MessageQueue/IterateEntityIndexerMessage.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Indexing\\\\TreeUpdater\\:\\:buildPathArray\\(\\) has parameter \\$parent with no value type specified in iterable type array\\.$#"
@@ -15034,11 +15004,6 @@ parameters:
 			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\ElasticsearchDateHistogramAggregation\\:\\:getArray\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Elasticsearch/Framework/ElasticsearchDateHistogramAggregation.php
-
-		-
-			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\Indexing\\\\IndexerOffset\\:\\:getDefinitions\\(\\) should return list\\<string\\> but returns array\\<string\\>\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/Indexing/IndexerOffset.php
 
 		-
 			message: "#^Method Shopware\\\\Elasticsearch\\\\Framework\\\\Indexing\\\\IndexingDto\\:\\:__construct\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"

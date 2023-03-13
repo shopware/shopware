@@ -17,9 +17,6 @@ use Shopware\Storefront\Theme\Event\ThemeIndexerEvent;
 use Shopware\Storefront\Theme\ThemeDefinition;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @phpstan-import-type Offset from IterableQuery
- */
 #[Package('core')]
 class ThemeIndexer extends EntityIndexer
 {
@@ -103,7 +100,7 @@ class ThemeIndexer extends EntityIndexer
     }
 
     /**
-     * @param Offset|null $offset
+     * @param array{offset: int|null}|null $offset
      */
     private function getIterator(?array $offset): IterableQuery
     {

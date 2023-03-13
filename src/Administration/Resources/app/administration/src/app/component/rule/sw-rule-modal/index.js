@@ -93,6 +93,11 @@ Component.register('sw-rule-modal', {
                 this.ruleConditionDataProviderService.addScriptConditions(scripts);
                 this.rule = this.ruleRepository.create(Context.api);
                 this.initialConditions = EntityCollection.fromCollection(this.rule.conditions);
+
+                if (this.rule[this.ruleAwareGroupKey]) {
+                    this.rule[this.ruleAwareGroupKey].push({});
+                }
+
                 this.isLoading = false;
             });
         },
@@ -153,6 +158,10 @@ Component.register('sw-rule-modal', {
             if (!this.validateRuleAwareness()) {
                 return;
             }
+            if (this.rule[this.ruleAwareGroupKey]) {
+                this.rule[this.ruleAwareGroupKey] = [];
+            }
+
 
             const titleSaveSuccess = this.$tc('global.default.success');
             const messageSaveSuccess = this.$tc(

@@ -216,7 +216,7 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
                 const result = errorResponse?.response?.data?.errors ?? [];
 
                 result.forEach((error) => {
-                    if (error.source.pointer.startsWith('/write/')) {
+                    if (error?.source?.pointer?.startsWith('/write/')) {
                         error.source.pointer = error.source.pointer.substring(6);
                         errors.push(error);
                     }

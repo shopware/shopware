@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Plugin\Util;
 
 use League\Flysystem\FilesystemOperator;
+use Shopware\Administration\Administration;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
 use Shopware\Core\Framework\Feature;
@@ -55,6 +56,12 @@ class AssetService
             return;
         }
 
+        if (\sprintf('%s\%s', $bundle->getNamespace(), $bundle->getName()) === Administration::class) {
+            $this->copyAdminAssets($bundle, $originDir);
+
+            return;
+        }
+
         $this->removeAssets($bundle->getName());
 
         $targetDirectory = $this->getTargetDirectory($bundle->getName());
@@ -63,6 +70,40 @@ class AssetService
         $this->copy($originDir, $targetDirectory);
 
         $this->cacheInvalidator->invalidate(['asset-metaData'], true);
+    }
+
+    public function copyAdminAssets(BundleInterface $bundle, string $originDir): void
+    {
+        $targetDirectory = $this->getTargetDirectory($bundle->getName());
+
+        if (!$this->filesystem->directoryExists($targetDirectory)) {
+            $this->filesystem->createDirectory($targetDirectory);
+        }
+
+        $files = Finder::create()
+            ->ignoreDotFiles(false)
+            ->files()
+            ->in($originDir)
+            ->getIterator();
+
+        foreach ($files as $file) {
+            $fs = fopen($file->getPathname(), 'rb');
+
+            // @codeCoverageIgnoreStart
+            if (!\is_resource($fs)) {
+                throw new \RuntimeException('Could not open file ' . $file->getPathname());
+            }
+            // @codeCoverageIgnoreEnd
+
+            $location = $targetDirectory . '/' . $file->getRelativePathname();
+            if ($this->filesystem->fileExists($location)) {
+                fclose($fs);
+                continue;
+            }
+
+            $this->filesystem->writeStream($location, $fs);
+            fclose($fs);
+        }
     }
 
     /**

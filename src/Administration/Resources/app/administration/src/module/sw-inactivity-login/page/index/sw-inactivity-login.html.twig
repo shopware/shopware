@@ -8,6 +8,7 @@
     >
         <sw-password-field
             v-model="password"
+            v-autofocus
             :label="$tc('sw-login.index.labelPassword')"
             :disabled="isLoading"
             :error="passwordError"

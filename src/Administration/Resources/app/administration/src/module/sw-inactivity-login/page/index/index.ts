@@ -14,17 +14,26 @@ Component.register('sw-inactivity-login', {
 
     inject: ['loginService'],
 
+    props: {
+        hash: {
+            type: String,
+            required: true,
+        },
+    },
+
     data(): {
         isLoading: boolean,
         lastKnownUser: string,
         password: string,
-        passwordError: null|{ detail: string }
+        passwordError: null | { detail: string },
+        sessionChannel: null | BroadcastChannel,
         } {
         return {
             isLoading: false,
             lastKnownUser: '',
             password: '',
             passwordError: null,
+            sessionChannel: null,
         };
     },
 
@@ -44,8 +53,7 @@ Component.register('sw-inactivity-login', {
     },
 
     created() {
-        const lastKnownUser = localStorage.getItem('lastKnownUser');
-        localStorage.removeItem('lastKnownUser');
+        const lastKnownUser = sessionStorage.getItem('lastKnownUser');
 
         if (!lastKnownUser) {
             void this.$router.push({ name: 'sw.login.index' });
@@ -53,11 +61,26 @@ Component.register('sw-inactivity-login', {
             return;
         }
 
+        this.sessionChannel = new BroadcastChannel('session_channel');
+        this.sessionChannel.postMessage({ inactive: true });
+        this.sessionChannel.onmessage = (event) => {
+            const data = event.data as {inactive?: boolean};
+            if (!data || !Shopware.Utils.object.hasOwnProperty(data, 'inactive')) {
+                return;
+            }
+
+            if (data.inactive) {
+                return;
+            }
+
+            this.forwardLogin();
+            window.location.reload();
+        };
         this.lastKnownUser = lastKnownUser;
     },
 
     mounted() {
-        const dataUrl = localStorage.getItem('inactivityBackground');
+        const dataUrl = localStorage.getItem(`inactivityBackground_${this.hash}`);
         if (!dataUrl) {
             return;
         }
@@ -67,7 +90,9 @@ Component.register('sw-inactivity-login', {
     },
 
     beforeDestroy() {
-        localStorage.removeItem('inactivityBackground');
+        this.sessionChannel?.close();
+
+        localStorage.removeItem(`inactivityBackground_${this.hash}`);
     },
 
     methods: {
@@ -91,19 +116,22 @@ Component.register('sw-inactivity-login', {
         },
 
         handleLoginSuccess() {
-            this.password = '';
-
             this.forwardLogin();
+
+            this.sessionChannel?.postMessage({ inactive: false });
 
             window.location.reload();
         },
 
         forwardLogin() {
-            const previousRoute = JSON.parse(sessionStorage.getItem('sw-admin-previous-route') || '') as {
+            this.password = '';
+            sessionStorage.removeItem('lastKnownUser');
+
+            const previousRoute = JSON.parse(sessionStorage.getItem(`sw-admin-previous-route_${this.hash}`) || '{}') as {
                 fullPath?: string,
                 name?: string,
             };
-            sessionStorage.removeItem('sw-admin-previous-route');
+            sessionStorage.removeItem(`sw-admin-previous-route_${this.hash}`);
 
             if (previousRoute?.fullPath) {
                 void this.$router.push(previousRoute.fullPath);

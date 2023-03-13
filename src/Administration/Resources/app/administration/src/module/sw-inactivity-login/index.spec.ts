@@ -11,6 +11,10 @@ describe('src/module/sw-inactivity-login/page/index.ts', () => {
 
         const route = module.routes.get('sw.inactivity.login.index');
         expect(route !== undefined).toBe(true);
-        expect(route.path).toBe('/inactivity/login');
+        expect(route.path).toBe('/inactivity/login/:id');
+
+        const props = route.props.default({ params: { id: 'foo' } });
+        expect(props.hasOwnProperty('hash')).toBe(true);
+        expect(props.hash).toBe('foo');
     });
 });

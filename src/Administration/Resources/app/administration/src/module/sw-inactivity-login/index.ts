@@ -1,5 +1,6 @@
 import './page/index';
 
+import type { Route } from 'vue-router';
 import deDE from './snippet/de-DE.json';
 import enGB from './snippet/en-GB.json';
 
@@ -27,8 +28,15 @@ Module.register('sw-inactivity-login', {
     routes: {
         index: {
             component: 'sw-inactivity-login',
-            path: '/inactivity/login',
+            path: '/inactivity/login/:id',
             coreRoute: true,
+            props: {
+                default(route: Route) {
+                    return {
+                        hash: route.params.id,
+                    };
+                },
+            },
         },
     },
 });

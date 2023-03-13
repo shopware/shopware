@@ -2,23 +2,19 @@
 
 namespace Shopware\Elasticsearch\Framework\Indexing;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 
-/**
- * @phpstan-import-type Offset from IterableQuery
- */
 #[Package('core')]
 class IndexerOffset
 {
     /**
-     * @var array<string>
+     * @var list<string>
      */
     protected array $definitions;
 
     /**
-     * @var array<string>
+     * @var list<string>
      */
     protected array $allDefinitions;
 
@@ -29,7 +25,7 @@ class IndexerOffset
     /**
      * @param list<string> $languages
      * @param iterable<AbstractElasticsearchDefinition> $definitions
-     * @param Offset|null $lastId
+     * @param array{offset: int|null}|null $lastId
      */
     public function __construct(
         protected array $languages,
@@ -103,7 +99,7 @@ class IndexerOffset
     }
 
     /**
-     * @return Offset|null
+     * @return array{offset: int|null}|null
      */
     public function getLastId(): ?array
     {
@@ -116,7 +112,7 @@ class IndexerOffset
     }
 
     /**
-     * @param Offset|null $lastId
+     * @param array{offset: int|null}|null $lastId
      */
     public function setLastId(?array $lastId): void
     {

@@ -72,7 +72,7 @@
             <argument type="service" id="Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer"/>
             <argument type="service" id="messenger.bus.shopware"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\Indexing\CreateAliasTaskHandler"/>
-
+            <argument>%elasticsearch.indexing_enabled%</argument>
             <tag name="console.command"/>
         </service>
 

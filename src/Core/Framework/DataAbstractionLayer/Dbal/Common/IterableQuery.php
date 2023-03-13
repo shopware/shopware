@@ -7,8 +7,6 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
- *
- * @phpstan-type Offset array{offset: int|null}
  */
 #[Package('core')]
 interface IterableQuery
@@ -23,7 +21,7 @@ interface IterableQuery
     public function getQuery(): QueryBuilder;
 
     /**
-     * @return Offset
+     * @return array{offset: int|null}
      */
     public function getOffset(): array;
 }

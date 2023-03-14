@@ -31,20 +31,20 @@ shopware.update:
             submit: Update Shopware
             currentVersion: 'Current version: %version%'
             updateVersion: 'Update version:'
-            error: 'Update process has failed. You can download the log file <a href="#" id="download-log">here</a>.'
+            error: 'Update process unsuccessful. You can access the log file <a href="#" id="download-log">here</a>.'
         finish:
             title: Finish
             message: |
                 The install process has been completed successfully.
 
-                The next step will remove the recovery files from the server and redirect to the Shopware Administration.
+                In the next step the recovery files will be removed from the server. You will be redirected to the Shopware Administration afterwards.
             submit: Open Administration
         install:
             title: Download Shopware
-            info: Choose a Shopware version to download. Shopware will be downloaded into the current directory.
+            info: Choose a Shopware version to download. The software will be downloaded into the current directory.
             shopwareVersion: 'Shopware version:'
             after_install: After downloading you should switch your document root to the newly created folder <strong>public</strong>.
             log: Log
             installation_failed: Download failed
             submit: Download
-            error: 'Download has failed. You can download the log file <a href="#" id="download-log">here</a>.'
+            error: 'Shopware could not be downloaded. You can access the log file <a href="#" id="download-log">here</a>.'

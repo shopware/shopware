@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-$uri = $_SERVER['REQUEST_URI'];
+$uri = $_SERVER['REQUEST_URI'] ?? '/v1/release/update';
 $fileName = __DIR__ . '/update.zip';
 
 if (str_starts_with($uri, '/swplatform/autoupdate')) {

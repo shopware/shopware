@@ -190,6 +190,7 @@ class PluginLifecycleServiceMigrationTest extends TestCase
             $this->container->get(CustomEntityPersister::class),
             $this->container->get(CustomEntitySchemaUpdater::class),
             $this->container->get(CustomEntityLifecycleService::class),
+            $this->container->get(PluginService::class),
         );
     }
 

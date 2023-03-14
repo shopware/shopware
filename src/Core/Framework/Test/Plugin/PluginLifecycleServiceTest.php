@@ -95,7 +95,7 @@ class PluginLifecycleServiceTest extends TestCase
         $this->pluginCollection = $this->container->get(KernelPluginCollection::class);
         $this->connection = $this->container->get(Connection::class);
         $this->systemConfigService = $this->container->get(SystemConfigService::class);
-        $this->pluginLifecycleService = $this->createPluginLifecycleService();
+        $this->pluginLifecycleService = $this->createPluginLifecycleService($this->pluginService);
 
         require_once __DIR__ . '/_fixture/plugins/SwagTest/src/Migration/Migration1536761533Test.php';
 
@@ -323,6 +323,7 @@ class PluginLifecycleServiceTest extends TestCase
             $this->container->get(CustomEntityPersister::class),
             $this->container->get(CustomEntitySchemaUpdater::class),
             $this->container->get(CustomEntityLifecycleService::class),
+            $this->container->get(PluginService::class),
         );
 
         $context = Context::createDefaultContext();
@@ -820,7 +821,7 @@ class PluginLifecycleServiceTest extends TestCase
         return new Context(new SystemSource(), [], Defaults::CURRENCY, [$id]);
     }
 
-    private function createPluginLifecycleService(): PluginLifecycleService
+    private function createPluginLifecycleService(PluginService $pluginService): PluginLifecycleService
     {
         return new PluginLifecycleService(
             $this->pluginRepo,
@@ -837,6 +838,7 @@ class PluginLifecycleServiceTest extends TestCase
             $this->container->get(CustomEntityPersister::class),
             $this->container->get(CustomEntitySchemaUpdater::class),
             $this->container->get(CustomEntityLifecycleService::class),
+            $pluginService
         );
     }
 

@@ -12697,31 +12697,6 @@ parameters:
 			path: src/Core/Framework/Test/Webhook/_fixtures/BusinessEvents/UnstructuredObjectBusinessEvent.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Util\\\\HtmlSanitizer\\:\\:__construct\\(\\) has parameter \\$fieldSets with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Util/HtmlSanitizer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Util\\\\HtmlSanitizer\\:\\:__construct\\(\\) has parameter \\$sets with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Util/HtmlSanitizer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Util\\\\HtmlSanitizer\\:\\:getConfig\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Util/HtmlSanitizer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Util\\\\HtmlSanitizer\\:\\:sanitize\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Util/HtmlSanitizer.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Util\\\\HtmlSanitizer\\:\\:\\$cache type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Util/HtmlSanitizer.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Util\\\\Random\\:\\:getRandomArrayElement\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Core/Framework/Util/Random.php

@@ -3,7 +3,7 @@
 namespace Shopware\Core\Installer\Controller;
 
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Exception\TransferException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Installer\Finish\Notifier;
 use Shopware\Core\Installer\Finish\SystemLocker;
@@ -71,8 +71,8 @@ class FinishController extends InstallerController
             $redirect->headers->setCookie(
                 Cookie::create('bearerAuth', json_encode($loginTokenData, \JSON_THROW_ON_ERROR), time() + $data['expires_in'], ($appUrlInfo['path'] ?? '') . '/admin', $appUrlInfo['host'], null, false)
             );
-        } catch (ClientException) {
-            // ignore and don't automatically login
+        } catch (TransferException) {
+            // ignore and don't automatically log in
         }
 
         return $redirect;

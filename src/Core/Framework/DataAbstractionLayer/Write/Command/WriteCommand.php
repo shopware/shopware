@@ -42,6 +42,14 @@ abstract class WriteCommand
         return $this->payload;
     }
 
+    /**
+     * @internal
+     */
+    public function addPayload(string $key, mixed $value): void
+    {
+        $this->payload[$key] = $value;
+    }
+
     public function getDefinition(): EntityDefinition
     {
         return $this->definition;

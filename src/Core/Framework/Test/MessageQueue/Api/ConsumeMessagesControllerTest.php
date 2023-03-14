@@ -48,6 +48,7 @@ class ConsumeMessagesControllerTest extends TestCase
                 'name' => 'test',
                 'scheduledTaskClass' => TestTask::class,
                 'runInterval' => 300,
+                'defaultRunInterval' => 300,
                 'status' => ScheduledTaskDefinition::STATUS_SCHEDULED,
                 'nextExecutionTime' => (new \DateTime())->modify('-1 second'),
             ],

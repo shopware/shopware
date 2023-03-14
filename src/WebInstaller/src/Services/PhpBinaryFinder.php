@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Process\Exception\ProcessSignaledException;
 use Symfony\Component\Process\ExecutableFinder;
 use Symfony\Component\Process\Process;
 
@@ -121,7 +122,12 @@ class PhpBinaryFinder
     private function isPHPRunning(string $path): bool
     {
         $process = new Process([$path, '-v']);
-        $process->run();
+
+        try {
+            $process->run();
+        } catch (ProcessSignaledException) {
+            return false;
+        }
 
         return $process->isSuccessful();
     }

@@ -31,7 +31,7 @@ shopware.update:
             submit: Shopware aktualisieren
             currentVersion: 'Installierte Version: %version%'
             updateVersion: 'Neue Version:'
-            error: 'Der Aktualisierungsprozess ist fehlgeschlagen. Du kannst die Protokolldatei <a href="#" id="download-log">hier</a> herunterladen.'
+            error: 'Shopware konnte nicht aktualisiert werden. Klicke <a href="#" id="download-log">hier</a> um zur Protokolldatei zu gelangen.'
         finish:
             title: Abschluss
             message: |
@@ -41,10 +41,10 @@ shopware.update:
             submit: Administration öffnen
         install:
             title: Shopware herunterladen
-            info: Wählen Sie eine Shopware-Version zum Herunterladen aus. Shopware wird in das aktuelle Verzeichnis installiert.
+            info: Wähle eine Shopware-Version aus. Die Software wird in das aktuelle Verzeichnis installiert.
             shopwareVersion: 'Shopware-Version:'
-            after_install: Nach der Herunterladen solltest Du das Dokumenten-Stammverzeichnis auf das neu erstellte Verzeichnis <strong>public</strong> ändern.
+            after_install: Nach dem Herunterladen solltest Du das Dokumenten-Stammverzeichnis auf das neu erstellte Verzeichnis <strong>public</strong> ändern.
             log: Protokoll
             installation_failed: Herunterladen fehlgeschlagen
             submit: Herunterladen
-            error: 'Die Herunterladen ist fehlgeschlagen. Du kannst die Protokolldatei <a href="#" id="download-log">hier</a> herunterladen.'
+            error: 'Shopware konnte nicht heruntergeladen werden. Klicke <a href="#" id="download-log">hier</a> um zur Protokolldatei zu gelangen.'

@@ -730,7 +730,7 @@
         "dayOfWeekRule": "Wochentag",
         "lineItemTagRule": "Position mit Tag",
         "alwaysValidRule": "Immer zutreffend",
-        "lineItemPropertyRule": "Position mit Eigenschaft",
+        "lineItemPropertyRule": "Position mit Varianten- oder Eigenschaftsausprägung",
         "lineItemNoveltyRule": "Neuheiten",
         "lineItemCustomFieldRule": "Position mit Zusatzfeld",
         "lineItemIsNewRule": "Position als \"neu\" markiert",
@@ -781,7 +781,9 @@
         "customerBirthdayRule": "Kundengeburtstag",
         "customerCreatedByAdminRule": "Kunde vom Administrator erstellt",
         "customerSalutationRule": "Kundenanrede",
-        "customerDefaultPaymentMethodRule": "Kunde mit Standardzahlungsart"
+        "customerDefaultPaymentMethodRule": "Kunde mit Standardzahlungsart",
+        "lineItemPropertyValueRule": "Position mit Eigenschaftsausprägung",
+        "lineItemVariantValueRule": "Position mit Variantenausprägung"
       }
     },
     "sw-condition-generic": {

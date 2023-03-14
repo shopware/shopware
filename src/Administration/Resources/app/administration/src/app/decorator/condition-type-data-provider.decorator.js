@@ -585,6 +585,20 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         group: 'flow',
     });
 
+    ruleConditionService.addCondition('cartLineItemPropertyValue', {
+        component: 'sw-condition-line-item-property',
+        label: 'global.sw-condition.condition.lineItemPropertyValueRule',
+        scopes: ['lineItem'],
+        group: 'item',
+    });
+
+    ruleConditionService.addCondition('cartLineItemVariantValue', {
+        component: 'sw-condition-line-item-property',
+        label: 'global.sw-condition.condition.lineItemVariantValueRule',
+        scopes: ['lineItem'],
+        group: 'item',
+    });
+
     ruleConditionService.addAwarenessConfiguration(
         'personaPromotions',
         {

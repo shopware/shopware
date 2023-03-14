@@ -730,7 +730,7 @@
         "dayOfWeekRule": "Day of the week",
         "lineItemTagRule": "Item with tag",
         "alwaysValidRule": "Always valid",
-        "lineItemPropertyRule": "Item with property",
+        "lineItemPropertyRule": "Item with variant or property value",
         "lineItemNoveltyRule": "Novelties",
         "lineItemCustomFieldRule": "Item with custom field",
         "lineItemIsNewRule": "Item marked as \"new\"",
@@ -781,7 +781,9 @@
         "customerBirthdayRule": "Customer date of birth",
         "customerCreatedByAdminRule": "Customer created by admin",
         "customerSalutationRule": "Customer salutation",
-        "customerDefaultPaymentMethodRule": "Customer with default payment method"
+        "customerDefaultPaymentMethodRule": "Customer with default payment method",
+        "lineItemPropertyValueRule": "Item with property value",
+        "lineItemVariantValueRule": "Item with variant value"
       }
     },
     "sw-condition-generic": {

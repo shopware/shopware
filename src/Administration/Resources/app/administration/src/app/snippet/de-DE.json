@@ -780,7 +780,8 @@
         "zipCodeWildcardPlaceholder": "\"*\" als Platzhalterzeichen verwenden ...",
         "customerBirthdayRule": "Kundengeburtstag",
         "customerCreatedByAdminRule": "Kunde vom Administrator erstellt",
-        "customerSalutationRule": "Kundenanrede"
+        "customerSalutationRule": "Kundenanrede",
+        "customerDefaultPaymentMethodRule": "Kunde mit Standardzahlungsart"
       }
     },
     "sw-condition-generic": {

@@ -343,5 +343,9 @@
         <service id="Shopware\Core\Checkout\Customer\Rule\CampaignCodeRule">
             <tag name="shopware.rule.definition"/>
         </service>
+
+        <service id="Shopware\Core\Checkout\Customer\Rule\CustomerDefaultPaymentMethodRule">
+            <tag name="shopware.rule.definition" />
+        </service>
     </services>
 </container>

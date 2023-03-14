@@ -536,6 +536,13 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         group: 'customer',
     });
 
+    ruleConditionService.addCondition('customerDefaultPaymentMethod', {
+        component: 'sw-condition-generic',
+        label: 'global.sw-condition.condition.customerDefaultPaymentMethodRule',
+        scopes: ['checkout'],
+        group: 'customer',
+    });
+
     ruleConditionService.addCondition('cartLineItemProductStates', {
         component: 'sw-condition-generic-line-item',
         label: 'global.sw-condition.condition.lineItemProductStates',

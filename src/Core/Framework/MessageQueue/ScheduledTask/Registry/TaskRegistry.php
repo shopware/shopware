@@ -38,23 +38,18 @@ class TaskRegistry
             ->search(new Criteria(), $context)
             ->getEntities();
 
-        $this->insertNewTasks($alreadyRegisteredTasks);
+        $this->upsertTasks($alreadyRegisteredTasks);
 
         $deletionPayload = $this->getDeletionPayload($alreadyRegisteredTasks);
 
         if (\count($deletionPayload) > 0) {
             $this->scheduledTaskRepository->delete($deletionPayload, $context);
         }
-
-        $deletedIds = array_column($deletionPayload, 'id');
-
-        $alreadyRegisteredTasks = $alreadyRegisteredTasks->filter(fn (ScheduledTaskEntity $scheduledTask) => !\in_array($scheduledTask->getId(), $deletedIds, true));
-
-        $this->updateTaskStatus($alreadyRegisteredTasks, $context);
     }
 
-    private function insertNewTasks(ScheduledTaskCollection $alreadyRegisteredTasks): void
+    private function upsertTasks(ScheduledTaskCollection $alreadyRegisteredTasks): void
     {
+        $updates = [];
         foreach ($this->tasks as $task) {
             if (!$task instanceof ScheduledTask) {
                 throw new \RuntimeException(sprintf(
@@ -63,25 +58,19 @@ class TaskRegistry
                 ));
             }
 
-            if ($this->isAlreadyRegistered($alreadyRegisteredTasks, $task)) {
+            $registeredTask = $this->getAlreadyRegisteredTask($alreadyRegisteredTasks, $task);
+            if ($registeredTask !== null) {
+                $updates[] = $this->getUpdatePayload($registeredTask, $task);
+
                 continue;
             }
 
-            $validTask = $task::shouldRun($this->parameterBag);
+            $this->insertTask($task);
+        }
 
-            try {
-                $this->scheduledTaskRepository->create([
-                    [
-                        'name' => $task::getTaskName(),
-                        'scheduledTaskClass' => $task::class,
-                        'runInterval' => $task::getDefaultInterval(),
-                        'status' => $validTask ? ScheduledTaskDefinition::STATUS_SCHEDULED : ScheduledTaskDefinition::STATUS_SKIPPED,
-                    ],
-                ], Context::createDefaultContext());
-            } catch (UniqueConstraintViolationException) {
-                // this can happen if the function runs multiple times simultaneously
-                // we just care that the task is registered afterward so we can safely ignore the error
-            }
+        $updates = array_values(array_filter($updates));
+        if (\count($updates) > 0) {
+            $this->scheduledTaskRepository->update($updates, Context::createDefaultContext());
         }
     }
 
@@ -105,14 +94,13 @@ class TaskRegistry
         return $deletionPayload;
     }
 
-    private function isAlreadyRegistered(
+    private function getAlreadyRegisteredTask(
         ScheduledTaskCollection $alreadyScheduledTasks,
         ScheduledTask $task
-    ): bool {
-        return \count(
-            $alreadyScheduledTasks
+    ): ?ScheduledTaskEntity {
+        return $alreadyScheduledTasks
                 ->filter(fn (ScheduledTaskEntity $registeredTask) => $registeredTask->getScheduledTaskClass() === $task::class)
-        ) > 0;
+                ->first();
     }
 
     private function taskClassStillAvailable(ScheduledTaskEntity $registeredTask): bool
@@ -124,44 +112,6 @@ class TaskRegistry
         }
 
         return false;
-    }
-
-    private function updateTaskStatus(ScheduledTaskCollection $registeredTasks, Context $context): void
-    {
-        $payload = [];
-
-        /** @var ScheduledTaskEntity $registeredTask */
-        foreach ($registeredTasks as $registeredTask) {
-            foreach ($this->tasks as $task) {
-                if ($registeredTask->getName() !== $task::getTaskName()) {
-                    continue;
-                }
-
-                if (!$task::shouldRun($this->parameterBag) && \in_array($registeredTask->getStatus(), [ScheduledTaskDefinition::STATUS_QUEUED, ScheduledTaskDefinition::STATUS_SCHEDULED], true)) {
-                    $payload[] = [
-                        'id' => $registeredTask->getId(),
-                        'nextExecutionTime' => $this->calculateNextExecutionTime($registeredTask),
-                        'status' => ScheduledTaskDefinition::STATUS_SKIPPED,
-                    ];
-
-                    continue;
-                }
-
-                if ($task::shouldRun($this->parameterBag) && \in_array($registeredTask->getStatus(), [ScheduledTaskDefinition::STATUS_QUEUED, ScheduledTaskDefinition::STATUS_SKIPPED], true)) {
-                    $payload[] = [
-                        'id' => $registeredTask->getId(),
-                        'nextExecutionTime' => $this->calculateNextExecutionTime($registeredTask),
-                        'status' => ScheduledTaskDefinition::STATUS_SCHEDULED,
-                    ];
-                }
-            }
-        }
-
-        if (\count($payload) === 0) {
-            return;
-        }
-
-        $this->scheduledTaskRepository->update($payload, $context);
     }
 
     private function calculateNextExecutionTime(ScheduledTaskEntity $taskEntity): \DateTimeImmutable
@@ -177,5 +127,57 @@ class TaskRegistry
         }
 
         return $newNextExecutionTime;
+    }
+
+    private function insertTask(ScheduledTask $task): void
+    {
+        $validTask = $task::shouldRun($this->parameterBag);
+
+        try {
+            $this->scheduledTaskRepository->create([
+                [
+                    'name' => $task::getTaskName(),
+                    'scheduledTaskClass' => $task::class,
+                    'runInterval' => $task::getDefaultInterval(),
+                    'defaultRunInterval' => $task::getDefaultInterval(),
+                    'status' => $validTask ? ScheduledTaskDefinition::STATUS_SCHEDULED : ScheduledTaskDefinition::STATUS_SKIPPED,
+                ],
+            ], Context::createDefaultContext());
+        } catch (UniqueConstraintViolationException) {
+            // this can happen if the function runs multiple times simultaneously
+            // we just care that the task is registered afterward so we can safely ignore the error
+        }
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function getUpdatePayload(ScheduledTaskEntity $registeredTask, ScheduledTask $task): array
+    {
+        $payload = [];
+        if (!$task::shouldRun($this->parameterBag) && \in_array($registeredTask->getStatus(), [ScheduledTaskDefinition::STATUS_QUEUED, ScheduledTaskDefinition::STATUS_SCHEDULED], true)) {
+            $payload['status'] = ScheduledTaskDefinition::STATUS_SKIPPED;
+        }
+
+        if ($task::shouldRun($this->parameterBag) && \in_array($registeredTask->getStatus(), [ScheduledTaskDefinition::STATUS_QUEUED, ScheduledTaskDefinition::STATUS_SKIPPED], true)) {
+            $payload['status'] = ScheduledTaskDefinition::STATUS_SCHEDULED;
+            $payload['nextExecutionTime'] = $this->calculateNextExecutionTime($registeredTask);
+        }
+
+        if ($task::getDefaultInterval() !== $registeredTask->getDefaultRunInterval()) {
+            // default run interval changed
+            $payload['defaultRunInterval'] = $task::getDefaultInterval();
+
+            // if the run interval is still the default, update it to the new default
+            if ($registeredTask->getRunInterval() === $registeredTask->getDefaultRunInterval()) {
+                $payload['runInterval'] = $task::getDefaultInterval();
+            }
+        }
+
+        if ($payload !== []) {
+            $payload['id'] = $registeredTask->getId();
+        }
+
+        return $payload;
     }
 }

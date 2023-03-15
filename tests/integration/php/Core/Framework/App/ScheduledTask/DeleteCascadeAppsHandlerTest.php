@@ -69,6 +69,7 @@ class DeleteCascadeAppsHandlerTest extends TestCase
                 'name' => 'test',
                 'scheduledTaskClass' => DeleteCascadeAppsTask::class,
                 'runInterval' => $interval,
+                'defaultRunInterval' => $interval,
                 'status' => ScheduledTaskDefinition::STATUS_QUEUED,
                 'nextExecutionTime' => $originalNextExecution,
             ],

@@ -26,6 +26,8 @@ class ScheduledTaskEntity extends Entity
      */
     protected $runInterval;
 
+    protected int $defaultRunInterval;
+
     /**
      * @var string
      */
@@ -69,6 +71,16 @@ class ScheduledTaskEntity extends Entity
     public function setRunInterval(int $runInterval): void
     {
         $this->runInterval = $runInterval;
+    }
+
+    public function getDefaultRunInterval(): int
+    {
+        return $this->defaultRunInterval;
+    }
+
+    public function setDefaultRunInterval(int $defaultRunInterval): void
+    {
+        $this->defaultRunInterval = $defaultRunInterval;
     }
 
     public function getStatus(): string

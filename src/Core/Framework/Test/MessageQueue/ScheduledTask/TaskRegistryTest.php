@@ -58,7 +58,7 @@ class TaskRegistryTest extends TestCase
         static::assertEquals(ScheduledTaskDefinition::STATUS_SCHEDULED, $task->getStatus());
     }
 
-    public function testOnAlreadyRegisteredTask(): void
+    public function testUpdatesRunIntervalOnAlreadyRegisteredTaskWhenRunIntervalMatchesDefault(): void
     {
         $connection = $this->getContainer()->get(Connection::class);
         $connection->executeStatement('DELETE FROM scheduled_task');
@@ -68,6 +68,37 @@ class TaskRegistryTest extends TestCase
                 'name' => 'test',
                 'scheduledTaskClass' => TestTask::class,
                 'runInterval' => 5,
+                'defaultRunInterval' => 5,
+                'status' => ScheduledTaskDefinition::STATUS_FAILED,
+            ],
+        ], Context::createDefaultContext());
+
+        $this->registry->registerTasks();
+
+        $tasks = $this->scheduledTaskRepo->search(new Criteria(), Context::createDefaultContext())->getEntities();
+
+        static::assertCount(1, $tasks);
+        /** @var ScheduledTaskEntity $task */
+        $task = $tasks->first();
+        static::assertInstanceOf(ScheduledTaskEntity::class, $task);
+        static::assertEquals(TestTask::class, $task->getScheduledTaskClass());
+        static::assertEquals(1, $task->getRunInterval());
+        static::assertEquals(1, $task->getDefaultRunInterval());
+        static::assertEquals('test', $task->getName());
+        static::assertEquals(ScheduledTaskDefinition::STATUS_FAILED, $task->getStatus());
+    }
+
+    public function testDoesNotUpdateRunIntervalOnAlreadyRegisteredTaskWhenRunIntervalWasChanged(): void
+    {
+        $connection = $this->getContainer()->get(Connection::class);
+        $connection->executeStatement('DELETE FROM scheduled_task');
+
+        $this->scheduledTaskRepo->create([
+            [
+                'name' => 'test',
+                'scheduledTaskClass' => TestTask::class,
+                'runInterval' => 5,
+                'defaultRunInterval' => 3,
                 'status' => ScheduledTaskDefinition::STATUS_FAILED,
             ],
         ], Context::createDefaultContext());
@@ -82,6 +113,7 @@ class TaskRegistryTest extends TestCase
         static::assertInstanceOf(ScheduledTaskEntity::class, $task);
         static::assertEquals(TestTask::class, $task->getScheduledTaskClass());
         static::assertEquals(5, $task->getRunInterval());
+        static::assertEquals(1, $task->getDefaultRunInterval());
         static::assertEquals('test', $task->getName());
         static::assertEquals(ScheduledTaskDefinition::STATUS_FAILED, $task->getStatus());
     }
@@ -115,6 +147,7 @@ class TaskRegistryTest extends TestCase
                 'name' => 'test',
                 'scheduledTaskClass' => TestTask::class,
                 'runInterval' => 5,
+                'defaultRunInterval' => 5,
                 'status' => ScheduledTaskDefinition::STATUS_FAILED,
             ],
         ], Context::createDefaultContext());

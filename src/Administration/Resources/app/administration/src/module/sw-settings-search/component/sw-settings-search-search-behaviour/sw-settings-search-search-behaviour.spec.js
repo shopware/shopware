@@ -130,8 +130,8 @@ describe('module/sw-settings-search/component/sw-settings-search-search-behaviou
         expect(wrapper.vm.searchBehaviourConfigs.minSearchLength).toBe(20);
 
         // take the min value if the current value smaller than the min value.
-        await minSearchLengthElement.setValue(0);
+        await minSearchLengthElement.setValue(-1);
         await minSearchLengthElement.trigger('change');
-        expect(wrapper.vm.searchBehaviourConfigs.minSearchLength).toBe(1);
+        expect(wrapper.vm.searchBehaviourConfigs.minSearchLength).toBe(0);
     });
 });

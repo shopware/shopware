@@ -29,7 +29,7 @@ export default {
 
     data: () => {
         return {
-            min: 1,
+            min: 0,
             max: 20,
         };
     },

@@ -203,7 +203,7 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             // format data for chart
-            const seriesData = this.historyOrderDataSum.buckets.map((data) => {
+            const seriesData = this.historyOrderDataSum.buckets.map((data: BucketData) => {
                 return { x: this.parseDate(data.key), y: data.totalAmount.sum };
             });
 

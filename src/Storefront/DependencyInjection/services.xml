@@ -258,6 +258,7 @@
             <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRoute"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="product_search_config.repository"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Product\ProductPageLoader">

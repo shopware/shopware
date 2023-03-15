@@ -2,7 +2,9 @@
 
 namespace Shopware\Storefront\Controller;
 
+use Shopware\Core\Content\Product\Aggregate\ProductSearchConfig\ProductSearchConfigHelper;
 use Shopware\Core\Content\Product\SalesChannel\Search\AbstractProductSearchRoute;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
@@ -30,7 +32,8 @@ class SearchController extends StorefrontController
     public function __construct(
         private readonly SearchPageLoader $searchPageLoader,
         private readonly SuggestPageLoader $suggestPageLoader,
-        private readonly AbstractProductSearchRoute $productSearchRoute
+        private readonly AbstractProductSearchRoute $productSearchRoute,
+        private readonly EntityRepository $productSearchConfigRepository
     ) {
     }
 
@@ -90,8 +93,13 @@ class SearchController extends StorefrontController
     #[Route(path: '/widgets/search/filter', name: 'widgets.search.filter', defaults: ['XmlHttpRequest' => true, '_routeScope' => ['storefront'], '_httpCache' => true], methods: ['GET', 'POST'])]
     public function filter(Request $request, SalesChannelContext $context): Response
     {
-        $term = $request->get('search');
-        if (!$term) {
+        if (
+            ProductSearchConfigHelper::isSearchTermMissing(
+                $this->productSearchConfigRepository,
+                $context->getContext(),
+                $request->get('search')
+            )
+        ) {
             throw new MissingRequestParameterException('search');
         }
 

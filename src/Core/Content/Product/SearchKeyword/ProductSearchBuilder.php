@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Content\Product\SearchKeyword;
 
+use Shopware\Core\Content\Product\Aggregate\ProductSearchConfig\ProductSearchConfigHelper;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
@@ -20,8 +22,10 @@ class ProductSearchBuilder implements ProductSearchBuilderInterface
     /**
      * @internal
      */
-    public function __construct(private readonly ProductSearchTermInterpreterInterface $interpreter)
-    {
+    public function __construct(
+        private readonly ProductSearchTermInterpreterInterface $interpreter,
+        private readonly EntityRepository $productSearchConfigRepository
+    ) {
     }
 
     public function build(Request $request, Criteria $criteria, SalesChannelContext $context): void
@@ -34,8 +38,13 @@ class ProductSearchBuilder implements ProductSearchBuilderInterface
             $term = (string) $search;
         }
 
-        $term = trim($term);
-        if (empty($term)) {
+        if (
+            ProductSearchConfigHelper::isSearchTermMissing(
+                $this->productSearchConfigRepository,
+                $context->getContext(),
+                trim($term)
+            )
+        ) {
             throw new MissingRequestParameterException('search');
         }
 

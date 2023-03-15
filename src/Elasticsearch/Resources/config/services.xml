@@ -148,6 +148,7 @@
             <argument type="service" id="Shopware\Elasticsearch\Product\ProductSearchBuilder.inner"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchHelper"/>
             <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
+            <argument type="service" id="product_search_config.repository"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\Indexing\CreateAliasTaskHandler" public="true">

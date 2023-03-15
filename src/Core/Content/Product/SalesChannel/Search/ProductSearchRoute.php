@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Search;
 
+use Shopware\Core\Content\Product\Aggregate\ProductSearchConfig\ProductSearchConfigHelper;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Events\ProductSearchResultEvent;
 use Shopware\Core\Content\Product\ProductEvents;
@@ -9,6 +10,7 @@ use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -28,7 +30,8 @@ class ProductSearchRoute extends AbstractProductSearchRoute
     public function __construct(
         private readonly ProductSearchBuilderInterface $searchBuilder,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly ProductListingLoader $productListingLoader
+        private readonly ProductListingLoader $productListingLoader,
+        private readonly EntityRepository $productSearchConfigRepository
     ) {
     }
 
@@ -40,7 +43,13 @@ class ProductSearchRoute extends AbstractProductSearchRoute
     #[Route(path: '/store-api/search', name: 'store-api.search', methods: ['POST'], defaults: ['_entity' => 'product'])]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): ProductSearchRouteResponse
     {
-        if (!$request->get('search')) {
+        if (
+            ProductSearchConfigHelper::isSearchTermMissing(
+                $this->productSearchConfigRepository,
+                $context->getContext(),
+                $request->get('search')
+            )
+        ) {
             throw new MissingRequestParameterException('search');
         }
 

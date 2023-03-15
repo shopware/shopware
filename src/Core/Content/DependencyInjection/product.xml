@@ -237,6 +237,7 @@
         <service id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface"
                  class="Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilder">
             <argument type="service" id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchTermInterpreter"/>
+            <argument type="service" id="product_search_config.repository"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\Cart\ProductLineItemFactory"/>
@@ -250,6 +251,7 @@
             <argument type="service" id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader"/>
+            <argument type="service" id="product_search_config.repository"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\SalesChannel\Suggest\CachedProductSuggestRoute" decorates="Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestRoute" decoration-priority="-1000" public="true">
@@ -265,6 +267,7 @@
             <argument type="service" id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader"/>
+            <argument type="service" id="product_search_config.repository"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\SalesChannel\Search\ResolvedCriteriaProductSearchRoute" decorates="Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRoute" decoration-priority="-2000" public="true">

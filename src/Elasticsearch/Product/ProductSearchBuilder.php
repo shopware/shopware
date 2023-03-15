@@ -2,8 +2,10 @@
 
 namespace Shopware\Elasticsearch\Product;
 
+use Shopware\Core\Content\Product\Aggregate\ProductSearchConfig\ProductSearchConfigHelper;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
@@ -20,7 +22,8 @@ class ProductSearchBuilder implements ProductSearchBuilderInterface
     public function __construct(
         private readonly ProductSearchBuilderInterface $decorated,
         private readonly ElasticsearchHelper $helper,
-        private readonly ProductDefinition $productDefinition
+        private readonly ProductDefinition $productDefinition,
+        private readonly EntityRepository $productSearchConfigRepository
     ) {
     }
 
@@ -40,9 +43,13 @@ class ProductSearchBuilder implements ProductSearchBuilderInterface
             $term = (string) $search;
         }
 
-        $term = trim($term);
-
-        if (empty($term)) {
+        if (
+            ProductSearchConfigHelper::isSearchTermMissing(
+                $this->productSearchConfigRepository,
+                $context->getContext(),
+                trim($term)
+            )
+        ) {
             throw new MissingRequestParameterException('search');
         }
 

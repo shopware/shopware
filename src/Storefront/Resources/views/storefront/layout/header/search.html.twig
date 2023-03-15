@@ -1,10 +1,7 @@
-{% set minSearchLength = page.header.activeLanguage.productSearchConfig.minSearchLength is not null
-    ? page.header.activeLanguage.productSearchConfig.minSearchLength
-    : 3
-%}
-
 {% set searchWidgetOptions = {
-    searchWidgetMinChars: max(1, minSearchLength)
+    searchWidgetMinChars: page.header.activeLanguage.productSearchConfig.minSearchLength is not null
+        ? page.header.activeLanguage.productSearchConfig.minSearchLength
+        : 3
 } %}
 
 {% block layout_header_search %}

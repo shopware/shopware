@@ -3,7 +3,9 @@
 namespace Shopware\Storefront\Page\Search;
 
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
+use Shopware\Core\Content\Product\Aggregate\ProductSearchConfig\ProductSearchConfigHelper;
 use Shopware\Core\Content\Product\SalesChannel\Search\AbstractProductSearchRoute;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
@@ -22,7 +24,8 @@ class SearchPageLoader
     public function __construct(
         private readonly GenericPageLoaderInterface $genericLoader,
         private readonly AbstractProductSearchRoute $productSearchRoute,
-        private readonly EventDispatcherInterface $eventDispatcher
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly EntityRepository $productSearchConfigRepository
     ) {
     }
 
@@ -40,7 +43,13 @@ class SearchPageLoader
             $page->getMetaInformation()->setRobots('noindex,follow');
         }
 
-        if (!$request->query->has('search')) {
+        if (
+            ProductSearchConfigHelper::isSearchTermMissing(
+                $this->productSearchConfigRepository,
+                $salesChannelContext->getContext(),
+                $request->query->get('search')
+            )
+        ) {
             throw new MissingRequestParameterException('search');
         }
 

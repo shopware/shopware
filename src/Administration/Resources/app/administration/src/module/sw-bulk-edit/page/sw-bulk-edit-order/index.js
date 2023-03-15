@@ -84,7 +84,7 @@ export default {
         restrictedFields() {
             let restrictedFields = [];
 
-            if (this.$route.params.excludeDelivery) {
+            if (this.$route.params.excludeDelivery === '1') {
                 restrictedFields = restrictedFields.concat([
                     'orderDeliveries',
                 ]);

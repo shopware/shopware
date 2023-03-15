@@ -811,7 +811,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
         expect(wrapper.vm.deliverabilityFormFields.length).toBeGreaterThan(1);
 
-        wrapper.vm.$router.push({ name: 'sw.bulk.edit.product', params: { parentId: 'null', includesDigital: true } });
+        wrapper.vm.$router.push({ name: 'sw.bulk.edit.product', params: { parentId: 'null', includesDigital: '1' } });
 
         await flushPromises();
 

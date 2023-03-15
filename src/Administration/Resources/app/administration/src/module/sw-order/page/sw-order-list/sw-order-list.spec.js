@@ -317,7 +317,7 @@ describe('src/module/sw-order/page/sw-order-list', () => {
         expect(wrapper.vm.$router.push).toHaveBeenCalledWith(expect.objectContaining({
             name: 'sw.bulk.edit.order',
             params: expect.objectContaining({
-                excludeDelivery: true
+                excludeDelivery: '1',
             }),
         }));
 

@@ -445,7 +445,7 @@ describe('module/sw-product/component/sw-product-variant-modal', () => {
             name: 'sw.bulk.edit.product',
             params: expect.objectContaining({
                 parentId: '72bfaf5d90214ce592715a9649d8760a',
-                includesDigital: true,
+                includesDigital: '1',
             }),
         }));
 

@@ -1496,7 +1496,10 @@
       "relation": {
         "flowTrigger": "Flows mit Auslöser: {assignments}",
         "promotion": "Rabattaktionen als: {assignments}",
-        "productPrices": "Produkte als: {assignments}"
+        "productPrices": "Produkte als: {assignments}",
+        "shippingMethods": "Versandarten als: {assignments}",
+        "shippingMethodPrices": "Versandarten als: {assignments}",
+        "paymentMethods": "Zahlarten als: {assignments}"
       }
     },
     "and": "und",

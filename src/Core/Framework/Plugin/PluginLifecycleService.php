@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Plugin;
 
+use Composer\IO\NullIO;
 use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
@@ -73,7 +74,8 @@ class PluginLifecycleService
         private readonly SystemConfigService $systemConfigService,
         private readonly CustomEntityPersister $customEntityPersister,
         private readonly CustomEntitySchemaUpdater $customEntitySchemaUpdater,
-        private readonly CustomEntityLifecycleService $customEntityLifecycleService
+        private readonly CustomEntityLifecycleService $customEntityLifecycleService,
+        private readonly PluginService $pluginService,
     ) {
     }
 
@@ -108,6 +110,9 @@ class PluginLifecycleService
             }
 
             $this->executor->require($pluginComposerName, $plugin->getName());
+
+            // running composer require may have consequences for other plugins, when they are required by the plugin being installed
+            $this->pluginService->refreshPlugins($shopwareContext, new NullIO());
         } else {
             $this->requirementValidator->validateRequirements($plugin, $shopwareContext, 'install');
         }
@@ -176,6 +181,9 @@ class PluginLifecycleService
                 );
             }
             $this->executor->remove($pluginComposerName, $plugin->getName());
+
+            // running composer require may have consequences for other plugins, when they are required by the plugin being uninstalled
+            $this->pluginService->refreshPlugins($shopwareContext, new NullIO());
         }
 
         $uninstallContext = new UninstallContext(
@@ -252,6 +260,9 @@ class PluginLifecycleService
                 );
             }
             $this->executor->require($pluginComposerName, $plugin->getName());
+
+            // running composer require may have consequences for other plugins, when they are required by the plugin being updated
+            $this->pluginService->refreshPlugins($shopwareContext, new NullIO());
         } else {
             $this->requirementValidator->validateRequirements($plugin, $shopwareContext, 'update');
         }

@@ -654,7 +654,7 @@ describe('module/sw-product/page/sw-product-list', () => {
             name: 'sw.bulk.edit.product',
             params: expect.objectContaining({
                 parentId: 'null',
-                includesDigital: true,
+                includesDigital: '1',
             }),
         }));
 

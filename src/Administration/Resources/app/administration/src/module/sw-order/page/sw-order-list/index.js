@@ -460,9 +460,10 @@ export default {
         async onBulkEditItems() {
             await this.$nextTick();
 
-            const excludeDelivery = Object.values(this.$refs.orderGrid.selection).filter((order) => {
+            const ordersExcludeDelivery = Object.values(this.$refs.orderGrid.selection).filter((order) => {
                 return !order.deliveries[0];
-            }).length > 0;
+            });
+            const excludeDelivery = (ordersExcludeDelivery.length > 0) ? '1' : '0';
 
             this.$router.push({
                 name: 'sw.bulk.edit.order',

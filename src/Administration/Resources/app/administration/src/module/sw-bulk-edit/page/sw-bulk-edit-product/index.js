@@ -157,17 +157,20 @@ export default {
 
         restrictedFields() {
             let restrictedFields = [];
+            const includesDigital = this.$route.params.includesDigital;
 
-            if (this.$route.params.includesDigital) {
-                restrictedFields = restrictedFields.concat([
-                    'stock',
+            if (includesDigital === '1' || includesDigital === '2') {
+                restrictedFields = [
                     'isCloseout',
                     'restockTime',
                     'maxPurchase',
                     'purchaseSteps',
                     'minPurchase',
                     'shippingFree',
-                ]);
+                ];
+            }
+            if (includesDigital === '1') {
+                restrictedFields.push('stock');
             }
 
             return restrictedFields;

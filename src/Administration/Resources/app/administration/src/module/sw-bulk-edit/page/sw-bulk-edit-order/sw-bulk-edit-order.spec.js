@@ -780,7 +780,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         expect(wrapper.vm.statusFormFields.length).toEqual(5);
         expect(wrapper.vm.statusFormFields[1].name).toEqual('orderDeliveries');
 
-        wrapper.vm.$router.push({ name: 'sw.bulk.edit.order', params: { parentId: 'null', excludeDelivery: true } });
+        wrapper.vm.$router.push({ name: 'sw.bulk.edit.order', params: { parentId: 'null', excludeDelivery: '1' } });
 
         await flushPromises();
 

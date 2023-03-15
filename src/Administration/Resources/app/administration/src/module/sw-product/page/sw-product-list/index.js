@@ -429,9 +429,11 @@ export default {
         },
 
         onBulkEditItems() {
-            const includesDigital = Object.values(this.selection).filter((product) => {
-                return product.states.includes('is-download');
-            }).length > 0;
+            let includesDigital = '0';
+            const digital = Object.values(this.selection).filter(product => product.states.includes('is-download'));
+            if (digital.length > 0) {
+                includesDigital = (digital.filter(product => product.isCloseout).length !== digital.length) ? '1' : '2';
+            }
 
             this.$router.push({
                 name: 'sw.bulk.edit.product',

@@ -320,46 +320,52 @@ export default {
         },
 
         validateRuleAwareness() {
-            if (this.rule.personaPromotions.length <= 0) {
+            const equalsAnyConfigurations = this.ruleConditionDataProviderService.getAwarenessKeysWithEqualsAnyConfig();
+            if (equalsAnyConfigurations.length <= 0) {
                 return true;
             }
 
-            const conditions = [];
-            this.conditionTree.forEach((condition) => {
-                conditions.push(condition);
+            let isValid = true;
+            equalsAnyConfigurations.forEach((key) => {
+                if (this.rule[key].length > 0) {
+                    const conditions = [];
+                    this.conditionTree.forEach((condition) => {
+                        conditions.push(condition);
 
-                if (condition.children) {
-                    const children = this.getChildrenConditions(condition);
-                    conditions.push(...children);
+                        if (condition.children) {
+                            const children = this.getChildrenConditions(condition);
+                            conditions.push(...children);
+                        }
+                    });
+
+                    const restrictions = this.ruleConditionDataProviderService.getRestrictionsByAssociation(new EntityCollection(
+                        this.conditionRepository.route,
+                        this.conditionRepository.entityName,
+                        Context.api,
+                        null,
+                        conditions,
+                    ), key);
+
+                    if (restrictions.isRestricted) {
+                        const message = this.$tc(
+                            'sw-restricted-rules.restrictedAssignment.equalsAnyViolationTooltip',
+                            0,
+                            {
+                                conditions: this.ruleConditionDataProviderService.getTranslatedConditionViolationList(
+                                    restrictions.equalsAnyNotMatched,
+                                    'sw-restricted-rules.or',
+                                ),
+                                entityLabel: this.$tc(restrictions.assignmentSnippet, 2),
+                            },
+                        );
+
+                        this.createNotificationError({ message });
+                        isValid = false;
+                    }
                 }
             });
 
-            const restrictions = this.ruleConditionDataProviderService.getRestrictionsByAssociation(new EntityCollection(
-                this.conditionRepository.route,
-                this.conditionRepository.entityName,
-                Context.api,
-                null,
-                conditions,
-            ), 'personaPromotions');
-
-            if (restrictions.isRestricted) {
-                const message = this.$tc(
-                    'sw-restricted-rules.restrictedAssignment.equalsAnyViolationTooltip',
-                    0,
-                    {
-                        conditions: this.ruleConditionDataProviderService.getTranslatedConditionViolationList(
-                            restrictions.equalsAnyNotMatched,
-                            'sw-restricted-rules.or',
-                        ),
-                        entityLabel: this.$tc(restrictions.assignmentSnippet, 2),
-                    },
-                );
-
-                this.createNotificationError({ message });
-                return false;
-            }
-
-            return true;
+            return isValid;
         },
 
         getChildrenConditions(condition) {

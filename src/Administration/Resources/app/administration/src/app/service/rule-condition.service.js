@@ -197,6 +197,7 @@ export default function createConditionService() {
         getRestrictedRuleTooltipConfig,
         isRuleRestricted,
         getRestrictionsByGroup,
+        getAwarenessKeysWithEqualsAnyConfig,
     };
 
     function getByType(type) {
@@ -397,6 +398,17 @@ export default function createConditionService() {
         const config = awarenessConfiguration[assignmentName];
 
         return config || null;
+    }
+
+    function getAwarenessKeysWithEqualsAnyConfig() {
+        const equalsAnyConfigurations = [];
+        Object.entries(awarenessConfiguration).forEach(([key, value]) => {
+            if (value.equalsAny?.length > 0) {
+                equalsAnyConfigurations.push(key);
+            }
+        });
+
+        return equalsAnyConfigurations;
     }
 
     /**

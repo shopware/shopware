@@ -44,7 +44,7 @@ export default {
     },
 
     computed: {
-        ...mapState('swFlowState', ['restrictedRules']),
+        ...mapState('swFlowState', ['restrictedRules', 'flow']),
 
         sequenceRepository() {
             return this.repositoryFactory.create('flow_sequence');
@@ -80,8 +80,7 @@ export default {
 
         advanceSelectionParameters() {
             return {
-                // TODO: NEXT-18428 - adjust this
-                ruleAwareGroupKey: 'flowConditions',
+                ruleAwareGroupKey: `flowTrigger.${this.flow.eventName}`,
             };
         },
 

@@ -58,5 +58,5 @@
         "symfony/css-selector": "~6.1.0",
         "phpunit/phpunit": "~9.5.17"
     },
-    "version": "6.5.0.0-rc1"
+    "version": "6.5.0.0-rc2"
 }

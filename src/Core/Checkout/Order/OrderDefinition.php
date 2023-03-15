@@ -40,6 +40,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedByField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 use Shopware\Core\System\Language\LanguageDefinition;
@@ -76,6 +77,9 @@ class OrderDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
+        // @deprecated tag:v6.6.0 - Variable $autoload will be removed in the next major as it will be false by default
+        $autoload = !Feature::isActive('v6.6.0.0');
+
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
             (new VersionField())->addFlags(new ApiAware()),
@@ -107,7 +111,7 @@ class OrderDefinition extends EntityDefinition
             (new LongTextField('customer_comment', 'customerComment'))->addFlags(new ApiAware()),
 
             (new StateMachineStateField('state_id', 'stateId', OrderStates::STATE_MACHINE))->addFlags(new Required()),
-            (new ManyToOneAssociationField('stateMachineState', 'state_id', StateMachineStateDefinition::class, 'id', true))->addFlags(new ApiAware()),
+            (new ManyToOneAssociationField('stateMachineState', 'state_id', StateMachineStateDefinition::class, 'id', $autoload))->addFlags(new ApiAware()),
             new ListField('rule_ids', 'ruleIds', StringField::class),
             (new CustomFields())->addFlags(new ApiAware()),
             (new CreatedByField())->addFlags(new ApiAware()),

@@ -108,10 +108,6 @@ export default {
                 .addSorting(Criteria.naturalSorting('label'));
 
             criteria
-                .getAssociation('deliveries')
-                .addSorting(Criteria.sort('shippingCosts.unitPrice', 'DESC'));
-
-            criteria
                 .addAssociation('salesChannel');
 
             criteria
@@ -123,7 +119,16 @@ export default {
                 .addAssociation('documents.documentType')
                 .addAssociation('tags');
 
-            criteria.getAssociation('transactions').addSorting(Criteria.sort('createdAt'));
+            criteria.addAssociation('stateMachineState');
+
+            criteria
+                .getAssociation('deliveries')
+                .addAssociation('stateMachineState')
+                .addSorting(Criteria.sort('shippingCosts.unitPrice', 'DESC'));
+
+            criteria.getAssociation('transactions')
+                .addAssociation('stateMachineState')
+                .addSorting(Criteria.sort('createdAt'));
 
             return criteria;
         },

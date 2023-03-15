@@ -57,7 +57,7 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
 
         $criteria = new Criteria([$orderDeliveryId]);
         $criteria->addAssociation('order.orderCustomer');
-        $criteria->addAssociation('order.transactions');
+        $criteria->addAssociation('order.transactions.stateMachineState');
 
         /** @var OrderDeliveryEntity|null $orderDelivery */
         $orderDelivery = $this->deliveryRepository
@@ -88,7 +88,7 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
         $criteria = new Criteria([$orderTransactionId]);
         $criteria->addAssociation('paymentMethod');
         $criteria->addAssociation('order.orderCustomer');
-        $criteria->addAssociation('order.transactions');
+        $criteria->addAssociation('order.transactions.stateMachineState');
 
         $orderTransaction = $this->transactionRepository
             ->search($criteria, $event->getContext())

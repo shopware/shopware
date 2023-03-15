@@ -3,6 +3,7 @@ import swOrderDetail from 'src/module/sw-order/page/sw-order-detail';
 import swOrderDetailState from 'src/module/sw-order/state/order-detail.store';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/base/sw-button-process';
+
 /**
  * @package customer-order
  */
@@ -84,7 +85,7 @@ async function createWrapper(privileges = []) {
                     save: () => Promise.resolve({}),
                 })
             },
-            orderService: {}
+            orderService: {},
         }
     });
 }
@@ -140,5 +141,31 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         await wrapper.vm.beforeDestroyComponent();
 
         expect(wrapper.vm.orderRepository.deleteVersion).toHaveBeenCalledTimes(1);
+    });
+
+    it('should reload entity data with orderCriteria', () => {
+        const criteria = wrapper.vm.orderCriteria;
+
+        expect(criteria.getLimit()).toEqual(25);
+        [
+            'currency',
+            'orderCustomer',
+            'language',
+            'lineItems',
+            'salesChannel',
+            'addresses',
+            'deliveries',
+            'transactions',
+            'documents',
+            'tags'
+        ].forEach(association => expect(criteria.hasAssociation(association)).toBe(true));
+    });
+
+    it('should add associations no longer autoload in the orderCriteria', async () => {
+        const criteria = wrapper.vm.orderCriteria;
+
+        expect(criteria.hasAssociation('stateMachineState')).toBe(true);
+        expect(criteria.getAssociation('deliveries').hasAssociation('stateMachineState')).toBe(true);
+        expect(criteria.getAssociation('transactions').hasAssociation('stateMachineState')).toBe(true);
     });
 });

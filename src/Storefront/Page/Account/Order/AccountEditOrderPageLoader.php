@@ -113,7 +113,10 @@ class AccountEditOrderPageLoader
             ->addAssociation('billingAddress.countryState')
             ->addAssociation('deliveries.shippingOrderAddress.salutation')
             ->addAssociation('deliveries.shippingOrderAddress.country')
-            ->addAssociation('deliveries.shippingOrderAddress.countryState');
+            ->addAssociation('deliveries.shippingOrderAddress.countryState')
+            ->addAssociation('deliveries.stateMachineState')
+            ->addAssociation('transactions.stateMachineState')
+            ->addAssociation('stateMachineState');
 
         $criteria->getAssociation('transactions')->addSorting(new FieldSorting('createdAt'));
 

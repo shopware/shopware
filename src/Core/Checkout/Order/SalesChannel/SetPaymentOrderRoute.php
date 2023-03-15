@@ -231,7 +231,15 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
                 $customer->getId()
             )
         );
-        $criteria->addAssociations(['lineItems', 'deliveries', 'orderCustomer', 'tags']);
+        $criteria->addAssociations([
+            'lineItems',
+            'deliveries.shippingOrderAddress',
+            'deliveries.stateMachineState',
+            'orderCustomer',
+            'tags',
+            'transactions.stateMachineState',
+            'stateMachineState',
+        ]);
 
         $this->eventDispatcher->dispatch(new OrderPaymentMethodChangedCriteriaEvent($orderId, $criteria, $context));
 

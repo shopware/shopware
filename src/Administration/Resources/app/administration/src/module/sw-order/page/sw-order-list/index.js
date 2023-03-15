@@ -95,9 +95,16 @@ export default {
             criteria.addAssociation('orderCustomer');
             criteria.addAssociation('currency');
             criteria.addAssociation('documents');
-            criteria.addAssociation('transactions');
-            criteria.addAssociation('deliveries');
-            criteria.getAssociation('transactions').addSorting(Criteria.sort('createdAt'));
+
+            criteria.addAssociation('stateMachineState');
+
+            criteria.getAssociation('transactions')
+                .addAssociation('stateMachineState')
+                .addSorting(Criteria.sort('createdAt'));
+
+            criteria.getAssociation('deliveries')
+                .addAssociation('stateMachineState')
+                .addAssociation('shippingMethod');
 
             return criteria;
         },

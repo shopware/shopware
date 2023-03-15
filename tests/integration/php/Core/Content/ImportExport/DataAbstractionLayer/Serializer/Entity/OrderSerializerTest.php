@@ -117,9 +117,13 @@ class OrderSerializerTest extends TestCase
         $this->orderRepository->create([$orderData], Context::createDefaultContext());
 
         $criteria = new Criteria();
-        $criteria->addAssociation('lineItems')
-            ->addAssociation('billingAddress')
-            ->addAssociation('deliveries');
+
+        $criteria->addAssociations([
+            'lineItems',
+            'billingAddress',
+            'deliveries.stateMachineState',
+            'deliveries.shippingOrderAddress',
+        ]);
 
         return $this->orderRepository->search($criteria, Context::createDefaultContext())->first();
     }

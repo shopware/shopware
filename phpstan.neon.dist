@@ -149,7 +149,6 @@ parameters:
         - # @deprecated tag:v6.5.0 Using autoload === true on associations is deprecated and must be refactored
             message: '#^[a-zA-Z_]+\.[a-zA-Z_]+ association has a configured autoload\=\=\=true, this is forbidden for platform integrations$#'
             paths:
-                - src/Core/System/Tax/Aggregate/TaxRule/TaxRuleDefinition.php
                 - src/Core/System/SalesChannel/SalesChannelDefinition.php
                 - src/Core/Content/Rule/Aggregate/RuleCondition/RuleConditionDefinition.php
                 - src/Core/Content/Product/ProductDefinition.php
@@ -157,11 +156,6 @@ parameters:
                 - src/Core/Content/ImportExport/Aggregate/ImportExportLog/ImportExportLogDefinition.php
                 - src/Core/Checkout/Shipping/ShippingMethodDefinition.php
                 - src/Core/Checkout/Payment/PaymentMethodDefinition.php
-                - src/Core/Checkout/Order/OrderDefinition.php
-                - src/Core/Checkout/Order/Aggregate/OrderTransactionCaptureRefund/OrderTransactionCaptureRefundDefinition.php
-                - src/Core/Checkout/Order/Aggregate/OrderTransactionCapture/OrderTransactionCaptureDefinition.php
-                - src/Core/Checkout/Order/Aggregate/OrderTransaction/OrderTransactionDefinition.php
-                - src/Core/Checkout/Order/Aggregate/OrderDelivery/OrderDeliveryDefinition.php
                 - src/Core/System/NumberRange/NumberRangeDefinition.php
 
         - # NEXT-25276 - Needs to be fixed with the update ot PHPUnit 10

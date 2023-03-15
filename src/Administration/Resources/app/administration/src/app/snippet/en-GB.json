@@ -1495,7 +1495,8 @@
       "restrictedConditionTooltip": "This rule is assigned to:<br/><br/>{assignments}</br></br>The use of this condition is not allowed in this context.",
       "relation": {
         "flowTrigger": "Flows with trigger: {assignments}",
-        "promotion": "Promotions as {assignments}"
+        "promotion": "Promotions as {assignments}",
+        "productPrices": "Products as {assignments}"
       }
     },
     "and": "and",

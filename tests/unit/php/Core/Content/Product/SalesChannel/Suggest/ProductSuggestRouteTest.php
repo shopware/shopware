@@ -15,9 +15,11 @@ use Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestRouteRespon
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
@@ -29,6 +31,8 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class ProductSuggestRouteTest extends TestCase
 {
+    use KernelTestBehaviour;
+
     private EventDispatcher $eventDispatcher;
 
     /**
@@ -41,11 +45,14 @@ class ProductSuggestRouteTest extends TestCase
      */
     private ProductListingLoader $listingLoader;
 
+    private EntityRepository $productSearchConfigRepository;
+
     protected function setUp(): void
     {
         $this->eventDispatcher = new EventDispatcher();
         $this->searchBuilder = $this->createMock(ProductSearchBuilderInterface::class);
         $this->listingLoader = $this->createMock(ProductListingLoader::class);
+        $this->productSearchConfigRepository = $this->getContainer()->get('product_search_config.repository');
     }
 
     public function testGetDecoratedShouldThrowException(): void
@@ -139,7 +146,8 @@ class ProductSuggestRouteTest extends TestCase
         return new ProductSuggestRoute(
             $this->searchBuilder,
             $this->eventDispatcher,
-            $this->listingLoader
+            $this->listingLoader,
+            $this->productSearchConfigRepository
         );
     }
 }

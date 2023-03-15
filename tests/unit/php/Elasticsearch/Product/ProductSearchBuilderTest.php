@@ -5,8 +5,10 @@ namespace Shopware\Tests\Unit\Elasticsearch\Product;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Product\ProductSearchBuilder;
@@ -19,6 +21,15 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class ProductSearchBuilderTest extends TestCase
 {
+    use KernelTestBehaviour;
+
+    private EntityRepository $productSearchConfigRepository;
+
+    public function setUp(): void
+    {
+        $this->productSearchConfigRepository = $this->getContainer()->get('product_search_config.repository');
+    }
+
     /**
      * @dataProvider providerQueries
      *
@@ -43,7 +54,8 @@ class ProductSearchBuilderTest extends TestCase
         $searchBuilder = new ProductSearchBuilder(
             $mockProductSearchBuilder,
             $mockElasticsearchHelper,
-            $productDefinition
+            $productDefinition,
+            $this->productSearchConfigRepository
         );
 
         $searchBuilder->build($request, $criteria, $mockSalesChannelContext);
@@ -82,7 +94,8 @@ class ProductSearchBuilderTest extends TestCase
         $searchBuilder = new ProductSearchBuilder(
             $mockProductSearchBuilder,
             $mockElasticsearchHelper,
-            new ProductDefinition()
+            new ProductDefinition(),
+            $this->productSearchConfigRepository
         );
 
         $mockSalesChannelContext = $this->createMock(SalesChannelContext::class);
@@ -109,7 +122,8 @@ class ProductSearchBuilderTest extends TestCase
         $searchBuilder = new ProductSearchBuilder(
             $mockProductSearchBuilder,
             $mockElasticsearchHelper,
-            new ProductDefinition()
+            new ProductDefinition(),
+            $this->productSearchConfigRepository
         );
 
         $mockSalesChannelContext = $this->createMock(SalesChannelContext::class);

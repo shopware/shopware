@@ -6,11 +6,16 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('inventory')]
 class ProductSearchConfigHelper
 {
-    public static function isSearchTermMissing(EntityRepository $productSearchConfigRepository, Context $context, ?string $term = ''): bool
-    {
+    public static function isSearchTermMissing(
+        EntityRepository $productSearchConfigRepository,
+        Context $context,
+        ?string $term
+    ): bool {
         $criteria = new Criteria();
         $criteria->addFilter(
             new EqualsFilter('languageId', $context->getLanguageId())
@@ -18,6 +23,6 @@ class ProductSearchConfigHelper
 
         $minTermLength = $productSearchConfigRepository->search($criteria, $context)->first()->getMinSearchLength();
 
-        return \strlen($term) < $minTermLength;
+        return \strlen($term ?? '') < $minTermLength;
     }
 }

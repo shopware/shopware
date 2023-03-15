@@ -376,19 +376,23 @@
                 <sw-icon
                     v-if="item.active === true"
                     name="regular-checkmark-xs"
-                    small
+                    color="#37d046"
+                    size="12"
                     class="is--active"
                 />
                 <sw-icon
                     v-else-if="item.active === false"
                     name="regular-times-s"
-                    small
+                    color="#de294c"
+                    size="10"
                     class="is--inactive"
                 />
                 <sw-icon
                     v-else
                     key="inherit-icon"
                     name="regular-link-horizontal"
+                    color="#7363e5"
+                    size="16"
                 />
             </template>
         </template>
@@ -586,7 +590,7 @@
                     <sw-icon
                         v-else
                         key="inherit-icon"
-                        name="custom-inherited"
+                        name="regular-link-horizontal"
                         size="16"
                         multicolor
                     />

@@ -218,7 +218,7 @@
     },
     "list": {
       "textProductOverview": "Produkte",
-      "buttonAddProduct": "Physisches Produkt anlegen",
+      "buttonAddProduct": "Produkt anlegen",
       "buttonAddDownloadableProduct": "Digitales Produkt anlegen",
       "buttonCancel": "Abbrechen",
       "buttonDuplicate": "Duplizieren",

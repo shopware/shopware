@@ -4,6 +4,8 @@ namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Suggest;
 
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\Aggregate\ProductSearchConfig\ProductSearchConfigCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductSearchConfig\ProductSearchConfigEntity;
 use Shopware\Core\Content\Product\Events\ProductSuggestCriteriaEvent;
 use Shopware\Core\Content\Product\Events\ProductSuggestResultEvent;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -17,9 +19,11 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
@@ -62,11 +66,51 @@ class ProductSuggestRouteTest extends TestCase
         $this->getProductSuggestRoute()->getDecorated();
     }
 
-    public function testLoadThrowsExceptionForMissingSearchParameter(): void
+    /**
+     * @return array<int, array{minSearchTerm: number, expectException: bool}>
+     */
+    public static function provideMinSearchTermLength(): array
     {
-        static::expectException(MissingRequestParameterException::class);
+        return [
+            [
+                'minSearchTerm' => 0,
+                'expectException' => false,
+            ],
+            [
+                'minSearchTerm' => 3,
+                'expectException' => true,
+            ],
+        ];
+    }
 
-        $this->getProductSuggestRoute()->load(
+    /**
+     * @dataProvider provideMinSearchTermLength
+     */
+    public function testLoadThrowsExceptionForMissingSearchParameter(int $minSearchTerm, bool $expectException): void
+    {
+        if ($expectException) {
+            static::expectException(MissingRequestParameterException::class);
+        } else {
+            static::expectNotToPerformAssertions();
+        }
+
+        $productSearchConfigEntity = new ProductSearchConfigEntity();
+        $productSearchConfigEntity->setId(Uuid::randomHex());
+        $productSearchConfigEntity->setMinSearchLength($minSearchTerm);
+
+        $productSearchConfigRepositoryMock = $this->createMock(EntityRepository::class);
+        $productSearchConfigRepositoryMock->method('search')->willReturn(
+            new EntitySearchResult(
+                'product_search_config',
+                1,
+                new ProductSearchConfigCollection([$productSearchConfigEntity]),
+                null,
+                new Criteria(),
+                Context::createDefaultContext()
+            )
+        );
+
+        $this->getProductSuggestRoute($productSearchConfigRepositoryMock)->load(
             new Request(),
             $this->createMock(SalesChannelContext::class),
             new Criteria()
@@ -141,13 +185,14 @@ class ProductSuggestRouteTest extends TestCase
         );
     }
 
-    private function getProductSuggestRoute(): ProductSuggestRoute
-    {
+    private function getProductSuggestRoute(
+        ?EntityRepository $productSearchConfigRepository = null
+    ): ProductSuggestRoute {
         return new ProductSuggestRoute(
             $this->searchBuilder,
             $this->eventDispatcher,
             $this->listingLoader,
-            $this->productSearchConfigRepository
+            $productSearchConfigRepository ?? $this->productSearchConfigRepository
         );
     }
 }

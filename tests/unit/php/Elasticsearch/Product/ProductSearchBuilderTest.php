@@ -3,12 +3,16 @@
 namespace Shopware\Tests\Unit\Elasticsearch\Product;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\Aggregate\ProductSearchConfig\ProductSearchConfigCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductSearchConfig\ProductSearchConfigEntity;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Product\ProductSearchBuilder;
@@ -83,7 +87,27 @@ class ProductSearchBuilderTest extends TestCase
         ];
     }
 
-    public function testEmptyTermThrowsException(): void
+    /**
+     * @return array<int, array{minSearchTerm: number, expectException: bool}>
+     */
+    public static function provideMinSearchTermLength(): array
+    {
+        return [
+            [
+                'minSearchTerm' => 0,
+                'expectException' => false,
+            ],
+            [
+                'minSearchTerm' => 3,
+                'expectException' => true,
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider provideMinSearchTermLength
+     */
+    public function testEmptyTermThrowsException(int $minSearchTerm, bool $expectException): void
     {
         $mockProductSearchBuilder = $this->createMock(ProductSearchBuilder::class);
         $mockProductSearchBuilder->method('build')->willThrowException(new \Exception('Should not be called'));
@@ -91,11 +115,27 @@ class ProductSearchBuilderTest extends TestCase
         $mockElasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
         $mockElasticsearchHelper->method('allowSearch')->willReturn(true);
 
+        $productSearchConfigEntity = new ProductSearchConfigEntity();
+        $productSearchConfigEntity->setId(Uuid::randomHex());
+        $productSearchConfigEntity->setMinSearchLength($minSearchTerm);
+
+        $productSearchConfigRepositoryMock = $this->createMock(EntityRepository::class);
+        $productSearchConfigRepositoryMock->method('search')->willReturn(
+            new EntitySearchResult(
+                'product_search_config',
+                1,
+                new ProductSearchConfigCollection([$productSearchConfigEntity]),
+                null,
+                new Criteria(),
+                Context::createDefaultContext()
+            )
+        );
+
         $searchBuilder = new ProductSearchBuilder(
             $mockProductSearchBuilder,
             $mockElasticsearchHelper,
             new ProductDefinition(),
-            $this->productSearchConfigRepository
+            $productSearchConfigRepositoryMock
         );
 
         $mockSalesChannelContext = $this->createMock(SalesChannelContext::class);
@@ -106,7 +146,11 @@ class ProductSearchBuilderTest extends TestCase
 
         $request->query->set('search', '');
 
-        $this->expectException(MissingRequestParameterException::class);
+        if ($expectException) {
+            $this->expectException(MissingRequestParameterException::class);
+        } else {
+            $this->expectNotToPerformAssertions();
+        }
 
         $searchBuilder->build($request, $criteria, $mockSalesChannelContext);
     }

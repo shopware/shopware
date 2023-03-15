@@ -85,7 +85,7 @@ export default {
             };
         },
 
-        ...mapState('swFlowState', ['invalidSequences']),
+        ...mapState('swFlowState', ['invalidSequences', 'flow']),
         ...mapGetters('swFlowState', ['sequences']),
     },
 

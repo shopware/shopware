@@ -136,7 +136,8 @@
                                 <a
                                     data-bs-toggle="tab"
                                     class="product-detail-reviews-link"
-                                    {% if feature('NEXT_19709') %}
+                                    {# @deprecated tag:v6.6.0 - Registering plugin on selector "data-offcanvas-tabs" is deprecated. Use "data-off-canvas-tabs" instead #}
+                                    {% if feature('v6.6.0.0') %}
                                         data-off-canvas-tabs="true"
                                     {% else %}
                                         data-offcanvas-tabs="true"

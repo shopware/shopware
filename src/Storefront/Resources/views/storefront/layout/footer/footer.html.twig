@@ -5,7 +5,8 @@
             <div
                 id="footerColumns"
                 class="row footer-columns"
-                {% if feature('NEXT_19709') %}
+                {# @deprecated tag:v6.6.0 - Registering plugin on selector "data-collapse-footer" is deprecated. Use "data-collapse-footer-columns" instead #}
+                {% if feature('v6.6.0.0') %}
                     data-collapse-footer-columns="true"
                 {% else %}
                     data-collapse-footer="true"

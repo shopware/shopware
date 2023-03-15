@@ -12,7 +12,8 @@
                                     class="nav-link {% if (ratingSuccess != 1) and (ratingSuccess != -1) %}active{% endif %} product-detail-tab-navigation-link"
                                     id="description-tab"
                                     data-bs-toggle="tab"
-                                    {% if feature('NEXT_19709') %}
+                                    {# @deprecated tag:v6.6.0 - Registering plugin on selector "data-offcanvas-tabs" is deprecated. Use "data-off-canvas-tabs" instead #}
+                                    {% if feature('v6.6.0.0') %}
                                         data-off-canvas-tabs="true"
                                     {% else %}
                                         data-offcanvas-tabs="true"
@@ -49,7 +50,8 @@
                                         class="nav-link {% if (ratingSuccess == 1) or (ratingSuccess == -1) %}active{% endif %} product-detail-tab-navigation-link"
                                         id="review-tab"
                                         data-bs-toggle="tab"
-                                        {% if feature('NEXT_19709') %}
+                                        {# @deprecated tag:v6.6.0 - Registering plugin on selector "data-offcanvas-tabs" is deprecated. Use "data-off-canvas-tabs" instead #}
+                                        {% if feature('v6.6.0.0') %}
                                             data-off-canvas-tabs="true"
                                         {% else %}
                                             data-offcanvas-tabs="true"

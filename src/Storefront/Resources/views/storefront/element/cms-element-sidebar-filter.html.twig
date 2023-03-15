@@ -13,7 +13,8 @@
                 <button
                     class="btn btn-outline-primary filter-panel-wrapper-toggle"
                     type="button"
-                    {% if feature('NEXT_19709') %}
+                    {# @deprecated tag:v6.6.0 - Registering plugin on selector "data-offcanvas-filter" is deprecated. Use "data-off-canvas-filter" instead #}
+                    {% if feature('v6.6.0.0') %}
                         data-off-canvas-filter="true"
                     {% else %}
                         data-offcanvas-filter="true"
@@ -30,9 +31,16 @@
             {% endblock %}
 
             {% block element_sidebar_filter_panel %}
-                <div id="filter-panel-wrapper"
-                     class="filter-panel-wrapper"
-                     data-offcanvas-filter-content="true">
+                <div
+                    id="filter-panel-wrapper"
+                    class="filter-panel-wrapper"
+                    {# @deprecated tag:v6.6.0 - Selector "data-off-canvas-filter-content" is deprecated. Use "data-offcanvas-filter-content" instead #}
+                    {% if feature('v6.6.0.0') %}
+                        data-off-canvas-filter-content="true"
+                    {% else %}
+                        data-offcanvas-filter-content="true"
+                    {% endif %}
+                >
                     {% sw_include '@Storefront/storefront/component/listing/filter-panel.html.twig' with {
                         listing: listing,
                         sidebar: sidebar

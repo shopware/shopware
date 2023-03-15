@@ -111,8 +111,8 @@ register plugins
 PluginManager.register('DateFormat', DateFormat, '[data-date-format]');
 PluginManager.register('ScrollUp', ScrollUpPlugin, '[data-scroll-up]');
 
-/** @deprecated tag:v6.5.0 Registering plugin on selector "data-search-form" is deprecated. Use "data-search-widget" instead */
-if (Feature.isActive('NEXT_19709')) {
+/** @deprecated tag:v6.6.0 - Registering plugin on selector "data-search-form" is deprecated. Use "data-search-widget" instead */
+if (Feature.isActive('v6.6.0.0')) {
     PluginManager.register('SearchWidget', SearchWidgetPlugin, '[data-search-widget]');
 } else {
     PluginManager.register('SearchWidget', SearchWidgetPlugin, '[data-search-form]');
@@ -122,8 +122,8 @@ PluginManager.register('CartWidget', CartWidgetPlugin, '[data-cart-widget]');
 
 PluginManager.register('AccountGuestAbortButton', AccountGuestAbortButtonPlugin, '[data-account-guest-abort-button]')
 
-/** @deprecated tag:v6.5.0 Registering plugin on selector "data-offcanvas-cart" is deprecated. Use "data-off-canvas-cart" instead */
-if (Feature.isActive('NEXT_19709')) {
+/** @deprecated tag:v6.6.0 - Registering plugin on selector "data-offcanvas-cart" is deprecated. Use "data-off-canvas-cart" instead */
+if (Feature.isActive('v6.6.0.0')) {
     PluginManager.register('OffCanvasCart', OffCanvasCartPlugin, '[data-off-canvas-cart]');
 } else {
     PluginManager.register('OffCanvasCart', OffCanvasCartPlugin, '[data-offcanvas-cart]');
@@ -131,8 +131,8 @@ if (Feature.isActive('NEXT_19709')) {
 
 PluginManager.register('AddToCart', AddToCartPlugin, '[data-add-to-cart]');
 
-/** @deprecated tag:v6.5.0 Registering plugin on selector "data-collapse-footer" is deprecated. Use "data-collapse-footer-columns" instead */
-if (Feature.isActive('NEXT_19709')) {
+/** @deprecated tag:v6.6.0 - Registering plugin on selector "data-collapse-footer" is deprecated. Use "data-collapse-footer-columns" instead */
+if (Feature.isActive('v6.6.0.0')) {
     PluginManager.register('CollapseFooterColumns', CollapseFooterColumnsPlugin, '[data-collapse-footer-columns]');
 } else {
     PluginManager.register('CollapseFooterColumns', CollapseFooterColumnsPlugin, '[data-collapse-footer]');
@@ -141,8 +141,8 @@ if (Feature.isActive('NEXT_19709')) {
 PluginManager.register('CollapseCheckoutConfirmMethods', CollapseCheckoutConfirmMethodsPlugin, '[data-collapse-checkout-confirm-methods]');
 PluginManager.register('FlyoutMenu', FlyoutMenuPlugin, '[data-flyout-menu]');
 
-/** @deprecated tag:v6.5.0 Registering plugin on selector "data-offcanvas-menu" is deprecated. Use "data-off-canvas-menu" instead */
-if (Feature.isActive('NEXT_19709')) {
+/** @deprecated tag:v6.6.0 - Registering plugin on selector "data-offcanvas-menu" is deprecated. Use "data-off-canvas-menu" instead */
+if (Feature.isActive('v6.6.0.0')) {
     PluginManager.register('OffCanvasMenu', OffcanvasMenuPlugin, '[data-off-canvas-menu]');
 } else {
     PluginManager.register('OffcanvasMenu', OffcanvasMenuPlugin, '[data-offcanvas-menu]');
@@ -157,15 +157,15 @@ PluginManager.register('FormAjaxSubmit', FormAjaxSubmitPlugin, '[data-form-ajax-
 PluginManager.register('FormAddHistory', FormAddHistoryPlugin, '[data-form-add-history]');
 PluginManager.register('FormPreserver', FormPreserverPlugin, '[data-form-preserver]');
 
-/** @deprecated tag:v6.5.0 Registering plugin on selector "data-offcanvas-account-menu" is deprecated. Use "data-account-menu" instead */
-if (Feature.isActive('NEXT_19709')) {
+/** @deprecated tag:v6.6.0 - Registering plugin on selector "data-offcanvas-account-menu" is deprecated. Use "data-account-menu" instead */
+if (Feature.isActive('v6.6.0.0')) {
     PluginManager.register('AccountMenu', AccountMenuPlugin, '[data-account-menu]');
 } else {
     PluginManager.register('AccountMenu', AccountMenuPlugin, '[data-offcanvas-account-menu]');
 }
 
-/** @deprecated tag:v6.5.0 Registering plugin on selector "data-offcanvas-tabs" is deprecated. Use "data-off-canvas-tabs" instead */
-if (Feature.isActive('NEXT_19709')) {
+/** @deprecated tag:v6.6.0 - Registering plugin on selector "data-offcanvas-tabs" is deprecated. Use "data-off-canvas-tabs" instead */
+if (Feature.isActive('v6.6.0.0')) {
     PluginManager.register('OffCanvasTabs', OffCanvasTabsPlugin, '[data-off-canvas-tabs]');
 } else {
     PluginManager.register('OffCanvasTabs', OffCanvasTabsPlugin, '[data-offcanvas-tabs]');
@@ -183,8 +183,8 @@ PluginManager.register('SetBrowserClass', SetBrowserClassPlugin, 'html');
 PluginManager.register('RatingSystem', RatingSystemPlugin, '[data-rating-system]');
 PluginManager.register('Listing', ListingPlugin, '[data-listing]');
 
-/** @deprecated tag:v6.5.0 Registering plugin on selector "data-offcanvas-filter" is deprecated. Use "data-off-canvas-filter" instead */
-if (Feature.isActive('NEXT_19709')) {
+/** @deprecated tag:v6.6.0 - Registering plugin on selector "data-offcanvas-filter" is deprecated. Use "data-off-canvas-filter" instead */
+if (Feature.isActive('v6.6.0.0')) {
     PluginManager.register('OffCanvasFilter', OffCanvasFilterPlugin, '[data-off-canvas-filter]');
 } else {
     PluginManager.register('OffCanvasFilter', OffCanvasFilterPlugin, '[data-offcanvas-filter]');

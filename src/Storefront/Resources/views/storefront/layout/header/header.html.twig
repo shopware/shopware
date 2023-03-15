@@ -21,7 +21,8 @@
                                         <button
                                             class="btn nav-main-toggle-btn header-actions-btn"
                                             type="button"
-                                            {% if feature('NEXT_19709') %}
+                                            {# @deprecated tag:v6.6.0 - Registering plugin on selector "data-offcanvas-menu" is deprecated. Use "data-off-canvas-menu" instead #}
+                                            {% if feature('v6.6.0.0') %}
                                                 data-off-canvas-menu="true"
                                             {% else %}
                                                 data-offcanvas-menu="true"
@@ -53,7 +54,8 @@
                                         <button
                                             class="btn nav-main-toggle-btn header-actions-btn"
                                             type="button"
-                                            {% if feature('NEXT_19709') %}
+                                            {# @deprecated tag:v6.6.0 - Registering plugin on selector "data-offcanvas-menu" is deprecated. Use "data-off-canvas-menu" instead #}
+                                            {% if feature('v6.6.0.0') %}
                                                 data-off-canvas-menu="true"
                                             {% else %}
                                                 data-offcanvas-menu="true"
@@ -112,7 +114,8 @@
                             <div class="col-auto">
                                 <div
                                     class="header-cart"
-                                    {% if feature('NEXT_19709') %}
+                                    {# @deprecated tag:v6.6.0 - Registering plugin on selector "data-offcanvas-cart" is deprecated. Use "data-off-canvas-cart" instead #}
+                                    {% if feature('v6.6.0.0') %}
                                         data-off-canvas-cart="true"
                                     {% else %}
                                         data-offcanvas-cart="true"

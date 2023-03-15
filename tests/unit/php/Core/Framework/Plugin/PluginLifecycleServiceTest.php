@@ -36,6 +36,7 @@ use Shopware\Core\Framework\Plugin\Exception\PluginNotInstalledException;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
+use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware\Core\Framework\Plugin\Requirement\RequirementsValidator;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -73,6 +74,8 @@ class PluginLifecycleServiceTest extends TestCase
 
     private MockObject&EventDispatcher $eventDispatcherMock;
 
+    private MockObject&PluginService $pluginServiceMock;
+
     public function setUp(): void
     {
         $this->pluginRepoMock = $this->createMock(EntityRepository::class);
@@ -82,6 +85,8 @@ class PluginLifecycleServiceTest extends TestCase
         $this->migrationLoaderMock = $this->createMock(MigrationCollectionLoader::class);
         $this->requirementsValidatorMock = $this->createMock(RequirementsValidator::class);
         $this->cacheItemPoolInterfaceMock = $this->createMock(CacheItemPoolInterface::class);
+        $this->pluginServiceMock = $this->createMock(PluginService::class);
+
         $this->pluginMock = $this->createMock(Plugin::class);
 
         $this->pluginMock->method('getNamespace')->willReturn('MockPlugin');
@@ -102,6 +107,7 @@ class PluginLifecycleServiceTest extends TestCase
             $this->createMock(CustomEntityPersister::class),
             $this->createMock(CustomEntitySchemaUpdater::class),
             $this->createMock(CustomEntityLifecycleService::class),
+            $this->pluginServiceMock,
         );
     }
 
@@ -157,6 +163,8 @@ class PluginLifecycleServiceTest extends TestCase
 
         $this->pluginMock->expects(static::once())->method('executeComposerCommands')->willReturn(true);
         $pluginEntityMock->expects(static::once())->method('getComposerName')->willReturn('MockPlugin');
+
+        $this->pluginServiceMock->expects(static::once())->method('refreshPlugins');
 
         $installContext = $this->pluginLifecycleService->installPlugin($pluginEntityMock, $context);
 
@@ -240,6 +248,8 @@ class PluginLifecycleServiceTest extends TestCase
         $this->pluginMock->expects(static::once())->method('executeComposerCommands')->willReturn(true);
         $pluginEntityMock->expects(static::once())->method('getComposerName')->willReturn('MockPlugin');
 
+        $this->pluginServiceMock->expects(static::once())->method('refreshPlugins');
+
         $installContext = $this->pluginLifecycleService->uninstallPlugin($pluginEntityMock, $context);
 
         static::assertInstanceOf(InstallContext::class, $installContext);
@@ -309,6 +319,8 @@ class PluginLifecycleServiceTest extends TestCase
         $pluginEntityMock->expects(static::once())->method('getInstalledAt')->willReturn(new \DateTime());
         $this->pluginMock->expects(static::once())->method('executeComposerCommands')->willReturn(true);
         $pluginEntityMock->expects(static::once())->method('getComposerName')->willReturn('MockPlugin');
+
+        $this->pluginServiceMock->expects(static::once())->method('refreshPlugins');
 
         $updateContext = $this->pluginLifecycleService->updatePlugin($pluginEntityMock, $context);
 

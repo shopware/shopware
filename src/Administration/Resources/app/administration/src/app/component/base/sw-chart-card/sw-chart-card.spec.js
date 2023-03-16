@@ -38,10 +38,17 @@ async function createWrapper(additionalProps = {}) {
             defaultRangeIndex,
             ...additionalProps
         },
+        props: {
+            cardTitle: 'Title',
+        },
         stubs: {
-            'sw-card': true,
+            'sw-card': {
+                template: '<div class="sw-card"><slot /><slot name="title"></slot></div>',
+                props: ['helpText'],
+            },
             'sw-select-field': true,
             'sw-chart': true,
+            'sw-icon': true,
         },
     });
 }
@@ -87,5 +94,21 @@ describe('src/app/component/base/sw-chart-card', () => {
 
         expect(wrapper.vm.$emit).toBeCalledWith(expectedEvent, expectedRange);
         expect(wrapper.vm.selectedRange).toEqual(expectedRange);
+    });
+
+    it('should show a help text to be accessible, when set', async () => {
+        const expectedHelpText = 'Hello, I am help text';
+        const wrapper = await createWrapper({ helpText: expectedHelpText });
+
+        const swIcon = wrapper.find('.sw-chart-card__title-help-text');
+        expect(swIcon.exists()).toBe(true);
+        expect(wrapper.vm.helpText).toBe(expectedHelpText);
+    });
+
+    it('should not show a help text to be accessible, when not set', async () => {
+        const wrapper = await createWrapper();
+
+        const swIcon = wrapper.find('.sw-chart-card__title-help-text');
+        expect(swIcon.exists()).toBeFalsy();
     });
 });

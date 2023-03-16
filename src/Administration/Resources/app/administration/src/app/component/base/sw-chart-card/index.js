@@ -39,6 +39,13 @@ Shopware.Component.register('sw-chart-card', {
             required: false,
             default: '',
         },
+        helpText: {
+            type: [String, Object],
+            required: false,
+            default: () => {
+                return '';
+            },
+        },
     },
 
     data() {

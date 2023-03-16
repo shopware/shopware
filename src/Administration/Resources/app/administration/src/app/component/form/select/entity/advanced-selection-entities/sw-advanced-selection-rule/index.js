@@ -259,10 +259,6 @@ Component.register('sw-advanced-selection-rule', {
         },
 
         isRestricted(item) {
-            if (item.areas?.includes('flow-condition') && this.ruleAwareGroupKey !== 'flowConditions') {
-                return true;
-            }
-
             const insideRestrictedRuleIds = this.restrictedRuleIds.includes(item.id);
 
             const isRuleRestricted = this.ruleConditionDataProviderService.isRuleRestricted(

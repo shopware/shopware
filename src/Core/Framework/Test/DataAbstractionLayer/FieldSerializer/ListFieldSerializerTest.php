@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\FieldSerializer;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
-use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ListFieldSerializer;
 use Shopware\Core\Framework\Util\Json;
 use Symfony\Component\Validator\Validator\ValidatorInterface;

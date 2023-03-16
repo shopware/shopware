@@ -237,6 +237,8 @@ shopware:
         file_rotation_count: 14
         exclude_exception:
             - League\OAuth2\Server\Exception\OAuthServerException
+            - Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+            - Shopware\Core\Content\Media\Exception\DuplicatedMediaFileNameException
         exclude_events:
             - user.recovery.request
             - customer.recovery.request

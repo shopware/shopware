@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Customer\Event;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ConfirmUrlAware;
+use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\CustomerAware;
 use Shopware\Core\Framework\Event\EventData\EntityType;
@@ -17,8 +18,11 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @deprecated tag:v6.6.0 - reason:backward-compatibility - ConfirmUrlAware is deprecated and will be removed in v6.6.0
+ */
 #[Package('customer-order')]
-class CustomerDoubleOptInRegistrationEvent extends Event implements SalesChannelAware, CustomerAware, MailAware, ConfirmUrlAware
+class CustomerDoubleOptInRegistrationEvent extends Event implements SalesChannelAware, CustomerAware, MailAware, ConfirmUrlAware, ScalarValuesAware
 {
     final public const EVENT_NAME = 'checkout.customer.double_opt_in_registration';
 
@@ -52,6 +56,14 @@ class CustomerDoubleOptInRegistrationEvent extends Event implements SalesChannel
         }
 
         return $this->mailRecipientStruct;
+    }
+
+    /**
+     * @return array<string, scalar|array<mixed>|null>
+     */
+    public function getValues(): array
+    {
+        return ['confirmUrl' => $this->confirmUrl];
     }
 
     public function getCustomer(): CustomerEntity

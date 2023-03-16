@@ -74,7 +74,7 @@ class InternalClassRule implements Rule
         $class = $node->getClassReflection()->getName();
 
         if ($this->isTestClass($node)) {
-            return ['Test classes must be flagged @internal to not be captured by the BC checker'];
+            return [\sprintf('Test classes (%s) must be flagged @internal to not be captured by the BC checker', $node->getClassReflection()->getName())];
         }
 
         if ($this->isStorefrontController($node)) {

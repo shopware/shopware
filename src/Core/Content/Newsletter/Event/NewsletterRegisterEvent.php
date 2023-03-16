@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Newsletter\Event;
 
 use Shopware\Core\Content\Flow\Dispatching\Aware\NewsletterRecipientAware;
+use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
 use Shopware\Core\Content\Flow\Dispatching\Aware\UrlAware;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientDefinition;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
@@ -16,8 +17,11 @@ use Shopware\Core\Framework\Event\SalesChannelAware;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @deprecated tag:v6.6.0 - reason:backward-compatibility - UrlAware is deprecated and will be removed in v6.6.0
+ */
 #[Package('customer-order')]
-class NewsletterRegisterEvent extends Event implements SalesChannelAware, MailAware, NewsletterRecipientAware, UrlAware
+class NewsletterRegisterEvent extends Event implements SalesChannelAware, MailAware, NewsletterRecipientAware, UrlAware, ScalarValuesAware
 {
     final public const EVENT_NAME = 'newsletter.register';
 
@@ -36,6 +40,14 @@ class NewsletterRegisterEvent extends Event implements SalesChannelAware, MailAw
         return (new EventDataCollection())
             ->add('newsletterRecipient', new EntityType(NewsletterRecipientDefinition::class))
             ->add('url', new ScalarValueType(ScalarValueType::TYPE_STRING));
+    }
+
+    /**
+     * @return array<string, scalar|array<mixed>|null>
+     */
+    public function getValues(): array
+    {
+        return ['url' => $this->url];
     }
 
     public function getName(): string

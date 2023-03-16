@@ -9,6 +9,7 @@ use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Dispatching\Storer\DataStorer;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeValidateEvent;
 use Shopware\Core\Content\Test\Flow\TestFlowBusinessEvent;
+use Shopware\Core\Framework\Feature;
 
 /**
  * @package business-ops
@@ -24,6 +25,7 @@ class DataStorerTest extends TestCase
     public function setUp(): void
     {
         $this->storer = new DataStorer();
+        Feature::skipTestIfActive('v6.6.0.0', $this);
     }
 
     public function testStoreWithAware(): void

@@ -153,21 +153,22 @@ class SendMailActionTest extends TestCase
             ->method('hasStore')
             ->willReturn(true);
 
-        $this->flow->expects(static::exactly(6))
+        $this->flow
+            ->method('getData')
+            ->with('contactFormData')
+            ->willReturn([
+                'email' => 'customer@example.com',
+                'firstName' => 'Max',
+                'lastName' => 'Mustermann',
+            ]);
+
+        $this->flow->expects(static::exactly(4))
             ->method('getStore')
             ->willReturnOnConsecutiveCalls(
                 TestDefaults::SALES_CHANNEL,
-                ['recipients' => [
-                    'email' => 'firstName lastName',
-                ]],
-                [],
+                ['recipients' => ['email' => 'firstName lastName']],
                 TestDefaults::SALES_CHANNEL,
                 $orderId,
-                [
-                    'email' => 'customer@example.com',
-                    'firstName' => 'Max',
-                    'lastName' => 'Mustermann',
-                ],
             );
 
         $this->flow->expects(static::exactly(2))

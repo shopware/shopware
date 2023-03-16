@@ -5,8 +5,12 @@ namespace Shopware\Core\Content\Flow\Dispatching\Storer;
 use Shopware\Core\Content\Flow\Dispatching\Aware\NameAware;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Framework\Event\FlowEventAware;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @deprecated tag:v6.6.0 - Will be removed, use ScalarValuesStorer/ScalarValuesAware instead
+ */
 #[Package('business-ops')]
 class NameStorer extends FlowStorer
 {
@@ -17,6 +21,11 @@ class NameStorer extends FlowStorer
      */
     public function store(FlowEventAware $event, array $stored): array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', 'Use ScalarValuesStorer instead')
+        );
+
         if (!$event instanceof NameAware || isset($stored[NameAware::EVENT_NAME])) {
             return $stored;
         }
@@ -28,6 +37,11 @@ class NameStorer extends FlowStorer
 
     public function restore(StorableFlow $storable): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', 'Use ScalarValuesStorer instead')
+        );
+
         if (!$storable->hasStore(NameAware::EVENT_NAME)) {
             return;
         }

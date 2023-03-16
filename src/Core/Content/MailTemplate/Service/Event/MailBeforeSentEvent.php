@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\MailTemplate\Service\Event;
 use Monolog\Level;
 use Shopware\Core\Content\Flow\Dispatching\Aware\DataAware;
 use Shopware\Core\Content\Flow\Dispatching\Aware\MessageAware;
+use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\EventData\ArrayType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
@@ -15,8 +16,11 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Mime\Email;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @deprecated tag:v6.6.0 - reason:backward-compatibility - DataAware is deprecated and will be removed in v6.6.0
+ */
 #[Package('sales-channel')]
-class MailBeforeSentEvent extends Event implements LogAware, DataAware, MessageAware
+class MailBeforeSentEvent extends Event implements LogAware, DataAware, MessageAware, ScalarValuesAware
 {
     final public const EVENT_NAME = 'mail.after.create.message';
 
@@ -29,6 +33,14 @@ class MailBeforeSentEvent extends Event implements LogAware, DataAware, MessageA
         private readonly Context $context,
         private readonly ?string $eventName = null
     ) {
+    }
+
+    /**
+     * @return array<string, scalar|array<mixed>|null>
+     */
+    public function getValues(): array
+    {
+        return ['data' => $this->data];
     }
 
     public static function getAvailableData(): EventDataCollection

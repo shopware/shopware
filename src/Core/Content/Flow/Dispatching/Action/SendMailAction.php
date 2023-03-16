@@ -110,7 +110,7 @@ class SendMailAction extends FlowAction implements DelayableAction
         $recipients = $this->getRecipients(
             $eventConfig['recipient'],
             $flow->getStore(MailAware::MAIL_STRUCT)['recipients'],
-            $flow->getStore('contactFormData', []),
+            $flow->getData('contactFormData', []),
         );
 
         if (empty($recipients)) {
@@ -136,7 +136,7 @@ class SendMailAction extends FlowAction implements DelayableAction
             $flow->getStore(OrderAware::ORDER_ID),
         ));
 
-        $this->setReplyTo($data, $eventConfig, $flow->getStore('contactFormData', []));
+        $this->setReplyTo($data, $eventConfig, $flow->getData('contactFormData', []));
 
         $this->eventDispatcher->dispatch(new FlowSendMailActionEvent($data, $mailTemplate, $flow));
 

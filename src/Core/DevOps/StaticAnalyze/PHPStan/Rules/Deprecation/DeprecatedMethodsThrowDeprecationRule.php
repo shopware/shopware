@@ -42,6 +42,8 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
         'reason:class-hierarchy-change',
         // If we change the visibility of a method we can't know from where it was called and whether the call will be valid in the future, therefore they do not trigger deprecations.
         'reason:visibility-change',
+        // We provide another solution for the call, but we have to call the old functions too to keep the backward compatibility
+        'reason:backward-compatibility',
     ];
 
     public function getNodeType(): string
@@ -63,7 +65,7 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
 
         $class = $scope->getClassReflection();
 
-        if ($class === null || $class->isInterface() || $this->isTestClass($class)) {
+        if ($class->isInterface() || $this->isTestClass($class)) {
             return [];
         }
 

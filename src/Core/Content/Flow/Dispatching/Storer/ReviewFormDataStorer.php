@@ -5,8 +5,12 @@ namespace Shopware\Core\Content\Flow\Dispatching\Storer;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ReviewFormDataAware;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Framework\Event\FlowEventAware;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @deprecated tag:v6.6.0 - Will be removed, use ScalarValuesStorer/ScalarValuesAware instead
+ */
 #[Package('business-ops')]
 class ReviewFormDataStorer extends FlowStorer
 {
@@ -17,6 +21,11 @@ class ReviewFormDataStorer extends FlowStorer
      */
     public function store(FlowEventAware $event, array $stored): array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', 'Use ScalarValuesStorer instead')
+        );
+
         if (!$event instanceof ReviewFormDataAware || isset($stored[ReviewFormDataAware::REVIEW_FORM_DATA])) {
             return $stored;
         }
@@ -28,6 +37,11 @@ class ReviewFormDataStorer extends FlowStorer
 
     public function restore(StorableFlow $storable): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', 'Use ScalarValuesStorer instead')
+        );
+
         if (!$storable->hasStore(ReviewFormDataAware::REVIEW_FORM_DATA)) {
             return;
         }

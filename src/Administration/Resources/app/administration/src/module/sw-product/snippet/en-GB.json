@@ -218,7 +218,7 @@
     },
     "list": {
       "textProductOverview": "Products",
-      "buttonAddProduct": "Add physical product",
+      "buttonAddProduct": "Add product",
       "buttonAddDownloadableProduct": "Add digital product",
       "buttonCancel": "Cancel",
       "buttonDuplicate": "Duplicate",

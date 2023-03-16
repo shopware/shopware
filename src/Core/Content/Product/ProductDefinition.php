@@ -112,6 +112,7 @@ class ProductDefinition extends EntityDefinition
             'shippingFree' => false,
             'restockTime' => null,
             'active' => true,
+            'markAsTopseller' => false,
         ];
     }
 

@@ -147,4 +147,18 @@ class HtmlSanitizerTest extends TestCase
         static::assertSame($expectedPermissions, $newPurifier->config->get('Cache.SerializerPermissions'));
         umask($currentUmask);
     }
+
+    public function testAllowedImgInSnippetValue(): void
+    {
+        $filteredString = $this->sanitizer->sanitize('<img alt="" src="#" />', null, false, 'snippet.value');
+
+        static::assertSame('<img alt="" src="#" />', $filteredString);
+    }
+
+    public function testAllowedTargetAndRelAttribute(): void
+    {
+        $filteredString = $this->sanitizer->sanitize('<a rel="noopener" target="_blank" href="#">Test</a>', null, false, 'snippet.value');
+
+        static::assertSame('<a target="_blank" href="#" rel="noreferrer noopener">Test</a>', $filteredString);
+    }
 }

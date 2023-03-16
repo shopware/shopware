@@ -16,10 +16,16 @@ class HtmlSanitizer
 
     private readonly string $cacheDir;
 
+    /**
+     * @var array<string, string>
+     */
     private array $cache = [];
 
     /**
      * @internal
+     *
+     * @param array<string, array<string, array<string|bool|array<string, array<string>>>>> $sets
+     * @param array<string, array<string, array<string>>> $fieldSets
      */
     public function __construct(
         ?string $cacheDir = null,
@@ -30,6 +36,9 @@ class HtmlSanitizer
         $this->cacheDir = (string) $cacheDir;
     }
 
+    /**
+     * @param array<string, array<string>>|null $options
+     */
     public function sanitize(string $text, ?array $options = [], bool $override = false, ?string $field = null): string
     {
         $options ??= [];
@@ -72,6 +81,9 @@ class HtmlSanitizer
         return $config;
     }
 
+    /**
+     * @param array<string, array<string>> $options
+     */
     private function getConfig(array $options, bool $override, ?string $field): \HTMLPurifier_Config
     {
         $config = $this->getBaseConfig();
@@ -101,6 +113,10 @@ class HtmlSanitizer
                 }
                 if (isset($this->sets[$set]['options'])) {
                     foreach ($this->sets[$set]['options'] as $key => $value) {
+                        if (\is_array($value) && \array_key_exists('values', $value)) {
+                            $value = $value['values'];
+                        }
+
                         $config->set($key, $value);
                     }
                 }

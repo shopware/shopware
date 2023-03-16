@@ -1,4 +1,9 @@
-# [YYYY-MM-DD] - [Title]
+---
+title: {{ title }}
+date: {{ date }}
+area: {{ area }}
+tags: [{{ tags }}]
+---
 
 ## Context
 

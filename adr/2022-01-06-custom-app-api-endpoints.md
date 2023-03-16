@@ -1,4 +1,9 @@
-# 2022-01-06 - Allow apps to define custom api endpoints
+---
+title: Allow apps to define custom api endpoints
+date: 2022-01-06
+area: core
+tags: [admin-api, store-api, app-system]
+--- 
 
 ## Context
 Apps should be allowed to provide their own API and Store-API and Storefront endpoints where they can execute different logics, that deviates from the automatic entity API.

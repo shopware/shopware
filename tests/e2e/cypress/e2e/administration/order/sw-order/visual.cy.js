@@ -56,6 +56,10 @@ describe('Order: Visual tests', () => {
 
         cy.get('.sw-order-list__order-view-action').click();
 
+        // Change text of the element to ensure consistent snapshots
+        cy.changeElementText('.sw-order-general-info__summary-sub-description', 'on 01/01/2018, 00:01 with Cash on delivery and Standard');
+        cy.changeElementText('.sw-order-general-info__summary-sub-last-changed-time', 'Last changed: 01/01/2018, 00:01');
+
         // Take snapshot for visual testing
         cy.prepareAdminForScreenshot();
         cy.takeSnapshot('[Order] Detail', '.sw-order-detail', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});

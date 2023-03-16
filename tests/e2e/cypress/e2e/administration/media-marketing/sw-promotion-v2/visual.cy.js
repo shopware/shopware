@@ -133,6 +133,9 @@ describe('Promotion v2: Visual tests', () => {
         cy.get('#accountWidget')
             .should('have.css', 'visibility', 'hidden');
 
+        // Change text of the element to ensure consistent snapshots
+        cy.changeElementText('.line-item-delivery-date', 'Delivery period: 01/01/2018 - 03/01/2018');
+
         // Take snapshot for visual testing
         cy.takeSnapshot('[Promotion] Storefront, checkout off-canvas ', '.offcanvas');
     });

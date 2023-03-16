@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\System\Country\Event\CountryStateRouteCacheKeyEvent;
 use Shopware\Core\System\Country\Event\CountryStateRouteCacheTagsEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -90,7 +91,7 @@ class CachedCountryStateRoute extends AbstractCountryStateRoute
             return null;
         }
 
-        return self::buildName($countryId) . '-' . md5(JsonFieldSerializer::encodeJson($event->getParts()));
+        return self::buildName($countryId) . '-' . md5(Json::encode($event->getParts()));
     }
 
     /**

@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\Framework\Validation\Constraint\Uuid;
 use Symfony\Component\Validator\Constraints\Collection;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -57,7 +58,7 @@ class FlowTemplateConfigFieldSerializer extends JsonFieldSerializer
             'trueCase' => 0,
         ], $item), $sequences);
 
-        yield $field->getStorageName() => JsonFieldSerializer::encodeJson($value);
+        yield $field->getStorageName() => Json::encode($value);
     }
 
     protected function getConstraints(Field $field): array

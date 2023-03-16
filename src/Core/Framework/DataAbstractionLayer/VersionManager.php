@@ -46,6 +46,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteResult;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Lock\LockFactory;
@@ -498,8 +499,8 @@ class VersionManager
                         'id' => $id,
                         'version_commit_id' => $commitId,
                         'entity_name' => $entityName,
-                        'entity_id' => JsonFieldSerializer::encodeJson($primary),
-                        'payload' => JsonFieldSerializer::encodeJson($payload),
+                        'entity_id' => Json::encode($primary),
+                        'payload' => Json::encode($payload),
                         'user_id' => $userId,
                         'action' => $isClone ? 'clone' : $item->getOperation(),
                         'created_at' => $date,
@@ -818,7 +819,7 @@ class VersionManager
 
                 $new[] = [
                     'entityId' => $id,
-                    'payload' => JsonFieldSerializer::encodeJson($payload),
+                    'payload' => Json::encode($payload),
                     'userId' => $data->getUserId(),
                     'integrationId' => $data->getIntegrationId(),
                     'entityName' => $data->getEntityName(),
@@ -857,7 +858,7 @@ class VersionManager
                 ];
 
                 // deduplicate to prevent deletion errors
-                $entityKey = md5(JsonFieldSerializer::encodeJson($entity));
+                $entityKey = md5(Json::encode($entity));
                 if (isset($handled[$entityKey])) {
                     continue;
                 }

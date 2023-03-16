@@ -7,6 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ListFieldSerializer;
+use Shopware\Core\Framework\Util\Json;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -36,11 +37,11 @@ class ListFieldSerializerTest extends TestCase
     public static function decodeProvider(): array
     {
         return [
-            [new ListField('data', 'data'), JsonFieldSerializer::encodeJson(['foo' => 'bar']), ['bar']],
-            [new ListField('data', 'data'), JsonFieldSerializer::encodeJson([0 => 'bar', 1 => 'foo']), ['bar', 'foo']],
-            [new ListField('data', 'data'), JsonFieldSerializer::encodeJson(['foo' => 1]), [1]],
-            [new ListField('data', 'data'), JsonFieldSerializer::encodeJson(['foo' => 5.3]), [5.3]],
-            [new ListField('data', 'data'), JsonFieldSerializer::encodeJson(['foo' => ['bar' => 'baz']]), [['bar' => 'baz']]],
+            [new ListField('data', 'data'), Json::encode(['foo' => 'bar']), ['bar']],
+            [new ListField('data', 'data'), Json::encode([0 => 'bar', 1 => 'foo']), ['bar', 'foo']],
+            [new ListField('data', 'data'), Json::encode(['foo' => 1]), [1]],
+            [new ListField('data', 'data'), Json::encode(['foo' => 5.3]), [5.3]],
+            [new ListField('data', 'data'), Json::encode(['foo' => ['bar' => 'baz']]), [['bar' => 'baz']]],
             [new ListField('data', 'data'), null, null],
         ];
     }

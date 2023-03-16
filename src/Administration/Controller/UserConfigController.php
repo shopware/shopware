@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigDefinition;
 use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigEntity;
@@ -104,7 +105,7 @@ class UserConfigController extends AbstractController
         $queue = new MultiInsertQueryQueue($this->connection, 250, false, true);
         foreach ($postUpdateConfigs as $key => $value) {
             $data = [
-                'value' => JsonFieldSerializer::encodeJson($value),
+                'value' => Json::encode($value),
                 'user_id' => Uuid::fromHexToBytes($userId),
                 'key' => $key,
                 'id' => Uuid::randomBytes(),

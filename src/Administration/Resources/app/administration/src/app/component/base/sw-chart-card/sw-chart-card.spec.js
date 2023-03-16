@@ -40,9 +40,13 @@ async function createWrapper(additionalProps = {}) {
             ...additionalProps
         },
         stubs: {
-            'sw-card': true,
+            'sw-card': {
+                template: '<div class="sw-card"><slot /><slot name="title"></slot></div>',
+                props: ['helpText'],
+            },
             'sw-select-field': true,
             'sw-chart': true,
+            'sw-icon': true,
         },
     });
 }
@@ -92,7 +96,7 @@ describe('src/app/component/base/sw-chart-card', () => {
 
     it('should set the correct the position identifier from the prop to the card', async () => {
         const wrapper = await createWrapper();
-        const swCard = wrapper.find('sw-card-stub');
+        const swCard = wrapper.find('.sw-card');
 
         expect(swCard.attributes('position-identifier')).toBe('sw-chart-card__statistics-count');
 
@@ -101,5 +105,21 @@ describe('src/app/component/base/sw-chart-card', () => {
         });
 
         expect(swCard.attributes('position-identifier')).toBe('sw-dashboard-statistics__statistics-sum');
+    });
+
+    it('should show a help text to be accessible, when set', async () => {
+        const expectedHelpText = 'Hello, I am help text';
+        const wrapper = await createWrapper({ helpText: expectedHelpText });
+
+        const swIcon = wrapper.find('.sw-chart-card__title-help-text');
+        expect(swIcon.exists()).toBe(true);
+        expect(wrapper.vm.helpText).toBe(expectedHelpText);
+    });
+
+    it('should not show a help text to be accessible, when not set', async () => {
+        const wrapper = await createWrapper();
+
+        const swIcon = wrapper.find('.sw-chart-card__title-help-text');
+        expect(swIcon.exists()).toBeFalsy();
     });
 });

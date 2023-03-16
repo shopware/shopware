@@ -14,6 +14,17 @@
                 {{ cardTitle }}
             </slot>
             {% endblock %}
+
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_chart_card_title_help_text %}
+            <sw-icon
+                v-if="helpText"
+                v-tooltip="helpText"
+                class="sw-chart-card__title-help-text"
+                name="solid-question-circle"
+                size="20"
+            />
+            {% endblock %}
         </div>
     </template>
     {% endblock %}

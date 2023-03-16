@@ -688,7 +688,7 @@ base-uri 'self';
         </service>
 
         <service id="Shopware\Core\Framework\Log\Monolog\ExcludeFlowEventHandler" decorates="monolog.handler.main" decoration-on-invalid="ignore">
-            <argument type="service" id="Shopware\Core\Framework\Log\Monolog\ExcludeExceptionHandler.inner"/>
+            <argument type="service" id="Shopware\Core\Framework\Log\Monolog\ExcludeFlowEventHandler.inner"/>
             <argument>%shopware.logger.exclude_events%</argument>
         </service>
 

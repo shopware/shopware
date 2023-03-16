@@ -649,6 +649,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         {
             notEquals: [
                 'cartCartAmount',
+                'cartShippingCost',
             ],
             snippet: 'sw-restricted-rules.restrictedAssignment.shippingMethodPriceCalculations',
         },
@@ -659,6 +660,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         {
             notEquals: [
                 'cartCartAmount',
+                'cartShippingCost',
             ],
             snippet: 'sw-restricted-rules.restrictedAssignment.shippingMethodPrices',
         },

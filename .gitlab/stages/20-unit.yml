@@ -36,8 +36,6 @@ Jest (Storefront):
         - !reference [.rules, skip]
         - !reference [.rules, run]
         - when: always
-    variables:
-      NODE_VERSION: 12
     before_script:
       - !reference [ .scripts, install-node, script ]
       - !reference [ .scripts, init, npm, storefront ]

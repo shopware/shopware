@@ -57,7 +57,7 @@
         "composer/composer": "^2.4.4",
         "composer/semver": "^3.2",
         "doctrine/annotations": "^1.14",
-        "doctrine/dbal": "^3.5",
+        "doctrine/dbal": "^3.6",
         "doctrine/inflector": "^2.0",
         "dompdf/dompdf": "2.0.3",
         "tecnickcom/tcpdf": "6.6.1",

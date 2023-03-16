@@ -15655,8 +15655,3 @@ parameters:
 			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ConfigLoader\\\\AbstractAvailableThemeProvider\\:\\:load\\(\\) invoked with 2 parameters, 1 required.$#"
 			count: 1
 			path: src/Storefront/Theme/ConfigLoader/StaticFileConfigDumper.php
-
-		-
-			message: "#^Call to function is_resource\\(\\) with resource will always evaluate to true\\.$#"
-			count: 1
-			path: src/Core/Content/Media/File/FileSaver.php

@@ -305,6 +305,9 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-25651 - Fix send mail message encoding](/changelog/release-6-5-0-0/2023-03-09-fix-send-mail-message-encoding.md)
 *  [NEXT-25672 - Suggest shopware/dev-tools package](/changelog/release-6-5-0-0/2023-03-09-suggest-shopware-dev-tools-package.md)
 *  [NEXT-25701 - Message serialization](/changelog/release-6-5-0-0/2023-03-10-message-serialization.md)
+*  [NEXT-24882 - Improve address markup to remove space between the symbol](/changelog/release-6-5-0-0/2023-03-14-improve-address-markup-to-remove-space-between-the-symbo.md)
+*  [NEXT-25324 - Update DBAL dependency](/changelog/release-6-5-0-0/2023-02-08-update-dbal-dependency.md)
+*  [NEXT-25742 - Added helpText property to sw-chard-card](/changelog/release-6-5-0-0/2023-03-16-added-helptext-property-to-sw-chard-card.md)
 
 ## 6.4.20.0 
 *  [NEXT-24983 - Make user activity tab overarching](/changelog/release-6-4-20-0/2023-01-30-make-user-activity-tab-overarching.md)

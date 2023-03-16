@@ -220,7 +220,7 @@ class CustomSnippetFormatControllerTest extends TestCase
                     ],
                 ],
             ],
-            'expectedHtml' => 'Le Vin ,<br/>123 Strt VN',
+            'expectedHtml' => 'Le Vin,<br/>123 Strt VN',
         ];
 
         yield 'render ignore empty snippet' => [
@@ -288,6 +288,25 @@ class CustomSnippetFormatControllerTest extends TestCase
                 ],
             ],
             'expectedHtml' => '',
+        ];
+
+        yield 'render lines with symbol comma' => [
+            'payload' => [
+                'format' => [
+                    [
+                        'address/zipcode',
+                        'symbol/comma',
+                        'address/city',
+                    ],
+                ],
+                'data' => [
+                    'address' => [
+                        'zipcode' => '550000',
+                        'city' => 'Da Nang',
+                    ],
+                ],
+            ],
+            'expectedHtml' => '550000,  Da Nang',
         ];
     }
 }

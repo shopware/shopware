@@ -1,4 +1,9 @@
-# 2022-02-21 - Rule Scripting in apps
+---
+title: Rule Scripting in apps
+date: 2022-02-21
+area: business-ops
+tags: [rule, app-system, app-scripts]
+--- 
 
 ## Context
 

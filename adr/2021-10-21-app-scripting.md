@@ -1,4 +1,9 @@
-# 2021-10-21 - (App-) Scripts
+---
+title: App scripts
+date: 2021-10-21
+area: core
+tags: [app-system, app-scripts]
+---
 
 ## Context
 

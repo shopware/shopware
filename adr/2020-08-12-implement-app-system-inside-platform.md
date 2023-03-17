@@ -1,4 +1,9 @@
-# 2020-08-12 - Implement app system inside platform
+---
+title: Implement app system inside platform
+date: 2020-08-12
+area: core
+tags: [app, cloud]
+--- 
 
 ## Context
 

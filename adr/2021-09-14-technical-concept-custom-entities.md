@@ -1,4 +1,9 @@
-# 2021-08-31 - Technical concept custom entities
+---
+title: Technical concept custom entities
+date: 2021-08-31
+area: core
+tags: [app, custom-entities, store-api, dal, admin-api]
+--- 
 
 ## Context
 It should be possible for apps to define their entities. Furthermore, it should be possible, if desired, that these entities are available via Store API.

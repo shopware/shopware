@@ -283,7 +283,6 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
         expect(recipientRows.length).toEqual(2);
     });
 
-
     it('should show error in recipient grid when clicking on save action button', async () => {
         const wrapper = await createWrapper();
 
@@ -574,5 +573,23 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
         wrapper.vm.buildReplyToTooltip('foo');
 
         expect(wrapper.vm.$tc).toHaveBeenCalledWith('foo', 0, { settingsLink: 'bar' });
+    });
+
+    it('should be able to close modal', async () => {
+        const wrapper = await createWrapper();
+
+        const cancelButton = wrapper.find('.sw-flow-mail-send-modal__cancel-button');
+        expect(cancelButton.isVisible()).toBeTruthy();
+
+        await cancelButton.trigger('click');
+        expect(wrapper.emitted()['modal-close']).toBeTruthy();
+    });
+
+    it('should be able to toggle create mail template modal', async () => {
+        const wrapper = await createWrapper();
+        wrapper.vm.onCreateMailTemplate();
+        expect(wrapper.vm.showCreateMailTemplateModal).toBeTruthy();
+        wrapper.vm.onCloseCreateMailTemplateModal();
+        expect(wrapper.vm.showCreateMailTemplateModal).toBeFalsy();
     });
 });

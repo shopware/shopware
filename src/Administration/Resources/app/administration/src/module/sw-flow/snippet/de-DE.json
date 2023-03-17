@@ -21,8 +21,7 @@
       "warningDeleteText": "Wenn Du diesen Flow löschst, werden für den Auslöser keine Aktionen mehr ausgeführt.",
       "confirmText": "Bist Du sicher, dass Du diesen Flow löschen möchtest?",
       "emptyStateTitle": "Noch keine Flows erstellt",
-      "emptyStateSubTitle": "Füge Flows über den \"Hinzufügen\"-Button hinzu.",
-      "download": "Herunterladen"
+      "emptyStateSubTitle": "Füge Flows über den \"Hinzufügen\"-Button hinzu."
     },
     "template": {
       "create": "Neuen Flow aus Template erstellen"
@@ -85,8 +84,6 @@
       "messageRequiredEmptyFields": "Wähle vor dem Speichern eine Regel oder Aktion aus.",
       "messageDuplicateSuccess": "Flow dupliziert.",
       "messageDuplicateError": "Flow konnte nicht dupliziert werden.",
-      "messageDownloadSuccess": "Flow heruntergeladen.",
-      "messageDownloadError": "Flow konnte nicht heruntergeladen werden.",
       "messageCreateSuccess": "Flow erstellt.",
       "messageUpdateTemplateSuccess": "Flow template updated.",
       "messageCreateError": "Flow konnte nicht erstellt werden."
@@ -275,15 +272,6 @@
       },
       "confirmation": {
         "textConfirmChangeTrigger": "Bist Du sicher, dass Du den Auslöser ändern willst?<br>Der gesamte Flow wird zurückgesetzt, wenn Du bestätigst."
-      },
-      "download": {
-        "title": "Flow herunterladen",
-        "description": "Diese Flow-Datei enthält alle Sequenzen sowie die Konfigurationen, die in Bedingungen und Aktionen verwendet werden. Beim Hochladen in ein Fremdsystem werden fehlende Daten angelegt.<br><br>Verweise auf Kategorien, Produkte und Eigenschaften können in der Flow-Datei weggelassen werden. Beim Hochladen in ein Fremdsystem müssen diese fehlende Referenzen neu zugeordnet werden.",
-        "dataIncluded": "In dieser Datei enthaltene Daten",
-        "references": "In dieser Datei enthaltene Referenzen",
-        "isNotIncludedReferences": "Keine Referenzen enthalten",
-        "buttonCancel": "Abbrechen",
-        "buttonDownload": "Flow herunterladen"
       }
     },
     "leavePageModal": {

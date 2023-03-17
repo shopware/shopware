@@ -277,7 +277,7 @@ export default {
         },
 
         onAddAction() {
-            this.mailTemplateIdError = this.fieldError(this.mailTemplateId);
+            this.mailTemplateIdError = this.mailTemplateError(this.mailTemplateId);
             if (this.showReplyToField) {
                 this.replyToError = this.setMailError(this.replyTo);
             }
@@ -415,8 +415,8 @@ export default {
             this.recipients.splice(itemIndex, 1);
         },
 
-        fieldError(text) {
-            if (!text) {
+        mailTemplateError(mailTemplate) {
+            if (!mailTemplate) {
                 return new ShopwareError({
                     code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
                 });

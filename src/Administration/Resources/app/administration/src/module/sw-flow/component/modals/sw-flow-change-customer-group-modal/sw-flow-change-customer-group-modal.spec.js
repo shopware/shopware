@@ -114,4 +114,14 @@ describe('module/sw-flow/component/sw-flow-change-customer-group-modal', () => {
             }
         }]);
     });
+
+    it('should be able to close modal', async () => {
+        const wrapper = await createWrapper();
+
+        const cancelButton = wrapper.find('.sw-flow-change-customer-group-modal__cancel-button');
+        expect(cancelButton.isVisible()).toBeTruthy();
+
+        await cancelButton.trigger('click');
+        expect(wrapper.emitted()['modal-close']).toBeTruthy();
+    });
 });

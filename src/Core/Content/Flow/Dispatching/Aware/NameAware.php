@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Flow\Dispatching\Aware;
 
+use Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Log\Package;
 
@@ -11,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('business-ops')]
 interface NameAware extends FlowEventAware
 {
-    public const EVENT_NAME = 'name';
+    public const EVENT_NAME = FlowMailVariables::EVENT_NAME;
 
     public function getName(): string;
 }

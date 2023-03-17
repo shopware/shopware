@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Review\Event;
 
+use Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ReviewFormDataAware;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -19,7 +20,7 @@ use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
- * @deprecated tag:v6.6.0 - reason:backward-compatibility - ReviewFormDataAware is deprecated and will be removed in v6.6.0
+ * @deprecated tag:v6.6.0 - reason:class-hierarchy-change - ReviewFormDataAware is deprecated and will be removed in v6.6.0
  */
 #[Package('content')]
 final class ReviewFormEvent extends Event implements SalesChannelAware, MailAware, ReviewFormDataAware, ProductAware, CustomerAware, ScalarValuesAware
@@ -54,7 +55,7 @@ final class ReviewFormEvent extends Event implements SalesChannelAware, MailAwar
      */
     public function getValues(): array
     {
-        return ['reviewFormData' => $this->reviewFormData];
+        return [FlowMailVariables::REVIEW_FORM_DATA => $this->reviewFormData];
     }
 
     public function getName(): string

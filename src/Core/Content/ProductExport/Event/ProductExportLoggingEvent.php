@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\ProductExport\Event;
 
 use Monolog\Level;
+use Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables;
 use Shopware\Core\Content\Flow\Dispatching\Aware\NameAware;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
 use Shopware\Core\Content\MailTemplate\Exception\MailEventConfigurationException;
@@ -16,7 +17,7 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
- * @deprecated tag:v6.6.0 - reason:backward-compatibility - NameAware are deprecated and will be removed in v6.6.0
+ * @deprecated tag:v6.6.0 - reason:class-hierarchy-change - NameAware are deprecated and will be removed in v6.6.0
  */
 #[Package('sales-channel')]
 class ProductExportLoggingEvent extends Event implements LogAware, MailAware, NameAware, ScalarValuesAware
@@ -58,7 +59,7 @@ class ProductExportLoggingEvent extends Event implements LogAware, MailAware, Na
      */
     public function getValues(): array
     {
-        return ['name' => $this->name];
+        return [FlowMailVariables::EVENT_NAME => $this->name];
     }
 
     public function getThrowable(): ?\Throwable

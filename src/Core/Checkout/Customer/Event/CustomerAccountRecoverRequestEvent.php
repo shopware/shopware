@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryD
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryEntity;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables;
 use Shopware\Core\Content\Flow\Dispatching\Aware\CustomerRecoveryAware;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ResetUrlAware;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
@@ -24,7 +25,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
- * @deprecated tag:v6.6.0 - reason:backward-compatibility - ResetUrlAware and ShopNameAware are deprecated and will be removed in v6.6.0
+ * @deprecated tag:v6.6.0 - reason:class-hierarchy-change - ResetUrlAware and ShopNameAware are deprecated and will be removed in v6.6.0
  */
 #[Package('customer-order')]
 class CustomerAccountRecoverRequestEvent extends Event implements SalesChannelAware, ShopwareSalesChannelEvent, CustomerAware, MailAware, CustomerRecoveryAware, ResetUrlAware, ShopNameAware, ScalarValuesAware
@@ -73,8 +74,8 @@ class CustomerAccountRecoverRequestEvent extends Event implements SalesChannelAw
     public function getValues(): array
     {
         return [
-            'resetUrl' => $this->resetUrl,
-            'shopName' => $this->shopName,
+            FlowMailVariables::RESET_URL => $this->resetUrl,
+            FlowMailVariables::SHOP_NAME => $this->shopName,
         ];
     }
 

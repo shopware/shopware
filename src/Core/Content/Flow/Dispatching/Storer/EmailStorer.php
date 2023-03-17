@@ -21,6 +21,10 @@ class EmailStorer extends FlowStorer
      */
     public function store(FlowEventAware $event, array $stored): array
     {
+        if (Feature::isActive('v6.6.0.0')) {
+            return $stored;
+        }
+
         Feature::triggerDeprecationOrThrow(
             'v6.6.0.0',
             Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', 'Use ScalarValuesStorer instead')
@@ -37,6 +41,10 @@ class EmailStorer extends FlowStorer
 
     public function restore(StorableFlow $storable): void
     {
+        if (Feature::isActive('v6.6.0.0')) {
+            return;
+        }
+
         Feature::triggerDeprecationOrThrow(
             'v6.6.0.0',
             Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', 'Use ScalarValuesStorer instead')

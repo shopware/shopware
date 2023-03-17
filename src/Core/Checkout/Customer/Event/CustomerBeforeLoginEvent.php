@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\Event;
 
+use Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables;
 use Shopware\Core\Content\Flow\Dispatching\Aware\EmailAware;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
 use Shopware\Core\Content\MailTemplate\Exception\MailEventConfigurationException;
@@ -17,7 +18,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
- * @deprecated tag:v6.6.0 - reason:backward-compatibility - EmailAware is deprecated and will be removed in v6.6.0
+ * @deprecated tag:v6.6.0 - reason:class-hierarchy-change - EmailAware is deprecated and will be removed in v6.6.0
  */
 #[Package('customer-order')]
 class CustomerBeforeLoginEvent extends Event implements SalesChannelAware, ShopwareSalesChannelEvent, MailAware, EmailAware, ScalarValuesAware
@@ -36,7 +37,7 @@ class CustomerBeforeLoginEvent extends Event implements SalesChannelAware, Shopw
     public function getValues(): array
     {
         return [
-            'email' => $this->email,
+            FlowMailVariables::EMAIL => $this->email,
         ];
     }
 

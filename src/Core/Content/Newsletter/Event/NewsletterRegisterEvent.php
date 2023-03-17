@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Newsletter\Event;
 
+use Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables;
 use Shopware\Core\Content\Flow\Dispatching\Aware\NewsletterRecipientAware;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
 use Shopware\Core\Content\Flow\Dispatching\Aware\UrlAware;
@@ -18,7 +19,7 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
- * @deprecated tag:v6.6.0 - reason:backward-compatibility - UrlAware is deprecated and will be removed in v6.6.0
+ * @deprecated tag:v6.6.0 - reason:class-hierarchy-change - UrlAware is deprecated and will be removed in v6.6.0
  */
 #[Package('customer-order')]
 class NewsletterRegisterEvent extends Event implements SalesChannelAware, MailAware, NewsletterRecipientAware, UrlAware, ScalarValuesAware
@@ -47,7 +48,7 @@ class NewsletterRegisterEvent extends Event implements SalesChannelAware, MailAw
      */
     public function getValues(): array
     {
-        return ['url' => $this->url];
+        return [FlowMailVariables::URL => $this->url];
     }
 
     public function getName(): string

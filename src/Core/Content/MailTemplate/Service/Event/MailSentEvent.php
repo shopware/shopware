@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\MailTemplate\Service\Event;
 
 use Monolog\Level;
+use Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ContentsAware;
 use Shopware\Core\Content\Flow\Dispatching\Aware\RecipientsAware;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
@@ -16,7 +17,7 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
- * @deprecated tag:v6.6.0 - reason:backward-compatibility - SubjectAware, ContentsAware and RecipientsAware are deprecated and will be removed in v6.6.0
+ * @deprecated tag:v6.6.0 - reason:class-hierarchy-change - SubjectAware, ContentsAware and RecipientsAware are deprecated and will be removed in v6.6.0
  */
 #[Package('sales-channel')]
 class MailSentEvent extends Event implements LogAware, SubjectAware, ContentsAware, RecipientsAware, ScalarValuesAware
@@ -55,9 +56,9 @@ class MailSentEvent extends Event implements LogAware, SubjectAware, ContentsAwa
     public function getValues(): array
     {
         return [
-            'subject' => $this->subject,
-            'contents' => $this->contents,
-            'recipients' => $this->recipients,
+            FlowMailVariables::SUBJECT => $this->subject,
+            FlowMailVariables::CONTENTS => $this->contents,
+            FlowMailVariables::RECIPIENTS => $this->recipients,
         ];
     }
 

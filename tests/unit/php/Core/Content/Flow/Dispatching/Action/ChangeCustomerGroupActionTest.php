@@ -51,21 +51,21 @@ class ChangeCustomerGroupActionTest extends TestCase
         $groupId = Uuid::randomHex();
         $config = ['customerGroupId' => $groupId];
 
-        $this->flow->expects(static::exactly(2))->method('getStore')->willReturn(Uuid::randomHex());
-        $this->flow->expects(static::once())->method('hasStore')->willReturn(true);
+        $this->flow->expects(static::exactly(2))->method('getData')->willReturn(Uuid::randomHex());
+        $this->flow->expects(static::once())->method('hasData')->willReturn(true);
         $this->flow->expects(static::once())->method('getConfig')->willReturn($config);
 
         $this->repository->expects(static::once())
             ->method('update')
-            ->with([['id' => $this->flow->getStore('customerId'), 'groupId' => $groupId]]);
+            ->with([['id' => $this->flow->getData('customerId'), 'groupId' => $groupId]]);
 
         $this->action->handleFlow($this->flow);
     }
 
     public function testActionWithNotAware(): void
     {
-        $this->flow->expects(static::once())->method('hasStore')->willReturn(false);
-        $this->flow->expects(static::never())->method('getStore');
+        $this->flow->expects(static::once())->method('hasData')->willReturn(false);
+        $this->flow->expects(static::never())->method('getData');
         $this->repository->expects(static::never())->method('update');
 
         $this->action->handleFlow($this->flow);
@@ -73,8 +73,8 @@ class ChangeCustomerGroupActionTest extends TestCase
 
     public function testActionWithEmptyConfig(): void
     {
-        $this->flow->expects(static::once())->method('hasStore')->willReturn(true);
-        $this->flow->expects(static::exactly(1))->method('getStore')->willReturn(Uuid::randomHex());
+        $this->flow->expects(static::once())->method('hasData')->willReturn(true);
+        $this->flow->expects(static::exactly(1))->method('getData')->willReturn(Uuid::randomHex());
         $this->flow->expects(static::once())->method('getConfig')->willReturn([]);
         $this->repository->expects(static::never())->method('update');
 

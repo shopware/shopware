@@ -37,11 +37,11 @@ class AddOrderTagAction extends FlowAction implements DelayableAction
 
     public function handleFlow(StorableFlow $flow): void
     {
-        if (!$flow->hasStore(OrderAware::ORDER_ID)) {
+        if (!$flow->hasData(OrderAware::ORDER_ID)) {
             return;
         }
 
-        $this->update($flow->getContext(), $flow->getConfig(), $flow->getStore(OrderAware::ORDER_ID));
+        $this->update($flow->getContext(), $flow->getConfig(), $flow->getData(OrderAware::ORDER_ID));
     }
 
     /**

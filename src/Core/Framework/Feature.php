@@ -127,6 +127,22 @@ class Feature
         }
     }
 
+    public static function silent(string $flagName, \Closure $closure): mixed
+    {
+        $before = isset(self::$silent[$flagName]);
+        self::$silent[$flagName] = true;
+
+        try {
+            $result = $closure();
+        } finally {
+            if (!$before) {
+                unset(self::$silent[$flagName]);
+            }
+        }
+
+        return $result;
+    }
+
     public static function skipTestIfInActive(string $flagName, TestCase $test): void
     {
         if (self::isActive($flagName)) {

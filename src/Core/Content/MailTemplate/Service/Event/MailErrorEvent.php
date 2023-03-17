@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\MailTemplate\Service\Event;
 
 use Monolog\Level;
+use Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables;
 use Shopware\Core\Content\Flow\Dispatching\Aware\NameAware;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
 use Shopware\Core\Framework\Context;
@@ -13,7 +14,7 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
- * @deprecated tag:v6.6.0 - reason:backward-compatibility - NameAware is deprecated and will be removed in v6.6.0
+ * @deprecated tag:v6.6.0 - reason:class-hierarchy-change - NameAware is deprecated and will be removed in v6.6.0
  */
 #[Package('sales-channel')]
 class MailErrorEvent extends Event implements LogAware, NameAware, ScalarValuesAware
@@ -49,7 +50,7 @@ class MailErrorEvent extends Event implements LogAware, NameAware, ScalarValuesA
      */
     public function getValues(): array
     {
-        return ['name' => self::NAME];
+        return [FlowMailVariables::EVENT_NAME => self::NAME];
     }
 
     public function getThrowable(): ?\Throwable

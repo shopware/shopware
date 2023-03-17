@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Flow\Dispatching\Aware;
 
+use Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Log\Package;
 
@@ -11,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('business-ops')]
 interface ContentsAware extends FlowEventAware
 {
-    public const CONTENTS = 'contents';
+    public const CONTENTS = FlowMailVariables::CONTENTS;
 
     /**
      * @return array<string, mixed>

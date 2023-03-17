@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Flow\Dispatching\Aware;
 
+use Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Log\Package;
 
@@ -11,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('business-ops')]
 interface RecipientsAware extends FlowEventAware
 {
-    public const RECIPIENTS = 'recipients';
+    public const RECIPIENTS = FlowMailVariables::RECIPIENTS;
 
     /**
      * @return array<string, mixed>

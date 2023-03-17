@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\MailTemplate\Service\Event;
 
 use Monolog\Level;
+use Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables;
 use Shopware\Core\Content\Flow\Dispatching\Aware\DataAware;
 use Shopware\Core\Content\Flow\Dispatching\Aware\MessageAware;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
@@ -17,7 +18,7 @@ use Symfony\Component\Mime\Email;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
- * @deprecated tag:v6.6.0 - reason:backward-compatibility - DataAware is deprecated and will be removed in v6.6.0
+ * @deprecated tag:v6.6.0 - reason:class-hierarchy-change - DataAware is deprecated and will be removed in v6.6.0
  */
 #[Package('sales-channel')]
 class MailBeforeSentEvent extends Event implements LogAware, DataAware, MessageAware, ScalarValuesAware
@@ -40,7 +41,7 @@ class MailBeforeSentEvent extends Event implements LogAware, DataAware, MessageA
      */
     public function getValues(): array
     {
-        return ['data' => $this->data];
+        return [FlowMailVariables::DATA => $this->data];
     }
 
     public static function getAvailableData(): EventDataCollection

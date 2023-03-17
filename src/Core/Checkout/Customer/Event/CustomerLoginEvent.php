@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Customer\Event;
 
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ContextTokenAware;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
 use Shopware\Core\Framework\Context;
@@ -20,7 +21,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
- * @deprecated tag:v6.6.0 - reason:backward-compatibility - ContextTokenAware is deprecated and will be removed in v6.6.0
+ * @deprecated tag:v6.6.0 - reason:class-hierarchy-change - ContextTokenAware is deprecated and will be removed in v6.6.0
  */
 #[Package('customer-order')]
 class CustomerLoginEvent extends Event implements SalesChannelAware, ShopwareSalesChannelEvent, CustomerAware, MailAware, ContextTokenAware, ScalarValuesAware
@@ -40,7 +41,7 @@ class CustomerLoginEvent extends Event implements SalesChannelAware, ShopwareSal
     public function getValues(): array
     {
         return [
-            'contextToken' => $this->contextToken,
+            FlowMailVariables::CONTEXT_TOKEN => $this->contextToken,
         ];
     }
 

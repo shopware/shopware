@@ -24,6 +24,8 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 class NoDALAutoload implements Rule
 {
+    use InTestClassTrait;
+
     private const ASSOCIATIONS_WITH_AUTOLOAD = [
         OneToOneAssociationField::class,
         ManyToOneAssociationField::class,
@@ -52,9 +54,7 @@ class NoDALAutoload implements Rule
             return [];
         }
 
-        $definitionClassReflection = $scope->getClassReflection()->getNativeReflection();
-        $className = $definitionClassReflection->getName();
-        if (str_contains($className, 'Test')) {
+        if ($this->isInTestClass($scope)) {
             //if in a test namespace, don't care
             return [];
         }
@@ -99,6 +99,8 @@ class NoDALAutoload implements Rule
         $propertyNameValueExpr = $node->getArgs()[$propertyNameParamPosition]->value;
 
         if ($scope->getType($autoloadValueExpr)->isTrue()->yes()) {
+            $definitionClassReflection = $scope->getClassReflection()->getNativeReflection();
+
             $constant = $definitionClassReflection->getReflectionConstant('ENTITY_NAME');
 
             if ($constant === false) {

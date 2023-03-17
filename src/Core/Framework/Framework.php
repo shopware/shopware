@@ -15,7 +15,6 @@ use Shopware\Core\Framework\DependencyInjection\CompilerPass\FilesystemConfigMig
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\FrameworkMigrationReplacementCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\RateLimiterCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\RedisPrefixCompilerPass;
-use Shopware\Core\Framework\DependencyInjection\CompilerPass\RemoveOldFlowStorerCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\RouteScopeCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\TwigEnvironmentCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\TwigLoaderConfigCompilerPass;
@@ -107,7 +106,6 @@ class Framework extends Bundle
         $container->addCompilerPass(new TwigLoaderConfigCompilerPass());
         $container->addCompilerPass(new TwigEnvironmentCompilerPass());
         $container->addCompilerPass(new RouteScopeCompilerPass());
-        $container->addCompilerPass(new RemoveOldFlowStorerCompilerPass());
         $container->addCompilerPass(new AssetRegistrationCompilerPass());
         $container->addCompilerPass(new FilesystemConfigMigrationCompilerPass());
         $container->addCompilerPass(new RateLimiterCompilerPass());

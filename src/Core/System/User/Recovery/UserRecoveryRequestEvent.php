@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\User\Recovery;
 
+use Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ResetUrlAware;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
 use Shopware\Core\Framework\Context;
@@ -18,7 +19,7 @@ use Shopware\Core\System\User\UserEntity;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
- * @deprecated tag:v6.6.0 - reason:backward-compatibility - ResetUrlAware is deprecated and will be removed in v6.6.0
+ * @deprecated tag:v6.6.0 - reason:class-hierarchy-change - ResetUrlAware is deprecated and will be removed in v6.6.0
  */
 #[Package('system-settings')]
 class UserRecoveryRequestEvent extends Event implements UserAware, MailAware, ResetUrlAware, ScalarValuesAware
@@ -63,7 +64,7 @@ class UserRecoveryRequestEvent extends Event implements UserAware, MailAware, Re
     public function getValues(): array
     {
         return [
-            'resetUrl' => $this->resetUrl,
+            FlowMailVariables::RESET_URL => $this->resetUrl,
         ];
     }
 

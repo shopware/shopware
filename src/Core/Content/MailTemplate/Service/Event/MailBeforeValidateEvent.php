@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\MailTemplate\Service\Event;
 
 use Monolog\Level;
+use Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables;
 use Shopware\Core\Content\Flow\Dispatching\Aware\DataAware;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
 use Shopware\Core\Content\Flow\Dispatching\Aware\TemplateDataAware;
@@ -15,7 +16,7 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
- * @deprecated tag:v6.6.0 - reason:backward-compatibility - TemplateDataAware and DataAware are deprecated and will be removed in v6.6.0
+ * @deprecated tag:v6.6.0 - reason:class-hierarchy-change - TemplateDataAware and DataAware are deprecated and will be removed in v6.6.0
  */
 #[Package('sales-channel')]
 class MailBeforeValidateEvent extends Event implements LogAware, TemplateDataAware, DataAware, ScalarValuesAware
@@ -51,8 +52,8 @@ class MailBeforeValidateEvent extends Event implements LogAware, TemplateDataAwa
     public function getValues(): array
     {
         return [
-            'data' => $this->data,
-            'templateData' => $this->templateData,
+            FlowMailVariables::DATA => $this->data,
+            FlowMailVariables::TEMPLATE_DATA => $this->templateData,
         ];
     }
 

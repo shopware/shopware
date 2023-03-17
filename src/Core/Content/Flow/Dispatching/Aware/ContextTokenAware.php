@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Flow\Dispatching\Aware;
 
+use Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Log\Package;
 
@@ -11,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('business-ops')]
 interface ContextTokenAware extends FlowEventAware
 {
-    public const CONTEXT_TOKEN = 'contextToken';
+    public const CONTEXT_TOKEN = FlowMailVariables::CONTEXT_TOKEN;
 
     public function getContextToken(): string;
 }

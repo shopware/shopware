@@ -58,7 +58,7 @@ class OrderStorerTest extends TestCase
             ->method('hasStore')
             ->willReturn(true);
 
-        $storable->expects(static::exactly(1))
+        $storable->expects(static::exactly(2))
             ->method('getStore')
             ->willReturn('test_id');
 

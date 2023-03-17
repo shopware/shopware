@@ -11,7 +11,6 @@ use PHPStan\Analyser\Scope;
 use PHPStan\Reflection\ReflectionProvider;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
@@ -25,6 +24,8 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 class RuleAreasFlagNotAllowedRule implements Rule
 {
+    use InTestClassTrait;
+
     public function __construct(private readonly ReflectionProvider $reflectionProvider)
     {
     }
@@ -41,7 +42,7 @@ class RuleAreasFlagNotAllowedRule implements Rule
      */
     public function processNode(Node $node, Scope $scope): array
     {
-        if ($this->isTestClass($scope)) {
+        if ($this->isInTestClass($scope)) {
             return [];
         }
 
@@ -99,24 +100,5 @@ class RuleAreasFlagNotAllowedRule implements Rule
             default:
                 return null;
         }
-    }
-
-    private function isTestClass(Scope $node): bool
-    {
-        if ($node->getClassReflection() === null) {
-            return false;
-        }
-
-        $namespace = $node->getClassReflection()->getName();
-
-        if (!\str_contains($namespace, 'Shopware\\Tests\\Unit\\') && !\str_contains($namespace, 'Shopware\\Tests\\Migration\\')) {
-            return false;
-        }
-
-        if ($node->getClassReflection()->getParentClass() === null) {
-            return false;
-        }
-
-        return $node->getClassReflection()->getParentClass()->getName() === TestCase::class;
     }
 }

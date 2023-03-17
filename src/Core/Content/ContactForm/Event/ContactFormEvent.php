@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ContactForm\Event;
 
+use Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ContactFormDataAware;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
 use Shopware\Core\Framework\Context;
@@ -15,7 +16,7 @@ use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
- * @deprecated tag:v6.6.0 - reason:backward-compatibility - ContactFormDataAware is deprecated and will be removed in v6.6.0
+ * @deprecated tag:v6.6.0 - reason:class-hierarchy-change - ContactFormDataAware is deprecated and will be removed in v6.6.0
  */
 #[Package('content')]
 final class ContactFormEvent extends Event implements SalesChannelAware, MailAware, ContactFormDataAware, ScalarValuesAware
@@ -48,7 +49,7 @@ final class ContactFormEvent extends Event implements SalesChannelAware, MailAwa
     public function getValues(): array
     {
         return [
-            'contactFormData' => $this->contactFormData,
+            FlowMailVariables::CONTACT_FORM_DATA => $this->contactFormData,
         ];
     }
 

@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Flow\Dispatching;
 use Shopware\Core\Content\Flow\Dispatching\Storer\FlowStorer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\FlowEventAware;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -33,13 +34,16 @@ class FlowFactory
      */
     public function restore(string $name, Context $context, array $stored = [], array $data = []): StorableFlow
     {
-        $flow = new StorableFlow($name, $context, $stored, $data);
+        // @deprecated tag:v6.6.0 - Remove `silent` call and keep inner function
+        return Feature::silent('v6.6.0.0', function () use ($name, $context, $stored, $data) {
+            $flow = new StorableFlow($name, $context, $stored, $data);
 
-        foreach ($this->storer as $storer) {
-            $storer->restore($flow);
-        }
+            foreach ($this->storer as $storer) {
+                $storer->restore($flow);
+            }
 
-        return $flow;
+            return $flow;
+        });
     }
 
     /**
@@ -47,11 +51,14 @@ class FlowFactory
      */
     private function getStored(FlowEventAware $event): array
     {
-        $stored = [];
-        foreach ($this->storer as $storer) {
-            $stored = $storer->store($event, $stored);
-        }
+        // @deprecated tag:v6.6.0 - Remove `silent` call and keep inner function
+        return Feature::silent('v6.6.0.0', function () use ($event) {
+            $stored = [];
+            foreach ($this->storer as $storer) {
+                $stored = $storer->store($event, $stored);
+            }
 
-        return $stored;
+            return $stored;
+        });
     }
 }

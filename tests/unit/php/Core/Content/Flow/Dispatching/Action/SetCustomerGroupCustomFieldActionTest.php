@@ -68,11 +68,11 @@ class SetCustomerGroupCustomFieldActionTest extends TestCase
         $customerGroup = new CustomerGroupEntity();
         $customerGroup->setCustomFields($existsData);
 
-        $this->flow->expects(static::exactly(2))->method('getStore')->willReturn(Uuid::randomHex());
-        $this->flow->expects(static::once())->method('hasStore')->willReturn(true);
+        $this->flow->expects(static::exactly(2))->method('getData')->willReturn(Uuid::randomHex());
+        $this->flow->expects(static::once())->method('hasData')->willReturn(true);
         $this->flow->expects(static::once())->method('getConfig')->willReturn($config);
 
-        $customerGroupId = $this->flow->getStore('customerGroupId');
+        $customerGroupId = $this->flow->getData('customerGroupId');
 
         $this->entitySearchResult->expects(static::once())
             ->method('first')
@@ -95,8 +95,8 @@ class SetCustomerGroupCustomFieldActionTest extends TestCase
 
     public function testActionWithNotAware(): void
     {
-        $this->flow->expects(static::once())->method('hasStore')->willReturn(false);
-        $this->flow->expects(static::never())->method('getStore');
+        $this->flow->expects(static::once())->method('hasData')->willReturn(false);
+        $this->flow->expects(static::never())->method('getData');
         $this->repository->expects(static::never())->method('update');
 
         $this->action->handleFlow($this->flow);

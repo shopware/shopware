@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Customer\Event;
 
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ConfirmUrlAware;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
 use Shopware\Core\Framework\Context;
@@ -19,7 +20,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
- * @deprecated tag:v6.6.0 - reason:backward-compatibility - ConfirmUrlAware is deprecated and will be removed in v6.6.0
+ * @deprecated tag:v6.6.0 - reason:class-hierarchy-change - ConfirmUrlAware is deprecated and will be removed in v6.6.0
  */
 #[Package('customer-order')]
 class DoubleOptInGuestOrderEvent extends Event implements SalesChannelAware, CustomerAware, MailAware, ConfirmUrlAware, ScalarValuesAware
@@ -68,7 +69,7 @@ class DoubleOptInGuestOrderEvent extends Event implements SalesChannelAware, Cus
      */
     public function getValues(): array
     {
-        return ['confirmUrl' => $this->confirmUrl];
+        return [FlowMailVariables::CONFIRM_URL => $this->confirmUrl];
     }
 
     public function getName(): string

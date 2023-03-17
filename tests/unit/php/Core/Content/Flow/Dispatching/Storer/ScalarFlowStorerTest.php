@@ -13,8 +13,6 @@ use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Feature;
 
 /**
- * @deprecated tag:v6.6.0 - Will be removed
- *
  * @internal
  *
  * @covers \Shopware\Core\Content\Flow\Dispatching\Storer\ScalarValuesStorer

@@ -87,6 +87,10 @@ copy_assets() {
   if [ -d "${PLATFORM_DIR}/src/${package}/Resources/app/${package_lower}/dist" ]; then
     cp -r "${PLATFORM_DIR}/src/${package}/Resources/app/${package_lower}/dist" "${PLATFORM_DIR}/repos/${package_lower}/Resources/app/${package_lower}/"
   fi
+
+  if [ -d "${PLATFORM_DIR}/src/${package}/Resources/app/${package_lower}/vendor" ]; then
+    cp -r "${PLATFORM_DIR}/src/${package}/Resources/app/${package_lower}/vendor" "${PLATFORM_DIR}/repos/${package_lower}/Resources/app/${package_lower}/"
+  fi
 }
 
 # Returns a list of mandatory assets for the Administration package.
@@ -108,6 +112,7 @@ storefront_assets_list() {
     ${PLATFORM_DIR}/repos/storefront/Resources/app/storefront/dist/storefront/js/storefront.js
     ${PLATFORM_DIR}/repos/storefront/Resources/public/administration/js/storefront.js
     ${PLATFORM_DIR}/repos/storefront/Resources/public/administration/css/storefront.css
+    ${PLATFORM_DIR}/repos/storefront/Resources/app/storefront/vendor/bootstrap/package.json
 EOF
 }
 
@@ -128,6 +133,16 @@ include_storefront_assets() {
   sed -i -E '/[/]?Resources[/]app[/]storefront[/]vendor([/]?|.*)/d' "${PLATFORM_DIR}/repos/storefront/.gitignore"
   sed -i -E '/[/]?app[/]storefront[/]dist([/]?|.*)/d' "${PLATFORM_DIR}/repos/storefront/Resources/.gitignore"
   sed -i -E '/[/]?public([/]?|.*)/d' "${PLATFORM_DIR}/repos/storefront/Resources/.gitignore"
+}
+
+require_core_version() {
+  local package="${1}"
+  local package_lower=$(lowercase "${package}")
+  local version="${2}"
+
+  if [ "${package_lower}" != "core" ]; then
+    composer -d "${PLATFORM_DIR}/repos/${package_lower}" require "shopware/core:${version}" --no-update --no-install
+  fi
 }
 
 # Commits additional files in a split repository of a subpackage of platform.

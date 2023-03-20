@@ -50,7 +50,7 @@ async function generateVersionListing() {
         const releases = await(await fetchGithub("https://api.github.com/repos/shopware/platform/releases?per_page=100&page=" + currentPage)).json();
 
         for (const release of releases) {
-            if (release.prerelease || release.draft) {
+            if (release.draft) {
                 continue;
             }
 

@@ -10,7 +10,10 @@ function createRuleMock(isNew) {
             entity: 'rule',
             source: 'foo/rule',
             children: [{
-                id: 'some-id'
+                id: 'some-id',
+                children: [{
+                    id: 'some-id'
+                }]
             }]
         }],
         someRuleRelation: []
@@ -94,5 +97,25 @@ describe('app/component/rule/sw-rule-modal', () => {
         await flushPromises();
 
         expect(wrapper.emitted().save).toBeTruthy();
+    });
+
+    it('should create notification and prevent saving', async () => {
+        const wrapper = await createWrapper();
+        wrapper.vm.ruleConditionDataProviderService.getRestrictedRuleTooltipConfig = () => {
+            return { disabled: false, message: 'Awareness error' };
+        };
+        await flushPromises();
+
+        wrapper.vm.createNotificationError = jest.fn();
+
+        await wrapper.vm.saveAndClose();
+        await flushPromises();
+
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
+            message: 'Awareness error',
+            title: 'global.default.error',
+        });
+
+        expect(wrapper.emitted().save).toBeFalsy();
     });
 });

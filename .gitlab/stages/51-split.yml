@@ -54,9 +54,26 @@ add assets to split repositories:
     - .gitlab/bin/split.sh check_assets
     - .gitlab/bin/split.sh include_admin_assets
     - .gitlab/bin/split.sh include_storefront_assets
+  artifacts:
+    when: on_success
+    paths:
+      - '${CI_PROJECT_DIR}/repos'
+
+require core version:
+  stage: split
+  tags:
+    - shopware
+  image:
+    name: composer:2.5
+  needs:
+    - job: 'add assets to split repositories'
+  rules:
+    - !reference [ .rules, skip ]
+    - if: '$CI_COMMIT_TAG'
+  script:
     - >
       for package in Administration Storefront Core Elasticsearch; do
-        .gitlab/bin/split.sh commit "${package}" "${CI_COMMIT_TAG_MESSAGE} (+ assets)"
+        .gitlab/bin/split.sh require_core_version "${package}" "${CI_COMMIT_TAG}"
       done
   artifacts:
     when: on_success
@@ -70,7 +87,7 @@ tag split repositories:
   image:
     name: bitnami/git:2
   needs:
-    - job: 'add assets to split repositories'
+    - job: 'require core version'
   rules:
     - !reference [ .rules, skip ]
     - if: '$CI_COMMIT_TAG'
@@ -80,6 +97,10 @@ tag split repositories:
     GIT_COMMITTER_EMAIL: 'shopwarebot@shopware.com'
     GIT_COMMITTER_NAME: 'shopwareBot'
   script:
+    - >
+      for package in Administration Storefront Core Elasticsearch; do
+        .gitlab/bin/split.sh commit "${package}" "${CI_COMMIT_TAG} (+ assets)"
+      done
     - >
       for package in Administration Storefront Core Elasticsearch; do
         .gitlab/bin/split.sh tag "${package}" "${CI_COMMIT_TAG}"

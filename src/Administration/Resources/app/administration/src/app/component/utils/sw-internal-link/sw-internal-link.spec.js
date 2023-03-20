@@ -57,4 +57,24 @@ describe('components/utils/sw-internal-link', () => {
 
         expect(wrapper.findComponent(RouterLinkStub).classes()).toContain('sw-internal-link--inline');
     });
+
+    it('should allow links without router-links', async () => {
+        const wrapper = await setup({
+            routerLink: undefined,
+        });
+
+        expect(wrapper.find('a').exists()).toBe(true);
+    });
+
+    it('should emit click event on non-router links', async () => {
+        const wrapper = await setup({
+            routerLink: undefined,
+        });
+
+        expect(wrapper.emitted('click')).toBeFalsy();
+
+        await wrapper.find('a').trigger('click');
+
+        expect(wrapper.emitted('click')).toEqual([[]]);
+    });
 });

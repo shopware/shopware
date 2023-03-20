@@ -338,13 +338,15 @@ export default {
                         }
                     });
 
-                    const restrictions = this.ruleConditionDataProviderService.getRestrictionsByAssociation(new EntityCollection(
-                        this.conditionRepository.route,
-                        this.conditionRepository.entityName,
-                        Context.api,
-                        null,
-                        conditions,
-                    ), key);
+                    const restrictions = this.ruleConditionDataProviderService.getRestrictionsByAssociation(
+                        new EntityCollection(
+                            this.conditionRepository.route,
+                            this.conditionRepository.entityName,
+                            Context.api,
+                            null,
+                            conditions,
+                        ), key
+                    );
 
                     if (restrictions.isRestricted) {
                         const message = this.$tc(

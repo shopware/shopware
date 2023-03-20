@@ -304,4 +304,38 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         const saveButton = wrapper.find('.sw-settings-rule-detail__save-action');
         await saveButton.trigger('click');
     });
+
+    it('should save without any awareness config', async () => {
+        const wrapper = await createWrapper(
+            [
+                'rule.editor'
+            ],
+            false,
+            {},
+            {
+                ruleConditionDataProviderService: {
+                    getModuleTypes: () => [],
+                    addScriptConditions: () => {},
+                    getAwarenessKeysWithEqualsAnyConfig: () => [],
+                },
+            }
+        );
+
+        await wrapper.setData({
+            conditionTree: [{
+                id: 'some-condition',
+                children: [{
+                    id: 'some-child-condition',
+                    children: [{
+                        id: 'some-grand-child-condition'
+                    }]
+                }]
+            }]
+        });
+
+        await flushPromises();
+
+        const saveButton = wrapper.find('.sw-settings-rule-detail__save-action');
+        await saveButton.trigger('click');
+    });
 });

@@ -140,13 +140,20 @@
                                     points: product.ratingAverage,
                                     style: 'text-primary'
                                 } %}
-                                <a data-bs-toggle="tab"
-                                   class="product-detail-reviews-link"
-                                   data-offcanvas-tabs="true"
-                                   data-remote-click="true"
-                                   data-remote-click-options='{{ remoteClickOptions|json_encode }}'
-                                   href="{{ reviewTabHref }}"
-                                   aria-controls="review-tab-pane">
+                                <a
+                                    data-bs-toggle="tab"
+                                    class="product-detail-reviews-link"
+                                    {# @deprecated tag:v6.6.0 - Registering plugin on selector "data-offcanvas-tabs" is deprecated. Use "data-off-canvas-tabs" instead #}
+                                    {% if feature('v6.6.0.0') %}
+                                        data-off-canvas-tabs="true"
+                                    {% else %}
+                                        data-offcanvas-tabs="true"
+                                    {% endif %}
+                                    data-remote-click="true"
+                                    data-remote-click-options='{{ remoteClickOptions|json_encode }}'
+                                    href="{{ reviewTabHref }}"
+                                    aria-controls="review-tab-pane"
+                                >
                                     {{ totalReviews }}
                                     {{ "detail.reviewLinkText"|trans({'%count%': totalReviews})|sw_sanitize }}
                                 </a>

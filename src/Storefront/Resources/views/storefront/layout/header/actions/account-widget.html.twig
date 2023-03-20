@@ -4,7 +4,12 @@
             <button class="btn account-menu-btn header-actions-btn"
                     type="button"
                     id="accountWidget"
-                    data-offcanvas-account-menu="true"
+                    {# @deprecated tag:v6.6.0 - Registering plugin on selector "data-offcanvas-account-menu" is deprecated. Use "data-account-menu" instead #}
+                    {% if feature('v6.6.0.0') %}
+                        data-account-menu="true"
+                    {% else %}
+                        data-offcanvas-account-menu="true"
+                    {% endif %}
                     data-bs-toggle="dropdown"
                     aria-haspopup="true"
                     aria-expanded="false"

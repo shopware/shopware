@@ -207,7 +207,12 @@ shopware:
         sets:
             - name: basic
               tags: ["a", "abbr", "acronym", "address", "b", "bdo", "big", "blockquote", "br", "caption", "center", "cite", "code", "col", "colgroup", "dd", "del", "dfn", "dir", "div", "dl", "dt", "em", "font", "h1", "h2", "h3", "h4", "h5", "h6", "hr", "i", "ins", "kbd", "li", "menu", "ol", "p", "pre", "q", "s", "samp", "small", "span", "strike", "strong", "sub", "sup", "table", "tbody", "td", "tfoot", "th", "thead", "tr", "tt", "u", "ul", "var"]
-              attributes: ["align", "bgcolor", "border", "cellpadding", "cellspacing", "cite", "class", "clear", "color", "colspan", "dir", "face", "frame", "height", "href", "id", "lang", "name", "noshade", "nowrap", "rel", "rev", "rowspan", "scope", "size", "span", "start", "style", "summary", "title", "type", "valign", "value", "width"]
+              attributes: ["align", "bgcolor", "border", "cellpadding", "cellspacing", "cite", "class", "clear", "color", "colspan", "dir", "face", "frame", "height", "href", "id", "lang", "name", "noshade", "nowrap", "rel", "rev", "rowspan", "scope", "size", "span", "start", "style", "summary", "title", "type", "valign", "value", "width", "target"]
+              options:
+                  - key: Attr.AllowedFrameTargets
+                    values: ['_blank', '_self', '_parent', '_top']
+                  - key: Attr.AllowedRel
+                    values: ['nofollow', 'print']
             - name: media
               tags: ["img"]
               attributes: ["src", "alt"]
@@ -225,6 +230,8 @@ shopware:
               sets: ["basic", "media"]
             - name: app_cms_block.template
               sets: ["basic", "media", "tidy"]
+            - name: snippet.value
+              sets: ["basic", "media"]
 
     logger:
         file_rotation_count: 14

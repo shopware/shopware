@@ -67,7 +67,7 @@ class RequeueDeadMessagesService
                 continue;
             }
 
-            if ($message->getErrorCount() > self::MAX_RETRIES) {
+            if ($message->getErrorCount() > self::MAX_RETRIES && !is_subclass_of($message->getException(), RecoverableExceptionInterface::class)) {
                 $this->logger->warning(sprintf('Dropped the message %s after %d retries', $message->getOriginalMessageClass(), self::MAX_RETRIES), [
                     'exception' => $message->getException(),
                     'exceptionFile' => $message->getExceptionFile(),

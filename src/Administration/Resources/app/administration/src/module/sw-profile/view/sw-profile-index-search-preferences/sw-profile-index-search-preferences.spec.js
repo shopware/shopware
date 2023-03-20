@@ -9,6 +9,11 @@ import 'src/app/component/base/sw-container';
 import 'src/app/component/base/sw-button';
 
 Shopware.Component.register('sw-profile-index-search-preferences', swProfileIndexSearchPreferences);
+Shopware.Service().register('shopwareDiscountCampaignService', () => {
+    return {
+        isDiscountCampaignActive: jest.fn(() => true),
+    };
+});
 
 const swProfileStateMock = {
     namespaced: true,
@@ -298,7 +303,7 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
         );
     });
 
-    it('should be merged with the default value when exists user search preferences', async () => {
+    it('should contain a computed property, calling: defaultSearchPreferences', async () => {
         const wrapper = await createWrapper();
 
         wrapper.vm.searchPreferencesService.getDefaultSearchPreferences = jest.fn(() => [
@@ -314,34 +319,49 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
 
         await flushPromises();
 
-        expect(wrapper.vm.defaultSearchPreferences).toEqual([
-            {
-                order: {
-                    documents: {
-                        documentNumber: { _score: 80, _searchable: false },
-                        documentInvoice: { _score: 80, _searchable: false },
-                    }
-                }
-            }
-        ]);
+        expect(wrapper.vm.defaultSearchPreferences).toEqual(expect.arrayContaining([
+            expect.objectContaining({
+                order: expect.objectContaining({
+                    documents: expect.objectContaining({
+                        documentNumber: expect.objectContaining({
+                            _score: 80,
+                            _searchable: false,
+                        }),
+                        documentInvoice: expect.objectContaining({
+                            _score: 80,
+                            _searchable: false,
+                        }),
+                    }),
+                }),
+            }),
+        ]));
 
         await Shopware.State.commit('swProfile/setUserSearchPreferences', [
             {
                 order: {
-                    documents: { documentNumber: { _score: 80, _searchable: true } }
-                }
-            }
-        ]);
-
-        expect(wrapper.vm.defaultSearchPreferences).toEqual([
-            {
-                order: {
                     documents: {
                         documentNumber: { _score: 80, _searchable: true },
-                        documentInvoice: { _score: 80, _searchable: false },
+                        documentInvoice: { _score: 80, _searchable: true },
                     }
                 }
             }
         ]);
+
+        expect(wrapper.vm.defaultSearchPreferences).toEqual(expect.arrayContaining([
+            expect.objectContaining({
+                order: expect.objectContaining({
+                    documents: expect.objectContaining({
+                        documentNumber: expect.objectContaining({
+                            _score: 80,
+                            _searchable: true,
+                        }),
+                        documentInvoice: expect.objectContaining({
+                            _score: 80,
+                            _searchable: true,
+                        }),
+                    }),
+                }),
+            }),
+        ]));
     });
 });

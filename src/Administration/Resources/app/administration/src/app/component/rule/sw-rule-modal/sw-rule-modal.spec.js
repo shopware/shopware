@@ -8,8 +8,12 @@ function createRuleMock(isNew) {
         isNew: () => isNew,
         conditions: [{
             entity: 'rule',
-            source: 'foo/rule'
-        }]
+            source: 'foo/rule',
+            children: [{
+                id: 'some-id'
+            }]
+        }],
+        someRuleRelation: []
     };
 }
 
@@ -31,7 +35,10 @@ async function createWrapper() {
 
             ruleConditionDataProviderService: {
                 getModuleTypes: () => [],
-                addScriptConditions: () => {}
+                addScriptConditions: () => {},
+                getRestrictedRuleTooltipConfig: () => ({
+                    disabled: true
+                })
             },
 
             ruleConditionsConfigApiService: {
@@ -40,7 +47,8 @@ async function createWrapper() {
         },
 
         propsData: {
-            sequence: {}
+            sequence: {},
+            ruleAwareGroupKey: 'someRuleRelation',
         },
 
         stubs: {

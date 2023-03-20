@@ -1,6 +1,8 @@
 import { shallowMount } from '@vue/test-utils';
 import { kebabCase } from 'lodash';
 import swSettingsRuleDetail from 'src/module/sw-settings-rule/page/sw-settings-rule-detail';
+import 'src/app/component/base/sw-button';
+import 'src/app/component/base/sw-button-process';
 
 const { EntityCollection } = Shopware.Data;
 
@@ -13,7 +15,8 @@ function createRuleMock(isNew) {
         conditions: {
             entity: 'rule',
             source: 'foo/rule'
-        }
+        },
+        someRuleRelation: ['some-value']
     };
 }
 
@@ -29,7 +32,7 @@ function getCollection(repository) {
     );
 }
 
-async function createWrapper(privileges = [], isNewRule = false, computed = {}) {
+async function createWrapper(privileges = [], isNewRule = false, computed = {}, provide = {}) {
     return shallowMount(await Shopware.Component.build('sw-settings-rule-detail'), {
         stubs: {
             'sw-page': {
@@ -39,8 +42,8 @@ async function createWrapper(privileges = [], isNewRule = false, computed = {}) 
         <slot name="content"></slot>
     </div>`
             },
-            'sw-button': true,
-            'sw-button-process': true,
+            'sw-button': await Shopware.Component.build('sw-button'),
+            'sw-button-process': await Shopware.Component.build('sw-button-process'),
             'sw-card': true,
             'sw-card-view': true,
             'sw-container': true,
@@ -55,6 +58,7 @@ async function createWrapper(privileges = [], isNewRule = false, computed = {}) 
             'sw-context-button': true,
             'sw-button-group': true,
             'sw-icon': true,
+            'sw-loader': true,
             'sw-discard-changes-modal': {
                 template: `
     <div>
@@ -82,6 +86,7 @@ async function createWrapper(privileges = [], isNewRule = false, computed = {}) 
                         get: () => Promise.resolve(createRuleMock(false)),
                         search: () => Promise.resolve(getCollection(repository)),
                         hasChanges: (rule, hasChanges) => { return hasChanges ?? false; },
+                        save: () => Promise.resolve(),
                     };
                 }
             },
@@ -95,6 +100,7 @@ async function createWrapper(privileges = [], isNewRule = false, computed = {}) 
             feature: {
                 isActive: () => true
             },
+            ...provide,
         },
         mocks: {
             $route: {
@@ -123,7 +129,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
 
         const buttonSave = wrapper.find('.sw-settings-rule-detail__save-action');
 
-        expect(buttonSave.attributes().disabled).toBe('true');
+        expect(buttonSave.attributes().disabled).toBe('disabled');
     });
 
     it('should have enabled fields', async () => {
@@ -259,5 +265,43 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
                 name: 'sw.settings.rule.detail.base',
             },
         })).toBe(true);
+    });
+
+    it('should prevent the user from saving the rule when rule awareness is violated', async () => {
+        const wrapper = await createWrapper(
+            [
+                'rule.editor'
+            ],
+            false,
+            {},
+            {
+                ruleConditionDataProviderService: {
+                    getModuleTypes: () => [],
+                    addScriptConditions: () => {},
+                    getAwarenessKeysWithEqualsAnyConfig: () => ['someRuleRelation'],
+                    getRestrictionsByAssociation: () => ({
+                        isRestricted: true,
+                    }),
+                    getTranslatedConditionViolationList: () => ['someSnippetPath'],
+                },
+            }
+        );
+
+        await wrapper.setData({
+            conditionTree: [{
+                id: 'some-condition',
+                children: [{
+                    id: 'some-child-condition',
+                    children: [{
+                        id: 'some-grand-child-condition'
+                    }]
+                }]
+            }]
+        });
+
+        await flushPromises();
+
+        const saveButton = wrapper.find('.sw-settings-rule-detail__save-action');
+        await saveButton.trigger('click');
     });
 });

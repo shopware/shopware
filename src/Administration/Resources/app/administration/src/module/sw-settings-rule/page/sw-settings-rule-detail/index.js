@@ -345,7 +345,8 @@ export default {
                             Context.api,
                             null,
                             conditions,
-                        ), key
+                        ),
+                        key,
                     );
 
                     if (restrictions.isRestricted) {

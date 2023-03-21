@@ -2,6 +2,7 @@
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
 ## 6.5.0.0
+*  [NEXT-25371 - Fix quantity alignment of order line item](/changelog/release-6-5-0-0/2023-02-28-fix-quantity-alignment-of-order-line-item.md)
 *  [NEXT-1797 - New option for plugins using Composer 2](/changelog/release-6-5-0-0/2020-12-10-new-option-for-plugins.md)
 *  [NEXT-12669 - Deprecate sw-promotion in favor for sw-promotion-v2](/changelog/release-6-5-0-0/2021-02-24-deprecate-sw-promotion-in-favor-for-sw-promotion-v2.md)
 *  [NEXT-14699 - Refactor theme asset](/changelog/release-6-5-0-0/2021-05-18-refactor-theme-asset.md)

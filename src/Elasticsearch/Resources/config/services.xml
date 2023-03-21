@@ -31,6 +31,7 @@
     <services>
         <service id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper"/>
+            <argument type="service" id="Shopware\Core\System\CustomField\CustomFieldService"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\ElasticsearchHelper" public="true">

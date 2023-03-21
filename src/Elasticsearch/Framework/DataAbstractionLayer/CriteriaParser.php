@@ -26,7 +26,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelpe
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
@@ -51,12 +55,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\PrefixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SingleFieldFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SuffixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\XOrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\CountSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\CustomField\CustomFieldService;
 use Shopware\Elasticsearch\Framework\ElasticsearchDateHistogramAggregation;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Sort\CountSort;
@@ -67,8 +73,10 @@ class CriteriaParser
     /**
      * @internal
      */
-    public function __construct(private readonly EntityDefinitionQueryHelper $helper)
-    {
+    public function __construct(
+        private readonly EntityDefinitionQueryHelper $helper,
+        private readonly CustomFieldService $customFieldService
+    ) {
     }
 
     public function buildAccessor(EntityDefinition $definition, string $fieldName, Context $context): string
@@ -508,13 +516,13 @@ class CriteriaParser
         if ($filter->getValue() === null) {
             $query = new BoolQuery();
             $query->add(new ExistsQuery($fieldName), BoolQuery::MUST_NOT);
-        } else {
-            if ($this->getField($definition, $filter->getField()) instanceof BoolField) {
-                $query = new TermQuery($fieldName, (bool) $filter->getValue());
-            } else {
-                $query = new TermQuery($fieldName, $filter->getValue());
-            }
+
+            return $this->createNestedQuery($query, $definition, $filter->getField());
         }
+
+        $value = $this->parseValue($definition, $filter, $filter->getValue());
+
+        $query = new TermQuery($fieldName, $value);
 
         return $this->createNestedQuery($query, $definition, $filter->getField());
     }
@@ -523,8 +531,10 @@ class CriteriaParser
     {
         $fieldName = $this->buildAccessor($definition, $filter->getField(), $context);
 
+        $value = $this->parseValue($definition, $filter, \array_values($filter->getValue()));
+
         return $this->createNestedQuery(
-            new TermsQuery($fieldName, array_values($filter->getValue())),
+            new TermsQuery($fieldName, $value),
             $definition,
             $filter->getField()
         );
@@ -593,7 +603,7 @@ class CriteriaParser
         $accessor = $this->buildAccessor($definition, $filter->getField(), $context);
 
         return $this->createNestedQuery(
-            new RangeQuery($accessor, $filter->getParameters()),
+            new RangeQuery($accessor, $this->parseValue($definition, $filter, $filter->getParameters())),
             $definition,
             $filter->getField()
         );
@@ -773,5 +783,57 @@ class CriteriaParser
         }
 
         return implode('.', $path);
+    }
+
+    private function parseValue(EntityDefinition $definition, SingleFieldFilter $filter, mixed $value): mixed
+    {
+        $field = $this->getField($definition, $filter->getField());
+
+        if ($field instanceof TranslatedField) {
+            $field = EntityDefinitionQueryHelper::getTranslatedField($definition, $field);
+        }
+
+        if ($field instanceof CustomFields) {
+            $accessor = \explode('.', $filter->getField());
+            $last = \array_pop($accessor);
+
+            $temp = $this->customFieldService->getCustomField($last);
+
+            $field = $temp ?? $field;
+        }
+
+        if ($field instanceof BoolField) {
+            return match (true) {
+                $value === null => null,
+                \is_array($value) => \array_map(fn ($value) => (bool) $value, $value),
+                default => (bool) $value,
+            };
+        }
+
+        if ($field instanceof DateTimeField) {
+            return match (true) {
+                $value === null => null,
+                \is_array($value) => \array_map(fn ($value) => (new \DateTime($value))->format(Defaults::STORAGE_DATE_TIME_FORMAT), $value),
+                default => (new \DateTime($value))->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            };
+        }
+
+        if ($field instanceof FloatField) {
+            return match (true) {
+                $value === null => null,
+                \is_array($value) => \array_map(fn ($value) => (float) $value, $value),
+                default => (float) $value,
+            };
+        }
+
+        if ($field instanceof IntField) {
+            return match (true) {
+                $value === null => null,
+                \is_array($value) => \array_map(fn ($value) => (int) $value, $value),
+                default => (int) $value,
+            };
+        }
+
+        return $value;
     }
 }

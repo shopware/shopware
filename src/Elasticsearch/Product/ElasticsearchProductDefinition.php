@@ -133,9 +133,13 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 'ratingAverage' => self::FLOAT_FIELD,
                 'releaseDate' => [
                     'type' => 'date',
+                    'format' => 'yyyy-MM-dd HH:mm:ss.000||strict_date_optional_time||epoch_millis',
+                    'ignore_malformed' => true,
                 ],
                 'createdAt' => [
                     'type' => 'date',
+                    'format' => 'yyyy-MM-dd HH:mm:ss.000||strict_date_optional_time||epoch_millis',
+                    'ignore_malformed' => true,
                 ],
                 'sales' => self::INT_FIELD,
                 'stock' => self::INT_FIELD,

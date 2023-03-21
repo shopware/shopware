@@ -82,6 +82,8 @@ class ProductBuilder
 
     protected array $tags = [];
 
+    protected null|string $createdAt;
+
     private array $dependencies = [];
 
     public function __construct(
@@ -492,6 +494,13 @@ class ProductBuilder
 
             $repository->create($records, Context::createDefaultContext());
         }
+    }
+
+    public function createdAt(string|\DateTimeImmutable $createdAt): static
+    {
+        $this->createdAt = $createdAt instanceof \DateTimeImmutable ? $createdAt->format(Defaults::STORAGE_DATE_TIME_FORMAT) : $createdAt;
+
+        return $this;
     }
 
     private function getRuleConditions(bool $valid): array

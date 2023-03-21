@@ -227,7 +227,7 @@ class CustomFieldUpdaterTest extends TestCase
             CustomFieldTypes::DATETIME,
             [
                 'type' => 'date',
-                'format' => 'yyyy-MM-dd HH:mm:ss.000',
+                'format' => 'yyyy-MM-dd HH:mm:ss.000||strict_date_optional_time||epoch_millis',
                 'ignore_malformed' => true,
             ],
         ];

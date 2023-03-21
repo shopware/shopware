@@ -71,6 +71,8 @@ export default {
 
         ruleFilter() {
             const criteria = new Criteria(1, 25);
+
+            criteria.addAssociation('conditions');
             criteria.addSorting(Criteria.sort('name', 'ASC', false));
 
             return criteria;

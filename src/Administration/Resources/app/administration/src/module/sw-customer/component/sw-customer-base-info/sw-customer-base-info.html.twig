@@ -291,7 +291,7 @@
                 class="sw-customer-base__label-birthday"
             >
                 <template v-if="customer.birthday">
-                    {{ customer.birthday | date({ minute: undefined, hour: undefined }) }}
+                    {{ customer.birthday | date({ minute: undefined, hour: undefined, skipTimezoneConversion: true }) }}
                 </template>
                 <template v-else>
                     {{ $tc('sw-customer.baseInfo.emptyTextBirthday') }}

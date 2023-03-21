@@ -72,6 +72,15 @@ describe('src/core/service/utils/format.utils.js', () => {
 
             expect(date('2000-06-18T08:30:00.000+00:00')).toBe('18. Juni 2000 um 04:30');
         });
+
+        it('should not convert the date correctly with timezone America/New_York in de-DE', async () => {
+            setLocale('de-DE');
+            setTimeZone('America/New_York');
+
+            expect(date('2000-06-18T08:30:00.000+00:00', {
+                skipTimezoneConversion: true
+            })).toBe('18. Juni 2000 um 08:30');
+        });
     });
 
     describe('dateWithUserTimezone', () => {

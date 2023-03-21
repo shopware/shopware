@@ -58,6 +58,11 @@ Component.register('sw-card', {
             required: false,
             default: false,
         },
+        contentPadding: {
+            type: Boolean,
+            // eslint-disable-next-line vue/no-boolean-default
+            default: true,
+        },
     },
 
     computed: {

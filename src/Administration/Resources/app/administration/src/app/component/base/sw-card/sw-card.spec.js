@@ -106,4 +106,28 @@ describe('src/app/component/base/sw-card', () => {
         await buttonScopedCard.trigger('click');
         expect(wrapper.find('.scoped-slot').exists()).toBeTruthy();
     });
+
+    it('should have content padding', async () => {
+        const options = {
+            propsData: {
+                positionIdentifier: 'test',
+                contentPadding: true,
+            }
+        };
+        const wrapper = await createWrapper(options);
+
+        expect(wrapper.find('.sw-card__content').classes('no--padding')).toBe(false);
+    });
+
+    it('should not have content padding', async () => {
+        const options = {
+            propsData: {
+                positionIdentifier: 'test',
+                contentPadding: false,
+            }
+        };
+        const wrapper = await createWrapper(options);
+
+        expect(wrapper.find('.sw-card__content').classes('no--padding')).toBe(true);
+    });
 });

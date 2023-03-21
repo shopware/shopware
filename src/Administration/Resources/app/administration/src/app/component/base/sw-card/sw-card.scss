@@ -155,6 +155,10 @@
         border-radius: $border-radius-lg;
         position: relative;
 
+        &.no--padding {
+            padding: 0;
+        }
+
         @media screen and (max-width: $content-width) {
             padding: 15px;
         }

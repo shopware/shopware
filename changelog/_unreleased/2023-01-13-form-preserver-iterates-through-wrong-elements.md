@@ -1,6 +1,6 @@
 ---
 title: Form preserver iterates through wrong elements
-issue: https://github.com/shopware/platform/issues/2227
+issue: NEXT-25870
 author: Wanne Van Camp
 author_email: wanne.vancamp@meteor.be
 author_github: @wannevancamp

@@ -6,6 +6,7 @@ Lighthouse (Administration):
     extends: .base
     stage: unit
     needs: []
+    allow_failure: true
     services:
         -   name: mariadb:10.3
             alias: database

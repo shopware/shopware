@@ -181,7 +181,7 @@ export default {
                     return null;
                 }
 
-                if (this.dateType === 'time') {
+                if (['time', 'date'].includes(this.dateType)) {
                     return this.value;
                 }
 
@@ -197,7 +197,7 @@ export default {
                     return;
                 }
 
-                if (this.dateType === 'time') {
+                if (['time', 'date'].includes(this.dateType)) {
                     this.$emit('input', newValue);
                     return;
                 }

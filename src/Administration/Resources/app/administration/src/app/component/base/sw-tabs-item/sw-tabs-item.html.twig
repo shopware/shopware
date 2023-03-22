@@ -15,9 +15,17 @@
 
     <sw-icon
         v-if="hasError"
-        v-tooltip="{ message: $tc('global.sw-tabs-item.tooltipTabHasErrors') }"
+        v-tooltip="{ message: errorTooltip }"
         class="sw-tabs-item__error-badge"
         name="solid-exclamation-circle"
+        size="12px"
+    />
+
+    <sw-icon
+        v-if="!hasError && hasWarning"
+        v-tooltip="{ message: warningTooltip }"
+        class="sw-tabs-item__warning-badge"
+        name="solid-exclamation-triangle"
         size="12px"
     />
 </a>
@@ -36,9 +44,16 @@
     <slot></slot>
     <sw-icon
         v-if="hasError"
-        v-tooltip="{ message: $tc('global.sw-tabs-item.tooltipTabHasErrors') }"
+        v-tooltip="{ message: errorTooltip }"
         class="sw-tabs-item__error-badge"
         name="solid-exclamation-circle"
+        size="12px"
+    />
+    <sw-icon
+        v-if="!hasError && hasWarning"
+        v-tooltip="{ message: warningTooltip }"
+        class="sw-tabs-item__warning-badge"
+        name="solid-exclamation-triangle"
         size="12px"
     />
     {% endblock %}

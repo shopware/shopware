@@ -57,10 +57,29 @@ Component.register('sw-tabs-item', {
             required: false,
             default: false,
         },
+        hasWarning: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
         disabled: {
             type: Boolean,
             required: false,
             default: false,
+        },
+        errorTooltip: {
+            type: String,
+            required: false,
+            default: function () {
+                return this.$tc('global.sw-tabs-item.tooltipTabHasErrors');
+            },
+        },
+        warningTooltip: {
+            type: String,
+            required: false,
+            default: function () {
+                return this.$tc('global.sw-tabs-item.tooltipTabHasWarnings');
+            },
         },
     },
 
@@ -79,6 +98,7 @@ Component.register('sw-tabs-item', {
             return {
                 'sw-tabs-item--active': this.isActive,
                 'sw-tabs-item--has-error': this.hasError,
+                'sw-tabs-item--has-warning': !this.hasError && this.hasWarning,
                 'sw-tabs-item--is-disabled': this.disabled,
             };
         },

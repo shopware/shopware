@@ -42,6 +42,21 @@ class Migration1656397126AddMainVariantConfigurationTest extends TestCase
 
     private function prepare(): void
     {
+        if (!EntityDefinitionQueryHelper::columnExists($this->connection, 'product', 'display_parent')) {
+            $this->connection->executeStatement('ALTER TABLE `product` ADD COLUMN `display_parent` TINYINT(1) NULL DEFAULT NULL');
+        }
+
+        if (!EntityDefinitionQueryHelper::columnExists($this->connection, 'product', 'main_variant_id')) {
+            $this->connection->executeStatement(
+                'ALTER TABLE `product` ADD COLUMN `main_variant_id` binary(16) DEFAULT NULL,
+                        ADD CONSTRAINT `fk.product.main_variant_id` FOREIGN KEY (`main_variant_id`) REFERENCES `product` (`id`) ON DELETE SET NULL'
+            );
+        }
+
+        if (!EntityDefinitionQueryHelper::columnExists($this->connection, 'product', 'configurator_group_config')) {
+            $this->connection->executeStatement('ALTER TABLE `product` ADD COLUMN `configurator_group_config` json DEFAULT NULL');
+        }
+
         if (EntityDefinitionQueryHelper::columnExists($this->connection, 'product', 'variant_listing_config')) {
             $this->connection->executeStatement('ALTER TABLE `product` DROP COLUMN `variant_listing_config`');
         }

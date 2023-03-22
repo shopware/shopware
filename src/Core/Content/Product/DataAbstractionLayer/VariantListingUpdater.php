@@ -125,9 +125,7 @@ class VariantListingUpdater
         $query = $this->connection->createQueryBuilder();
         $query->select([
             'product.id as id',
-            'product.configurator_group_config as config',
-            'product.main_variant_id',
-            'product.display_parent',
+            'product.variant_listing_config as config',
             '(SELECT COUNT(id) FROM product as child WHERE product.id = child.parent_id) as child_count',
         ]);
         $query->from('product');
@@ -143,7 +141,8 @@ class VariantListingUpdater
             $config['config'] = $config['config'] === null ? [] : json_decode((string) $config['config'], true, 512, \JSON_THROW_ON_ERROR);
 
             $groups = [];
-            foreach ($config['config'] as $group) {
+            $configuratorGroupConfig = $config['config']['configuratorGroupConfig'] ?? [];
+            foreach ($configuratorGroupConfig as $group) {
                 if ($group['expressionForListings']) {
                     $groups[] = $group['id'];
                 }
@@ -151,9 +150,9 @@ class VariantListingUpdater
 
             $listingConfiguration[$config['id']] = [
                 'groups' => $groups,
-                'child_count' => $config['child_count'],
-                'main_variant' => $config['main_variant_id'],
-                'display_parent' => $config['display_parent'],
+                'child_count' => $config['child_count'] ?? null,
+                'main_variant' => $config['config']['mainVariantId'] ?? null,
+                'display_parent' => $config['config']['displayParent'] ?? null,
             ];
         }
 

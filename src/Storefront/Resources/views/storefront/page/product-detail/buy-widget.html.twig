@@ -111,7 +111,7 @@
                                     <a class="product-detail-tax-link"
                                        href="{{ path('frontend.cms.page',{ id: config('core.basicInformation.shippingPaymentInfoPage') }) }}"
                                        title="{{ taxText }}"
-                                       data-bs-toggle="modal"
+                                       data-ajax-modal="true"
                                        data-url="{{ path('frontend.cms.page',{ id: config('core.basicInformation.shippingPaymentInfoPage') }) }}">
                                         {{ taxText }}
                                     </a>

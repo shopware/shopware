@@ -109,7 +109,7 @@ class PluginLifecycleService
                 );
             }
 
-            $this->executor->require($pluginComposerName, $plugin->getName());
+            $this->executor->require($pluginComposerName . ':' . $pluginVersion, $plugin->getName());
 
             // running composer require may have consequences for other plugins, when they are required by the plugin being installed
             $this->pluginService->refreshPlugins($shopwareContext, new NullIO());
@@ -259,7 +259,10 @@ class PluginLifecycleService
                     ['No name defined in composer.json']
                 );
             }
-            $this->executor->require($pluginComposerName, $plugin->getName());
+            $this->executor->require(
+                $pluginComposerName . ':' . $updateContext->getUpdatePluginVersion(),
+                $plugin->getName()
+            );
 
             // running composer require may have consequences for other plugins, when they are required by the plugin being updated
             $this->pluginService->refreshPlugins($shopwareContext, new NullIO());

@@ -19,6 +19,9 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
+/**
+ * Do not use direct or indirect repository calls in a PageLoader. Always use a store-api route to get or put data.
+ */
 #[Package('customer-order')]
 class AccountOrderDetailPageLoader
 {

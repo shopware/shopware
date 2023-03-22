@@ -8,6 +8,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @internal
+ * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
 #[Route(path: '.well-known/', defaults: ['_routeScope' => ['storefront']])]
 #[Package('storefront')]

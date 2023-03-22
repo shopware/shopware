@@ -18,6 +18,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * @internal
+ * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
 #[Package('storefront')]
 class ErrorController extends StorefrontController

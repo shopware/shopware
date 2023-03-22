@@ -8,6 +8,9 @@ use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * Do not use direct or indirect repository calls in a PageLoader. Always use a store-api route to get or put data.
+ */
 #[Package('storefront')]
 class GuestWishlistPageLoader
 {

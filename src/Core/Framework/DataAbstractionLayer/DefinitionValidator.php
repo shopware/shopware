@@ -59,11 +59,6 @@ class DefinitionValidator
         'product.cheapest_price',
         'product.cheapest_price_accessor',
 
-        // Filled by \Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\VariantListingConfigFieldSerializer
-        'product.configurator_group_config',
-        'product.main_variant_id',
-        'product.display_parent',
-
         // @deprecated tag:v6.6.0 - Deprecated columns
         'shipping_method_price.currency',
         'payment_method.shortName',

@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * @internal
+ * @final
  */
 #[Package('core')]
 class DemodataContext

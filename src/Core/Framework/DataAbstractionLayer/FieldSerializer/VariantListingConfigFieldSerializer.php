@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Json;
 use Symfony\Component\Validator\Constraints\Collection;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Optional;
@@ -48,7 +49,7 @@ class VariantListingConfigFieldSerializer extends AbstractFieldSerializer
         $value = $data->getValue();
         $value['displayParent'] = isset($value['displayParent']) ? (int) $value['displayParent'] : null;
 
-        yield $field->getStorageName() => !empty($value) ? JsonFieldSerializer::encodeJson($value) : null;
+        yield $field->getStorageName() => !empty($value) ? Json::encode($value) : null;
     }
 
     public function decode(Field $field, mixed $value): ?VariantListingConfig

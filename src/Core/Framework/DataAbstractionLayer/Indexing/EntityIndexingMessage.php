@@ -21,9 +21,6 @@ class EntityIndexingMessage implements AsyncMessageInterface
      */
     private array $skip = [];
 
-    /**
-     * @internal
-     */
     public function __construct(protected $data, protected $offset = null, ?Context $context = null, private readonly bool $forceQueue = false)
     {
         $this->context = $context ?? Context::createDefaultContext();

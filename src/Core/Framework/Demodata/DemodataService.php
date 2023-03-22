@@ -15,7 +15,7 @@ use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * @internal
+ * @final
  */
 #[Package('core')]
 class DemodataService

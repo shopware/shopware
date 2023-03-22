@@ -20,9 +20,6 @@ use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetColl
 use Shopware\Core\System\Integration\IntegrationEntity;
 use Shopware\Core\System\TaxProvider\TaxProviderCollection;
 
-/**
- * @internal
- */
 #[Package('core')]
 class AppEntity extends Entity
 {

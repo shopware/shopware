@@ -10,7 +10,5 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('business-ops')]
 abstract class AbstractFlowLoader
 {
-    abstract public function getDecorated(): AbstractFlowLoader;
-
     abstract public function load(): array;
 }

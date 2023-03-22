@@ -1,6 +1,12 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.4.20.1
+*  [NEXT-24983 - Make user activity tab overarching](/changelog/release-6-4-20-1/2023-01-30-make-user-activity-tab-overarching.md)
+*  [NEXT-25367 - Remove admin user activity debounce](/changelog/release-6-4-20-1/2023-03-06-remove-admin-user-activity-debounce.md)
+*  [NEXT-25484 - Fix auto logout multiple tabs behaviour](/changelog/release-6-4-20-1/2023-03-09-fix-auto-logout-multiple-tabs-behaviour.md)
+*  [NEXT-25820 - Update icon kit](/changelog/release-6-4-20-1/2023-03-21-update-icon-kit.md)
+
 ## 6.4.20.0
 *  [NEXT-24382 - Fix adding new customer functionality](/changelog/release-6-4-20-0/2022-12-20-fix-adding-new-customer-functionality.md)
 *  [NEXT-24739 - Improve SDK channel performance](/changelog/release-6-4-20-0/2022-12-29-improve-sdk-channel-performance.md)

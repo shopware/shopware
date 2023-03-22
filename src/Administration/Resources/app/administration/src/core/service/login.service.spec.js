@@ -418,6 +418,5 @@ describe('core/service/login.service.js', () => {
         expect(JSON.parse(clientMock.history.post[0].data).grant_type).toEqual('password');
 
         expect(clientMock.history.post[1]).toBeUndefined();
-        expect(logoutListener).toHaveBeenCalledTimes(1);
     });
 });

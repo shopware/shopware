@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Demodata;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @internal
+ * @final
  */
 #[Package('core')]
 class DemodataRequest

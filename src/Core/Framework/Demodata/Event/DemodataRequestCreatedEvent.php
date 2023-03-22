@@ -9,7 +9,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
- * @internal
+ * @final
  */
 #[Package('core')]
 class DemodataRequestCreatedEvent extends Event

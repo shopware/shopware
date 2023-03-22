@@ -28,5 +28,6 @@ return [
         'Method Shopware\\\\Core\\\\System\\\\Currency\\\\CurrencyEntity#getShippingMethodPrices\\(\\) was removed',
         'Method Shopware\\\\Core\\\\System\\\\Currency\\\\CurrencyEntity#setShippingMethodPrices\\(\\) was removed',
         'Property Shopware\\\\Core\\\\Checkout\\\\Shipping\\\\Aggregate\\\\ShippingMethodPrice\\\\ShippingMethodPriceEntity#\\$currency was removed',
+        'Shopware\\\\Core\\\\Checkout\\\\Cart\\\\CachedRuleLoader was marked "@internal"'
     ],
 ];

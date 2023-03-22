@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Json;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
@@ -41,7 +42,7 @@ class ListFieldSerializer extends AbstractFieldSerializer
 
             $this->validateTypes($field, $value, $parameters);
 
-            $value = JsonFieldSerializer::encodeJson($value);
+            $value = Json::encode($value);
         }
 
         yield $field->getStorageName() => $value;

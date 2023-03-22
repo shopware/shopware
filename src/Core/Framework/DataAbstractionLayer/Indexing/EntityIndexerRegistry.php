@@ -16,8 +16,6 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @final
- *
- * @internal
  */
 #[AsMessageHandler]
 #[Package('core')]
@@ -43,6 +41,9 @@ class EntityIndexerRegistry
     ) {
     }
 
+    /**
+     * @internal
+     */
     public function __invoke(EntityIndexingMessage|IterateEntityIndexerMessage $message): void
     {
         if ($message instanceof EntityIndexingMessage) {

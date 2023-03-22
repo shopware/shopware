@@ -34,11 +34,6 @@ class CachedFlowLoader extends AbstractFlowLoader implements EventSubscriberInte
         ];
     }
 
-    public function getDecorated(): AbstractFlowLoader
-    {
-        return $this->decorated;
-    }
-
     public function load(): array
     {
         if (!empty($this->flows)) {
@@ -48,7 +43,7 @@ class CachedFlowLoader extends AbstractFlowLoader implements EventSubscriberInte
         $value = $this->cache->get(self::KEY, function (ItemInterface $item) {
             $item->tag([self::KEY]);
 
-            return CacheValueCompressor::compress($this->getDecorated()->load());
+            return CacheValueCompressor::compress($this->decorated->load());
         });
 
         return $this->flows = CacheValueCompressor::uncompress($value);

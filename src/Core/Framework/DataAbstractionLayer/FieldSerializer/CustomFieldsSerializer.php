@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\System\CustomField\CustomFieldService;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -68,7 +69,7 @@ class CustomFieldsSerializer extends JsonFieldSerializer
             return;
         }
 
-        yield $field->getStorageName() => parent::encodeJson($encoded);
+        yield $field->getStorageName() => Json::encode($encoded);
     }
 
     public function decode(Field $field, mixed $value): array|object|null

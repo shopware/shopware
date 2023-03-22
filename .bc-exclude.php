@@ -34,5 +34,6 @@ return [
         'Shopware\\\\Core\\\\Framework\\\\Log\\\\Package was marked "@internal"',
         'Shopware\\\\Core\\\\Content\\\\Mail\\\\MailerConfigurationCompilerPass was marked "@internal"',
         'Shopware\\\\Core\\\\Checkout\\\\Cart\\\\TaxProvider\\\\Struct\\\\TaxProviderResult was marked "@internal"',
+        'Shopware\\\\Core\\\\Checkout\\\\Cart\\\\CachedRuleLoader was marked "@internal"'
     ],
 ];

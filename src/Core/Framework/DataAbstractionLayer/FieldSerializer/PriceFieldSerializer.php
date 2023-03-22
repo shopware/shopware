@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\Framework\Validation\Constraint\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\Validator\Constraints\Collection;
@@ -96,7 +97,7 @@ class PriceFieldSerializer extends AbstractFieldSerializer
         }
 
         if ($value !== null) {
-            $value = JsonFieldSerializer::encodeJson($value);
+            $value = Json::encode($value);
         }
 
         yield $field->getStorageName() => $value;

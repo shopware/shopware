@@ -7,8 +7,8 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPriceContainer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
-use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 #[Package('core')]
@@ -69,7 +69,7 @@ class CheapestPriceUpdater
             );
 
             foreach ($container->getVariantIds() as $variantId) {
-                $accessor = JsonFieldSerializer::encodeJson($this->buildAccessor($container, $variantId));
+                $accessor = Json::encode($this->buildAccessor($container, $variantId));
 
                 if (($existingAccessors[Uuid::fromHexToBytes($variantId)] ?? null) === $accessor) {
                     continue;

@@ -163,9 +163,6 @@ class OrderLineItemEntity extends Entity
 
     protected ?OrderLineItemDownloadCollection $downloads = null;
 
-    /**
-     * @internal
-     */
     protected ?PromotionEntity $promotion = null;
 
     /**
@@ -449,33 +446,21 @@ class OrderLineItemEntity extends Entity
         $this->orderTransactionCaptureRefundPositions = $orderTransactionCaptureRefundPositions;
     }
 
-    /**
-     * @internal
-     */
     public function getPromotionId(): ?string
     {
         return $this->promotionId;
     }
 
-    /**
-     * @internal
-     */
     public function setPromotionId(?string $promotionId): void
     {
         $this->promotionId = $promotionId;
     }
 
-    /**
-     * @internal
-     */
     public function getPromotion(): ?PromotionEntity
     {
         return $this->promotion;
     }
 
-    /**
-     * @internal
-     */
     public function setPromotion(?PromotionEntity $promotion): void
     {
         $this->promotion = $promotion;

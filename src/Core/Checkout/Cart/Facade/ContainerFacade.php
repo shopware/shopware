@@ -22,7 +22,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  *
  * @script-service cart_manipulation
  *
- * @internal
+ * @final
  */
 #[Package('checkout')]
 class ContainerFacade extends ItemFacade

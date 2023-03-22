@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
 /**
  * @internal not intended for decoration or replacement
@@ -18,11 +17,6 @@ class FlowLoader extends AbstractFlowLoader
         private readonly Connection $connection,
         private readonly LoggerInterface $logger
     ) {
-    }
-
-    public function getDecorated(): AbstractFlowLoader
-    {
-        throw new DecorationPatternException(self::class);
     }
 
     public function load(): array

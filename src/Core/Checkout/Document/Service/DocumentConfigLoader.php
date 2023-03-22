@@ -14,9 +14,6 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Contracts\Service\ResetInterface;
 
-/**
- * @internal
- */
 #[Package('customer-order')]
 final class DocumentConfigLoader implements EventSubscriberInterface, ResetInterface
 {
@@ -32,6 +29,9 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
     {
     }
 
+    /**
+     * @internal
+     */
     public static function getSubscribedEvents(): array
     {
         return [
@@ -65,6 +65,9 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
         return $this->configs[$documentType][$salesChannelId] = $config;
     }
 
+    /**
+     * @internal
+     */
     public function reset(): void
     {
         $this->configs = [];

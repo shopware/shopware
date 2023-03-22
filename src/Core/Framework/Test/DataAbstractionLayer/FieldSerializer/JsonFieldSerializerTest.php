@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayer
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\JsonDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 
 /**
@@ -63,18 +64,18 @@ class JsonFieldSerializerTest extends TestCase
     public static function encodeProvider(): array
     {
         return [
-            [new JsonField('data', 'data'), ['foo' => 'bar'], JsonFieldSerializer::encodeJson(['foo' => 'bar'])],
-            [new JsonField('data', 'data'), ['foo' => 1], JsonFieldSerializer::encodeJson(['foo' => 1])],
-            [new JsonField('data', 'data'), ['foo' => 5.3], JsonFieldSerializer::encodeJson(['foo' => 5.3])],
-            [new JsonField('data', 'data'), ['foo' => ['bar' => 'baz']], JsonFieldSerializer::encodeJson(['foo' => ['bar' => 'baz']])],
+            [new JsonField('data', 'data'), ['foo' => 'bar'], Json::encode(['foo' => 'bar'])],
+            [new JsonField('data', 'data'), ['foo' => 1], Json::encode(['foo' => 1])],
+            [new JsonField('data', 'data'), ['foo' => 5.3], Json::encode(['foo' => 5.3])],
+            [new JsonField('data', 'data'), ['foo' => ['bar' => 'baz']], Json::encode(['foo' => ['bar' => 'baz']])],
 
             [new JsonField('data', 'data'), null, null],
-            [new JsonField('data', 'data', [], []), null, JsonFieldSerializer::encodeJson([])],
+            [new JsonField('data', 'data', [], []), null, Json::encode([])],
 
-            [new JsonField('data', 'data', [], ['foo' => 'bar']), null, JsonFieldSerializer::encodeJson(['foo' => 'bar'])],
-            [new JsonField('data', 'data', [], ['foo' => 1]), null, JsonFieldSerializer::encodeJson(['foo' => 1])],
-            [new JsonField('data', 'data', [], ['foo' => 5.3]), null, JsonFieldSerializer::encodeJson(['foo' => 5.3])],
-            [new JsonField('data', 'data', [], ['foo' => ['bar' => 'baz']]), null, JsonFieldSerializer::encodeJson(['foo' => ['bar' => 'baz']])],
+            [new JsonField('data', 'data', [], ['foo' => 'bar']), null, Json::encode(['foo' => 'bar'])],
+            [new JsonField('data', 'data', [], ['foo' => 1]), null, Json::encode(['foo' => 1])],
+            [new JsonField('data', 'data', [], ['foo' => 5.3]), null, Json::encode(['foo' => 5.3])],
+            [new JsonField('data', 'data', [], ['foo' => ['bar' => 'baz']]), null, Json::encode(['foo' => ['bar' => 'baz']])],
         ];
     }
 
@@ -94,11 +95,11 @@ class JsonFieldSerializerTest extends TestCase
     public static function decodeProvider(): array
     {
         return [
-            [new JsonField('data', 'data'), JsonFieldSerializer::encodeJson(['foo' => 'bar']), ['foo' => 'bar']],
+            [new JsonField('data', 'data'), Json::encode(['foo' => 'bar']), ['foo' => 'bar']],
 
-            [new JsonField('data', 'data'), JsonFieldSerializer::encodeJson(['foo' => 1]), ['foo' => 1]],
-            [new JsonField('data', 'data'), JsonFieldSerializer::encodeJson(['foo' => 5.3]), ['foo' => 5.3]],
-            [new JsonField('data', 'data'), JsonFieldSerializer::encodeJson(['foo' => ['bar' => 'baz']]), ['foo' => ['bar' => 'baz']]],
+            [new JsonField('data', 'data'), Json::encode(['foo' => 1]), ['foo' => 1]],
+            [new JsonField('data', 'data'), Json::encode(['foo' => 5.3]), ['foo' => 5.3]],
+            [new JsonField('data', 'data'), Json::encode(['foo' => ['bar' => 'baz']]), ['foo' => ['bar' => 'baz']]],
 
             [new JsonField('data', 'data'), null, null],
             [new JsonField('data', 'data', [], []), null, []],
@@ -166,7 +167,7 @@ class JsonFieldSerializerTest extends TestCase
 
     public function testIgnoresInvalidUtf8Characters(): void
     {
-        $result = $this->serializer::encodeJson("something\x82 another");
+        $result = Json::encode("something\x82 another");
 
         static::assertEquals('"something another"', $result);
     }

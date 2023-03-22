@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
-use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
@@ -14,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\StateAwareTrait;
 use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\Framework\Util\Json;
 
 /**
  * @final
@@ -140,7 +140,7 @@ class Criteria extends Struct implements \Stringable
     {
         $parsed = (new CriteriaArrayConverter(new AggregationParser()))->convert($this);
 
-        return JsonFieldSerializer::encodeJson($parsed);
+        return Json::encode($parsed);
     }
 
     /**

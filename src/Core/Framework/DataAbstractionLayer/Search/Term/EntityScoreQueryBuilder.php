@@ -20,7 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @internal
+ * @final
  */
 #[Package('core')]
 class EntityScoreQueryBuilder

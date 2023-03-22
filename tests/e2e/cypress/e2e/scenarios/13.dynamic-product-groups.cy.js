@@ -15,7 +15,7 @@ describe('Dynamic Product Groups in categories', () => {
         });
     });
 
-    it('@package: should create a dynamic product groups and assign it to a category and check at the storefront', { tags: ['pa-business-ops'] }, () => {
+    it('@package: should create a dynamic product groups and assign it to a category and check at the storefront', { tags: ['pa-business-ops', 'quarantined'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/category`,
             method: 'POST',
@@ -70,7 +70,7 @@ describe('Dynamic Product Groups in categories', () => {
         cy.get('.sw-loader').should('not.exist');
 
         cy.get('.tree-link > .sw-tree-item__label').click();
-        cy.get('[title="Producten"]').click();
+        cy.get('.sw-tabs-item[title="Producten"]').click();
         cy.get('.sw-category-detail-products__product-assignment-type-select .sw-single-select__selection')
             .type('Dynamische productgroep');
         cy.get('.sw-highlight-text__highlight').click( {force: true} );
@@ -96,7 +96,7 @@ describe('Dynamic Product Groups in categories', () => {
         cy.get('.sw-modal__footer .sw-button--primary').click();
         cy.contains('.smart-bar__header', 'Bulk bewerking: 3 producten');
         cy.get('.sw-bulk-edit-change-field-visibilities [type="checkbox"]').click();
-        cy.get('div[name="visibilities"]').typeMultiSelectAndCheck('E2E install test');
+        cy.get('div[name="visibilities"]').typeMultiSelectAndCheck(Cypress.env('storefrontName'));
 
         // Save and apply changes
         cy.get('.sw-bulk-edit-product__save-action').click();

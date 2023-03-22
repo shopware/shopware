@@ -43,7 +43,7 @@ describe('Administration & Storefront: Country settings tax free for B2C and B2B
         );
         cy.contains('h2','Product name').should('be.visible');
         cy.get('.sw-product-detail__select-visibility').scrollIntoView()
-            .typeMultiSelectAndCheck('E2E install test');
+            .typeMultiSelectAndCheck(Cypress.env('storefrontName'));
         cy.get('.sw-button-process__content').click();
         cy.wait('@saveProduct').its('response.statusCode').should('equal', 200);
         cy.get('.sw-skeleton').should('not.exist');
@@ -100,7 +100,7 @@ describe('Administration & Storefront: Country settings tax free for B2C and B2B
             // Go to cart and validate tax free for B2C
             cy.get('.offcanvas-cart-actions [href="/checkout/cart"]').click();
             cy.contains('.line-item-details-container [title]', 'Product name');
-            cy.contains('.line-item-total-price.col-12.col-md-2.col-sm-4', '€ 11,00*');
+            cy.contains('.line-item-total-price .line-item-total-price-value', '€ 11,00*');
             cy.contains('.header-cart-total', '€ 11,00*');
         });
     });
@@ -135,6 +135,10 @@ describe('Administration & Storefront: Country settings tax free for B2C and B2B
             method: 'POST',
         }).as('registerCustomer');
 
+        cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+
         // Add product to sales channel
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
@@ -143,7 +147,7 @@ describe('Administration & Storefront: Country settings tax free for B2C and B2B
         );
         cy.contains('h2','Product name').should('be.visible');
         cy.get('.sw-product-detail__select-visibility').scrollIntoView()
-            .typeMultiSelectAndCheck('E2E install test');
+            .typeMultiSelectAndCheck(Cypress.env('storefrontName'));
         cy.get('.sw-button-process__content').click();
         cy.wait('@saveProduct').its('response.statusCode').should('equal', 200);
         cy.get('.sw-skeleton').should('not.exist');
@@ -197,7 +201,7 @@ describe('Administration & Storefront: Country settings tax free for B2C and B2B
         // Go to cart and validate tax free for B2B
         cy.get('.offcanvas-cart-actions [href="/checkout/cart"]').click();
         cy.contains('.line-item-details-container [title]', 'Product name');
-        cy.contains('.line-item-total-price.col-12.col-md-2.col-sm-4', '€ 11,00*');
+        cy.contains('.line-item-total-price .line-item-total-price-value', '€ 11,00*');
         cy.contains('.header-cart-total', '€ 11,00*');
     });
 });

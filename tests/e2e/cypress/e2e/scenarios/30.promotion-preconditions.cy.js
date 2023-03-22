@@ -66,7 +66,7 @@ describe('Promotions: pre-conditions', () => {
             .should('have.class', 'sw-tabs-item--active');
 
         cy.get('.sw-promotion-v2-conditions__sales-channel-selection')
-            .typeMultiSelectAndCheck('E2E install test');
+            .typeMultiSelectAndCheck(Cypress.env('storefrontName'));
         cy.get('.sw-promotion-v2-conditions__rule-select-customer')
             .typeMultiSelectAndCheck('All customers');
         cy.get('.sw-promotion-v2-conditions__rule-select-customer').type('{esc}');
@@ -104,7 +104,7 @@ describe('Promotions: pre-conditions', () => {
         );
         cy.contains('h2', 'Test Product').should('be.visible');
         cy.get('.sw-product-detail__select-visibility').scrollIntoView()
-            .typeMultiSelectAndCheck('E2E install test');
+            .typeMultiSelectAndCheck(Cypress.env('storefrontName'));
         cy.get('.sw-button-process__content').click();
         cy.wait('@saveProduct').its('response.statusCode').should('equal', 200);
         cy.get('.sw-skeleton').should('not.exist');
@@ -126,7 +126,7 @@ describe('Promotions: pre-conditions', () => {
         // Configure Conditions
         cy.get('.sw-tabs-item[title="Voorwaarden"]').click();
         cy.get('.sw-promotion-v2-conditions__sales-channel-selection')
-            .typeMultiSelectAndCheck('E2E install test');
+            .typeMultiSelectAndCheck(Cypress.env('storefrontName'));
         cy.get('.sw-promotion-v2-conditions__rule-select-customer')
             .typeMultiSelectAndCheck('All customers');
         cy.get('.sw-promotion-v2-conditions__rule-select-customer').type('{esc}');

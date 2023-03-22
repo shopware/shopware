@@ -167,7 +167,7 @@
             <a href="{{ url('installer.database-import') }}" class="btn btn-default flex-item">{{ "shopware.installer.back"|trans }}</a>
             <button type="submit"
                     class="btn btn-primary flex-item flex-right"
-                    onclick="document.getElementById('shop-configuration').classList.add('is--submitted')">
+                    onclick="document.getElementById('shop-configuration').classList.add('is--submitted'); setLastActivity();">
             {{ "shopware.installer.forward"|trans }}
             </button>
         </div>
@@ -198,6 +198,10 @@
             newDefaultToggle.setAttribute('checked', '');
             newDefaultToggle.setAttribute('disabled', '');
             newDefaultToggle.classList.add('is--selected');
+        }
+
+        function setLastActivity() {
+            document.cookie = 'lastActivity='+Math.round(Date.now() / 1000)+';path=/admin';
         }
     </script>
 {% endblock %}

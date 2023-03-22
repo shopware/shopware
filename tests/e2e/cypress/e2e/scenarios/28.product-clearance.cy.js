@@ -43,12 +43,12 @@ describe('Hide products after clearance & free shipping.', () => {
 
         const page = new ProductPageObject();
         const checkoutPage = new CheckoutPageObject();
-        const salesChannel = 'E2E install test';
+        const salesChannel = Cypress.env('storefrontName');
 
         // Add product to sales channel
         cy.contains(salesChannel).click();
         cy.url().should('include', 'sales/channel/detail');
-        cy.get('[title="Producten"]').click();
+        cy.get('.sw-tabs-item[title="Producten"]').click();
         cy.get('.sw-button.sw-button--ghost').click();
         cy.get('.sw-data-grid__body .sw-data-grid__cell--selection .sw-data-grid__cell-content').click();
         cy.get('.sw-data-grid__bulk-selected-label').should('include.text', 'Geselecteerd');
@@ -101,6 +101,7 @@ describe('Hide products after clearance & free shipping.', () => {
         cy.get('input#personalFirstName').clearTypeAndCheck('Wolf');
         cy.get('input#personalLastName').clearTypeAndCheck('Kurt');
         cy.get('input#personalMail').clearTypeAndCheck('wolf@kurt.com');
+        cy.get("#personalGuest").check();
         cy.get('input#personalPassword').clearTypeAndCheck('shopware');
         cy.get('input#billingAddressAddressStreet').clearTypeAndCheck('Test street');
         cy.get('input#billingAddressAddressZipcode').clearTypeAndCheck('48500');
@@ -110,8 +111,8 @@ describe('Hide products after clearance & free shipping.', () => {
         cy.wait('@registerCustomer').its('response.statusCode').should('equal', 302);
 
         // Go to cart
-        cy.get('.confirm-tos .custom-checkbox label').scrollIntoView();
-        cy.get('.confirm-tos .custom-checkbox label').click(1, 1);
+        cy.get('.confirm-tos .form-check label').scrollIntoView();
+        cy.get('.confirm-tos .form-check label').click(1, 1);
         cy.contains('.line-item-label', 'Test Product');
         cy.get('#confirmFormSubmit').scrollIntoView().click();
         cy.contains('.finish-header', `Thank you for your order with E2E install test!`);

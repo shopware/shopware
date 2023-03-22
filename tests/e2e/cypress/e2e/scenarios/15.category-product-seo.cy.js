@@ -71,7 +71,7 @@ describe('Category: Assign product and set seo url, then check in the storefront
         cy.wait('@loadCategory').its('response.statusCode').should('equal', 200);
         cy.get('.sw-category-detail-base').should('be.visible');
         cy.get('input[name="categoryActive"]').click();
-        cy.get('[title="Producten"]').scrollIntoView().click();
+        cy.get('.sw-tabs-item[title="Producten"]').scrollIntoView().click();
         cy.get('input[placeholder="Producten zoeken en toewijzen …"]').click();
         cy.contains('.sw-select-result-list__content', 'Product name').click();
         cy.get('.sw-category-detail__save-action').click();
@@ -82,7 +82,7 @@ describe('Category: Assign product and set seo url, then check in the storefront
         // Add SEO url to the category
         cy.get('[title="SEO"]').scrollIntoView().click();
         cy.get('[label] .sw-entity-single-select__selection').scrollIntoView().click();
-        cy.get('.sw-select-result-list__content').contains('E2E install test').click();
+        cy.get('.sw-select-result-list__content').contains(Cypress.env('storefrontName')).click();
         cy.get('.sw-inherit-wrapper [type]').clearTypeAndCheck('test-SEO');
 
         cy.intercept({
@@ -95,9 +95,9 @@ describe('Category: Assign product and set seo url, then check in the storefront
         cy.get('.sw-loader').should('not.exist');
 
         // Add product to sales channel
-        cy.contains('E2E install test').click();
+        cy.contains(Cypress.env('storefrontName')).click();
         cy.url().should('include', 'sales/channel/detail');
-        cy.get('[title="Producten"]').click();
+        cy.get('.sw-tabs-item[title="Producten"]').click();
         cy.get('.sw-button.sw-button--ghost').click();
         cy.get('.sw-data-grid__body .sw-data-grid__cell--selection .sw-data-grid__cell-content').click();
         cy.get('.sw-data-grid__bulk-selected-label').should('include.text', 'Geselecteerd');

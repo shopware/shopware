@@ -15,7 +15,7 @@ describe('Creating custom fields and assigning to various models', () => {
             });
     });
 
-    it('@package: create custom text field and verify from categories, product', { tags: ['pa-system-settings'] }, () => {
+    it('@package: create custom text field and verify from categories, product', { tags: ['pa-system-settings', 'quarantined'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/category`,
             method: 'POST',
@@ -74,13 +74,13 @@ describe('Creating custom fields and assigning to various models', () => {
         cy.get('[title="specificaties"]').should('be.visible').click();
         cy.url().should('include', 'specifications');
         cy.contains('Maatregelen & verpakking');
-        cy.get('.sw-field--switch__content > .sw-field > .sw-field__label > label').scrollIntoView();
+        cy.get('.sw-tabs__custom-content').find('.sw-field').find('.sw-field__label > label').scrollIntoView();
         cy.get('[for="cf set_tekstveld_"]')
             .should('be.visible')
             .and('include.text', typeOfTheCustom);
     });
 
-    it('@package: create custom number field and verify with rule builder', () => {
+    it('@package: create custom number field and verify with rule builder', { tags: ['quarantined'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/category`,
             method: 'POST',

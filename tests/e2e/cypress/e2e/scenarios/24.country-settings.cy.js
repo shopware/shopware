@@ -126,8 +126,8 @@ describe('Storefront: test registration with country settings & invalid inputs',
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
 
-        cy.goToSalesChannelDetail('E2E install test');
-        cy.contains('.smart-bar__header', 'E2E install test');
+        cy.goToSalesChannelDetail(Cypress.env('storefrontName'));
+        cy.contains('.smart-bar__header', Cypress.env('storefrontName'));
         cy.selectCountryForSalesChannel('Germany');
 
         cy.visit(`${Cypress.env('admin')}#/sw/settings/country/index`);

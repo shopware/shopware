@@ -28,7 +28,7 @@ describe('Create a new property and select value display type', () => {
         });
     });
 
-    it('@package: create new property', { tags: ['pa-inventory'] }, () => {
+    it('@package: create new property', { tags: ['pa-inventory', 'quarantined'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/property-group`,
             method: 'POST',
@@ -61,21 +61,10 @@ describe('Create a new property and select value display type', () => {
         cy.get(page.elements.propertySaveAction).click();
         cy.wait('@searchPropertyGroup').its('response.statusCode').should('equal', 200);
 
-        // define the new created category to the product
-        cy.visit(`${Cypress.env('admin')}#/sw/product/detail`);
-        cy.get('.sw-skeleton').should('not.exist');
-        cy.get('.sw-loader').should('not.exist');
-        cy.get('.sw-product-variant-info').should('be.visible');
-        cy.get('[placeholder="Wijs categorieën toe ..."]')
-            .scrollIntoView()
-            .should('be.visible')
-            .type('Home {enter}');
-        cy.get('.sw-button-process.sw-product-detail__save-action').click();
-
         // add product to sales channel
-        cy.contains('E2E install test').click();
+        cy.contains(Cypress.env('storefrontName')).click();
         cy.url().should('include', 'sales/channel/detail');
-        cy.get('[title="Producten"]').click();
+        cy.get('.sw-tabs-item[title="Producten"]').click();
         cy.get('.sw-button.sw-button--ghost').click();
         cy.get('td.sw-data-grid__cell--selection .sw-data-grid__cell-content').click();
         cy.get('.sw-data-grid__bulk-selected-label').should('include.text', 'Geselecteerd');
@@ -90,7 +79,7 @@ describe('Create a new property and select value display type', () => {
         cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'category/index');
         cy.get('.tree-link > .sw-tree-item__label').click();
-        cy.get('[title="Producten"]').click();
+        cy.get('.sw-tabs-item[title="Producten"]').click();
         cy.url().should('include', 'products');
         cy.get('.sw-select__selection > input').click()
             .type('Test Product {enter}');

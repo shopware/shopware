@@ -28,16 +28,16 @@ describe('Product creation via API and commercial customer registration', () => 
         cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'settings/shipping/index');
         cy.setShippingMethod('Express', '10', '8');
-        cy.visit(`${Cypress.env('admin')}#/sw/settings/payment/index`);
+        cy.visit(`${Cypress.env('admin')}#/sw/settings/payment/overview`);
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
-        cy.url().should('include', 'settings/payment/index');
+        cy.url().should('include', 'settings/payment/overview');
         cy.setPaymentMethod('Paid in advance');
         cy.visit(`${Cypress.env('admin')}#/sw/dashboard/index`);
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'dashboard/index');
-        cy.goToSalesChannelDetail('E2E install test')
+        cy.goToSalesChannelDetail(Cypress.env('storefrontName'))
             .selectCountryForSalesChannel('Germany')
             .selectPaymentMethodForSalesChannel('Paid in advance')
             .selectShippingMethodForSalesChannel('Express');
@@ -51,7 +51,7 @@ describe('Product creation via API and commercial customer registration', () => 
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--0`);
         cy.contains('h2', 'Product name');
-        cy.get('.sw-product-detail__select-visibility').scrollIntoView().typeMultiSelectAndCheck('E2E install test');
+        cy.get('.sw-product-detail__select-visibility').scrollIntoView().typeMultiSelectAndCheck(Cypress.env('storefrontName'));
         cy.get('.sw-button-process__content').click();
         cy.wait('@saveProduct').its('response.statusCode').should('equal', 200);
         cy.get('.sw-skeleton').should('not.exist');
@@ -124,17 +124,17 @@ describe('Product creation via API and commercial customer registration', () => 
         cy.contains('.line-item-label', 'Product name').should('be.visible');
         cy.get('.offcanvas-cart-actions [href="/checkout/cart"]').should('be.visible').click();
         cy.contains('.line-item-details-container [title]', 'Product name').should('be.visible');
-        cy.contains('.line-item-total-price.col-12.col-md-2.col-sm-4', '49,98').should('be.visible');
+        cy.contains('.line-item-total-price .line-item-total-price-value', '49,98').should('be.visible');
         cy.contains('.col-5.checkout-aside-summary-total', '59,98').should('be.visible');
-        cy.get('a[title="Proceed to checkout"]').should('be.visible').click();
+        cy.get('a[title="Go to checkout"]').should('be.visible').click();
         cy.contains('.confirm-address', 'Test Tester').should('be.visible');
         cy.contains('.line-item-label', 'Product name').should('be.visible');
         cy.get('.line-item-total-price').scrollIntoView();
         cy.contains('.line-item-total-price', '49,98').should('be.visible');
         cy.contains('.col-5.checkout-aside-summary-total', '59,98').should('be.visible');
         cy.contains('.confirm-tos .card-title', 'Terms and conditions and cancellation policy').should('be.visible');
-        cy.get('.confirm-tos .custom-checkbox label').scrollIntoView();
-        cy.get('.confirm-tos .custom-checkbox label').should('be.visible').click(1, 1);
+        cy.get('.confirm-tos .form-check label').scrollIntoView();
+        cy.get('.confirm-tos .form-check label').should('be.visible').click(1, 1);
         cy.get('#confirmFormSubmit').scrollIntoView();
         cy.get('#confirmFormSubmit').click();
         cy.contains('.finish-header', `Thank you for your order with E2E install test!`).should('be.visible');
@@ -142,8 +142,8 @@ describe('Product creation via API and commercial customer registration', () => 
         // Verify order
         cy.visit('/account/order');
         cy.contains('.order-item-header', '10000');
-        cy.contains('View').click();
-        cy.contains('.order-item-total-value', '49,98');
+        cy.contains('Expand').click();
+        cy.contains('.line-item-total-price-value', '49,98');
         cy.contains('.order-item-detail-summary', '59,98');
     });
 });

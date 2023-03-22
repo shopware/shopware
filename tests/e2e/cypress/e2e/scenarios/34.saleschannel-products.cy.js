@@ -11,12 +11,12 @@ describe('Add and remove products from saleschannel', () => {
         cy.get('.sw-dashboard-index__welcome-title').should('be.visible');
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
-        cy.contains('E2E install test').click();
+        cy.contains(Cypress.env('storefrontName')).click();
 
         cy.contains('.sw-card__title', 'Algemene instellingen').should('be.visible');
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
-        cy.get('[title="Producten"]').click();
+        cy.get('.sw-tabs-item[title="Producten"]').click();
 
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
@@ -37,10 +37,10 @@ describe('Add and remove products from saleschannel', () => {
         cy.visit(`${Cypress.env('admin')}#/sw/dashboard/index`);
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
-        cy.contains('E2E install test').click();
+        cy.contains(Cypress.env('storefrontName')).click();
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
-        cy.get('[title="Producten"]').click();
+        cy.get('.sw-tabs-item[title="Producten"]').click();
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-button.sw-button--ghost').click();
@@ -62,7 +62,7 @@ describe('Add and remove products from saleschannel', () => {
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
         cy.contains('.sw-tree-item__label', 'Home').click();
-        cy.get('[title="Producten"]').click();
+        cy.get('.sw-tabs-item[title="Producten"]').click();
         cy.get('input[placeholder="Producten zoeken en toewijzen …"]').click();
         cy.contains('.sw-select-result-list__content', 'Product name').click();
 
@@ -71,12 +71,12 @@ describe('Add and remove products from saleschannel', () => {
         cy.get('.sw-dashboard-index__welcome-title').should('be.visible');
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
-        cy.contains('E2E install test').click();
+        cy.contains(Cypress.env('storefrontName')).click();
 
         cy.contains('.sw-card__title', 'Algemene instellingen').should('be.visible');
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
-        cy.get('[title="Producten"]').click();
+        cy.get('.sw-tabs-item[title="Producten"]').click();
 
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
@@ -116,12 +116,12 @@ describe('Add and remove products from saleschannel', () => {
         cy.visit(`${Cypress.env('admin')}#/sw/dashboard/index`);
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
-        cy.contains('E2E install test').click();
+        cy.contains(Cypress.env('storefrontName')).click();
 
         cy.contains('.sw-card__title', 'Algemene instellingen').should('be.visible');
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
-        cy.get('[title="Producten"]').click();
+        cy.get('.sw-tabs-item[title="Producten"]').click();
 
         cy.contains('.sw-empty-state__title', 'Geen producten meer gevonden').should('be.visible');
         cy.get('.sw-skeleton').should('not.exist');

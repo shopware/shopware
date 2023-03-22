@@ -63,7 +63,7 @@ describe('Create promotion codes to the product and check it at the storefront',
             .click()
             .should('have.class', 'sw-tabs-item--active');
         cy.get('.sw-promotion-v2-conditions__sales-channel-selection')
-            .typeMultiSelectAndCheck('E2E install test');
+            .typeMultiSelectAndCheck(Cypress.env('storefrontName'));
         cy.get('.sw-promotion-v2-conditions__rule-select-customer')
             .typeMultiSelectAndCheck('All customers');
         cy.get('.sw-promotion-v2-conditions__rule-select-customer').type('{esc}');
@@ -100,7 +100,7 @@ describe('Create promotion codes to the product and check it at the storefront',
         );
         cy.contains('h2', 'Test Product').should('be.visible');
         cy.get('.sw-product-detail__select-visibility').scrollIntoView()
-            .typeMultiSelectAndCheck('E2E install test');
+            .typeMultiSelectAndCheck(Cypress.env('storefrontName'));
         cy.get('.sw-button-process__content').click();
         cy.wait('@saveProduct').its('response.statusCode').should('equal', 200);
         cy.get('.sw-skeleton').should('not.exist');
@@ -120,7 +120,7 @@ describe('Create promotion codes to the product and check it at the storefront',
         cy.get(checkoutPage.elements.offCanvasCart).should('be.visible');
         cy.contains('.line-item-label', 'Test Product');
         cy.contains('.line-item-promotion', promoCode);
-        cy.get('.line-item-promotion .line-item-price')
+        cy.get('.line-item-promotion .line-item-total-price-value')
             .should('include.text', '-6,00');
     });
 
@@ -167,7 +167,7 @@ describe('Create promotion codes to the product and check it at the storefront',
             .click()
             .should('have.class', 'sw-tabs-item--active');
         cy.get('.sw-promotion-v2-conditions__sales-channel-selection')
-            .typeMultiSelectAndCheck('E2E install test');
+            .typeMultiSelectAndCheck(Cypress.env('storefrontName'));
         cy.get('.sw-promotion-v2-conditions__rule-select-customer')
             .typeMultiSelectAndCheck('All customers');
         cy.get('.sw-promotion-v2-conditions__rule-select-customer').type('{esc}');
@@ -204,7 +204,7 @@ describe('Create promotion codes to the product and check it at the storefront',
         );
         cy.contains('h2', 'Test Product').should('be.visible');
         cy.get('.sw-product-detail__select-visibility').scrollIntoView()
-            .typeMultiSelectAndCheck('E2E install test');
+            .typeMultiSelectAndCheck(Cypress.env('storefrontName'));
         cy.get('.sw-button-process__content').click();
         cy.wait('@saveProduct').its('response.statusCode').should('equal', 200);
         cy.get('.sw-skeleton').should('not.exist');
@@ -281,7 +281,7 @@ describe('Create promotion codes to the product and check it at the storefront',
             .click()
             .should('have.class', 'sw-tabs-item--active');
         cy.get('.sw-promotion-v2-conditions__sales-channel-selection')
-            .typeMultiSelectAndCheck('E2E install test');
+            .typeMultiSelectAndCheck(Cypress.env('storefrontName'));
         cy.get('.sw-promotion-v2-conditions__rule-select-customer')
             .typeMultiSelectAndCheck('All customers');
         cy.get('.sw-promotion-v2-conditions__rule-select-customer').type('{esc}');
@@ -326,7 +326,7 @@ describe('Create promotion codes to the product and check it at the storefront',
             );
             cy.contains('h2', 'Test Product').should('be.visible');
             cy.get('.sw-product-detail__select-visibility').scrollIntoView()
-                .typeMultiSelectAndCheck('E2E install test');
+                .typeMultiSelectAndCheck(Cypress.env('storefrontName'));
             cy.get('.sw-button-process__content').click();
             cy.wait('@saveProduct').its('response.statusCode').should('equal', 200);
             cy.get('.sw-skeleton').should('not.exist');

@@ -69,7 +69,7 @@ describe('Add an advance pricing rule and make an order', { tags: ['pa-inventory
         );
         cy.contains('h2', 'Test Product').should('be.visible');
         cy.get('.sw-product-detail__select-visibility').scrollIntoView()
-            .typeMultiSelectAndCheck('E2E install test');
+            .typeMultiSelectAndCheck(Cypress.env('storefrontName'));
         cy.get('.sw-button-process__content').click();
         cy.wait('@saveData').its('response.statusCode').should('equal', 200);
         cy.get('.sw-skeleton').should('not.exist');
@@ -96,12 +96,12 @@ describe('Add an advance pricing rule and make an order', { tags: ['pa-inventory
         cy.get('.summary-value.summary-total').should('include.text', '60,00');
 
         // Verify test product price is 300€ with 5 products
-        cy.get('.line-item-quantity-container > .custom-select').select('5');
+        cy.get('.line-item-quantity-group > .form-control').clear().type('5{enter}');
         cy.get('.sw-loader').should('not.exist');
         cy.get('.summary-value.summary-total').should('include.text', '300,00');
 
         // Set the product number 6 to see whether the advance price option is applied (6x50)
-        cy.get('.line-item-quantity-container > .custom-select').select('6');
+        cy.get('.line-item-quantity-group > .form-control').clear().type('6{enter}');
         cy.get('.sw-loader').should('not.exist');
         cy.get('.summary-value.summary-total').should('include.text', '300,00');
     });

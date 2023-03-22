@@ -99,7 +99,7 @@ describe('@package: Currency: checkout with tax-free and price rounding', () => 
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
         cy.contains('h2', 'Product name').should('be.visible');
-        cy.get('.sw-product-detail__select-visibility').scrollIntoView().typeMultiSelectAndCheck('E2E install test');
+        cy.get('.sw-product-detail__select-visibility').scrollIntoView().typeMultiSelectAndCheck(Cypress.env('storefrontName'));
         cy.get('.sw-button-process__content').click();
         cy.wait('@saveProduct').its('response.statusCode').should('equal', 200);
         cy.get('.sw-skeleton').should('not.exist');
@@ -124,13 +124,14 @@ describe('@package: Currency: checkout with tax-free and price rounding', () => 
         cy.contains('.line-item-details-container [title]', 'Product name');
         cy.get('.line-item-total-price').contains('34,116');
         cy.contains('.col-5.checkout-aside-summary-total', '34,116');
-        cy.get('a[title="Proceed to checkout"]').click();
+        cy.get('a[title="Go to checkout"]').click();
 
         // Register customer
         cy.get('#personalSalutation').select('Mr.');
         cy.get('#personalFirstName').typeAndCheckStorefront('Test');
         cy.get('#personalLastName').typeAndCheckStorefront('Tester');
         cy.get('#personalMail').typeAndCheckStorefront('test@tester.com');
+        cy.get("#personalGuest").check();
         cy.get('#personalPassword').typeAndCheckStorefront('shopware');
         cy.get('#billingAddressAddressStreet').typeAndCheckStorefront('Test street');
         cy.get('#billingAddressAddressZipcode').typeAndCheckStorefront('12345');
@@ -148,8 +149,8 @@ describe('@package: Currency: checkout with tax-free and price rounding', () => 
 
         // Finish checkout
         cy.contains('.confirm-tos .card-title', 'Terms and conditions and cancellation policy');
-        cy.get('.confirm-tos .custom-checkbox label').scrollIntoView();
-        cy.get('.confirm-tos .custom-checkbox label').click(1, 1);
+        cy.get('.confirm-tos .form-check label').scrollIntoView();
+        cy.get('.confirm-tos .form-check label').click(1, 1);
         cy.get('#confirmFormSubmit').scrollIntoView();
         cy.get('#confirmFormSubmit').click();
         cy.contains('.finish-header', `Thank you for your order with E2E install test!`);

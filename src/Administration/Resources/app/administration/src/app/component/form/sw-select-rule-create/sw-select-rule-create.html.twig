@@ -136,7 +136,7 @@
             v-if="showRuleModal"
             @save="onSaveRule"
             @modal-close="onCloseRuleModal"
-            :allowedRuleScopes="['cart', 'checkout', 'global', 'lineItem']">
+            :rule-aware-group-key="ruleAwareGroupKey">
         </sw-rule-modal>
         {% endblock %}
     </slot>

@@ -126,7 +126,7 @@
                 <template #rule-modal="{ showRuleModal, onSaveRule, onCloseRuleModal }">
                     <sw-price-rule-modal
                         v-if="showRuleModal"
-                        :allowed-rule-scopes="['cart', 'checkout', 'global', 'lineItem']"
+                        rule-aware-group-key="shippingMethodPriceCalculations"
                         @save="onSaveRule"
                         @modal-close="onCloseRuleModal"
                     />
@@ -282,7 +282,7 @@
                 <template #rule-modal="{ showRuleModal, onSaveRule, onCloseRuleModal }">
                     <sw-price-rule-modal
                         v-if="showRuleModal"
-                        :allowed-rule-scopes="['cart', 'checkout', 'global', 'lineItem']"
+                        rule-aware-group-key="shippingMethodPriceCalculations"
                         @save="onSaveRule"
                         @modal-close="onCloseRuleModal"
                     />

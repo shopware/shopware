@@ -241,10 +241,6 @@ Component.register('sw-advanced-selection-rule', {
 
     methods: {
         getColumnClass(item) {
-            if (!this.restrictedRuleIds.includes(item.id)) {
-                return '';
-            }
-
             return (this.isRestricted(item)) ? 'sw-advanced-selection-rule-disabled' : '';
         },
 
@@ -263,10 +259,6 @@ Component.register('sw-advanced-selection-rule', {
         },
 
         isRestricted(item) {
-            if (item.areas?.includes('flow-condition') && this.ruleAwareGroupKey !== 'flowConditions') {
-                return true;
-            }
-
             const insideRestrictedRuleIds = this.restrictedRuleIds.includes(item.id);
 
             const isRuleRestricted = this.ruleConditionDataProviderService.isRuleRestricted(
@@ -278,10 +270,6 @@ Component.register('sw-advanced-selection-rule', {
         },
 
         isRecordSelectable(item) {
-            if (!this.restrictedRuleIds.includes(item.id)) {
-                return {};
-            }
-
             const isRestricted = this.isRestricted(item);
 
             if (isRestricted) {

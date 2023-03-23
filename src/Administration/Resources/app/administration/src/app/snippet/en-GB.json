@@ -1451,8 +1451,8 @@
       "productPrices": "pricing rules",
       "shippingMethodPrices": "pricing rules",
       "shippingMethodPriceCalculations": "shipping cost calculation rules",
-      "shippingMethods": "shipping method rules",
-      "paymentMethods": "payment method rules",
+      "shippingMethods": "shipping method availability rules",
+      "paymentMethods": "payment method availability rules",
       "flowSequences": "Flow Builder rules",
       "personaPromotions": "customer rule|customer rules",
       "orderPromotions": "order rule|order rules",
@@ -1466,7 +1466,11 @@
       "restrictedConditionTooltip": "This rule is assigned to:<br/><br/>{assignments}</br></br>The use of this condition is not allowed in this context.",
       "relation": {
         "flowTrigger": "Flows with trigger: {assignments}",
-        "promotion": "Promotions as {assignments}"
+        "promotion": "Promotions as {assignments}",
+        "productPrices": "Products as {assignments}",
+        "shippingMethods": "Shipping methods as {assignments}",
+        "shippingMethodPrices": "Shipping methods as {assignments}",
+        "paymentMethods": "Payment methods as {assignments}"
       }
     },
     "and": "and",

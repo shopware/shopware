@@ -123,9 +123,9 @@
                         association-field="ruleId"
                         :initial-conditions="conditions"
                         :condition-repository="conditionRepository"
-                        :scopes="scopesOfRuleAwarenessKey"
                         :condition-data-provider-service="ruleConditionDataProviderService"
                         :association-value="rule.id"
+                        :association-entity="rule"
                         :root-condition="null"
                         @conditions-changed="onConditionsChanged"
                     />

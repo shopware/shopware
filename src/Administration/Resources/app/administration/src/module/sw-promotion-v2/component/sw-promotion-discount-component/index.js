@@ -99,7 +99,6 @@ export default {
                 { key: DiscountScopes.SET, name: this.$tc('sw-promotion.detail.main.discounts.valueScopeSet') },
             ];
 
-
             let index = 1;
             this.availableSetGroups.forEach(() => {
                 const keyValue = `${DiscountScopes.SETGROUP}-${index}`;
@@ -113,7 +112,7 @@ export default {
             // to avoid an accidental save with another value
             if (this.availableSetGroups.length <= 0) {
                 const nameValue = `${this.$tc('sw-promotion.detail.main.discounts.valueScopeSetGroup')}`;
-                scopes.push({ key: this.discount.scope, name: nameValue });
+                scopes.push({ key: DiscountScopes.SETGROUP, name: nameValue });
             }
 
             return scopes;

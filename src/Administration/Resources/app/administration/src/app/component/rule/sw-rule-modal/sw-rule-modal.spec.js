@@ -108,7 +108,7 @@ describe('app/component/rule/sw-rule-modal', () => {
 
         wrapper.vm.createNotificationError = jest.fn();
 
-        await wrapper.vm.saveAndClose();
+        await wrapper.find('.sw-rule-modal__save').trigger('click');
         await flushPromises();
 
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({

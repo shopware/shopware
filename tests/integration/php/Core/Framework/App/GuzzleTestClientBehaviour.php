@@ -7,6 +7,8 @@ use GuzzleHttp\Promise\PromiseInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Test\Integration\App\GuzzleHistoryCollector;
+use Shopware\Core\Test\Integration\App\TestAppServer;
 
 trait GuzzleTestClientBehaviour
 {

@@ -6112,11 +6112,6 @@ parameters:
 			path: src/Core/DevOps/Locust/setup.php
 
 		-
-			message: "#^Strict comparison using \\=\\=\\= between PHPStan\\\\Reflection\\\\ClassReflection and null will always evaluate to false\\.$#"
-			count: 1
-			path: src/Core/DevOps/StaticAnalyze/PHPStan/Rules/Deprecation/DeprecatedMethodsThrowDeprecationRule.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Asset\\\\FallbackUrlPackage\\:\\:applyFallback\\(\\) has parameter \\$baseUrls with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Adapter/Asset/FallbackUrlPackage.php

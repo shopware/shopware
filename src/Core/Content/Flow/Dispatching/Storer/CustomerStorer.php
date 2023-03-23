@@ -42,6 +42,8 @@ class CustomerStorer extends FlowStorer
             return;
         }
 
+        $storable->setData(CustomerAware::CUSTOMER_ID, $storable->getStore(CustomerAware::CUSTOMER_ID));
+
         $storable->lazy(
             CustomerAware::CUSTOMER,
             $this->load(...),

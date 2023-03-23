@@ -233,6 +233,10 @@
             <tag name="flow.storer"/>
         </service>
 
+        <service id="Shopware\Core\Content\Flow\Dispatching\Storer\ScalarValuesStorer">
+            <tag name="flow.storer"/>
+        </service>
+
         <service id="Shopware\Core\Content\Flow\Dispatching\Storer\ConfirmUrlStorer">
             <tag name="flow.storer"/>
         </service>

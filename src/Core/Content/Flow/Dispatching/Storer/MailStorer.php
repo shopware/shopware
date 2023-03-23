@@ -52,6 +52,8 @@ class MailStorer extends FlowStorer
             return;
         }
 
+        $storable->setData(MailAware::SALES_CHANNEL_ID, $storable->getStore(MailAware::SALES_CHANNEL_ID));
+
         $mailStructData = $storable->getStore(MailAware::MAIL_STRUCT);
 
         $mailStruct = new MailRecipientStruct($mailStructData['recipients'] ?? []);

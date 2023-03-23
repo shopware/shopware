@@ -68,8 +68,8 @@ class SetOrderStateActionTest extends TestCase
     ): void {
         $ids = new TestDataCollection();
 
-        $this->flow->expects(static::once())->method('hasStore')->willReturn(true);
-        $this->flow->expects(static::exactly(2))->method('getStore')->willReturn(Uuid::randomHex());
+        $this->flow->expects(static::once())->method('hasData')->willReturn(true);
+        $this->flow->expects(static::exactly(2))->method('getData')->willReturn(Uuid::randomHex());
         $this->flow->expects(static::once())->method('getConfig')->willReturn($config);
 
         if ($expectsTimes) {
@@ -91,7 +91,7 @@ class SetOrderStateActionTest extends TestCase
                     Uuid::randomHex(),
                     $expected['orderTransaction'],
                 );
-            $orderId = $this->flow->getStore('orderId');
+            $orderId = $this->flow->getData('orderId');
         } else {
             $this->connection->expects(static::never())
                 ->method('fetchOne');
@@ -130,8 +130,8 @@ class SetOrderStateActionTest extends TestCase
 
     public function testActionWithNotAware(): void
     {
-        $this->flow->expects(static::once())->method('hasStore')->willReturn(false);
-        $this->flow->expects(static::never())->method('getStore');
+        $this->flow->expects(static::once())->method('hasData')->willReturn(false);
+        $this->flow->expects(static::never())->method('getData');
 
         $this->orderService->expects(static::never())
             ->method('orderStateTransition');
@@ -145,8 +145,8 @@ class SetOrderStateActionTest extends TestCase
 
     public function testActionWithEmptyConfig(): void
     {
-        $this->flow->expects(static::once())->method('hasStore')->willReturn(true);
-        $this->flow->expects(static::exactly(1))->method('getStore')->willReturn(Uuid::randomHex());
+        $this->flow->expects(static::once())->method('hasData')->willReturn(true);
+        $this->flow->expects(static::exactly(1))->method('getData')->willReturn(Uuid::randomHex());
         $this->flow->expects(static::once())->method('getConfig')->willReturn([]);
 
         $this->orderService->expects(static::never())

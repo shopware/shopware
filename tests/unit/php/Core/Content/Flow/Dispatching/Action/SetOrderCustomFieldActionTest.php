@@ -68,11 +68,11 @@ class SetOrderCustomFieldActionTest extends TestCase
         $order = new OrderEntity();
         $order->setCustomFields($existsData);
 
-        $this->flow->expects(static::exactly(2))->method('getStore')->willReturn(Uuid::randomHex());
-        $this->flow->expects(static::once())->method('hasStore')->willReturn(true);
+        $this->flow->expects(static::exactly(2))->method('getData')->willReturn(Uuid::randomHex());
+        $this->flow->expects(static::once())->method('hasData')->willReturn(true);
         $this->flow->expects(static::once())->method('getConfig')->willReturn($config);
 
-        $orderId = $this->flow->getStore(OrderAware::ORDER_ID);
+        $orderId = $this->flow->getData(OrderAware::ORDER_ID);
         $this->entitySearchResult->expects(static::once())
             ->method('first')
             ->willReturn($order);
@@ -93,8 +93,8 @@ class SetOrderCustomFieldActionTest extends TestCase
 
     public function testActionWithNotAware(): void
     {
-        $this->flow->expects(static::once())->method('hasStore')->willReturn(false);
-        $this->flow->expects(static::never())->method('getStore');
+        $this->flow->expects(static::once())->method('hasData')->willReturn(false);
+        $this->flow->expects(static::never())->method('getData');
         $this->repository->expects(static::never())->method('update');
 
         $this->action->handleFlow($this->flow);

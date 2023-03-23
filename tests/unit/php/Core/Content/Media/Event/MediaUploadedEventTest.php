@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Unit\Core\Content\Media\Event;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
+use Shopware\Core\Content\Flow\Dispatching\Storer\ScalarValuesStorer;
 use Shopware\Core\Content\Media\Event\MediaUploadedEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
@@ -45,5 +47,21 @@ class MediaUploadedEventTest extends TestCase
             (new EventDataCollection())->add('mediaId', new ScalarValueType(ScalarValueType::TYPE_STRING)),
             $eventDataCollection
         );
+    }
+
+    public function testRestoreScalarValuesCorrectly(): void
+    {
+        $event = new MediaUploadedEvent('media-id', Context::createDefaultContext());
+
+        $storer = new ScalarValuesStorer();
+
+        $stored = $storer->store($event, []);
+
+        $flow = new StorableFlow('foo', Context::createDefaultContext(), $stored);
+
+        $storer->restore($flow);
+
+        static::assertArrayHasKey('mediaId', $flow->data());
+        static::assertEquals('media-id', $flow->data()['mediaId']);
     }
 }

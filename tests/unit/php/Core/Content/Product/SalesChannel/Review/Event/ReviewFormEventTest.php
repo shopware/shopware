@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Review\Event;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
+use Shopware\Core\Content\Flow\Dispatching\Storer\ScalarValuesStorer;
 use Shopware\Core\Content\Product\SalesChannel\Review\Event\ReviewFormEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
@@ -32,5 +34,28 @@ class ReviewFormEventTest extends TestCase
         static::assertEquals($data->all(), $event->getReviewFormData());
         static::assertEquals($productId, $event->getProductId());
         static::assertEquals($customerId, $event->getCustomerId());
+    }
+
+    public function testScalarValuesCorrectly(): void
+    {
+        $event = new ReviewFormEvent(
+            Context::createDefaultContext(),
+            'sales-channel-id',
+            new MailRecipientStruct(['foo', 'bar']),
+            new DataBag(['foo' => 'bar', 'bar' => 'baz']),
+            'product-id',
+            'customer-id'
+        );
+
+        $storer = new ScalarValuesStorer();
+
+        $stored = $storer->store($event, []);
+
+        $flow = new StorableFlow('foo', Context::createDefaultContext(), $stored);
+
+        $storer->restore($flow);
+
+        static::assertArrayHasKey('reviewFormData', $flow->data());
+        static::assertEquals(['foo' => 'bar', 'bar' => 'baz'], $flow->data()['reviewFormData']);
     }
 }

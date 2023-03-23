@@ -37,11 +37,11 @@ class AddCustomerTagAction extends FlowAction implements DelayableAction
 
     public function handleFlow(StorableFlow $flow): void
     {
-        if (!$flow->hasStore(CustomerAware::CUSTOMER_ID)) {
+        if (!$flow->hasData(CustomerAware::CUSTOMER_ID)) {
             return;
         }
 
-        $this->update($flow->getContext(), $flow->getConfig(), $flow->getStore(CustomerAware::CUSTOMER_ID));
+        $this->update($flow->getContext(), $flow->getConfig(), $flow->getData(CustomerAware::CUSTOMER_ID));
     }
 
     /**

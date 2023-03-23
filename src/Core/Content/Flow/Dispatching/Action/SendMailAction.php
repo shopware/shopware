@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Log\Package;
@@ -35,6 +36,7 @@ class SendMailAction extends FlowAction implements DelayableAction
 {
     final public const ACTION_NAME = MailTemplateActions::MAIL_TEMPLATE_MAIL_SEND_ACTION;
     final public const MAIL_CONFIG_EXTENSION = 'mail-attachments';
+
     private const RECIPIENT_CONFIG_ADMIN = 'admin';
     private const RECIPIENT_CONFIG_CUSTOM = 'custom';
     private const RECIPIENT_CONFIG_CONTACT_FORM_MAIL = 'contactFormMail';
@@ -84,7 +86,7 @@ class SendMailAction extends FlowAction implements DelayableAction
             return;
         }
 
-        if (!$flow->hasStore(MailAware::MAIL_STRUCT) || !$flow->hasStore(MailAware::SALES_CHANNEL_ID)) {
+        if (!$flow->hasData(MailAware::MAIL_STRUCT) || !$flow->hasData(MailAware::SALES_CHANNEL_ID)) {
             throw new MailEventConfigurationException('Not have data from MailAware', $flow::class);
         }
 
@@ -103,14 +105,17 @@ class SendMailAction extends FlowAction implements DelayableAction
             return;
         }
 
-        $injectedTranslator = $this->injectTranslator($flow->getContext(), $flow->getStore(MailAware::SALES_CHANNEL_ID));
+        $injectedTranslator = $this->injectTranslator($flow->getContext(), $flow->getData(MailAware::SALES_CHANNEL_ID));
 
         $data = new DataBag();
 
+        /** @var MailRecipientStruct $mailStruct */
+        $mailStruct = $flow->getData(MailAware::MAIL_STRUCT);
+
         $recipients = $this->getRecipients(
             $eventConfig['recipient'],
-            $flow->getStore(MailAware::MAIL_STRUCT)['recipients'],
-            $flow->getStore('contactFormData', []),
+            $mailStruct->getRecipients(),
+            $flow->getData(FlowMailVariables::CONTACT_FORM_DATA, []),
         );
 
         if (empty($recipients)) {
@@ -119,7 +124,7 @@ class SendMailAction extends FlowAction implements DelayableAction
 
         $data->set('recipients', $recipients);
         $data->set('senderName', $mailTemplate->getTranslation('senderName'));
-        $data->set('salesChannelId', $flow->getStore(MailAware::SALES_CHANNEL_ID));
+        $data->set('salesChannelId', $flow->getData(MailAware::SALES_CHANNEL_ID));
 
         $data->set('templateId', $mailTemplate->getId());
         $data->set('customFields', $mailTemplate->getCustomFields());
@@ -133,10 +138,10 @@ class SendMailAction extends FlowAction implements DelayableAction
             $mailTemplate,
             $extension,
             $eventConfig,
-            $flow->getStore(OrderAware::ORDER_ID),
+            $flow->getData(OrderAware::ORDER_ID),
         ));
 
-        $this->setReplyTo($data, $eventConfig, $flow->getStore('contactFormData', []));
+        $this->setReplyTo($data, $eventConfig, $flow->getData(FlowMailVariables::CONTACT_FORM_DATA, []));
 
         $this->eventDispatcher->dispatch(new FlowSendMailActionEvent($data, $mailTemplate, $flow));
 

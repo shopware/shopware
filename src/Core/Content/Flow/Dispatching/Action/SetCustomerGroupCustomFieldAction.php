@@ -47,11 +47,11 @@ class SetCustomerGroupCustomFieldAction extends FlowAction implements DelayableA
 
     public function handleFlow(StorableFlow $flow): void
     {
-        if (!$flow->hasStore(CustomerGroupAware::CUSTOMER_GROUP_ID)) {
+        if (!$flow->hasData(CustomerGroupAware::CUSTOMER_GROUP_ID)) {
             return;
         }
 
-        $this->update($flow->getContext(), $flow->getConfig(), $flow->getStore(CustomerGroupAware::CUSTOMER_GROUP_ID));
+        $this->update($flow->getContext(), $flow->getConfig(), $flow->getData(CustomerGroupAware::CUSTOMER_GROUP_ID));
     }
 
     /**

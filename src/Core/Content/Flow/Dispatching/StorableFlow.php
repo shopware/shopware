@@ -5,12 +5,13 @@ namespace Shopware\Core\Content\Flow\Dispatching;
 use Shopware\Core\Content\Flow\FlowException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * @final
  */
 #[Package('business-ops')]
-class StorableFlow
+class StorableFlow extends Struct
 {
     private ?FlowState $state = null;
 

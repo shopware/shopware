@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\System\User\Recovery;
 
+use Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ResetUrlAware;
+use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
@@ -16,8 +18,11 @@ use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryEntity;
 use Shopware\Core\System\User\UserEntity;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @deprecated tag:v6.6.0 - reason:class-hierarchy-change - ResetUrlAware is deprecated and will be removed in v6.6.0
+ */
 #[Package('system-settings')]
-class UserRecoveryRequestEvent extends Event implements UserAware, MailAware, ResetUrlAware
+class UserRecoveryRequestEvent extends Event implements UserAware, MailAware, ResetUrlAware, ScalarValuesAware
 {
     final public const EVENT_NAME = 'user.recovery.request';
 
@@ -51,6 +56,16 @@ class UserRecoveryRequestEvent extends Event implements UserAware, MailAware, Re
             ->add('userRecovery', new EntityType(UserRecoveryDefinition::class))
             ->add('resetUrl', new ScalarValueType('string'))
         ;
+    }
+
+    /**
+     * @return array<string, scalar|array<mixed>|null>
+     */
+    public function getValues(): array
+    {
+        return [
+            FlowMailVariables::RESET_URL => $this->resetUrl,
+        ];
     }
 
     public function getMailStruct(): MailRecipientStruct

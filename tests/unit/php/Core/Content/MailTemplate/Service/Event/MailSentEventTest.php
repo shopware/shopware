@@ -1,10 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Content\MailTemplate;
+namespace Shopware\Tests\Unit\Core\Content\MailTemplate\Service\Event;
 
 use Monolog\Level;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
+use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
+use Shopware\Core\Content\Flow\Dispatching\Storer\ScalarValuesStorer;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
 use Shopware\Core\Framework\Context;
 
@@ -12,11 +14,35 @@ use Shopware\Core\Framework\Context;
  * @internal
  *
  * @covers \Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent
- *
- * @package system-settings
  */
-class MailSentTest extends TestCase
+class MailSentEventTest extends TestCase
 {
+    public function testScalarValuesCorrectly(): void
+    {
+        $event = new MailSentEvent(
+            'my-subject',
+            ['foo' => 'bar'],
+            ['mixed' => 'content'],
+            Context::createDefaultContext()
+        );
+
+        $storer = new ScalarValuesStorer();
+
+        $stored = $storer->store($event, []);
+
+        $flow = new StorableFlow('foo', Context::createDefaultContext(), $stored);
+
+        $storer->restore($flow);
+
+        static::assertArrayHasKey('subject', $flow->data());
+        static::assertArrayHasKey('contents', $flow->data());
+        static::assertArrayHasKey('recipients', $flow->data());
+
+        static::assertEquals('my-subject', $flow->data()['subject']);
+        static::assertEquals(['foo' => 'bar'], $flow->data()['recipients']);
+        static::assertEquals(['mixed' => 'content'], $flow->data()['contents']);
+    }
+
     public function testInstantiate(): void
     {
         $context = Context::createDefaultContext();

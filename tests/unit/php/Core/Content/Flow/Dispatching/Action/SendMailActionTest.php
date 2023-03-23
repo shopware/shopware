@@ -150,16 +150,14 @@ class SendMailActionTest extends TestCase
         $expected['data'] = array_merge($expected['data'], $exptectedReplyTo);
 
         $this->flow->expects(static::exactly(2))
-            ->method('hasStore')
+            ->method('hasData')
             ->willReturn(true);
 
         $this->flow->expects(static::exactly(6))
-            ->method('getStore')
+            ->method('getData')
             ->willReturnOnConsecutiveCalls(
                 TestDefaults::SALES_CHANNEL,
-                ['recipients' => [
-                    'email' => 'firstName lastName',
-                ]],
+                new MailRecipientStruct(['email' => 'firstName lastName']),
                 [],
                 TestDefaults::SALES_CHANNEL,
                 $orderId,
@@ -227,8 +225,8 @@ class SendMailActionTest extends TestCase
 
     public function testActionWithNotAware(): void
     {
-        $this->flow->expects(static::once())->method('hasStore')->willReturn(false);
-        $this->flow->expects(static::never())->method('getStore');
+        $this->flow->expects(static::once())->method('hasData')->willReturn(false);
+        $this->flow->expects(static::never())->method('getData');
 
         static::expectException(MailEventConfigurationException::class);
         $this->mailService->expects(static::never())->method('send');
@@ -238,8 +236,8 @@ class SendMailActionTest extends TestCase
 
     public function testActionWithEmptyConfig(): void
     {
-        $this->flow->expects(static::exactly(2))->method('hasStore')->willReturn(true);
-        $this->flow->expects(static::never())->method('getStore');
+        $this->flow->expects(static::exactly(2))->method('hasData')->willReturn(true);
+        $this->flow->expects(static::never())->method('getData');
         $this->flow->expects(static::once())->method('getConfig')->willReturn([]);
 
         static::expectException(MailEventConfigurationException::class);

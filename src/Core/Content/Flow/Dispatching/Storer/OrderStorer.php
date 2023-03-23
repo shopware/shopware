@@ -37,6 +37,8 @@ class OrderStorer extends FlowStorer
             return;
         }
 
+        $storable->setData(OrderAware::ORDER_ID, $storable->getStore(OrderAware::ORDER_ID));
+
         $storable->lazy(
             OrderAware::ORDER,
             $this->load(...),

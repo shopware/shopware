@@ -44,11 +44,11 @@ class GenerateDocumentAction extends FlowAction implements DelayableAction
 
     public function handleFlow(StorableFlow $flow): void
     {
-        if (!$flow->hasStore(OrderAware::ORDER_ID) || !$flow->hasStore(MailAware::SALES_CHANNEL_ID)) {
+        if (!$flow->hasData(OrderAware::ORDER_ID) || !$flow->hasData(MailAware::SALES_CHANNEL_ID)) {
             return;
         }
 
-        $this->generate($flow->getContext(), $flow->getConfig(), $flow->getStore(OrderAware::ORDER_ID));
+        $this->generate($flow->getContext(), $flow->getConfig(), $flow->getData(OrderAware::ORDER_ID));
     }
 
     /**

@@ -42,6 +42,8 @@ class CustomerGroupStorer extends FlowStorer
             return;
         }
 
+        $storable->setData(CustomerGroupAware::CUSTOMER_GROUP_ID, $storable->getStore(CustomerGroupAware::CUSTOMER_GROUP_ID));
+
         $storable->lazy(
             CustomerGroupAware::CUSTOMER_GROUP,
             $this->load(...),

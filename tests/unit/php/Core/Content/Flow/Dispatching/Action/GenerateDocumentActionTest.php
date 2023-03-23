@@ -61,14 +61,14 @@ class GenerateDocumentActionTest extends TestCase
      */
     public function testActionExecuted(array $config, int $expected): void
     {
-        $this->flow->expects(static::exactly(2))->method('hasStore')->willReturn(true);
-        $this->flow->expects(static::exactly(2))->method('getStore')->willReturn(Uuid::randomHex());
+        $this->flow->expects(static::exactly(2))->method('hasData')->willReturn(true);
+        $this->flow->expects(static::exactly(2))->method('getData')->willReturn(Uuid::randomHex());
         $this->flow->expects(static::exactly(1))->method('getContext')->willReturn(Context::createDefaultContext());
 
         $this->flow->expects(static::once())->method('getConfig')->willReturn($config);
 
         $documentType = $config['documentTypes'][0]['documentType'] ?? $config['documentType'] ?? null;
-        $orderId = $this->flow->getStore(OrderAware::ORDER_ID);
+        $orderId = $this->flow->getData(OrderAware::ORDER_ID);
         $fileType = $config['documentTypes'][0]['fileType'] ?? $config['fileType'] ?? FileTypes::PDF;
         $conf = $config['documentTypes'][0]['config'] ?? $config['config'] ?? [];
         $static = $config['documentTypes'][0]['static'] ?? $config['static'] ?? false;

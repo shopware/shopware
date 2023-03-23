@@ -2,15 +2,21 @@
 
 namespace Shopware\Core\Content\Media\Event;
 
+use Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables;
 use Shopware\Core\Content\Flow\Dispatching\Aware\MediaUploadedAware;
+use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
+use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @deprecated tag:v6.6.0 - reason:class-hierarchy-change - MediaUploadedAware is deprecated and will be removed in v6.6.0
+ */
 #[Package('content')]
-class MediaUploadedEvent extends Event implements MediaUploadedAware
+class MediaUploadedEvent extends Event implements MediaUploadedAware, ScalarValuesAware, FlowEventAware
 {
     public const EVENT_NAME = 'media.uploaded';
 
@@ -29,6 +35,13 @@ class MediaUploadedEvent extends Event implements MediaUploadedAware
     {
         return (new EventDataCollection())
             ->add('mediaId', new ScalarValueType(ScalarValueType::TYPE_STRING));
+    }
+
+    public function getValues(): array
+    {
+        return [
+            FlowMailVariables::MEDIA_ID => $this->mediaId,
+        ];
     }
 
     public function getMediaId(): string

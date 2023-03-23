@@ -1,10 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Content\MailTemplate;
+namespace Shopware\Tests\Unit\Core\Content\MailTemplate\Service\Event;
 
 use Monolog\Level;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
+use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
+use Shopware\Core\Content\Flow\Dispatching\Storer\ScalarValuesStorer;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailErrorEvent;
 use Shopware\Core\Framework\Context;
 
@@ -12,11 +14,27 @@ use Shopware\Core\Framework\Context;
  * @internal
  *
  * @covers \Shopware\Core\Content\MailTemplate\Service\Event\MailErrorEvent
- *
- * @package system-settings
  */
 class MailErrorEventTest extends TestCase
 {
+    public function testScalarValuesCorrectly(): void
+    {
+        $event = new MailErrorEvent(
+            Context::createDefaultContext()
+        );
+
+        $storer = new ScalarValuesStorer();
+
+        $stored = $storer->store($event, []);
+
+        $flow = new StorableFlow('foo', \Shopware\Core\Framework\Context::createDefaultContext(), $stored);
+
+        $storer->restore($flow);
+
+        static::assertArrayHasKey('name', $flow->data());
+        static::assertEquals('mail.sent.error', $flow->getData('name'));
+    }
+
     public function testInstantiate(): void
     {
         $exception = new \Exception('exception');

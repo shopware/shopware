@@ -26,7 +26,6 @@ Shopware.Component.register('sw-flow-set-order-state-modal', () => import('./com
 Shopware.Component.register('sw-flow-generate-document-modal', () => import('./component/modals/sw-flow-generate-document-modal'));
 Shopware.Component.register('sw-flow-grant-download-access-modal', () => import('./component/modals/sw-flow-grant-download-access-modal'));
 Shopware.Component.register('sw-flow-mail-send-modal', () => import('./component/modals/sw-flow-mail-send-modal'));
-Shopware.Component.register('sw-flow-grant-download-access-modal', () => import('./component/modals/sw-flow-grant-download-access-modal'));
 Shopware.Component.register('sw-flow-create-mail-template-modal', () => import('./component/modals/sw-flow-create-mail-template-modal'));
 Shopware.Component.register('sw-flow-event-change-confirm-modal', () => import('./component/modals/sw-flow-event-change-confirm-modal'));
 Shopware.Component.register('sw-flow-change-customer-group-modal', () => import('./component/modals/sw-flow-change-customer-group-modal'));

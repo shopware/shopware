@@ -1,5 +1,12 @@
 import { shallowMount } from '@vue/test-utils';
+import swPriceRuleModal from 'src/module/sw-settings-shipping/component/sw-price-rule-modal';
 import 'src/app/component/rule/sw-rule-modal';
+
+/**
+ * @package checkout
+ */
+
+Shopware.Component.extend('sw-price-rule-modal', 'sw-rule-modal', swPriceRuleModal);
 
 function createRuleMock(isNew) {
     return {
@@ -21,7 +28,7 @@ function createRuleMock(isNew) {
 }
 
 async function createWrapper() {
-    return shallowMount(await Shopware.Component.build('sw-rule-modal'), {
+    return shallowMount(await Shopware.Component.build('sw-price-rule-modal'), {
         provide: {
             repositoryFactory: {
                 create: () => {
@@ -49,11 +56,6 @@ async function createWrapper() {
             }
         },
 
-        propsData: {
-            sequence: {},
-            ruleAwareGroupKey: 'someRuleRelation',
-        },
-
         stubs: {
             'sw-modal': {
                 template: `
@@ -67,10 +69,6 @@ async function createWrapper() {
             'sw-button': {
                 template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>'
             },
-            'sw-button-process': {
-                template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>'
-            },
-            'sw-icon': true,
             'sw-condition-tree': true,
             'sw-container': true,
             'sw-multi-select': true,
@@ -82,40 +80,11 @@ async function createWrapper() {
     });
 }
 
-describe('app/component/rule/sw-rule-modal', () => {
+describe('module/sw-settings-shipping/component/sw-price-rule-modal', () => {
     it('should be a Vue.JS component', async () => {
         const wrapper = await createWrapper();
-        await flushPromises();
+
         expect(wrapper.vm).toBeTruthy();
     });
-
-    it('should emit event save when saving rule successfully', async () => {
-        const wrapper = await createWrapper();
-        await flushPromises();
-
-        await wrapper.vm.saveAndClose();
-        await flushPromises();
-
-        expect(wrapper.emitted().save).toBeTruthy();
-    });
-
-    it('should create notification and prevent saving', async () => {
-        const wrapper = await createWrapper();
-        wrapper.vm.ruleConditionDataProviderService.getRestrictedRuleTooltipConfig = () => {
-            return { disabled: false, message: 'Awareness error' };
-        };
-        await flushPromises();
-
-        wrapper.vm.createNotificationError = jest.fn();
-
-        await wrapper.find('.sw-rule-modal__save').trigger('click');
-        await flushPromises();
-
-        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
-            message: 'Awareness error',
-            title: 'global.default.error',
-        });
-
-        expect(wrapper.emitted().save).toBeFalsy();
-    });
 });
+

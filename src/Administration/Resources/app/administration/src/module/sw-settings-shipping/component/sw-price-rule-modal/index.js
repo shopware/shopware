@@ -16,7 +16,6 @@ export default {
     methods: {
         createdComponent() {
             this.$super('createdComponent');
-            this.rule.moduleTypes = { types: ['shipping'] };
         },
 
     },

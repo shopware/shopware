@@ -430,4 +430,17 @@ describe('src/app/service/rule-condition.service.js', () => {
             ]
         });
     });
+
+    it('should get the keys of awareness configurations that have an equalsAny config', () => {
+        const ruleConditionService = createConditionService();
+
+        ruleConditionService.addAwarenessConfiguration('personaPromotions', {
+            equalsAny: ['cartCartAmount', 'cartLineItemsCount'],
+            snippet: 'someFlowSnippet'
+        });
+
+        const result = ruleConditionService.getAwarenessKeysWithEqualsAnyConfig();
+
+        expect(result).toStrictEqual(['personaPromotions']);
+    });
 });

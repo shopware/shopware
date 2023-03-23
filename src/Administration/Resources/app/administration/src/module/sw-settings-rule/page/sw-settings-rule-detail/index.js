@@ -3,7 +3,7 @@ import './sw-settings-rule-detail.scss';
 
 const { Component, Mixin, Context } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
-const { Criteria } = Shopware.Data;
+const { Criteria, EntityCollection } = Shopware.Data;
 
 /**
  * @private
@@ -319,7 +319,76 @@ export default {
             this.deletedIds = [...this.deletedIds, ...deletedIds];
         },
 
+        validateRuleAwareness() {
+            const equalsAnyConfigurations = this.ruleConditionDataProviderService.getAwarenessKeysWithEqualsAnyConfig();
+            if (equalsAnyConfigurations.length <= 0) {
+                return true;
+            }
+
+            let isValid = true;
+            equalsAnyConfigurations.forEach((key) => {
+                if (this.rule[key].length > 0) {
+                    const conditions = [];
+                    this.conditionTree.forEach((condition) => {
+                        conditions.push(condition);
+
+                        if (condition.children) {
+                            const children = this.getChildrenConditions(condition);
+                            conditions.push(...children);
+                        }
+                    });
+
+                    const restrictions = this.ruleConditionDataProviderService.getRestrictionsByAssociation(
+                        new EntityCollection(
+                            this.conditionRepository.route,
+                            this.conditionRepository.entityName,
+                            Context.api,
+                            null,
+                            conditions,
+                        ),
+                        key,
+                    );
+
+                    if (restrictions.isRestricted) {
+                        const message = this.$tc(
+                            'sw-restricted-rules.restrictedAssignment.equalsAnyViolationTooltip',
+                            0,
+                            {
+                                conditions: this.ruleConditionDataProviderService.getTranslatedConditionViolationList(
+                                    restrictions.equalsAnyNotMatched,
+                                    'sw-restricted-rules.or',
+                                ),
+                                entityLabel: this.$tc(restrictions.assignmentSnippet, 2),
+                            },
+                        );
+
+                        this.createNotificationError({ message });
+                        isValid = false;
+                    }
+                }
+            });
+
+            return isValid;
+        },
+
+        getChildrenConditions(condition) {
+            const conditions = [];
+            condition.children.forEach((child) => {
+                conditions.push(child);
+                if (child.children) {
+                    const children = this.getChildrenConditions(child);
+                    conditions.push(...children);
+                }
+            });
+
+            return conditions;
+        },
+
         onSave() {
+            if (!this.validateRuleAwareness()) {
+                return Promise.resolve();
+            }
+
             this.isSaveSuccessful = false;
             this.isLoading = true;
 

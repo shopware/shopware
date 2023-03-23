@@ -310,6 +310,7 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-25672 - Suggest shopware/dev-tools package](/changelog/release-6-5-0-0/2023-03-09-suggest-shopware-dev-tools-package.md)
 *  [NEXT-25701 - Message serialization](/changelog/release-6-5-0-0/2023-03-10-message-serialization.md)
 *  [NEXT-24882 - Improve address markup to remove space between the symbol](/changelog/release-6-5-0-0/2023-03-14-improve-address-markup-to-remove-space-between-the-symbo.md)
+*  [NEXT-25781 - Change references of bs-toggle to ajax-modal](/changelog/release-6-5-0-0/2023-03-14-modal-selectors.md)
 *  [NEXT-25324 - Update DBAL dependency](/changelog/release-6-5-0-0/2023-02-08-update-dbal-dependency.md)
 *  [NEXT-25742 - Added helpText property to sw-chard-card](/changelog/release-6-5-0-0/2023-03-16-added-helptext-property-to-sw-chard-card.md)
 

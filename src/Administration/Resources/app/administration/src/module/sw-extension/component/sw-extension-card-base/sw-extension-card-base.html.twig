@@ -29,12 +29,7 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_extension_card_base_icon %}
-    <img
-        class="sw-extension-card-base__icon"
-        draggable="false"
-        :src="image"
-        alt=""
-    >
+    <sw-extension-icon :iconSrc="image"/>
     {% endblock %}
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

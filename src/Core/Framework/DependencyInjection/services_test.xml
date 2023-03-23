@@ -155,7 +155,7 @@
                 <argument key="handler" type="service">
                     <service class="GuzzleHttp\HandlerStack">
                         <factory class="GuzzleHttp\HandlerStack" method="create" />
-                        <argument type="service" id="Shopware\Tests\Integration\Core\Framework\App\TestAppServer"/>
+                        <argument type="service" id="Shopware\Core\Test\Integration\App\TestAppServer"/>
                         <call method="push">
                             <argument type="service" id="shopware.app_system.guzzle.middleware"/>
                         </call>
@@ -167,7 +167,7 @@
             </argument>
         </service>
 
-        <service id="Shopware\Tests\Integration\Core\Framework\App\TestAppServer">
+        <service id="Shopware\Core\Test\Integration\App\TestAppServer">
             <argument type="service" id="GuzzleHttp\Handler\MockHandler"/>
         </service>
 
@@ -177,10 +177,10 @@
         </service>
 
         <service id="test.guzzle.history.middleware" class="callable">
-            <factory service="Shopware\Tests\Integration\Core\Framework\App\GuzzleHistoryCollector" method="getHistoryMiddleWare"/>
+            <factory service="Shopware\Core\Test\Integration\App\GuzzleHistoryCollector" method="getHistoryMiddleWare"/>
         </service>
 
-        <service id="Shopware\Tests\Integration\Core\Framework\App\GuzzleHistoryCollector" public="true" />
+        <service id="Shopware\Core\Test\Integration\App\GuzzleHistoryCollector" public="true" />
 
         <service id="Shopware\Core\Framework\Test\Api\Acl\fixtures\AclTestController" public="true"/>
 

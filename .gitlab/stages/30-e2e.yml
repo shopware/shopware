@@ -1,28 +1,65 @@
 # requires /.gitlab/base.yml
 
+.e2e-base:
+  extends:
+    - .long-running
+  needs: [ Build, 'Jest (Administration)' ]
+  dependencies: [ Build ]
+  services:
+    - name: mariadb:10.4
+      alias: database
+  variables:
+    APP_ENV: e2e
+    CYPRESS_baseUrl: "http://localhost:8000"
+    CYPRESS_localUsage: 1
+    CYPRESS_screenshotsFolder: $CI_PROJECT_DIR/var/log/screenshots
+    CYPRESS_DD_API_KEY: "$DATADOG_API_KEY"
+    SHOPWARE_HTTP_CACHE_ENABLED: 0
+    cypress_usePercy: 'false'
+    SHOPWARE_DISABLE_UPDATE_CHECK: 'true'
+    CYPRESS_storefrontName: "E2E install test"
+  before_script:
+    - echo -e "\e[0Ksection_start:$(date +%s):init[collapsed=true]\r\e[0Ke2e preparation"
+    - !reference [ .scripts, install-node, script ]
+    - cp public/.htaccess.dist public/.htaccess
+    - !reference [ .scripts, init, composer ]
+    - touch install.lock
+    - mkdir -p config/jwt custom/plugins || true
+    - npm --prefix tests/e2e ci
+    - >
+      if [[ -r var/database.sql ]]; then
+          mysql -uroot -papp -hdatabase -e 'CREATE database `root`';
+          mysql -uroot -papp -hdatabase root -e 'source var/database.sql';
+          bin/console system:generate-jwt || true
+      else
+          composer run setup
+          composer run e2e:sdk-plugin:fixture-to-plugin
+      fi
+    - bin/console assets:install
+    - bin/console e2e:dump-db
+    - echo -e "\e[0Ksection_end:`date +%s`:init\r\e[0K"
+    - echo 'LogFormat "[httpd:access] %V:%p %h %l %u %t \"%r\" %>s bytesIn:%I bytesOut:%O reqTime:%{ms}T" dockerlog' > /opt/docker/etc/httpd/conf.d/20-custom-log.conf
+    - SERVICE_PHPFPM_OPTS=--allow-to-run-as-root CONTAINER_UID=root /entrypoint supervisord > /dev/null 2>&1 &
+  after_script:
+    - !reference [.scripts, handle-failed-merge-train, after_script]
+    - !reference [.upload-junit-xml, after_script]
+  artifacts:
+    when: always
+    paths:
+      - var/log/*
+    reports:
+      junit: var/log/e2e/results/single-reports/*.xml
+
 E2E:
     extends:
-       - .long-running
+       - .e2e-base
     stage: E2E
-    services:
-        -   name: mariadb:10.4
-            alias: database
-    needs: [ Build, 'Jest (Administration)' ]
-    dependencies: [ Build ]
     variables:
-        APP_ENV: e2e
-        CYPRESS_baseUrl: "http://localhost:8000"
-        CYPRESS_localUsage: 1
-        CYPRESS_screenshotsFolder: $CI_PROJECT_DIR/var/log/screenshots
-        CYPRESS_DD_API_KEY: "$DATADOG_API_KEY"
-        SHOPWARE_HTTP_CACHE_ENABLED: 0
-        CYPRESS_usePercy: 'false'
         CYPRESS_TARGET_BRANCH: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME
         CYPRESS_TARGET_COMMIT: $CI_MERGE_REQUEST_DIFF_BASE_SHA
         CYPRESS_COMMIT_BRANCH: $CI_COMMIT_BRANCH
         CYPRESS_PIPELINE_ID: $CI_PIPELINE_ID
         CYPRESS_grepTags: '-quarantined'
-        SHOPWARE_DISABLE_UPDATE_CHECK: 'true'
     parallel:
         matrix:
             -   TEST_DIRECTORY:
@@ -33,28 +70,6 @@ E2E:
                     - "cypress/e2e/storefront/**/*"
                 BROWSER: 'chrome'
                 FEATURE_ALL: 'false'
-    before_script:
-        - echo -e "\e[0Ksection_start:$(date +%s):init[collapsed=true]\r\e[0Ke2e preparation"
-        - !reference [ .scripts, install-node, script ]
-        - cp public/.htaccess.dist public/.htaccess
-        - !reference [ .scripts, init, composer ]
-        - touch install.lock
-        - mkdir -p config/jwt custom/plugins || true
-        - npm --prefix tests/e2e ci
-        - >
-          if [[ -r var/database.sql ]]; then
-              mysql -uroot -papp -hdatabase -e 'CREATE database `root`';
-              mysql -uroot -papp -hdatabase root -e 'source var/database.sql';
-              bin/console system:generate-jwt || true
-          else
-              composer run setup
-              composer run e2e:sdk-plugin:fixture-to-plugin
-          fi
-        - bin/console assets:install
-        - bin/console e2e:dump-db
-        - echo -e "\e[0Ksection_end:`date +%s`:init\r\e[0K"
-        - echo 'LogFormat "[httpd:access] %V:%p %h %l %u %t \"%r\" %>s bytesIn:%I bytesOut:%O reqTime:%{ms}T" dockerlog' > /opt/docker/etc/httpd/conf.d/20-custom-log.conf
-        - SERVICE_PHPFPM_OPTS=--allow-to-run-as-root CONTAINER_UID=root /entrypoint supervisord > /dev/null 2>&1 &
     script:
         - >
           if [[ $CI_MERGE_REQUEST_EVENT_TYPE == "merge_train" ]]; then
@@ -66,20 +81,6 @@ E2E:
             --browser $BROWSER
             --spec "$TEST_DIRECTORY"
             --headless
-    after_script:
-        - !reference [.scripts, handle-failed-merge-train, after_script]
-        - mkdir $CI_PROJECT_DIR/var/log/e2e || true
-        - composer run npm:e2e -- run combine-reports
-        - composer run npm:e2e -- run generate-report
-        - mv tests/E2E/cypress/results/single-reports/*.xml var/log/e2e/ || true
-        - mv tests/E2E/mochareports/ var/log/e2e/ || true
-        - !reference [.upload-junit-xml, after_script]
-    artifacts:
-        when: always
-        paths:
-            - var/log/*
-        reports:
-            junit: var/log/e2e/*.xml
 
 E2E quarantined:
   extends: E2E
@@ -134,22 +135,10 @@ Changed E2E:
 
 E2E install NL:
     extends:
-      - .long-running
+      - .e2e-base
     stage: E2E
-    needs: [ Build, 'Jest (Administration)' ]
-    dependencies: [ Build ]
-    services:
-        -   name: mariadb:10.4
-            alias: database
     variables:
-        APP_ENV: e2e
         APP_DEBUG: 0
-        CYPRESS_baseUrl: "http://localhost:8000"
-        CYPRESS_localUsage: 1
-        CYPRESS_screenshotsFolder: $CI_PROJECT_DIR/var/log/screenshots
-        CYPRESS_DD_API_KEY: "$DATADOG_API_KEY"
-        SHOPWARE_HTTP_CACHE_ENABLED: 0
-        cypress_usePercy: 'false'
         E2E_PROJECT: recovery
         CYPRESS_dbHost: database
         CYPRESS_dbPassword: $MYSQL_ROOT_PASSWORD
@@ -157,8 +146,9 @@ E2E install NL:
         CYPRESS_locale: nl-NL
         FEATURE_ALL: 'false'
         ALLOW_FAILURE: 'true'
-        SHOPWARE_DISABLE_UPDATE_CHECK: 'true'
+        CYPRESS_grepTags: '-quarantined'
     script:
+        - echo -e "\e[0Ksection_start:$(date +%s):set_version[collapsed=true]\r\e[0Ke2e set shopware version"
         - export PLATFORM_VERSION="$(jq -r .version < composer.json)"
         # fake version by using the latest tag if not set
         - >
@@ -168,6 +158,8 @@ E2E install NL:
             composer config version "$PLATFORM_VERSION"
             composer update
           fi
+        - echo -e "\e[0Ksection_end:`date +%s`:set_version\r\e[0K"
+        - echo -e "\e[0Ksection_start:$(date +%s):setup_e2e[collapsed=true]\r\e[0Ke2e setup e2e"
         - rm .env install.lock || true
         - mkdir -p config/packages || true
         - >
@@ -181,32 +173,33 @@ E2E install NL:
         - mkdir -p var/dumps
         - touch var/dumps/database_root.sql
         - mysql -hdatabase -uroot -p$MYSQL_ROOT_PASSWORD -e "DROP DATABASE $CYPRESS_dbName"
+        - echo -e "\e[0Ksection_end:`date +%s`:setup_e2e\r\e[0K"
+        - echo -e "\e[0Ksection_start:$(date +%s):install_sw[collapsed=false]\r\e[0Ke2e install shopware"
         - composer run e2e:cypress -- run
             --config retries=0
             --browser chrome
             --spec "cypress/e2e/installer/install_nl.cy.js"
             --headless
-        - .gitlab/bin/install_store_plugin.bash SwagLanguagePack SwagPayPal
+        - echo -e "\e[0Ksection_end:`date +%s`:install_sw\r\e[0K"
+        - echo -e "\e[0Ksection_start:$(date +%s):install_language_pack[collapsed=true]\r\e[0Ke2e install language pack"
+        - rm -rf custom/plugins/SwagLanguagePack || true
+        - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.shopware.com/shopware/6/services/swaglanguagepack.git custom/plugins/SwagLanguagePack
+        - npm --prefix custom/plugins/SwagLanguagePack/src/Resources/app/administration ci
+        - bin/console plugin:refresh
+        - bin/console plugin:install --activate SwagLanguagePack
+        - APP_ENV=e2e bin/console cache:clear
+        - npm --prefix src/Administration/Resources/app/administration ci
         - composer run e2e:prepare
+        - echo -e "\e[0Ksection_end:`date +%s`:install_language_pack\r\e[0K"
         - >
           if [[ $CI_MERGE_REQUEST_EVENT_TYPE == "merge_train" ]]; then
             export CYPRESS_INTERRUPT_ON_ERROR="true"
           fi
-        - composer run e2e:cypress -- run
+        - composer run e2e:cypress-repeat -- run
+            -n 3
             --browser chrome
             --spec "cypress/e2e/scenarios/**/*.cy.js"
             --headless
-    after_script:
-        - !reference [ .scripts, handle-failed-merge-train, after_script ]
-        - composer run npm:e2e -- run combine-reports
-        - composer run npm:e2e -- run generate-report
-        - !reference [ .upload-junit-xml, after_script ]
-    artifacts:
-        when: always
-        paths:
-            - var/log/*
-        reports:
-            junit: var/log/e2e/*.xml
     allow_failure: true # TODO: Remove this line as soon as the extensions involved are compatible with the new trunk branch
 
 .e2e-update-base:
@@ -254,8 +247,6 @@ E2E install NL:
       --headless
   after_script:
     - !reference [ .scripts, handle-failed-merge-train, after_script ]
-    - composer run npm:e2e -- run combine-reports
-    - composer run npm:e2e -- run generate-report
     - !reference [ .upload-junit-xml, after_script ]
   artifacts:
     when: always

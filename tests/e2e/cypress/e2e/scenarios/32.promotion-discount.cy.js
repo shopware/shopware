@@ -64,7 +64,7 @@ describe('Promotions: Discount for a specific range of products', { tags: ['pa-c
             .should('have.class', 'sw-tabs-item--active');
 
         cy.get('.sw-promotion-v2-conditions__sales-channel-selection')
-            .typeMultiSelectAndCheck('E2E install test');
+            .typeMultiSelectAndCheck(Cypress.env('storefrontName'));
         cy.get('.sw-promotion-v2-conditions__rule-select-customer')
             .typeMultiSelectAndCheck('All customers');
         cy.get('.sw-promotion-v2-conditions__rule-select-customer').type('{esc}');
@@ -115,7 +115,7 @@ describe('Promotions: Discount for a specific range of products', { tags: ['pa-c
         );
         cy.contains('h2', 'Test Product').should('be.visible');
         cy.get('.sw-product-detail__select-visibility').scrollIntoView()
-            .typeMultiSelectAndCheck('E2E install test');
+            .typeMultiSelectAndCheck(Cypress.env('storefrontName'));
         cy.get('.sw-button-process__content').click();
         cy.wait('@saveProduct').its('response.statusCode').should('equal', 200);
         cy.get('.sw-skeleton').should('not.exist');
@@ -139,7 +139,7 @@ describe('Promotions: Discount for a specific range of products', { tags: ['pa-c
         cy.get('.summary-value.summary-total').should('include.text', '60,00');
 
         // Set the product number to 5 and verify promo code is visible and %10 discount is applied to the card
-        cy.get('.line-item-quantity-container > .custom-select').select('5');
+        cy.get('.line-item-quantity-group > .form-control').clear().type('5{enter}');
         cy.contains(promoCode).should('exist');
         cy.get('.summary-value.summary-total').should('include.text', '270,00');
     });
@@ -182,7 +182,7 @@ describe('Promotions: Discount for a specific range of products', { tags: ['pa-c
             .should('have.class', 'sw-tabs-item--active');
 
         cy.get('.sw-promotion-v2-conditions__sales-channel-selection')
-            .typeMultiSelectAndCheck('E2E install test');
+            .typeMultiSelectAndCheck(Cypress.env('storefrontName'));
         cy.get('.sw-promotion-v2-conditions__rule-select-customer')
             .typeMultiSelectAndCheck('All customers');
         cy.get('.sw-promotion-v2-conditions__rule-select-customer').type('{esc}');
@@ -234,7 +234,7 @@ describe('Promotions: Discount for a specific range of products', { tags: ['pa-c
         );
         cy.contains('h2', 'Test Product').should('be.visible');
         cy.get('.sw-product-detail__select-visibility').scrollIntoView()
-            .typeMultiSelectAndCheck('E2E install test');
+            .typeMultiSelectAndCheck(Cypress.env('storefrontName'));
         cy.get('.sw-button-process__content').click();
         cy.wait('@saveProduct').its('response.statusCode').should('equal', 200);
         cy.get('.sw-skeleton').should('not.exist');
@@ -258,7 +258,7 @@ describe('Promotions: Discount for a specific range of products', { tags: ['pa-c
         cy.get('.summary-value.summary-total').should('include.text', '60,00');
 
         // Set the product number to 2 and verify promo code is visible, and %10 discount is applied to the card
-        cy.get('.line-item-quantity-container > .custom-select').select('2');
+        cy.get('.line-item-quantity-group > .form-control').clear().type('2{enter}');
         cy.contains(promoCode).should('exist');
         cy.get('.summary-value.summary-total').should('include.text', '108,00');
     });
@@ -306,7 +306,7 @@ describe('Promotions: Discount for a specific range of products', { tags: ['pa-c
             .should('have.class', 'sw-tabs-item--active');
 
         cy.get('.sw-promotion-v2-conditions__sales-channel-selection')
-            .typeMultiSelectAndCheck('E2E install test');
+            .typeMultiSelectAndCheck(Cypress.env('storefrontName'));
         cy.get('.sw-promotion-v2-conditions__rule-select-customer')
             .typeMultiSelectAndCheck('Customers from USA');
         cy.get('.sw-promotion-v2-conditions__rule-select-customer').type('{esc}');
@@ -350,7 +350,7 @@ describe('Promotions: Discount for a specific range of products', { tags: ['pa-c
         );
         cy.contains('h2', 'Test Product').should('be.visible');
         cy.get('.sw-product-detail__select-visibility').scrollIntoView()
-            .typeMultiSelectAndCheck('E2E install test');
+            .typeMultiSelectAndCheck(Cypress.env('storefrontName'));
         cy.get('.sw-button-process__content').click();
         cy.wait('@saveProduct').its('response.statusCode').should('equal', 200);
         cy.get('.sw-skeleton').should('not.exist');
@@ -361,7 +361,7 @@ describe('Promotions: Discount for a specific range of products', { tags: ['pa-c
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'dashboard/index');
-        cy.goToSalesChannelDetail('E2E install test')
+        cy.goToSalesChannelDetail(Cypress.env('storefrontName'))
             .selectCountryForSalesChannel('USA');
 
         // Login from the storefront as a customer from USA
@@ -395,7 +395,7 @@ describe('Promotions: Discount for a specific range of products', { tags: ['pa-c
         cy.get('.summary-value.summary-total').should('include.text', '40,00');
 
         // Set the product number to 2 and verify promotion is not applied to second product
-        cy.get('.line-item-quantity-container > .custom-select').select('2');
+        cy.get('.line-item-quantity-group > .form-control').clear().type('2{enter}');
         cy.contains(promoCode).should('exist');
         cy.get('.summary-value.summary-total').should('include.text', '100,00');
     });

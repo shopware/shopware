@@ -58,13 +58,13 @@ describe('Create a variant product using default customer and buy it via cash on
 
         const page = new ProductPageObject();
         const checkoutPage = new CheckoutPageObject();
-        const salesChannel = 'E2E install test';
+        const salesChannel = Cypress.env('storefrontName');
 
         // Add product to sales channel
         cy.url().should('include', 'dashboard/index');
         cy.contains(salesChannel).click();
         cy.url().should('include', 'sales/channel/detail');
-        cy.get('[title="Producten"]').click();
+        cy.get('.sw-tabs-item[title="Producten"]').click();
         cy.get('.sw-button.sw-button--ghost').click();
         cy.get('.sw-data-grid__body .sw-data-grid__cell--selection .sw-data-grid__cell-content').click();
         cy.get('.sw-data-grid__bulk-selected-label').should('include.text', 'Geselecteerd');
@@ -154,7 +154,7 @@ describe('Create a variant product using default customer and buy it via cash on
 
         // Total: product price
         cy.contains('.col-5.summary-value', '8,00');
-        cy.get('a[title="Proceed to checkout"]').should('be.visible').click();
+        cy.get('a[title="Go to checkout"]').should('be.visible').click();
         cy.url().should('include', '/checkout/register');
 
         // Guest check out
@@ -162,6 +162,7 @@ describe('Create a variant product using default customer and buy it via cash on
         cy.get('input#personalFirstName').clearTypeAndCheck(guestCustomer.firstName);
         cy.get('input#personalLastName').clearTypeAndCheck(guestCustomer.lastName);
         cy.get('input#personalMail').clearTypeAndCheck(guestCustomer.email);
+        cy.get("#personalGuest").check();
         cy.get('input#personalPassword').clearTypeAndCheck(guestCustomer.password);
         cy.get('input#billingAddressAddressStreet').clearTypeAndCheck(guestCustomer.street);
         cy.get('input#billingAddressAddressZipcode').clearTypeAndCheck(guestCustomer.zipCode);
@@ -178,8 +179,8 @@ describe('Create a variant product using default customer and buy it via cash on
 
         // Finish checkout
         cy.contains('.confirm-tos .card-title', 'Terms and conditions and cancellation policy');
-        cy.get('.confirm-tos .custom-checkbox label').scrollIntoView();
-        cy.get('.confirm-tos .custom-checkbox label').click(1, 1);
+        cy.get('.confirm-tos .form-check label').scrollIntoView();
+        cy.get('.confirm-tos .form-check label').click(1, 1);
         cy.get('#confirmFormSubmit').scrollIntoView().click();
         cy.contains('.finish-header', `Thank you for your order with E2E install test!`);
 

@@ -57,13 +57,13 @@ describe('Promotions: rule based conditions & Rule Builder', () => {
         // Set a rule based conditions to promotion to the product
         cy.get('.sw-tabs-item[title="Voorwaarden"]').click();
         cy.get('.sw-promotion-v2-conditions__sales-channel-selection')
-            .typeMultiSelectAndCheck('E2E install test');
+            .typeMultiSelectAndCheck(Cypress.env('storefrontName'));
         cy.get('.sw-promotion-v2-conditions__rule-select-customer')
             .typeMultiSelectAndCheck('All customers');
         cy.get('.sw-promotion-v2-conditions__rule-select-customer').type('{esc}');
         cy.get('.sw-promotion-v2-cart-condition-form__rule-select-cart')
-            .type('Nieuwe regel aanmaken');
-        cy.contains('Nieuwe regel aanmaken').click();
+            .type('Nieuwe regel toevoegen');
+        cy.contains('Nieuwe regel toevoegen').click();
         cy.get('input#sw-field--rule-name').clearTypeAndCheck('Price of Orders');
         cy.get('input#sw-field--rule-priority').clearTypeAndCheck('1');
 
@@ -72,12 +72,12 @@ describe('Promotions: rule based conditions & Rule Builder', () => {
                 .then((conditionTypeSelect) => {
                     cy.wrap(conditionTypeSelect).click();
                     cy.get('.sw-select-result-list-popover-wrapper').should('be.visible');
-                    cy.get('.sw-select-result-list-popover-wrapper').contains('Subtotaal van alle items')
+                    cy.get('.sw-select-result-list-popover-wrapper').contains('Subtotaal object')
                         .click();
                 });
         });
-        cy.get('.is--placeholder.sw-single-select__selection-text').type('Groter dan');
-        cy.get('.is--active').contains('Groter dan').click();
+        cy.get('.is--placeholder.sw-single-select__selection-text').type('groter dan');
+        cy.get('.is--active').contains('groter dan').click();
         cy.get('#sw-field--amount').clearTypeAndCheck('500');
         cy.get('.sw-rule-modal__save > .sw-button__content').click();
         cy.get('.sw-promotion-v2-conditions__rule-select-order-conditions')
@@ -111,7 +111,7 @@ describe('Promotions: rule based conditions & Rule Builder', () => {
         );
         cy.contains('h2', 'Test Product').should('be.visible');
         cy.get('.sw-product-detail__select-visibility').scrollIntoView()
-            .typeMultiSelectAndCheck('E2E install test');
+            .typeMultiSelectAndCheck(Cypress.env('storefrontName'));
         cy.get('.sw-button-process__content').click();
         cy.wait('@saveProduct').its('response.statusCode').should('equal', 200);
         cy.get('.sw-skeleton').should('not.exist');
@@ -135,7 +135,7 @@ describe('Promotions: rule based conditions & Rule Builder', () => {
         cy.get('.summary-value.summary-total').should('include.text', '60,00');
 
         // Set the product number to 10, price over 500€ and verify promo code is visible
-        cy.get('.line-item-quantity-container > .custom-select').select('10');
+        cy.get('.line-item-quantity-group > .form-control').clear().type('10{enter}');
         cy.contains('Thunder Tuesday').should('exist');
         cy.get('.summary-value.summary-total').should('include.text', '540,00');
     });

@@ -24,7 +24,7 @@ describe('Sales Channel: create product, change currency and language', () => {
         }).as('editSalesChannel');
 
         // Configure sales channel
-        cy.goToSalesChannelDetail('E2E install test')
+        cy.goToSalesChannelDetail(Cypress.env('storefrontName'))
             .selectCountryForSalesChannel('Germany')
             .selectLanguageForSalesChannel('Deutsch')
             .selectCurrencyForSalesChannel('US-Dollar');
@@ -64,7 +64,7 @@ describe('Sales Channel: create product, change currency and language', () => {
             .find('.sw-data-grid__row').should('have.length', 4);
 
         // Add product
-        cy.get('[title="Producten"]').scrollIntoView().click();
+        cy.get('.sw-tabs-item[title="Producten"]').scrollIntoView().click();
         cy.get('.sw-button.sw-button--ghost').click();
         cy.get('.sw-data-grid__body .sw-data-grid__cell--selection .sw-data-grid__cell-content').click();
         cy.get('.sw-data-grid__bulk-selected-label').should('include.text', 'Geselecteerd');
@@ -84,7 +84,7 @@ describe('Sales Channel: create product, change currency and language', () => {
 
         // Off canvas
         cy.get('.offcanvas').should('be.visible');
-        cy.contains('.cart-item-price', '€ 49,98*').should('be.visible');
+        cy.contains('.line-item-total-price-value', '€ 49,98*').should('be.visible');
         cy.get('a[title="Naar de kassa"]').should('be.visible');
         cy.contains('Doorgaan met winkelen').click();
 
@@ -106,7 +106,7 @@ describe('Sales Channel: create product, change currency and language', () => {
         // Verify currency and language on canvas
         cy.get('.header-cart-icon').click({ force: true });
         cy.get('.offcanvas').should('be.visible');
-        cy.contains('.cart-item-price', '58,52 $*').should('be.visible');
-        cy.get('a[title="Weiter zur Kasse"]').should('be.visible');
+        cy.contains('.line-item-total-price-value', '58,52 $*').should('be.visible');
+        cy.get('a[title="Zur Kasse"]').should('be.visible');
     });
 });

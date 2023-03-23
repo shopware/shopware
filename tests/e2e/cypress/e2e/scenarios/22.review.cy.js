@@ -37,7 +37,7 @@ describe('Test visibility of reviews', () => {
         );
         cy.contains('h2','Product name').should('be.visible');
         cy.get('.sw-product-detail__select-visibility').scrollIntoView()
-            .typeMultiSelectAndCheck('E2E install test');
+            .typeMultiSelectAndCheck(Cypress.env('storefrontName'));
         cy.get('.advanced-visibility').click();
         cy.get('.sw-modal__body').should('be.visible');
         cy.get('.sw-field__radio-option-checked [type]').check();
@@ -69,7 +69,7 @@ describe('Test visibility of reviews', () => {
         cy.contains('.search-suggest-product-name', 'Product name').click();
         cy.get('.product-detail-tabs #review-tab').click();
         cy.contains('.alert-content', 'No reviews found').should('be.visible');
-        cy.contains('button.product-detail-review-teaser-btn', 'Write a review!').click();
+        cy.contains('button.product-detail-review-teaser-btn', 'Write review').click();
         cy.get('.review-form').should('be.visible');
         cy.get('#reviewTitle').typeAndCheckStorefront('Lorem ipsum');
         cy.get('#reviewContent').typeAndCheckStorefront('Lorem ipsum dolor sit amet, consetetur sadipscing elitr');
@@ -94,7 +94,7 @@ describe('Test visibility of reviews', () => {
         // Verify review in the storefront
         cy.visit('/');
         cy.get('button#accountWidget').click();
-        cy.contains('.header-account-menu .account-aside-footer', 'Logout').click();
+        cy.contains('.header-account-menu .account-aside-footer', 'Log out').click();
         cy.get('.header-search-input').should('be.visible').type('Product name');
         cy.contains('.search-suggest-product-name', 'Product name').click();
         cy.get('.product-detail-tabs #review-tab').click();

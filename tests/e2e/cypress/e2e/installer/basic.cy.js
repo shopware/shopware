@@ -3,6 +3,7 @@
 describe('Minimal install', () => {
     before(() => {
         Cypress.env('SKIP_INIT', 'true');
+        Cypress.env('SKIP_AUTH', 'true');
     });
 
     /**
@@ -129,7 +130,7 @@ describe('Minimal install', () => {
 
         cy.get('.btn.btn-primary').contains('Next').click();
 
-        // See if return to Admin was successful
+        // See if redirect to Admin was successful
         cy.get('.sw-desktop').should('be.visible');
 
         // @frw in Administration: welcome

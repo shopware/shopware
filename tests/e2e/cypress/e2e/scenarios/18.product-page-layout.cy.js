@@ -18,7 +18,7 @@ describe('CMS: product page layout', () => {
     const page = new ProductPageObject();
     const pageMedia = new MediaPageObject();
 
-    it('@package: create product page layout with image', { tags: ['pa-content-management'] }, () => {
+    it('@package: create product page layout with image', { tags: ['pa-content-management', 'quarantined'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/cms-page`,
             method: 'POST',
@@ -31,7 +31,7 @@ describe('CMS: product page layout', () => {
         // Create
         cy.contains('Nieuwe lay-out aanmaken').click();
         cy.get('.sw-cms-detail').should('be.visible');
-        cy.contains('.sw-cms-create-wizard__page-type', 'Productpagina').click();
+        cy.contains('.sw-cms-create-wizard__page-type', 'Product page').click();
         cy.contains('.sw-cms-create-wizard__title', 'Kies een sectietype om te beginnen.');
         cy.contains('.sw-cms-stage-section-selection__default', 'Volledige breedte').click();
         cy.contains('.sw-cms-create-wizard__title', 'Hoe moet de nieuwe lay-out worden genoemd?');
@@ -68,7 +68,7 @@ describe('CMS: product page layout', () => {
         );
         cy.contains('h2', 'Page Product').should('be.visible');
         cy.get('.sw-product-detail__select-visibility').scrollIntoView()
-            .typeMultiSelectAndCheck('E2E install test');
+            .typeMultiSelectAndCheck(Cypress.env('storefrontName'));
 
         // Upload image
         cy.get('.sw-tabs__content > a[title="Indeling"]').scrollIntoView().click();

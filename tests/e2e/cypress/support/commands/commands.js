@@ -194,25 +194,28 @@ Cypress.Commands.add('createCustomerFixtureStorefront', (userData) => {
 Cypress.Commands.add('setSalesChannel', (salesChannel) => {
     cy.intercept({
         url: `**/${Cypress.env('apiPath')}/_action/system-config/batch`,
-        method: 'POST'
+        method: 'POST',
     }).as('saveData');
     cy.intercept({
         url: `**/${Cypress.env('apiPath')}/search/sales-channel`,
-        method: 'POST'
+        method: 'POST',
     }).as('sales-channel');
 
     cy.wait('@sales-channel').its('response.statusCode').should('equal', 200);
+    // Wait for some time because .sw-select-selection-list needs some time to update
+    cy.wait(500);
     cy.get('.sw-select-selection-list').then(($body) => {
         if ($body.text().includes(salesChannel)) {
             cy.get('.sw-settings-listing__save-action').click();
         } else {
             cy.get('.sw-select-selection-list__input').should('be.visible').type(salesChannel);
             cy.wait('@sales-channel').its('response.statusCode').should('equal', 200);
-            cy.contains('.sw-select-option--0.sw-select-result', salesChannel).should('be.visible').click({ force:true });
+            cy.contains('.sw-select-option--0.sw-select-result', salesChannel).should('be.visible').click();
             cy.wait('@sales-channel').its('response.statusCode').should('equal', 200);
             cy.get('.sw-settings-listing__save-action').should('be.visible').click();
         }
     });
+    cy.wait('@sales-channel').its('response.statusCode').should('equal', 200);
     cy.get('.sw-loader').should('not.exist');
     cy.wait('@saveData').its('response.statusCode').should('equal', 204);
     cy.contains('.sw-select-selection-list', salesChannel).should('be.visible');
@@ -259,7 +262,7 @@ Cypress.Commands.add('setPaymentMethod', (paymentMethod) => {
         method: 'POST'
     }).as('set-payment');
 
-    cy.contains(paymentMethod).should('be.visible').click();
+    cy.get(".sw-payment-card").contains(paymentMethod).get("a").contains("Details bewerken").click();
     cy.get('.sw-settings-payment-detail__condition_container').scrollIntoView();
     cy.get('.sw-settings-payment-detail__field-availability-rule').typeSingleSelectAndCheck(
         'Always valid (Default)',

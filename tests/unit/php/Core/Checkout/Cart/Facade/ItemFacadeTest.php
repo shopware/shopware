@@ -52,8 +52,11 @@ class ItemFacadeTest extends TestCase
 
         static::assertInstanceOf(ArrayFacade::class, $facade->getPayload());
         static::assertEquals('bar', $facade->getPayload()->offsetGet('foo'));
+        // @phpstan-ignore-next-line
         static::assertEquals('bar', $facade->getPayload()['foo']);
         static::assertEquals('nested', $facade->getPayload()->offsetGet('nested')['foo']);
+
+        // @phpstan-ignore-next-line
         static::assertEquals('nested', $facade->getPayload()['nested']['foo']);
 
         static::assertInstanceOf(ItemsFacade::class, $facade->getChildren());

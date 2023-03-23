@@ -74,6 +74,8 @@ class ProductProxyTest extends TestCase
 
         static::expectException(ProductException::class);
         static::expectExceptionMessage('Manipulation of pricing proxy field name is not allowed');
+
+        //@phpstan-ignore-next-line > Access to an undefined property occurs here but the proxy by pass the access
         unset($proxy['name']);
     }
 

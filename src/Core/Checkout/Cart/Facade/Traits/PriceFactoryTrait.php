@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('checkout')]
 trait PriceFactoryTrait
 {
-    private ScriptPriceStubs $priceStubs;
+    protected ScriptPriceStubs $priceStubs;
 
     // @param array<string, array{gross:float, net:float, linked?:bool}> $price The prices for the new collection, indexed by the currency-id or iso-code of the currency.
 

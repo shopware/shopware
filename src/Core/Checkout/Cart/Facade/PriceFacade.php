@@ -32,11 +32,19 @@ class PriceFacade
      * @internal
      */
     public function __construct(
-        private Entity|LineItem $item,
-        private CalculatedPrice $price,
-        private ScriptPriceStubs $priceStubs,
-        private SalesChannelContext $context
+        protected Entity|LineItem $item,
+        protected CalculatedPrice $price,
+        protected ScriptPriceStubs $priceStubs,
+        protected SalesChannelContext $context
     ) {
+    }
+
+    /**
+     * @internal
+     */
+    public function getInner(): CalculatedPrice
+    {
+        return $this->price;
     }
 
     /**
@@ -94,6 +102,8 @@ class PriceFacade
      * `change()` allows a price overwrite of the current price scope. The provided price will be recalculated
      * over the quantity price calculator to consider quantity, tax rule and cash rounding configurations.
      *
+     * @example pricing-cases/product-pricing.twig 40 5 Overwrite prices with a static defined collection
+     *
      * @param PriceCollection $price The provided price can be a fetched price from the database or generated over the `PriceFactory` statically
      */
     public function change(PriceCollection $price): void
@@ -113,6 +123,8 @@ class PriceFacade
      * `plus()` allows a price addition of the current price scope. The provided price will be recalculated via the quantity price calculator.
      * The provided price is interpreted as a unit price and will be added to the current unit price. The total price
      * is calculated afterwards considering quantity, tax rule and cash rounding configurations.
+     *
+     * @example pricing-cases/product-pricing.twig 14 5 Plus a static defined price to the existing calculated price
      *
      * @param PriceCollection $price The provided price can be a fetched price from the database or generated over the `PriceFactory` statically
      */
@@ -134,6 +146,8 @@ class PriceFacade
      * The provided price is interpreted as a unit price and will reduce to the current unit price. The total price
      * is calculated afterwards considering quantity, tax rule and cash rounding configurations.
      *
+     * @example pricing-cases/product-pricing.twig 22 5 Minus a static defined price to the existing calculated price
+     *
      * @param PriceCollection $price The provided price can be a fetched price from the database or generated over the `PriceFactory` statically
      */
     public function minus(PriceCollection $price): void
@@ -152,6 +166,8 @@ class PriceFacade
     /**
      * `discount()` allows a percentage discount calculation of the current price scope. The provided value will be ensured to be negative via `abs(value) * -1`.
      * The provided discount is interpreted as a percentage value and will be applied to the unit price and the total price as well.
+     *
+     * @example pricing-cases/product-pricing.twig 30 1 Adds a 10% discount to the existing calculated price
      *
      * @param float $value The percentage value of the discount. The value will be ensured to be negative via `abs(value) * -1`.
      */
@@ -177,6 +193,8 @@ class PriceFacade
      * `surcharge()` allows a percentage surcharge calculation of the current price scope. The provided value will be ensured to be negative via `abs(value)`.
      * The provided surcharge is interpreted as a percentage value and will be applied to the unit price and the total price as well.
      *
+     * @example pricing-cases/product-pricing.twig 34 1 Adds a 10% surcharge to the existing calculated price
+     *
      * @param float $value The percentage value of the surcharge. The value will be ensured to be negative via `abs(value)`.
      */
     public function surcharge(float $value): void
@@ -197,26 +215,7 @@ class PriceFacade
         $this->overwrite($definition);
     }
 
-    private function overwrite(QuantityPriceDefinition $definition): void
-    {
-        if ($this->item instanceof LineItem) {
-            $this->item->markModifiedByApp();
-
-            $this->item->setPriceDefinition($definition);
-
-            return;
-        }
-
-        $new = $this->priceStubs->calculateQuantity($definition, $this->context);
-
-        $this->price->overwrite(
-            $new->getUnitPrice(),
-            $new->getTotalPrice(),
-            $new->getCalculatedTaxes(),
-        );
-    }
-
-    private function getPriceForTaxState(PriceCollection $price, SalesChannelContext $context): float
+    protected function getPriceForTaxState(PriceCollection $price, SalesChannelContext $context): float
     {
         $currency = $price->getCurrencyPrice($this->context->getCurrencyId());
 
@@ -229,5 +228,22 @@ class PriceFacade
         }
 
         return $currency->getNet();
+    }
+
+    private function overwrite(QuantityPriceDefinition $definition): void
+    {
+        if ($this->item instanceof LineItem) {
+            $this->item->markModifiedByApp();
+
+            $this->item->setPriceDefinition($definition);
+        }
+
+        $new = $this->priceStubs->calculateQuantity($definition, $this->context);
+
+        $this->price->overwrite(
+            $new->getUnitPrice(),
+            $new->getTotalPrice(),
+            $new->getCalculatedTaxes(),
+        );
     }
 }

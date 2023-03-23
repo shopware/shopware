@@ -171,6 +171,7 @@ parameters:
         # Internal deprecations of Shopware are handled in other places
         - '#deprecated.*class Shopware\\#'
         - '#deprecated.*interface Shopware\\#'
+        - '#extends @final class Shopware\\Core\\Framework\\Script\\Execution\\Hook\.#'
 
         - # tests are allowed to add dummy classes in the same file
             message: '#Multiple class\/interface\/trait is not allowed in single file#'
@@ -206,11 +207,6 @@ services:
 
     -
         class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\FinalClassRule
-        tags:
-            - phpstan.rules.rule
-
-    -
-        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\DomainExceptionRule
         tags:
             - phpstan.rules.rule
 

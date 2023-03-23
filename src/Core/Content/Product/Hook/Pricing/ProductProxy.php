@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Product\Hook\Pricing;
 
 use Shopware\Core\Checkout\Cart\Facade\PriceFacade;
 use Shopware\Core\Checkout\Cart\Facade\ScriptPriceStubs;
+use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CalculatedCheapestPrice;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\Log\Package;
@@ -78,7 +79,7 @@ class ProductProxy implements \ArrayAccess
      */
     public function calculatedCheapestPrice(): ?PriceFacade
     {
-        return $this->product->get('calculatedCheapestPrice') ? new PriceFacade(
+        return $this->product->get('calculatedCheapestPrice') ? new CheapestPriceFacade(
             $this->product,
             $this->product->get('calculatedCheapestPrice'),
             $this->priceStubs,

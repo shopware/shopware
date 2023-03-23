@@ -20,7 +20,6 @@ class PriceFactory
     public function __construct(private ScriptPriceStubs $stubs)
     {
     }
-     //* @param array<string, array{gross:float, net:float, linked:bool}> $price The prices for the new collection, indexed by the currency-id or iso-code of the currency.
 
     /**
      * `create()` creates a new `PriceCollection` based on an array of prices.

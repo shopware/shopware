@@ -2,13 +2,13 @@
 
 namespace Shopware\Core\Content\Product\Hook\Pricing;
 
-use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Facade\PriceFacade;
 use Shopware\Core\Checkout\Cart\Facade\ScriptPriceStubs;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection as CalculatedPriceCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
+use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
@@ -47,7 +47,7 @@ class PriceCollectionFacade implements \IteratorAggregate, \Countable
      *
      * @param array{to: int|null, price: PriceCollection}[] $changes
      *
-     * @example pricing-cases/product-pricing.twig 32 5 Overwrite the product prices with a new quantity price graduation
+     * @example pricing-cases/product-pricing.twig 40 5 Overwrite the product prices with a new quantity price graduation
      */
     public function change(array $changes): void
     {
@@ -58,7 +58,7 @@ class PriceCollectionFacade implements \IteratorAggregate, \Countable
 
         // check for "null" value
         if (!\array_key_exists('', $mapped)) {
-            throw new \RuntimeException('Missing null key in prices change');
+            throw ProductException::invalidPriceDefinition();
         }
 
         $last = $mapped[null];
@@ -111,7 +111,7 @@ class PriceCollectionFacade implements \IteratorAggregate, \Countable
         $currency = $price->getCurrencyPrice($this->context->getCurrencyId());
 
         if (!$currency instanceof Price) {
-            throw CartException::invalidPriceDefinition();
+            throw ProductException::invalidPriceDefinition();
         }
 
         if ($context->getTaxState() === CartPrice::TAX_STATE_GROSS) {

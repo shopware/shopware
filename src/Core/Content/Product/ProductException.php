@@ -9,16 +9,26 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('inventory')]
 class ProductException extends HttpException
 {
-    public const PRODUCT_MISSING_PRICING_PROXY_PROPERTY_CODE = 'PRODUCT_MISSING_PRICING_PROXY_PROPERTY';
-    public const PRODUCT__PROXY_MANIPULATION_NOT_ALLOWED_CODE = 'PRODUCT_PROXY_MANIPULATION_NOT_ALLOWED';
+    public const PRODUCT_INVALID_CHEAPEST_PRICE_FACADE = 'PRODUCT_INVALID_CHEAPEST_PRICE_FACADE';
+    public const PRODUCT_PROXY_MANIPULATION_NOT_ALLOWED_CODE = 'PRODUCT_PROXY_MANIPULATION_NOT_ALLOWED';
+    public const PRODUCT_INVALID_PRICE_DEFINITION_CODE = 'PRODUCT_INVALID_PRICE_DEFINITION';
 
-    public static function missingPricingProxyProperty(string $id, string $property): self
+    public static function invalidCheapestPriceFacade(string $id): self
     {
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
-            self::PRODUCT_MISSING_PRICING_PROXY_PROPERTY_CODE,
-            'Required pricing proxy field {{ property }} missing for product with id {{ id }}',
-            ['id' => $id, 'property' => $property]
+            self::PRODUCT_INVALID_CHEAPEST_PRICE_FACADE,
+            'Cheapest price facade for product {{ id }} is invalid',
+            ['id' => $id]
+        );
+    }
+
+    public static function invalidPriceDefinition(): self
+    {
+        return new self(
+            Response::HTTP_CONFLICT,
+            self::PRODUCT_INVALID_PRICE_DEFINITION_CODE,
+            'Provided price definition is invalid.'
         );
     }
 
@@ -26,7 +36,7 @@ class ProductException extends HttpException
     {
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
-            self::PRODUCT__PROXY_MANIPULATION_NOT_ALLOWED_CODE,
+            self::PRODUCT_PROXY_MANIPULATION_NOT_ALLOWED_CODE,
             'Manipulation of pricing proxy field {{ property }} is not allowed',
             ['property' => (string) $property]
         );

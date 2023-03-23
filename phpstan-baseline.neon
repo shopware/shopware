@@ -10077,21 +10077,6 @@ parameters:
 			path: src/Core/Framework/Script/Execution/Script.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Script\\\\Execution\\\\ScriptLoader\\:\\:getAppInfo\\(\\) has parameter \\$script with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Script/Execution/ScriptLoader.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Script\\\\Execution\\\\ScriptLoader\\:\\:load\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Script/Execution/ScriptLoader.php
-
-		-
-			message: "#^PHPDoc tag @var for variable \\$script has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Script/Execution/ScriptLoader.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Store\\\\Search\\\\EqualsFilterStruct\\:\\:fromArray\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Store/Search/EqualsFilterStruct.php

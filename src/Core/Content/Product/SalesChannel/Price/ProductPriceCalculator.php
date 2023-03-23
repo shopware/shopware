@@ -151,6 +151,7 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
         $calculated = CalculatedCheapestPrice::createFrom(
             $this->calculator->calculate($definition, $context)
         );
+        $calculated->setVariantId($cheapest->getVariantId());
 
         $calculated->setHasRange($cheapest->hasRange());
 

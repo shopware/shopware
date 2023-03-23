@@ -35,7 +35,7 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
         self::GROUP_DATA_LOADING => 'data-loading-script-services-reference.md',
         self::GROUP_CART_MANIPULATION => 'cart-manipulation-script-services-reference.md',
         self::GROUP_CUSTOM_ENDPOINT => 'custom-endpoint-script-services-reference.md',
-        self::GROUP_PRODUCT => 'product-reference.md',
+        self::GROUP_PRODUCT => 'product-script-services-reference.md',
         self::GROUP_MISCELLANEOUS => 'miscellaneous-script-services-reference.md',
     ];
 

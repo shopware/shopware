@@ -913,6 +913,18 @@ over the quantity price calculator to consider quantity, tax rule and cash round
     
 * **Arguments:**
     * *[`Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/DataAbstractionLayer/Pricing/PriceCollection.php)* **price**: The provided price can be a fetched price from the database or generated over the `PriceFactory` statically
+* **Examples:**
+    * Overwrite prices with a static defined collection
+
+        {% raw %}
+        ```twig
+        {% do product.calculatedPrices.change([
+		    { to: 20, price: services.price.create({ 'default': { 'gross': 15, 'net': 15} }) },
+		    { to: 30, price: services.price.create({ 'default': { 'gross': 10, 'net': 10} }) },
+		    { to: null, price: services.price.create({ 'default': { 'gross': 5, 'net': 5} }) },
+		]) %}
+        ```
+        {% endraw %}
 ### plus()
 
 * `plus()` allows a price addition of the current price scope. The provided price will be recalculated via the quantity price calculator.
@@ -921,6 +933,18 @@ over the quantity price calculator to consider quantity, tax rule and cash round
 	is calculated afterwards considering quantity, tax rule and cash rounding configurations.
 * **Arguments:**
     * *[`Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/DataAbstractionLayer/Pricing/PriceCollection.php)* **price**: The provided price can be a fetched price from the database or generated over the `PriceFactory` statically
+* **Examples:**
+    * Plus a static defined price to the existing calculated price
+
+        {% raw %}
+        ```twig
+        {% set price = services.price.create({
+		    'default': { 'gross': 1.5, 'net': 1.5}
+		}) %}
+		
+		{% do product.calculatedPrice.plus(price) %}
+        ```
+        {% endraw %}
 ### minus()
 
 * `minus()` allows a price subtraction of the current price scope. The provided price will be recalculated via the quantity price calculator.
@@ -929,6 +953,18 @@ over the quantity price calculator to consider quantity, tax rule and cash round
 	is calculated afterwards considering quantity, tax rule and cash rounding configurations.
 * **Arguments:**
     * *[`Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/DataAbstractionLayer/Pricing/PriceCollection.php)* **price**: The provided price can be a fetched price from the database or generated over the `PriceFactory` statically
+* **Examples:**
+    * Minus a static defined price to the existing calculated price
+
+        {% raw %}
+        ```twig
+        {% set price = services.price.create({
+		    'default': { 'gross': 1.5, 'net': 1.5}
+		}) %}
+		
+		{% do product.calculatedPrice.minus(price) %}
+        ```
+        {% endraw %}
 ### discount()
 
 * `discount()` allows a percentage discount calculation of the current price scope. The provided value will be ensured to be negative via `abs(value) * -1`.
@@ -936,6 +972,14 @@ over the quantity price calculator to consider quantity, tax rule and cash round
     The provided discount is interpreted as a percentage value and will be applied to the unit price and the total price as well.
 * **Arguments:**
     * *`float`* **value**: The percentage value of the discount. The value will be ensured to be negative via `abs(value) * -1`.
+* **Examples:**
+    * Adds a 10% discount to the existing calculated price
+
+        {% raw %}
+        ```twig
+        {% do product.calculatedPrice.discount(10) %}
+        ```
+        {% endraw %}
 ### surcharge()
 
 * `surcharge()` allows a percentage surcharge calculation of the current price scope. The provided value will be ensured to be negative via `abs(value)`.
@@ -943,6 +987,14 @@ over the quantity price calculator to consider quantity, tax rule and cash round
     The provided surcharge is interpreted as a percentage value and will be applied to the unit price and the total price as well.
 * **Arguments:**
     * *`float`* **value**: The percentage value of the surcharge. The value will be ensured to be negative via `abs(value)`.
+* **Examples:**
+    * Adds a 10% surcharge to the existing calculated price
+
+        {% raw %}
+        ```twig
+        {% do product.calculatedPrice.surcharge(10) %}
+        ```
+        {% endraw %}
 ### create()
 
 * `create()` creates a new `PriceCollection` based on an array of prices.

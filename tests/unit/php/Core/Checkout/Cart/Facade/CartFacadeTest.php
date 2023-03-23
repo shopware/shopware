@@ -104,7 +104,7 @@ class CartFacadeTest extends TestCase
         $facade = new CartFacade(
             $this->createMock(CartFacadeHelper::class),
             $this->createMock(ScriptPriceStubs::class),
-            $this->createMock(Cart::class),
+            new Cart('foo'),
             $this->createMock(SalesChannelContext::class)
         );
 

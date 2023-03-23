@@ -21,7 +21,7 @@ class CartPriceFacade
      */
     public function __construct(
         private CartPrice $price,
-        private ScriptPriceStubs $priceStubs
+        protected ScriptPriceStubs $priceStubs
     ) {
     }
 

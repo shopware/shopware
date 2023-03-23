@@ -29,8 +29,8 @@ class ProductPricingHook extends Hook implements SalesChannelContextAware
      * @internal
      */
     public function __construct(
-        protected readonly array $products,
-        protected readonly SalesChannelContext $salesChannelContext
+        private readonly array $products,
+        private readonly SalesChannelContext $salesChannelContext
     ) {
         parent::__construct($this->salesChannelContext->getContext());
     }

@@ -13,6 +13,8 @@ class CalculatedCheapestPrice extends CalculatedPrice
      */
     protected $hasRange = false;
 
+    protected ?string $variantId = null;
+
     public function hasRange(): bool
     {
         return $this->hasRange;
@@ -26,5 +28,15 @@ class CalculatedCheapestPrice extends CalculatedPrice
     public function getApiAlias(): string
     {
         return 'calculated_cheapest_price';
+    }
+
+    public function setVariantId(string $variantId): void
+    {
+        $this->variantId = $variantId;
+    }
+
+    public function getVariantId(): ?string
+    {
+        return $this->variantId;
     }
 }

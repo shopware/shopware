@@ -21,9 +21,4 @@ abstract class AbstractProductPriceCalculator implements ResetInterface
      * @param Entity[] $products
      */
     abstract public function calculate(iterable $products, SalesChannelContext $context): void;
-
-    public function reset(): void
-    {
-        $this->getDecorated()->reset();
-    }
 }

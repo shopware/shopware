@@ -41,7 +41,7 @@ class Processor
 
             if ($behavior->hookAware()) {
                 // reset modified state that apps always have the same entry state
-                foreach ($cart->getLineItems()->getFlat() as $item) {
+                foreach ($original->getLineItems()->getFlat() as $item) {
                     $item->markUnModifiedByApp();
                 }
             }

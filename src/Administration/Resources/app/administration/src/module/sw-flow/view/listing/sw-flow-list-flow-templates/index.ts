@@ -12,7 +12,6 @@ interface GridColumn {
     label: string,
     allowResize?: boolean,
     sortable?: boolean,
-    align: string,
 }
 
 const { Mixin, Data: { Criteria } } = Shopware;
@@ -88,21 +87,18 @@ export default Shopware.Component.wrapComponentConfig({
                     dataIndex: 'name',
                     label: this.$tc('sw-flow.list.labelColumnName'),
                     allowResize: false,
-                    align: 'left',
                 },
                 {
                     property: 'config.description',
                     label: this.$tc('sw-flow.list.labelColumnDescription'),
                     allowResize: false,
                     sortable: false,
-                    align: 'left',
                 },
                 {
                     property: 'createFlow',
                     label: '',
                     allowResize: false,
                     sortable: false,
-                    align: 'right',
                 },
             ];
         },
@@ -144,6 +140,11 @@ export default Shopware.Component.wrapComponentConfig({
                 .finally(() => {
                     this.isLoading = false;
                 });
+        },
+
+        createFlowFromTemplate(item: Entity<'flow_template'>): void {
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises,@typescript-eslint/no-unsafe-assignment
+            this.$router.push({ name: 'sw.flow.create', params: { flowTemplateId: item.id } });
         },
 
         onEditFlow(item: Entity<'flow_template'>): void {

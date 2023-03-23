@@ -12,10 +12,7 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_list_content %}
-    <sw-card
-        class="sw-flow-list-card"
-        position-identifier="sw-flow-list-card"
-    >
+    <div class="sw-flow-list__content sw-data-grid--light">
         <sw-entity-listing
             class="sw-flow-list__grid"
             show-selection
@@ -31,7 +28,6 @@
             :items="flows"
             :is-loading="isLoading"
             :full-page="false"
-            :plain-appearance="true"
             @column-sort="onSortColumn"
             @page-change="onPageChange"
             @update-records="updateRecords"
@@ -179,7 +175,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_list_modal_content_custom %}
         {% endblock %}
-    </sw-card>
+    </div>
     {% endblock %}
 </div>
 {% endblock %}

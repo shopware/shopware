@@ -1,6 +1,5 @@
 import { shallowMount } from '@vue/test-utils';
 import swFlowListFlowTemplates from 'src/module/sw-flow/view/listing/sw-flow-list-flow-templates';
-import 'src/app/component/utils/sw-internal-link';
 
 const { Context } = Shopware;
 const { EntityCollection } = Shopware.Data;
@@ -66,13 +65,6 @@ async function createWrapper(privileges = []) {
                     </div>
                 `
             },
-            'sw-card': true,
-            'sw-internal-link': await Shopware.Component.build('sw-internal-link'),
-            'router-link': {
-                props: ['to'],
-                // eslint-disable-next-line no-template-curly-in-string
-                template: '<a :href="`${to.name}/${to.params.flowTemplateId}`">asdf</a>'
-            },
             'sw-icon': true,
             'sw-button': true,
             'sw-entity-listing': {
@@ -116,7 +108,7 @@ describe('module/sw-flow/view/listing/sw-flow-list-flow-templates', () => {
         const createFlowLink = wrapper.find('.sw-flow-list-my-flows__content__create-flow-link');
         expect(createFlowLink.exists()).toBe(true);
 
-        expect(createFlowLink.classes()).toContain('sw-internal-link--disabled');
+        expect(createFlowLink.attributes().disabled).toBe('disabled');
     });
 
     it('should be able to redirect to create flow page from flow template', async () => {
@@ -124,10 +116,14 @@ describe('module/sw-flow/view/listing/sw-flow-list-flow-templates', () => {
             'flow.creator'
         ]);
         await flushPromises();
+        await wrapper.find('.sw-flow-list-my-flows__content__create-flow-link').trigger('click');
 
-        const link = wrapper.find('.sw-flow-list-my-flows__content__create-flow-link');
+        const routerPush = wrapper.vm.$router.push;
 
-        expect(link.attributes('href')).toBe('sw.flow.create/44de136acf314e7184401d36406c1e90');
+        expect(routerPush).toHaveBeenLastCalledWith({
+            name: 'sw.flow.create',
+            params: { flowTemplateId: '44de136acf314e7184401d36406c1e90' }
+        });
     });
 
     it('should be able to view detail flow template', async () => {

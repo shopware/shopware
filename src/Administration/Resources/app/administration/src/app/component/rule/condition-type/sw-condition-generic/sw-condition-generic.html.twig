@@ -17,25 +17,32 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_condition_generic_fields %}
     <template v-if="operator !== 'empty'">
-        <sw-form-field-renderer
+        <div
             v-for="(field, index) in config.fields"
             :key="index"
-            v-bind="getBind(field)"
-            :disabled="disabled"
-            :value="values[field.name]"
-            size="medium"
-            show-clearable-button
-            :hide-hint="field.type === 'datetime'"
-            @input="updateFieldValue(field.name, $event)"
-            @change="updateFieldValue(field.name, $event)"
+            class="sw-condition-generic__input-wrapper"
         >
-            <template
+            <sw-form-field-renderer
+                v-bind="getBind(field)"
+                :disabled="disabled"
+                :value="getVisibleValue(field.name)"
+                size="medium"
+                show-clearable-button
+                :hide-hint="field.type === 'datetime'"
+                @input="updateFieldValue(field.name, $event, baseUnit, selectedUnit)"
+                @change="updateFieldValue(field.name, $event, baseUnit, selectedUnit)"
+            />
+
+            <sw-condition-unit-menu
                 v-if="field.config.unit"
-                #suffix
-            >
-                <span>{{ $tc(`global.sw-condition-generic.units.${field.config.unit}`) }}</span>
-            </template>
-        </sw-form-field-renderer>
+                :type="field.config.unit"
+                :value="values[field.name]"
+                :visible-value="getVisibleValue(field.name)"
+                class="sw-condition-generic__unit-menu"
+                @change-unit="handleUnitChange"
+                @set-default-unit="setDefaultUnit"
+            />
+        </div>
     </template>
     {% endblock %}
 </div>

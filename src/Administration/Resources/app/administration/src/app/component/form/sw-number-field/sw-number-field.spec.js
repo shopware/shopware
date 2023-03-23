@@ -9,7 +9,7 @@ import 'src/app/component/form/field-base/sw-contextual-field';
 import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-base-field';
 
-const createWrapper = async (additionalOptions = {}) => {
+const createWrapper = async (additionalOptions = {}, value = null) => {
     return shallowMount(await Shopware.Component.build('sw-number-field'), {
         stubs: {
             'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
@@ -23,7 +23,7 @@ const createWrapper = async (additionalOptions = {}) => {
             validationService: {}
         },
         propsData: {
-            value: null
+            value
         },
         ...additionalOptions
     });
@@ -223,5 +223,13 @@ describe('app/component/form/sw-number-field', () => {
         await input.setValue('1.235');
         await input.trigger('change');
         expect(input.element.value).toBe('1.24');
+    });
+
+    it('should remove scientific notation and convert to human readable', async () => {
+        const wrapper = await createWrapper({}, 0.0000001);
+        const input = wrapper.find('input');
+
+        expect(input.exists()).toBe(true);
+        expect(input.element.value).toBe('0');
     });
 });

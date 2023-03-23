@@ -2,6 +2,7 @@
  * @package admin
  */
 import createCriteriaFromArray from '../service/criteria-helper.service';
+import convertUnit from '../../module/sw-settings-rule/utils/unit-conversion.utils';
 
 const { Mixin } = Shopware;
 
@@ -9,6 +10,14 @@ const { Mixin } = Shopware;
  * @deprecated tag:v6.6.0 - Will be private
  */
 Mixin.register('generic-condition', {
+    data() {
+        return {
+            visibleValue: null,
+            baseUnit: null,
+            selectedUnit: null,
+        };
+    },
+
     computed: {
         config() {
             const config = Shopware.State.getters['ruleConditionsConfig/getConfigForType'](this.condition.type);
@@ -145,8 +154,42 @@ Mixin.register('generic-condition', {
             return fieldClone;
         },
 
-        updateFieldValue(fieldName, value) {
-            this.$set(this.values, fieldName, value);
+        updateFieldValue(fieldName, value, to = undefined, from = undefined) {
+            if (!from || !to || from === to) {
+                this.$set(this.values, fieldName, value);
+
+                return;
+            }
+
+            this.$set(this.values, fieldName, convertUnit(value, {
+                from,
+                to,
+            }));
+        },
+
+        updateVisibleValue(value) {
+            this.visibleValue = value;
+        },
+
+        getVisibleValue(fieldName) {
+            if (this.visibleValue === null) {
+                return this.values[fieldName];
+            }
+
+            return this.visibleValue;
+        },
+
+        handleUnitChange(event) {
+            this.selectedUnit = event.unit;
+
+            this.updateVisibleValue(event.value);
+        },
+
+        /**
+         * @param event represents the base unit
+         */
+        setDefaultUnit(event) {
+            this.baseUnit = event;
         },
     },
 });

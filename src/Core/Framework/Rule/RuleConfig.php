@@ -27,6 +27,10 @@ final class RuleConfig extends Struct
 
     public const UNIT_VOLUME = 'volume';
 
+    public const UNIT_LENGTH = 'length';
+
+    public const UNIT_TIME = 'time';
+
     public const UNIT_AGE = 'age';
 
     /**

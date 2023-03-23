@@ -1,0 +1,72 @@
+@import "~scss/variables";
+@import "~scss/mixins";
+
+$sw-condition-unit-menu-horizontal-padding: 12px;
+$sw-condition-unit-menu-vertical-padding: 8px;
+$sw-condition-unit-menu-button-vertical-margin: 4px;
+
+.sw-condition-unit-menu__label {
+    height: calc(100% - $sw-condition-unit-menu-button-vertical-margin * 2);
+    margin-block: $sw-condition-unit-menu-button-vertical-margin;
+    background-color: $color-gray-100;
+    padding: $sw-condition-unit-menu-vertical-padding $sw-condition-unit-menu-horizontal-padding;
+    font-size: $font-size-xs;
+    border-radius: $border-radius-default;
+    color: $color-darkgray-200;
+    border: none;
+    outline: none;
+}
+
+.sw-condition-unit-menu {
+    cursor: pointer;
+    transition: background-color 100ms ease-out;
+
+    &:hover:not(:disabled),
+    &:focus-visible:not(:disabled) {
+        background-color: $color-gray-200;
+    }
+
+    &:disabled {
+        color: $color-gray-500;
+        cursor: initial;
+    }
+
+    &__menu {
+        background-color: $color-white;
+        border: 1px solid $color-gray-300;
+        border-radius: $border-radius-default;
+        box-shadow: 0 3px 6px rgba(120, 138, 155, 25%);
+        padding: 8px;
+        width: 240px;
+    }
+
+    &__menu-item {
+        font-size: $font-size-xs;
+        padding: 8px 16px;
+        border-radius: $border-radius-default;
+        outline: none;
+        cursor: pointer;
+
+        &:hover,
+        &:focus-visible {
+            background-color: $color-shopware-brand-50;
+            color: $color-shopware-brand-500;
+        }
+
+        &__shortcut {
+            margin-left: 8px;
+            color: $color-gray-500;
+        }
+
+        &__selected-label {
+            color: $color-shopware-brand-500;
+            font-weight: bold;
+        }
+    }
+}
+
+.sw-condition-unit-menu__icon {
+    @include size(8px);
+
+    margin-left: 4px;
+}

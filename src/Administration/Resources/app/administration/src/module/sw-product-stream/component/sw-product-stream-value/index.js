@@ -334,6 +334,16 @@ export default {
             return criteria;
         },
 
+        customFieldCriteria() {
+            const criteria = new Criteria(1, 25);
+
+            if (typeof this.searchTerm === 'string' && this.searchTerm.length > 0) {
+                criteria.addQuery(Criteria.contains('name', this.searchTerm), 500);
+            }
+
+            return criteria;
+        },
+
         visibilitiesLabelCallback() {
             return (item) => {
                 if (!item) {
@@ -468,6 +478,16 @@ export default {
             }
 
             return Object.values(category.breadcrumb).join(' / ');
+        },
+
+        isCustomField(fieldName) {
+            const strippedFieldName = fieldName.replace(/customFields\./, '');
+
+            return Object.keys(this.productCustomFields).includes(strippedFieldName);
+        },
+
+        getCustomFieldEntityName(fieldName) {
+            return fieldName.replace(/customFields\./, '');
         },
     },
 };

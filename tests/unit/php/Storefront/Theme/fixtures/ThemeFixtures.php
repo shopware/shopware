@@ -4389,6 +4389,116 @@ class ThemeFixtures
     /**
      * @return array<string, mixed>
      */
+    public static function getExtractedFields7(): array
+    {
+        return [...ThemeFixtures::getExtractedFields1(), ...[
+            'parent-custom-config' => [
+                'extensions' => [
+                ],
+                'name' => 'parent-custom-config',
+                'label' => 'EN',
+                'helpText' => 'EN Helptext',
+                'type' => 'int',
+                'value' => '20',
+                'editable' => true,
+                'block' => null,
+                'section' => null,
+                'tab' => null,
+                'order' => null,
+                'sectionOrder' => null,
+                'blockOrder' => null,
+                'tabOrder' => null,
+                'custom' => null,
+                'scss' => null,
+                'fullWidth' => null,
+            ],
+            'extend-parent-custom-config' => [
+                'extensions' => [
+                ],
+                'name' => 'extend-parent-custom-config',
+                'label' => 'EN',
+                'helpText' => 'EN Helptext',
+                'type' => 'int',
+                'value' => '20',
+                'editable' => true,
+                'block' => null,
+                'section' => null,
+                'tab' => null,
+                'order' => null,
+                'sectionOrder' => null,
+                'blockOrder' => null,
+                'tabOrder' => null,
+                'custom' => null,
+                'scss' => null,
+                'fullWidth' => null,
+            ],
+        ]];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public static function getExtractedFields8(): array
+    {
+        return [...ThemeFixtures::getExtractedFields2(), ...[
+            'parent-custom-config' => [
+                'extensions' => [
+                ],
+                'name' => 'parent-custom-config',
+                'label' => [
+                    'de-DE' => 'DE',
+                    'en-GB' => 'EN',
+                ],
+                'helpText' => [
+                    'de-DE' => 'De Helptext',
+                    'en-GB' => 'EN Helptext',
+                ],
+                'type' => 'int',
+                'value' => '20',
+                'editable' => true,
+                'block' => null,
+                'section' => null,
+                'tab' => null,
+                'order' => null,
+                'sectionOrder' => null,
+                'blockOrder' => null,
+                'tabOrder' => null,
+                'custom' => null,
+                'scss' => null,
+                'fullWidth' => null,
+            ],
+            'extend-parent-custom-config' => [
+                'extensions' => [
+                ],
+                'name' => 'extend-parent-custom-config',
+                'label' => [
+                    'de-DE' => 'DE',
+                    'en-GB' => 'EN',
+                ],
+                'helpText' => [
+                    'de-DE' => 'De Helptext',
+                    'en-GB' => 'EN Helptext',
+                ],
+                'type' => 'int',
+                'value' => '20',
+                'editable' => true,
+                'block' => null,
+                'section' => null,
+                'tab' => null,
+                'order' => null,
+                'sectionOrder' => null,
+                'blockOrder' => null,
+                'tabOrder' => null,
+                'custom' => null,
+                'scss' => null,
+                'fullWidth' => null,
+            ],
+        ]];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
     public static function getExtractedBlocks2(): array
     {
         return [
@@ -4458,6 +4568,23 @@ class ThemeFixtures
     /**
      * @return array<string, mixed>
      */
+    public static function getExtractedCurrentFields5(): array
+    {
+        return [...ThemeFixtures::getExtractedCurrentFields1(), ...[
+            'parent-custom-config' => [
+                'value' => null,
+                'isInherited' => true,
+            ],
+            'extend-parent-custom-config' => [
+                'value' => '20',
+                'isInherited' => false,
+            ],
+        ]];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
     public static function getExtractedBaseThemeFields4(): array
     {
         return [
@@ -4476,6 +4603,23 @@ class ThemeFixtures
                 'value' => null,
             ],
         ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public static function getExtractedBaseThemeFields5(): array
+    {
+        return [...self::getExtractedBaseThemeFields1(), ...[
+            'parent-custom-config' => [
+                'isInherited' => 0,
+                'value' => 20,
+            ],
+            'extend-parent-custom-config' => [
+                'isInherited' => 1,
+                'value' => null,
+            ],
+        ]];
     }
 
     /**
@@ -4652,6 +4796,113 @@ class ThemeFixtures
                 ],
             ],
         ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public static function getExtractedTabs10(): array
+    {
+        return [
+            'default' => [
+                'label' => '',
+                'blocks' => [
+                    'themeColors' => [
+                        'label' => 'themeColors',
+                        'sections' => ThemeFixtures::getExtractedSections2(),
+                    ],
+                    'statusColors' => [
+                        'label' => 'statusColors',
+                        'sections' => ThemeFixtures::getExtractedSections3(),
+                    ],
+                    'typography' => [
+                        'label' => 'typography',
+                        'sections' => ThemeFixtures::getExtractedSections4(),
+                    ],
+                    'eCommerce' => [
+                        'label' => 'eCommerce',
+                        'sections' => ThemeFixtures::getExtractedSections5(),
+                    ],
+                    'media' => [
+                        'label' => 'media',
+                        'sections' => ThemeFixtures::getExtractedSections6(),
+                    ],
+                    'default' => [
+                        'label' => '',
+                        'sections' => [
+                            'default' => [
+                                'label' => '',
+                                'fields' => [
+                                    'test' => [
+                                        'label' => 'test',
+                                        'helpText' => null,
+                                        'type' => null,
+                                        'custom' => null,
+                                        'fullWidth' => null,
+                                    ],
+                                    'parent-custom-config' => [
+                                        'label' => 'EN',
+                                        'helpText' => 'EN Helptext',
+                                        'type' => 'int',
+                                        'custom' => null,
+                                        'fullWidth' => null,
+                                    ],
+                                    'extend-parent-custom-config' => [
+                                        'label' => 'EN',
+                                        'helpText' => 'EN Helptext',
+                                        'type' => 'int',
+                                        'custom' => null,
+                                        'fullWidth' => null,
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public static function getExtractedTabs11(): array
+    {
+        $expected = ThemeFixtures::getExtractedTabs2();
+        $expected['default']['label'] = '';
+        $expected['default']['blocks']['default']['label'] = '';
+        $expected['default']['blocks']['default']['sections']['default']['label'] = '';
+        $fields = $expected['default']['blocks']['default']['sections']['default']['fields'];
+        $expected['default']['blocks']['default']['sections']['default']['fields'] = array_merge($fields, [
+            'parent-custom-config' => [
+                'label' => [
+                    'de-DE' => 'DE',
+                    'en-GB' => 'EN',
+                ],
+                'helpText' => [
+                    'de-DE' => 'De Helptext',
+                    'en-GB' => 'EN Helptext',
+                ],
+                'type' => 'int',
+                'custom' => null,
+                'fullWidth' => null,
+            ],
+            'extend-parent-custom-config' => [
+                'label' => [
+                    'de-DE' => 'DE',
+                    'en-GB' => 'EN',
+                ],
+                'helpText' => [
+                    'de-DE' => 'De Helptext',
+                    'en-GB' => 'EN Helptext',
+                ],
+                'type' => 'int',
+                'custom' => null,
+                'fullWidth' => null,
+            ],
+        ]);
+
+        return $expected;
     }
 
     /**

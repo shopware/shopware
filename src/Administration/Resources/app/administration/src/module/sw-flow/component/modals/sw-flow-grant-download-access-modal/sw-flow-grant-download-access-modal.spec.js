@@ -65,7 +65,7 @@ describe('module/sw-flow/component/sw-flow-grant-download-access-modal', () => {
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.getConfig()).toEqual({
-            value: null,
+            value: undefined,
         });
     });
 

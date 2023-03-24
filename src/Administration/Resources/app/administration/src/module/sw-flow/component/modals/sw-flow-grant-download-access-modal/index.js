@@ -52,6 +52,14 @@ export default {
         ...mapState('swFlowState', ['triggerEvent', 'triggerActions']),
     },
 
+    watch: {
+        value(value) {
+            if (value && this.valueError) {
+                this.valueError = null;
+            }
+        },
+    },
+
     created() {
         this.createdComponent();
     },
@@ -60,9 +68,7 @@ export default {
         createdComponent() {
             const { config } = this.sequence;
 
-            if (config?.value) {
-                this.value = config?.value;
-            }
+            this.value = config?.value;
         },
 
         getConfig() {

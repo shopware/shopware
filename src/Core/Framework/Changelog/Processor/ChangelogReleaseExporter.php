@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Changelog\Processor;
 
 use Shopware\Core\Framework\Changelog\ChangelogFileCollection;
+use Shopware\Core\Framework\Changelog\ChangelogSection;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -21,14 +22,14 @@ class ChangelogReleaseExporter extends ChangelogProcessor
     public function export(array $requested, ?string $version = null, bool $includeFeatureFlags = false, bool $keysOnly = false): array
     {
         if ($version && !$this->existedRelease($version)) {
-            return ['A given version did not released yet. Please specify another one.'];
+            return ['The given version is not released yet. Please specify another one.'];
         }
 
         $changelogFiles = $this->prepareChangelogFiles($version, $includeFeatureFlags);
         if (!$changelogFiles->count()) {
             return [
-                $version ? 'There are not any changelog files in this release version: ' . $version
-                    : 'There are not any unreleased changelog files at this moment',
+                $version ? 'There are no changelog files in this release version: ' . $version
+                    : 'There are no unreleased changelog files at this moment',
             ];
         }
 
@@ -78,33 +79,33 @@ class ChangelogReleaseExporter extends ChangelogProcessor
         $getContentFnc = '';
         $title = '';
         switch ($section) {
-            case 'core':
-                $title = 'Core';
+            case ChangelogSection::core->name:
+                $title = ChangelogSection::core->value;
                 $getContentFnc = 'getCore';
 
                 break;
-            case 'api':
-                $title = 'API';
-                $getContentFnc = 'getAdministration';
+            case ChangelogSection::api->name:
+                $title = ChangelogSection::api->value;
+                $getContentFnc = 'getApi';
 
                 break;
-            case 'storefront':
-                $title = 'Storefront';
+            case ChangelogSection::storefront->name:
+                $title = ChangelogSection::storefront->value;
                 $getContentFnc = 'getStorefront';
 
                 break;
-            case 'admin':
-                $title = 'Administration';
+            case ChangelogSection::administration->name:
+                $title = ChangelogSection::administration->value;
                 $getContentFnc = 'getAdministration';
 
                 break;
-            case 'upgrade':
-                $title = 'Upgrade Information';
+            case ChangelogSection::upgrade->name:
+                $title = ChangelogSection::upgrade->value;
                 $getContentFnc = 'getUpgradeInformation';
 
                 break;
-            case 'major':
-                $title = 'Next Major Version Change';
+            case ChangelogSection::major->name:
+                $title = ChangelogSection::major->value;
                 $getContentFnc = 'getNextMajorVersionChanges';
 
                 break;

@@ -47,13 +47,14 @@ class ChangelogCheckCommand extends Command
         }
 
         $outputArray = $this->validator->check($path);
-        if (\count($outputArray)) {
+        $errorCount = \count($outputArray);
+        if ($errorCount) {
             foreach ($outputArray as $file => $violations) {
                 $IOHelper->writeln((string) $file);
                 $IOHelper->writeln(array_map(static fn ($message) => '* ' . $message, $violations));
                 $IOHelper->newLine();
             }
-            $IOHelper->error('You have some syntax errors in changelog files.');
+            $IOHelper->error(sprintf('You have %s syntax errors in changelog files.', $errorCount));
 
             return self::FAILURE;
         }

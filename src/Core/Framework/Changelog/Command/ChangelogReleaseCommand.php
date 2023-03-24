@@ -55,10 +55,9 @@ class ChangelogReleaseCommand extends Command
             throw new \RuntimeException('Invalid version of release ("' . $version . '"). It should be 4-digits type');
         }
 
-        if ($force = $input->getOption('force')) {
-            if (!$IOHelper->confirm('You are using "-f" argument. It could override an existing release before. Are you sure?', false)) {
-                return self::FAILURE;
-            }
+        $force = $input->getOption('force');
+        if ($force && !$IOHelper->confirm('You are using "-f" argument. It could override an existing release before. Are you sure?', false)) {
+            return self::FAILURE;
         }
 
         $outputArray = $this->releaseCreator->release($version, (bool) $force, $input->getOption('dry-run'));

@@ -25,40 +25,38 @@ async function createWrapper(propsData) {
  * @package merchant-services
  */
 describe('src/module/sw-extension/component/sw-extension-domains-modal', () => {
-    /** @type Wrapper */
-    let wrapper;
+    it('should not show any domains: null', async () => {
+        const errorSpy = jest.spyOn(console, 'error').mockImplementation();
 
-    afterEach(() => {
-        if (wrapper) wrapper.destroy();
+        const wrapper = await createWrapper({
+            domains: null
+        });
+
+        expect(errorSpy).toHaveBeenCalled();
+        expect(wrapper.findAll('.sw-extension-domains-modal__list li').length).toBe(0);
     });
 
-    it('should be a Vue.JS component', async () => {
-        wrapper = await createWrapper({
+    it('should not show any domains: undefined', async () => {
+        const errorSpy = jest.spyOn(console, 'error').mockImplementation();
+
+        const wrapper = await createWrapper({
+            domains: undefined
+        });
+
+        expect(errorSpy).toHaveBeenCalled();
+        expect(wrapper.findAll('.sw-extension-domains-modal__list li').length).toBe(0);
+    });
+
+    it('should not show any domains: []', async () => {
+        const errorSpy = jest.spyOn(console, 'error').mockImplementation();
+
+        const wrapper = await createWrapper({
             domains: []
         });
 
-        expect(wrapper.vm).toBeTruthy();
-    });
+        expect(errorSpy).not.toHaveBeenCalled();
 
-    [
-        null,
-        undefined,
-        []
-    ].forEach(domains => {
-        it(`should not show any domains: ${domains}`, async () => {
-            const errorSpy = jest.spyOn(console, 'error').mockImplementation();
-
-            wrapper = await createWrapper({
-                domains
-            });
-            if (Array.isArray(domains)) {
-                expect(errorSpy).not.toHaveBeenCalled();
-            } else {
-                expect(errorSpy).toHaveBeenCalled();
-            }
-
-            expect(wrapper.findAll('.sw-extension-domains-modal__list li').length).toBe(0);
-        });
+        expect(wrapper.findAll('.sw-extension-domains-modal__list li').length).toBe(0);
     });
 
     [
@@ -66,7 +64,7 @@ describe('src/module/sw-extension/component/sw-extension-domains-modal', () => {
         ['https://www.google.com', 'https://bing.com']
     ].forEach(domains => {
         it(`should show the domains which are given via the property, domain count: ${domains.length}`, async () => {
-            wrapper = await createWrapper({
+            const wrapper = await createWrapper({
                 domains
             });
 

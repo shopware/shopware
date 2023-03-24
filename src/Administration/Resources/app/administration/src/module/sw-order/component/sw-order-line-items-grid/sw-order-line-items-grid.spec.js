@@ -274,7 +274,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         });
     });
 
-    it('the create discounts button should not be disabled', async () => {
+    it('the create discounts button should be disabled', async () => {
         const wrapper = await createWrapper({
             privileges: ['orders.create_discounts']
         });
@@ -336,22 +336,6 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         const creditTaxTooltip = creditItem.find('.sw-order-line-items-grid__item-tax-tooltip');
 
         expect(creditTaxTooltip.exists()).toBeFalsy();
-    });
-
-    it('should show tooltip if item has multiple taxes', async () => {
-        const wrapper = await createWrapper({});
-
-        await wrapper.setProps({
-            order: {
-                ...wrapper.props().order,
-                lineItems: [{ ...mockMultipleTaxesItem }]
-            }
-        });
-
-        const creditItem = wrapper.find('.sw-data-grid__row--0');
-        const taxDetailTooltip = creditItem.find('.sw-order-line-items-grid__item-tax-tooltip');
-
-        expect(taxDetailTooltip.isVisible()).toBeTruthy();
     });
 
     it('should show tooltip if item has multiple taxes', async () => {
@@ -816,7 +800,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         await confirmAction.trigger('click');
         expect(wrapper.emitted('item-delete')).toBeTruthy();
 
-        expect(deleteEndpoint).toBeCalledTimes(1);
+        expect(deleteEndpoint).toHaveBeenCalledTimes(1);
 
         deleteItemModal = wrapper.find('.sw-order-line-items-grid__delete-item-modal');
         expect(deleteItemModal.exists()).toBeFalsy();

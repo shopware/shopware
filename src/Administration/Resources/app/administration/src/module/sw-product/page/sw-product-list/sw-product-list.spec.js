@@ -597,7 +597,7 @@ describe('module/sw-product/page/sw-product-list', () => {
         wrapper.vm.searchRankingService.getSearchFieldsByEntity.mockRestore();
     });
 
-    it('should not build query score when search ranking field is null ', async () => {
+    it('should not build query score when search ranking field is null', async () => {
         await wrapper.setData({
             term: 'foo'
         });

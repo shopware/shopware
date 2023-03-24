@@ -72,10 +72,6 @@ describe('module/sw-dashboard/page/sw-dashboard-index', () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should not show the stats', async () => {
-        wrapper.get('sw-dashboard-statistics-stub');
-    });
-
     it('should return `null` as greetingName', async () => {
         expect(wrapper.text()).toContain('{"greetingName":null}');
     });

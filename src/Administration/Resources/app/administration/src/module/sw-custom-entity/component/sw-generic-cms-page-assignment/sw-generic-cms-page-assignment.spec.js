@@ -192,8 +192,8 @@ describe('module/sw-custom-entity/component/sw-generic-cms-page-assignment', () 
         await wrapper.get('.sw-generic-cms-page-assignment__open-in-pagebuilder').trigger('click');
 
         const updateCmsPageIdEvents = wrapper.vm.$router.push;
-        expect(updateCmsPageIdEvents).toBeCalledTimes(1);
-        expect(updateCmsPageIdEvents).toBeCalledWith({
+        expect(updateCmsPageIdEvents).toHaveBeenCalledTimes(1);
+        expect(updateCmsPageIdEvents).toHaveBeenCalledWith({
             name: 'sw.cms.detail',
             params: {
                 id: 'TEST-PAGE-ID'

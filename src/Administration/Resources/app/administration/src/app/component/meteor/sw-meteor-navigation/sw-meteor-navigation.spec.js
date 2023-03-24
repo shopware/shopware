@@ -65,7 +65,7 @@ describe('src/app/component/meteor/sw-meteor-navigation', () => {
         expect(routerLink.exists()).toBe(false);
     });
 
-    it('it overrides parent path with given fromLink', async () => {
+    it('overrides parent path with given fromLink', async () => {
         const fromLink = {
             name: 'from.link',
             path: '/path/to/from/link',

@@ -7,6 +7,16 @@ import swSalesChannelProductsAssignmentDynamicProductGroups from 'src/module/sw-
 
 Shopware.Component.register('sw-sales-channel-products-assignment-dynamic-product-groups', swSalesChannelProductsAssignmentDynamicProductGroups);
 
+async function getError(method, ...args) {
+    try {
+        await method(...args);
+
+        throw new Error('Method should have thrown an error');
+    } catch (error) {
+        return error;
+    }
+}
+
 const productStreamsMock = [
     {
         id: 1,
@@ -251,9 +261,11 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
             return Promise.reject(new Error('Whoops!'));
         });
 
-        await wrapper.vm.getProductsFromProductStreams({ 1: productStreamsMock[0] }).catch((error) => {
-            expect(error.message).toBe('Whoops!');
-        });
+
+        expect((await getError(
+            wrapper.vm.getProductsFromProductStreams,
+            { 1: productStreamsMock[0] }
+        )).message).toBe('Whoops!');
 
         wrapper.vm.getProducts.mockRestore();
     });
@@ -282,12 +294,13 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
 
     it('should get product stream filter failed', async () => {
         wrapper.vm.productStreamRepository.get = jest.fn(() => {
-            return Promise.reject(new Error('Whoops!'));
+            throw new Error('Whoops!');
         });
 
-        await wrapper.vm.getProductStreamFilter(1).catch((error) => {
-            expect(error.message).toBe('Whoops!');
-        });
+        expect((await getError(
+            wrapper.vm.getProductStreamFilter,
+            1
+        )).message).toBe('Whoops!');
 
         expect(wrapper.vm.productStreamFilter).toEqual(
             expect.arrayContaining([])
@@ -315,12 +328,12 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
 
     it('should get products failed', async () => {
         wrapper.vm.productRepository.search = jest.fn(() => {
-            return Promise.reject(new Error('Whoops!'));
+            throw new Error('Whoops!');
         });
 
-        await wrapper.vm.getProducts().catch((error) => {
-            expect(error.message).toBe('Whoops!');
-        });
+        expect((await getError(
+            wrapper.vm.getProducts
+        )).message).toBe('Whoops!');
 
         wrapper.vm.productRepository.search.mockRestore();
     });

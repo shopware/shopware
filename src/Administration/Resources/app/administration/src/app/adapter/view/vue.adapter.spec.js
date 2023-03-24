@@ -457,7 +457,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
         expect(wrapper.vm.foo()).toBe('foo');
         expect(wrapper.vm.bar()).toBe('bar');
 
-        expect(lifecycleSpy).toBeCalledTimes(1);
+        expect(lifecycleSpy).toHaveBeenCalledTimes(1);
     });
 
     it('should build & create a vue.js component', async () => {

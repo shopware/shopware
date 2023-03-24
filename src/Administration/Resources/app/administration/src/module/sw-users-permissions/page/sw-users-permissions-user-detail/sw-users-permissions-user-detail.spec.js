@@ -210,7 +210,7 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
         expect(fieldLanguage.attributes('value')).toBe('7dc07b43229843d387bb5f59233c2d66');
     });
 
-    it('should contain all fields', async () => {
+    it('should contain all fields with a given user', async () => {
         await wrapper.setData({
             user: {
                 localeId: '12345',

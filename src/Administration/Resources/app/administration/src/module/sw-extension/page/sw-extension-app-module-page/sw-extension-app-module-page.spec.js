@@ -11,22 +11,17 @@ Shopware.Component.register('sw-extension-my-apps-error-page', SwExtensionsAppMo
 /**
  * @package merchant-services
  */
-describe('src/module/sw-extension/page/sw-extension-app-module-page', () => {
-    let wrapper = null;
-
-    beforeAll(() => {
+describe('src/module/sw-extension/page/sw-extension-app-module-page/index.js', () => {
+    beforeEach(() => {
         Shopware.State.get('session').currentLocale = 'en-GB';
         Shopware.State.commit('shopwareApps/setApps', testApps);
     });
 
-    afterEach(() => {
-        if (wrapper) wrapper.destroy();
-    });
-
     async function createWrapper(propsData) {
         const localVue = createLocalVue();
-        localVue.filter('asset', (value) => value);
+        localVue.filter('asset', value => value);
 
+        // @ts-ignore
         return shallowMount(await Shopware.Component.build('sw-extension-app-module-page'), {
             localVue,
             propsData,
@@ -52,34 +47,27 @@ describe('src/module/sw-extension/page/sw-extension-app-module-page', () => {
         });
     }
 
-    describe.each([
-        {
-            testName: 'regular module',
-            propsData: {
-                appName: 'testAppA',
-                moduleName: 'standardModule'
-            },
-            expectedHeading: 'test App A english - Standard module',
-            expectedSource: 'https://shopware.apps/module1'
-        }, {
-            testName: 'main module',
-            propsData: {
-                appName: 'testAppA'
-            },
-            expectedHeading: 'test App A english',
-            expectedSource: 'https://shopware.apps/login'
-        }
-    ])('It sets the correct heading and source', ({ testName, propsData, expectedHeading, expectedSource }) => {
-        it(testName, async () => {
-            wrapper = await createWrapper(propsData);
-
-            expect(wrapper.get('.smart-bar__header h2').text()).toBe(expectedHeading);
-            expect(wrapper.get('iframe#app-content').attributes('src')).toBe(expectedSource);
+    it('sets the correct heading and source with a regular module', async () => {
+        const wrapper = await createWrapper({
+            appName: 'testAppA',
+            moduleName: 'standardModule'
         });
+
+        expect(wrapper.get('.smart-bar__header h2').text()).toBe('test App A english - Standard module');
+        expect(wrapper.get('iframe#app-content').attributes('src')).toBe('https://shopware.apps/module1');
+    });
+
+    it('sets the correct heading and source with a main module', async () => {
+        const wrapper = await createWrapper({
+            appName: 'testAppA'
+        });
+
+        expect(wrapper.get('.smart-bar__header h2').text()).toBe('test App A english');
+        expect(wrapper.get('iframe#app-content').attributes('src')).toBe('https://shopware.apps/login');
     });
 
     it('shows no iframe and default heading if module is not found', async () => {
-        wrapper = await createWrapper({
+        const wrapper = await createWrapper({
             appName: 'notInStore',
             moduleName: 'notAvailable'
         });
@@ -90,7 +78,7 @@ describe('src/module/sw-extension/page/sw-extension-app-module-page', () => {
     it('shows error page if module can not load', async () => {
         jest.useFakeTimers();
 
-        wrapper = await createWrapper({
+        const wrapper = await createWrapper({
             appName: 'testAppA',
             moduleName: 'standardModule'
         });
@@ -108,7 +96,7 @@ describe('src/module/sw-extension/page/sw-extension-app-module-page', () => {
     it('shows removes loader if iframe is loaded', async () => {
         jest.useFakeTimers();
 
-        wrapper = await createWrapper({
+        const wrapper = await createWrapper({
             appName: 'testAppA',
             moduleName: 'standardModule'
         });

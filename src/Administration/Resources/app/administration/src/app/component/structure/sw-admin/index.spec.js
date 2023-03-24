@@ -95,8 +95,8 @@ describe('src/app/component/structure/sw-admin/index.ts', () => {
 
         await flushPromises();
 
-        expect(forwardLogout).toBeCalledTimes(1);
-        expect(forwardLogout).toBeCalledWith(true, true);
+        expect(forwardLogout).toHaveBeenCalledTimes(1);
+        expect(forwardLogout).toHaveBeenCalledWith(true, true);
         channel.close();
     });
 
@@ -110,7 +110,7 @@ describe('src/app/component/structure/sw-admin/index.ts', () => {
 
         await flushPromises();
 
-        expect(forwardLogout).toBeCalledTimes(0);
+        expect(forwardLogout).toHaveBeenCalledTimes(0);
         channel.close();
     });
 
@@ -125,7 +125,7 @@ describe('src/app/component/structure/sw-admin/index.ts', () => {
 
         await flushPromises();
 
-        expect(forwardLogout).toBeCalledTimes(0);
+        expect(forwardLogout).toHaveBeenCalledTimes(0);
         channel.close();
     });
 
@@ -140,7 +140,7 @@ describe('src/app/component/structure/sw-admin/index.ts', () => {
 
         await flushPromises();
 
-        expect(forwardLogout).toBeCalledTimes(0);
+        expect(forwardLogout).toHaveBeenCalledTimes(0);
         channel.close();
     });
 });

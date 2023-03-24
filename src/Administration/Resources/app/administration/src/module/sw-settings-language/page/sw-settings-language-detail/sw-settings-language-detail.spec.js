@@ -130,18 +130,6 @@ describe('module/sw-settings-language/page/sw-settings-language-detail', () => {
         expect(wrapper.vm.identifier).toBe('English');
     });
 
-    it('should return identifier', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm.identifier).toBe('');
-
-        wrapper.vm.language = {
-            name: 'English',
-        };
-
-        expect(wrapper.vm.identifier).toBe('English');
-    });
-
     it('should not be possible to inherit with no system language', async () => {
         const wrapper = await createWrapper();
         expect(wrapper.vm.inheritanceTooltipText).toBe('sw-settings-language.detail.tooltipLanguageNotChoosable');

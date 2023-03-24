@@ -121,8 +121,8 @@ describe('module/sw-settings-units/page/sw-settings-units', () => {
 
         wrapper.vm.createNewUnit();
 
-        expect(wrapper.vm.$router.push).toBeCalledTimes(1);
-        expect(wrapper.vm.$router.push).toBeCalledWith({
+        expect(wrapper.vm.$router.push).toHaveBeenCalledTimes(1);
+        expect(wrapper.vm.$router.push).toHaveBeenCalledWith({
             name: 'sw.settings.units.create',
         });
     });
@@ -199,7 +199,7 @@ describe('module/sw-settings-units/page/sw-settings-units', () => {
         await flushPromises();
 
         expect(wrapper.vm.newUnit).toBe(null);
-        expect(wrapper.vm.createNotificationSuccess).toBeCalledTimes(1);
+        expect(wrapper.vm.createNotificationSuccess).toHaveBeenCalledTimes(1);
     });
 
     it('should display error on save unit fail', async () => {
@@ -211,7 +211,7 @@ describe('module/sw-settings-units/page/sw-settings-units', () => {
         });
         await flushPromises();
 
-        expect(wrapper.vm.createNotificationError).toBeCalledTimes(1);
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledTimes(1);
     });
 
     it('should delete unit', async () => {
@@ -225,7 +225,7 @@ describe('module/sw-settings-units/page/sw-settings-units', () => {
         });
         await flushPromises();
 
-        expect(wrapper.vm.unitRepository.delete).toBeCalledTimes(1);
+        expect(wrapper.vm.unitRepository.delete).toHaveBeenCalledTimes(1);
     });
 
     it('should return unit columns', async () => {

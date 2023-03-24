@@ -132,7 +132,7 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should show item fields in Measures Packaging card ', async () => {
+    it('should show item fields in Measures Packaging card', async () => {
         const wrapper = await createWrapper();
 
         // expect the some item fields in Packaging is not hidden by css display none

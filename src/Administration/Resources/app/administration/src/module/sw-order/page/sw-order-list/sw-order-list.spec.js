@@ -148,7 +148,7 @@ describe('src/module/sw-order/page/sw-order-list', () => {
         expect(addButton.attributes().disabled).toBe('true');
     });
 
-    it('should have an disabled add button', async () => {
+    it('should not have an disabled add button', async () => {
         wrapper = await createWrapper(['order.creator']);
         const addButton = wrapper.find('.sw-order-list__add-order');
 
@@ -216,7 +216,7 @@ describe('src/module/sw-order/page/sw-order-list', () => {
         wrapper.vm.searchRankingService.getSearchFieldsByEntity.mockRestore();
     });
 
-    it('should not build query score when search ranking field is null ', async () => {
+    it('should not build query score when search ranking field is null', async () => {
         await wrapper.setData({
             term: 'foo'
         });

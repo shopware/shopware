@@ -70,7 +70,7 @@ describe('components/base/sw-version', () => {
         expect(wrapper.vm.version).toBe('7.0.0.0 Developer Preview');
     });
 
-    it('should convert dp modifier', async () => {
+    it('should convert ea modifier', async () => {
         const version = '7.0.0.0-ea';
         await createWrapper(version);
 

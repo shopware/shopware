@@ -218,7 +218,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-detail
         });
     });
 
-    it('should render a row for each entity with all checkboxes enabled and product and category read checked', async () => {
+    it('should render a row for each entity with all checkboxes enabled and product and category read and update checked', async () => {
         const wrapper = await createWrapper({
             rolePrivileges: ['product.viewer', 'product.editor'],
             privilegesMappings: [

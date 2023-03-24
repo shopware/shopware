@@ -313,6 +313,6 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
 
         await wrapper.vm.onClickAddNewDomain();
 
-        expect(wrapper.vm.verifyUrl).not.toBeCalled();
+        expect(wrapper.vm.verifyUrl).not.toHaveBeenCalled();
     });
 });

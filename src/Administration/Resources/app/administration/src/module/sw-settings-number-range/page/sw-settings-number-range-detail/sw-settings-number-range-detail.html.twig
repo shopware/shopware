@@ -199,7 +199,7 @@
                             v-if="state"
                             v-model="state"
                             type="text"
-                            disabled
+                            :disabled="true"
                             :label="$tc('sw-settings-number-range.detail.labelCurrentNumber')"
                             :placeholder="numberRange.start?numberRange.start.toString():''"
                         />
@@ -210,7 +210,7 @@
                         <sw-field
                             v-model="preview"
                             type="text"
-                            disabled
+                            :disabled="true"
                             :label="$tc('sw-settings-number-range.detail.labelPreview')"
                         />
                         {% endblock %}

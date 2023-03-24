@@ -64,7 +64,7 @@ describe('src/app/component/rule/sw-condition-and-container', () => {
         });
     });
 
-    it('should have enabled buttons', async () => {
+    it('should have disabled buttons', async () => {
         const wrapper = await createWrapper({
             disabled: true
         });

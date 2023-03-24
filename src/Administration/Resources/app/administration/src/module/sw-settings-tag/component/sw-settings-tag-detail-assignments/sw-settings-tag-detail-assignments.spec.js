@@ -263,7 +263,7 @@ describe('module/sw-settings-tag/component/sw-settings-tag-detail-assignments', 
 
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.vm.entityRepository.searchIds).toBeCalledTimes(2);
+        expect(wrapper.vm.entityRepository.searchIds).toHaveBeenCalledTimes(2);
     });
 
     it('should return assignment associations', async () => {

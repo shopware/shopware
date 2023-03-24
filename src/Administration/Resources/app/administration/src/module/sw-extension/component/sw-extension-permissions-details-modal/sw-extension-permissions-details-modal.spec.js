@@ -39,12 +39,9 @@ async function createWrapper({ permissions, modalTitle, selectedEntity }) {
 /**
  * @package merchant-services
  */
-describe('src/module/sw-extension/component/sw-extension-permissions-details-modal', () => {
-    /** @type Wrapper */
-    let wrapper;
-
+describe('sw-extension-permissions-details-modal', () => {
     it('should be a Vue.JS component', async () => {
-        wrapper = await createWrapper({
+        const wrapper = await createWrapper({
             modalTitle: 'Sample Extension Label',
             selectedEntity: 'product',
             permissions: {
@@ -61,8 +58,8 @@ describe('src/module/sw-extension/component/sw-extension-permissions-details-mod
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should display the permissions', async () => {
-        wrapper = await createWrapper({
+    it('should display the permissions for creating and reading', async () => {
+        const wrapper = await createWrapper({
             modalTitle: 'Sample Extension Label',
             selectedEntity: 'product',
             permissions: {
@@ -121,8 +118,8 @@ describe('src/module/sw-extension/component/sw-extension-permissions-details-mod
     });
 
 
-    it('should display the permissions', async () => {
-        wrapper = await createWrapper({
+    it('should display the permissions for all product permissions', async () => {
+        const wrapper = await createWrapper({
             modalTitle: 'Sample Extension Label',
             selectedEntity: 'product',
             permissions: {

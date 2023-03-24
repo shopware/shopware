@@ -109,13 +109,13 @@ describe('modules/sw-mail-template/page/sw-mail-header-footer-detail', () => {
             wrapper.findAll('sw-code-editor-stub'),
             wrapper.find('sw-entity-multi-select-stub')
         ].forEach(element => {
-            if (element.length > 1) {
-                element.wrappers.forEach(el => {
-                    expect(el.attributes().disabled).toBeTruthy();
-                });
-            } else {
-                expect(element.attributes().disabled).toBeTruthy();
+            if (!Array.isArray(element.wrappers)) {
+                element = { wrappers: [element] };
             }
+
+            element.wrappers.forEach(el => {
+                expect(el.attributes().disabled).toBeTruthy();
+            });
         });
 
         expect(wrapper.vm.tooltipSave).toStrictEqual({
@@ -135,13 +135,13 @@ describe('modules/sw-mail-template/page/sw-mail-header-footer-detail', () => {
             wrapper.findAll('sw-code-editor-stub'),
             wrapper.find('sw-entity-multi-select-stub')
         ].forEach(element => {
-            if (element.length > 1) {
-                element.wrappers.forEach(el => {
-                    expect(el.attributes().disabled).toBeFalsy();
-                });
-            } else {
-                expect(element.attributes().disabled).toBeFalsy();
+            if (!Array.isArray(element.wrappers)) {
+                element = { wrappers: [element] };
             }
+
+            element.wrappers.forEach(el => {
+                expect(el.attributes().disabled).toBeFalsy();
+            });
         });
 
         expect(wrapper.vm.tooltipSave).toStrictEqual({

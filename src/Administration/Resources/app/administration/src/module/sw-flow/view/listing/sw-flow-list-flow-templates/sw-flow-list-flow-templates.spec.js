@@ -148,6 +148,6 @@ describe('module/sw-flow/view/listing/sw-flow-list-flow-templates', () => {
         wrapper.vm.onEditFlow({});
         await flushPromises();
 
-        expect(wrapper.vm.$router.push).toBeCalledTimes(0);
+        expect(wrapper.vm.$router.push).toHaveBeenCalledTimes(0);
     });
 });

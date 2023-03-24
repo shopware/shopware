@@ -166,7 +166,7 @@ describe('module/sw-settings-search/page/sw-settings-search', () => {
         await wrapper.vm.$nextTick();
         await wrapper.get('.sw-settings-search__button-save').trigger('click');
 
-        expect(onSaveSearchSettingsSpy).toBeCalled();
+        expect(onSaveSearchSettingsSpy).toHaveBeenCalled();
         expect(wrapper.vm.productSearchRepository.save).toHaveBeenCalled();
     });
 

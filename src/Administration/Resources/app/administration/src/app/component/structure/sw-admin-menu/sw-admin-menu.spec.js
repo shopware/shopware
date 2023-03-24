@@ -286,7 +286,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         );
     });
 
-    it('should check privileges for main menu entry children ', async () => {
+    it('should check privileges for main menu entry children', async () => {
         const topLevelEntries = wrapper.findAll('.navigation-list-item__level-1');
 
         expect(topLevelEntries).toHaveLength(2);

@@ -107,7 +107,7 @@ describe('sw-app-action-button', () => {
 
         await wrapper.trigger('click');
 
-        expect(actionListener).toBeCalled();
-        expect(actionListener).toBeCalledWith(baseAction);
+        expect(actionListener).toHaveBeenCalled();
+        expect(actionListener).toHaveBeenCalledWith(baseAction);
     });
 });

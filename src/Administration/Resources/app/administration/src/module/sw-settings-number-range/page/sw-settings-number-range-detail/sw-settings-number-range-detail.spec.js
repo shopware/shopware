@@ -6,7 +6,7 @@ import swSettingsNumberRangeDetail from 'src/module/sw-settings-number-range/pag
 
 Shopware.Component.register('sw-settings-number-range-detail', swSettingsNumberRangeDetail);
 
-async function createWrapper(privileges = []) {
+async function createWrapper() {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
@@ -45,9 +45,6 @@ async function createWrapper(privileges = []) {
                     search: () => Promise.resolve([])
                 })
             },
-            acl: {
-                can: key => (key ? privileges.includes(key) : true)
-            },
             customFieldDataProviderService: {
                 getCustomFieldSets: () => Promise.resolve([])
             }
@@ -61,13 +58,20 @@ async function createWrapper(privileges = []) {
                         <slot />
                     </div>`
             },
-            'sw-button': true,
-            'sw-button-process': true,
+            'sw-button': {
+                template: '<div class="sw-button"><slot /></div>',
+                props: ['disabled']
+            },
+            'sw-button-process': {
+                template: '<div class="sw-button-process"><slot /></div>',
+                props: ['disabled']
+            },
             'sw-card': {
                 template: '<div class="sw-card"><slot /></div>'
             },
             'sw-field': {
-                template: '<div class="sw-field"/>'
+                template: '<div class="sw-field"></div>',
+                props: ['disabled']
             },
             'sw-card-view': {
                 template: '<div><slot /></div>'
@@ -76,7 +80,10 @@ async function createWrapper(privileges = []) {
             'sw-language-info': true,
             'sw-help-text': true,
             'sw-multi-select': true,
-            'sw-entity-single-select': true,
+            'sw-entity-single-select': {
+                template: '<div class="sw-entity-single-select"></div>',
+                props: ['disabled']
+            },
             'sw-alert': true,
             'sw-skeleton': true,
         }
@@ -84,26 +91,16 @@ async function createWrapper(privileges = []) {
 }
 
 describe('src/module/sw-settings-number-range/page/sw-settings-number-range-detail', () => {
-    let wrapper;
-
     beforeEach(async () => {
-        wrapper = await createWrapper();
-    });
-
-    afterEach(() => {
-        wrapper.destroy();
-    });
-
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
+        global.activeAclRoles = [];
     });
 
     it('should not be able to save the number range', async () => {
-        const saveButton = wrapper.find('.sw-settings-number-range-detail__save-action');
+        const wrapper = await createWrapper();
 
-        await wrapper.vm.$nextTick();
+        const saveButton = wrapper.get('.sw-settings-number-range-detail__save-action');
 
-        expect(saveButton.attributes().disabled).toBeTruthy();
+        expect(saveButton.props('disabled')).toBe(true);
         expect(wrapper.vm.tooltipSave).toStrictEqual({
             message: 'sw-privileges.tooltip.warning',
             disabled: false,
@@ -112,9 +109,9 @@ describe('src/module/sw-settings-number-range/page/sw-settings-number-range-deta
     });
 
     it('should be able to save the number range', async () => {
-        wrapper = await createWrapper([
-            'number_ranges.editor'
-        ]);
+        global.activeAclRoles = ['number_ranges.editor'];
+
+        const wrapper = await createWrapper();
 
         await wrapper.setData({
             isLoading: false
@@ -122,9 +119,9 @@ describe('src/module/sw-settings-number-range/page/sw-settings-number-range-deta
 
         await wrapper.vm.$nextTick();
 
-        const saveButton = wrapper.find('.sw-settings-number-range-detail__save-action');
+        const saveButton = wrapper.get('.sw-settings-number-range-detail__save-action');
 
-        expect(saveButton.attributes().disabled).toBeFalsy();
+        expect(saveButton.props('disabled')).toBe(false);
         expect(wrapper.vm.tooltipSave).toStrictEqual({
             message: 'CTRL + S',
             appearance: 'light'
@@ -132,39 +129,44 @@ describe('src/module/sw-settings-number-range/page/sw-settings-number-range-deta
     });
 
     it('should be able to edit the number range', async () => {
-        wrapper = await createWrapper([
-            'number_ranges.editor'
-        ]);
+        global.activeAclRoles = ['number_ranges.editor'];
+
+        const wrapper = await createWrapper();
 
         await wrapper.setData({ isLoading: false });
         await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
 
-        const elements = wrapper.findAll('.sw-field');
+        const alwaysDisabledElements = [
+            'sw-settings-number-range.detail.labelCurrentNumber',
+            'sw-settings-number-range.detail.labelPreview',
+            'sw-settings-number-range.detail.labelSuffix',
+            'sw-settings-number-range.detail.labelPrefix'
+        ];
+
+        const elements = wrapper.findAllComponents('.sw-field');
+
         elements.wrappers.forEach(el => {
-            if ([
-                'sw-settings-number-range.detail.labelCurrentNumber',
-                'sw-settings-number-range.detail.labelPreview',
-                'sw-settings-number-range.detail.labelSuffix',
-                'sw-settings-number-range.detail.labelPrefix'
-            ].includes(el.attributes().label)) {
-                expect(el.attributes().disabled).toBe('disabled');
-                return;
-            }
+            const isAlwaysDisabled = alwaysDisabledElements.includes(el.attributes('label'));
 
-            expect(el.attributes().disabled).toBeUndefined();
+            expect(el.props('disabled')).toBe(isAlwaysDisabled);
         });
 
-        const numberRangeType = wrapper.find('#numberRangeTypes');
-        expect(numberRangeType.attributes().disabled).toBeTruthy();
+        const numberRangeType = wrapper.get('#numberRangeTypes');
+        expect(numberRangeType.props('disabled')).toBe(true);
     });
 
     it('should not be able to edit the number range', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setData({ isLoading: false });
+        await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
 
-        const elements = wrapper.findAll('.sw-field');
-        elements.wrappers.forEach(el => expect(el.attributes().disabled).toBe('disabled'));
+        const elements = wrapper.findAllComponents('.sw-field');
+        elements.wrappers.forEach(el => expect(el.props('disabled')).toBe(true));
 
-        const numberRangeType = wrapper.find('#numberRangeTypes');
-        expect(numberRangeType.attributes().disabled).toBeTruthy();
+        const numberRangeType = wrapper.get('#numberRangeTypes');
+        expect(numberRangeType.props('disabled')).toBe(true);
     });
 });

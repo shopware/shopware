@@ -77,7 +77,7 @@ describe('module/sw-product/component/sw-product-settings-mode', () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should show correct tooltip ', async () => {
+    it('should show correct tooltip', async () => {
         await wrapper.vm.$nextTick();
 
         const elementModeSettings = wrapper.find('.sw-product-settings-mode');
@@ -115,7 +115,7 @@ describe('module/sw-product/component/sw-product-settings-mode', () => {
         expect(inputElement.element.checked).toBeTruthy();
     });
 
-    it('should be able to check item settings ', async () => {
+    it('should be able to check item settings', async () => {
         await wrapper.vm.$nextTick();
 
         await wrapper.setProps({
@@ -146,7 +146,7 @@ describe('module/sw-product/component/sw-product-settings-mode', () => {
         expect(checkboxElement.element.checked).toBeTruthy();
     });
 
-    it('should be disabled the item settings when the advanced mode is disabled ', async () => {
+    it('should be disabled the item settings when the advanced mode is disabled', async () => {
         await wrapper.vm.$nextTick();
 
         await wrapper.setProps({

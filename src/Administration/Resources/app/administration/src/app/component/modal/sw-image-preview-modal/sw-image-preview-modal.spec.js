@@ -119,20 +119,12 @@ describe('src/app/component/modal/sw-image-preview-modal', () => {
 
         // Only display 1st item
         imageItems.wrappers.forEach((item, index) => {
-            if (index === expectedIndex) {
-                expect(item.attributes('aria-hidden')).toBeFalsy();
-            } else {
-                expect(item.attributes('aria-hidden')).toBeTruthy();
-            }
+            expect(item.attributes('aria-hidden')).toBe(index === expectedIndex ? undefined : 'true');
         });
 
         // Show border around 1st item
         thumbnailItems.wrappers.forEach((item, index) => {
-            if (index === expectedIndex) {
-                expect(item.classes()).toContain('is--active');
-            } else {
-                expect(item.classes()).not.toContain('is--active');
-            }
+            expect(item.classes('is--active')).toBe(index === expectedIndex);
         });
 
         // Click on 2nd item
@@ -145,19 +137,11 @@ describe('src/app/component/modal/sw-image-preview-modal', () => {
             .toContain(`${staticStyles} transform: translateX(-${translateAmount}%);`);
 
         imageItems.wrappers.forEach((item, index) => {
-            if (index === expectedIndex) {
-                expect(item.attributes('aria-hidden')).toBeFalsy();
-            } else {
-                expect(item.attributes('aria-hidden')).toBeTruthy();
-            }
+            expect(item.attributes('aria-hidden')).toBe(index === expectedIndex ? undefined : 'true');
         });
 
         thumbnailItems.wrappers.forEach((item, index) => {
-            if (index === expectedIndex) {
-                expect(item.classes()).toContain('is--active');
-            } else {
-                expect(item.classes()).not.toContain('is--active');
-            }
+            expect(item.classes('is--active')).toBe(index === expectedIndex);
         });
 
         // Click on 4th item
@@ -171,20 +155,12 @@ describe('src/app/component/modal/sw-image-preview-modal', () => {
 
         // Only display 4th item
         imageItems.wrappers.forEach((item, index) => {
-            if (index === expectedIndex) {
-                expect(item.attributes('aria-hidden')).toBeFalsy();
-            } else {
-                expect(item.attributes('aria-hidden')).toBeTruthy();
-            }
+            expect(item.attributes('aria-hidden')).toBe(index === expectedIndex ? undefined : 'true');
         });
 
         // Show border around 4th item
         thumbnailItems.wrappers.forEach((item, index) => {
-            if (index === expectedIndex) {
-                expect(item.classes()).toContain('is--active');
-            } else {
-                expect(item.classes()).not.toContain('is--active');
-            }
+            expect(item.classes('is--active')).toBe(index === expectedIndex);
         });
     });
 
@@ -198,19 +174,11 @@ describe('src/app/component/modal/sw-image-preview-modal', () => {
 
         let expectedIndex = 0;
         imageItems.wrappers.forEach((item, index) => {
-            if (index === expectedIndex) {
-                expect(item.attributes()['aria-hidden']).toBeFalsy();
-            } else {
-                expect(item.attributes()['aria-hidden']).toBeTruthy();
-            }
+            expect(item.attributes('aria-hidden')).toBe(index === expectedIndex ? undefined : 'true');
         });
 
         thumbnailItems.wrappers.forEach((item, index) => {
-            if (index === expectedIndex) {
-                expect(item.classes()).toContain('is--active');
-            } else {
-                expect(item.classes()).not.toContain('is--active');
-            }
+            expect(item.classes('is--active')).toBe(index === expectedIndex);
         });
 
         // Move to 2nd item
@@ -218,19 +186,11 @@ describe('src/app/component/modal/sw-image-preview-modal', () => {
 
         expectedIndex = 1;
         imageItems.wrappers.forEach((item, index) => {
-            if (index === expectedIndex) {
-                expect(item.attributes('aria-hidden')).toBeFalsy();
-            } else {
-                expect(item.attributes('aria-hidden')).toBeTruthy();
-            }
+            expect(item.attributes('aria-hidden')).toBe(index === expectedIndex ? undefined : 'true');
         });
 
         thumbnailItems.wrappers.forEach((item, index) => {
-            if (index === expectedIndex) {
-                expect(item.classes()).toContain('is--active');
-            } else {
-                expect(item.classes()).not.toContain('is--active');
-            }
+            expect(item.classes('is--active')).toBe(index === expectedIndex);
         });
 
         // Move to 5th item
@@ -240,19 +200,11 @@ describe('src/app/component/modal/sw-image-preview-modal', () => {
 
         expectedIndex = 4;
         imageItems.wrappers.forEach((item, index) => {
-            if (index === expectedIndex) {
-                expect(item.attributes('aria-hidden')).toBeFalsy();
-            } else {
-                expect(item.attributes('aria-hidden')).toBeTruthy();
-            }
+            expect(item.attributes('aria-hidden')).toBe(index === expectedIndex ? undefined : 'true');
         });
 
         thumbnailItems.wrappers.forEach((item, index) => {
-            if (index === expectedIndex) {
-                expect(item.classes()).toContain('is--active');
-            } else {
-                expect(item.classes()).not.toContain('is--active');
-            }
+            expect(item.classes('is--active')).toBe(index === expectedIndex);
         });
 
         // Move to 3rd item
@@ -261,19 +213,11 @@ describe('src/app/component/modal/sw-image-preview-modal', () => {
 
         expectedIndex = 2;
         imageItems.wrappers.forEach((item, index) => {
-            if (index === expectedIndex) {
-                expect(item.attributes('aria-hidden')).toBeFalsy();
-            } else {
-                expect(item.attributes('aria-hidden')).toBeTruthy();
-            }
+            expect(item.attributes('aria-hidden')).toBe(index === expectedIndex ? undefined : 'true');
         });
 
         thumbnailItems.wrappers.forEach((item, index) => {
-            if (index === expectedIndex) {
-                expect(item.classes()).toContain('is--active');
-            } else {
-                expect(item.classes()).not.toContain('is--active');
-            }
+            expect(item.classes('is--active')).toBe(index === expectedIndex);
         });
     });
 
@@ -287,19 +231,11 @@ describe('src/app/component/modal/sw-image-preview-modal', () => {
         const imageItems = wrapper.findAll('.sw-image-preview-modal__image-slider .sw-image-slider__element-wrapper');
 
         imageItems.wrappers.forEach((item, index) => {
-            if (index === expectedIndex) {
-                expect(item.attributes('aria-hidden')).toBeFalsy();
-            } else {
-                expect(item.attributes('aria-hidden')).toBeTruthy();
-            }
+            expect(item.attributes('aria-hidden')).toBe(index === expectedIndex ? undefined : 'true');
         });
 
         thumbnailItems.wrappers.forEach((item, index) => {
-            if (index === expectedIndex) {
-                expect(item.classes()).toContain('is--active');
-            } else {
-                expect(item.classes()).not.toContain('is--active');
-            }
+            expect(item.classes('is--active')).toBe(index === expectedIndex);
         });
     });
 

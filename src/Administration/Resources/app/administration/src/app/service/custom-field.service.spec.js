@@ -34,7 +34,7 @@ describe('src/app/service/custom-field.service.js', () => {
         expect(customFieldService.getTypeByName('number')).toEqual(expectedTypeConfigs.number);
     });
 
-    it('upsertType: insert config of new type ', async () => {
+    it('upsertType: insert config of new type', async () => {
         expect(customFieldService.getTypeByName('newType')).toBeUndefined();
 
         const newTypeConfig = {

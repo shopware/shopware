@@ -164,6 +164,7 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-list', () => {
         const resetButton = wrapper.find('.sw-settings-snippet-list__delete-action');
 
         if (!state) {
+            // eslint-disable-next-line jest/no-conditional-expect
             expect(resetButton.classes()).not.toContain('is--disabled');
 
             return;

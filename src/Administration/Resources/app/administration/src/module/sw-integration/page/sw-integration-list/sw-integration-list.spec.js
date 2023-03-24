@@ -184,7 +184,7 @@ describe('when has not privilege', () => {
         expect(createButton.attributes().disabled).toBeTruthy();
     });
 
-    it('should not be able to create a integration', async () => {
+    it('should be able to create a integration', async () => {
         const wrapper = await createWrapper([
             'integration.editor',
             'integration.deleter'
@@ -213,7 +213,7 @@ describe('when has not privilege', () => {
         });
     });
 
-    it('should not be able to edit a integration', async () => {
+    it('should be able to edit a integration', async () => {
         const wrapper = await createWrapper([
             'integration.viewer',
             'integration.deleter'
@@ -241,7 +241,7 @@ describe('when has not privilege', () => {
         expect(deleteMenuItem.attributes().disabled).toBeTruthy();
     });
 
-    it('should not be able to delete a integration', async () => {
+    it('should be able to delete a integration', async () => {
         const wrapper = await createWrapper([
             'integration.viewer',
             'integration.editor'

@@ -168,7 +168,7 @@ describe('src/module/sw-order/page/sw-order-create', () => {
 
         await modal.find('.sw-modal__footer .sw-button--primary').trigger('click');
 
-        expect(remindPaymentMock).toBeCalledTimes(1);
+        expect(remindPaymentMock).toHaveBeenCalledTimes(1);
 
         await wrapper.vm.$nextTick();
         expect(wrapper.vm.isSaveSuccessful).toBeTruthy();

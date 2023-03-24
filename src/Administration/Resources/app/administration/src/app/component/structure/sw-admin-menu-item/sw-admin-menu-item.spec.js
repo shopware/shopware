@@ -423,7 +423,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
     });
 
     // eslint-disable-next-line max-len
-    test('should show the menu entry when all children have privileges the user do not have but the main path is allowed', async () => {
+    it('should show the menu entry when all children have privileges the user do not have but the main path is allowed', async () => {
         const wrapper = await createWrapper({
             privileges: [],
             propsData: {
@@ -473,9 +473,9 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
         });
     });
 
-    test('should hide settings menu if no item is visible', async () => {
+    it('should hide settings menu if no item is visible', async () => {
         Shopware.State.get('settingsItems').settingsGroups.shop = [
-            { privilege: 'no-set', path: 'test' }
+            { privilege: 'no-set', path: 'it' }
         ];
 
         const wrapper = await createWrapper({
@@ -498,7 +498,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
     });
 
 
-    test('settings should be shown if all item is visible', async () => {
+    it('settings should be shown if all item is visible', async () => {
         Shopware.State.get('settingsItems').settingsGroups.shop = [
             { privilege: 'priv-1' },
             { privilege: 'priv-2' }
@@ -524,7 +524,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
         expect(wrapper.html()).not.toBe('');
     });
 
-    test('settings should be shown if one item is visible', async () => {
+    it('settings should be shown if one item is visible', async () => {
         Shopware.State.get('settingsItems').settingsGroups.shop = [
             { privilege: 'priv-1' },
             { privilege: 'priv-2' }
@@ -550,7 +550,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
         expect(wrapper.html()).not.toBe('');
     });
 
-    test('get the first plugin menu entry', async () => {
+    it('get the first plugin menu entry', async () => {
         const wrapper = await createWrapper({
             privileges: [],
             propsData: {
@@ -585,7 +585,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
         expect(wrapper.vm.isFirstPluginInMenuEntries(wrapper.vm.entry, catalogues.children)).toBeFalsy();
     });
 
-    test('should match route', async () => {
+    it('should match route', async () => {
         const entries = [...catalogues.children];
         entries.unshift({
             id: 'sw-catalogue',
@@ -615,6 +615,8 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
             }
         });
 
-        expect(wrapper.vm.subIsActive('sw.foo.index'));
+        await flushPromises();
+
+        expect(wrapper.vm.subIsActive('sw.foo.index')).toBe(false);
     });
 });

@@ -78,8 +78,8 @@ describe('module/sw-settings-tag/component/sw-settings-tag-detail-modal', () => 
 
         await wrapper.vm.onSave();
 
-        expect(wrapper.vm.syncService.sync).toBeCalledTimes(1);
-        expect(wrapper.vm.tagRepository.save).toBeCalledTimes(1);
+        expect(wrapper.vm.syncService.sync).toHaveBeenCalledTimes(1);
+        expect(wrapper.vm.tagRepository.save).toHaveBeenCalledTimes(1);
 
         const onSaveEvents = wrapper.emitted('finish');
         expect(onSaveEvents.length).toBe(1);

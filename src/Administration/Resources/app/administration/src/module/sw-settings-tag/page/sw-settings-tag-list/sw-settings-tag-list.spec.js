@@ -252,7 +252,7 @@ describe('module/sw-settings-tag/page/sw-settings-tag-list', () => {
         wrapper.vm.onFilter();
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.vm.tagApiService.filterIds).toBeCalledTimes(1);
+        expect(wrapper.vm.tagApiService.filterIds).toHaveBeenCalledTimes(1);
         expect(wrapper.vm.total).toEqual(1);
     });
 
@@ -308,7 +308,7 @@ describe('module/sw-settings-tag/page/sw-settings-tag-list', () => {
 
         wrapper.vm.onConfirmDelete('foo');
 
-        expect(deleteEndpoint).toBeCalledTimes(1);
+        expect(deleteEndpoint).toHaveBeenCalledTimes(1);
     });
 
     it('should open clone modal and request cl endpoint', async () => {
@@ -327,7 +327,7 @@ describe('module/sw-settings-tag/page/sw-settings-tag-list', () => {
 
         wrapper.vm.onConfirmDuplicate('foo');
 
-        expect(cloneEndpoint).toBeCalledTimes(1);
+        expect(cloneEndpoint).toHaveBeenCalledTimes(1);
     });
 
     it('should open detail modal', async () => {

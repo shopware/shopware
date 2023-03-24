@@ -572,7 +572,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBe('true');
     });
 
-    it('should have the select field for product export sales channel domain language id disabled', async () => {
+    it('should have the select field for product export sales channel domain language id not disabled', async () => {
         global.activeAclRoles = ['sales_channel.editor'];
 
         const wrapper = await createWrapper();
@@ -612,7 +612,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBe('true');
     });
 
-    it('should have the select field for product export sales channel customer group id disabled', async () => {
+    it('should have the select field for product export sales channel customer group id not disabled', async () => {
         global.activeAclRoles = ['sales_channel.editor'];
 
         const wrapper = await createWrapper();
@@ -884,7 +884,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBe('true');
     });
 
-    it('should have the field for salesChannel accessKey disabled', async () => {
+    it('should have the field for salesChannel accessKey not disabled', async () => {
         global.activeAclRoles = ['sales_channel.editor'];
 
         const wrapper = await createWrapper();
@@ -930,7 +930,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBeUndefined();
     });
 
-    it('should have the field for productExport accesKey disabled', async () => {
+    it('should have the field for productExport accessKey disabled', async () => {
         const wrapper = await createWrapper();
 
         await wrapper.setProps({
@@ -946,7 +946,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBe('true');
     });
 
-    it('should have the field for productExport accesKey disabled', async () => {
+    it('should have the field for productExport accessKey not disabled', async () => {
         global.activeAclRoles = ['sales_channel.editor'];
 
         const wrapper = await createWrapper();
@@ -964,7 +964,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBe('true');
     });
 
-    it('should have the field for productExport accesUrl disabled', async () => {
+    // todo: figure out what this test actually tests
+    // eslint-disable-next-line jest/no-identical-title
+    it('should have the field for productExport accessKey disabled', async () => {
         const wrapper = await createWrapper();
 
         await wrapper.setProps({
@@ -983,7 +985,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBe('true');
     });
 
-    it('should have the field for productExport accesUrl disabled', async () => {
+    // todo: figure out what this test actually tests
+    // eslint-disable-next-line jest/no-identical-title
+    it('should have the field for productExport accessKey not disabled', async () => {
         global.activeAclRoles = ['sales_channel.editor'];
 
         const wrapper = await createWrapper();

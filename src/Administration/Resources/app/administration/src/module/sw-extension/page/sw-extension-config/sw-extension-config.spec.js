@@ -100,7 +100,7 @@ describe('src/module/sw-extension/page/sw-extension-config-spec', () => {
 
         await wrapper.find('.sw-extension-config__save-action').trigger('click');
 
-        expect(wrapper.vm.createNotificationSuccess).toBeCalledTimes(1);
+        expect(wrapper.vm.createNotificationSuccess).toHaveBeenCalledTimes(1);
     });
 
     it('Save click error', async () => {
@@ -111,7 +111,7 @@ describe('src/module/sw-extension/page/sw-extension-config-spec', () => {
 
         await wrapper.find('.sw-extension-config__save-action').trigger('click');
 
-        expect(wrapper.vm.createNotificationError).toBeCalledTimes(1);
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledTimes(1);
     });
 
     it('shows default header', async () => {

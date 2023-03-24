@@ -207,7 +207,7 @@ describe('module/sw-property/page/sw-property-list', () => {
         wrapper.vm.searchRankingService.getSearchFieldsByEntity.mockRestore();
     });
 
-    it('should not build query score when search ranking field is null ', async () => {
+    it('should not build query score when search ranking field is null', async () => {
         const wrapper = await createWrapper();
         await wrapper.setData({
             term: 'foo'

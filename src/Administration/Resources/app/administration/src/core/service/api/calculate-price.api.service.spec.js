@@ -38,5 +38,7 @@ describe('calculatePriceService', () => {
         );
 
         await calculatePriceService.calculatePrices(taxId, prices);
+
+        expect(clientMock.history.post.length).toBe(1);
     });
 });

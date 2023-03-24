@@ -439,6 +439,6 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-detail', () => {
         });
 
         expect(wrapper.vm.customEntityData).toBe(null);
-        expect(console.error).toBeCalledWith(new Error(`Custom entity repository for "${entityName}" not found`));
+        expect(console.error).toHaveBeenCalledWith(new Error(`Custom entity repository for "${entityName}" not found`));
     });
 });

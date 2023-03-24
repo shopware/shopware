@@ -72,7 +72,7 @@ async function createWrapper(privileges = []) {
 }
 
 describe('module/sw-flow/page/sw-flow-index', () => {
-    it('should be able to create a flow ', async () => {
+    it('should be able to create a flow', async () => {
         const wrapper = await createWrapper([
             'flow.creator'
         ]);
@@ -82,14 +82,14 @@ describe('module/sw-flow/page/sw-flow-index', () => {
         expect(createButton.attributes().disabled).toBe(undefined);
     });
 
-    it('should be not able to create a flow ', async () => {
+    it('should be not able to create a flow', async () => {
         const wrapper = await createWrapper();
         const createButton = wrapper.find('.sw-flow-list__create');
 
         expect(createButton.attributes().disabled).toBe('true');
     });
 
-    it('should be show a number of flows ', async () => {
+    it('should be show a number of flows', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 

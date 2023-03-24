@@ -202,7 +202,7 @@ describe('module/sw-customer/page/sw-customer-detail', () => {
         const saveButton = wrapperWithPrivileges.find('.sw-customer-detail__save-action');
         await saveButton.trigger('click');
 
-        expect(notificationMock).toBeCalledTimes(1);
+        expect(notificationMock).toHaveBeenCalledTimes(1);
         expect(notificationMock).toHaveBeenCalledWith({
             message: 'sw-customer.detail.messageSaveError'
         });

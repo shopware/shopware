@@ -71,7 +71,7 @@ describe('module/sw-settings-payment/component/sw-settings-payment-sorting-modal
 
         await wrapper.vm.applyChanges();
 
-        expect(wrapper.vm.paymentMethodRepository.saveAll).toBeCalledWith([
+        expect(wrapper.vm.paymentMethodRepository.saveAll).toHaveBeenCalledWith([
             {
                 id: '2b',
                 position: 1,

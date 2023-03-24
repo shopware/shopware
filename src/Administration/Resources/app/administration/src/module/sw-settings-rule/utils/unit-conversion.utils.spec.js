@@ -116,13 +116,6 @@ describe('src/module/sw-promotion/utils/unit-conversion.utils.js', () => {
             })).toBe(10);
         });
 
-        it('should convert 1000 mm to 1 m', () => {
-            expect(convertUnit(1000, {
-                from: 'mm',
-                to: 'm'
-            })).toBe(1);
-        });
-
         it('should convert 0.001 km to 1000 mm', () => {
             expect(convertUnit(0.001, {
                 from: 'km',

@@ -1,116 +1,129 @@
 import instance from './error.store';
 
-// helper for testing action with expected mutations
-const testAction = (action, payload, state, expectedMutations, done) => {
-    let count = 0;
+describe('Test actions at file src/app/state/error.store.js', () => {
+    it('addApiError', () => {
+        const expectedMutations = [{
+            type: 'addApiError',
+            payload: {
+                expression: 'dummy expression',
+                error: 'dummy error'
+            },
+        }];
 
-    // mock commit
-    const commit = (commitType, commitPayload) => {
-        const mutation = expectedMutations[count];
+        let count = 0;
+        const commit = (commitType, commitPayload) => {
+            const mutation = expectedMutations[count];
 
-        try {
             expect(commitType).toEqual(mutation.type);
             expect(commitPayload).toEqual(mutation.payload);
-        } catch (error) {
-            done(error);
+
+            count += 1;
+        };
+
+        instance.actions.addApiError({ commit }, { expression: 'dummy expression', error: 'dummy error' });
+
+        if (count !== expectedMutations.length) {
+            throw new Error('Not as many mutations than expected');
         }
+    });
 
-        count += 1;
-        if (count >= expectedMutations.length) {
-            done();
+    it('resetApiErrors', () => {
+        const expectedMutations = [{
+            type: 'resetApiErrors',
+            payload: undefined,
+        }];
+
+        let count = 0;
+        const commit = (commitType, commitPayload) => {
+            const mutation = expectedMutations[count];
+
+            expect(commitType).toEqual(mutation.type);
+            expect(commitPayload).toEqual(mutation.payload);
+
+            count += 1;
+        };
+
+        instance.actions.resetApiErrors({ commit });
+
+        if (count !== expectedMutations.length) {
+            throw new Error('Not as many mutations than expected');
         }
-    };
-
-    // call the action with mocked store and arguments
-    action({ commit, state }, payload);
-
-    // check if no mutations should have been dispatched
-    if (expectedMutations.length === 0) {
-        expect(count).toEqual(0);
-        done();
-    }
-};
-
-describe('Test actions at file src/app/state/error.store.js', () => {
-    let actions = {};
-
-    beforeAll(() => {
-        actions = instance.actions;
     });
 
-    it('addApiError', (done) => {
-        testAction(actions.addApiError, {
-            expression: 'dummy expression',
-            error: 'dummy error'
-        }, {}, [
-            {
-                type: 'addApiError',
-                payload: {
-                    expression: 'dummy expression',
-                    error: 'dummy error'
-                },
+    it('removeApiError', () => {
+        const expectedMutations = [{
+            type: 'removeApiError',
+            payload: {
+                expression: 'dummy expression',
             },
-        ], done);
+        }];
+
+        let count = 0;
+        const commit = (commitType, commitPayload) => {
+            const mutation = expectedMutations[count];
+
+            expect(commitType).toEqual(mutation.type);
+            expect(commitPayload).toEqual(mutation.payload);
+
+            count += 1;
+        };
+
+        instance.actions.removeApiError({ commit }, { expression: 'dummy expression' });
+
+        if (count !== expectedMutations.length) {
+            throw new Error('Not as many mutations than expected');
+        }
     });
 
-    it('resetApiErrors', (done) => {
-        testAction(actions.resetApiErrors, null, {}, [
-            { type: 'resetApiErrors' }
-        ], done);
-    });
-
-    it('removeApiError', (done) => {
-        testAction(actions.removeApiError, { expression: 'dummy expression' }, {}, [
-            {
-                type: 'removeApiError',
-                payload: {
-                    expression: 'dummy expression',
-                },
+    it('removeSystemError', () => {
+        const expectedMutations = [{
+            type: 'removeSystemError',
+            payload: {
+                id: 'dummy id',
             },
-        ], done);
+        }];
+
+        let count = 0;
+        const commit = (commitType, commitPayload) => {
+            const mutation = expectedMutations[count];
+
+            expect(commitType).toEqual(mutation.type);
+            expect(commitPayload).toEqual(mutation.payload);
+
+            count += 1;
+        };
+
+        instance.actions.removeSystemError({ commit }, { id: 'dummy id' });
+
+        if (count !== expectedMutations.length) {
+            throw new Error('Not as many mutations than expected');
+        }
     });
 
-    it('removeSystemError', (done) => {
-        testAction(actions.removeSystemError, { id: 'dummy id' }, {}, [
-            { type: 'removeSystemError', payload: { id: 'dummy id' } },
-        ], done);
-    });
-
-    it('addSystemError', (done) => {
+    it('addSystemError', () => {
         // mock commit
         const commit = (commitType, commitPayload) => {
-            try {
-                expect(commitType).toEqual('addSystemError');
-                expect(commitPayload).toEqual(
-                    { error: { dummyKey: 'dummy error' }, id: 'dummy id' }
-                );
-            } catch (error) {
-                done(error);
-            }
-
-            done();
+            expect(commitType).toEqual('addSystemError');
+            expect(commitPayload).toEqual({
+                error: {
+                    dummyKey: 'dummy error'
+                },
+                id: 'dummy id'
+            });
         };
 
         // call the action with mocked store and arguments
-        const id = actions.addSystemError({ commit }, { error: { dummyKey: 'dummy error' }, id: 'dummy id' });
+        const id = instance.actions.addSystemError({ commit }, { error: { dummyKey: 'dummy error' }, id: 'dummy id' });
 
         expect(id).toEqual('dummy id');
-
-        done();
     });
 });
 
 describe('Test mutations at file src/app/state/error.store.js', () => {
-    let mutations = {};
-
     let state = {
         api: {},
         system: {},
     };
-
-    beforeAll(() => {
-        mutations = instance.mutations;
-    });
 
     beforeEach(() => {
         state = {
@@ -120,44 +133,40 @@ describe('Test mutations at file src/app/state/error.store.js', () => {
     });
 
     it('removeApiError', () => {
-        mutations.removeApiError(state, { expression: 'dummy.expression' });
+        instance.mutations.removeApiError(state, { expression: 'dummy.expression' });
 
         expect(state.api).toEqual({});
     });
 
     it('addApiError', () => {
-        mutations.addApiError(state, { expression: 'dummy.expression', error: {} });
+        instance.mutations.addApiError(state, { expression: 'dummy.expression', error: {} });
 
         expect(state.api).toEqual({ dummy: { expression: { selfLink: 'dummy.expression' } } });
     });
 
     it('resetApiErrors', () => {
-        mutations.resetApiErrors(state);
+        instance.mutations.resetApiErrors(state);
 
         expect(state.api).toEqual({});
     });
 
     it('addSystemError', () => {
-        mutations.addSystemError(state, { id: 'dummy id', error: { code: 'dummy code' } });
+        instance.mutations.addSystemError(state, { id: 'dummy id', error: { code: 'dummy code' } });
 
         expect(state.system).toEqual({ 'dummy id': { code: 'dummy code' } });
     });
 
     it('removeSystemError', () => {
-        mutations.removeSystemError(state, { id: 'dummy id' });
+        instance.mutations.removeSystemError(state, { id: 'dummy id' });
 
         expect(state.system).toEqual({});
     });
 });
 
 describe('Test getters at file src/app/state/error.store.js', () => {
-    let getters = {};
-
     let state = {};
 
-    beforeAll(() => {
-        getters = instance.getters;
-
+    beforeEach(() => {
         state = {
             api: {
                 dummyEntityName: {
@@ -187,7 +196,7 @@ describe('Test getters at file src/app/state/error.store.js', () => {
     });
 
     it('getErrorsForEntity', () => {
-        const result = getters.getErrorsForEntity(state)('dummyEntityName', 'dummyId');
+        const result = instance.getters.getErrorsForEntity(state)('dummyEntityName', 'dummyId');
 
         const expected = {
             dummyField: { selfLink: 'dummy.expression' },
@@ -197,7 +206,7 @@ describe('Test getters at file src/app/state/error.store.js', () => {
     });
 
     it('getErrorsForEntity empty entity name', () => {
-        const result = getters.getErrorsForEntity(state)('not exists entity name', 'dummyId');
+        const result = instance.getters.getErrorsForEntity(state)('not exists entity name', 'dummyId');
 
         expect(result).toBeNull();
     });
@@ -210,7 +219,7 @@ describe('Test getters at file src/app/state/error.store.js', () => {
         }, 'getErrorsForEntity');
         spy.mockReturnValue({ 0: { age: { selfLink: 'dummy.expression' } } });
 
-        const result = getters.getApiErrorFromPath(state, { getErrorsForEntity: spy })('dummyEntityName', 'dummyId', [
+        const result = instance.getters.getApiErrorFromPath(state, { getErrorsForEntity: spy })('dummyEntityName', 'dummyId', [
             '0',
             'age',
         ]);
@@ -226,7 +235,7 @@ describe('Test getters at file src/app/state/error.store.js', () => {
         }, 'getErrorsForEntity');
         spy.mockReturnValue({ 0: { age: { selfLink: 'dummy.expression' } } });
 
-        const result = getters.getApiErrorFromPath(state, { getErrorsForEntity: spy })('dummyEntityName', 'dummyId', [
+        const result = instance.getters.getApiErrorFromPath(state, { getErrorsForEntity: spy })('dummyEntityName', 'dummyId', [
             'empty field',
             'empty field 2',
         ]);
@@ -248,7 +257,7 @@ describe('Test getters at file src/app/state/error.store.js', () => {
         }, 'getApiErrorFromPath');
         spy.mockReturnValue({ selfLink: 'dummy.expression' });
 
-        const result = getters.getApiError(state, { getApiErrorFromPath: spy })(entity, field);
+        const result = instance.getters.getApiError(state, { getApiErrorFromPath: spy })(entity, field);
 
         expect(result).toEqual({ selfLink: 'dummy.expression' });
     });
@@ -262,7 +271,7 @@ describe('Test getters at file src/app/state/error.store.js', () => {
             },
         }, 'getErrorsForEntity');
 
-        const result = getters.getSystemConfigApiError(state, { getErrorsForEntity: spy })('dummySystemConfig', 'dummySaleChannelId', 'dummyKey');
+        const result = instance.getters.getSystemConfigApiError(state, { getErrorsForEntity: spy })('dummySystemConfig', 'dummySaleChannelId', 'dummyKey');
 
         expect(result).toEqual({ error: 'dummy error' });
     });
@@ -274,7 +283,7 @@ describe('Test getters at file src/app/state/error.store.js', () => {
             },
         }, 'getErrorsForEntity');
 
-        const result = getters.getSystemConfigApiError(state, { getErrorsForEntity: spy })('empty entity name', 'dummySaleChannelId', 'dummyKey');
+        const result = instance.getters.getSystemConfigApiError(state, { getErrorsForEntity: spy })('empty entity name', 'dummySaleChannelId', 'dummyKey');
 
         expect(result).toBeNull();
     });
@@ -288,7 +297,7 @@ describe('Test getters at file src/app/state/error.store.js', () => {
             },
         }, 'getErrorsForEntity');
 
-        const result = getters.getSystemConfigApiError(state, { getErrorsForEntity: spy })('dummySystemConfig', 'dummySaleChannelId', 'empty key');
+        const result = instance.getters.getSystemConfigApiError(state, { getErrorsForEntity: spy })('dummySystemConfig', 'dummySaleChannelId', 'empty key');
 
         expect(result).toBeNull();
     });
@@ -300,13 +309,13 @@ describe('Test getters at file src/app/state/error.store.js', () => {
             },
         }, 'getErrorsForEntity');
 
-        const result = getters.getSystemConfigApiError(state, { getErrorsForEntity: spy })('dummySystemConfig', 'dummySaleChannelId', 'dummyKey');
+        const result = instance.getters.getSystemConfigApiError(state, { getErrorsForEntity: spy })('dummySystemConfig', 'dummySaleChannelId', 'dummyKey');
 
         expect(result).toBeNull();
     });
 
     it('getAllApiErrors', () => {
-        const result = getters.getAllApiErrors(state)();
+        const result = instance.getters.getAllApiErrors(state)();
 
         const expected = [
             { dummyId: { 0: { age: { selfLink: 'dummy.expression', }, }, dummyField: { selfLink: 'dummy.expression', } } },
@@ -317,25 +326,25 @@ describe('Test getters at file src/app/state/error.store.js', () => {
     });
 
     it('getSystemError', () => {
-        const result = getters.getSystemError(state)('dummy id');
+        const result = instance.getters.getSystemError(state)('dummy id');
 
         expect(result).toEqual({});
     });
 
     it('existsErrorInProperty', () => {
-        const result = getters.existsErrorInProperty(state)('dummyEntityName', '0/age');
+        const result = instance.getters.existsErrorInProperty(state)('dummyEntityName', '0/age');
 
         expect(result).toBeTruthy();
     });
 
     it('existsErrorInProperty with empty entity', () => {
-        const result = getters.existsErrorInProperty(state)('empty entity', 'dummyId');
+        const result = instance.getters.existsErrorInProperty(state)('empty entity', 'dummyId');
 
         expect(result).toBeFalsy();
     });
 
     it('countSystemError', () => {
-        const result = getters.countSystemError(state)();
+        const result = instance.getters.countSystemError(state)();
 
         expect(result).toEqual(1);
     });

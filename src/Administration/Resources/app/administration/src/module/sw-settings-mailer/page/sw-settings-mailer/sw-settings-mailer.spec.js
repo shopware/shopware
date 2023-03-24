@@ -110,7 +110,7 @@ describe('src/module/sw-settings-mailer/page/sw-settings-mailer', () => {
 
         expect(wrapper.vm.smtpHostError).toBeTruthy();
         expect(wrapper.vm.smtpPortError).toBeTruthy();
-        expect(wrapper.vm.createNotificationError).toBeCalledTimes(1);
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledTimes(1);
     });
 
     it('should reset smtp host error', async () => {

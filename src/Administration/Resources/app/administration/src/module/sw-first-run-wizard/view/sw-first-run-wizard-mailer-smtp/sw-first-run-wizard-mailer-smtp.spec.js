@@ -53,13 +53,13 @@ describe('module/sw-first-run-wizard/view/sw-first-run-wizard-mailer-smtp', () =
 
         const spyButtonUpdateEmit = jest.spyOn(frwMailerSmtp.vm, '$emit');
 
-        expect(spyButtonUpdateEmit).not.toBeCalledWith('buttons-update', buttonConfig);
-        expect(spyButtonUpdateEmit).not.toBeCalledWith('frw-set-title', title);
+        expect(spyButtonUpdateEmit).not.toHaveBeenCalledWith('buttons-update', buttonConfig);
+        expect(spyButtonUpdateEmit).not.toHaveBeenCalledWith('frw-set-title', title);
 
         frwMailerSmtp.vm.createdComponent();
 
-        expect(spyButtonUpdateEmit).toBeCalledWith('buttons-update', buttonConfig);
-        expect(spyButtonUpdateEmit).toBeCalledWith('frw-set-title', title);
+        expect(spyButtonUpdateEmit).toHaveBeenCalledWith('buttons-update', buttonConfig);
+        expect(spyButtonUpdateEmit).toHaveBeenCalledWith('frw-set-title', title);
     });
 
     it('should load the mailerSettings on creation', async () => {

@@ -76,7 +76,7 @@ describe('src/app/component/base/sw-chart-card', () => {
         wrapper.vm.$emit = jest.fn();
         wrapper.vm.dispatchRangeUpdate();
 
-        expect(wrapper.vm.$emit).toBeCalledWith(expectedEvent, expectedValue);
+        expect(wrapper.vm.$emit).toHaveBeenCalledWith(expectedEvent, expectedValue);
     });
 
     it('should emit "sw-chart-card-range-update" with current value of selectedRange property with non-default availableRanges', async () => {
@@ -90,7 +90,7 @@ describe('src/app/component/base/sw-chart-card', () => {
         wrapper.vm.$emit = jest.fn();
         wrapper.vm.dispatchRangeUpdate();
 
-        expect(wrapper.vm.$emit).toBeCalledWith(expectedEvent, expectedRange);
+        expect(wrapper.vm.$emit).toHaveBeenCalledWith(expectedEvent, expectedRange);
         expect(wrapper.vm.selectedRange).toEqual(expectedRange);
     });
 

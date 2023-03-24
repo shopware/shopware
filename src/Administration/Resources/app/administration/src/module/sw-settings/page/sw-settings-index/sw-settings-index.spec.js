@@ -328,15 +328,17 @@ describe('module/sw-settings/page/sw-settings-index', () => {
                 const iconClasses = settingsItemsWrapper.find('.sw-settings-item__icon').attributes().class;
 
                 if (settingsItems[index].backgroundEnabled === false) {
+                    // eslint-disable-next-line jest/no-conditional-expect
                     expect(iconClasses).not.toContain('background--enabled');
                 } else {
+                    // eslint-disable-next-line jest/no-conditional-expect
                     expect(iconClasses).toContain('background--enabled');
                 }
             });
         });
     });
 
-    it('should hide the tab when user has no access to any settings inside the tab', async () => {
+    it('should not hide the tab when user has access to any settings inside the tab', async () => {
         const settingsItemToAdd = {
             privilege: 'system.foo_bar',
             group: 'shop',

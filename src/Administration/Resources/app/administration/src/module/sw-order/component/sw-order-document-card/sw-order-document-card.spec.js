@@ -564,7 +564,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         expect(contextMenu.at(3).attributes().disabled).toEqual('disabled');
     });
 
-    it('should show Send mail modal when choosing option Create and send in Create document modal ', async () => {
+    it('should show Send mail modal when choosing option Create and send in Create document modal', async () => {
         wrapper = await createWrapper([
             'order.editor'
         ]);

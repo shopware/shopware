@@ -26,10 +26,6 @@ describe('modules/sw-order/component/sw-order-user-card/tracking-code-display', 
     const shippingMethodWithoutPlaceholder = { trackingUrl: trackingUrl };
     const shippingMethodWithPlaceholder = { trackingUrl: trackingUrlWithPlaceholder };
 
-    beforeAll(async () => {
-        userCard = await Shopware.Component.build('sw-order-user-card');
-    });
-
     it('should render no url, when no base url is present in the shipping method', async () => {
         expect(
             userCard.methods.renderTrackingUrl(

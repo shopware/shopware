@@ -103,6 +103,6 @@ describe('components/sw-entity-multi-id-select', () => {
             }
         );
 
-        expect(wrapper.vm.updateIds).toBeCalled();
+        expect(wrapper.vm.updateIds).toHaveBeenCalled();
     });
 });

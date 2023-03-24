@@ -13,24 +13,21 @@ beforeEach(async () => {
 });
 
 describe('core/factory/module.factory.js', () => {
-    test(
-        'should not register a module when no unique identifier is specified',
-        () => {
-            const spy = jest.fn();
-            jest.spyOn(global.console, 'warn').mockImplementation(spy);
+    it('should not register a module when no unique identifier is specified', () => {
+        const spy = jest.fn();
+        jest.spyOn(global.console, 'warn').mockImplementation(spy);
 
-            const module = register('', {});
+        const module = register('', {});
 
-            expect(module).toBe(false);
-            expect(spy).toBeCalledWith(
-                '[ModuleFactory]',
-                'Module has no unique identifier "id". Abort registration.',
-                expect.any(Object),
-            );
-        }
-    );
+        expect(module).toBe(false);
+        expect(spy).toHaveBeenCalledWith(
+            '[ModuleFactory]',
+            'Module has no unique identifier "id". Abort registration.',
+            expect.any(Object),
+        );
+    });
 
-    test('should not register a module with same name twice', () => {
+    it('should not register a module with same name twice', () => {
         const spy = jest.fn();
         jest.spyOn(global.console, 'warn').mockImplementation(spy);
 
@@ -48,39 +45,36 @@ describe('core/factory/module.factory.js', () => {
 
         expect(typeof moduleOne).toBe('object');
         expect(moduleTwo).toBe(false);
-        expect(spy).toBeCalledWith(
+        expect(spy).toHaveBeenCalledWith(
             '[ModuleFactory]',
             'A module with the identifier "sw-foo" is registered already. Abort registration.',
             expect.any(Object),
         );
     });
 
-    test(
-        'should not register a module when the unique identifier does not have a namespace',
-        () => {
-            const spy = jest.fn();
-            jest.spyOn(global.console, 'warn').mockImplementation(spy);
+    it('should not register a module when the unique identifier does not have a namespace', () => {
+        const spy = jest.fn();
+        jest.spyOn(global.console, 'warn').mockImplementation(spy);
 
-            const module = register('foo', {
-                routes: {
-                    index: {
-                        component: 'sw-foo-bar',
-                        path: 'index'
-                    }
+        const module = register('foo', {
+            routes: {
+                index: {
+                    component: 'sw-foo-bar',
+                    path: 'index'
                 }
-            });
+            }
+        });
 
-            expect(module).toBe(false);
-            expect(spy).toBeCalledWith(
-                '[ModuleFactory]',
-                'Module identifier does not match the necessary format "[namespace]-[name]":',
-                'foo',
-                'Abort registration.',
-            );
-        }
-    );
+        expect(module).toBe(false);
+        expect(spy).toHaveBeenCalledWith(
+            '[ModuleFactory]',
+            'Module identifier does not match the necessary format "[namespace]-[name]":',
+            'foo',
+            'Abort registration.',
+        );
+    });
 
-    test('should not register a module without a route definition', () => {
+    it('should not register a module without a route definition', () => {
         const spy = jest.fn();
         jest.spyOn(global.console, 'warn').mockImplementation(spy);
 
@@ -89,7 +83,7 @@ describe('core/factory/module.factory.js', () => {
         });
 
         expect(module).toBe(false);
-        expect(spy).toBeCalledWith(
+        expect(spy).toHaveBeenCalledWith(
             '[ModuleFactory]',
             'Module "sw-foo" has no configured routes or a routeMiddleware.',
             'The module will not be accessible in the administration UI.',
@@ -100,72 +94,54 @@ describe('core/factory/module.factory.js', () => {
         );
     });
 
-    xit('should not register a module without a component in the route definition', async () => {
+    it('should be possible to register a module with a valid route definition', () => {
         const module = register('sw-foo', {
             routes: {
                 index: {
-                    path: 'index'
+                    path: 'index',
+                    component: 'sw-foo-bar-index'
                 }
             }
         });
 
-        expect(module).toBe(false);
+        expect(typeof module).toBe('object');
+        expect(module.routes).toBeInstanceOf(Map);
+        expect(typeof module.manifest).toBe('object');
+        expect(typeof module.type).toBe('string');
+        expect(module.type).toBe('plugin');
+        expect(module.navigation).toBe(undefined);
     });
 
-    test(
-        'should be possible to register a module with a valid route definition',
-        () => {
-            const module = register('sw-foo', {
-                routes: {
-                    index: {
-                        path: 'index',
-                        component: 'sw-foo-bar-index'
+    it('should be possible to register a module with two components per route', () => {
+        const module = register('sw-foo', {
+            routes: {
+                index: {
+                    path: 'index',
+                    components: {
+                        default: 'sw-foo-bar-index',
+                        it: 'sw-foo-test'
                     }
                 }
-            });
+            }
+        });
 
-            expect(typeof module).toBe('object');
-            expect(module.routes).toBeInstanceOf(Map);
-            expect(typeof module.manifest).toBe('object');
-            expect(typeof module.type).toBe('string');
-            expect(module.type).toBe('plugin');
-            expect(module.navigation).toBe(undefined);
-        }
-    );
+        const route = module.routes.get('sw.foo.index');
 
-    test(
-        'should be possible to register a module with two components per route',
-        () => {
-            const module = register('sw-foo', {
-                routes: {
-                    index: {
-                        path: 'index',
-                        components: {
-                            default: 'sw-foo-bar-index',
-                            test: 'sw-foo-test'
-                        }
-                    }
-                }
-            });
+        expect(module.routes.has('sw.foo.index')).toBe(true);
+        expect(typeof module).toBe('object');
+        expect(module.routes).toBeInstanceOf(Map);
+        expect(typeof module.manifest).toBe('object');
+        expect(typeof module.type).toBe('string');
+        expect(module.type).toBe('plugin');
+        expect(module.navigation).toBe(undefined);
 
-            const route = module.routes.get('sw.foo.index');
+        expect(typeof route.components.it).toBe('string');
+        expect(route.components.it).toBe('sw-foo-test');
+        expect(typeof route.components.default).toBe('string');
+        expect(route.components.default).toBe('sw-foo-bar-index');
+    });
 
-            expect(module.routes.has('sw.foo.index')).toBe(true);
-            expect(typeof module).toBe('object');
-            expect(module.routes).toBeInstanceOf(Map);
-            expect(typeof module.manifest).toBe('object');
-            expect(typeof module.type).toBe('string');
-            expect(module.type).toBe('plugin');
-            expect(module.navigation).toBe(undefined);
-
-            expect(typeof route.components.test).toBe('string');
-            expect(route.components.test).toBe('sw-foo-test');
-            expect(typeof route.components.default).toBe('string');
-            expect(route.components.default).toBe('sw-foo-bar-index');
-        }
-    );
-
-    test('should be possible to register a module with a navigation entry', () => {
+    it('should be possible to register a module with a navigation entry', () => {
         const module = register('sw-foo', {
             routes: {
                 index: {
@@ -186,46 +162,43 @@ describe('core/factory/module.factory.js', () => {
         expect(typeof navigationEntry).toBe('object');
     });
 
-    test(
-        'should be possible to register a module with multiple navigation entries',
-        () => {
-            const spy = jest.fn();
-            jest.spyOn(global.console, 'warn').mockImplementation(spy);
+    it('should be possible to register a module with multiple navigation entries', () => {
+        const spy = jest.fn();
+        jest.spyOn(global.console, 'warn').mockImplementation(spy);
 
-            const module = register('sw-foo', {
-                routes: {
-                    index: {
-                        path: 'index',
-                        component: 'sw-foo-bar-index'
-                    }
-                },
-                navigation: [{
-                    id: 'sw.foo.index',
-                    icon: 'box',
-                    color: '#f00',
-                    label: 'FooIndex'
-                }, {
-                    link: 'http://de.shopware.com',
-                    label: 'ExternalLink',
-                    parent: 'sw.foo.index'
-                }, {
-                    label: 'InvalidEntry'
-                }]
-            });
+        const module = register('sw-foo', {
+            routes: {
+                index: {
+                    path: 'index',
+                    component: 'sw-foo-bar-index'
+                }
+            },
+            navigation: [{
+                id: 'sw.foo.index',
+                icon: 'box',
+                color: '#f00',
+                label: 'FooIndex'
+            }, {
+                link: 'http://de.shopware.com',
+                label: 'ExternalLink',
+                parent: 'sw.foo.index'
+            }, {
+                label: 'InvalidEntry'
+            }]
+        });
 
-            expect(module.navigation).toBeInstanceOf(Array);
-            expect(module.navigation.length).toBe(2);
-            const routerNavigationEntry = module.navigation[0];
-            const externalLinkNavigation = module.navigation[1];
-            expect(typeof routerNavigationEntry).toBe('object');
-            expect(routerNavigationEntry.label).toBe('FooIndex');
+        expect(module.navigation).toBeInstanceOf(Array);
+        expect(module.navigation.length).toBe(2);
+        const routerNavigationEntry = module.navigation[0];
+        const externalLinkNavigation = module.navigation[1];
+        expect(typeof routerNavigationEntry).toBe('object');
+        expect(routerNavigationEntry.label).toBe('FooIndex');
 
-            expect(typeof externalLinkNavigation).toBe('object');
-            expect(externalLinkNavigation.link).toBe('http://de.shopware.com');
-        }
-    );
+        expect(typeof externalLinkNavigation).toBe('object');
+        expect(externalLinkNavigation.link).toBe('http://de.shopware.com');
+    });
 
-    test('should be possible to get all registered modules', () => {
+    it('should be possible to get all registered modules', () => {
         register('sw-foo', {
             routes: {
                 index: {
@@ -241,7 +214,7 @@ describe('core/factory/module.factory.js', () => {
         expect(modules.has('sw-foo')).toBe(true);
     });
 
-    test('should be possible to get all registered module routes', () => {
+    it('should be possible to get all registered module routes', () => {
         register('sw-foo', {
             routes: {
                 index: {
@@ -259,7 +232,7 @@ describe('core/factory/module.factory.js', () => {
         expect(routes[0].type).toBe('plugin');
     });
 
-    test('should be possible to get an module by its entity name', () => {
+    it('should be possible to get an module by its entity name', () => {
         const registeredModule = register('sw-foo', {
             entity: 'foo',
 
@@ -278,7 +251,7 @@ describe('core/factory/module.factory.js', () => {
         expect(module.manifest.entity).toBe('foo');
     });
 
-    test('should return first module when entity isn`t unique', () => {
+    it('should return first module when entity isn`t unique', () => {
         const registeredModule = register('sw-foo', {
             entity: 'foo',
 
@@ -308,7 +281,7 @@ describe('core/factory/module.factory.js', () => {
         expect(module.manifest.entity).toBe('foo');
     });
 
-    test('should return undefined if module with that entity is not found', () => {
+    it('should return undefined if module with that entity is not found', () => {
         register('sw-foo', {
             entity: 'foo',
 
@@ -323,7 +296,8 @@ describe('core/factory/module.factory.js', () => {
 
         expect(typeof module).toBe('undefined');
     });
-    test('it merges snippets from more than two modules', () => {
+
+    it('merges snippets from more than two modules', () => {
         register('sw-foo', {
             entity: 'foo',
             snippets: {
@@ -395,7 +369,7 @@ describe('core/factory/module.factory.js', () => {
         });
     });
 
-    test('should add settings item if feature flag is active', () => {
+    it('should add settings item if feature flag is active', () => {
         global.activeFeatureFlags = ['testFlag'];
         Shopware.State.get('settingsItems').settingsGroups = {};
 
@@ -432,7 +406,7 @@ describe('core/factory/module.factory.js', () => {
         expect(Shopware.State.get('settingsItems').settingsGroups).toEqual(expectedSettingsItem);
     });
 
-    test('should not add settings item if feature flag is deactivated', () => {
+    it('should not add settings item if feature flag is deactivated', () => {
         global.activeFeatureFlags = [];
         Shopware.State.get('settingsItems').settingsGroups = {};
 
@@ -456,7 +430,7 @@ describe('core/factory/module.factory.js', () => {
         expect(Shopware.State.get('settingsItems').settingsGroups).toEqual({});
     });
 
-    test('should not allow plugin modules to create menu entries on first level', () => {
+    it('should not allow plugin modules to create menu entries on first level', () => {
         const spy = jest.fn();
         jest.spyOn(global.console, 'warn').mockImplementation(spy);
 
@@ -489,7 +463,7 @@ describe('core/factory/module.factory.js', () => {
         );
     });
 
-    test('should allow core modules to create menu entries on first level', () => {
+    it('should allow core modules to create menu entries on first level', () => {
         const spy = jest.fn();
         jest.spyOn(global.console, 'warn').mockImplementation(spy);
 
@@ -518,27 +492,24 @@ describe('core/factory/module.factory.js', () => {
         expect(spy).not.toHaveBeenCalled();
     });
 
-    it(
-        'should not register a module when display property is false',
-        async () => {
-            const module = register('1337-foo-bar', {
-                type: 'core',
-                display: false,
-                routes: {
-                    index: {
-                        path: 'index',
-                        component: 'sw-foobar-bar-index'
-                    }
-                },
-                navigation: [{
-                    icon: 'box',
-                    color: '#f00',
-                    label: 'FooIndex',
-                    path: 'sw.foobar.index'
-                }]
-            });
+    it('should not register a module when display property is false', async () => {
+        const module = register('1337-foo-bar', {
+            type: 'core',
+            display: false,
+            routes: {
+                index: {
+                    path: 'index',
+                    component: 'sw-foobar-bar-index'
+                }
+            },
+            navigation: [{
+                icon: 'box',
+                color: '#f00',
+                label: 'FooIndex',
+                path: 'sw.foobar.index'
+            }]
+        });
 
-            expect(module).toBe(false);
-        }
-    );
+        expect(module).toBe(false);
+    });
 });

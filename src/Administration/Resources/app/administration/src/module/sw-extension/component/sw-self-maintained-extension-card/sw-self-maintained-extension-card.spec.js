@@ -102,8 +102,8 @@ describe('src/module/sw-extension/component/sw-self-maintained-extension-card', 
 
         await wrapper.vm.activateExtension();
 
-        expect(wrapper.vm.shopwareExtensionService.activateExtension).toBeCalled();
-        expect(wrapper.vm.clearCacheAndReloadPage).toBeCalled();
+        expect(wrapper.vm.shopwareExtensionService.activateExtension).toHaveBeenCalled();
+        expect(wrapper.vm.clearCacheAndReloadPage).toHaveBeenCalled();
         expect(wrapper.vm.extension.active).toBe(true);
         expect(wrapper.vm.isLoading).toBe(false);
     });
@@ -116,7 +116,7 @@ describe('src/module/sw-extension/component/sw-self-maintained-extension-card', 
 
         await wrapper.vm.deactivateExtension();
 
-        expect(wrapper.vm.shopwareExtensionService.deactivateExtension).toBeCalled();
+        expect(wrapper.vm.shopwareExtensionService.deactivateExtension).toHaveBeenCalled();
         expect(wrapper.vm.isLoading).toBe(false);
     });
 
@@ -134,10 +134,10 @@ describe('src/module/sw-extension/component/sw-self-maintained-extension-card', 
 
         await wrapper.vm.changeExtensionStatus();
 
-        expect(wrapper.vm.activateExtension).toBeCalled();
+        expect(wrapper.vm.activateExtension).toHaveBeenCalled();
     });
 
-    it('changeExtensionStatus should call activateExtension when activated', async () => {
+    it('changeExtensionStatus should call deactivateExtension when activated', async () => {
         await wrapper.setProps({
             extension: {
                 icon: null,
@@ -151,6 +151,6 @@ describe('src/module/sw-extension/component/sw-self-maintained-extension-card', 
 
         await wrapper.vm.changeExtensionStatus();
 
-        expect(wrapper.vm.deactivateExtension).toBeCalled();
+        expect(wrapper.vm.deactivateExtension).toHaveBeenCalled();
     });
 });

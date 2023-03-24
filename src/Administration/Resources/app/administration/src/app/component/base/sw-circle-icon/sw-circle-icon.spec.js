@@ -50,7 +50,7 @@ describe('components/base/sw-circle-icon', () => {
         expect(wrapper.get('sw-icon-stub').attributes('size')).toBe('25px');
     });
 
-    it('it passes variant correctly', async () => {
+    it('passes variant correctly', async () => {
         wrapper = await createWrapper({
             iconName: 'default-basic-checkmark-line',
             variant: 'danger'

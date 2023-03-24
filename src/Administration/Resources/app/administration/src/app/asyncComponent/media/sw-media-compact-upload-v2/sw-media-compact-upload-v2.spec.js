@@ -84,7 +84,7 @@ describe('src/app/component/media/sw-media-compact-upload-v2', () => {
         expect(uploadBtn.exists()).toBeFalsy();
     });
 
-    it('it should return a preview if sourceMultiSelect is true', async () => {
+    it('should return a preview if sourceMultiSelect is true', async () => {
         await wrapper.setProps({
             allowMultiSelect: true,
             sourceMultiselect: [

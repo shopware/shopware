@@ -77,7 +77,7 @@ describe('components/base/sw-button', () => {
         });
 
         await wrapper.trigger('click');
-        expect(click).toBeCalled();
+        expect(click).toHaveBeenCalled();
     });
 
     it('should not trigger an event when disabled', async () => {
@@ -94,7 +94,7 @@ describe('components/base/sw-button', () => {
         });
 
         await wrapper.trigger('click');
-        expect(click).not.toBeCalled();
+        expect(click).not.toHaveBeenCalled();
     });
 
     it('should not trigger an event if html5 disabled is removed', async () => {
@@ -118,6 +118,6 @@ describe('components/base/sw-button', () => {
         expect(button.attributes('disabled')).toBeFalsy();
 
         await wrapper.trigger('click');
-        expect(click).not.toBeCalled();
+        expect(click).not.toHaveBeenCalled();
     });
 });

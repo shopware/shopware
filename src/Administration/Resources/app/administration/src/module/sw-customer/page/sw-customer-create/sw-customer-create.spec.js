@@ -102,7 +102,7 @@ describe('module/sw-customer/page/sw-customer-create', () => {
         await saveButton.trigger('click');
         await wrapper.vm.$nextTick();
 
-        expect(notificationMock).toBeCalledTimes(2);
+        expect(notificationMock).toHaveBeenCalledTimes(2);
         expect(notificationMock).toHaveBeenCalledWith({
             message: 'sw-customer.detail.messageSaveError'
         });

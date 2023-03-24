@@ -317,13 +317,13 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
                 expect: undefined
             }
         ].forEach(element => {
-            if (element.selector.length > 1) {
-                element.selector.wrappers.forEach(el => {
-                    expect(el.attributes()[element.attribute]).toBe(element.expect);
-                });
-            } else {
-                expect(element.selector.attributes()[element.attribute]).toBe(element.expect);
+            if (!Array.isArray(element.selector.wrappers)) {
+                element.selector = { wrappers: [element.selector] };
             }
+
+            element.selector.wrappers.forEach(el => {
+                expect(el.attributes()[element.attribute]).toBe(element.expect);
+            });
         });
 
         expect(wrapper.vm.tooltipSave).toStrictEqual({
@@ -355,13 +355,13 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
                 expect: 'true'
             }
         ].forEach(element => {
-            if (element.selector.length > 1) {
-                element.selector.wrappers.forEach(el => {
-                    expect(el.attributes()[element.attribute]).toBe(element.expect);
-                });
-            } else {
-                expect(element.selector.attributes()[element.attribute]).toBe(element.expect);
+            if (!Array.isArray(element.selector.wrappers)) {
+                element.selector = { wrappers: [element.selector] };
             }
+
+            element.selector.wrappers.forEach(el => {
+                expect(el.attributes()[element.attribute]).toBe(element.expect);
+            });
         });
 
         expect(wrapper.vm.tooltipSave).toStrictEqual({
@@ -598,7 +598,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
 
         await flushPromises();
 
-        expect(notificationMock).toBeCalledTimes(1);
+        expect(notificationMock).toHaveBeenCalledTimes(1);
         expect(notificationMock).toHaveBeenCalledWith({
             message: 'sw-mail-template.general.notificationSyntaxValidationErrorMessage'
         });
@@ -635,7 +635,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
 
         await flushPromises();
 
-        expect(notificationMock).toBeCalledTimes(1);
+        expect(notificationMock).toHaveBeenCalledTimes(1);
         expect(notificationMock).toHaveBeenCalledWith({
             message: 'sw-mail-template.general.notificationGeneralSyntaxValidationErrorMessage'
         });
@@ -677,7 +677,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
             '1a2b3c'
         );
 
-        expect(notificationMock).toBeCalledTimes(1);
+        expect(notificationMock).toHaveBeenCalledTimes(1);
         expect(notificationMock).toHaveBeenCalledWith({
             message: 'sw-mail-template.general.notificationGeneralSyntaxValidationErrorMessage'
         });

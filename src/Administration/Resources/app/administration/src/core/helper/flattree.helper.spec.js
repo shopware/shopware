@@ -50,7 +50,7 @@ describe('core/helper/flattree.helper.js', () => {
             })
         ]);
 
-        expect(warnSpy).toBeCalledWith(
+        expect(warnSpy).toHaveBeenCalledWith(
             '[FlatTree]',
             'The node needs an "id" or "path" property. Abort registration.',
             expect.objectContaining({
@@ -83,7 +83,7 @@ describe('core/helper/flattree.helper.js', () => {
         });
 
         // [FlatTree] Tree contains node with unique identifier sw.foo.bar already. Please remove it first before adding a new one. { label: 'Foobar', id: 'sw.foo.bar', position: 1 }
-        expect(warnSpy).toBeCalledWith(
+        expect(warnSpy).toHaveBeenCalledWith(
             '[FlatTree]',
             'Tree contains node with unique identifier sw.foo.bar already.',
             'Please remove it first before adding a new one.',

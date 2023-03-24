@@ -168,7 +168,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
         ].forEach(({ name, selector }) => {
             it(`${name} should be disabled`, async () => {
                 const element = wrapper.find(selector);
-                return expect(element.attributes().disabled).toBeTruthy();
+                expect(element.attributes().disabled).toBeTruthy();
             });
         });
 
@@ -214,7 +214,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
         ].forEach(({ name, selector }) => {
             it(`${name} should be enabled`, async () => {
                 const element = wrapper.find(selector);
-                return expect(element.attributes().disabled).toBeFalsy();
+                expect(element.attributes().disabled).toBeFalsy();
             });
         });
 

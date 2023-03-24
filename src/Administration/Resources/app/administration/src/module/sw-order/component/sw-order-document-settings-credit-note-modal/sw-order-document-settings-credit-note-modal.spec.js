@@ -350,7 +350,7 @@ describe('sw-order-document-settings-credit-note-modal', () => {
             message: 'sw-order.documentCard.info.DOCUMENT__NUMBER_WAS_CHANGED'
         });
         expect(spyReserve).toHaveBeenCalledTimes(1);
-        expect(spyReserve).toBeCalledWith('document_credit_note', 'Headless', false);
+        expect(spyReserve).toHaveBeenCalledWith('document_credit_note', 'Headless', false);
         expect(wrapper.vm.documentConfig.custom.creditNoteNumber).toEqual(number);
         expect(wrapper.vm.documentConfig.documentNumber).toEqual(number);
         expect(wrapper.emitted()['document-create']).toBeTruthy();

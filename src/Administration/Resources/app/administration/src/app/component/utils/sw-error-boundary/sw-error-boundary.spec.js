@@ -14,10 +14,6 @@ describe('src/app/component/utils/sw-error-boundary', () => {
         swErrorBoundary = await Shopware.Component.build('sw-error-boundary');
     });
 
-    beforeAll(async () => {
-        swErrorBoundary = await Shopware.Component.build('sw-error-boundary');
-    });
-
     beforeEach(async () => {
         jest.spyOn(console, 'error').mockImplementation();
     });

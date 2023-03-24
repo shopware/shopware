@@ -33,16 +33,8 @@ async function createWrapper() {
  * @package merchant-services
  */
 describe('src/module/sw-extension-component/sw-extension-adding-failed', () => {
-    let wrapper;
-
-    afterEach(() => {
-        if (wrapper) {
-            wrapper.destroy();
-        }
-    });
-
     it('passes correct props to sw-circle-icon', async () => {
-        wrapper = await createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.get('.sw-circle-icon').props('variant')).toBe('danger');
         expect(wrapper.get('.sw-circle-icon').props('size')).toBe(72);
@@ -52,7 +44,7 @@ describe('src/module/sw-extension-component/sw-extension-adding-failed', () => {
     it('has a primary block button', async () => {
         Shopware.State.commit('shopwareExtensions/myExtensions', []);
 
-        wrapper = await createWrapper();
+        const wrapper = await createWrapper();
 
         const closeButton = wrapper.get('button.sw-button');
 
@@ -63,14 +55,14 @@ describe('src/module/sw-extension-component/sw-extension-adding-failed', () => {
     it('emits close if close button is clicked', async () => {
         Shopware.State.commit('shopwareExtensions/myExtensions', []);
 
-        wrapper = await createWrapper();
+        const wrapper = await createWrapper();
 
         await wrapper.get('button.sw-button').trigger('click');
 
         expect(wrapper.emitted().close).toBeTruthy();
     });
 
-    it('it renders all information if extension is rent', async () => {
+    it('renders all information if extension is rent', async () => {
         Shopware.State.commit('shopwareExtensions/myExtensions', [{
             name: 'test-app',
             storeLicense: {
@@ -78,9 +70,9 @@ describe('src/module/sw-extension-component/sw-extension-adding-failed', () => {
             }
         }]);
 
-        wrapper = await createWrapper(true);
+        const wrapper = await createWrapper(true);
 
-        wrapper.get('.sw-extension-adding-failed__text-licence-cancellation');
+        expect(wrapper.get('.sw-extension-adding-failed__text-licence-cancellation').text()).toBe('sw-extension-store.component.sw-extension-adding-failed.installationFailed.notificationLicense');
     });
 
     it('does not render additional information if the license is not a subscription', async () => {
@@ -91,7 +83,7 @@ describe('src/module/sw-extension-component/sw-extension-adding-failed', () => {
             }
         }]);
 
-        wrapper = await createWrapper();
+        const wrapper = await createWrapper();
 
         expect(wrapper.find('.sw-extension-installation-failed__text-licence-cancellation')
             .exists())
@@ -110,7 +102,7 @@ describe('src/module/sw-extension-component/sw-extension-adding-failed', () => {
     it('does not render additional information about licenses and uses general failure text if extension is not licensed', async () => {
         Shopware.State.commit('shopwareExtensions/myExtensions', []);
 
-        wrapper = await createWrapper(true);
+        const wrapper = await createWrapper(true);
 
         expect(wrapper.find('.sw-extension-installation-failed__text-licence-cancellation')
             .exists()).toBe(false);

@@ -34,11 +34,9 @@ describe('core/factory/worker-notification.factory.js', () => {
         expect(sameHelper).toBe(helper);
     });
 
-    it('should fire the registered worker notification middleware', done => {
+    it('should fire the registered worker notification middleware', () => {
         const callback = jest.fn((next) => {
-            expect(callback).toHaveBeenCalled();
             next();
-            done();
         });
 
         WorkerNotificationFactory.register('bar', {
@@ -58,6 +56,8 @@ describe('core/factory/worker-notification.factory.js', () => {
                 { name: 'foo', stack: 1 }
             ]
         });
+
+        expect(callback).toHaveBeenCalledTimes(1);
     });
 
     describe('register worker notification', () => {

@@ -137,7 +137,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-account', () =
         expect(loginStatus.text()).toBe('max@muster.com');
     });
 
-    it('should show the logged in view when logged in ', async () => {
+    it('should show the logged in view when logged in', async () => {
         Shopware.State.get('shopwareExtensions').userInfo = userInfo;
 
         // create component with logged in view
@@ -151,7 +151,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-account', () =
         expect(loginStatus.text()).toBe('max@muster.com');
     });
 
-    it('should logout when user clicks logout button ', async () => {
+    it('should logout when user clicks logout button', async () => {
         Shopware.State.get('shopwareExtensions').userInfo = userInfo;
 
         // create component with logged in view

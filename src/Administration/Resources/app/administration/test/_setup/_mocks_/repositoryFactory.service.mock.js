@@ -73,6 +73,10 @@ class ResponseRegistry {
         });
     }
 
+    filterResponses(filterMethod) {
+        this.registry = this.registry.filter(filterMethod);
+    }
+
     getResponse({ url, method }) {
         return this.registry.find(response => {
             const isUrlValid = response.url instanceof RegExp ? response.url.match(url) : response.url === url;

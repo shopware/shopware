@@ -8,6 +8,7 @@ import IdCollection from 'src/../test/_helper_/id.collection';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
 const clientMock = global.repositoryFactoryMock.clientMock;
+const responses = global.repositoryFactoryMock.responses;
 const repositoryFactory = Shopware.Service('repositoryFactory');
 const DEFAULT_CURRENCY = 'b7d2554b0ce847cd82f3ac9bd1c0dfca';
 
@@ -71,7 +72,6 @@ describe('repository.data.ts', () => {
     it('should create one delete operation for multiple deletes', async () => {
         const ids = new IdCollection();
 
-        const responses = global.repositoryFactoryMock.responses;
         responses.addResponse({
             method: 'Post',
             url: '_action/sync',
@@ -169,5 +169,46 @@ describe('repository.data.ts', () => {
                 ]
             }
         ]));
+    });
+
+    it.only('should throw an 400 error when httpClient post call fails with error without source property', async () => {
+        const productRepository = repositoryFactory.create('product');
+        const product = productRepository.create();
+        product.name = 'Our amazing product';
+
+        responses.filterResponses((response) => {
+            return response.url !== '_action/sync';
+        });
+
+        responses.addResponse({
+            method: 'POST',
+            url: '_action/sync',
+            status: 400,
+            response: {
+                errors: [
+                    {
+                        status: '400',
+                        code: 'CONTENT__DUPLICATE_PRODUCT_NUMBER',
+                        title: 'Bad Request',
+                        detail: 'Product with number "SW10000" already exists.',
+                        meta: {
+                            parameters: {
+                                number: 'SW10000'
+                            }
+                        },
+                    }
+                ]
+            }
+        });
+
+        let thrownError;
+
+        try {
+            await productRepository.saveWithSync(product);
+        } catch (e) {
+            thrownError = e;
+        }
+
+        expect(thrownError.message).toEqual('Request failed with status code 400');
     });
 });

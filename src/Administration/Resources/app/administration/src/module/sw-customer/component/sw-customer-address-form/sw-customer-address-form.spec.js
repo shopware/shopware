@@ -1,8 +1,15 @@
 import { shallowMount } from '@vue/test-utils';
 import swCustomerAddressForm from 'src/module/sw-customer/component/sw-customer-address-form';
+import ShopwareError from 'src/core/data/ShopwareError';
+import 'src/app/component/form/sw-text-field';
+import 'src/app/component/form/field-base/sw-contextual-field';
+import 'src/app/component/form/field-base/sw-block-field';
+import 'src/app/component/form/field-base/sw-base-field';
+import 'src/app/component/form/field-base/sw-field-error';
 
 // eslint-disable-next-line import/named
 import CUSTOMER from '../../constant/sw-customer.constant';
+
 /**
  * @package customer-order
  */
@@ -31,14 +38,24 @@ async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-customer-address-form'), {
         propsData: {
             customer: {},
-            address: {}
+            address: {
+                _isNew: true,
+                id: '1',
+                getEntityName: () => { return 'customer_address'; },
+            }
         },
         stubs: {
             'sw-container': true,
-            'sw-text-field': true,
-            'sw-entity-single-select': true
+            'sw-text-field': await Shopware.Component.build('sw-text-field'),
+            'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
+            'sw-block-field': await Shopware.Component.build('sw-block-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
+            'sw-field-error': await Shopware.Component.build('sw-field-error'),
+            'sw-entity-single-select': true,
+            'sw-icon': true,
         },
         provide: {
+            validationService: {},
             repositoryFactory: {
                 create: (entity) => {
                     if (entity === 'country') {
@@ -149,5 +166,35 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
 
         expect(wrapper.find('[label="sw-customer.addressForm.labelCompany"]').exists()).toBeTruthy();
         expect(wrapper.find('[label="sw-customer.addressForm.labelDepartment"]').exists()).toBeTruthy();
+    });
+
+    it('should hide the error field when a disabled field', async () => {
+        await Shopware.State.dispatch('error/addApiError', {
+            expression: 'customer_address.1.firstName',
+            error: new ShopwareError({
+                code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
+                detail: 'This value should not be blank.',
+                status: '400',
+                template: 'This value should not be blank.',
+                selfLink: 'customer_address.1.firstName',
+            }),
+        });
+
+        const wrapper = await createWrapper();
+
+        await wrapper.vm.$nextTick();
+
+        const firstName = wrapper.findAll('.sw-field').at(3);
+
+        expect(wrapper.vm.disabled).toBe(false);
+        expect(firstName.classes().includes('has--error')).toBe(true);
+        expect(firstName.find('.sw-field__error').text()).toEqual('This value should not be blank.');
+
+        await wrapper.setProps({ disabled: true });
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.disabled).toBe(true);
+        expect(firstName.classes().includes('has--error')).toBe(false);
+        expect(firstName.find('.sw-field__error').exists()).toBeFalsy();
     });
 });

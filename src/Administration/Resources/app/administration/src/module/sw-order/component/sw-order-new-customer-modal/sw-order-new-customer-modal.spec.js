@@ -3,6 +3,7 @@ import swOrderNewCustomerModal from 'src/module/sw-order/component/sw-order-new-
 import 'src/app/component/base/sw-button';
 import 'src/app/component/base/sw-tabs';
 import 'src/app/component/base/sw-tabs-item';
+import ShopwareError from 'src/core/data/ShopwareError';
 
 /**
  * @package customer-order
@@ -158,5 +159,35 @@ describe('src/module/sw-order/component/sw-order-new-customer-modal', () => {
         const context = await wrapper.vm.onSave();
 
         expect(context.languageId).toEqual(Shopware.Context.api.languageId);
+    });
+
+    it('should show error inside sw-tabs-item component', async () => {
+        let swDetailsTab = wrapper.findAll('.sw-tabs-item').at(0);
+        let swBillingAddressTab = wrapper.findAll('.sw-tabs-item').at(1);
+
+        expect(swDetailsTab.find('sw-icon-stub').exists()).toBe(false);
+        expect(swBillingAddressTab.find('sw-icon-stub').exists()).toBe(false);
+
+        await Shopware.State.dispatch('error/addApiError', {
+            expression: 'customer.1.email',
+            error: new ShopwareError({
+                code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
+                detail: 'This value should not be blank.',
+                status: '400',
+                template: 'This value should not be blank.',
+            }),
+        });
+
+        wrapper.vm.customerRepository.save = jest.fn(() => Promise.resolve());
+
+        const saveButton = wrapper.find('.sw-button--primary');
+
+        await saveButton.trigger('click');
+
+        swDetailsTab = wrapper.findAll('.sw-tabs-item').at(0);
+        swBillingAddressTab = wrapper.findAll('.sw-tabs-item').at(1);
+
+        expect(swDetailsTab.find('sw-icon-stub[name=solid-exclamation-circle]').exists()).toBe(true);
+        expect(swBillingAddressTab.find('sw-icon-stub').exists()).toBe(false);
     });
 });

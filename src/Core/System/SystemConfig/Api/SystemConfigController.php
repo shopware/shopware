@@ -66,7 +66,9 @@ class SystemConfigController extends AbstractController
             $salesChannelId = null;
         }
 
-        $values = $this->systemConfig->getDomain($domain, $salesChannelId);
+        $inherit = $request->query->getBoolean('inherit');
+
+        $values = $this->systemConfig->getDomain($domain, $salesChannelId, $inherit);
         if (empty($values)) {
             $json = '{}';
         } else {

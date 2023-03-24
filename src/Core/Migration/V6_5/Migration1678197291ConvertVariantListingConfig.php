@@ -29,14 +29,14 @@ class Migration1678197291ConvertVariantListingConfig extends MigrationStep
         );
 
         $connection->executeStatement('INSERT INTO `product_tmp` (SELECT `id`, `version_id`, `variant_listing_config` FROM `product` WHERE variant_listing_config IS NOT NULL)');
-        $connection->executeStatement('ALTER TABLE `product` DROP COLUMN `variant_listing_config`, ADD COLUMN `variant_listing_config` JSON NULL DEFAULT NULL');
+        $connection->executeStatement('ALTER TABLE `product` DROP COLUMN `variant_listing_config`');
+        $connection->executeStatement('ALTER TABLE `product` ADD COLUMN `variant_listing_config` JSON NULL DEFAULT NULL');
 
         do {
             $result = $connection->executeStatement(
-                '
-                  UPDATE `product`
+                'UPDATE `product`
                     SET product.variant_listing_config = (SELECT variant_listing_config FROM product_tmp WHERE product.id = product_tmp.id AND product.version_id = product_tmp.version_id)
-                    WHERE product.variant_listing_config IS NULL
+                    WHERE product.variant_listing_config IS NULL AND EXISTS (SELECT variant_listing_config FROM product_tmp WHERE product.id = product_tmp.id AND product.version_id = product_tmp.version_id)
                     LIMIT 1000'
             );
         } while ($result > 0);

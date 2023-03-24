@@ -171,7 +171,7 @@ describe('repository.data.ts', () => {
         ]));
     });
 
-    it.only('should throw an 400 error when httpClient post call fails with error without source property', async () => {
+    it('should throw an 400 error when httpClient post call fails with error without source property', async () => {
         const productRepository = repositoryFactory.create('product');
         const product = productRepository.create();
         product.name = 'Our amazing product';

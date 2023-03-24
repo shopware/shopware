@@ -119,6 +119,11 @@ Component.register('sw-entity-multi-id-select', {
 
             return this.repository.search(criteria, { ...this.context, inheritance: true }).then((entities) => {
                 this.collection = entities;
+
+                if (!this.collection.length && this.ids.length) {
+                    this.updateIds(this.collection);
+                }
+
                 return this.collection;
             });
         },

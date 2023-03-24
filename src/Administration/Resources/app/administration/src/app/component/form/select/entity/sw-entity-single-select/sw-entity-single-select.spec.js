@@ -794,4 +794,29 @@ describe('components/sw-entity-single-select', () => {
         expect(resultItem.text()).toBe('global.sw-single-select.labelEntityAdd');
         expect(resultItem.props().searchTerm).toBe('Cars');
     });
+
+    it('should reset selected item if it is invalid value', async () => {
+        const swEntitySingleSelect = await createEntitySingleSelect({
+            propsData: {
+                value: fixture[0].id,
+                entity: 'test',
+            },
+            provide: {
+                repositoryFactory: {
+                    create: () => {
+                        return {
+                            get: () => Promise.resolve()
+                        };
+                    }
+                }
+            }
+        });
+        await flushPromises();
+        expect(swEntitySingleSelect.vm.value).toBe(fixture[0].id);
+
+        await swEntitySingleSelect.setProps({ value: utils.createId() });
+        swEntitySingleSelect.vm.$emit('change');
+
+        expect(swEntitySingleSelect.emitted('change')).toBeTruthy();
+    });
 });

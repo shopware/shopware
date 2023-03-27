@@ -464,6 +464,14 @@ export default {
 
             return criteria;
         },
+
+        shippingMethodCriteria() {
+            const criteria = new Criteria(1, 25);
+
+            criteria.addSorting(Criteria.sort('name', 'ASC'));
+
+            return criteria;
+        },
     },
 
     watch: {

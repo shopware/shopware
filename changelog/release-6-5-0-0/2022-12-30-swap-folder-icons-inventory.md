@@ -4,4 +4,4 @@ issue: NEXT-24597
 ---
 
 # Administration
-* Change Folder icons in variant configurator
+* Changed folder icons in variant configurator

@@ -7,4 +7,4 @@ author_github: @kingschnulli
 ---
 
 # Core
-* Api responses will return full stack trace for errors in debug mode
+* Added full stack trace for errors in debug mode in API responses.

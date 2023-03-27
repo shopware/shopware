@@ -7,7 +7,7 @@ author_email: t.helmke@kellerkinder.de
 author_github: t2oh4e
 ---
 # Core
-* Custom fields in cart will now be removed when not used in cart rules
+* Added removing of custom fields in cart when they are not used in cart rules
 ___
 # Upgrade Information
 ## Custom fields in cart

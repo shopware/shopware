@@ -224,4 +224,4 @@ author_github: Jannis Leifeld
 * Deprecated `src/module/sw-login/view/sw-login-recovery/index.js`: Will be private
 * Deprecated `src/module/sw-login/view/sw-login-recovery-info/index.js`: Will be private
 * Deprecated `src/module/sw-login/view/sw-login-recovery-recovery/index.js`: Will be private
-* * Deprecated `src/module/sw-login/page/index/index.js`: Will be private
+* Deprecated `src/module/sw-login/page/index/index.js`: Will be private

@@ -3,7 +3,7 @@ title: Fix theme assets
 issue: NEXT-25650
 ---
 # Storefront
-* Theme assets are now stored separately from the compiled js and css files to prevent file duplication for every theme compilation
+* Changed storing of theme assets, so they are separated from the compiled js and css files to prevent file duplication for every theme compilation
 ___
 # Upgrade information
 ## Theme assets are now stored separately from the compiled js and css files

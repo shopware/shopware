@@ -17,6 +17,4 @@ author_email: o.skroblin@shopware.com
   * Renamed `MediaEntity::$avatarUser` to `MediaEntity::$avatarUsers`
   * Changed `MediaEntity::$avatarUser` type from `UserEntity|null` to `UserCollection|null`
 * Changed behavior of `WriteCommandQueue::getCommandsInOrder` so that each command is resolved individually in the write order to avoid possible circular dependencies much better
-* Fixed `VersionManager` so that now all versioned entries are completely deleted
-
-
+* Changed `VersionManager` so that now all versioned entries are completely deleted

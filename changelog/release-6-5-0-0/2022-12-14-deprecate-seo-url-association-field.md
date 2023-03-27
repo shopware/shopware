@@ -5,6 +5,6 @@ issue: NEXT-24575
 
 ---
 # Core
-* deprecated `Shopware\Core\Content\Seo\Entity\Dbal\SeoUrlAssociationFieldResolver`
-* deprecated `Shopware\Core\Content\Seo\Entity\Field\SeoUrlAssociationField`
-* deprecated `Shopware\Core\Content\Seo\Entity\Serializer\SeoUrlFieldSerializer`
+* Deprecated `Shopware\Core\Content\Seo\Entity\Dbal\SeoUrlAssociationFieldResolver`
+* Deprecated `Shopware\Core\Content\Seo\Entity\Field\SeoUrlAssociationField`
+* Deprecated `Shopware\Core\Content\Seo\Entity\Serializer\SeoUrlFieldSerializer`

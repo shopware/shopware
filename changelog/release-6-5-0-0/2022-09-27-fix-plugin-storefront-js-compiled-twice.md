@@ -6,4 +6,4 @@ author_email: maximilian.ruesch@pickware.de
 author_github: maximilianruesch
 ---
 # Storefront
-* Ensures a previously activated plugin is not added twice to the list of plugins which should be recompiled during the following theme compilation. This list may already contain the plugin.
+* Changed the theme compilation process to ensure that a previously activated plugin is not added twice to in the list of plugins which should be recompiled. This list may already contain the plugin.

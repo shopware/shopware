@@ -6,5 +6,4 @@ author: Dennis Garding
 
 # Core
 
-* Adds a default with value true for core.cart.showDeliveryTime setting
-
+* Added a default with value `true` for `core.cart.showDeliveryTime` setting

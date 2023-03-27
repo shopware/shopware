@@ -319,7 +319,7 @@ export default {
                 });
         },
 
-        onSave() {
+        async onSave() {
             // Remove selector sequence type before saving
             this.removeAllSelectors();
 
@@ -331,7 +331,7 @@ export default {
                     message: this.$tc('sw-flow.flowNotification.messageRequiredEmptyFields'),
                 });
 
-                return null;
+                return;
             }
 
             this.isSaveSuccessful = false;
@@ -344,10 +344,14 @@ export default {
 
                 this.isLoading = false;
 
-                return null;
+                return;
             }
 
-            return this.flowRepository.save(this.flow)
+            if (!(typeof this.flow.isNew === 'function' && this.flow.isNew()) && !this.isTemplate) {
+                await this.updateSequences();
+            }
+
+            this.flowRepository.save(this.flow)
                 .then(() => {
                     if ((typeof this.flow.isNew === 'function' && this.flow.isNew()) || this.$route.params.flowTemplateId) {
                         this.createNotificationSuccess({
@@ -374,6 +378,38 @@ export default {
                 .finally(() => {
                     this.isLoading = false;
                 });
+        },
+
+        async updateSequences() {
+            const sequences = this.sequences.map(item => {
+                item.flowId = this.flow.id;
+                return item;
+            });
+
+            await this.flowSequenceRepository.sync(sequences);
+
+            const deletedSequenceIds = this.getDeletedSequenceIds();
+
+            if (deletedSequenceIds.length > 0) {
+                await this.flowSequenceRepository.syncDeleted(deletedSequenceIds);
+            }
+
+            const updateFlow = await this.flowRepository.get(this.flowId, Context.api);
+
+            Object.keys(updateFlow).forEach((key) => {
+                if (key !== 'sequences') {
+                    updateFlow[key] = this.flow[key];
+                }
+            });
+
+            State.commit('swFlowState/setFlow', updateFlow);
+        },
+
+        getDeletedSequenceIds() {
+            const sequenceIds = this.sequences.map(sequence => sequence.id);
+            const deletedSequences = this.flow.getOrigin().sequences.filter(sequence => !sequenceIds.includes(sequence.id));
+
+            return deletedSequences.map(sequence => sequence.id);
         },
 
         handleFieldValiationError() {

@@ -1,5 +1,5 @@
 /*
- * @package inventory
+ * @package business-ops
  */
 
 import template from './sw-product-stream-field-select.html.twig';
@@ -7,7 +7,6 @@ import './sw-product-stream-field-select.scss';
 
 /**
  * @private
- * @package business-ops
  */
 export default {
     template,

@@ -14,7 +14,7 @@ issue: NEXT-23395
 
 * Changed in `src/module/sw-order/component/sw-order-line-items-grid/index.js`
   * Changed method `onDeleteSelectedItems` to delete blank line items
-  * Change method `onDeleteItem` to delete single blank line items
+  * Changed method `onDeleteItem` to delete single blank line items
 
 * Changed in `src/module/sw-order/component/sw-order-line-items-grid/sw-order-line-items-grid.html.twig`
   * Changed block `sw_order_line_items_grid_create_actions_dropdown_menu_item` to handle ACL for add product button

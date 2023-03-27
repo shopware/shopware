@@ -77,7 +77,7 @@ class ChangelogCreateCommand extends Command
         $flag = $input->getOption('flag') ?? $IOHelper->ask('Feature Flag ID');
         $author = $input->getOption('author') ?? $IOHelper->ask('The author of code changes', $default['author']);
         $authorEmail = $input->getOption('author-email') ?? $IOHelper->ask('The author email of code changes', $default['authorEmail']);
-        $authorGithub = $input->getOption('author-github') ?? $IOHelper->ask('The author Github account', $default['authorGithub']);
+        $authorGithub = $input->getOption('author-github') ?? $IOHelper->ask('The author GitHub account', $default['authorGithub']);
 
         $template = (new ChangelogDefinition())
             ->setTitle($title)

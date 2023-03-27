@@ -94,8 +94,8 @@ class ChangelogReleaseCreator extends ChangelogProcessor
             $author = $changelog->getDefinition()->getAuthor() ?? '';
             $authorEmail = $changelog->getDefinition()->getAuthorEmail() ?? '';
             $github = $changelog->getDefinition()->getAuthorGitHub() ?? '';
-            if (!empty($author) && !empty($github) && !empty($authorEmail) && !str_contains((string) $authorEmail, '@shopware.com')) {
-                $log .= sprintf(' ([%s](https://github.com/%s))', $author, str_replace('@', '', (string) $github));
+            if (!empty($author) && !empty($github) && !empty($authorEmail) && !str_contains($authorEmail, '@shopware.com')) {
+                $log .= sprintf(' ([%s](https://github.com/%s))', $author, str_replace('@', '', $github));
             }
 
             $append[] = $log;
@@ -131,11 +131,16 @@ class ChangelogReleaseCreator extends ChangelogProcessor
      *
      * @return list<string>
      */
-    private function releaseUpgradeInformation(array $output, string $version, ChangelogFileCollection $collection, bool $dryRun = false): array
-    {
+    private function releaseUpgradeInformation(
+        array $output,
+        string $version,
+        ChangelogFileCollection $collection,
+        bool $dryRun = false
+    ): array {
         $append = [];
         foreach ($collection as $changelog) {
-            if ($upgrade = $changelog->getDefinition()->getUpgradeInformation()) {
+            $upgrade = $changelog->getDefinition()->getUpgradeInformation();
+            if ($upgrade) {
                 $append[] = $upgrade;
             }
         }
@@ -180,11 +185,16 @@ class ChangelogReleaseCreator extends ChangelogProcessor
      *
      * @return list<string>
      */
-    private function releaseMajorUpgradeInformation(array $output, string $version, ChangelogFileCollection $collection, bool $dryRun = false): array
-    {
+    private function releaseMajorUpgradeInformation(
+        array $output,
+        string $version,
+        ChangelogFileCollection $collection,
+        bool $dryRun = false
+    ): array {
         $append = [];
         foreach ($collection as $changelog) {
-            if ($upgrade = $changelog->getDefinition()->getNextMajorVersionChanges()) {
+            $upgrade = $changelog->getDefinition()->getNextMajorVersionChanges();
+            if ($upgrade) {
                 $append[] = $upgrade;
             }
         }

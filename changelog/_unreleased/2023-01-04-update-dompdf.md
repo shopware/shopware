@@ -7,4 +7,4 @@ issue: NEXT-21090
 * Changed some files to update CSS when upgrading Dompdf.
     * `src/Core/Framework/Resources/views/documents/style_base_portrait.css.twig`
     * `src/Core/Framework/Resources/views/documents/style_base_landscape.css.twig`
-* Updated composer package `dompdf/dompdf` to version `2.0.1`.
+* Changed composer package `dompdf/dompdf` to version `2.0.1`.

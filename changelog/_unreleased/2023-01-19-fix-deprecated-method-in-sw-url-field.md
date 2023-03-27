@@ -6,4 +6,4 @@ author_email: m.hakvoort@shopware.com
 author_github: celha
 ---
 # Administration
-* Remove deprecated input event handler in `administration/src/app/component/form/sw-url-field/sw-url-field.html.twig`. It now only handles blur events.
+* Removed deprecated input event handler in `administration/src/app/component/form/sw-url-field/sw-url-field.html.twig`. It now only handles blur events.

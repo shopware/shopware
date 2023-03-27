@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
-use Symfony\Component\Validator\ConstraintViolation;
+use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use function array_map;
 use function implode;
@@ -134,10 +134,9 @@ class ChangelogProcessor
             foreach ($finder as $file) {
                 $definition = $this->parser->parse($file->getContents());
 
-                /** @var \Countable&\IteratorAggregate<ConstraintViolation> $issues */
                 $issues = $this->validator->validate($definition);
                 if ($issues->count()) {
-                    $messages = array_map(static fn (ConstraintViolation $violation) => $violation->getMessage(), iterator_to_array($issues));
+                    $messages = array_map(static fn (ConstraintViolationInterface $violation) => $violation->getMessage(), iterator_to_array($issues));
 
                     throw new \InvalidArgumentException(sprintf('Invalid file at path: %s, errors: %s', $file->getRealPath(), implode(', ', $messages)));
                 }

@@ -6,4 +6,4 @@ author_email: post@pt1602.de
 author_github: pt1602
 ---
 # Administration
-* Improve grammar of the _useDefaultCookieConsent_ setting in the basic information
+* Changed grammar of the `useDefaultCookieConsent` setting in the basic information

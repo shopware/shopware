@@ -18,6 +18,7 @@ use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware\Core\Framework\Plugin\Requirement\RequirementsValidator;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Framework\Plugin\Util\PluginFinder;
+use Shopware\Core\Framework\Plugin\Util\VersionSanitizer;
 use Shopware\Core\Framework\Test\Migration\MigrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -191,6 +192,7 @@ class PluginLifecycleServiceMigrationTest extends TestCase
             $this->container->get(CustomEntitySchemaUpdater::class),
             $this->container->get(CustomEntityLifecycleService::class),
             $this->container->get(PluginService::class),
+            $this->container->get(VersionSanitizer::class),
         );
     }
 

@@ -1,5 +1,5 @@
 /*
- * @package inventory
+ * @package business-ops
  */
 
 import template from './sw-product-stream-list.html.twig';
@@ -10,7 +10,6 @@ const { Criteria } = Shopware.Data;
 
 /**
  * @private
- * @package business-ops
  */
 export default {
     template,

@@ -1,5 +1,5 @@
 /*
- * @package inventory
+ * @package business-ops
  */
 
 import template from './sw-product-stream-filter.html.twig';
@@ -9,7 +9,6 @@ const { EntityDefinition } = Shopware;
 
 /**
  * @private
- * @package business-ops
  */
 export default {
     template,

@@ -1,15 +1,13 @@
 /*
- * @package inventory
+ * @package business-ops
  */
 
 import template from './sw-product-stream-value.html.twig';
 import './sw-product-stream-value.scss';
 
 const { Criteria } = Shopware.Data;
-
-/**
+/*
  * @private
- * @package business-ops
  */
 export default {
     template,

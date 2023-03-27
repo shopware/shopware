@@ -39,7 +39,7 @@ author_email: o.skroblin@shopware.com
   * `SubjectStorer`
   * `TemplateDataStorer`
   * `UrlStorer`
-* Replaced deprecated flow storer interfaces in the flow event with the new `ScalarValuesAware` interface in the following events:
+* Changed deprecated flow storer interfaces in the flow event to the new `ScalarValuesAware` interface in the following events:
   * `CustomerAccountRecoverRequestEvent`
   * `CustomerBeforeLoginEvent`
   * `CustomerDoubleOptInRegistrationEvent`

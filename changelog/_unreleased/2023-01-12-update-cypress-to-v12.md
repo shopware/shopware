@@ -6,4 +6,4 @@ author_email: s.seggewiss@shopware.com
 author_github: @seggewiss
 ---
 # Administration
-* Update cypress to `12.3.0`
+* Changed cypress to `12.3.0`

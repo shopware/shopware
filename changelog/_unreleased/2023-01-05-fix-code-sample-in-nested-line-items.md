@@ -6,4 +6,4 @@ author_email: rohithmeethal@users.noreply.github.com
 author_github: @rohithmeethal
 ---
 # Core
-* Fix code sample in 2021-03-24-nested-line-items.md 
+* Changed code sample in 2021-03-24-nested-line-items.md 

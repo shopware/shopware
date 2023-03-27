@@ -6,4 +6,4 @@ author_email: dev@pourliotis.de
 author_github: @PheysX
 ---
 # Administration
-* Add `createdAt` and `updatedAt` columns to `sw-product-list` component.
+* Added  `createdAt` and `updatedAt` columns to `sw-product-list` component.

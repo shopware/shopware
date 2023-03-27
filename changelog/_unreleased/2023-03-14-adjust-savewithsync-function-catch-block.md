@@ -1,7 +1,6 @@
 ---
-title: adjust catch block inside saveWithSync-function
+title: Adjust catch block inside saveWithSync function
 issue: NEXT-23580
 ---
 # Administration
-* using optional chaining operator inside the error handling part of the saveWithSync() function to prevent runtime errors 
-___
+* Added optional chaining operator inside the error handling part of the `saveWithSync` function in the data repository to prevent runtime errors

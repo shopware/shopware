@@ -165,6 +165,9 @@ parameters:
         # Internal deprecations of Shopware are handled in other places
         - '#deprecated.*class Shopware\\#'
 
+        # Breaking changes which are not worth it
+        - '#Method Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityCollection::filterAndReduceByProperty\(\) has parameter \$value with no type specified\.#'
+
 services:
     -
         class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\DeprecatedMethodsThrowDeprecationRule

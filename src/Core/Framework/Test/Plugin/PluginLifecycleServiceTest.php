@@ -24,6 +24,7 @@ use Shopware\Core\Framework\Plugin\Requirement\Exception\RequirementStackExcepti
 use Shopware\Core\Framework\Plugin\Requirement\RequirementsValidator;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Framework\Plugin\Util\PluginFinder;
+use Shopware\Core\Framework\Plugin\Util\VersionSanitizer;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Test\Migration\MigrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -324,6 +325,7 @@ class PluginLifecycleServiceTest extends TestCase
             $this->container->get(CustomEntitySchemaUpdater::class),
             $this->container->get(CustomEntityLifecycleService::class),
             $this->container->get(PluginService::class),
+            $this->container->get(VersionSanitizer::class),
         );
 
         $context = Context::createDefaultContext();
@@ -838,7 +840,8 @@ class PluginLifecycleServiceTest extends TestCase
             $this->container->get(CustomEntityPersister::class),
             $this->container->get(CustomEntitySchemaUpdater::class),
             $this->container->get(CustomEntityLifecycleService::class),
-            $pluginService
+            $pluginService,
+            $this->container->get(VersionSanitizer::class),
         );
     }
 

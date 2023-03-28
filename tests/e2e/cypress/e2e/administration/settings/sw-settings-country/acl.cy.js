@@ -144,7 +144,7 @@ describe('Country: Test acl privileges', () => {
         '000');
     });
 
-    it('@settings: can delete a country', { tags: ['pa-system-settings', 'quarantined'] }, () => {
+    it('@settings: can delete a country', { tags: ['pa-system-settings'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -171,6 +171,9 @@ describe('Country: Test acl privileges', () => {
         // find a country with the name is "Zimbabwe"
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Zimbabwe');
 
+        // hide search bar result
+        cy.get('.sw-card-view__content').click({ force: true });
+
         // choose delete action
         cy.clickContextMenuItem(
             `${page.elements.contextMenu}-item--danger`,
@@ -187,7 +190,6 @@ describe('Country: Test acl privileges', () => {
 
         // call api to delete the country
         cy.wait('@deleteCountry').its('response.statusCode').should('equal', 204);
-
         // assert that modal is off, country is deleted
         cy.get(page.elements.modal).should('not.exist');
         cy.get(`${page.elements.dataGridRow}--0 ${page.elements.countryColumnName}`).should('not.exist');

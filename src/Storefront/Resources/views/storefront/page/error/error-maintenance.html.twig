@@ -19,7 +19,8 @@
                 <noscript class="noscript-main">
                     {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
                         type: 'info',
-                        content: 'general.noscriptNotice'|trans|sw_sanitize
+                        content: 'general.noscriptNotice'|trans|sw_sanitize,
+                        iconCache: false
                     } %}
                 </noscript>
             {% endblock %}

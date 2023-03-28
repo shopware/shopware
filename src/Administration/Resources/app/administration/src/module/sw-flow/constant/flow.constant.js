@@ -40,30 +40,42 @@ export const ACTION_TYPE = Object.freeze({
  * @package business-ops
  */
 export const GENERAL_GROUP = 'general';
-const TAG_GROUP = 'tag';
-const CUSTOMER_GROUP = 'customer';
-const ORDER_GROUP = 'order';
+/**
+ * @private
+ * @package business-ops
+ */
+export const TAG_GROUP = 'tag';
+/**
+ * @private
+ * @package business-ops
+ */
+export const CUSTOMER_GROUP = 'customer';
+/**
+ * @private
+ * @package business-ops
+ */
+export const ORDER_GROUP = 'order';
 
 /**
  * @private
  * @package business-ops
  */
 export const ACTION_GROUP = Object.freeze({
-    'action.add.order.tag': TAG_GROUP,
-    'action.add.customer.tag': TAG_GROUP,
-    'action.remove.order.tag': TAG_GROUP,
-    'action.remove.customer.tag': TAG_GROUP,
-    'action.change.customer.group': CUSTOMER_GROUP,
-    'action.change.customer.status': CUSTOMER_GROUP,
-    'action.set.customer.custom.field': CUSTOMER_GROUP,
-    'action.set.customer.group.custom.field': CUSTOMER_GROUP,
-    'action.add.customer.affiliate.and.campaign.code': CUSTOMER_GROUP,
-    'action.add.order.affiliate.and.campaign.code': CUSTOMER_GROUP,
-    'action.set.order.custom.field': ORDER_GROUP,
-    'action.grant.download.access': ORDER_GROUP,
-    'action.generate.document': GENERAL_GROUP,
-    'action.mail.send': GENERAL_GROUP,
-    'action.stop.flow': GENERAL_GROUP,
+    [ACTION.ADD_ORDER_TAG]: TAG_GROUP,
+    [ACTION.ADD_CUSTOMER_TAG]: TAG_GROUP,
+    [ACTION.REMOVE_ORDER_TAG]: TAG_GROUP,
+    [ACTION.REMOVE_CUSTOMER_TAG]: TAG_GROUP,
+    [ACTION.CHANGE_CUSTOMER_GROUP]: CUSTOMER_GROUP,
+    [ACTION.CHANGE_CUSTOMER_STATUS]: CUSTOMER_GROUP,
+    [ACTION.SET_CUSTOMER_CUSTOM_FIELD]: CUSTOMER_GROUP,
+    [ACTION.SET_CUSTOMER_GROUP_CUSTOM_FIELD]: CUSTOMER_GROUP,
+    [ACTION.ADD_CUSTOMER_AFFILIATE_AND_CAMPAIGN_CODE]: CUSTOMER_GROUP,
+    [ACTION.ADD_ORDER_AFFILIATE_AND_CAMPAIGN_CODE]: CUSTOMER_GROUP,
+    [ACTION.SET_ORDER_CUSTOM_FIELD]: ORDER_GROUP,
+    [ACTION.GRANT_DOWNLOAD_ACCESS]: ORDER_GROUP,
+    [ACTION.GENERATE_DOCUMENT]: GENERAL_GROUP,
+    [ACTION.MAIL_SEND]: GENERAL_GROUP,
+    [ACTION.STOP_FLOW]: GENERAL_GROUP,
 });
 
 /**

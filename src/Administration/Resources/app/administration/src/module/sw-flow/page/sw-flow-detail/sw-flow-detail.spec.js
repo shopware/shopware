@@ -4,8 +4,17 @@ import swFlowDetail from 'src/module/sw-flow/page/sw-flow-detail';
 import Vuex from 'vuex';
 import flowState from 'src/module/sw-flow/state/flow.state';
 import EntityCollection from 'src/core/data/entity-collection.data';
+import FlowBuilderService from 'src/module/sw-flow/service/flow-builder.service';
 
 Shopware.Component.register('sw-flow-detail', swFlowDetail);
+Shopware.Service().register('flowBuilderService', () => {
+    return {
+        ...new FlowBuilderService(),
+        rearrangeArrayObjects: (sequences) => {
+            return sequences;
+        }
+    };
+});
 
 const sequenceFixture = {
     id: '1',
@@ -108,8 +117,15 @@ async function createWrapper(
 
                     return Promise.resolve([]);
                 },
+                sync: () => {
+                    return Promise.resolve();
+                },
+                syncDeleted: () => {
+                    return Promise.resolve();
+                },
             })
         },
+        flowBuilderService: Shopware.Service('flowBuilderService'),
 
         ruleConditionDataProviderService: {
             getRestrictedRules: () => Promise.resolve([])
@@ -176,16 +192,9 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
                     eventName: '',
                     sequences: getSequencesCollection([{ ...sequenceFixture }])
                 },
-                invalidSequences: []
+                invalidSequences: [],
+                appActions: [],
             }
-        });
-
-        Shopware.Service().register('flowBuilderService', () => {
-            return {
-                rearrangeArrayObjects: (sequences) => {
-                    return sequences;
-                }
-            };
         });
     });
 
@@ -205,17 +214,22 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
         expect(saveButton.attributes().disabled).toBeFalsy();
     });
 
-    it('should able to remove selector sequences before saving', async () => {
+    it('should be able to remove selector sequences before saving', async () => {
         const wrapper = await createWrapper([
             'flow.editor'
         ]);
 
+        const flow = {
+            eventName: 'checkout.customer',
+            name: 'Flow 1',
+            sequences: getSequencesCollection(sequencesFixture),
+        };
+
         Shopware.State.commit(
             'swFlowState/setFlow',
             {
-                eventName: 'checkout.customer',
-                name: 'Flow 1',
-                sequences: getSequencesCollection(sequencesFixture)
+                ...flow,
+                getOrigin: () => flow,
             }
         );
 
@@ -229,20 +243,26 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
         expect(sequencesState.length).toEqual(2);
     });
 
-    it('should not able to saving flow', async () => {
+    it('should not able to saving flow template', async () => {
         const wrapper = await createWrapper([
             'flow.editor'
-        ], {}, {
-            eventName: 'checkout.customer',
-            sequences: [1, 2]
-        }, null, false);
+        ], {
+            type: 'template'
+        }, {}, null, true, {
+            flowTemplateId: ID_FLOW_TEMPLATE
+        });
 
-        Shopware.State.commit('swFlowState/setFlow', {
-            name: 'Flow 1',
+        const flowTemplate = {
+            name: 'Flow template',
             config: {
                 eventName: 'checkout.customer',
                 sequences: getSequencesCollection(sequencesFixture)
             }
+        };
+
+        Shopware.State.commit('swFlowState/setFlow', {
+            ...flowTemplate,
+            getOrigin: () => flowTemplate,
         });
 
         const sequencesState = Shopware.State.getters['swFlowState/sequences'];
@@ -291,7 +311,7 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
         wrapper.vm.createNotificationWarning.mockRestore();
     });
 
-    it('should able to create flow from flow template', async () => {
+    it('should be able to create flow from flow template', async () => {
         const wrapper = await createWrapper([
             'flow.editor'
         ], {}, {
@@ -335,7 +355,7 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
         ])));
     });
 
-    it('should be show the warning message not able to edited flow template', async () => {
+    it('should be able to show the warning message when editing flow template', async () => {
         const wrapper = await createWrapper([
             'flow.editor'
         ], {

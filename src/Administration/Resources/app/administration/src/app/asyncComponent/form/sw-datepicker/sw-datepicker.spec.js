@@ -179,4 +179,106 @@ describe('src/app/component/form/sw-datepicker', () => {
 
         expect(hint.exists()).toBe(false);
     });
+
+    it('should not convert the date when a timezone is set (type=date)', async () => {
+        Shopware.State.get('session').currentUser = {
+            timeZone: 'Europe/Berlin'
+        };
+
+        wrapper = await createWrapper({
+            propsData: {
+                value: '2023-03-27T00:00:00.000+00:00',
+                dateType: 'date',
+            }
+        });
+
+        // Can't test with DOM because of the flatpickr dependency
+        expect(wrapper.vm.timezoneFormattedValue).toEqual('2023-03-27T00:00:00.000+00:00');
+    });
+
+    it('should not emit a converted date when a timezone is set (type=date)', async () => {
+        Shopware.State.get('session').currentUser = {
+            timeZone: 'Europe/Berlin'
+        };
+
+        wrapper = await createWrapper({
+            propsData: {
+                value: '2023-03-27T00:00:00.000+00:00',
+                dateType: 'date',
+            }
+        });
+
+        // can't test with DOM because of the flatpickr dependency
+        wrapper.vm.timezoneFormattedValue = '2023-03-22T00:00:00.000+00:00';
+
+        expect(wrapper.emitted('input')[0]).toEqual(['2023-03-22T00:00:00.000+00:00']);
+    });
+
+    it('should not convert the date when a timezone is set (type=time)', async () => {
+        Shopware.State.get('session').currentUser = {
+            timeZone: 'Europe/Berlin'
+        };
+
+        wrapper = await createWrapper({
+            propsData: {
+                value: '2023-03-27T00:00:00.000+00:00',
+                dateType: 'time',
+            }
+        });
+
+        // Can't test with DOM because of the flatpickr dependency
+        expect(wrapper.vm.timezoneFormattedValue).toEqual('2023-03-27T00:00:00.000+00:00');
+    });
+
+    it('should not emit a converted date when a timezone is set (type=time)', async () => {
+        Shopware.State.get('session').currentUser = {
+            timeZone: 'Europe/Berlin'
+        };
+
+        wrapper = await createWrapper({
+            propsData: {
+                value: '2023-03-27T00:00:00.000+00:00',
+                dateType: 'time',
+            }
+        });
+
+        // can't test with DOM because of the flatpickr dependency
+        wrapper.vm.timezoneFormattedValue = '2023-03-22T00:00:00.000+00:00';
+
+        expect(wrapper.emitted('input')[0]).toEqual(['2023-03-22T00:00:00.000+00:00']);
+    });
+
+    it('should convert the date when a timezone is set (type=datetime)', async () => {
+        Shopware.State.get('session').currentUser = {
+            timeZone: 'Europe/Berlin'
+        };
+
+        wrapper = await createWrapper({
+            propsData: {
+                value: '2023-03-27T00:00:00.000+00:00',
+                dateType: 'datetime',
+            }
+        });
+
+        // Can't test with DOM because of the flatpickr dependency
+        expect(wrapper.vm.timezoneFormattedValue).toEqual('2023-03-27T02:00:00.000Z');
+    });
+
+    it('should emit a converted date when a timezone is set (type=datetime)', async () => {
+        Shopware.State.get('session').currentUser = {
+            timeZone: 'Europe/Berlin'
+        };
+
+        wrapper = await createWrapper({
+            propsData: {
+                value: '2023-03-27T00:00:00.000+00:00',
+                dateType: 'datetime',
+            }
+        });
+
+        // can't test with DOM because of the flatpickr dependency
+        wrapper.vm.timezoneFormattedValue = '2023-03-22T00:00:00.000+00:00';
+
+        expect(wrapper.emitted('input')[0]).toEqual(['2023-03-21T23:00:00.000Z']);
+    });
 });

@@ -58,6 +58,9 @@ describe('components/base/sw-alert', () => {
         ['warning', 'system', false],
         ['error', 'system', false],
         ['success', 'system', false],
+        ['neutral', 'default', true],
+        ['neutral', 'notification', true],
+        ['neutral', 'system', false],
     ])('applies variant class %s to %s is %s', async (variant, appearance, applied) => {
         wrapper = shallowMount(await Shopware.Component.build('sw-alert'), {
             stubs: ['sw-icon'],

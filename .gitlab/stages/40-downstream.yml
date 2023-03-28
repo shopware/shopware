@@ -155,6 +155,8 @@ rufus trunk:
     - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH'
     - when: manual
       allow_failure: true
+  variables:
+    PLATFORM_BRANCH: '${CI_COMMIT_BRANCH}${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}'
   trigger:
     project: shopware/6/product/rufus
     strategy: depend
@@ -171,6 +173,8 @@ commercial trunk:
     - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH'
     - when: manual
       allow_failure: true
+  variables:
+    PLATFORM_BRANCH: '${CI_COMMIT_BRANCH}${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}'
   trigger:
     project: shopware/6/product/commercial
     strategy: depend

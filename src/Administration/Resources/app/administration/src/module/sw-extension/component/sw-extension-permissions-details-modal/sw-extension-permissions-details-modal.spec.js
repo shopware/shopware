@@ -39,7 +39,7 @@ async function createWrapper({ permissions, modalTitle, selectedEntity }) {
 /**
  * @package merchant-services
  */
-describe('sw-extension-permissions-details-modal', () => {
+describe('src/module/sw-extension/component/sw-extension-permissions-details-modal', () => {
     /** @type Wrapper */
     let wrapper;
 

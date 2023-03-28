@@ -26,7 +26,8 @@ async function createWrapper() {
             'router-link': true,
             'sw-context-menu-item': true,
             'sw-loader': true,
-            'sw-meteor-card': await Shopware.Component.build('sw-meteor-card')
+            'sw-meteor-card': await Shopware.Component.build('sw-meteor-card'),
+            'sw-extension-icon': true,
         },
         provide: {
             repositoryFactory: {
@@ -50,7 +51,7 @@ async function createWrapper() {
 /**
  * @package merchant-services
  */
-describe('src/module/sw-extension/component/sw-extension-store-purchased/sw-extension-card-base', () => {
+describe('src/module/sw-extension/component/sw-self-maintained-extension-card', () => {
     /** @type Wrapper */
     let wrapper;
 

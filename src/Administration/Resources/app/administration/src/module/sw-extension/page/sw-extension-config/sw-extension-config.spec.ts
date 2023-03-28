@@ -2,6 +2,7 @@ import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/meteor/sw-meteor-page';
 import swExtensionConfigPage from 'src/module/sw-extension/page/sw-extension-config';
+import swExtensionIcon from 'src/module/sw-extension/component/sw-extension-icon';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { Wrapper } from '@vue/test-utils';
@@ -9,11 +10,12 @@ import type { Wrapper } from '@vue/test-utils';
 import Vue from 'vue';
 
 Shopware.Component.register('sw-extension-config', swExtensionConfigPage);
+Shopware.Component.register('sw-extension-icon', swExtensionIcon);
 
 /**
  * @package merchant-services
  */
-describe('src/module/sw-extension/page/sw-extension-my-extensions-account', () => {
+describe('src/module/sw-extension/page/sw-extension-config-spec', () => {
     let wrapper: Wrapper<Vue>;
     let SwExtensionConfig;
     let SwMeteorPage;
@@ -44,7 +46,8 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-account', () =
                 'sw-meteor-navigation': true,
                 'sw-external-link': true,
                 'sw-system-config': true,
-                'sw-button': await Shopware.Component.build('sw-button')
+                'sw-button': await Shopware.Component.build('sw-button'),
+                'sw-extension-icon': await Shopware.Component.build('sw-extension-icon'),
             },
             provide: {
                 shopwareExtensionService: {

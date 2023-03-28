@@ -14,7 +14,7 @@ Shopware.Component.register('sw-extension-my-extensions-listing-controls', swExt
  * @package merchant-services
  */
 // eslint-disable-next-line max-len
-describe('src/Administration/Resources/app/administration/src/module/sw-extension/component/sw-extension-my-extensions-listing-controls', () => {
+describe('src/module/sw-extension/component/sw-extension-my-extensions-listing-controls', () => {
     /** @type Wrapper */
     let wrapper;
 

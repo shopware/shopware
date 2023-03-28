@@ -5,11 +5,9 @@
         justify="left"
         align="start"
     >
-        <img
-            :src="plugin.iconPath"
-            class="sw-plugin-card__icon"
-            alt=""
-        >
+        <sw-extension-icon
+            :iconSrc="plugin.iconPath"
+        />
         <div class="sw-plugin-card__info">
             <div class="sw-plugin-card__label">
                 {{ plugin.label }}

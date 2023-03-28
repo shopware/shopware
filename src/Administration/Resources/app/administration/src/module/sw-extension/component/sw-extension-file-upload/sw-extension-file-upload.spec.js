@@ -52,7 +52,7 @@ async function createWrapper(userConfig = {}) {
 /**
  * @package merchant-services
  */
-describe('src/module/sw-extension/page/sw-extension-my-extensions-account', () => {
+describe('src/module/sw-extension/component/sw-extension-file-upload', () => {
     /** @type Wrapper */
     let wrapper;
 

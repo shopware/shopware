@@ -1,9 +1,26 @@
 @import "~scss/variables";
 
 .sw-extension-icon {
-    width: 56px;
-    height: 56px;
-    border-radius: 6px;
-    border: 1px solid rgba(0, 0, 0, 0.08);
+    position: relative;
+    border-radius: 10%;
     background-color: #fff;
+    overflow: clip;
+    aspect-ratio: 1;
+
+    &__icon {
+        width: 100%;
+        height: 100%;
+    }
+
+    &::after {
+        content: "";
+        position: absolute;
+        display: inline-block;
+        left: 0;
+        // use parents height and with and subtract 2px: one for the border on to make the border inside of the span
+        width: calc(100% - 2px);
+        height: calc(100% - 2px);
+        border-radius: 10%;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+    }
 }

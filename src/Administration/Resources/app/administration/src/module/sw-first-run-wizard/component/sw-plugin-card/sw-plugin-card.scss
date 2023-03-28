@@ -1,10 +1,6 @@
 @import "~scss/variables";
 
 .sw-plugin-card {
-    &__icon {
-        object-fit: contain;
-    }
-
     &__info {
         display: flex;
         flex-direction: column;

@@ -56,7 +56,8 @@
     }
 
     .sw-container {
-        grid-template-columns: 168px 1fr;
+        grid-template-columns: 128px 1fr;
+        grid-column-gap: 32px;
     }
 
     .plugins-category-lead {

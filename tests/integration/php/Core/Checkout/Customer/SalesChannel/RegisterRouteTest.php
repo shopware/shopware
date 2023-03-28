@@ -15,10 +15,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
@@ -27,21 +24,13 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
-use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
-use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\PlatformRequest;
-use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @package customer-order
@@ -710,6 +699,183 @@ class RegisterRouteTest extends TestCase
         ];
     }
 
+    public function testRegistrationWithAllowedAccountType(): void
+    {
+        /** @var string[] $accountTypes */
+        $accountTypes = $this->getContainer()->getParameter('customer.account_types');
+        static::assertIsArray($accountTypes);
+        $accountType = $accountTypes[array_rand($accountTypes)];
+
+        $additionalData = [
+            'accountType' => $accountType,
+            'billingAddress' => [
+                'company' => 'Test Company',
+                'department' => 'Test Department',
+            ],
+            'vatIds' => [
+                'DE123456789',
+            ],
+        ];
+        $registrationData = array_merge_recursive($this->getRegistrationData(), $additionalData);
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/register',
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode($registrationData, \JSON_THROW_ON_ERROR)
+            );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame($accountType, $response['accountType']);
+        static::assertNotEmpty($this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/login',
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode([
+                    'email' => 'teg-reg@example.com',
+                    'password' => '12345678',
+                ], \JSON_THROW_ON_ERROR)
+            );
+
+        $response = $this->browser->getResponse();
+
+        $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
+        static::assertNotEmpty($contextToken);
+    }
+
+    public function testRegistrationWithWrongAccountType(): void
+    {
+        /** @var string[] $accountTypes */
+        $accountTypes = $this->getContainer()->getParameter('customer.account_types');
+        static::assertIsArray($accountTypes);
+        $notAllowedAccountType = implode('', $accountTypes);
+        $additionalData = [
+            'accountType' => $notAllowedAccountType,
+            'billingAddress' => [
+                'company' => 'Test Company',
+                'department' => 'Test Department',
+            ],
+            'vatIds' => [
+                'DE123456789',
+            ],
+        ];
+
+        $registrationData = array_merge_recursive($this->getRegistrationData(), $additionalData);
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/register',
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode($registrationData, \JSON_THROW_ON_ERROR)
+            );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertEquals(Response::HTTP_BAD_REQUEST, $this->browser->getResponse()->getStatusCode());
+        static::assertArrayHasKey('errors', $response);
+        static::assertCount(1, $response['errors']);
+        static::assertIsArray($response['errors'][0]);
+        static::assertEquals('VIOLATION::NO_SUCH_CHOICE_ERROR', $response['errors'][0]['code']);
+    }
+
+    public function testRegistrationWithoutAccountTypeIsEmptyString(): void
+    {
+        $additionalData = [
+            'accountType' => '',
+        ];
+        $registrationData = array_merge_recursive($this->getRegistrationData(), $additionalData);
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/register',
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode($registrationData, \JSON_THROW_ON_ERROR)
+            );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        $customerDefinition = new CustomerDefinition();
+        static::assertIsArray($customerDefinition->getDefaults());
+        static::assertArrayHasKey('accountType', $customerDefinition->getDefaults());
+        static::assertSame($customerDefinition->getDefaults()['accountType'], $response['accountType']);
+
+        static::assertNotEmpty($this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/login',
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode([
+                    'email' => 'teg-reg@example.com',
+                    'password' => '12345678',
+                ], \JSON_THROW_ON_ERROR)
+            );
+
+        $response = $this->browser->getResponse();
+
+        $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
+        static::assertNotEmpty($contextToken);
+    }
+
+    public function testRegistrationWithoutAccountTypeFallbackToDefaultValue(): void
+    {
+        $registrationData = array_merge_recursive($this->getRegistrationData());
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/register',
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode($registrationData, \JSON_THROW_ON_ERROR)
+            );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        $customerDefinition = new CustomerDefinition();
+        static::assertIsArray($customerDefinition->getDefaults());
+        static::assertArrayHasKey('accountType', $customerDefinition->getDefaults());
+        static::assertSame($customerDefinition->getDefaults()['accountType'], $response['accountType']);
+
+        static::assertNotEmpty($this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/login',
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode([
+                    'email' => 'teg-reg@example.com',
+                    'password' => '12345678',
+                ], \JSON_THROW_ON_ERROR)
+            );
+
+        $response = $this->browser->getResponse();
+
+        $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
+        static::assertNotEmpty($contextToken);
+    }
+
     public function testRegistrationCommercialAccountWithVatIds(): void
     {
         $additionalData = [
@@ -1045,73 +1211,6 @@ class RegisterRouteTest extends TestCase
         $newContextToken = $this->browser->getResponse()->headers->all(PlatformRequest::HEADER_CONTEXT_TOKEN);
         static::assertCount(1, $newContextToken);
         static::assertNotEquals($contextToken, $newContextToken);
-    }
-
-    public function testCustomFields(): void
-    {
-        $systemConfigService = $this->createMock(SystemConfigService::class);
-        $systemConfigService
-            ->method('get')
-            ->willReturn('1');
-
-        $result = $this->createMock(EntitySearchResult::class);
-        $customerEntity = new CustomerEntity();
-        $customerEntity->setDoubleOptInRegistration(false);
-        $customerEntity->setId('customer-1');
-        $customerEntity->setGuest(false);
-        $result->method('first')->willReturn($customerEntity);
-
-        $customerRepository = $this->createMock(EntityRepository::class);
-        $customerRepository->method('search')->willReturn($result);
-        $customerRepository
-            ->expects(static::once())
-            ->method('create')
-            ->willReturnCallback(function (array $create) {
-                static::assertSame(['mapped' => 1], $create[0]['customFields']);
-
-                return new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection([]), []);
-            });
-
-        $customFieldMapper = $this->createMock(StoreApiCustomFieldMapper::class);
-        $customFieldMapper
-            ->expects(static::once())
-            ->method('map')
-            ->with(CustomerDefinition::ENTITY_NAME, new RequestDataBag([
-                'test' => 1,
-                'mapped' => 1,
-            ]))
-            ->willReturn(['mapped' => 1]);
-
-        $register = new RegisterRoute(
-            new EventDispatcher(),
-            $this->createMock(NumberRangeValueGeneratorInterface::class),
-            $this->createMock(DataValidator::class),
-            $this->createMock(DataValidationFactoryInterface::class),
-            $this->createMock(DataValidationFactoryInterface::class),
-            $systemConfigService,
-            $customerRepository,
-            $this->createMock(SalesChannelContextPersister::class),
-            $this->createMock(SalesChannelRepository::class),
-            $this->createMock(Connection::class),
-            $this->createMock(SalesChannelContextService::class),
-            $customFieldMapper
-        );
-
-        $data = [
-            'email' => 'test@test.de',
-            'billingAddress' => [
-                'countryId' => Uuid::randomHex(),
-            ],
-            'customFields' => [
-                'test' => 1,
-                'mapped' => 1,
-            ],
-        ];
-
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $salesChannelContext->method('getSalesChannelId')->willReturn(TestDefaults::SALES_CHANNEL);
-
-        $register->register(new RequestDataBag($data), $salesChannelContext, false);
     }
 
     /**

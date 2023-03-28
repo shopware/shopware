@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Checkout\Customer\SalesChannel;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Test\Customer\SalesChannel\CustomerTestTrait;
 use Shopware\Core\Checkout\Test\Payment\Handler\V630\AsyncTestPaymentHandler;
@@ -18,6 +19,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @package customer-order
@@ -438,6 +440,108 @@ class ChangeProfileRouteTest extends TestCase
 
         static::assertEquals($newsletterRecipient['first_name'], 'FirstName');
         static::assertEquals($newsletterRecipient['last_name'], 'LastName');
+    }
+
+    public function testChangeWithAllowedAccountType(): void
+    {
+        /** @var string[] $accountTypes */
+        $accountTypes = $this->getContainer()->getParameter('customer.account_types');
+        static::assertIsArray($accountTypes);
+        $accountType = $accountTypes[array_rand($accountTypes)];
+
+        $changeData = [
+            'accountType' => $accountType,
+            'salutationId' => $this->getValidSalutationId(),
+            'firstName' => 'Max',
+            'lastName' => 'Mustermann',
+            'company' => 'Test Company',
+            'vatIds' => [
+                'DE123456789',
+            ],
+        ];
+
+        $this->browser->request(
+            'POST',
+            '/store-api/account/change-profile',
+            $changeData
+        );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertTrue($response['success']);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('id', $this->customerId));
+
+        /** @var CustomerEntity $customer */
+        $customer = $this->customerRepository->search($criteria, Context::createDefaultContext())->first();
+
+        static::assertSame($accountType, $customer->getAccountType());
+    }
+
+    public function testChangeWithWrongAccountType(): void
+    {
+        /** @var string[] $accountTypes */
+        $accountTypes = $this->getContainer()->getParameter('customer.account_types');
+        static::assertIsArray($accountTypes);
+        $notAllowedAccountType = implode('', $accountTypes);
+        $changeData = [
+            'accountType' => $notAllowedAccountType,
+            'salutationId' => $this->getValidSalutationId(),
+            'firstName' => 'Max',
+            'lastName' => 'Mustermann',
+            'company' => 'Test Company',
+            'vatIds' => [
+                'DE123456789',
+            ],
+        ];
+
+        $this->browser->request(
+            'POST',
+            '/store-api/account/change-profile',
+            $changeData
+        );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertEquals(Response::HTTP_BAD_REQUEST, $this->browser->getResponse()->getStatusCode());
+        static::assertArrayHasKey('errors', $response);
+        static::assertCount(1, $response['errors']);
+        static::assertIsArray($response['errors'][0]);
+        static::assertEquals('VIOLATION::NO_SUCH_CHOICE_ERROR', $response['errors'][0]['code']);
+    }
+
+    public function testChangeWithoutAccountTypeFallbackToDefaultValue(): void
+    {
+        $changeData = [
+            'salutationId' => $this->getValidSalutationId(),
+            'firstName' => 'Max',
+            'lastName' => 'Mustermann',
+            'company' => 'Test Company',
+            'vatIds' => [
+                'DE123456789',
+            ],
+        ];
+
+        $this->browser->request(
+            'POST',
+            '/store-api/account/change-profile',
+            $changeData
+        );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertTrue($response['success']);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('id', $this->customerId));
+
+        /** @var CustomerEntity $customer */
+        $customer = $this->customerRepository->search($criteria, Context::createDefaultContext())->first();
+
+        $customerDefinition = new CustomerDefinition();
+        static::assertIsArray($customerDefinition->getDefaults());
+        static::assertArrayHasKey('accountType', $customerDefinition->getDefaults());
+        static::assertSame($customerDefinition->getDefaults()['accountType'], $customer->getAccountType());
     }
 
     private function createData(): void

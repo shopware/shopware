@@ -11,6 +11,7 @@ use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Decoratable;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Salutation\SalutationDefinition;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\GreaterThanOrEqual;
 use Symfony\Component\Validator\Constraints\LessThanOrEqual;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -22,24 +23,15 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 class CustomerProfileValidationFactory implements DataValidationFactoryInterface
 {
     /**
-     * @var SalutationDefinition
-     */
-    private $salutationDefinition;
-
-    /**
-     * @var SystemConfigService
-     */
-    private $systemConfigService;
-
-    /**
+     * @param string[] $accountTypes
+     *
      * @internal
      */
     public function __construct(
-        SalutationDefinition $salutationDefinition,
-        SystemConfigService $systemConfigService
+        private readonly SalutationDefinition $salutationDefinition,
+        private readonly SystemConfigService $systemConfigService,
+        private readonly array $accountTypes
     ) {
-        $this->salutationDefinition = $salutationDefinition;
-        $this->systemConfigService = $systemConfigService;
     }
 
     public function create(SalesChannelContext $context): DataValidationDefinition
@@ -76,7 +68,8 @@ class CustomerProfileValidationFactory implements DataValidationFactoryInterface
         $definition
             ->add('salutationId', new EntityExists(['entity' => $this->salutationDefinition->getEntityName(), 'context' => $frameworkContext]))
             ->add('firstName', new NotBlank())
-            ->add('lastName', new NotBlank());
+            ->add('lastName', new NotBlank())
+            ->add('accountType', new Choice([...$this->accountTypes, null]));
 
         if ($this->systemConfigService->get('core.loginRegistration.showBirthdayField', $salesChannelId)
             && $this->systemConfigService->get('core.loginRegistration.birthdayFieldRequired', $salesChannelId)) {

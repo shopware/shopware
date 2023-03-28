@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Test\Customer\SalesChannel;
+namespace Shopware\Tests\Unit\Core\Checkout\Customer\SalesChannel;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -53,6 +53,36 @@ class ChangeCustomerProfileRouteTest extends TestCase
         $customer->setId('customer1');
         $data = new RequestDataBag([
             'customFields' => $customFields,
+        ]);
+        $response = $change->change($data, $this->createMock(SalesChannelContext::class), $customer);
+        static::assertInstanceOf(SuccessResponse::class, $response);
+    }
+
+    public function testAccountTypeGetPassed(): void
+    {
+        $customerRepository = $this->createMock(EntityRepository::class);
+        $customerRepository
+            ->method('update')
+            ->with(static::callback(function (array $data) {
+                static::assertCount(1, $data);
+                static::assertIsArray($data[0]);
+                static::assertArrayHasKey('accountType', $data[0]);
+
+                return true;
+            }));
+
+        $change = new ChangeCustomerProfileRoute(
+            $customerRepository,
+            new EventDispatcher(),
+            $this->createMock(DataValidator::class),
+            $this->createMock(CustomerValidationFactory::class),
+            $this->createMock(StoreApiCustomFieldMapper::class)
+        );
+
+        $customer = new CustomerEntity();
+        $customer->setId('customer1');
+        $data = new RequestDataBag([
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
         ]);
         $response = $change->change($data, $this->createMock(SalesChannelContext::class), $customer);
         static::assertInstanceOf(SuccessResponse::class, $response);

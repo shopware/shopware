@@ -77,7 +77,12 @@ describe('Flow builder: add an affiliate and campaign code testing', () => {
 
         cy.get('.sw-loader').should('not.exist');
 
-        cy.get('.sw-description-list dd').should('be.visible').eq(6).contains('abc');
-        cy.get('.sw-description-list dd').should('be.visible').eq(7).contains('xyz');
+        cy.get('.sw-description-list dt').contains('Affiliate code')
+            .siblings('dd')
+            .contains('abc');
+
+        cy.get('.sw-description-list dt').contains('Campaign code')
+            .siblings('dd')
+            .contains('xyz');
     });
 });

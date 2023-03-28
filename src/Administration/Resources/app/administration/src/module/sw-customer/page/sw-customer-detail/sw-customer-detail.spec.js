@@ -29,6 +29,8 @@ async function createWrapper(privileges = []) {
                     return {
                         get: () => Promise.resolve({
                             id: 'test',
+                            accountType: 'private',
+                            company: 'Shopware AG',
                             requestedGroup: {
                                 translated: {
                                     name: 'Test'
@@ -113,6 +115,13 @@ describe('module/sw-customer/page/sw-customer-detail', () => {
 
     it('should be a Vue.JS component', async () => {
         expect(wrapper.vm).toBeTruthy();
+    });
+
+    it('should keep the customer\'s account type as private even when the company field is set', async () => {
+        expect(wrapper.vm).toBeTruthy();
+
+        expect(wrapper.vm.$data.customer.accountType).toEqual('private');
+        expect(wrapper.vm.$data.customer.company).toEqual('Shopware AG');
     });
 
     it('should not be able to edit the customer', async () => {

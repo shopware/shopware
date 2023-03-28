@@ -171,8 +171,6 @@ export default {
                 this.defaultCriteria,
             ).then((customer) => {
                 this.customer = customer;
-                this.customer.accountType = this.customer.company?.trim().length ?
-                    CUSTOMER.ACCOUNT_TYPE_BUSINESS : CUSTOMER.ACCOUNT_TYPE_PRIVATE;
                 this.isLoading = false;
             });
         },

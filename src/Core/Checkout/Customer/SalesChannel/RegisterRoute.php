@@ -87,6 +87,10 @@ class RegisterRoute extends AbstractRegisterRoute
     public function register(RequestDataBag $data, SalesChannelContext $context, bool $validateStorefrontUrl = true, ?DataValidationDefinition $additionalValidationDefinitions = null): CustomerResponse
     {
         $isGuest = $data->getBoolean('guest');
+
+        $accountType = $data->get('accountType') ?: null;
+        $data->set('accountType', $accountType);
+
         $this->validateRegistrationData($data, $isGuest, $context, $additionalValidationDefinitions, $validateStorefrontUrl);
 
         $customer = $this->mapCustomerData($data, $isGuest, $context);
@@ -116,9 +120,12 @@ class RegisterRoute extends AbstractRegisterRoute
             $customer['addresses'][] = $shippingAddress;
         }
 
-        if ($data->get('accountType') === CustomerEntity::ACCOUNT_TYPE_BUSINESS && !empty($billingAddress['company'])) {
-            $customer['company'] = $billingAddress['company'];
+        if ($accountType) {
+            $customer['accountType'] = $accountType;
+        }
 
+        if ($accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS && !empty($billingAddress['company'])) {
+            $customer['company'] = $billingAddress['company'];
             if ($data->get('vatIds')) {
                 $customer['vatIds'] = $data->get('vatIds');
             }
@@ -404,7 +411,7 @@ class RegisterRoute extends AbstractRegisterRoute
         return $customer;
     }
 
-    private function getCreateAddressValidationDefinition(DataBag $data, string $accountType, bool $isBillingAddress, SalesChannelContext $context): DataValidationDefinition
+    private function getCreateAddressValidationDefinition(DataBag $data, ?string $accountType, bool $isBillingAddress, SalesChannelContext $context): DataValidationDefinition
     {
         $validation = $this->addressValidationFactory->create($context);
 

@@ -112,11 +112,18 @@ Component.register('sw-tabs', {
         },
 
         activeTabHasErrors() {
-            return this.$children[this.activeItem] && this.$children[this.activeItem].hasError;
+            return this.$children[this.activeItem]?.hasError ?? false;
+        },
+
+        activeTabHasWarnings() {
+            return this.$children[this.activeItem]?.hasWarning ?? false;
         },
 
         sliderClasses() {
-            return { 'has--error': this.activeTabHasErrors };
+            return {
+                'has--error': this.activeTabHasErrors,
+                'has--warning': !this.activeTabHasErrors && this.activeTabHasWarnings,
+            };
         },
 
         sliderMovement() {
@@ -159,6 +166,10 @@ Component.register('sw-tabs', {
         },
 
         activeTabHasErrors() {
+            this.recalculateSlider();
+        },
+
+        activeTabHasWarnings() {
             this.recalculateSlider();
         },
     },

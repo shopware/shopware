@@ -12,7 +12,7 @@ const componentWithTabs = {
     template: `<div class="component-with-tabs">
         <sw-tabs positionIdentifier="test">
             <template v-for="(route, index) in routes">
-                <sw-tabs-item :route="route" :key="index">
+                <sw-tabs-item :route="route" :key="index" :has-error="route.hasError" :has-warning="route.hasWarning">
                     {{route.name}}
                 </sw-tabs-item>
             </template>
@@ -42,7 +42,9 @@ async function mountSwTabs(routes) {
         },
         stubs: {
             'sw-tabs': await Shopware.Component.build('sw-tabs'),
-            'sw-tabs-item': await Shopware.Component.build('sw-tabs-item')
+            'sw-tabs-item': await Shopware.Component.build('sw-tabs-item'),
+
+            'sw-icon': true,
         },
         attachTo: document.body,
     });
@@ -84,6 +86,7 @@ describe('sw-tabs', () => {
 
         wrapper.destroy();
     });
+
     it('renders active tab correctly with sub routes', async () => {
         const routes = [{
             name: 'first.route',
@@ -136,6 +139,57 @@ describe('sw-tabs', () => {
 
         const activeTab = wrapper.find('.sw-tabs-item--active');
         expect(activeTab.text()).toEqual('first.route');
+
+        wrapper.destroy();
+    });
+
+    it('should have a slider with warning state', async () => {
+        const routes = [{
+            name: 'warning.route',
+            path: '/route/warning',
+            hasError: false,
+            hasWarning: true
+        }];
+
+        const wrapper = await mountSwTabs(routes);
+        await flushPromises();
+
+        wrapper.vm.$router.push({ name: 'warning.route' });
+        await flushPromises();
+
+        const slider = wrapper.find('.sw-tabs__slider');
+        expect(slider.classes().includes('has--warning')).toBe(true);
+
+        wrapper.destroy();
+    });
+
+    it('should have a slider with error state', async () => {
+        const routes = [{
+            name: 'error.route',
+            path: '/route/error',
+            hasError: true,
+            hasWarning: false
+        }, {
+            name: 'errorAndWarning.route',
+            path: '/route/errorAndWarning',
+            hasError: true,
+            hasWarning: true
+        }];
+
+        const wrapper = await mountSwTabs(routes);
+        await flushPromises();
+
+        wrapper.vm.$router.push({ name: 'error.route' });
+        await flushPromises();
+
+        let slider = wrapper.find('.sw-tabs__slider');
+        expect(slider.classes().includes('has--error')).toBe(true);
+
+        wrapper.vm.$router.push({ name: 'errorAndWarning.route' });
+        await flushPromises();
+
+        slider = wrapper.find('.sw-tabs__slider');
+        expect(slider.classes().includes('has--error')).toBe(true);
 
         wrapper.destroy();
     });

@@ -948,7 +948,8 @@
       "defaultPlaceholder": "Suche ..."
     },
     "sw-tabs-item": {
-      "tooltipTabHasErrors": "Diese Seite enthält Fehler."
+      "tooltipTabHasErrors": "Diese Seite enthält Fehler.",
+      "tooltipTabHasWarnings": "Diese Seite enthält Warnungen."
     },
     "entities": {
       "all": "Alle",

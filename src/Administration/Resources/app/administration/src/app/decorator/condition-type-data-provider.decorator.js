@@ -557,6 +557,13 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         group: 'flow',
     });
 
+    ruleConditionService.addCondition('orderTrackingCode', {
+        component: 'sw-condition-generic',
+        label: 'global.sw-condition.condition.orderTrackingCodeRule',
+        scopes: ['flow'],
+        group: 'flow',
+    });
+
     ruleConditionService.addCondition('orderDeliveryStatus', {
         component: 'sw-condition-generic',
         label: 'global.sw-condition.condition.orderDeliveryStatusRule',

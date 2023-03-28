@@ -693,6 +693,7 @@
         "lineItemTotalPriceRule": "Item subtotal",
         "lineItemWithQuantityRule": "Item quantity",
         "orderTagRule": "Order with tag",
+        "orderTrackingCodeRule": "Tracking code",
         "orderDeliveryStatusRule": "Delivery status",
         "orderCreatedByAdminRule": "Order created by admin",
         "orderTransactionStatusRule": "Payment status",

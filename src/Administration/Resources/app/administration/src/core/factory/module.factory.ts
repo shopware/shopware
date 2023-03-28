@@ -420,10 +420,7 @@ function createRouteComponentList(route: SwRouteConfig, moduleId: string, module
 
     const componentList: { [componentKey: string]: ComponentConfig } = {};
     const routeComponents = route.components ?? {};
-    Object.keys(routeComponents).forEach((componentKey) => {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        const component = routeComponents[componentKey];
-
+    Object.entries(routeComponents).forEach(([componentKey, component]) => {
         // Don't register a component without a name
         if (!component) {
             warn(

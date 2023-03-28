@@ -243,8 +243,6 @@ describe('core/service/login.service.js', () => {
         const { loginService, clientMock } = loginServiceFactory();
 
         const documentClone = global.document;
-        delete global.document;
-        global.document = undefined;
 
         clientMock.onPost('/oauth/token')
             .reply(200, {

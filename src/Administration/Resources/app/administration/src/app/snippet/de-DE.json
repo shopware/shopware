@@ -693,6 +693,7 @@
         "lineItemTotalPriceRule": "Positionszwischensumme",
         "lineItemWithQuantityRule": "Positionsanzahl",
         "orderTagRule": "Bestellung mit Tag",
+        "orderTrackingCodeRule": "Sendungsnummer",
         "orderDeliveryStatusRule": "Lieferstatus",
         "orderCreatedByAdminRule": "Bestellung vom Administrator erstellt",
         "orderTransactionStatusRule": "Zahlungsstatus",

@@ -8,9 +8,10 @@ Percy:
             alias: database
     dependencies: [ Build ]
     variables:
-        PERCY_ENABLE: $CYPRESS_PERCY_USAGE
+        PERCY_ENABLE: '${CYPRESS_PERCY_USAGE}'
+        PERCY_TARGET_BRANCH: '${CI_COMMIT_BRANCH}${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}'
         CYPRESS_localUsage: 'true'
-        CYPRESS_usePercy: $CYPRESS_PERCY_USAGE
+        CYPRESS_usePercy: '${CYPRESS_PERCY_USAGE}'
         CYPRESS_baseUrl: "http://localhost:8000"
         CYPRESS_numTestsKeptInMemory: 0
         APP_ENV: e2e

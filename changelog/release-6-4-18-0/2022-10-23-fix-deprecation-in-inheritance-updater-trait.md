@@ -6,4 +6,4 @@ author_email: johannes.przymusinski@jop-software.de
 author_github: cngJo
 ---
 # Core
-* Connection::executeUpdate is deprecated, use the replacement Connection::executeStatement
+* Changed usage of deprecated `Connection::executeUpdate` to the replacement `Connection::executeStatement`

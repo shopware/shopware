@@ -5,7 +5,7 @@ issue: NEXT-14001
 # Core
 * Deprecated property `newsletter` in `Core/Checkout/Customer/CustomerEntity.php`.
 * Deprecated field `newsletter` in `Core/Checkout/Customer/CustomerDefinition.php`.
-* Deprected column `newsletter` in table `customer`.
+* Deprecated column `newsletter` in table `customer`.
 * Added `Core/Checkout/Customer/Subscriber/CustomerNewsletterSubscriber.php`
 * Added `Core/Checkout/Customer/SalesChannel/AbstractNewsletterRecipientRoute.php`
 * Added `Core/Checkout/Customer/SalesChannel/NewsletterRecipientRoute.php`

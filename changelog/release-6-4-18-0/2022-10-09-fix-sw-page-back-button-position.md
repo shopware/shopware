@@ -6,4 +6,4 @@ author_email: development@silvio-kennecke.de
 author_github: @silviokennecke
 ---
 # Administration
-* Fixed `back-btn-container` position on `sw-page` to correctly position the container if `showSearchBar` is false. 
+* Changed `back-btn-container` position on `sw-page` to correctly position the container if `showSearchBar` is false. 

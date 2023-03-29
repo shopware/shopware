@@ -6,4 +6,4 @@ author_email: marco.gier@ianeo.de
 author_github: marcogier
 ---
 # Core
-* Fixed typo (double "%") in parameter injection src/Core/Framework/DependencyInjection/services.xml 
+* Changed typo (double "%") in parameter injection src/Core/Framework/DependencyInjection/services.xml 

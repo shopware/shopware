@@ -6,4 +6,4 @@ author_email: mail@florian-liebig.de
 author_github: @florianliebig
 ---
 # Core
-* Fixed Translation Cache tag for special characters in `Shopware\Core\Framework\Adapter\Translation\Translator`
+* Changed Translation Cache tag for special characters in `Shopware\Core\Framework\Adapter\Translation\Translator`

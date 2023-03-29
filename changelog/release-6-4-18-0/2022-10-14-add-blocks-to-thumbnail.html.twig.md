@@ -7,6 +7,5 @@ author_github: tinect
 ---
 
 # Storefront
-* Add block `thumbnail_utility` around entire content of `utilities/thumbnail.html.twig`
-* Add block `thumbnail_utility_img` around img tag of `utilities/thumbnail.html.twig`
-
+* Added block `thumbnail_utility` around entire content of `utilities/thumbnail.html.twig`
+* Added block `thumbnail_utility_img` around img tag of `utilities/thumbnail.html.twig`

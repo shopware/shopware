@@ -6,4 +6,4 @@ author_email: s.seggewiss@shopware.com
 author_github: @seggewiss
 ---
 # Administration
-* Deleted unused template part of `sw-custom-field-set-renderer`
+* Removed unused template part of `sw-custom-field-set-renderer`

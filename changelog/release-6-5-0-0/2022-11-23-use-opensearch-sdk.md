@@ -4,6 +4,5 @@ issue: NEXT-22079
 ---
 
 # Core
-
-* Replaced composer package `elasticsearch/elasticsearch` with `opensearch-project/opensearch-php"`
-  * Change the namespace from `Elasticsearch` to `OpenSearch`
+* Changed composer package `elasticsearch/elasticsearch` to `opensearch-project/opensearch-php"`
+* Changed the namespace from `Elasticsearch` to `OpenSearch`

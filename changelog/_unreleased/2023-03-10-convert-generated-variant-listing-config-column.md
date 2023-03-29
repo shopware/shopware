@@ -5,7 +5,7 @@ author: Simon Vorgers
 author_email: s.vorgers@shopware.com
 ---
 # Core
-* Dropped following unused columns
+* Removed following unused columns
     * `product.display_parent`
     * `product.main_variant_id`
     * `product.configurator_group_config`

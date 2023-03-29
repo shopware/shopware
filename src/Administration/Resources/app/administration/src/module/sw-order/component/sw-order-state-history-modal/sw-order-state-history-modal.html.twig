@@ -54,6 +54,7 @@
         {% block sw_order_state_history_modal_content_columns_delivery_state %}
         <template #column-delivery="{ item }">
             <sw-label
+                v-if="item.delivery"
                 :variant="getVariantState('order_delivery', item.delivery)"
                 appearance="badged"
             >

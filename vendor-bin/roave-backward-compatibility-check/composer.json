@@ -1,6 +1,6 @@
 {
     "require-dev": {
-        "roave/backward-compatibility-check": "^7.0",
+        "roave/backward-compatibility-check": "^8.0",
         "symplify/vendor-patches": "^11.1"
     },
     "bin": [

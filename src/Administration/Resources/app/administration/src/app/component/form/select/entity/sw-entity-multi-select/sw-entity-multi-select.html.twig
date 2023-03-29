@@ -54,7 +54,7 @@
                     v-bind="{ item, index, labelProperty, valueProperty, getKey }"
                 >
                     <sw-product-variant-info
-                        v-if="$attrs.displayVariants"
+                        v-if="displayVariants"
                         :variations="item.variation"
                     >
                         {{ displayLabelProperty(item) }}
@@ -149,7 +149,7 @@
                             v-bind="{ item, index, labelProperty, valueProperty: 'id', searchTerm, highlightSearchTerm, getKey }"
                         >
                             <sw-product-variant-info
-                                v-if="$attrs.displayVariants"
+                                v-if="displayVariants"
                                 :variations="item.variation"
                                 :highlighted="true"
                                 :search-term="searchTerm"

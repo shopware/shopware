@@ -43,11 +43,17 @@ Component.register('sw-multi-select-filter', {
             );
 
             if (Array.isArray(this.filter.value)) {
-                this.filter.value.forEach(value => {
-                    entities.push({
+                this.filter.value.forEach((value) => {
+                    const entityValue = {
                         id: value.id,
                         [this.labelProperty]: value[this.labelProperty],
-                    });
+                    };
+
+                    if (this.filter.displayVariants) {
+                        entityValue.variation = value.variation;
+                    }
+
+                    entities.push(entityValue);
                 });
             }
 
@@ -80,10 +86,20 @@ Component.register('sw-multi-select-filter', {
                 ];
             }
 
-            const values = !this.isEntityMultiSelect ? newValues : newValues.map(value => ({
-                id: value.id,
-                [this.labelProperty]: value[this.labelProperty],
-            }));
+            const values = !this.isEntityMultiSelect ? newValues : newValues.map((value) => {
+                if (!this.filter.displayVariants) {
+                    return {
+                        id: value.id,
+                        [this.labelProperty]: value?.[this.labelProperty],
+                    };
+                }
+
+                return {
+                    id: value.id,
+                    variation: value.variation,
+                    [this.labelProperty]: value?.translated?.[this.labelProperty] || value?.[this.labelProperty],
+                };
+            });
 
             this.$emit('filter-update', this.filter.name, filterCriteria, values);
         },

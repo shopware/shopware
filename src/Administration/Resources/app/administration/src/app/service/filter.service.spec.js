@@ -12,9 +12,16 @@ describe('app/service/filter.service.js', () => {
     let filterData;
 
     beforeEach(async () => {
-        Shopware.Application.view = {
-            router: new VueRouter()
+        const router = new VueRouter();
+        const orgPush = router.push;
+        router.push = (location) => {
+            return orgPush.call(router, location).catch(() => {});
         };
+
+        Shopware.Application.view = {
+            router,
+        };
+
         filterData = new EntityCollection(null, null, null, new Criteria(1, 25), [{
             key: 'test',
             userId: '123',

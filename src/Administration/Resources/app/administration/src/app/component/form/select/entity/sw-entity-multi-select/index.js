@@ -121,6 +121,12 @@ Component.register('sw-entity-multi-select', {
                 return {};
             },
         },
+
+        displayVariants: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
 
     data() {

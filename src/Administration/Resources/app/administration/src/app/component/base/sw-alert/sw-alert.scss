@@ -125,18 +125,6 @@ $sw-alert-size-close: 40px;
         .sw-alert__close {
             color: $color-pumpkin-spice-900;
         }
-
-        .sw-alert__actions {
-            border-color: $color-pumpkin-spice-200;
-
-            .sw-button {
-                border-color: $color-pumpkin-spice-200;
-
-                &:hover {
-                    background-color: $color-pumpkin-spice-100;
-                }
-            }
-        }
     }
 
     .sw-alert__message {
@@ -156,18 +144,6 @@ $sw-alert-size-close: 40px;
         .sw-alert__icon,
         .sw-alert__close {
             color: $color-crimson-500;
-        }
-
-        .sw-alert__actions {
-            border-color: $color-crimson-200;
-
-            .sw-button {
-                border-color: $color-crimson-200;
-
-                &:hover {
-                    background-color: $color-crimson-100;
-                }
-            }
         }
 
         .sw-alert__title {
@@ -194,18 +170,6 @@ $sw-alert-size-close: 40px;
             color: $color-emerald-500;
         }
 
-        .sw-alert__actions {
-            border-color: $color-emerald-200;
-
-            .sw-button {
-                border-color: $color-emerald-200;
-
-                &:hover {
-                    background-color: $color-emerald-100;
-                }
-            }
-        }
-
         .sw-alert__title {
             color: $color-emerald-900;
         }
@@ -228,18 +192,6 @@ $sw-alert-size-close: 40px;
         .sw-alert__icon,
         .sw-alert__close {
             color: $color-shopware-brand-500;
-        }
-
-        .sw-alert__actions {
-            border-color: $color-shopware-brand-200;
-
-            .sw-button {
-                border-color: $color-shopware-brand-200;
-
-                &:hover {
-                    background-color: $color-shopware-brand-100;
-                }
-            }
         }
 
         .sw-alert__title {
@@ -279,6 +231,21 @@ $sw-alert-size-close: 40px;
         .sw-alert__title,
         .sw-alert__message {
             color: $color-white;
+        }
+    }
+
+    &--neutral {
+        border-color: $color-gray-300;
+        background-color: $color-white;
+
+        &.sw-alert--notification {
+            background-color: $color-white;
+            border-color: $color-gray-300;
+            border-left-color: $color-gray-300;
+        }
+
+        .sw-alert__icon {
+            color: $color-darkgray-200;
         }
     }
 

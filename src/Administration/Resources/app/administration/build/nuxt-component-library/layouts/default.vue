@@ -26,9 +26,9 @@
                     <li class="nav-tree--main-entry">
                         <span class="nav-tree--main-entry-headline">Cheat Sheets</span>
                         <ul class="nav-tree--sub-entries">
-                            <nuxt-link to="/icons/" class="nav--link">
+                            <a href="https://shopware.github.io/meteor-icon-kit/" class="nav--link" target="_blank">
                                 Icon set
-                            </nuxt-link>
+                            </a>
                         </ul>
                     </li>
                 </ul>

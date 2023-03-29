@@ -70,14 +70,14 @@ Component.register('sw-tabs-item', {
         errorTooltip: {
             type: String,
             required: false,
-            default: function () {
+            default() {
                 return this.$tc('global.sw-tabs-item.tooltipTabHasErrors');
             },
         },
         warningTooltip: {
             type: String,
             required: false,
-            default: function () {
+            default() {
                 return this.$tc('global.sw-tabs-item.tooltipTabHasWarnings');
             },
         },

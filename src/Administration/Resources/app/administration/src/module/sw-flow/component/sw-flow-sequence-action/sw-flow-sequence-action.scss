@@ -151,6 +151,10 @@
         font-size: $font-size-xs;
         line-height: $line-height-sm;
         margin-left: 20px;
+
+        .entity {
+            text-transform: capitalize;
+        }
     }
 
     &__context-button {

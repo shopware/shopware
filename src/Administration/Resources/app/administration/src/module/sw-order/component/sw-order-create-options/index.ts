@@ -80,7 +80,6 @@ export default Component.wrapComponentConfig({
         paymentMethodCriteria(): CriteriaType {
             const criteria = new Criteria();
             criteria.addFilter(Criteria.equals('active', 1));
-            criteria.addFilter(Criteria.equals('afterOrderEnabled', 1));
 
             if (this.salesChannelId) {
                 criteria.addFilter(Criteria.equals('salesChannels.id', this.salesChannelId));

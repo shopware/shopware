@@ -89,8 +89,6 @@ export default {
                 criteria.addFilter(Criteria.equals('salesChannels.id', this.order.salesChannelId));
             }
 
-            criteria.addFilter(Criteria.equals('afterOrderEnabled', 1));
-
             return criteria;
         },
 

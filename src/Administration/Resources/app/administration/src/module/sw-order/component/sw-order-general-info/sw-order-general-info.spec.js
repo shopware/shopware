@@ -8,6 +8,9 @@ import swOrderGeneralInfo from 'src/module/sw-order/component/sw-order-general-i
 
 Shopware.Component.register('sw-order-general-info', swOrderGeneralInfo);
 
+const deleteFn = jest.fn(() => Promise.resolve());
+const assignFn = jest.fn(() => Promise.resolve());
+
 const orderMock = {
     orderNumber: 10000,
     orderCustomer: {
@@ -55,7 +58,17 @@ const orderMock = {
         translated: {
             name: ''
         }
-    }
+    },
+    tags: [
+        {
+            id: '111',
+            name: '1',
+        },
+        {
+            id: '222',
+            name: '2',
+        },
+    ]
 };
 
 orderMock.transactions.last = () => ({
@@ -121,6 +134,8 @@ async function createWrapper() {
                             Shopware.Context.api,
                             null,
                         )),
+                        delete: deleteFn,
+                        assign: assignFn
                     };
                 },
             }
@@ -168,5 +183,35 @@ describe('src/module/sw-order/component/sw-order-general-info', () => {
 
         expect(summary.exists()).toBeTruthy();
         expect(summary.text()).toEqual('10000 - John Doe (john@doe.dev)');
+    });
+
+    it('should not mutate the original of the order\'s tags when removing tag', async () => {
+        const tagsStub = wrapper.find('sw-entity-tag-select-stub');
+
+        expect(tagsStub.exists()).toBeTruthy();
+
+        expect(orderMock.tags.length).toEqual(2);
+        expect(wrapper.vm.$data.tagCollection.length).toEqual(2);
+
+        await tagsStub.vm.$emit('item-remove', orderMock.tags[0]);
+
+        expect(deleteFn).toHaveBeenCalledTimes(1);
+        expect(orderMock.tags.length).toEqual(2);
+        expect(wrapper.vm.$data.tagCollection.length).toEqual(1);
+    });
+
+    it('should not mutate the original of the order\'s tags when adding tag', async () => {
+        const tagsStub = wrapper.find('sw-entity-tag-select-stub');
+
+        expect(tagsStub.exists()).toBeTruthy();
+
+        expect(orderMock.tags.length).toEqual(2);
+        expect(wrapper.vm.$data.tagCollection.length).toEqual(2);
+
+        await tagsStub.vm.$emit('item-add', { id: '333', name: '333' });
+
+        expect(assignFn).toHaveBeenCalledTimes(1);
+        expect(orderMock.tags.length).toEqual(2);
+        expect(wrapper.vm.$data.tagCollection.length).toEqual(3);
     });
 });

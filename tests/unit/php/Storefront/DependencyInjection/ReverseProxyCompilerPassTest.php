@@ -105,7 +105,7 @@ class ReverseProxyCompilerPassTest extends TestCase
         static::assertInstanceOf(VarnishService::class, $dummy->get());
     }
 
-    public function getContainer(): ContainerBuilder
+    public static function getContainer(): ContainerBuilder
     {
         $container = new ContainerBuilder();
 

@@ -36,6 +36,12 @@ describe('CMS: Visual tests', () => {
         // Take snapshot for visual testing
         cy.get('.sw-cms-list-item--0').should('be.visible');
         cy.get('.sw-skeleton__gallery').should('not.exist');
+
+        cy.get('select#sortType').select('name:DESC').should('contain.text', 'desc');
+
+        cy.get('.sw-cms-list-item--0').should('be.visible');
+        cy.get('.sw-skeleton__gallery').should('not.exist');
+
         cy.prepareAdminForScreenshot();
         cy.takeSnapshot('[CMS] Listing - Layouts', '.sw-cms-list', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 

@@ -12,7 +12,6 @@ import '@testing-library/jest-dom';
 import aclService from './_mocks_/acl.service.mock';
 import feature from './_mocks_/feature.service.mock';
 import repositoryFactory from './_mocks_/repositoryFactory.service.mock';
-import { sendTimeoutExpired } from '../_helper_/allowedErrors';
 import flushPromises from '../_helper_/flushPromises';
 
 // Setup Vue Test Utils configuration
@@ -108,9 +107,7 @@ config.mocks = {
     $store: Shopware.State._store,
 };
 
-global.allowedErrors = [
-    sendTimeoutExpired
-];
+global.allowedErrors = [];
 
 global.flushPromises = flushPromises;
 

@@ -25,11 +25,11 @@ Build:
       - bin/console plugin:refresh
       - bin/console plugin:install --activate TestPlugin
       - echo -e "\e[0Ksection_end:`date +%s`:testplugin\r\e[0K"
-      - echo -e "\e[0Ksection_start:$(date +%s):buildjs[collapsed=true]\r\e[0KJavascript build"
+      - echo -e "\e[0Ksection_start:$(date +%s):buildjs[collapsed=false]\r\e[0KJavascript build"
       - composer run build:js
       - rm -Rf custom/plugins/TestPlugin/src/Resources/app/administration/node_modules
       - echo -e "\e[0Ksection_end:`date +%s`:buildjs\r\e[0K"
-      - echo -e "\e[0Ksection_start:$(date +%s):theme[collapsed=true]\r\e[0KTheme compile"
+      - echo -e "\e[0Ksection_start:$(date +%s):theme[collapsed=false]\r\e[0KTheme compile"
       - bin/console theme:compile
       - bin/console theme:change --all Storefront
       - echo -e "\e[0Ksection_end:`date +%s`:theme\r\e[0K"

@@ -5,37 +5,82 @@
 import { shallowMount, config } from '@vue/test-utils';
 import VueAdapter from 'src/app/adapter/view/vue.adapter';
 import ViewAdapter from 'src/core/adapter/view.adapter';
-import ComponentFactory from 'src/core/factory/async-component.factory';
+import Bottle from 'bottlejs';
+import ApplicationBootstrapper from 'src/core/application';
+import LocaleFactory from 'src/core/factory/locale.factory';
+import DirectiveFactory from 'src/core/factory/directive.factory';
+import FilterFactory from 'src/core/factory/filter.factory';
+import VueRouter from 'vue-router';
+import AsyncComponentFactory from 'src/core/factory/async-component.factory';
+import ModuleFactory from 'src/core/factory/module.factory';
+import initializeRouter from 'src/app/init/router.init';
+import setupShopwareDevtools from 'src/app/adapter/view/sw-vue-devtools';
+import Vue from 'vue';
 
-jest.mock('vue-i18n', () => (function MockI18n() {}));
+jest.mock('src/app/adapter/view/sw-vue-devtools', () => {
+    return jest.fn();
+});
+
 Shopware.Service().register('localeHelper', () => {
     return {
         setLocaleWithId: jest.fn()
     };
 });
 
+function createApplication() {
+    // create application instance
+    Bottle.config = { strict: false };
+    const container = new Bottle();
+
+    return new ApplicationBootstrapper(container);
+}
+
 describe('ASYNC app/adapter/view/vue.adapter.js', () => {
+    let application;
     let vueAdapter;
 
     beforeEach(async () => {
+        application = createApplication();
+
         // delete global $router and $routes mocks
         delete config.mocks.$router;
         delete config.mocks.$route;
 
-        // mock vue adapter
-        vueAdapter = new VueAdapter({
-            getContainer: () => ({
-                component: '',
-                locale: { getLocaleRegistry: () => [], getLastKnownLocale: () => 'en-GB' }
-            })
-        });
+        if (!Shopware.Service('loginService')) {
+            Shopware.Service().register('loginService', () => {
+                return {
+                    isLoggedIn: () => true
+                };
+            });
+        }
 
-        // mock localeHelper Service
-        Shopware.Service('localeHelper').setLocaleWithId.mockReset();
+        if (!Shopware.Service('localeToLanguageService')) {
+            Shopware.Service().register('localeToLanguageService', () => {
+                return {
+                    localeToLanguage: () => Promise.resolve()
+                };
+            });
+        }
+
+        Shopware.State.get('system').locales = ['en-GB', 'de-DE'];
+
+        // create vue adapter
+        vueAdapter = new VueAdapter(application);
+
+        // reset node env
+        process.env.NODE_ENV = 'test';
+
+        // reset vue spies
+        if (Vue.set.mock) {
+            Vue.set.mockReset();
+        }
+        if (Vue.delete.mock) {
+            Vue.delete.mockReset();
+        }
     });
 
     afterEach(() => {
-        ComponentFactory.markComponentTemplatesAsNotResolved();
+        AsyncComponentFactory.markComponentTemplatesAsNotResolved();
     });
 
     it('should be an class', async () => {
@@ -49,6 +94,14 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
     });
 
     it('initLocales should call setLocaleFromuser', async () => {
+        application = createApplication()
+            .addFactory('locale', () => {
+                return LocaleFactory;
+            });
+
+        // create vueAdapter with custom application
+        vueAdapter = new VueAdapter(application);
+
         // Mock function
         vueAdapter.setLocaleFromUser = jest.fn();
 
@@ -423,5 +476,168 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
         const component = vueAdapter.buildAndCreateComponent(componentDefinition);
         const mountedComponent = shallowMount(component);
         expect(mountedComponent.vm).toBeTruthy();
+    });
+
+    describe('should initialize everything correctly', () => {
+        let rootComponent;
+
+        beforeEach(async () => {
+            process.env.NODE_ENV = 'development';
+
+            application = createApplication()
+                .addFactory('locale', () => {
+                    return LocaleFactory;
+                })
+                .addFactory('directive', () => {
+                    return DirectiveFactory;
+                })
+                .addFactory('filter', () => {
+                    return FilterFactory;
+                })
+                .addFactory('component', () => {
+                    return AsyncComponentFactory;
+                })
+                .addFactory('module', () => {
+                    return ModuleFactory;
+                });
+
+            application.addInitializer('router', initializeRouter);
+
+            const locale = Shopware.Application.getContainer('factory').locale;
+            if (!locale.getLocaleByName('en-GB')) {
+                locale.register('en-GB', {
+                    global: {
+                        'sw-admin-menu': {
+                            textShopwareAdmin: 'Text Shopware Admin'
+                        },
+                        my: {
+                            mock: {
+                                title: 'Mock title'
+                            }
+                        }
+                    }
+                });
+            }
+
+            if (!Shopware.Filter.getByName('my-mock-filter')) {
+                Shopware.Filter.register('my-mock-filter', () => {
+                    return 'mocked';
+                });
+            }
+
+            if (!Shopware.Directive.getByName('my-mock-directive')) {
+                Shopware.Directive.register('my-mock-directive', () => {
+                    return {
+                        bind() {},
+                        inserted() {},
+                        update() {},
+                        componentUpdated() {},
+                        unbind() {}
+                    };
+                });
+            }
+
+            // create vueAdapter with custom application
+            vueAdapter = new VueAdapter(application);
+
+            // create router
+            const router = new VueRouter();
+
+            // add main component
+            if (!Shopware.Component.getComponentRegistry().has('sw-admin')) {
+                Shopware.Component.register('sw-admin', {
+                    template: '<div class="sw-admin"></div>'
+                });
+            }
+
+            // add VueAdapter to Shopware object
+            Shopware.Application.setViewAdapter(vueAdapter);
+
+            await vueAdapter.initDependencies();
+
+            // create div with id app
+            document.body.innerHTML = '<div id="app"></div>';
+
+            rootComponent = vueAdapter.init(
+                '#app',
+                router,
+                {}
+            );
+        });
+
+        it('should initialize the plugins correctly', async () => {
+            // check if all plugins are registered correctly
+            expect(rootComponent.$options.router).toBeDefined();
+            expect(rootComponent.$options.i18n).toBeDefined();
+            expect(rootComponent.$meta).toBeDefined();
+        });
+
+        it('should initialize the filters correctly', async () => {
+            expect(rootComponent.$options.filters['my-mock-filter']).toBeDefined();
+        });
+
+        it('should initialize the directives correctly', async () => {
+            expect(rootComponent.$options.directives['my-mock-directive']).toBeDefined();
+        });
+
+        it('should add the createTitle to the rootComponent', () => {
+            expect(rootComponent.$createTitle).toBeDefined();
+        });
+
+        it('should have correct working createTitle method', () => {
+            const result = rootComponent.$createTitle.call({
+                $root: {
+                    $tc: (v) => rootComponent.$tc(v)
+                },
+                $route: {
+                    meta: {
+                        $module: {
+                            title: 'global.my.mock.title'
+                        }
+                    }
+                }
+            }, 'Test');
+
+            expect(result).toBe('Test | Mock title | Text Shopware Admin');
+        });
+
+        it('should add the store to the rootComponent', () => {
+            expect(rootComponent.$store).toBeDefined();
+        });
+
+        it('should add all components to the root component', () => {
+            expect(rootComponent.$options.components['sw-admin']).toBeDefined();
+        });
+
+        it('should add the router to the rootComponent', () => {
+            expect(rootComponent.$router).toBeDefined();
+        });
+
+        it('should add the i18n to the rootComponent', () => {
+            expect(rootComponent.$options.i18n).toBeDefined();
+        });
+
+        it('should setup the devtools in development environment', async () => {
+            expect(setupShopwareDevtools).toHaveBeenCalled();
+        });
+
+        it('should return the wrapper', async () => {
+            expect(vueAdapter.getWrapper()).toBe(Vue);
+        });
+
+        it('should return the adapter name', async () => {
+            expect(vueAdapter.getName()).toBe('Vue.js');
+        });
+
+        it('should use vue reactivity system for set/delete', async () => {
+            jest.spyOn(Vue, 'set');
+            jest.spyOn(Vue, 'delete');
+
+            vueAdapter.setReactive({}, 'foo', 'bar');
+            vueAdapter.deleteReactive({}, 'foo');
+
+            expect(Vue.set).toHaveBeenCalled();
+            expect(Vue.delete).toHaveBeenCalled();
+        });
     });
 });

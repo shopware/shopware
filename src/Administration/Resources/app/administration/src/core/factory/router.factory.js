@@ -12,7 +12,6 @@
  * @param {ViewFactory} View
  * @param {ModuleFactory} moduleFactory
  * @param {LoginService} LoginService
- * @returns {{}}
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function createRouter(Router, View, moduleFactory, LoginService) {

@@ -3,7 +3,12 @@
  */
 
 import type VueRouter from 'vue-router';
-import type ApplicationBootstrapper from '../application';
+import type { FullState } from 'src/core/factory/state.factory';
+import type { VueConstructor } from 'vue';
+import type Vue from 'vue';
+import type AsyncComponentFactory from 'src/core/factory/async-component.factory';
+import type ApplicationBootstrapper from 'src/core/application';
+import type LocaleFactory from 'src/core/factory/locale.factory';
 
 /**
  * @deprecated tag:v6.6.0 - Will be private
@@ -14,11 +19,11 @@ export default abstract class ViewAdapter {
 
     public applicationFactory: FactoryContainer;
 
-    public componentFactory: $TSFixMe;
+    public componentFactory: typeof AsyncComponentFactory;
 
-    public stateFactory: $TSFixMe;
+    public stateFactory: () => FullState;
 
-    public localeFactory: $TSFixMe;
+    public localeFactory: typeof LocaleFactory;
 
     public root: Vue | null;
 
@@ -45,7 +50,7 @@ export default abstract class ViewAdapter {
      * Creates the main instance for the view layer.
      * Is used on startup process of the main application.
      */
-    abstract init(renderElement: string, router: VueRouter, providers: unknown[]): Vue | null;
+    abstract init(renderElement: string, router: VueRouter, providers: { [key: string]: unknown }): Vue | null;
 
     /**
      * Initializes all core components as Vue components.
@@ -58,7 +63,7 @@ export default abstract class ViewAdapter {
      * Returns the component as a Vue component.
      * Includes the full rendered template with all overrides.
      */
-    abstract createComponent(componentName: string): Vue
+    abstract createComponent(componentName: string): Promise<Vue>
 
     /**
      * Returns a final Vue component by its name.
@@ -73,7 +78,7 @@ export default abstract class ViewAdapter {
     /**
      * Returns the adapter wrapper
      */
-    abstract getWrapper(): Vue
+    abstract getWrapper(): VueConstructor<Vue>
 
     /**
      * Returns the name of the adapter
@@ -83,10 +88,10 @@ export default abstract class ViewAdapter {
     /**
      * Returns the Vue.set function
      */
-    abstract setReactive(target: Vue, propertyName: string, value: unknown): () => void
+    abstract setReactive(target: Vue, propertyName: string, value: unknown): unknown
 
     /**
      * Returns the Vue.delete function
      */
-    abstract deleteReactive(target: Vue, propertyName: string): () => void
+    abstract deleteReactive(target: Vue, propertyName: string): void
 }

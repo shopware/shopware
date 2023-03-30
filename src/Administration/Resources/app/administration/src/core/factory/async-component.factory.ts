@@ -38,6 +38,9 @@ export interface ComponentConfig<V extends Vue = Vue> extends ComponentOptions<V
     functional?: boolean,
     extends?: ComponentConfig<V> | string,
     _isOverride?: boolean,
+    component?: Promise<ComponentConfig|boolean>,
+    loading?: ComponentConfig,
+    delay?: number,
 }
 
 /**

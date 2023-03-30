@@ -4,6 +4,7 @@
  * @module core/factory/directive
  */
 import { warn } from 'src/core/service/utils/debug.utils';
+import type { DirectiveFunction, DirectiveOptions } from 'vue';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -17,16 +18,12 @@ export default {
  *
  * @type {Map<String, Object>}
  */
-const directiveRegistry = new Map();
+const directiveRegistry = new Map<string, DirectiveFunction|DirectiveOptions>();
 
 /**
  * Registers a new directive.
- *
- * @param {String} name
- * @param {Object} [directive={}]
- * @returns {boolean}
  */
-function registerDirective(name, directive = {}) {
+function registerDirective(name: string, directive: DirectiveFunction|DirectiveOptions = {}): boolean {
     if (!name || !name.length) {
         warn('DirectiveFactory', 'A directive always needs a name.', directive);
         return false;
@@ -44,11 +41,8 @@ function registerDirective(name, directive = {}) {
 
 /**
  * Get a directive by its name.
- *
- * @param {String} name
- * @returns {Object | undefined}
  */
-function getDirectiveByName(name) {
+function getDirectiveByName(name: string) {
     return directiveRegistry.get(name);
 }
 

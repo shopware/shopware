@@ -173,3 +173,7 @@ afterEach(() => {
         throw new Error('console.error and console.warn are not allowed');
     }
 });
+
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+});

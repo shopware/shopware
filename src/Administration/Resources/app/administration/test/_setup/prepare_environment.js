@@ -138,9 +138,8 @@ global.console.error = (...args) => {
 
     if (!silenceError) {
         consoleHasErrorOrWarning = true;
+        error(...args);
     }
-
-    error(...args);
 };
 
 global.console.warn = (...args) => {
@@ -162,9 +161,8 @@ global.console.warn = (...args) => {
 
     if (!silenceWarn) {
         consoleHasErrorOrWarning = true;
+        warn(...args);
     }
-
-    warn(...args);
 };
 
 beforeEach(() => {

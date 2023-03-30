@@ -1,12 +1,7 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import swMailTemplateIndex from 'src/module/sw-mail-template/page/sw-mail-template-index';
 
-// Turn off known errors
-import { missingGetListMethod } from 'src/../test/_helper_/allowedErrors';
-
 Shopware.Component.register('sw-mail-template-index', swMailTemplateIndex);
-
-global.allowedErrors = [missingGetListMethod];
 
 const createWrapper = async () => {
     const localVue = createLocalVue();

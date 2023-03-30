@@ -147,6 +147,56 @@ export default {
 
             return !(this.itemLoaderDone && this.folderLoaderDone);
         },
+
+        nextMediaCriteria() {
+            // always search without folderId criteria --> search for all items
+            const criteria = new Criteria(this.pageItem, this.limit);
+
+            criteria
+                .addSorting(Criteria.sort(this.sorting.sortBy, this.sorting.sortDirection))
+                .setTerm(this.term);
+
+            // ToDo NEXT-22186 - will be replaced by a new overview
+            [
+                'tags',
+                'productMedia.product',
+                'categories',
+                'productManufacturers.products',
+                'mailTemplateMedia.mailTemplate',
+                'documentBaseConfigs',
+                'avatarUsers',
+                'paymentMethods',
+                'shippingMethods',
+                'cmsBlocks.section.page',
+                'cmsSections.page',
+                'cmsPages',
+            ].forEach(association => {
+                const associationParts = association.split('.');
+
+                criteria.addAssociation(association);
+
+                let path = null;
+                associationParts.forEach(currentPart => {
+                    path = path ? `${path}.${currentPart}` : currentPart;
+
+                    criteria.getAssociation(path).setLimit(25);
+                });
+            });
+
+            return criteria;
+        },
+
+        nextFoldersCriteria() {
+            const criteria = new Criteria(this.pageFolder, this.limit)
+                .addSorting(Criteria.sort(this.folderSorting.sortBy, this.folderSorting.sortDirection))
+                .setTerm(this.term);
+
+            if (!this.term) {
+                criteria.addFilter(Criteria.equals('parentId', this.folderId));
+            }
+
+            return criteria;
+        },
     },
 
     watch: {
@@ -275,38 +325,7 @@ export default {
                 return [];
             }
 
-            // always search without folderId criteria --> search for all items
-            let criteria = new Criteria(this.pageItem, this.limit);
-            criteria
-                .addSorting(Criteria.sort(this.sorting.sortBy, this.sorting.sortDirection))
-                .setTerm(this.term);
-
-            // ToDo NEXT-22186 - will be replaced by a new overview
-            [
-                'tags',
-                'productMedia.product',
-                'categories',
-                'productManufacturers.products',
-                'mailTemplateMedia.mailTemplate',
-                'documentBaseConfigs',
-                'avatarUsers',
-                'paymentMethods',
-                'shippingMethods',
-                'cmsBlocks.section.page',
-                'cmsSections.page',
-                'cmsPages',
-            ].forEach(association => {
-                const associationParts = association.split('.');
-
-                criteria.addAssociation(association);
-
-                let path = null;
-                associationParts.forEach(currentPart => {
-                    path = path ? `${path}.${currentPart}` : currentPart;
-
-                    criteria.getAssociation(path).setLimit(25);
-                });
-            });
+            let criteria = this.nextMediaCriteria;
 
             if (this.isValidTerm(this.term)) {
                 const searchRankingFields = await this.searchRankingService.getSearchFieldsByEntity('media');
@@ -352,17 +371,9 @@ export default {
                 return [];
             }
 
-            const criteria = new Criteria(this.pageFolder, this.limit)
-                .addSorting(Criteria.sort(this.folderSorting.sortBy, this.folderSorting.sortDirection))
-                .setTerm(this.term);
+            const subFolders = await this.mediaFolderRepository.search(this.nextFoldersCriteria, Context.api);
 
-            if (!this.term) {
-                criteria.addFilter(Criteria.equals('parentId', this.folderId));
-            }
-
-            const subFolders = await this.mediaFolderRepository.search(criteria, Context.api);
-
-            this.folderLoaderDone = this.isLoaderDone(criteria, subFolders);
+            this.folderLoaderDone = this.isLoaderDone(this.nextFoldersCriteria, subFolders);
 
             this.pageFolder += 1;
 

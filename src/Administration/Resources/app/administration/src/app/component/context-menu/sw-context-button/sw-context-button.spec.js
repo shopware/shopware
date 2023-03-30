@@ -38,6 +38,22 @@ describe('src/app/component/context-menu/sw-context-button', () => {
 
         expect(wrapper.find('.sw-context-menu').exists()).toBeTruthy();
         expect(wrapper.find('.sw-context-menu').isVisible()).toBeTruthy();
+        expect(wrapper.emitted('on-open-change')[0]).toEqual([true]);
+    });
+
+    it('should close the context menu', async () => {
+        const wrapper = await createWrapper({
+            propsData: {
+                showMenuOnStartup: true,
+            },
+        });
+
+        expect(wrapper.find('.sw-context-menu').exists()).toBeTruthy();
+
+        await wrapper.trigger('click');
+
+        expect(wrapper.find('.sw-context-menu').exists()).toBeFalsy();
+        expect(wrapper.emitted('on-open-change')[0]).toEqual([false]);
     });
 
     it('should not open the context menu on click', async () => {

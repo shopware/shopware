@@ -28,6 +28,11 @@
         border: 1px solid $color-gray-300;
         box-shadow: 0 3px 6px 0 rgba(120, 138, 155, 20%);
         padding: 24px;
+        transition: all 100ms ease-in-out;
+
+        &:hover {
+            box-shadow: 0 6px 10px 0 rgba(120, 138, 155, 20%);
+        }
     }
 
     &__trigger-explain {
@@ -108,9 +113,7 @@
             }
 
             &:hover:not([disabled]) {
-                background: $color-shopware-brand-500;
-                color: $color-white;
-                border: none;
+                background: $color-gray-100;
             }
 
             &:disabled {

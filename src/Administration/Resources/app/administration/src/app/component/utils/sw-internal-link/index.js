@@ -24,7 +24,8 @@ Component.register('sw-internal-link', {
     props: {
         routerLink: {
             type: Object,
-            required: true,
+            required: false,
+            default: undefined,
         },
 
         target: {
@@ -59,6 +60,10 @@ Component.register('sw-internal-link', {
     },
 
     computed: {
+        elementType() {
+            return this.routerLink ? 'router-link' : 'a';
+        },
+
         componentClasses() {
             return {
                 'sw-internal-link--inline': this.inline,

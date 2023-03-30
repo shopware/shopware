@@ -165,20 +165,6 @@ class PluginLifecycleService
         $pluginBaseClassString = $plugin->getBaseClass();
         $pluginBaseClass = $this->getPluginBaseClass($pluginBaseClassString);
 
-        if ($pluginBaseClass->executeComposerCommands()) {
-            $pluginComposerName = $plugin->getComposerName();
-            if ($pluginComposerName === null) {
-                throw new PluginComposerJsonInvalidException(
-                    $pluginBaseClass->getPath() . '/composer.json',
-                    ['No name defined in composer.json']
-                );
-            }
-            $this->executor->remove($pluginComposerName, $plugin->getName());
-
-            // running composer require may have consequences for other plugins, when they are required by the plugin being uninstalled
-            $this->pluginService->refreshPlugins($shopwareContext, new NullIO());
-        }
-
         $uninstallContext = new UninstallContext(
             $pluginBaseClass,
             $shopwareContext,
@@ -216,6 +202,20 @@ class PluginLifecycleService
 
         if (!$uninstallContext->keepUserData()) {
             $this->removeCustomEntities($plugin->getId());
+        }
+
+        if ($pluginBaseClass->executeComposerCommands()) {
+            $pluginComposerName = $plugin->getComposerName();
+            if ($pluginComposerName === null) {
+                throw new PluginComposerJsonInvalidException(
+                    $pluginBaseClass->getPath() . '/composer.json',
+                    ['No name defined in composer.json']
+                );
+            }
+            $this->executor->remove($pluginComposerName, $plugin->getName());
+
+            // running composer require may have consequences for other plugins, when they are required by the plugin being uninstalled
+            $this->pluginService->refreshPlugins($shopwareContext, new NullIO());
         }
 
         $this->eventDispatcher->dispatch(new PluginPostUninstallEvent($plugin, $uninstallContext));

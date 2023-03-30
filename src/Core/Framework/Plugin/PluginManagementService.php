@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Plugin;
 
-use Composer\IO\NullIO;
 use GuzzleHttp\Client;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Context;
@@ -24,8 +23,14 @@ class PluginManagementService
     final public const PLUGIN = 'plugin';
     final public const APP = 'app';
 
-    public function __construct(private readonly string $projectDir, private readonly PluginZipDetector $pluginZipDetector, private readonly PluginExtractor $pluginExtractor, private readonly PluginService $pluginService, private readonly Filesystem $filesystem, private readonly CacheClearer $cacheClearer, private readonly Client $client)
-    {
+    public function __construct(
+        private readonly string $projectDir,
+        private readonly PluginZipDetector $pluginZipDetector,
+        private readonly PluginExtractor $pluginExtractor,
+        private readonly Filesystem $filesystem,
+        private readonly CacheClearer $cacheClearer,
+        private readonly Client $client
+    ) {
     }
 
     public function extractPluginZip(string $file, bool $delete = true, ?string $storeType = null): string
@@ -34,12 +39,16 @@ class PluginManagementService
 
         if ($storeType) {
             $this->pluginExtractor->extract($archive, $delete, $storeType);
+            if ($storeType === self::PLUGIN) {
+                $this->cacheClearer->clearContainerCache();
+            }
 
             return $storeType;
         }
 
         if ($this->pluginZipDetector->isPlugin($archive)) {
             $this->pluginExtractor->extract($archive, $delete, self::PLUGIN);
+            $this->cacheClearer->clearContainerCache();
 
             return self::PLUGIN;
         }
@@ -63,12 +72,7 @@ class PluginManagementService
 
         $tempFile = $file->move($tempDirectory, $tempFileName);
 
-        $type = $this->extractPluginZip($tempFile->getPathname());
-
-        if ($type === self::PLUGIN) {
-            $this->pluginService->refreshPlugins($context, new NullIO());
-            $this->cacheClearer->clearContainerCache();
-        }
+        $this->extractPluginZip($tempFile->getPathname());
     }
 
     public function downloadStorePlugin(PluginDownloadDataStruct $location, Context $context): void
@@ -87,18 +91,11 @@ class PluginManagementService
         }
 
         $this->extractPluginZip($tempFileName, true, $location->getType());
-
-        if ($location->getType() === self::PLUGIN) {
-            $this->pluginService->refreshPlugins($context, new NullIO());
-            $this->cacheClearer->clearContainerCache();
-        }
     }
 
     public function deletePlugin(PluginEntity $plugin, Context $context): void
     {
         $path = $this->projectDir . '/' . $plugin->getPath();
         $this->filesystem->remove($path);
-
-        $this->pluginService->refreshPlugins($context, new NullIO());
     }
 }

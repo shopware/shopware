@@ -28,7 +28,7 @@
   "dependencies": {
     "@lhci/cli": "0.9.0",
     "@popperjs/core": "2.11.6",
-    "@shopware-ag/webpack-plugin-injector": "1.0.6",
+    "@shopware-ag/webpack-plugin-injector": "1.0.7",
     "are-you-es5": "2.1.2",
     "axios": "0.27.2",
     "bootstrap": "5.2.2",

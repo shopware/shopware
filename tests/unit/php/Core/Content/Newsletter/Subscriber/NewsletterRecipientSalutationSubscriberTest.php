@@ -1,12 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Checkout\Customer\Subscriber;
+namespace Shopware\Tests\Unit\Core\Content\Newsletter\Subscriber;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Customer\CustomerEvents;
-use Shopware\Core\Checkout\Customer\Subscriber\CustomerSalutationSubscriber;
+use Shopware\Core\Content\Newsletter\NewsletterEvents;
+use Shopware\Core\Content\Newsletter\Subscriber\NewsletterRecipientSalutationSubscriber;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
@@ -17,26 +17,25 @@ use Shopware\Core\Framework\Uuid\Uuid;
  *
  * @internal
  *
- * @covers \Shopware\Core\Checkout\Customer\Subscriber\CustomerSalutationSubscriber
+ * @covers \Shopware\Core\Content\Newsletter\Subscriber\NewsletterRecipientSalutationSubscriber
  */
-class CustomerSalutationSubscriberTest extends TestCase
+class NewsletterRecipientSalutationSubscriberTest extends TestCase
 {
     private MockObject&Connection $connection;
 
-    private CustomerSalutationSubscriber $salutationSubscriber;
+    private NewsletterRecipientSalutationSubscriber $salutationSubscriber;
 
     protected function setUp(): void
     {
         $this->connection = $this->createMock(Connection::class);
 
-        $this->salutationSubscriber = new CustomerSalutationSubscriber($this->connection);
+        $this->salutationSubscriber = new NewsletterRecipientSalutationSubscriber($this->connection);
     }
 
     public function testGetSubscribedEvents(): void
     {
         static::assertEquals([
-            CustomerEvents::CUSTOMER_WRITTEN_EVENT => 'setDefaultSalutation',
-            CustomerEvents::CUSTOMER_ADDRESS_WRITTEN_EVENT => 'setDefaultSalutation',
+            NewsletterEvents::NEWSLETTER_RECIPIENT_WRITTEN_EVENT => 'setDefaultSalutation',
         ], $this->salutationSubscriber->getSubscribedEvents());
     }
 
@@ -46,13 +45,13 @@ class CustomerSalutationSubscriberTest extends TestCase
             new EntityWriteResult(
                 'created-id',
                 ['id' => Uuid::randomHex(), 'salutationId' => Uuid::randomHex()],
-                'customer',
+                'newsletter_recipient',
                 EntityWriteResult::OPERATION_INSERT
             ),
         ];
 
         $event = new EntityWrittenEvent(
-            'customer',
+            'newsletter_recipient',
             $writeResults,
             Context::createDefaultContext(),
             [],
@@ -65,12 +64,12 @@ class CustomerSalutationSubscriberTest extends TestCase
 
     public function testDefaultSalutation(): void
     {
-        $customerId = Uuid::randomHex();
+        $newsletterRecipientId = Uuid::randomHex();
 
-        $writeResults = [new EntityWriteResult('created-id', ['id' => $customerId], 'customer', EntityWriteResult::OPERATION_INSERT)];
+        $writeResults = [new EntityWriteResult('created-id', ['id' => $newsletterRecipientId], 'newsletter_recipient', EntityWriteResult::OPERATION_INSERT)];
 
         $event = new EntityWrittenEvent(
-            'customer',
+            'newsletter_recipient',
             $writeResults,
             Context::createDefaultContext(),
             [],
@@ -78,14 +77,14 @@ class CustomerSalutationSubscriberTest extends TestCase
 
         $this->connection->expects(static::once())
             ->method('executeStatement')
-            ->willReturnCallback(function ($sql, $params) use ($customerId): void {
+            ->willReturnCallback(function ($sql, $params) use ($newsletterRecipientId): void {
                 static::assertSame($params, [
-                    'id' => Uuid::fromHexToBytes($customerId),
+                    'id' => Uuid::fromHexToBytes($newsletterRecipientId),
                     'notSpecified' => 'not_specified',
                 ]);
 
                 static::assertSame('
-                UPDATE `customer`
+                UPDATE `newsletter_recipient`
                 SET `salutation_id` = (
                     SELECT `id`
                     FROM `salutation`

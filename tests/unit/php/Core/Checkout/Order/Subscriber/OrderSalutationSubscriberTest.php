@@ -1,15 +1,16 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Checkout\Customer\Subscriber;
+namespace Shopware\Tests\Unit\Core\Checkout\Order\Subscriber;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Customer\CustomerEvents;
-use Shopware\Core\Checkout\Customer\Subscriber\CustomerSalutationSubscriber;
+use Shopware\Core\Checkout\Order\OrderEvents;
+use Shopware\Core\Checkout\Order\Subscriber\OrderSalutationSubscriber;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
@@ -17,26 +18,27 @@ use Shopware\Core\Framework\Uuid\Uuid;
  *
  * @internal
  *
- * @covers \Shopware\Core\Checkout\Customer\Subscriber\CustomerSalutationSubscriber
+ * @covers \Shopware\Core\Checkout\Order\Subscriber\OrderSalutationSubscriber
  */
-class CustomerSalutationSubscriberTest extends TestCase
+#[Package('customer-order')]
+class OrderSalutationSubscriberTest extends TestCase
 {
     private MockObject&Connection $connection;
 
-    private CustomerSalutationSubscriber $salutationSubscriber;
+    private OrderSalutationSubscriber $salutationSubscriber;
 
     protected function setUp(): void
     {
         $this->connection = $this->createMock(Connection::class);
 
-        $this->salutationSubscriber = new CustomerSalutationSubscriber($this->connection);
+        $this->salutationSubscriber = new OrderSalutationSubscriber($this->connection);
     }
 
     public function testGetSubscribedEvents(): void
     {
         static::assertEquals([
-            CustomerEvents::CUSTOMER_WRITTEN_EVENT => 'setDefaultSalutation',
-            CustomerEvents::CUSTOMER_ADDRESS_WRITTEN_EVENT => 'setDefaultSalutation',
+            OrderEvents::ORDER_ADDRESS_WRITTEN_EVENT => 'setDefaultSalutation',
+            OrderEvents::ORDER_CUSTOMER_WRITTEN_EVENT => 'setDefaultSalutation',
         ], $this->salutationSubscriber->getSubscribedEvents());
     }
 
@@ -46,13 +48,13 @@ class CustomerSalutationSubscriberTest extends TestCase
             new EntityWriteResult(
                 'created-id',
                 ['id' => Uuid::randomHex(), 'salutationId' => Uuid::randomHex()],
-                'customer',
+                'order_address',
                 EntityWriteResult::OPERATION_INSERT
             ),
         ];
 
         $event = new EntityWrittenEvent(
-            'customer',
+            'order_address',
             $writeResults,
             Context::createDefaultContext(),
             [],
@@ -65,12 +67,12 @@ class CustomerSalutationSubscriberTest extends TestCase
 
     public function testDefaultSalutation(): void
     {
-        $customerId = Uuid::randomHex();
+        $orderAddressId = Uuid::randomHex();
 
-        $writeResults = [new EntityWriteResult('created-id', ['id' => $customerId], 'customer', EntityWriteResult::OPERATION_INSERT)];
+        $writeResults = [new EntityWriteResult('created-id', ['id' => $orderAddressId], 'order_address', EntityWriteResult::OPERATION_INSERT)];
 
         $event = new EntityWrittenEvent(
-            'customer',
+            'order_address',
             $writeResults,
             Context::createDefaultContext(),
             [],
@@ -78,14 +80,14 @@ class CustomerSalutationSubscriberTest extends TestCase
 
         $this->connection->expects(static::once())
             ->method('executeStatement')
-            ->willReturnCallback(function ($sql, $params) use ($customerId): void {
+            ->willReturnCallback(function ($sql, $params) use ($orderAddressId): void {
                 static::assertSame($params, [
-                    'id' => Uuid::fromHexToBytes($customerId),
+                    'id' => Uuid::fromHexToBytes($orderAddressId),
                     'notSpecified' => 'not_specified',
                 ]);
 
                 static::assertSame('
-                UPDATE `customer`
+                UPDATE `order_address`
                 SET `salutation_id` = (
                     SELECT `id`
                     FROM `salutation`

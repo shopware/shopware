@@ -31,7 +31,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  *
  * @covers \Shopware\Core\Checkout\Customer\SalesChannel\UpsertAddressRoute
  */
-#[Package('checkout')]
+#[Package('customer-order')]
 class UpsertAddressRouteTest extends TestCase
 {
     public function testCustomFields(): void

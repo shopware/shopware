@@ -63,6 +63,8 @@ class AppLifecycleTest extends TestCase
                 [
                     'id' => Uuid::randomHex(),
                     'path' => '',
+                    'configurable' => false,
+                    'allowDisable' => true,
                 ],
             ],
             [
@@ -70,6 +72,8 @@ class AppLifecycleTest extends TestCase
                     'id' => Uuid::randomHex(),
                     'name' => 'test',
                     'path' => '',
+                    'configurable' => false,
+                    'allowDisable' => true,
                 ],
             ],
         ];
@@ -85,6 +89,9 @@ class AppLifecycleTest extends TestCase
         );
 
         $appLifecycle->install($manifest, false, Context::createDefaultContext());
+
+        // First upsert to update configurable and allowDisable, not interesting for this test
+        $appRepository->getUpsert();
 
         $upsert = $appRepository->getUpsert();
 
@@ -109,6 +116,8 @@ class AppLifecycleTest extends TestCase
                 [
                     'id' => Uuid::randomHex(),
                     'path' => '',
+                    'configurable' => false,
+                    'allowDisable' => true,
                 ],
             ],
             [
@@ -116,6 +125,8 @@ class AppLifecycleTest extends TestCase
                     'id' => Uuid::randomHex(),
                     'name' => 'test',
                     'path' => '',
+                    'configurable' => false,
+                    'allowDisable' => true,
                 ],
             ],
         ];
@@ -131,6 +142,9 @@ class AppLifecycleTest extends TestCase
         );
 
         $appLifecycle->install($manifest, false, Context::createDefaultContext());
+
+        // First upsert to update configurable and allowDisable, not interesting for this test
+        $appRepository->getUpsert();
 
         $upsert = $appRepository->getUpsert();
 
@@ -154,6 +168,8 @@ class AppLifecycleTest extends TestCase
                 [
                     'id' => Uuid::randomHex(),
                     'path' => '',
+                    'configurable' => false,
+                    'allowDisable' => true,
                 ],
             ],
             [
@@ -161,6 +177,8 @@ class AppLifecycleTest extends TestCase
                     'id' => Uuid::randomHex(),
                     'name' => 'test',
                     'path' => '',
+                    'configurable' => false,
+                    'allowDisable' => true,
                 ],
             ],
         ];
@@ -176,6 +194,9 @@ class AppLifecycleTest extends TestCase
         );
 
         $appLifecycle->update($manifest, ['id' => 'appId', 'roleId' => 'roleId'], Context::createDefaultContext());
+
+        // First upsert to update configurable and allowDisable, not interesting for this test
+        $appRepository->getUpsert();
 
         $upsert = $appRepository->getUpsert();
 
@@ -199,6 +220,8 @@ class AppLifecycleTest extends TestCase
                 [
                     'id' => Uuid::randomHex(),
                     'path' => '',
+                    'configurable' => false,
+                    'allowDisable' => true,
                 ],
             ],
             [
@@ -206,6 +229,8 @@ class AppLifecycleTest extends TestCase
                     'id' => Uuid::randomHex(),
                     'name' => 'test',
                     'path' => '',
+                    'configurable' => false,
+                    'allowDisable' => true,
                 ],
             ],
         ];
@@ -222,16 +247,67 @@ class AppLifecycleTest extends TestCase
 
         $appLifecycle->update($manifest, ['id' => 'appId', 'roleId' => 'roleId'], Context::createDefaultContext());
 
+        // First upsert to update configurable and allowDisable, not interesting for this test
+        $appRepository->getUpsert();
+
         $upsert = $appRepository->getUpsert();
 
         static::assertCount(1, $upsert);
         static::assertSame('test', $upsert[0]['name']);
     }
 
+    public function testUpdateResetsConfigurableFlagToFalseWhenConfigXMLWasRemoved(): void
+    {
+        $languageRepository = new StaticEntityRepository([self::getLanguageCollection(
+            [
+                [
+                    'id' => Uuid::randomHex(),
+                    'locale' => self::getLocaleEntity(['code' => 'en-GB']),
+                ],
+            ]
+        )]);
+
+        $appId = Uuid::randomHex();
+
+        $appEntities = [
+            [
+                [
+                    'id' => Uuid::randomHex(),
+                    'path' => '',
+                ],
+            ],
+            [
+                [
+                    'id' => $appId,
+                    'name' => 'test',
+                    'path' => '',
+                ],
+            ],
+        ];
+
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../_fixtures/manifest.xml');
+
+        $appRepository = $this->getAppRepositoryMock($appEntities);
+        $appLifecycle = $this->getAppLifecycle(
+            $appRepository,
+            $languageRepository,
+            null,
+            $this->getAppLoaderMock()
+        );
+
+        $appLifecycle->update($manifest, ['id' => $appId, 'roleId' => 'roleId'], Context::createDefaultContext());
+
+        $updates = $appRepository->getUpsert();
+
+        static::assertCount(1, $updates);
+
+        static::assertEquals([['id' => $appId, 'configurable' => false, 'allowDisable' => true]], $updates);
+    }
+
     private function getAppLifecycle(
         EntityRepository $appRepository,
         EntityRepository $languageRepository,
-        AppAdministrationSnippetPersister $appAdministrationSnippetPersisterMock,
+        ?AppAdministrationSnippetPersister $appAdministrationSnippetPersisterMock,
         AbstractAppLoader $appLoader
     ): AppLifecycle {
         return new AppLifecycle(
@@ -327,7 +403,7 @@ class AppLifecycleTest extends TestCase
     }
 
     /**
-     * @param array<int, array<string, string>> $appEntities
+     * @param array<int, array<string, mixed>> $appEntities
      * @param array<string, array<string, string>> $expectedSnippets
      */
     private function getAppAdministrationSnippetPersisterMock(array $appEntities, array $expectedSnippets = []): AppAdministrationSnippetPersister

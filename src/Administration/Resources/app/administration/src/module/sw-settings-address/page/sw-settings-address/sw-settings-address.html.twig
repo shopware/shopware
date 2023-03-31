@@ -73,6 +73,14 @@
                 domain="core.address"
                 @loading-changed="onLoadingChanged"
             />
+
+            <sw-alert
+                v-show="!isLoading"
+                variant="warning"
+                class="sw-settings-address__text-warning"
+            >
+                <span v-html="$tc('sw-settings-address.general.textWarning', 0, { addressFormatSettingsLink })"></span>
+            </sw-alert>
         </sw-card-view>
     </template>
     {% endblock %}

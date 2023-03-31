@@ -146,5 +146,10 @@
             <argument type="service" id="Shopware\Core\Framework\Event\BusinessEventCollector"/>
             <argument type="service" id="state_machine_state.repository"/>
         </service>
+
+        <service id="Shopware\Core\Checkout\Order\Subscriber\OrderSalutationSubscriber">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
     </services>
 </container>

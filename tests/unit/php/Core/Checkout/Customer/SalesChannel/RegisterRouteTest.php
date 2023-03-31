@@ -10,7 +10,9 @@ use Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -76,7 +78,8 @@ class RegisterRouteTest extends TestCase
             $this->createMock(SalesChannelRepository::class),
             $this->createMock(Connection::class),
             $this->createMock(SalesChannelContextService::class),
-            $this->createMock(StoreApiCustomFieldMapper::class)
+            $this->createMock(StoreApiCustomFieldMapper::class),
+            $this->createMock(EntityRepository::class),
         );
 
         $data = [
@@ -140,7 +143,8 @@ class RegisterRouteTest extends TestCase
             $this->createMock(SalesChannelRepository::class),
             $this->createMock(Connection::class),
             $this->createMock(SalesChannelContextService::class),
-            $customFieldMapper
+            $customFieldMapper,
+            $this->createMock(EntityRepository::class),
         );
 
         $data = [
@@ -152,6 +156,76 @@ class RegisterRouteTest extends TestCase
                 'test' => 1,
                 'mapped' => 1,
             ],
+        ];
+
+        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext->method('getSalesChannelId')->willReturn(TestDefaults::SALES_CHANNEL);
+
+        $register->register(new RequestDataBag($data), $salesChannelContext, false);
+    }
+
+    public function testSalutationIdIsAssignedDefaultValue(): void
+    {
+        $systemConfigService = $this->createMock(SystemConfigService::class);
+        $systemConfigService
+            ->method('get')
+            ->willReturn('1');
+
+        $result = $this->createMock(EntitySearchResult::class);
+        $customerEntity = new CustomerEntity();
+        $customerEntity->setDoubleOptInRegistration(false);
+        $customerEntity->setId('customer-1');
+        $customerEntity->setGuest(false);
+        $result->method('first')->willReturn($customerEntity);
+
+        $salutationId = Uuid::randomHex();
+
+        $idSearchResult = new IdSearchResult(
+            1,
+            [['data' => $salutationId, 'primaryKey' => $salutationId]],
+            new Criteria(),
+            Context::createDefaultContext(),
+        );
+
+        $customerRepository = $this->createMock(EntityRepository::class);
+        $customerRepository->method('search')->willReturn($result);
+        $customerRepository
+            ->expects(static::once())
+            ->method('create')
+            ->willReturnCallback(function (array $create) use ($salutationId) {
+                static::assertCount(1, $create);
+                static::assertArrayHasKey('salutationId', $create[0]);
+                static::assertSame($create[0]['salutationId'], $salutationId);
+
+                return new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection([]), []);
+            });
+
+        $salutationRepository = $this->createMock(EntityRepository::class);
+        $salutationRepository->method('searchIds')->willReturn($idSearchResult);
+
+        $register = new RegisterRoute(
+            new EventDispatcher(),
+            $this->createMock(NumberRangeValueGeneratorInterface::class),
+            $this->createMock(DataValidator::class),
+            $this->createMock(DataValidationFactoryInterface::class),
+            $this->createMock(DataValidationFactoryInterface::class),
+            $systemConfigService,
+            $customerRepository,
+            $this->createMock(SalesChannelContextPersister::class),
+            $this->createMock(SalesChannelRepository::class),
+            $this->createMock(Connection::class),
+            $this->createMock(SalesChannelContextService::class),
+            $this->createMock(StoreApiCustomFieldMapper::class),
+            $salutationRepository,
+        );
+
+        $data = [
+            'email' => 'test@test.de',
+            'billingAddress' => [
+                'countryId' => Uuid::randomHex(),
+            ],
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_PRIVATE,
+            'salutationId' => '',
         ];
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);

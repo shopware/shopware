@@ -54,6 +54,15 @@ async function createWrapper() {
                         };
                     }
 
+                    if (entity === 'salutation') {
+                        return {
+                            searchIds: () => Promise.resolve({
+                                total: 1,
+                                data: ['salutationId'],
+                            }),
+                        };
+                    }
+
                     return {
                         create: () => Promise.resolve(),
                     };
@@ -83,6 +92,9 @@ describe('module/sw-customer/page/sw-customer-create', () => {
 
     it('should have company validation when customer type is commercial', async () => {
         const wrapper = await createWrapper();
+
+        await flushPromises();
+
         wrapper.vm.createNotificationError = jest.fn();
         wrapper.vm.validateEmail = jest.fn().mockImplementation(() => Promise.resolve({ isValid: true }));
         const notificationMock = wrapper.vm.createNotificationError;
@@ -167,5 +179,13 @@ describe('module/sw-customer/page/sw-customer-create', () => {
         const context = await wrapper.vm.onSave();
 
         expect(context.languageId).toEqual(Shopware.Context.api.languageId);
+    });
+
+    it('should get default salutation is value not specified', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.vm.customer.salutationId).toBe('salutationId');
+        expect(wrapper.vm.address.salutationId).toBe('salutationId');
     });
 });

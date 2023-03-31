@@ -112,8 +112,8 @@ export default {
         },
 
         validCompanyField() {
-            return this.customer.accountType === CUSTOMER.ACCOUNT_TYPE_BUSINESS ?
-                this.customer.company?.trim().length : true;
+            return this.customer?.accountType === CUSTOMER.ACCOUNT_TYPE_BUSINESS ?
+                this.customer?.company?.trim().length : true;
         },
 
         languageRepository() {
@@ -135,6 +135,18 @@ export default {
 
         languageId() {
             return this.loadLanguage(this.customer.salesChannelId);
+        },
+
+        salutationRepository() {
+            return this.repositoryFactory.create('salutation');
+        },
+
+        salutationCriteria() {
+            const criteria = new Criteria(1, 1);
+
+            criteria.addFilter(Criteria.equals('salutationKey', 'not_specified'));
+
+            return criteria;
         },
     },
 
@@ -167,16 +179,21 @@ export default {
     },
 
     methods: {
-        createdComponent() {
+        async createdComponent() {
             this.customer = this.customerRepository.create();
 
+            const defaultSalutationId = await this.getDefaultSalutationId();
+
             const billingAddress = this.addressRepository.create();
+            billingAddress.salutationId = defaultSalutationId;
+
             this.customer.addresses.add(billingAddress);
 
             this.customer.defaultShippingAddressId = billingAddress.id;
             this.customer.defaultBillingAddressId = billingAddress.id;
             this.customer.accountType = CUSTOMER.ACCOUNT_TYPE_PRIVATE;
             this.customer.vatIds = [];
+            this.customer.salutationId = defaultSalutationId;
         },
 
         async onSave() {
@@ -300,6 +317,12 @@ export default {
             }
 
             return res.data[0];
+        },
+
+        async getDefaultSalutationId() {
+            const res = await this.salutationRepository.searchIds(this.salutationCriteria);
+
+            return res.data?.[0];
         },
     },
 };

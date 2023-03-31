@@ -10,9 +10,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\Salutation\AbstractSalutationsSorter;
 use Shopware\Core\System\Salutation\SalesChannel\AbstractSalutationRoute;
 use Shopware\Core\System\Salutation\SalutationCollection;
-use Shopware\Core\System\Salutation\SalutationEntity;
 use Shopware\Storefront\Event\RouteRequest\SalutationRouteRequestEvent;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -30,7 +30,8 @@ class AccountProfilePageLoader
     public function __construct(
         private readonly GenericPageLoaderInterface $genericLoader,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly AbstractSalutationRoute $salutationRoute
+        private readonly AbstractSalutationRoute $salutationRoute,
+        private readonly AbstractSalutationsSorter $salutationsSorter,
     ) {
     }
 
@@ -72,8 +73,6 @@ class AccountProfilePageLoader
             ->load($event->getStoreApiRequest(), $context, $event->getCriteria())
             ->getSalutations();
 
-        $salutations->sort(static fn (SalutationEntity $a, SalutationEntity $b) => $b->getSalutationKey() <=> $a->getSalutationKey());
-
-        return $salutations;
+        return $this->salutationsSorter->sort($salutations);
     }
 }

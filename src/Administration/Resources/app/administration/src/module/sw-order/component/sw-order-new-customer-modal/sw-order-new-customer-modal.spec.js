@@ -54,6 +54,15 @@ async function createWrapper() {
                         };
                     }
 
+                    if (entity === 'salutation') {
+                        return {
+                            searchIds: () => Promise.resolve({
+                                total: 1,
+                                data: ['salutationId'],
+                            }),
+                        };
+                    }
+
                     return {
                         create: () => Promise.resolve(),
                     };
@@ -189,5 +198,9 @@ describe('src/module/sw-order/component/sw-order-new-customer-modal', () => {
 
         expect(swDetailsTab.find('sw-icon-stub[name=solid-exclamation-circle]').exists()).toBe(true);
         expect(swBillingAddressTab.find('sw-icon-stub').exists()).toBe(false);
+    });
+
+    it('should get default salutation is value not specified', async () => {
+        expect(wrapper.vm.customer.salutationId).toBe('salutationId');
     });
 });

@@ -99,6 +99,18 @@ export default {
 
             return this.activeCustomer.addresses;
         },
+
+        salutationRepository() {
+            return this.repositoryFactory.create('salutation');
+        },
+
+        salutationCriteria() {
+            const criteria = new Criteria(1, 1);
+
+            criteria.addFilter(Criteria.equals('salutationKey', 'not_specified'));
+
+            return criteria;
+        },
     },
 
     created() {
@@ -183,9 +195,12 @@ export default {
             this.createNewCustomerAddress();
         },
 
-        createNewCustomerAddress() {
+        async createNewCustomerAddress() {
+            const defaultSalutationId = await this.getDefaultSalutation();
+
             const newAddress = this.addressRepository.create();
             newAddress.customerId = this.activeCustomer.id;
+            newAddress.salutationId = defaultSalutationId;
 
             this.currentAddress = newAddress;
         },
@@ -332,6 +347,12 @@ export default {
             const preFix = string.replace(replace, '');
 
             return `${preFix.charAt(0).toUpperCase()}${preFix.slice(1)}`;
+        },
+
+        async getDefaultSalutation() {
+            const res = await this.salutationRepository.searchIds(this.salutationCriteria);
+
+            return res.data?.[0];
         },
     },
 };

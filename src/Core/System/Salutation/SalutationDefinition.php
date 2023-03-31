@@ -27,6 +27,8 @@ class SalutationDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'salutation';
 
+    final public const NOT_SPECIFIED = 'not_specified';
+
     public function getEntityName(): string
     {
         return self::ENTITY_NAME;

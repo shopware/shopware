@@ -312,4 +312,6 @@ class OrderEvents
      * @Event("Shopware\Core\Checkout\Order\Event\OrderPaymentMethodChangedEvent")
      */
     final public const ORDER_PAYMENT_METHOD_CHANGED = OrderPaymentMethodChangedEvent::EVENT_NAME;
+
+    final public const ORDER_CUSTOMER_WRITTEN_EVENT = 'order_customer.written';
 }

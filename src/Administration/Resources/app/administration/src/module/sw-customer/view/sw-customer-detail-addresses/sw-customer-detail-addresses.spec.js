@@ -39,11 +39,21 @@ async function createWrapper() {
 
         stubs: {
             'sw-card': {
-                template: '<div><slot></slot><slot name="grid"></slot></div>',
+                template: `<div class="sw-card">
+                    <slot name="toolbar"></slot>
+                    <slot name="grid"></slot>
+                    <slot></slot>
+                </div>`,
+            },
+            'sw-card-filter': {
+                template: '<div class="sw-card-filter"><slot name="filter"></slot></div>',
             },
             'sw-field': true,
-            'sw-button': true,
+            'sw-button': {
+                template: '<div class="sw-button" @click="$emit(`click`)"></div>',
+            },
             'sw-modal': true,
+            'sw-icon': true,
             'sw-one-to-many-grid': {
                 props: ['collection'],
                 template: `
@@ -56,6 +66,8 @@ async function createWrapper() {
                     </div>
                 `,
             },
+            'sw-customer-address-form': true,
+            'sw-customer-address-form-options': true,
         },
     });
 }
@@ -91,5 +103,17 @@ describe('module/sw-customer/view/sw-customer-detail-addresses.spec.js', () => {
 
         expect(lastNameCell.find('a').exists()).toBeTruthy();
         expect(lastNameCell.find('a').text()).toContain('Nguyen');
+    });
+
+    it('should set not_specified salutation key when creating a new address', async () => {
+        wrapper.vm.salutationRepository.searchIds = jest.fn(() => Promise.resolve({ data: ['1'] }));
+
+        expect(wrapper.vm.currentAddress).toBeNull();
+
+        const swButton = wrapper.find('.sw-button');
+        await swButton.trigger('click');
+        await flushPromises();
+
+        expect(wrapper.vm.currentAddress.salutationId).toBe('1');
     });
 });

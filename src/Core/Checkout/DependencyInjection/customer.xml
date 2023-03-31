@@ -203,6 +203,7 @@
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\CustomerProfileValidationFactory"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper"/>
+            <argument type="service" id="salutation.repository"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\ChangePasswordRoute" public="true">
@@ -245,6 +246,7 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper"/>
+            <argument type="service" id="salutation.repository"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\RegisterConfirmRoute" public="true">
@@ -267,6 +269,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\AddressValidationFactory"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper"/>
+            <argument type="service" id="salutation.repository"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\DeleteAddressRoute" public="true">
@@ -377,6 +380,11 @@
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\DownloadRoute" public="true">
             <argument type="service" id="order_line_item_download.repository"/>
             <argument type="service" id="Shopware\Core\Content\Media\File\DownloadResponseGenerator"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\Subscriber\CustomerSalutationSubscriber">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <tag name="kernel.event_subscriber"/>
         </service>
     </services>
 </container>

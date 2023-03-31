@@ -66,7 +66,7 @@ class OrderAddressDefinition extends EntityDefinition
             (new FkField('order_id', 'orderId', OrderDefinition::class))->addFlags(new Required()),
             (new ReferenceVersionField(OrderDefinition::class, 'order_version_id'))->addFlags(new Required()),
 
-            (new FkField('salutation_id', 'salutationId', SalutationDefinition::class))->addFlags(new Required()),
+            new FkField('salutation_id', 'salutationId', SalutationDefinition::class),
             (new StringField('first_name', 'firstName'))->addFlags(new ApiAware(), new Required(), new SearchRanking(SearchRanking::LOW_SEARCH_RANKING)),
             (new StringField('last_name', 'lastName'))->addFlags(new ApiAware(), new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new StringField('street', 'street'))->addFlags(new ApiAware(), new Required(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),

@@ -16305,11 +16305,6 @@ parameters:
 			path: tests/integration/php/Core/Checkout/Cart/LineItemFactoryRegistryTest.php
 
 		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertNotNull\\(\\) with mixed will always evaluate to true\\.$#"
-			count: 1
-			path: tests/integration/php/Core/Checkout/Cart/SalesChannel/CartOrderRouteTest.php
-
-		-
 			message: "#^Method Shopware\\\\Tests\\\\Integration\\\\Core\\\\Checkout\\\\Customer\\\\Rule\\\\DaysSinceLastOrderRuleTest\\:\\:createTestOrderAndReturnCustomer\\(\\) should return Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
 			count: 1
 			path: tests/integration/php/Core/Checkout/Customer/Rule/DaysSinceLastOrderRuleTest.php
@@ -16870,11 +16865,6 @@ parameters:
 			message: "#^Instanceof between DateTimeImmutable and DateTimeImmutable will always evaluate to true\\.$#"
 			count: 1
 			path: tests/unit/php/Core/Checkout/Customer/Rule/DaysSinceLastOrderRuleTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\System\\\\\\\\SalesChannel\\\\\\\\SuccessResponse' and Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SuccessResponse will always evaluate to true\\.$#"
-			count: 2
-			path: tests/unit/php/Core/Checkout/Customer/SalesChannel/ChangeCustomerProfileRouteTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Checkout\\\\\\\\Customer\\\\\\\\SalesChannel\\\\\\\\CustomerResponse' and Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\CustomerResponse will always evaluate to true\\.$#"

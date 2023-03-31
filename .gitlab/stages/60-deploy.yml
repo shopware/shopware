@@ -14,9 +14,13 @@ Upload Component Library:
         name: Component Library
         url: https://component-library.shopware.com
     script:
+        - echo -e "\e[0Ksection_start:$(date +%s):init[collapsed=true]\r\e[0KAWS-CLI preparation"
         - pip install awscli
+        - echo -e "\e[0Ksection_end:`date +%s`:init\r\e[0K"
         - cd build/artifacts/component-library
+        - echo -e "\e[0Ksection_start:$(date +%s):aws_sync[collapsed=false]\r\e[0KAWS sync"
         - aws s3 sync --delete --acl public-read . s3://shopware-ui-component-library-docs/
+        - echo -e "\e[0Ksection_end:`date +%s`:aws_sync\r\e[0K"
         - aws cloudfront create-invalidation --distribution-id E18U17118IAC82 --paths "/*"
     interruptible: false
 
@@ -31,8 +35,10 @@ Publish entity-schema-types NPM package:
       - !reference [ .scripts, init, npm, admin ]
       - composer run admin:generate-entity-schema-types
     script:
+      - echo -e "\e[0Ksection_start:$(date +%s):generate_entityschema[collapsed=false]\r\e[0KGenerate EntitySchema"
       - cd src/Administration/Resources/app/administration
       - npm run generate-entity-schema-package
+      - echo -e "\e[0Ksection_end:`date +%s`:generate_entityschema\r\e[0K"
       - cd ./entity-schema-types
       - echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
       - npm publish --access public
@@ -52,8 +58,10 @@ github sync:
         GIT_STRATEGY: clone
         GIT_DEPTH: "0"  # Tells git to fetch all commits
     script:
+      - echo -e "\e[0Ksection_start:$(date +%s):init[collapsed=true]\r\e[0Kgit preparation"
       - apt update && apt install -y git
       - git remote add github https://${GITHUB_SYNC_USER}:${GITHUB_SYNC_TOKEN}@github.com/shopware/platform
+      - echo -e "\e[0Ksection_end:`date +%s`:init\r\e[0K"
       - git fetch github
       - .gitlab/bin/git_sync.bash origin github
 

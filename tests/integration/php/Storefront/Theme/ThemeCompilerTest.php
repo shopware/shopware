@@ -59,6 +59,8 @@ class ThemeCompilerTest extends TestCase
 
     private ThemeCompiler $themeCompiler;
 
+    private ThemeCompiler $themeCompilerAutoPrefix;
+
     private string $mockSalesChannelId;
 
     private EventDispatcherInterface $eventDispatcher;
@@ -86,7 +88,25 @@ class ThemeCompilerTest extends TestCase
             $this->getContainer()->getParameter('kernel.project_dir'),
             $this->getContainer()->get(ScssPhpCompiler::class),
             new MessageBus(),
-            0
+            0,
+            false
+        );
+
+        $this->themeCompilerAutoPrefix = new ThemeCompiler(
+            $mockFilesystem,
+            $mockFilesystem,
+            $themeFileResolver,
+            true,
+            $this->eventDispatcher,
+            $this->getContainer()->get(ThemeFileImporter::class),
+            ['theme' => new UrlPackage(['http://localhost'], new EmptyVersionStrategy())],
+            $this->getContainer()->get(CacheInvalidator::class),
+            new MD5ThemePathBuilder(),
+            $this->getContainer()->getParameter('kernel.project_dir'),
+            $this->getContainer()->get(ScssPhpCompiler::class),
+            new MessageBus(),
+            0,
+            true
         );
     }
 
@@ -431,7 +451,8 @@ PHP_EOL;
             $this->getContainer()->getParameter('kernel.project_dir'),
             $this->getContainer()->get(ScssPhpCompiler::class),
             new MessageBus(),
-            0
+            0,
+            false
         );
 
         $config = new StorefrontPluginConfiguration('test');
@@ -491,6 +512,19 @@ PHP_EOL;
 }
 PHP_EOL;
 
+        $expectedCssOutputNoAutoPrefix = <<<PHP_EOL
+.test-selector-plugin {
+  background: #fff;
+  color: #eee;
+  border: 0;
+}
+.test-selector-app {
+  background: #aaa;
+  color: #eee;
+  border: 0;
+}
+PHP_EOL;
+
         $configService = $this->getConfigurationService(
             [
                 new SimplePlugin(true, __DIR__ . '/fixtures/SimplePlugin'),
@@ -526,7 +560,27 @@ PHP_EOL;
             $this->eventDispatcher->removeSubscriber($subscriber);
         }
 
-        static::assertSame(trim($expectedCssOutput), trim((string) $actual));
+        static::assertSame($expectedCssOutputNoAutoPrefix, trim((string) $actual));
+
+        $subscriber = new ThemeCompilerEnrichScssVarSubscriber($configService, $storefrontPluginRegistry);
+
+        $this->eventDispatcher->addSubscriber($subscriber);
+
+        try {
+            $actual = $compileStyles->invoke(
+                $this->themeCompilerAutoPrefix,
+                $testScss,
+                new StorefrontPluginConfiguration('test'),
+                [],
+                '1337',
+                'themeId',
+                Context::createDefaultContext()
+            );
+        } finally {
+            $this->eventDispatcher->removeSubscriber($subscriber);
+        }
+
+        static::assertSame($expectedCssOutput, trim((string) $actual));
     }
 
     public function testOutputsOnlyExpectedCssWhenUsingFeatureFlagFunction(): void
@@ -571,9 +625,20 @@ PHP_EOL;
 PHP_EOL;
 
         $expectedCssOutput = <<<PHP_EOL
+/*
+Helper function to check for active feature flags.
+==================================================
+The `\$sw-features` variable contains a SCSS map of the current feature config.
+The variable is injected automatically via ThemeCompiler.php and webpack.config.js.
+
+Example:
+@if feature('FEATURE_NEXT_1234') {
+    // ...
+}
+*/
 .test-selector {
-\tbackground: yellow;
-\tcolor: red;
+  background: yellow;
+  color: red;
 }
 PHP_EOL;
 
@@ -605,19 +670,16 @@ PHP_EOL;
 
         $expectedCssOutput = <<<PHP_EOL
 .plain-css-from-library {
-\tcolor: red;
+  color: red;
 }
-
 .plain-css-from-library {
-\tcolor: red;
+  color: red;
 }
-
 .another-lib {
-\tcolor: #0d9c0d;
+  color: #0d9c0d;
 }
-
 .another-lib {
-\tcolor: #0d9c0d;
+  color: #0d9c0d;
 }
 PHP_EOL;
 

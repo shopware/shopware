@@ -146,6 +146,36 @@ class AssetServiceTest extends TestCase
         static::assertFalse($filesystem->has('bundles/featurea'));
     }
 
+    public function testCopyAssetsClosesStreamItself(): void
+    {
+        $kernel = $this->createMock(KernelInterface::class);
+        $kernel
+            ->method('getBundle')
+            ->with('ExampleBundle')
+            ->willReturn($this->getBundle());
+
+        $filesystem = $this->createMock(Filesystem::class);
+        $assetService = new AssetService(
+            $filesystem,
+            $kernel,
+            new StaticKernelPluginLoader($this->createMock(ClassLoader::class)),
+            $this->createMock(CacheInvalidator::class),
+            $this->createMock(AbstractAppLoader::class),
+            new ParameterBag()
+        );
+
+        $filesystem->method('writeStream')
+            ->willReturnCallback(function (string $path, $stream) {
+                static::assertIsResource($stream);
+                // Some flysystem adapters automatically close the stream e.g. google adapter
+                fclose($stream);
+
+                return true;
+            });
+
+        $assetService->copyAssetsFromBundle('ExampleBundle');
+    }
+
     public function testCopyAssetsWithoutApp(): void
     {
         $filesystem = new Filesystem(new MemoryFilesystemAdapter());

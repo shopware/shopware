@@ -1,7 +1,6 @@
 ---
 title: Fix AssetService using Google Cloud
-issue:
-flag:
+issue: NEXT-26068
 author: Pascal Josephy
 author_email: pascal.josephy@jkweb.ch
 author_github: pascaljosephy

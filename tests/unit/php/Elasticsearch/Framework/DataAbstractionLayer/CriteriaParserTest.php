@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
+use Shopware\Core\System\CustomField\CustomFieldService;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser;
 use Shopware\Tests\Unit\Common\Stubs\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -35,7 +36,7 @@ class CriteriaParserTest extends TestCase
         $definition = $this->getDefinition();
 
         /** @var CompositeAggregation $esAgg */
-        $esAgg = (new CriteriaParser(new EntityDefinitionQueryHelper()))->parseAggregation($aggs, $definition, Context::createDefaultContext());
+        $esAgg = (new CriteriaParser(new EntityDefinitionQueryHelper(), $this->createMock(CustomFieldService::class)))->parseAggregation($aggs, $definition, Context::createDefaultContext());
 
         static::assertInstanceOf(CompositeAggregation::class, $esAgg);
         static::assertSame([
@@ -77,7 +78,7 @@ class CriteriaParserTest extends TestCase
     {
         $definition = $this->getDefinition();
 
-        $accessor = (new CriteriaParser(new EntityDefinitionQueryHelper()))->buildAccessor($definition, $field, $context);
+        $accessor = (new CriteriaParser(new EntityDefinitionQueryHelper(), $this->createMock(CustomFieldService::class)))->buildAccessor($definition, $field, $context);
 
         static::assertSame($expectedAccessor, $accessor);
     }
@@ -130,7 +131,7 @@ class CriteriaParserTest extends TestCase
     {
         $definition = $this->getDefinition();
 
-        $sorting = (new CriteriaParser(new EntityDefinitionQueryHelper()))->parseSorting($sorting, $definition, $context);
+        $sorting = (new CriteriaParser(new EntityDefinitionQueryHelper(), $this->createMock(CustomFieldService::class)))->parseSorting($sorting, $definition, $context);
 
         $script = $sorting->getParameter('script');
 
@@ -279,7 +280,7 @@ class CriteriaParserTest extends TestCase
         $context = Context::createDefaultContext();
         $definition = $this->getDefinition();
 
-        $sortedFilter = (new CriteriaParser(new EntityDefinitionQueryHelper()))->parseFilter($filter, $definition, '', $context);
+        $sortedFilter = (new CriteriaParser(new EntityDefinitionQueryHelper(), $this->createMock(CustomFieldService::class)))->parseFilter($filter, $definition, '', $context);
 
         static::assertEquals($expectedFilter, $sortedFilter->toArray());
     }

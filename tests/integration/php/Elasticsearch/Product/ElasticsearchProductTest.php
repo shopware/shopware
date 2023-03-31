@@ -294,13 +294,14 @@ class ElasticsearchProductTest extends TestCase
             $criteria->addFilter(new EqualsFilter('productNumber', 'u7'));
 
             // products should be updated immediately
-            $result = $this->productRepository->searchIds($criteria, $context);
+            $searcher = $this->createEntitySearcher();
+            $result = $searcher->search($this->productDefinition, $criteria, $context);
             static::assertCount(1, $result->getIds());
 
             $this->productRepository->delete([['id' => $ids->get('u7')]], $context);
 
             $this->refreshIndex();
-            $result = $this->productRepository->searchIds($criteria, $context);
+            $result = $searcher->search($this->productDefinition, $criteria, $context);
             static::assertCount(0, $result->getIds());
         } catch (\Exception $e) {
             static::tearDown();
@@ -2870,7 +2871,7 @@ class ElasticsearchProductTest extends TestCase
                 ],
                 'test_date' => [
                     'type' => 'date',
-                    'format' => 'yyyy-MM-dd HH:mm:ss.000',
+                    'format' => 'yyyy-MM-dd HH:mm:ss.000||strict_date_optional_time||epoch_millis',
                     'ignore_malformed' => true,
                 ],
                 'test_float' => [
@@ -2935,21 +2936,39 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
-    public function testSortByCustomFieldDate(IdsCollection $ids): void
+    public function testCustomFieldDateType(IdsCollection $ids): void
     {
         $context = $this->context;
 
+        $searcher = $this->createEntitySearcher();
+
         try {
-            $criteria = new Criteria();
-            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+            $criteria = new EsAwareCriteria();
             $criteria->addSorting(new FieldSorting('customFields.test_date', FieldSorting::DESCENDING));
-
-            $searcher = $this->createEntitySearcher();
-
             $result = $searcher->search($this->productDefinition, $criteria, $context)->getIds();
 
             static::assertSame($ids->get('product-1'), $result[0]);
             static::assertSame($ids->get('product-2'), $result[1]);
+
+            $criteria = new EsAwareCriteria();
+            $criteria->addFilter(new EqualsFilter('customFields.test_date', '2000-01-01 00:00:00.000'));
+            $result = $searcher->search($this->productDefinition, $criteria, $context)->getIds();
+            static::assertContains($ids->get('product-2'), $result);
+
+            $criteria = new EsAwareCriteria();
+            $criteria->addFilter(new RangeFilter('customFields.test_date', ['gte' => '2000-01-01 00:00:00.000']));
+            $result = $searcher->search($this->productDefinition, $criteria, $context)->getIds();
+            static::assertContains($ids->get('product-2'), $result);
+
+            $criteria = new EsAwareCriteria();
+            $criteria->addFilter(new EqualsFilter('customFields.test_date', '2000-01-01'));
+            $result = $searcher->search($this->productDefinition, $criteria, $context)->getIds();
+            static::assertContains($ids->get('product-2'), $result);
+
+            $criteria = new EsAwareCriteria();
+            $criteria->addFilter(new EqualsFilter('customFields.test_date', '2000/01/01'));
+            $result = $searcher->search($this->productDefinition, $criteria, $context)->getIds();
+            static::assertContains($ids->get('product-2'), $result);
         } catch (\Exception $e) {
             static::tearDown();
 
@@ -3192,6 +3211,46 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
+    /**
+     * @depends testIndexing
+     */
+    public function testFilterCoreDateFields(): void
+    {
+        $criteria = new EsAwareCriteria();
+        $criteria->setLimit(1);
+        $criteria->addSorting(new FieldSorting('createdAt', FieldSorting::ASCENDING));
+        $this->createEntitySearcher()->search($this->productDefinition, $criteria, $this->context);
+
+        $criteria = new EsAwareCriteria();
+        $criteria->setLimit(1);
+        $criteria->addSorting(new FieldSorting('releaseDate', FieldSorting::ASCENDING));
+        $this->createEntitySearcher()->search($this->productDefinition, $criteria, $this->context);
+
+        $criteria = new EsAwareCriteria();
+        $criteria->addFilter(new EqualsFilter('releaseDate', '2019-01-01 10:11:00.000'));
+        $result = $this->createEntitySearcher()->search($this->productDefinition, $criteria, $this->context);
+
+        static::assertCount(4, $result->getIds());
+
+        $criteria = new EsAwareCriteria();
+        $criteria->addFilter(new EqualsFilter('createdAt', '2019-01-01 10:11:00.000'));
+        $result = $this->createEntitySearcher()->search($this->productDefinition, $criteria, $this->context);
+
+        static::assertCount(1, $result->getIds());
+
+        $criteria = new EsAwareCriteria();
+        $criteria->addFilter(new EqualsFilter('releaseDate', '2019/01/01 10:11:00'));
+        $result = $this->createEntitySearcher()->search($this->productDefinition, $criteria, $this->context);
+
+        static::assertCount(4, $result->getIds());
+
+        $criteria = new EsAwareCriteria();
+        $criteria->addFilter(new EqualsFilter('createdAt', '2019/01/01 10:11:00'));
+        $result = $this->createEntitySearcher()->search($this->productDefinition, $criteria, $this->context);
+
+        static::assertCount(1, $result->getIds());
+    }
+
     protected function getDiContainer(): ContainerInterface
     {
         return $this->getContainer();
@@ -3341,6 +3400,7 @@ class ElasticsearchProductTest extends TestCase
                 ->releaseDate('2019-01-01 10:11:00')
                 ->purchasePrice(0)
                 ->stock(2)
+                ->createdAt('2019-01-01 10:11:00')
                 ->category('c1')
                 ->category('c2')
                 ->property('red', 'color')
@@ -3360,6 +3420,7 @@ class ElasticsearchProductTest extends TestCase
                 ->price(100, 100, 'default', 150, 150)
                 ->price(300, null, 'anotherCurrency')
                 ->releaseDate('2019-01-01 10:13:00')
+                ->createdAt('2019-01-02 10:11:00')
                 ->purchasePrice(0)
                 ->stock(10)
                 ->category('c1')
@@ -3992,5 +4053,18 @@ class ElasticsearchProductTest extends TestCase
     {
         $connection = $this->getContainer()->get(Connection::class);
         $connection->executeStatement('UPDATE `product_search_config` SET `excluded_terms` = "[]"');
+    }
+}
+
+/**
+ * @internal
+ */
+class EsAwareCriteria extends Criteria
+{
+    public function __construct(?array $ids = null)
+    {
+        parent::__construct($ids);
+
+        $this->addState(self::STATE_ELASTICSEARCH_AWARE);
     }
 }

@@ -476,7 +476,7 @@ class DefinitionValidator
                 continue;
             }
 
-            if (!$returnType->allowsNull()) {
+            if (!$returnType->allowsNull() && !\in_array($method->getName(), ['getCustomFieldsValue', 'getCustomFieldsValues'], true)) {
                 $violations[$translationDefinition->getClass()][] = sprintf('The return type of `%s` is not nullable. All getter functions of EntityTranslationDefinitions need to be nullable!', $method->getName());
             }
         }

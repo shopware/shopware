@@ -205,6 +205,6 @@ EOF;
         $violation = $violationException->getViolations()->findByCodes(LockValidator::VIOLATION_LOCKED);
 
         static::assertNotNull($violation);
-        static::assertEquals(LockValidator::VIOLATION_LOCKED, $violation[0]->getCode());
+        static::assertEquals(LockValidator::VIOLATION_LOCKED, $violation->get(0)->getCode());
     }
 }

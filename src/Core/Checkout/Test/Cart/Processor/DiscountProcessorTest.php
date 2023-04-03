@@ -84,7 +84,7 @@ class DiscountProcessorTest extends TestCase
         foreach ($taxes as $tax) {
             $actual = $price->getCalculatedTaxes()->get((string) $tax->getTaxRate());
 
-            static::assertInstanceOf(CalculatedTax::class, $actual, sprintf('Missing tax for rate %s', $tax->getTaxRate()));
+            static::assertInstanceOf(CalculatedTax::class, $actual, sprintf('Missing tax for rate %f', $tax->getTaxRate()));
             static::assertEquals($tax->getTax(), $actual->getTax());
         }
 
@@ -93,7 +93,7 @@ class DiscountProcessorTest extends TestCase
         foreach ($price->getCalculatedTaxes() as $tax) {
             $actual = $taxes->get((string) $tax->getTaxRate());
 
-            static::assertInstanceOf(CalculatedTax::class, $actual, sprintf('Missing tax for rate %s', $tax->getTaxRate()));
+            static::assertInstanceOf(CalculatedTax::class, $actual, sprintf('Missing tax for rate %f', $tax->getTaxRate()));
             static::assertEquals($tax->getTax(), $actual->getTax());
         }
     }

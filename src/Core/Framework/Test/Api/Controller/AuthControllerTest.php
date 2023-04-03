@@ -278,10 +278,12 @@ class AuthControllerTest extends TestCase
             'No refresh_token returned from API: ' . ($data['errors'][0]['detail'] ?? 'unknown error')
         );
 
+        $accessToken = $data['access_token'];
+        static::assertIsString($accessToken);
         /*
          * Try access with new token
          */
-        $client->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $data['access_token']));
+        $client->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $accessToken));
         $client->request('GET', '/api/tax');
 
         static::assertNotFalse($this->getBrowser()->getResponse()->getContent());
@@ -499,10 +501,13 @@ class AuthControllerTest extends TestCase
             'No token returned from API: ' . ($data['errors'][0]['detail'] ?? 'unknown error')
         );
 
+        $accessToken = $data['access_token'];
+        static::assertIsString($accessToken);
+
         /*
          * Access protected routes
          */
-        $client->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $data['access_token']));
+        $client->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $accessToken));
         $client->request('GET', '/api/tax');
 
         static::assertEquals(Response::HTTP_OK, $client->getResponse()->getStatusCode());
@@ -674,7 +679,7 @@ class AuthControllerTest extends TestCase
         static::assertEquals(Response::HTTP_OK, $browser->getResponse()->getStatusCode());
         $token = \json_decode($browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertNotEmpty($accessToken = $token['access_token']);
+        static::assertIsString($accessToken = $token['access_token']);
 
         $userRepository = $this->getContainer()->get('user.repository');
 

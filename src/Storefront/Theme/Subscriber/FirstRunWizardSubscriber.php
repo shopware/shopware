@@ -52,11 +52,11 @@ class FirstRunWizardSubscriber implements EventSubscriberInterface
 
         $this->themeLifecycleService->refreshThemes($context);
 
-        $criteria = new Criteria();
-        $criteria->addAssociation('salesChannels');
-        $criteria->addFilter(new EqualsFilter('technicalName', 'Storefront'));
+        $themeCriteria = new Criteria();
+        $themeCriteria->addAssociation('salesChannels');
+        $themeCriteria->addFilter(new EqualsFilter('technicalName', 'Storefront'));
         /** @var ThemeEntity|null $theme */
-        $theme = $this->themeRepository->search($criteria, $context)->first();
+        $theme = $this->themeRepository->search($themeCriteria, $context)->first();
         if (!$theme) {
             throw new \RuntimeException('Default theme not found');
         }
@@ -67,9 +67,9 @@ class FirstRunWizardSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT));
-        $salesChannelIds = $this->salesChannelRepository->search($criteria, $context)->getIds();
+        $salesChannelCriteria = new Criteria();
+        $salesChannelCriteria->addFilter(new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT));
+        $salesChannelIds = $this->salesChannelRepository->search($salesChannelCriteria, $context)->getIds();
         foreach ($salesChannelIds as $id) {
             $this->themeService->compileTheme($id, $theme->getId(), $context);
             $this->themeSalesChannelRepository->upsert([[

@@ -27,7 +27,7 @@ class Migration1614765170UpdateAppModulesWithNavigationInformationTest extends T
 
     private Context $context;
 
-    public function setup(): void
+    protected function setUp(): void
     {
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->appRepository = $this->getContainer()->get('app.repository');

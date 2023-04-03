@@ -142,7 +142,7 @@ class SitemapHandle implements SitemapHandleInterface
         }
 
         foreach ($files as $file) {
-            $this->filesystem->delete($file['path']);
+            $this->filesystem->delete($file->path());
         }
     }
 

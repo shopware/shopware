@@ -29,8 +29,8 @@ class LicenseHostChangedSubscriberTest extends TestCase
 
     public function testIsSubscribedToSystemConfigChangedEvents(): void
     {
-        static::assertArrayHasKey(SystemConfigChangedEvent::class, $this->subscriber::getSubscribedEvents());
-        static::assertEquals('onLicenseHostChanged', $this->subscriber::getSubscribedEvents()[SystemConfigChangedEvent::class]);
+        static::assertArrayHasKey(SystemConfigChangedEvent::class, $this->subscriber->getSubscribedEvents());
+        static::assertEquals('onLicenseHostChanged', $this->subscriber->getSubscribedEvents()[SystemConfigChangedEvent::class]);
     }
 
     public function testOnlyHandlesLicenseHostChangedEvents(): void

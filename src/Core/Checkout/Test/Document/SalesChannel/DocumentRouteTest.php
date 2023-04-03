@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Test\Document\SalesChannel;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Document\DocumentIdStruct;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
@@ -66,7 +67,7 @@ class DocumentRouteTest extends TestCase
 
         $operation = new DocumentGenerateOperation($this->ids->get('order'));
         $document = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$operation->getOrderId() => $operation], Context::createDefaultContext())->getSuccess()->first();
-        static::assertNotNull($document);
+        static::assertInstanceOf(DocumentIdStruct::class, $document);
         $deepLinkCode = '';
 
         if ($withValidDeepLinkCode !== null) {

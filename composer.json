@@ -173,6 +173,7 @@
         "symfony/expression-language": "~6.2.0",
         "symfony/phpunit-bridge": "~6.1.0",
         "symfony/var-dumper": "~6.2.0",
+        "symplify/phpstan-rules": "11.2.5",
         "shopware/dev-tools": "^1.0.1"
     },
     "suggest": {

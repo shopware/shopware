@@ -131,15 +131,15 @@ class TaskRegistry
 
     private function insertTask(ScheduledTask $task): void
     {
-        $validTask = $task::shouldRun($this->parameterBag);
+        $validTask = $task->shouldRun($this->parameterBag);
 
         try {
             $this->scheduledTaskRepository->create([
                 [
-                    'name' => $task::getTaskName(),
+                    'name' => $task->getTaskName(),
                     'scheduledTaskClass' => $task::class,
-                    'runInterval' => $task::getDefaultInterval(),
-                    'defaultRunInterval' => $task::getDefaultInterval(),
+                    'runInterval' => $task->getDefaultInterval(),
+                    'defaultRunInterval' => $task->getDefaultInterval(),
                     'status' => $validTask ? ScheduledTaskDefinition::STATUS_SCHEDULED : ScheduledTaskDefinition::STATUS_SKIPPED,
                 ],
             ], Context::createDefaultContext());
@@ -155,22 +155,22 @@ class TaskRegistry
     private function getUpdatePayload(ScheduledTaskEntity $registeredTask, ScheduledTask $task): array
     {
         $payload = [];
-        if (!$task::shouldRun($this->parameterBag) && \in_array($registeredTask->getStatus(), [ScheduledTaskDefinition::STATUS_QUEUED, ScheduledTaskDefinition::STATUS_SCHEDULED], true)) {
+        if (!$task->shouldRun($this->parameterBag) && \in_array($registeredTask->getStatus(), [ScheduledTaskDefinition::STATUS_QUEUED, ScheduledTaskDefinition::STATUS_SCHEDULED], true)) {
             $payload['status'] = ScheduledTaskDefinition::STATUS_SKIPPED;
         }
 
-        if ($task::shouldRun($this->parameterBag) && \in_array($registeredTask->getStatus(), [ScheduledTaskDefinition::STATUS_QUEUED, ScheduledTaskDefinition::STATUS_SKIPPED], true)) {
+        if ($task->shouldRun($this->parameterBag) && \in_array($registeredTask->getStatus(), [ScheduledTaskDefinition::STATUS_QUEUED, ScheduledTaskDefinition::STATUS_SKIPPED], true)) {
             $payload['status'] = ScheduledTaskDefinition::STATUS_SCHEDULED;
             $payload['nextExecutionTime'] = $this->calculateNextExecutionTime($registeredTask);
         }
 
-        if ($task::getDefaultInterval() !== $registeredTask->getDefaultRunInterval()) {
+        if ($task->getDefaultInterval() !== $registeredTask->getDefaultRunInterval()) {
             // default run interval changed
-            $payload['defaultRunInterval'] = $task::getDefaultInterval();
+            $payload['defaultRunInterval'] = $task->getDefaultInterval();
 
             // if the run interval is still the default, update it to the new default
             if ($registeredTask->getRunInterval() === $registeredTask->getDefaultRunInterval()) {
-                $payload['runInterval'] = $task::getDefaultInterval();
+                $payload['runInterval'] = $task->getDefaultInterval();
             }
         }
 

@@ -65,7 +65,7 @@ class StorefrontControllerTest extends TestCase
         $controller = new TestController();
 
         $controller->setContainer($container);
-        $controller->addCartErrors($cart);
+        $controller->accessAddCartErrors($cart);
 
         static::assertNotEmpty($cart->getErrors()->getElements());
     }
@@ -248,14 +248,9 @@ class TestController extends StorefrontController
 {
     private TemplateFinder $templateFinder;
 
-    public function addCartErrors(Cart $cart, ?\Closure $filter = null): void
+    public function accessAddCartErrors(Cart $cart, ?\Closure $filter = null): void
     {
-        parent::addCartErrors($cart, $filter);
-    }
-
-    public function addFlash(string $type, mixed $message): void
-    {
-        // NOOP
+        $this->addCartErrors($cart, $filter);
     }
 
     /**
@@ -263,12 +258,17 @@ class TestController extends StorefrontController
      */
     public function testRenderViewInheritance(string $view, array $parameters = []): string
     {
-        return parent::renderView($view, $parameters);
+        return $this->renderView($view, $parameters);
     }
 
     public function setTemplateFinder(TemplateFinder $templateFinder): void
     {
         $this->templateFinder = $templateFinder;
+    }
+
+    protected function addFlash(string $type, mixed $message): void
+    {
+        // NOOP
     }
 
     protected function getTemplateFinder(): TemplateFinder

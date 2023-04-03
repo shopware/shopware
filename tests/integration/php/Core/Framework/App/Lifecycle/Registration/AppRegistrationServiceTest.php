@@ -41,7 +41,7 @@ class AppRegistrationServiceTest extends TestCase
 
     private ShopIdProvider $shopIdProvider;
 
-    public function setup(): void
+    protected function setUp(): void
     {
         $this->appRepository = $this->getContainer()->get('app.repository');
         $this->registrator = $this->getContainer()->get(AppRegistrationService::class);

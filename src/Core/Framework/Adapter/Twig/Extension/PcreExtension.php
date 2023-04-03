@@ -16,14 +16,14 @@ class PcreExtension extends AbstractExtension
     public function getFilters(): array
     {
         return [
-            new TwigFilter('preg_replace', [$this, 'pregReplace']),
+            new TwigFilter('preg_replace', $this->pregReplace(...)),
         ];
     }
 
     public function getFunctions(): array
     {
         return [
-            new TwigFunction('preg_match', [$this, 'pregMatch']),
+            new TwigFunction('preg_match', $this->pregMatch(...)),
         ];
     }
 

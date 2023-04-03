@@ -16,7 +16,7 @@ class ThemeSalesChannelCollection extends Collection
      */
     protected $elements = [];
 
-    public function getExpectedClass(): string
+    protected function getExpectedClass(): string
     {
         return ThemeSalesChannel::class;
     }

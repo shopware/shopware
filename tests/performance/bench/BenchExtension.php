@@ -16,11 +16,11 @@ class BenchExtension implements ExtensionInterface
 {
     private ?string $runGroup = null;
 
-    private OptionsResolver $resolver;
+    private ?OptionsResolver $resolver = null;
 
     public function load(Container $container): void
     {
-        if (!isset($this->resolver)) {
+        if ($this->resolver === null) {
             throw new \Exception(self::class . '::configure must be called before running the load method');
         }
 

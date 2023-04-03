@@ -14,9 +14,11 @@ class ThemeAssetPackage extends FallbackUrlPackage
 {
     /**
      * @internal
+     *
+     * @param string|string[] $baseUrls
      */
     public function __construct(
-        $baseUrls,
+        string|array $baseUrls,
         VersionStrategyInterface $versionStrategy,
         private readonly RequestStack $requestStack,
         private readonly AbstractThemePathBuilder $themePathBuilder

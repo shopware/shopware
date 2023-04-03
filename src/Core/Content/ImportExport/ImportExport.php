@@ -314,13 +314,13 @@ class ImportExport
         $partFiles = [];
 
         foreach ($this->filesystem->listContents($dir) as $meta) {
-            if ($meta['type'] !== 'file'
-                || $meta['path'] === $target
-                || !str_starts_with((string) $meta['path'], $partFilePrefix)) {
+            if ($meta->type() !== 'file'
+                || $meta->path() === $target
+                || !str_starts_with($meta->path(), $partFilePrefix)) {
                 continue;
             }
 
-            $partFiles[] = $meta['path'];
+            $partFiles[] = $meta->path();
         }
 
         // sort by offset

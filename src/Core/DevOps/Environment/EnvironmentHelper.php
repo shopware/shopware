@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 class EnvironmentHelper
 {
     /**
-     * @var list<array<string, class-string<EnvironmentHelperTransformerInterface>>>
+     * @var array<int, array<class-string<EnvironmentHelperTransformerInterface>, class-string<EnvironmentHelperTransformerInterface>>>
      */
     private static array $transformers = [];
 
@@ -26,6 +26,7 @@ class EnvironmentHelper
         $transformerData = new EnvironmentHelperTransformerData($key, $value, $default);
 
         foreach (self::$transformers as $transformers) {
+            /** @var class-string<EnvironmentHelperTransformerInterface> $transformer */
             foreach ($transformers as $transformer) {
                 $transformer::transform($transformerData);
             }

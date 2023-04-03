@@ -45,24 +45,6 @@ class DocsAppEventCommand extends Command
         parent::__construct();
     }
 
-    public function execute(InputInterface $input, OutputInterface $output): int
-    {
-        $io = new SymfonyStyle($input, $output);
-
-        $io->section('Generates documentation for all events that can be registered as webhook');
-
-        file_put_contents(
-            self::EVENT_DOCUMENT_PATH,
-            $this->render()
-        );
-
-        $io->success('All events were generated successfully');
-
-        $io->note(self::EVENT_DOCUMENT_PATH);
-
-        return self::SUCCESS;
-    }
-
     public function render(): string
     {
         $eventsDoc = [];
@@ -91,6 +73,24 @@ class DocsAppEventCommand extends Command
     public function getListEventPath(): string
     {
         return self::EVENT_DOCUMENT_PATH;
+    }
+
+    protected function execute(InputInterface $input, OutputInterface $output): int
+    {
+        $io = new SymfonyStyle($input, $output);
+
+        $io->section('Generates documentation for all events that can be registered as webhook');
+
+        file_put_contents(
+            self::EVENT_DOCUMENT_PATH,
+            $this->render()
+        );
+
+        $io->success('All events were generated successfully');
+
+        $io->note(self::EVENT_DOCUMENT_PATH);
+
+        return self::SUCCESS;
     }
 
     protected function configure(): void

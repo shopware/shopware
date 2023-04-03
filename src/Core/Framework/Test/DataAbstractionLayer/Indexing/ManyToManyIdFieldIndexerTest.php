@@ -28,7 +28,7 @@ class ManyToManyIdFieldIndexerTest extends TestCase
      */
     private $productRepository;
 
-    public function setup(): void
+    protected function setUp(): void
     {
         $this->productPropertyRepository = $this->getContainer()->get('product_property.repository');
         $this->productRepository = $this->getContainer()->get('product.repository');

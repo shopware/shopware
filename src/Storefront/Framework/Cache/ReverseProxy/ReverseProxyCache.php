@@ -103,10 +103,7 @@ class ReverseProxyCache implements StoreInterface
         return false;
     }
 
-    /**
-     * @param string $url
-     */
-    public function purge($url): bool
+    public function purge(string $url): bool
     {
         $this->gateway->ban([$url]);
 

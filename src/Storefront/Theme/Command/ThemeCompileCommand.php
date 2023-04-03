@@ -32,7 +32,7 @@ class ThemeCompileCommand extends Command
         parent::__construct();
     }
 
-    public function configure(): void
+    protected function configure(): void
     {
         $this
             ->addOption('keep-assets', 'k', InputOption::VALUE_NONE, 'Keep current assets, do not delete them')

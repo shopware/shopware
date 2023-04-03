@@ -133,6 +133,8 @@ class PrimaryKeyResolver
         array $updateByFieldPath,
         Criteria $criteria
     ): ?string {
+        \assert(\is_string($updateByFieldPath[0]));
+
         if (!$definition->getField($updateByFieldPath[0]) instanceof TranslationsAssociationField) {
             return implode('.', $updateByFieldPath);
         }

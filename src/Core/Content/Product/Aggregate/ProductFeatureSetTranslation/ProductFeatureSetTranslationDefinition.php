@@ -30,14 +30,14 @@ class ProductFeatureSetTranslationDefinition extends EntityTranslationDefinition
         return self::ENTITY_NAME;
     }
 
-    public function getParentDefinitionClass(): string
-    {
-        return ProductFeatureSetDefinition::class;
-    }
-
     public function since(): ?string
     {
         return '6.3.0.0';
+    }
+
+    protected function getParentDefinitionClass(): string
+    {
+        return ProductFeatureSetDefinition::class;
     }
 
     protected function defineFields(): FieldCollection

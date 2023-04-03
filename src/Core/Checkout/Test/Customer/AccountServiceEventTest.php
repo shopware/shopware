@@ -69,7 +69,7 @@ class AccountServiceEventTest extends TestCase
 
         $eventDidRun = false;
 
-        $listenerClosure = $this->getEmailListenerClosure($eventDidRun, $this);
+        $listenerClosure = $this->getEmailListenerClosure($eventDidRun);
         $this->addEventListener($dispatcher, CustomerBeforeLoginEvent::class, $listenerClosure);
 
         $dataBag = new DataBag();
@@ -112,12 +112,12 @@ class AccountServiceEventTest extends TestCase
 
             switch ($eventClass) {
                 case CustomerBeforeLoginEvent::class:
-                    $listenerClosure = $this->getEmailListenerClosure($eventDidRun, $this);
+                    $listenerClosure = $this->getEmailListenerClosure($eventDidRun);
 
                     break;
                 case CustomerLoginEvent::class:
                 default:
-                    $listenerClosure = $this->getCustomerListenerClosure($eventDidRun, $this);
+                    $listenerClosure = $this->getCustomerListenerClosure($eventDidRun);
             }
 
             $this->addEventListener($dispatcher, $eventClass, $listenerClosure);
@@ -149,7 +149,7 @@ class AccountServiceEventTest extends TestCase
 
         $eventDidRun = false;
 
-        $listenerClosure = $this->getCustomerListenerClosure($eventDidRun, $this);
+        $listenerClosure = $this->getCustomerListenerClosure($eventDidRun);
         $this->addEventListener($dispatcher, CustomerLogoutEvent::class, $listenerClosure);
 
         $customer = $this->customerRepository->search(
@@ -177,7 +177,7 @@ class AccountServiceEventTest extends TestCase
 
         $eventDidRun = false;
 
-        $listenerClosure = $this->getCustomerListenerClosure($eventDidRun, $this);
+        $listenerClosure = $this->getCustomerListenerClosure($eventDidRun);
         $this->addEventListener($dispatcher, CustomerChangedPaymentMethodEvent::class, $listenerClosure);
 
         /** @var CustomerEntity $customer */
@@ -202,19 +202,19 @@ class AccountServiceEventTest extends TestCase
         $dispatcher->removeListener(CustomerChangedPaymentMethodEvent::class, $listenerClosure);
     }
 
-    private function getEmailListenerClosure(bool &$eventDidRun, self $phpunit): callable
+    private function getEmailListenerClosure(bool &$eventDidRun): callable
     {
-        return function ($event) use (&$eventDidRun, $phpunit): void {
+        return function ($event) use (&$eventDidRun): void {
             $eventDidRun = true;
-            $phpunit->assertSame('info@example.com', $event->getEmail());
+            static::assertSame('info@example.com', $event->getEmail());
         };
     }
 
-    private function getCustomerListenerClosure(bool &$eventDidRun, self $phpunit): callable
+    private function getCustomerListenerClosure(bool &$eventDidRun): callable
     {
-        return function ($event) use (&$eventDidRun, $phpunit): void {
+        return function ($event) use (&$eventDidRun): void {
             $eventDidRun = true;
-            $phpunit->assertSame('info@example.com', $event->getCustomer()->getEmail());
+            static::assertSame('info@example.com', $event->getCustomer()->getEmail());
         };
     }
 }

@@ -82,11 +82,14 @@ class ElasticsearchStatusCommand extends Command
             $output->writeln('');
         }
 
+        /** @var list<string> $usedIndices */
         $usedIndices = array_keys($this->client->indices()->getAlias(['name' => $indexTask['alias']]));
 
-        if (!\in_array($indexTask['index'], $usedIndices, true)) {
+        $indexName = $indexTask['index'];
+        \assert(\is_string($indexName));
+        if (!\in_array($indexName, $usedIndices, true)) {
             $io = new SymfonyStyle($input, $output);
-            $io->warning(sprintf('Alias will swap at the end of the indexing process from %s to %s', $usedIndices[0], $indexTask['index']));
+            $io->warning(sprintf('Alias will swap at the end of the indexing process from %s to %s', $usedIndices[0], $indexName));
         }
 
         return self::SUCCESS;

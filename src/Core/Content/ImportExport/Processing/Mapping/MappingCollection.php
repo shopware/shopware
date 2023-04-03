@@ -57,11 +57,6 @@ class MappingCollection extends Collection
         return $this->get($writeKey);
     }
 
-    public function getExpectedClass(): ?string
-    {
-        return Mapping::class;
-    }
-
     /**
      * @param iterable<string|MappingArray|Mapping|MappingCollection> $data
      */
@@ -98,5 +93,10 @@ class MappingCollection extends Collection
         usort($mappings, fn (Mapping $firstMapping, Mapping $secondMapping) => $firstMapping->getPosition() - $secondMapping->getPosition());
 
         return $mappings;
+    }
+
+    protected function getExpectedClass(): ?string
+    {
+        return Mapping::class;
     }
 }

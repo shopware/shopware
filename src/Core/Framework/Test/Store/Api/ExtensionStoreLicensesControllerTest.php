@@ -17,11 +17,6 @@ class ExtensionStoreLicensesControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    public function setUp(): void
-    {
-        parent::setUp();
-    }
-
     public function testCancelSubscription(): void
     {
         $provider = $this->createMock(ExtensionStoreLicensesService::class);

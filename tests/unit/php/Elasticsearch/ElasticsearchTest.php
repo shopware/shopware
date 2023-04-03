@@ -28,7 +28,7 @@ class ElasticsearchTest extends TestCase
         $container->setParameter('kernel.environment', 'prod');
 
         $bundle = new Elasticsearch();
-        $extension = $bundle->createContainerExtension();
+        $extension = $bundle->getContainerExtension();
         static::assertInstanceOf(ExtensionInterface::class, $extension);
         $container->registerExtension($extension);
         $bundle->build($container);
@@ -42,7 +42,7 @@ class ElasticsearchTest extends TestCase
         $container->setParameter('kernel.environment', 1);
 
         $bundle = new Elasticsearch();
-        $extension = $bundle->createContainerExtension();
+        $extension = $bundle->getContainerExtension();
         static::assertInstanceOf(ExtensionInterface::class, $extension);
         $container->registerExtension($extension);
 

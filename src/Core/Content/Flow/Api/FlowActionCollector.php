@@ -85,7 +85,7 @@ class FlowActionCollector
         }
 
         return new FlowActionDefinition(
-            $service::getName(),
+            $service->getName(),
             $requirementsName,
             $delayable
         );

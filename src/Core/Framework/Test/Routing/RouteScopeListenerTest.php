@@ -111,9 +111,11 @@ class RouteScopeListenerTest extends TestCase
 
     private function createEvent(Request $request): ControllerEvent
     {
+        $controller = $this->getContainer()->get(ApiController::class);
+
         return new ControllerEvent(
             $this->getContainer()->get('kernel'),
-            [$this->getContainer()->get(ApiController::class), 'clone'],
+            $controller->clone(...),
             $request,
             HttpKernelInterface::SUB_REQUEST
         );

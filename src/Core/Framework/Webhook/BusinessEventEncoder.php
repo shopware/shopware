@@ -32,7 +32,7 @@ class BusinessEventEncoder
      */
     public function encode(FlowEventAware $event): array
     {
-        return $this->encodeType($event::getAvailableData()->toArray(), $event);
+        return $this->encodeType($event->getAvailableData()->toArray(), $event);
     }
 
     /**

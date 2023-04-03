@@ -24,11 +24,6 @@ class ExtensionStoreActionsControllerTest extends TestCase
     use IntegrationTestBehaviour;
     use AdminApiTestBehaviour;
 
-    public function setUp(): void
-    {
-        parent::setUp();
-    }
-
     public function testRefreshExtensions(): void
     {
         $controller = new ExtensionStoreActionsController(

@@ -26,14 +26,14 @@ class DefaultsChildTranslationDefinition extends EntityTranslationDefinition
         return 'defaults_child_translation';
     }
 
-    public function getParentDefinitionClass(): string
-    {
-        return DefaultsChildDefinition::class;
-    }
-
     public function since(): ?string
     {
         return '6.4.0.0';
+    }
+
+    protected function getParentDefinitionClass(): string
+    {
+        return DefaultsChildDefinition::class;
     }
 
     protected function defineFields(): FieldCollection

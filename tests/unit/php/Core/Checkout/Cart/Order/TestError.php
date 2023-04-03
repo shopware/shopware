@@ -12,7 +12,7 @@ class TestError extends Error
 {
     final public const LEVEL_UNKNOWN = \PHP_INT_MAX;
 
-    private function __construct(
+    public function __construct(
         private readonly int $level,
         private readonly bool $blockOrderVal = true,
         private readonly bool $blockResubmitVal = true

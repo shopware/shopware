@@ -106,7 +106,7 @@ class ConstraintViolationException extends ShopwareHttpException
                     $violation->getPropertyPath(),
                     $violation->getInvalidValue(),
                     $violation->getPlural(),
-                    'VIOLATION::' . $constraint::getErrorName($violation->getCode()),
+                    'VIOLATION::' . $constraint->getErrorName($violation->getCode() ?? ''),
                     $constraint
                 ));
             }

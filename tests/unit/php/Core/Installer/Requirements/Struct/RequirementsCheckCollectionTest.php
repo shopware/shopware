@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Installer\Requirements\Struct;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Installer\Requirements\Struct\PathCheck;
 use Shopware\Core\Installer\Requirements\Struct\RequirementCheck;
 use Shopware\Core\Installer\Requirements\Struct\RequirementsCheckCollection;
@@ -19,7 +20,10 @@ class RequirementsCheckCollectionTest extends TestCase
     {
         $collection = new RequirementsCheckCollection();
 
-        static::assertSame(RequirementCheck::class, $collection->getExpectedClass());
+        $collection->add(new PathCheck('name', RequirementCheck::STATUS_SUCCESS));
+
+        static::expectException(\InvalidArgumentException::class);
+        $collection->add(new ProductEntity()); /** @phpstan-ignore-line */
     }
 
     /**

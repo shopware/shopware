@@ -45,11 +45,6 @@ class CachedCountryStateRoute extends AbstractCountryStateRoute
         return 'country-state-route-' . $id;
     }
 
-    public function getDecorated(): AbstractCountryStateRoute
-    {
-        return $this->decorated;
-    }
-
     #[Route(path: '/store-api/country-state/{countryId}', name: 'store-api.country.state', methods: ['GET', 'POST'], defaults: ['_entity' => 'country'])]
     public function load(string $countryId, Request $request, Criteria $criteria, SalesChannelContext $context): CountryStateRouteResponse
     {
@@ -73,6 +68,11 @@ class CachedCountryStateRoute extends AbstractCountryStateRoute
         });
 
         return CacheValueCompressor::uncompress($value);
+    }
+
+    protected function getDecorated(): AbstractCountryStateRoute
+    {
+        return $this->decorated;
     }
 
     private function generateKey(string $countryId, Request $request, SalesChannelContext $context, Criteria $criteria): ?string

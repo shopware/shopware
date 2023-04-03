@@ -81,18 +81,21 @@ class TreeBuildingNavigationRoute extends AbstractNavigationRoute
 
     private function resolveAliasId(string $id, SalesChannelEntity $salesChannelEntity): string
     {
+        $name = $salesChannelEntity->getTranslation('name') ?? '';
+        \assert(\is_string($name));
+
         switch ($id) {
             case 'main-navigation':
                 return $salesChannelEntity->getNavigationCategoryId();
             case 'service-navigation':
                 if ($salesChannelEntity->getServiceCategoryId() === null) {
-                    throw new \RuntimeException(\sprintf('Service category, for sales channel %s, is not set', $salesChannelEntity->getTranslation('name')));
+                    throw new \RuntimeException(\sprintf('Service category, for sales channel %s, is not set', $name));
                 }
 
                 return $salesChannelEntity->getServiceCategoryId();
             case 'footer-navigation':
                 if ($salesChannelEntity->getFooterCategoryId() === null) {
-                    throw new \RuntimeException(\sprintf('Footer category, for sales channel %s, is not set', $salesChannelEntity->getTranslation('name')));
+                    throw new \RuntimeException(\sprintf('Footer category, for sales channel %s, is not set', $name));
                 }
 
                 return $salesChannelEntity->getFooterCategoryId();

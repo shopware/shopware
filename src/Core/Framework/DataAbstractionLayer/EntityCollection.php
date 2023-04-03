@@ -29,7 +29,7 @@ class EntityCollection extends Collection
      */
     public function fill(array $entities): void
     {
-        array_map([$this, 'add'], $entities);
+        array_map($this->add(...), $entities);
     }
 
     /**

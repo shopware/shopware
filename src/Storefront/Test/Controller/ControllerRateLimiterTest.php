@@ -260,7 +260,7 @@ class ControllerRateLimiterTest extends TestCase
             $this->getContainer()->get('promotion.repository'),
             $this->mockResetLimiter([
                 RateLimiter::GUEST_LOGIN => 1,
-            ], $this),
+            ]),
         );
 
         $order = $this->createCustomerWithOrder();

@@ -31,7 +31,7 @@ class ThemeCompiler implements ThemeCompilerInterface
     /**
      * @internal
      *
-     * @param Package[] $packages
+     * @param array<string, Package> $packages
      */
     public function __construct(
         private readonly FilesystemOperator $filesystem,

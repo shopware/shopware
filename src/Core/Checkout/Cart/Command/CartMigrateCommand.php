@@ -35,9 +35,13 @@ class CartMigrateCommand extends Command
      * @internal
      *
      * @param \Redis|\RedisArray|\RedisCluster|RedisClusterProxy|RedisProxy|null $redis
+     *
+     * @phpstan-ignore-next-line ignore can be removed in 6.6.0 when all props are natively typed
      */
     public function __construct(
+        /** @deprecated tag:v6.6.0 - Property will be natively typed and become private and readonly */
         protected $redis,
+        /** @deprecated tag:v6.6.0 - Property will become private and readonly */
         protected Connection $connection,
         private readonly bool $compress,
         private readonly int $expireDays,

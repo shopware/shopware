@@ -532,7 +532,7 @@ class SearchCriteriaBuilderTest extends TestCase
         $products = [];
 
         for ($i = 1; $i <= $count; ++$i) {
-            $products[] = (new ProductBuilder($idsCollection, sprintf('%s.%s', $prefix, $i)))->price(15)->build();
+            $products[] = (new ProductBuilder($idsCollection, sprintf('%s.%d', $prefix, $i)))->price(15)->build();
         }
 
         return $products;

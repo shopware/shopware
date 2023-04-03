@@ -57,6 +57,6 @@ class DataBag extends ParameterBag
 
     public function toRequestDataBag(): RequestDataBag
     {
-        return new RequestDataBag(self::all());
+        return new RequestDataBag($this->all());
     }
 }

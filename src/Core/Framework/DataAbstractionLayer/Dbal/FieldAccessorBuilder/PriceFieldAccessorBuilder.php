@@ -61,7 +61,7 @@ class PriceFieldAccessorBuilder implements FieldAccessorBuilderInterface
             $currencyId = end($parts);
             $currencyFactor = sprintf(
                 '* (SELECT `factor` FROM `currency` WHERE `id` = %s)',
-                $this->connection->quote($currencyId)
+                (string) $this->connection->quote($currencyId)
             );
         }
 

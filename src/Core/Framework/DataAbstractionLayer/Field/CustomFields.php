@@ -10,8 +10,8 @@ use Shopware\Core\Framework\Log\Package;
 class CustomFields extends JsonField
 {
     public function __construct(
-        $storageName = 'custom_fields',
-        $propertyName = 'customFields'
+        string $storageName = 'custom_fields',
+        string $propertyName = 'customFields'
     ) {
         parent::__construct($storageName, $propertyName);
     }

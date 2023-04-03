@@ -32,7 +32,7 @@ abstract class AbstractAppActivationCommand extends Command
 
     abstract public function runAction(string $appId, Context $context): void;
 
-    public function execute(InputInterface $input, OutputInterface $output): int
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new ShopwareStyle($input, $output);
         $context = Context::createDefaultContext();

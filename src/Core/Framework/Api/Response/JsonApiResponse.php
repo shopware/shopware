@@ -8,7 +8,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 #[Package('core')]
 class JsonApiResponse extends JsonResponse
 {
-    public function update(): static
+    protected function update(): static
     {
         parent::update();
 

@@ -20,30 +20,15 @@ class ImportExportLogApiTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
 
-    /**
-     * @var EntityRepository
-     */
-    private $logRepository;
+    private EntityRepository $logRepository;
 
-    /**
-     * @var EntityRepository
-     */
-    private $profileRepository;
+    private EntityRepository $profileRepository;
 
-    /**
-     * @var EntityRepository
-     */
-    private $fileRepository;
+    private EntityRepository $fileRepository;
 
-    /**
-     * @var EntityRepository
-     */
-    private $userRepository;
+    private EntityRepository $userRepository;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     private Context $context;
 
@@ -286,7 +271,7 @@ class ImportExportLogApiTest extends TestCase
             $data[Uuid::fromHexToBytes($uuid)] = [
                 'id' => $uuid,
                 'activity' => $activities[$i % 2] ?? null,
-                'state' => sprintf('state %s', $i),
+                'state' => sprintf('state %d', $i),
                 'userId' => $userIds[$i % 2],
                 'profileId' => $profileIds[$i % 2],
                 'fileId' => $fileIds[$i % 2],
@@ -312,11 +297,11 @@ class ImportExportLogApiTest extends TestCase
             $data[Uuid::fromHexToBytes($uuid)] = [
                 'id' => $uuid,
                 'localeId' => $this->getLocaleIdOfSystemLanguage(),
-                'username' => sprintf('foobar%s', $i),
-                'password' => sprintf('shopwarepw%s', $i),
-                'firstName' => sprintf('Foo%s', $i),
-                'lastName' => sprintf('Bar%s', $i),
-                'email' => sprintf('fo%s@ob.ar', $i),
+                'username' => sprintf('foobar%d', $i),
+                'password' => sprintf('shopwarepw%d', $i),
+                'firstName' => sprintf('Foo%d', $i),
+                'lastName' => sprintf('Bar%d', $i),
+                'email' => sprintf('fo%d@ob.ar', $i),
             ];
         }
         $this->userRepository->create(array_values($data), $this->context);
@@ -335,8 +320,8 @@ class ImportExportLogApiTest extends TestCase
 
             $data[Uuid::fromHexToBytes($uuid)] = [
                 'id' => $uuid,
-                'originalName' => sprintf('file%s.xml', $i),
-                'path' => sprintf('/test/test%s', $i),
+                'originalName' => sprintf('file%d.xml', $i),
+                'path' => sprintf('/test/test%d', $i),
                 'expireDate' => sprintf('2011-01-01T15:03:%02d', $i),
                 'accessToken' => Random::getBase64UrlString(32),
             ];

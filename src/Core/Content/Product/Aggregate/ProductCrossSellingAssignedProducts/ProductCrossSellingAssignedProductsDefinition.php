@@ -35,11 +35,6 @@ class ProductCrossSellingAssignedProductsDefinition extends EntityDefinition
         return ProductCrossSellingAssignedProductsCollection::class;
     }
 
-    public function getParentDefinitionClass(): ?string
-    {
-        return ProductCrossSellingDefinition::class;
-    }
-
     public function since(): ?string
     {
         return '6.2.0.0';
@@ -48,6 +43,11 @@ class ProductCrossSellingAssignedProductsDefinition extends EntityDefinition
     public function getHydratorClass(): string
     {
         return ProductCrossSellingAssignedProductsHydrator::class;
+    }
+
+    protected function getParentDefinitionClass(): ?string
+    {
+        return ProductCrossSellingDefinition::class;
     }
 
     protected function defineFields(): FieldCollection

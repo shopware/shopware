@@ -245,7 +245,7 @@ class RequestCriteriaBuilder
             ++$index;
 
             if ($field === '') {
-                $searchRequestException->add(new InvalidFilterQueryException(sprintf('The key for filter at position "%s" must not be blank.', $index)), '/filter/' . $index);
+                $searchRequestException->add(new InvalidFilterQueryException(sprintf('The key for filter at position "%d" must not be blank.', $index)), '/filter/' . $index);
 
                 continue;
             }

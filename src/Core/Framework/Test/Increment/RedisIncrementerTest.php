@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
  */
 class RedisIncrementerTest extends TestCase
 {
-    private \Redis $redis;
+    private ?\Redis $redis = null;
 
     private RedisIncrementer $incrementer;
 
@@ -41,9 +41,7 @@ class RedisIncrementerTest extends TestCase
     {
         parent::tearDown();
 
-        if (isset($this->redis)) {
-            $this->redis->flushAll();
-        }
+        $this->redis?->flushAll();
     }
 
     public function testIncrement(): void

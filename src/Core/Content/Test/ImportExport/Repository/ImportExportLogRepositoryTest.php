@@ -24,30 +24,15 @@ class ImportExportLogRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var EntityRepository
-     */
-    private $logRepository;
+    private EntityRepository $logRepository;
 
-    /**
-     * @var EntityRepository
-     */
-    private $profileRepository;
+    private EntityRepository $profileRepository;
 
-    /**
-     * @var EntityRepository
-     */
-    private $fileRepository;
+    private EntityRepository $fileRepository;
 
-    /**
-     * @var EntityRepository
-     */
-    private $userRepository;
+    private EntityRepository $userRepository;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     private Context $context;
 
@@ -409,7 +394,7 @@ class ImportExportLogRepositoryTest extends TestCase
             $data[Uuid::fromHexToBytes($uuid)] = [
                 'id' => $uuid,
                 'activity' => ($activities[$i % 2] ?? '') . $add,
-                'state' => sprintf('state %s', $i),
+                'state' => sprintf('state %d', $i),
                 'userId' => $userIds[$i % 2],
                 'profileId' => $profileIds[$i % 2],
                 'fileId' => $fileIds[$i % 2],
@@ -436,9 +421,9 @@ class ImportExportLogRepositoryTest extends TestCase
                 'id' => $uuid,
                 'localeId' => $this->getLocaleIdOfSystemLanguage(),
                 'username' => sprintf('user_%s', Uuid::randomHex()),
-                'password' => sprintf('shopwarepw%s', $i),
-                'firstName' => sprintf('Foo%s', $i),
-                'lastName' => sprintf('Bar%s', $i),
+                'password' => sprintf('shopwarepw%d', $i),
+                'firstName' => sprintf('Foo%d', $i),
+                'lastName' => sprintf('Bar%d', $i),
                 'email' => sprintf('%s@foo.bar', $uuid),
             ];
         }
@@ -458,8 +443,8 @@ class ImportExportLogRepositoryTest extends TestCase
 
             $data[Uuid::fromHexToBytes($uuid)] = [
                 'id' => $uuid,
-                'originalName' => sprintf('file%s.xml', $i),
-                'path' => sprintf('/test/test%s', $i),
+                'originalName' => sprintf('file%d.xml', $i),
+                'path' => sprintf('/test/test%d', $i),
                 'expireDate' => sprintf('2011-01-01T15:03:%02d', $i),
                 'accessToken' => Random::getBase64UrlString(32),
             ];

@@ -32,14 +32,14 @@ class PromotionTranslationDefinition extends EntityTranslationDefinition
         return PromotionTranslationCollection::class;
     }
 
-    public function getParentDefinitionClass(): string
-    {
-        return PromotionDefinition::class;
-    }
-
     public function since(): ?string
     {
         return '6.0.0.0';
+    }
+
+    protected function getParentDefinitionClass(): string
+    {
+        return PromotionDefinition::class;
     }
 
     protected function defineFields(): FieldCollection

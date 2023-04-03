@@ -179,7 +179,7 @@ class GenerateDocumentActionTest extends TestCase
                 str_replace('_', ' ', $documentType),
                 $order->getId(),
             ),
-            $record['message']
+            $record->message
         );
     }
 

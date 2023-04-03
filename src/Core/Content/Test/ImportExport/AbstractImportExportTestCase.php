@@ -62,7 +62,7 @@ abstract class AbstractImportExportTestCase extends TestCase
 
     protected TraceableEventDispatcher $listener;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->productRepository = $this->getContainer()->get('product.repository');
 

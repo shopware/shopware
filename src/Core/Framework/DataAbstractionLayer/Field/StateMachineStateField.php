@@ -33,7 +33,7 @@ class StateMachineStateField extends FkField
         return $this->allowedWriteScopes;
     }
 
-    public function getSerializerClass(): string
+    protected function getSerializerClass(): string
     {
         return StateMachineStateFieldSerializer::class;
     }

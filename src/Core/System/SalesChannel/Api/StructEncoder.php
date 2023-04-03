@@ -56,9 +56,13 @@ class StructEncoder
 
         if ($struct instanceof AggregationResultCollection) {
             $mapped = [];
+            /**
+             * @var int $index
+             * @var string $key
+             */
             foreach (\array_keys($struct->getElements()) as $index => $key) {
                 if (!isset($data[$index]) || !\is_array($data[$index])) {
-                    throw new \RuntimeException(\sprintf('Can not find encoded aggregation %s for data index %s', $key, $index));
+                    throw new \RuntimeException(\sprintf('Can not find encoded aggregation %s for data index %d', $key, $index));
                 }
 
                 $entity = $struct->get($key);
@@ -78,10 +82,13 @@ class StructEncoder
             if (isset($data['elements'])) {
                 $entities = [];
 
+                /**
+                 * @var int $index
+                 */
                 foreach (\array_values($data['elements']) as $index => $value) {
                     $entity = $struct->getAt($index);
                     if (!$entity instanceof Struct) {
-                        throw new \RuntimeException(\sprintf('Entity %s is not an struct', $index));
+                        throw new \RuntimeException(\sprintf('Entity at index %d is not an struct', $index));
                     }
 
                     $entities[] = $this->encodeStruct($entity, $fields, $value);

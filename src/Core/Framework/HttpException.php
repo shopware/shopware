@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 abstract class HttpException extends ShopwareHttpException
 {
-    protected function __construct(
+    public function __construct(
         protected int $statusCode,
         protected string $errorCode,
         string $message,

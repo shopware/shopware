@@ -154,7 +154,7 @@ class SalesChannelValidator implements EventSubscriberInterface
     }
 
     /**
-     * @param array<string, list<string>> $mapping
+     * @param array<string, array<string, list<string>>> $mapping
      */
     private function validateLanguages(array $mapping, PreWriteValidationEvent $event): void
     {
@@ -221,13 +221,13 @@ class SalesChannelValidator implements EventSubscriberInterface
     }
 
     /**
-     * @param array<string, mixed> $channel
+     * @param array<string, list<string>> $channel
      *
-     * @return array<string, mixed>
+     * @return list<string>
      */
     private function getDuplicates(array $channel): array
     {
-        return array_intersect($channel['state'], $channel['inserts']);
+        return array_values(array_intersect($channel['state'], $channel['inserts']));
     }
 
     /**
@@ -259,7 +259,7 @@ class SalesChannelValidator implements EventSubscriberInterface
     }
 
     /**
-     * @param array<string, mixed> $duplicates
+     * @param array<string, list<string>> $duplicates
      */
     private function writeDuplicateViolationExceptions(array $duplicates, PreWriteValidationEvent $event): void
     {

@@ -33,11 +33,6 @@ class CheapestPriceTest extends TestCase
 {
     use KernelTestBehaviour;
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-    }
-
     /**
      * @beforeClass
      */

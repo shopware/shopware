@@ -185,6 +185,7 @@ class AggregationParser
             return null;
         }
 
+        /** @var string|null $type */
         $type = $aggregation['type'] ?? null;
 
         if (empty($type) || is_numeric($type)) {

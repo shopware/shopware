@@ -336,8 +336,8 @@ EOF;
         $connection = $this->getContainer()->get(Connection::class);
         $insertInjection = sprintf(
             'INSERT INTO `tax` (id, tax_rate, name, created_at) VALUES(UNHEX(%s), %s, "foo", %s)',
-            $connection->quote($taxId),
-            $taxRate,
+            (string) $connection->quote($taxId),
+            (string) $taxRate, // use php string conversion, to avoid locale based float to string conversion in sprintf
             (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)
         );
         $keyWithQuotes = sprintf(

@@ -9,7 +9,6 @@ use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Struct\Struct;
 
 #[Package('system-settings')]
 class EntityPipe extends AbstractPipe
@@ -24,9 +23,9 @@ class EntityPipe extends AbstractPipe
     }
 
     /**
-     * @param iterable|Struct $record
+     * @param array<mixed> $record
      */
-    public function in(Config $config, $record): iterable
+    public function in(Config $config, iterable $record): iterable
     {
         $this->loadConfig($config);
 

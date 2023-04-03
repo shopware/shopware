@@ -1,8 +1,1 @@
-{
-    "config": {
-        "allow-plugins": {
-            "bamarni/composer-bin-plugin": true,
-            "phpstan/extension-installer": true
-        }
-    }
-}
+{}

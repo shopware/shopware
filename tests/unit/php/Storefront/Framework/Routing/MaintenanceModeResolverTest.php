@@ -17,7 +17,7 @@ class MaintenanceModeResolverTest extends TestCase
 {
     public function testShouldInstantiate(): void
     {
-        static::assertInstanceOf(MaintenanceModeResolver::class, new MaintenanceModeResolver(self::getRequestStack()));
+        static::assertInstanceOf(MaintenanceModeResolver::class, new MaintenanceModeResolver($this->getRequestStack()));
     }
 
     /**
@@ -36,7 +36,7 @@ class MaintenanceModeResolverTest extends TestCase
          * we need to be able to set the master-request's config here, since
          * the resolver reads the whitelist from it.
          */
-        $resolver = new MaintenanceModeResolver(self::getRequestStack($request));
+        $resolver = new MaintenanceModeResolver($this->getRequestStack($request));
 
         if ($shouldRedirect) {
             static::assertTrue(
@@ -59,7 +59,7 @@ class MaintenanceModeResolverTest extends TestCase
      */
     public function testShouldRedirectToShop(Request $request, bool $shouldRedirect): void
     {
-        $resolver = new MaintenanceModeResolver(self::getRequestStack($request));
+        $resolver = new MaintenanceModeResolver($this->getRequestStack($request));
 
         if ($shouldRedirect) {
             static::assertFalse(
@@ -83,7 +83,7 @@ class MaintenanceModeResolverTest extends TestCase
     public function testIsMaintenanceRequest(Request $request, bool $expected): void
     {
         static::assertEquals(
-            (new MaintenanceModeResolver(self::getRequestStack($request)))->isMaintenanceRequest($request),
+            (new MaintenanceModeResolver($this->getRequestStack($request)))->isMaintenanceRequest($request),
             $expected
         );
     }
@@ -261,7 +261,7 @@ class MaintenanceModeResolverTest extends TestCase
             $proxyIp = '172.17.1.12';
             $request->server->set('REMOTE_ADDR', $proxyIp);
 
-            $request::setTrustedProxies([$proxyIp], Request::HEADER_FORWARDED);
+            $request->setTrustedProxies([$proxyIp], Request::HEADER_FORWARDED);
             $request->headers->set('Forwarded', sprintf('by=%s;for=%s', $proxyIp, $clientIp));
         } else {
             $request->server->set('REMOTE_ADDR', $clientIp);

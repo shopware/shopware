@@ -75,7 +75,7 @@ class BusinessEventCollector
         return new BusinessEventDefinition(
             $name,
             $class,
-            $instance::getAvailableData()->toArray(),
+            $instance->getAvailableData()->toArray(),
             $aware
         );
     }

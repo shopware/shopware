@@ -32,7 +32,7 @@ abstract class StorefrontController extends AbstractController
     public const INFO = 'info';
     public const WARNING = 'warning';
 
-    private Environment $twig;
+    private ?Environment $twig = null;
 
     public function setTwig(Environment $twig): void
     {
@@ -235,7 +235,7 @@ abstract class StorefrontController extends AbstractController
     {
         $view = $this->getTemplateFinder()->find($view);
 
-        if (isset($this->twig)) {
+        if ($this->twig !== null) {
             return $this->twig->render($view, $parameters);
         }
 

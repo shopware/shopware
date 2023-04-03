@@ -54,7 +54,7 @@ class EntityPipeTest extends TestCase
         ]);
         $product->setUniqueIdentifier($id);
 
-        $result = iterator_to_array($entityPipe->in($config, $product));
+        $result = iterator_to_array($entityPipe->in($config, $product->jsonSerialize()));
 
         static::assertSame($product->getId(), $result['id']);
         static::assertSame($product->getTranslations()->first()->getName(), $result['translations']['DEFAULT']['name']);

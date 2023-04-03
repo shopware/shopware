@@ -65,6 +65,8 @@ EOD;
     {
         $playbook = [];
         foreach ($keyStructures as $constraintName => $keyStructure) {
+            \assert(\is_string($keyStructure['TABLE_NAME']));
+
             $indexes = $this->schemaManager->listTableIndexes($keyStructure['TABLE_NAME']);
 
             $playbook[] = sprintf(self::DROP_FOREIGN_KEY, $keyStructure['TABLE_NAME'], $constraintName);
@@ -179,6 +181,7 @@ EOD;
     private function fetchRelationData(string $tableName): array
     {
         $databaseName = $this->connection->fetchOne('SELECT DATABASE()');
+        \assert(\is_string($databaseName));
         $query = sprintf(self::FIND_RELATIONSHIPS_QUERY, $databaseName, $tableName);
 
         return $this->connection->fetchAllAssociative($query);
@@ -218,13 +221,17 @@ EOD;
 
     private function determineAddColumnSql(ForeignKeyConstraint $fk, array $keyStructure, string $foreignKeyColumnName, string $default): string
     {
+        \assert(\is_string($keyStructure['TABLE_NAME']));
+        $columnName = end($keyStructure['COLUMN_NAME']);
+        \assert(\is_string($columnName));
+
         $isNullable = $fk->getOption('onDelete') === 'SET NULL';
         if ($isNullable) {
             $addColumnSql = sprintf(
                 self::ADD_NEW_COLUMN_NULLABLE,
                 $keyStructure['TABLE_NAME'],
                 $foreignKeyColumnName,
-                end($keyStructure['COLUMN_NAME'])
+                $columnName
             );
         } else {
             $addColumnSql = sprintf(
@@ -232,7 +239,7 @@ EOD;
                 $keyStructure['TABLE_NAME'],
                 $foreignKeyColumnName,
                 $default,
-                end($keyStructure['COLUMN_NAME'])
+                $columnName
             );
         }
 
@@ -241,6 +248,9 @@ EOD;
 
     private function getAddForeignKeySql(array $keyStructure, string $constraintName, string $foreignKeyColumnName, string $newColumnName, ForeignKeyConstraint $fk): string
     {
+        \assert(\is_string($keyStructure['TABLE_NAME']));
+        \assert(\is_string($keyStructure['REFERENCED_TABLE_NAME']));
+
         return sprintf(
             self::ADD_FOREIGN_KEY,
             $keyStructure['TABLE_NAME'],
@@ -250,12 +260,13 @@ EOD;
             $keyStructure['REFERENCED_TABLE_NAME'],
             $this->implodeColumns($keyStructure['REFERENCED_COLUMN_NAME']),
             $newColumnName,
-            $fk->getOption('onDelete') ?? 'RESTRICT'
+            (string) ($fk->getOption('onDelete') ?? 'RESTRICT')
         );
     }
 
     private function determineModifyPrimaryKeySql(array $keyStructure, string $foreignKeyColumnName): ?string
     {
+        \assert(\is_string($keyStructure['TABLE_NAME']));
         $indexes = $this->schemaManager->listTableIndexes($keyStructure['TABLE_NAME']);
         if (isset($indexes['primary']) && \count(array_intersect($indexes['primary']->getColumns(), $keyStructure['COLUMN_NAME']))) {
             return sprintf(

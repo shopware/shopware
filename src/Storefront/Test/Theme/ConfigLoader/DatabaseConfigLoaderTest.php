@@ -58,7 +58,7 @@ class DatabaseConfigLoaderTest extends TestCase
      */
     public function testMediaConfigurationLoading(): void
     {
-        self::setUpMedia();
+        $this->setUpMedia();
 
         $theme = [[
             'id' => $this->ids->get('base'),

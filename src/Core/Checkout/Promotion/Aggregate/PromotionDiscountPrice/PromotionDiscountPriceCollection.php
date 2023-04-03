@@ -11,13 +11,13 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('checkout')]
 class PromotionDiscountPriceCollection extends EntityCollection
 {
-    public function getExpectedClass(): string
-    {
-        return PromotionDiscountPriceEntity::class;
-    }
-
     public function getApiAlias(): string
     {
         return 'promotion_discount_price_collection';
+    }
+
+    protected function getExpectedClass(): string
+    {
+        return PromotionDiscountPriceEntity::class;
     }
 }

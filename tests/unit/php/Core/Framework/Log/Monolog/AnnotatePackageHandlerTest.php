@@ -159,7 +159,7 @@ class AnnotatePackageHandlerTest extends TestCase
 
         try {
             $command = new TestCommand();
-            $command->execute($this->createMock(InputInterface::class), $this->createMock(OutputInterface::class));
+            $command->run($this->createMock(InputInterface::class), $this->createMock(OutputInterface::class));
         } catch (\Throwable $e) {
             $exception = $e;
         }
@@ -252,7 +252,7 @@ class TestExceptionNoPackage extends ShopwareHttpException
 #[Package('command')]
 class TestCommand extends Command
 {
-    public function execute(InputInterface $input, OutputInterface $output): int
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $testCause = new TestCause();
         $testCause->throw(new TestException('test'));

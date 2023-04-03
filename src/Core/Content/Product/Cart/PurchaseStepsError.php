@@ -1,5 +1,4 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Shopware\Core\Content\Product\Cart;
 
@@ -9,37 +8,18 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('inventory')]
 class PurchaseStepsError extends Error
 {
-    /**
-     * @var string
-     */
-    protected $id;
-
-    /**
-     * @var string
-     */
-    protected $name;
-
-    /**
-     * @var int
-     */
-    protected $quantity;
-
     public function __construct(
-        string $id,
-        string $name,
-        int $quantity
+        protected string $id,
+        protected string $name,
+        protected int $quantity
     ) {
-        $this->id = $id;
-
         $this->message = sprintf(
-            'Your input quantity does not match with the setup of the %s. The quantity was changed to %s',
+            'Your input quantity does not match with the setup of the %s. The quantity was changed to %d',
             $name,
             $quantity
         );
 
         parent::__construct($this->message);
-        $this->name = $name;
-        $this->quantity = $quantity;
     }
 
     public function getParameters(): array

@@ -333,9 +333,12 @@ class RegisterRoute extends AbstractRegisterRoute
         if (!$birthdayDay || !$birthdayMonth || !$birthdayYear) {
             return null;
         }
+        \assert(\is_numeric($birthdayDay));
+        \assert(\is_numeric($birthdayMonth));
+        \assert(\is_numeric($birthdayYear));
 
         return new \DateTime(sprintf(
-            '%s-%s-%s',
+            '%d-%d-%d',
             $birthdayYear,
             $birthdayMonth,
             $birthdayDay

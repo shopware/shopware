@@ -53,6 +53,7 @@ class ContextController extends StorefrontController
         }
 
         $languageId = $request->request->get('languageId');
+        \assert(\is_string($languageId));
 
         try {
             $newTokenResponse = $this->contextSwitchRoute->switchContext(

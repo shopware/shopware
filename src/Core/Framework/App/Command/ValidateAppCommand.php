@@ -34,7 +34,29 @@ class ValidateAppCommand extends Command
         parent::__construct();
     }
 
-    public function execute(InputInterface $input, OutputInterface $output): int
+    public function validate(string $appDir): array
+    {
+        $context = Context::createDefaultContext();
+        $invalids = [];
+
+        try {
+            $manifests = $this->getManifestsFromDir($appDir);
+
+            foreach ($manifests as $manifest) {
+                try {
+                    $this->manifestValidator->validate($manifest, $context);
+                } catch (AppValidationException $e) {
+                    $invalids[] = $e->getMessage();
+                }
+            }
+        } catch (XmlParsingException $e) {
+            $invalids[] = $e->getMessage();
+        }
+
+        return $invalids;
+    }
+
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new ShopwareStyle($input, $output);
         $dir = $this->appDir; // validate all apps as default
@@ -64,28 +86,6 @@ class ValidateAppCommand extends Command
         $io->success($successMessage);
 
         return self::SUCCESS;
-    }
-
-    public function validate(string $appDir): array
-    {
-        $context = Context::createDefaultContext();
-        $invalids = [];
-
-        try {
-            $manifests = $this->getManifestsFromDir($appDir);
-
-            foreach ($manifests as $manifest) {
-                try {
-                    $this->manifestValidator->validate($manifest, $context);
-                } catch (AppValidationException $e) {
-                    $invalids[] = $e->getMessage();
-                }
-            }
-        } catch (XmlParsingException $e) {
-            $invalids[] = $e->getMessage();
-        }
-
-        return $invalids;
     }
 
     protected function configure(): void

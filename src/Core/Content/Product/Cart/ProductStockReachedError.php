@@ -9,38 +9,19 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('inventory')]
 class ProductStockReachedError extends Error
 {
-    /**
-     * @var string
-     */
-    protected $id;
-
-    /**
-     * @var string
-     */
-    protected $name;
-
-    /**
-     * @var int
-     */
-    protected $quantity;
-
     public function __construct(
-        string $id,
-        string $name,
-        int $quantity,
+        protected string $id,
+        protected string $name,
+        protected int $quantity,
         protected bool $resolved = true
     ) {
-        $this->id = $id;
-
         $this->message = sprintf(
-            'The product %s is only available %s times',
+            'The product %s is only available %d times',
             $name,
             $quantity
         );
 
         parent::__construct($this->message);
-        $this->name = $name;
-        $this->quantity = $quantity;
     }
 
     public function getParameters(): array

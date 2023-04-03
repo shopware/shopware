@@ -43,9 +43,9 @@ class ScheduledTaskRunner extends Command
     {
         $startTime = microtime(true);
         $endTime = null;
-        $timeLimit = $input->getOption('time-limit');
+        $timeLimit = (int) $input->getOption('time-limit');
         if ($timeLimit) {
-            $endTime = $startTime + (int) $timeLimit;
+            $endTime = $startTime + $timeLimit;
         }
 
         $memoryLimit = $input->getOption('memory-limit');
@@ -84,7 +84,7 @@ class ScheduledTaskRunner extends Command
             }
         }
 
-        return (int) Command::SUCCESS;
+        return Command::SUCCESS;
     }
 
     private function shouldRestart(float $workerStartedAt): bool

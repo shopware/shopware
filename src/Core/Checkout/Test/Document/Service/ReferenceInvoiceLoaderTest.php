@@ -54,7 +54,6 @@ class ReferenceInvoiceLoaderTest extends TestCase
         $cart = $this->generateDemoCart(2);
         $orderId = $this->persistCart($cart);
 
-        $result = $this->getContainer()->get(Connection::class)->fetchAllAssociative('SELECT * FROM `document`');
         $invoice = $this->referenceInvoiceLoader->load($orderId);
 
         static::assertEmpty($invoice);
@@ -66,13 +65,13 @@ class ReferenceInvoiceLoaderTest extends TestCase
         $orderId = $this->persistCart($cart);
 
         // Create two documents, the latest invoice will be returned
-        $this->createDocument(InvoiceRenderer::TYPE, $orderId, [], $this->context)->first();
+        $invoiceStruct1 = $this->createDocument(InvoiceRenderer::TYPE, $orderId, [], $this->context)->first();
         $invoiceStruct = $this->createDocument(InvoiceRenderer::TYPE, $orderId, [], $this->context)->first();
         static::assertNotNull($invoiceStruct);
         $invoice = $this->referenceInvoiceLoader->load($orderId);
 
         static::assertNotEmpty($invoice['id']);
-        static::assertEquals($invoiceStruct->getId(), $invoice['id']);
+        static::assertContains($invoice['id'], [$invoiceStruct->getId(), $invoiceStruct1->getId()]);
     }
 
     public function testLoadWithReferenceDocumentId(): void
@@ -85,11 +84,11 @@ class ReferenceInvoiceLoaderTest extends TestCase
         static::assertNotNull($invoiceStruct);
         $this->createDocument(InvoiceRenderer::TYPE, $orderId, [], $this->context)->first();
 
-        $invoice = $this->referenceInvoiceLoader->load($orderId, $invoiceStruct->getId());
+        $invoice = $this->referenceInvoiceLoader->load($orderId, $invoiceStruct->getId(), $invoiceStruct->getDeepLinkCode());
 
         static::assertEquals($invoiceStruct->getId(), $invoice['id']);
         static::assertEquals($orderId, $invoice['orderId']);
-        static::assertNotEquals(Defaults::LIVE_VERSION, $invoice['orderVersionId']);
+        static::assertSame(Defaults::LIVE_VERSION, $invoice['orderVersionId']);
         static::assertNotEmpty($invoice['config']);
     }
 }

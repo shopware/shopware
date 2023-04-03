@@ -8,3 +8,4 @@ author_github: Moritz Krafeld
 # Administration
 * Changed `src/core/service/plugin-update-listener` to typescript.
 * Changed `src/core/service/plugin-update-listener` to only throw the notification if the user has the permission to update extensions.
+* Changed `src/core/application::getApplicationRoot` return type from `Vue | boolean` to the correct return type `Vue | false`

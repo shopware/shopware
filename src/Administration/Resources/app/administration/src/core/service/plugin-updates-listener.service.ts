@@ -3,6 +3,7 @@
  *
  * @module core/service/plugin-updates-listener
  */
+import type Vue from 'vue';
 import type { LoginService } from './login.service';
 
 type UpdatedListResponse = {
@@ -13,33 +14,33 @@ type UpdatedListResponse = {
 
 /**
  * @deprecated tag:v6.6.0 - Will be private
- * @memberOf module:core/service/plugin-updates-listener
- * @method addPluginUpdatesListener
- * @param loginService
- * @param serviceContainer
  */
 export default function addPluginUpdatesListener(loginService: LoginService, serviceContainer: ServiceContainer): void {
     const localStorageKey = 'lastPluginUpdateCheck';
-    let applicationRoot: Vue | false = false;
 
     function checkForPluginUpdates(innerServiceContainer: ServiceContainer) {
-        const lastUpdate = localStorage.getItem(localStorageKey);
+        // @ts-expect-error - localStorage.getItem() might return null but then Number.parseInt() will return NaN
+        const lastUpdate: number | Number.NaN = Number.parseInt(localStorage.getItem(localStorageKey), 10);
         const oneDay = 24 * 60 * 60 * 1000;
 
-        if (lastUpdate && parseInt(lastUpdate, 10) < Date.now() - oneDay) {
+        if (Number.isNaN(lastUpdate) || lastUpdate < Date.now() - oneDay) {
             // @ts-expect-error
             void innerServiceContainer.storeService.getUpdateList().then((response: UpdatedListResponse) => {
                 if (response.total > 0 && canUpdateExtensions()) {
                     createUpdatesAvailableNotification();
+                    localStorage.setItem(localStorageKey, Date.now().toString());
                 }
-            });
-
-            localStorage.setItem(localStorageKey, Date.now().toString());
+            }).catch(() => { /* ignore notification could not be created */ });
         }
     }
 
     function createUpdatesAvailableNotification(): void {
-        const root = getApplicationRootReference() as Vue;
+        const root: Vue | boolean = Shopware.Application.getApplicationRoot();
+
+        if (!root) {
+            throw new Error('could not find applicationRoot');
+        }
+
         const notification = {
             title: root.$tc(
                 'global.notification-center.plugin-updates-listener.updatesAvailableTitle',
@@ -58,30 +59,15 @@ export default function addPluginUpdatesListener(loginService: LoginService, ser
         );
     }
 
-    function getApplicationRootReference(): Vue | null {
-        if (!applicationRoot) {
-            // @ts-expect-error
-            applicationRoot = Shopware.Application.getApplicationRoot();
-        }
-
-        return applicationRoot || null;
-    }
-
     function canUpdateExtensions(): boolean {
-        let hasNeededPrivileges = false;
         const neededPrivileges = [
             'plugin:update',
             'app.all',
         ];
 
-        neededPrivileges.forEach((privilegeKey) => {
-            // at least one privilege is needed
-            if (serviceContainer.acl.can(privilegeKey)) {
-                hasNeededPrivileges = true;
-            }
+        return neededPrivileges.some((privilegeKey) => {
+            return serviceContainer.acl.can(privilegeKey);
         });
-
-        return hasNeededPrivileges;
     }
 
     Shopware.State.watch(

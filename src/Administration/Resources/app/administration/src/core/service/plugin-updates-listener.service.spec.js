@@ -36,92 +36,78 @@ describe('src/core/service/plugin-update-listener.service.ts', () => {
         };
     }
 
-    describe('checksForUpdatesAndShowsNotification', () => {
+    it('should not update the key if the notification could not be shown', async () => {
+        const lastCheckDate = (currentTime - oneDay - 1).toString();
+        localStorage.setItem(localStorageKey, lastCheckDate);
+
+        // no application root given => no notification can be dispatched => localStorageKey should not be updated
+        jest.spyOn(Shopware.Application, 'getApplicationRoot').mockImplementation(() => { return false; });
+
+        addPluginUpdatesListener(null, createServiceContainer(['plugin:update', 'app.all']));
+        Shopware.State.commit('setCurrentUser', {
+            firstName: 'userFirstName'
+        });
+
+        await flushPromises();
+
+        expect(localStorage.getItem(localStorageKey)).toBe(lastCheckDate);
+    });
+
+    it('should update the key and show a notification', async () => {
         const dispatchFunctionMock = jest.fn();
-        beforeEach(() => {
-            const lastCheckDate = (currentTime - oneDay - 1).toString();
-            localStorage.setItem(localStorageKey, lastCheckDate.toString());
+        const lastCheckDate = (currentTime - oneDay - 1).toString();
+        localStorage.setItem(localStorageKey, lastCheckDate);
 
-            const applicationRoot = getApplicationRoot(dispatchFunctionMock);
-            jest.spyOn(Shopware.Application, 'getApplicationRoot').mockImplementation(() => { return { ...applicationRoot }; });
+        const applicationRoot = getApplicationRoot(dispatchFunctionMock);
+        jest.spyOn(Shopware.Application, 'getApplicationRoot').mockImplementation(() => { return { ...applicationRoot }; });
 
-            addPluginUpdatesListener(null, createServiceContainer(['plugin:update', 'app.all']));
+        addPluginUpdatesListener(null, createServiceContainer(['plugin:update', 'app.all']));
 
-            Shopware.State.commit('setCurrentUser', {
-                firstName: 'userFirstName'
-            });
+        Shopware.State.commit('setCurrentUser', {
+            firstName: 'userFirstName'
         });
 
-        it('should update the key and show a notification', async () => {
-            const expectedDate = currentTime.toString();
+        await flushPromises();
 
-            expect(localStorage.getItem(localStorageKey)).toBe(expectedDate);
-            expect(dispatchFunctionMock).toHaveBeenCalled();
-        });
+        const expectedDate = currentTime.toString();
+
+        expect(localStorage.getItem(localStorageKey)).toBe(expectedDate);
+        expect(dispatchFunctionMock).toHaveBeenCalled();
     });
 
-    describe('checksForUpdatesButDoesNotShowsNotification', () => {
-        const dispatchFunctionMock = jest.fn();
-        beforeEach(() => {
-            const lastCheckDate = (currentTime - oneDay - 1).toString();
-            localStorage.setItem(localStorageKey, lastCheckDate.toString());
+    it('should only update the key if it checked for updates', async () => {
+        // less than one day ago
+        const lastCheckDate = (currentTime - oneDay).toString();
 
-            const applicationRoot = getApplicationRoot(dispatchFunctionMock);
-            jest.spyOn(Shopware.Application, 'getApplicationRoot').mockImplementation(() => { return { ...applicationRoot }; });
+        localStorage.setItem(localStorageKey, lastCheckDate);
 
-            // no permissions given
-            addPluginUpdatesListener(null, createServiceContainer([]));
-
-            Shopware.State.commit('setCurrentUser', {
-                firstName: 'userFirstName'
-            });
+        addPluginUpdatesListener(null, null);
+        Shopware.State.commit('setCurrentUser', {
+            firstName: 'userFirstName'
         });
 
-        it('should update the key but not show a notification if no permissions are given', async () => {
-            const expectedDate = currentTime.toString();
+        await flushPromises();
 
-            expect(localStorage.getItem(localStorageKey)).toBe(expectedDate);
-            expect(dispatchFunctionMock).not.toHaveBeenCalled();
-        });
+        const expectedDate = (currentTime - oneDay).toString();
+
+        expect(localStorage.getItem(localStorageKey)).toBe(expectedDate);
     });
 
-    describe('doesNotCheckForUpdatesTwiceADay', () => {
-        beforeEach(() => {
-            // less than one day ago
-            const lastCheckDate = (currentTime - oneDay).toString();
+    it('should not check if no user was changed', async () => {
+        const lastCheckDate = (currentTime - oneDay - 1).toString();
+        localStorage.setItem(localStorageKey, lastCheckDate);
 
-            localStorage.setItem(localStorageKey, lastCheckDate.toString());
+        Shopware.State.commit('setCurrentUser', null);
+        await flushPromises();
 
-            addPluginUpdatesListener(null, null);
-            Shopware.State.commit('setCurrentUser', {
-                firstName: 'userFirstName'
-            });
-        });
+        addPluginUpdatesListener(null, null);
 
-        it('should only update the key if it checked for updates', async () => {
-            const expectedDate = (currentTime - oneDay).toString();
+        // should not trigger the check because the user was not changed
+        Shopware.State.commit('setCurrentUser', null);
+        await flushPromises();
 
-            expect(localStorage.getItem(localStorageKey)).toBe(expectedDate);
-        });
-    });
+        const expectedDate = (currentTime - oneDay - 1).toString();
 
-    describe('doesNothingIfNoUserChanged', () => {
-        beforeEach(() => {
-            const lastCheckDate = (currentTime - oneDay - 1).toString();
-            localStorage.setItem(localStorageKey, lastCheckDate.toString());
-
-            Shopware.State.commit('setCurrentUser', null);
-
-            addPluginUpdatesListener(null, null);
-
-            // should not trigger the check because the user was not changed
-            Shopware.State.commit('setCurrentUser', null);
-        });
-
-        it('should not check if no user was changed', async () => {
-            const expectedDate = (currentTime - oneDay - 1).toString();
-
-            expect(localStorage.getItem(localStorageKey)).toBe(expectedDate);
-        });
+        expect(localStorage.getItem(localStorageKey)).toBe(expectedDate);
     });
 });

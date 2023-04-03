@@ -2,6 +2,7 @@
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
 ## 6.5.0.0
+*  [NEXT-25966 - Remove creating order version initially](/changelog/release-6-5-0-0/2023-04-03-remove-creating-order-version-initially.md)
 *  [NEXT-25690 - Added defaultRangeIndex property to sw-chart-card](/changelog/release-6-5-0-0/2023-03-14-added-defaultrangeindex-property-to-sw-chart-card.md)
 *  [NEXT-25711 - HTML Filter in Snippets](/changelog/release-6-5-0-0/2023-03-14-html-filter-in-snippets.md)
 *  [NEXT-25758 - Refresh plugins after running composer commands](/changelog/release-6-5-0-0/2023-03-14-refresh-plugin-list-after-running-composer.md)

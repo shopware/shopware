@@ -43,8 +43,6 @@ class ElasticsearchEntityAggregator implements EntityAggregatorInterface
             new ElasticsearchEntityAggregatorSearchEvent($search, $definition, $criteria, $context)
         );
 
-        dump($search->toArray());
-
         try {
             $result = $this->client->search([
                 'index' => $this->helper->getIndexName($definition, $context->getLanguageId()),

@@ -4,24 +4,192 @@ namespace Shopware\Tests\Unit\Core\System\SystemConfig\Api;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SystemConfig\Api\SystemConfigController;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\SystemConfig\Validation\SystemConfigValidator;
-use Symfony\Component\HttpFoundation\InputBag;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @package system-settings
- *
  * @internal
  *
  * @covers \Shopware\Core\System\SystemConfig\Api\SystemConfigController
  */
 class SystemConfigControllerTest extends TestCase
 {
+    public function testCheckConfigurationEmptyDomain(): void
+    {
+        $controller = new SystemConfigController(
+            $this->createMock(ConfigurationService::class),
+            $this->createMock(SystemConfigService::class),
+            $this->createMock(SystemConfigValidator::class)
+        );
+
+        $request = new Request();
+
+        $context = Context::createDefaultContext();
+
+        $result = $controller->checkConfiguration($request, $context);
+
+        static::assertSame('false', $result->getContent());
+    }
+
+    public function testCheckConfiguration(): void
+    {
+        $configurationService = $this->createMock(ConfigurationService::class);
+        $configurationService
+            ->method('checkConfiguration')
+            ->willReturn(true);
+
+        $controller = new SystemConfigController(
+            $configurationService,
+            $this->createMock(SystemConfigService::class),
+            $this->createMock(SystemConfigValidator::class)
+        );
+
+        $request = new Request();
+        $request->query->set('domain', 'foo');
+
+        $context = Context::createDefaultContext();
+
+        $result = $controller->checkConfiguration($request, $context);
+
+        static::assertSame('true', $result->getContent());
+    }
+
+    public function testGetConfiguration(): void
+    {
+        $configurationService = $this->createMock(ConfigurationService::class);
+        $configurationService
+            ->method('getConfiguration')
+            ->willReturn(['foo' => 'bar']);
+
+        $controller = new SystemConfigController(
+            $configurationService,
+            $this->createMock(SystemConfigService::class),
+            $this->createMock(SystemConfigValidator::class)
+        );
+
+        $request = new Request();
+        $request->query->set('domain', 'foo');
+
+        $context = Context::createDefaultContext();
+
+        $result = $controller->getConfiguration($request, $context);
+
+        static::assertSame('{"foo":"bar"}', $result->getContent());
+    }
+
+    public function testGetConfigurationWithName(): void
+    {
+        $configurationService = $this->createMock(ConfigurationService::class);
+        $configurationService
+            ->method('getConfiguration')
+            ->willReturn(['foo' => 'bar']);
+
+        $controller = new SystemConfigController(
+            $configurationService,
+            $this->createMock(SystemConfigService::class),
+            $this->createMock(SystemConfigValidator::class)
+        );
+
+        $request = new Request();
+        $request->query->set('domain', '');
+
+        $context = Context::createDefaultContext();
+
+        static::expectException(MissingRequestParameterException::class);
+        static::expectExceptionMessage('Parameter "domain" is missing.');
+        $controller->getConfiguration($request, $context);
+    }
+
+    public function testGetConfigurationValues(): void
+    {
+        $controller = new SystemConfigController(
+            $this->createMock(ConfigurationService::class),
+            $this->createMock(SystemConfigService::class),
+            $this->createMock(SystemConfigValidator::class)
+        );
+
+        $request = new Request();
+        $request->query->set('domain', '');
+
+        static::expectException(MissingRequestParameterException::class);
+        static::expectExceptionMessage('Parameter "domain" is missing.');
+        $controller->getConfigurationValues($request);
+    }
+
+    public function testGetConfigurationValuesEmptyArray(): void
+    {
+        $systemConfig = $this->createMock(SystemConfigService::class);
+        $systemConfig
+            ->method('getDomain')
+            ->with('foo')
+            ->willReturn([]);
+
+        $controller = new SystemConfigController(
+            $this->createMock(ConfigurationService::class),
+            $systemConfig,
+            $this->createMock(SystemConfigValidator::class)
+        );
+
+        $request = new Request();
+        $request->query->set('domain', 'foo');
+
+        $data = $controller->getConfigurationValues($request);
+
+        static::assertSame('{}', $data->getContent());
+    }
+
+    public function testGetConfigurationValuesArray(): void
+    {
+        $systemConfig = $this->createMock(SystemConfigService::class);
+        $systemConfig
+            ->method('getDomain')
+            ->with('foo')
+            ->willReturn(['foo' => 'bar']);
+
+        $controller = new SystemConfigController(
+            $this->createMock(ConfigurationService::class),
+            $systemConfig,
+            $this->createMock(SystemConfigValidator::class)
+        );
+
+        $request = new Request();
+        $request->query->set('domain', 'foo');
+
+        $data = $controller->getConfigurationValues($request);
+
+        static::assertSame('{"foo":"bar"}', $data->getContent());
+    }
+
+    public function testSaveConfig(): void
+    {
+        $systemConfig = $this->createMock(SystemConfigService::class);
+        $systemConfig
+            ->method('setMultiple')
+            ->with([
+                'foo' => '1',
+            ]);
+
+        $controller = new SystemConfigController(
+            $this->createMock(ConfigurationService::class),
+            $systemConfig,
+            $this->createMock(SystemConfigValidator::class)
+        );
+
+        $request = new Request();
+        $request->request->set('foo', '1');
+
+        $data = $controller->saveConfiguration($request);
+
+        static::assertSame(Response::HTTP_NO_CONTENT, $data->getStatusCode());
+    }
+
     public function testBatchSaveConfigurationSuccess(): void
     {
         $configurationServiceMock = $this->createMock(ConfigurationService::class);
@@ -37,11 +205,12 @@ class SystemConfigControllerTest extends TestCase
             $systemConfigValidatorMock
         );
 
-        $requestMock = new Request();
+        $request = new Request();
+        $request->request->set('null', []);
 
-        $contextMock = Context::createDefaultContext();
+        $context = Context::createDefaultContext();
 
-        $result = $systemConfigController->batchSaveConfiguration($requestMock, $contextMock);
+        $result = $systemConfigController->batchSaveConfiguration($request, $context);
 
         static::assertInstanceOf(JsonResponse::class, $result);
     }
@@ -62,22 +231,14 @@ class SystemConfigControllerTest extends TestCase
             $systemConfigValidatorMock
         );
 
-        $inputBag = new InputBag([
-            'null' => [],
-        ]);
+        $request = new Request();
+        $request->request->set('null', []);
 
-        $requestMock = $this->createMock(Request::class);
-        $requestMock->request = $inputBag;
-        $requestMock->method('get')
-            ->willReturn('dummy domain', [
-                'null' => [],
-            ]);
-
-        $contextMock = Context::createDefaultContext();
+        $context = Context::createDefaultContext();
 
         $this->expectException(ConstraintViolationException::class);
 
-        $systemConfigController->batchSaveConfiguration($requestMock, $contextMock);
+        $systemConfigController->batchSaveConfiguration($request, $context);
     }
 
     /**

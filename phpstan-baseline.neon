@@ -13872,56 +13872,6 @@ parameters:
 			path: src/Core/System/Test/StateMachine/StateMachineRegistryTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\SystemConfig\\\\Command\\\\ConfigGetCommandTest\\:\\:configFormatDefaultProvider\\(\\) return type has no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/System/Test/SystemConfig/Command/ConfigGetCommandTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\SystemConfig\\\\Command\\\\ConfigGetCommandTest\\:\\:configFormatJsonProvider\\(\\) return type has no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/System/Test/SystemConfig/Command/ConfigGetCommandTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\SystemConfig\\\\Command\\\\ConfigGetCommandTest\\:\\:configFormatLegacyProvider\\(\\) return type has no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/System/Test/SystemConfig/Command/ConfigGetCommandTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\SystemConfig\\\\Command\\\\ConfigGetCommandTest\\:\\:configFormatScalarProvider\\(\\) return type has no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/System/Test/SystemConfig/Command/ConfigGetCommandTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\SystemConfig\\\\Command\\\\ConfigSetCommandTest\\:\\:configValueProvider\\(\\) return type has no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/System/Test/SystemConfig/Command/ConfigSetCommandTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\SystemConfig\\\\Command\\\\ConfigSetCommandTest\\:\\:testConfigSetValue\\(\\) has parameter \\$expectedValue with no type specified\\.$#"
-			count: 1
-			path: src/Core/System/Test/SystemConfig/Command/ConfigSetCommandTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\SystemConfig\\\\ConfigReaderTest\\:\\:getExpectedConfig\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Test/SystemConfig/ConfigReaderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\SystemConfig\\\\ConfigurationServiceInFlagTest\\:\\:getConfigWithoutValues\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Test/SystemConfig/ConfigurationServiceInFlagTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\System\\\\Test\\\\SystemConfig\\\\ConfigurationServiceInFlagTest\\:\\:\\$fixtureFlags type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Test/SystemConfig/ConfigurationServiceInFlagTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\SystemConfig\\\\_fixtures\\\\MemoizedSystemConfigLoaderTest\\\\DecoratedMemoizedResetTestSystemConfigLoader\\:\\:load\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Test/SystemConfig/_fixtures/MemoizedSystemConfigLoaderTest/DecoratedMemoizedResetTestSystemConfigLoader.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\Tag\\\\Service\\\\FilterTagIdsServiceTest\\:\\:getCategoryPayload\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/Test/Tag/Service/FilterTagIdsServiceTest.php

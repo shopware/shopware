@@ -10,7 +10,9 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\Test\TaxFixtures;
+use Shopware\Core\System\Tax\TaxEntity;
+use Shopware\Core\System\Test\EntityFixturesBase;
+use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
@@ -18,7 +20,12 @@ use Shopware\Core\System\Test\TaxFixtures;
 class PriceActionControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
-    use TaxFixtures;
+    use EntityFixturesBase;
+
+    /**
+     * @var array<string, mixed>
+     */
+    public $taxFixtures;
 
     public function testPriceMissingExecption(): void
     {
@@ -876,6 +883,101 @@ class PriceActionControllerTest extends TestCase
     }
 
     /**
+     * @before
+     */
+    public function initializeTaxFixtures(): void
+    {
+        $this->taxFixtures = [
+            'NineteenPercentTax' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'NineteenPercentTax',
+                'taxRate' => 19,
+            ],
+            'NineteenPercentTaxWithAreaRule' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'foo tax',
+                'taxRate' => 20,
+                'areaRules' => [
+                    [
+                        'id' => Uuid::randomHex(),
+                        'taxRate' => 99,
+                        'active' => true,
+                        'name' => 'required',
+                        'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+                    ],
+                ],
+            ],
+            'SeventeenPointOnePercentTax' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'SeventeenPointOnePercentTax',
+                'taxRate' => 17.1,
+                'areaRules' => [
+                    [
+                        'id' => Uuid::randomHex(),
+                        'taxRate' => 17.1,
+                        'active' => true,
+                        'name' => 'required',
+                        'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+                    ],
+                ],
+            ],
+            'NinePointSevenFourPercentTax' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'NinePointSevenFourPercentTax',
+                'taxRate' => 9.74,
+                'areaRules' => [
+                    [
+                        'id' => Uuid::randomHex(),
+                        'taxRate' => 9.74,
+                        'active' => true,
+                        'name' => 'required',
+                        'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+                    ],
+                ],
+            ],
+            'ThirteenPointFourEightSixPercentTax' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'ThirteenPointFourEightSixPercentTax',
+                'taxRate' => 13.486,
+                'areaRules' => [
+                    [
+                        'id' => Uuid::randomHex(),
+                        'taxRate' => 13.486,
+                        'active' => true,
+                        'name' => 'required',
+                        'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    public function getTaxNineteenPercent(): TaxEntity
+    {
+        return $this->getTaxFixture('NineteenPercentTax');
+    }
+
+    public function getTaxSeventeenPointOnePercent(): TaxEntity
+    {
+        return $this->getTaxFixture('SeventeenPointOnePercentTax');
+    }
+
+    public function getTaxNinePointSevenFourPercent(): TaxEntity
+    {
+        return $this->getTaxFixture('NinePointSevenFourPercentTax');
+    }
+
+    public function getTaxThirteenPointFourEightSixPercent(): TaxEntity
+    {
+        return $this->getTaxFixture('ThirteenPointFourEightSixPercentTax');
+    }
+
+    public function getTaxNineteenPercentWithAreaRule(): TaxEntity
+    {
+        return $this->getTaxFixture('NineteenPercentTaxWithAreaRule');
+    }
+
+    /**
      * @param array<string, mixed> $data
      */
     private function sendRequest(array $data): CalculatedPrice
@@ -934,5 +1036,17 @@ class PriceActionControllerTest extends TestCase
             new TaxRuleCollection(array_map(fn ($row) => new TaxRule($row['taxRate'], $row['percentage']), $data['taxRules'])),
             $data['quantity']
         );
+    }
+
+    private function getTaxFixture(string $fixtureName): TaxEntity
+    {
+        /** @var TaxEntity $taxEntity */
+        $taxEntity = $this->createFixture(
+            $fixtureName,
+            $this->taxFixtures,
+            self::getFixtureRepository('tax')
+        );
+
+        return $taxEntity;
     }
 }

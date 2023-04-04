@@ -12,7 +12,7 @@ class ConfigurationNotFoundException extends ShopwareHttpException
     public function __construct(string $scope)
     {
         parent::__construct(
-            'Configuration for scope "{{ $scope }}" not found.',
+            'Configuration for scope "{{ scope }}" not found.',
             ['scope' => $scope]
         );
     }

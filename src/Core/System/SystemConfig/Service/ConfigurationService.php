@@ -64,7 +64,7 @@ class ConfigurationService
                 continue;
             }
 
-            foreach ($card['elements'] as $j => $field) {
+            foreach ($card['elements'] ?? [] as $j => $field) {
                 $newField = ['name' => $domain . $field['name']];
 
                 if (\array_key_exists('flag', $field) && !Feature::isActive($field['flag'])) {

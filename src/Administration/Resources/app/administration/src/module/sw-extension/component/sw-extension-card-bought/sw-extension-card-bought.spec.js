@@ -194,8 +194,8 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
 
         expect(wrapper.find('.sw-extension-card-base__info-name')
             .text()).toBe('Sample Extension Label');
-        expect(wrapper.find('.sw-extension-icon')
-            .attributes().src).toBe('https://example.com');
+        expect(wrapper.find('.sw-extension-icon img')
+            .attributes('src')).toBe('https://example.com');
         expect(wrapper.find('.sw-extension-card-base__meta-info')
             .text().replace(/\s/g, ''))
             .toBe('sw-extension-store.component.sw-extension-card-base.installedLabel01/02/2021');
@@ -232,7 +232,7 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
 
         expect(wrapper.find('.sw-extension-card-base__info-name')
             .text()).toBe('Sample Extension Label');
-        expect(wrapper.find('.sw-extension-icon')
+        expect(wrapper.find('.sw-extension-icon img')
             .attributes().src).toBe('administration/static/img/theme/default_theme_preview.jpg');
         expect(wrapper.find('.sw-extension-card-base__meta-info')
             .text().replace(/\s/g, ''))

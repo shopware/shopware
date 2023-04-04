@@ -15,11 +15,7 @@
     &::after {
         content: "";
         position: absolute;
-        display: inline-block;
-        left: 0;
-        // use parents height and with and subtract 2px: one for the border on to make the border inside of the span
-        width: calc(100% - 2px);
-        height: calc(100% - 2px);
+        inset: 0;
         border-radius: 10%;
         border: 1px solid rgba(0, 0, 0, 0.1);
     }

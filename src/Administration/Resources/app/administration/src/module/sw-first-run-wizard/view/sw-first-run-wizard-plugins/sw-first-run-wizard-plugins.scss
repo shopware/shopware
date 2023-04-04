@@ -55,11 +55,6 @@
         margin: 20px 0;
     }
 
-    .sw-container {
-        grid-template-columns: 128px 1fr;
-        grid-column-gap: 32px;
-    }
-
     .plugins-category-lead {
         .sw-plugin-card {
             margin-bottom: 24px;
@@ -76,10 +71,6 @@
             display: flex;
             flex: 1;
             align-items: flex-end;
-        }
-
-        .sw-container {
-            grid-template-columns: 136px 1fr;
         }
     }
 

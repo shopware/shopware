@@ -5,6 +5,7 @@
 import { config, createLocalVue, mount } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 import Vuex from 'vuex';
+import SwExtensionIcon from 'src/module/sw-extension/component/sw-extension-icon';
 import InvalidActionButtonParameterError from '../../../../core/service/api/errors/InvalidActionButtonParameterError';
 import { createRouter, actionButtonData, actionResultData } from './_fixtures/app-action-fixtures';
 import 'src/app/component/app/sw-app-actions';
@@ -15,6 +16,8 @@ import 'src/app/component/context-menu/sw-context-button';
 import 'src/app/component/context-menu/sw-context-menu';
 import 'src/app/component/context-menu/sw-context-menu-item';
 import 'src/app/component/utils/sw-popover';
+
+Shopware.Component.register('sw-extension-icon', SwExtensionIcon);
 
 describe('sw-app-actions', () => {
     let wrapper = null;
@@ -91,6 +94,7 @@ describe('sw-app-actions', () => {
             'icons-regular-times-s': {
                 template: '<span class="sw-icon sw-icon--regular-times-s"></span>'
             },
+            'sw-extension-icon': await Shopware.Component.build('sw-extension-icon'),
         };
     });
 

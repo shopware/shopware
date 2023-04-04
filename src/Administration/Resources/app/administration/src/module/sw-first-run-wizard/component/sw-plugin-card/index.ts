@@ -1,3 +1,4 @@
+import type { PropType } from 'vue';
 import template from './sw-plugin-card.html.twig';
 import './sw-plugin-card.scss';
 
@@ -6,6 +7,14 @@ type ComponentData = {
     pluginIsSaveSuccessful: boolean,
 }
 
+type RecommendedPlugin = {
+    active: boolean,
+    name: string,
+    iconPath: string,
+    label: string,
+    manufacturer: string,
+    shortDescription: string,
+}
 
 /**
  * @package merchant-services
@@ -21,7 +30,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     props: {
         plugin: {
-            type: Object,
+            type: Object as PropType<RecommendedPlugin>,
             required: true,
         },
         showDescription: {
@@ -56,17 +65,20 @@ export default Shopware.Component.wrapComponentConfig({
             this.pluginIsSaveSuccessful = false;
 
             try {
-                await this.extensionHelperService.downloadAndActivateExtension(this.plugin.name)
+                await this.extensionHelperService.downloadAndActivateExtension(this.plugin.name);
                 this.pluginIsSaveSuccessful = true;
                 this.$emit('extension-activated');
             } catch (error: unknown) {
                 // ts can not recognize functions from mixins
                 // @ts-expect-error
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                 this.showExtensionErrors(error);
             } finally {
                 this.pluginIsLoading = false;
 
-                // @ts-expect-error - wait until cacheApiService is transpiled to ts
+                // wait until cacheApiService is transpiled to ts
+                // @ts-expect-error
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-call
                 this.cacheApiService.clear();
 
                 this.$emit('onPluginInstalled', this.plugin.name);

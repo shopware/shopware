@@ -120,7 +120,7 @@ describe('src/module/sw-extension/page/sw-extension-config-spec', () => {
     });
 
     it('shows default header', async () => {
-        const iconComponent = wrapper.get('.sw-extension-config__extension-icon');
+        const iconComponent = wrapper.get('.sw-extension-config__extension-icon img');
         expect(iconComponent.attributes().src).toEqual('administration/static/img/theme/default_theme_preview.jpg');
         expect(iconComponent.attributes().alt).toEqual('sw-extension-store.component.sw-extension-config.imageDescription');
 
@@ -139,7 +139,7 @@ describe('src/module/sw-extension/page/sw-extension-config-spec', () => {
         };
 
         await wrapper.vm.$nextTick();
-        const iconComponent = wrapper.get('.sw-extension-config__extension-icon');
+        const iconComponent = wrapper.get('.sw-extension-icon img');
         expect(iconComponent.attributes().src).toEqual('icon.png');
         expect(iconComponent.attributes().alt).toEqual('sw-extension-store.component.sw-extension-config.imageDescription');
 

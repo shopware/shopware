@@ -1,3 +1,4 @@
+// eslint-disable-next-line max-len
 import type { ExtensionStoreActionService, ExtensionType } from '../../module/sw-extension/service/extension-store-action.service';
 
 /**

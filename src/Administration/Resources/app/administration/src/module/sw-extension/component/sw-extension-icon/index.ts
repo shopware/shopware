@@ -13,5 +13,10 @@ export default {
             type: String,
             required: true,
         },
-    }
+        alt: {
+            type: String,
+            required: false,
+            default: '',
+        },
+    },
 };

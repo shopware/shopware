@@ -88,4 +88,52 @@ class SystemConfigControllerTest extends TestCase
 
         $systemConfigController->batchSaveConfiguration($requestMock, $contextMock);
     }
+
+    /**
+     * @dataProvider inheritRequestDataProvider
+     */
+    public function testInheritFlag(Request $request, bool $expectedFlag): void
+    {
+        $systemConfigService = static::createMock(SystemConfigService::class);
+        $systemConfigService->expects(static::once())
+            ->method('getDomain')
+            ->with('dummy domain', 'dummy sales channel', $expectedFlag);
+
+        $systemConfigController = new SystemConfigController(
+            static::createMock(ConfigurationService::class),
+            $systemConfigService,
+            static::createMock(SystemConfigValidator::class)
+        );
+
+        $systemConfigController->getConfigurationValues($request);
+    }
+
+    public static function inheritRequestDataProvider(): \Generator
+    {
+        yield 'inherit flag not set' => [
+            new Request([
+                'domain' => 'dummy domain',
+                'salesChannelId' => 'dummy sales channel',
+            ]),
+            false,
+        ];
+
+        yield 'inherit flag set to false' => [
+            new Request([
+                'domain' => 'dummy domain',
+                'salesChannelId' => 'dummy sales channel',
+                'inherit' => false,
+            ]),
+            false,
+        ];
+
+        yield 'inherit flag set to true' => [
+            new Request([
+                'domain' => 'dummy domain',
+                'salesChannelId' => 'dummy sales channel',
+                'inherit' => true,
+            ]),
+            true,
+        ];
+    }
 }

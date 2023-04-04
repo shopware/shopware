@@ -7,7 +7,7 @@ Shopware.Component.register('sw-cms-preview-category-navigation', () => import('
  * @private
  * @package content
  */
-Shopware.Component.register('sw-cms-category-navigation', () => import('./component'));
+Shopware.Component.register('sw-cms-block-category-navigation', () => import('./component'));
 
 /**
  * @private

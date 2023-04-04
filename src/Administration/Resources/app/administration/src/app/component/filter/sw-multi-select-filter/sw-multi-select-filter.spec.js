@@ -12,10 +12,11 @@ import 'src/app/component/utils/sw-loader';
 import 'src/app/component/utils/sw-popover';
 import 'src/app/component/form/select/base/sw-select-result';
 import 'src/app/component/base/sw-highlight-text';
+import 'src/app/component/base/sw-label';
 
 const { Criteria, EntityCollection } = Shopware.Data;
 
-const entities = [
+let entities = [
     { id: 'id1', name: 'first' }
 ];
 
@@ -51,7 +52,8 @@ async function createWrapper(customOptions) {
             'sw-select-result': await Shopware.Component.build('sw-select-result'),
             'sw-highlight-text': await Shopware.Component.build('sw-highlight-text'),
             'sw-icon': true,
-            'sw-label': true,
+            'sw-label': await Shopware.Component.build('sw-label'),
+            'sw-product-variant-info': true,
             'sw-field-error': {
                 template: '<div></div>'
             }
@@ -327,6 +329,125 @@ describe('src/app/component/filter/sw-multi-select-filter', () => {
             'category-filter',
             [Criteria.multi('or', [Criteria.not('and', [Criteria.equals('option1.id', null)])])],
             ['option1']
+        ]);
+    });
+
+    it('should show product variant when displayVariants attribute of filter is true', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setProps({
+            filter: {
+                name: 'line-item-filter',
+                property: 'lineItems.product',
+                placeholder: 'placeholder',
+                labelProperty: 'name',
+                label: 'Product',
+                value: [
+                    {
+                        id: 'product1',
+                        name: 'Product name 1',
+                        variation: [{
+                            group: 'color',
+                            option: 'blue',
+                        }]
+                    }
+                ],
+                displayVariants: true,
+                schema: {
+                    entity: 'product',
+                    referenceField: 'id',
+                },
+            }
+        });
+
+        const entityMultiSelect = wrapper.find('.sw-entity-multi-select');
+        expect(entityMultiSelect.exists()).toBeTruthy();
+
+        const selectionList = wrapper.find('.sw-select-selection-list').findAll('li');
+        expect(selectionList.at(0).find('sw-product-variant-info-stub').exists()).toBeTruthy();
+    });
+
+    it('should update product variant value when displayVariants attribute of filter is true', async () => {
+        entities = [
+            {
+                id: 'product2',
+                name: 'Product name 2',
+                variation: [{
+                    group: 'color',
+                    option: 'red'
+                }],
+            }
+        ];
+
+        const wrapper = await createWrapper();
+
+        await wrapper.setProps({
+            filter: {
+                name: 'line-item-filter',
+                property: 'lineItems.product',
+                placeholder: 'placeholder',
+                labelProperty: 'name',
+                label: 'Product',
+                value: null,
+                displayVariants: true,
+                schema: {
+                    entity: 'product',
+                    referenceField: 'id',
+                },
+            }
+        });
+
+
+        await wrapper.find('.sw-select__selection').trigger('click');
+        await wrapper.find('input').trigger('change');
+
+        const resultList = wrapper.find('.sw-select-result-list__item-list').findAll('li');
+        expect(resultList.at(0).find('sw-product-variant-info-stub').exists()).toBeTruthy();
+
+        await resultList.at(0).trigger('click');
+
+        const [name, criteria, value] = wrapper.emitted()['filter-update'][0];
+
+        expect(name).toEqual('line-item-filter');
+        expect(criteria).toEqual([Criteria.equalsAny('lineItems.product.id', ['product2'])]);
+        expect(value.first()).toEqual({
+            id: 'product2',
+            variation: [{
+                group: 'color',
+                option: 'red'
+            }],
+            name: 'Product name 2',
+        });
+
+        expect(wrapper.emitted()['filter-reset']).toBeFalsy();
+    });
+
+    it('should reset filter if no value is selected', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setProps({
+            filter: {
+                name: 'category-filter',
+                property: 'category',
+                placeholder: 'placeholder',
+                labelProperty: 'key',
+                valueProperty: 'key',
+                label: 'Test',
+                value: ['option1'],
+                filterCriteria: null,
+                options: [
+                    { key: 'option1' },
+                    { key: 'option2' }
+                ],
+                existingType: true
+            }
+        });
+
+        await wrapper.find('.sw-label__dismiss').trigger('click');
+
+        expect(wrapper.emitted()['filter-update']).toBeFalsy();
+        expect(wrapper.emitted()['filter-reset'][0]).toEqual([
+            'category-filter',
         ]);
     });
 });

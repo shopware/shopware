@@ -119,7 +119,7 @@ export default class FilterService {
         return criteria;
     }
 
-    _pushFiltersToUrl() {
+    async _pushFiltersToUrl() {
         const urlFilterValue = types.isEmpty(this._filterEntity.value) ? null : this._filterEntity.value;
         const urlEncodedValue = encodeURIComponent(JSON.stringify(urlFilterValue));
 
@@ -142,7 +142,16 @@ export default class FilterService {
             newRoute.params = routeParams;
         }
 
-        router.push(newRoute);
+        try {
+            await router.push(newRoute);
+            return Promise.resolve();
+        } catch (error) {
+            if (error?.name === 'NavigationDuplicated') {
+                return error;
+            }
+
+            return Promise.reject(error);
+        }
     }
 
     _getQueryFilterValue(storeKey) {

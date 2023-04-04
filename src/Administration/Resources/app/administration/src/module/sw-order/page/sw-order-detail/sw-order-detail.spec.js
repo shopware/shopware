@@ -113,6 +113,14 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
+    it('should remove version id when beforeunload event is trigger', async () => {
+        wrapper.vm.orderRepository.deleteVersion = jest.fn(() => Promise.resolve());
+
+        window.dispatchEvent(new Event('beforeunload'));
+
+        expect(wrapper.vm.orderRepository.deleteVersion).toHaveBeenCalled();
+    });
+
     it('should not contain manual label', async () => {
         expect(wrapper.find('.sw-order-detail__manual-order-label').exists()).toBeFalsy();
     });
@@ -140,7 +148,7 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
 
         await wrapper.vm.beforeDestroyComponent();
 
-        expect(wrapper.vm.orderRepository.deleteVersion).toHaveBeenCalledTimes(1);
+        expect(wrapper.vm.orderRepository.deleteVersion).toHaveBeenCalled();
     });
 
     it('should reload entity data with orderCriteria', () => {

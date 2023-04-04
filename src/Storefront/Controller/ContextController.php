@@ -52,8 +52,7 @@ class ContextController extends StorefrontController
             throw new MissingRequestParameterException('languageId');
         }
 
-        $languageId = $request->request->get('languageId');
-        \assert(\is_string($languageId));
+        $languageId = $request->request->getAlnum('languageId');
 
         try {
             $newTokenResponse = $this->contextSwitchRoute->switchContext(

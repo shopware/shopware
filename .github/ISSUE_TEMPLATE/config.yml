@@ -1,5 +1,12 @@
 blank_issues_enabled: false
 contact_links:
+    - name: Feature Request
+      url: https://feedback.shopware.com
+    - name: RFC for new features
+      url: https://github.com/shopware/proposal
+    - name: Ask a question
+      url: https://stackoverflow.com/questions/tagged/shopware6
+      about: Please ask questions here.
     - name: Join us on community Slack
       url: https://slack.shopware.com
       about: You may want to reach the community chat

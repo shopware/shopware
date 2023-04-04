@@ -23,6 +23,7 @@ class AssetInstallCommandTest extends TestCase
         $filesystem = $this->getContainer()->get('shopware.filesystem.asset');
         // make sure that the dir does not exist beforehand
         $filesystem->deleteDirectory('bundles/test');
+        $filesystem->delete('asset-manifest.json');
 
         $fixturePath = __DIR__ . '/../../../../../../tests/integration/php/Core/Framework/App/Manifest/_fixtures/test';
         $fixturePath = \realpath($fixturePath);
@@ -59,5 +60,6 @@ class AssetInstallCommandTest extends TestCase
         static::assertTrue($filesystem->has('bundles/test/asset.txt'));
 
         $filesystem->deleteDirectory('bundles/test');
+        $filesystem->delete('asset-manifest.json');
     }
 }

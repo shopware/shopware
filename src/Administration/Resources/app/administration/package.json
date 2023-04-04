@@ -134,6 +134,7 @@
     "chai-shallow-deep-equal": "1.4.6",
     "chalk": "2.4.2",
     "cross-env": "7.0.3",
+    "clean-webpack-plugin": "^4.0.0",
     "css-loader": "3.6.0",
     "dir-compare": "4.0.0",
     "docdash": "2.0.1",

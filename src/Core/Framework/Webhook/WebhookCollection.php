@@ -8,6 +8,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @extends EntityCollection<WebhookEntity>
+ *
+ * @deprecated tag:v6.6.0 - Will be internal - reason:visibility-change
  */
 #[Package('core')]
 class WebhookCollection extends EntityCollection

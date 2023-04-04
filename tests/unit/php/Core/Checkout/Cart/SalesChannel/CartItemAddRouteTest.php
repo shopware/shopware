@@ -33,7 +33,7 @@ class CartItemAddRouteTest extends TestCase
 
         $cartItemAddRoute->add(
             $this->createRequest($item, null),
-            $this->createMock(Cart::class),
+            new Cart('test'),
             $this->createMock(SalesChannelContext::class),
             null
         );

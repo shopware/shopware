@@ -18,13 +18,14 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @internal
- *
  * @final
  */
 #[Package('system-settings')]
 class PromotionAdminSearchIndexer extends AbstractAdminIndexer
 {
+    /**
+     * @internal
+     */
     public function __construct(
         private readonly Connection $connection,
         private readonly IteratorFactory $factory,

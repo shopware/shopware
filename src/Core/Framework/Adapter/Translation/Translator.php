@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\PlatformRequest;
@@ -174,9 +175,6 @@ class Translator extends AbstractTranslator
         return $this->translator->getLocale();
     }
 
-    /**
-     * @param string $cacheDir
-     */
     public function warmUp($cacheDir): void
     {
         if ($this->translator instanceof WarmableInterface) {
@@ -184,7 +182,19 @@ class Translator extends AbstractTranslator
         }
     }
 
+    /**
+     * @deprecated tag:v6.6.0 - Will be removed, use `reset` instead
+     */
     public function resetInMemoryCache(): void
+    {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', 'Use reset() instead')
+        );
+        $this->reset();
+    }
+
+    public function reset(): void
     {
         $this->isCustomized = [];
         $this->snippetSetId = null;

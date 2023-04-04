@@ -17,12 +17,12 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
-/**
- * @internal
- */
 #[Package('system-settings')]
 final class SalesChannelAdminSearchIndexer extends AbstractAdminIndexer
 {
+    /**
+     * @internal
+     */
     public function __construct(
         private readonly Connection $connection,
         private readonly IteratorFactory $factory,

@@ -1,5 +1,6 @@
 includes:
     - phpstan-baseline.neon
+    - phpstan-v66-baseline.neon
     - vendor/phpstan/phpstan/conf/bleedingEdge.neon
 
 parameters:
@@ -165,6 +166,7 @@ parameters:
 
         # Internal deprecations of Shopware are handled in other places
         - '#deprecated.*class Shopware\\#'
+        - '#deprecated.*interface Shopware\\#'
 
         - # we override setUp visibility a lot
             message: '#Change "setUp\(\)" method visibility to "protected" to respect parent method visibility\.#'
@@ -182,7 +184,6 @@ parameters:
             paths:
                 - src/**/Test/**
                 - tests/**
-                - src/Core/Framework/Migration/Exception/UnknownMigrationSourceException.php # uses if around class definition
 
         # It explicitly tests array access on object, so it works from twig scripts
         -
@@ -231,7 +232,17 @@ services:
             - phpstan.rules.rule
 
     -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoFlowEventAwareExtendsRule
+        tags:
+            - phpstan.rules.rule
+
+    -
         class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoEnvironmentHelperInsideCompilerPassRule
+        tags:
+            - phpstan.rules.rule
+
+    -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\DecorationPatternRule
         tags:
             - phpstan.rules.rule
 
@@ -267,6 +278,11 @@ services:
 
     -
         class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoFlowStoreFunctionRule
+        tags:
+            - phpstan.rules.rule
+
+    -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\DomainExceptionRule
         tags:
             - phpstan.rules.rule
 

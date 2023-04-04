@@ -507,7 +507,7 @@ class InvoiceRendererTest extends TestCase
             static::markTestSkipped('This test needs storefront to be installed.');
         }
 
-        $this->getContainer()->get(Translator::class)->resetInMemoryCache();
+        $this->getContainer()->get(Translator::class)->reset();
         $this->getContainer()->get(SalesChannelThemeLoader::class)->reset();
 
         $themeService = $this->getContainer()->get(ThemeService::class);
@@ -542,7 +542,7 @@ class InvoiceRendererTest extends TestCase
         static::assertIsString($content = $success->getHtml());
         static::assertStringNotContainsString('Swag Theme serviceDateNotice EN', $content);
 
-        $this->getContainer()->get(Translator::class)->resetInMemoryCache();
+        $this->getContainer()->get(Translator::class)->reset();
         $this->getContainer()->get(SalesChannelThemeLoader::class)->reset();
         $themeService->assignTheme($themeId, $this->salesChannelContext->getSalesChannelId(), $this->context, true);
 

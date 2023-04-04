@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Log;
 use Monolog\Level;
 use Shopware\Core\Framework\Event\FlowEventAware;
 
+/**
+ * @deprecated tag:v6.6.0 - reason:class-hierarchy-change - extends of FlowEventAware will be removed, implement the interface inside your event
+ */
 #[Package('core')]
 interface LogAware extends FlowEventAware
 {

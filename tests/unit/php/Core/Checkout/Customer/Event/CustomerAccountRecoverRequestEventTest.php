@@ -28,7 +28,7 @@ class CustomerAccountRecoverRequestEventTest extends TestCase
 
         $event = new CustomerAccountRecoverRequestEvent(
             $context,
-            $this->createMock(CustomerRecoveryEntity::class),
+            new CustomerRecoveryEntity(),
             'my-reset-url'
         );
 

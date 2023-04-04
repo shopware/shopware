@@ -5,6 +5,8 @@ namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Internal;
 use PhpParser\Node;
 use PHPStan\Analyser\Scope;
 use PHPStan\Node\InClassNode;
+use PHPStan\Reflection\ClassReflection;
+use PHPStan\Reflection\ReflectionProvider;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
 use PHPUnit\Framework\TestCase;
@@ -55,6 +57,13 @@ class InternalClassRule implements Rule
         DemodataRequestCreatedEvent::class,
     ];
 
+    private ReflectionProvider $reflectionProvider;
+
+    public function __construct(ReflectionProvider $reflectionProvider)
+    {
+        $this->reflectionProvider = $reflectionProvider;
+    }
+
     public function getNodeType(): string
     {
         return InClassNode::class;
@@ -67,7 +76,9 @@ class InternalClassRule implements Rule
      */
     public function processNode(Node $node, Scope $scope): array
     {
-        if ($this->isInternal($node)) {
+        $doc = $node->getDocComment()?->getText() ?? '';
+
+        if ($this->isInternal($doc)) {
             return [];
         }
 
@@ -85,7 +96,7 @@ class InternalClassRule implements Rule
             return ['Bundles must be flagged @internal to not be captured by the BC checker.'];
         }
 
-        if ($this->isEventSubscriber($node) && !$this->isFinal($node) && !\in_array($class, self::SUBSCRIBER_EXCEPTIONS, true)) {
+        if ($this->isEventSubscriber($node) && !$this->isFinal($node->getClassReflection(), $doc) && !\in_array($class, self::SUBSCRIBER_EXCEPTIONS, true)) {
             return ['Event subscribers must be flagged @internal to not be captured by the BC checker.'];
         }
 
@@ -103,6 +114,10 @@ class InternalClassRule implements Rule
 
         if ($this->isMessageHandler($node) && !\in_array($class, self::MESSAGE_HANDLER_EXCEPTIONS, true)) {
             return ['MessageHandlers must be flagged @internal to not be captured by the BC checker.'];
+        }
+
+        if ($this->isParentInternalAndAbstract($scope)) {
+            return ['Classes that extend an @internal abstract class must be flagged @internal to not be captured by the BC checker.'];
         }
 
         return [];
@@ -131,15 +146,9 @@ class InternalClassRule implements Rule
         return $node->getClassReflection()->getParentClass()->getName() === TestCase::class;
     }
 
-    private function isInternal(InClassNode $class): bool
+    private function isInternal(string $doc): bool
     {
-        $doc = $class->getDocComment();
-
-        if ($doc === null) {
-            return false;
-        }
-
-        return \str_contains($doc->getText(), '@internal') || \str_contains($doc->getText(), 'reason:becomes-internal');
+        return \str_contains($doc, '@internal') || \str_contains($doc, 'reason:becomes-internal');
     }
 
     private function isStorefrontController(InClassNode $node): bool
@@ -222,18 +231,27 @@ class InternalClassRule implements Rule
         return !empty($class->getAttributes(AsMessageHandler::class));
     }
 
-    private function isFinal(InClassNode $class): bool
+    private function isFinal(ClassReflection $class, string $doc): bool
     {
-        if ($class->getClassReflection()->isFinal()) {
-            return true;
-        }
+        return str_contains($doc, '@final') || str_contains($doc, 'reason:becomes-final') || $class->isFinal();
+    }
 
-        $doc = $class->getDocComment();
+    private function isParentInternalAndAbstract(Scope $scope): bool
+    {
+        $parent = $scope->getClassReflection()->getParentClass();
 
-        if ($doc === null) {
+        if ($parent === null) {
             return false;
         }
 
-        return \str_contains($doc->getText(), '@final') || \str_contains($doc->getText(), 'reason:becomes-final');
+        if (!$parent->isAbstract()) {
+            return false;
+        }
+
+        $native = $parent->getNativeReflection();
+
+        $doc = $native->getDocComment() ?: '';
+
+        return $this->isInternal($doc);
     }
 }

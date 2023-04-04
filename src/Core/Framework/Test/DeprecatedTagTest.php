@@ -27,6 +27,7 @@ class DeprecatedTagTest extends TestCase
         'node_modules/',
         'Common/vendor/',
         'Recovery/vendor',
+        'Core/DevOps/StaticAnalyze',
         'recovery/vendor',
         'storefront/vendor',
         // we cannot remove the method, because old migrations could still use it

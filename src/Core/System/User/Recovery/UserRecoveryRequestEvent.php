@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
+use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\UserAware;
 use Shopware\Core\Framework\Log\Package;
@@ -22,7 +23,7 @@ use Symfony\Contracts\EventDispatcher\Event;
  * @deprecated tag:v6.6.0 - reason:class-hierarchy-change - ResetUrlAware is deprecated and will be removed in v6.6.0
  */
 #[Package('system-settings')]
-class UserRecoveryRequestEvent extends Event implements UserAware, MailAware, ResetUrlAware, ScalarValuesAware
+class UserRecoveryRequestEvent extends Event implements UserAware, MailAware, ResetUrlAware, ScalarValuesAware, FlowEventAware
 {
     final public const EVENT_NAME = 'user.recovery.request';
 

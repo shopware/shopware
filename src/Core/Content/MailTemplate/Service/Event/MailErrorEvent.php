@@ -9,6 +9,7 @@ use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
+use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Log\LogAware;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
@@ -17,7 +18,7 @@ use Symfony\Contracts\EventDispatcher\Event;
  * @deprecated tag:v6.6.0 - reason:class-hierarchy-change - NameAware is deprecated and will be removed in v6.6.0
  */
 #[Package('sales-channel')]
-class MailErrorEvent extends Event implements LogAware, NameAware, ScalarValuesAware
+class MailErrorEvent extends Event implements LogAware, NameAware, ScalarValuesAware, FlowEventAware
 {
     final public const NAME = 'mail.sent.error';
 

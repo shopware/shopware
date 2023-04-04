@@ -139,8 +139,12 @@
             <argument type="service" id="media.repository"/>
 
             <tag name="shopware.import_export.entity_serializer" priority="-400"/>
-            <tag name="kernel.event_subscriber"/>
             <tag name="kernel.reset" method="reset"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\MediaSerializerSubscriber">
+            <argument type="service" id="Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\MediaSerializer"/>
+            <tag name="kernel.event_subscriber"/>
         </service>
 
         <service id="Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\SalutationSerializer">

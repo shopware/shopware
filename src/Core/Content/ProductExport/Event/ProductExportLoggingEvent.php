@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
+use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Log\LogAware;
 use Shopware\Core\Framework\Log\Package;
@@ -20,7 +21,7 @@ use Symfony\Contracts\EventDispatcher\Event;
  * @deprecated tag:v6.6.0 - reason:class-hierarchy-change - NameAware are deprecated and will be removed in v6.6.0
  */
 #[Package('sales-channel')]
-class ProductExportLoggingEvent extends Event implements LogAware, MailAware, NameAware, ScalarValuesAware
+class ProductExportLoggingEvent extends Event implements LogAware, MailAware, NameAware, ScalarValuesAware, FlowEventAware
 {
     final public const NAME = 'product_export.log';
 

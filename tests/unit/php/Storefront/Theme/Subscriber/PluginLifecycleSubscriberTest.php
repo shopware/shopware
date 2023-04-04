@@ -70,9 +70,9 @@ class PluginLifecycleSubscriberTest extends TestCase
 
     public function testPluginPostActivate(): void
     {
-        $pluginMock = $this->createMock(PluginEntity::class);
-        $pluginMock->expects(static::once())->method('getPath')->willReturn('');
-        $pluginMock->expects(static::once())->method('getBaseClass')->willReturn(FakePlugin::class);
+        $pluginMock = new PluginEntity();
+        $pluginMock->setPath('');
+        $pluginMock->setBaseClass(FakePlugin::class);
         $eventMock = $this->createMock(PluginPostActivateEvent::class);
         $eventMock->expects(static::exactly(2))->method('getPlugin')->willReturn($pluginMock);
         $this->pluginSubscriber->pluginPostActivate($eventMock);
@@ -80,9 +80,10 @@ class PluginLifecycleSubscriberTest extends TestCase
 
     public function testPluginPostDeactivateFailed(): void
     {
-        $pluginMock = $this->createMock(PluginEntity::class);
-        $pluginMock->expects(static::once())->method('getPath')->willReturn('');
-        $pluginMock->expects(static::once())->method('getBaseClass')->willReturn(FakePlugin::class);
+        $pluginMock = new PluginEntity();
+        $pluginMock->setPath('');
+        $pluginMock->setBaseClass(FakePlugin::class);
+
         $eventMock = $this->createMock(PluginPostDeactivationFailedEvent::class);
         $eventMock->expects(static::exactly(2))->method('getPlugin')->willReturn($pluginMock);
         $this->pluginSubscriber->pluginPostDeactivateFailed($eventMock);

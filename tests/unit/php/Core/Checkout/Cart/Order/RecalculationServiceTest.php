@@ -55,8 +55,8 @@ class RecalculationServiceTest extends TestCase
             0.0,
             0.0,
             0.0,
-            $this->createMock(CalculatedTaxCollection::class),
-            $this->createMock(TaxRuleCollection::class),
+            new CalculatedTaxCollection(),
+            new TaxRuleCollection(),
             CartPrice::TAX_STATE_FREE
         ));
 

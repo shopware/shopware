@@ -9,9 +9,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\Log\Package;
 
-/**
- * @internal
- */
 #[Package('system-settings')]
 abstract class AbstractAdminIndexer
 {

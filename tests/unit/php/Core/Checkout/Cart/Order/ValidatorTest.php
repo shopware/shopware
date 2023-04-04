@@ -37,7 +37,7 @@ class ValidatorTest extends TestCase
         };
         $validator = new Validator([$mockValidator, $mockValidator2]);
         $context = $this->createMock(SalesChannelContext::class);
-        $cart = $this->createMock(Cart::class);
+        $cart = new Cart('test');
 
         $mockValidator->expects(static::once())->method('validate')->with($cart, static::anything(), $context);
 

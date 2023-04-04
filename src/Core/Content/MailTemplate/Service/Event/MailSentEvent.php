@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\EventData\ArrayType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
+use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Log\LogAware;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
@@ -20,7 +21,7 @@ use Symfony\Contracts\EventDispatcher\Event;
  * @deprecated tag:v6.6.0 - reason:class-hierarchy-change - SubjectAware, ContentsAware and RecipientsAware are deprecated and will be removed in v6.6.0
  */
 #[Package('sales-channel')]
-class MailSentEvent extends Event implements LogAware, SubjectAware, ContentsAware, RecipientsAware, ScalarValuesAware
+class MailSentEvent extends Event implements LogAware, SubjectAware, ContentsAware, RecipientsAware, ScalarValuesAware, FlowEventAware
 {
     final public const EVENT_NAME = 'mail.sent';
 

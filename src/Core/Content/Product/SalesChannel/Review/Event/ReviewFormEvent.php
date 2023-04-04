@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\EventData\ObjectType;
+use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\ProductAware;
 use Shopware\Core\Framework\Event\SalesChannelAware;
@@ -23,7 +24,7 @@ use Symfony\Contracts\EventDispatcher\Event;
  * @deprecated tag:v6.6.0 - reason:class-hierarchy-change - ReviewFormDataAware is deprecated and will be removed in v6.6.0
  */
 #[Package('content')]
-final class ReviewFormEvent extends Event implements SalesChannelAware, MailAware, ReviewFormDataAware, ProductAware, CustomerAware, ScalarValuesAware
+final class ReviewFormEvent extends Event implements SalesChannelAware, MailAware, ReviewFormDataAware, ProductAware, CustomerAware, ScalarValuesAware, FlowEventAware
 {
     public const EVENT_NAME = 'review_form.send';
 

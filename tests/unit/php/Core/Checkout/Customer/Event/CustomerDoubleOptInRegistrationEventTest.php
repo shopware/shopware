@@ -20,7 +20,7 @@ class CustomerDoubleOptInRegistrationEventTest extends TestCase
     public function testRestoreScalarValuesCorrectly(): void
     {
         $event = new CustomerDoubleOptInRegistrationEvent(
-            $this->createMock(CustomerEntity::class),
+            new CustomerEntity(),
             $this->createMock(SalesChannelContext::class),
             'my-confirm-url'
         );

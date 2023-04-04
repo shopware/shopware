@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Event\EventData\ArrayType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\ObjectType;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
+use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Log\LogAware;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Mime\Email;
@@ -21,7 +22,7 @@ use Symfony\Contracts\EventDispatcher\Event;
  * @deprecated tag:v6.6.0 - reason:class-hierarchy-change - DataAware is deprecated and will be removed in v6.6.0
  */
 #[Package('sales-channel')]
-class MailBeforeSentEvent extends Event implements LogAware, DataAware, MessageAware, ScalarValuesAware
+class MailBeforeSentEvent extends Event implements LogAware, DataAware, MessageAware, ScalarValuesAware, FlowEventAware
 {
     final public const EVENT_NAME = 'mail.after.create.message';
 

@@ -39,7 +39,7 @@ class TranslatorTest extends TestCase
         $this->translator = $this->getContainer()->get(Translator::class);
         $this->snippetRepository = $this->getContainer()->get('snippet.repository');
 
-        $this->translator->resetInMemoryCache();
+        $this->translator->reset();
         $this->translator->warmUp('');
     }
 
@@ -100,17 +100,17 @@ class TranslatorTest extends TestCase
 
     public function testSymfonyDefaultTranslationFallback(): void
     {
-        $this->translator->resetInMemoryCache();
+        $this->translator->reset();
         $catalogue = $this->translator->getCatalogue('en');
         static::assertInstanceOf(MessageCatalogueInterface::class, $catalogue->getFallbackCatalogue());
         static::assertEquals('en_GB', $catalogue->getFallbackCatalogue()->getLocale());
 
-        $this->translator->resetInMemoryCache();
+        $this->translator->reset();
         $catalogue = $this->translator->getCatalogue('en_GB');
         static::assertInstanceOf(MessageCatalogueInterface::class, $catalogue->getFallbackCatalogue());
         static::assertEquals('en_001', $catalogue->getFallbackCatalogue()->getLocale());
 
-        $this->translator->resetInMemoryCache();
+        $this->translator->reset();
         $catalogue = $this->translator->getCatalogue('en-GB');
         $fallback = $catalogue->getFallbackCatalogue();
         static::assertInstanceOf(MessageCatalogueInterface::class, $fallback);
@@ -118,7 +118,7 @@ class TranslatorTest extends TestCase
         static::assertInstanceOf(MessageCatalogueInterface::class, $fallback->getFallbackCatalogue());
         static::assertEquals('en_GB', $fallback->getFallbackCatalogue()->getLocale());
 
-        $this->translator->resetInMemoryCache();
+        $this->translator->reset();
         $catalogue = $this->translator->getCatalogue('de');
         $fallback = $catalogue->getFallbackCatalogue();
         static::assertInstanceOf(MessageCatalogueInterface::class, $fallback);
@@ -126,7 +126,7 @@ class TranslatorTest extends TestCase
         static::assertInstanceOf(MessageCatalogueInterface::class, $fallback->getFallbackCatalogue());
         static::assertEquals('en', $fallback->getFallbackCatalogue()->getLocale());
 
-        $this->translator->resetInMemoryCache();
+        $this->translator->reset();
         $catalogue = $this->translator->getCatalogue('de_DE');
         $fallback = $catalogue->getFallbackCatalogue();
         static::assertInstanceOf(MessageCatalogueInterface::class, $fallback);
@@ -136,14 +136,14 @@ class TranslatorTest extends TestCase
         static::assertInstanceOf(MessageCatalogueInterface::class, $fallback->getFallbackCatalogue()->getFallbackCatalogue());
         static::assertEquals('en', $fallback->getFallbackCatalogue()->getFallbackCatalogue()->getLocale());
 
-        $this->translator->resetInMemoryCache();
+        $this->translator->reset();
         $catalogue = $this->translator->getCatalogue('de-DE');
         $fallback = $catalogue->getFallbackCatalogue();
         static::assertInstanceOf(MessageCatalogueInterface::class, $fallback);
         static::assertEquals('en', $fallback->getLocale());
         static::assertInstanceOf(MessageCatalogueInterface::class, $fallback->getFallbackCatalogue());
         static::assertEquals('en_GB', $fallback->getFallbackCatalogue()->getLocale());
-        $this->translator->resetInMemoryCache();
+        $this->translator->reset();
     }
 
     public function testSymfonyDefaultTranslationFallbackWithCustomShopwareDefaultLanguage(): void
@@ -154,12 +154,12 @@ class TranslatorTest extends TestCase
         static::assertInstanceOf(MessageCatalogueInterface::class, $catalogue->getFallbackCatalogue());
         static::assertEquals('en_GB', $catalogue->getFallbackCatalogue()->getLocale());
 
-        $this->translator->resetInMemoryCache();
+        $this->translator->reset();
         $catalogue = $this->translator->getCatalogue('en_GB');
         static::assertInstanceOf(MessageCatalogueInterface::class, $catalogue->getFallbackCatalogue());
         static::assertEquals('en_001', $catalogue->getFallbackCatalogue()->getLocale());
 
-        $this->translator->resetInMemoryCache();
+        $this->translator->reset();
         $catalogue = $this->translator->getCatalogue('en-GB');
         $fallback = $catalogue->getFallbackCatalogue();
         static::assertInstanceOf(MessageCatalogueInterface::class, $fallback);
@@ -169,7 +169,7 @@ class TranslatorTest extends TestCase
         static::assertInstanceOf(MessageCatalogueInterface::class, $fallback->getFallbackCatalogue()->getFallbackCatalogue());
         static::assertEquals('en', $fallback->getFallbackCatalogue()->getFallbackCatalogue()->getLocale());
 
-        $this->translator->resetInMemoryCache();
+        $this->translator->reset();
         $catalogue = $this->translator->getCatalogue('de');
         $fallback = $catalogue->getFallbackCatalogue();
         static::assertInstanceOf(MessageCatalogueInterface::class, $fallback);
@@ -177,7 +177,7 @@ class TranslatorTest extends TestCase
         static::assertInstanceOf(MessageCatalogueInterface::class, $fallback->getFallbackCatalogue());
         static::assertEquals('en', $fallback->getFallbackCatalogue()->getLocale());
 
-        $this->translator->resetInMemoryCache();
+        $this->translator->reset();
         $catalogue = $this->translator->getCatalogue('de_DE');
         $fallback = $catalogue->getFallbackCatalogue();
         static::assertInstanceOf(MessageCatalogueInterface::class, $fallback);
@@ -187,7 +187,7 @@ class TranslatorTest extends TestCase
         static::assertInstanceOf(MessageCatalogueInterface::class, $fallback->getFallbackCatalogue()->getFallbackCatalogue());
         static::assertEquals('en', $fallback->getFallbackCatalogue()->getFallbackCatalogue()->getLocale());
 
-        $this->translator->resetInMemoryCache();
+        $this->translator->reset();
         $catalogue = $this->translator->getCatalogue('de-DE');
         $fallback = $catalogue->getFallbackCatalogue();
         static::assertInstanceOf(MessageCatalogueInterface::class, $fallback);
@@ -196,7 +196,7 @@ class TranslatorTest extends TestCase
         static::assertEquals('en_GB', $fallback->getFallbackCatalogue()->getLocale());
         static::assertInstanceOf(MessageCatalogueInterface::class, $fallback->getFallbackCatalogue()->getFallbackCatalogue());
         static::assertEquals('en', $fallback->getFallbackCatalogue()->getFallbackCatalogue()->getLocale());
-        $this->translator->resetInMemoryCache();
+        $this->translator->reset();
     }
 
     public function testTranslatorCustomLocaleAndFallback(): void

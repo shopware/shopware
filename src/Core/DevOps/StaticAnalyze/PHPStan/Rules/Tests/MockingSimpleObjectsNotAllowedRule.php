@@ -59,7 +59,7 @@ class MockingSimpleObjectsNotAllowedRule implements Rule
      */
     public function processNode(Node $node, Scope $scope): array
     {
-        if ($this->isTestClass($scope)) {
+        if (!$this->isTestClass($scope)) {
             return [];
         }
 

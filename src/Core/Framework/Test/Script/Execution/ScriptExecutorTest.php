@@ -81,7 +81,7 @@ class ScriptExecutorTest extends TestCase
     public function testTranslation(): void
     {
         $translator = $this->getContainer()->get(Translator::class);
-        $translator->resetInMemoryCache();
+        $translator->reset();
         $translator->warmUp('');
 
         $context = Context::createDefaultContext();

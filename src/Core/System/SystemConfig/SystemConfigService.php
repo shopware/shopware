@@ -2,20 +2,20 @@
 
 namespace Shopware\Core\System\SystemConfig;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Bundle;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ConfigJsonField;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\Framework\Util\XmlReader;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\Event\BeforeSystemConfigChangedEvent;
 use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedEvent;
+use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedHook;
 use Shopware\Core\System\SystemConfig\Event\SystemConfigDomainLoadedEvent;
 use Shopware\Core\System\SystemConfig\Exception\BundleConfigNotFoundException;
 use Shopware\Core\System\SystemConfig\Exception\InvalidDomainException;
@@ -23,10 +23,11 @@ use Shopware\Core\System\SystemConfig\Exception\InvalidKeyException;
 use Shopware\Core\System\SystemConfig\Exception\InvalidSettingValueException;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use Symfony\Contracts\Service\ResetInterface;
 use function json_decode;
 
 #[Package('system-settings')]
-class SystemConfigService
+class SystemConfigService implements ResetInterface
 {
     /**
      * @var array<string, bool>
@@ -39,11 +40,15 @@ class SystemConfigService
     private array $traces = [];
 
     /**
+     * @var array<string, string>|null
+     */
+    private ?array $appMapping = null;
+
+    /**
      * @internal
      */
     public function __construct(
         private readonly Connection $connection,
-        private readonly EntityRepository $systemConfigRepository,
         private readonly ConfigReader $configReader,
         private readonly AbstractSystemConfigLoader $loader,
         private readonly EventDispatcherInterface $eventDispatcher
@@ -210,36 +215,110 @@ class SystemConfigService
      */
     public function set(string $key, $value, ?string $salesChannelId = null): void
     {
-        $key = trim($key);
-        $this->validate($key, $salesChannelId);
+        $this->setMultiple([$key => $value], $salesChannelId);
+    }
 
-        $event = new BeforeSystemConfigChangedEvent($key, $value, $salesChannelId);
-        $this->eventDispatcher->dispatch($event);
+    /**
+     * @param array<string, array<mixed>|bool|float|int|string|null> $values
+     */
+    public function setMultiple(array $values, ?string $salesChannelId = null): void
+    {
+        $where = $salesChannelId ? 'sales_channel_id = :salesChannelId' : 'sales_channel_id IS NULL';
 
-        $id = $this->getId($key, $salesChannelId);
-        if ($value === null) {
-            if ($id) {
-                $this->systemConfigRepository->delete([['id' => $id]], Context::createDefaultContext());
+        $existingIds = $this->connection
+            ->fetchAllKeyValue(
+                'SELECT configuration_key, id FROM system_config WHERE ' . $where . ' and configuration_key IN (:configurationKeys)',
+                [
+                    'salesChannelId' => $salesChannelId ? Uuid::fromHexToBytes($salesChannelId) : null,
+                    'configurationKeys' => array_keys($values),
+                ],
+                [
+                    'configurationKeys' => ArrayParameterType::STRING,
+                ]
+            );
+
+        $toBeDeleted = [];
+        $insertQueue = new MultiInsertQueryQueue($this->connection, 100, false, true);
+        $events = [];
+
+        foreach ($values as $key => $value) {
+            $key = trim($key);
+            $this->validate($key, $salesChannelId);
+
+            $event = new BeforeSystemConfigChangedEvent($key, $value, $salesChannelId);
+            $this->eventDispatcher->dispatch($event);
+
+            // On null value, delete the config
+            if ($value === null) {
+                $toBeDeleted[] = $key;
+
+                $events[] = new SystemConfigChangedEvent($key, $value, $salesChannelId);
+
+                continue;
             }
 
-            $this->eventDispatcher->dispatch(new SystemConfigChangedEvent($key, $value, $salesChannelId));
+            if (isset($existingIds[$key])) {
+                $this->connection->update(
+                    'system_config',
+                    [
+                        'configuration_value' => Json::encode(['_value' => $value]),
+                        'updated_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                    ],
+                    [
+                        'id' => $existingIds[$key],
+                    ]
+                );
 
-            return;
+                $events[] = new SystemConfigChangedEvent($key, $value, $salesChannelId);
+
+                continue;
+            }
+
+            $insertQueue->addInsert(
+                'system_config',
+                [
+                    'id' => Uuid::randomBytes(),
+                    'configuration_key' => $key,
+                    'configuration_value' => Json::encode(['_value' => $value]),
+                    'sales_channel_id' => $salesChannelId ? Uuid::fromHexToBytes($salesChannelId) : null,
+                    'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                ],
+            );
+
+            $events[] = new SystemConfigChangedEvent($key, $value, $salesChannelId);
         }
 
-        $data = [
-            'id' => $id ?? Uuid::randomHex(),
-            'configurationKey' => $key,
-            'configurationValue' => $event->getValue(),
-            'salesChannelId' => $salesChannelId,
-        ];
-        $this->systemConfigRepository->upsert([$data], Context::createDefaultContext());
-        $this->eventDispatcher->dispatch(new SystemConfigChangedEvent($key, $event->getValue(), $salesChannelId));
+        // Delete all null values
+        if (!empty($toBeDeleted)) {
+            $qb = $this->connection
+                ->createQueryBuilder()
+                ->where('configuration_key IN (:keys)')
+                ->setParameter('keys', $toBeDeleted, ArrayParameterType::STRING);
+
+            if ($salesChannelId) {
+                $qb->andWhere('sales_channel_id = :salesChannelId')
+                    ->setParameter('salesChannelId', Uuid::fromHexToBytes($salesChannelId));
+            } else {
+                $qb->andWhere('sales_channel_id IS NULL');
+            }
+
+            $qb->delete('system_config')
+                ->executeStatement();
+        }
+
+        $insertQueue->execute();
+
+        // Dispatch events that the given values have been changed
+        foreach ($events as $event) {
+            $this->eventDispatcher->dispatch($event);
+        }
+
+        $this->eventDispatcher->dispatch(new SystemConfigChangedHook($values, $this->getAppMapping()));
     }
 
     public function delete(string $key, ?string $salesChannel = null): void
     {
-        $this->set($key, null, $salesChannel);
+        $this->setMultiple([$key => null], $salesChannel);
     }
 
     /**
@@ -309,16 +388,7 @@ class SystemConfigService
             return;
         }
 
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsAnyFilter('configurationKey', $configKeys));
-        $systemConfigIds = $this->systemConfigRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
-        if (empty($systemConfigIds)) {
-            return;
-        }
-
-        $ids = array_map(static fn ($id) => ['id' => $id], $systemConfigIds);
-
-        $this->systemConfigRepository->delete($ids, Context::createDefaultContext());
+        $this->setMultiple(array_fill_keys($configKeys, null));
     }
 
     /**
@@ -347,6 +417,11 @@ class SystemConfigService
         return $trace;
     }
 
+    public function reset(): void
+    {
+        $this->appMapping = null;
+    }
+
     /**
      * @throws InvalidKeyException
      * @throws InvalidUuidException
@@ -362,20 +437,17 @@ class SystemConfigService
         }
     }
 
-    private function getId(string $key, ?string $salesChannelId = null): ?string
+    /**
+     * @return array<string, string>
+     */
+    private function getAppMapping(): array
     {
-        $criteria = new Criteria();
-        $criteria->addFilter(
-            new EqualsFilter('configurationKey', $key),
-            new EqualsFilter('salesChannelId', $salesChannelId)
-        );
+        if ($this->appMapping !== null) {
+            return $this->appMapping;
+        }
 
-        /** @var array<string> $ids */
-        $ids = $this->systemConfigRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
-
-        /** @var string|null $id */
-        $id = array_shift($ids);
-
-        return $id;
+        /** @var array<string, string> $allKeyValue */
+        $allKeyValue = $this->connection->fetchAllKeyValue('SELECT LOWER(HEX(id)), name FROM app');
+        return $this->appMapping = $allKeyValue;
     }
 }

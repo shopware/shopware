@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Struct\ArrayStruct;
+use Shopware\Core\Framework\Struct\ArrayEntity;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -143,7 +143,7 @@ class EntityIndexerRegistry
         if (!$context->hasExtension(self::EXTENSION_INDEXER_SKIP)) {
             return;
         }
-        /** @var ArrayStruct<string, mixed> $skip */
+        /** @var ArrayEntity<string, mixed> $skip */
         $skip = $context->getExtension(self::EXTENSION_INDEXER_SKIP);
 
         $message->addSkip(...$skip->get('skips'));

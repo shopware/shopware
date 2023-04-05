@@ -463,6 +463,43 @@ class CheckoutControllerTest extends TestCase
         static::assertArrayHasKey(CheckoutConfirmPageLoadedHook::HOOK_NAME, $traces);
     }
 
+    public function testJsonCart(): void
+    {
+        $browser = $this->getBrowserWithLoggedInCustomer();
+        $browserSalesChannelId = $browser->getServerParameter('test-sales-channel-id');
+
+        $productId = Uuid::randomHex();
+        $this->createProductOnDatabase($productId, 'test.123', $browserSalesChannelId);
+
+        // Always add a product to the cart
+        $browser->request(
+            'POST',
+            '/checkout/product/add-by-number',
+            [
+                'number' => 'test.123',
+            ]
+        );
+
+        $browser->request('GET', '/checkout/cart.json');
+
+        $response = $browser->getResponse();
+
+        static::assertEquals(200, $response->getStatusCode());
+
+        $content = json_decode((string) $response->getContent(), true);
+
+        static::assertArrayHasKey('price', $content);
+        static::assertArrayHasKey('lineItems', $content);
+        static::assertArrayHasKey('deliveries', $content);
+        static::assertArrayHasKey('errors', $content);
+        static::assertArrayHasKey('transactions', $content);
+        static::assertCount(1, $content['lineItems']);
+        static::assertArrayHasKey('id', $content['lineItems'][0]);
+        static::assertArrayHasKey('type', $content['lineItems'][0]);
+        static::assertArrayHasKey('label', $content['lineItems'][0]);
+        static::assertArrayHasKey('quantity', $content['lineItems'][0]);
+    }
+
     public function testCheckoutFinishPageLoadedHookScriptsAreExecuted(): void
     {
         $contextToken = Uuid::randomHex();

@@ -46,7 +46,8 @@ class ThemeCompiler implements ThemeCompilerInterface
         private readonly string $projectDir,
         private readonly AbstractScssCompiler $scssCompiler,
         private readonly MessageBusInterface $messageBus,
-        private readonly int $themeFileDeleteDelay
+        private readonly int $themeFileDeleteDelay,
+        private readonly bool $autoPrefix = false
     ) {
     }
 
@@ -250,17 +251,20 @@ class ThemeCompiler implements ThemeCompilerInterface
                 $exception
             );
         }
-        $autoPreFixer = new Autoprefixer($cssOutput);
-        /** @var string|false $compiled */
-        $compiled = $autoPreFixer->compile($this->debug);
-        if ($compiled === false) {
-            throw new ThemeCompileException(
-                $configuration->getTechnicalName(),
-                'CSS parser not initialized'
-            );
+
+        if ($this->autoPrefix === true) {
+            $autoPreFixer = new Autoprefixer($cssOutput);
+            /** @var string|false $cssOutput */
+            $cssOutput = $autoPreFixer->compile($this->debug);
+            if ($cssOutput === false) {
+                throw new ThemeCompileException(
+                    $configuration->getTechnicalName(),
+                    'CSS parser not initialized'
+                );
+            }
         }
 
-        return $compiled;
+        return $cssOutput;
     }
 
     private function getImportFileExtension(string $extension): string

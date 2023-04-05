@@ -76,7 +76,8 @@ class ThemeCompilerTest extends TestCase
             __DIR__,
             $this->createMock(ScssPhpCompiler::class),
             new MessageBus(),
-            0
+            0,
+            false
         );
     }
 
@@ -387,7 +388,8 @@ PHP_EOL;
             __DIR__,
             $this->createMock(ScssPhpCompiler::class),
             new MessageBus(),
-            0
+            0,
+            false
         );
 
         $config = new StorefrontPluginConfiguration('test');
@@ -446,7 +448,8 @@ PHP_EOL;
             __DIR__,
             $this->createMock(ScssPhpCompiler::class),
             new MessageBus(),
-            0
+            0,
+            false
         );
 
         $config = new StorefrontPluginConfiguration('test');
@@ -504,7 +507,8 @@ PHP_EOL;
             __DIR__,
             $scssCompiler,
             new MessageBus(),
-            0
+            0,
+            false
         );
 
         $config = new StorefrontPluginConfiguration('test');
@@ -568,7 +572,8 @@ PHP_EOL;
             __DIR__,
             $scssCompiler,
             new MessageBus(),
-            0
+            0,
+            false
         );
 
         $config = new StorefrontPluginConfiguration('test');
@@ -649,7 +654,8 @@ PHP_EOL;
             __DIR__,
             $scssCompiler,
             $messageBusMock,
-            900
+            900,
+            false
         );
 
         $config = new StorefrontPluginConfiguration('test');

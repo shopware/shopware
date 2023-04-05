@@ -34,6 +34,7 @@
             <argument type="service" id="Shopware\Storefront\Theme\ScssPhpCompiler"/>
             <argument type="service" id="messenger.bus.shopware"/>
             <argument>%storefront.theme.file_delete_delay%</argument>
+            <argument>%storefront.theme.auto_prefix_css%</argument>
         </service>
 
         <service id="Shopware\Storefront\Theme\ThemeFileImporter">

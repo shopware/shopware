@@ -164,6 +164,8 @@ export default {
 
     methods: {
         createdComponent() {
+            window.addEventListener('beforeunload', this.beforeDestroyComponent);
+
             Shopware.State.commit(
                 'shopwareApps/setSelectedIds',
                 this.orderId ? [this.orderId] : [],

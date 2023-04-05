@@ -3,7 +3,9 @@
 namespace Shopware\Core\Content\MailTemplate\Api;
 
 use Shopware\Core\Content\Mail\Service\AbstractMailService;
-use Shopware\Core\Content\MailTemplate\Service\AttachmentLoader;
+use Shopware\Core\Content\Mail\Service\MailAttachmentsConfig;
+use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
+use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -22,23 +24,30 @@ class MailActionController extends AbstractController
      */
     public function __construct(
         private readonly AbstractMailService $mailService,
-        private readonly StringTemplateRenderer $templateRenderer,
-        private readonly AttachmentLoader $attachmentLoader
+        private readonly StringTemplateRenderer $templateRenderer
     ) {
     }
 
     #[Route(path: '/api/_action/mail-template/send', name: 'api.action.mail_template.send', methods: ['POST'])]
     public function send(RequestDataBag $post, Context $context): JsonResponse
     {
+        /** @var array{id: string} $data */
         $data = $post->all();
-        $mailTemplateData = $data['mailTemplateData'] ?? [];
 
-        if (!empty($data['documentIds'])) {
-            $data['binAttachments'] = \array_merge(
-                $data['binAttachments'] ?? [],
-                $this->attachmentLoader->load($data['documentIds'], $context)
-            );
-        }
+        $mailTemplateData = $data['mailTemplateData'] ?? [];
+        $extension = new MailSendSubscriberConfig(
+            false,
+            $data['documentIds'] ?? [],
+            $data['mediaIds'] ?? [],
+        );
+
+        $data['attachmentsConfig'] = new MailAttachmentsConfig(
+            $context,
+            new MailTemplateEntity(),
+            $extension,
+            [],
+            $mailTemplateData['order']['id'] ?? null,
+        );
 
         $message = $this->mailService->send($data, $context, $mailTemplateData);
 

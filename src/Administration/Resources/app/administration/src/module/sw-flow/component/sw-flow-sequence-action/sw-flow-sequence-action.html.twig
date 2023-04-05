@@ -177,7 +177,7 @@
                                         <sw-context-menu-item
                                             v-if="showMoveOption(item, 'up')"
                                             class="sw-flow-sequence-action__move-up"
-                                            @click="moveAction(item, 'up')"
+                                            @click="moveAction(item, 'up', key)"
                                         >
                                             {{ $tc('sw-flow.actions.contextButton.moveUpAction') }}
                                         </sw-context-menu-item>
@@ -188,7 +188,7 @@
                                         <sw-context-menu-item
                                             v-if="showMoveOption(item, 'down')"
                                             class="sw-flow-sequence-action__move-down"
-                                            @click="moveAction(item, 'down')"
+                                            @click="moveAction(item, 'down', key)"
                                         >
                                             {{ $tc('sw-flow.actions.contextButton.moveDownAction') }}
                                         </sw-context-menu-item>

@@ -39,7 +39,7 @@ class DatabaseImportControllerTest extends TestCase
 
     private MockObject&RouterInterface $router;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->connectionFactory = $this->createMock(DatabaseConnectionFactory::class);
         $this->databaseMigrator = $this->createMock(DatabaseMigrator::class);

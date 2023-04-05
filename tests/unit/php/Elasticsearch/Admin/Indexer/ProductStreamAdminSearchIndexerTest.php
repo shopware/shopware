@@ -27,7 +27,7 @@ class ProductStreamAdminSearchIndexerTest extends TestCase
 {
     private ProductStreamAdminSearchIndexer $searchIndexer;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->searchIndexer = new ProductStreamAdminSearchIndexer(
             $this->createMock(Connection::class),

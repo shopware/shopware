@@ -40,7 +40,7 @@ class CartLineItemControllerTest extends TestCase
 
     private ContainerInterface&MockObject $container;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->lineItemFactory = $this->createMock(LineItemFactoryRegistry::class);
         $this->cartService = $this->createMock(CartService::class);

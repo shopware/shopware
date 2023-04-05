@@ -12,7 +12,7 @@ class MatrixElementTest extends TestCase
 {
     private MatrixElement $element;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->element = new MatrixElement(1, 1, 0.3);
     }

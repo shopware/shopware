@@ -27,7 +27,7 @@ class LandingPageAdminSearchIndexerTest extends TestCase
 {
     private LandingPageAdminSearchIndexer $searchIndexer;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->searchIndexer = new LandingPageAdminSearchIndexer(
             $this->createMock(Connection::class),

@@ -26,7 +26,7 @@ class TemplateStateServiceTest extends TestCase
 
     private EntityRepository $appRepo;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->templateRepo = $this->getContainer()->get('app_template.repository');
         $this->appRepo = $this->getContainer()->get('app.repository');

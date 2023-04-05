@@ -35,7 +35,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
 {
     protected SalesChannelContext $context;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
         $this->context = $this->getSalesChannelContext();

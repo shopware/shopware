@@ -20,7 +20,7 @@ class IntegrationControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         $this->resetBrowser();
     }

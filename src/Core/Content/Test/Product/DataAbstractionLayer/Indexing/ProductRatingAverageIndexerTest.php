@@ -58,7 +58,7 @@ class ProductRatingAverageIndexerTest extends TestCase
      */
     private $productIndexer;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->reviewRepository = $this->getContainer()->get('product_review.repository');
         $this->productRepository = $this->getContainer()->get('product.repository');

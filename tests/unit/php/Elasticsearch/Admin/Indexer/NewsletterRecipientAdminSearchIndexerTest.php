@@ -27,7 +27,7 @@ class NewsletterRecipientAdminSearchIndexerTest extends TestCase
 {
     private NewsletterRecipientAdminSearchIndexer $searchIndexer;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->searchIndexer = new NewsletterRecipientAdminSearchIndexer(
             $this->createMock(Connection::class),

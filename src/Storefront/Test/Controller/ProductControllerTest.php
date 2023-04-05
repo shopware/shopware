@@ -43,7 +43,7 @@ class ProductControllerTest extends TestCase
 
     private TestDataCollection $ids;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->ids = new TestDataCollection();
 

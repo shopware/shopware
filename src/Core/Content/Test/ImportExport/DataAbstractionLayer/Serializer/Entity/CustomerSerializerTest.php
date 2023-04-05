@@ -37,7 +37,7 @@ class CustomerSerializerTest extends TestCase
 
     private string $paymentMethodId = '733530bc28f74bfbb43c32b595ac9fa0';
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->customerGroupRepository = $this->getContainer()->get('customer_group.repository');
         $this->paymentMethodRepository = $this->getContainer()->get('payment_method.repository');

@@ -77,7 +77,7 @@ class PluginLifecycleServiceTest extends TestCase
 
     private MockObject&PluginService $pluginServiceMock;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->pluginRepoMock = $this->createMock(EntityRepository::class);
         $this->eventDispatcherMock = $this->createMock(EventDispatcher::class);

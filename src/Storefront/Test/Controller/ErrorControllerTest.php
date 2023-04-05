@@ -34,7 +34,7 @@ class ErrorControllerTest extends TestCase
 
     private string $domain = 'http://kyln.shopware';
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
         $this->controller = $this->getContainer()->get(ErrorController::class);

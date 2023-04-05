@@ -46,7 +46,7 @@ class VersionManagerTest extends TestCase
 
     private TestDataCollection $ids;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->versionManager = $this->getContainer()->get(VersionManager::class);

@@ -50,7 +50,7 @@ class CachedProductSearchRouteTest extends TestCase
 
     private ProductSearchRouteResponse $response;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->decorated = $this->createMock(AbstractProductSearchRoute::class);
         $this->cache = $this->createMock(CacheInterface::class);

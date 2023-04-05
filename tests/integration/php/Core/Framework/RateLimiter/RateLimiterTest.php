@@ -70,7 +70,7 @@ class RateLimiterTest extends TestCase
         KernelLifecycleManager::bootKernel(true, Uuid::randomHex());
     }
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->context = Context::createDefaultContext();
         $this->ids = new TestDataCollection();
@@ -85,7 +85,7 @@ class RateLimiterTest extends TestCase
         $this->clearCache();
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         DisableRateLimiterCompilerPass::enableNoLimit();
     }

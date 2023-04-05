@@ -38,7 +38,7 @@ class AdminSearchRegistryTest extends TestCase
 {
     private MockObject&AbstractAdminIndexer $indexer;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->indexer = $this->getMockBuilder(PromotionAdminSearchIndexer::class)->disableOriginalConstructor()->getMock();
     }

@@ -30,7 +30,7 @@ class EntityLoadedEventFactoryTest extends TestCase
 
     private EntityLoadedEventFactory $entityLoadedEventFactory;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->entityLoadedEventFactory = $this->getContainer()->get(EntityLoadedEventFactory::class);

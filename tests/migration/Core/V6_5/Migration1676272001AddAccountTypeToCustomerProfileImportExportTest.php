@@ -35,7 +35,7 @@ class Migration1676272001AddAccountTypeToCustomerProfileImportExportTest extends
         $this->oldMapping = $profile['mapping'];
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         $profile = $this->fetchProfile();
         if (!$profile) {

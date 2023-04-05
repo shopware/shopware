@@ -33,7 +33,7 @@ class StateMachineSateFieldSerializerTest extends TestCase
 
     private Connection $connection;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 

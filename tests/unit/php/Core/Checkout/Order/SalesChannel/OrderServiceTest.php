@@ -35,7 +35,7 @@ class OrderServiceTest extends TestCase
 
     private OrderService $orderService;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $this->cartService = $this->createMock(CartService::class);

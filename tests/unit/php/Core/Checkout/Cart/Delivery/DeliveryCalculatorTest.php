@@ -35,7 +35,7 @@ class DeliveryCalculatorTest extends TestCase
 {
     private DeliveryTime $deliveryTime;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->deliveryTime = (new DeliveryTime())->assign([
             'min' => 1,

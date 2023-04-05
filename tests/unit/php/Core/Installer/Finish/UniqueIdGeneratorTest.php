@@ -12,7 +12,7 @@ use Shopware\Core\Installer\Finish\UniqueIdGenerator;
  */
 class UniqueIdGeneratorTest extends TestCase
 {
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         unlink(__DIR__ . '/.uniqueid.txt');
     }

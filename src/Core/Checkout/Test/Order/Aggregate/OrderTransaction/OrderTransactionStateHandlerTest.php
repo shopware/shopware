@@ -40,7 +40,7 @@ class OrderTransactionStateHandlerTest extends TestCase
 
     private OrderTransactionStateHandler $orderTransactionStateHelper;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->customerRepository = $this->getContainer()->get('customer.repository');
         $this->orderRepository = $this->getContainer()->get('order.repository');

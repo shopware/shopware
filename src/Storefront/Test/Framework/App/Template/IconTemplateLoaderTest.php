@@ -18,7 +18,7 @@ class IconTemplateLoaderTest extends TestCase
 
     private AbstractTemplateLoader $templateLoader;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->templateLoader = $this->getContainer()->get(TemplateLoader::class);
     }

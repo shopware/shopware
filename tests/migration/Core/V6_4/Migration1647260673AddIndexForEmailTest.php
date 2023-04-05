@@ -17,7 +17,7 @@ class Migration1647260673AddIndexForEmailTest extends TestCase
 {
     private Connection $connection;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 

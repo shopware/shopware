@@ -26,7 +26,7 @@ class WebhookEventMessageHandlerTest extends TestCase
 
     private WebhookEventMessageHandler $webhookEventMessageHandler;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->webhookEventMessageHandler = $this->getContainer()->get(WebhookEventMessageHandler::class);
     }

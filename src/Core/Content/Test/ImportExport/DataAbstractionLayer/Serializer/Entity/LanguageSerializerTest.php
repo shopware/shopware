@@ -28,7 +28,7 @@ class LanguageSerializerTest extends TestCase
 
     private string $languageId = '1a9e90835a634ffd900b5a441251f551';
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->languageRepository = $this->getContainer()->get('language.repository');
         $serializerRegistry = $this->getContainer()->get(SerializerRegistry::class);

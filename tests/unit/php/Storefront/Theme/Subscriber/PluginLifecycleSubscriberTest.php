@@ -29,7 +29,7 @@ class PluginLifecycleSubscriberTest extends TestCase
 {
     private PluginLifecycleSubscriber $pluginSubscriber;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->pluginSubscriber = new PluginLifecycleSubscriber(
             $this->createMock(StorefrontPluginRegistry::class),

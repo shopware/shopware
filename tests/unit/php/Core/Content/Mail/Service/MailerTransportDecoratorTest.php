@@ -36,7 +36,7 @@ class MailerTransportDecoratorTest extends TestCase
 
     private MailerTransportDecorator $decorator;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->decorated = $this->createMock(TransportInterface::class);
         $this->attachmentsBuilder = $this->createMock(MailAttachmentsBuilder::class);

@@ -31,7 +31,7 @@ class FeatureFlagExtensionTest extends TestCase
 
     private FeatureFlagExtension $extension;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->serverVarsBackup = $_SERVER;
         $this->envVarsBackup = $_ENV;
@@ -39,7 +39,7 @@ class FeatureFlagExtensionTest extends TestCase
         $this->extension = new FeatureFlagExtension('Shopware\\Tests\\Unit\\', true);
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         $_SERVER = $this->serverVarsBackup;
         $_ENV = $this->envVarsBackup;

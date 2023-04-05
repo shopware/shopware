@@ -39,7 +39,7 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
 
     private MockObject&SalesChannelContextRestorer $contextRestorerMock;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->customerRepositoryMock = $this->createMock(EntityRepository::class);
         $this->customerGroupRepositoryMock = $this->createMock(EntityRepository::class);

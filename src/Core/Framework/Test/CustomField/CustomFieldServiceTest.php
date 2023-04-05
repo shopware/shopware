@@ -33,7 +33,7 @@ class CustomFieldServiceTest extends TestCase
      */
     private $attributeService;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->attributeRepository = $this->getContainer()->get('custom_field.repository');
         $this->attributeService = $this->getContainer()->get(CustomFieldService::class);

@@ -34,7 +34,7 @@ class Migration1676272000AddAccountTypeToCustomerTest extends TestCase
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         $this->connection->executeStatement('DELETE FROM `customer_address`');
         $this->connection->executeStatement('DELETE FROM `customer`');

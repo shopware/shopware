@@ -31,7 +31,7 @@ class SetOrderStateActionTest extends TestCase
 
     private SetOrderStateAction $action;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->connection = $this->createMock(Connection::class);
         $log = $this->createMock(LoggerInterface::class);

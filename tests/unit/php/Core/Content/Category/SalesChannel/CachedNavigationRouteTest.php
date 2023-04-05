@@ -52,7 +52,7 @@ class CachedNavigationRouteTest extends TestCase
 
     private NavigationRouteResponse $response;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->decorated = $this->createMock(AbstractNavigationRoute::class);
         $this->cache = $this->createMock(CacheInterface::class);

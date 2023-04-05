@@ -27,7 +27,7 @@ class CustomerGroupAdminSearchIndexerTest extends TestCase
 {
     private CustomerGroupAdminSearchIndexer $searchIndexer;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->searchIndexer = new CustomerGroupAdminSearchIndexer(
             $this->createMock(Connection::class),

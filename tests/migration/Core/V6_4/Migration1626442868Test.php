@@ -31,7 +31,7 @@ class Migration1626442868Test extends TestCase
 
     private Connection $connection;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->connection = KernelLifecycleManager::getConnection();
 
@@ -39,7 +39,7 @@ class Migration1626442868Test extends TestCase
         $this->oldDescriptionAPI = $this->getDescription(self::SALES_CHANNEL_API);
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         parent::tearDown();
         $this->resetDescription();

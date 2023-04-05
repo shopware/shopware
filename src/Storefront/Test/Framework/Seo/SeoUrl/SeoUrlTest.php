@@ -43,7 +43,7 @@ class SeoUrlTest extends TestCase
 
     private SeoUrlGenerator $seoUrlGenerator;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->seoUrlTemplateRepository = $this->getContainer()->get('seo_url_template.repository');

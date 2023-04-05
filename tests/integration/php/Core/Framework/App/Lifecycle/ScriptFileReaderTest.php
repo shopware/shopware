@@ -13,7 +13,7 @@ class ScriptFileReaderTest extends TestCase
 {
     private ScriptFileReaderInterface $scriptReader;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->scriptReader = new ScriptFileReader(\dirname(__DIR__) . '/');
     }

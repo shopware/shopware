@@ -27,14 +27,14 @@ class EntityProtectionValidatorTest extends TestCase
     use AdminApiTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->registerDefinitionWithExtensions(PluginDefinition::class, PluginProtectionExtension::class);
         $this->registerDefinitionWithExtensions(SystemConfigDefinition::class, SystemConfigExtension::class);
         $this->registerDefinitionWithExtensions(UserAccessKeyDefinition::class, UserAccessKeyExtension::class);
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         $this->removeExtension(
             PluginProtectionExtension::class,

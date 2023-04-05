@@ -36,7 +36,7 @@ class StoreApiRouteCacheKeyEventTest extends TestCase
 
     private SalesChannelEntity $salesChannelEntity;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->request = new Request();
         $this->salesChannelEntity = new SalesChannelEntity();

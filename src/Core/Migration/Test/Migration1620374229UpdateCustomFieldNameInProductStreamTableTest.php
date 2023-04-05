@@ -30,7 +30,7 @@ class Migration1620374229UpdateCustomFieldNameInProductStreamTableTest extends T
 
     private EntityRepository $productStreamRepository;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $customFieldRepository = $this->getContainer()->get('custom_field_set.repository');
         $this->productStreamRepository = $this->getContainer()->get('product_stream.repository');

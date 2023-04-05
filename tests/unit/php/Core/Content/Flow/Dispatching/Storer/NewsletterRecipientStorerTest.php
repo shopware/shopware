@@ -27,7 +27,7 @@ class NewsletterRecipientStorerTest extends TestCase
 
     private MockObject&EntityRepository $repository;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->repository = $this->createMock(EntityRepository::class);
         $this->storer = new NewsletterRecipientStorer($this->repository);

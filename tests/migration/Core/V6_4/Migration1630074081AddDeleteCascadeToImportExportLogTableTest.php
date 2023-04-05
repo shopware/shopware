@@ -18,7 +18,7 @@ class Migration1630074081AddDeleteCascadeToImportExportLogTableTest extends Test
 
     private Migration1630074081AddDeleteCascadeToImportExportLogTable $migration;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 

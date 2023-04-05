@@ -32,7 +32,7 @@ class Migration1673249981MigrateIsNewCustomerRuleTest extends TestCase
      */
     private array $testCondition;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 

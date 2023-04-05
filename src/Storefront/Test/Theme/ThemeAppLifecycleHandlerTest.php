@@ -28,7 +28,7 @@ class ThemeAppLifecycleHandlerTest extends TestCase
 
     private EntityRepository $themeRepository;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->eventDispatcher = $this->getContainer()->get('event_dispatcher');
         $this->themeRepository = $this->getContainer()->get('theme.repository');

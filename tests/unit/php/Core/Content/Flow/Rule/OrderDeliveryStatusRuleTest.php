@@ -29,7 +29,7 @@ class OrderDeliveryStatusRuleTest extends TestCase
 {
     private OrderDeliveryStatusRule $rule;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->rule = new OrderDeliveryStatusRule();
     }

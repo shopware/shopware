@@ -22,7 +22,7 @@ class RedisReverseProxyGatewayTest extends TestCase
 
     private MockHandler $mockHandler;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 

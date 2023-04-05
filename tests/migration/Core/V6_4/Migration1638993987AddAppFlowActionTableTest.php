@@ -19,7 +19,7 @@ class Migration1638993987AddAppFlowActionTableTest extends TestCase
 
     private Connection $connection;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->connection = KernelLifecycleManager::getConnection();
 

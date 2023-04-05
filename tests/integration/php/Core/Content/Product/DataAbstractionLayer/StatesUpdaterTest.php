@@ -32,7 +32,7 @@ class StatesUpdaterTest extends TestCase
 
     private Connection $connection;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->statesUpdater = $this->getContainer()->get(StatesUpdater::class);

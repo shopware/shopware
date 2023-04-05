@@ -41,7 +41,7 @@ class SalesChannelRequestContextResolverTest extends TestCase
 
     private SalesChannelContextServiceInterface $contextService;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->ids = new TestDataCollection();
         $this->currencyRepository = $this->getContainer()->get('currency.repository');

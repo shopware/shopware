@@ -36,7 +36,7 @@ class CustomerChangePasswordSubscriberTest extends TestCase
      */
     private $customerRepository;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->ids = new TestDataCollection();
         $this->browser = $this->createCustomSalesChannelBrowser([

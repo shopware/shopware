@@ -19,7 +19,7 @@ class DefaultMediaResolverTest extends TestCase
 
     private FilesystemOperator $publicFilesystem;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->publicFilesystem = $this->getPublicFilesystem();
         $this->mediaResolver = new DefaultMediaResolver($this->publicFilesystem);

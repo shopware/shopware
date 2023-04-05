@@ -19,7 +19,7 @@ class Migration1622782058AddDeleteAtIntoIntegrationAndAclRoleTest extends TestCa
 
     private Connection $connection;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->connection = KernelLifecycleManager::getConnection();
         $this->connection->rollBack();

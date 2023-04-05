@@ -21,7 +21,7 @@ class LocaleProviderTest extends TestCase
 
     private LocaleProvider $localeProvider;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->userRepository = $this->getContainer()->get('user.repository');
         $this->localeProvider = $this->getContainer()->get(LocaleProvider::class);

@@ -43,7 +43,7 @@ class KernelPluginIntegrationTest extends TestCase
 
     private ?Kernel $kernel = null;
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         if ($this->kernel) {
             /** @var TestContainer $serviceContainer */

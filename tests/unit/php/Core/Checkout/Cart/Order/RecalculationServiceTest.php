@@ -39,7 +39,7 @@ class RecalculationServiceTest extends TestCase
 {
     private SalesChannelContext $salesChannelContext;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->salesChannelContext = $this->createMock(SalesChannelContext::class);
     }

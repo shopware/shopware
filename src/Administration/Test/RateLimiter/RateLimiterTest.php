@@ -34,13 +34,13 @@ class RateLimiterTest extends TestCase
         DisableRateLimiterCompilerPass::enableNoLimit();
     }
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->context = Context::createDefaultContext();
         $this->appRepository = $this->getContainer()->get('app.repository');
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         DisableRateLimiterCompilerPass::enableNoLimit();
     }

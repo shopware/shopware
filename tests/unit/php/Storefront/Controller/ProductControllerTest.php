@@ -66,7 +66,7 @@ class ProductControllerTest extends TestCase
 
     private ProductControllerTestClass $controller;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->productPageLoaderMock = $this->createMock(ProductPageLoader::class);
         $this->findVariantRouteMock = $this->createMock(FindProductVariantRoute::class);

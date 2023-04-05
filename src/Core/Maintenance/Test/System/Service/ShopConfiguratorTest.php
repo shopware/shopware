@@ -26,7 +26,7 @@ class ShopConfiguratorTest extends TestCase
 
     private SystemConfigService $systemConfigService;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->shopConfigurator = $this->getContainer()->get(ShopConfigurator::class);
         $this->systemConfigService = $this->getContainer()->get(SystemConfigService::class);

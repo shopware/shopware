@@ -26,7 +26,7 @@ class MainCategoryExtensionTest extends TestCase
 
     private EntityRepository $categoryRepository;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->categoryRepository = $this->getContainer()->get('category.repository');

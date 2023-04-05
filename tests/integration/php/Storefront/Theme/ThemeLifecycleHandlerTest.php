@@ -48,7 +48,7 @@ class ThemeLifecycleHandlerTest extends TestCase
 
     private StorefrontPluginConfigurationFactory $configFactory;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->themeServiceMock = $this->createMock(ThemeService::class);
 

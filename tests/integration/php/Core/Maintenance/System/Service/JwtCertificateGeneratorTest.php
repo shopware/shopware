@@ -23,7 +23,7 @@ class JwtCertificateGeneratorTest extends TestCase
 
     private string $dirname;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->jwtCertificateGenerator = $this->getContainer()->get(JwtCertificateGenerator::class);
 
@@ -33,7 +33,7 @@ class JwtCertificateGeneratorTest extends TestCase
         $this->dirname = 'does-not-exist';
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         unlink($this->privatePath);
         unlink($this->publicPath);

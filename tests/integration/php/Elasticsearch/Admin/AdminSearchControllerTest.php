@@ -35,7 +35,7 @@ class AdminSearchControllerTest extends TestCase
 
     private AdminSearchController $controller;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->clearElasticsearch();
 

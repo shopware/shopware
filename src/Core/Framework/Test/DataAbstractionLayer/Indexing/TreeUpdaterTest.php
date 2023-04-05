@@ -30,7 +30,7 @@ class TreeUpdaterTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->stopTransactionAfter();
 
@@ -68,7 +68,7 @@ class TreeUpdaterTest extends TestCase
         $this->startTransactionBefore();
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         $this->stopTransactionAfter();
         $this->getContainer()

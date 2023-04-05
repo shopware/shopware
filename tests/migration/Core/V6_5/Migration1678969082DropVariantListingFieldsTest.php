@@ -22,7 +22,7 @@ class Migration1678969082DropVariantListingFieldsTest extends TestCase
 
     private Migration1678969082DropVariantListingFields $migration;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->connection = KernelLifecycleManager::getConnection();
         $this->migration = new Migration1678969082DropVariantListingFields();

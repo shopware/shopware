@@ -16,14 +16,14 @@ use Shopware\Core\Migration\V6_4\Migration1647443222AllowLongLogEntryMessages;
  */
 class Migration1647443222AllowLongLogEntryMessagesTest extends TestCase
 {
-    public function setUp(): void
+    protected function setUp(): void
     {
         /** @var Connection $connection */
         $connection = KernelLifecycleManager::getConnection();
         $connection->executeStatement('ALTER TABLE `log_entry` MODIFY COLUMN `message` VARCHAR(255) NOT NULL');
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         /** @var Connection $connection */
         $connection = KernelLifecycleManager::getConnection();

@@ -25,7 +25,7 @@ class SeoActionControllerTest extends TestCase
     use AdminFunctionalTestBehaviour;
     use StorefrontSalesChannelTestHelper;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $connection = $this->getContainer()->get(Connection::class);
         $connection->executeStatement('DELETE FROM `order`');

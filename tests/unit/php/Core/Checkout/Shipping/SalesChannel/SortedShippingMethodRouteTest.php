@@ -45,7 +45,7 @@ class SortedShippingMethodRouteTest extends TestCase
 
     private ShippingMethodRouteResponse $response;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->decorated = $this->createMock(AbstractShippingMethodRoute::class);
         $this->executor = $this->createMock(ScriptExecutor::class);

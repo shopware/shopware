@@ -43,7 +43,7 @@ EOF;
         $this->connection->beginTransaction();
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         $this->connection->rollBack();
         $this->connection->executeStatement('DROP TABLE `_test_nullable`');

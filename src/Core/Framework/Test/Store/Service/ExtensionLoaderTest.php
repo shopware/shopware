@@ -35,7 +35,7 @@ class ExtensionLoaderTest extends TestCase
 
     private ExtensionLoader $extensionLoader;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->extensionLoader = $this->getContainer()->get(ExtensionLoader::class);
 
@@ -43,7 +43,7 @@ class ExtensionLoaderTest extends TestCase
         $this->installApp(__DIR__ . '/../_fixtures/TestApp');
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         $this->removePlugin(__DIR__ . '/../_fixtures/AppStoreTestPlugin');
         $this->removeApp(__DIR__ . '/../_fixtures/TestApp');

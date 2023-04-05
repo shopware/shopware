@@ -24,7 +24,7 @@ class StoreApiGeneratorTest extends TestCase
 
     private StaticDefinitionInstanceRegistry $definitionRegistry;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->generator = new StoreApiGenerator(
             new OpenApiSchemaBuilder('0.1.0'),

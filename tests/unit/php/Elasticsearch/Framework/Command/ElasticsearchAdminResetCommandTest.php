@@ -25,7 +25,7 @@ class ElasticsearchAdminResetCommandTest extends TestCase
 
     private Client&MockObject $client;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->connection = $this->createMock(Connection::class);
         $this->client = $this->createMock(Client::class);

@@ -52,7 +52,7 @@ class CachedProductListingRouteTest extends TestCase
 
     private ProductListingRouteResponse $response;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->decorated = $this->createMock(AbstractProductListingRoute::class);
         $this->cache = $this->createMock(CacheInterface::class);

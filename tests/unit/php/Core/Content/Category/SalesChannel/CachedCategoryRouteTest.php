@@ -51,7 +51,7 @@ class CachedCategoryRouteTest extends TestCase
 
     private CategoryRouteResponse $response;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->decorated = $this->createMock(AbstractCategoryRoute::class);
         $this->cache = $this->createMock(CacheInterface::class);

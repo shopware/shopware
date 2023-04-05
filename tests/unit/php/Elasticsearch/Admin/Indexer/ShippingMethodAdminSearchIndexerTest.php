@@ -27,7 +27,7 @@ class ShippingMethodAdminSearchIndexerTest extends TestCase
 {
     private ShippingMethodAdminSearchIndexer $searchIndexer;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->searchIndexer = new ShippingMethodAdminSearchIndexer(
             $this->createMock(Connection::class),

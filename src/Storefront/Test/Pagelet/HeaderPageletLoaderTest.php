@@ -22,7 +22,7 @@ class HeaderPageletLoaderTest extends TestCase
 
     private EntityRepository $languageRepository;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->languageRepository = $this->getContainer()->get('language.repository');
     }

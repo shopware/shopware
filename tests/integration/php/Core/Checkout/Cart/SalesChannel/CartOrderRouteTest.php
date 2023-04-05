@@ -47,7 +47,7 @@ class CartOrderRouteTest extends TestCase
 
     private EntityRepository $taxProviderRepository;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->ids = new IdsCollection();
 

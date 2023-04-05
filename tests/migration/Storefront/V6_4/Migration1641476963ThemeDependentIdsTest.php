@@ -19,7 +19,7 @@ class Migration1641476963ThemeDependentIdsTest extends TestCase
      */
     private Connection $connection;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
         $this->connection = KernelLifecycleManager::getConnection();

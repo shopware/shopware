@@ -41,7 +41,7 @@ class FlowDispatcherTest extends TestCase
 
     private FlowDispatcher $flowDispatcher;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->ids = new TestDataCollection();
         $this->container = $this->createMock(ContainerInterface::class);

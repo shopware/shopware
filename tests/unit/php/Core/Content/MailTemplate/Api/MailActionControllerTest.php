@@ -25,7 +25,7 @@ class MailActionControllerTest extends TestCase
 
     private StringTemplateRenderer&MockObject $stringTemplateRenderer;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->stringTemplateRenderer = $this->createMock(StringTemplateRenderer::class);
         $this->mailService = $this->createMock(AbstractMailService::class);

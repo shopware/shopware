@@ -36,7 +36,7 @@ class RepositoryWriterFacadeTest extends TestCase
 
     private Context $context;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->factory = $this->getContainer()->get(RepositoryWriterFacadeHookFactory::class);
         $this->context = Context::createDefaultContext();

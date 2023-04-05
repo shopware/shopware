@@ -32,7 +32,7 @@ class ActionButtonLoaderTest extends TestCase
 
     private string $app3OrderDetailButtonId;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->appRepository = $this->getContainer()->get('app.repository');
         $this->actionButtonLoader = $this->getContainer()->get(ActionButtonLoader::class);

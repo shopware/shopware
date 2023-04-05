@@ -33,7 +33,7 @@ class ExtensionDataProviderTest extends TestCase
 
     private Context $context;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->extensionDataProvider = $this->getContainer()->get(AbstractExtensionDataProvider::class);
         $this->context = $this->createAdminStoreContext();

@@ -18,15 +18,9 @@ class ManyToManyIdFieldIndexerTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var EntityRepository
-     */
-    private $productPropertyRepository;
+    private EntityRepository $productPropertyRepository;
 
-    /**
-     * @var EntityRepository
-     */
-    private $productRepository;
+    private EntityRepository $productRepository;
 
     protected function setUp(): void
     {

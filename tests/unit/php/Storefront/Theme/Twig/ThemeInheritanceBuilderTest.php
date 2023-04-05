@@ -17,7 +17,7 @@ class ThemeInheritanceBuilderTest extends TestCase
 {
     private ThemeInheritanceBuilder $builder;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->builder = new ThemeInheritanceBuilder(new TestStorefrontPluginRegistry(
             new StorefrontPluginConfigurationCollection([

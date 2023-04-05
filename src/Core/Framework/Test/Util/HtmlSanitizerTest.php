@@ -19,7 +19,7 @@ class HtmlSanitizerTest extends TestCase
 
     private HtmlSanitizer $sanitizer;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->sanitizer = $this->getContainer()->get(HtmlSanitizer::class);
     }

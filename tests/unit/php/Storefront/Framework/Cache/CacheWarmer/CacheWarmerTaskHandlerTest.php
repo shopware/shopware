@@ -35,7 +35,7 @@ class CacheWarmerTaskHandlerTest extends TestCase
 
     private CacheWarmerTaskHandler $handler;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->kernel = $this->createMock(Kernel::class);
         $this->router = $this->createMock(RouterInterface::class);

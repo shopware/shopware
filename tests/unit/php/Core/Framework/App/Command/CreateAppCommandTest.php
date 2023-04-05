@@ -22,13 +22,13 @@ class CreateAppCommandTest extends TestCase
 
     private string $appDir;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->appLifecycle = new RefreshableAppDryRun();
         $this->appDir = __DIR__ . '/_fixtures/create-app-project';
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         $this->removeApp();
     }

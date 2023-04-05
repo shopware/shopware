@@ -20,7 +20,7 @@ class HoneypotCaptchaTest extends TestCase
 
     private HoneypotCaptcha $captcha;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->captcha = $this->getContainer()->get(HoneypotCaptcha::class);
     }

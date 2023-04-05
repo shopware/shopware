@@ -46,7 +46,7 @@ class PasswordFieldSerializerTest extends TestCase
      */
     protected ValidatorInterface $validator;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $definitionRegistry = $this->createMock(DefinitionInstanceRegistry::class);
         $this->validator = $this->createMock(ValidatorInterface::class);

@@ -49,7 +49,7 @@ class CachedSalutationRouteTest extends TestCase
 
     private SalesChannelContext $context;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->decorated = $this->createMock(AbstractSalutationRoute::class);
         $this->cache = $this->createMock(CacheInterface::class);

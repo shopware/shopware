@@ -59,7 +59,7 @@ class DemodataCommandTest extends TestCase
 
     private DemodataCommand $command;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->dispatcher = new EventDispatcher();
         $this->command = new DemodataCommand(

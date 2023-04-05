@@ -27,7 +27,7 @@ class AdminSearcherTest extends TestCase
 
     private AdminSearcher $searcher;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->client = $this->createMock(Client::class);
 

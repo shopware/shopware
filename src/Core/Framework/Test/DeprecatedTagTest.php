@@ -48,7 +48,7 @@ class DeprecatedTagTest extends TestCase
 
     private ?DeprecationTagTester $deprecationTagTester = null;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->rootDir = $this->getPathForClass(Kernel::class);
         $this->manifestRoot = $this->getPathForClass(Manifest::class);

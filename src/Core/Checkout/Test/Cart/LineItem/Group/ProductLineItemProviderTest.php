@@ -23,7 +23,7 @@ class ProductLineItemProviderTest extends TestCase
 
     private AbstractProductLineItemProvider $provider;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->provider = new ProductLineItemProvider();
     }

@@ -16,7 +16,7 @@ class IndexerQueuerTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 

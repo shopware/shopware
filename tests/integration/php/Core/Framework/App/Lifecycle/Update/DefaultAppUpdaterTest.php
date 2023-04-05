@@ -29,7 +29,7 @@ class DefaultAppUpdaterTest extends TestCase
 
     private Context $context;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->context = Context::createDefaultContext();
         $this->updater = $this->getContainer()->get(AbstractAppUpdater::class);

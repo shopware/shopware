@@ -32,7 +32,7 @@ class StoreClientTest extends TestCase
 
     private Context $storeContext;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->configService = $this->getContainer()->get(SystemConfigService::class);
         $this->storeClient = $this->getContainer()->get(StoreClient::class);

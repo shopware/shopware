@@ -19,7 +19,7 @@ class BundleConfigGeneratorTest extends TestCase
 
     private BundleConfigGeneratorInterface $configGenerator;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->configGenerator = $this->getContainer()->get(BundleConfigGenerator::class);
     }

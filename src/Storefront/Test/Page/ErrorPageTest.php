@@ -37,7 +37,7 @@ class ErrorPageTest extends TestCase
 
     private string $errorLayoutId;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 

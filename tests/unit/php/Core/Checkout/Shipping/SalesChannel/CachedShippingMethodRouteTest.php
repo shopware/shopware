@@ -51,7 +51,7 @@ class CachedShippingMethodRouteTest extends TestCase
 
     private ShippingMethodRouteResponse $response;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->decorated = $this->createMock(AbstractShippingMethodRoute::class);
         $this->cache = $this->createMock(CacheInterface::class);

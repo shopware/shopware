@@ -17,7 +17,7 @@ class Migration1650249241UpdateTypeOfDepartmentAddressTest extends TestCase
 {
     private Connection $connection;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setup();
 

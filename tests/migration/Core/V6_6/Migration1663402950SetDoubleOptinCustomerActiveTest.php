@@ -22,7 +22,7 @@ class Migration1663402950SetDoubleOptinCustomerActiveTest extends TestCase
 
     private Connection $connection;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->connection = KernelLifecycleManager::getConnection();
     }

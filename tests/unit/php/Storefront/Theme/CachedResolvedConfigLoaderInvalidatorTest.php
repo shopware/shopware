@@ -22,7 +22,7 @@ class CachedResolvedConfigLoaderInvalidatorTest extends TestCase
 
     private mixed $logger;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->logger = new MockedCacheInvalidator();
         $this->cachedResolvedConfigLoaderInvalidator = new CachedResolvedConfigLoaderInvalidator($this->logger);

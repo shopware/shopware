@@ -22,7 +22,7 @@ class ResetUrlStorerTest extends TestCase
 {
     private ResetUrlStorer $storer;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         Feature::skipTestIfActive('v6.6.0.0', $this);
         $this->storer = new ResetUrlStorer();

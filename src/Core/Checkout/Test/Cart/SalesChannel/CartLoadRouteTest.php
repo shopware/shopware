@@ -45,7 +45,7 @@ class CartLoadRouteTest extends TestCase
 
     private AbstractCartPersister $cartPersister;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->ids = new TestDataCollection();
 

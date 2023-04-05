@@ -28,7 +28,7 @@ class PaymentMethodRuleAccessibleTest extends TestCase
      */
     private $ruleRepository;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->ruleRepository = $this->getContainer()->get('rule.repository');
     }

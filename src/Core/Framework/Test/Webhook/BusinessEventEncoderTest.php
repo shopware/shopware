@@ -28,7 +28,7 @@ class BusinessEventEncoderTest extends TestCase
 
     private BusinessEventEncoder $businessEventEncoder;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->businessEventEncoder = $this->getContainer()->get(BusinessEventEncoder::class);
     }

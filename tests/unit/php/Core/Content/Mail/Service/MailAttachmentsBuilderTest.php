@@ -39,7 +39,7 @@ class MailAttachmentsBuilderTest extends TestCase
 
     private MailAttachmentsBuilder $attachmentsBuilder;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->mediaService = $this->createMock(MediaService::class);
         $this->mediaRepository = $this->createMock(EntityRepository::class);

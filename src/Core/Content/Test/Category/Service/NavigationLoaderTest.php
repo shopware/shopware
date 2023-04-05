@@ -36,7 +36,7 @@ class NavigationLoaderTest extends TestCase
 
     private IdsCollection $ids;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->repository = $this->getContainer()->get('category.repository');
 

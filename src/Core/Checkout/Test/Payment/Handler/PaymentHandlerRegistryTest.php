@@ -43,7 +43,7 @@ class PaymentHandlerRegistryTest extends TestCase
 
     private EntityRepository $appPaymentMethodRepository;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->paymentMethodRepository = $this->getContainer()->get('payment_method.repository');
         $this->appPaymentMethodRepository = $this->getContainer()->get('app_payment_method.repository');

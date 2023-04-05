@@ -25,7 +25,7 @@ class SalesChannelCreatorTest extends TestCase
 
     private EntityRepository $salesChannelRepository;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->salesChannelCreator = $this->getContainer()->get(SalesChannelCreator::class);
         $this->salesChannelRepository = $this->getContainer()->get('sales_channel.repository');

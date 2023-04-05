@@ -23,7 +23,7 @@ class Migration1650620993SetDefaultCmsPagesAndSetCategoryCmsPageToNullTest exten
 
     private Connection $connection;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->connection = KernelLifecycleManager::getConnection();
     }

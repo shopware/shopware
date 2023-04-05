@@ -31,7 +31,7 @@ class HookableEventFactoryTest extends TestCase
      */
     private $hookableEventFactory;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->hookableEventFactory = $this->getContainer()->get(HookableEventFactory::class);
     }

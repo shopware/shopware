@@ -16,7 +16,7 @@ class TranslationValidatorTest extends TestCase
 
     private TranslationValidator $translationValidator;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->translationValidator = $this->getContainer()->get(TranslationValidator::class);
     }

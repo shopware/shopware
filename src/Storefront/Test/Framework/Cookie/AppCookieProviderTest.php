@@ -19,7 +19,7 @@ class AppCookieProviderTest extends TestCase
 
     private AppCookieProvider $appCookieProvider;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->baseProvider = $this->createMock(CookieProviderInterface::class);
         $this->appCookieProvider = new AppCookieProvider(

@@ -25,7 +25,7 @@ class StoreRequestOptionsProviderTest extends TestCase
 
     private Context $storeContext;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->storeRequestOptionsProvider = $this->getContainer()->get(StoreRequestOptionsProvider::class);
         $this->storeContext = $this->createAdminStoreContext();

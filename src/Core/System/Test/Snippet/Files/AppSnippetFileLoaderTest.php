@@ -21,7 +21,7 @@ class AppSnippetFileLoaderTest extends TestCase
 
     private SnippetFileLoader $snippetFileLoader;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->snippetFileLoader = new SnippetFileLoader(
             new MockedKernel([]),

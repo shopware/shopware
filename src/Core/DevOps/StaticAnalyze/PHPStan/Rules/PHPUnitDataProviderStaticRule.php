@@ -3,6 +3,7 @@
 namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules;
 
 use PhpParser\Node;
+use PhpParser\Node\Stmt\ClassMethod;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\Rule;
 use PHPStan\ShouldNotHappenException;
@@ -18,7 +19,7 @@ class PHPUnitDataProviderStaticRule implements Rule
 {
     public function getNodeType(): string
     {
-        return Node\Stmt\ClassMethod::class;
+        return ClassMethod::class;
     }
 
     /**

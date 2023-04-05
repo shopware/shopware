@@ -18,7 +18,7 @@ class DemodataCompilerPassTest extends TestCase
 {
     private ContainerBuilder $builder;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->builder = new ContainerBuilder();
         $this->builder->setDefinition(DemodataCommand::class, (new Definition(DemodataCommand::class))->setPublic(true));

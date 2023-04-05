@@ -36,7 +36,7 @@ class RepositoryFacadeTest extends TestCase
 
     private RepositoryFacadeHookFactory $factory;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->factory = $this->getContainer()->get(RepositoryFacadeHookFactory::class);
     }

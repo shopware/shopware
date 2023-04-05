@@ -22,7 +22,7 @@ class RecipientsStorerTest extends TestCase
 {
     private RecipientsStorer $storer;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         Feature::skipTestIfActive('v6.6.0.0', $this);
         $this->storer = new RecipientsStorer();

@@ -14,7 +14,7 @@ class ProjectComposerJsonUpdaterTest extends TestCase
 {
     private string $json;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->json = __DIR__ . '/composer.json';
 
@@ -25,7 +25,7 @@ class ProjectComposerJsonUpdaterTest extends TestCase
         ], \JSON_THROW_ON_ERROR));
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         unlink($this->json);
     }

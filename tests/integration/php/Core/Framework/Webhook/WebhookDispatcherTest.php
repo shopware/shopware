@@ -41,7 +41,7 @@ class WebhookDispatcherTest extends TestCase
 
     private MessageBusInterface $bus;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->shopUrl = $_SERVER['APP_URL'];
         $this->shopIdProvider = $this->getContainer()->get(ShopIdProvider::class);

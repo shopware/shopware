@@ -67,7 +67,7 @@ class SendMailActionTest extends TestCase
      */
     private StorableFlow $flow;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->mailTemplate = new MailTemplateEntity();
         $this->mailService = $this->createMock(AbstractMailService::class);

@@ -32,7 +32,7 @@ class ThemeInheritanceBuilderTest extends TestCase
 
     private StorefrontPluginConfigurationFactory $configFactory;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->themeRegistryMock = $this->createMock(StorefrontPluginRegistry::class);
 

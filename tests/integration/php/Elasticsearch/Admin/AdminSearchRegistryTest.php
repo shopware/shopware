@@ -43,7 +43,7 @@ class AdminSearchRegistryTest extends TestCase
 
     private Client $client;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->clearElasticsearch();
 

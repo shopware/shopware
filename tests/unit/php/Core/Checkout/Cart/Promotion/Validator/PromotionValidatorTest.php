@@ -32,7 +32,7 @@ class PromotionValidatorTest extends TestCase
 
     private PromotionDiscountDefinition $discountDefinition;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->context = WriteContext::createFromContext(Context::createDefaultContext());
 

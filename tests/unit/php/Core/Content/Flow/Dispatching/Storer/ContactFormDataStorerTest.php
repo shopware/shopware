@@ -25,7 +25,7 @@ class ContactFormDataStorerTest extends TestCase
 {
     private ContactFormDataStorer $storer;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         Feature::skipTestIfActive('v6.6.0.0', $this);
 

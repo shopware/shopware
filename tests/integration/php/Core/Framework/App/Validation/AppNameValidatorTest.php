@@ -17,7 +17,7 @@ class AppNameValidatorTest extends TestCase
 
     private AppNameValidator $appNameValidator;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->appNameValidator = $this->getContainer()->get(AppNameValidator::class);
     }

@@ -36,7 +36,7 @@ class RuleTest extends TestCase
 
     private Context $context;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->conditionRepository = $this->getContainer()->get('rule_condition.repository');
         $this->conditionRegistry = $this->getContainer()->get(RuleConditionRegistry::class);

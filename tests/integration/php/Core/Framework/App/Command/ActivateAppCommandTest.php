@@ -25,7 +25,7 @@ class ActivateAppCommandTest extends TestCase
      */
     private $appRepository;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->appRepository = $this->getContainer()->get('app.repository');
     }

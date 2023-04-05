@@ -23,7 +23,7 @@ class RequirementsValidatorTest extends TestCase
 {
     private string $projectDir;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->projectDir = (new TestBootstrapper())->getProjectDir();
     }

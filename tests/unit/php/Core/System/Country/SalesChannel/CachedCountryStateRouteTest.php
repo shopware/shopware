@@ -51,7 +51,7 @@ class CachedCountryStateRouteTest extends TestCase
 
     private CountryStateRouteResponse $response;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->decorated = $this->createMock(AbstractCountryStateRoute::class);
         $this->cache = $this->createMock(CacheInterface::class);

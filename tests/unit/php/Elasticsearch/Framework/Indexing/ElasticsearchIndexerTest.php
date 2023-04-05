@@ -63,7 +63,7 @@ class ElasticsearchIndexerTest extends TestCase
 
     private IndicesNamespace&MockObject $indices;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->connection = $this->createMock(Connection::class);
         $this->helper = $this->createMock(ElasticsearchHelper::class);

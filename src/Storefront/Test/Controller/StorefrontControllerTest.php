@@ -42,7 +42,7 @@ class StorefrontControllerTest extends TestCase
 
     private FilesystemCache $cache;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->cacheDir = $this->getKernel()->getCacheDir() . '/twig_test_' . microtime();
         $this->cache = new FilesystemCache($this->cacheDir);

@@ -27,7 +27,7 @@ class PropertyGroupAdminSearchIndexerTest extends TestCase
 {
     private PropertyGroupAdminSearchIndexer $searchIndexer;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->searchIndexer = new PropertyGroupAdminSearchIndexer(
             $this->createMock(Connection::class),

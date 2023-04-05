@@ -28,7 +28,7 @@ class LineItemFactoryRegistryTest extends TestCase
 
     private SalesChannelContext $context;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->service = $this->getContainer()->get(LineItemFactoryRegistry::class);
         $this->context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);

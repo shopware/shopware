@@ -30,7 +30,7 @@ class GoogleReCaptchaV3Test extends TestCase
 
     private SystemConfigService $systemConfigService;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->captcha = $this->getContainer()->get(GoogleReCaptchaV3::class);
         $this->systemConfigService = $this->getContainer()->get(SystemConfigService::class);

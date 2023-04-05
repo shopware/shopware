@@ -24,13 +24,13 @@ class Migration1620820321AddDefaultDomainForHeadlessSaleschannelTest extends Tes
 
     private Connection $connection;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->removeAddedDefaultDomains();
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         $this->removeAddedDefaultDomains();
         $this->removeAddedSalesChannel();

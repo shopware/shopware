@@ -26,7 +26,7 @@ class RemoveCustomerTagActionTest extends TestCase
 
     private MockObject&StorableFlow $flow;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->repository = $this->createMock(EntityRepository::class);
         $this->action = new RemoveCustomerTagAction($this->repository);

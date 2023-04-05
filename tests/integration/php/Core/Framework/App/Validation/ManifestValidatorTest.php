@@ -18,7 +18,7 @@ class ManifestValidatorTest extends TestCase
 
     private ManifestValidator $manifestValidator;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->manifestValidator = $this->getContainer()->get(ManifestValidator::class);
     }

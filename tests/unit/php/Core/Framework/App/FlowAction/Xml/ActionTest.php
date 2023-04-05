@@ -28,7 +28,7 @@ class ActionTest extends TestCase
 
     private Action $action;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         /** @var Metadata $meta */
         $meta = $this->createMock(Metadata::class);

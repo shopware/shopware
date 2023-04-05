@@ -22,7 +22,7 @@ class DataStorerTest extends TestCase
 {
     private DataStorer $storer;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->storer = new DataStorer();
         Feature::skipTestIfActive('v6.6.0.0', $this);

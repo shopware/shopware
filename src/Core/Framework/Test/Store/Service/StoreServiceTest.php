@@ -21,7 +21,7 @@ class StoreServiceTest extends TestCase
 
     private StoreService $storeService;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->storeService = $this->getContainer()->get(StoreService::class);
     }

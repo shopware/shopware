@@ -29,7 +29,7 @@ class VariantListingConfigFieldSerializerTest extends TestCase
 {
     protected VariantListingConfigFieldSerializer $serializer;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $definitionRegistry = $this->createMock(DefinitionInstanceRegistry::class);
         $validator = $this->createMock(ValidatorInterface::class);

@@ -28,7 +28,7 @@ class DatabaseConfigLoaderTest extends TestCase
 
     private EntityRepository $mediaRepository;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
         $this->ids = new IdsCollection();

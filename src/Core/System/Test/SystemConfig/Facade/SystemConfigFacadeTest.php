@@ -36,7 +36,7 @@ class SystemConfigFacadeTest extends TestCase
 
     private SystemConfigFacadeHookFactory $factory;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->systemConfigService = $this->getContainer()->get(SystemConfigService::class);
         $this->factory = $this->getContainer()->get(SystemConfigFacadeHookFactory::class);

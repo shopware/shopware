@@ -40,7 +40,7 @@ class SitemapGenerateTaskHandlerTest extends TestCase
 
     private MockObject&MessageBusInterface $messageBusMock;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
         $this->messageBusMock = $this->createMock(MessageBusInterface::class);

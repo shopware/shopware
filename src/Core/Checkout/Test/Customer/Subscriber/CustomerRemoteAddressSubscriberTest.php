@@ -26,7 +26,7 @@ class CustomerRemoteAddressSubscriberTest extends TestCase
 
     private KernelBrowser $browser;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => TestDefaults::SALES_CHANNEL,

@@ -26,7 +26,7 @@ class ComposerPluginLoaderTest extends TestCase
      */
     private ?array $packages = null;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         if (
             !method_exists(InstalledVersions::class, 'getInstalledPackagesByType')

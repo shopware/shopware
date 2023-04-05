@@ -49,7 +49,7 @@ class GuestWishlistPageletTest extends TestCase
 
     private AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->productListRouteMock = $this->createMock(ProductListRoute::class);
         $this->systemConfigServiceMock = $this->createMock(SystemConfigService::class);

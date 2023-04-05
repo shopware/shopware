@@ -36,7 +36,7 @@ class PromotionIndividualCodeSerializerTest extends TestCase
 
     private string $promoCodeId = '';
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->promoRepository = $this->getContainer()->get('promotion.repository');
         $this->promoCodeRepository = $this->getContainer()->get('promotion_individual_code.repository');

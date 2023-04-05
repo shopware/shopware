@@ -27,7 +27,7 @@ class CategoryAdminSearchIndexerTest extends TestCase
 {
     private CategoryAdminSearchIndexer $searchIndexer;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->searchIndexer = new CategoryAdminSearchIndexer(
             $this->createMock(Connection::class),

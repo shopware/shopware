@@ -27,7 +27,7 @@ class PaymentMethodAdminSearchIndexerTest extends TestCase
 {
     private PaymentMethodAdminSearchIndexer $searchIndexer;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->searchIndexer = new PaymentMethodAdminSearchIndexer(
             $this->createMock(Connection::class),

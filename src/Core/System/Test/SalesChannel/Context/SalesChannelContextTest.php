@@ -32,7 +32,7 @@ class SalesChannelContextTest extends TestCase
 
     private TaxRuleTypeCollection $taxRuleTypes;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->taxRuleTypes = $this->loadTaxRuleTypes();
     }

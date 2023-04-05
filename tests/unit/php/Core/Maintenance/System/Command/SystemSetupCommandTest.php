@@ -16,7 +16,7 @@ use Symfony\Component\Dotenv\Dotenv;
  */
 class SystemSetupCommandTest extends TestCase
 {
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         @unlink(__DIR__ . '/.env');
         @unlink(__DIR__ . '/symfony.lock');

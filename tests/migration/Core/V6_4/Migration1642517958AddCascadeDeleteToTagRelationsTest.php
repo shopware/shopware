@@ -37,7 +37,7 @@ class Migration1642517958AddCascadeDeleteToTagRelationsTest extends TestCase
 
     private Migration1642517958AddCascadeDeleteToTagRelations $migration;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 

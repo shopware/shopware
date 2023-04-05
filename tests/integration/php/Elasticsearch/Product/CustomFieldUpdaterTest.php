@@ -34,7 +34,7 @@ class CustomFieldUpdaterTest extends TestCase
 
     private ElasticsearchOutdatedIndexDetector $indexDetector;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 

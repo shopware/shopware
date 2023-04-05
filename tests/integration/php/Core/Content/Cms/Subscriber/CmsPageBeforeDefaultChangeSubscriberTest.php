@@ -29,7 +29,7 @@ class CmsPageBeforeDefaultChangeSubscriberTest extends TestCase
 
     private SystemConfigService $systemConfigService;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 

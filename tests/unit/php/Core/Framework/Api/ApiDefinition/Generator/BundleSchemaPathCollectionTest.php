@@ -18,7 +18,7 @@ class BundleSchemaPathCollectionTest extends TestCase
 
     private Bundle $bundleWithoutSchemas;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->bundleWithSchemas = $this->createMock(Bundle::class);
         $this->bundleWithSchemas->method('getPath')->willReturn(__DIR__ . '/_fixtures/BundleWithApiSchema');

@@ -30,7 +30,7 @@ class ExtensionStoreLicensesServiceTest extends TestCase
      */
     private $extensionLicensesService;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->extensionLicensesService = $this->getContainer()->get(AbstractExtensionStoreLicensesService::class);
     }

@@ -48,11 +48,10 @@ class ContextController extends StorefrontController
     #[Route(path: '/checkout/language', name: 'frontend.checkout.switch-language', methods: ['POST'])]
     public function switchLanguage(Request $request, SalesChannelContext $context): RedirectResponse
     {
-        if (!$request->request->has('languageId')) {
+        $languageId = $request->request->get('languageId');
+        if (!$languageId || !\is_string($languageId)) {
             throw new MissingRequestParameterException('languageId');
         }
-
-        $languageId = $request->request->getAlnum('languageId');
 
         try {
             $newTokenResponse = $this->contextSwitchRoute->switchContext(

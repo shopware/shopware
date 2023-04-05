@@ -886,6 +886,7 @@ The `store-api` proxy route was removed. Please use the store-api directly.
 If that is not possible use a custom controller, that calls the `StoreApiRoute` internally.
 The `StoreApiClient` class from `storefront/src/service/store-api-client.service.js` was also removed, as that class relied on the proxy route.
 
+To access the cart via storefront javascript, you can use the `/checkout/cart.json` route.
 
 ## Storefront theme asset refactoring
 

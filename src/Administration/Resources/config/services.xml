@@ -8,11 +8,5 @@
         <service id="Shopware\Administration\Command\DeleteAdminFilesAfterBuildCommand">
             <tag name="console.command"/>
         </service>
-
-        <service id="Shopware\Administration\Command\GenerateAdministrationGitAttributes">
-            <argument>%kernel.project_dir%</argument>
-
-            <tag name="console.command"/>
-        </service>
     </services>
 </container>

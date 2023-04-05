@@ -49,7 +49,7 @@ describe('src/module/sw-first-run-wizard/component/sw-plugin-card', () => {
         const extensionIcon = wrapper.get('.sw-extension-icon');
 
         expect(extensionIcon.vm).toBeDefined();
-        expect(extensionIcon.props('iconSrc')).toBe(pluginConfig.iconPath);
+        expect(extensionIcon.props('src')).toBe(pluginConfig.iconPath);
 
         expect(wrapper.get('.sw-plugin-card__label').text()).toBe(pluginConfig.label);
         expect(wrapper.get('.sw-plugin-card__manufacturer').text()).toBe(pluginConfig.manufacturer);

@@ -12,7 +12,7 @@ describe('src/module/sw-extension/component/sw-extension-icon', () => {
             await Shopware.Component.build('sw-extension-icon'),
             {
                 propsData: {
-                    iconSrc: 'path-to-icon',
+                    src: 'path-to-icon',
                 },
             },
         );
@@ -31,7 +31,7 @@ describe('src/module/sw-extension/component/sw-extension-icon', () => {
             await Shopware.Component.build('sw-extension-icon'),
             {
                 propsData: {
-                    iconSrc: 'path-to-icon',
+                    src: 'path-to-icon',
                     alt: 'description of an image',
                 },
             },

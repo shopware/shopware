@@ -9,7 +9,7 @@ export default {
     template,
 
     props: {
-        iconSrc: {
+        src: {
             type: String,
             required: true,
         },

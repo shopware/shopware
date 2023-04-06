@@ -86,6 +86,22 @@ describe('src/app/component/base/sw-modal/index.js', () => {
         expect(wrapper.get('.sw-modal').classes(`sw-modal--${variant}`)).toBe(true);
     });
 
+    it('should have has--header class if showHeader option is true', async () => {
+        await wrapper.setProps({
+            showHeader: true
+        });
+
+        expect(wrapper.get('.sw-modal__dialog').classes('has--header')).toBe(true);
+    });
+
+    it('should not have has--header class if showHeader option is false', async () => {
+        await wrapper.setProps({
+            showHeader: false
+        });
+
+        expect(wrapper.get('.sw-modal__dialog').classes('has--header')).toBe(false);
+    });
+
     it('should fire the close event when clicking the close button', async () => {
         await wrapper.get('.sw-modal__close').trigger('click');
 

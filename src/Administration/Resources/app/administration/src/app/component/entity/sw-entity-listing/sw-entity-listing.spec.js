@@ -19,8 +19,8 @@ async function createWrapper(propsData = {}) {
     ];
     items.total = 4;
     items.criteria = {
-        page: 1,
-        limit: 25
+        page: null,
+        limit: null
     };
 
     return shallowMount(await Shopware.Component.build('sw-entity-listing'), {

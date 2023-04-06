@@ -34,6 +34,7 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-16671 - add-tabs-to-order-page](/changelog/release-6-5-0-0/2021-09-16-add-tabs-to-order-page.md)
 *  [NEXT-16678 - Adjust sw-order-document-card](/changelog/release-6-5-0-0/2021-09-17-adjust-sw-order-document-card.md)
 *  [NEXT-16674 - Adjust Admin Order Line Items](/changelog/release-6-5-0-0/2021-09-27-adjust-admin-order-line-items.md)
+*  [NEXT-25150 - Disable CSS auto prefixer](/changelog/release-6-5-0-0/2023-04-03-disable-auto-prefixer.md)
 *  [NEXT-16681 - Enable single order document delivery](/changelog/release-6-5-0-0/2021-09-28-enable-single-order-document-delivery.md)
 *  [NEXT-17276 - Don't override languageId of SalesChannel in SalesChannelContext](/changelog/release-6-5-0-0/2021-09-30-dont-override-language-id-of-saleschannel.md)
 *  [NEXT-16673 - Creating the new tab "General" for orders in the order module](/changelog/release-6-5-0-0/2021-10-06-creating-the-new-tab-general-for-orders-in-the-order-module.md)

@@ -104,6 +104,9 @@
         "favicon": "Favicon",
         "shopLogo": "Shop logo"
       },
+      "placeholder": {
+        "selectSalesChannel": "Select Sales Channel..."
+      },
       "error": {
         "themeCompile": {
           "title": "Error compiling theme",

@@ -4,7 +4,11 @@ set -euo pipefail
 IFS=$'\n\t'
 
 console() {
-  ${PROJECT_DIR}/bin/console "$@"
+  if [ -x "$(which symfony)" ]; then
+    symfony console "$@"
+  else
+    "${PROJECT_DIR}"/bin/console "$@"
+  fi
 }
 
 download_store_plugin() {

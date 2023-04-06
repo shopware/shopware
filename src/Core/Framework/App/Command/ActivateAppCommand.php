@@ -13,7 +13,7 @@ use Symfony\Component\Console\Attribute\AsCommand;
  */
 #[AsCommand(
     name: 'app:activate',
-    description: 'Deactivates an app',
+    description: 'Activates an app',
 )]
 #[Package('core')]
 class ActivateAppCommand extends AbstractAppActivationCommand

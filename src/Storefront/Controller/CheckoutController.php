@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Controller;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\Exception\InvalidCartException;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartLoadRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLogoutRoute;
 use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
@@ -49,8 +50,18 @@ class CheckoutController extends StorefrontController
     /**
      * @internal
      */
-    public function __construct(private readonly CartService $cartService, private readonly CheckoutCartPageLoader $cartPageLoader, private readonly CheckoutConfirmPageLoader $confirmPageLoader, private readonly CheckoutFinishPageLoader $finishPageLoader, private readonly OrderService $orderService, private readonly PaymentService $paymentService, private readonly OffcanvasCartPageLoader $offcanvasCartPageLoader, private readonly SystemConfigService $config, private readonly AbstractLogoutRoute $logoutRoute)
-    {
+    public function __construct(
+        private readonly CartService $cartService,
+        private readonly CheckoutCartPageLoader $cartPageLoader,
+        private readonly CheckoutConfirmPageLoader $confirmPageLoader,
+        private readonly CheckoutFinishPageLoader $finishPageLoader,
+        private readonly OrderService $orderService,
+        private readonly PaymentService $paymentService,
+        private readonly OffcanvasCartPageLoader $offcanvasCartPageLoader,
+        private readonly SystemConfigService $config,
+        private readonly AbstractLogoutRoute $logoutRoute,
+        private readonly CartLoadRoute $cartLoadRoute
+    ) {
     }
 
     #[Route(path: '/checkout/cart', name: 'frontend.checkout.cart.page', options: ['seo' => false], defaults: ['_noStore' => true], methods: ['GET'])]
@@ -76,6 +87,12 @@ class CheckoutController extends StorefrontController
         $cartErrors->clear();
 
         return $this->renderStorefront('@Storefront/storefront/page/checkout/cart/index.html.twig', ['page' => $page]);
+    }
+
+    #[Route(path: '/checkout/cart.json', name: 'frontend.checkout.cart.json', methods: ['GET'], options: ['seo' => false], defaults: ['XmlHttpRequest' => true])]
+    public function cartJson(Request $request, SalesChannelContext $context): Response
+    {
+        return $this->cartLoadRoute->load($request, $context);
     }
 
     #[Route(path: '/checkout/confirm', name: 'frontend.checkout.confirm.page', options: ['seo' => false], defaults: ['XmlHttpRequest' => true, '_noStore' => true], methods: ['GET'])]

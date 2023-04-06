@@ -368,7 +368,7 @@ export default {
             return action.actionName !== this.stopFlowActionName;
         },
 
-        moveAction(action, type) {
+        moveAction(action, type, key) {
             if (this.isAppDisabled(this.getSelectedAppAction(action.actionName))) return;
 
             const actions = this.actionsWithoutStopFlow();
@@ -378,6 +378,10 @@ export default {
 
             State.commit('swFlowState/updateSequence', { id: moveAction.id, position: action.position });
             State.commit('swFlowState/updateSequence', { id: action.id, position: moveActionClone.position });
+
+            const index = type === 'up' ? key - 1 : key + 1;
+            const contextButtons = this.$refs.contextButton;
+            [contextButtons[key], contextButtons[index]] = [contextButtons[index], contextButtons[key]];
         },
 
         onEditAction(sequence, target, key) {

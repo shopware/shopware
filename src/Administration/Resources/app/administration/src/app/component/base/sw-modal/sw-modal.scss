@@ -64,7 +64,11 @@ $sw-modal-transition-timing-function: cubic-bezier(0.68, -0.55, 0.26, 1.55);
             height: 100%;
             width: 100%;
             max-height: 100%;
-            grid-template-rows: auto 1fr auto;
+            grid-template-rows: 1fr auto;
+
+            &.has--header {
+                grid-template-rows: auto 1fr auto;
+            }
         }
 
         .sw-modal__body {

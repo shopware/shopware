@@ -11,6 +11,13 @@
                     <input type="text" v-model="searchTerm" class="search-query" autocomplete="off" spellcheck="false" placeholder="Search">
                 </div>
                 <ul class="nav-tree--category">
+                    <span class="nav-tree--main-entry-headline">Additional information</span>
+                    <li class="nav-tree--sub-entry">
+                        <nuxt-link to="/faq/" class="nav--link">
+                            FAQ
+                        </nuxt-link>
+                    </li>
+
                     <li class="nav-tree--main-entry" v-for="mainEntry in menu" :key="mainEntry.name">
                         <span class="nav-tree--main-entry-headline">{{ mainEntry.name }} components</span>
 

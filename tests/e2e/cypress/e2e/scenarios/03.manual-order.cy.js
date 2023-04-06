@@ -7,6 +7,8 @@ describe('Create customer via UI, product via API and make a manual order', ()=>
     beforeEach(() => {
         cy.loginViaApi()
             .then(() => {
+                cy.setLocaleToEnGb();
+            }).then(() => {
                 cy.createProductFixture({
                     name: 'Test Product',
                     productNumber: 'TEST-1234',

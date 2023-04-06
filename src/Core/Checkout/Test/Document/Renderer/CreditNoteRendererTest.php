@@ -317,7 +317,7 @@ class CreditNoteRendererTest extends TestCase
             new DocumentRendererConfig()
         );
 
-        static::assertEquals($operationInvoice->getOrderVersionId(), $operationCreditNote->getOrderVersionId());
+        static::assertEquals($operationCreditNote->getOrderVersionId(), Defaults::LIVE_VERSION);
         static::assertTrue($this->orderVersionExists($orderId, $operationCreditNote->getOrderVersionId()));
     }
 

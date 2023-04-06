@@ -781,11 +781,6 @@ parameters:
 			path: src/Core/Checkout/Document/Renderer/RendererResult.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Document\\\\Service\\\\ReferenceInvoiceLoader\\:\\:load\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Document/Service/ReferenceInvoiceLoader.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Document\\\\Struct\\\\DocumentGenerateOperation\\:\\:__construct\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Document/Struct/DocumentGenerateOperation.php

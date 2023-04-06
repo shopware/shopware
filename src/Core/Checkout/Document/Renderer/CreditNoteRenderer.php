@@ -18,6 +18,7 @@ use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\Locale\LocaleEntity;
@@ -61,7 +62,7 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
         foreach ($operations as $operation) {
             try {
                 $orderId = $operation->getOrderId();
-                $invoice = $this->referenceInvoiceLoader->load($orderId, $operation->getReferencedDocumentId());
+                $invoice = $this->referenceInvoiceLoader->load($orderId, $operation->getReferencedDocumentId(), $rendererConfig->deepLinkCode);
 
                 if (empty($invoice)) {
                     throw new DocumentGenerationException('Can not generate credit note document because no invoice document exists. OrderId: ' . $operation->getOrderId());
@@ -185,10 +186,22 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
             'languageIdChain' => array_unique(array_filter([$languageId, $context->getLanguageId()])),
         ]);
 
-        $criteria = OrderDocumentCriteriaFactory::create([$orderId], $deepLinkCode);
+        $criteria = OrderDocumentCriteriaFactory::create([$orderId], $deepLinkCode)
+            ->addFilter(new EqualsFilter('lineItems.type', LineItem::CREDIT_LINE_ITEM_TYPE));
 
         /** @var ?OrderEntity $order */
         $order = $this->orderRepository->search($criteria, $versionContext)->get($orderId);
+
+        if ($order === null) {
+            $versionContext = $context->createWithVersionId(Defaults::LIVE_VERSION)->assign([
+                'languageIdChain' => array_unique(array_filter([$languageId, $context->getLanguageId()])),
+            ]);
+
+            $criteria = OrderDocumentCriteriaFactory::create([$orderId], $deepLinkCode);
+
+            /** @var ?OrderEntity $order */
+            $order = $this->orderRepository->search($criteria, $versionContext)->get($orderId);
+        }
 
         if ($order === null) {
             throw new InvalidOrderException($orderId);

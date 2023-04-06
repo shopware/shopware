@@ -77,7 +77,7 @@ export default {
 
     methods: {
         searchTreeItems(term) {
-            this.getTreeItems(null, term);
+            this.getTreeItems(null, term, true);
         },
 
         onCheckItem(checkedItems) {
@@ -88,13 +88,28 @@ export default {
             return item[this.association]?.length > 0 || item.extensions[this.association]?.length > 0;
         },
 
-        getTreeItems(parentId = null, term = null) {
+        getTreeItems(parentId = null, term = null, withTermFilter = false) {
             this.isFetching = true;
 
             const categoryCriteria = this.treeCriteria;
-            if (term) {
+
+            categoryCriteria.filters = categoryCriteria.filters.filter((filter) => {
+                if (filter.type === 'equals' && filter.field === 'parentId') {
+                    return false;
+                }
+
+                if (filter.type === 'contains' && filter.field === 'name') {
+                    return false;
+                }
+
+                return true;
+            });
+
+            if (term && withTermFilter) {
                 categoryCriteria.addFilter(Criteria.contains('name', term));
-            } else {
+            }
+
+            if (!term) {
                 categoryCriteria.addFilter(Criteria.equals('parentId', parentId));
             }
 

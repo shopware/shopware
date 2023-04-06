@@ -21,6 +21,10 @@ class CustomEntityEntity extends Entity
 
     protected ?string $pluginId = null;
 
+    protected bool $customFieldsAware;
+
+    protected ?string $labelProperty = null;
+
     /**
      * @var array<mixed>
      */
@@ -106,5 +110,25 @@ class CustomEntityEntity extends Entity
     public function setFlags(?array $flags): void
     {
         $this->flags = $flags;
+    }
+
+    public function getCustomFieldsAware(): bool
+    {
+        return $this->customFieldsAware;
+    }
+
+    public function setCustomFieldsAware(bool $customFieldsAware): void
+    {
+        $this->customFieldsAware = $customFieldsAware;
+    }
+
+    public function getLabelProperty(): ?string
+    {
+        return $this->labelProperty;
+    }
+
+    public function setLabelProperty(?string $labelProperty): void
+    {
+        $this->labelProperty = $labelProperty;
     }
 }

@@ -18,6 +18,10 @@ class Entity extends XmlElement
 
     protected ?bool $cmsAware = null;
 
+    protected bool $customFieldsAware = false;
+
+    protected ?string $labelProperty = null;
+
     /**
      * @var array<int, Field>
      */
@@ -62,6 +66,22 @@ class Entity extends XmlElement
         return $this->fields;
     }
 
+    public function hasField(string $fieldName): bool
+    {
+        return $this->getField($fieldName) !== null;
+    }
+
+    public function getField(string $fieldName): ?Field
+    {
+        foreach ($this->getFields() as $field) {
+            if ($field->getName() === $fieldName) {
+                return $field;
+            }
+        }
+
+        return null;
+    }
+
     /**
      * @param array<int, Field> $fields
      */
@@ -94,6 +114,16 @@ class Entity extends XmlElement
     public function isCmsAware(): ?bool
     {
         return $this->cmsAware;
+    }
+
+    public function isCustomFieldsAware(): bool
+    {
+        return $this->customFieldsAware;
+    }
+
+    public function getLabelProperty(): ?string
+    {
+        return $this->labelProperty;
     }
 
     /**

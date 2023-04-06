@@ -69,6 +69,11 @@ class IconCacheTwigFilterTest extends TestCase
         </span>', $rendered->getContent());
     }
 
+    /**
+     * NEXT-26125
+     *
+     * @group quarantined
+     */
     public function testStorefrontRenderIconCacheDisabled(): void
     {
         $twig = $this->createFinder([

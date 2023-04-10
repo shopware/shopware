@@ -95,14 +95,9 @@ class CriteriaParser
         }
 
         $field = $this->helper->getField($fieldName, $definition, $root, false);
-
         if ($field instanceof TranslatedField) {
             $ordered = [];
-            $parts[0] .= '_' . $context->getLanguageId();
             foreach ($parts as $part) {
-                if ($part === 'customFields') {
-                    $part .= '_' . $context->getLanguageId();
-                }
                 $ordered[] = $part;
             }
             $parts = $ordered;
@@ -155,12 +150,26 @@ class CriteriaParser
             ]);
         }
 
-        if ($this->keyValueStorage->get(ElasticsearchIndexer::ENABLE_MULTILINGUAL_INDEX_KEY, false)) {
-            $field = $this->helper->getField($sorting->getField(), $definition, $definition->getEntityName(), false);
+        $field = $this->helper->getField($sorting->getField(), $definition, $definition->getEntityName(), false);
 
-            if ($field instanceof TranslatedField) {
-                return $this->createTranslatedSorting($definition->getEntityName(), $sorting, $context);
+        if ($field instanceof TranslatedField) {
+            $root = $definition->getEntityName();
+
+            $parts = explode('.', $sorting->getField());
+            if ($root === $parts[0]) {
+                array_shift($parts);
             }
+
+            return new FieldSort('_script', $sorting->getDirection(), null, [
+                'type' => 'string',
+                'script' => [
+                    'id' => 'language_field',
+                    'params' => [
+                        'field' => implode('.', $parts),
+                        'languages' => $context->getLanguageIdChain(),
+                    ],
+                ],
+            ]);
         }
 
         $accessor = $this->buildAccessor($definition, $sorting->getField(), $context);

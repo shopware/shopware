@@ -17,8 +17,9 @@ class ElasticsearchLanguageIndexIteratorMessage implements AsyncMessageInterface
     /**
      * @internal
      */
-    public function __construct(private readonly string $languageId)
-    {
+    public function __construct(
+        private readonly string $languageId
+    ) {
     }
 
     public function getLanguageId(): string

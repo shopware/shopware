@@ -113,7 +113,6 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
         $aggregation = $this->buildTotalCountAggregation($criteria, $definition, $context);
 
         $search->addAggregation($aggregation);
-
         $array = $search->toArray();
         $array['collapse'] = $this->parseGrouping($criteria->getGroupFields(), $definition, $context);
 

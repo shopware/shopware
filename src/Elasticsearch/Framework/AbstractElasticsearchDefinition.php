@@ -21,17 +21,27 @@ abstract class AbstractElasticsearchDefinition
      */
     abstract public function getMapping(Context $context): array;
 
+    abstract public function getLanguageMapping(array $languageIds, Context $context): array;
+
     /**
      * @param array<string> $ids
      * @param list<string> $languageIds
      *
      * @return array<mixed>
      */
-    public function fetch(array $ids, Context $context, array $languageIds): array
+    public function fetch(array $ids, Context $context): array
     {
         return [];
     }
 
+    public function fetchTranslatedFields(array $ids, array $languageIds, Context $context): array
+    {
+        return [];
+    }
+
+    /**
+    @deprecated tag:v6.6.0 - Will become abstract, implementation should implement their own `buildTermQuery`
+     */
     public function buildTermQuery(Context $context, Criteria $criteria): BoolQuery
     {
         $bool = new BoolQuery();

@@ -2,8 +2,10 @@
 
 namespace Shopware\Elasticsearch\Framework\Command;
 
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\DataAbstractionLayer\Command\ConsoleProgressTrait;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Framework\Indexing\CreateAliasTaskHandler;
 use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer;
@@ -74,7 +76,6 @@ class ElasticsearchIndexingCommand extends Command
 
             $progressBar->advance($step);
         }
-
         $progressBar->finish();
 
         if ($input->getOption('no-queue')) {

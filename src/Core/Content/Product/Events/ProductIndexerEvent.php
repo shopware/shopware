@@ -18,7 +18,8 @@ class ProductIndexerEvent extends NestedEvent implements ProductChangedEventInte
     public function __construct(
         private readonly array $ids,
         private readonly Context $context,
-        private readonly array $skip = []
+        private readonly array $skip = [],
+        private readonly ?string $languageId
     ) {
     }
 
@@ -50,5 +51,10 @@ class ProductIndexerEvent extends NestedEvent implements ProductChangedEventInte
     public function getSkip(): array
     {
         return $this->skip;
+    }
+
+    public function getLanguageId(): ?string
+    {
+        return $this->languageId;
     }
 }

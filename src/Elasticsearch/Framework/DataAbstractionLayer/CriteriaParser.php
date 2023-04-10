@@ -89,14 +89,9 @@ class CriteriaParser
         }
 
         $field = $this->helper->getField($fieldName, $definition, $root, false);
-
         if ($field instanceof TranslatedField) {
             $ordered = [];
-            $parts[0] .= '_' . $context->getLanguageId();
             foreach ($parts as $part) {
-                if ($part === 'customFields') {
-                    $part .= '_' . $context->getLanguageId();
-                }
                 $ordered[] = $part;
             }
             $parts = $ordered;
@@ -145,6 +140,28 @@ class CriteriaParser
                 'script' => [
                     'id' => 'cheapest_price_percentage',
                     'params' => ['accessors' => $this->getCheapestPriceAccessors($context, true)],
+                ],
+            ]);
+        }
+
+        $field = $this->helper->getField($sorting->getField(), $definition, $definition->getEntityName(), false);
+
+        if ($field instanceof TranslatedField) {
+            $root = $definition->getEntityName();
+
+            $parts = explode('.', $sorting->getField());
+            if ($root === $parts[0]) {
+                array_shift($parts);
+            }
+
+            return new FieldSort('_script', $sorting->getDirection(), null, [
+                'type' => 'string',
+                'script' => [
+                    'id' => 'language_field',
+                    'params' => [
+                        'field' => implode('.', $parts),
+                        'languages' => $context->getLanguageIdChain(),
+                    ],
                 ],
             ]);
         }

@@ -8,4 +8,15 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 class ProductIndexingMessage extends EntityIndexingMessage
 {
+    private ?string $languageId = null;
+
+    public function getLanguageId(): ?string
+    {
+        return $this->languageId;
+    }
+
+    public function setLanguageId(?string $languageId): void
+    {
+        $this->languageId = $languageId;
+    }
 }

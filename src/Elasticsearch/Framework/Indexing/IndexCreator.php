@@ -6,10 +6,6 @@ use Doctrine\DBAL\Connection;
 use OpenSearch\Client;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexConfigEvent;
@@ -53,14 +49,12 @@ class IndexCreator
     {
         // NEXT-21735 - does not execute if there's no index yet
         // @codeCoverageIgnoreStart
-        if ($this->client->indices()->exists(['index' => $index])) {
+        if ($this->indexExists($index)) {
             $this->client->indices()->delete(['index' => $index]);
         }
         // @codeCoverageIgnoreEnd
 
         $mapping = $definition->getMapping($context);
-
-        $mapping = $this->addTranslatedFields($mapping, $definition->getEntityDefinition());
 
         $mapping = array_merge_recursive($mapping, $this->mapping);
 
@@ -87,60 +81,9 @@ class IndexCreator
         return $this->client->indices()->existsAlias(['name' => $alias]);
     }
 
-    /**
-     * @param array<mixed> $mapping
-     *
-     * @return array<mixed>
-     */
-    private function addTranslatedFields(array $mapping, EntityDefinition $definition): array
+    private function indexExists(string $index): bool
     {
-        $languageIds = $this->connection->fetchFirstColumn('SELECT DISTINCT LOWER(HEX(`language_id`))  FROM sales_channel_language');
-
-        foreach ($definition->getFields() as $field) {
-            $fieldName = $field->getPropertyName();
-
-            if (!\array_key_exists($fieldName, $mapping['properties'])) {
-                continue;
-            }
-
-            if (!$field instanceof TranslatedField && !$field instanceof AssociationField) {
-                continue;
-            }
-
-            if ($field instanceof AssociationField) {
-                $referenceDefinition = $field instanceof ManyToManyAssociationField ? $field->getToManyReferenceDefinition() : $field->getReferenceDefinition();
-
-                $subMapping = $mapping['properties'][$fieldName];
-
-                if (empty($subMapping['properties'])) {
-                    continue;
-                }
-
-                $hasTranslatedField = false;
-
-                foreach (array_keys($subMapping['properties']) as $property) {
-                    if ($referenceDefinition->getField($property) instanceof TranslatedField) {
-                        $hasTranslatedField = true;
-
-                        break;
-                    }
-                }
-
-                if (!$hasTranslatedField) {
-                    continue;
-                }
-            }
-
-            $fieldMapping = $mapping['properties'][$fieldName];
-
-            foreach ($languageIds as $languageId) {
-                $mapping['properties'][$fieldName . '_' . $languageId] = $fieldMapping;
-            }
-
-            unset($mapping['properties'][$fieldName]);
-        }
-
-        return $mapping;
+        return $this->client->indices()->exists(['index' => $index]);
     }
 
     private function createAliasIfNotExisting(string $index, string $alias): void

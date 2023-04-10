@@ -2,8 +2,6 @@
 
 namespace Shopware\Elasticsearch\Product;
 
-use OpenSearch\Client;
-use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\Log\Package;
@@ -21,8 +19,6 @@ class LanguageSubscriber implements EventSubscriberInterface
 {
     public function __construct(
         private readonly ElasticsearchHelper $elasticsearchHelper,
-        private readonly ProductDefinition $productDefinition,
-        private readonly Client $client,
         private readonly MessageBusInterface $bus
     ) {
     }
@@ -46,13 +42,6 @@ class LanguageSubscriber implements EventSubscriberInterface
             }
 
             $languageId = $writeResult->getProperty('languageId');
-
-            $esIndex = $this->elasticsearchHelper->getIndexName($this->productDefinition, $languageId);
-
-            // index exists, don't need to do anything
-            if ($this->client->indices()->exists(['index' => $esIndex])) {
-                continue;
-            }
 
             $this->bus->dispatch(new ElasticsearchLanguageIndexIteratorMessage($languageId));
         }

@@ -18,6 +18,7 @@ use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\Locale\LocaleEntity;
@@ -190,6 +191,20 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
 
         // Get the correct order with versioning from reference invoice
         $versionContext = $context->createWithVersionId($versionId)->assign([
+            'languageIdChain' => array_unique(array_filter([$languageId, $context->getLanguageId()])),
+        ]);
+
+        $criteria = OrderDocumentCriteriaFactory::create([$orderId], $deepLinkCode)
+            ->addFilter(new EqualsFilter('lineItems.type', LineItem::CREDIT_LINE_ITEM_TYPE));
+
+        /** @var ?OrderEntity $order */
+        $order = $this->orderRepository->search($criteria, $versionContext)->get($orderId);
+
+        if ($order) {
+            return $order;
+        }
+
+        $versionContext = $context->createWithVersionId(Defaults::LIVE_VERSION)->assign([
             'languageIdChain' => array_unique(array_filter([$languageId, $context->getLanguageId()])),
         ]);
 

@@ -143,7 +143,7 @@ class EntityIndexerRegistry
         if (!$context->hasExtension(self::EXTENSION_INDEXER_SKIP)) {
             return;
         }
-        /** @var ArrayEntity<string, mixed> $skip */
+        /** @var ArrayEntity $skip */
         $skip = $context->getExtension(self::EXTENSION_INDEXER_SKIP);
 
         $message->addSkip(...$skip->get('skips'));

@@ -87,7 +87,7 @@ class StatesUpdaterTest extends TestCase
         ];
 
         $context = Context::createDefaultContext();
-        $context->addExtension(EntityIndexerRegistry::EXTENSION_INDEXER_SKIP, new ArrayEntity([ProductIndexer::STATES_UPDATER]));
+        $context->addExtension(EntityIndexerRegistry::EXTENSION_INDEXER_SKIP, new ArrayEntity(['skips' => [ProductIndexer::STATES_UPDATER]]));
 
         $this->productRepository->create($products, $context);
 

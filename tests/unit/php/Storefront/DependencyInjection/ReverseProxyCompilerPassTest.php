@@ -28,7 +28,6 @@ class ReverseProxyCompilerPassTest extends TestCase
 
         static::assertTrue($container->has('shopware.cache.reverse_proxy.redis'));
         static::assertTrue($container->has(ReverseProxyCache::class));
-        static::assertTrue($container->has(FastlyReverseProxyGateway::class));
         static::assertTrue($container->has(ReverseProxyCacheClearer::class));
         static::assertTrue($container->has(FastlyReverseProxyGateway::class));
 
@@ -41,7 +40,7 @@ class ReverseProxyCompilerPassTest extends TestCase
     {
         $container = $this->getContainer();
 
-        $container->register(PluginService::class, PluginService::class)
+        $container->register(PluginService::class)
             ->setPublic(true)
             ->setDecoratedService(FastlyReverseProxyGateway::class);
 
@@ -49,7 +48,6 @@ class ReverseProxyCompilerPassTest extends TestCase
 
         static::assertTrue($container->has('shopware.cache.reverse_proxy.redis'));
         static::assertTrue($container->has(ReverseProxyCache::class));
-        static::assertTrue($container->has(FastlyReverseProxyGateway::class));
         static::assertTrue($container->has(ReverseProxyCacheClearer::class));
         static::assertTrue($container->has(FastlyReverseProxyGateway::class));
 
@@ -69,7 +67,6 @@ class ReverseProxyCompilerPassTest extends TestCase
 
         static::assertTrue($container->has('shopware.cache.reverse_proxy.redis'));
         static::assertTrue($container->has(ReverseProxyCache::class));
-        static::assertTrue($container->has(FastlyReverseProxyGateway::class));
         static::assertTrue($container->has(ReverseProxyCacheClearer::class));
         static::assertTrue($container->has(FastlyReverseProxyGateway::class));
 
@@ -117,7 +114,7 @@ class ReverseProxyCompilerPassTest extends TestCase
             ->register('shopware.cache.reverse_proxy.redis', \stdClass::class)
             ->setPublic(true);
         $container
-            ->register(ReverseProxyCache::class, ReverseProxyCache::class)
+            ->register(ReverseProxyCache::class)
             ->setPublic(true);
 
         $container
@@ -125,15 +122,11 @@ class ReverseProxyCompilerPassTest extends TestCase
             ->setPublic(true);
 
         $container
-            ->register(FastlyReverseProxyGateway::class, FastlyReverseProxyGateway::class)
-            ->setPublic(true);
-
-        $container
             ->register(VarnishReverseProxyGateway::class, VarnishService::class)
             ->setPublic(true);
 
         $container
-            ->register(ReverseProxyCacheClearer::class, ReverseProxyCacheClearer::class)
+            ->register(ReverseProxyCacheClearer::class)
             ->setPublic(true);
 
         $container
@@ -141,7 +134,7 @@ class ReverseProxyCompilerPassTest extends TestCase
             ->setPublic(true);
 
         $container
-            ->register(DummyService::class, DummyService::class)
+            ->register(DummyService::class)
             ->setPublic(true)
             ->addArgument(new Reference(AbstractReverseProxyGateway::class, ContainerInterface::NULL_ON_INVALID_REFERENCE));
 

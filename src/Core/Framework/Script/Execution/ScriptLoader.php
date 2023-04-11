@@ -14,6 +14,9 @@ use Twig\Cache\FilesystemCache;
 
 /**
  * @internal only for use by the app-system
+ *
+ * @phpstan-type ScriptInfo = array{app_id: ?string, scriptName: string, script: string, hook: string, appName: ?string, integrationId: ?string, lastModified: string, appVersion: string, active: bool}
+ * @phpstan-type IncludesInfo = array{app_id: ?string, name: string, script: string, appName: ?string, integrationId: ?string, lastModified: string}
  */
 #[Package('core')]
 class ScriptLoader implements EventSubscriberInterface
@@ -29,7 +32,7 @@ class ScriptLoader implements EventSubscriberInterface
         string $cacheDir,
         private readonly bool $debug
     ) {
-        $this->cacheDir = $cacheDir . '/twig/scripts';
+        $this->cacheDir = $cacheDir . '/scripts';
     }
 
     public static function getSubscribedEvents(): array
@@ -60,12 +63,16 @@ class ScriptLoader implements EventSubscriberInterface
         $this->cache->deleteItem(self::CACHE_KEY);
     }
 
+    /**
+     * @return array<string, list<Script>>
+     */
     private function load(): array
     {
         if ($this->debug) {
             $this->scriptPersister->refresh();
         }
 
+        /** @var list<ScriptInfo> $scripts */
         $scripts = $this->connection->fetchAllAssociative('
             SELECT LOWER(HEX(`script`.`app_id`)) as `app_id`,
                    `script`.`name` AS scriptName,
@@ -95,10 +102,10 @@ class ScriptLoader implements EventSubscriberInterface
             ORDER BY `app`.`created_at`, `app`.`id`, `script`.`name`
         ');
 
+        /** @var array<string, list<IncludesInfo>> $allIncludes */
         $allIncludes = FetchModeHelper::group($includes);
 
         $executableScripts = [];
-        /** @var array $script */
         foreach ($scripts as $script) {
             $appId = $script['app_id'];
 
@@ -144,6 +151,9 @@ class ScriptLoader implements EventSubscriberInterface
         return $executableScripts;
     }
 
+    /**
+     * @param ScriptInfo|IncludesInfo $script
+     */
     private function getAppInfo(array $script): ?ScriptAppInformation
     {
         if (!$script['app_id'] || !$script['appName'] || !$script['integrationId']) {

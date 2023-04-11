@@ -27,7 +27,7 @@
             <tag name="kernel.event_subscriber"/>
             <argument type="service" id="Shopware\Core\Content\Rule\DataAbstractionLayer\RulePayloadUpdater"/>
             <argument type="service" id="Shopware\Core\Framework\Script\Debugging\ScriptTraces"/>
-            <argument>%kernel.cache_dir%</argument>
+            <argument>%twig.cache%</argument>
             <argument>%kernel.debug%</argument>
         </service>
 

@@ -30,7 +30,7 @@ class CleanupImportExportFileTaskHandlerTest extends AbstractImportExportTestCas
 
     private DeleteFileHandler $deleteFileHandler;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->logRepository = $this->getContainer()->get('import_export_log.repository');
         $this->fileRepository = $this->getContainer()->get('import_export_file.repository');

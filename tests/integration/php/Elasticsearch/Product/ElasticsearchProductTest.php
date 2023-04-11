@@ -2604,6 +2604,9 @@ class ElasticsearchProductTest extends TestCase
 
             $cases = $this->providerCheapestPricePercentageFilterAndSorting();
 
+            /**
+             * @var string $message
+             */
             foreach ($cases as $message => $case) {
                 $criteria = new Criteria($ids->prefixed('product-'));
                 $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);

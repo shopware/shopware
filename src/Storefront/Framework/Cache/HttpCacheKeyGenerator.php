@@ -66,10 +66,13 @@ class HttpCacheKeyGenerator extends AbstractHttpCacheKeyGenerator
         ksort($params);
         $params = http_build_query($params);
 
+        $baseUrl = $request->attributes->get(RequestTransformer::SALES_CHANNEL_BASE_URL) ?? '';
+        \assert(\is_string($baseUrl));
+
         return sprintf(
             '%s%s%s%s',
             $request->getSchemeAndHttpHost(),
-            $request->attributes->get(RequestTransformer::SALES_CHANNEL_BASE_URL),
+            $baseUrl,
             $request->getPathInfo(),
             '?' . $params
         );

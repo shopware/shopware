@@ -37,7 +37,7 @@ class FakeConnection extends Connection
         );
     }
 
-    public function executeQuery($sql, array $params = [], $types = [], ?QueryCacheProfile $qcp = null): Result
+    public function executeQuery(string $sql, array $params = [], $types = [], ?QueryCacheProfile $qcp = null): Result
     {
         return new Result(
             new ArrayResult($this->dbRows),

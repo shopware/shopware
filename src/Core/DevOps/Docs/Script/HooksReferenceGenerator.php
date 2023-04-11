@@ -292,6 +292,7 @@ class HooksReferenceGenerator implements ScriptReferenceGenerator
         } else {
             $name = $reflection->getConstant('HOOK_NAME');
         }
+        \assert(\is_string($name));
 
         $deprecationNotice = '';
         if ($reflection->implementsInterface(DeprecatedHook::class)) {

@@ -16,7 +16,7 @@ class JsonApiDecoder implements DecoderInterface
     /**
      * @return array|mixed
      */
-    public function decode($data, $format, array $context = [])
+    public function decode(string $data, string $format, array $context = [])
     {
         $decodedData = (new JsonDecode([JsonDecode::ASSOCIATIVE => true]))->decode($data, 'json');
 
@@ -39,7 +39,7 @@ class JsonApiDecoder implements DecoderInterface
     /**
      * {@inheritdoc}
      */
-    public function supportsDecoding($format): bool
+    public function supportsDecoding(string $format): bool
     {
         return $format === self::FORMAT;
     }
@@ -48,6 +48,8 @@ class JsonApiDecoder implements DecoderInterface
     {
         $this->validateResourceIdentifier($resource);
 
+        \assert(\is_string($resource['id']));
+        \assert(\is_string($resource['type']));
         $hash = md5(json_encode(['id' => $resource['id'], 'type' => $resource['type']], \JSON_THROW_ON_ERROR));
 
         if (!\array_key_exists($hash, $includes)) {

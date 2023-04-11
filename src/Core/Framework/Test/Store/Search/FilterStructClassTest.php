@@ -14,11 +14,6 @@ class FilterStructClassTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-    }
-
     public function testCreateInvalidType(): void
     {
         static::expectException(\InvalidArgumentException::class);

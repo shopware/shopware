@@ -911,6 +911,7 @@ class RecalculationServiceTest extends TestCase
         static::assertNotNull($order);
         static::assertNotNull($order->getAddresses());
         $orderAddressId = $order->getAddresses()->first()->getId();
+        static::assertIsString($orderAddressId);
 
         $firstName = 'Replace first name';
         $lastName = 'Replace last name';
@@ -1215,7 +1216,7 @@ class RecalculationServiceTest extends TestCase
     }
 
     /**
-     * @return array<string, mixed>
+     * @return array{orderId: string, total: float, orderDateTime: \DateTimeInterface}
      */
     private function persistCart(Cart $cart, ?string $languageId = null): array
     {

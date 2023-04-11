@@ -159,9 +159,9 @@ class MediaGenerator implements DemodataGeneratorInterface
         /** @var string $text */
         $text = $context->getFaker()->words(1, true);
 
-        $provider = ImagesGeneratorProvider::class;
+        $provider = new ImagesGeneratorProvider(new Generator());
 
-        return $provider::imageGenerator(
+        return $provider->imageGenerator(
             null,
             $context->getFaker()->numberBetween(600, 800),
             $context->getFaker()->numberBetween(400, 600),

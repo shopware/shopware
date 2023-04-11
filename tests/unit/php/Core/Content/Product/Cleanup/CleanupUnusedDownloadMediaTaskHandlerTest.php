@@ -35,7 +35,7 @@ class CleanupUnusedDownloadMediaTaskHandlerTest extends TestCase
 
     public function testGetHandledMessages(): void
     {
-        static::assertEquals([CleanupUnusedDownloadMediaTask::class], $this->handler::getHandledMessages());
+        static::assertEquals([CleanupUnusedDownloadMediaTask::class], $this->handler->getHandledMessages());
     }
 
     public function testRun(): void

@@ -19,7 +19,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[Package('core')]
 class SystemGenerateAppSecretCommand extends Command
 {
-    public function execute(InputInterface $input, OutputInterface $output): int
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $key = Key::createNewRandomKey();
 

@@ -22,10 +22,7 @@ class ShippingMethodRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var EntityRepository
-     */
-    private $shippingRepository;
+    private EntityRepository $shippingRepository;
 
     private string $shippingMethodId;
 
@@ -123,7 +120,7 @@ class ShippingMethodRepositoryTest extends TestCase
             /** @var WriteConstraintViolationException $constraintViolation */
             $constraintViolation = $e->getExceptions()[0];
             static::assertInstanceOf(WriteConstraintViolationException::class, $constraintViolation);
-            static::assertEquals('/name', $constraintViolation->getViolations()[0]->getPropertyPath());
+            static::assertEquals('/name', $constraintViolation->getViolations()->get(0)->getPropertyPath());
         }
     }
 

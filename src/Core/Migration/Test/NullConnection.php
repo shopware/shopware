@@ -29,7 +29,7 @@ class NullConnection extends Connection
     /**
      * {@inheritdoc}
      */
-    public function executeQuery($sql, array $params = [], $types = [], ?QueryCacheProfile $qcp = null): Result
+    public function executeQuery(string $sql, array $params = [], $types = [], ?QueryCacheProfile $qcp = null): Result
     {
         $matches = preg_match_all('/^\s*(UPDATE|ALTER|BACKUP|CREATE|DELETE|DROP|EXEC|INSERT|TRUNCATE)/i', $sql);
 
@@ -40,7 +40,7 @@ class NullConnection extends Connection
         return $this->originalConnection->executeQuery($sql, $params, $types, $qcp);
     }
 
-    public function prepare($statement): Statement
+    public function prepare(string $statement): Statement
     {
         return $this->originalConnection->prepare($statement);
     }

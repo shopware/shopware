@@ -184,7 +184,9 @@ class ApiRequestContextResolverAppTest extends TestCase
             );
         }
 
-        $browser->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $data['access_token']));
+        $accessToken = $data['access_token'];
+        \assert(\is_string($accessToken));
+        $browser->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $accessToken));
     }
 
     /**

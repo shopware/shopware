@@ -9,10 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('core')]
 class InvalidPageQueryException extends ShopwareHttpException
 {
-    /**
-     * @param mixed $page
-     */
-    public function __construct($page)
+    public function __construct(mixed $page)
     {
         parent::__construct('The page parameter must be a positive integer. Given: {{ page }}', ['page' => $page]);
     }

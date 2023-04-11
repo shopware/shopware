@@ -13,11 +13,6 @@ use Shopware\Core\Framework\Struct\Collection;
 #[Package('core')]
 class RequirementsCheckCollection extends Collection
 {
-    public function getExpectedClass(): ?string
-    {
-        return RequirementCheck::class;
-    }
-
     public function getPathChecks(): self
     {
         return $this->filterInstance(PathCheck::class);
@@ -41,5 +36,10 @@ class RequirementsCheckCollection extends Collection
     public function hasSystemError(): bool
     {
         return $this->getSystemChecks()->hasError();
+    }
+
+    protected function getExpectedClass(): ?string
+    {
+        return RequirementCheck::class;
     }
 }

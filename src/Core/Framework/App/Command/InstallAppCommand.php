@@ -39,7 +39,7 @@ class InstallAppCommand extends Command
         parent::__construct();
     }
 
-    public function execute(InputInterface $input, OutputInterface $output): int
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $context = Context::createDefaultContext();
         $io = new ShopwareStyle($input, $output);

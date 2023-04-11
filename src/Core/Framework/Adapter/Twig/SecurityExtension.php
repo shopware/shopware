@@ -25,10 +25,10 @@ class SecurityExtension extends AbstractExtension
     public function getFilters(): array
     {
         return [
-            new TwigFilter('map', [$this, 'map']),
-            new TwigFilter('reduce', [$this, 'reduce']),
-            new TwigFilter('filter', [$this, 'filter']),
-            new TwigFilter('sort', [$this, 'sort']),
+            new TwigFilter('map', $this->map(...)),
+            new TwigFilter('reduce', $this->reduce(...)),
+            new TwigFilter('filter', $this->filter(...)),
+            new TwigFilter('sort', $this->sort(...)),
         ];
     }
 

@@ -387,7 +387,7 @@ EOF;
             $message = $exception->getMessage();
 
             if ($exception instanceof WriteConstraintViolationException && $exception->getPath() === '/0/' . $field) {
-                return $exception->getViolations()[0]->getMessage();
+                return $exception->getViolations()->get(0)->getMessage();
             }
         }
 

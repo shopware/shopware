@@ -177,19 +177,6 @@ class TestController extends StorefrontController
 
     private TemplateFinder $templateFinder;
 
-    public function addCartErrors(Cart $cart, ?\Closure $filter = null): void
-    {
-        parent::addCartErrors($cart, $filter);
-    }
-
-    /**
-     * @param string $message
-     */
-    public function addFlash(string $type, $message): void
-    {
-        // NOOP
-    }
-
     public function testRenderStorefront(string $view, SalesChannelContext $salesChannelContext): Response
     {
         $this->container->get('request_stack')->push(new Request());
@@ -202,12 +189,25 @@ class TestController extends StorefrontController
         $current->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $salesChannelContext);
         $current->attributes->set(RequestTransformer::STOREFRONT_URL, '/');
 
-        return parent::renderStorefront($view);
+        return $this->renderStorefront($view);
     }
 
     public function setTemplateFinder(TemplateFinder $templateFinder): void
     {
         $this->templateFinder = $templateFinder;
+    }
+
+    protected function addCartErrors(Cart $cart, ?\Closure $filter = null): void
+    {
+        parent::addCartErrors($cart, $filter);
+    }
+
+    /**
+     * @param string $message
+     */
+    protected function addFlash(string $type, $message): void
+    {
+        // NOOP
     }
 
     protected function getTemplateFinder(): TemplateFinder

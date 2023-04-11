@@ -42,7 +42,7 @@ class HookableBusinessEvent implements Hookable
 
     public function isAllowed(string $appId, AclPrivilegeCollection $permissions): bool
     {
-        foreach ($this->flowEventAware::getAvailableData()->toArray() as $dataType) {
+        foreach ($this->flowEventAware->getAvailableData()->toArray() as $dataType) {
             if (!$this->checkPermissionsForDataType($dataType, $permissions)) {
                 return false;
             }

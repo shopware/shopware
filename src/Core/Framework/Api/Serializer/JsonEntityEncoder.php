@@ -59,7 +59,7 @@ class JsonEntityEncoder
 
     private function getDecodedEntity(Criteria $criteria, Entity $entity, EntityDefinition $definition, string $baseUrl): array
     {
-        /** @var array $decoded */
+        /** @var array<mixed> $decoded */
         $decoded = $this->serializer->normalize($entity);
 
         $includes = $criteria->getIncludes() ?? [];
@@ -94,11 +94,11 @@ class JsonEntityEncoder
             $object = $struct->getVars()[$property];
 
             if ($object instanceof Collection) {
-                /** @var Struct $object */
-                $object = array_values($object->getElements());
+                /** @var list<Struct> $objects */
+                $objects = array_values($object->getElements());
 
                 foreach ($value as $index => $loop) {
-                    $decoded[$property][$index] = $this->filterIncludes($includes, $loop, $object[$index]);
+                    $decoded[$property][$index] = $this->filterIncludes($includes, $loop, $objects[$index]);
                 }
 
                 continue;

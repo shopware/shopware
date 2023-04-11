@@ -25,11 +25,6 @@ final class PluginRecommendationCollection extends Collection
         }
     }
 
-    public function getExpectedClass(): string
-    {
-        return StorePluginStruct::class;
-    }
-
     public function add($element): void
     {
         // disallow add
@@ -48,5 +43,10 @@ final class PluginRecommendationCollection extends Collection
     public function getApiAlias(): string
     {
         return 'store_plugin_recommendation_collection';
+    }
+
+    protected function getExpectedClass(): string
+    {
+        return StorePluginStruct::class;
     }
 }

@@ -28,12 +28,17 @@ return [
         'Shopware\\\\Core\\\\Framework\\\\Log\\\\LoggerFactory#createRotating\\(\\)',
         'Shopware\\\\Core\\\\Content\\\\MailTemplate\\\\Service\\\\Event\\\\MailErrorEvent#__construct\\(\\)',
 
-        // internal typos
+        // internal typos -> should be removed with 6.5.1.0 release
         'Shopware\\\\Core\\\\Framework\\\\App\\\\AppPayloadServiceHelper was marked "@internal"',
         'Shopware\\\\Core\\\\Framework\\\\App\\\\Command\\\\CreateAppCommand was marked "@internal"',
         'Shopware\\\\Core\\\\Framework\\\\Log\\\\Package was marked "@internal"',
         'Shopware\\\\Core\\\\Content\\\\Mail\\\\MailerConfigurationCompilerPass was marked "@internal"',
         'Shopware\\\\Core\\\\Checkout\\\\Cart\\\\TaxProvider\\\\Struct\\\\TaxProviderResult was marked "@internal"',
-        'Shopware\\\\Core\\\\Checkout\\\\Cart\\\\CachedRuleLoader was marked "@internal"'
+        'Shopware\\\\Core\\\\Checkout\\\\Cart\\\\CachedRuleLoader was marked "@internal"',
+
+        // Fixes to comply with parent method signature to fix LSP -> should be removed with 6.5.1.0 release
+        'The parameter .* of .*(ReverseProxyCache|StructDecoder|InvalidLimitQueryException|InvalidPageQueryException|QueryLimitExceededException|CustomFields|NestedEventDispatcher|LanguageNotFoundException|WebhookDispatcher|HappyPathValidator|JsonApiDecoder|EntityPipe|Kernel|CountSort).*\(\) changed from',
+        'Method .*\(\) of class .*(ThemeCompileCommand|ThemeSalesChannelCollection|CachedCountryRoute|CachedCountryStateRoute|SalesChannelAnalyticsDefinition|PluginRecommendationCollection|PluginCategoryCollection|LicenseDomainCollection|PluginRegionCollection|StateMachineStateField|AssetInstallCommand|JsonApiResponse|SystemDumpDatabaseCommand|SystemRestoreDatabaseCommand|DocsAppEventCommand|ImportExportProfileTranslationDefinition|UpdateByCollection|MappingCollection|ProductCrossSellingAssignedProductsCollection|ProductCrossSellingAssignedProductsDefinition|ProductCrossSellingCollection|ProductCrossSellingDefinition|ProductFeatureSetTranslationDefinition|CrossSellingElementCollection|SalesChannelProductCollection|PromotionTranslationDefinition|PromotionDiscountPriceCollection) visibility reduced from',
+        'Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Filesystem\\\\Filesystem' // not used and deprecated bundle class
     ],
 ];

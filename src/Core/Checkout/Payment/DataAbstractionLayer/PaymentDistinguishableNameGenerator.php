@@ -88,6 +88,7 @@ class PaymentDistinguishableNameGenerator
         $pluginLabel = $payment->getPlugin()->getTranslations()->filterByProperty('languageId', $languageId)->first()
             ? $payment->getPlugin()->getTranslations()->filterByProperty('languageId', $languageId)->first()->getLabel()
             : $payment->getPlugin()->getTranslation('label');
+        \assert(\is_string($pluginLabel));
 
         return sprintf(
             '%s | %s',
@@ -113,6 +114,7 @@ class PaymentDistinguishableNameGenerator
         $appLabel = $payment->getAppPaymentMethod()->getApp()->getTranslations()->filterByProperty('languageId', $languageId)->first()
             ? $payment->getAppPaymentMethod()->getApp()->getTranslations()->filterByProperty('languageId', $languageId)->first()->getLabel()
             : $payment->getAppPaymentMethod()->getApp()->getTranslation('label');
+        \assert(\is_string($appLabel));
 
         return sprintf(
             '%s | %s',

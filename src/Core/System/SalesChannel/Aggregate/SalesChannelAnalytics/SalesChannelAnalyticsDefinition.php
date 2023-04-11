@@ -33,14 +33,14 @@ class SalesChannelAnalyticsDefinition extends EntityDefinition
         return SalesChannelAnalyticsEntity::class;
     }
 
-    public function getParentDefinitionClass(): ?string
-    {
-        return SalesChannelDefinition::class;
-    }
-
     public function since(): ?string
     {
         return '6.2.0.0';
+    }
+
+    protected function getParentDefinitionClass(): ?string
+    {
+        return SalesChannelDefinition::class;
     }
 
     protected function defineFields(): FieldCollection

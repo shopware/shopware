@@ -139,12 +139,12 @@ class ConfirmPageTest extends TestCase
 
         /** @var AddressValidationError $billingAddressViolation */
         $billingAddressViolation = $errors['billing-address-invalid'];
-        $violation = $billingAddressViolation->getViolations()[0];
+        $violation = $billingAddressViolation->getViolations()->get(0);
         static::assertSame('/firstName', $violation->getPropertyPath());
 
         /** @var AddressValidationError $shippingAddressViolation */
         $shippingAddressViolation = $errors['shipping-address-invalid'];
-        $violation = $shippingAddressViolation->getViolations()[0];
+        $violation = $shippingAddressViolation->getViolations()->get(0);
         static::assertSame('/lastName', $violation->getPropertyPath());
     }
 

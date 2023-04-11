@@ -31,7 +31,7 @@ class ZipUtils
             \ZipArchive::ER_OPEN => sprintf('Can\'t open zip file: %s', $file),
             \ZipArchive::ER_READ => sprintf('Zip read error (%s)', $file),
             \ZipArchive::ER_SEEK => sprintf('Zip seek error (%s)', $file),
-            default => sprintf('\'%s\' is not a valid zip archive, got error code: %s', $file, $retVal),
+            default => sprintf('\'%s\' is not a valid zip archive, got error code: %d', $file, $retVal),
         };
     }
 }

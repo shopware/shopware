@@ -30,7 +30,7 @@ final class CleanupCartTaskHandler extends ScheduledTaskHandler
     public function run(): void
     {
         $time = new \DateTime();
-        $time->modify(sprintf('-%s day', $this->days));
+        $time->modify(sprintf('-%d day', $this->days));
 
         do {
             $result = $this->connection->executeStatement(

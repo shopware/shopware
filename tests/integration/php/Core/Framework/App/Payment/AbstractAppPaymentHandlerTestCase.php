@@ -83,7 +83,7 @@ abstract class AbstractAppPaymentHandlerTestCase extends TestCase
 
     private Context $context;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->orderRepository = $this->getContainer()->get('order.repository');
         $this->customerRepository = $this->getContainer()->get('customer.repository');

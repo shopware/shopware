@@ -163,6 +163,7 @@ class QueryStringParser
 
                 return new EqualsAnyFilter(self::buildFieldName($definition, $query['field']), $values);
         }
+        \assert(\is_string($query['type']));
 
         throw new InvalidFilterQueryException(sprintf('Unsupported filter type: %s', $query['type']), $path . '/type');
     }
@@ -231,6 +232,8 @@ class QueryStringParser
 
     private static function getFilterByRelativeTime(string $fieldName, array $query, string $path): MultiFilter
     {
+        \assert(\is_string($query['type']));
+
         if (empty($query['field'])) {
             throw new InvalidFilterQueryException(
                 sprintf('Parameter "field" for %s filter is missing.', $query['type']),

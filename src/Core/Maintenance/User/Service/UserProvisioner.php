@@ -32,7 +32,7 @@ class UserProvisioner
         $minPasswordLength = $this->getAdminPasswordMinLength();
 
         if ($password && \strlen($password) < $minPasswordLength) {
-            throw new \InvalidArgumentException(sprintf('The password length cannot be shorter than %s characters.', $minPasswordLength));
+            throw new \InvalidArgumentException(sprintf('The password length cannot be shorter than %d characters.', $minPasswordLength));
         }
 
         $password = $password ?? Random::getAlphanumericString(max($minPasswordLength, 8));

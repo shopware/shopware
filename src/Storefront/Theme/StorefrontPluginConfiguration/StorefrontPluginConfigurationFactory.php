@@ -188,7 +188,7 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
             if (mb_strpos($path, '@') === 0) {
                 return;
             }
-            $path = self::addBasePath($path, $basePath);
+            $path = $this->addBasePath($path, $basePath);
         });
 
         return $files;

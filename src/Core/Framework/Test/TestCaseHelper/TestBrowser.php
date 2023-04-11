@@ -58,7 +58,7 @@ class TestBrowser extends KernelBrowser
     /**
      * @param Response $response
      */
-    protected function filterResponse($response): DomResponse
+    protected function filterResponse(object $response): DomResponse
     {
         $event = new BeforeSendResponseEvent($this->lastRequest, $response);
         $this->eventDispatcher->dispatch($event);

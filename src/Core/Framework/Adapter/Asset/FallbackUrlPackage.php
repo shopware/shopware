@@ -13,9 +13,11 @@ class FallbackUrlPackage extends UrlPackage
 {
     /**
      * @internal
+     *
+     * @param string|string[] $baseUrls
      */
     public function __construct(
-        $baseUrls,
+        string|array $baseUrls,
         VersionStrategyInterface $versionStrategy
     ) {
         $baseUrls = iterator_to_array($this->applyFallback($baseUrls), false);

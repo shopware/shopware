@@ -93,7 +93,7 @@ class ScriptResponseFactoryFacade
             throw HookMethodException::outsideOfSalesChannelContext(__METHOD__);
         }
 
-        $inner = $this->scriptController->renderStorefront($view, $parameters);
+        $inner = $this->scriptController->renderStorefrontForScript($view, $parameters);
 
         return new ScriptResponse($inner, $inner->getStatusCode());
     }

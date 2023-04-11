@@ -171,6 +171,7 @@ abstract class KernelPluginLoader extends Bundle
     private function registerPluginNamespaces(string $projectDir): void
     {
         foreach ($this->pluginInfos as $plugin) {
+            \assert(\is_string($plugin['baseClass']));
             $pluginName = $plugin['name'] ?? $plugin['baseClass'];
 
             // plugins managed by composer are already in the classMap

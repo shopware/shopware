@@ -71,6 +71,7 @@ class ThemeChangeCommand extends Command
             $question = new ChoiceQuestion('Please select a theme:', $this->getThemeChoices());
             $themeName = $helper->ask($input, $output, $question);
         }
+        \assert(\is_string($themeName));
 
         /** @var SalesChannelCollection $salesChannels */
         $salesChannels = $this->salesChannelRepository->search(new Criteria(), $this->context)->getEntities();

@@ -35,7 +35,7 @@ class CanonicalRedirectService
             return null;
         }
 
-        if (empty($canonical)) {
+        if (!\is_string($canonical) || empty($canonical)) {
             return null;
         }
 

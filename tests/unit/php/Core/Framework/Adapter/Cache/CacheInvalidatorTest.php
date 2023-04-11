@@ -33,7 +33,7 @@ class CacheInvalidatorTest extends TestCase
         $item = CacheCompressor::compress(new CacheItem(), $logs);
 
         if ($delay > 0 && $time !== null) {
-            $time->modify(sprintf('-%s second', $delay));
+            $time->modify(sprintf('-%d second', $delay));
         }
 
         $storage = $this->createMock(TagAwareAdapter::class);

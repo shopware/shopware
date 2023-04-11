@@ -13,13 +13,13 @@ use Shopware\Core\Framework\Migration\MigrationStep;
  */
 class InstallEnvironmentTest extends TestCase
 {
-    public function setup(): void
+    protected function setUp(): void
     {
         unset($_SERVER[MigrationStep::INSTALL_ENVIRONMENT_VARIABLE]);
         unset($_ENV[MigrationStep::INSTALL_ENVIRONMENT_VARIABLE]);
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         unset($_SERVER[MigrationStep::INSTALL_ENVIRONMENT_VARIABLE]);
         unset($_ENV[MigrationStep::INSTALL_ENVIRONMENT_VARIABLE]);

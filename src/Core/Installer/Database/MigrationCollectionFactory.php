@@ -35,10 +35,10 @@ class MigrationCollectionFactory
     {
         return [
             new MigrationSource('core', []),
-            self::createMigrationSource('V6_3'),
-            self::createMigrationSource('V6_4'),
-            self::createMigrationSource('V6_5'),
-            self::createMigrationSource('V6_6'),
+            $this->createMigrationSource('V6_3'),
+            $this->createMigrationSource('V6_4'),
+            $this->createMigrationSource('V6_5'),
+            $this->createMigrationSource('V6_6'),
         ];
     }
 

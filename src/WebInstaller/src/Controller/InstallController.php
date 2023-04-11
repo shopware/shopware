@@ -93,7 +93,6 @@ class InstallController extends AbstractController
 
         // Shopware 6.4 does not contain a htaccess by default
         if (!$fs->exists($htaccessFile)) {
-            $fs = new Filesystem();
             $fs->copy(\dirname(__DIR__) . '/Resources/install-template/htaccess', $htaccessFile);
         }
 

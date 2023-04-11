@@ -9,24 +9,18 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('inventory')]
 class MinOrderQuantityError extends Error
 {
-    protected string $name;
-
-    protected int $quantity;
-
     public function __construct(
         protected string $id,
-        string $name,
-        int $quantity
+        protected string $name,
+        protected int $quantity
     ) {
         $this->message = sprintf(
-            'The quantity of product %s did not meet the minimum order quantity threshold. The quantity has automatically been increased to %s',
+            'The quantity of product %s did not meet the minimum order quantity threshold. The quantity has automatically been increased to %d',
             $name,
             $quantity
         );
 
         parent::__construct($this->message);
-        $this->name = $name;
-        $this->quantity = $quantity;
     }
 
     public function getParameters(): array

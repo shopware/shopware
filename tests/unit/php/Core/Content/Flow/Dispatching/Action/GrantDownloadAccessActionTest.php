@@ -51,7 +51,7 @@ class GrantDownloadAccessActionTest extends TestCase
 
     public function testGetName(): void
     {
-        static::assertEquals('action.grant.download.access', $this->action::getName());
+        static::assertEquals('action.grant.download.access', $this->action->getName());
     }
 
     public function testGetRequirements(): void

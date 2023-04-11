@@ -1,5 +1,4 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Shopware\Core\Content\Product\Cart;
 
@@ -11,16 +10,22 @@ class PurchaseStepsError extends Error
 {
     /**
      * @var string
+     *
+     * @deprecated tag:v6.6.0 - Will become private, be natively typed and moved to constructor property promotion
      */
     protected $id;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.6.0 - Will become private, be natively typed and moved to constructor property promotion
      */
     protected $name;
 
     /**
      * @var int
+     *
+     * @deprecated tag:v6.6.0 - Will become private, be natively typed and moved to constructor property promotion
      */
     protected $quantity;
 
@@ -30,16 +35,16 @@ class PurchaseStepsError extends Error
         int $quantity
     ) {
         $this->id = $id;
+        $this->name = $name;
+        $this->quantity = $quantity;
 
         $this->message = sprintf(
-            'Your input quantity does not match with the setup of the %s. The quantity was changed to %s',
+            'Your input quantity does not match with the setup of the %s. The quantity was changed to %d',
             $name,
             $quantity
         );
 
         parent::__construct($this->message);
-        $this->name = $name;
-        $this->quantity = $quantity;
     }
 
     public function getParameters(): array

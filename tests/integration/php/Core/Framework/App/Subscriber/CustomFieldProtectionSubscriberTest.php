@@ -168,6 +168,8 @@ class CustomFieldProtectionSubscriberTest extends TestCase
             );
         }
 
-        $browser->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $data['access_token']));
+        $accessToken = $data['access_token'];
+        static::assertIsString($accessToken);
+        $browser->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $accessToken));
     }
 }

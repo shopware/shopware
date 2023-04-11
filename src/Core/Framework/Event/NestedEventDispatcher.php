@@ -16,7 +16,7 @@ class NestedEventDispatcher implements EventDispatcherInterface
     {
     }
 
-    public function dispatch($event, ?string $eventName = null): object
+    public function dispatch(object $event, ?string $eventName = null): object
     {
         if ($event instanceof NestedEvent && $events = $event->getEvents()) {
             foreach ($events as $nested) {
@@ -34,7 +34,7 @@ class NestedEventDispatcher implements EventDispatcherInterface
     /**
      * @param callable $listener can not use native type declaration @see https://github.com/symfony/symfony/issues/42283
      */
-    public function addListener(string $eventName, $listener, int $priority = 0): void
+    public function addListener(string $eventName, $listener, int $priority = 0): void // @phpstan-ignore-line
     {
         $this->dispatcher->addListener($eventName, $listener, $priority);
     }
@@ -44,10 +44,7 @@ class NestedEventDispatcher implements EventDispatcherInterface
         $this->dispatcher->addSubscriber($subscriber);
     }
 
-    /**
-     * @param callable $listener can not use native type hint as it is incompatible with symfony <5.3.4
-     */
-    public function removeListener(string $eventName, $listener): void
+    public function removeListener(string $eventName, callable $listener): void
     {
         $this->dispatcher->removeListener($eventName, $listener);
     }
@@ -62,10 +59,7 @@ class NestedEventDispatcher implements EventDispatcherInterface
         return $this->dispatcher->getListeners($eventName);
     }
 
-    /**
-     * @param callable $listener can not use native type hint as it is incompatible with symfony <5.3.4
-     */
-    public function getListenerPriority(string $eventName, $listener): ?int
+    public function getListenerPriority(string $eventName, callable $listener): ?int
     {
         return $this->dispatcher->getListenerPriority($eventName, $listener);
     }

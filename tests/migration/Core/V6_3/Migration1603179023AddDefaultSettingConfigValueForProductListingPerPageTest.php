@@ -60,7 +60,9 @@ class Migration1603179023AddDefaultSettingConfigValueForProductListingPerPageTes
             ['config_key' => Migration1603179023AddDefaultSettingConfigValueForProductListingPerPage::CONFIG_KEY]
         );
 
-        $jsonValue = json_decode((string) $value, true);
+        static::assertIsString($value);
+
+        $jsonValue = json_decode($value, true);
         if (json_last_error() === \JSON_ERROR_NONE) {
             return $jsonValue['_value'];
         }

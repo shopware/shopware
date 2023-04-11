@@ -77,6 +77,7 @@ class BaseContextFactory extends AbstractBaseContextFactory
         $currency = $salesChannel->getCurrency();
         if (\array_key_exists(SalesChannelContextService::CURRENCY_ID, $options)) {
             $currencyId = $options[SalesChannelContextService::CURRENCY_ID];
+            \assert(\is_string($currencyId) && Uuid::isValid($currencyId));
 
             $criteria = new Criteria([$currencyId]);
             $criteria->setTitle('base-context-factory::currency');
@@ -282,17 +283,20 @@ class BaseContextFactory extends AbstractBaseContextFactory
     {
         //allows previewing cart calculation for a specify state for not logged in customers
         if (isset($options[SalesChannelContextService::COUNTRY_STATE_ID])) {
-            $criteria = new Criteria([$options[SalesChannelContextService::COUNTRY_STATE_ID]]);
+            $countryStateId = $options[SalesChannelContextService::COUNTRY_STATE_ID];
+            \assert(\is_string($countryStateId) && Uuid::isValid($countryStateId));
+
+            $criteria = new Criteria([$countryStateId]);
             $criteria->addAssociation('country');
 
             $criteria->setTitle('base-context-factory::country');
 
             /** @var CountryStateEntity|null $state */
             $state = $this->countryStateRepository->search($criteria, $context)
-                ->get($options[SalesChannelContextService::COUNTRY_STATE_ID]);
+                ->get($countryStateId);
 
             if (!$state) {
-                throw new \RuntimeException(sprintf('Country state with id "%s" not found', $options[SalesChannelContextService::COUNTRY_STATE_ID]));
+                throw new \RuntimeException(sprintf('Country state with id "%s" not found', $countryStateId));
             }
 
             /** @var CountryEntity $country */
@@ -302,6 +306,7 @@ class BaseContextFactory extends AbstractBaseContextFactory
         }
 
         $countryId = $options[SalesChannelContextService::COUNTRY_ID] ?? $salesChannel->getCountryId();
+        \assert(\is_string($countryId) && Uuid::isValid($countryId));
 
         $criteria = new Criteria([$countryId]);
         $criteria->setTitle('base-context-factory::country');
@@ -324,6 +329,7 @@ class BaseContextFactory extends AbstractBaseContextFactory
     private function buildLanguageChain(array $sessionOptions, string $defaultLanguageId, array $availableLanguageIds): array
     {
         $current = $sessionOptions[SalesChannelContextService::LANGUAGE_ID] ?? $defaultLanguageId;
+        \assert(\is_string($current) && Uuid::isValid($current));
 
         //check provided language is part of the available languages
         if (!\in_array($current, $availableLanguageIds, true)) {

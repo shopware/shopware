@@ -16,7 +16,7 @@ class CountSort extends FieldSort
         string $field,
         ?string $order = null,
         ?BuilderInterface $nestedFilter = null,
-        $params = []
+        array $params = []
     ) {
         $path = explode('.', $field);
         array_pop($path);

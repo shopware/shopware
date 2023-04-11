@@ -214,10 +214,10 @@ class SystemSetupCommand extends Command
 
         $dsnWithoutDb = sprintf(
             'mysql://%s:%s@%s:%d',
-            $dbUser,
+            (string) $dbUser,
             rawurlencode((string) $dbPass),
-            $dbHost,
-            $dbPort
+            (string) $dbHost,
+            (int) $dbPort
         );
         $dsn = $dsnWithoutDb . '/' . $dbName;
 

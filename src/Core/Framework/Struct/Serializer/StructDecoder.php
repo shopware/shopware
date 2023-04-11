@@ -2,46 +2,41 @@
 
 namespace Shopware\Core\Framework\Struct\Serializer;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Serializer\Encoder\DecoderInterface;
 
+/**
+ * @deprecated tag:v6.6.0 - Will be removed, as it was not used
+ */
 #[Package('core')]
 class StructDecoder implements DecoderInterface
 {
     /**
      * @return array|mixed
      */
-    public function decode($data, $format, array $context = [])
+    public function decode(string $data, string $format, array $context = [])
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.6.0.0')
+        );
+
         return $this->format($data);
     }
 
-    public function supportsDecoding($format): bool
+    public function supportsDecoding(string $format): bool
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.6.0.0')
+        );
+
         return $format === 'struct';
     }
 
-    private function format($decoded)
+    private function format(string $decoded)
     {
-        if (!\is_array($decoded) || empty($decoded)) {
-            return $decoded;
-        }
-
-        if (\array_key_exists('_class', $decoded) && preg_match('/(Collection|SearchResult)$/', (string) $decoded['_class'])) {
-            $elements = [];
-            foreach ($decoded['elements'] as $element) {
-                $elements[] = $this->format($element);
-            }
-
-            return $elements;
-        }
-
-        unset($decoded['_class']);
-
-        foreach ($decoded as $key => $value) {
-            $decoded[$key] = $this->format($value);
-        }
-
         return $decoded;
     }
 }

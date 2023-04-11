@@ -22,7 +22,7 @@ class Migration1589357321AddCountries extends MigrationStep
     public function update(Connection $connection): void
     {
         $deLanguageId = $this->getLanguageId($connection, 'de-DE');
-
+        $languageDE = null;
         if ($deLanguageId && $deLanguageId !== Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)) {
             $languageDE = static fn (string $countryId, string $name) => [
                 'language_id' => $deLanguageId,
@@ -33,7 +33,7 @@ class Migration1589357321AddCountries extends MigrationStep
         }
 
         $enLanguageId = $this->getLanguageId($connection, 'en-GB');
-
+        $languageEN = null;
         if ($enLanguageId && $enLanguageId !== Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)) {
             $languageEN = static fn (string $countryId, string $name) => [
                 'language_id' => $enLanguageId,
@@ -64,10 +64,10 @@ class Migration1589357321AddCountries extends MigrationStep
             }
             $connection->insert('country_translation', $default($id, $defaultTranslations));
 
-            if (isset($languageDE)) {
+            if ($languageDE !== null) {
                 $connection->insert('country_translation', $languageDE($id, $country['de']));
             }
-            if (isset($languageEN)) {
+            if ($languageEN !== null) {
                 $connection->insert('country_translation', $languageEN($id, $country['en']));
             }
         }

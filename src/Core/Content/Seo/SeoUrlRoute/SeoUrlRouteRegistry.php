@@ -13,7 +13,7 @@ class SeoUrlRouteRegistry
     private array $seoUrlRoutes = [];
 
     /**
-     * @var SeoUrlRouteInterface[]
+     * @var array<string, list<SeoUrlRouteInterface>>
      */
     private array $definitionToRoutes = [];
 
@@ -28,7 +28,8 @@ class SeoUrlRouteRegistry
 
             $route = $config->getRouteName();
             $this->seoUrlRoutes[$route] = $seoUrlRoute;
-            $this->definitionToRoutes[$config->getDefinition()->getEntityName()][] = $seoUrlRoute;
+            $entityName = $config->getDefinition()->getEntityName();
+            $this->definitionToRoutes[$entityName][] = $seoUrlRoute;
         }
     }
 

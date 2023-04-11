@@ -2891,11 +2891,6 @@ parameters:
 			path: src/Core/Content/ImportExport/Processing/Pipe/EntityPipe.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Processing\\\\Pipe\\\\EntityPipe\\:\\:in\\(\\) has parameter \\$record with no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/Processing/Pipe/EntityPipe.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Processing\\\\Pipe\\\\EntityPipe\\:\\:in\\(\\) return type has no value type specified in iterable type iterable\\.$#"
 			count: 1
 			path: src/Core/Content/ImportExport/Processing/Pipe/EntityPipe.php
@@ -4196,17 +4191,7 @@ parameters:
 			path: src/Core/Content/Seo/SeoUrlRoute/SeoUrlMapping.php
 
 		-
-			message: "#^Cannot access an offset on Shopware\\\\Core\\\\Content\\\\Seo\\\\SeoUrlRoute\\\\SeoUrlRouteInterface\\.$#"
-			count: 1
-			path: src/Core/Content/Seo/SeoUrlRoute/SeoUrlRouteRegistry.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Seo\\\\SeoUrlRoute\\\\SeoUrlRouteRegistry\\:\\:__construct\\(\\) has parameter \\$seoUrlRoutes with no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Content/Seo/SeoUrlRoute/SeoUrlRouteRegistry.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Seo\\\\SeoUrlRoute\\\\SeoUrlRouteRegistry\\:\\:findByDefinition\\(\\) should return array\\<Shopware\\\\Core\\\\Content\\\\Seo\\\\SeoUrlRoute\\\\SeoUrlRouteInterface\\> but returns array\\|Shopware\\\\Core\\\\Content\\\\Seo\\\\SeoUrlRoute\\\\SeoUrlRouteInterface\\.$#"
 			count: 1
 			path: src/Core/Content/Seo/SeoUrlRoute/SeoUrlRouteRegistry.php
 
@@ -6097,11 +6082,6 @@ parameters:
 			path: src/Core/DevOps/Docs/App/DocsAppEventCommand.php
 
 		-
-			message: "#^Static property Shopware\\\\Core\\\\DevOps\\\\Environment\\\\EnvironmentHelper\\:\\:\\$transformers \\(list\\<array\\<string, class\\-string\\<Shopware\\\\Core\\\\DevOps\\\\Environment\\\\EnvironmentHelperTransformerInterface\\>\\>\\>\\) does not accept non\\-empty\\-array\\<int, array\\<string, class\\-string\\<Shopware\\\\Core\\\\DevOps\\\\Environment\\\\EnvironmentHelperTransformerInterface\\>\\>\\>\\.$#"
-			count: 1
-			path: src/Core/DevOps/Environment/EnvironmentHelper.php
-
-		-
 			message: "#^PHPDoc tag @var for variable \\$salesChannel has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/DevOps/Locust/setup.php
@@ -6782,11 +6762,6 @@ parameters:
 			path: src/Core/Framework/Api/Serializer/JsonApiEncoder.php
 
 		-
-			message: "#^Cannot access offset \\(int\\|string\\) on Shopware\\\\Core\\\\Framework\\\\Struct\\\\Struct\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Serializer/JsonEntityEncoder.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Serializer\\\\JsonEntityEncoder\\:\\:encode\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Api/Serializer/JsonEntityEncoder.php
@@ -6828,11 +6803,6 @@ parameters:
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Serializer\\\\JsonEntityEncoder\\:\\:removeNotAllowedFields\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Serializer/JsonEntityEncoder.php
-
-		-
-			message: "#^PHPDoc tag @var for variable \\$decoded has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Api/Serializer/JsonEntityEncoder.php
 
@@ -8372,21 +8342,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/Exception/ImpossibleWriteOrderException.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Exception\\\\InvalidLimitQueryException\\:\\:__construct\\(\\) has parameter \\$limit with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Exception/InvalidLimitQueryException.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Exception\\\\QueryLimitExceededException\\:\\:__construct\\(\\) has parameter \\$limit with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Exception/QueryLimitExceededException.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Exception\\\\QueryLimitExceededException\\:\\:__construct\\(\\) has parameter \\$maxLimit with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Exception/QueryLimitExceededException.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Exception\\\\SearchRequestException\\:\\:__construct\\(\\) has parameter \\$exceptions with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Exception/SearchRequestException.php
@@ -8445,16 +8400,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\CreatedByField\\:\\:getAllowedWriteScopes\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Field/CreatedByField.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\CustomFields\\:\\:__construct\\(\\) has parameter \\$propertyName with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Field/CustomFields.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\CustomFields\\:\\:__construct\\(\\) has parameter \\$storageName with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Field/CustomFields.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\CustomFields\\:\\:setPropertyMapping\\(\\) has parameter \\$propertyMapping with no value type specified in iterable type array\\.$#"
@@ -9022,22 +8967,12 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/Search/Parser/ParseResult.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Parser\\\\ParseResult\\:\\:getWheres\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/Parser/ParseResult.php
-
-		-
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Parser\\\\ParseResult\\:\\:\\$parameters type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Search/Parser/ParseResult.php
 
 		-
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Parser\\\\ParseResult\\:\\:\\$types type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/Parser/ParseResult.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Parser\\\\ParseResult\\:\\:\\$wheres type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Search/Parser/ParseResult.php
 
@@ -10052,11 +9987,6 @@ parameters:
 			path: src/Core/Framework/Plugin/PluginExtractor.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\PluginExtractor\\:\\:__construct\\(\\) has parameter \\$extensionDirectories with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Plugin/PluginExtractor.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\PluginService\\:\\:getPluginIconRaw\\(\\) should return string\\|null but returns string\\|false\\.$#"
 			count: 1
 			path: src/Core/Framework/Plugin/PluginService.php
@@ -10120,11 +10050,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Routing\\\\ApiRequestContextResolver\\:\\:getRuntimeParameters\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Routing/ApiRequestContextResolver.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Routing\\\\Exception\\\\LanguageNotFoundException\\:\\:__construct\\(\\) has parameter \\$languageId with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Routing/Exception/LanguageNotFoundException.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Script\\\\Api\\\\ApiHook\\:\\:__construct\\(\\) has parameter \\$request with no value type specified in iterable type array\\.$#"
@@ -10628,11 +10553,6 @@ parameters:
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Serializer\\\\StructDecoder\\:\\:format\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Struct/Serializer/StructDecoder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Serializer\\\\StructDecoder\\:\\:format\\(\\) has parameter \\$decoded with no type specified\\.$#"
 			count: 1
 			path: src/Core/Framework/Struct/Serializer/StructDecoder.php
 
@@ -11265,11 +11185,6 @@ parameters:
 			message: "#^PHPDoc tag @var for variable \\$customFields has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/DataAbstractionLayer/Dbal/EntityWriteGatewayTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Dbal\\\\TranslatedVersionsTest\\:\\:assertProductName\\(\\) has parameter \\$name with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Dbal/TranslatedVersionsTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Dbal\\\\TranslatedVersionsTest\\:\\:assertProductNames\\(\\) has parameter \\$assertions with no value type specified in iterable type array\\.$#"
@@ -12788,11 +12703,6 @@ parameters:
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Validation\\\\Exception\\\\ConstraintViolationException\\:\\:getInputData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Validation/Exception/ConstraintViolationException.php
-
-		-
-			message: "#^Parameter \\#1 \\$errorCode of static method Symfony\\\\Component\\\\Validator\\\\Constraint\\:\\:getErrorName\\(\\) expects string, string\\|null given\\.$#"
 			count: 1
 			path: src/Core/Framework/Validation/Exception/ConstraintViolationException.php
 

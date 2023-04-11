@@ -59,7 +59,7 @@ class ElasticsearchRangeAggregation extends AbstractAggregation
      *
      * @return array<string, mixed>
      */
-    public function getArray(): array
+    protected function getArray(): array
     {
         return [
             'field' => $this->getField(),

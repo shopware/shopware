@@ -166,6 +166,29 @@ parameters:
         # Internal deprecations of Shopware are handled in other places
         - '#deprecated.*class Shopware\\#'
 
+        - # we override setUp visibility a lot
+            message: '#Change "setUp\(\)" method visibility to "protected" to respect parent method visibility\.#'
+            paths:
+                - src/**/*Test.php
+                - tests/**/*Test.php
+        - # we override tearDown visibility a lot
+            message: '#Change "tearDown\(\)" method visibility to "protected" to respect parent method visibility\.#'
+            paths:
+                - src/**/*Test.php
+                - tests/**/*Test.php
+
+        - # tests are allowed to add dummy classes in the same file
+            message: '#Multiple class\/interface\/trait is not allowed in single file#'
+            paths:
+                - src/**/Test/**
+                - tests/**
+                - src/Core/Framework/Migration/Exception/UnknownMigrationSourceException.php # uses if around class definition
+
+        # It explicitly tests array access on object, so it works from twig scripts
+        -
+            message: "#Use explicit methods over array access on object$#"
+            path: src/Core/Framework/Test/Script/Service/ArrayFacadeTest.php
+
         # Breaking changes which are not worth it
         - '#Method Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityCollection::filterAndReduceByProperty\(\) has parameter \$value with no type specified\.#'
 
@@ -246,3 +269,47 @@ services:
         class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoFlowStoreFunctionRule
         tags:
             - phpstan.rules.rule
+
+# Activate again when https://github.com/symplify/phpstan-rules/pull/25 is released
+#    -
+#        class: Symplify\PHPStanRules\Rules\ForbiddenThisArgumentRule
+#        tags: [phpstan.rules.rule]
+#        arguments:
+#            allowedCallerClasses:
+#                - Shopware\Core\Framework\Feature
+#                - Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaArrayConverter
+#                - Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition
+#                - Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Field\AbstractFieldSerializer
+#                - Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\AbstractEntitySerializer
+#                - Shopware\Core\Framework\Struct\Collection
+#                - Shopware\Core\Checkout\Document\DocumentConfigurationFactory
+#                - Symfony\Component\Validator\Validator\ValidatorInterface
+#                - Twig\Compiler
+
+rules:
+    # rules from https://github.com/symplify/phpstan-rules
+    - Symplify\PHPStanRules\Rules\Spotter\IfElseToMatchSpotterRule
+    - Symplify\PHPStanRules\Rules\Missing\CheckSprintfMatchingTypesRule
+
+    # domain
+    - Symplify\PHPStanRules\Rules\CheckAttributteArgumentClassExistsRule
+    - Symplify\PHPStanRules\Rules\Enum\RequireUniqueEnumConstantRule
+    - Symplify\PHPStanRules\Rules\ForbiddenParamTypeRemovalRule
+    - Symplify\PHPStanRules\Rules\PreventParentMethodVisibilityOverrideRule
+
+    # paths
+    - Symplify\PHPStanRules\Rules\NoMissingDirPathRule
+    - Symplify\PHPStanRules\Rules\NoArrayAccessOnObjectRule
+
+    # dead-code
+    - Symplify\PHPStanRules\Rules\NoIssetOnObjectRule
+
+    # explicit naming
+    - Symplify\PHPStanRules\Rules\NoParentMethodCallOnNoOverrideProcessRule
+    # Activate again when https://github.com/symplify/phpstan-rules/pull/19 is released
+    # - Symplify\PHPStanRules\Rules\RequireThisOnParentMethodCallRule
+    - Symplify\PHPStanRules\Rules\RequireThisCallOnLocalMethodRule
+    - Symplify\PHPStanRules\Rules\ForbiddenMultipleClassLikeInOneFileRule
+
+    - Symplify\PHPStanRules\Rules\Complexity\ForbiddenArrayMethodCallRule
+    - Symplify\PHPStanRules\Symfony\Rules\PreventDoubleSetParameterRule

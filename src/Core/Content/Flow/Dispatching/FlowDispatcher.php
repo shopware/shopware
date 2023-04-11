@@ -42,7 +42,7 @@ class FlowDispatcher implements EventDispatcherInterface
      *
      * @return TEvent
      */
-    public function dispatch($event, ?string $eventName = null): object
+    public function dispatch(object $event, ?string $eventName = null): object
     {
         $event = $this->dispatcher->dispatch($event, $eventName);
 
@@ -66,9 +66,9 @@ class FlowDispatcher implements EventDispatcherInterface
     }
 
     /**
-     * @param callable $listener
+     * @param callable $listener can not use native type declaration @see https://github.com/symfony/symfony/issues/42283
      */
-    public function addListener(string $eventName, $listener, int $priority = 0): void
+    public function addListener(string $eventName, $listener, int $priority = 0): void // @phpstan-ignore-line
     {
         $this->dispatcher->addListener($eventName, $listener, $priority);
     }
@@ -78,10 +78,7 @@ class FlowDispatcher implements EventDispatcherInterface
         $this->dispatcher->addSubscriber($subscriber);
     }
 
-    /**
-     * @param callable $listener
-     */
-    public function removeListener(string $eventName, $listener): void
+    public function removeListener(string $eventName, callable $listener): void
     {
         $this->dispatcher->removeListener($eventName, $listener);
     }
@@ -96,10 +93,7 @@ class FlowDispatcher implements EventDispatcherInterface
         return $this->dispatcher->getListeners($eventName);
     }
 
-    /**
-     * @param callable $listener
-     */
-    public function getListenerPriority(string $eventName, $listener): ?int
+    public function getListenerPriority(string $eventName, callable $listener): ?int
     {
         return $this->dispatcher->getListenerPriority($eventName, $listener);
     }

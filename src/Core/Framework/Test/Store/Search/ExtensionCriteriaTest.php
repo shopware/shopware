@@ -13,11 +13,6 @@ class ExtensionCriteriaTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-    }
-
     public function testFromParameterBagComputesOffset(): void
     {
         $extensionCriteria = ExtensionCriteria::fromArray([

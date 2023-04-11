@@ -61,14 +61,14 @@ class SqlQueryParser
                     );
 
                     $result->addWhere(
-                        sprintf('IF(%s , %s * %s, 0)', $where, $this->connection->quote($query->getScore()), $field)
+                        sprintf('IF(%s , %s * %s, 0)', $where, (string) $this->connection->quote($query->getScore()), $field)
                     );
 
                     continue;
                 }
 
                 $result->addWhere(
-                    sprintf('IF(%s , %s, 0)', $where, $this->connection->quote($query->getScore()))
+                    sprintf('IF(%s , %s, 0)', $where, (string) $this->connection->quote($query->getScore()))
                 );
             }
 

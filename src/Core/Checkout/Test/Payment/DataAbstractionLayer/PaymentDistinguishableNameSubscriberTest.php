@@ -39,7 +39,7 @@ class PaymentDistinguishableNameSubscriberTest extends TestCase
             [
                 PaymentEvents::PAYMENT_METHOD_LOADED_EVENT => 'addDistinguishablePaymentName',
             ],
-            $this->subscriber::getSubscribedEvents()
+            $this->subscriber->getSubscribedEvents()
         );
     }
 

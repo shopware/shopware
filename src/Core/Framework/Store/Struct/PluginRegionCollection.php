@@ -14,13 +14,13 @@ use Shopware\Core\Framework\Struct\Collection;
 #[Package('merchant-services')]
 final class PluginRegionCollection extends Collection
 {
-    public function getExpectedClass(): string
-    {
-        return PluginRegionStruct::class;
-    }
-
     public function getApiAlias(): string
     {
         return 'store_plugin_region_collection';
+    }
+
+    protected function getExpectedClass(): string
+    {
+        return PluginRegionStruct::class;
     }
 }

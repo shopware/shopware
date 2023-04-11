@@ -54,7 +54,7 @@ class CustomerFlowEventsSubscriberTest extends TestCase
     {
         static::assertEquals([
             CustomerEvents::CUSTOMER_WRITTEN_EVENT => 'onCustomerWritten',
-        ], $this->customerFlowEventsSubscriber::getSubscribedEvents());
+        ], $this->customerFlowEventsSubscriber->getSubscribedEvents());
     }
 
     public function testOnCustomerWrittenWithInstanceOfSaleChannelApi(): void

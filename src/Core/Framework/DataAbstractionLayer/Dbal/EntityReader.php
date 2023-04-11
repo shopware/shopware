@@ -917,7 +917,7 @@ class EntityReader implements EntityReaderInterface
             --$i;
 
             // Strip the ASC/DESC at the end of the sort
-            $query->addSelect(\sprintf('%s as sort_%s', substr((string) $sorting, 0, -4), $i));
+            $query->addSelect(\sprintf('%s as sort_%d', substr((string) $sorting, 0, -4), $i));
         }
 
         $root = EntityDefinitionQueryHelper::escape($definition->getEntityName());

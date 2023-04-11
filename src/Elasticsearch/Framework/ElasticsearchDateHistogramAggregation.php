@@ -58,7 +58,7 @@ class ElasticsearchDateHistogramAggregation extends AbstractAggregation
     /**
      * {@inheritdoc}
      */
-    public function getArray(): array
+    protected function getArray(): array
     {
         $out = [
             'field' => $this->getField(),

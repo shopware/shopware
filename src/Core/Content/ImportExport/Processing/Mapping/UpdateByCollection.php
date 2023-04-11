@@ -17,12 +17,7 @@ class UpdateByCollection extends Collection
     public function add($element): void
     {
         $this->validateType($element);
-        parent::set($element->getEntityName(), $element);
-    }
-
-    public function getExpectedClass(): ?string
-    {
-        return UpdateBy::class;
+        $this->set($element->getEntityName(), $element);
     }
 
     public static function fromIterable(iterable $data): self
@@ -46,5 +41,10 @@ class UpdateByCollection extends Collection
         }
 
         return $updateByCollection;
+    }
+
+    protected function getExpectedClass(): ?string
+    {
+        return UpdateBy::class;
     }
 }

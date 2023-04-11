@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('inventory')]
 class SalesChannelProductCollection extends ProductCollection
 {
-    public function getExpectedClass(): string
+    protected function getExpectedClass(): string
     {
         return SalesChannelProductEntity::class;
     }

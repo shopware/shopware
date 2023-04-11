@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Test\Framework\Routing;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Framework\Routing\NotFound\NotFoundSubscriber;
@@ -78,7 +79,7 @@ class ResponseHeaderListenerTest extends TestCase
         ]);
         $browser->setServerParameter('HTTP_' . PlatformRequest::HEADER_CONTEXT_TOKEN, '1234');
         $browser->setServerParameter('HTTP_' . PlatformRequest::HEADER_VERSION_ID, '1234');
-        $browser->setServerParameter('HTTP_' . PlatformRequest::HEADER_LANGUAGE_ID, '1234');
+        $browser->setServerParameter('HTTP_' . PlatformRequest::HEADER_LANGUAGE_ID, Uuid::randomHex());
         $browser->request('GET', '/store-api/checkout/cart');
         $response = $browser->getResponse();
 

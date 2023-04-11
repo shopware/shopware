@@ -216,7 +216,7 @@ class Kernel extends HttpKernel
         parent::shutdown();
     }
 
-    public function reboot($warmupDir, ?KernelPluginLoader $pluginLoader = null, ?string $cacheId = null): void
+    public function reboot(?string $warmupDir, ?KernelPluginLoader $pluginLoader = null, ?string $cacheId = null): void
     {
         $this->rebooting = true;
 

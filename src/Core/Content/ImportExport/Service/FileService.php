@@ -93,7 +93,10 @@ class FileService extends AbstractFileService
         $extension = $profile->getFileType() === 'text/xml' ? 'xml' : 'csv';
         $timestamp = date('Ymd-His');
 
-        return sprintf('%s_%s.%s', $profile->getTranslation('label'), $timestamp, $extension);
+        $label = $profile->getTranslation('label');
+        \assert(\is_string($label));
+
+        return sprintf('%s_%s.%s', $label, $timestamp, $extension);
     }
 
     public function updateFile(Context $context, string $fileId, array $data): void

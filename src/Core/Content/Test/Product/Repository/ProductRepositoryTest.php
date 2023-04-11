@@ -1111,7 +1111,7 @@ class ProductRepositoryTest extends TestCase
         $constraintViolation = $e->getExceptions()[0];
         static::assertInstanceOf(WriteConstraintViolationException::class, $constraintViolation);
 
-        static::assertSame('/taxId', $constraintViolation->getViolations()[0]->getPropertyPath());
+        static::assertSame('/taxId', $constraintViolation->getViolations()->get(0)->getPropertyPath());
 
         $data = [
             [

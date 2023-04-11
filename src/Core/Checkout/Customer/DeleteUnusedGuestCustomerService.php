@@ -100,6 +100,6 @@ class DeleteUnusedGuestCustomerService
             return null;
         }
 
-        return new \DateTime(\sprintf('- %s seconds', $maxLifeTime));
+        return new \DateTime(\sprintf('- %d seconds', $maxLifeTime));
     }
 }

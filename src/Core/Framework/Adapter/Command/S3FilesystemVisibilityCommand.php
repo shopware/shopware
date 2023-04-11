@@ -63,7 +63,7 @@ class S3FilesystemVisibilityCommand extends Command
 
         $style->info('Finished setting visibility of objects in all pre-defined buckets.');
 
-        return (int) Command::SUCCESS;
+        return Command::SUCCESS;
     }
 
     private function setVisibility(FilesystemOperator $filesystem, ShopwareStyle $style, string $visibility): void
@@ -75,10 +75,10 @@ class S3FilesystemVisibilityCommand extends Command
         $progressBar->setMessage('');
 
         foreach ($files as $file) {
-            $filesystem->setVisibility($file['path'], $visibility);
+            $filesystem->setVisibility($file->path(), $visibility);
 
             $progressBar->advance();
-            $progressBar->setMessage($file['path']);
+            $progressBar->setMessage($file->path());
         }
 
         $progressBar->finish();

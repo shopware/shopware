@@ -323,7 +323,7 @@ class ApplicationBootstrapper {
     /**
      * Returns the root of the application e.g. a new Vue instance
      */
-    getApplicationRoot(): Vue | boolean {
+    getApplicationRoot(): Vue | false {
         if (!this.view?.root) {
             return false;
         }

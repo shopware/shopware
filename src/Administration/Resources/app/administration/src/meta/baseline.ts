@@ -377,7 +377,6 @@ const missingTests = [
     'api.service.ts',
     'customer-group-registration-listener.service.js',
     'entity-mapping.service.js',
-    'plugin-updates-listener.service.js',
     'shopware-updates-listener.service.js',
     'timezone.service.js',
     'util.service.ts',

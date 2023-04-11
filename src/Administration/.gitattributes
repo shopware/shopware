@@ -210,6 +210,7 @@
 /Resources/app/administration/src/core/service/extension-api-data.service.spec.js export-ignore
 /Resources/app/administration/src/core/service/jsonapi-parser.service.spec.js export-ignore
 /Resources/app/administration/src/core/service/login.service.spec.js export-ignore
+/Resources/app/administration/src/core/service/plugin-updates-listener.service.spec.js export-ignore
 /Resources/app/administration/src/core/service/timezone.service.spec.js export-ignore
 /Resources/app/administration/src/core/service/api/app-action-button.service.spec.js export-ignore
 /Resources/app/administration/src/core/service/api/app-modules.service.spec.js export-ignore

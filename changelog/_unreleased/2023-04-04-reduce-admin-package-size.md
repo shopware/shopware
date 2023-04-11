@@ -6,6 +6,4 @@ author_email: s.seggewiss@shopware.com
 author_github: @seggewiss
 ---
 # Administration
-* Added `Git Attributes (Administration)` ci job
 * Added `DeleteAdminFilesAfterBuildCommand`
-* Added `GenerateAdministrationGitAttributes`

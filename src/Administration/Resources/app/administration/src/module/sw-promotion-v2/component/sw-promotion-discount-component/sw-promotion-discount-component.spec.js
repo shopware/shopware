@@ -8,7 +8,10 @@ import 'src/app/component/form/sw-switch-field';
 import 'src/app/component/form/sw-checkbox-field';
 import 'src/app/component/form/select/base/sw-select-base';
 import 'src/app/component/form/select/entity/sw-entity-many-to-many-select';
+import 'src/app/component/utils/sw-loader';
 import swPromotionV2RuleSelect from 'src/module/sw-promotion-v2/component/sw-promotion-v2-rule-select';
+
+const { Criteria, EntityCollection } = Shopware.Data;
 
 Shopware.Component.register('sw-promotion-discount-component', swPromotionDiscountComponent);
 Shopware.Component.register('sw-promotion-v2-rule-select', swPromotionV2RuleSelect);
@@ -32,6 +35,7 @@ async function createWrapper(privileges = []) {
             'sw-promotion-v2-rule-select': await Shopware.Component.build('sw-promotion-v2-rule-select'),
             'sw-entity-many-to-many-select': await Shopware.Component.build('sw-entity-many-to-many-select'),
             'sw-select-base': await Shopware.Component.build('sw-select-base'),
+            'sw-loader': await Shopware.Component.build('sw-loader'),
             'sw-select-selection-list': true,
             'sw-number-field': true,
             'sw-field-error': true,
@@ -111,10 +115,10 @@ async function createWrapper(privileges = []) {
                 ],
                 discounts: [],
                 individualCodes: [],
-                personaRules: [],
+                personaRules: new EntityCollection('', 'rule', Shopware.Context.api, new Criteria(1, 25)),
                 personaCustomers: [],
-                orderRules: [],
-                cartRules: [],
+                orderRules: new EntityCollection('', 'rule', Shopware.Context.api, new Criteria(1, 25)),
+                cartRules: new EntityCollection('', 'rule', Shopware.Context.api, new Criteria(1, 25)),
                 translations: [],
                 hasOrders: false
             },
@@ -131,7 +135,7 @@ async function createWrapper(privileges = []) {
                 usageKey: 'ALL',
                 apiAlias: null,
                 id: 'discountId',
-                discountRules: [],
+                discountRules: new EntityCollection('', 'rule', Shopware.Context.api, new Criteria(1, 25)),
                 promotionDiscountPrices: []
             }
         }

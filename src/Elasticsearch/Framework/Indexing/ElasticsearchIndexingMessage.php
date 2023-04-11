@@ -15,8 +15,7 @@ class ElasticsearchIndexingMessage implements AsyncMessageInterface
     public function __construct(
         private readonly IndexingDto $data,
         private readonly ?IndexerOffset $offset,
-        private readonly Context $context,
-        private readonly ?string $languageId = null
+        private readonly Context $context
     ) {
     }
 
@@ -33,10 +32,5 @@ class ElasticsearchIndexingMessage implements AsyncMessageInterface
     public function getContext(): Context
     {
         return $this->context;
-    }
-
-    public function getLanguageId(): ?string
-    {
-        return $this->languageId;
     }
 }

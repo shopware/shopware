@@ -109,8 +109,6 @@ class ProductIndexer extends EntityIndexer
         });
 
         $message = new ProductIndexingMessage(array_values($updates), null, $event->getContext());
-        $message->setLanguageId($event->getContext()->getLanguageId());
-
         $message->addSkip(self::INHERITANCE_UPDATER, self::STOCK_UPDATER);
 
         $delayed = \array_unique(\array_filter(\array_merge(
@@ -120,7 +118,6 @@ class ProductIndexer extends EntityIndexer
 
         foreach (\array_chunk($delayed, 50) as $chunk) {
             $child = new ProductIndexingMessage($chunk, null, $event->getContext());
-            $child->setLanguageId($event->getContext()->getLanguageId());
             $child->setIndexer($this->getName());
             EntityIndexerRegistry::addSkips($child, $event->getContext());
 
@@ -142,10 +139,6 @@ class ProductIndexer extends EntityIndexer
 
     public function handle(EntityIndexingMessage $message): void
     {
-        if (!$message instanceof ProductIndexingMessage) {
-            return;
-        }
-
         $ids = array_values(array_unique(array_filter($message->getData())));
 
         if (empty($ids)) {
@@ -235,7 +228,7 @@ class ProductIndexer extends EntityIndexer
         });
 
         Profiler::trace('product:indexer:event', function () use ($ids, $context, $message): void {
-            $this->eventDispatcher->dispatch(new ProductIndexerEvent($ids, $context, $message->getSkip(), $message->getLanguageId()));
+            $this->eventDispatcher->dispatch(new ProductIndexerEvent($ids, $context, $message->getSkip()));
         });
     }
 

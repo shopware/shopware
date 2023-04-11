@@ -14,14 +14,30 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 abstract class AbstractElasticsearchDefinition
 {
+    final public const KEYWORD_FIELD = [
+        'type' => 'keyword',
+        'normalizer' => 'sw_lowercase_normalizer',
+    ];
+
+    final public const BOOLEAN_FIELD = ['type' => 'boolean'];
+
+    final public const FLOAT_FIELD = ['type' => 'double'];
+
+    final public const INT_FIELD = ['type' => 'long'];
+
+    final public const SEARCH_FIELD = [
+        'fields' => [
+            'search' => ['type' => 'text'],
+            'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
+        ],
+    ];
+
     abstract public function getEntityDefinition(): EntityDefinition;
 
     /**
      * @return array<mixed>
      */
     abstract public function getMapping(Context $context): array;
-
-    abstract public function getLanguageMapping(array $languageIds, Context $context): array;
 
     /**
      * @param array<string> $ids
@@ -34,13 +50,8 @@ abstract class AbstractElasticsearchDefinition
         return [];
     }
 
-    public function fetchTranslatedFields(array $ids, array $languageIds, Context $context): array
-    {
-        return [];
-    }
-
     /**
-    @deprecated tag:v6.6.0 - Will become abstract, implementation should implement their own `buildTermQuery`
+     * @deprecated tag:v6.6.0 - Will become abstract, implementation should implement their own `buildTermQuery`
      */
     public function buildTermQuery(Context $context, Criteria $criteria): BoolQuery
     {

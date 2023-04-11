@@ -39,6 +39,10 @@ class SecurityExtension extends AbstractExtension
      */
     public function map(iterable $array, string|callable|\Closure $function): array
     {
+        if (\is_array($function)) {
+            $function = implode('::', $function);
+        }
+
         if (\is_string($function) && !\in_array($function, $this->allowedPHPFunctions, true)) {
             throw new \RuntimeException(sprintf('Function "%s" is not allowed', $function));
         }
@@ -57,6 +61,10 @@ class SecurityExtension extends AbstractExtension
      */
     public function reduce(iterable $array, string|callable|\Closure $function, mixed $initial = null): mixed
     {
+        if (\is_array($function)) {
+            $function = implode('::', $function);
+        }
+
         if (\is_string($function) && !\in_array($function, $this->allowedPHPFunctions, true)) {
             throw new \RuntimeException(sprintf('Function "%s" is not allowed', $function));
         }
@@ -76,6 +84,10 @@ class SecurityExtension extends AbstractExtension
      */
     public function filter(iterable $array, string|callable|\Closure $arrow): iterable
     {
+        if (\is_array($arrow)) {
+            $arrow = implode('::', $arrow);
+        }
+
         if (\is_string($arrow) && !\in_array($arrow, $this->allowedPHPFunctions, true)) {
             throw new \RuntimeException(sprintf('Function "%s" is not allowed', $arrow));
         }
@@ -96,6 +108,10 @@ class SecurityExtension extends AbstractExtension
      */
     public function sort(iterable $array, string|callable|\Closure|null $arrow = null): array
     {
+        if (\is_array($arrow)) {
+            $arrow = implode('::', $arrow);
+        }
+
         if (\is_string($arrow) && !\in_array($arrow, $this->allowedPHPFunctions, true)) {
             throw new \RuntimeException(sprintf('Function "%s" is not allowed', $arrow));
         }

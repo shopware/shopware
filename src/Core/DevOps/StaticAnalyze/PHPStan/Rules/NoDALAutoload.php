@@ -11,7 +11,6 @@ use PHPStan\Reflection\ReflectionProvider;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
 use PHPStan\Rules\RuleErrorBuilder;
-use PHPStan\Type\Constant\ConstantStringType;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\Log\Package;
@@ -113,7 +112,7 @@ class NoDALAutoload implements Rule
             }
 
             $propType = $scope->getType($propertyNameValueExpr);
-            if (!$propType instanceof ConstantStringType) {
+            if ($propType->getConstantStrings() === []) {
                 return [];
             }
 
@@ -121,7 +120,7 @@ class NoDALAutoload implements Rule
                 RuleErrorBuilder::message(sprintf(
                     '%s.%s association has a configured autoload===true, this is forbidden for platform integrations',
                     $constantValue->value,
-                    $propType->getValue()
+                    $propType->getConstantStrings()[0]->getValue()
                 ))->build(),
             ];
         }

@@ -37,10 +37,27 @@ describe('CMS: Visual tests', () => {
         cy.get('.sw-cms-list-item--0').should('be.visible');
         cy.get('.sw-skeleton__gallery').should('not.exist');
 
-        cy.get('select#sortType').select('name:DESC').should('contain.text', 'desc');
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/search/cms-page`,
+            method: 'POST',
+        }).as('siteLoaded');
 
-        cy.get('.sw-cms-list-item--0').should('be.visible');
+        cy.get('select#sortType').select('name:DESC').should('contain.text', 'desc');
+        cy.get('.sw-skeleton__gallery').should('exist');
+
+        cy.wait('@siteLoaded')
+            .its('response.statusCode').should('equal', 200);
+
         cy.get('.sw-skeleton__gallery').should('not.exist');
+        cy.get('.sw-cms-list-item--0').should('be.visible');
+        cy.get('.sw-cms-list-item--1').should('be.visible');
+        cy.get('.sw-cms-list-item__title').should('be.visible');
+        cy.get('.sw-pagination__list-item .is-active').click();
+        cy.get('.sw-skeleton__gallery').should('not.exist');
+        cy.get('.sw-cms-list-item--0').should('be.visible');
+        cy.get('.sw-cms-list-item--1').should('be.visible');
+        cy.get('.sw-cms-list-item__title').should('be.visible');
+        cy.get('.sw-cms-list-item--1 .sw-cms-list-item__title').should('contain', 'Terms');
 
         cy.prepareAdminForScreenshot();
         cy.takeSnapshot('[CMS] Listing - Layouts', '.sw-cms-list', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});

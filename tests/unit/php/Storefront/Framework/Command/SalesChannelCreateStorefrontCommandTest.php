@@ -4,12 +4,12 @@ namespace Shopware\Tests\Unit\Storefront\Framework\Command;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Maintenance\SalesChannel\Service\SalesChannelCreator;
 use Shopware\Storefront\Framework\Command\SalesChannelCreateStorefrontCommand;
+use Shopware\Tests\Unit\Common\Stubs\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -23,147 +23,180 @@ use Symfony\Component\Console\Output\OutputInterface;
 class SalesChannelCreateStorefrontCommandTest extends TestCase
 {
     /**
-     * @dataProvider dataProviderTestGetSnippetSetId
-     */
-    public function testGetSnippetSetId(string $expected, string $snippetSetId): void
-    {
-        $mockSalesChannelCreator = $this->createStub(SalesChannelCreator::class);
-
-        $idSearchResult = $this->createMock(IdSearchResult::class);
-        $idSearchResult->method('firstId')
-            ->willReturn($snippetSetId);
-
-        $snippetSetRepository = $this->createMock(EntityRepository::class);
-        $snippetSetRepository->method('searchIds')
-            ->willReturn($idSearchResult);
-
-        $cmd = new SalesChannelCreateStorefrontCommand(
-            $snippetSetRepository,
-            $mockSalesChannelCreator
-        );
-
-        $reflectionMethod = ReflectionHelper::getMethod(SalesChannelCreateStorefrontCommand::class, 'getSnippetSetId');
-
-        $result = $reflectionMethod->invoke($cmd, 'de_DE');
-
-        static::assertEquals($expected, $result);
-    }
-
-    public function testGetSnippetSetIdWithException(): void
-    {
-        $mockEntityRepository = $this->createStub(EntityRepository::class);
-        $mockSalesChannelCreator = $this->createStub(SalesChannelCreator::class);
-
-        $idSearchResult = $this->createMock(IdSearchResult::class);
-        $idSearchResult->method('firstId')
-            ->willReturn(null);
-
-        $snippetSetRepository = $this->createMock(EntityRepository::class);
-        $snippetSetRepository->method('searchIds')
-            ->willReturn($idSearchResult);
-
-        $cmd = new SalesChannelCreateStorefrontCommand(
-            $snippetSetRepository,
-            $mockSalesChannelCreator
-        );
-
-        $reflectionMethod = ReflectionHelper::getMethod(SalesChannelCreateStorefrontCommand::class, 'getSnippetSetId');
-
-        $this->expectExceptionMessage('Unable to get default SnippetSet. Please provide a valid SnippetSetId.');
-        $reflectionMethod->invoke($cmd, 'yx-XY');
-    }
-
-    public function testGetTypeId(): void
-    {
-        $mockEntityRepository = $this->createStub(EntityRepository::class);
-        $mockSalesChannelCreator = $this->createStub(SalesChannelCreator::class);
-
-        $cmd = new SalesChannelCreateStorefrontCommand(
-            $mockEntityRepository,
-            $mockSalesChannelCreator
-        );
-
-        $reflectionMethod = ReflectionHelper::getMethod(SalesChannelCreateStorefrontCommand::class, 'getTypeId');
-
-        $result = $reflectionMethod->invoke($cmd);
-
-        static::assertEquals(Defaults::SALES_CHANNEL_TYPE_STOREFRONT, $result);
-    }
-
-    /**
-     * @param array<string, mixed> $expected
-     * @param array<string, mixed> $mockInputValues
+     * @param array<IdSearchResult> $idsSearchResult
      *
-     * @dataProvider dataProviderTestGetSalesChannelConfiguration
+     * @dataProvider dataProviderTestExecuteCommandSuccessful
      */
-    public function testGetSalesChannelConfiguration(array $expected, array $mockInputValues, string $snippetSetId): void
+    public function testExecuteCommandSuccessful(?string $snippetSetId = null, ?string $isoCode = null, array $idsSearchResult = []): void
     {
-        $idSearchResult = $this->createMock(IdSearchResult::class);
-        $idSearchResult->method('firstId')
-            ->willReturn($snippetSetId);
+        $snippetSetRepository = new StaticEntityRepository($idsSearchResult);
 
-        $snippetSetRepository = $this->createMock(EntityRepository::class);
-        $snippetSetRepository->method('searchIds')
-            ->willReturn($idSearchResult);
+        $foundSnippetSetId = $snippetSetId;
+        if (!$foundSnippetSetId) {
+            /** @var IdSearchResult $idSearchResult */
+            foreach ($idsSearchResult as $idSearchResult) {
+                $foundSnippetSetId = $idSearchResult->firstId() ?: $foundSnippetSetId;
+            }
+        }
 
-        $mockSalesChannelCreator = $this->createStub(SalesChannelCreator::class);
+        $mockSalesChannelCreator = $this->createMock(SalesChannelCreator::class);
+
+        $mockSalesChannelCreator->expects(static::once())
+            ->method('createSalesChannel')
+            ->with(
+                'id',
+                'name',
+                Defaults::SALES_CHANNEL_TYPE_STOREFRONT,
+                'languageId',
+                'currencyId',
+                'paymentMethodId',
+                'shippingMethodId',
+                'countryId',
+                'customerGroupId',
+                'navigationCategoryId',
+                null,
+                null,
+                null,
+                null,
+                null,
+                [
+                    'domains' => [
+                        [
+                            'url' => 'url',
+                            'languageId' => 'languageId',
+                            'snippetSetId' => $foundSnippetSetId,
+                            'currencyId' => 'currencyId',
+                        ],
+                    ],
+                    'navigationCategoryDepth' => 3,
+                    'name' => 'name',
+                ]
+            );
 
         $cmd = new SalesChannelCreateStorefrontCommand(
             $snippetSetRepository,
             $mockSalesChannelCreator
         );
 
-        $reflectionMethod = ReflectionHelper::getMethod(SalesChannelCreateStorefrontCommand::class, 'getSalesChannelConfiguration');
+        $inputs = array_merge(
+            [
+                'id',
+                null, // typeId
+                'name',
+                'languageId',
+                'currencyId',
+                'paymentMethodId',
+                'shippingMethodId',
+                'countryId',
+                'customerGroupId',
+                'navigationCategoryId',
+                $snippetSetId,
+            ],
+            $snippetSetId ? [] : [$isoCode],
+            [
+                'url',
+                'languageId',
+                'currencyId',
+                'name',
+            ]
+        );
 
         $input = $this->createMock(InputInterface::class);
         $input->method('getOption')
-            ->willReturn(...array_values($mockInputValues));
+            ->willReturn(...$inputs);
 
         $output = $this->createStub(OutputInterface::class);
 
-        $result = $reflectionMethod->invoke($cmd, $input, $output);
+        $status = $cmd->run($input, $output);
 
-        static::assertEquals($expected, $result);
+        static::assertEquals(SalesChannelCreateStorefrontCommand::SUCCESS, $status);
     }
 
-    public static function dataProviderTestGetSalesChannelConfiguration(): \Generator
+    /**
+     * @param array<IdSearchResult> $idsSearchResult
+     *
+     * @dataProvider dataProviderTestExecuteCommandWithAnException
+     */
+    public function testExecuteCommandWithAnException(?string $snippetSetId = null, ?string $isoCode = null, array $idsSearchResult = []): void
     {
-        $url = 'http://localhost';
-        $languageId = Uuid::randomHex();
-        $snippetSetId = Uuid::randomHex();
-        $currencyId = Uuid::randomHex();
-        $name = 'Storefront';
+        $snippetSetRepository = new StaticEntityRepository($idsSearchResult);
 
-        yield 'Data provider for testing get sale channel configuration' => [
-            'Expected result' => [
-                'domains' => [[
-                    'url' => $url,
-                    'languageId' => $languageId,
-                    'snippetSetId' => $snippetSetId,
-                    'currencyId' => $currencyId,
-                ]],
-                'navigationCategoryDepth' => 3,
-                'name' => $name,
+        $mockSalesChannelCreator = $this->createStub(SalesChannelCreator::class);
+
+        $cmd = new SalesChannelCreateStorefrontCommand(
+            $snippetSetRepository,
+            $mockSalesChannelCreator
+        );
+
+        $inputs = [
+            'id',
+            null, // typeId
+            'name',
+            'languageId',
+            'currencyId',
+            'paymentMethodId',
+            'shippingMethodId',
+            'countryId',
+            'customerGroupId',
+            'navigationCategoryId',
+            $snippetSetId,
+            $isoCode,
+            'url',
+            'languageId',
+            'currencyId',
+            'name',
+        ];
+
+        $input = $this->createMock(InputInterface::class);
+        $input->method('getOption')
+            ->willReturn(...$inputs);
+
+        $output = $this->createStub(OutputInterface::class);
+
+        $this->expectExceptionMessage(sprintf('Snippet set with isoCode %s cannot be found.', $isoCode));
+
+        $cmd->run($input, $output);
+    }
+
+    public static function dataProviderTestExecuteCommandSuccessful(): \Generator
+    {
+        yield 'with snippetSetId input' => [
+            'snippetSetId' => 'snippetSetId',
+            'isoCode' => null,
+            'idSearchResult' => [],
+            'exception' => null,
+        ];
+
+        yield 'with valid isoCode' => [
+            'snippetSetId' => null,
+            'isoCode' => 'de-DE',
+            'idSearchResult' => [
+                new IdSearchResult(1, [['primaryKey' => 'snippetSetId', 'data' => []]], new Criteria(), Context::createDefaultContext()),
             ],
-            'Mock method getOption from input' => [
-                'snippetSetId' => null,
-                'isoCode' => 'de-DE',
-                'url' => $url,
-                'languageId' => $languageId,
-                'currencyId' => $currencyId,
-                'name' => $name,
+            'exception' => null,
+        ];
+
+        yield 'with not found isoCode, use en-GB as fallback' => [
+            'snippetSetId' => null,
+            'isoCode' => 'nl-NL',
+            'idSearchResult' => [
+                new IdSearchResult(0, [], new Criteria(), Context::createDefaultContext()),
+                new IdSearchResult(1, [['primaryKey' => 'snippetSetId', 'data' => []]], new Criteria(), Context::createDefaultContext()),
             ],
-            'expected snippet set ID' => $snippetSetId,
+            'exception' => null,
         ];
     }
 
-    public static function dataProviderTestGetSnippetSetId(): \Generator
+    public static function dataProviderTestExecuteCommandWithAnException(): \Generator
     {
-        $snippetSetId = Uuid::randomHex();
-
-        yield 'Data provider for testing get snippet set ID' => [
-            'expected' => $snippetSetId,
-            'snippetSetId' => $snippetSetId,
+        yield 'with not found fallback isoCode, throw exception' => [
+            'snippetSetId' => null,
+            'isoCode' => 'nl-NL',
+            'idSearchResult' => [
+                new IdSearchResult(0, [], new Criteria(), Context::createDefaultContext()),
+                new IdSearchResult(0, [], new Criteria(), Context::createDefaultContext()),
+            ],
+            'exception' => 'Snippet set with isoCode nl-NL cannot be found.',
         ];
     }
 }

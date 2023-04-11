@@ -9,7 +9,7 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\ScriptPersister"/>
             <argument type="service" id="cache.object"/>
-            <argument>%kernel.cache_dir%</argument>
+            <argument>%twig.cache%</argument>
             <argument>%kernel.debug%</argument>
 
             <tag name="kernel.event_subscriber"/>

@@ -18,18 +18,15 @@ class TemplateFinder implements TemplateFinderInterface, ResetInterface
      */
     private array $namespaceHierarchy = [];
 
-    private readonly string $cacheDir;
-
     /**
      * @internal
      */
     public function __construct(
         private readonly Environment $twig,
         private readonly LoaderInterface $loader,
-        string $cacheDir,
+        private readonly string $cacheDir,
         private readonly NamespaceHierarchyBuilder $namespaceHierarchyBuilder
     ) {
-        $this->cacheDir = $cacheDir . '/twig';
     }
 
     public function getTemplateName(string $template): string

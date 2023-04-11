@@ -37,7 +37,7 @@ class ErrorsFacade implements \IteratorAggregate
      */
     public function error(string $key, ?string $id = null, array $parameters = []): void
     {
-        $this->createError($key, true, $parameters, Error::LEVEL_ERROR, $id);
+        $this->createError($key, true, true, $parameters, Error::LEVEL_ERROR, $id);
     }
 
     /**
@@ -52,7 +52,7 @@ class ErrorsFacade implements \IteratorAggregate
      */
     public function warning(string $key, ?string $id = null, array $parameters = []): void
     {
-        $this->createError($key, false, $parameters, Error::LEVEL_WARNING, $id);
+        $this->createError($key, false, true, $parameters, Error::LEVEL_WARNING, $id);
     }
 
     /**
@@ -69,7 +69,20 @@ class ErrorsFacade implements \IteratorAggregate
      */
     public function notice(string $key, ?string $id = null, array $parameters = []): void
     {
-        $this->createError($key, false, $parameters, Error::LEVEL_NOTICE, $id);
+        $this->createError($key, false, true, $parameters, Error::LEVEL_NOTICE, $id);
+    }
+
+    /**
+     * The `resubmittable()` method adds a new error of type `error` to the cart.
+     * The notice will be displayed to the user, the order will be blocked, but the user can submit the order again.
+     *
+     * @param string $key The snippet-key of the message that should be displayed to the user.
+     * @param string|null $id An optional id that can be used to reference the error, if none is provided the $key will be used as id.
+     * @param array<mixed> $parameters Optional: Any parameters that the snippet for the error message may need.
+     */
+    public function resubmittable(string $key, ?string $id = null, array $parameters = []): void
+    {
+        $this->createError($key, false, false, $parameters, Error::LEVEL_NOTICE, $id);
     }
 
     /**
@@ -114,10 +127,10 @@ class ErrorsFacade implements \IteratorAggregate
         yield from $this->collection;
     }
 
-    private function createError(string $key, bool $block, array $parameters, int $level, ?string $id = null): void
+    private function createError(string $key, bool $blockOrder, bool $blockResubmit, array $parameters, int $level, ?string $id = null): void
     {
         $this->collection->add(
-            new GenericCartError($id ?? $key, $key, $parameters, $level, $block, true)
+            new GenericCartError($id ?? $key, $key, $parameters, $level, $blockOrder, true, $blockResubmit)
         );
     }
 }

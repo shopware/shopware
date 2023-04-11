@@ -7,6 +7,8 @@ use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
 
 /**
  * @internal
+ *
+ * @deprecated tag:v6.6.0 - will be removed
  */
 #[Package('core')]
 class ElasticsearchLanguageIndexIteratorMessage implements AsyncMessageInterface

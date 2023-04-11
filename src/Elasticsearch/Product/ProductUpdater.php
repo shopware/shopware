@@ -35,6 +35,6 @@ class ProductUpdater implements EventSubscriberInterface
 
     public function update(ProductIndexerEvent $event): void
     {
-        $this->indexer->updateIds($this->definition, $event->getIds(), $event->getLanguageId());
+        $this->indexer->updateIds($this->definition, $event->getIds());
     }
 }

@@ -37,7 +37,6 @@
         <service id="Shopware\Core\Content\MailTemplate\Api\MailActionController" public="true">
             <argument type="service" id="Shopware\Core\Content\Mail\Service\MailService"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer"/>
-            <argument type="service" id="Shopware\Core\Content\MailTemplate\Service\AttachmentLoader"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

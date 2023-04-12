@@ -5,7 +5,7 @@
 import { config, createLocalVue, mount } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 import Vuex from 'vuex';
-import SwExtensionIcon from 'src/module/sw-extension/component/sw-extension-icon';
+import SwExtensionIcon from 'src/app/asyncComponent/extension/sw-extension-icon';
 import InvalidActionButtonParameterError from '../../../../core/service/api/errors/InvalidActionButtonParameterError';
 import { createRouter, actionButtonData, actionResultData } from './_fixtures/app-action-fixtures';
 import 'src/app/component/app/sw-app-actions';

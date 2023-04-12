@@ -38,7 +38,6 @@ Shopware.Component.register('sw-extension-adding-failed', () => import('./compon
 Shopware.Component.register('sw-extension-adding-success', () => import('./component/sw-extension-adding-success'));
 Shopware.Component.register('sw-extension-app-module-error-page', () => import('./component/sw-extension-app-module-error-page'));
 Shopware.Component.register('sw-extension-app-module-page', () => import('./page/sw-extension-app-module-page'));
-Shopware.Component.register('sw-extension-icon', () => import('./component/sw-extension-icon'));
 /* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
 
 /**

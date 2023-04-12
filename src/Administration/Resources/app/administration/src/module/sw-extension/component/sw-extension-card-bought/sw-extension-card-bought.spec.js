@@ -4,7 +4,7 @@ import swExtensionCardBase from 'src/module/sw-extension/component/sw-extension-
 import swExtensionCardBought from 'src/module/sw-extension/component/sw-extension-card-bought';
 import swExtensionRemovalModal from 'src/module/sw-extension/component/sw-extension-removal-modal';
 import swExtensionAddingFailed from 'src/module/sw-extension/component/sw-extension-adding-failed';
-import swExtensionIcon from 'src/module/sw-extension/component/sw-extension-icon';
+import swExtensionIcon from 'src/app/asyncComponent/extension/sw-extension-icon';
 import 'src/app/component/context-menu/sw-context-menu-item';
 import 'src/app/component/base/sw-modal';
 import 'src/app/component/base/sw-button';

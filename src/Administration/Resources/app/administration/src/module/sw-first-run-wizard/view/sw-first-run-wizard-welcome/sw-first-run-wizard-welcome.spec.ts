@@ -3,7 +3,7 @@ import type Shopware from 'src/core/shopware';
 import 'src/module/sw-extension/mixin/sw-extension-error.mixin';
 import swFirstRunWizardWelcome from 'src/module/sw-first-run-wizard/view/sw-first-run-wizard-welcome';
 import swPluginCard from 'src/module/sw-first-run-wizard/component/sw-plugin-card';
-import swExtensionIcon from 'src/module/sw-extension/component/sw-extension-icon';
+import swExtensionIcon from 'src/app/asyncComponent/extension/sw-extension-icon';
 import 'src/app/component/base/sw-container';
 import 'src/app/component/base/sw-button-process';
 import 'src/app/component/base/sw-button';

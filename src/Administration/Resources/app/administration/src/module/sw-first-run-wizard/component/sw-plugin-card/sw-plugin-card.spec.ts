@@ -2,7 +2,7 @@ import { shallowMount } from '@vue/test-utils';
 import type { Wrapper } from '@vue/test-utils';
 import 'src/module/sw-extension/mixin/sw-extension-error.mixin';
 import SwPluginCard from 'src/module/sw-first-run-wizard/component/sw-plugin-card';
-import SwExtensionIcon from 'src/module/sw-extension/component/sw-extension-icon';
+import SwExtensionIcon from 'src/app/asyncComponent/extension/sw-extension-icon';
 import 'src/app/component/base/sw-button-process';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/utils/sw-loader';

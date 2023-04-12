@@ -1,5 +1,5 @@
 import { shallowMount } from '@vue/test-utils';
-import swExtensionIcon from 'src/module/sw-extension/component/sw-extension-icon';
+import swExtensionIcon from 'src/app/asyncComponent/extension/sw-extension-icon';
 
 Shopware.Component.register('sw-extension-icon', swExtensionIcon);
 

@@ -5,7 +5,7 @@
 import { createLocalVue, mount } from '@vue/test-utils';
 import 'src/app/component/app/sw-app-action-button';
 import 'src/app/component/base/sw-icon';
-import swExtensionIcon from 'src/module/sw-extension/component/sw-extension-icon';
+import swExtensionIcon from 'src/app/asyncComponent/extension/sw-extension-icon';
 
 Shopware.Component.register('sw-extension-icon', swExtensionIcon);
 

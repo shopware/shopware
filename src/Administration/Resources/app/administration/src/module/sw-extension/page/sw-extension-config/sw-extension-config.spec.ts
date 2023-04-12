@@ -2,7 +2,7 @@ import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/meteor/sw-meteor-page';
 import swExtensionConfigPage from 'src/module/sw-extension/page/sw-extension-config';
-import swExtensionIcon from 'src/module/sw-extension/component/sw-extension-icon';
+import swExtensionIcon from 'src/app/asyncComponent/extension/sw-extension-icon';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { Wrapper } from '@vue/test-utils';

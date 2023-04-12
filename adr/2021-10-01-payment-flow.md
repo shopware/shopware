@@ -21,7 +21,7 @@ The synchronous payment is intended to execute a payment immediately after the o
 
 The following diagram shows a happy case sequence of a synchronous payment handling. The error handling is described [here](#after-order-payment-error-case) 
 
-![Synchronous Payment](../assets/payment-flow/synchronous-payment.png)
+![Synchronous Payment](./assets/payment-flow/synchronous-payment.png)
 
 ### Asynchronous Payment
 
@@ -29,7 +29,7 @@ An asynchronous payment handler has to be implemented, when the client (user) ha
 
 The following diagram shows a happy case sequence of an asynchronous payment handling. The error handling is described [here](#after-order-payment-error-case) 
 
-![Asynchronous Payment](../assets/payment-flow/asynchronous-payment.png)
+![Asynchronous Payment](./assets/payment-flow/asynchronous-payment.png)
 
 ### App payments
 
@@ -43,11 +43,11 @@ The payment handler **has to verify the given payload with the payment service**
 
 When the charge was successful the payment will be set to paid and the user will be forwarded to the finish page, but on [failure the after order payment process will be active](#after-order-payment-error-case). It is highly recommended implementing this optional feature, when the creation and the capturing of the payment can be seperated.
 
-![Pre created payment](../assets/payment-flow/pre-created-payment.png)
+![Pre created payment](./assets/payment-flow/pre-created-payment.png)
 
 ## After order payment (Error case)
 
 Both possible options can produce failed payments. In failure case the after order payment process begins. The client can choose a new payment method and retry the payment and the entire payment loop of a synchronous / asynchronous payment starts again.
 
-![After order payment](../assets/payment-flow/after-order-payment.svg)
+![After order payment](./assets/payment-flow/after-order-payment.svg)
 

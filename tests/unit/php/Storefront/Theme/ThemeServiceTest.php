@@ -683,6 +683,119 @@ class ThemeServiceTest extends TestCase
                                 'technicalName' => 'Test',
                                 'parentThemeId' => $parentThemeId,
                                 'labels' => [
+                                    'fields.extend-parent-custom-config' => 'EN',
+                                ],
+                                'helpTexts' => [
+                                    'fields.extend-parent-custom-config' => 'EN Helptext',
+                                ],
+                                'baseConfig' => [
+                                    'configInheritance' => [
+                                        '@ParentTheme',
+                                    ],
+                                    'config' => ThemeFixtures::getThemeJsonConfig(),
+                                    'fields' => [
+                                        'extend-parent-custom-config' => [
+                                            'type' => 'int',
+                                            'label' => [
+                                                'de-DE' => 'DE',
+                                                'en-GB' => 'EN',
+                                            ],
+                                            'value' => '20',
+                                            'editable' => true,
+                                            'helpText' => [
+                                                'de-DE' => 'De Helptext',
+                                                'en-GB' => 'EN Helptext',
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                                'configValues' => [
+                                    'test' => ['value' => ['no_test']],
+                                ],
+                            ]
+                        ),
+                        (new ThemeEntity())->assign(
+                            [
+                                'id' => $baseThemeId,
+                                'technicalName' => StorefrontPluginRegistry::BASE_THEME_NAME,
+                                '_uniqueIdentifier' => $baseThemeId,
+                            ]
+                        ),
+                        (new ThemeEntity())->assign(
+                            [
+                                'id' => $parentThemeId,
+                                'technicalName' => 'ParentTheme',
+                                'parentThemeId' => $baseThemeId,
+                                '_uniqueIdentifier' => $parentThemeId,
+                                'labels' => [
+                                    'fields.parent-custom-config' => 'EN',
+                                ],
+                                'helpTexts' => [
+                                    'fields.parent-custom-config' => 'EN Helptext',
+                                ],
+                                'baseConfig' => [
+                                    'configInheritance' => [
+                                        '@Storefront',
+                                    ],
+                                    'fields' => [
+                                        'parent-custom-config' => [
+                                            'type' => 'int',
+                                            'label' => [
+                                                'de-DE' => 'DE',
+                                                'en-GB' => 'EN',
+                                            ],
+                                            'value' => '20',
+                                            'editable' => true,
+                                            'helpText' => [
+                                                'de-DE' => 'De Helptext',
+                                                'en-GB' => 'EN Helptext',
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                            ]
+                        ),
+                    ]
+                ),
+                'expected' => [
+                    'blocks' => ThemeFixtures::getExtractedBlock1(),
+                    'fields' => ThemeFixtures::getExtractedFields7(),
+                    'configInheritance' => ThemeFixtures::getExtractedConfigInheritance(),
+                    'config' => ThemeFixtures::getExtractedConfig1(),
+                    'currentFields' => ThemeFixtures::getExtractedCurrentFields5(),
+                    'baseThemeFields' => ThemeFixtures::getExtractedBaseThemeFields5(),
+                ],
+                'expectedNotTranslated' => [
+                    'blocks' => ThemeFixtures::getExtractedBlock1(),
+                    'fields' => ThemeFixtures::getExtractedFields8(),
+                    'configInheritance' => ThemeFixtures::getExtractedConfigInheritance(),
+                    'config' => ThemeFixtures::getExtractedConfig2(),
+                    'currentFields' => ThemeFixtures::getExtractedCurrentFields5(),
+                    'baseThemeFields' => ThemeFixtures::getExtractedBaseThemeFields5(),
+                ],
+                'expectedStructured' => [
+                    'tabs' => ThemeFixtures::getExtractedTabs10(),
+                ],
+                'expectedStructuredNotTranslated' => [
+                    'tabs' => ThemeFixtures::getExtractedTabs11(),
+                ],
+            ],
+            [
+                'ids' => [
+                    'themeId' => $themeId,
+                    'parentThemeId' => $parentThemeId,
+                    'baseThemeId' => $baseThemeId,
+                ],
+                'themeCollection' => new ThemeCollection(
+                    [
+                        (new ThemeEntity())->assign(
+                            [
+                                'id' => $themeId,
+                                '_uniqueIdentifier' => $themeId,
+                                'salesChannels' => new SalesChannelCollection(),
+                                'technicalName' => 'Test',
+                                'parentThemeId' => $parentThemeId,
+                                'labels' => [
                                     'testlabel',
                                 ],
                                 'helpTexts' => [

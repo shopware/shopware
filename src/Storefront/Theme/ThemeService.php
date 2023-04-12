@@ -200,6 +200,7 @@ class ThemeService
         $themeConfigFieldFactory = new ThemeConfigFieldFactory();
         $configFields = [];
         $labels = array_replace_recursive($baseTheme->getLabels() ?? [], $theme->getLabels() ?? []);
+        $helpTexts = array_replace_recursive($baseTheme->getHelpTexts() ?? [], $theme->getHelpTexts() ?? []);
 
         if ($theme->getParentThemeId()) {
             $parentThemes = $this->getParentThemeIds($themes, $theme);
@@ -208,6 +209,7 @@ class ThemeService
                 $configuredParentTheme = $this->mergeStaticConfig($parentTheme);
                 $baseThemeConfig = array_replace_recursive($baseThemeConfig, $configuredParentTheme);
                 $labels = array_replace_recursive($labels, $parentTheme->getLabels() ?? []);
+                $helpTexts = array_replace_recursive($helpTexts, $parentTheme->getHelpTexts() ?? []);
             }
         }
 
@@ -232,7 +234,6 @@ class ThemeService
             $configFields = $this->translateLabels($configFields, $labels);
         }
 
-        $helpTexts = array_replace_recursive($baseTheme->getHelpTexts() ?? [], $theme->getHelpTexts() ?? []);
         if ($translate && !empty($helpTexts)) {
             $configFields = $this->translateHelpTexts($configFields, $helpTexts);
         }

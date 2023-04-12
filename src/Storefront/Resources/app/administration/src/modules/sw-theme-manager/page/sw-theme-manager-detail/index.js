@@ -177,8 +177,7 @@ Component.register('sw-theme-manager-detail', {
         },
 
         checkInheritanceFunction(fieldName) {
-            return (value) => this.currentThemeConfig[fieldName].isInherited;
-
+            return () => this.currentThemeConfig[fieldName].isInherited;
         },
 
         handleInheritanceInput(value, fieldName) {
@@ -230,7 +229,7 @@ Component.register('sw-theme-manager-detail', {
         },
 
         getParentTheme() {
-            this.themeRepository.get(this.theme.parentThemeId, Shopware.Context.api).then((parentTheme) => {
+            this.themeRepository.get(this.theme.parentThemeId).then((parentTheme) => {
                 this.parentTheme = parentTheme;
             });
         },
@@ -253,7 +252,7 @@ Component.register('sw-theme-manager-detail', {
 
         successfulUpload(mediaItem, context) {
             this.mediaRepository
-                .get(mediaItem.targetId, Shopware.Context.api)
+                .get(mediaItem.targetId)
                 .then((media) => {
                     this.setMediaItem(media, context);
                     return true;
@@ -462,7 +461,7 @@ Component.register('sw-theme-manager-detail', {
         },
 
         removeInheritedFromChangeset(allValues) {
-            for (const [key, value] of Object.entries(allValues)) {
+            for (const key of Object.keys(allValues)) {
                 if (
                     this.wrapperIsVisible(key)
                     && this.$refs[`wrapper-${key}`][0].isInherited
@@ -492,7 +491,7 @@ Component.register('sw-theme-manager-detail', {
 
             this.removeInheritedFromChangeset(allValues);
 
-            // Theme has to be resetted because inherited fields needs to be removed from the set
+            // Theme has to be reset, because inherited fields needs to be removed from the set
             return this.themeService.resetTheme(this.themeId).then(() => {
                 return this.themeService.updateTheme(this.themeId, { config: allValues });
             });
@@ -532,7 +531,7 @@ Component.register('sw-theme-manager-detail', {
             criteria.addAssociation('type');
             criteria.addFilter(Criteria.equalsAny('type.name', ['Storefront', 'Headless']));
 
-            return this.salesChannelRepository.search(criteria, Shopware.Context.api).then((searchResult) => {
+            return this.salesChannelRepository.search(criteria).then((searchResult) => {
                 return searchResult.getIds();
             });
         },
@@ -544,7 +543,7 @@ Component.register('sw-theme-manager-detail', {
                 Criteria.equals('themes.id', null),
             ]));
 
-            return this.salesChannelRepository.search(criteria, Shopware.Context.api).then((searchResult) => {
+            return this.salesChannelRepository.search(criteria).then((searchResult) => {
                 return searchResult;
             });
         },
@@ -554,7 +553,7 @@ Component.register('sw-theme-manager-detail', {
             criteria.addAssociation('folder');
             criteria.addFilter(Criteria.equals('entity', this.themeRepository.schema.entity));
 
-            return this.defaultFolderRepository.search(criteria, Shopware.Context.api).then((searchResult) => {
+            return this.defaultFolderRepository.search(criteria).then((searchResult) => {
                 const defaultFolder = searchResult.first();
                 if (defaultFolder.folder.id) {
                     return defaultFolder.folder.id;
@@ -568,7 +567,7 @@ Component.register('sw-theme-manager-detail', {
             const criteria = new Criteria();
             criteria.addFilter(Criteria.equals('technicalName', 'Storefront'));
 
-            return this.themeRepository.search(criteria, Shopware.Context.api).then((response) => {
+            return this.themeRepository.search(criteria).then((response) => {
                return response.first();
             });
         },

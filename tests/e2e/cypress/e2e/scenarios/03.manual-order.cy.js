@@ -115,14 +115,15 @@ describe('Create customer via UI, product via API and make a manual order', ()=>
 
         cy.get('.sw-button.sw-button--primary.sw-order-list__add-order').click();
 
-        cy.get(".sw-order-create-initial-modal").contains("Nieuwe bestelling").should("be.visible");
-        cy.contains(".sw-data-grid__row", "Martin Maxwell").find("input[type=radio]").check();
-        cy.get(".sw-button--primary").click();
-
         cy.contains('.smart-bar__header', 'Nieuwe bestelling');
+
+        cy.get('.sw-order-create-details-header input[placeholder="Selecteer een klant..."]').should('be.visible').click();
+        cy.get('.sw-select-result__result-item-text').contains('Martin Maxwell').should('be.visible').click();
+
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
-        cy.get(".sw-order-create-general").should("be.visible").contains("Martin Maxwell");
+
+        cy.get(".sw-address__body").should("be.visible").contains("Martin Maxwell");
         cy.contains('Product toevoegen').click();
         cy.get(`${orderPage.elements.dataGridRow}--0 ${orderPage.elements.dataGridColumn}--label`).dblclick();
         cy.get('.sw-order-product-select__single-select')
@@ -151,7 +152,7 @@ describe('Create customer via UI, product via API and make a manual order', ()=>
         // confirmation
         cy.url().should('include', 'order/detail');
         cy.contains('.smart-bar__header', 'Bestelling');
-        cy.get(".sw-order-detail-general").should("be.visible").contains("Martin Maxwell");
+        cy.get(".sw-address__body").should("be.visible").contains("Martin Maxwell");
 
         // verify the new customer's order from the products page
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);

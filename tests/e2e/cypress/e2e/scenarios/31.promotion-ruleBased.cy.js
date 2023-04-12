@@ -64,8 +64,8 @@ describe('Promotions: rule based conditions & Rule Builder', () => {
             .typeMultiSelectAndCheck('All customers');
         cy.get('.sw-promotion-v2-conditions__rule-select-customer').type('{esc}');
         cy.get('.sw-promotion-v2-cart-condition-form__rule-select-cart')
-            .type('Nieuwe regel toevoegen');
-        cy.contains('Nieuwe regel toevoegen').click();
+            .type('Nieuwe regel aanmaken');
+        cy.contains('Nieuwe regel aanmaken').click();
         cy.get('input#sw-field--rule-name').clearTypeAndCheck('Price of Orders');
         cy.get('input#sw-field--rule-priority').clearTypeAndCheck('1');
 
@@ -74,7 +74,7 @@ describe('Promotions: rule based conditions & Rule Builder', () => {
                 .then((conditionTypeSelect) => {
                     cy.wrap(conditionTypeSelect).click();
                     cy.get('.sw-select-result-list-popover-wrapper').should('be.visible');
-                    cy.get('.sw-select-result-list-popover-wrapper').contains('Subtotaal object')
+                    cy.get('.sw-select-result-list-popover-wrapper').contains('Subtotaal van alle items')
                         .click();
                 });
         });
@@ -113,7 +113,7 @@ describe('Promotions: rule based conditions & Rule Builder', () => {
         );
         cy.contains('h2', 'Test Product').should('be.visible');
         cy.get('.sw-product-detail__select-visibility').scrollIntoView()
-            .typeMultiSelectAndCheck('E2E install test');
+            .typeMultiSelectAndCheckMultiple(['E2E install test']);
         cy.get('.sw-button-process__content').click();
         cy.wait('@saveProduct').its('response.statusCode').should('equal', 200);
         cy.get('.sw-skeleton').should('not.exist');
@@ -141,7 +141,7 @@ describe('Promotions: rule based conditions & Rule Builder', () => {
             cy.get('.summary-value.summary-total').should('include.text', '60,00');
 
             // Set the product number to 10, price over 500€ and verify promo code is visible
-            cy.get(`${lineItemSelector}-quantity-container > .custom-select`).select('10{enter}');
+            cy.get('select[name="quantity"]').select('10');
             cy.contains('Thunder Tuesday').should('exist');
             cy.get('.summary-value.summary-total').should('include.text', '540,00');
         });

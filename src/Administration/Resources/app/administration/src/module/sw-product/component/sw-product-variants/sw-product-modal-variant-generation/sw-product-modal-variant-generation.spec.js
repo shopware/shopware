@@ -1,7 +1,8 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import swModalVariantGeneration from 'src/module/sw-product/component/sw-product-variants/sw-product-modal-variant-generation';
-import 'src/app/component/base/sw-modal';
 import EntityCollection from 'src/core/data/entity-collection.data';
+import 'src/app/component/base/sw-modal';
+import 'src/app/component/base/sw-button';
 
 Shopware.Component.register('sw-product-modal-variant-generation', swModalVariantGeneration);
 
@@ -815,11 +816,18 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
             },
         ];
 
+        const file = {
+            id: 'random-id',
+            fileName: 'example',
+            fileExtension: 'jpg',
+        };
+
         const wrapper = await createWrapper();
         await wrapper.setData({
             variantGenerationQueue: {
                 createQueue: items,
             },
+            downloadFilesForAllVariants: [file],
         });
 
         wrapper.vm.onTermChange('lel');
@@ -831,6 +839,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
         items[0].productStates = ['is-download'];
         items[1].productStates = [];
         expect(wrapper.vm.paginatedVariantArray).toEqual(items);
+        expect(wrapper.vm.paginatedVariantArray[0].downloads).toContainEqual(file);
     });
 
     it('should only add uploaded file to visible variants by using "upload to all variants"', async () => {
@@ -881,5 +890,37 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
 
         items[0].downloads = [file];
         expect(wrapper.vm.paginatedVariantArray).toEqual(items);
+    });
+
+    it('should add files for all variants to variants changing state to digital', async () => {
+        const items = [
+            {
+                id: '1',
+                options: [{
+                    entity: {
+                        name: 'test',
+                    },
+                }],
+                downloads: [],
+                productStates: [],
+            },
+        ];
+
+        const file = {
+            id: 'random-id',
+            fileName: 'example',
+            fileExtension: 'jpg',
+        };
+
+        const wrapper = await createWrapper();
+        await wrapper.setData({
+            variantGenerationQueue: {
+                createQueue: items,
+            },
+            downloadFilesForAllVariants: [file],
+        });
+
+        wrapper.vm.onChangeVariantValue(true, items[0]);
+        expect(wrapper.vm.variantGenerationQueue.createQueue[0].downloads).toContainEqual(file);
     });
 });

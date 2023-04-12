@@ -11,6 +11,7 @@ class JwtCertificateGenerator
     public function generate(string $privateKeyPath, string $publicKeyPath, ?string $passphrase = null): void
     {
         $key = \openssl_pkey_new([
+            'private_key_bits' => 2048,
             'digest_alg' => 'aes256',
             'private_key_type' => \OPENSSL_KEYTYPE_RSA,
             'encrypt_key' => (bool) $passphrase,

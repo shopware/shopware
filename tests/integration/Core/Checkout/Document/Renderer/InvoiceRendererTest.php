@@ -22,6 +22,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\Checkout\Test\Document\DocumentTrait;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -126,7 +127,7 @@ class InvoiceRendererTest extends TestCase
         $order = $caughtEvent->getOrders()->get($orderId);
         static::assertNotNull($order);
 
-        if ($processedTemplate->getSuccess() !== []) {
+        if (!empty($processedTemplate->getSuccess())) {
             static::assertArrayHasKey($orderId, $processedTemplate->getSuccess());
 
             /** @var RenderedDocument $rendered */
@@ -173,13 +174,8 @@ class InvoiceRendererTest extends TestCase
                     $rendered->getHtml()
                 );
 
-                static::assertNotNull($locale = $order->getLanguage()->getLocale());
-                $formatter = new \IntlDateFormatter($locale->getCode(), \IntlDateFormatter::MEDIUM, \IntlDateFormatter::NONE);
-                $formattedDate = $formatter->format(new \DateTime());
-
-                static::assertNotFalse($formattedDate);
                 static::assertStringContainsString(
-                    sprintf('Date %s', $formattedDate),
+                    sprintf('Date %s', (new \DateTime())->format('d M Y')),
                     $rendered->getHtml()
                 );
             },
@@ -233,13 +229,8 @@ class InvoiceRendererTest extends TestCase
                 );
                 static::assertStringContainsString('DE express', preg_replace('/\xc2\xa0/', ' ', $rendered->getHtml()) ?? 'DE express');
 
-                static::assertNotNull($locale = $order->getLanguage()->getLocale());
-                $formatter = new \IntlDateFormatter($locale->getCode(), \IntlDateFormatter::MEDIUM, \IntlDateFormatter::NONE);
-                $formattedDate = $formatter->format(new \DateTime());
-
-                static::assertNotFalse($formattedDate);
                 static::assertStringContainsString(
-                    sprintf('Datum %s', $formattedDate),
+                    sprintf('Datum %s', (new \DateTime())->format('d.m.Y')),
                     $rendered->getHtml()
                 );
             },
@@ -553,6 +544,85 @@ class InvoiceRendererTest extends TestCase
 
         static::assertNotEquals($operationInvoice->getOrderVersionId(), Defaults::LIVE_VERSION);
         static::assertTrue($this->orderVersionExists($orderId, $operationInvoice->getOrderVersionId()));
+    }
+
+    public function testRenderWithThemeSnippet(): void
+    {
+        if (!$this->getContainer()->has(ThemeService::class) || !$this->getContainer()->has('theme.repository')) {
+            static::markTestSkipped('This test needs storefront to be installed.');
+        }
+
+        $this->getContainer()->get(Translator::class)->reset();
+        $this->getContainer()->get(SalesChannelThemeLoader::class)->reset();
+
+        $themeService = $this->getContainer()->get(ThemeService::class);
+        $themeRepo = $this->getContainer()->get('theme.repository');
+
+        $this->loadAppsFromDir(__DIR__ . '/../fixtures/theme');
+        $this->reloadAppSnippets();
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('technicalName', 'SwagTheme'));
+        $themeId = $themeRepo->searchIds($criteria, $this->context)->firstId();
+
+        static::assertNotNull($themeId);
+
+        $cart = $this->generateDemoCart([7]);
+        $orderId = $this->persistCart($cart);
+
+        $operationInvoice = new DocumentGenerateOperation($orderId);
+
+        static::assertEquals($operationInvoice->getOrderVersionId(), Defaults::LIVE_VERSION);
+        static::assertTrue($this->orderVersionExists($orderId, $operationInvoice->getOrderVersionId()));
+
+        $result = $this->invoiceRenderer->render(
+            [$orderId => $operationInvoice],
+            $this->context,
+            new DocumentRendererConfig()
+        );
+
+        /** @var RenderedDocument $rendered */
+        $rendered = $result->getSuccess()[$orderId];
+
+        static::assertNotEquals($operationInvoice->getOrderVersionId(), Defaults::LIVE_VERSION);
+        static::assertTrue($this->orderVersionExists($orderId, $operationInvoice->getOrderVersionId()));
+        static::assertStringNotContainsString('Swag Theme serviceDateNotice EN', $rendered->getHtml());
+
+        $this->getContainer()->get(Translator::class)->reset();
+        $this->getContainer()->get(SalesChannelThemeLoader::class)->reset();
+        $themeService->assignTheme($themeId, $this->salesChannelContext->getSalesChannelId(), $this->context, true);
+
+        $result = $this->invoiceRenderer->render(
+            [$orderId => $operationInvoice],
+            $this->context,
+            new DocumentRendererConfig()
+        );
+
+        /** @var RenderedDocument $rendered */
+        $rendered = $result->getSuccess()[$orderId];
+
+        static::assertStringContainsString('Swag Theme serviceDateNotice EN', $rendered->getHtml());
+    }
+
+    private function initServices(): void
+    {
+        $this->context = Context::createDefaultContext();
+
+        $priceRuleId = Uuid::randomHex();
+
+        $this->salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)->create(
+            Uuid::randomHex(),
+            TestDefaults::SALES_CHANNEL,
+            [
+                SalesChannelContextService::CUSTOMER_ID => $this->createCustomer(),
+            ]
+        );
+
+        $this->salesChannelContext->setRuleIds([$priceRuleId]);
+        $this->productRepository = $this->getContainer()->get('product.repository');
+        $this->invoiceRenderer = $this->getContainer()->get(InvoiceRenderer::class);
+        $this->cartService = $this->getContainer()->get(CartService::class);
+        self::$deLanguageId = $this->getDeDeLanguageId();
     }
 
     /**

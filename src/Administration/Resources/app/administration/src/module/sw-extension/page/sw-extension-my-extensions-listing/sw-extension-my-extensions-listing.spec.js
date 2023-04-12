@@ -138,6 +138,16 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
         expect(wrapper.vm.$router.push).toBeCalled();
     });
 
+    it('openThemesStore should call router', async () => {
+        wrapper.vm.$router = {
+            push: jest.fn()
+        };
+
+        wrapper.vm.openThemesStore();
+
+        expect(wrapper.vm.$router.push).toBeCalled();
+    });
+
     it('updateList should call update extensions', async () => {
         wrapper.vm.updateList();
 

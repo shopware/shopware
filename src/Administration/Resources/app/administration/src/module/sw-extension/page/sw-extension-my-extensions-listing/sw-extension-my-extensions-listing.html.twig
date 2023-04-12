@@ -60,7 +60,7 @@
 
             <sw-button
                 variant="ghost"
-                @click="openStore"
+                @click="isThemeRoute ? openThemesStore() : openStore()"
             >
                 {{ $tc('sw-extension-store.component.sw-extension-my-extensions-listing.btnOpenStore') }}
             </sw-button>

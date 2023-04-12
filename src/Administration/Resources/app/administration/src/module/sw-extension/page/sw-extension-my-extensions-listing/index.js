@@ -147,6 +147,12 @@ export default {
             });
         },
 
+        openThemesStore() {
+            this.$router.push({
+                name: 'sw.extension.store.listing.theme',
+            });
+        },
+
         updateRouteQuery(query = {}) {
             const routeQuery = this.$route.query;
             const limit = query.limit || this.$route.query.limit;

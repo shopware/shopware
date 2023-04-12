@@ -20,7 +20,7 @@ class DoubleOptInGuestOrderEventTest extends TestCase
     public function testScalarValuesCorrectly(): void
     {
         $event = new DoubleOptInGuestOrderEvent(
-            $this->createMock(CustomerEntity::class),
+            new CustomerEntity(),
             $this->createMock(SalesChannelContext::class),
             'my-confirm-url'
         );

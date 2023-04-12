@@ -55,6 +55,9 @@ class CsvReader extends AbstractReader
         return $this->offset;
     }
 
+    /**
+     * @deprecated tag:v6.6.0 - reason:visibility-change - becomes private
+     */
     public function loadConfig(Config $config): void
     {
         $this->delimiter = $config->get('delimiter') ?? $this->delimiter;

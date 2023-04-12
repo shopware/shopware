@@ -334,7 +334,7 @@ class ProductControllerTest extends TestCase
             new ProductReviewCollection([$productReview]),
             null,
             new Criteria(),
-            $this->createMock(Context::class)
+            Context::createDefaultContext()
         );
         $this->productReviewLoaderMock->method('load')->with(
             $request,

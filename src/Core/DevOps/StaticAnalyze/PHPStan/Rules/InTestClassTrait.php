@@ -21,6 +21,6 @@ trait InTestClassTrait
 
         $className = $definitionClassReflection->getName();
 
-        return str_contains($className, 'Test');
+        return str_contains(\strtolower($className), 'test') || \str_contains(\strtolower($className), 'tests');
     }
 }

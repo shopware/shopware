@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
+use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\SalesChannelAware;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
@@ -21,7 +22,7 @@ use Symfony\Contracts\EventDispatcher\Event;
  * @deprecated tag:v6.6.0 - reason:class-hierarchy-change - EmailAware is deprecated and will be removed in v6.6.0
  */
 #[Package('customer-order')]
-class CustomerBeforeLoginEvent extends Event implements SalesChannelAware, ShopwareSalesChannelEvent, MailAware, EmailAware, ScalarValuesAware
+class CustomerBeforeLoginEvent extends Event implements SalesChannelAware, ShopwareSalesChannelEvent, MailAware, EmailAware, ScalarValuesAware, FlowEventAware
 {
     final public const EVENT_NAME = 'checkout.customer.before.login';
 

@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Promotion\Exception;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Promotion\Exception\CodeAlreadyRedeemedException;
+use Shopware\Core\Checkout\Promotion\PromotionException;
 
 /**
  * @internal
@@ -20,7 +20,7 @@ class CodeAlreadyRedeemedExceptionTest extends TestCase
      */
     public function testCodeInMessage(): void
     {
-        $exception = new CodeAlreadyRedeemedException('MY-CODE-123');
+        $exception = PromotionException::codeAlreadyRedeemed('MY-CODE-123');
 
         static::assertEquals('Promotion with code "MY-CODE-123" has already been marked as redeemed!', $exception->getMessage());
     }
@@ -32,7 +32,7 @@ class CodeAlreadyRedeemedExceptionTest extends TestCase
      */
     public function testErrorCode(): void
     {
-        $exception = new CodeAlreadyRedeemedException('');
+        $exception = PromotionException::codeAlreadyRedeemed('');
 
         static::assertEquals('CHECKOUT__CODE_ALREADY_REDEEMED', $exception->getErrorCode());
     }
@@ -44,7 +44,7 @@ class CodeAlreadyRedeemedExceptionTest extends TestCase
      */
     public function testStatusCode(): void
     {
-        $exception = new CodeAlreadyRedeemedException('');
+        $exception = PromotionException::codeAlreadyRedeemed('');
 
         static::assertEquals(400, $exception->getStatusCode());
     }

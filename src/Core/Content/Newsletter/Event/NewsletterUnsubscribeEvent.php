@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
+use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\SalesChannelAware;
 use Shopware\Core\Framework\Log\Package;
@@ -16,7 +17,7 @@ use Shopware\Core\Framework\Struct\JsonSerializableTrait;
 use Symfony\Contracts\EventDispatcher\Event;
 
 #[Package('customer-order')]
-class NewsletterUnsubscribeEvent extends Event implements SalesChannelAware, MailAware, NewsletterRecipientAware
+class NewsletterUnsubscribeEvent extends Event implements SalesChannelAware, MailAware, NewsletterRecipientAware, FlowEventAware
 {
     use JsonSerializableTrait;
 

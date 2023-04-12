@@ -11,8 +11,6 @@ use Shopware\Core\System\SalesChannel\BaseContext;
 #[Package('core')]
 abstract class AbstractBaseContextFactory
 {
-    abstract public function getDecorated(): AbstractBaseContextFactory;
-
     /**
      * @param array<string, mixed> $options
      */

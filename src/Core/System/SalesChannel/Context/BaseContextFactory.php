@@ -18,7 +18,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateEntity;
@@ -48,11 +47,6 @@ class BaseContextFactory extends AbstractBaseContextFactory
         private readonly EntityRepository $countryStateRepository,
         private readonly EntityRepository $currencyCountryRepository
     ) {
-    }
-
-    public function getDecorated(): AbstractBaseContextFactory
-    {
-        throw new DecorationPatternException(self::class);
     }
 
     public function create(string $salesChannelId, array $options = []): BaseContext

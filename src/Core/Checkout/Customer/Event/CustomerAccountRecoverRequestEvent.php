@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
+use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\SalesChannelAware;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
@@ -28,7 +29,7 @@ use Symfony\Contracts\EventDispatcher\Event;
  * @deprecated tag:v6.6.0 - reason:class-hierarchy-change - ResetUrlAware and ShopNameAware are deprecated and will be removed in v6.6.0
  */
 #[Package('customer-order')]
-class CustomerAccountRecoverRequestEvent extends Event implements SalesChannelAware, ShopwareSalesChannelEvent, CustomerAware, MailAware, CustomerRecoveryAware, ResetUrlAware, ShopNameAware, ScalarValuesAware
+class CustomerAccountRecoverRequestEvent extends Event implements SalesChannelAware, ShopwareSalesChannelEvent, CustomerAware, MailAware, CustomerRecoveryAware, ResetUrlAware, ShopNameAware, ScalarValuesAware, FlowEventAware
 {
     public const EVENT_NAME = 'customer.recovery.request';
 

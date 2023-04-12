@@ -58,7 +58,7 @@ class LastNameRuleTest extends TestCase
 
         $context = $this->createMock(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn($customer);
-        $cart = $this->createMock(Cart::class);
+        $cart = new Cart('test');
         $scope = new CartRuleScope($cart, $context);
 
         $this->rule->assign(['lastName' => $ruleNameValue, 'operator' => $operator]);
@@ -86,7 +86,7 @@ class LastNameRuleTest extends TestCase
     public function testCustomerNotExist(): void
     {
         $scope = new CartRuleScope(
-            $this->createMock(Cart::class),
+            new Cart('test'),
             $this->createMock(SalesChannelContext::class)
         );
 
@@ -97,7 +97,7 @@ class LastNameRuleTest extends TestCase
     public function testCustomerNotExistAndOperatorEmpty(): void
     {
         $scope = new CartRuleScope(
-            $this->createMock(Cart::class),
+            new Cart('test'),
             $this->createMock(SalesChannelContext::class)
         );
 
@@ -112,7 +112,7 @@ class LastNameRuleTest extends TestCase
 
         $context = $this->createMock(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn($customer);
-        $cart = $this->createMock(Cart::class);
+        $cart = new Cart('test');
         $scope = new CartRuleScope($cart, $context);
 
         $this->rule->assign(['lastName' => true, 'operator' => Rule::OPERATOR_EQ]);

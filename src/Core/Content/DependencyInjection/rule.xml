@@ -32,16 +32,20 @@
         </service>
 
         <service id="Shopware\Core\Content\Rule\DataAbstractionLayer\RuleIndexer">
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
             <argument type="service" id="rule.repository"/>
             <argument type="service" id="Shopware\Core\Content\Rule\DataAbstractionLayer\RulePayloadUpdater"/>
             <argument type="service" id="Shopware\Core\Content\Rule\DataAbstractionLayer\RuleAreaUpdater"/>
-            <argument type="service" id="Shopware\Core\Checkout\Cart\CartRuleLoader"/>
-            <tag name="shopware.entity_indexer"/>
-            <tag name="kernel.event_subscriber" />
             <argument type="service" id="event_dispatcher"/>
+            <tag name="shopware.entity_indexer"/>
         </service>
+
+        <service id="Shopware\Core\Content\Rule\DataAbstractionLayer\RuleIndexerSubscriber">
+            <tag name="kernel.event_subscriber"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\CartRuleLoader"/>
+        </service>
+
 
         <service id="Shopware\Core\Content\Rule\DataAbstractionLayer\RulePayloadUpdater">
             <argument type="service" id="Doctrine\DBAL\Connection"/>

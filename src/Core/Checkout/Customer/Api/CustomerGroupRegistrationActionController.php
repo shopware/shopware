@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Customer\Api;
 
 use Doctrine\DBAL\Exception;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Event\CustomerGroupRegistrationAccepted;
 use Shopware\Core\Checkout\Customer\Event\CustomerGroupRegistrationDeclined;
 use Shopware\Core\Framework\Context;
@@ -66,7 +67,7 @@ class CustomerGroupRegistrationActionController
             $customerRequestedGroup = $this->customerGroupRepository->search($criteria, $salesChannelContext->getContext())->first();
 
             if ($customerRequestedGroup === null) {
-                throw new \RuntimeException('customer group not found');
+                throw CustomerException::customerGroupNotFound($customer->getGroupId());
             }
 
             $this->eventDispatcher->dispatch(new CustomerGroupRegistrationAccepted(

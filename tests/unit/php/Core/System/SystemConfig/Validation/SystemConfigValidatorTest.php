@@ -10,7 +10,6 @@ use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SystemConfig\Exception\BundleConfigNotFoundException;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
 use Shopware\Core\System\SystemConfig\Validation\SystemConfigValidator;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -38,11 +37,7 @@ class SystemConfigValidatorTest extends TestCase
 
         $systemConfigValidation = new SystemConfigValidator($configurationServiceMock, $dataValidatorMock);
 
-        $requestMock = $this->createMock(Request::class);
-        $requestMock->method('get')
-            ->willReturn('dummy domain', $inputValues);
-
-        $contextMock = $this->createMock(Context::class);
+        $contextMock = Context::createDefaultContext();
 
         $systemConfigValidation->validate($inputValues, $contextMock);
 
@@ -69,11 +64,7 @@ class SystemConfigValidatorTest extends TestCase
 
         $systemConfigValidation = new SystemConfigValidator($configurationServiceMock, $dataValidatorMock);
 
-        $requestMock = $this->createMock(Request::class);
-        $requestMock->method('get')
-            ->willReturn('dummy domain', $inputValues);
-
-        $contextMock = $this->createMock(Context::class);
+        $contextMock = Context::createDefaultContext();
 
         $this->expectException(ConstraintViolationException::class);
 
@@ -95,11 +86,7 @@ class SystemConfigValidatorTest extends TestCase
 
         $systemConfigValidation = new SystemConfigValidator($configurationServiceMock, $dataValidatorMock);
 
-        $requestMock = $this->createMock(Request::class);
-        $requestMock->method('get')
-            ->willReturn('dummy domain', []);
-
-        $contextMock = $this->createMock(Context::class);
+        $contextMock = Context::createDefaultContext();
 
         $systemConfigValidation->validate($inputValues, $contextMock);
 
@@ -113,7 +100,7 @@ class SystemConfigValidatorTest extends TestCase
 
         $systemConfigValidation = new SystemConfigValidator($configurationServiceMock, $dataValidatorMock);
 
-        $contextMock = $this->createMock(Context::class);
+        $contextMock = Context::createDefaultContext();
 
         $refMethod = ReflectionHelper::getMethod(SystemConfigValidator::class, 'getSystemConfigByDomain');
 
@@ -132,7 +119,7 @@ class SystemConfigValidatorTest extends TestCase
 
         $systemConfigValidation = new SystemConfigValidator($configurationServiceMock, $dataValidatorMock);
 
-        $contextMock = $this->createMock(Context::class);
+        $contextMock = Context::createDefaultContext();
 
         $refMethod = ReflectionHelper::getMethod(SystemConfigValidator::class, 'getSystemConfigByDomain');
 

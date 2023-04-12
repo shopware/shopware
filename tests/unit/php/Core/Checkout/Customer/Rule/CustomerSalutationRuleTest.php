@@ -93,7 +93,7 @@ class CustomerSalutationRuleTest extends TestCase
     public function testCustomerNotLoggedInReturnsFalse(): void
     {
         $scope = new CartRuleScope(
-            $this->createMock(Cart::class),
+            new Cart('test'),
             $this->createMock(SalesChannelContext::class)
         );
 

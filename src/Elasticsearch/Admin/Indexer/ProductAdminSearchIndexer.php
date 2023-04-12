@@ -21,12 +21,12 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-/**
- * @internal
- */
 #[Package('system-settings')]
 final class ProductAdminSearchIndexer extends AbstractAdminIndexer
 {
+    /**
+     * @internal
+     */
     public function __construct(
         private readonly Connection $connection,
         private readonly IteratorFactory $factory,

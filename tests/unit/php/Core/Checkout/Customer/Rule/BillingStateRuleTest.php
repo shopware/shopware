@@ -76,7 +76,7 @@ class BillingStateRuleTest extends TestCase
     public function testValidationWithMissingStateIds(): void
     {
         $customer = new CustomerEntity();
-        $customer->setActiveBillingAddress($this->createMock(CustomerAddressEntity::class));
+        $customer->setActiveBillingAddress(new CustomerAddressEntity());
 
         $context = $this->createMock(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn($customer);

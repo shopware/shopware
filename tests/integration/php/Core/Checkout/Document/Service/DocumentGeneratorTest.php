@@ -178,7 +178,7 @@ class DocumentGeneratorTest extends TestCase
             static::markTestSkipped('This test needs storefront to be installed.');
         }
 
-        $this->getContainer()->get(Translator::class)->resetInMemoryCache();
+        $this->getContainer()->get(Translator::class)->reset();
         $this->getContainer()->get(SalesChannelThemeLoader::class)->reset();
 
         $themeService = $this->getContainer()->get(ThemeService::class);
@@ -204,7 +204,7 @@ class DocumentGeneratorTest extends TestCase
         static::assertNotEmpty($documentStruct->getHtml());
         static::assertStringNotContainsString('Swag Theme serviceDateNotice EN', $documentStruct->getHtml());
 
-        $this->getContainer()->get(Translator::class)->resetInMemoryCache();
+        $this->getContainer()->get(Translator::class)->reset();
         $this->getContainer()->get(SalesChannelThemeLoader::class)->reset();
         $themeService->assignTheme($themeId, $order->getSalesChannelId(), $this->context, true);
 

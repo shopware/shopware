@@ -7,9 +7,10 @@ use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
+use Symfony\Contracts\Service\ResetInterface;
 
 #[Package('core')]
-abstract class AbstractEntitySerializer
+abstract class AbstractEntitySerializer implements ResetInterface
 {
     protected SerializerRegistry $serializerRegistry;
 
@@ -32,6 +33,11 @@ abstract class AbstractEntitySerializer
     public function setRegistry(SerializerRegistry $serializerRegistry): void
     {
         $this->serializerRegistry = $serializerRegistry;
+    }
+
+    public function reset(): void
+    {
+        $this->getDecorated()->reset();
     }
 
     protected function getDecorated(): AbstractEntitySerializer

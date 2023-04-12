@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Test\ImportExport\DataAbstractionLayer\Serialize
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\MediaSerializer;
+use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\MediaSerializerSubscriber;
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\SerializerRegistry;
 use Shopware\Core\Content\ImportExport\Exception\InvalidMediaUrlException;
 use Shopware\Core\Content\ImportExport\Exception\MediaDownloadException;
@@ -51,7 +52,7 @@ class MediaSerializerTest extends TestCase
         $mediaSerializer->setRegistry($serializerRegistry);
 
         $eventDispatcher = new EventDispatcher();
-        $eventDispatcher->addSubscriber($mediaSerializer);
+        $eventDispatcher->addSubscriber(new MediaSerializerSubscriber($mediaSerializer));
 
         $mediaId = Uuid::randomHex();
         $expectedDestination = 'shopware-logo';
@@ -104,7 +105,7 @@ class MediaSerializerTest extends TestCase
         $mediaSerializer->setRegistry($serializerRegistry);
 
         $eventDispatcher = new EventDispatcher();
-        $eventDispatcher->addSubscriber($mediaSerializer);
+        $eventDispatcher->addSubscriber(new MediaSerializerSubscriber($mediaSerializer));
 
         $mediaId = Uuid::randomHex();
         $record = [
@@ -164,7 +165,7 @@ class MediaSerializerTest extends TestCase
         $mediaSerializer->setRegistry($serializerRegistry);
 
         $eventDispatcher = new EventDispatcher();
-        $eventDispatcher->addSubscriber($mediaSerializer);
+        $eventDispatcher->addSubscriber(new MediaSerializerSubscriber($mediaSerializer));
 
         $expectedDestination = 'shopware-logo';
         $record = [

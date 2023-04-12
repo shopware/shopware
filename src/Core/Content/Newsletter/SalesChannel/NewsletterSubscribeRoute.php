@@ -157,6 +157,9 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
         return new NoContentResponse();
     }
 
+    /**
+     * @deprecated tag:v6.6.0 - reason:visibility-change - will be private in v6.6.0
+     */
     public function isNewsletterDoi(SalesChannelContext $context): ?bool
     {
         if ($context->getCustomerId() === null) {

@@ -8,7 +8,6 @@ use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
-use Shopware\Core\Content\Media\MediaEvents;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -18,15 +17,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Service\ResetInterface;
 
 /**
- * @internal
+ * @final
  */
 #[Package('core')]
-class MediaSerializer extends EntitySerializer implements EventSubscriberInterface, ResetInterface
+class MediaSerializer extends AbstractMediaSerializer implements ResetInterface
 {
     /**
      * @var array<string, array{media: MediaFile, destination: string}>
@@ -111,16 +109,6 @@ class MediaSerializer extends EntitySerializer implements EventSubscriberInterfa
     public function supports(string $entity): bool
     {
         return $entity === 'media';
-    }
-
-    /**
-     * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
-     */
-    public static function getSubscribedEvents(): array
-    {
-        return [
-            MediaEvents::MEDIA_WRITTEN_EVENT => 'persistMedia',
-        ];
     }
 
     /**

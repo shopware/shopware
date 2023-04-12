@@ -63,7 +63,7 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
      */
     public function testGroupRegistrationAcceptMatches(?int $expectedResCode, ?array $customers, Request $request, ?string $errorMessage): void
     {
-        $context = $this->createMock(Context::class);
+        $context = Context::createDefaultContext();
 
         if ($customers !== null) {
             $customerCollection = new CustomerCollection($customers);
@@ -89,7 +89,7 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
      */
     public function testGroupRegistrationDeclineMatches(?int $expectedResCode, ?array $customers, Request $request, ?string $errorMessage): void
     {
-        $context = $this->createMock(Context::class);
+        $context = Context::createDefaultContext();
 
         if ($customers !== null) {
             $customerCollection = new CustomerCollection($customers);

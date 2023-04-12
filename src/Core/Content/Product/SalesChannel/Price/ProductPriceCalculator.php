@@ -19,10 +19,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Unit\UnitCollection;
-use Symfony\Contracts\Service\ResetInterface;
 
 #[Package('inventory')]
-class ProductPriceCalculator extends AbstractProductPriceCalculator implements ResetInterface
+class ProductPriceCalculator extends AbstractProductPriceCalculator
 {
     private ?UnitCollection $units = null;
 

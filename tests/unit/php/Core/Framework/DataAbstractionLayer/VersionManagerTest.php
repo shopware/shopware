@@ -62,8 +62,9 @@ class VersionManagerTest extends TestCase
             $this->createMock(LockFactory::class)
         );
 
-        $entityCollectionMock = $this->createMock(EntityCollection::class);
-        $entityCollectionMock->expects(static::once())->method('first')->willReturn(new Entity());
+        $entityCollectionMock = new EntityCollection([
+            (new Entity())->assign(['_uniqueIdentifier' => Uuid::randomHex()]),
+        ]);
 
         $entityReaderMock->expects(static::once())->method('read')->willReturn($entityCollectionMock);
         $serializer->expects(static::once())->method('serialize')

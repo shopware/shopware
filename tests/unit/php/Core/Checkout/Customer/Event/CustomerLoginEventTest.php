@@ -21,7 +21,7 @@ class CustomerLoginEventTest extends TestCase
     {
         $event = new CustomerLoginEvent(
             $this->createMock(SalesChannelContext::class),
-            $this->createMock(CustomerEntity::class),
+            new CustomerEntity(),
             'context-token'
         );
 

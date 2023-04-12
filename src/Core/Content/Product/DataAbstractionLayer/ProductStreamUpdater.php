@@ -27,7 +27,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 #[Package('core')]
-class ProductStreamUpdater extends EntityIndexer
+class ProductStreamUpdater extends AbstractProductStreamUpdater
 {
     /**
      * @internal

@@ -92,7 +92,7 @@ class ProductExportControllerTest extends TestCase
         $salesChannelId = Uuid::randomHex();
         $salesChannelDomainId = Uuid::randomHex();
 
-        $this->getContainer()->get(Translator::class)->resetInMemoryCache();
+        $this->getContainer()->get(Translator::class)->reset();
         $this->getContainer()->get(SalesChannelThemeLoader::class)->reset();
 
         $client = $this->createSalesChannelBrowser(null, false, [
@@ -123,7 +123,7 @@ class ProductExportControllerTest extends TestCase
         $themeId = $themeRepo->searchIds($criteria, $context)->firstId();
         static::assertNotNull($themeId);
 
-        $this->getContainer()->get(Translator::class)->resetInMemoryCache();
+        $this->getContainer()->get(Translator::class)->reset();
         $this->getContainer()->get(SalesChannelThemeLoader::class)->reset();
 
         $themeService->assignTheme($themeId, $salesChannelId, $context, true);
@@ -153,7 +153,7 @@ class ProductExportControllerTest extends TestCase
             ],
         ]);
 
-        $this->getContainer()->get(Translator::class)->resetInMemoryCache();
+        $this->getContainer()->get(Translator::class)->reset();
         $this->getContainer()->get(SalesChannelThemeLoader::class)->reset();
 
         $themeService->assignTheme($themeId, $deSalesChannelId, $context);

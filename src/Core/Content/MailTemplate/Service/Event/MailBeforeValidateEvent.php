@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\EventData\ArrayType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
+use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Log\LogAware;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
@@ -19,7 +20,7 @@ use Symfony\Contracts\EventDispatcher\Event;
  * @deprecated tag:v6.6.0 - reason:class-hierarchy-change - TemplateDataAware and DataAware are deprecated and will be removed in v6.6.0
  */
 #[Package('sales-channel')]
-class MailBeforeValidateEvent extends Event implements LogAware, TemplateDataAware, DataAware, ScalarValuesAware
+class MailBeforeValidateEvent extends Event implements LogAware, TemplateDataAware, DataAware, ScalarValuesAware, FlowEventAware
 {
     final public const EVENT_NAME = 'mail.before.send';
 

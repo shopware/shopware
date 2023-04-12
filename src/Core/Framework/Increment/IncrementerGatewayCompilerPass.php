@@ -9,6 +9,9 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 
+/**
+ * @deprecated tag:v6.6.0 - reason:becomes-internal - Compiler passes are always internal
+ */
 #[Package('core')]
 class IncrementerGatewayCompilerPass implements CompilerPassInterface
 {

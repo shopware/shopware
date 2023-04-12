@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
+use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\SalesChannelAware;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
@@ -24,7 +25,7 @@ use Symfony\Contracts\EventDispatcher\Event;
  * @deprecated tag:v6.6.0 - reason:class-hierarchy-change - ContextTokenAware is deprecated and will be removed in v6.6.0
  */
 #[Package('customer-order')]
-class CustomerLoginEvent extends Event implements SalesChannelAware, ShopwareSalesChannelEvent, CustomerAware, MailAware, ContextTokenAware, ScalarValuesAware
+class CustomerLoginEvent extends Event implements SalesChannelAware, ShopwareSalesChannelEvent, CustomerAware, MailAware, ContextTokenAware, ScalarValuesAware, FlowEventAware
 {
     final public const EVENT_NAME = 'checkout.customer.login';
 

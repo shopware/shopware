@@ -11,7 +11,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Maintenance\System\Service\AppUrlVerifier;
-use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 
 /**
  * @internal
@@ -37,7 +37,7 @@ class AppUrlVerifierTest extends TestCase
 
         $verifier = new AppUrlVerifier($this->guzzleMock, $this->connection, 'dev', false);
 
-        static::assertTrue($verifier->isAppUrlReachable(new Request()));
+        static::assertTrue($verifier->isAppUrlReachable(new SymfonyRequest()));
     }
 
     public function testAppUrlReachableReturnsTrueIfAppUrlCheckIsDisabled(): void
@@ -47,7 +47,7 @@ class AppUrlVerifierTest extends TestCase
 
         $verifier = new AppUrlVerifier($this->guzzleMock, $this->connection, 'prod', true);
 
-        static::assertTrue($verifier->isAppUrlReachable(new Request()));
+        static::assertTrue($verifier->isAppUrlReachable(new SymfonyRequest()));
     }
 
     public function testAppUrlReachableReturnsTrueIfRequestIsMadeToSameDomain(): void
@@ -57,7 +57,7 @@ class AppUrlVerifierTest extends TestCase
 
         $verifier = new AppUrlVerifier($this->guzzleMock, $this->connection, 'prod', false);
 
-        $request = Request::create(EnvironmentHelper::getVariable('APP_URL') . '/api/_info/config');
+        $request = SymfonyRequest::create(EnvironmentHelper::getVariable('APP_URL') . '/api/_info/config');
 
         static::assertTrue($verifier->isAppUrlReachable($request));
     }
@@ -79,7 +79,7 @@ class AppUrlVerifierTest extends TestCase
 
         $verifier = new AppUrlVerifier($this->guzzleMock, $this->connection, 'prod', false);
 
-        $request = Request::create('http://some.host/api/_info/config');
+        $request = SymfonyRequest::create('http://some.host/api/_info/config');
         $request->headers->set('Authorization', 'Bearer Token');
 
         static::assertTrue($verifier->isAppUrlReachable($request));
@@ -102,7 +102,7 @@ class AppUrlVerifierTest extends TestCase
 
         $verifier = new AppUrlVerifier($this->guzzleMock, $this->connection, 'prod', false);
 
-        $request = Request::create('http://some.host/api/_info/config');
+        $request = SymfonyRequest::create('http://some.host/api/_info/config');
         $request->headers->set('Authorization', 'Bearer Token');
 
         static::assertFalse($verifier->isAppUrlReachable($request));
@@ -125,7 +125,7 @@ class AppUrlVerifierTest extends TestCase
 
         $verifier = new AppUrlVerifier($this->guzzleMock, $this->connection, 'prod', false);
 
-        $request = Request::create('http://some.host/api/_info/config');
+        $request = SymfonyRequest::create('http://some.host/api/_info/config');
         $request->headers->set('Authorization', 'Bearer Token');
 
         static::assertFalse($verifier->isAppUrlReachable($request));

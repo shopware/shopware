@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\Cache\CacheInterface;
 
 /**
- * @internal Depend on the AbstractRuleLoader which is the definition of public API for this scope
+ * @final Depend on the AbstractRuleLoader which is the definition of public API for this scope
  */
 #[Package('checkout')]
 class CachedRuleLoader extends AbstractRuleLoader

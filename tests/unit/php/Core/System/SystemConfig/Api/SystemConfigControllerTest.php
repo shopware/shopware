@@ -37,18 +37,9 @@ class SystemConfigControllerTest extends TestCase
             $systemConfigValidatorMock
         );
 
-        $inputBag = new InputBag([
-            'null' => [],
-        ]);
+        $requestMock = new Request();
 
-        $requestMock = $this->createMock(Request::class);
-        $requestMock->request = $inputBag;
-        $requestMock->method('get')
-            ->willReturn('dummy domain', [
-                'null' => [],
-            ]);
-
-        $contextMock = $this->createMock(Context::class);
+        $contextMock = Context::createDefaultContext();
 
         $result = $systemConfigController->batchSaveConfiguration($requestMock, $contextMock);
 
@@ -82,7 +73,7 @@ class SystemConfigControllerTest extends TestCase
                 'null' => [],
             ]);
 
-        $contextMock = $this->createMock(Context::class);
+        $contextMock = Context::createDefaultContext();
 
         $this->expectException(ConstraintViolationException::class);
 

@@ -28,7 +28,7 @@ In addition, the `cms-aware` flag also will bring some pre-defined fields, used 
 To keep everything tidy, we decided to implement using two different files `admin-ui.xml` and `cms-aware.xml` and keep a distinct separation of schema and UI. 
 This flag will also result in new component types, so that for example the `cms-aware` property's `sw_cms_page_id` can be rendered as a CMS page selection, like known from the categories.
 
-![Category menu with Content types](../assets/content-management/example-cms-aware-admin-menu.png)
+![Category menu with Content types](./assets/content-management/example-cms-aware-admin-menu.png)
 
 #### Example `admin-ui.xml`
 ```xml

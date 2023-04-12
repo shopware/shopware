@@ -108,7 +108,7 @@ class CartCalculator
 ```
 
 These spans are then displayed in the timeline of the corresponding profilers:
-![](../assets/tideways_benchmark.png "Tideways benchmark")
+![](./assets/tideways_benchmark.png "Tideways benchmark")
 
 Which profiler should be used in the system can be configured via `config/packages/*.yaml`:
 ```yaml

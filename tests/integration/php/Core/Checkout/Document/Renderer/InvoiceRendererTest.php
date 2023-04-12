@@ -15,12 +15,13 @@ use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Renderer\OrderDocumentCriteriaFactory;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
-use Shopware\Core\Checkout\Document\Renderer\RendererResult;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Checkout\Test\Document\DocumentTrait;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
@@ -33,6 +34,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\TaxFreeConfig;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Currency\CurrencyFormatter;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -113,10 +115,10 @@ class InvoiceRendererTest extends TestCase
         $order = $caughtEvent->getOrders()->get($orderId);
         static::assertNotNull($order);
 
-        static::assertInstanceOf(RendererResult::class, $processedTemplate);
         if (!empty($processedTemplate->getSuccess())) {
             static::assertArrayHasKey($orderId, $processedTemplate->getSuccess());
 
+            /** @var RenderedDocument $rendered */
             $rendered = $processedTemplate->getSuccess()[$orderId];
 
             static::assertInstanceOf(OrderLineItemCollection::class, $lineItems = $order->getLineItems());
@@ -135,11 +137,21 @@ class InvoiceRendererTest extends TestCase
 
     public static function invoiceDataProvider(): \Generator
     {
+        $documentDate = new \DateTime();
+
         yield 'render with default language' => [
             [7],
-            null,
+            function (DocumentGenerateOperation $operation, ContainerInterface $container) use ($documentDate): void {
+                $operation->assign([
+                    'config' => [
+                        'displayHeader' => true,
+                        'documentDate' => $documentDate,
+                    ],
+                ]);
+            },
             function (RenderedDocument $rendered, OrderEntity $order, ContainerInterface $container): void {
                 static::assertNotNull($order->getCurrency());
+
                 static::assertStringContainsString(
                     $container->get(CurrencyFormatter::class)->formatCurrencyByLanguage(
                         $order->getAmountTotal(),
@@ -149,12 +161,17 @@ class InvoiceRendererTest extends TestCase
                     ),
                     $rendered->getHtml()
                 );
+
+                static::assertStringContainsString(
+                    sprintf('Date %s', (new \DateTime())->format('d M Y')),
+                    $rendered->getHtml()
+                );
             },
         ];
 
         yield 'render with different language' => [
             [7],
-            function (DocumentGenerateOperation $operation, ContainerInterface $container): void {
+            function (DocumentGenerateOperation $operation, ContainerInterface $container) use ($documentDate): void {
                 $container->get('order.repository')->upsert([[
                     'id' => $operation->getOrderId(),
                     'languageId' => self::$deLanguageId,
@@ -169,13 +186,26 @@ class InvoiceRendererTest extends TestCase
                     'languageIdChain' => array_unique(array_filter([self::$deLanguageId, Context::createDefaultContext()->getLanguageId()])),
                 ]);
                 static::assertNotNull($order->getDeliveries());
+                /** @var $delivery OrderDeliveryEntity */
+                static::assertNotNull($delivery = $order->getDeliveries()->first());
+                /** @var $shippingMethod ShippingMethodEntity */
+                static::assertNotNull($shippingMethod = $delivery->getShippingMethod());
+
                 $container->get('shipping_method.repository')->upsert([[
-                    'id' => $order->getDeliveries()->first()->getShippingMethod()->getId(),
+                    'id' => $shippingMethod->getId(),
                     'name' => 'DE express',
                 ]], $context);
+
+                $operation->assign([
+                    'config' => [
+                        'displayHeader' => true,
+                        'documentDate' => $documentDate,
+                    ],
+                ]);
             },
             function (RenderedDocument $rendered, OrderEntity $order, ContainerInterface $container): void {
                 static::assertNotNull($order->getCurrency());
+
                 static::assertStringContainsString(
                     preg_replace('/\xc2\xa0/', ' ', $container->get(CurrencyFormatter::class)->formatCurrencyByLanguage(
                         $order->getAmountTotal(),
@@ -186,6 +216,11 @@ class InvoiceRendererTest extends TestCase
                     preg_replace('/\xc2\xa0/', ' ', $rendered->getHtml()) ?? ''
                 );
                 static::assertStringContainsString('DE express', preg_replace('/\xc2\xa0/', ' ', $rendered->getHtml()) ?? 'DE express');
+
+                static::assertStringContainsString(
+                    sprintf('Datum %s', (new \DateTime())->format('d.m.Y')),
+                    $rendered->getHtml()
+                );
             },
         ];
 
@@ -202,9 +237,12 @@ class InvoiceRendererTest extends TestCase
                 static::assertNotNull(self::$callback);
                 static::assertNotEmpty($errors);
                 static::assertArrayHasKey($orderId, $errors);
+
+                /** @var \RuntimeException $error */
+                $error = $errors[$orderId];
                 static::assertEquals(
                     'Errors happened while rendering',
-                    $errors[$orderId]->getMessage()
+                    $error->getMessage()
                 );
             },
         ];
@@ -230,6 +268,7 @@ class InvoiceRendererTest extends TestCase
                 /** @var OrderEntity $order */
                 $order = $container->get('order.repository')->search($criteria, Context::createDefaultContext())->get($orderId);
                 static::assertNotNull($order->getDeliveries());
+                /** @var CountryEntity $country */
                 $country = $order->getDeliveries()->getShippingAddress()->getCountries()->first();
                 $country->setCompanyTax(new TaxFreeConfig(true, Defaults::CURRENCY, 0));
 
@@ -263,11 +302,8 @@ class InvoiceRendererTest extends TestCase
             },
             function (RenderedDocument $rendered, OrderEntity $order): void {
                 static::assertNotNull($orderDeliveries = $order->getDeliveries());
-                static::assertNotNull($shippingAddresses = $orderDeliveries->getShippingAddress());
-                $shippingAddress = $shippingAddresses->first();
+                $shippingAddress = $orderDeliveries->getShippingAddress()->first();
                 static::assertNotNull($shippingAddress);
-
-                static::assertInstanceOf(RenderedDocument::class, $rendered);
 
                 $rendered = $rendered->getHtml();
 
@@ -307,8 +343,6 @@ class InvoiceRendererTest extends TestCase
                 ]);
             },
             function (RenderedDocument $rendered, OrderEntity $order): void {
-                static::assertInstanceOf(RenderedDocument::class, $rendered);
-
                 static::assertNotNull($order->getAddresses());
 
                 /** @var OrderAddressEntity $orderAddress */
@@ -362,8 +396,6 @@ class InvoiceRendererTest extends TestCase
                 ]);
             },
             function (RenderedDocument $rendered, OrderEntity $order): void {
-                static::assertInstanceOf(RenderedDocument::class, $rendered);
-
                 static::assertNotNull($order->getAddresses());
                 static::assertNotNull($order->getOrderCustomer());
 
@@ -415,8 +447,6 @@ class InvoiceRendererTest extends TestCase
                 ]);
             },
             function (RenderedDocument $rendered, OrderEntity $order): void {
-                static::assertInstanceOf(RenderedDocument::class, $rendered);
-
                 static::assertNotNull($order->getAddresses());
                 static::assertNotNull($order->getOrderCustomer());
 
@@ -466,8 +496,6 @@ class InvoiceRendererTest extends TestCase
                 ]);
             },
             function (RenderedDocument $rendered, OrderEntity $order): void {
-                static::assertInstanceOf(RenderedDocument::class, $rendered);
-
                 static::assertNotNull($order->getAddresses());
                 static::assertNotNull($order->getOrderCustomer());
 
@@ -538,11 +566,12 @@ class InvoiceRendererTest extends TestCase
             new DocumentRendererConfig()
         );
 
+        /** @var RenderedDocument $rendered */
+        $rendered = $result->getSuccess()[$orderId];
+
         static::assertNotEquals($operationInvoice->getOrderVersionId(), Defaults::LIVE_VERSION);
         static::assertTrue($this->orderVersionExists($orderId, $operationInvoice->getOrderVersionId()));
-        static::assertNotEmpty($success = $result->getSuccess()[$orderId]);
-        static::assertIsString($content = $success->getHtml());
-        static::assertStringNotContainsString('Swag Theme serviceDateNotice EN', $content);
+        static::assertStringNotContainsString('Swag Theme serviceDateNotice EN', $rendered->getHtml());
 
         $this->getContainer()->get(Translator::class)->reset();
         $this->getContainer()->get(SalesChannelThemeLoader::class)->reset();
@@ -554,9 +583,10 @@ class InvoiceRendererTest extends TestCase
             new DocumentRendererConfig()
         );
 
-        static::assertNotEmpty($success = $result->getSuccess()[$orderId]);
-        static::assertIsString($content = $success->getHtml());
-        static::assertStringContainsString('Swag Theme serviceDateNotice EN', $content);
+        /** @var RenderedDocument $rendered */
+        $rendered = $result->getSuccess()[$orderId];
+
+        static::assertStringContainsString('Swag Theme serviceDateNotice EN', $rendered->getHtml());
     }
 
     private function initServices(): void

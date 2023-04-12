@@ -76,6 +76,7 @@ class AccountOverviewPageLoader
             ->addSorting(new FieldSorting('orderDateTime', FieldSorting::DESCENDING))
             ->addAssociation('lineItems')
             ->addAssociation('lineItems.cover')
+            ->addAssociation('lineItems.downloads.media')
             ->addAssociation('transactions.paymentMethod')
             ->addAssociation('deliveries.shippingMethod')
             ->addAssociation('addresses')

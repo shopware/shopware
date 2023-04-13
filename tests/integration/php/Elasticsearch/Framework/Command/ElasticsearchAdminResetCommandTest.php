@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Elasticsearch\Framework\Commands;
+namespace Shopware\Tests\Integration\Elasticsearch\Framework\Command;
 
 use Doctrine\DBAL\Connection;
 use OpenSearch\Client;

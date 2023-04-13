@@ -185,7 +185,7 @@ NPM CI:
     before_script: []
     script:
         - cd $JS_APP_DIR
-        - npm ci --no-audit --prefer-offline
+        - npm ci --no-audit
     parallel:
       matrix:
         - JS_APP_DIR: "src/Administration/Resources/app/administration/"

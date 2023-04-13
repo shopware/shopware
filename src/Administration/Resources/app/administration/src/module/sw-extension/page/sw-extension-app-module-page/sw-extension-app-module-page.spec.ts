@@ -11,7 +11,7 @@ Shopware.Component.register('sw-extension-my-apps-error-page', SwExtensionsAppMo
 /**
  * @package merchant-services
  */
-describe('src/module/sw-extension/page/sw-extension-app-module-page/index.js', () => {
+describe('src/module/sw-extension/page/sw-extension-app-module-page', () => {
     let wrapper = null;
 
     beforeAll(() => {

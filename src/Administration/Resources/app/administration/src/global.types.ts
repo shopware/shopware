@@ -46,6 +46,7 @@ import type OrderStateMachineApiService from './core/service/api/order-state-mac
 import type cmsElementFavoritesService from './module/sw-cms/service/cms-element-favorites.service';
 import type cmsBlockFavoritesService from './module/sw-cms/service/cms-block-favorites.service';
 import type CheckoutStoreService from './core/service/api/checkout-store.api.service';
+import type ExtensionHelperService from './app/service/extension-helper.service';
 
 // trick to make it an "external module" to support global type extension
 
@@ -125,7 +126,7 @@ declare global {
         ruleConditionDataProviderService: $TSFixMe,
         productStreamConditionService: $TSFixMe,
         customFieldDataProviderService: $TSFixMe,
-        extensionHelperService: $TSFixMe,
+        extensionHelperService: ExtensionHelperService,
         languageAutoFetchingService: $TSFixMe,
         stateStyleDataProviderService: $TSFixMe,
         searchTypeService: $TSFixMe,

@@ -28,7 +28,7 @@ Shopware.Service().register('shopwareDiscountCampaignService', () => {
 /**
  * @package merchant-services
  */
-describe('shopware-extension.service', () => {
+describe('src/module/sw-extension/service/shopware-extension.service', () => {
     let shopwareExtensionService;
 
     beforeAll(() => {

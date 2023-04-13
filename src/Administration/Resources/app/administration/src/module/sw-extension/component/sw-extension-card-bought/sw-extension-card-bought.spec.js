@@ -4,6 +4,7 @@ import swExtensionCardBase from 'src/module/sw-extension/component/sw-extension-
 import swExtensionCardBought from 'src/module/sw-extension/component/sw-extension-card-bought';
 import swExtensionRemovalModal from 'src/module/sw-extension/component/sw-extension-removal-modal';
 import swExtensionAddingFailed from 'src/module/sw-extension/component/sw-extension-adding-failed';
+import swExtensionIcon from 'src/app/asyncComponent/extension/sw-extension-icon';
 import 'src/app/component/context-menu/sw-context-menu-item';
 import 'src/app/component/base/sw-modal';
 import 'src/app/component/base/sw-button';
@@ -18,6 +19,7 @@ Shopware.Component.register('sw-extension-card-base', swExtensionCardBase);
 Shopware.Component.extend('sw-extension-card-bought', 'sw-extension-card-base', swExtensionCardBought);
 Shopware.Component.register('sw-extension-removal-modal', swExtensionRemovalModal);
 Shopware.Component.register('sw-extension-adding-failed', swExtensionAddingFailed);
+Shopware.Component.register('sw-extension-icon', swExtensionIcon);
 
 Shopware.Application.addServiceProvider('loginService', () => {
     return {
@@ -87,6 +89,7 @@ async function createWrapper(extension) {
             'sw-modal': await Shopware.Component.build('sw-modal'),
             'sw-button': await Shopware.Component.build('sw-button'),
             'sw-extension-adding-failed': await Shopware.Component.build('sw-extension-adding-failed'),
+            'sw-extension-icon': await Shopware.Component.build('sw-extension-icon'),
             'sw-extension-rating-modal': true,
         },
         provide: {
@@ -105,7 +108,7 @@ async function createWrapper(extension) {
 /**
  * @package merchant-services
  */
-describe('src/module/sw-extension/component/sw-extension-card-base', () => {
+describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
     /** @type Wrapper */
     let wrapper;
 
@@ -191,8 +194,8 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
 
         expect(wrapper.find('.sw-extension-card-base__info-name')
             .text()).toBe('Sample Extension Label');
-        expect(wrapper.find('.sw-extension-card-base__icon')
-            .attributes().src).toBe('https://example.com');
+        expect(wrapper.find('.sw-extension-icon img')
+            .attributes('src')).toBe('https://example.com');
         expect(wrapper.find('.sw-extension-card-base__meta-info')
             .text().replace(/\s/g, ''))
             .toBe('sw-extension-store.component.sw-extension-card-base.installedLabel01/02/2021');
@@ -229,7 +232,7 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
 
         expect(wrapper.find('.sw-extension-card-base__info-name')
             .text()).toBe('Sample Extension Label');
-        expect(wrapper.find('.sw-extension-card-base__icon')
+        expect(wrapper.find('.sw-extension-icon img')
             .attributes().src).toBe('administration/static/img/theme/default_theme_preview.jpg');
         expect(wrapper.find('.sw-extension-card-base__meta-info')
             .text().replace(/\s/g, ''))

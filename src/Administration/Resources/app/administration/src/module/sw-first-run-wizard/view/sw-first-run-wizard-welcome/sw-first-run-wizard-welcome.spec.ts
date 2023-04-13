@@ -1,7 +1,9 @@
 import { shallowMount } from '@vue/test-utils';
 import type Shopware from 'src/core/shopware';
+import 'src/module/sw-extension/mixin/sw-extension-error.mixin';
 import swFirstRunWizardWelcome from 'src/module/sw-first-run-wizard/view/sw-first-run-wizard-welcome';
 import swPluginCard from 'src/module/sw-first-run-wizard/component/sw-plugin-card';
+import swExtensionIcon from 'src/app/asyncComponent/extension/sw-extension-icon';
 import 'src/app/component/base/sw-container';
 import 'src/app/component/base/sw-button-process';
 import 'src/app/component/base/sw-button';
@@ -16,6 +18,7 @@ import 'src/app/component/form/field-base/sw-contextual-field';
 
 Shopware.Component.register('sw-first-run-wizard-welcome', swFirstRunWizardWelcome);
 Shopware.Component.register('sw-plugin-card', swPluginCard);
+Shopware.Component.register('sw-extension-icon', swExtensionIcon);
 
 const setLocaleWithIdMock = jest.fn(() => Promise.resolve({}));
 
@@ -120,6 +123,7 @@ describe('src/module/sw-first-run-wizard/view/sw-first-run-wizard-welcome', () =
                 'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
                 'sw-icon': true,
                 'sw-loader': true,
+                'sw-extension-icon': await Shopware.Component.build('sw-extension-icon'),
             },
             provide: {
                 languagePluginService: {

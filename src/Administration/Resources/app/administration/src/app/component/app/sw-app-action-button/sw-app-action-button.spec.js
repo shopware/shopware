@@ -5,6 +5,9 @@
 import { createLocalVue, mount } from '@vue/test-utils';
 import 'src/app/component/app/sw-app-action-button';
 import 'src/app/component/base/sw-icon';
+import swExtensionIcon from 'src/app/asyncComponent/extension/sw-extension-icon';
+
+Shopware.Component.register('sw-extension-icon', swExtensionIcon);
 
 async function createWrapper(action, listeners = {}) {
     const localVue = createLocalVue();
@@ -20,7 +23,8 @@ async function createWrapper(action, listeners = {}) {
             'sw-icon': await Shopware.Component.build('sw-icon'),
             'icons-regular-external-link': {
                 template: '<span class="sw-icon sw-icon--regular-external-link"></span>'
-            }
+            },
+            'sw-extension-icon': await Shopware.Component.build('sw-extension-icon'),
         },
         provide: {
             acl: { can: () => true }
@@ -75,7 +79,7 @@ describe('sw-app-action-button', () => {
             'sw-context-menu-item--icon'
         ]));
 
-        const icon = wrapper.find('img.sw-app-action-button__icon');
+        const icon = wrapper.find('img.sw-extension-icon__icon');
 
         expect(icon.attributes('src')).toBe(`data:image/png;base64, ${baseAction.icon}`);
     });
@@ -90,7 +94,7 @@ describe('sw-app-action-button', () => {
             'sw-context-menu-item--icon'
         ]));
 
-        const icon = wrapper.find('img.sw-app-action-button__icon');
+        const icon = wrapper.find('img.sw-extension-icon__icon');
         expect(icon.exists()).toBe(false);
     });
 

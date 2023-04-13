@@ -34,7 +34,7 @@ async function createWrapper(propsData) {
 /**
  * @package merchant-services
  */
-describe('sw-extension-permissions-modal', () => {
+describe('src/module/sw-extension/component/sw-extension-permissions-modal', () => {
     /** @type Wrapper */
     let wrapper;
 

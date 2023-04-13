@@ -14,13 +14,11 @@
     }"
     @click="runAction"
 >
-
-    <img
+    <sw-extension-icon
         v-if="action.icon"
-        class="sw-app-action-button__icon"
         :src="`data:image/png;base64, ${action.icon}`"
         alt=""
-    >
+    />
 
     <span class="sw-context-menu-item__text">
         {{ buttonLabel }}

@@ -17,6 +17,7 @@ async function createWrapper(propsData = {}, provide = {}) {
             'sw-context-menu-item': true,
             'sw-loader': true,
             'sw-extension-permissions-modal': true,
+            'sw-extension-icon': true,
         },
         provide: {
             shopwareExtensionService: {

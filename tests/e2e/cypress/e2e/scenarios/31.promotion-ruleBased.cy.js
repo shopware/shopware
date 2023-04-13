@@ -32,12 +32,12 @@ describe('Promotions: rule based conditions & Rule Builder', () => {
     it('@package: should set a rule based conditions to the promotion and check it in the storefront', { tags: ['pa-checkout'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/promotion`,
-            method: 'POST'
+            method: 'POST',
         }).as('savePromotion');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST'
+            method: 'POST',
         }).as('saveProduct');
 
         cy.url().should('include', 'promotion/v2/index');
@@ -78,8 +78,8 @@ describe('Promotions: rule based conditions & Rule Builder', () => {
                         .click();
                 });
         });
-        cy.get('.is--placeholder.sw-single-select__selection-text').type('Groter dan');
-        cy.get('.is--active').contains('Groter dan').click();
+        cy.get('.is--placeholder.sw-single-select__selection-text').type('groter dan');
+        cy.get('.is--active').contains('groter dan').click();
         cy.get('#sw-field--amount').clearTypeAndCheck('500');
         cy.get('.sw-rule-modal__save > .sw-button__content').click();
         cy.get('.sw-promotion-v2-conditions__rule-select-order-conditions')
@@ -113,7 +113,7 @@ describe('Promotions: rule based conditions & Rule Builder', () => {
         );
         cy.contains('h2', 'Test Product').should('be.visible');
         cy.get('.sw-product-detail__select-visibility').scrollIntoView()
-            .typeMultiSelectAndCheck('E2E install test');
+            .typeMultiSelectAndCheckMultiple(['E2E install test']);
         cy.get('.sw-button-process__content').click();
         cy.wait('@saveProduct').its('response.statusCode').should('equal', 200);
         cy.get('.sw-skeleton').should('not.exist');
@@ -141,7 +141,7 @@ describe('Promotions: rule based conditions & Rule Builder', () => {
             cy.get('.summary-value.summary-total').should('include.text', '60,00');
 
             // Set the product number to 10, price over 500€ and verify promo code is visible
-            cy.get(`${lineItemSelector}-quantity-container > .custom-select`).select('10');
+            cy.get('select[name="quantity"]').select('10');
             cy.contains('Thunder Tuesday').should('exist');
             cy.get('.summary-value.summary-total').should('include.text', '540,00');
         });

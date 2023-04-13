@@ -7,12 +7,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFiel
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\JsonUpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Json;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldService;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -22,16 +23,12 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 #[Package('core')]
 class CustomFieldsSerializer extends JsonFieldSerializer
 {
-    /**
-     * @internal
-     */
     public function __construct(
-        DefinitionInstanceRegistry $compositeHandler,
+        DefinitionInstanceRegistry $definitionRegistry,
         ValidatorInterface $validator,
-        private readonly CustomFieldService $attributeService,
-        private readonly WriteCommandExtractor $writeExtractor
+        private readonly CustomFieldService $attributeService
     ) {
-        parent::__construct($validator, $compositeHandler);
+        parent::__construct($validator, $definitionRegistry);
     }
 
     public function encode(Field $field, EntityExistence $existence, KeyValuePair $data, WriteParameterBag $parameters): \Generator
@@ -56,6 +53,7 @@ class CustomFieldsSerializer extends JsonFieldSerializer
         }
 
         // set fields dynamically
+        /** @var array<string, mixed> $attributes */
         $field->setPropertyMapping($this->getFields(array_keys($attributes)));
         $encoded = $this->validateMapping($field, $attributes, $parameters);
 
@@ -64,7 +62,7 @@ class CustomFieldsSerializer extends JsonFieldSerializer
         }
 
         if ($existence->exists()) {
-            $this->writeExtractor->extractJsonUpdate([$field->getStorageName() => $encoded], $existence, $parameters);
+            $this->extractJsonUpdate([$field->getStorageName() => $encoded], $existence, $parameters);
 
             return;
         }
@@ -72,6 +70,9 @@ class CustomFieldsSerializer extends JsonFieldSerializer
         yield $field->getStorageName() => Json::encode($encoded);
     }
 
+    /**
+     * @return array<string, mixed>|object|null
+     */
     public function decode(Field $field, mixed $value): array|object|null
     {
         if (!$field instanceof CustomFields) {
@@ -80,12 +81,20 @@ class CustomFieldsSerializer extends JsonFieldSerializer
 
         if ($value) {
             // set fields dynamically
-            $field->setPropertyMapping($this->getFields(array_keys(json_decode((string) $value, true, 512, \JSON_THROW_ON_ERROR))));
+            /** @var array<string> $attributes */
+            $attributes = array_keys(json_decode((string) $value, true, 512, \JSON_THROW_ON_ERROR));
+
+            $field->setPropertyMapping($this->getFields($attributes));
         }
 
         return parent::decode($field, $value);
     }
 
+    /**
+     * @param array<string> $attributeNames
+     *
+     * @return array<Field>
+     */
     private function getFields(array $attributeNames): array
     {
         $fields = [];
@@ -95,5 +104,33 @@ class CustomFieldsSerializer extends JsonFieldSerializer
         }
 
         return $fields;
+    }
+
+    /**
+     * @param array<string, array<string, mixed>> $data
+     */
+    private function extractJsonUpdate(array $data, EntityExistence $existence, WriteParameterBag $parameters): void
+    {
+        foreach ($data as $storageName => $attributes) {
+            $entityName = $existence->getEntityName();
+            if (!$entityName) {
+                continue;
+            }
+
+            $definition = $this->definitionRegistry->getByEntityName($entityName);
+
+            $pks = Uuid::fromHexToBytesList($existence->getPrimaryKey());
+
+            $jsonUpdateCommand = new JsonUpdateCommand(
+                $definition,
+                $storageName,
+                $attributes,
+                $pks,
+                $existence,
+                $parameters->getPath()
+            );
+
+            $parameters->getCommandQueue()->add($jsonUpdateCommand->getDefinition(), $jsonUpdateCommand);
+        }
     }
 }

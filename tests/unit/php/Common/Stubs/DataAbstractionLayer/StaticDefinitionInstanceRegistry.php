@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\Field
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\BoolFieldSerializer;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\CreatedAtFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\CustomFieldsSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FkFieldSerializer;
@@ -20,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ManyToOneAssoci
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\OneToManyAssociationFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\OneToOneAssociationFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\StringFieldSerializer;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\UpdatedAtFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
@@ -74,23 +76,24 @@ class StaticDefinitionInstanceRegistry extends DefinitionInstanceRegistry
             FloatFieldSerializer::class => new FloatFieldSerializer($this->validator, $this),
             BoolFieldSerializer::class => new BoolFieldSerializer($this->validator, $this),
             JsonFieldSerializer::class => new JsonFieldSerializer($this->validator, $this),
+            CreatedAtFieldSerializer::class => new CreatedAtFieldSerializer($this->validator, $this),
+            UpdatedAtFieldSerializer::class => new UpdatedAtFieldSerializer($this->validator, $this),
             CustomFieldsSerializer::class => new CustomFieldsSerializer(
                 $this,
                 $this->validator,
-                new CustomFieldService(new FakeConnection([['foo', 'int']])),
-                new WriteCommandExtractor($this->entityWriteGateway, $this)
+                new CustomFieldService(new FakeConnection([['foo', 'int']]))
             ),
             ManyToManyAssociationFieldSerializer::class => new ManyToManyAssociationFieldSerializer(
-                new WriteCommandExtractor($this->entityWriteGateway, $this),
+                new WriteCommandExtractor($this->entityWriteGateway),
             ),
             ManyToOneAssociationFieldSerializer::class => new ManyToOneAssociationFieldSerializer(
-                new WriteCommandExtractor($this->entityWriteGateway, $this),
+                new WriteCommandExtractor($this->entityWriteGateway),
             ),
             OneToManyAssociationFieldSerializer::class => new OneToManyAssociationFieldSerializer(
-                new WriteCommandExtractor($this->entityWriteGateway, $this),
+                new WriteCommandExtractor($this->entityWriteGateway),
             ),
             OneToOneAssociationFieldSerializer::class => new OneToOneAssociationFieldSerializer(
-                new WriteCommandExtractor($this->entityWriteGateway, $this),
+                new WriteCommandExtractor($this->entityWriteGateway),
             ),
         ];
     }

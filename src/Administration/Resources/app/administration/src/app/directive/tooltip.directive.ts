@@ -2,39 +2,68 @@
  * @package admin
  */
 
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+
+import type { VNode } from 'vue';
 import Vue from 'vue';
 
 const { Directive } = Shopware;
 const { debug } = Shopware.Utils;
-const { hasOwnProperty } = Shopware.Utils.object;
 const utils = Shopware.Utils;
 
-const availableTooltipPlacements = [
+type Placements = 'top'|'right'|'bottom'|'left';
+
+const availableTooltipPlacements: Placements[] = [
     'top',
     'right',
     'bottom',
     'left',
 ];
 
-const tooltipRegistry = new Map();
+// eslint-disable-next-line no-use-before-define
+const tooltipRegistry = new Map<string, Tooltip>();
 
 /**
  * @deprecated tag:v6.6.0 - Will be private
  */
 class Tooltip {
-    /**
-     * @param {object} obj
-     * @param {string} obj.id
-     * @param {string} obj.placement
-     * @param {string} obj.message
-     * @param {number|string} obj.width
-     * @param {HTMLElement} obj.element - The original element the tooltip should appear on
-     * @param {number} obj.showDelay
-     * @param {number} obj.hideDelay
-     * @param {boolean} obj.disabled
-     * @param {string} obj.appearance
-     * @param {boolean} obj.showOnDisabledElements
-     */
+    private _id?: string;
+
+    private _placement?: Placements;
+
+    private _message: string;
+
+    private _width: number|string;
+
+    private _parentDOMElement: HTMLElement;
+
+    private _showDelay: number;
+
+    private _hideDelay: number;
+
+    private _disabled: boolean;
+
+    private _appearance: string;
+
+    private _showOnDisabledElements: boolean;
+
+    private _zIndex: number|null;
+
+    private _isShown: boolean;
+
+    private _state: boolean;
+
+    private _DOMElement: HTMLElement|null;
+
+    private _vue: Vue|null;
+
+    private _parentDOMElementWrapper: HTMLElement|null;
+
+    private _actualTooltipPlacement: Placements|null;
+
+    private _timeout?: ReturnType<typeof setTimeout>;
+
+
     constructor({
         id = utils.createId(),
         placement = 'top',
@@ -47,6 +76,18 @@ class Tooltip {
         appearance = 'dark',
         showOnDisabledElements = false,
         zIndex = null,
+    }: {
+        id?: string,
+        placement?: Placements,
+        message?: string,
+        width?: number | string,
+        element: HTMLElement,
+        showDelay?: number,
+        hideDelay?: number,
+        disabled: boolean,
+        appearance?: string,
+        showOnDisabledElements?: boolean,
+        zIndex?: number|null,
     }) {
         this._id = id;
         this._placement = Tooltip.validatePlacement(placement);
@@ -80,7 +121,7 @@ class Tooltip {
      * Initializes the tooltip.
      * Needs to be called after the parent DOM Element is inserted to the DOM.
      */
-    init(node) {
+    init(node: VNode) {
         this._DOMElement = this.createDOMElement(node);
 
         if (this._showOnDisabledElements) {
@@ -92,18 +133,9 @@ class Tooltip {
 
     /**
      * Updates the styles and/or text of the tooltip
-     *
-     * @param {object} obj
-     * @param {string} obj.message
-     * @param {string} obj.placement
-     * @param {number} obj.width
-     * @param {number} obj.showDelay
-     * @param {number} obj.hideDelay
-     * @param {boolean} obj.disabled
-     * @param {string} obj.appearance
-     * @param {boolean} obj.showOnDisabledElements
      */
-    update({ message,
+    update({
+        message,
         placement,
         width,
         showDelay,
@@ -111,25 +143,39 @@ class Tooltip {
         disabled,
         appearance,
         showOnDisabledElements,
-        zIndex }) {
+        zIndex,
+    }: {
+        message?: string,
+        placement?: Placements,
+        width?: number | string,
+        showDelay?: number,
+        hideDelay?: number,
+        disabled?: boolean,
+        appearance?: string,
+        showOnDisabledElements?: boolean,
+        zIndex?: number|null,
+    }) {
         if (message && this._message !== message) {
             this._message = Tooltip.validateMessage(message);
-            this._DOMElement.innerHTML = this._message;
 
-            this._vue.$destroy();
+            if (this._DOMElement) {
+                this._DOMElement.innerHTML = this._message;
+            }
+
+            this._vue?.$destroy();
             this._vue = new Vue({
-                el: this._DOMElement,
-                parent: this._vue.$parent,
-                template: this._DOMElement.outerHTML,
+                el: this._DOMElement!,
+                parent: this._vue?.$parent,
+                template: this._DOMElement?.outerHTML,
             });
 
-            this._DOMElement = this._vue.$el;
+            this._DOMElement = this._vue.$el as HTMLElement;
             this.registerEvents();
         }
 
         if (width && this._width !== width) {
             this._width = Tooltip.validateWidth(width);
-            this._DOMElement.style.width = `${this._width}px`;
+            this._DOMElement!.style.width = `${this._width}px`;
         }
 
         if (placement && this._placement !== placement) {
@@ -150,16 +196,16 @@ class Tooltip {
         }
 
         if (appearance && this._appearance !== appearance) {
-            this._DOMElement.classList.remove(`sw-tooltip--${this._appearance}`);
+            this._DOMElement!.classList.remove(`sw-tooltip--${this._appearance}`);
             this._appearance = appearance;
-            this._DOMElement.classList.add(`sw-tooltip--${this._appearance}`);
+            this._DOMElement!.classList.add(`sw-tooltip--${this._appearance}`);
         }
 
         if (showOnDisabledElements !== undefined && this._showOnDisabledElements !== showOnDisabledElements) {
             this._showOnDisabledElements = showOnDisabledElements;
         }
 
-        if (zIndex !== this._zIndex) {
+        if (zIndex !== this._zIndex && zIndex !== undefined) {
             this._zIndex = zIndex;
         }
     }
@@ -174,23 +220,23 @@ class Tooltip {
         const element = document.createElement('div');
         element.classList.add('sw-tooltip--wrapper');
 
-        this._parentDOMElement.parentNode.insertBefore(element, this._parentDOMElement);
+        this._parentDOMElement.parentNode!.insertBefore(element, this._parentDOMElement);
         element.appendChild(this._parentDOMElement);
 
         return element;
     }
 
-    /**
-     * @returns {HTMLElement}
-     */
-    createDOMElement(node) {
+    createDOMElement(node: VNode): HTMLElement {
         const element = document.createElement('div');
         element.innerHTML = this._message;
         element.style.width = `${this._width}px`;
         element.setAttribute('aria-hidden', 'false');
         element.classList.add('sw-tooltip');
         element.classList.add(`sw-tooltip--${this._appearance}`);
-        element.style.zIndex = this._zIndex;
+
+        if (this._zIndex !== null) {
+            element.style.zIndex = this._zIndex.toFixed(0);
+        }
 
         this._vue = new Vue({
             el: element,
@@ -198,7 +244,7 @@ class Tooltip {
             template: element.outerHTML,
         });
 
-        return this._vue.$el;
+        return this._vue.$el as HTMLElement;
     }
 
     registerEvents() {
@@ -209,16 +255,14 @@ class Tooltip {
             this._parentDOMElement.addEventListener('mouseenter', this.onMouseToggle.bind(this));
             this._parentDOMElement.addEventListener('mouseleave', this.onMouseToggle.bind(this));
         }
-        this._DOMElement.addEventListener('mouseenter', this.onMouseToggle.bind(this));
-        this._DOMElement.addEventListener('mouseleave', this.onMouseToggle.bind(this));
+        this._DOMElement!.addEventListener('mouseenter', this.onMouseToggle.bind(this));
+        this._DOMElement!.addEventListener('mouseleave', this.onMouseToggle.bind(this));
     }
 
     /**
      * Sets the state and triggers the toggle.
-     *
-     * @param {EventListenerObject} event
      */
-    onMouseToggle(event) {
+    onMouseToggle(event: MouseEvent) {
         this._state = (event.type === 'mouseenter');
 
         if (this._timeout) {
@@ -245,7 +289,7 @@ class Tooltip {
      * @private
      */
     _doesParentExist() {
-        const tooltipIdOfParentElement = this._parentDOMElement.getAttribute('tooltip-id');
+        const tooltipIdOfParentElement = this._parentDOMElement.getAttribute('tooltip-id') ?? '';
         const htmlTagOfParentElement = this._parentDOMElement.tagName.toLowerCase();
 
         return !!document.querySelector(`${htmlTagOfParentElement}[tooltip-id="${tooltipIdOfParentElement}"]`);
@@ -258,7 +302,7 @@ class Tooltip {
         if (this._disabled) {
             return;
         }
-        document.body.appendChild(this._DOMElement);
+        document.body.appendChild(this._DOMElement!);
 
         this._placeTooltip();
         this._isShown = true;
@@ -271,8 +315,8 @@ class Tooltip {
         if (this._disabled) {
             return;
         }
-        this._DOMElement.remove();
-        this._vue.$destroy();
+        this._DOMElement!.remove();
+        this._vue!.$destroy();
         this._isShown = false;
     }
 
@@ -282,35 +326,35 @@ class Tooltip {
         possiblePlacements = possiblePlacements.filter((pos) => pos !== placement);
 
         // Remove previous placement class if it exists
-        this._DOMElement.classList.remove(`sw-tooltip--${this._actualTooltipPlacement}`);
+        this._DOMElement!.classList.remove(`sw-tooltip--${this._actualTooltipPlacement!}`);
 
         // Set the tooltip to the desired place
-        this._setDOMElementPosition(this._calculateTooltipPosition(placement));
-        this._actualTooltipPlacement = placement;
+        this._setDOMElementPosition(this._calculateTooltipPosition(placement ?? 'top'));
+        this._actualTooltipPlacement = placement ?? null;
 
         // Check if the tooltip is fully visible in viewport and change position if not
-        while (!this._isElementInViewport(this._DOMElement)) {
+        while (!this._isElementInViewport(this._DOMElement!)) {
             // The tooltip wont fit in any position
             if (possiblePlacements.length < 1) {
-                this._actualTooltipPlacement = this._placement;
-                this._setDOMElementPosition(this._calculateTooltipPosition(this._placement));
+                this._actualTooltipPlacement = this._placement ?? null;
+                this._setDOMElementPosition(this._calculateTooltipPosition(this._placement ?? 'top'));
                 break;
             }
             // try the next position in the possiblePositions array
             placement = possiblePlacements.shift();
-            this._setDOMElementPosition(this._calculateTooltipPosition(placement));
-            this._actualTooltipPlacement = placement;
+            this._setDOMElementPosition(this._calculateTooltipPosition(placement ?? 'top'));
+            this._actualTooltipPlacement = placement ?? null;
         }
 
-        this._DOMElement.classList.add(`sw-tooltip--${this._actualTooltipPlacement}`);
+        this._DOMElement!.classList.add(`sw-tooltip--${this._actualTooltipPlacement ?? ''}`);
     }
 
-    _setDOMElementPosition({ top, left }) {
-        this._DOMElement.style.top = top;
-        this._DOMElement.style.left = left;
+    _setDOMElementPosition({ top, left }: { top: string, left: string }) {
+        this._DOMElement!.style.top = top;
+        this._DOMElement!.style.left = left;
     }
 
-    _calculateTooltipPosition(placement) {
+    _calculateTooltipPosition(placement: Placements) {
         const boundingBox = this._parentDOMElement.getBoundingClientRect();
         const secureOffset = 10;
 
@@ -320,25 +364,25 @@ class Tooltip {
         switch (placement) {
             case 'bottom':
                 top = `${boundingBox.top + boundingBox.height + secureOffset}px`;
-                left = `${boundingBox.left + (boundingBox.width / 2) - this._DOMElement.offsetWidth / 2}px`;
+                left = `${boundingBox.left + (boundingBox.width / 2) - this._DOMElement!.offsetWidth / 2}px`;
                 break;
             case 'left':
-                top = `${boundingBox.top + boundingBox.height / 2 - this._DOMElement.offsetHeight / 2}px`;
-                left = `${boundingBox.left - secureOffset - this._DOMElement.offsetWidth}px`;
+                top = `${boundingBox.top + boundingBox.height / 2 - this._DOMElement!.offsetHeight / 2}px`;
+                left = `${boundingBox.left - secureOffset - this._DOMElement!.offsetWidth}px`;
                 break;
             case 'right':
-                top = `${boundingBox.top + boundingBox.height / 2 - this._DOMElement.offsetHeight / 2}px`;
+                top = `${boundingBox.top + boundingBox.height / 2 - this._DOMElement!.offsetHeight / 2}px`;
                 left = `${boundingBox.right + secureOffset}px`;
                 break;
             case 'top':
             default:
-                top = `${boundingBox.top - this._DOMElement.offsetHeight - secureOffset}px`;
-                left = `${boundingBox.left + (boundingBox.width / 2) - this._DOMElement.offsetWidth / 2}px`;
+                top = `${boundingBox.top - this._DOMElement!.offsetHeight - secureOffset}px`;
+                left = `${boundingBox.left + (boundingBox.width / 2) - this._DOMElement!.offsetWidth / 2}px`;
         }
         return { top: top, left: left };
     }
 
-    _isElementInViewport(element) {
+    _isElementInViewport(element: HTMLElement) {
         // get position
         const boundingClientRect = element.getBoundingClientRect();
         const windowHeight =
@@ -356,38 +400,27 @@ class Tooltip {
         return visibleBorders.top && visibleBorders.right && visibleBorders.bottom && visibleBorders.left;
     }
 
-    /**
-     * @param {string} placement
-     * @returns {string}
-     */
-    static validatePlacement(placement) {
+    static validatePlacement<P extends Placements>(placement: P): Placements {
         if (!availableTooltipPlacements.includes(placement)) {
             debug.warn(
                 'Tooltip Directive',
                 `The modifier has to be one of these "${availableTooltipPlacements.join(',')}"`,
             );
+
             return 'top';
         }
         return placement;
     }
 
-    /**
-     * @param {string} message
-     * @returns {string}
-     */
-    static validateMessage(message) {
+    static validateMessage(message?: string): string {
         if (typeof message !== 'string') {
             debug.warn('Tooltip Directive', 'The tooltip needs a message with type string');
         }
 
-        return message;
+        return message ?? '';
     }
 
-    /**
-     * @param {number|string} width
-     * @returns {number}
-     */
-    static validateWidth(width) {
+    static validateWidth(width: number|string): number|string {
         if (width === 'auto') {
             return width;
         }
@@ -400,11 +433,7 @@ class Tooltip {
         return width;
     }
 
-    /**
-     * @param {number} delay
-     * @returns {number}
-     */
-    static validateDelay(delay) {
+    static validateDelay(delay: number): number {
         if (typeof delay !== 'number' || delay < 1) {
             debug.warn('Tooltip Directive', 'The tooltip delay has to be a number greater 0');
             return 100;
@@ -416,14 +445,24 @@ class Tooltip {
 
 /**
  * Helper function for creating or updating a tooltip instance
- *
- * @param {HTMLElement} el
- * @param {object} obj
- * @param {*} obj.value
- * @param {object} obj.modifiers
  */
-function createOrUpdateTooltip(el, { value, modifiers }) {
-    let message = hasOwnProperty(value, 'message') ? value.message : value;
+function createOrUpdateTooltip(el: HTMLElement, { value, modifiers }: {
+    value: {
+        message: string,
+        position: Placements,
+        showDelay: number,
+        hideDelay: number,
+        disabled: boolean,
+        appearance: string,
+        width: number|string,
+        showOnDisabledElements: boolean,
+        zIndex: number,
+    },
+    modifiers: {
+        [key: string]: unknown,
+    }
+}) {
+    let message: string = typeof value === 'string' ? value : value.message;
     message = message ? message.trim() : '';
 
     const placement = value.position || Object.keys(modifiers)[0];
@@ -449,16 +488,16 @@ function createOrUpdateTooltip(el, { value, modifiers }) {
     };
 
     if (el.hasAttribute('tooltip-id')) {
-        const tooltip = tooltipRegistry.get(el.getAttribute('tooltip-id'));
-        tooltip.update(configuration);
+        const tooltip = tooltipRegistry.get(el.getAttribute('tooltip-id')!);
+        tooltip!.update(configuration);
 
         return;
     }
 
     const tooltip = new Tooltip(configuration);
 
-    tooltipRegistry.set(tooltip.id, tooltip);
-    el.setAttribute('tooltip-id', tooltip.id);
+    tooltipRegistry.set(tooltip.id ?? '', tooltip);
+    el.setAttribute('tooltip-id', tooltip.id!);
 }
 
 /**
@@ -493,17 +532,19 @@ function createOrUpdateTooltip(el, { value, modifiers }) {
  */
 Directive.register('tooltip', {
     bind: (el, binding) => {
+        // @ts-expect-error - tooltip binding has some other required properties
         createOrUpdateTooltip(el, binding);
     },
 
     unbind: (el) => {
         if (el.hasAttribute('tooltip-id')) {
-            const tooltip = tooltipRegistry.get(el.getAttribute('tooltip-id'));
-            tooltip.hideTooltip();
+            const tooltip = tooltipRegistry.get(el.getAttribute('tooltip-id')!);
+            tooltip!.hideTooltip();
         }
     },
 
     update: (el, binding) => {
+        // @ts-expect-error - tooltip binding has some other required properties
         createOrUpdateTooltip(el, binding);
     },
 
@@ -515,8 +556,8 @@ Directive.register('tooltip', {
      */
     inserted: (el, binding, node) => {
         if (el.hasAttribute('tooltip-id')) {
-            const tooltip = tooltipRegistry.get(el.getAttribute('tooltip-id'));
-            tooltip.init(node);
+            const tooltip = tooltipRegistry.get(el.getAttribute('tooltip-id')!);
+            tooltip!.init(node);
         }
     },
 });

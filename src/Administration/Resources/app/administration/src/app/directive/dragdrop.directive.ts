@@ -116,6 +116,16 @@ const defaultDropConfig: DropConfig = {
     data: null,
 };
 
+function resetCurrentDrag() {
+    currentDrag = null;
+    currentDrop = null;
+    dragElement = null;
+}
+
+function getCurrentDragElement() {
+    return dragElement;
+}
+
 /**
  * Fired by event callback when the user starts dragging an element.
  */
@@ -394,6 +404,7 @@ function validateDrop(): boolean {
 
     return valid && customDragValidation && customDropValidation;
 }
+
 /**
  * Validates a drag using the {currentDrag} configuration.
  * Also calls the custom validator functions of the config.
@@ -543,3 +554,5 @@ Shopware.Directive.register('droppable', {
  * @deprecated tag:v6.6.0 - Will be private
  */
 export type { DragConfig, DropConfig };
+/* @private */
+export { resetCurrentDrag, getCurrentDragElement };

@@ -1,5 +1,7 @@
 /* eslint-disable */
 
+import Vue, {VNode} from "vue";
+
 const { Directive } = Shopware;
 
 /**
@@ -22,7 +24,14 @@ const outsideClasses = {
     left: '--placement-left-outside'
 };
 
-const defaultConfig = {
+interface PopoverConfig {
+    active: boolean;
+    targetSelector: string;
+    resizeWidth: boolean;
+    style: Record<string, string>;
+}
+
+const defaultConfig: PopoverConfig = {
     active: false,
     targetSelector: '',
     resizeWidth: false,
@@ -51,11 +60,11 @@ Directive.register('popover', {
         }
 
         targetElement.appendChild(element);
-        setElementPosition(element, vnode.context.$el, config);
+        setElementPosition(element, vnode.context?.$el, config);
 
         // Resize the width of the element
         if (config.resizeWidth) {
-            element.style.width = `${vnode.context.$el.clientWidth}px`;
+            element.style.width = `${vnode.context?.$el.clientWidth}px`;
         }
 
         // append to target element
@@ -70,7 +79,8 @@ Directive.register('popover', {
             element.parentNode.removeChild(element);
         }
 
-        unregisterVirtualScrollingElement(vnode.context._uid);
+        // @ts-expect-error - _uid exists on the context but is private
+        unregisterVirtualScrollingElement(vnode.context?._uid);
     }
 });
 
@@ -81,7 +91,7 @@ Directive.register('popover', {
  * v-placement
  */
 
-function calculateOutsideEdges(el, vnode) {
+function calculateOutsideEdges(el: HTMLElement, vnode: VNode) {
     // orientation element is needed for calculating the available space
     const orientationElement = vnode?.context?.$parent?.$el ?? el;
 
@@ -111,7 +121,7 @@ function calculateOutsideEdges(el, vnode) {
     el.classList.add(...placementClasses);
 }
 
-function setElementPosition(element, refElement, config) {
+function setElementPosition(element: HTMLElement, refElement: Element|undefined, config: PopoverConfig) {
     const originElement = refElement ? refElement : element;
     const elementPosition = originElement.getBoundingClientRect();
 
@@ -122,7 +132,7 @@ function setElementPosition(element, refElement, config) {
     };
 
     if (config.targetSelector && config.targetSelector.length > 0) {
-        targetElement = originElement.closest(config.targetSelector);
+        targetElement = originElement.closest(config.targetSelector)!;
         targetPosition = targetElement.getBoundingClientRect();
     }
 
@@ -132,6 +142,7 @@ function setElementPosition(element, refElement, config) {
             return;
         }
 
+        // @ts-expect-error - key can be set
         element.style[key] = value;
     });
 
@@ -164,8 +175,9 @@ function virtualScrollingHandler() {
     });
 }
 
-function registerVirtualScrollingElement(modifiedElement, vnodeContext, config) {
-    const uid = vnodeContext._uid;
+function registerVirtualScrollingElement(modifiedElement: HTMLElement, vnodeContext: Vue|undefined, config: PopoverConfig) {
+    // @ts-expect-error - _uid exists on the context but is private
+    const uid = vnodeContext?._uid;
 
     if (!uid) {
         return;
@@ -182,7 +194,7 @@ function registerVirtualScrollingElement(modifiedElement, vnodeContext, config) 
     });
 }
 
-function unregisterVirtualScrollingElement(uid) {
+function unregisterVirtualScrollingElement(uid?: string) {
     if (!uid) {
         return;
     }

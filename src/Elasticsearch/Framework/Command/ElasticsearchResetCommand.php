@@ -67,7 +67,7 @@ class ElasticsearchResetCommand extends Command
             // In case message_queue pool is disabled
         }
 
-        $this->connection->executeStatement('DELETE FROM enqueue WHERE body LIKE "%ElasticsearchIndexingMessage%"');
+        $this->connection->executeStatement('DELETE FROM `messenger_messages` WHERE `headers` LIKE "%ElasticsearchIndexingMessage%"');
 
         $io->success('Elasticsearch indices deleted and queue cleared');
 

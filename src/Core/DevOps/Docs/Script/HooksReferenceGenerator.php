@@ -328,7 +328,7 @@ class HooksReferenceGenerator implements ScriptReferenceGenerator
 
     /**
      * @param array<string, mixed> $hookData
-     * @param class-string<Hook> $hook
+     * @param class-string<InterfaceHook> $hook
      *
      * @return array<string, mixed>
      */
@@ -337,7 +337,7 @@ class HooksReferenceGenerator implements ScriptReferenceGenerator
         $hookData['interfaceHook'] = true;
         $hookData['interfaceDescription'] = "**Interface Hook**\n\n" . $hookData['trigger'];
 
-        foreach ($hook::FUNCTIONS as $functionName => $functionHook) {
+        foreach ($hook::FUNCTIONS as $functionName => $functionHook) { /* @phpstan-ignore-line  */
             $hookData['functions'][$functionName] = $this->getDataForHook($functionHook);
         }
 

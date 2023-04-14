@@ -638,6 +638,7 @@ class OrderConverterTest extends TestCase
     /**
      * @param array<CustomerEntity>|null $customerRepositoryResultArray
      * @param array<OrderAddressEntity>|null $orderAddressRepositoryResultArray
+     * @param callable(string, string, array<string, mixed>): SalesChannelContext|null $salesChannelContextFactoryCreateCallable
      */
     private function getOrderConverter(?array $customerRepositoryResultArray = null, ?array $orderAddressRepositoryResultArray = null, ?callable $salesChannelContextFactoryCreateCallable = null, ?EventDispatcherInterface $eventDispatcher = null): OrderConverter
     {

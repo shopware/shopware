@@ -49,6 +49,7 @@ abstract class Field extends XmlElement
 
         if (is_iterable($element->attributes)) {
             foreach ($element->attributes as $attribute) {
+                \assert($attribute instanceof \DOMAttr);
                 $name = self::kebabCaseToCamelCase($attribute->name);
 
                 $values[$name] = XmlUtils::phpize($attribute->value);

@@ -189,6 +189,18 @@ parameters:
           path: src/Core/Framework/Webhook/Hookable.php
         - '#Method Shopware\\Core\\Framework\\Webhook\\Hookable::getWebhookPayload\(\) invoked with 1 parameter, 0 required#'
 
+        # XML parser classes are allowed to make use of dynamic assigns
+        -
+            message: '#Use explicit names over dynamic ones#'
+            paths:
+                - src/**/Xml/**
+
+        # Will be fixed with 6.6
+        -
+            message: '#There are 2 way to get "afterCategoryId" value: public property and getter now - pick one to avoid variant behavior.#'
+            paths:
+                - src/Core/Content/Category/CategoryEntity.php
+
         # Breaking changes which are not worth it
         - '#Method Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityCollection::filterAndReduceByProperty\(\) has parameter \$value with no type specified\.#'
 
@@ -328,3 +340,11 @@ rules:
 
     - Symplify\PHPStanRules\Rules\Complexity\ForbiddenArrayMethodCallRule
     - Symplify\PHPStanRules\Symfony\Rules\PreventDoubleSetParameterRule
+
+    # complexity rules
+    - Symplify\PHPStanRules\Rules\Explicit\NoMixedCallableRule
+    - Symplify\PHPStanRules\Rules\Explicit\NoMixedPropertyFetcherRule
+    - Symplify\PHPStanRules\Rules\Explicit\NoMixedMethodCallerRule
+    - Symplify\PHPStanRules\Rules\Explicit\NoGetterAndPropertyRule
+    - Symplify\PHPStanRules\Rules\PHPUnit\NoRightPHPUnitAssertScalarRule
+    - Symplify\PHPStanRules\Rules\NoDynamicNameRule

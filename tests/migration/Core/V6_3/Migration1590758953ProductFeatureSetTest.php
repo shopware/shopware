@@ -122,7 +122,10 @@ class Migration1590758953ProductFeatureSetTest extends TestCase
     public function testDefaultFeatureSetTranslationIsCreated(): void
     {
         $expectedTranslations = array_values(Migration1590758953ProductFeatureSet::TRANSLATIONS);
-        $actual = $this->fetchFeatureSetTranslation();
+        $actual = $this->connection->fetchAllAssociative(
+            'SELECT * FROM `product_feature_set_translation` WHERE `product_feature_set_id` = :id;',
+            ['id' => $this->fetchDefaultFeatureSet()['id']]
+        );
 
         foreach ($actual as &$translation) {
             unset(
@@ -220,17 +223,6 @@ class Migration1590758953ProductFeatureSetTest extends TestCase
     {
         return (array) $this->connection->fetchAssociative(
             'SELECT * FROM `product_feature_set` ORDER BY `created_at` ASC LIMIT 1;'
-        );
-    }
-
-    /**
-     * @return array<string, mixed>[]
-     */
-    private function fetchFeatureSetTranslation(): array
-    {
-        return $this->connection->fetchAllAssociative(
-            'SELECT * FROM `product_feature_set_translation` WHERE `product_feature_set_id` = :id;',
-            ['id' => $this->fetchDefaultFeatureSet()['id']]
         );
     }
 

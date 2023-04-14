@@ -50,6 +50,7 @@ class Parameter extends XmlElement
         $values = [];
 
         foreach ($element->attributes as $item) {
+            \assert($item instanceof \DOMAttr);
             $values[$item->name] = XmlUtils::phpize($item->value);
         }
 

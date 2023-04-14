@@ -125,12 +125,12 @@ class BusinessEventEncoder
         if (\is_object($object)) {
             $getter = 'get' . ucfirst($propertyName);
             if (method_exists($object, $getter)) {
-                return $object->$getter();
+                return $object->$getter(); /* @phpstan-ignore-line */
             }
 
             $isser = 'is' . ucfirst($propertyName);
             if (method_exists($object, $isser)) {
-                return $object->$isser();
+                return $object->$isser(); /* @phpstan-ignore-line */
             }
         }
 

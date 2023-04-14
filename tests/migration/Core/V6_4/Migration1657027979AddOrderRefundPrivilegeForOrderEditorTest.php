@@ -33,7 +33,7 @@ class Migration1657027979AddOrderRefundPrivilegeForOrderEditorTest extends TestC
          * @var string $role
          * @var array<int, string> $privileges
          */
-        foreach ($migration::NEW_PRIVILEGES as $role => $privileges) {
+        foreach (Migration1657027979AddOrderRefundPrivilegeForOrderEditor::NEW_PRIVILEGES as $role => $privileges) {
             $id = Uuid::randomHex();
             $context = Context::createDefaultContext();
             $repo->create([[

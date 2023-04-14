@@ -34,12 +34,12 @@ class Migration1593698606AddNetAndGrossPurchasePrices extends MigrationStep
     {
         $rows = $connection->fetchAllAssociative('SELECT id, value FROM rule_condition WHERE type = "cartLineItemPurchasePrice"');
         foreach ($rows as $row) {
-            $conditionValue = json_decode((string) $row['value'], null, 512, \JSON_THROW_ON_ERROR);
-            if (property_exists($conditionValue, 'isNet')) {
+            $conditionValue = json_decode((string) $row['value'], true, 512, \JSON_THROW_ON_ERROR);
+            if (\array_key_exists('isNet', $conditionValue)) {
                 continue;
             }
 
-            $conditionValue->isNet = false;
+            $conditionValue['isNet'] = false;
             $connection->executeStatement(
                 'UPDATE rule_condition SET value = :conditionValue WHERE id = :id',
                 [

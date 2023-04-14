@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -82,7 +83,8 @@ class VersionManagerTest extends TestCase
         ]);
 
         $writeContextMockWithVersionId->expects(static::once())->method('scope')
-            ->with(static::equalTo(Context::SYSTEM_SCOPE), static::callback(function ($closure) use ($writeContextMockWithVersionId) {
+            ->with(static::equalTo(Context::SYSTEM_SCOPE), static::callback(function (callable $closure) use ($writeContextMockWithVersionId) {
+                /** @var callable(MockObject&WriteContext): void $closure */
                 $closure($writeContextMockWithVersionId);
 
                 return true;

@@ -4,6 +4,8 @@ namespace Shopware\Core\Content\Test\Flow\Dispatching;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Dispatching\FlowBuilder;
+use Shopware\Core\Content\Flow\Dispatching\Struct\ActionSequence;
+use Shopware\Core\Content\Flow\Dispatching\Struct\IfSequence;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -55,8 +57,12 @@ class FlowBuilderTest extends TestCase
 
         $flow = $this->flowBuilder->build($flowId, $flowSequences);
         static::assertIsArray($flow->getSequences());
-        static::assertEquals('action.add.order.tag', $flow->getSequences()[0]->action);
-        static::assertEquals('action.remove.order.tag', $flow->getSequences()[1]->action);
+        $firstAction = $flow->getSequences()[0];
+        static::assertInstanceOf(ActionSequence::class, $firstAction);
+        static::assertEquals('action.add.order.tag', $firstAction->action);
+        $secondAction = $flow->getSequences()[1];
+        static::assertInstanceOf(ActionSequence::class, $secondAction);
+        static::assertEquals('action.remove.order.tag', $secondAction->action);
     }
 
     public function testBuildWithActionBeforeAction(): void
@@ -104,9 +110,14 @@ class FlowBuilderTest extends TestCase
 
         $flow = $this->flowBuilder->build($flowId, $flowSequences);
         static::assertIsArray($flow->getSequences());
-        static::assertEquals('action.delay', $flow->getSequences()[0]->action);
-        static::assertEquals('action.add.order.tag', $flow->getSequences()[0]->nextAction->action);
-        static::assertEquals('action.add.order.tag', $flow->getSequences()[0]->nextAction->nextAction->action);
+        $firstAction = $flow->getSequences()[0];
+        static::assertInstanceOf(ActionSequence::class, $firstAction);
+        static::assertEquals('action.delay', $firstAction->action);
+        $nextAction = $firstAction->nextAction;
+        static::assertInstanceOf(ActionSequence::class, $nextAction);
+        static::assertEquals('action.add.order.tag', $nextAction->action);
+        static::assertInstanceOf(ActionSequence::class, $nextAction->nextAction);
+        static::assertEquals('action.add.order.tag', $nextAction->nextAction->action);
     }
 
     public function testBuildWithActionBeforeIf(): void
@@ -167,12 +178,16 @@ class FlowBuilderTest extends TestCase
 
         $flow = $this->flowBuilder->build($flowId, $flowSequences);
         static::assertIsArray($flow->getSequences());
-        static::assertEquals('action.delay', $flow->getSequences()[0]->action);
-        static::assertNotNull($flow->getSequences()[0]->nextAction->ruleId);
-        static::assertNotNull($flow->getSequences()[0]->nextAction->trueCase);
-        static::assertEquals('action.add.order.tag', $flow->getSequences()[0]->nextAction->trueCase->action);
-        static::assertNotNull($flow->getSequences()[0]->nextAction->falseCase);
-        static::assertEquals('action.add.order.tag', $flow->getSequences()[0]->nextAction->falseCase->action);
+        $firstAction = $flow->getSequences()[0];
+        static::assertInstanceOf(ActionSequence::class, $firstAction);
+        static::assertEquals('action.delay', $firstAction->action);
+        $nextAction = $firstAction->nextAction;
+        static::assertInstanceOf(IfSequence::class, $nextAction);
+        static::assertNotNull($nextAction->ruleId);
+        static::assertInstanceOf(ActionSequence::class, $nextAction->trueCase);
+        static::assertEquals('action.add.order.tag', $nextAction->trueCase->action);
+        static::assertInstanceOf(ActionSequence::class, $nextAction->falseCase);
+        static::assertEquals('action.add.order.tag', $nextAction->falseCase->action);
     }
 
     public function testBuildWithIfBeforeAction(): void
@@ -220,10 +235,12 @@ class FlowBuilderTest extends TestCase
 
         $flow = $this->flowBuilder->build($flowId, $flowSequences);
         static::assertIsArray($flow->getSequences());
-        static::assertNotNull($flow->getSequences()[0]->ruleId);
-        static::assertNotNull($flow->getSequences()[0]->trueCase);
-        static::assertEquals('action.add.order.tag', $flow->getSequences()[0]->trueCase->action);
-        static::assertNotNull($flow->getSequences()[0]->falseCase);
-        static::assertEquals('action.add.order.tag', $flow->getSequences()[0]->falseCase->action);
+        $firstAction = $flow->getSequences()[0];
+        static::assertInstanceOf(IfSequence::class, $firstAction);
+        static::assertNotNull($firstAction->ruleId);
+        static::assertInstanceOf(ActionSequence::class, $firstAction->trueCase);
+        static::assertEquals('action.add.order.tag', $firstAction->trueCase->action);
+        static::assertInstanceOf(ActionSequence::class, $firstAction->falseCase);
+        static::assertEquals('action.add.order.tag', $firstAction->falseCase->action);
     }
 }

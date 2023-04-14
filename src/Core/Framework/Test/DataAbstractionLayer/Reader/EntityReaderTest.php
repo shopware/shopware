@@ -2223,6 +2223,7 @@ class EntityReaderTest extends TestCase
      * @dataProvider casesToManyPaginated
      *
      * @param list<array<string, mixed>> $data
+     * @param callable(Criteria): void $modifier
      * @param list<string> $expected
      */
     public function testLoadToManyPaginated(array $data, callable $modifier, array $expected): void

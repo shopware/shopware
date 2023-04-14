@@ -35,6 +35,9 @@ class AuthMiddleware
     ) {
     }
 
+    /**
+     * @param callable(RequestInterface, array<mixed>): mixed $handler
+     */
     public function __invoke(callable $handler): \Closure
     {
         return function (RequestInterface $request, array $options) use ($handler) {

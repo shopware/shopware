@@ -24,6 +24,8 @@ class CategoryEntity extends Entity
 
     /**
      * @var string|null
+     *
+     * @deprecated tag:v6.6.0 - Will be protected
      */
     public $afterCategoryId;
 

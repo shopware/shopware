@@ -49,12 +49,12 @@ class Entity extends Struct
             $this->checkIfPropertyAccessIsAllowed($name);
         }
 
-        return $this->$name;
+        return $this->$name; /* @phpstan-ignore-line */
     }
 
     public function __set($name, $value): void
     {
-        $this->$name = $value;
+        $this->$name = $value; /* @phpstan-ignore-line */
     }
 
     public function __isset($name)
@@ -65,7 +65,7 @@ class Entity extends Struct
             }
         }
 
-        return isset($this->$name);
+        return isset($this->$name); /* @phpstan-ignore-line */
     }
 
     public function setUniqueIdentifier(string $identifier): void
@@ -98,7 +98,7 @@ class Entity extends Struct
         }
 
         if ($this->has($property)) {
-            return $this->$property;
+            return $this->$property; /* @phpstan-ignore-line */
         }
 
         if ($this->hasExtension($property)) {

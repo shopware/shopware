@@ -176,11 +176,16 @@ class PostWriteValidationEventTest extends TestCase
     private static function getDefinition(string $entity): EntityDefinition
     {
         $definition = new class() extends EntityDefinition {
-            public string $entityName;
+            private string $entityName;
 
             public function getEntityName(): string
             {
                 return $this->entityName;
+            }
+
+            public function setEntityName(string $entityName): void
+            {
+                $this->entityName = $entityName;
             }
 
             protected function defineFields(): FieldCollection
@@ -189,7 +194,7 @@ class PostWriteValidationEventTest extends TestCase
             }
         };
 
-        $definition->entityName = $entity;
+        $definition->setEntityName($entity);
 
         return $definition;
     }

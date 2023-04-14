@@ -41,7 +41,12 @@ trait AppSystemTestBehaviour
         $fails = $appService->doRefreshApps($activateApps, Context::createDefaultContext());
 
         if (!empty($fails)) {
-            $errors = \array_map(fn (array $fail) => $fail['exception']->getMessage(), $fails);
+            $errors = \array_map(function (array $fail): string {
+                $exception = $fail['exception'];
+                static::assertInstanceOf(\Throwable::class, $exception);
+
+                return $exception->getMessage();
+            }, $fails);
 
             static::fail('App synchronisation failed: ' . \print_r($errors, true));
         }

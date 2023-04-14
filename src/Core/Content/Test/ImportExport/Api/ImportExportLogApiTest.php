@@ -69,24 +69,24 @@ class ImportExportLogApiTest extends TestCase
             $response = $this->getBrowser()->getResponse();
             static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
 
-            $content = json_decode((string) $response->getContent(), null, 512, \JSON_THROW_ON_ERROR);
+            $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
             $expectData = [];
             foreach (array_values($data) as $entry) {
                 $expectData[$entry['id']] = $entry;
             }
 
-            static::assertEquals($num, $content->total);
+            static::assertEquals($num, $content['total']);
             for ($i = 0; $i < $num; ++$i) {
-                $importExportLog = $content->data[$i];
-                $expect = $expectData[$importExportLog->_uniqueIdentifier];
-                static::assertEquals($expect['activity'], $importExportLog->activity);
-                static::assertEquals($expect['state'], $importExportLog->state);
-                static::assertEquals($expect['userId'], $importExportLog->userId);
-                static::assertEquals($expect['profileId'], $importExportLog->profileId);
-                static::assertEquals($expect['fileId'], $importExportLog->fileId);
-                static::assertEquals($expect['username'], $importExportLog->username);
-                static::assertEquals($expect['profileName'], $importExportLog->profileName);
+                $importExportLog = $content['data'][$i];
+                $expect = $expectData[$importExportLog['_uniqueIdentifier']];
+                static::assertEquals($expect['activity'], $importExportLog['activity']);
+                static::assertEquals($expect['state'], $importExportLog['state']);
+                static::assertEquals($expect['userId'], $importExportLog['userId']);
+                static::assertEquals($expect['profileId'], $importExportLog['profileId']);
+                static::assertEquals($expect['fileId'], $importExportLog['fileId']);
+                static::assertEquals($expect['username'], $importExportLog['username']);
+                static::assertEquals($expect['profileName'], $importExportLog['profileName']);
             }
         }
     }
@@ -118,19 +118,19 @@ class ImportExportLogApiTest extends TestCase
         $response = $this->getBrowser()->getResponse();
         static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
 
-        $content = json_decode((string) $response->getContent());
+        $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertEquals($num, $content->total);
+        static::assertEquals($num, $content['total']);
         for ($i = 0; $i < $num; ++$i) {
-            $importExportLog = $content->data[$i];
-            $expect = $expectData[$importExportLog->_uniqueIdentifier];
-            static::assertEquals($expect['activity'], $importExportLog->activity);
-            static::assertEquals($expect['state'], $importExportLog->state);
-            static::assertEquals($expect['userId'], $importExportLog->userId);
-            static::assertEquals($expect['profileId'], $importExportLog->profileId);
-            static::assertEquals($expect['fileId'], $importExportLog->fileId);
-            static::assertEquals($expect['username'], $importExportLog->username);
-            static::assertEquals($expect['profileName'], $importExportLog->profileName);
+            $importExportLog = $content['data'][$i];
+            $expect = $expectData[$importExportLog['_uniqueIdentifier']];
+            static::assertEquals($expect['activity'], $importExportLog['activity']);
+            static::assertEquals($expect['state'], $importExportLog['state']);
+            static::assertEquals($expect['userId'], $importExportLog['userId']);
+            static::assertEquals($expect['profileId'], $importExportLog['profileId']);
+            static::assertEquals($expect['fileId'], $importExportLog['fileId']);
+            static::assertEquals($expect['username'], $importExportLog['username']);
+            static::assertEquals($expect['profileName'], $importExportLog['profileName']);
         }
     }
 
@@ -147,14 +147,14 @@ class ImportExportLogApiTest extends TestCase
             $response = $this->getBrowser()->getResponse();
             static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
 
-            $content = json_decode((string) $response->getContent());
-            static::assertEquals($expect['activity'], $content->data->activity);
-            static::assertEquals($expect['state'], $content->data->state);
-            static::assertEquals($expect['userId'], $content->data->userId);
-            static::assertEquals($expect['profileId'], $content->data->profileId);
-            static::assertEquals($expect['fileId'], $content->data->fileId);
-            static::assertEquals($expect['username'], $content->data->username);
-            static::assertEquals($expect['profileName'], $content->data->profileName);
+            $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+            static::assertEquals($expect['activity'], $content['data']['activity']);
+            static::assertEquals($expect['state'], $content['data']['state']);
+            static::assertEquals($expect['userId'], $content['data']['userId']);
+            static::assertEquals($expect['profileId'], $content['data']['profileId']);
+            static::assertEquals($expect['fileId'], $content['data']['fileId']);
+            static::assertEquals($expect['username'], $content['data']['username']);
+            static::assertEquals($expect['profileName'], $content['data']['profileName']);
         }
     }
 
@@ -187,8 +187,8 @@ class ImportExportLogApiTest extends TestCase
             ]);
             $response = $this->getBrowser()->getResponse();
             static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
-            $content = json_decode((string) $response->getContent());
-            static ::assertEquals(0, $content->total);
+            $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+            static ::assertEquals(0, $content['total']);
 
             $filter['filter'][$key] = $value;
             $this->getBrowser()->request('POST', $this->prepareRoute(true), $filter, [], [
@@ -196,8 +196,8 @@ class ImportExportLogApiTest extends TestCase
             ]);
             $response = $this->getBrowser()->getResponse();
             static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
-            $content = json_decode((string) $response->getContent());
-            static ::assertEquals(1, $content->total);
+            $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+            static ::assertEquals(1, $content['total']);
         }
     }
 

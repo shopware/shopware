@@ -86,11 +86,11 @@ class WebhookEventMessageHandlerTest extends TestCase
         $request = $this->getLastRequest();
         static::assertInstanceOf(RequestInterface::class, $request);
         $payload = $request->getBody()->getContents();
-        $body = json_decode($payload, null, 512, \JSON_THROW_ON_ERROR);
+        $body = json_decode($payload, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals('POST', $request->getMethod());
-        static::assertEquals($body->body, 'payload');
-        static::assertGreaterThanOrEqual($body->timestamp, $timestamp);
+        static::assertEquals($body['body'], 'payload');
+        static::assertGreaterThanOrEqual($body['timestamp'], $timestamp);
         static::assertTrue($request->hasHeader('sw-version'));
         static::assertEquals($request->getHeaderLine('sw-version'), '6.4');
         static::assertEquals($request->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE), 'en-GB');
@@ -167,11 +167,11 @@ class WebhookEventMessageHandlerTest extends TestCase
         $request = $this->getLastRequest();
         static::assertInstanceOf(RequestInterface::class, $request);
         $payload = $request->getBody()->getContents();
-        $body = json_decode($payload, null, 512, \JSON_THROW_ON_ERROR);
+        $body = json_decode($payload, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals('POST', $request->getMethod());
-        static::assertEquals($body->body, 'payload');
-        static::assertGreaterThanOrEqual($body->timestamp, $timestamp);
+        static::assertEquals($body['body'], 'payload');
+        static::assertGreaterThanOrEqual($body['timestamp'], $timestamp);
         static::assertTrue($request->hasHeader('sw-version'));
         static::assertEquals($request->getHeaderLine('sw-version'), '6.4');
         static::assertEquals($request->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE), 'en-GB');

@@ -95,10 +95,9 @@ class ActionButton extends XmlElement
     {
         $values = [];
 
-        if (is_iterable($element->attributes)) {
-            foreach ($element->attributes as $attribute) {
-                $values[$attribute->name] = XmlReader::phpize($attribute->value);
-            }
+        foreach ($element->attributes ?? [] as $attribute) {
+            \assert($attribute instanceof \DOMAttr);
+            $values[$attribute->name] = XmlReader::phpize($attribute->value);
         }
 
         foreach ($element->childNodes as $child) {

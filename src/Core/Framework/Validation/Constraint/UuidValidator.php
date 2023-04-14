@@ -25,14 +25,14 @@ class UuidValidator extends ConstraintValidator
         }
 
         if (!\is_string($value)) {
-            $this->context->buildViolation($constraint::INVALID_TYPE_MESSAGE)
+            $this->context->buildViolation(UuidConstraint::INVALID_TYPE_MESSAGE)
                 ->addViolation();
 
             return;
         }
 
         if (!Uuid::isValid($value)) {
-            $this->context->buildViolation($constraint::INVALID_MESSAGE)
+            $this->context->buildViolation(UuidConstraint::INVALID_MESSAGE)
                 ->setParameter('{{ string }}', $value)
                 ->addViolation();
         }

@@ -21,7 +21,7 @@ use function Symfony\Component\String\u;
 /**
  * @internal
  *
- * @phpstan-type PropertyDefinitions array<string, array{name: string, description: string, prompt: string, default: string, validator?: callable}>
+ * @phpstan-type PropertyDefinitions array<string, array{name: string, description: string, prompt: string, default: string, validator?: callable(string): string, normaliser?: callable(string): string}>
  */
 #[AsCommand(name: 'app:create', description: 'Creates an app skeleton')]
 #[Package('core')]
@@ -133,7 +133,10 @@ class CreateAppCommand extends Command
         }
     }
 
-    private static function makeRegexValidator(string $regex, string $message): \Closure
+    /**
+     * @return callable(string): string
+     */
+    private static function makeRegexValidator(string $regex, string $message): callable
     {
         return static function (string $value) use ($regex, $message): string {
             if (preg_match($regex, $value) !== 1) {

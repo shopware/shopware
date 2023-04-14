@@ -202,7 +202,7 @@ class DocumentConfiguration extends Struct
      */
     public function __set($name, $value)
     {
-        $this->$name = $value;
+        $this->$name = $value; /* @phpstan-ignore-line */
 
         return $this;
     }
@@ -214,7 +214,7 @@ class DocumentConfiguration extends Struct
      */
     public function __get($name)
     {
-        return $this->$name;
+        return $this->$name; /* @phpstan-ignore-line */
     }
 
     /**

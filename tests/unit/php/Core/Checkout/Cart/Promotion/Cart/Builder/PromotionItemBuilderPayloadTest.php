@@ -256,7 +256,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
 
         $rule = new RuleEntity();
         $rule->setId('R1');
-        $rule->setPayload($this->getFakeRule());
+        $rule->setPayload((new LineItemUnitPriceRule())->assign(['amount' => 10, 'operator' => '=']));
 
         $ruleCollection = new RuleCollection([$rule]);
 
@@ -489,13 +489,5 @@ class PromotionItemBuilderPayloadTest extends TestCase
         static::assertNull($item->getPayload()['filter']['sorterKey'], 'Wrong value in payload filter.sorterKey');
         static::assertNull($item->getPayload()['filter']['applierKey'], 'Wrong value in payload filter.applierKey');
         static::assertNull($item->getPayload()['filter']['usageKey'], 'Wrong value in payload filter.usageKey');
-    }
-
-    /**
-     * just get a ruleEntity with ID R1
-     */
-    private function getFakeRule(): LineItemUnitPriceRule
-    {
-        return (new LineItemUnitPriceRule())->assign(['amount' => 10, 'operator' => '=']);
     }
 }

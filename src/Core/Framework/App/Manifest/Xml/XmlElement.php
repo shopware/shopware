@@ -48,6 +48,8 @@ class XmlElement extends Struct
     }
 
     /**
+     * @param callable(\DOMElement): (XmlElement|string) $transformer
+     *
      * @return array<mixed>
      */
     protected static function parseChildNodes(\DOMElement $child, callable $transformer): array

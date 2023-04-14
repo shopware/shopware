@@ -29,7 +29,7 @@ class TestHook extends Hook
         self::$deprecatedServices = $deprecatedServices;
 
         foreach ($data as $key => $value) {
-            $this->$key = $value;
+            $this->$key = $value; /* @phpstan-ignore-line */
         }
     }
 

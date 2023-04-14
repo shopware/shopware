@@ -126,6 +126,9 @@ class WriteContext
         return $this->exceptions;
     }
 
+    /**
+     * @param callable(WriteContext): void $callback
+     */
     public function scope(string $scope, callable $callback): void
     {
         $originalContext = $this->context;

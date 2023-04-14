@@ -66,8 +66,8 @@ class ErrorControllerTest extends TestCase
         $apiRequest->headers->set('X-Requested-With', 'XMLHttpRequest');
         $response = $this->controller->onCaptchaFailure($violations, $apiRequest);
         $responseContent = $response->getContent();
-        $content = json_decode((string) $responseContent, false, 512, \JSON_THROW_ON_ERROR);
-        $type = $content[0]->type;
+        $content = json_decode((string) $responseContent, true, 512, \JSON_THROW_ON_ERROR);
+        $type = $content[0]['type'];
         static::assertInstanceOf(JsonResponse::class, $response);
         static::assertSame(200, $response->getStatusCode());
         static::assertCount(1, $content);

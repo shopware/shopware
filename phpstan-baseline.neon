@@ -1931,26 +1931,6 @@ parameters:
 			path: src/Core/Content/Flow/Dispatching/Struct/ActionSequence.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\Struct\\\\Flow\\:\\:__construct\\(\\) has parameter \\$flat with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Flow/Dispatching/Struct/Flow.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\Struct\\\\Flow\\:\\:__construct\\(\\) has parameter \\$sequences with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Flow/Dispatching/Struct/Flow.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\Struct\\\\Flow\\:\\:getFlat\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Flow/Dispatching/Struct/Flow.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\Struct\\\\Flow\\:\\:getSequences\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Flow/Dispatching/Struct/Flow.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\Struct\\\\Sequence\\:\\:createAction\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Flow/Dispatching/Struct/Sequence.php
@@ -8382,11 +8362,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/FkFieldSerializer.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\FkFieldSerializer\\:\\:shouldUseContext\\(\\) has parameter \\$value with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/FkFieldSerializer.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\IdFieldSerializer\\:\\:normalize\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/IdFieldSerializer.php
@@ -10382,31 +10357,6 @@ parameters:
 			path: src/Core/Framework/Test/Api/Controller/PromotionControllerTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Converter\\\\fixtures\\\\DeprecatedConverter\\:\\:getDeprecations\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Converter/fixtures/DeprecatedConverter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Converter\\\\fixtures\\\\DeprecatedConverter\\:\\:getNewFields\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Converter/fixtures/DeprecatedConverter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Converter\\\\fixtures\\\\DeprecatedEntity\\:\\:getPrices\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Converter/fixtures/DeprecatedEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Converter\\\\fixtures\\\\DeprecatedEntity\\:\\:setPrices\\(\\) has parameter \\$prices with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Converter/fixtures/DeprecatedEntity.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Converter\\\\fixtures\\\\DeprecatedEntity\\:\\:\\$_entityName has no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Converter/fixtures/DeprecatedEntity.php
-
-		-
 			message: "#^Method ErrorResponseFactoryTest\\:\\:invalidUtf8SequencesProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Api/EventListener/ErrorResponseFactoryTest.php
@@ -11627,56 +11577,6 @@ parameters:
 			path: src/Core/Framework/Test/Language/LanguageValidatorTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Language\\\\LanguageValidatorTest\\:\\:assertDeleteViolations\\(\\) has parameter \\$expectedCodePathPairs with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Language/LanguageValidatorTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Language\\\\LanguageValidatorTest\\:\\:assertDeleteViolations\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Language/LanguageValidatorTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Language\\\\LanguageValidatorTest\\:\\:assertInsertViolations\\(\\) has parameter \\$expectedCodePathPairs with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Language/LanguageValidatorTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Language\\\\LanguageValidatorTest\\:\\:assertInsertViolations\\(\\) has parameter \\$insertData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Language/LanguageValidatorTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Language\\\\LanguageValidatorTest\\:\\:assertUpdateViolations\\(\\) has parameter \\$expectedCodePathPairs with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Language/LanguageValidatorTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Language\\\\LanguageValidatorTest\\:\\:assertUpdateViolations\\(\\) has parameter \\$updateData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Language/LanguageValidatorTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Language\\\\LanguageValidatorTest\\:\\:assertUpsertViolations\\(\\) has parameter \\$addDefaultTranslationCode with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Language/LanguageValidatorTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Language\\\\LanguageValidatorTest\\:\\:assertUpsertViolations\\(\\) has parameter \\$expectedCodePathPairs with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Language/LanguageValidatorTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Language\\\\LanguageValidatorTest\\:\\:assertUpsertViolations\\(\\) has parameter \\$upsertData with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Language/LanguageValidatorTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Language\\\\LanguageValidatorTest\\:\\:assertWriteStackViolations\\(\\) has parameter \\$expectedCodePathPairs with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Language/LanguageValidatorTest.php
-
-		-
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/MessageQueue/Api/MessageQueueEndpointTest.php
@@ -12340,26 +12240,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Validation\\\\Exception\\\\ConstraintViolationException\\:\\:getInputData\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Validation/Exception/ConstraintViolationException.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Validation\\\\HappyPathValidator\\:\\:normalizeValueIfRequired\\(\\) has parameter \\$value with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Validation/HappyPathValidator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Validation\\\\HappyPathValidator\\:\\:normalizeValueIfRequired\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Validation/HappyPathValidator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Validation\\\\HappyPathValidator\\:\\:validateConstraint\\(\\) has parameter \\$value with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Validation/HappyPathValidator.php
-
-		-
-			message: "#^PHPDoc tag @var for variable \\$value has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Validation/HappyPathValidator.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Validation\\\\WriteConstraintViolationException\\:\\:toArray\\(\\) return type has no value type specified in iterable type array\\.$#"

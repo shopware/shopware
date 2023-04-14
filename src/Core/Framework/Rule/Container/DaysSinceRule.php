@@ -40,6 +40,7 @@ abstract class DaysSinceRule extends Rule
         if (method_exists($date, 'setTime')) {
             $date = $date->setTime(0, 0, 0, 0);
         }
+        /** @var \DateInterval $interval */
         $interval = $date->diff($currentDate);
 
         if ($this->operator === self::OPERATOR_EMPTY) {

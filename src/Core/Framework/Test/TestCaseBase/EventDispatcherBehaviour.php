@@ -7,7 +7,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 trait EventDispatcherBehaviour
 {
     /**
-     * @var array<array{'dispatcher': EventDispatcherInterface, 'name': string, 'callback': callable}>
+     * @var array<array{'dispatcher': EventDispatcherInterface, 'name': string, 'callback': callable(object): void}>
      */
     private array $registered = [];
 
@@ -17,6 +17,7 @@ trait EventDispatcherBehaviour
         callable $callback,
         int $priority = 0
     ): void {
+        /** @var callable(object): void $callback - Specify generic callback interface callers can provide more specific implementations */
         $this->registered[] = [
             'dispatcher' => $dispatcher,
             'name' => $eventName,

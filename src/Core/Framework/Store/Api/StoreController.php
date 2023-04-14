@@ -77,8 +77,10 @@ class StoreController extends AbstractController
     #[Route(path: '/api/_action/store/logout', name: 'api.custom.store.logout', methods: ['POST'])]
     public function logout(Context $context): Response
     {
-        $context->scope(Context::SYSTEM_SCOPE, function ($context): void {
-            $this->userRepository->update([['id' => $context->getSource()->getUserId(), 'storeToken' => null]], $context);
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context): void {
+            $source = $context->getSource();
+            \assert($source instanceof AdminApiSource);
+            $this->userRepository->update([['id' => $source->getUserId(), 'storeToken' => null]], $context);
         });
 
         return new Response();

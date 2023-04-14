@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Changelog\Processor;
 
+use Shopware\Core\Framework\Changelog\ChangelogDefinition;
 use Shopware\Core\Framework\Changelog\ChangelogFileCollection;
 use Shopware\Core\Framework\Changelog\ChangelogSection;
 use Shopware\Core\Framework\Log\Package;
@@ -76,43 +77,43 @@ class ChangelogReleaseExporter extends ChangelogProcessor
      */
     private function exportByRequestedSection(array $output, ChangelogFileCollection $collection, string $section): array
     {
-        $getContentFnc = '';
+        $getContentFnc = static fn (ChangelogDefinition $definition): ?string => null;
         $title = '';
         switch ($section) {
             case ChangelogSection::core->name:
                 $title = ChangelogSection::core->value;
-                $getContentFnc = 'getCore';
+                $getContentFnc = static fn (ChangelogDefinition $definition): ?string => $definition->getCore();
 
                 break;
             case ChangelogSection::api->name:
                 $title = ChangelogSection::api->value;
-                $getContentFnc = 'getApi';
+                $getContentFnc = static fn (ChangelogDefinition $definition): ?string => $definition->getApi();
 
                 break;
             case ChangelogSection::storefront->name:
                 $title = ChangelogSection::storefront->value;
-                $getContentFnc = 'getStorefront';
+                $getContentFnc = static fn (ChangelogDefinition $definition): ?string => $definition->getStorefront();
 
                 break;
             case ChangelogSection::administration->name:
                 $title = ChangelogSection::administration->value;
-                $getContentFnc = 'getAdministration';
+                $getContentFnc = static fn (ChangelogDefinition $definition): ?string => $definition->getAdministration();
 
                 break;
             case ChangelogSection::upgrade->name:
                 $title = ChangelogSection::upgrade->value;
-                $getContentFnc = 'getUpgradeInformation';
+                $getContentFnc = static fn (ChangelogDefinition $definition): ?string => $definition->getUpgradeInformation();
 
                 break;
             case ChangelogSection::major->name:
                 $title = ChangelogSection::major->value;
-                $getContentFnc = 'getNextMajorVersionChanges';
+                $getContentFnc = static fn (ChangelogDefinition $definition): ?string => $definition->getNextMajorVersionChanges();
 
                 break;
         }
         $changes = [];
         foreach ($collection as $changelog) {
-            $content = $changelog->getDefinition()->$getContentFnc();
+            $content = $getContentFnc($changelog->getDefinition());
             if (!empty($content)) {
                 $changes[] = $content;
             }

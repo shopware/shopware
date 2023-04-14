@@ -20,6 +20,8 @@ class ScriptCacheInvalidationSubscriberTest extends TestCase
 
     /**
      * @dataProvider invalidationCasesProvider
+     *
+     * @param callable(ContainerInterface): void $closure
      */
     public function testCacheInvalidation(string $tagName, callable $closure, bool $shouldBeInvalidated, IdsCollection $ids): void
     {

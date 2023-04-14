@@ -70,6 +70,7 @@ class FlowDispatcher implements EventDispatcherInterface
      */
     public function addListener(string $eventName, $listener, int $priority = 0): void // @phpstan-ignore-line
     {
+        /** @var callable(object): void $listener - Specify generic callback interface callers can provide more specific implementations */
         $this->dispatcher->addListener($eventName, $listener, $priority);
     }
 
@@ -80,6 +81,7 @@ class FlowDispatcher implements EventDispatcherInterface
 
     public function removeListener(string $eventName, callable $listener): void
     {
+        /** @var callable(object): void $listener - Specify generic callback interface callers can provide more specific implementations */
         $this->dispatcher->removeListener($eventName, $listener);
     }
 
@@ -88,6 +90,9 @@ class FlowDispatcher implements EventDispatcherInterface
         $this->dispatcher->removeSubscriber($subscriber);
     }
 
+    /**
+     * @return array<array-key, array<array-key, callable(object): void>|callable(object): void>
+     */
     public function getListeners(?string $eventName = null): array
     {
         return $this->dispatcher->getListeners($eventName);
@@ -95,6 +100,7 @@ class FlowDispatcher implements EventDispatcherInterface
 
     public function getListenerPriority(string $eventName, callable $listener): ?int
     {
+        /** @var callable(object): void $listener - Specify generic callback interface callers can provide more specific implementations */
         return $this->dispatcher->getListenerPriority($eventName, $listener);
     }
 

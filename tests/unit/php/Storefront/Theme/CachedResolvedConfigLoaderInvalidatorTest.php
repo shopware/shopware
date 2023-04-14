@@ -20,12 +20,12 @@ class CachedResolvedConfigLoaderInvalidatorTest extends TestCase
 {
     private CachedResolvedConfigLoaderInvalidator $cachedResolvedConfigLoaderInvalidator;
 
-    private mixed $logger;
+    private MockedCacheInvalidator $cacheInvalidator;
 
     protected function setUp(): void
     {
-        $this->logger = new MockedCacheInvalidator();
-        $this->cachedResolvedConfigLoaderInvalidator = new CachedResolvedConfigLoaderInvalidator($this->logger);
+        $this->cacheInvalidator = new MockedCacheInvalidator();
+        $this->cachedResolvedConfigLoaderInvalidator = new CachedResolvedConfigLoaderInvalidator($this->cacheInvalidator);
     }
 
     public function testGetSubscribedEvents(): void
@@ -57,7 +57,7 @@ class CachedResolvedConfigLoaderInvalidatorTest extends TestCase
 
         static::assertEquals(
             $expectedInvalidatedTags,
-            $this->logger->getInvalidatedTags()
+            $this->cacheInvalidator->getInvalidatedTags()
         );
     }
 }

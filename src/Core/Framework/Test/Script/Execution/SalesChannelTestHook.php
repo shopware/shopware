@@ -30,7 +30,7 @@ class SalesChannelTestHook extends Hook implements SalesChannelContextAware
         self::$serviceIds = $serviceIds;
 
         foreach ($data as $key => $value) {
-            $this->$key = $value;
+            $this->$key = $value; /* @phpstan-ignore-line */
         }
     }
 

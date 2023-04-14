@@ -34,6 +34,9 @@ abstract class AbstractAppUrlChangeStrategy
 
     abstract public function getDecorated(): self;
 
+    /**
+     * @param callable(Manifest, AppEntity, Context): void $callback
+     */
     protected function forEachInstalledApp(Context $context, callable $callback): void
     {
         $manifests = $this->appLoader->load();

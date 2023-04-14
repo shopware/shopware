@@ -135,7 +135,7 @@ class ThemeLifecycleService
     {
         $path = $this->themeFileImporter->getRealPath($path);
 
-        if (!$this->fileExists($path)) {
+        if (!$this->themeFileImporter->fileExists($path)) {
             return null;
         }
 
@@ -280,11 +280,6 @@ class ThemeLifecycleService
         }
 
         return $helpTexts;
-    }
-
-    private function fileExists(string $path): bool
-    {
-        return $this->themeFileImporter->fileExists($path);
     }
 
     private function removeOldMedia(string $technicalName, Context $context): void

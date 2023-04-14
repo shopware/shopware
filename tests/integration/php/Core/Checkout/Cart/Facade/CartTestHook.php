@@ -41,7 +41,7 @@ class CartTestHook extends Hook implements CartAware
         self::$serviceIds = $serviceIds;
 
         foreach ($data as $key => $value) {
-            $this->$key = $value;
+            $this->$key = $value; /* @phpstan-ignore-line */
         }
     }
 

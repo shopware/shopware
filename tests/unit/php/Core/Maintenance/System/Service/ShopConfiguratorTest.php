@@ -157,6 +157,7 @@ class ShopConfiguratorTest extends TestCase
     /**
      * @param array<string, string> $expectedStateTranslations
      * @param array<string, string> $expectedMissingTranslations
+     * @param callable(string, array<string, string>): void $insertCallback
      *
      * @dataProvider countryStateTranslationsProvider
      */

@@ -34,7 +34,7 @@ class ProductFeatureSetTranslationEntityTest extends TestCase
         $definition = $this->getContainer()->get(ProductFeatureSetTranslationDefinition::class);
 
         static::assertTrue(method_exists($definition, $method));
-        static::assertEquals($returnValue, $definition->$method());
+        static::assertEquals($returnValue, $definition->$method()); /* @phpstan-ignore-line */
     }
 
     /**

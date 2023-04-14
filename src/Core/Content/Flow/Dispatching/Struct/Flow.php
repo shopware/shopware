@@ -11,6 +11,10 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('business-ops')]
 class Flow extends Struct
 {
+    /**
+     * @param list<Sequence> $sequences
+     * @param array<string, Sequence> $flat
+     */
     public function __construct(
         protected string $id,
         protected array $sequences = [],
@@ -23,11 +27,17 @@ class Flow extends Struct
         return $this->id;
     }
 
+    /**
+     * @return list<Sequence>
+     */
     public function getSequences(): array
     {
         return $this->sequences;
     }
 
+    /**
+     * @return array<string, Sequence>
+     */
     public function getFlat(): array
     {
         return $this->flat;
@@ -35,6 +45,6 @@ class Flow extends Struct
 
     public function jump(string $id): void
     {
-        $this->sequences = [$this->flat[$id] ?? []];
+        $this->sequences = array_filter([$this->flat[$id] ?? null]);
     }
 }

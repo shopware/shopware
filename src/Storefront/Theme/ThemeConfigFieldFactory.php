@@ -18,7 +18,7 @@ class ThemeConfigFieldFactory
             if (!method_exists($configField, $setter)) {
                 throw new InvalidThemeConfigException($key);
             }
-            $configField->$setter($value);
+            $configField->$setter($value); // @phpstan-ignore-line
         }
 
         return $configField;

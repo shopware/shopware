@@ -24,7 +24,7 @@ class StorableFlow extends Struct
      * @internal
      *
      * @param array<string, mixed> $store
-     * @param array<string, mixed> $data
+     * @param array<string, mixed|callable(StorableFlow): mixed> $data
      */
     public function __construct(
         protected string $name,
@@ -88,6 +88,7 @@ class StorableFlow extends Struct
         $value = $this->data[$key] ?? $default;
 
         if (\is_callable($value)) {
+            /** @var callable(StorableFlow): mixed $value */
             $this->data[$key] = $value($this);
         }
 
@@ -107,6 +108,7 @@ class StorableFlow extends Struct
     }
 
     /**
+     * @param callable(array<int, mixed>): mixed $closure
      * @param array<int, mixed> $args
      */
     public function lazy(string $key, callable $closure, array $args): void

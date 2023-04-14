@@ -130,7 +130,7 @@ class CachedSitemapRouteTest extends TestCase
         $route->load(new Request(), $this->context);
         $route->load(new Request(), $this->context);
 
-        static::assertSame($calls, $counter->getCount());
+        static::assertSame($calls, $counter->count);
     }
 
     public static function invalidationProvider(): \Generator
@@ -164,11 +164,6 @@ class SitemapRouteCounter extends AbstractSitemapRoute
 
     public function __construct(private readonly AbstractSitemapRoute $decorated)
     {
-    }
-
-    public function getCount(): int
-    {
-        return $this->count;
     }
 
     public function load(Request $request, SalesChannelContext $context): SitemapRouteResponse

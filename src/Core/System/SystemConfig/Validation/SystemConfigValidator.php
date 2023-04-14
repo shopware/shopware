@@ -102,14 +102,14 @@ class SystemConfigValidator
      */
     private function buildConstraintsWithConfigs(array $elementConfig): array
     {
-        /** @var array<string, callable> $constraints */
+        /** @var array<string, callable(mixed): Constraint> $constraints */
         $constraints = [
-            'minLength' => fn ($ruleValue) => new Assert\Length(['min' => $ruleValue]),
-            'maxLength' => fn ($ruleValue) => new Assert\Length(['max' => $ruleValue]),
-            'min' => fn ($ruleValue) => new Assert\Range(['min' => $ruleValue]),
-            'max' => fn ($ruleValue) => new Assert\Range(['max' => $ruleValue]),
-            'dataType' => fn ($ruleValue) => new Assert\Type($ruleValue),
-            'required' => fn ($ruleValue) => new Assert\NotBlank(),
+            'minLength' => fn (mixed $ruleValue) => new Assert\Length(['min' => $ruleValue]),
+            'maxLength' => fn (mixed $ruleValue) => new Assert\Length(['max' => $ruleValue]),
+            'min' => fn (mixed $ruleValue) => new Assert\Range(['min' => $ruleValue]),
+            'max' => fn (mixed $ruleValue) => new Assert\Range(['max' => $ruleValue]),
+            'dataType' => fn (mixed $ruleValue) => new Assert\Type($ruleValue),
+            'required' => fn (mixed $ruleValue) => new Assert\NotBlank(),
         ];
 
         $constraintsResult = [];

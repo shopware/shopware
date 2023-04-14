@@ -793,6 +793,10 @@ class LanguageValidatorTest extends TestCase
         $this->assertInsertViolations([$root, $sub], [], false /* no default locale ! */);
     }
 
+    /**
+     * @param callable(): void $function
+     * @param list<list<string>> $expectedCodePathPairs
+     */
     protected function assertWriteStackViolations(callable $function, array $expectedCodePathPairs): void
     {
         /** @var WriteException|null $stack */
@@ -817,6 +821,10 @@ class LanguageValidatorTest extends TestCase
         static::assertCount(\count($expectedCodePathPairs), $actualViolations);
     }
 
+    /**
+     * @param list<array<string, mixed>> $updateData
+     * @param list<list<string>> $expectedCodePathPairs
+     */
     protected function assertUpdateViolations(array $updateData, array $expectedCodePathPairs): void
     {
         $this->assertWriteStackViolations(function () use ($updateData): void {
@@ -824,6 +832,10 @@ class LanguageValidatorTest extends TestCase
         }, $expectedCodePathPairs);
     }
 
+    /**
+     * @param list<array<string, mixed>> $insertData
+     * @param list<list<string>> $expectedCodePathPairs
+     */
     protected function assertInsertViolations(array $insertData, array $expectedCodePathPairs, bool $addDefaultTranslationCode = true): void
     {
         if ($addDefaultTranslationCode) {
@@ -835,7 +847,11 @@ class LanguageValidatorTest extends TestCase
         }, $expectedCodePathPairs);
     }
 
-    protected function assertUpsertViolations(array $upsertData, array $expectedCodePathPairs, $addDefaultTranslationCode = true): void
+    /**
+     * @param list<array<string, mixed>> $upsertData
+     * @param list<list<string>> $expectedCodePathPairs
+     */
+    protected function assertUpsertViolations(array $upsertData, array $expectedCodePathPairs, bool $addDefaultTranslationCode = true): void
     {
         if ($addDefaultTranslationCode) {
             $upsertData = $this->addDefaultTranslationCodes($upsertData);
@@ -846,6 +862,10 @@ class LanguageValidatorTest extends TestCase
         }, $expectedCodePathPairs);
     }
 
+    /**
+     * @param array<array<string, mixed|null>> $ids
+     * @param list<list<string>> $expectedCodePathPairs
+     */
     protected function assertDeleteViolations(array $ids, array $expectedCodePathPairs): void
     {
         $this->assertWriteStackViolations(function () use ($ids): void {

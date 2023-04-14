@@ -96,7 +96,7 @@ class MailHeaderFooterApiTest extends TestCase
         $response = $this->getBrowser()->getResponse();
         static::assertEquals(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
 
-        $content = json_decode($response->getContent(), null, 512, \JSON_THROW_ON_ERROR);
+        $content = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         // Prepare expected data.
         $expectData = [];
@@ -105,17 +105,17 @@ class MailHeaderFooterApiTest extends TestCase
         }
 
         // compare expected and resulting data
-        static::assertEquals($num, $content->total);
+        static::assertEquals($num, $content['total']);
         for ($i = 0; $i < $num; ++$i) {
-            $mailHeaderFooter = $content->data[$i];
-            $expect = $expectData[$mailHeaderFooter->_uniqueIdentifier];
-            static::assertEquals($expect['systemDefault'], $mailHeaderFooter->systemDefault);
-            static::assertEquals($expect['name'], $mailHeaderFooter->name);
-            static::assertEquals($expect['description'], $mailHeaderFooter->description);
-            static::assertEquals($expect['headerHtml'], $mailHeaderFooter->headerHtml);
-            static::assertEquals($expect['headerPlain'], $mailHeaderFooter->headerPlain);
-            static::assertEquals($expect['footerHtml'], $mailHeaderFooter->footerHtml);
-            static::assertEquals($expect['footerPlain'], $mailHeaderFooter->footerPlain);
+            $mailHeaderFooter = $content['data'][$i];
+            $expect = $expectData[$mailHeaderFooter['_uniqueIdentifier']];
+            static::assertEquals($expect['systemDefault'], $mailHeaderFooter['systemDefault']);
+            static::assertEquals($expect['name'], $mailHeaderFooter['name']);
+            static::assertEquals($expect['description'], $mailHeaderFooter['description']);
+            static::assertEquals($expect['headerHtml'], $mailHeaderFooter['headerHtml']);
+            static::assertEquals($expect['headerPlain'], $mailHeaderFooter['headerPlain']);
+            static::assertEquals($expect['footerHtml'], $mailHeaderFooter['footerHtml']);
+            static::assertEquals($expect['footerPlain'], $mailHeaderFooter['footerPlain']);
         }
     }
 
@@ -150,20 +150,20 @@ class MailHeaderFooterApiTest extends TestCase
         $response = $this->getBrowser()->getResponse();
         static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
 
-        $content = json_decode($response->getContent(), null, 512, \JSON_THROW_ON_ERROR);
+        $content = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         // Compare expected and received data.
-        static::assertEquals($num, $content->total);
+        static::assertEquals($num, $content['total']);
         for ($i = 0; $i < $num; ++$i) {
-            $mailHeaderFooter = $content->data[$i];
-            $expect = $expectData[$mailHeaderFooter->_uniqueIdentifier];
-            static::assertEquals($expect['systemDefault'], $mailHeaderFooter->systemDefault);
-            static::assertEquals($expect['name'], $mailHeaderFooter->name);
-            static::assertEquals($expect['description'], $mailHeaderFooter->description);
-            static::assertEquals($expect['headerHtml'], $mailHeaderFooter->headerHtml);
-            static::assertEquals($expect['headerPlain'], $mailHeaderFooter->headerPlain);
-            static::assertEquals($expect['footerHtml'], $mailHeaderFooter->footerHtml);
-            static::assertEquals($expect['footerPlain'], $mailHeaderFooter->footerPlain);
+            $mailHeaderFooter = $content['data'][$i];
+            $expect = $expectData[$mailHeaderFooter['_uniqueIdentifier']];
+            static::assertEquals($expect['systemDefault'], $mailHeaderFooter['systemDefault']);
+            static::assertEquals($expect['name'], $mailHeaderFooter['name']);
+            static::assertEquals($expect['description'], $mailHeaderFooter['description']);
+            static::assertEquals($expect['headerHtml'], $mailHeaderFooter['headerHtml']);
+            static::assertEquals($expect['headerPlain'], $mailHeaderFooter['headerPlain']);
+            static::assertEquals($expect['footerHtml'], $mailHeaderFooter['footerHtml']);
+            static::assertEquals($expect['footerPlain'], $mailHeaderFooter['footerPlain']);
         }
     }
 
@@ -186,14 +186,14 @@ class MailHeaderFooterApiTest extends TestCase
             static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
 
             // compare deatils with expected
-            $content = json_decode($response->getContent(), null, 512, \JSON_THROW_ON_ERROR);
-            static::assertEquals($expect['systemDefault'], $content->data->systemDefault);
-            static::assertEquals($expect['name'], $content->data->name);
-            static::assertEquals($expect['description'], $content->data->description);
-            static::assertEquals($expect['headerHtml'], $content->data->headerHtml);
-            static::assertEquals($expect['headerPlain'], $content->data->headerPlain);
-            static::assertEquals($expect['footerHtml'], $content->data->footerHtml);
-            static::assertEquals($expect['footerPlain'], $content->data->footerPlain);
+            $content = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+            static::assertEquals($expect['systemDefault'], $content['data']['systemDefault']);
+            static::assertEquals($expect['name'], $content['data']['name']);
+            static::assertEquals($expect['description'], $content['data']['description']);
+            static::assertEquals($expect['headerHtml'], $content['data']['headerHtml']);
+            static::assertEquals($expect['headerPlain'], $content['data']['headerPlain']);
+            static::assertEquals($expect['footerHtml'], $content['data']['footerHtml']);
+            static::assertEquals($expect['footerPlain'], $content['data']['footerPlain']);
         }
     }
 
@@ -218,8 +218,8 @@ class MailHeaderFooterApiTest extends TestCase
             ]);
             $response = $this->getBrowser()->getResponse();
             static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
-            $content = json_decode($response->getContent(), null, 512, \JSON_THROW_ON_ERROR);
-            static ::assertEquals(1, $content->total);
+            $content = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+            static ::assertEquals(1, $content['total']);
         }
     }
 

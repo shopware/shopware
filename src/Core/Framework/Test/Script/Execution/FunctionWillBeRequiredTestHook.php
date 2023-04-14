@@ -18,7 +18,7 @@ class FunctionWillBeRequiredTestHook extends OptionalFunctionHook
         parent::__construct($context);
 
         foreach ($data as $key => $value) {
-            $this->$key = $value;
+            $this->$key = $value; /* @phpstan-ignore-line */
         }
     }
 

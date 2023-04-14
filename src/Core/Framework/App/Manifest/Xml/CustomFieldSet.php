@@ -106,10 +106,8 @@ class CustomFieldSet extends XmlElement
     {
         $values = [];
 
-        /** @var \DOMNamedNodeMap $attributes */
-        $attributes = $element->attributes;
-
-        foreach ($attributes as $attribute) {
+        foreach ($element->attributes ?? [] as $attribute) {
+            \assert($attribute instanceof \DOMAttr);
             $values[$attribute->name] = XmlReader::phpize($attribute->value);
         }
 

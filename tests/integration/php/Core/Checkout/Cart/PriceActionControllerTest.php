@@ -8,10 +8,9 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\Tax\TaxEntity;
-use Shopware\Core\System\Test\EntityFixturesBase;
 use Shopware\Core\Test\TestDefaults;
 
 /**
@@ -20,12 +19,6 @@ use Shopware\Core\Test\TestDefaults;
 class PriceActionControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
-    use EntityFixturesBase;
-
-    /**
-     * @var array<string, mixed>
-     */
-    public $taxFixtures;
 
     public function testPriceMissingExecption(): void
     {
@@ -66,13 +59,17 @@ class PriceActionControllerTest extends TestCase
     }
 
     /**
+     * @param array{id: string, name: string, taxRate: float, areaRules?: list<array<string, mixed>>} $tax
+     *
      * @dataProvider dataProviderTestNetToGross
      */
-    public function testNetToGross(float $taxRate, string $getTaxIdFuncName, float $expectedPrice, float $expectedTax): void
+    public function testNetToGross(array $tax, float $expectedPrice, float $expectedTax): void
     {
+        $this->getContainer()->get('tax.repository')->create([$tax], Context::createDefaultContext());
+
         $price = $this->sendRequest([
             'price' => 10,
-            'taxId' => $this->{$getTaxIdFuncName}()->getId(),
+            'taxId' => $tax['id'],
             'calculated' => false,
         ]);
 
@@ -81,10 +78,10 @@ class PriceActionControllerTest extends TestCase
                 $expectedPrice,
                 $expectedPrice,
                 new CalculatedTaxCollection([
-                    new CalculatedTax($expectedTax, $taxRate, $expectedPrice),
+                    new CalculatedTax($expectedTax, $tax['taxRate'], $expectedPrice),
                 ]),
                 new TaxRuleCollection([
-                    new TaxRule($taxRate, 100),
+                    new TaxRule($tax['taxRate'], 100),
                 ])
             ),
             $price
@@ -92,14 +89,18 @@ class PriceActionControllerTest extends TestCase
     }
 
     /**
+     * @param array{id: string, name: string, taxRate: float, areaRules?: list<array<string, mixed>>} $tax
+     *
      * @dataProvider dataProviderTestNetToNet
      */
-    public function testNetToNet(float $taxRate, string $getTaxIdFuncName, float $expectedPrice, float $expectedTax): void
+    public function testNetToNet(array $tax, float $expectedPrice, float $expectedTax): void
     {
+        $this->getContainer()->get('tax.repository')->create([$tax], Context::createDefaultContext());
+
         $price = $this->sendRequest([
             'price' => 10.002,
             'output' => 'net',
-            'taxId' => $this->{$getTaxIdFuncName}()->getId(),
+            'taxId' => $tax['id'],
             'calculated' => true,
         ]);
 
@@ -108,10 +109,10 @@ class PriceActionControllerTest extends TestCase
                 $expectedPrice,
                 $expectedPrice,
                 new CalculatedTaxCollection([
-                    new CalculatedTax($expectedTax, $taxRate, $expectedPrice),
+                    new CalculatedTax($expectedTax, $tax['taxRate'], $expectedPrice),
                 ]),
                 new TaxRuleCollection([
-                    new TaxRule($taxRate, 100),
+                    new TaxRule($tax['taxRate'], 100),
                 ])
             ),
             $price
@@ -119,13 +120,17 @@ class PriceActionControllerTest extends TestCase
     }
 
     /**
+     * @param array{id: string, name: string, taxRate: float, areaRules?: list<array<string, mixed>>} $tax
+     *
      * @dataProvider dataProviderTestGrossToGross
      */
-    public function testGrossToGross(float $taxRate, string $getTaxIdFuncName, float $expectedPrice, float $expectedTax): void
+    public function testGrossToGross(array $tax, float $expectedPrice, float $expectedTax): void
     {
+        $this->getContainer()->get('tax.repository')->create([$tax], Context::createDefaultContext());
+
         $price = $this->sendRequest([
             'price' => 11.9,
-            'taxId' => $this->{$getTaxIdFuncName}()->getId(),
+            'taxId' => $tax['id'],
             'calculated' => true,
         ]);
 
@@ -134,10 +139,10 @@ class PriceActionControllerTest extends TestCase
                 $expectedPrice,
                 $expectedPrice,
                 new CalculatedTaxCollection([
-                    new CalculatedTax($expectedTax, $taxRate, $expectedPrice),
+                    new CalculatedTax($expectedTax, $tax['taxRate'], $expectedPrice),
                 ]),
                 new TaxRuleCollection([
-                    new TaxRule($taxRate, 100),
+                    new TaxRule($tax['taxRate'], 100),
                 ])
             ),
             $price
@@ -145,14 +150,18 @@ class PriceActionControllerTest extends TestCase
     }
 
     /**
+     * @param array{id: string, name: string, taxRate: float, areaRules?: list<array<string, mixed>>} $tax
+     *
      * @dataProvider dataProviderTestNetToGrossWithQuantity
      */
-    public function testNetToGrossWithQuantity(float $taxRate, string $getTaxIdFuncName, float $expectedUnitPrice, float $expectedTotalPrice, float $expectedTax): void
+    public function testNetToGrossWithQuantity(array $tax, float $expectedUnitPrice, float $expectedTotalPrice, float $expectedTax): void
     {
+        $this->getContainer()->get('tax.repository')->create([$tax], Context::createDefaultContext());
+
         $price = $this->sendRequest([
             'price' => 10,
             'quantity' => 2,
-            'taxId' => $this->{$getTaxIdFuncName}()->getId(),
+            'taxId' => $tax['id'],
             'calculated' => false,
         ]);
 
@@ -161,10 +170,10 @@ class PriceActionControllerTest extends TestCase
                 $expectedUnitPrice,
                 $expectedTotalPrice,
                 new CalculatedTaxCollection([
-                    new CalculatedTax($expectedTax, $taxRate, $expectedTotalPrice),
+                    new CalculatedTax($expectedTax, $tax['taxRate'], $expectedTotalPrice),
                 ]),
                 new TaxRuleCollection([
-                    new TaxRule($taxRate, 100),
+                    new TaxRule($tax['taxRate'], 100),
                 ]),
                 2
             ),
@@ -173,14 +182,18 @@ class PriceActionControllerTest extends TestCase
     }
 
     /**
+     * @param array{id: string, name: string, taxRate: float, areaRules?: list<array<string, mixed>>} $tax
+     *
      * @dataProvider dataProviderTestGrossToGrossWithQuantity
      */
-    public function testGrossToGrossWithQuantity(float $taxRate, string $getTaxIdFuncName, float $expectedUnitPrice, float $expectedTotalPrice, float $expectedTax): void
+    public function testGrossToGrossWithQuantity(array $tax, float $expectedUnitPrice, float $expectedTotalPrice, float $expectedTax): void
     {
+        $this->getContainer()->get('tax.repository')->create([$tax], Context::createDefaultContext());
+
         $price = $this->sendRequest([
             'price' => 10,
             'quantity' => 2,
-            'taxId' => $this->{$getTaxIdFuncName}()->getId(),
+            'taxId' => $tax['id'],
             'calculated' => true,
         ]);
 
@@ -189,10 +202,10 @@ class PriceActionControllerTest extends TestCase
                 $expectedUnitPrice,
                 $expectedTotalPrice,
                 new CalculatedTaxCollection([
-                    new CalculatedTax($expectedTax, $taxRate, $expectedTotalPrice),
+                    new CalculatedTax($expectedTax, $tax['taxRate'], $expectedTotalPrice),
                 ]),
                 new TaxRuleCollection([
-                    new TaxRule($taxRate, 100),
+                    new TaxRule($tax['taxRate'], 100),
                 ]),
                 2
             ),
@@ -201,14 +214,18 @@ class PriceActionControllerTest extends TestCase
     }
 
     /**
+     * @param array{id: string, name: string, taxRate: float, areaRules?: list<array<string, mixed>>} $tax
+     *
      * @dataProvider dataProviderTestGrossToNet
      */
-    public function testGrossToNet(float $taxRate, string $getTaxIdFuncName, float $expectedUnitPrice, float $expectedTotalPrice, float $expectedTax): void
+    public function testGrossToNet(array $tax, float $expectedUnitPrice, float $expectedTotalPrice, float $expectedTax): void
     {
+        $this->getContainer()->get('tax.repository')->create([$tax], Context::createDefaultContext());
+
         $price = $this->sendRequest([
             'price' => 11.9,
             'output' => 'net',
-            'taxId' => $this->{$getTaxIdFuncName}()->getId(),
+            'taxId' => $tax['id'],
             'calculated' => true,
         ]);
 
@@ -217,10 +234,10 @@ class PriceActionControllerTest extends TestCase
                 $expectedUnitPrice,
                 $expectedTotalPrice,
                 new CalculatedTaxCollection([
-                    new CalculatedTax($expectedTax, $taxRate, $expectedTotalPrice),
+                    new CalculatedTax($expectedTax, $tax['taxRate'], $expectedTotalPrice),
                 ]),
                 new TaxRuleCollection([
-                    new TaxRule($taxRate, 100),
+                    new TaxRule($tax['taxRate'], 100),
                 ])
             ),
             $price
@@ -253,7 +270,6 @@ class PriceActionControllerTest extends TestCase
     public function testCalculatePricesTaxNotFoundException(): void
     {
         $productId = Uuid::randomHex();
-        $currencyId = Uuid::randomHex();
         $this->getBrowser()->request('POST', 'api/_action/calculate-prices', [
             'prices' => [
                 $productId => [['price' => 10]],
@@ -271,10 +287,14 @@ class PriceActionControllerTest extends TestCase
     }
 
     /**
+     * @param array{id: string, name: string, taxRate: float, areaRules?: list<array<string, mixed>>} $tax
+     *
      * @dataProvider dataProviderTestCalculatePricesNetToGross
      */
-    public function testCalculatePricesNetToGross(float $taxRate, string $getTaxIdFuncName, float $expectedUnitPrice, float $expectedTotalPrice, float $expectedTax): void
+    public function testCalculatePricesNetToGross(array $tax, float $expectedUnitPrice, float $expectedTotalPrice, float $expectedTax): void
     {
+        $this->getContainer()->get('tax.repository')->create([$tax], Context::createDefaultContext());
+
         $productId = Uuid::randomHex();
         $currencyId = Uuid::randomHex();
         $price = $this->sendRequestCalculatePrices([
@@ -285,7 +305,7 @@ class PriceActionControllerTest extends TestCase
                     'calculated' => false,
                 ]],
             ],
-            'taxId' => $this->{$getTaxIdFuncName}()->getId(),
+            'taxId' => $tax['id'],
         ], $productId, $currencyId);
 
         static::assertEquals(
@@ -293,10 +313,10 @@ class PriceActionControllerTest extends TestCase
                 $expectedUnitPrice,
                 $expectedTotalPrice,
                 new CalculatedTaxCollection([
-                    new CalculatedTax($expectedTax, $taxRate, $expectedTotalPrice),
+                    new CalculatedTax($expectedTax, $tax['taxRate'], $expectedTotalPrice),
                 ]),
                 new TaxRuleCollection([
-                    new TaxRule($taxRate, 100),
+                    new TaxRule($tax['taxRate'], 100),
                 ])
             ),
             $price
@@ -304,10 +324,14 @@ class PriceActionControllerTest extends TestCase
     }
 
     /**
+     * @param array{id: string, name: string, taxRate: float, areaRules?: list<array<string, mixed>>} $tax
+     *
      * @dataProvider dataProviderTestCalculatePricesNetToNet
      */
-    public function testCalculatePricesNetToNet(float $taxRate, string $getTaxIdFuncName, float $expectedUnitPrice, float $expectedTotalPrice, float $expectedTax): void
+    public function testCalculatePricesNetToNet(array $tax, float $expectedUnitPrice, float $expectedTotalPrice, float $expectedTax): void
     {
+        $this->getContainer()->get('tax.repository')->create([$tax], Context::createDefaultContext());
+
         $productId = Uuid::randomHex();
         $currencyId = Uuid::randomHex();
         $price = $this->sendRequestCalculatePrices([
@@ -319,7 +343,7 @@ class PriceActionControllerTest extends TestCase
                     'calculated' => false,
                 ]],
             ],
-            'taxId' => $this->{$getTaxIdFuncName}()->getId(),
+            'taxId' => $tax['id'],
         ], $productId, $currencyId);
 
         static::assertEquals(
@@ -327,10 +351,10 @@ class PriceActionControllerTest extends TestCase
                 $expectedUnitPrice,
                 $expectedTotalPrice,
                 new CalculatedTaxCollection([
-                    new CalculatedTax($expectedTax, $taxRate, $expectedTotalPrice),
+                    new CalculatedTax($expectedTax, $tax['taxRate'], $expectedTotalPrice),
                 ]),
                 new TaxRuleCollection([
-                    new TaxRule($taxRate, 100),
+                    new TaxRule($tax['taxRate'], 100),
                 ])
             ),
             $price
@@ -338,10 +362,14 @@ class PriceActionControllerTest extends TestCase
     }
 
     /**
+     * @param array{id: string, name: string, taxRate: float, areaRules?: list<array<string, mixed>>} $tax
+     *
      * @dataProvider dataProviderTestCalculatePricesGrossToGross
      */
-    public function testCalculatePricesGrossToGross(float $taxRate, string $getTaxIdFuncName, float $expectedUnitPrice, float $expectedTotalPrice, float $expectedTax): void
+    public function testCalculatePricesGrossToGross(array $tax, float $expectedUnitPrice, float $expectedTotalPrice, float $expectedTax): void
     {
+        $this->getContainer()->get('tax.repository')->create([$tax], Context::createDefaultContext());
+
         $productId = Uuid::randomHex();
         $currencyId = Uuid::randomHex();
         $price = $this->sendRequestCalculatePrices([
@@ -352,7 +380,7 @@ class PriceActionControllerTest extends TestCase
                     'calculated' => true,
                 ]],
             ],
-            'taxId' => $this->{$getTaxIdFuncName}()->getId(),
+            'taxId' => $tax['id'],
         ], $productId, $currencyId);
 
         static::assertEquals(
@@ -360,10 +388,10 @@ class PriceActionControllerTest extends TestCase
                 $expectedUnitPrice,
                 $expectedTotalPrice,
                 new CalculatedTaxCollection([
-                    new CalculatedTax($expectedTax, $taxRate, $expectedTotalPrice),
+                    new CalculatedTax($expectedTax, $tax['taxRate'], $expectedTotalPrice),
                 ]),
                 new TaxRuleCollection([
-                    new TaxRule($taxRate, 100),
+                    new TaxRule($tax['taxRate'], 100),
                 ])
             ),
             $price
@@ -371,10 +399,14 @@ class PriceActionControllerTest extends TestCase
     }
 
     /**
+     * @param array{id: string, name: string, taxRate: float, areaRules?: list<array<string, mixed>>} $tax
+     *
      * @dataProvider dataProviderTestCalculatePricesNetToGrossWithQuantity
      */
-    public function testCalculatePricesNetToGrossWithQuantity(float $taxRate, string $getTaxIdFuncName, float $expectedUnitPrice, float $expectedTotalPrice, float $expectedTax): void
+    public function testCalculatePricesNetToGrossWithQuantity(array $tax, float $expectedUnitPrice, float $expectedTotalPrice, float $expectedTax): void
     {
+        $this->getContainer()->get('tax.repository')->create([$tax], Context::createDefaultContext());
+
         $productId = Uuid::randomHex();
         $currencyId = Uuid::randomHex();
         $price = $this->sendRequestCalculatePrices([
@@ -386,7 +418,7 @@ class PriceActionControllerTest extends TestCase
                     'calculated' => false,
                 ]],
             ],
-            'taxId' => $this->{$getTaxIdFuncName}()->getId(),
+            'taxId' => $tax['id'],
         ], $productId, $currencyId);
 
         static::assertEquals(
@@ -394,10 +426,10 @@ class PriceActionControllerTest extends TestCase
                 $expectedUnitPrice,
                 $expectedTotalPrice,
                 new CalculatedTaxCollection([
-                    new CalculatedTax($expectedTax, $taxRate, $expectedTotalPrice),
+                    new CalculatedTax($expectedTax, $tax['taxRate'], $expectedTotalPrice),
                 ]),
                 new TaxRuleCollection([
-                    new TaxRule($taxRate, 100),
+                    new TaxRule($tax['taxRate'], 100),
                 ]),
                 2
             ),
@@ -406,10 +438,14 @@ class PriceActionControllerTest extends TestCase
     }
 
     /**
+     * @param array{id: string, name: string, taxRate: float, areaRules?: list<array<string, mixed>>} $tax
+     *
      * @dataProvider dataProviderTestCalculatePricesGrossToGrossWithQuantity
      */
-    public function testCalculatePricesGrossToGrossWithQuantity(float $taxRate, string $getTaxIdFuncName, float $expectedUnitPrice, float $expectedTotalPrice, float $expectedTax): void
+    public function testCalculatePricesGrossToGrossWithQuantity(array $tax, float $expectedUnitPrice, float $expectedTotalPrice, float $expectedTax): void
     {
+        $this->getContainer()->get('tax.repository')->create([$tax], Context::createDefaultContext());
+
         $productId = Uuid::randomHex();
         $currencyId = Uuid::randomHex();
         $price = $this->sendRequestCalculatePrices([
@@ -421,7 +457,7 @@ class PriceActionControllerTest extends TestCase
                     'calculated' => true,
                 ]],
             ],
-            'taxId' => $this->{$getTaxIdFuncName}()->getId(),
+            'taxId' => $tax['id'],
         ], $productId, $currencyId);
 
         static::assertEquals(
@@ -429,10 +465,10 @@ class PriceActionControllerTest extends TestCase
                 $expectedUnitPrice,
                 $expectedTotalPrice,
                 new CalculatedTaxCollection([
-                    new CalculatedTax($expectedTax, $taxRate, $expectedTotalPrice),
+                    new CalculatedTax($expectedTax, $tax['taxRate'], $expectedTotalPrice),
                 ]),
                 new TaxRuleCollection([
-                    new TaxRule($taxRate, 100),
+                    new TaxRule($tax['taxRate'], 100),
                 ]),
                 2
             ),
@@ -441,10 +477,14 @@ class PriceActionControllerTest extends TestCase
     }
 
     /**
+     * @param array{id: string, name: string, taxRate: float, areaRules?: list<array<string, mixed>>} $tax
+     *
      * @dataProvider dataProviderTestCalculatePricesGrossToNet
      */
-    public function testCalculatePricesGrossToNet(float $taxRate, string $getTaxIdFuncName, float $expectedUnitPrice, float $expectedTotalPrice, float $expectedTax): void
+    public function testCalculatePricesGrossToNet(array $tax, float $expectedUnitPrice, float $expectedTotalPrice, float $expectedTax): void
     {
+        $this->getContainer()->get('tax.repository')->create([$tax], Context::createDefaultContext());
+
         $productId = Uuid::randomHex();
         $currencyId = Uuid::randomHex();
         $price = $this->sendRequestCalculatePrices([
@@ -456,7 +496,7 @@ class PriceActionControllerTest extends TestCase
                     'calculated' => true,
                 ]],
             ],
-            'taxId' => $this->{$getTaxIdFuncName}()->getId(),
+            'taxId' => $tax['id'],
         ], $productId, $currencyId);
 
         static::assertEquals(
@@ -464,10 +504,10 @@ class PriceActionControllerTest extends TestCase
                 $expectedUnitPrice,
                 $expectedTotalPrice,
                 new CalculatedTaxCollection([
-                    new CalculatedTax($expectedTax, $taxRate, $expectedTotalPrice),
+                    new CalculatedTax($expectedTax, $tax['taxRate'], $expectedTotalPrice),
                 ]),
                 new TaxRuleCollection([
-                    new TaxRule($taxRate, 100),
+                    new TaxRule($tax['taxRate'], 100),
                 ])
             ),
             $price
@@ -477,437 +517,17 @@ class PriceActionControllerTest extends TestCase
     public static function dataProviderTestNetToNet(): \Generator
     {
         yield 'Case with tax rate 19' => [
-            'taxRate' => 19,
-            'getTaxIdFuncName' => 'getTaxNineteenPercent',
+            'tax' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'NineteenPercentTax',
+                'taxRate' => 19,
+            ],
             'expectedPrice' => 10.002,
             'expectedTax' => 1.90038,
         ];
 
         yield 'Case with tax rate 17.1' => [
-            'taxRate' => 17.1,
-            'getTaxIdFuncName' => 'getTaxSeventeenPointOnePercent',
-            'expectedPrice' => 10.002,
-            'expectedTax' => 1.710342,
-        ];
-
-        yield 'Case with tax rate 9.74' => [
-            'taxRate' => 9.74,
-            'getTaxIdFuncName' => 'getTaxNinePointSevenFourPercent',
-            'expectedPrice' => 10.002,
-            'expectedTax' => 0.9741948,
-        ];
-
-        yield 'Case with tax rate 13.486' => [
-            'taxRate' => 13.486,
-            'getTaxIdFuncName' => 'getTaxThirteenPointFourEightSixPercent',
-            'expectedPrice' => 10.002,
-            'expectedTax' => 1.34886972,
-        ];
-    }
-
-    public static function dataProviderTestNetToGross(): \Generator
-    {
-        yield 'Case with tax rate 19' => [
-            'taxRate' => 19,
-            'getTaxIdFuncName' => 'getTaxNineteenPercent',
-            'expectedPrice' => 11.9,
-            'expectedTax' => 1.9,
-        ];
-
-        yield 'Case with tax rate 17.1' => [
-            'taxRate' => 17.1,
-            'getTaxIdFuncName' => 'getTaxSeventeenPointOnePercent',
-            'expectedPrice' => 11.71,
-            'expectedTax' => 1.71,
-        ];
-
-        yield 'Case with tax rate 9.74' => [
-            'taxRate' => 9.74,
-            'getTaxIdFuncName' => 'getTaxNinePointSevenFourPercent',
-            'expectedPrice' => 10.974,
-            'expectedTax' => 0.974,
-        ];
-
-        yield 'Case with tax rate 13.486' => [
-            'taxRate' => 13.486,
-            'getTaxIdFuncName' => 'getTaxThirteenPointFourEightSixPercent',
-            'expectedPrice' => 11.3486,
-            'expectedTax' => 1.3486,
-        ];
-    }
-
-    public static function dataProviderTestGrossToGross(): \Generator
-    {
-        yield 'Case with tax rate 19' => [
-            'taxRate' => 19,
-            'getTaxIdFuncName' => 'getTaxNineteenPercent',
-            'expectedPrice' => 11.9,
-            'expectedTax' => 1.9,
-        ];
-
-        yield 'Case with tax rate 17.1' => [
-            'taxRate' => 17.1,
-            'getTaxIdFuncName' => 'getTaxSeventeenPointOnePercent',
-            'expectedPrice' => 11.9,
-            'expectedTax' => 1.7377455166524,
-        ];
-
-        yield 'Case with tax rate 9.74' => [
-            'taxRate' => 9.74,
-            'getTaxIdFuncName' => 'getTaxNinePointSevenFourPercent',
-            'expectedPrice' => 11.9,
-            'expectedTax' => 1.0561873519227,
-        ];
-
-        yield 'Case with tax rate 13.486' => [
-            'taxRate' => 13.486,
-            'getTaxIdFuncName' => 'getTaxThirteenPointFourEightSixPercent',
-            'expectedPrice' => 11.9,
-            'expectedTax' => 1.4141250903195,
-        ];
-    }
-
-    public static function dataProviderTestNetToGrossWithQuantity(): \Generator
-    {
-        yield 'Case with tax rate 19' => [
-            'taxRate' => 19,
-            'getTaxIdFuncName' => 'getTaxNineteenPercent',
-            'expectedUnitPrice' => 11.9,
-            'expectedTotalPrice' => 23.8,
-            'expectedTax' => 3.8,
-        ];
-
-        yield 'Case with tax rate 17.1' => [
-            'taxRate' => 17.1,
-            'getTaxIdFuncName' => 'getTaxSeventeenPointOnePercent',
-            'expectedUnitPrice' => 11.71,
-            'expectedTotalPrice' => 23.42,
-            'expectedTax' => 3.42,
-        ];
-
-        yield 'Case with tax rate 9.74' => [
-            'taxRate' => 9.74,
-            'getTaxIdFuncName' => 'getTaxNinePointSevenFourPercent',
-            'expectedUnitPrice' => 10.974,
-            'expectedTotalPrice' => 21.948,
-            'expectedTax' => 1.948,
-        ];
-
-        yield 'Case with tax rate 13.486' => [
-            'taxRate' => 13.486,
-            'getTaxIdFuncName' => 'getTaxThirteenPointFourEightSixPercent',
-            'expectedUnitPrice' => 11.3486,
-            'expectedTotalPrice' => 22.6972,
-            'expectedTax' => 2.6972,
-        ];
-    }
-
-    public static function dataProviderTestGrossToGrossWithQuantity(): \Generator
-    {
-        yield 'Case with tax rate 19' => [
-            'taxRate' => 19,
-            'getTaxIdFuncName' => 'getTaxNineteenPercent',
-            'expectedUnitPrice' => 10,
-            'expectedTotalPrice' => 20,
-            'expectedTax' => 3.1932773109244,
-        ];
-
-        yield 'Case with tax rate 17.1' => [
-            'taxRate' => 17.1,
-            'getTaxIdFuncName' => 'getTaxSeventeenPointOnePercent',
-            'expectedUnitPrice' => 10,
-            'expectedTotalPrice' => 20,
-            'expectedTax' => 2.9205807002562,
-        ];
-
-        yield 'Case with tax rate 9.74' => [
-            'taxRate' => 9.74,
-            'getTaxIdFuncName' => 'getTaxNinePointSevenFourPercent',
-            'expectedUnitPrice' => 10,
-            'expectedTotalPrice' => 20,
-            'expectedTax' => 1.7751047931474,
-        ];
-
-        yield 'Case with tax rate 13.486' => [
-            'taxRate' => 13.486,
-            'getTaxIdFuncName' => 'getTaxThirteenPointFourEightSixPercent',
-            'expectedUnitPrice' => 10,
-            'expectedTotalPrice' => 20,
-            'expectedTax' => 2.3766808240664,
-        ];
-    }
-
-    public static function dataProviderTestGrossToNet(): \Generator
-    {
-        yield 'Case with tax rate 19' => [
-            'taxRate' => 19,
-            'getTaxIdFuncName' => 'getTaxNineteenPercent',
-            'expectedUnitPrice' => 11.9,
-            'expectedTotalPrice' => 11.9,
-            'expectedTax' => 2.261,
-        ];
-
-        yield 'Case with tax rate 17.1' => [
-            'taxRate' => 17.1,
-            'getTaxIdFuncName' => 'getTaxSeventeenPointOnePercent',
-            'expectedUnitPrice' => 11.9,
-            'expectedTotalPrice' => 11.9,
-            'expectedTax' => 2.0349,
-        ];
-
-        yield 'Case with tax rate 9.74' => [
-            'taxRate' => 9.74,
-            'getTaxIdFuncName' => 'getTaxNinePointSevenFourPercent',
-            'expectedUnitPrice' => 11.9,
-            'expectedTotalPrice' => 11.9,
-            'expectedTax' => 1.15906,
-        ];
-
-        yield 'Case with tax rate 13.486' => [
-            'taxRate' => 13.486,
-            'getTaxIdFuncName' => 'getTaxThirteenPointFourEightSixPercent',
-            'expectedUnitPrice' => 11.9,
-            'expectedTotalPrice' => 11.9,
-            'expectedTax' => 1.604834,
-        ];
-    }
-
-    public static function dataProviderTestCalculatePricesNetToGross(): \Generator
-    {
-        yield 'Case with tax rate 19' => [
-            'taxRate' => 19,
-            'getTaxIdFuncName' => 'getTaxNineteenPercent',
-            'expectedUnitPrice' => 11.9,
-            'expectedTotalPrice' => 11.9,
-            'expectedTax' => 1.9,
-        ];
-
-        yield 'Case with tax rate 17.1' => [
-            'taxRate' => 17.1,
-            'getTaxIdFuncName' => 'getTaxSeventeenPointOnePercent',
-            'expectedUnitPrice' => 11.71,
-            'expectedTotalPrice' => 11.71,
-            'expectedTax' => 1.71,
-        ];
-
-        yield 'Case with tax rate 9.74' => [
-            'taxRate' => 9.74,
-            'getTaxIdFuncName' => 'getTaxNinePointSevenFourPercent',
-            'expectedUnitPrice' => 10.974,
-            'expectedTotalPrice' => 10.974,
-            'expectedTax' => 0.974,
-        ];
-
-        yield 'Case with tax rate 13.486' => [
-            'taxRate' => 13.486,
-            'getTaxIdFuncName' => 'getTaxThirteenPointFourEightSixPercent',
-            'expectedUnitPrice' => 11.3486,
-            'expectedTotalPrice' => 11.3486,
-            'expectedTax' => 1.3486,
-        ];
-    }
-
-    public static function dataProviderTestCalculatePricesNetToNet(): \Generator
-    {
-        yield 'Case with tax rate 19' => [
-            'taxRate' => 19,
-            'getTaxIdFuncName' => 'getTaxNineteenPercent',
-            'expectedUnitPrice' => 10.002,
-            'expectedTotalPrice' => 10.002,
-            'expectedTax' => 1.9003800000000002,
-        ];
-
-        yield 'Case with tax rate 17.1' => [
-            'taxRate' => 17.1,
-            'getTaxIdFuncName' => 'getTaxSeventeenPointOnePercent',
-            'expectedUnitPrice' => 10.002,
-            'expectedTotalPrice' => 10.002,
-            'expectedTax' => 1.710342,
-        ];
-
-        yield 'Case with tax rate 9.74' => [
-            'taxRate' => 9.74,
-            'getTaxIdFuncName' => 'getTaxNinePointSevenFourPercent',
-            'expectedUnitPrice' => 10.002,
-            'expectedTotalPrice' => 10.002,
-            'expectedTax' => 0.9741948,
-        ];
-
-        yield 'Case with tax rate 13.486' => [
-            'taxRate' => 13.486,
-            'getTaxIdFuncName' => 'getTaxThirteenPointFourEightSixPercent',
-            'expectedUnitPrice' => 10.002,
-            'expectedTotalPrice' => 10.002,
-            'expectedTax' => 1.34886972,
-        ];
-    }
-
-    public static function dataProviderTestCalculatePricesGrossToGross(): \Generator
-    {
-        yield 'Case with tax rate 19' => [
-            'taxRate' => 19,
-            'getTaxIdFuncName' => 'getTaxNineteenPercent',
-            'expectedUnitPrice' => 11.9,
-            'expectedTotalPrice' => 11.9,
-            'expectedTax' => 1.9,
-        ];
-
-        yield 'Case with tax rate 17.1' => [
-            'taxRate' => 17.1,
-            'getTaxIdFuncName' => 'getTaxSeventeenPointOnePercent',
-            'expectedUnitPrice' => 11.9,
-            'expectedTotalPrice' => 11.9,
-            'expectedTax' => 1.7377455166524,
-        ];
-
-        yield 'Case with tax rate 9.74' => [
-            'taxRate' => 9.74,
-            'getTaxIdFuncName' => 'getTaxNinePointSevenFourPercent',
-            'expectedUnitPrice' => 11.9,
-            'expectedTotalPrice' => 11.9,
-            'expectedTax' => 1.0561873519227,
-        ];
-
-        yield 'Case with tax rate 13.486' => [
-            'taxRate' => 13.486,
-            'getTaxIdFuncName' => 'getTaxThirteenPointFourEightSixPercent',
-            'expectedUnitPrice' => 11.9,
-            'expectedTotalPrice' => 11.9,
-            'expectedTax' => 1.4141250903195,
-        ];
-    }
-
-    public static function dataProviderTestCalculatePricesNetToGrossWithQuantity(): \Generator
-    {
-        yield 'Case with tax rate 19' => [
-            'taxRate' => 19,
-            'getTaxIdFuncName' => 'getTaxNineteenPercent',
-            'expectedUnitPrice' => 11.9,
-            'expectedTotalPrice' => 23.8,
-            'expectedTax' => 3.8,
-        ];
-
-        yield 'Case with tax rate 17.1' => [
-            'taxRate' => 17.1,
-            'getTaxIdFuncName' => 'getTaxSeventeenPointOnePercent',
-            'expectedUnitPrice' => 11.71,
-            'expectedTotalPrice' => 23.42,
-            'expectedTax' => 3.42,
-        ];
-
-        yield 'Case with tax rate 9.74' => [
-            'taxRate' => 9.74,
-            'getTaxIdFuncName' => 'getTaxNinePointSevenFourPercent',
-            'expectedUnitPrice' => 10.974,
-            'expectedTotalPrice' => 21.948,
-            'expectedTax' => 1.948,
-        ];
-
-        yield 'Case with tax rate 13.486' => [
-            'taxRate' => 13.486,
-            'getTaxIdFuncName' => 'getTaxThirteenPointFourEightSixPercent',
-            'expectedUnitPrice' => 11.3486,
-            'expectedTotalPrice' => 22.6972,
-            'expectedTax' => 2.6972,
-        ];
-    }
-
-    public static function dataProviderTestCalculatePricesGrossToGrossWithQuantity(): \Generator
-    {
-        yield 'Case with tax rate 19' => [
-            'taxRate' => 19,
-            'getTaxIdFuncName' => 'getTaxNineteenPercent',
-            'expectedUnitPrice' => 10,
-            'expectedTotalPrice' => 20,
-            'expectedTax' => 3.19327731092437,
-        ];
-
-        yield 'Case with tax rate 17.1' => [
-            'taxRate' => 17.1,
-            'getTaxIdFuncName' => 'getTaxSeventeenPointOnePercent',
-            'expectedUnitPrice' => 10,
-            'expectedTotalPrice' => 20,
-            'expectedTax' => 2.9205807002562,
-        ];
-
-        yield 'Case with tax rate 9.74' => [
-            'taxRate' => 9.74,
-            'getTaxIdFuncName' => 'getTaxNinePointSevenFourPercent',
-            'expectedUnitPrice' => 10,
-            'expectedTotalPrice' => 20,
-            'expectedTax' => 1.7751047931474,
-        ];
-
-        yield 'Case with tax rate 13.486' => [
-            'taxRate' => 13.486,
-            'getTaxIdFuncName' => 'getTaxThirteenPointFourEightSixPercent',
-            'expectedUnitPrice' => 10,
-            'expectedTotalPrice' => 20,
-            'expectedTax' => 2.3766808240664,
-        ];
-    }
-
-    public static function dataProviderTestCalculatePricesGrossToNet(): \Generator
-    {
-        yield 'Case with tax rate 19' => [
-            'taxRate' => 19,
-            'getTaxIdFuncName' => 'getTaxNineteenPercent',
-            'expectedUnitPrice' => 11.9,
-            'expectedTotalPrice' => 11.9,
-            'expectedTax' => 2.261,
-        ];
-
-        yield 'Case with tax rate 17.1' => [
-            'taxRate' => 17.1,
-            'getTaxIdFuncName' => 'getTaxSeventeenPointOnePercent',
-            'expectedUnitPrice' => 11.9,
-            'expectedTotalPrice' => 11.9,
-            'expectedTax' => 2.0349,
-        ];
-
-        yield 'Case with tax rate 9.74' => [
-            'taxRate' => 9.74,
-            'getTaxIdFuncName' => 'getTaxNinePointSevenFourPercent',
-            'expectedUnitPrice' => 11.9,
-            'expectedTotalPrice' => 11.9,
-            'expectedTax' => 1.15906,
-        ];
-
-        yield 'Case with tax rate 13.486' => [
-            'taxRate' => 13.486,
-            'getTaxIdFuncName' => 'getTaxThirteenPointFourEightSixPercent',
-            'expectedUnitPrice' => 11.9,
-            'expectedTotalPrice' => 11.9,
-            'expectedTax' => 1.604834,
-        ];
-    }
-
-    /**
-     * @before
-     */
-    public function initializeTaxFixtures(): void
-    {
-        $this->taxFixtures = [
-            'NineteenPercentTax' => [
-                'id' => Uuid::randomHex(),
-                'name' => 'NineteenPercentTax',
-                'taxRate' => 19,
-            ],
-            'NineteenPercentTaxWithAreaRule' => [
-                'id' => Uuid::randomHex(),
-                'name' => 'foo tax',
-                'taxRate' => 20,
-                'areaRules' => [
-                    [
-                        'id' => Uuid::randomHex(),
-                        'taxRate' => 99,
-                        'active' => true,
-                        'name' => 'required',
-                        'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
-                    ],
-                ],
-            ],
-            'SeventeenPointOnePercentTax' => [
+            'tax' => [
                 'id' => Uuid::randomHex(),
                 'name' => 'SeventeenPointOnePercentTax',
                 'taxRate' => 17.1,
@@ -921,7 +541,12 @@ class PriceActionControllerTest extends TestCase
                     ],
                 ],
             ],
-            'NinePointSevenFourPercentTax' => [
+            'expectedPrice' => 10.002,
+            'expectedTax' => 1.710342,
+        ];
+
+        yield 'Case with tax rate 9.74' => [
+            'tax' => [
                 'id' => Uuid::randomHex(),
                 'name' => 'NinePointSevenFourPercentTax',
                 'taxRate' => 9.74,
@@ -935,7 +560,12 @@ class PriceActionControllerTest extends TestCase
                     ],
                 ],
             ],
-            'ThirteenPointFourEightSixPercentTax' => [
+            'expectedPrice' => 10.002,
+            'expectedTax' => 0.9741948,
+        ];
+
+        yield 'Case with tax rate 13.486' => [
+            'tax' => [
                 'id' => Uuid::randomHex(),
                 'name' => 'ThirteenPointFourEightSixPercentTax',
                 'taxRate' => 13.486,
@@ -949,32 +579,815 @@ class PriceActionControllerTest extends TestCase
                     ],
                 ],
             ],
+            'expectedPrice' => 10.002,
+            'expectedTax' => 1.34886972,
         ];
     }
 
-    public function getTaxNineteenPercent(): TaxEntity
+    public static function dataProviderTestNetToGross(): \Generator
     {
-        return $this->getTaxFixture('NineteenPercentTax');
+        yield 'Case with tax rate 19' => [
+            'tax' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'NineteenPercentTax',
+                'taxRate' => 19,
+            ],
+            'expectedPrice' => 11.9,
+            'expectedTax' => 1.9,
+        ];
+
+        yield 'Case with tax rate 17.1' => [
+            'tax' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'SeventeenPointOnePercentTax',
+                'taxRate' => 17.1,
+                'areaRules' => [
+                    [
+                        'id' => Uuid::randomHex(),
+                        'taxRate' => 17.1,
+                        'active' => true,
+                        'name' => 'required',
+                        'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+                    ],
+                ],
+            ],
+            'expectedPrice' => 11.71,
+            'expectedTax' => 1.71,
+        ];
+
+        yield 'Case with tax rate 9.74' => [
+            'tax' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'NinePointSevenFourPercentTax',
+                'taxRate' => 9.74,
+                'areaRules' => [
+                    [
+                        'id' => Uuid::randomHex(),
+                        'taxRate' => 9.74,
+                        'active' => true,
+                        'name' => 'required',
+                        'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+                    ],
+                ],
+            ],
+            'expectedPrice' => 10.974,
+            'expectedTax' => 0.974,
+        ];
+
+        yield 'Case with tax rate 13.486' => [
+            'tax' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'ThirteenPointFourEightSixPercentTax',
+                'taxRate' => 13.486,
+                'areaRules' => [
+                    [
+                        'id' => Uuid::randomHex(),
+                        'taxRate' => 13.486,
+                        'active' => true,
+                        'name' => 'required',
+                        'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+                    ],
+                ],
+            ],
+            'expectedPrice' => 11.3486,
+            'expectedTax' => 1.3486,
+        ];
     }
 
-    public function getTaxSeventeenPointOnePercent(): TaxEntity
+    public static function dataProviderTestGrossToGross(): \Generator
     {
-        return $this->getTaxFixture('SeventeenPointOnePercentTax');
+        yield 'Case with tax rate 19' => [
+            'tax' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'NineteenPercentTax',
+                'taxRate' => 19,
+            ],
+            'expectedPrice' => 11.9,
+            'expectedTax' => 1.9,
+        ];
+
+        yield 'Case with tax rate 17.1' => [
+            'tax' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'SeventeenPointOnePercentTax',
+                'taxRate' => 17.1,
+                'areaRules' => [
+                    [
+                        'id' => Uuid::randomHex(),
+                        'taxRate' => 17.1,
+                        'active' => true,
+                        'name' => 'required',
+                        'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+                    ],
+                ],
+            ],
+            'expectedPrice' => 11.9,
+            'expectedTax' => 1.7377455166524,
+        ];
+
+        yield 'Case with tax rate 9.74' => [
+            'tax' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'NinePointSevenFourPercentTax',
+                'taxRate' => 9.74,
+                'areaRules' => [
+                    [
+                        'id' => Uuid::randomHex(),
+                        'taxRate' => 9.74,
+                        'active' => true,
+                        'name' => 'required',
+                        'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+                    ],
+                ],
+            ],
+            'expectedPrice' => 11.9,
+            'expectedTax' => 1.0561873519227,
+        ];
+
+        yield 'Case with tax rate 13.486' => [
+            'tax' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'ThirteenPointFourEightSixPercentTax',
+                'taxRate' => 13.486,
+                'areaRules' => [
+                    [
+                        'id' => Uuid::randomHex(),
+                        'taxRate' => 13.486,
+                        'active' => true,
+                        'name' => 'required',
+                        'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+                    ],
+                ],
+            ],
+            'expectedPrice' => 11.9,
+            'expectedTax' => 1.4141250903195,
+        ];
     }
 
-    public function getTaxNinePointSevenFourPercent(): TaxEntity
+    public static function dataProviderTestNetToGrossWithQuantity(): \Generator
     {
-        return $this->getTaxFixture('NinePointSevenFourPercentTax');
+        yield 'Case with tax rate 19' => [
+            'tax' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'NineteenPercentTax',
+                'taxRate' => 19,
+            ],
+            'expectedUnitPrice' => 11.9,
+            'expectedTotalPrice' => 23.8,
+            'expectedTax' => 3.8,
+        ];
+
+        yield 'Case with tax rate 17.1' => [
+            'tax' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'SeventeenPointOnePercentTax',
+                'taxRate' => 17.1,
+                'areaRules' => [
+                    [
+                        'id' => Uuid::randomHex(),
+                        'taxRate' => 17.1,
+                        'active' => true,
+                        'name' => 'required',
+                        'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+                    ],
+                ],
+            ],
+            'expectedUnitPrice' => 11.71,
+            'expectedTotalPrice' => 23.42,
+            'expectedTax' => 3.42,
+        ];
+
+        yield 'Case with tax rate 9.74' => [
+            'tax' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'NinePointSevenFourPercentTax',
+                'taxRate' => 9.74,
+                'areaRules' => [
+                    [
+                        'id' => Uuid::randomHex(),
+                        'taxRate' => 9.74,
+                        'active' => true,
+                        'name' => 'required',
+                        'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+                    ],
+                ],
+            ],
+            'expectedUnitPrice' => 10.974,
+            'expectedTotalPrice' => 21.948,
+            'expectedTax' => 1.948,
+        ];
+
+        yield 'Case with tax rate 13.486' => [
+            'tax' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'ThirteenPointFourEightSixPercentTax',
+                'taxRate' => 13.486,
+                'areaRules' => [
+                    [
+                        'id' => Uuid::randomHex(),
+                        'taxRate' => 13.486,
+                        'active' => true,
+                        'name' => 'required',
+                        'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+                    ],
+                ],
+            ],
+            'expectedUnitPrice' => 11.3486,
+            'expectedTotalPrice' => 22.6972,
+            'expectedTax' => 2.6972,
+        ];
     }
 
-    public function getTaxThirteenPointFourEightSixPercent(): TaxEntity
+    public static function dataProviderTestGrossToGrossWithQuantity(): \Generator
     {
-        return $this->getTaxFixture('ThirteenPointFourEightSixPercentTax');
+        yield 'Case with tax rate 19' => [
+            'tax' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'NineteenPercentTax',
+                'taxRate' => 19,
+            ],
+            'expectedUnitPrice' => 10,
+            'expectedTotalPrice' => 20,
+            'expectedTax' => 3.1932773109244,
+        ];
+
+        yield 'Case with tax rate 17.1' => [
+            'tax' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'SeventeenPointOnePercentTax',
+                'taxRate' => 17.1,
+                'areaRules' => [
+                    [
+                        'id' => Uuid::randomHex(),
+                        'taxRate' => 17.1,
+                        'active' => true,
+                        'name' => 'required',
+                        'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+                    ],
+                ],
+            ],
+            'expectedUnitPrice' => 10,
+            'expectedTotalPrice' => 20,
+            'expectedTax' => 2.9205807002562,
+        ];
+
+        yield 'Case with tax rate 9.74' => [
+            'tax' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'NinePointSevenFourPercentTax',
+                'taxRate' => 9.74,
+                'areaRules' => [
+                    [
+                        'id' => Uuid::randomHex(),
+                        'taxRate' => 9.74,
+                        'active' => true,
+                        'name' => 'required',
+                        'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+                    ],
+                ],
+            ],
+            'expectedUnitPrice' => 10,
+            'expectedTotalPrice' => 20,
+            'expectedTax' => 1.7751047931474,
+        ];
+
+        yield 'Case with tax rate 13.486' => [
+            'tax' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'ThirteenPointFourEightSixPercentTax',
+                'taxRate' => 13.486,
+                'areaRules' => [
+                    [
+                        'id' => Uuid::randomHex(),
+                        'taxRate' => 13.486,
+                        'active' => true,
+                        'name' => 'required',
+                        'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+                    ],
+                ],
+            ],
+            'expectedUnitPrice' => 10,
+            'expectedTotalPrice' => 20,
+            'expectedTax' => 2.3766808240664,
+        ];
     }
 
-    public function getTaxNineteenPercentWithAreaRule(): TaxEntity
+    public static function dataProviderTestGrossToNet(): \Generator
     {
-        return $this->getTaxFixture('NineteenPercentTaxWithAreaRule');
+        yield 'Case with tax rate 19' => [
+            'tax' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'NineteenPercentTax',
+                'taxRate' => 19,
+            ],
+            'expectedUnitPrice' => 11.9,
+            'expectedTotalPrice' => 11.9,
+            'expectedTax' => 2.261,
+        ];
+
+        yield 'Case with tax rate 17.1' => [
+            'tax' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'SeventeenPointOnePercentTax',
+                'taxRate' => 17.1,
+                'areaRules' => [
+                    [
+                        'id' => Uuid::randomHex(),
+                        'taxRate' => 17.1,
+                        'active' => true,
+                        'name' => 'required',
+                        'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+                    ],
+                ],
+            ],
+            'expectedUnitPrice' => 11.9,
+            'expectedTotalPrice' => 11.9,
+            'expectedTax' => 2.0349,
+        ];
+
+        yield 'Case with tax rate 9.74' => [
+            'tax' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'NinePointSevenFourPercentTax',
+                'taxRate' => 9.74,
+                'areaRules' => [
+                    [
+                        'id' => Uuid::randomHex(),
+                        'taxRate' => 9.74,
+                        'active' => true,
+                        'name' => 'required',
+                        'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+                    ],
+                ],
+            ],
+            'expectedUnitPrice' => 11.9,
+            'expectedTotalPrice' => 11.9,
+            'expectedTax' => 1.15906,
+        ];
+
+        yield 'Case with tax rate 13.486' => [
+            'tax' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'ThirteenPointFourEightSixPercentTax',
+                'taxRate' => 13.486,
+                'areaRules' => [
+                    [
+                        'id' => Uuid::randomHex(),
+                        'taxRate' => 13.486,
+                        'active' => true,
+                        'name' => 'required',
+                        'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+                    ],
+                ],
+            ],
+            'expectedUnitPrice' => 11.9,
+            'expectedTotalPrice' => 11.9,
+            'expectedTax' => 1.604834,
+        ];
+    }
+
+    public static function dataProviderTestCalculatePricesNetToGross(): \Generator
+    {
+        yield 'Case with tax rate 19' => [
+            'tax' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'NineteenPercentTax',
+                'taxRate' => 19,
+            ],
+            'expectedUnitPrice' => 11.9,
+            'expectedTotalPrice' => 11.9,
+            'expectedTax' => 1.9,
+        ];
+
+        yield 'Case with tax rate 17.1' => [
+            'tax' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'SeventeenPointOnePercentTax',
+                'taxRate' => 17.1,
+                'areaRules' => [
+                    [
+                        'id' => Uuid::randomHex(),
+                        'taxRate' => 17.1,
+                        'active' => true,
+                        'name' => 'required',
+                        'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+                    ],
+                ],
+            ],
+            'expectedUnitPrice' => 11.71,
+            'expectedTotalPrice' => 11.71,
+            'expectedTax' => 1.71,
+        ];
+
+        yield 'Case with tax rate 9.74' => [
+            'tax' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'NinePointSevenFourPercentTax',
+                'taxRate' => 9.74,
+                'areaRules' => [
+                    [
+                        'id' => Uuid::randomHex(),
+                        'taxRate' => 9.74,
+                        'active' => true,
+                        'name' => 'required',
+                        'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+                    ],
+                ],
+            ],
+            'expectedUnitPrice' => 10.974,
+            'expectedTotalPrice' => 10.974,
+            'expectedTax' => 0.974,
+        ];
+
+        yield 'Case with tax rate 13.486' => [
+            'tax' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'ThirteenPointFourEightSixPercentTax',
+                'taxRate' => 13.486,
+                'areaRules' => [
+                    [
+                        'id' => Uuid::randomHex(),
+                        'taxRate' => 13.486,
+                        'active' => true,
+                        'name' => 'required',
+                        'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+                    ],
+                ],
+            ],
+            'expectedUnitPrice' => 11.3486,
+            'expectedTotalPrice' => 11.3486,
+            'expectedTax' => 1.3486,
+        ];
+    }
+
+    public static function dataProviderTestCalculatePricesNetToNet(): \Generator
+    {
+        yield 'Case with tax rate 19' => [
+            'tax' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'NineteenPercentTax',
+                'taxRate' => 19,
+            ],
+            'expectedUnitPrice' => 10.002,
+            'expectedTotalPrice' => 10.002,
+            'expectedTax' => 1.9003800000000002,
+        ];
+
+        yield 'Case with tax rate 17.1' => [
+            'tax' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'SeventeenPointOnePercentTax',
+                'taxRate' => 17.1,
+                'areaRules' => [
+                    [
+                        'id' => Uuid::randomHex(),
+                        'taxRate' => 17.1,
+                        'active' => true,
+                        'name' => 'required',
+                        'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+                    ],
+                ],
+            ],
+            'expectedUnitPrice' => 10.002,
+            'expectedTotalPrice' => 10.002,
+            'expectedTax' => 1.710342,
+        ];
+
+        yield 'Case with tax rate 9.74' => [
+            'tax' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'NinePointSevenFourPercentTax',
+                'taxRate' => 9.74,
+                'areaRules' => [
+                    [
+                        'id' => Uuid::randomHex(),
+                        'taxRate' => 9.74,
+                        'active' => true,
+                        'name' => 'required',
+                        'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+                    ],
+                ],
+            ],
+            'expectedUnitPrice' => 10.002,
+            'expectedTotalPrice' => 10.002,
+            'expectedTax' => 0.9741948,
+        ];
+
+        yield 'Case with tax rate 13.486' => [
+            'tax' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'ThirteenPointFourEightSixPercentTax',
+                'taxRate' => 13.486,
+                'areaRules' => [
+                    [
+                        'id' => Uuid::randomHex(),
+                        'taxRate' => 13.486,
+                        'active' => true,
+                        'name' => 'required',
+                        'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+                    ],
+                ],
+            ],
+            'expectedUnitPrice' => 10.002,
+            'expectedTotalPrice' => 10.002,
+            'expectedTax' => 1.34886972,
+        ];
+    }
+
+    public static function dataProviderTestCalculatePricesGrossToGross(): \Generator
+    {
+        yield 'Case with tax rate 19' => [
+            'tax' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'NineteenPercentTax',
+                'taxRate' => 19,
+            ],
+            'expectedUnitPrice' => 11.9,
+            'expectedTotalPrice' => 11.9,
+            'expectedTax' => 1.9,
+        ];
+
+        yield 'Case with tax rate 17.1' => [
+            'tax' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'SeventeenPointOnePercentTax',
+                'taxRate' => 17.1,
+                'areaRules' => [
+                    [
+                        'id' => Uuid::randomHex(),
+                        'taxRate' => 17.1,
+                        'active' => true,
+                        'name' => 'required',
+                        'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+                    ],
+                ],
+            ],
+            'expectedUnitPrice' => 11.9,
+            'expectedTotalPrice' => 11.9,
+            'expectedTax' => 1.7377455166524,
+        ];
+
+        yield 'Case with tax rate 9.74' => [
+            'tax' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'NinePointSevenFourPercentTax',
+                'taxRate' => 9.74,
+                'areaRules' => [
+                    [
+                        'id' => Uuid::randomHex(),
+                        'taxRate' => 9.74,
+                        'active' => true,
+                        'name' => 'required',
+                        'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+                    ],
+                ],
+            ],
+            'expectedUnitPrice' => 11.9,
+            'expectedTotalPrice' => 11.9,
+            'expectedTax' => 1.0561873519227,
+        ];
+
+        yield 'Case with tax rate 13.486' => [
+            'tax' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'ThirteenPointFourEightSixPercentTax',
+                'taxRate' => 13.486,
+                'areaRules' => [
+                    [
+                        'id' => Uuid::randomHex(),
+                        'taxRate' => 13.486,
+                        'active' => true,
+                        'name' => 'required',
+                        'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+                    ],
+                ],
+            ],
+            'expectedUnitPrice' => 11.9,
+            'expectedTotalPrice' => 11.9,
+            'expectedTax' => 1.4141250903195,
+        ];
+    }
+
+    public static function dataProviderTestCalculatePricesNetToGrossWithQuantity(): \Generator
+    {
+        yield 'Case with tax rate 19' => [
+            'tax' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'NineteenPercentTax',
+                'taxRate' => 19,
+            ],
+            'expectedUnitPrice' => 11.9,
+            'expectedTotalPrice' => 23.8,
+            'expectedTax' => 3.8,
+        ];
+
+        yield 'Case with tax rate 17.1' => [
+            'tax' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'SeventeenPointOnePercentTax',
+                'taxRate' => 17.1,
+                'areaRules' => [
+                    [
+                        'id' => Uuid::randomHex(),
+                        'taxRate' => 17.1,
+                        'active' => true,
+                        'name' => 'required',
+                        'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+                    ],
+                ],
+            ],
+            'expectedUnitPrice' => 11.71,
+            'expectedTotalPrice' => 23.42,
+            'expectedTax' => 3.42,
+        ];
+
+        yield 'Case with tax rate 9.74' => [
+            'tax' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'NinePointSevenFourPercentTax',
+                'taxRate' => 9.74,
+                'areaRules' => [
+                    [
+                        'id' => Uuid::randomHex(),
+                        'taxRate' => 9.74,
+                        'active' => true,
+                        'name' => 'required',
+                        'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+                    ],
+                ],
+            ],
+            'expectedUnitPrice' => 10.974,
+            'expectedTotalPrice' => 21.948,
+            'expectedTax' => 1.948,
+        ];
+
+        yield 'Case with tax rate 13.486' => [
+            'tax' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'ThirteenPointFourEightSixPercentTax',
+                'taxRate' => 13.486,
+                'areaRules' => [
+                    [
+                        'id' => Uuid::randomHex(),
+                        'taxRate' => 13.486,
+                        'active' => true,
+                        'name' => 'required',
+                        'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+                    ],
+                ],
+            ],
+            'expectedUnitPrice' => 11.3486,
+            'expectedTotalPrice' => 22.6972,
+            'expectedTax' => 2.6972,
+        ];
+    }
+
+    public static function dataProviderTestCalculatePricesGrossToGrossWithQuantity(): \Generator
+    {
+        yield 'Case with tax rate 19' => [
+            'tax' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'NineteenPercentTax',
+                'taxRate' => 19,
+            ],
+            'expectedUnitPrice' => 10,
+            'expectedTotalPrice' => 20,
+            'expectedTax' => 3.19327731092437,
+        ];
+
+        yield 'Case with tax rate 17.1' => [
+            'tax' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'SeventeenPointOnePercentTax',
+                'taxRate' => 17.1,
+                'areaRules' => [
+                    [
+                        'id' => Uuid::randomHex(),
+                        'taxRate' => 17.1,
+                        'active' => true,
+                        'name' => 'required',
+                        'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+                    ],
+                ],
+            ],
+            'expectedUnitPrice' => 10,
+            'expectedTotalPrice' => 20,
+            'expectedTax' => 2.9205807002562,
+        ];
+
+        yield 'Case with tax rate 9.74' => [
+            'tax' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'NinePointSevenFourPercentTax',
+                'taxRate' => 9.74,
+                'areaRules' => [
+                    [
+                        'id' => Uuid::randomHex(),
+                        'taxRate' => 9.74,
+                        'active' => true,
+                        'name' => 'required',
+                        'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+                    ],
+                ],
+            ],
+            'expectedUnitPrice' => 10,
+            'expectedTotalPrice' => 20,
+            'expectedTax' => 1.7751047931474,
+        ];
+
+        yield 'Case with tax rate 13.486' => [
+            'tax' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'ThirteenPointFourEightSixPercentTax',
+                'taxRate' => 13.486,
+                'areaRules' => [
+                    [
+                        'id' => Uuid::randomHex(),
+                        'taxRate' => 13.486,
+                        'active' => true,
+                        'name' => 'required',
+                        'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+                    ],
+                ],
+            ],
+            'expectedUnitPrice' => 10,
+            'expectedTotalPrice' => 20,
+            'expectedTax' => 2.3766808240664,
+        ];
+    }
+
+    public static function dataProviderTestCalculatePricesGrossToNet(): \Generator
+    {
+        yield 'Case with tax rate 19' => [
+            'tax' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'NineteenPercentTax',
+                'taxRate' => 19,
+            ],
+            'expectedUnitPrice' => 11.9,
+            'expectedTotalPrice' => 11.9,
+            'expectedTax' => 2.261,
+        ];
+
+        yield 'Case with tax rate 17.1' => [
+            'tax' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'SeventeenPointOnePercentTax',
+                'taxRate' => 17.1,
+                'areaRules' => [
+                    [
+                        'id' => Uuid::randomHex(),
+                        'taxRate' => 17.1,
+                        'active' => true,
+                        'name' => 'required',
+                        'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+                    ],
+                ],
+            ],
+            'expectedUnitPrice' => 11.9,
+            'expectedTotalPrice' => 11.9,
+            'expectedTax' => 2.0349,
+        ];
+
+        yield 'Case with tax rate 9.74' => [
+            'tax' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'NinePointSevenFourPercentTax',
+                'taxRate' => 9.74,
+                'areaRules' => [
+                    [
+                        'id' => Uuid::randomHex(),
+                        'taxRate' => 9.74,
+                        'active' => true,
+                        'name' => 'required',
+                        'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+                    ],
+                ],
+            ],
+            'expectedUnitPrice' => 11.9,
+            'expectedTotalPrice' => 11.9,
+            'expectedTax' => 1.15906,
+        ];
+
+        yield 'Case with tax rate 13.486' => [
+            'tax' => [
+                'id' => Uuid::randomHex(),
+                'name' => 'ThirteenPointFourEightSixPercentTax',
+                'taxRate' => 13.486,
+                'areaRules' => [
+                    [
+                        'id' => Uuid::randomHex(),
+                        'taxRate' => 13.486,
+                        'active' => true,
+                        'name' => 'required',
+                        'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+                    ],
+                ],
+            ],
+            'expectedUnitPrice' => 11.9,
+            'expectedTotalPrice' => 11.9,
+            'expectedTax' => 1.604834,
+        ];
     }
 
     /**
@@ -1036,17 +1449,5 @@ class PriceActionControllerTest extends TestCase
             new TaxRuleCollection(array_map(fn ($row) => new TaxRule($row['taxRate'], $row['percentage']), $data['taxRules'])),
             $data['quantity']
         );
-    }
-
-    private function getTaxFixture(string $fixtureName): TaxEntity
-    {
-        /** @var TaxEntity $taxEntity */
-        $taxEntity = $this->createFixture(
-            $fixtureName,
-            $this->taxFixtures,
-            self::getFixtureRepository('tax')
-        );
-
-        return $taxEntity;
     }
 }

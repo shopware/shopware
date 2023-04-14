@@ -225,13 +225,20 @@ shopware:
               options:
                   - key: Output.TidyFormat
                     value: true
+            - name: bootstrap
+              tags: ["a", "span"]
+              attributes: ["role", "aria-label", "aria-labelledly", "aria-current", "aria-expanded", "aria-controls", "aria-hidden", "aria-describedby", "tabindex", "aria-modal", "data-bs-toggle", "data-bs-target", "data-bs-dismiss", "data-bs-slide", "data-bs-slide-to", "data-bs-parent", "data-bs-config", "data-bs-content", "data-bs-spy"]
+              custom_attributes:
+                  - tags: ["a", "span"]
+                    attributes: [ "href", "role", "aria-label", "aria-labelledly", "aria-current", "aria-expanded", "aria-controls", "aria-hidden", "aria-describedby", "tabindex", "aria-modal", "data-bs-toggle", "data-bs-target", "data-bs-dismiss", "data-bs-slide", "data-bs-slide-to", "data-bs-parent", "data-bs-config", "data-bs-content", "data-bs-spy" ]
+
         fields:
             - name: product_translation.description
               sets: ["basic", "media"]
             - name: app_cms_block.template
               sets: ["basic", "media", "tidy"]
             - name: snippet.value
-              sets: ["basic", "media"]
+              sets: ["basic", "media", "bootstrap"]
 
     logger:
         file_rotation_count: 14

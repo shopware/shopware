@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Util;
+namespace Shopware\Tests\Integration\Framework\Util;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -146,6 +146,20 @@ class HtmlSanitizerTest extends TestCase
 
         static::assertSame($expectedPermissions, $newPurifier->config->get('Cache.SerializerPermissions'));
         umask($currentUmask);
+    }
+
+    public function testAllowedBootstrapAttributes(): void
+    {
+        $unfilteredString = '<a href=\"%target%\" data-toggle=\"modal\" data-bs-toggle=\"modal\" data-target=\"%target%\" data-bs-target=\"%target%\">Klicken Sie hier</a> um alle Ihre persönlichen Daten zu löschen"';
+
+        $filteredString = $this->sanitizer->sanitize($unfilteredString, null, false, 'snippet.value');
+
+        static::assertSame('<a href="\&quot;%target%\&quot;" data-bs-toggle="\&quot;modal\&quot;" data-bs-target="\&quot;%target%\&quot;">Klicken Sie hier</a> um alle Ihre persönlichen Daten zu löschen"', $filteredString);
+
+        $unfilteredString = '<a href=\"%target%\" data-bs-toggle=\"modal\" data-bs-non-exist="foo">Klicken Sie hier</a> um alle Ihre persönlichen Daten zu löschen"';
+        $filteredString = $this->sanitizer->sanitize($unfilteredString, null, false, 'snippet.value');
+
+        static::assertSame('<a href="\&quot;%target%\&quot;" data-bs-toggle="\&quot;modal\&quot;">Klicken Sie hier</a> um alle Ihre persönlichen Daten zu löschen"', $filteredString);
     }
 
     public function testAllowedImgInSnippetValue(): void

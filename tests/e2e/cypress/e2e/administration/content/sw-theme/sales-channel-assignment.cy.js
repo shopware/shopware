@@ -7,14 +7,13 @@
 describe('Theme: Test sales channel assignment', () => {
     beforeEach(() => {
         cy.createDefaultSalesChannel().then(() => {
-            cy.viewport(1920, 1080);
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/theme/manager/index`);
             cy.get('.sw-skeleton').should('not.exist');
             cy.get('.sw-loader').should('not.exist');
         });
     });
 
-    it('@base @content: basic sales-channel assignment works', { tags: ['pa-sales-channels', 'quarantined'] }, () => {
+    it('@base @content: basic sales-channel assignment works', { tags: ['pa-sales-channels'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/theme/*`,
             method: 'PATCH',
@@ -43,7 +42,7 @@ describe('Theme: Test sales channel assignment', () => {
         cy.contains('.sw-select-selection-list__item-holder', 'Channel No 9').should('exist');
     });
 
-    it('@content: can\'t remove saved sales-channel from default theme', { tags: ['pa-sales-channels', 'quarantined'] }, () => {
+    it('@content: can\'t remove saved sales-channel from default theme', { tags: ['pa-sales-channels'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/theme/*/configuration`,
             method: 'GET',
@@ -118,7 +117,7 @@ describe('Theme: Test sales channel assignment', () => {
         cy.get('.sw-theme-manager-detail__saleschannels-select .sw-select-selection-list__item-holder').should('have.length', 2);
     });
 
-    it('@content: can remove saved sales-channel from non-default theme', { tags: ['pa-sales-channels', 'quarantined'] }, () => {
+    it('@content: can remove saved sales-channel from non-default theme', { tags: ['pa-sales-channels'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/theme/*`,
             method: 'PATCH',
@@ -199,7 +198,7 @@ describe('Theme: Test sales channel assignment', () => {
         cy.contains('.sw-alert__message', 'Shopware default theme (Storefront)').should('be.visible');
     });
 
-    it('@content: shows warning in modal when sales-channel is removed from non-default theme', { tags: ['pa-sales-channels', 'quarantined'] }, () => {
+    it('@content: shows warning in modal when sales-channel is removed from non-default theme', { tags: ['pa-sales-channels'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/theme/*`,
             method: 'PATCH',
@@ -247,7 +246,7 @@ describe('Theme: Test sales channel assignment', () => {
         cy.contains('.sw-alert__message', 'New theme (Channel No 9)').should('be.visible');
     });
 
-    it('@content: removing sales-channel from non-default theme will assign it to default theme', { tags: ['pa-sales-channels', 'quarantined'] }, () => {
+    it('@content: removing sales-channel from non-default theme will assign it to default theme', { tags: ['pa-sales-channels'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/theme/*`,
             method: 'PATCH',
